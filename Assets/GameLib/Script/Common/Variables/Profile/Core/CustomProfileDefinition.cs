@@ -121,19 +121,19 @@ namespace Game.Profile
         bool IProfileValueBinding.BlackboardSaveEnabled => _blackboardSaveEnabled && HasBlackboardKey;
         SaveLayer IProfileValueBinding.BlackboardSaveLayer => _blackboardSaveLayer;
 
-        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
             if (string.IsNullOrEmpty(scopeIdentity))
                 return;
 
             if (_scalarSaveEnabled && HasScalarKey && _kind == ProfileDynamicValueKind.Float)
             {
-                entries.Add(ProfileSaveEntry.ForScalar(_scalarKey.Name, _scalarSaveLayer, scopeIdentity, profileTypeName));
+                entries.Add(BindingSaveEntry.ForScalar(_scalarKey.Name, _scalarSaveLayer, scopeIdentity, profileTypeName));
             }
 
             if (_blackboardSaveEnabled && HasBlackboardKey)
             {
-                entries.Add(ProfileSaveEntry.ForBlackboard(_blackboardKey, _blackboardSaveLayer, scopeIdentity, profileTypeName));
+                entries.Add(BindingSaveEntry.ForBlackboard(_blackboardKey, _blackboardSaveLayer, scopeIdentity, profileTypeName));
             }
         }
 

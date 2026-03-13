@@ -52,6 +52,10 @@ namespace Game.Common.Editor
             if (literalType != null)
                 allowedList.Add(literalType);
 
+            // 1.1 Catalog-based literal (BaseProfileData 派生 / IDynamicManagedRefValue 実装型)
+            if (literalType == null && DynamicManagedRefSourceCatalog.TryGetLiteralSourceType(targetType, out var catalogLiteralType))
+                allowedList.Add(catalogLiteralType);
+
             if (targetType == typeof(AnimationSpritePreset))
                 allowedList.Add(typeof(AssetAnimationSpritePresetSource));
             if (targetType == typeof(StateMachinePreset))
@@ -78,6 +82,9 @@ namespace Game.Common.Editor
             {
                 allowedList.Add(typeof(AssetSpawnPatternRuntimeTemplatePresetSource));
             }
+
+            // 1.4 Catalog-based asset sources (IDynamicValueAsset<T> 実装 SO を自動収集)
+            DynamicManagedRefSourceCatalog.AppendAssetSourceTypes(targetType, allowedList);
 
             // 1.5 Actor world position (Vector2/Vector3 only)
             if (targetType == typeof(Vector2))

@@ -172,9 +172,9 @@ namespace Game.Movement
 
             _defaultSpeedFallback = 4f;
             _defaultMultiplierFallback = 1f;
-            if (_resolver.TryResolve<IProfileRegistry>(out var profileRegistry) && profileRegistry != null)
+            if (_resolver.TryResolve<IScopeBindingRegistry>(out var profileRegistry) && profileRegistry != null)
             {
-                if (profileRegistry.TryResolve<MovementProfileSO>(out var movementProfile) && movementProfile != null)
+                if (profileRegistry.TryResolveDefinition<MovementProfileSO>(out var movementProfile))
                 {
                     _defaultSpeedFallback = movementProfile.DefaultSpeedFallback;
                     _defaultMultiplierFallback = movementProfile.DefaultMultiplierFallback;

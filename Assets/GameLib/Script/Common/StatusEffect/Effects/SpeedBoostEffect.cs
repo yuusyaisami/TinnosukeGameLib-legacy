@@ -55,7 +55,7 @@ namespace Game.StatusEffect
         protected override void OnInitialize()
         {
             // ProfileRegistry から ProfileSO を取得
-            Context.ProfileRegistry?.TryResolve(out _profile);
+            Context.ProfileRegistry?.TryResolveDefinition(out _profile);
         }
 
         protected override void OnApply()

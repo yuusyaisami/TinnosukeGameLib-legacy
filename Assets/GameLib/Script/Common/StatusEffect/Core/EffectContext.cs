@@ -32,7 +32,7 @@ namespace Game.StatusEffect
         public IEntityEventService EventService { get; }
 
         /// <summary>ProfileRegistry への参照</summary>
-        public IProfileRegistry ProfileRegistry { get; }
+        public IScopeBindingRegistry ProfileRegistry { get; }
 
         /// <summary>
         /// Effect 用の BoolLayer（StatusEffect が HealthModifier と連携するためのレイヤー）
@@ -51,7 +51,7 @@ namespace Game.StatusEffect
             IBaseScalarService scalarService,
             IBlackboardService blackboardService,
             IEntityEventService eventService,
-            IProfileRegistry profileRegistry,
+            IScopeBindingRegistry profileRegistry,
             BoolLayer effectFlagLayer,
             Transform transform)
         {

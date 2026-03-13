@@ -112,10 +112,4 @@ namespace Game.Profile
             return result.ToArray();
         }
     }
-
-    [Serializable]
-    public abstract class ProfileData<TProfile> : BaseProfileData where TProfile : BaseProfileSO
-    {
-        public override Type ProfileType => typeof(TProfile);
-    }
 }

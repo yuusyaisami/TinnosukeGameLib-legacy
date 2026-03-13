@@ -1,4 +1,4 @@
-// Game.Profile.ProfileSaveEntry.cs
+// Game.Profile.BindingSaveEntry.cs
 //
 // Profile 主導の Save エントリ定義
 
@@ -23,7 +23,7 @@ namespace Game.Profile
     /// Profile から生成される Save エントリ。
     /// SaveManager に対してどの値を保存対象とするかを指定する。
     /// </summary>
-    public readonly struct ProfileSaveEntry : IEquatable<ProfileSaveEntry>
+    public readonly struct BindingSaveEntry : IEquatable<BindingSaveEntry>
     {
         /// <summary>Save 対象の種類（Scalar/Blackboard）</summary>
         public readonly SaveEntryKind Kind;
@@ -50,20 +50,20 @@ namespace Game.Profile
         /// <summary>
         /// Scalar 用の SaveEntry を作成
         /// </summary>
-        public static ProfileSaveEntry ForScalar(string scalarKeyName, SaveLayer layer, string scopeIdentity, string profileTypeName)
+        public static BindingSaveEntry ForScalar(string scalarKeyName, SaveLayer layer, string scopeIdentity, string profileTypeName)
         {
-            return new ProfileSaveEntry(SaveEntryKind.Scalar, scalarKeyName, 0, layer, scopeIdentity, profileTypeName);
+            return new BindingSaveEntry(SaveEntryKind.Scalar, scalarKeyName, 0, layer, scopeIdentity, profileTypeName);
         }
 
         /// <summary>
         /// Blackboard 用の SaveEntry を作成
         /// </summary>
-        public static ProfileSaveEntry ForBlackboard(int bbVarId, SaveLayer layer, string scopeIdentity, string profileTypeName)
+        public static BindingSaveEntry ForBlackboard(int bbVarId, SaveLayer layer, string scopeIdentity, string profileTypeName)
         {
-            return new ProfileSaveEntry(SaveEntryKind.Blackboard, null, bbVarId, layer, scopeIdentity, profileTypeName);
+            return new BindingSaveEntry(SaveEntryKind.Blackboard, null, bbVarId, layer, scopeIdentity, profileTypeName);
         }
 
-        ProfileSaveEntry(SaveEntryKind kind, string scalarKeyName, int bbVarId, SaveLayer layer, string scopeIdentity, string profileTypeName)
+        BindingSaveEntry(SaveEntryKind kind, string scalarKeyName, int bbVarId, SaveLayer layer, string scopeIdentity, string profileTypeName)
         {
             Kind = kind;
             ScalarKeyName = scalarKeyName;
@@ -93,7 +93,7 @@ namespace Game.Profile
         // Equality
         // ================================================================
 
-        public bool Equals(ProfileSaveEntry other)
+        public bool Equals(BindingSaveEntry other)
         {
             return Kind == other.Kind
                 && ScalarKeyName == other.ScalarKeyName
@@ -102,15 +102,15 @@ namespace Game.Profile
                 && ScopeIdentity == other.ScopeIdentity;
         }
 
-        public override bool Equals(object obj) => obj is ProfileSaveEntry other && Equals(other);
+        public override bool Equals(object obj) => obj is BindingSaveEntry other && Equals(other);
 
         public override int GetHashCode()
         {
             return HashCode.Combine(Kind, ScalarKeyName, BlackboardVarId, SaveLayer, ScopeIdentity);
         }
 
-        public static bool operator ==(ProfileSaveEntry left, ProfileSaveEntry right) => left.Equals(right);
-        public static bool operator !=(ProfileSaveEntry left, ProfileSaveEntry right) => !left.Equals(right);
+        public static bool operator ==(BindingSaveEntry left, BindingSaveEntry right) => left.Equals(right);
+        public static bool operator !=(BindingSaveEntry left, BindingSaveEntry right) => !left.Equals(right);
 
         public override string ToString()
         {

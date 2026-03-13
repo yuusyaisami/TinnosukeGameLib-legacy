@@ -11,7 +11,7 @@ namespace Game.Save
     public readonly struct SaveScopeRegistration
     {
         public readonly ScopeKey ScopeKey;
-        public readonly Game.Profile.ProfileRegistryService? Profiles;
+        public readonly Game.Profile.ScopeBindingRegistryService? Profiles;
         public readonly Game.Common.IBlackboardService? Blackboard;
         public readonly Game.Scalar.IBaseScalarService? Scalars;
         public readonly ISavePlanSource PlanSource;
@@ -19,7 +19,7 @@ namespace Game.Save
         public SaveScopeRegistration(
             ScopeKey scopeKey,
             ISavePlanSource planSource,
-            Game.Profile.ProfileRegistryService? profiles,
+            Game.Profile.ScopeBindingRegistryService? profiles,
             Game.Common.IBlackboardService? blackboard,
             Game.Scalar.IBaseScalarService? scalars)
         {

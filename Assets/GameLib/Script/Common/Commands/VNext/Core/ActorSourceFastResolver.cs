@@ -59,16 +59,14 @@ namespace Game.Commands.VNext
             {
                 case ActorSourceKind.Current:
                     return origin;
-                case ActorSourceKind.Parent:
-                    return origin.Parent;
-                case ActorSourceKind.Root:
-                    return FindRoot(origin);
                 case ActorSourceKind.GameLogicRoot:
                     return ResolveGameLogicRoot(origin);
                 case ActorSourceKind.Player:
                     return ResolvePlayerScope(origin);
                 case ActorSourceKind.CommandRootActor:
                     return commandRootScope;
+                case ActorSourceKind.Global:
+                    return ResolveNearestGlobalScope(origin);
                 case ActorSourceKind.ByIdentity:
                     return ResolveByIdentity(origin, source.Identity);
                 case ActorSourceKind.FromUnityObject:
@@ -210,6 +208,66 @@ namespace Game.Commands.VNext
             }
 
             return null;
+        }
+
+        static IScopeNode? ResolveNearestGlobalScope(IScopeNode origin)
+        {
+            var nearest = ScopeNodeHierarchy.FindNearestAncestorByKind(
+                origin,
+                LifetimeScopeKind.Global,
+                includeSelf: true);
+            if (nearest != null)
+                return nearest;
+
+            if (TryResolveScopeRegistry(origin, out var registry) && registry != null)
+            {
+                var all = registry.ResolveAll(
+                    new CommandTargetIdentityFilter
+                    {
+                        kind = LifetimeScopeKind.Global,
+                        searchScope = CommandTargetSearchScope.All,
+                    },
+                    origin);
+
+                IScopeNode? fallback = null;
+                for (int i = 0; i < all.Count; i++)
+                {
+                    var candidate = all[i];
+                    if (candidate == null || candidate.Kind != LifetimeScopeKind.Global)
+                        continue;
+
+                    fallback ??= candidate;
+
+                    var identity = candidate.Identity;
+                    if (identity == null || identity.IsActive)
+                        return candidate;
+                }
+
+                if (fallback != null)
+                    return fallback;
+            }
+
+            var globals = UnityEngine.Object.FindObjectsByType<GlobalLifetimeScope>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            if (globals == null || globals.Length == 0)
+                return null;
+
+            IScopeNode? inactiveFallback = null;
+            for (int i = 0; i < globals.Length; i++)
+            {
+                var candidate = globals[i];
+                if (candidate == null)
+                    continue;
+
+                inactiveFallback ??= candidate;
+
+                var identity = candidate.Identity;
+                if (identity == null || identity.IsActive)
+                    return candidate;
+            }
+
+            return inactiveFallback;
         }
 
         static bool MatchesIdentity(IScopeNode scope, in CommandTargetIdentityFilter filter)

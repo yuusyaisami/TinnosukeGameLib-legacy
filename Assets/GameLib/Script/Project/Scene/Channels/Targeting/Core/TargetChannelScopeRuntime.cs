@@ -186,21 +186,13 @@ namespace Game.Targeting
                 case VNext.ActorSourceKind.Current:
                     scope = _owner.OwnerScope;
                     return scope != null;
-                case VNext.ActorSourceKind.Parent:
-                    scope = _owner.OwnerScope?.Parent;
-                    return scope != null;
-                case VNext.ActorSourceKind.Root:
-                    {
-                        var path = _owner.OwnerScope?.GetPathFromRoot();
-                        if (path == null || path.Count == 0)
-                            return false;
-                        scope = path[0];
-                        return scope != null;
-                    }
                 case VNext.ActorSourceKind.GameLogicRoot:
                     scope = ScopeNodeHierarchy.FindNearestGameLogicRoot(_owner.OwnerScope, includeSelf: true);
                     return scope != null;
                 case VNext.ActorSourceKind.Player:
+                    scope = VNext.ActorSourceFastResolver.Resolve(_owner.OwnerScope, source);
+                    return scope != null;
+                case VNext.ActorSourceKind.Global:
                     scope = VNext.ActorSourceFastResolver.Resolve(_owner.OwnerScope, source);
                     return scope != null;
                 case VNext.ActorSourceKind.FromUnityObject:

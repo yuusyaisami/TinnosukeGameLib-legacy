@@ -34,7 +34,7 @@ namespace Game.Save
         /// - IBlackboardService から該当する値を取得
         /// - BlackboardSave 形式で返す
         /// </summary>
-        // BlackboardSave CollectFromBlackboard(IBlackboardService bb, IEnumerable<ProfileSaveEntry> saveEntries, SaveLayer layer);
+        // BlackboardSave CollectFromBlackboard(IBlackboardService bb, IEnumerable<BindingSaveEntry> saveEntries, SaveLayer layer);
 
         /// <summary>
         /// SaveEntry 集合と MissingPolicy に基づいて、
@@ -46,7 +46,7 @@ namespace Game.Save
         ///   * KeepCurrent: 何もしない
         ///   * Clear: Unset でクリア
         /// </summary>
-        // void ApplyToBlackboard(IBlackboardService bb, BlackboardSave saveData, IEnumerable<ProfileSaveEntry> saveEntries, MissingPolicy missingPolicy);
+        // void ApplyToBlackboard(IBlackboardService bb, BlackboardSave saveData, IEnumerable<BindingSaveEntry> saveEntries, MissingPolicy missingPolicy);
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ namespace Game.Save
     {
         // TODO v2.0 実装予定（以下コメントのみ）
 
-        // public BlackboardSave CollectFromBlackboard(IBlackboardService bb, IEnumerable<ProfileSaveEntry> saveEntries, SaveLayer layer)
+        // public BlackboardSave CollectFromBlackboard(IBlackboardService bb, IEnumerable<BindingSaveEntry> saveEntries, SaveLayer layer)
         // {
         //     // SaveEntry.SaveLayer == layer && SaveEntry.Kind == Blackboard でフィルタ
         //     // 各 VarId に対応する値を bb.GetValue() で取得
@@ -69,7 +69,7 @@ namespace Game.Save
         //     throw new NotImplementedException("v2.0実装予定");
         // }
 
-        // public void ApplyToBlackboard(IBlackboardService bb, BlackboardSave saveData, IEnumerable<ProfileSaveEntry> saveEntries, MissingPolicy missingPolicy)
+        // public void ApplyToBlackboard(IBlackboardService bb, BlackboardSave saveData, IEnumerable<BindingSaveEntry> saveEntries, MissingPolicy missingPolicy)
         // {
         //     // saveData の各レコードを bb.SetValue() で書き込み
         //     // 

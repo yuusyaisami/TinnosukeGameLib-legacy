@@ -32,7 +32,7 @@ namespace Game.Health
         readonly IBaseScalarService _scalarService;
         readonly IBlackboardService _blackboardService;
         readonly IEntityEventService _eventService;
-        readonly IProfileRegistry _profileRegistry;
+        readonly IScopeBindingRegistry _profileRegistry;
         readonly VNext.ICommandRunner _commandRunner;
         readonly Transform _transform;
 
@@ -86,7 +86,7 @@ namespace Game.Health
             IBaseScalarService scalarService,
             IBlackboardService blackboardService,
             IEntityEventService eventService,
-            IProfileRegistry profileRegistry,
+            IScopeBindingRegistry profileRegistry,
             VNext.ICommandRunner commandRunner,
             Transform transform)
         {
@@ -121,7 +121,7 @@ namespace Game.Health
             {
                 _initialMaxHP = profile.MaxHPFallback;
 
-                // Profile の ScalarKey 登録は ProfileRegistryService が行う
+                // Profile の ScalarKey 登録は ScopeBindingRegistryService が行う
                 // ここでは CurrentHP の初期化のみ
                 float initialHP = profile.InitialHPMode switch
                 {

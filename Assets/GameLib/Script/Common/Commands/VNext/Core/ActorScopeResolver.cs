@@ -32,11 +32,10 @@ namespace Game.Commands.VNext
             return source.Kind switch
             {
                 ActorSourceKind.Current => (null, "Current scope is not available."),
-                ActorSourceKind.Parent => (null, "Parent scope is null."),
-                ActorSourceKind.Root => (null, "Root scope is not available."),
                 ActorSourceKind.GameLogicRoot => (null, "GameLogicRoot scope was not found."),
                 ActorSourceKind.Player => (null, "Player scope was not found."),
                 ActorSourceKind.CommandRootActor => (null, "Command root actor scope was not found."),
+                ActorSourceKind.Global => (null, "Global scope was not found."),
                 ActorSourceKind.FromUnityObject => (null, "UnityObject does not resolve to a scope."),
                 _ => (null, "Unknown actor source."),
             };

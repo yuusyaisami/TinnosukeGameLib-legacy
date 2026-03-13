@@ -319,18 +319,11 @@ namespace Game.Commands
             {
                 case VNext.ActorSourceKind.Current:
                     return _scope;
-                case VNext.ActorSourceKind.Parent:
-                    return _scope?.Parent;
-                case VNext.ActorSourceKind.Root:
-                    {
-                        var path = _scope?.GetPathFromRoot();
-                        if (path == null || path.Count == 0)
-                            return null;
-                        return path[0];
-                    }
                 case VNext.ActorSourceKind.GameLogicRoot:
                     return ScopeNodeHierarchy.FindNearestGameLogicRoot(_scope, includeSelf: true);
                 case VNext.ActorSourceKind.Player:
+                    return VNext.ActorSourceFastResolver.Resolve(_scope, source);
+                case VNext.ActorSourceKind.Global:
                     return VNext.ActorSourceFastResolver.Resolve(_scope, source);
                 case VNext.ActorSourceKind.ByIdentity:
                     {
