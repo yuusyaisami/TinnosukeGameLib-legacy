@@ -9,13 +9,12 @@ namespace Game.Commands.VNext
     public enum ActorSourceKind
     {
         Current = 0,
-        Parent = 1,
-        Root = 2,
         ByIdentity = 3,
         FromUnityObject = 4,
         GameLogicRoot = 5,
         Player = 6,
         CommandRootActor = 7,
+        Global = 8,
     }
 
     [Serializable]

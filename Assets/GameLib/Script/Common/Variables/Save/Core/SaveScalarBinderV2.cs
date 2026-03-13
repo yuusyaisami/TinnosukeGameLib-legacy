@@ -35,7 +35,7 @@ namespace Game.Save
         /// - IBaseScalarService から該当する値を取得
         /// - ScalarSave 形式で返す
         /// </summary>
-        // ScalarSave CollectFromScalar(IBaseScalarService scalar, IEnumerable<ProfileSaveEntry> saveEntries, SaveLayer layer);
+        // ScalarSave CollectFromScalar(IBaseScalarService scalar, IEnumerable<BindingSaveEntry> saveEntries, SaveLayer layer);
 
         /// <summary>
         /// SaveEntry 集合と MissingPolicy に基づいて、
@@ -47,7 +47,7 @@ namespace Game.Save
         ///   * KeepCurrent: 何もしない（ProfileRegistry初期値が残る）
         ///   * Clear: 0 またはデフォルト値でクリア
         /// </summary>
-        // void ApplyToScalar(IBaseScalarService scalar, ScalarSave saveData, IEnumerable<ProfileSaveEntry> saveEntries, MissingPolicy missingPolicy);
+        // void ApplyToScalar(IBaseScalarService scalar, ScalarSave saveData, IEnumerable<BindingSaveEntry> saveEntries, MissingPolicy missingPolicy);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ namespace Game.Save
     {
         // TODO v2.0 実装予定（以下コメントのみ）
 
-        // public ScalarSave CollectFromScalar(IBaseScalarService scalar, IEnumerable<ProfileSaveEntry> saveEntries, SaveLayer layer)
+        // public ScalarSave CollectFromScalar(IBaseScalarService scalar, IEnumerable<BindingSaveEntry> saveEntries, SaveLayer layer)
         // {
         //     // SaveEntry.SaveLayer == layer && SaveEntry.Kind == Scalar でフィルタ
         //     // 各 ScalarKeyId に対応する値を scalar.GetValue() で取得
@@ -73,7 +73,7 @@ namespace Game.Save
         //     throw new NotImplementedException("v2.0実装予定");
         // }
 
-        // public void ApplyToScalar(IBaseScalarService scalar, ScalarSave saveData, IEnumerable<ProfileSaveEntry> saveEntries, MissingPolicy missingPolicy)
+        // public void ApplyToScalar(IBaseScalarService scalar, ScalarSave saveData, IEnumerable<BindingSaveEntry> saveEntries, MissingPolicy missingPolicy)
         // {
         //     // saveData の各キーを scalar.SetValue() で書き込み
         //     // 

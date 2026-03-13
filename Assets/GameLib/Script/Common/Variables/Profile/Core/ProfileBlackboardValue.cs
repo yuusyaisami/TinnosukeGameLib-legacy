@@ -54,12 +54,12 @@ namespace Game.Profile
         bool IProfileValueBinding.BlackboardSaveEnabled => BlackboardSaveEnabledValue && HasBlackboardKey;
         SaveLayer IProfileValueBinding.BlackboardSaveLayer => BlackboardSaveLayerValue;
 
-        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
             if (string.IsNullOrEmpty(scopeIdentity) || !BlackboardSaveEnabledValue || !HasBlackboardKey)
                 return;
 
-            entries.Add(ProfileSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
+            entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
         void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
@@ -135,12 +135,12 @@ namespace Game.Profile
         bool IProfileValueBinding.BlackboardSaveEnabled => BlackboardSaveEnabledValue && HasBlackboardKey;
         SaveLayer IProfileValueBinding.BlackboardSaveLayer => BlackboardSaveLayerValue;
 
-        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
             if (string.IsNullOrEmpty(scopeIdentity) || !BlackboardSaveEnabledValue || !HasBlackboardKey)
                 return;
 
-            entries.Add(ProfileSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
+            entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
         void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
@@ -212,12 +212,12 @@ namespace Game.Profile
         bool IProfileValueBinding.BlackboardSaveEnabled => BlackboardSaveEnabledValue && HasBlackboardKey;
         SaveLayer IProfileValueBinding.BlackboardSaveLayer => BlackboardSaveLayerValue;
 
-        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
             if (string.IsNullOrEmpty(scopeIdentity) || !BlackboardSaveEnabledValue || !HasBlackboardKey)
                 return;
 
-            entries.Add(ProfileSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
+            entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
         void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
@@ -289,12 +289,12 @@ namespace Game.Profile
         bool IProfileValueBinding.BlackboardSaveEnabled => BlackboardSaveEnabledValue && HasBlackboardKey;
         SaveLayer IProfileValueBinding.BlackboardSaveLayer => BlackboardSaveLayerValue;
 
-        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
             if (string.IsNullOrEmpty(scopeIdentity) || !BlackboardSaveEnabledValue || !HasBlackboardKey)
                 return;
 
-            entries.Add(ProfileSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
+            entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
         void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
@@ -366,12 +366,12 @@ namespace Game.Profile
         bool IProfileValueBinding.BlackboardSaveEnabled => BlackboardSaveEnabledValue && HasBlackboardKey;
         SaveLayer IProfileValueBinding.BlackboardSaveLayer => BlackboardSaveLayerValue;
 
-        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
             if (string.IsNullOrEmpty(scopeIdentity) || !BlackboardSaveEnabledValue || !HasBlackboardKey)
                 return;
 
-            entries.Add(ProfileSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
+            entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
         void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
@@ -443,12 +443,12 @@ namespace Game.Profile
         bool IProfileValueBinding.BlackboardSaveEnabled => BlackboardSaveEnabledValue && HasBlackboardKey;
         SaveLayer IProfileValueBinding.BlackboardSaveLayer => BlackboardSaveLayerValue;
 
-        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
             if (string.IsNullOrEmpty(scopeIdentity) || !BlackboardSaveEnabledValue || !HasBlackboardKey)
                 return;
 
-            entries.Add(ProfileSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
+            entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
         void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)

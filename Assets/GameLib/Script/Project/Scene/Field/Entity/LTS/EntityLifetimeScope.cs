@@ -39,7 +39,7 @@ namespace Game.Entity
     [RequireComponent(typeof(Common.EventMB))]
     [RequireComponent(typeof(ActionBlockMB))]
     [RequireComponent(typeof(FootTransformMB))]
-    [RequireComponent(typeof(ProfileRegistryMB))]
+    [RequireComponent(typeof(ScopeBindingRegistryMB))]
     public sealed class EntityLifetimeScope : BaseLifetimeScope
     {
         // Entity は親(Field or Scene)の下でビルドされるのでルートではない

@@ -61,7 +61,7 @@ namespace Game.Health
 
         IHealthService _healthService;
         IBaseScalarService _fallbackScalarService;
-        IProfileRegistry _fallbackProfileRegistry;
+        IScopeBindingRegistry _fallbackProfileRegistry;
         bool _disposed;
         bool _loggedMissingHealthService;
         bool _initialModifiersRegistered;
@@ -138,7 +138,7 @@ namespace Game.Health
                 {
                     _loggedMissingHealthService = true;
                     Debug.LogWarning($"[HealthMB] IHealthService is not available in runtime scope '{runtimeScope.gameObject.name}'. " +
-                                     "Check BaseScalarMB/ProfileRegistryMB registration or HealthService dependency failures.");
+                                     "Check BaseScalarMB/ScopeBindingRegistryMB registration or HealthService dependency failures.");
                 }
                 return false;
             }
@@ -214,24 +214,24 @@ namespace Game.Health
             return new BlackboardService(scope);
         }
 
-        IProfileRegistry ResolveProfileRegistry(
+        IScopeBindingRegistry ResolveProfileRegistry(
             IScopeNode scope,
             IObjectResolver resolver,
             IBlackboardService blackboardService,
             IBaseScalarService scalarService)
         {
             var preset = ResolvePreset(scope);
-            if (TryResolveOwnedService(scope, resolver, out IProfileRegistry profileRegistry))
+            if (TryResolveOwnedService(scope, resolver, out IScopeBindingRegistry profileRegistry))
             {
                 if (preset != null)
                     profileRegistry.SetProfileDefinition(preset);
                 return profileRegistry;
             }
 
-            if (_fallbackProfileRegistry is not ProfileRegistryService fallback)
+            if (_fallbackProfileRegistry is not ScopeBindingRegistryService fallback)
             {
                 var scopeIdentity = scope.Identity?.Id ?? string.Empty;
-                fallback = new ProfileRegistryService(blackboardService, scalarService, scopeIdentity, scope);
+                fallback = new ScopeBindingRegistryService(blackboardService, scalarService, scopeIdentity, scope);
                 _fallbackProfileRegistry = fallback;
             }
 

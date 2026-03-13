@@ -35,7 +35,7 @@ namespace Game.Profile
         /// リフレクションでフィールドをスキャンし、IProfileValueBinding を実装した
         /// フィールドの値を返す。
         /// </summary>
-        public IEnumerable<IProfileValueBinding> EnumerateBindings()
+        public virtual IEnumerable<IProfileValueBinding> EnumerateBindings()
         {
             var fields = GetBindingFields();
             for (int i = 0; i < fields.Length; i++)
@@ -51,7 +51,7 @@ namespace Game.Profile
         /// <summary>
         /// バインディングをリストに収集する（アロケーション制御用）。
         /// </summary>
-        public void CollectBindings(List<IProfileValueBinding> output)
+        public virtual void CollectBindings(List<IProfileValueBinding> output)
         {
             if (output == null)
                 throw new ArgumentNullException(nameof(output));
@@ -70,7 +70,7 @@ namespace Game.Profile
         /// <summary>
         /// バインディングの数を取得（アロケーションなし）。
         /// </summary>
-        public int GetBindingCount()
+        public virtual int GetBindingCount()
         {
             var fields = GetBindingFields();
             int count = 0;

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using Game.Profile;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace Game.Health
     }
 
     [CreateAssetMenu(menuName = "Game/Health/HealthProfile", fileName = "HealthProfile")]
-    public sealed class HealthProfileSO : ScriptableObject, IProfileDefinition
+    public sealed class HealthProfileSO : ScriptableObject, IProfileDefinition, IDynamicValueAsset<HealthPreset>
     {
         [SerializeReference, InlineProperty, HideLabel]
         HealthPreset? preset = new();

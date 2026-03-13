@@ -1,9 +1,10 @@
-// Game.Profile.ProfileRegistryMB.cs
+// Game.Profile.ScopeBindingRegistryMB.cs
 //
-// ProfileRegistryService の DI 登録と、Inspector からの初期 Profile 設定を行う。
-// Pool(RuntimeLifetimeScope) での再利用ロジックは ProfileRegistryInstallService が担当する。
+// ScopeBindingRegistryService の DI 登録と、Inspector からの初期 Profile 設定を行う。
+// Pool(RuntimeLifetimeScope) での再利用ロジックは ScopeBindingRegistryInstallService が担当する。
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 using Game;
@@ -13,11 +14,11 @@ using Game.Save;
 namespace Game.Profile
 {
     [DisallowMultipleComponent]
-    public sealed class ProfileRegistryMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ScopeBindingRegistryMB : MonoBehaviour, IFeatureInstaller
     {
         [Header("Profiles")]
         [Tooltip("外部 Profile が未指定の場合に登録する Profile")]
-        [SerializeField] BaseProfileSO[] _profilesFromInspector = Array.Empty<BaseProfileSO>();
+        [SerializeField] ScriptableObject[] _profilesFromInspector = Array.Empty<ScriptableObject>();
         [SerializeReference]
         [Tooltip("Inline Profile 定義（SerializeReference）。外部 Profile が未指定の場合に登録する。")]
         [SerializeField] IProfileDefinition[] _profileDefinitionsFromInspector = Array.Empty<IProfileDefinition>();
@@ -37,7 +38,7 @@ namespace Game.Profile
         {
             var isRuntime = scope.Kind == LifetimeScopeKind.Runtime;
 
-            builder.Register<ProfileRegistryService>(resolver =>
+            builder.Register<ScopeBindingRegistryService>(resolver =>
             {
                 var blackboard = resolver.TryResolve<IBlackboardService>(out var b) ? b : null;
                 var scalar = resolver.TryResolve<Game.Scalar.IBaseScalarService>(out var s) ? s : null;
@@ -65,36 +66,44 @@ namespace Game.Profile
                         {
                             scopeIdentity = id.Id ?? string.Empty;
                             if (!string.IsNullOrEmpty(scopeIdentity))
-                                Debug.Log($"[ProfileRegistryMB] Using parent scope identity '{scopeIdentity}' from scope kind={cur.Kind} for ProfileRegistry (current scope had none).");
+                                Debug.Log($"[ScopeBindingRegistryMB] Using parent scope identity '{scopeIdentity}' from scope kind={cur.Kind} for ProfileRegistry (current scope had none).");
                             break;
                         }
                     }
                 }
 
-                return new ProfileRegistryService(blackboard, scalar, scopeIdentity, scope);
+                return new ScopeBindingRegistryService(blackboard, scalar, scopeIdentity, scope);
             }, Lifetime.Singleton)
-                .As<IProfileRegistry>()
-                .As<ProfileRegistryService>();
+                .As<IScopeBindingRegistry>()
+                .As<ScopeBindingRegistryService>();
 
-            var options = new ProfileRegistryInstallService.Options(
-                inspectorProfiles: _profilesFromInspector,
-                inspectorProfileDefinitions: _profileDefinitionsFromInspector,
+            // Convert SO array to IProfileDefinition and merge with inline definitions
+            var allProfiles = new List<IProfileDefinition>();
+            foreach (var so in _profilesFromInspector)
+            {
+                if (so is IProfileDefinition def)
+                    allProfiles.Add(def);
+            }
+            allProfiles.AddRange(_profileDefinitionsFromInspector);
+
+            var options = new ScopeBindingRegistryInstallService.Options(
+                inspectorProfiles: allProfiles.ToArray(),
                 resetOnAcquire: _resetOnAcquire,
                 clearOnRelease: _clearOnRelease
             );
 
             builder.RegisterInstance(options);
 
-            builder.Register<ProfileRegistryInstallService>(Lifetime.Singleton)
+            builder.Register<ScopeBindingRegistryInstallService>(Lifetime.Singleton)
                 .WithParameter(scope)
-                .As<IProfileRegistryConfigurator>()
+                .As<IScopeBindingRegistryConfigurator>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .AsSelf();
 
             builder.Register<SaveScopeRegistrationService>(resolver =>
             {
-                var profiles = resolver.TryResolve<ProfileRegistryService>(out var p) ? p : null;
+                var profiles = resolver.TryResolve<ScopeBindingRegistryService>(out var p) ? p : null;
                 var blackboard = resolver.TryResolve<IBlackboardService>(out var b) ? b : null;
                 var scalar = resolver.TryResolve<Game.Scalar.IBaseScalarService>(out var s) ? s : null;
                 return new SaveScopeRegistrationService(profiles, blackboard, scalar, scope);
@@ -104,7 +113,7 @@ namespace Game.Profile
 
             builder.RegisterBuildCallback(container =>
             {
-                var installer = container.Resolve<ProfileRegistryInstallService>();
+                var installer = container.Resolve<ScopeBindingRegistryInstallService>();
                 installer.InstallInitialIfNeeded();
             });
         }

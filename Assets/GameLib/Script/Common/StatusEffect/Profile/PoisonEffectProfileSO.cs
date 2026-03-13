@@ -1,141 +1,70 @@
-// Game.StatusEffect.PoisonEffectProfileSO.cs
-//
-// 毒エフェクト用のパラメータを定義する ProfileSO
+// Game.StatusEffect.PoisonEffectProfileSO
+// 毒エフェクト用 薄い asset wrapper。実データは PoisonEffectPreset に保持。
 
+using System;
+using System.Collections.Generic;
+using Game.Common;
 using Game.Profile;
 using Game.Scalar;
 using Game.Scalar.Generated;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.StatusEffect
 {
-    /// <summary>
-    /// 毒エフェクト用のパラメータを定義する ProfileSO。
-    /// StatusEffect/Effects/PoisonEffect と連携する。
-    /// </summary>
     [CreateAssetMenu(menuName = "Game/StatusEffect/PoisonEffectProfile", fileName = "PoisonEffectProfile")]
-    public sealed class PoisonEffectProfileSO : BaseProfileSO
+    public sealed class PoisonEffectProfileSO : ScriptableObject, IProfileDefinition, IDynamicValueAsset<PoisonEffectPreset>
     {
-        // ================================================================
-        // 基本パラメータ
-        // ================================================================
+        [SerializeReference, InlineProperty, HideLabel]
+        PoisonEffectPreset _preset;
 
-        [BoxGroup("Base")]
-        [LabelText("Default Duration")]
-        [Tooltip("毒エフェクトのデフォルト持続時間（秒）")]
-        [SerializeField]
-        ProfileFloatValue _defaultDuration = new()
+        // Legacy fields — kept for migration
+        [HideInInspector, SerializeField] ProfileFloatValue _defaultDuration = new() { Value = 5f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.Poison.DefaultDuration), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 0f } };
+        [HideInInspector, SerializeField] ProfileFloatValue _defaultIntensity = new() { Value = 1f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.Poison.DefaultIntensity), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 0f } };
+        [HideInInspector, SerializeField] ProfileFloatValue _damagePerSecond = new() { Value = 5f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.Health.Modifier.Poison.DamagePerSecond), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseEffectMod = true, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 0f } };
+        [HideInInspector, SerializeField] ProfileFloatValue _tickInterval = new() { Value = 0.5f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.Health.Modifier.Poison.TickInterval), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 0.1f } };
+        [HideInInspector, SerializeField, FormerlySerializedAs("_visualData")] EffectVisualData _visualData_legacy = new() { IconAnimation = null, DisplayName = "毒", Description = "時間経過でダメージを受ける" };
+
+        public PoisonEffectPreset Preset
         {
-            Value = 5f,
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.Poison.DefaultDuration),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f }
-        };
+            get { EnsurePresetMigrated(); return _preset; }
+        }
 
-        [BoxGroup("Base")]
-        [LabelText("Default Intensity")]
-        [Tooltip("毒エフェクトのデフォルト強度")]
-        [SerializeField]
-        ProfileFloatValue _defaultIntensity = new()
-        {
-            Value = 1f,
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.Poison.DefaultIntensity),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f }
-        };
+        public float DefaultDuration => Preset?.DefaultDuration ?? 5f;
+        public float DefaultIntensity => Preset?.DefaultIntensity ?? 1f;
+        public float DamagePerSecond => Preset?.DamagePerSecond ?? 5f;
+        public float TickInterval => Preset?.TickInterval ?? 0.5f;
+        public EffectVisualData VisualData => Preset?.VisualData;
 
-        // ================================================================
-        // ダメージパラメータ
-        // ================================================================
-
-        [BoxGroup("Damage")]
-        [LabelText("Damage Per Second")]
-        [Tooltip("毒状態の秒間ダメージ（Intensity で乗算される）")]
-        [SerializeField]
-        ProfileFloatValue _damagePerSecond = new()
-        {
-            Value = 5f,
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.Health.Modifier.Poison.DamagePerSecond),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseEffectMod = true,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f }
-        };
-
-        [BoxGroup("Damage")]
-        [LabelText("Tick Interval")]
-        [Tooltip("毒ダメージの適用間隔（秒）")]
-        [SerializeField]
-        ProfileFloatValue _tickInterval = new()
-        {
-            Value = 0.5f,
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.Health.Modifier.Poison.TickInterval),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0.1f }
-        };
-
-        // ================================================================
-        // ビジュアル
-        // ================================================================
-
-        [BoxGroup("Visual")]
-        [LabelText("Visual Data")]
-        [Tooltip("毒エフェクトの表示データ")]
-        [SerializeField]
-        EffectVisualData _visualData = new()
-        {
-            IconAnimation = null,
-            DisplayName = "毒",
-            Description = "時間経過でダメージを受ける"
-        };
-
-        // ================================================================
-        // プロパティ
-        // ================================================================
-
-        /// <summary>デフォルト持続時間</summary>
-        public float DefaultDuration => _defaultDuration.Value;
-
-        /// <summary>デフォルト強度</summary>
-        public float DefaultIntensity => _defaultIntensity.Value;
-
-        /// <summary>秒間ダメージ</summary>
-        public float DamagePerSecond => _damagePerSecond.Value;
-
-        /// <summary>ダメージ間隔</summary>
-        public float TickInterval => _tickInterval.Value;
-
-        /// <summary>ビジュアルデータ</summary>
-        public EffectVisualData VisualData => _visualData;
-
-        // ================================================================
-        // メソッド
-        // ================================================================
-
-        /// <summary>
-        /// 現在の設定で EffectConfig を生成する。
-        /// </summary>
-        /// <param name="source">エフェクトの発生源</param>
-        /// <param name="overrideDuration">持続時間の上書き（null で ProfileSO のデフォルト値を使用）</param>
-        /// <param name="overrideIntensity">強度の上書き（null で ProfileSO のデフォルト値を使用）</param>
-        /// <returns>生成された EffectConfig</returns>
         public EffectConfig CreateConfig(
-            object source = null,
-            float? overrideDuration = null,
-            float? overrideIntensity = null)
+            object source = null, float? overrideDuration = null, float? overrideIntensity = null)
+            => Preset?.CreateConfig(source, overrideDuration, overrideIntensity)
+                ?? new EffectConfig { Duration = overrideDuration ?? 5f, Intensity = overrideIntensity ?? 1f, StackMode = EffectStackMode.Refresh, Source = source, Tag = "Poison" };
+
+        public Type ProfileType => typeof(PoisonEffectProfileSO);
+
+        public IEnumerable<IProfileValueBinding> EnumerateBindings()
         {
-            return new EffectConfig
-            {
-                Duration = overrideDuration ?? DefaultDuration,
-                Intensity = overrideIntensity ?? DefaultIntensity,
-                StackMode = EffectStackMode.Refresh, // 毒は Refresh
-                Source = source,
-                Tag = "Poison"
-            };
+            var p = Preset;
+            if (p == null) yield break;
+            foreach (var b in p.EnumerateBindings())
+                yield return b;
+        }
+
+        public void CollectBindings(List<IProfileValueBinding> output) => Preset?.CollectBindings(output);
+        public int GetBindingCount() => Preset?.GetBindingCount() ?? 0;
+
+        void OnEnable() => EnsurePresetMigrated();
+        void OnValidate() => EnsurePresetMigrated();
+
+        void EnsurePresetMigrated()
+        {
+            if (_preset != null) return;
+            _preset = PoisonEffectPreset.CreateFromLegacyFields(
+                _defaultDuration, _defaultIntensity,
+                _damagePerSecond, _tickInterval,
+                _visualData_legacy);
         }
     }
 }

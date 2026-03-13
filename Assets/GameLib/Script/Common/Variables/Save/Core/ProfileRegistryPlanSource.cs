@@ -5,12 +5,12 @@ using Game.Scalar;
 
 namespace Game.Save
 {
-    public sealed class ProfileRegistryPlanSource : ISavePlanSource
+    public sealed class ScopeBindingPlanSource : ISavePlanSource
     {
-        readonly ProfileRegistryService _profiles;
+        readonly ScopeBindingRegistryService _profiles;
         readonly ScopeKey _scopeKey;
 
-        public ProfileRegistryPlanSource(ProfileRegistryService profiles, ScopeKey scopeKey)
+        public ScopeBindingPlanSource(ScopeBindingRegistryService profiles, ScopeKey scopeKey)
         {
             _profiles = profiles;
             _scopeKey = scopeKey;

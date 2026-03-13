@@ -70,7 +70,7 @@ namespace Game.Health
         [SerializeField]
         float deathDelay = 0f;
 
-        public override Type ProfileType => typeof(HealthProfileSO);
+        public override Type ProfileType => typeof(HealthPreset);
         public float MaxHPFallback => maxHP.Value;
         public HealthInitialHPMode InitialHPMode => initialHPMode;
         public float InitialHPRatio => initialHPRatio;

@@ -137,7 +137,7 @@ namespace Game.Profile
         bool IProfileValueBinding.BlackboardSaveEnabled => BlackboardSaveEnabledValue && HasBlackboardKey;
         SaveLayer IProfileValueBinding.BlackboardSaveLayer => BlackboardSaveLayerValue;
 
-        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
             // ScopeIdentity が空の場合は Save 対象外
             if (string.IsNullOrEmpty(scopeIdentity))
@@ -145,12 +145,12 @@ namespace Game.Profile
 
             if (ScalarSaveEnabledValue && HasScalarKey)
             {
-                entries.Add(ProfileSaveEntry.ForScalar(ScalarKeyValue.Name, ScalarSaveLayerValue, scopeIdentity, profileTypeName));
+                entries.Add(BindingSaveEntry.ForScalar(ScalarKeyValue.Name, ScalarSaveLayerValue, scopeIdentity, profileTypeName));
             }
 
             if (BlackboardSaveEnabledValue && HasBlackboardKey)
             {
-                entries.Add(ProfileSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
+                entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
             }
         }
 

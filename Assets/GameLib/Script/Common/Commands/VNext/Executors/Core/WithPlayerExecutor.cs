@@ -197,13 +197,6 @@ namespace Game.Commands.VNext
             {
                 case ActorSourceKind.Current:
                     return ReferenceEquals(scope, playerScope);
-                case ActorSourceKind.Parent:
-                    return ReferenceEquals(scope, playerScope?.Parent);
-                case ActorSourceKind.Root:
-                    var path = playerScope?.GetPathFromRoot();
-                    if (path == null || path.Count == 0)
-                        return false;
-                    return ReferenceEquals(scope, path[0]);
                 case ActorSourceKind.GameLogicRoot:
                     var logicRoot = ScopeNodeHierarchy.FindNearestGameLogicRoot(playerScope, includeSelf: true);
                     return logicRoot != null && ReferenceEquals(scope, logicRoot);
@@ -211,6 +204,11 @@ namespace Game.Commands.VNext
                     {
                         var resolvedPlayerScope = ActorSourceFastResolver.Resolve(playerScope, filter);
                         return resolvedPlayerScope != null && ReferenceEquals(scope, resolvedPlayerScope);
+                    }
+                case ActorSourceKind.Global:
+                    {
+                        var globalScope = ActorSourceFastResolver.Resolve(playerScope, filter);
+                        return globalScope != null && ReferenceEquals(scope, globalScope);
                     }
                 case ActorSourceKind.ByIdentity:
                     return MatchesIdentity(scope, filter.Identity);

@@ -24,7 +24,7 @@ namespace Game.StatusEffect
         readonly Dictionary<string, BaseEffectRuntime> _activeEffects = new(StringComparer.Ordinal);
         readonly List<string> _removeQueue = new(8);
         readonly BoolLayer _effectFlagLayer;
-        readonly IProfileRegistry _profileRegistry;
+        readonly IScopeBindingRegistry _profileRegistry;
 
         bool _disposed;
 
@@ -39,14 +39,14 @@ namespace Game.StatusEffect
         /// <summary>
         /// ProfileRegistry（Effect が ProfileSO を取得するために公開）
         /// </summary>
-        public IProfileRegistry ProfileRegistry => _profileRegistry;
+        public IScopeBindingRegistry ProfileRegistry => _profileRegistry;
 
         public StatusEffectService(
             IHealthService healthService,
             IBaseScalarService scalarService,
             IBlackboardService blackboardService,
             IEntityEventService eventService,
-            IProfileRegistry profileRegistry,
+            IScopeBindingRegistry profileRegistry,
             Transform transform)
         {
             _effectFlagLayer = new BoolLayer(BoolCompositionMode.AnyTrue);

@@ -157,6 +157,7 @@ SO を完全に禁止する必要はありません。
 | `ProfileSaveEntry` | `BindingSaveEntry` | Save 対象定義 |
 | `IProfileDefinition` | `IScopeBindingDefinition` | ただし phase 1 は現名維持でもよい |
 | `BaseProfileData` | `BaseBindingPreset` | phase 2 以降の rename 推奨 |
+| `ProfileData<TProfile>` | （廃止） | `BindingPreset<TSelf>` に統合。SO 型制約が不要になるため |
 | `CustomProfileDefinition` | `CustomBindingPreset` | inline 用汎用定義 |
 
 
@@ -188,6 +189,11 @@ public abstract class BindingPreset<TSelf> : BaseBindingPreset
 ```
 
 これにより、`ProfileType` を legacy SO 型ではなく **Preset 自身の型** にできます。
+
+> **注意**: 現在 `HealthPreset` は `BaseProfileData` を継承し、`ProfileType` で `typeof(HealthProfileSO)` を返しています。
+> つまり、既に Preset 化された型でも `ProfileType` が旧 SO 型を指している状態です。
+> `BindingPreset<TSelf>` 導入時に、この参照先を `typeof(HealthPreset)` へ切り替える必要があります。
+> これは Save の `ProfileTypeName` にも影響するため、移行時にデータ互換の対応が必須です。
 
 ### 6.2 wrapper asset
 
@@ -241,6 +247,7 @@ public interface IScopeBindingRegistry
     void SetDefinition<TPreset>(TPreset preset) where TPreset : BaseBindingPreset;
     bool TryResolve<TPreset>(out TPreset preset) where TPreset : BaseBindingPreset;
     TPreset Resolve<TPreset>() where TPreset : BaseBindingPreset;
+    bool HasDefinition<TPreset>() where TPreset : BaseBindingPreset;
     bool TryResolveDefinition(Type definitionType, out IProfileDefinition definition);
     int Version { get; }
 }
@@ -372,6 +379,11 @@ public interface IDynamicValueAsset<out TValue>
 
 この interface に揃えることで、asset source 側は `value.Preset` を固定の流儀で読めるようになる。
 
+> **補足**: `StateMachineProfileSO` と `StateAnimationProfileSO` は現在 `IProfileDefinition` を実装していません（`ScriptableObject` 直接継承で Preset を保持するだけ）。
+> 一方 `HealthProfileSO` は `IProfileDefinition` を実装し、registry に登録可能です。
+> `IDynamicValueAsset<T>` の導入においては、`IProfileDefinition` 実装の有無に関わらず、
+> 「Preset を返す asset wrapper」であれば実装対象になります。
+
 ### 9.4.3 追加する generic literal source
 
 個別の `LiteralStateMachinePresetSource` などを増やす代わりに、managed-ref literal を generic 化する。
@@ -383,6 +395,9 @@ public sealed class ManagedRefLiteralSource<TValue> : IDynamicSource
 {
     [SerializeReference, InlineProperty, HideLabel]
     TValue? value;
+
+    public ManagedRefLiteralSource() { }
+    public ManagedRefLiteralSource(TValue value) => this.value = value;
 
     public string SourceTypeName => "Literal";
     public string GetDebugData => value != null ? value.ToString() ?? value.GetType().Name : "null";
@@ -399,6 +414,12 @@ public sealed class ManagedRefLiteralSource<TValue> : IDynamicSource
 - `ManagedRefLiteralSource<MovementPreset>`
 
 のような closed generic で代用できる。
+
+> **トレードオフ**: 既存の個別 source は型固有の debug 情報を持っています
+> （例: `LiteralStateMachinePresetSource` は `layers=..., states=...`、
+> `LiteralHealthPresetSource` は `maxHp=...`）。
+> generic 化すると `GetDebugData` は `ToString()` に依存するため、
+> 各 Preset で `ToString()` を適切にオーバーライドすることを推奨します。
 
 ### 9.4.4 追加する generic asset source
 
@@ -654,22 +675,31 @@ generic source を入れても、drawer の UI は大きく変えなくてよい
 
 各型は次のルールで変換します。
 
-1. 既存 SO のフィールドを `Preset` へ移す
-2. 既存 SO は薄い wrapper にする
-3. 利用側の直接参照を `DynamicValue<TPreset>` に置き換える
-4. registry への登録も `Preset` ベースにする
-5. 最終的に wrapper SO を不要化できる箇所は消す
+1. 既存 SO の binding フィールド（`ProfileFloatValue` 等）を `Preset` へ移す
+2. 非 binding フィールド（`AgentRadius` や `EffectVisualData` 等の純粋データ）も同じ Preset に含める
+3. 既存 SO は薄い wrapper にする
+4. 利用側の直接参照を `DynamicValue<TPreset>` に置き換える
+5. registry への登録も `Preset` ベースにする
+6. 最終的に wrapper SO を不要化できる箇所は消す
+
+> **補足**: `MovementProfileSO` の `AgentRadius` のように `IProfileValueBinding` を実装していないフィールドも、
+> Preset 側に移す必要があります。これらは binding ではないが、利用側が fallback として参照するデータです。
 
 ### 10.3 注意点
 
 `SpeedModEffectProfileSO` や `PoisonEffectProfileSO` は、
-単なる binding 集合ではなく `VisualData` や helper method も持っています。
+単なる binding 集合ではなく、追加のデータや helper method も持っています。
+
+具体的には:
+
+- `SpeedModEffectProfileSO`: `EffectVisualData` × 2 + `CreateSpeedBoostConfig()` / `CreateSlowConfig()`
+- `PoisonEffectProfileSO`: `EffectVisualData` × 1 + `CreateConfig()`
 
 つまり Preset 化するときは、
 
-- binding 情報
-- 純粋データ
-- 小さな helper API
+- binding 情報（`ProfileFloatValue` 群）
+- 純粋データ（`EffectVisualData` 等）
+- 小さな helper API（`CreateConfig()` 等）
 
 を一緒に移す必要があります。
 
@@ -734,6 +764,11 @@ rename 後も、基本方針は維持します。
 
 を追加し、対応 SO を薄い wrapper 化する
 
+> **注意**: `HealthPreset` は既に存在しますが、`ProfileType` が `typeof(HealthProfileSO)` を返しています。
+> Phase 2 では、`HealthPreset` の `ProfileType` を `typeof(HealthPreset)` に変更する作業も含めます。
+> この変更は save entry の `ProfileTypeName` に影響するため、
+> 移行用の型名マッピング（旧名→新名）を `ProfileRegistryPlanSource` 等に追加することを推奨します。
+
 ### Phase 3: 利用側を `DynamicValue<TPreset>` へ移行
 
 目的:
@@ -745,6 +780,12 @@ rename 後も、基本方針は維持します。
 - `MovementProfileSO` 参照箇所を `DynamicValue<MovementPreset>` へ
 - effect profile 参照箇所を `DynamicValue<...Preset>` へ
 - registry 解決も `TryResolve<TPreset>` へ寄せる
+
+> **注意**: `MovementChannelHubService` は DI コンストラクタ引数で `MovementProfileSO` を直接受け取り、
+> registry にも `SetProfileSO(movementProfile)` で登録しています。
+> この DI 注入パターンも Preset ベースに置き換える必要があります。
+> `InputMovementService` も `profileRegistry.TryResolve<MovementProfileSO>()` で SO 型をキーに解決しています。
+> Phase 3 では、これらの利用側を一括で Preset 型ベースに移行します。
 
 ### Phase 4: rename と legacy 削除
 
@@ -765,6 +806,12 @@ rename 後も、基本方針は維持します。
 ### 13.1 最大のリスク
 
 `ProfileType` を旧 SO 型から Preset 型へ切り替える瞬間です。
+
+> **現状の具体例**: `HealthPreset` は既に `BaseProfileData` 派生ですが、
+> `ProfileType` は `typeof(HealthProfileSO)` を返しています。
+> つまり、既に Preset 化済みの型であっても、registry キーと save entry は SO 型に依存しています。
+> この参照先を `typeof(HealthPreset)` に変更するとき、
+> **既存のセーブデータとの互換性が壊れる** 可能性があります。
 
 ここで影響を受けるのは:
 

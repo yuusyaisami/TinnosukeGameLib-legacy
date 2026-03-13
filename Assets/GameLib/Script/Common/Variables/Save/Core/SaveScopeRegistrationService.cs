@@ -11,7 +11,7 @@ namespace Game.Save
 {
     public sealed class SaveScopeRegistrationService : IScopeAcquireHandler, IScopeReleaseHandler
     {
-        readonly ProfileRegistryService? _profiles;
+        readonly ScopeBindingRegistryService? _profiles;
         readonly IBlackboardService? _blackboard;
         readonly IBaseScalarService? _scalars;
         readonly IScopeNode _owner;
@@ -19,7 +19,7 @@ namespace Game.Save
         IDisposable? _handle;
 
         public SaveScopeRegistrationService(
-            ProfileRegistryService? profiles,
+            ScopeBindingRegistryService? profiles,
             IBlackboardService? blackboard,
             IBaseScalarService? scalars,
             IScopeNode owner)
@@ -62,7 +62,7 @@ namespace Game.Save
             }
 
             var scopeKey = new ScopeKey(scope.Kind, id);
-            var planSource = new ProfileRegistryPlanSource(_profiles, scopeKey);
+            var planSource = new ScopeBindingPlanSource(_profiles, scopeKey);
             var reg = new SaveScopeRegistration(scopeKey, planSource, _profiles, _blackboard, _scalars);
 
             _handle?.Dispose();

@@ -8,42 +8,38 @@ using UnityEngine;
 namespace Game.Profile
 {
     /// <summary>
-    /// ProfileRegistryService の「どの Profile を登録するか」「Pool の Acquire/Release でどう振る舞うか」
+    /// ScopeBindingRegistryService の「どの Profile を登録するか」「Pool の Acquire/Release でどう振る舞うか」
     /// という運用ロジックを集約するサービス。
     /// </summary>
-    public sealed class ProfileRegistryInstallService :
-        IProfileRegistryConfigurator,
+    public sealed class ScopeBindingRegistryInstallService :
+        IScopeBindingRegistryConfigurator,
         IScopeAcquireHandler,
         IScopeReleaseHandler
     {
         public readonly struct Options
         {
-            public readonly BaseProfileSO[] InspectorProfiles;
-            public readonly IProfileDefinition[] InspectorProfileDefinitions;
+            public readonly IProfileDefinition[] InspectorProfiles;
             public readonly bool ResetOnAcquire;
             public readonly bool ClearOnRelease;
 
             public Options(
-                BaseProfileSO[] inspectorProfiles,
-                IProfileDefinition[] inspectorProfileDefinitions,
+                IProfileDefinition[] inspectorProfiles,
                 bool resetOnAcquire,
                 bool clearOnRelease)
             {
-                InspectorProfiles = inspectorProfiles ?? Array.Empty<BaseProfileSO>();
-                InspectorProfileDefinitions = inspectorProfileDefinitions ?? Array.Empty<IProfileDefinition>();
+                InspectorProfiles = inspectorProfiles ?? Array.Empty<IProfileDefinition>();
                 ResetOnAcquire = resetOnAcquire;
                 ClearOnRelease = clearOnRelease;
             }
         }
 
-        readonly ProfileRegistryService _registry;
+        readonly ScopeBindingRegistryService _registry;
         readonly IScopeNode _scope;
         readonly Options _options;
 
-        readonly List<BaseProfileSO> _externalProfiles = new();
         readonly List<IProfileDefinition> _externalDefinitions = new();
 
-        public ProfileRegistryInstallService(ProfileRegistryService registry, IScopeNode scope, Options options)
+        public ScopeBindingRegistryInstallService(ScopeBindingRegistryService registry, IScopeNode scope, Options options)
         {
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
             _scope = scope ?? throw new ArgumentNullException(nameof(scope));
@@ -68,7 +64,7 @@ namespace Game.Profile
                 if (!string.IsNullOrEmpty(id))
                 {
                     _registry.SetScopeIdentity(id);
-                    //Debug.Log($"[ProfileRegistryInstallService] Set ProfileRegistry ScopeIdentity to '{id}' on acquire.");
+                    //Debug.Log($"[ScopeBindingRegistryInstallService] Set ProfileRegistry ScopeIdentity to '{id}' on acquire.");
                     // Reapply bindings so SaveEntries are collected using the new scope id.
                     _registry.ReapplyAllBindings();
                 }
@@ -89,27 +85,8 @@ namespace Game.Profile
             _registry.ClearAllProfiles(resetVersion: true);
         }
 
-        public void SetExternalProfiles(IReadOnlyList<BaseProfileSO> profiles, bool applyImmediately = false)
-        {
-            _externalProfiles.Clear();
-            AddProfilesToExternalList(profiles);
-
-            if (applyImmediately)
-                ApplyProfilesImmediately();
-        }
-
-        public void AddExternalProfile(BaseProfileSO profile, bool applyImmediately = false)
-        {
-            if (profile != null && !_externalProfiles.Contains(profile))
-                _externalProfiles.Add(profile);
-
-            if (applyImmediately)
-                ApplyProfilesImmediately();
-        }
-
         public void ClearExternalProfiles(bool applyImmediately = false)
         {
-            _externalProfiles.Clear();
             _externalDefinitions.Clear();
             if (applyImmediately)
                 ApplyProfilesImmediately();
@@ -141,14 +118,8 @@ namespace Game.Profile
 
         void RegisterSelectedProfiles()
         {
-            if (_externalProfiles.Count > 0 || _externalDefinitions.Count > 0)
+            if (_externalDefinitions.Count > 0)
             {
-                for (int i = 0; i < _externalProfiles.Count; i++)
-                {
-                    var p = _externalProfiles[i];
-                    if (p != null)
-                        _registry.SetProfileSO(p);
-                }
                 for (int i = 0; i < _externalDefinitions.Count; i++)
                 {
                     var p = _externalDefinitions[i];
@@ -163,30 +134,7 @@ namespace Game.Profile
             {
                 var p = list[i];
                 if (p != null)
-                    _registry.SetProfileSO(p);
-            }
-
-            var defs = _options.InspectorProfileDefinitions;
-            for (int i = 0; i < defs.Length; i++)
-            {
-                var p = defs[i];
-                if (p != null)
                     _registry.SetProfileDefinition(p);
-            }
-        }
-
-        void AddProfilesToExternalList(IReadOnlyList<BaseProfileSO> profiles)
-        {
-            if (profiles == null)
-                return;
-
-            for (int i = 0; i < profiles.Count; i++)
-            {
-                var p = profiles[i];
-                if (p == null)
-                    continue;
-                if (!_externalProfiles.Contains(p))
-                    _externalProfiles.Add(p);
             }
         }
 

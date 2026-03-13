@@ -80,7 +80,7 @@ namespace Game.Profile
         /// <param name="entries">出力先リスト</param>
         /// <param name="scopeIdentity">Scope の安定 ID</param>
         /// <param name="profileTypeName">Profile の型名（デバッグ用）</param>
-        void CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName);
+        void CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName);
     }
 
     /// <summary>

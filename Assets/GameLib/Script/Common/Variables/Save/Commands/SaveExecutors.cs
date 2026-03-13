@@ -138,7 +138,7 @@ namespace Game.Commands.VNext
         {
             for (var cur = start; cur != null; cur = cur.Parent)
             {
-                if (cur.Resolver != null && cur.Resolver.TryResolve<IProfileRegistry>(out _))
+                if (cur.Resolver != null && cur.Resolver.TryResolve<IScopeBindingRegistry>(out _))
                     return cur;
             }
             return null;
@@ -206,7 +206,7 @@ namespace Game.Commands.VNext
         {
             for (var cur = start; cur != null; cur = cur.Parent)
             {
-                if (cur.Resolver != null && cur.Resolver.TryResolve<IProfileRegistry>(out _))
+                if (cur.Resolver != null && cur.Resolver.TryResolve<IScopeBindingRegistry>(out _))
                     return cur;
             }
             return null;
@@ -259,7 +259,7 @@ namespace Game.Commands.VNext
         {
             for (var cur = start; cur != null; cur = cur.Parent)
             {
-                if (cur.Resolver != null && cur.Resolver.TryResolve<IProfileRegistry>(out _))
+                if (cur.Resolver != null && cur.Resolver.TryResolve<IScopeBindingRegistry>(out _))
                     return cur;
             }
             return null;

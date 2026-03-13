@@ -1,189 +1,79 @@
-// Game.StatusEffect.SpeedModEffectProfileSO.cs
-//
-// スピード変更エフェクト（SpeedBoost / Slow）用のパラメータを定義する ProfileSO
+// Game.StatusEffect.SpeedModEffectProfileSO
+// スピード変更エフェクト用 薄い asset wrapper。実データは SpeedModEffectPreset に保持。
 
+using System;
+using System.Collections.Generic;
+using Game.Common;
 using Game.Profile;
 using Game.Scalar;
 using Game.Scalar.Generated;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.StatusEffect
 {
-    /// <summary>
-    /// スピード変更エフェクト（SpeedBoost / Slow）用のパラメータを定義する ProfileSO。
-    /// StatusEffect/Effects/SpeedBoostEffect, SlowEffect と連携する。
-    /// </summary>
     [CreateAssetMenu(menuName = "Game/StatusEffect/SpeedModEffectProfile", fileName = "SpeedModEffectProfile")]
-    public sealed class SpeedModEffectProfileSO : BaseProfileSO
+    public sealed class SpeedModEffectProfileSO : ScriptableObject, IProfileDefinition, IDynamicValueAsset<SpeedModEffectPreset>
     {
-        // ================================================================
-        // SpeedBoost 設定
-        // ================================================================
+        [SerializeReference, InlineProperty, HideLabel]
+        SpeedModEffectPreset _preset;
 
-        [FoldoutGroup("SpeedBoost")]
-        [LabelText("Default Duration")]
-        [Tooltip("スピードブーストのデフォルト持続時間（秒）")]
-        [SerializeField]
-        ProfileFloatValue _boostDefaultDuration = new()
+        // Legacy fields — kept for migration
+        [HideInInspector, SerializeField] ProfileFloatValue _boostDefaultDuration = new() { Value = 5f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.SpeedMod.DefaultDuration), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 0f } };
+        [HideInInspector, SerializeField] ProfileFloatValue _boostDefaultIntensity = new() { Value = 0.5f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.SpeedMod.DefaultIntensity), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 0f } };
+        [HideInInspector, SerializeField] ProfileFloatValue _boostBaseMultiplier = new() { Value = 1.5f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.SpeedMod.Multiplier), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseEffectMod = true, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 1f } };
+        [HideInInspector, SerializeField] ProfileFloatValue _slowDefaultDuration = new() { Value = 3f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.Slow.DefaultDuration), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 0f } };
+        [HideInInspector, SerializeField] ProfileFloatValue _slowDefaultIntensity = new() { Value = 0.3f, ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.Slow.DefaultIntensity), ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime, UseClampMod = true, Clamp = new ScalarClamp { UseMin = true, Min = 0f, UseMax = true, Max = 0.9f } };
+        [HideInInspector, SerializeField, FormerlySerializedAs("_boostVisualData")] EffectVisualData _boostVisualData_legacy = new() { IconAnimation = null, DisplayName = "加速", Description = "移動速度が上昇している" };
+        [HideInInspector, SerializeField, FormerlySerializedAs("_slowVisualData")] EffectVisualData _slowVisualData_legacy = new() { IconAnimation = null, DisplayName = "減速", Description = "移動速度が低下している" };
+
+        public SpeedModEffectPreset Preset
         {
-            Value = 5f,
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.SpeedMod.DefaultDuration),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f }
-        };
-
-        [FoldoutGroup("SpeedBoost")]
-        [LabelText("Default Intensity")]
-        [Tooltip("スピードブーストのデフォルト強度（速度増加率）")]
-        [SerializeField]
-        ProfileFloatValue _boostDefaultIntensity = new()
-        {
-            Value = 0.5f, // 50% 増加
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.SpeedMod.DefaultIntensity),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f }
-        };
-
-        [FoldoutGroup("SpeedBoost")]
-        [LabelText("Base Multiplier")]
-        [Tooltip("スピードブーストの基本乗算倍率")]
-        [SerializeField]
-        ProfileFloatValue _boostBaseMultiplier = new()
-        {
-            Value = 1.5f, // 1.5倍速
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.SpeedMod.Multiplier),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseEffectMod = true,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 1f }
-        };
-
-        // ================================================================
-        // Slow 設定
-        // ================================================================
-
-        [FoldoutGroup("Slow")]
-        [LabelText("Default Duration")]
-        [Tooltip("スローのデフォルト持続時間（秒）")]
-        [SerializeField]
-        ProfileFloatValue _slowDefaultDuration = new()
-        {
-            Value = 3f,
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.Slow.DefaultDuration),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f }
-        };
-
-        [FoldoutGroup("Slow")]
-        [LabelText("Default Intensity")]
-        [Tooltip("スローのデフォルト強度（速度減少率、0.3 = 30% 減速）")]
-        [SerializeField]
-        ProfileFloatValue _slowDefaultIntensity = new()
-        {
-            Value = 0.3f, // 30% 減速
-            ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.StatusEffect.Slow.DefaultIntensity),
-            ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
-            UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f, UseMax = true, Max = 0.9f }
-        };
-
-        // ================================================================
-        // ビジュアル
-        // ================================================================
-
-        [FoldoutGroup("Visual")]
-        [LabelText("SpeedBoost Visual")]
-        [Tooltip("スピードブーストの表示データ")]
-        [SerializeField]
-        EffectVisualData _boostVisualData = new()
-        {
-            IconAnimation = null,
-            DisplayName = "加速",
-            Description = "移動速度が上昇している"
-        };
-
-        [FoldoutGroup("Visual")]
-        [LabelText("Slow Visual")]
-        [Tooltip("スローの表示データ")]
-        [SerializeField]
-        EffectVisualData _slowVisualData = new()
-        {
-            IconAnimation = null,
-            DisplayName = "減速",
-            Description = "移動速度が低下している"
-        };
-
-        // ================================================================
-        // プロパティ - SpeedBoost
-        // ================================================================
-
-        /// <summary>スピードブーストのデフォルト持続時間</summary>
-        public float BoostDefaultDuration => _boostDefaultDuration.Value;
-
-        /// <summary>スピードブーストのデフォルト強度</summary>
-        public float BoostDefaultIntensity => _boostDefaultIntensity.Value;
-
-        /// <summary>スピードブーストの基本乗算倍率</summary>
-        public float BoostBaseMultiplier => _boostBaseMultiplier.Value;
-
-        /// <summary>スピードブーストのビジュアルデータ</summary>
-        public EffectVisualData BoostVisualData => _boostVisualData;
-
-        // ================================================================
-        // プロパティ - Slow
-        // ================================================================
-
-        /// <summary>スローのデフォルト持続時間</summary>
-        public float SlowDefaultDuration => _slowDefaultDuration.Value;
-
-        /// <summary>スローのデフォルト強度</summary>
-        public float SlowDefaultIntensity => _slowDefaultIntensity.Value;
-
-        /// <summary>スローのビジュアルデータ</summary>
-        public EffectVisualData SlowVisualData => _slowVisualData;
-
-        // ================================================================
-        // メソッド
-        // ================================================================
-
-        /// <summary>
-        /// SpeedBoost 用の EffectConfig を生成する。
-        /// </summary>
-        public EffectConfig CreateSpeedBoostConfig(
-            object source = null,
-            float? overrideDuration = null,
-            float? overrideIntensity = null)
-        {
-            return new EffectConfig
-            {
-                Duration = overrideDuration ?? BoostDefaultDuration,
-                Intensity = overrideIntensity ?? BoostDefaultIntensity,
-                StackMode = EffectStackMode.Refresh,
-                Source = source,
-                Tag = "SpeedBoost"
-            };
+            get { EnsurePresetMigrated(); return _preset; }
         }
 
-        /// <summary>
-        /// Slow 用の EffectConfig を生成する。
-        /// </summary>
+        public float BoostDefaultDuration => Preset?.BoostDefaultDuration ?? 5f;
+        public float BoostDefaultIntensity => Preset?.BoostDefaultIntensity ?? 0.5f;
+        public float BoostBaseMultiplier => Preset?.BoostBaseMultiplier ?? 1.5f;
+        public EffectVisualData BoostVisualData => Preset?.BoostVisualData;
+        public float SlowDefaultDuration => Preset?.SlowDefaultDuration ?? 3f;
+        public float SlowDefaultIntensity => Preset?.SlowDefaultIntensity ?? 0.3f;
+        public EffectVisualData SlowVisualData => Preset?.SlowVisualData;
+
+        public EffectConfig CreateSpeedBoostConfig(
+            object source = null, float? overrideDuration = null, float? overrideIntensity = null)
+            => Preset?.CreateSpeedBoostConfig(source, overrideDuration, overrideIntensity)
+                ?? new EffectConfig { Duration = overrideDuration ?? 5f, Intensity = overrideIntensity ?? 0.5f, StackMode = EffectStackMode.Refresh, Source = source, Tag = "SpeedBoost" };
+
         public EffectConfig CreateSlowConfig(
-            object source = null,
-            float? overrideDuration = null,
-            float? overrideIntensity = null)
+            object source = null, float? overrideDuration = null, float? overrideIntensity = null)
+            => Preset?.CreateSlowConfig(source, overrideDuration, overrideIntensity)
+                ?? new EffectConfig { Duration = overrideDuration ?? 3f, Intensity = overrideIntensity ?? 0.3f, StackMode = EffectStackMode.Refresh, Source = source, Tag = "Slow" };
+
+        public Type ProfileType => typeof(SpeedModEffectProfileSO);
+
+        public IEnumerable<IProfileValueBinding> EnumerateBindings()
         {
-            return new EffectConfig
-            {
-                Duration = overrideDuration ?? SlowDefaultDuration,
-                Intensity = overrideIntensity ?? SlowDefaultIntensity,
-                StackMode = EffectStackMode.Refresh,
-                Source = source,
-                Tag = "Slow"
-            };
+            var p = Preset;
+            if (p == null) yield break;
+            foreach (var b in p.EnumerateBindings())
+                yield return b;
+        }
+
+        public void CollectBindings(List<IProfileValueBinding> output) => Preset?.CollectBindings(output);
+        public int GetBindingCount() => Preset?.GetBindingCount() ?? 0;
+
+        void OnEnable() => EnsurePresetMigrated();
+        void OnValidate() => EnsurePresetMigrated();
+
+        void EnsurePresetMigrated()
+        {
+            if (_preset != null) return;
+            _preset = SpeedModEffectPreset.CreateFromLegacyFields(
+                _boostDefaultDuration, _boostDefaultIntensity, _boostBaseMultiplier,
+                _slowDefaultDuration, _slowDefaultIntensity,
+                _boostVisualData_legacy, _slowVisualData_legacy);
         }
     }
 }
