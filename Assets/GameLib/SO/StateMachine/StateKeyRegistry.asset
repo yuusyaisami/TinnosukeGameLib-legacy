@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb0ea727106c80e4fb96006d297b0b71, type: 3}
+  m_Name: StateKeyRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Game.StateMachine.StateKeyRegistry
+  nodes:
+  - id: b7c60effa901441a9ce03263a2d9b78d
+    parentId: 
+    name: Movement
+    isFolder: 1
+    description: "\u79FB\u52D5\u306B\u7279\u5316\u3057\u305FState\u7FA4"
+    explicitKey: 
+    note: 
+  - id: 03498f6cf8ea47098c1bfdc74dc7945b
+    parentId: b7c60effa901441a9ce03263a2d9b78d
+    name: Walk
+    isFolder: 0
+    description: 
+    explicitKey: 
+    note: 
+  - id: ff001f5c16b14279bd647f14253ec9b6
+    parentId: b7c60effa901441a9ce03263a2d9b78d
+    name: Idle
+    isFolder: 0
+    description: 
+    explicitKey: 
+    note: 
+  - id: e5824c7e8cc744dab64dfb0e9ad43109
+    parentId: 
+    name: Base
+    isFolder: 1
+    description: "\u6C4E\u7528\u7684\u306AState\u7FA4"
+    explicitKey: 
+    note: 
+  - id: 44e20395f1ad4cb486a76c45a016d99f
+    parentId: e5824c7e8cc744dab64dfb0e9ad43109
+    name: Goal
+    isFolder: 0
+    description: 
+    explicitKey: 
+    note: 
+  - id: 66bf01f0829a46e8a79a742cc56aee3c
+    parentId: e5824c7e8cc744dab64dfb0e9ad43109
+    name: Spawn
+    isFolder: 0
+    description: 
+    explicitKey: 
+    note: 
+  - id: fda36c807d0b4a3a96ee29f5d8c022d6
+    parentId: e5824c7e8cc744dab64dfb0e9ad43109
+    name: Hide
+    isFolder: 0
+    description: "\u30B7\u30B9\u30C6\u30E0\u7684\u306B\u898B\u3048\u306A\u3044\u3088\u3046\u306A\u3063\u3066\u3044\u308B\u3068\u304D\u3002"
+    explicitKey: 
+    note: 
+  - id: 8e240187a9244430853ee210263cb1b2
+    parentId: 
+    name: Novel
+    isFolder: 1
+    description: "\u4F1A\u8A71\u306B\u7279\u5316\u3057\u305FState\u7FA4"
+    explicitKey: 
+    note: 
+  - id: 3e024c507cae4f1e93211a3c8635c423
+    parentId: 8e240187a9244430853ee210263cb1b2
+    name: Talking
+    isFolder: 0
+    description: "\u3057\u3083\u3079\u3063\u3066\u308B\u72B6\u614B"
+    explicitKey: 
+    note: 
+  - id: 1fb11834091a41aeaf6a7cd37b13e18f
+    parentId: 8e240187a9244430853ee210263cb1b2
+    name: Idle
+    isFolder: 0
+    description: "\u7121\u8A00"
+    explicitKey: 
+    note: 
+  - id: c6d5310a749f484abf804e0d0d72361c
+    parentId: e5824c7e8cc744dab64dfb0e9ad43109
+    name: Dead
+    isFolder: 0
+    description: 
+    explicitKey: 
+    note: 
+  - id: 1410d6cb0a754280a4d19adaf9b1e449
+    parentId: 
+    name: Fight
+    isFolder: 1
+    description: 
+    explicitKey: 
+    note: 
+  - id: 3a75e0de9eac4c75bb8d7a2c3ab54464
+    parentId: 1410d6cb0a754280a4d19adaf9b1e449
+    name: Shooting
+    isFolder: 0
+    description: 
+    explicitKey: 
+    note: 
+  - id: bb20c30214bb45efb32d5be16341643f
+    parentId: 1410d6cb0a754280a4d19adaf9b1e449
+    name: Idle
+    isFolder: 0
+    description: 
+    explicitKey: 
+    note: 

@@ -1,0 +1,116 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ce6650671f5adf4ea000df34e93c19a, type: 3}
+  m_Name: BossIdleHeadAnim
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Animation.AnimationData
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  animationName: 
+  defaultFrameDuration: 0.1
+  awaitFrameCommands: 0
+  onStart:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  onEnd:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  onCanceled:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  frames:
+  - sprite: {fileID: 8965731770387190249, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: 4836760686894420363, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: 1580248765580771516, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: 3922217715277373774, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: 6746113685849692717, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -418345204541654622, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -5829509912988871703, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -5128732751432931261, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  importSourceTexture: {fileID: 2800000, guid: 60abb7422b1cc7943ac510b03788f7df, type: 3}
+  importDefaultDuration: 0
+  importAppend: 0
+  importSortGrid: 1
+  references:
+    version: 2
+    RefIds: []

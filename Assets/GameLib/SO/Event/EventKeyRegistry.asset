@@ -1,0 +1,215 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc4e53c5f139cb4ab711d52b744b6ac, type: 3}
+  m_Name: EventKeyRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EventKeys.EventKeyRegistry
+  nodes:
+  - id: 5b158256ed634f779bd4fb826ea259c9
+    parentId: 
+    name: GameLib
+    isFolder: 1
+    description: 
+    explicitKey: 
+  - id: bd79095f0cfa42aaaa601812bcd07298
+    parentId: 5b158256ed634f779bd4fb826ea259c9
+    name: Health
+    isFolder: 1
+    description: 
+    explicitKey: 
+  - id: 906ae88420b64ce69d2054141ca16e5a
+    parentId: bd79095f0cfa42aaaa601812bcd07298
+    name: OnDamage
+    isFolder: 0
+    description: "\u30C0\u30E1\u30FC\u30B8\u53D7\u4FE1\u6642"
+    explicitKey: 
+  - id: e81fb0256e5242baa94ecdc11a60098d
+    parentId: bd79095f0cfa42aaaa601812bcd07298
+    name: OnHeal
+    isFolder: 0
+    description: "\u56DE\u5FA9\u6642"
+    explicitKey: 
+  - id: 0961a4915dfe458fbdcc717b05b35b09
+    parentId: bd79095f0cfa42aaaa601812bcd07298
+    name: OnDeath
+    isFolder: 0
+    description: "\u6B7B\u4EA1\u6642"
+    explicitKey: 
+  - id: d5d1b1694c3d451d975351647e3366f9
+    parentId: bd79095f0cfa42aaaa601812bcd07298
+    name: OnHPChanged
+    isFolder: 0
+    description: "HP \u5909\u66F4\u6642\uFF08\u30C0\u30E1\u30FC\u30B8/\u56DE\u5FA9
+      \u5171\u901A\uFF09"
+    explicitKey: 
+  - id: 576ae1d152d84188a115cd33072f93fc
+    parentId: bd79095f0cfa42aaaa601812bcd07298
+    name: OnRevive
+    isFolder: 0
+    description: "\u5FA9\u6D3B\u30C1\u30B1\u30C3\u30C8\u3092\u6301\u305F\u305B\u308C\u307E\u3059\u3001\u3053\u308C\u304C\u3042\u308C\u3070\u5FA9\u6D3B\u3067\u304D\u307E\u3059\u3001\u304D\u3042\u3044\u306E\u30BF\u30B9\u30AD\u307F\u305F\u3044\u306A\u611F\u3058\u3067\u3059\u3001\u3053\u308C\u306F\u5FA9\u6D3B\u6642\u306B\u5B9F\u884C\u3055\u308C\u308B\u30A4\u30D9\u30F3\u30C8\u3067\u3059"
+    explicitKey: 
+  - id: 41a080b489d14b58aae0fb085ecbf030
+    parentId: 5b158256ed634f779bd4fb826ea259c9
+    name: StatusEffect
+    isFolder: 1
+    description: 
+    explicitKey: 
+  - id: f3ff5e8c6716400fa4a08a7694075e74
+    parentId: 41a080b489d14b58aae0fb085ecbf030
+    name: OnApplied
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 86f1a3a154984f8f89910c518d0a3b6d
+    parentId: 41a080b489d14b58aae0fb085ecbf030
+    name: OnRemoved
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: eafce4cb0fb34a1287d3a26a3858c197
+    parentId: 41a080b489d14b58aae0fb085ecbf030
+    name: OnStackChanged
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 48a173b6d882461e9fc93daf6a9e7b5a
+    parentId: 
+    name: GameLogic
+    isFolder: 1
+    description: 
+    explicitKey: 
+  - id: f561133f8bd345719a4eead307b789a1
+    parentId: 48a173b6d882461e9fc93daf6a9e7b5a
+    name: Title
+    isFolder: 1
+    description: 
+    explicitKey: 
+  - id: 50b99ddc16c545fb8fd0dc419aec268f
+    parentId: f561133f8bd345719a4eead307b789a1
+    name: OnOpenGameTitle
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: beb602f63f9c4e449826a1b611327756
+    parentId: f561133f8bd345719a4eead307b789a1
+    name: OnCloseGameTitle
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 7a0ef59953c040b1a01277388c786d14
+    parentId: f561133f8bd345719a4eead307b789a1
+    name: OnOpenGameMenu
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 91385e93264a4052bf2817404e0e47f8
+    parentId: f561133f8bd345719a4eead307b789a1
+    name: OnCloseGameMenu
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 574ea8af3324415d8dce55b201b3f87e
+    parentId: f561133f8bd345719a4eead307b789a1
+    name: OnOpenStageMenu
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 413b2cf823df452c96f7243fe9aae216
+    parentId: f561133f8bd345719a4eead307b789a1
+    name: OnCloseStageMenu
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: a41b05ac09b144e995ff801eba6b26e1
+    parentId: 5b158256ed634f779bd4fb826ea259c9
+    name: Scene
+    isFolder: 1
+    description: 
+    explicitKey: 
+  - id: 1ed79fbde17f4f60b42f1b8793e1e83f
+    parentId: a41b05ac09b144e995ff801eba6b26e1
+    name: OnOpenGameScene
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 644c05272b6649de8275464f3a68b263
+    parentId: a41b05ac09b144e995ff801eba6b26e1
+    name: OnOpenTitleScene
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: bd850ce386ee4d1fa9c083d5705b2044
+    parentId: a41b05ac09b144e995ff801eba6b26e1
+    name: OnCloseTitleScene
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 2d3d240937a840a49c9c7d326ab805e6
+    parentId: a41b05ac09b144e995ff801eba6b26e1
+    name: OnCloseGameScene
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: bf4795eaa8414f28bff3c0bedac78f83
+    parentId: 48a173b6d882461e9fc93daf6a9e7b5a
+    name: Game
+    isFolder: 1
+    description: 
+    explicitKey: 
+  - id: c9f1821cf8cf4ca0b0752dbf8b249767
+    parentId: bf4795eaa8414f28bff3c0bedac78f83
+    name: OnGoToNecro
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: cb360b6656cf46a2837f2fe377666832
+    parentId: bf4795eaa8414f28bff3c0bedac78f83
+    name: OnGoToLiving
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 4d252e61b6a149eab94518ded7554663
+    parentId: bf4795eaa8414f28bff3c0bedac78f83
+    name: OnBuildStage
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: b74de8affdba4536be30a054b66d2548
+    parentId: bf4795eaa8414f28bff3c0bedac78f83
+    name: OnGoal
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 4d3c2276b34e4c7daf54219b5c29dcbb
+    parentId: bf4795eaa8414f28bff3c0bedac78f83
+    name: OnClearStage
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: f1045d64d0b34886a2ed44893864fa03
+    parentId: bf4795eaa8414f28bff3c0bedac78f83
+    name: OnStartTutorial
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: 509a83d65b994a1fbb346f51df98ba78
+    parentId: bf4795eaa8414f28bff3c0bedac78f83
+    name: OnTutorialClick
+    isFolder: 0
+    description: 
+    explicitKey: 
+  - id: e58f9028775f4766802f2bb9d8d224fa
+    parentId: bf4795eaa8414f28bff3c0bedac78f83
+    name: OnTriangleKey
+    isFolder: 0
+    description: 
+    explicitKey: 
+  csvFile: {fileID: 4900000, guid: b56d7fa13038eb9409d8d79f0b4e0c69, type: 3}

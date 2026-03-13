@@ -1,0 +1,111 @@
+# ============================================================================
+# Unity .gitignore (決定版)
+# - GitHub の Unity テンプレをベースに、現場で漏れやすい/荒れやすいものを統合
+# - 置き場所: Unity プロジェクト直下（Assets / Packages / ProjectSettings と同階層）
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Unity が自動生成する巨大キャッシュ/一時物（絶対コミットしない）
+# ----------------------------------------------------------------------------
+.utmp/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# ビルド成果物（通常は出力先を別にする。リポに入れるなら例外運用）
+/[Bb]uild/
+/[Bb]uilds/
+
+# ログ類
+*.log
+
+# Unity Version Control / PlasticSCM
+.plastic/
+
+
+# ----------------------------------------------------------------------------
+# Asset Store Tools（使わないなら無視。使うならコメント解除）
+# ----------------------------------------------------------------------------
+# /[Aa]ssets/AssetStoreTools*
+
+# ----------------------------------------------------------------------------
+# JetBrains Rider / IDE 自動生成
+# ----------------------------------------------------------------------------
+/[Aa]ssets/Plugins/Editor/JetBrains*
+*.DotSettings.user
+.idea/
+*.sln.iml
+
+# ----------------------------------------------------------------------------
+# Visual Studio / MSBuild / Unity が生成するソリューション・プロジェクト
+# ----------------------------------------------------------------------------
+.vs/
+.gradle/                # Android/Gradle キャッシュ
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity が生成する meta（特定拡張の副産物）
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# ----------------------------------------------------------------------------
+# クラッシュ/テスト/診断の副産物
+# ----------------------------------------------------------------------------
+sysinfo.txt
+mono_crash.*
+crashlytics-build.properties
+InitTestScene*.unity*
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# ----------------------------------------------------------------------------
+# Addressables（デフォルトで生成されるやつは基本コミット不要）
+# ※運用で「ビルド成果物を配布用に同梱」するなら例外。やるなら専用ルールに寄せる。
+# ----------------------------------------------------------------------------
+/ServerData
+/[Aa]ssets/StreamingAssets/aa*
+/[Aa]ssets/AddressableAssetsData/link.xml*
+/[Aa]ssets/Addressables_Temp*
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+
+# ----------------------------------------------------------------------------
+# Visual Scripting の自動生成DB（生成物。コミット不要）
+# ----------------------------------------------------------------------------
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db.meta
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
+
+# ----------------------------------------------------------------------------
+# OS / エディタ類
+# ----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ----------------------------------------------------------------------------
+# パッケージ配布物（基本コミット不要）
+# ----------------------------------------------------------------------------
+*.apk
+*.aab
+*.app
+*.unitypackage
+*.unitypackage.meta

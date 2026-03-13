@@ -1,0 +1,3279 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1ebd26d9f887c42aad772f54f31ddf, type: 3}
+  m_Name: MaterialFxPropertyRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Game.MaterialFx.MaterialFxPropertyRegistrySO
+  nodes:
+  - id: b78900541b7fbaed2c52cca9b69108e5
+    parentId: 
+    name: BaseShader
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c74df678ea0caf3cd6512494aff04cfc
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: AdvanceWarp
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a36de2bb311aebb744fbb81206e56e00
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: AdvancedFade2D
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4ec602f7a50eef29f3aa80268a7f3484
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: AdvancedFlip2D
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 33836bf43d785afc40e0bcce31c5cdf0
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: BlendColor2D
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 655f9de40a6c57a6a89cac49e534a95c
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: Common
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9149f1e61c749d5b8cc52ccb245b7faa
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: CompositeSystems
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c1b1d08c6728d6dac7c1c6e469d0c743
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: Emission
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5a92a06117993e52ff567ba6106068a4
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: ExternalTextures
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 699ef65ef72e460513047c42c08f640d
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: Flash
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e7a8e2fd56d5f1f56bcf77ac9b287fee
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: FlowWarp
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4d5a9c120dccce30dc667b6c9029f261
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: Mask
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1461633e7947ef5e1f6375c49cabb48e
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: NoiseAtlas
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bf43b41bf022d07f500473ae6ff2007c
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: Outline
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e4a8a29aedaa9fd1a370ec5b3ca07dfc
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: Pixelation
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 6f0b98738be9635d2f636d26240c669a
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: Rainbow2D
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5e57c4b4d9e1e11e8830eef1daf65aeb
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: RenderState
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1be2261b9f846bc0270ed0ba33887500
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: TextFx
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e88b92737d375eb8f32c056ba36f0ef1
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: TextureSlot
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 35f1799031521b8540d83cbbcc40ed9d
+    parentId: b78900541b7fbaed2c52cca9b69108e5
+    name: Transition
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a09198647e8702ac625baf2b26f073a7
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: Burn
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b51bf42ee40cbdb50855005819197b4d
+    parentId: 4ec602f7a50eef29f3aa80268a7f3484
+    name: EulerDeg
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2ba9bae6c7125a96fb9b0fdb8102da06
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: BlendColor2D
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c71e974c3925b52f88c08f4c3b205c52
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: Caustics
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f27171e9f9b34a933b75515c3a375a02
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: ColorOverlay
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 417048591099fa42656ba79cbc86408f
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: ColorRamp
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 05805d47311fcafbef36c2cbcebed8d5
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: Dissolve
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: cafcb8a27636b7031d7e152babba2e0d
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: HueShift
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 50f194db4f83f1c12cc658f2d412c986
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: NormalMap
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c7463929b6e0e5e5fbf763971d0f5a46
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: Refraction
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7721487aaa07b658ce7610eed9f80f15
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: Ripple
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4ae9f5bdea52fb8235710b5fb4f60143
+    parentId: c1b1d08c6728d6dac7c1c6e469d0c743
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 30dfc7cb98b80147f77f3cef2ef8d866
+    parentId: 699ef65ef72e460513047c42c08f640d
+    name: Blink
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d2d8ffbe64bcf56220e604987fa49012
+    parentId: e7a8e2fd56d5f1f56bcf77ac9b287fee
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b86c08b4b38e532206b5d07f785f63d8
+    parentId: 4d5a9c120dccce30dc667b6c9029f261
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8b185680b60f40fdae3fdf7f08de34c0
+    parentId: 1be2261b9f846bc0270ed0ba33887500
+    name: Glow
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 05bef027e75f09d9eb07e116b8f2e053
+    parentId: 1be2261b9f846bc0270ed0ba33887500
+    name: Outline
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 58759f731f7cac1a7c2ae09c4fc458a1
+    parentId: 1be2261b9f846bc0270ed0ba33887500
+    name: Shadow
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 33c4f1f0afd9e744cf4224129aa9fae3
+    parentId: c71e974c3925b52f88c08f4c3b205c52
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e56f5b4e09962be76a4e3e34a95be46e
+    parentId: f27171e9f9b34a933b75515c3a375a02
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b80db6885e08f7157e3ff8051a7934e3
+    parentId: 417048591099fa42656ba79cbc86408f
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 10823df8460962134dd95b40c573a8a0
+    parentId: 05805d47311fcafbef36c2cbcebed8d5
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 367ef02f5ccfa876c051c14ed7868970
+    parentId: cafcb8a27636b7031d7e152babba2e0d
+    name: Mask
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ce4d72968c5705db899a0a34478b2dcd
+    parentId: 50f194db4f83f1c12cc658f2d412c986
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 639658eb808b0a21cfca163186969b14
+    parentId: c7463929b6e0e5e5fbf763971d0f5a46
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 66873411e00c7d3a6999c9912cdfe3a4
+    parentId: 33c4f1f0afd9e744cf4224129aa9fae3
+    name: A
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 265075752ce0bd4a02f68271c28324e4
+    parentId: 33c4f1f0afd9e744cf4224129aa9fae3
+    name: B
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2cb0a604e357632a15f5637011a12290
+    parentId: 367ef02f5ccfa876c051c14ed7868970
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2e2b13aac7565b93335f032ad628b79f
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Enabled
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _AdvancedFade2DEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 96bbea8768259a5097528635ac892fb9
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: FadeAmount
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/FadeAmount
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DFadeAmount
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0ead0d00bf5e5c47081c627d7232b5fd
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: FadeDirection
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/FadeDirection
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DFadeDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c92c1683e9578980b7aa08fb25cb03b4
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: GlowBlendMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/GlowBlendMode
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DGlowBlendMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e4cbb0aeb9db2857bbc7c5e00b7f78af
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: GlowIntensity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/GlowIntensity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DGlowIntensity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9da7b0b4785c0448b5d10bc12c3311c5
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: GlowRange
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/GlowRange
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DGlowRange
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c1d372768373531997ebd75fba516b6f
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: Soft
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Soft
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DSoft
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bbc458e3a5b0952f718e163ad27ed996
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: WaveParamsA
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/WaveParamsA
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _AdvancedFade2DWaveParamsA
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0cfa5a03874542b9468b2770ee890d3d
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: WaveParamsB
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/WaveParamsB
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DWaveParamsB
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c3b9de1bf1b7e0d2027ecb31a0d22ddb
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: BlendMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/BlendMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _AdvancedFade2DBurnBlendMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7e2cdadd773c8dd00bf5943703cd9e7a
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: Direction
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/Direction
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvancedFade2DBurnDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 031f3867e31f5452726d6e7d29f05a63
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: EdgeColor
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/EdgeColor
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _AdvancedFade2DBurnEdgeColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c1740167dbe22d71d9017b0b4eadf505
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: EdgeWidth
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/EdgeWidth
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnEdgeWidth
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a85e9a7c255e0e804d80beaadbf97186
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _AdvancedFade2DBurnEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1855c92025a3bcf8a078943b8de68c59
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: Invert
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/Invert
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _AdvancedFade2DBurnInvert
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 85c196b442a42f5e928b12e639ac1bcf
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: NoiseScale
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/NoiseScale
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnNoiseScale
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5ce8ca9e69102ee03ca7d262961e6021
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: NoiseStrength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/NoiseStrength
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnNoiseStrength
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4885d3cd2a73fc05f07e4f1bb0f6eca7
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: NoiseType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/NoiseType
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnNoiseType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f595e98b741dedcda8ba8dd76d076023
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: Progress
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/Progress
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnProgress
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e175edcb72d9ef46edc17d1933ca5af3
+    parentId: 4ec602f7a50eef29f3aa80268a7f3484
+    name: DepthScale
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/DepthScale
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvFlipDepthScale
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d4c4976d7afb8ddb85377d6431054a37
+    parentId: 4ec602f7a50eef29f3aa80268a7f3484
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _AdvFlipEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b02cd9d0a20fee7c2288eadf7e9ced24
+    parentId: 4ec602f7a50eef29f3aa80268a7f3484
+    name: FallbackHalfSize
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/FallbackHalfSize
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvFlipFallbackHalfSize
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a235d6194bf29de1d9aab9a24e48123b
+    parentId: 4ec602f7a50eef29f3aa80268a7f3484
+    name: Perspective
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/Perspective
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvFlipPerspective
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0111b382f86b64c3bab30ae58dc15cb2
+    parentId: 4ec602f7a50eef29f3aa80268a7f3484
+    name: PerspectiveSign
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/PerspectiveSign
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvFlipPerspectiveSign
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bb14d7b8aef7c8be4299cfe0a62805de
+    parentId: 4ec602f7a50eef29f3aa80268a7f3484
+    name: PivotLocal
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/PivotLocal
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvFlipPivotLocal
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a9944a126c46ba2004256dadb77e1549
+    parentId: 4ec602f7a50eef29f3aa80268a7f3484
+    name: ScaleClamp
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/ScaleClamp
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvFlipScaleClamp
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 968502f3132989f3b90d97fc0d26a8c8
+    parentId: b51bf42ee40cbdb50855005819197b4d
+    name: X
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/EulerDeg/X
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvFlipEulerDegX
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 24e13afa5a47831faed9f33901d58154
+    parentId: b51bf42ee40cbdb50855005819197b4d
+    name: Y
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/EulerDeg/Y
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvFlipEulerDegY
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 34f1403b03af962107ef108583359095
+    parentId: b51bf42ee40cbdb50855005819197b4d
+    name: Z
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFlip2D/EulerDeg/Z
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvFlipEulerDegZ
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 10d1e3b7fd54ccd6e1282baff3f27a91
+    parentId: c74df678ea0caf3cd6512494aff04cfc
+    name: Bend
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvanceWarp/Bend
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvWarpBend
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 85905316d1635dafcd35e5560f177ec4
+    parentId: c74df678ea0caf3cd6512494aff04cfc
+    name: Shear
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvanceWarp/Shear
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvWarpShear
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 055ff0119a1904ac606fb206703502a6
+    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    name: BlendGradationAmount
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DBlendGradationAmount
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 25fff4a942ed7f77b1ace34f7efafc23
+    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    name: BlendGradDirection
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _BlendColor2DBlendGradDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b4c997bff920fed2491923afe78563be
+    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    name: BlendSoftness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/BlendColor2D/BlendSoftness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DBlendSoftness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5c789e0e1966643aee69eba0dd774967
+    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    name: BlendIntensity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/BlendColor2D/BlendIntensity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DBlendIntensity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f06e13395b57718f71db5e335ee5b06c
+    parentId: 33836bf43d785afc40e0bcce31c5cdf0
+    name: BlendMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/BlendMode
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DBlendMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 337838efc0532932b807fe8e2d2124ff
+    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/BlendColor2D/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _BlendColor2DColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d1680abf530d4ca30eea8fb8cb185217
+    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/BlendColor2D/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _BlendColor2DEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bd7f3265b423c17a3c1c66dac1b79f9e
+    parentId: 655f9de40a6c57a6a89cac49e534a95c
+    name: Flip
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Common/Flip
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _Flip
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 366491128b1159e6795151fe2124bedb
+    parentId: 655f9de40a6c57a6a89cac49e534a95c
+    name: SpriteTexelSizeLocal
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Common/SpriteTexelSizeLocal
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _SpriteTexelSizeLocal
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d288d02191f9049eb433d6c13201c1de
+    parentId: 655f9de40a6c57a6a89cac49e534a95c
+    name: SpriteUVRect
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Common/SpriteUVRect
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _SpriteUVRect
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 3b424f83d4ab16e4624f490a68e09d93
+    parentId: c71e974c3925b52f88c08f4c3b205c52
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _CausticsColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 626b0f4561d3af01bde6a4d2a99b0963
+    parentId: c71e974c3925b52f88c08f4c3b205c52
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _CausticsEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 056cab39b639651f4cf37103c53d4293
+    parentId: c71e974c3925b52f88c08f4c3b205c52
+    name: Intensity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Intensity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _CausticsIntensity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 969e03990b99a49f4d3808692b3f0e53
+    parentId: c71e974c3925b52f88c08f4c3b205c52
+    name: ScrollA
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/ScrollA
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _CausticsScrollA
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: fd3dea72ac2ebd11fb1fcc73e2c407f5
+    parentId: c71e974c3925b52f88c08f4c3b205c52
+    name: ScrollB
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/ScrollB
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _CausticsScrollB
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b6479b0127278ba5dbf95defae4cb1d5
+    parentId: c71e974c3925b52f88c08f4c3b205c52
+    name: Softness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Softness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _CausticsSoftness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f3c7f0c2db7f20f3f742202ca094a627
+    parentId: c71e974c3925b52f88c08f4c3b205c52
+    name: Threshold
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Threshold
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _CausticsThreshold
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 44bff35099c060ea26170e8df7fc7009
+    parentId: 66873411e00c7d3a6999c9912cdfe3a4
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/A/Channel
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _CausticsSourceA_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 02ad900a58db38a80db36d6a9418c3fa
+    parentId: 66873411e00c7d3a6999c9912cdfe3a4
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/A/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _CausticsSourceA_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 3bcf9d48e2e17dcb60614898556dc4ef
+    parentId: 66873411e00c7d3a6999c9912cdfe3a4
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/A/SlotType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _CausticsSourceA_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 36eff2bc6811b9c8aa49cfbc82c1b481
+    parentId: 66873411e00c7d3a6999c9912cdfe3a4
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/A/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _CausticsSourceA_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4978ab3c6edd85720148c4d8cf79b199
+    parentId: 66873411e00c7d3a6999c9912cdfe3a4
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/A/UVSpace
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _CausticsSourceA_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bdef6f383c0c35aca2366ff405242235
+    parentId: 265075752ce0bd4a02f68271c28324e4
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/B/Channel
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _CausticsSourceB_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bbbc6850dd8ceb528b5ea76bacab4eed
+    parentId: 265075752ce0bd4a02f68271c28324e4
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/B/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _CausticsSourceB_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4e8184c317f7abd4ec5abcf12ce2d182
+    parentId: 265075752ce0bd4a02f68271c28324e4
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/B/SlotType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _CausticsSourceB_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 289eb2f313702b06253a784a963b0aba
+    parentId: 265075752ce0bd4a02f68271c28324e4
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/B/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _CausticsSourceB_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1d894e265aee886fba8bce870fe1f9dc
+    parentId: 265075752ce0bd4a02f68271c28324e4
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Caustics/Source/B/UVSpace
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _CausticsSourceB_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d40b7a2a4229e98fd37ca91133659ad7
+    parentId: f27171e9f9b34a933b75515c3a375a02
+    name: BlendMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/BlendMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ColorOverlayBlendMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c95ae5a647fa051d53035af185c95014
+    parentId: f27171e9f9b34a933b75515c3a375a02
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _ColorOverlayColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 841e45c9f6a15187c665359578b9d7f5
+    parentId: f27171e9f9b34a933b75515c3a375a02
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _ColorOverlayEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 32c2edb3c561cec0f3321be3c7a73419
+    parentId: f27171e9f9b34a933b75515c3a375a02
+    name: Hue
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Hue
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _ColorOverlayHue
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: cce7eab3a73b195cce60e64b6a9bb064
+    parentId: f27171e9f9b34a933b75515c3a375a02
+    name: Intensity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Intensity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _ColorOverlayIntensity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8f927ca55bdfa55e19e18d2b4b9e696f
+    parentId: e56f5b4e09962be76a4e3e34a95be46e
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Source/Channel
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ColorOverlaySource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a65cdb1e1814a046965f9d13063aec87
+    parentId: e56f5b4e09962be76a4e3e34a95be46e
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _ColorOverlaySource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2a09d949dad7a75f50d9542735f756b2
+    parentId: e56f5b4e09962be76a4e3e34a95be46e
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Source/SlotType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ColorOverlaySource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bfaad3b8d97225e6f5f701815517c53f
+    parentId: e56f5b4e09962be76a4e3e34a95be46e
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _ColorOverlaySource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a2e4c2e4a094a46d1b646dba3cc34ee5
+    parentId: e56f5b4e09962be76a4e3e34a95be46e
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorOverlay/Source/UVSpace
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ColorOverlaySource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 77883d7e2eebbf86950e85c12da76559
+    parentId: 417048591099fa42656ba79cbc86408f
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _ColorRampEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 695e540200215cfaa59c9b8f59e248d8
+    parentId: 417048591099fa42656ba79cbc86408f
+    name: Intensity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/Intensity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _ColorRampIntensity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4fd5cc5bcc8817b4b832687f5fa5221a
+    parentId: 417048591099fa42656ba79cbc86408f
+    name: PreserveAlpha
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/PreserveAlpha
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _ColorRampPreserveAlpha
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: dcc1685c46671689d76b73adfa307bd6
+    parentId: 417048591099fa42656ba79cbc86408f
+    name: Texture
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/Texture
+    sender: 0
+    valueType: 8
+    shaderPropertyName: _ColorRampTex
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: af96000de3d0fb91df491f561d51889e
+    parentId: b80db6885e08f7157e3ff8051a7934e3
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/Source/Channel
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ColorRampSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d3e9dd0f7e7531d0dfa3e5fa6499cfde
+    parentId: b80db6885e08f7157e3ff8051a7934e3
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _ColorRampSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7360d7abbe3512529fb99846270d361e
+    parentId: b80db6885e08f7157e3ff8051a7934e3
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/Source/SlotType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ColorRampSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 982a98c89424932ff885ae3284bd9878
+    parentId: b80db6885e08f7157e3ff8051a7934e3
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _ColorRampSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e34544ec7f9089237a81a9e134986fdc
+    parentId: b80db6885e08f7157e3ff8051a7934e3
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ColorRamp/Source/UVSpace
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ColorRampSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 022f6251831574e628f7526a5153d41f
+    parentId: 05805d47311fcafbef36c2cbcebed8d5
+    name: EdgeColor
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/EdgeColor
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _DissolveEdgeColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d4b14f2437a57a3f098d9dd46376719d
+    parentId: 05805d47311fcafbef36c2cbcebed8d5
+    name: EdgeWidth
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/EdgeWidth
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _DissolveEdgeWidth
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9b645590e7be2ba4c7da7e74b0da7a16
+    parentId: 05805d47311fcafbef36c2cbcebed8d5
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _DissolveEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 19457c822795b5303051fefc667f2c9d
+    parentId: 05805d47311fcafbef36c2cbcebed8d5
+    name: Threshold
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/Threshold
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _DissolveThreshold
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5862130d04ad9c2fe50a48f5548d39d1
+    parentId: 10823df8460962134dd95b40c573a8a0
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/Source/Channel
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _DissolveSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: fbb92dcc2b85b36d95ea76b63411d5e7
+    parentId: 10823df8460962134dd95b40c573a8a0
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _DissolveSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c7d1c0a618213c477cc1c8d5f5aa75d8
+    parentId: 10823df8460962134dd95b40c573a8a0
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/Source/SlotType
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _DissolveSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 89439fa281d9761b24af5bfad8f9a7eb
+    parentId: 10823df8460962134dd95b40c573a8a0
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _DissolveSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0e87a8e5a1ba21ac2a0009484e136778
+    parentId: 10823df8460962134dd95b40c573a8a0
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Dissolve/Source/UVSpace
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _DissolveSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 96b9c1c7c623f85143c4adc7f014583f
+    parentId: c1b1d08c6728d6dac7c1c6e469d0c743
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Emission/Color
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _EmissionColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f6b6fb76827f7237241c4be61785efa3
+    parentId: c1b1d08c6728d6dac7c1c6e469d0c743
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Emission/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _EmissionEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c8f40a34b033d71ee2b5fcd771ae8147
+    parentId: 4ae9f5bdea52fb8235710b5fb4f60143
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Emission/Source/Channel
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _EmissionSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: fc6d254cae746b898164c24321bf6c91
+    parentId: 4ae9f5bdea52fb8235710b5fb4f60143
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Emission/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _EmissionSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a86189aa10b1ae1d8e56b1b8f74f2cab
+    parentId: 4ae9f5bdea52fb8235710b5fb4f60143
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Emission/Source/SlotType
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _EmissionSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 3b30279ff18b55dd9b2ec0ce04e0854c
+    parentId: 4ae9f5bdea52fb8235710b5fb4f60143
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Emission/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _EmissionSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 78045a8e04d956243a5b6dd422645296
+    parentId: 4ae9f5bdea52fb8235710b5fb4f60143
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Emission/Source/UVSpace
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _EmissionSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d035e41963a40f3775fbc49afaf70008
+    parentId: e7a8e2fd56d5f1f56bcf77ac9b287fee
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/FlowWarp/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _FlowWarpEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 18919c71ea06d2f0e44b42af294089b2
+    parentId: e7a8e2fd56d5f1f56bcf77ac9b287fee
+    name: Speed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/FlowWarp/Speed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlowWarpSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0323f38dbf952a5aa24b0bf8b1f582b5
+    parentId: e7a8e2fd56d5f1f56bcf77ac9b287fee
+    name: Strength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/FlowWarp/Strength
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _FlowWarpStrength
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bc6161714d17238722c827647e922076
+    parentId: d2d8ffbe64bcf56220e604987fa49012
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/FlowWarp/Source/Channel
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlowWarpSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 01232637bec0f296ac59eee90dd31943
+    parentId: d2d8ffbe64bcf56220e604987fa49012
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/FlowWarp/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _FlowWarpSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 889d2c9b18e30d2b46af5728b2420bb8
+    parentId: d2d8ffbe64bcf56220e604987fa49012
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/FlowWarp/Source/SlotType
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlowWarpSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d549b097ea0f8a836f51200e3d38e50c
+    parentId: d2d8ffbe64bcf56220e604987fa49012
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/FlowWarp/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _FlowWarpSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 3f83417fe881003faf577bd0d63784f6
+    parentId: d2d8ffbe64bcf56220e604987fa49012
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/FlowWarp/Source/UVSpace
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlowWarpSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e06194d8686c12024f49d74a53b0529a
+    parentId: cafcb8a27636b7031d7e152babba2e0d
+    name: Amount
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/Amount
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _HueShiftAmount
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ccd656957dedd474188ff1bf5d3a50d4
+    parentId: cafcb8a27636b7031d7e152babba2e0d
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _HueShiftEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4f839fd7ac3358188b1deeb7ffd5b890
+    parentId: cafcb8a27636b7031d7e152babba2e0d
+    name: SaturationMod
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/SaturationMod
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _HueSaturationMod
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 98aec658b0bab5cb125b25b02300567a
+    parentId: cafcb8a27636b7031d7e152babba2e0d
+    name: ValueMod
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/ValueMod
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _HueValueMod
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ff26f316c070355a9c76d39bf695b5f2
+    parentId: 2cb0a604e357632a15f5637011a12290
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/Mask/Source/Channel
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _HueShiftMaskSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 35571231ee6276fc9cc734ba595c8e6b
+    parentId: 2cb0a604e357632a15f5637011a12290
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/Mask/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _HueShiftMaskSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ce962ce0b170d8a6ab71a5b794aab920
+    parentId: 2cb0a604e357632a15f5637011a12290
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/Mask/Source/SlotType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _HueShiftMaskSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: cef725033d9dc6cfd1674b61fa302866
+    parentId: 2cb0a604e357632a15f5637011a12290
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/Mask/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _HueShiftMaskSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: cf4b8a7e94bd80f1f0b875fc23f3b54b
+    parentId: 2cb0a604e357632a15f5637011a12290
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/HueShift/Mask/Source/UVSpace
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _HueShiftMaskSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 56c9eb14c44356d5f4efa5e33ccc0323
+    parentId: 4d5a9c120dccce30dc667b6c9029f261
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Mask/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _MaskEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 6629f86c5d79a9a528890a86f1e4b1e7
+    parentId: 4d5a9c120dccce30dc667b6c9029f261
+    name: Softness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Mask/Softness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _MaskSoftness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a20d101be40d83b69507f172da8475c9
+    parentId: 4d5a9c120dccce30dc667b6c9029f261
+    name: Threshold
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Mask/Threshold
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _MaskThreshold
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2ed238733afcbf2301b786247f801096
+    parentId: b86c08b4b38e532206b5d07f785f63d8
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Mask/Source/Channel
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _MaskSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9279c2953f5013c540e183cb91b48cc7
+    parentId: b86c08b4b38e532206b5d07f785f63d8
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Mask/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _MaskSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7cde50b60e202b74e313acd6c7063e22
+    parentId: b86c08b4b38e532206b5d07f785f63d8
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Mask/Source/SlotType
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _MaskSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: abd6094b2f4168233cae7632fbf94392
+    parentId: b86c08b4b38e532206b5d07f785f63d8
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Mask/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _MaskSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b2a4f6a26e7f0f35d3ff230525362bf3
+    parentId: b86c08b4b38e532206b5d07f785f63d8
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Mask/Source/UVSpace
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _MaskSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d1919e290b64710e8023b5809e0ec2bf
+    parentId: 50f194db4f83f1c12cc658f2d412c986
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/NormalMap/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _NormalMapEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a4706b49194a5077abab041b647a4254
+    parentId: 50f194db4f83f1c12cc658f2d412c986
+    name: LightDir
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/NormalMap/LightDir
+    sender: 0
+    valueType: 2
+    shaderPropertyName: _NormalMapLightDir
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 3854a40afc938c122e5be59662a58b89
+    parentId: 50f194db4f83f1c12cc658f2d412c986
+    name: Strength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/NormalMap/Strength
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _NormalMapStrength
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e23b8b410bf647c5911b624fcce25e9c
+    parentId: ce4d72968c5705db899a0a34478b2dcd
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/NormalMap/Source/Channel
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _NormalMapSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bcba0aafc8b2bd65107643f9152958e4
+    parentId: ce4d72968c5705db899a0a34478b2dcd
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/NormalMap/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _NormalMapSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0e8056c648ddc040e81c1bb9b8a03087
+    parentId: ce4d72968c5705db899a0a34478b2dcd
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/NormalMap/Source/SlotType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _NormalMapSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: afb52a363e247338de910bfcf83d65f6
+    parentId: ce4d72968c5705db899a0a34478b2dcd
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/NormalMap/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _NormalMapSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8edb2bafa96ed513302215d9e4d91b86
+    parentId: ce4d72968c5705db899a0a34478b2dcd
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/NormalMap/Source/UVSpace
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _NormalMapSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 562877fbe0d23f6c0b6a000558e01250
+    parentId: c7463929b6e0e5e5fbf763971d0f5a46
+    name: ChromaticAberration
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Refraction/ChromaticAberration
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _RefractionChromaticAberration
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5ab08bdc6da5dd28ff87c57aa6bb5117
+    parentId: c7463929b6e0e5e5fbf763971d0f5a46
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Refraction/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _RefractionEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: db68af98b9746de9f94629440817c0c6
+    parentId: c7463929b6e0e5e5fbf763971d0f5a46
+    name: Strength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Refraction/Strength
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _RefractionStrength
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d71c1903e52af679a31f2f5ff713e5a5
+    parentId: 639658eb808b0a21cfca163186969b14
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Refraction/Source/Channel
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _RefractionSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7ecfbfe0659024eaa2a787e9b8355dd9
+    parentId: 639658eb808b0a21cfca163186969b14
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Refraction/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _RefractionSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 67a08f3b725e530b5ec1108a5cb0778f
+    parentId: 639658eb808b0a21cfca163186969b14
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Refraction/Source/SlotType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _RefractionSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: be7faccd9e4a3d4028515b1bdf224077
+    parentId: 639658eb808b0a21cfca163186969b14
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Refraction/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _RefractionSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7c9de29dbb9f8d16bd9018a205bb2b37
+    parentId: 639658eb808b0a21cfca163186969b14
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Refraction/Source/UVSpace
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _RefractionSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5bcf870f57dac32fc8b48a0b7cde0ce9
+    parentId: 7721487aaa07b658ce7610eed9f80f15
+    name: Amplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Ripple/Amplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _RippleAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 86f2699d20517f27e7e2957a4ffd9707
+    parentId: 7721487aaa07b658ce7610eed9f80f15
+    name: Center
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Ripple/Center
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _RippleCenter
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 3e6abbe616994bd8e9aa0be6b2db480b
+    parentId: 7721487aaa07b658ce7610eed9f80f15
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Ripple/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _RippleColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 27d08c6081821f327f00fd1fcad66a1b
+    parentId: 7721487aaa07b658ce7610eed9f80f15
+    name: ColorBlend
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Ripple/ColorBlend
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _RippleColorBlend
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 49dbccf151d37682d73478193157e93d
+    parentId: 7721487aaa07b658ce7610eed9f80f15
+    name: DistortUV
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Ripple/DistortUV
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _RippleDistortUV
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c64745037c237f8cf8a046befb31bacd
+    parentId: 7721487aaa07b658ce7610eed9f80f15
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Ripple/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _RippleEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8524a1ffc1b715fa33123da6ff3d2a9d
+    parentId: 7721487aaa07b658ce7610eed9f80f15
+    name: Phase
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Ripple/Phase
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _RipplePhase
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e7c13c71fbbdc928b71cc5804c7eab5e
+    parentId: 7721487aaa07b658ce7610eed9f80f15
+    name: WaveParams
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/Ripple/WaveParams
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _RippleWaveParams
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5bb19105564dc5b4efac6a59932ac557
+    parentId: 5a92a06117993e52ff567ba6106068a4
+    name: ExtTexA
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/ExternalTextures/ExtTexA
+    sender: 0
+    valueType: 8
+    shaderPropertyName: _ExtTexA
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1e6f7d6d1f0458845a38c2f2ca3308f7
+    parentId: 5a92a06117993e52ff567ba6106068a4
+    name: ExtTexB
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/ExternalTextures/ExtTexB
+    sender: 0
+    valueType: 8
+    shaderPropertyName: _ExtTexB
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0942532cb4ed9d2adc6863e72d1a2be8
+    parentId: 699ef65ef72e460513047c42c08f640d
+    name: Amount
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Flash/Amount
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlashAmount
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f102e0aa59d35cd7aaae0e7c9432c0df
+    parentId: 699ef65ef72e460513047c42c08f640d
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Flash/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _FlashColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b47d268cb2e30b2f588a9c4ac147f160
+    parentId: 699ef65ef72e460513047c42c08f640d
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Flash/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _FlashEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0266c9bf8d04d3932efd937f65e9e98d
+    parentId: 699ef65ef72e460513047c42c08f640d
+    name: Mode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Flash/Mode
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlashMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2f03c4ae3d68a36ade82b6faa356b2cf
+    parentId: 30dfc7cb98b80147f77f3cef2ef8d866
+    name: Amplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Flash/Blink/Amplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlashBlinkAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e9d01ac7c331ec6607dd55528c575604
+    parentId: 30dfc7cb98b80147f77f3cef2ef8d866
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Flash/Blink/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _FlashBlinkEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1b038fdefd3de487044060a1041d3051
+    parentId: 30dfc7cb98b80147f77f3cef2ef8d866
+    name: PhaseOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Flash/Blink/PhaseOffset
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlashBlinkPhaseOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b7ee74cdcf15ba486412ef96be160931
+    parentId: 30dfc7cb98b80147f77f3cef2ef8d866
+    name: Speed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Flash/Blink/Speed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FlashBlinkSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c798fc9f4825dc990a330d91493fd4e2
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: Atlas
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/Atlas
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _NoiseAtlas
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: da207297da564cbc5fe27e2c788b1ee7
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: BlendAmount
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/BlendAmount
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _NoiseBlendAmount
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: add66212fd1111d8b515028f2aa2ad4c
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _NoiseEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 700579eb10ada477d4b8681ba6f33c6b
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: Slice
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/Slice
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _NoiseSlice
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4bceee80f818f4f80efdd4aded4e37dc
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: T0
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/T0
+    sender: 0
+    valueType: 9
+    shaderPropertyName: _NoiseAtlasT0
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 28b043c2cae7d808d226f660ea0dd946
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: T1
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/T1
+    sender: 0
+    valueType: 9
+    shaderPropertyName: _NoiseAtlasT1
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b0773b23ae0eed51a90ae3d0ccbfb694
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: T2
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/T2
+    sender: 0
+    valueType: 9
+    shaderPropertyName: _NoiseAtlasT2
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 62d6d999c8a92b7f02ea2f86653df6d0
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: T3
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/T3
+    sender: 0
+    valueType: 9
+    shaderPropertyName: _NoiseAtlasT3
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e71043f58c467a61c340332a130dc17c
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: T4
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/T4
+    sender: 0
+    valueType: 9
+    shaderPropertyName: _NoiseAtlasT4
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7f8ad3fa3c42c9bd10e7132955af8296
+    parentId: 1461633e7947ef5e1f6375c49cabb48e
+    name: T5
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/NoiseAtlas/T5
+    sender: 0
+    valueType: 9
+    shaderPropertyName: _NoiseAtlasT5
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e7249d63978929a7d9853cd94ba29f7d
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: BlendMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/BlendMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineBlendMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 091cc5950a86290d03256ebb7a0cda87
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _OutlineColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 602c3a1c73eec154b163afc4f51b9991
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _OutlineEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d751a04d5a2a091faff0f9ca4a8127fc
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: MaskRespect
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/MaskRespect
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _OutlineMaskRespect
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1e937cd82f8fa69e5d01dfe7b50cd12a
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: Mode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/Mode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 66d33661abb10cbe3d8e1428a74ab3fe
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: Opacity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/Opacity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineOpacity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7aa5343ecc2aab61f6e7d97c316f88bd
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: PixelPerfect
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/PixelPerfect
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _OutlinePixelPerfect
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d2f841fafc56a4239e73b13132cdfddb
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: PixelStep
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/PixelStep
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlinePixelStep
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 17f1eadebec68c284c1fca58d61bd0da
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: SamplePattern
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/SamplePattern
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineSamplePattern
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 62111e75e9d7e6a130991528db2344a8
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: Softness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/Softness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineSoftness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 360d7fdf21c920c7e92b16b8a04ebb39
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: UseVertexColor
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/UseVertexColor
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _OutlineUseVertexColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 60577345c92c7f9d281edf749437c348
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: UVClampEnabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/UVClampEnabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _OutlineUVClampEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8f1cdb681a9c2c9777c03c0a769a3c93
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: Width
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/Width
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineWidth
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 41e4cef0d9daf9fa17d69474b8021859
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: WidthUnit
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/WidthUnit
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineWidthUnit
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a9d5f99489b5db82e12a9f9d21747c49
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: ZTestMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/ZTestMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineZTestMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 14e73f85bd49909f499c8564b340733b
+    parentId: e4a8a29aedaa9fd1a370ec5b3ca07dfc
+    name: AlphaSteps
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Pixelation/AlphaSteps
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _PixelAlphaSteps
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f0e7a863796d6967553882cf21952cf7
+    parentId: e4a8a29aedaa9fd1a370ec5b3ca07dfc
+    name: BlockScreenSize
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Pixelation/BlockScreenSize
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _PixelBlockScreenSize
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5ed07c6699ed1f6ba9e3f233903643ce
+    parentId: e4a8a29aedaa9fd1a370ec5b3ca07dfc
+    name: ColorSteps
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Pixelation/ColorSteps
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _PixelColorSteps
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 748b6355eac8c7e9444321adba852fc7
+    parentId: e4a8a29aedaa9fd1a370ec5b3ca07dfc
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Pixelation/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _PixelationEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ef590d231aa7c8eea356642f9a841dbe
+    parentId: e4a8a29aedaa9fd1a370ec5b3ca07dfc
+    name: Mode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Pixelation/Mode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _PixelateMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 31a8980b471c4ac3e43e38a252cfdc07
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: BlendMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/BlendMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _Rainbow2DBlendMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7bbfc12b4bc6aeb86f8fe9a29e964b62
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: Direction
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/Direction
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _Rainbow2DDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9ad0b6b3733d3b757199950a8df931b9
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _Rainbow2DEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 554b1368215a9b530844cba96a53d29c
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: Intensity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/Intensity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _Rainbow2DIntensity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b28ce954c339b7c095d336fc75c6caba
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: Mode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/Mode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _Rainbow2DMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9f62b79c35691558ec750576ecb27b4e
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: Offset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/Offset
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _Rainbow2DOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5e6a8c485aa35c1c137005ef7e13d05b
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: Pattern
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/Pattern
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _Rainbow2DPattern
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ead3e5ad8b52762198044ac531b68e4c
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: PixelSize
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/PixelSize
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _Rainbow2DPixelSize
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ecf05ee990ccdfec2f981aa66aa6142e
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: Scale
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/Scale
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _Rainbow2DScale
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9122cc4413ed29917e311c848c85202b
+    parentId: 6f0b98738be9635d2f636d26240c669a
+    name: Speed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Rainbow2D/Speed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _Rainbow2DSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: dbce4907d907ca3cb1fe305b8de35e6a
+    parentId: 5e57c4b4d9e1e11e8830eef1daf65aeb
+    name: BlendIntensity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/RenderState/BlendIntensity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _FxBlendIntensity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d19eb64570b7742a710ad10fdb711239
+    parentId: 5e57c4b4d9e1e11e8830eef1daf65aeb
+    name: BlendPreset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/RenderState/BlendPreset
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _FxBlendPreset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 21c0c2613549823576479b07f2d47bb3
+    parentId: 5e57c4b4d9e1e11e8830eef1daf65aeb
+    name: Cull
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/RenderState/Cull
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _FxCull
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 6b88c296f6cfea395f6910b489a98301
+    parentId: 5e57c4b4d9e1e11e8830eef1daf65aeb
+    name: DstBlend
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/RenderState/DstBlend
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _FxDstBlend
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a29b3466616e743f277736db78803b3d
+    parentId: 5e57c4b4d9e1e11e8830eef1daf65aeb
+    name: QueueOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/RenderState/QueueOffset
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _FxQueueOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ecea53ef90b635a639a86d822eb72f02
+    parentId: 5e57c4b4d9e1e11e8830eef1daf65aeb
+    name: SrcBlend
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/RenderState/SrcBlend
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _FxSrcBlend
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a08d6eb6446c201c2045c147e305717f
+    parentId: 5e57c4b4d9e1e11e8830eef1daf65aeb
+    name: ZWrite
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/RenderState/ZWrite
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _FxZWrite
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7d5fe020a685e6efd71261236767b725
+    parentId: 8b185680b60f40fdae3fdf7f08de34c0
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Glow/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _TextGlowColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c976618e7b51ee8bc746596c2f479490
+    parentId: 8b185680b60f40fdae3fdf7f08de34c0
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Glow/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _TextGlowEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8ac58e0d37d58adbb75d5516af23ead1
+    parentId: 8b185680b60f40fdae3fdf7f08de34c0
+    name: Softness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Glow/Softness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TextGlowSoftness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a0d0865774a363ae0d8d1506413783a2
+    parentId: 8b185680b60f40fdae3fdf7f08de34c0
+    name: Thickness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Glow/Thickness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TextGlowThickness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 751f1c593b79c47a4fa00fb161eff3b1
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _TextOutlineColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bb914153d96c5ed6a4b28b2ba563dba5
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _TextOutlineEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 77d6392659961fe1dde1138e4b6cf4bb
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: Softness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/Softness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TextOutlineSoftness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 6be11f3beabb7fe921aea25ccbb12dce
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: Thickness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/Thickness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TextOutlineThickness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2930ed868f4cdfa9af0403ae6de94c21
+    parentId: 58759f731f7cac1a7c2ae09c4fc458a1
+    name: Color
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Shadow/Color
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _TextShadowColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2e6cd646c73af810f94d0cd41bbce029
+    parentId: 58759f731f7cac1a7c2ae09c4fc458a1
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Shadow/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _TextShadowEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b695abbe76a29bfdd8cdc06439dabd33
+    parentId: 58759f731f7cac1a7c2ae09c4fc458a1
+    name: Offset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Shadow/Offset
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _TextShadowOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 767700a66556bdc826fdced7e5b6d32f
+    parentId: 58759f731f7cac1a7c2ae09c4fc458a1
+    name: Softness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Shadow/Softness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TextShadowSoftness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 502cf5327c49be70f54adcde3b887488
+    parentId: e88b92737d375eb8f32c056ba36f0ef1
+    name: AtlasSlot0
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextureSlot/AtlasSlot0
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _AtlasSlot0
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 08b112b8e9ef82c645e337919e49c8da
+    parentId: e88b92737d375eb8f32c056ba36f0ef1
+    name: AtlasSlot1
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextureSlot/AtlasSlot1
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _AtlasSlot1
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d9f090961838a6293eb5ad6f3176ab44
+    parentId: e88b92737d375eb8f32c056ba36f0ef1
+    name: AtlasSlot2
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextureSlot/AtlasSlot2
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _AtlasSlot2
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1a3f179f8548b46d81db80f0a8770153
+    parentId: e88b92737d375eb8f32c056ba36f0ef1
+    name: AtlasSlot3
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextureSlot/AtlasSlot3
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _AtlasSlot3
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 238280dbd6497c4f0248e3f6cad1c2f0
+    parentId: e88b92737d375eb8f32c056ba36f0ef1
+    name: AtlasSlot4
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextureSlot/AtlasSlot4
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _AtlasSlot4
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 67d271568671095591e4104766da5b11
+    parentId: e88b92737d375eb8f32c056ba36f0ef1
+    name: CustomRT
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextureSlot/CustomRT
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _CustomRT
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2b58db73a5b7702021e1f526cedc8bf9
+    parentId: e88b92737d375eb8f32c056ba36f0ef1
+    name: ExtTexA
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextureSlot/ExtTexA
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _ExtTexA
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 156b83cceab7c2757eaeffbfcbbed1d6
+    parentId: e88b92737d375eb8f32c056ba36f0ef1
+    name: ExtTexB
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextureSlot/ExtTexB
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _ExtTexB
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c9b3035bf0f4c4d143458b65d4b03efa
+    parentId: 35f1799031521b8540d83cbbcc40ed9d
+    name: BlendMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Transition/BlendMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _TransitionBlendMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 362c57585bb63552478ff0f26a4ab057
+    parentId: 35f1799031521b8540d83cbbcc40ed9d
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Transition/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _TransitionEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 110f4d6ed80814fd0669798d9eab6d1f
+    parentId: 35f1799031521b8540d83cbbcc40ed9d
+    name: FromSpriteUVRect
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Transition/FromSpriteUVRect
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _TransitionFromSpriteUVRect
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9d29997abb301613b70beff848db1f52
+    parentId: 35f1799031521b8540d83cbbcc40ed9d
+    name: Params
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Transition/Params
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _TransitionParams
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1f520ce0fd0d697f2ea9c34ce33a73cf
+    parentId: 35f1799031521b8540d83cbbcc40ed9d
+    name: Progress
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Transition/Progress
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TransitionProgress
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}

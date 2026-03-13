@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c03997c5e93640648ad630b9d95dbf2e, type: 3}
+  m_Name: G
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Audio.SimpleAudioCueSO
+  _defaultTag: sfx
+  _bus: 1
+  _loop: 0
+  _allowMultiple: 1
+  _restartIfAlreadyPlaying: 0
+  _volumeMultiplier: 1
+  _basePitch: 1
+  _basePlaybackSpeed: 1
+  _applyPlaybackSpeedToPitch: 1
+  _pitchRandomRange: {x: 1, y: 1}
+  _useBusTimeScaleSettings: 1
+  _applyTimeScaleToPlaybackSpeed: 0
+  _applyTimeScaleToPitch: 0
+  _timeScalePitchInfluence: 1
+  _spatialize: 0
+  _spatialBlend: 0
+  _minDistance: 1
+  _maxDistance: 500
+  _rolloffMode: 0
+  _clips:
+  - {fileID: 8300000, guid: 98aa50aacfd5ba9489549fb318bc63b4, type: 3}

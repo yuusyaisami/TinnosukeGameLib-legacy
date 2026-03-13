@@ -1,0 +1,12 @@
+Type,Path,ExplicitKey,Description
+Folder,GameLib,,,
+Folder,GameLib/Health,,,
+Leaf,GameLib/Health/OnDamage,,,ダメージ受信
+Leaf,GameLib/Health/OnHeal,,,回復発生
+Leaf,GameLib/Health/OnDeath,,,死亡時
+Leaf,GameLib/Health/OnHPChanged,,,体力変化
+Leaf,GameLib/Health/OnRevive,,,復活時
+Folder,GameLib/StatusEffect,,,
+Leaf,GameLib/StatusEffect/OnApplied,,,ステータス効果適用
+Leaf,GameLib/StatusEffect/OnRemoved,,,ステータス効果解除
+Leaf,GameLib/StatusEffect/OnStackChanged,,,スタック数変更
