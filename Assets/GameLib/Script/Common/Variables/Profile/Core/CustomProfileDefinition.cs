@@ -1,0 +1,243 @@
+// Game.Profile.CustomProfileDefinition.cs
+//
+// Custom profile definition with dynamic bindings list.
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Game.Common;
+using Game.Save;
+using Game.Scalar;
+
+namespace Game.Profile
+{
+    [Serializable]
+    public sealed class CustomProfileDefinition : IProfileDefinition
+    {
+        [SerializeField] string _profileName = "CustomProfile";
+        [SerializeReference] List<IProfileValueBinding> _bindings = new();
+
+        public string ProfileName => _profileName;
+
+        public Type ProfileType => typeof(CustomProfileDefinition);
+
+        public IEnumerable<IProfileValueBinding> EnumerateBindings()
+        {
+            if (_bindings == null)
+                yield break;
+
+            for (int i = 0; i < _bindings.Count; i++)
+            {
+                var binding = _bindings[i];
+                if (binding != null)
+                    yield return binding;
+            }
+        }
+
+        public void CollectBindings(List<IProfileValueBinding> output)
+        {
+            if (output == null)
+                throw new ArgumentNullException(nameof(output));
+
+            if (_bindings == null)
+                return;
+
+            for (int i = 0; i < _bindings.Count; i++)
+            {
+                var binding = _bindings[i];
+                if (binding != null)
+                    output.Add(binding);
+            }
+        }
+
+        public int GetBindingCount()
+        {
+            if (_bindings == null)
+                return 0;
+
+            int count = 0;
+            for (int i = 0; i < _bindings.Count; i++)
+            {
+                if (_bindings[i] != null)
+                    count++;
+            }
+            return count;
+        }
+    }
+
+    public enum ProfileDynamicValueKind
+    {
+        Float,
+        Int,
+        Bool,
+        String,
+        Vector2,
+        Vector3,
+        Color,
+        UnityObject
+    }
+
+    [Serializable]
+    public sealed class ProfileDynamicValue : IProfileValueBinding
+    {
+        [SerializeField] ProfileDynamicValueKind _kind = ProfileDynamicValueKind.Float;
+        [SerializeField] float _floatValue;
+        [SerializeField] int _intValue;
+        [SerializeField] bool _boolValue;
+        [SerializeField] string _stringValue = string.Empty;
+        [SerializeField] Vector2 _vector2Value;
+        [SerializeField] Vector3 _vector3Value;
+        [SerializeField] Color _colorValue = Color.white;
+        [SerializeField] UnityEngine.Object _unityObjectValue;
+
+        [Header("Scalar Binding")]
+        [SerializeField] ScalarKey _scalarKey;
+        [SerializeField] ScalarBindPolicy _scalarPolicy = ScalarBindPolicy.UpdateBaseline;
+        [SerializeField] bool _useEffectMod;
+        [SerializeField] bool _useClampMod;
+        [SerializeField] bool _useLocalBase;
+        [SerializeField] float _localBaseValue;
+        [SerializeField] ScalarClamp _clamp;
+        [SerializeField] bool _scalarSaveEnabled;
+        [SerializeField] SaveLayer _scalarSaveLayer;
+
+        [Header("Blackboard Binding")]
+        [SerializeField, VarIdDropdown] int _blackboardKey = 0;
+        [SerializeField] BlackboardBindPolicy _blackboardPolicy = BlackboardBindPolicy.Overwrite;
+        [SerializeField] bool _blackboardSaveEnabled;
+        [SerializeField] SaveLayer _blackboardSaveLayer;
+
+        bool HasScalarKey => _scalarKey.Id != 0;
+        bool HasBlackboardKey => _blackboardKey != 0;
+
+        int IProfileValueBinding.BlackboardKey => _blackboardKey;
+        ScalarKey IProfileValueBinding.ScalarKey => _scalarKey;
+        BlackboardBindPolicy IProfileValueBinding.BlackboardPolicy => _blackboardPolicy;
+        ScalarBindPolicy IProfileValueBinding.ScalarPolicy => _scalarPolicy;
+        bool IProfileValueBinding.HasAnyBinding => HasScalarKey || HasBlackboardKey;
+
+        bool IProfileValueBinding.ScalarSaveEnabled => _scalarSaveEnabled && HasScalarKey && _kind == ProfileDynamicValueKind.Float;
+        SaveLayer IProfileValueBinding.ScalarSaveLayer => _scalarSaveLayer;
+        bool IProfileValueBinding.BlackboardSaveEnabled => _blackboardSaveEnabled && HasBlackboardKey;
+        SaveLayer IProfileValueBinding.BlackboardSaveLayer => _blackboardSaveLayer;
+
+        void IProfileValueBinding.CollectSaveEntries(List<ProfileSaveEntry> entries, string scopeIdentity, string profileTypeName)
+        {
+            if (string.IsNullOrEmpty(scopeIdentity))
+                return;
+
+            if (_scalarSaveEnabled && HasScalarKey && _kind == ProfileDynamicValueKind.Float)
+            {
+                entries.Add(ProfileSaveEntry.ForScalar(_scalarKey.Name, _scalarSaveLayer, scopeIdentity, profileTypeName));
+            }
+
+            if (_blackboardSaveEnabled && HasBlackboardKey)
+            {
+                entries.Add(ProfileSaveEntry.ForBlackboard(_blackboardKey, _blackboardSaveLayer, scopeIdentity, profileTypeName));
+            }
+        }
+
+        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        {
+            if (!HasBlackboardKey || blackboard == null)
+                return;
+
+            var vars = blackboard.LocalVars;
+            var varId = _blackboardKey;
+
+            switch (_blackboardPolicy)
+            {
+                case BlackboardBindPolicy.Overwrite:
+                    WriteToVars(vars, varId);
+                    break;
+
+                case BlackboardBindPolicy.SkipIfExists:
+                case BlackboardBindPolicy.RespectExistingNoOverwrite:
+                    if (!vars.Contains(varId))
+                        WriteToVars(vars, varId);
+                    break;
+            }
+        }
+
+        void IProfileValueBinding.WriteToScalar(IBaseScalarService scalar)
+        {
+            if (!HasScalarKey || scalar == null)
+                return;
+            if (_kind != ProfileDynamicValueKind.Float)
+                return;
+
+            switch (_scalarPolicy)
+            {
+                case ScalarBindPolicy.UpdateBaseline:
+                    if (scalar.TryGetRuntime(_scalarKey, out var runtime))
+                    {
+                        runtime.SetBaseline(_floatValue);
+                        if (_useLocalBase)
+                            runtime.SetLocalBase(_localBaseValue);
+                    }
+                    else
+                    {
+                        scalar.EnsureRuntime(_scalarKey, CreateRuntimeConfig());
+                        if (_useLocalBase && scalar.TryGetRuntime(_scalarKey, out runtime))
+                            runtime.SetLocalBase(_localBaseValue);
+                    }
+                    break;
+
+                case ScalarBindPolicy.ReplaceRuntime:
+                    scalar.EnsureRuntime(_scalarKey, CreateRuntimeConfig());
+                    if (_useLocalBase && scalar.TryGetRuntime(_scalarKey, out var runtimeReplace))
+                        runtimeReplace.SetLocalBase(_localBaseValue);
+                    break;
+
+                case ScalarBindPolicy.SkipIfExists:
+                    if (!scalar.TryGetRuntime(_scalarKey, out _))
+                        scalar.EnsureRuntime(_scalarKey, CreateRuntimeConfig());
+                    if (_useLocalBase && scalar.TryGetRuntime(_scalarKey, out var runtimeSkip))
+                        runtimeSkip.SetLocalBase(_localBaseValue);
+                    break;
+            }
+        }
+
+        void WriteToVars(IVarStore vars, int varId)
+        {
+            switch (_kind)
+            {
+                case ProfileDynamicValueKind.Float:
+                    vars.TrySetVariant(varId, DynamicVariant.FromFloat(_floatValue));
+                    break;
+                case ProfileDynamicValueKind.Int:
+                    vars.TrySetVariant(varId, DynamicVariant.FromInt(_intValue));
+                    break;
+                case ProfileDynamicValueKind.Bool:
+                    vars.TrySetVariant(varId, DynamicVariant.FromBool(_boolValue));
+                    break;
+                case ProfileDynamicValueKind.String:
+                    vars.TrySetVariant(varId, DynamicVariant.FromString(_stringValue ?? string.Empty));
+                    break;
+                case ProfileDynamicValueKind.Vector2:
+                    vars.TrySetVariant(varId, DynamicVariant.FromVector2(_vector2Value));
+                    break;
+                case ProfileDynamicValueKind.Vector3:
+                    vars.TrySetVariant(varId, DynamicVariant.FromVector3(_vector3Value));
+                    break;
+                case ProfileDynamicValueKind.Color:
+                    vars.TrySetVariant(varId, DynamicVariant.FromColor(_colorValue));
+                    break;
+                case ProfileDynamicValueKind.UnityObject:
+                    vars.TrySetManagedRef(varId, _unityObjectValue);
+                    break;
+            }
+        }
+
+        ScalarRuntimeConfig CreateRuntimeConfig()
+        {
+            return new ScalarRuntimeConfig
+            {
+                BaseValue = _floatValue,
+                UseEffectMod = _useEffectMod,
+                UseClampMod = _useClampMod,
+                Clamp = _clamp
+            };
+        }
+    }
+}

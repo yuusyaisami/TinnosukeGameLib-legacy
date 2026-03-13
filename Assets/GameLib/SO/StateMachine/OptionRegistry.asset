@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9361a01badc98347ac702526331fe6d, type: 3}
+  m_Name: OptionRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Game.StateMachine.OptionRegistry
+  nodes:
+  - id: 287fd5db853e445699fe7eec7c3873fe
+    parentId: 
+    name: Movement
+    isFolder: 1
+    description: 
+    explicitKey: 
+    isGlobal: 0
+    isDefault: 0
+  - id: f79d5022200843cb865f6e0d19bff656
+    parentId: 287fd5db853e445699fe7eec7c3873fe
+    name: up
+    isFolder: 0
+    description: 
+    explicitKey: 
+    isGlobal: 0
+    isDefault: 0
+  - id: cc964272110043be85dc0776aefd0918
+    parentId: 287fd5db853e445699fe7eec7c3873fe
+    name: down
+    isFolder: 0
+    description: 
+    explicitKey: 
+    isGlobal: 0
+    isDefault: 0
+  - id: f85673bae2aa4e9fb7f8a81d4268eb16
+    parentId: 287fd5db853e445699fe7eec7c3873fe
+    name: left
+    isFolder: 0
+    description: 
+    explicitKey: 
+    isGlobal: 0
+    isDefault: 0
+  - id: 7816344ee8694628aae3d09fbbd28303
+    parentId: 287fd5db853e445699fe7eec7c3873fe
+    name: right
+    isFolder: 0
+    description: 
+    explicitKey: 
+    isGlobal: 0
+    isDefault: 0

@@ -1,0 +1,777 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a64a58180acda340b72b5c1f5104a6b, type: 3}
+  m_Name: ScalarKeyRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.ScalarKeyRegistry
+  nodes:
+  - id: cb8097497f764544b39db7ae710a07f3
+    parentId: 
+    name: GameLib
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: b2ed58e9a88c40d49ecf6453eefbe372
+    parentId: cb8097497f764544b39db7ae710a07f3
+    name: Audio
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: aebde02a8fbd4358889cb59287c564cb
+    parentId: b2ed58e9a88c40d49ecf6453eefbe372
+    name: Master
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 15b71485d4e74789a08e440e33442b00
+    parentId: aebde02a8fbd4358889cb59287c564cb
+    name: Volume
+    isFolder: 0
+    description: "\u30B2\u30FC\u30E0\u5168\u4F53\u306E\u97F3\u91CF"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3f1670ac0a174410a22afca88f970fcf
+    parentId: b2ed58e9a88c40d49ecf6453eefbe372
+    name: Bgm
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: ae1686a15aa64d45a026874b267ba151
+    parentId: 3f1670ac0a174410a22afca88f970fcf
+    name: Volume
+    isFolder: 0
+    description: "BGM\u306E\u97F3\u91CF"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: ae809958e332475089d9d12f6bc9f4d0
+    parentId: b2ed58e9a88c40d49ecf6453eefbe372
+    name: Sfx
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 58fd14395f664f12b299ffe8cdd4b1fc
+    parentId: ae809958e332475089d9d12f6bc9f4d0
+    name: Volume
+    isFolder: 0
+    description: "\u52B9\u679C\u97F3\u306E\u97F3\u91CF"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: cec38f80bdee4e1d960f2061554d98d5
+    parentId: b2ed58e9a88c40d49ecf6453eefbe372
+    name: Voice
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 843f79b5a83e450681126349083c7f8a
+    parentId: cec38f80bdee4e1d960f2061554d98d5
+    name: Volume
+    isFolder: 0
+    description: "\u97F3\u58F0\u306E\u97F3\u91CF"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 23b11cfb29da48058c4f443548eb399d
+    parentId: b2ed58e9a88c40d49ecf6453eefbe372
+    name: System
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: edf8b66217fa4490a41c2297bc0c6763
+    parentId: 23b11cfb29da48058c4f443548eb399d
+    name: Volume
+    isFolder: 0
+    description: "System(UI\u306A\u3069)\u306E\u97F3\u91CF"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 19d291be3d094b1d85e4c3901fc1a482
+    parentId: cb8097497f764544b39db7ae710a07f3
+    name: Movement
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 2f50a38e2f3945d9889c5a357cbe088f
+    parentId: 19d291be3d094b1d85e4c3901fc1a482
+    name: DefaultSpeed
+    isFolder: 0
+    description: "\u57FA\u790E\u79FB\u52D5\u901F\u5EA6"
+    explicitKey: 
+    obsolete: 0
+    tags:
+    - Movement
+  - id: 7325c034ccf544d495bf404107869377
+    parentId: cb8097497f764544b39db7ae710a07f3
+    name: Health
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 449b82197796417784ffe538eda85e1e
+    parentId: 7325c034ccf544d495bf404107869377
+    name: Current
+    isFolder: 0
+    description: "\u73FE\u5728\u306E\u4F53\u529B"
+    explicitKey: 
+    obsolete: 0
+    tags:
+    - Health
+  - id: da33506ee6d948138f959b4d02af7c65
+    parentId: 7325c034ccf544d495bf404107869377
+    name: Max
+    isFolder: 0
+    description: "\u6700\u5927\u4F53\u529B"
+    explicitKey: 
+    obsolete: 0
+    tags:
+    - Health
+  - id: b1ccf775d15d47d9b18dc8228bc2439e
+    parentId: 7325c034ccf544d495bf404107869377
+    name: Ratio
+    isFolder: 0
+    description: "HP\u5272\u5408"
+    explicitKey: 
+    obsolete: 0
+    tags:
+    - UI
+    - Health
+  - id: b087a151bb2d4065892b7dfd4e45197d
+    parentId: cb8097497f764544b39db7ae710a07f3
+    name: Combat
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: bad66e0ea1234c389a277e71e830a657
+    parentId: b087a151bb2d4065892b7dfd4e45197d
+    name: AttackPower
+    isFolder: 0
+    description: "\u653B\u6483\u529B\u306E\u57FA\u6E96\u5024"
+    explicitKey: 
+    obsolete: 0
+    tags:
+    - Combat
+  - id: 62b4b13372c4473fa5bf5158237ab5af
+    parentId: 7325c034ccf544d495bf404107869377
+    name: Modifier
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 2618b3b6afaf46eeab35c70b42c1e3e1
+    parentId: 62b4b13372c4473fa5bf5158237ab5af
+    name: Poison
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: e36ef93280694e14975f01e1b2436763
+    parentId: 2618b3b6afaf46eeab35c70b42c1e3e1
+    name: DamagePerSecond
+    isFolder: 0
+    description: "\u6BD2\u306E\u6BCE\u79D2\u30C0\u30E1\u30FC\u30B8"
+    explicitKey: GameLib.Health.Modifier.Poison.DamagePerSecond
+    obsolete: 0
+    tags:
+    - Debuff
+  - id: 2e13f25be632424d812f8a948e54895f
+    parentId: 2618b3b6afaf46eeab35c70b42c1e3e1
+    name: TickInterval
+    isFolder: 0
+    description: "\u6BD2\u306E\u9069\u7528\u9593\u9694(\u79D2)"
+    explicitKey: GameLib.Health.Modifier.Poison.TickInterval
+    obsolete: 0
+    tags:
+    - Debuff
+  - id: 30cb837234ee41459515cedad2c1dd01
+    parentId: 62b4b13372c4473fa5bf5158237ab5af
+    name: DamageReduction
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: dca0aafc68a44f149d60c70ed18477d0
+    parentId: 30cb837234ee41459515cedad2c1dd01
+    name: Rate
+    isFolder: 0
+    description: "\u30C0\u30E1\u30FC\u30B8\u8EFD\u6E1B\u7387"
+    explicitKey: GameLib.Health.Modifier.DamageReduction.Rate
+    obsolete: 0
+    tags:
+    - Buff
+  - id: b486d8de9c5d43fe8495b0af538fe862
+    parentId: 62b4b13372c4473fa5bf5158237ab5af
+    name: HealBoost
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: df4455c60f91426ab920b7c7862b1a9a
+    parentId: b486d8de9c5d43fe8495b0af538fe862
+    name: Rate
+    isFolder: 0
+    description: "\u56DE\u5FA9\u91CF\u5897\u52A0\u7387"
+    explicitKey: GameLib.Health.Modifier.HealBoost.Rate
+    obsolete: 0
+    tags:
+    - Buff
+  - id: f6af76d3697d45cd8cdc8427fa040d6b
+    parentId: 62b4b13372c4473fa5bf5158237ab5af
+    name: Critical
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 15e9d72891e345808aeb7cfd2f784cc1
+    parentId: cb8097497f764544b39db7ae710a07f3
+    name: StatusEffect
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 6e20f0109291479aa24bf129471b37b7
+    parentId: 15e9d72891e345808aeb7cfd2f784cc1
+    name: Poison
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: c7a6b70d82e547b79a3febdb64d83d98
+    parentId: 6e20f0109291479aa24bf129471b37b7
+    name: DefaultDuration
+    isFolder: 0
+    description: "\u6BD2\u306E\u30C7\u30D5\u30A9\u30EB\u30C8\u6301\u7D9A\u6642\u9593"
+    explicitKey: GameLib.StatusEffect.Poison.DefaultDuration
+    obsolete: 0
+    tags:
+    - Debuff
+  - id: 5770de9a9ffb42d2aee89f6278e40073
+    parentId: 15e9d72891e345808aeb7cfd2f784cc1
+    name: SpeedMod
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: ca033e7f5ce5426ab7ec2819acd909cf
+    parentId: 5770de9a9ffb42d2aee89f6278e40073
+    name: Multiplier
+    isFolder: 0
+    description: "\u901F\u5EA6\u5909\u66F4\u500D\u7387"
+    explicitKey: GameLib.StatusEffect.SpeedMod.Multiplier
+    obsolete: 0
+    tags:
+    - Movement
+  - id: ef950ced262b46a19d0921e5e56d198a
+    parentId: 5770de9a9ffb42d2aee89f6278e40073
+    name: DefaultDuration
+    isFolder: 0
+    description: "\u901F\u5EA6\u5909\u66F4\u306E\u30C7\u30D5\u30A9\u30EB\u30C8\u6642\u9593"
+    explicitKey: GameLib.StatusEffect.SpeedMod.DefaultDuration
+    obsolete: 0
+    tags:
+    - Movement
+  - id: 3dd23ce3f1b04eb79a8e19bcd9d4e48e
+    parentId: 19d291be3d094b1d85e4c3901fc1a482
+    name: SpeedMultiplier
+    isFolder: 0
+    description: "\u920D\u8DB3\u500D\u7387"
+    explicitKey: 
+    obsolete: 0
+    tags:
+    - Debuff
+  - id: fcf936ac8fc04f48b941884c2f13cdea
+    parentId: 15e9d72891e345808aeb7cfd2f784cc1
+    name: AttackBoost
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: d41fd476b1be4e239c377e1b8aae0d7c
+    parentId: fcf936ac8fc04f48b941884c2f13cdea
+    name: Amount
+    isFolder: 0
+    description: "\u653B\u6483\u529B\u52A0\u7B97\u5024"
+    explicitKey: GameLib.StatusEffect.AttackBoost.Amount
+    obsolete: 0
+    tags:
+    - Buff
+  - id: 3f90d6f5850e40d6b3925e9049f2fe59
+    parentId: 6e20f0109291479aa24bf129471b37b7
+    name: DefaultIntensity
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 2bc3160983a64ed782bf0149bc6f450d
+    parentId: 5770de9a9ffb42d2aee89f6278e40073
+    name: DefaultIntensity
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: aa22de159ebb4b8fbc27cf124fb430fb
+    parentId: 15e9d72891e345808aeb7cfd2f784cc1
+    name: Slow
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: d13d2bdac85341808e2000918eb88256
+    parentId: aa22de159ebb4b8fbc27cf124fb430fb
+    name: DefaultDuration
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: b1fd18be3014417294f06a6f6f66f011
+    parentId: aa22de159ebb4b8fbc27cf124fb430fb
+    name: DefaultIntensity
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: ce59051317a748ad90c66b41bd83ceea
+    parentId: f6af76d3697d45cd8cdc8427fa040d6b
+    name: OutgoingMultiplier
+    isFolder: 0
+    description: "\u30AF\u30EA\u30C6\u30A3\u30AB\u30EB\u500D\u7387"
+    explicitKey: 
+    obsolete: 0
+    tags:
+    - Combat
+  - id: 4cb94fe609894571976b9de262cb6324
+    parentId: f6af76d3697d45cd8cdc8427fa040d6b
+    name: OutgoingChance
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 36d2ac389a964428924dd659b6da35ae
+    parentId: f6af76d3697d45cd8cdc8427fa040d6b
+    name: IncomingMultiplier
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: f0af02daa78040b28d7bb3df13632579
+    parentId: f6af76d3697d45cd8cdc8427fa040d6b
+    name: IncomingChance
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 550c8f224cfd4a189fe337f7c3127a11
+    parentId: 
+    name: GameLogic
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: e3ab2d8b7e944390a93bcfcc47fdaaa4
+    parentId: 550c8f224cfd4a189fe337f7c3127a11
+    name: GameProfile
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 7dc4c7fc74e547b7b9909cda0e0b9b69
+    parentId: e3ab2d8b7e944390a93bcfcc47fdaaa4
+    name: CurrentMapNodeIndex
+    isFolder: 0
+    description: "\u73FE\u5728\u306E\u30DE\u30C3\u30D7\u306E\u9032\u884C\u30CE\u30FC\u30C9\u306EIndex\u3092\u8FD4\u3057\u307E\u3059\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 2d13b29e8def499ab9cf93603dc03bd3
+    parentId: 550c8f224cfd4a189fe337f7c3127a11
+    name: PlayerProfile
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 54e3c86a7c35480898762850eaa9054a
+    parentId: efcac2921d9f4cb2af460eed77a5fb19
+    name: RedRange
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 630b8f1e89ce4961ac396f7fd89cc2d8
+    parentId: e2bfd8663c564bada2af55fa29214c25
+    name: BlueRange
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 0a242d40fac74c3089faa2eaaf845e59
+    parentId: f4e1fdfb8ab74f9cb2f833eb514a6b1d
+    name: GreenRange
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 967743f760684d45a4e609a4b9e7a745
+    parentId: 6504391c15764c389636d79c91179c05
+    name: AttackDamage
+    isFolder: 0
+    description: "\u653B\u6483\u306E\u57FA\u672C\u5024"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 17888d01952148c8820347df4563a19f
+    parentId: 6504391c15764c389636d79c91179c05
+    name: ShieldValue
+    isFolder: 0
+    description: "shield\u306E\u57FA\u672C\u5024"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: c97ec5dc3d14469ebc270c689c451399
+    parentId: 6504391c15764c389636d79c91179c05
+    name: HealHP
+    isFolder: 0
+    description: "\u56DE\u5FA9\u306E\u57FA\u672C\u5024"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: a826946b54f9436abcbf1d7b8c82acf9
+    parentId: 6504391c15764c389636d79c91179c05
+    name: InstanceExp
+    isFolder: 0
+    description: "Run\u5185\u3067\u4E3B\u306B\u4F7F\u7528\u3055\u308C\u308B\u901A\u8CA8(\u7D4C\u9A13\u5024)"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3475fb2f68354a17b111894e5bcba045
+    parentId: 6504391c15764c389636d79c91179c05
+    name: GlobalExp
+    isFolder: 0
+    description: "Run\u5916\u3067\u4F7F\u7528\u3055\u308C\u308B\u3001\u89E3\u653E\u7B49\u306B\u4F7F\u3046"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8546860b9e784dc78f1c139e05fadb2b
+    parentId: c53f368cf8ad419daf27daae414e6494
+    name: AddvanceGage
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 925896c492aa4891bb3043f8173746e6
+    parentId: 8546860b9e784dc78f1c139e05fadb2b
+    name: MixedColorBaseMul
+    isFolder: 0
+    description: "\u6DF7\u8272\u306E\u57FA\u672C\u500D\u7387 default x0.75"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 00c529f6a58a443ba3b6e71f67073759
+    parentId: efcac2921d9f4cb2af460eed77a5fb19
+    name: RedAttackDamage
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3f74d7bd801445769e75851d0afa0898
+    parentId: e2bfd8663c564bada2af55fa29214c25
+    name: BlueShieldValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 601e3f97b22e4a90a8eb0a85c161cc3a
+    parentId: f4e1fdfb8ab74f9cb2f833eb514a6b1d
+    name: GreenSkillValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: efcac2921d9f4cb2af460eed77a5fb19
+    parentId: 0b2bf1ec9e244e7389b375eacc6bad8d
+    name: Red
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: e2bfd8663c564bada2af55fa29214c25
+    parentId: 0b2bf1ec9e244e7389b375eacc6bad8d
+    name: Blue
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: f4e1fdfb8ab74f9cb2f833eb514a6b1d
+    parentId: 0b2bf1ec9e244e7389b375eacc6bad8d
+    name: Green
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 0b2bf1ec9e244e7389b375eacc6bad8d
+    parentId: 6504391c15764c389636d79c91179c05
+    name: GageProfiles
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 9d5d1ff796014db1934db75bd7ce247f
+    parentId: 0b2bf1ec9e244e7389b375eacc6bad8d
+    name: SingleColorBaseMul
+    isFolder: 0
+    description: "\u30B7\u30F3\u30B0\u30EB\u8272\u306E\u57FA\u672C\u7684\u306A\u500D\u7387
+      Default 1x"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 6504391c15764c389636d79c91179c05
+    parentId: 2d13b29e8def499ab9cf93603dc03bd3
+    name: BaseStatus
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: c53f368cf8ad419daf27daae414e6494
+    parentId: 2d13b29e8def499ab9cf93603dc03bd3
+    name: AdditionalStatus
+    isFolder: 1
+    description: "\u6DF7\u8272\u7B49\u306E\u3055\u3089\u306A\u308B\u62E1\u5F35\u30B9\u30C6\u30FC\u30BF\u30B9"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 70622a4f30224527a3bf8eed597322db
+    parentId: cb8097497f764544b39db7ae710a07f3
+    name: MapNodePlayer
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: a3d3fde6d1544619a8531bb94de30cb6
+    parentId: 70622a4f30224527a3bf8eed597322db
+    name: CurrentNodeId
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3ea7f9d13c1141d7b5944885ae478a81
+    parentId: 70622a4f30224527a3bf8eed597322db
+    name: LayerIndex
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: fc7118cb930a414bb74ce1fcad2a8491
+    parentId: 70622a4f30224527a3bf8eed597322db
+    name: WidthIndex
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: d9a8937554e840038b2e4ee560b50092
+    parentId: 70622a4f30224527a3bf8eed597322db
+    name: NodeType
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 07033e5f766e4c53ab89b4f8d0f26f78
+    parentId: 70622a4f30224527a3bf8eed597322db
+    name: NodeState
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: a405021a0b654a42bac5303511035f4d
+    parentId: 70622a4f30224527a3bf8eed597322db
+    name: TotalDepth
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: d269fa9835c64676b0ebcead645edef6
+    parentId: 70622a4f30224527a3bf8eed597322db
+    name: TotalWidth
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 765653226d70419d822fc8e7bb1f47e3
+    parentId: 19d291be3d094b1d85e4c3901fc1a482
+    name: Input
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 0d3f852f9e3844faa9f5bed00088b15b
+    parentId: 765653226d70419d822fc8e7bb1f47e3
+    name: WeightXPlusScalar
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 5610b07a380a43d4a940108a2aeec48c
+    parentId: 765653226d70419d822fc8e7bb1f47e3
+    name: WeightXMinusScalar
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 7260902ff7654a8d968c7c41cf647446
+    parentId: 765653226d70419d822fc8e7bb1f47e3
+    name: WeightYPlusScalar
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 73001d68194f4caa82d7ccf111eec02b
+    parentId: 765653226d70419d822fc8e7bb1f47e3
+    name: WeightYMinusScalar
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 91508ead6b7a44fc8b092d24baa46cb4
+    parentId: 765653226d70419d822fc8e7bb1f47e3
+    name: BiasStrengthScalar
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 89f960888db244ecaed5f196c1f53c3c
+    parentId: 765653226d70419d822fc8e7bb1f47e3
+    name: ClampMagnitudeScalar
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8d23373c5d634de085f8e350fd7dfd97
+    parentId: 765653226d70419d822fc8e7bb1f47e3
+    name: Accel
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: bcd59290a65e4739b50b17fcaa441a66
+    parentId: 765653226d70419d822fc8e7bb1f47e3
+    name: Decel
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 082fa7fbdf1a42c4bfaa81e5f1a640c3
+    parentId: 19d291be3d094b1d85e4c3901fc1a482
+    name: TransformController
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: bd0e4f2a5fa6482ea31a626d4eb88409
+    parentId: 082fa7fbdf1a42c4bfaa81e5f1a640c3
+    name: SpeedLimit
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 6536c8f397aa4419a4a2c6a589b4132d
+    parentId: bd0e4f2a5fa6482ea31a626d4eb88409
+    name: Soft
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 10fb057e1a3045409536c5acfe4847e1
+    parentId: bd0e4f2a5fa6482ea31a626d4eb88409
+    name: Hard
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 2549b6a6e218465e8076196136787407
+    parentId: bd0e4f2a5fa6482ea31a626d4eb88409
+    name: MinFallSpeed
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  csvFile: {fileID: 4900000, guid: 0f8f0a1f52c24534fa42d23481dae4e3, type: 3}

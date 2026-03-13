@@ -1,0 +1,489 @@
+fileFormatVersion: 2
+guid: 26ca5c45d065ffd419b8383194863c72
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2020755942692694393
+    second: Maruta_0
+  - first:
+      213: -7680649854724171869
+    second: Maruta_1
+  - first:
+      213: 3478052343458932088
+    second: Maruta_2
+  - first:
+      213: -3114523025246355962
+    second: Maruta_3
+  - first:
+      213: -5955045881329995187
+    second: Maruta_4
+  - first:
+      213: 8551953803306770220
+    second: Maruta_5
+  - first:
+      213: -3035329047467893733
+    second: Maruta_6
+  - first:
+      213: -7921816241137861983
+    second: Maruta_7
+  - first:
+      213: 7625708031141797054
+    second: Maruta_8
+  - first:
+      213: -7805206065915920332
+    second: Maruta_9
+  - first:
+      213: 8600259543125558301
+    second: Maruta_10
+  - first:
+      213: 2588854462683188427
+    second: Maruta_11
+  - first:
+      213: 100183816550412356
+    second: Maruta_12
+  - first:
+      213: -4863946208157732876
+    second: Maruta_13
+  - first:
+      213: 1385933495617460870
+    second: Maruta_14
+  - first:
+      213: -1768371481782612480
+    second: Maruta_15
+  - first:
+      213: -3815736337224169331
+    second: Maruta_16
+  - first:
+      213: -3893690962846835824
+    second: Maruta_17
+  - first:
+      213: 5159716860572014351
+    second: Maruta_18
+  - first:
+      213: 9159625825249481239
+    second: Maruta_19
+  - first:
+      213: 7592755055693812603
+    second: Maruta_20
+  - first:
+      213: 1777324570712701433
+    second: Maruta_21
+  - first:
+      213: -5384580366317855290
+    second: Maruta_22
+  - first:
+      213: 8240212394046359902
+    second: Maruta_23
+  - first:
+      213: -6014233369649980777
+    second: Maruta_24
+  - first:
+      213: -5481687851565751975
+    second: Maruta_25
+  - first:
+      213: 3220388545925640357
+    second: Maruta_26
+  - first:
+      213: 6072278607247955565
+    second: Maruta_27
+  - first:
+      213: 5184794887906692797
+    second: Maruta_28
+  - first:
+      213: 5603389560149759847
+    second: Maruta_29
+  - first:
+      213: 1078469568553880532
+    second: Maruta_30
+  - first:
+      213: 2196177180738965416
+    second: Maruta_31
+  - first:
+      213: 5694172379670596452
+    second: Maruta_32
+  - first:
+      213: 2572098116746807385
+    second: Maruta_33
+  - first:
+      213: -8200382634519536036
+    second: Maruta_34
+  - first:
+      213: 2861113476765620669
+    second: Maruta_35
+  - first:
+      213: 4468485295332344073
+    second: Maruta_36
+  - first:
+      213: -505253384566234276
+    second: Maruta_37
+  - first:
+      213: -8121460510956873526
+    second: Maruta_38
+  - first:
+      213: -3876054910714077229
+    second: Maruta_39
+  - first:
+      213: 7519797666410366210
+    second: Maruta_40
+  - first:
+      213: -7422588437831891729
+    second: Maruta_41
+  - first:
+      213: 8493159564912713723
+    second: Maruta_42
+  - first:
+      213: 3013099216417425577
+    second: Maruta_43
+  - first:
+      213: 1815223799164693934
+    second: Maruta_44
+  - first:
+      213: 7325367631237919214
+    second: Maruta_45
+  - first:
+      213: 2039461898428976273
+    second: Maruta_46
+  - first:
+      213: 6522439504967469144
+    second: Maruta_47
+  - first:
+      213: -6081967933370442532
+    second: Maruta_48
+  - first:
+      213: -9042363197953862331
+    second: Maruta_49
+  - first:
+      213: -3908207762154031024
+    second: Maruta_50
+  - first:
+      213: 7941831627020600501
+    second: Maruta_51
+  - first:
+      213: -7077115500527371062
+    second: Maruta_52
+  - first:
+      213: 7624144475607315773
+    second: Maruta_53
+  - first:
+      213: 8626443555869155180
+    second: Maruta_54
+  - first:
+      213: -7194745226225639259
+    second: Maruta_55
+  - first:
+      213: -5386171162492006451
+    second: Maruta_56
+  - first:
+      213: -3686781542452189212
+    second: Maruta_57
+  - first:
+      213: -4931248990674431071
+    second: Maruta_58
+  - first:
+      213: -4790543306713649569
+    second: Maruta_59
+  - first:
+      213: 7072757567278011134
+    second: Maruta_60
+  - first:
+      213: 1754047485509104235
+    second: Maruta_61
+  - first:
+      213: -1516564542211643521
+    second: Maruta_62
+  - first:
+      213: -1794471144522781965
+    second: Maruta_63
+  - first:
+      213: -2374860750790900470
+    second: Maruta_64
+  - first:
+      213: 5209646729501421141
+    second: Maruta_65
+  - first:
+      213: -6109320723580111777
+    second: Maruta_66
+  - first:
+      213: 7418620979033145240
+    second: Maruta_67
+  - first:
+      213: -2064266071890794576
+    second: Maruta_68
+  - first:
+      213: 5631701167376659330
+    second: Maruta_69
+  - first:
+      213: 6996442051491398599
+    second: Maruta_70
+  - first:
+      213: -257946301599549566
+    second: Maruta_71
+  - first:
+      213: 4557234531566764884
+    second: Maruta_72
+  - first:
+      213: 4264008016283861817
+    second: Maruta_73
+  - first:
+      213: -2410158789691791142
+    second: Maruta_74
+  - first:
+      213: -8227116221901085875
+    second: Maruta_75
+  - first:
+      213: 1018452024301607627
+    second: Maruta_76
+  - first:
+      213: -6236700603615224671
+    second: Maruta_77
+  - first:
+      213: -2505184657355571351
+    second: Maruta_78
+  - first:
+      213: -1360867052528469957
+    second: Maruta_79
+  - first:
+      213: -3862769575147085178
+    second: Maruta_80
+  - first:
+      213: -4965440933423420788
+    second: Maruta_81
+  - first:
+      213: 3565807020326657986
+    second: Maruta_82
+  - first:
+      213: -1765281386610854839
+    second: Maruta_83
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Maruta_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 260
+        height: 13
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 786da023d25d4f3e0800000000000000
+      internalID: -2020755942692694393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Maruta_1
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 0
+        width: 260
+        height: 13
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a79205a6a9d86590800000000000000
+      internalID: -7680649854724171869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Maruta_2
+      rect:
+        serializedVersion: 2
+        x: 520
+        y: 0
+        width: 260
+        height: 13
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 875a51acd26844030800000000000000
+      internalID: 3478052343458932088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Maruta_3
+      rect:
+        serializedVersion: 2
+        x: 780
+        y: 0
+        width: 260
+        height: 13
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60e7a6b5fcdf6c4d0800000000000000
+      internalID: -3114523025246355962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: f3c816e7a0362044ca04ad13247a0f73
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":1.0},"gridSpriteSize":{"x":260.0,"y":13.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Maruta_0: -2020755942692694393
+      Maruta_1: -7680649854724171869
+      Maruta_2: 3478052343458932088
+      Maruta_3: -3114523025246355962
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

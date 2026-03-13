@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f75c0bf5be7ab7488087ca65656cb67, type: 3}
+  m_Name: MaterialFxSettings
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Editor.Registry.MaterialFxSettings
+  windowTitle: MaterialFx Property Explorer
+  minSize: {x: 600, y: 400}
+  folderIcon: {fileID: 2800000, guid: ef52953e9afda5542a099dbccf852070, type: 3}
+  leafIcon: {fileID: 2800000, guid: c16899585b527df46adb89bdb84bfb59, type: 3}
+  enableTreeSort: 0
+  treeVisual:
+    RowHeight: 16
+    IndentWidth: 16
+    IconSizeRatio: 0.965
+    DragHoldSeconds: 0.25
+    SelectionColor: {r: 0.24, g: 0.48, b: 0.9, a: 0.45}
+    DropHighlightColor: {r: 0.35, g: 0.55, b: 0.95, a: 0.32}
+    DropLineColor: {r: 0.35, g: 0.75, b: 1, a: 0.8}
+  namespaceName: Game.MaterialFx.Generated
+  rootClassName: MaterialFxKeys
+  outputPath: Assets/GameLib/Script/Generated/MaterialFxKeys.g.cs
+  senderColors:
+  - Sender: 0
+    Color: {r: 0.15, g: 0.25, b: 0.45, a: 0.5294118}
+  - Sender: 1
+    Color: {r: 0.5597484, g: 0.5005936, b: 0.19890428, a: 0.49411765}
+  enumCatalog: {fileID: 11400000, guid: e88bf0e435a9b614a8028e21f3653713, type: 2}

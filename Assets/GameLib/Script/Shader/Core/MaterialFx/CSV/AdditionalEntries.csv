@@ -1,0 +1,161 @@
+Type,Path,Sender,ValueType,ShaderPropertyName,StableKey
+# ═══════════════════════════════════════════════════════════════════════════
+# Composite System v3.0 Properties
+# ═══════════════════════════════════════════════════════════════════════════
+# もしキーを追加したい場合はここに、追加してください、自動でキーが生成されます。
+# --- RenderState ---
+Folder,BaseShader/RenderState,,,,,
+Item,BaseShader/RenderState/BlendPreset,BaseShader,Int,_FxBlendPreset,BaseShader/RenderState/BlendPreset,
+Item,BaseShader/RenderState/SrcBlend,BaseShader,Int,_FxSrcBlend,BaseShader/RenderState/SrcBlend,
+Item,BaseShader/RenderState/DstBlend,BaseShader,Int,_FxDstBlend,BaseShader/RenderState/DstBlend,
+Item,BaseShader/RenderState/ZWrite,BaseShader,Bool,_FxZWrite,BaseShader/RenderState/ZWrite,
+Item,BaseShader/RenderState/Cull,BaseShader,Int,_FxCull,BaseShader/RenderState/Cull,
+Item,BaseShader/RenderState/QueueOffset,BaseShader,Int,_FxQueueOffset,BaseShader/RenderState/QueueOffset,
+
+# --- ColorOverlay ---
+Folder,BaseShader/CompositeSystems/ColorOverlay,,,,,
+Item,BaseShader/CompositeSystems/ColorOverlay/Enabled,BaseShader,Bool,_ColorOverlayEnabled,BaseShader/CompositeSystems/ColorOverlay/Enabled,
+Item,BaseShader/CompositeSystems/ColorOverlay/Color,BaseShader,Color,_ColorOverlayColor,BaseShader/CompositeSystems/ColorOverlay/Color,
+Item,BaseShader/CompositeSystems/ColorOverlay/BlendMode,BaseShader,Int,_ColorOverlayBlendMode,BaseShader/CompositeSystems/ColorOverlay/BlendMode,
+Item,BaseShader/CompositeSystems/ColorOverlay/Intensity,BaseShader,Float,_ColorOverlayIntensity,BaseShader/CompositeSystems/ColorOverlay/Intensity,
+Item,BaseShader/CompositeSystems/ColorOverlay/Hue,BaseShader,Float,_ColorOverlayHue,BaseShader/CompositeSystems/ColorOverlay/Hue,
+Item,BaseShader/CompositeSystems/ColorOverlay/Source/SlotType,BaseShader,Int,_ColorOverlaySource_SlotType,BaseShader/CompositeSystems/ColorOverlay/Source/SlotType,
+Item,BaseShader/CompositeSystems/ColorOverlay/Source/Channel,BaseShader,Int,_ColorOverlaySource_Channel,BaseShader/CompositeSystems/ColorOverlay/Source/Channel,
+Item,BaseShader/CompositeSystems/ColorOverlay/Source/UVSpace,BaseShader,Int,_ColorOverlaySource_UVSpace,BaseShader/CompositeSystems/ColorOverlay/Source/UVSpace,
+Item,BaseShader/CompositeSystems/ColorOverlay/Source/TilingOffset,BaseShader,Float4,_ColorOverlaySource_TilingOffset,BaseShader/CompositeSystems/ColorOverlay/Source/TilingOffset,
+Item,BaseShader/CompositeSystems/ColorOverlay/Source/Remap,BaseShader,Float4,_ColorOverlaySource_Remap,BaseShader/CompositeSystems/ColorOverlay/Source/Remap,
+
+# --- ColorRamp ---
+Folder,BaseShader/CompositeSystems/ColorRamp,,,,,
+Item,BaseShader/CompositeSystems/ColorRamp/Enabled,BaseShader,Bool,_ColorRampEnabled,BaseShader/CompositeSystems/ColorRamp/Enabled,
+Item,BaseShader/CompositeSystems/ColorRamp/Texture,BaseShader,Texture,_ColorRampTex,BaseShader/CompositeSystems/ColorRamp/Texture,
+Item,BaseShader/CompositeSystems/ColorRamp/Intensity,BaseShader,Float,_ColorRampIntensity,BaseShader/CompositeSystems/ColorRamp/Intensity,
+Item,BaseShader/CompositeSystems/ColorRamp/PreserveAlpha,BaseShader,Bool,_ColorRampPreserveAlpha,BaseShader/CompositeSystems/ColorRamp/PreserveAlpha,
+Item,BaseShader/CompositeSystems/ColorRamp/Source/SlotType,BaseShader,Int,_ColorRampSource_SlotType,BaseShader/CompositeSystems/ColorRamp/Source/SlotType,
+Item,BaseShader/CompositeSystems/ColorRamp/Source/Channel,BaseShader,Int,_ColorRampSource_Channel,BaseShader/CompositeSystems/ColorRamp/Source/Channel,
+Item,BaseShader/CompositeSystems/ColorRamp/Source/UVSpace,BaseShader,Int,_ColorRampSource_UVSpace,BaseShader/CompositeSystems/ColorRamp/Source/UVSpace,
+Item,BaseShader/CompositeSystems/ColorRamp/Source/TilingOffset,BaseShader,Float4,_ColorRampSource_TilingOffset,BaseShader/CompositeSystems/ColorRamp/Source/TilingOffset,
+Item,BaseShader/CompositeSystems/ColorRamp/Source/Remap,BaseShader,Float4,_ColorRampSource_Remap,BaseShader/CompositeSystems/ColorRamp/Source/Remap,
+
+# --- Refraction ---
+Folder,BaseShader/CompositeSystems/Refraction,,,,,
+Item,BaseShader/CompositeSystems/Refraction/Enabled,BaseShader,Bool,_RefractionEnabled,BaseShader/CompositeSystems/Refraction/Enabled,
+Item,BaseShader/CompositeSystems/Refraction/Strength,BaseShader,Float2,_RefractionStrength,BaseShader/CompositeSystems/Refraction/Strength,
+Item,BaseShader/CompositeSystems/Refraction/ChromaticAberration,BaseShader,Float,_RefractionChromaticAberration,BaseShader/CompositeSystems/Refraction/ChromaticAberration,
+Item,BaseShader/CompositeSystems/Refraction/Source/SlotType,BaseShader,Int,_RefractionSource_SlotType,BaseShader/CompositeSystems/Refraction/Source/SlotType,
+Item,BaseShader/CompositeSystems/Refraction/Source/Channel,BaseShader,Int,_RefractionSource_Channel,BaseShader/CompositeSystems/Refraction/Source/Channel,
+Item,BaseShader/CompositeSystems/Refraction/Source/UVSpace,BaseShader,Int,_RefractionSource_UVSpace,BaseShader/CompositeSystems/Refraction/Source/UVSpace,
+Item,BaseShader/CompositeSystems/Refraction/Source/TilingOffset,BaseShader,Float4,_RefractionSource_TilingOffset,BaseShader/CompositeSystems/Refraction/Source/TilingOffset,
+Item,BaseShader/CompositeSystems/Refraction/Source/Remap,BaseShader,Float4,_RefractionSource_Remap,BaseShader/CompositeSystems/Refraction/Source/Remap,
+
+# --- Caustics ---
+Folder,BaseShader/CompositeSystems/Caustics,,,,,
+Item,BaseShader/CompositeSystems/Caustics/Enabled,BaseShader,Bool,_CausticsEnabled,BaseShader/CompositeSystems/Caustics/Enabled,
+Item,BaseShader/CompositeSystems/Caustics/Color,BaseShader,Color,_CausticsColor,BaseShader/CompositeSystems/Caustics/Color,
+Item,BaseShader/CompositeSystems/Caustics/Intensity,BaseShader,Float,_CausticsIntensity,BaseShader/CompositeSystems/Caustics/Intensity,
+Item,BaseShader/CompositeSystems/Caustics/Threshold,BaseShader,Float,_CausticsThreshold,BaseShader/CompositeSystems/Caustics/Threshold,
+Item,BaseShader/CompositeSystems/Caustics/Softness,BaseShader,Float,_CausticsSoftness,BaseShader/CompositeSystems/Caustics/Softness,
+Item,BaseShader/CompositeSystems/Caustics/ScrollA,BaseShader,Float2,_CausticsScrollA,BaseShader/CompositeSystems/Caustics/ScrollA,
+Item,BaseShader/CompositeSystems/Caustics/ScrollB,BaseShader,Float2,_CausticsScrollB,BaseShader/CompositeSystems/Caustics/ScrollB,
+Item,BaseShader/CompositeSystems/Caustics/Source/A/SlotType,BaseShader,Int,_CausticsSourceA_SlotType,BaseShader/CompositeSystems/Caustics/Source/A/SlotType,
+Item,BaseShader/CompositeSystems/Caustics/Source/A/Channel,BaseShader,Int,_CausticsSourceA_Channel,BaseShader/CompositeSystems/Caustics/Source/A/Channel,
+Item,BaseShader/CompositeSystems/Caustics/Source/A/UVSpace,BaseShader,Int,_CausticsSourceA_UVSpace,BaseShader/CompositeSystems/Caustics/Source/A/UVSpace,
+Item,BaseShader/CompositeSystems/Caustics/Source/A/TilingOffset,BaseShader,Float4,_CausticsSourceA_TilingOffset,BaseShader/CompositeSystems/Caustics/Source/A/TilingOffset,
+Item,BaseShader/CompositeSystems/Caustics/Source/A/Remap,BaseShader,Float4,_CausticsSourceA_Remap,BaseShader/CompositeSystems/Caustics/Source/A/Remap,
+Item,BaseShader/CompositeSystems/Caustics/Source/B/SlotType,BaseShader,Int,_CausticsSourceB_SlotType,BaseShader/CompositeSystems/Caustics/Source/B/SlotType,
+Item,BaseShader/CompositeSystems/Caustics/Source/B/Channel,BaseShader,Int,_CausticsSourceB_Channel,BaseShader/CompositeSystems/Caustics/Source/B/Channel,
+Item,BaseShader/CompositeSystems/Caustics/Source/B/UVSpace,BaseShader,Int,_CausticsSourceB_UVSpace,BaseShader/CompositeSystems/Caustics/Source/B/UVSpace,
+Item,BaseShader/CompositeSystems/Caustics/Source/B/TilingOffset,BaseShader,Float4,_CausticsSourceB_TilingOffset,BaseShader/CompositeSystems/Caustics/Source/B/TilingOffset,
+Item,BaseShader/CompositeSystems/Caustics/Source/B/Remap,BaseShader,Float4,_CausticsSourceB_Remap,BaseShader/CompositeSystems/Caustics/Source/B/Remap,
+
+# --- Ripple ---
+Folder,BaseShader/CompositeSystems/Ripple,,,,,
+Item,BaseShader/CompositeSystems/Ripple/Enabled,BaseShader,Bool,_RippleEnabled,BaseShader/CompositeSystems/Ripple/Enabled,
+Item,BaseShader/CompositeSystems/Ripple/Center,BaseShader,Float2,_RippleCenter,BaseShader/CompositeSystems/Ripple/Center,
+Item,BaseShader/CompositeSystems/Ripple/WaveParams,BaseShader,Float4,_RippleWaveParams,BaseShader/CompositeSystems/Ripple/WaveParams,
+Item,BaseShader/CompositeSystems/Ripple/Amplitude,BaseShader,Float,_RippleAmplitude,BaseShader/CompositeSystems/Ripple/Amplitude,
+Item,BaseShader/CompositeSystems/Ripple/Phase,BaseShader,Float,_RipplePhase,BaseShader/CompositeSystems/Ripple/Phase,
+Item,BaseShader/CompositeSystems/Ripple/DistortUV,BaseShader,Bool,_RippleDistortUV,BaseShader/CompositeSystems/Ripple/DistortUV,
+Item,BaseShader/CompositeSystems/Ripple/ColorBlend,BaseShader,Float,_RippleColorBlend,BaseShader/CompositeSystems/Ripple/ColorBlend,
+Item,BaseShader/CompositeSystems/Ripple/Color,BaseShader,Color,_RippleColor,BaseShader/CompositeSystems/Ripple/Color,
+
+# --- HueShift ---
+Folder,BaseShader/CompositeSystems/HueShift,,,,,
+Item,BaseShader/CompositeSystems/HueShift/Enabled,BaseShader,Bool,_HueShiftEnabled,BaseShader/CompositeSystems/HueShift/Enabled,
+Item,BaseShader/CompositeSystems/HueShift/Amount,BaseShader,Float,_HueShiftAmount,BaseShader/CompositeSystems/HueShift/Amount,
+Item,BaseShader/CompositeSystems/HueShift/SaturationMod,BaseShader,Float,_HueSaturationMod,BaseShader/CompositeSystems/HueShift/SaturationMod,
+Item,BaseShader/CompositeSystems/HueShift/ValueMod,BaseShader,Float,_HueValueMod,BaseShader/CompositeSystems/HueShift/ValueMod,
+Item,BaseShader/CompositeSystems/HueShift/Mask/Source/SlotType,BaseShader,Int,_HueShiftMaskSource_SlotType,BaseShader/CompositeSystems/HueShift/Mask/Source/SlotType,
+Item,BaseShader/CompositeSystems/HueShift/Mask/Source/Channel,BaseShader,Int,_HueShiftMaskSource_Channel,BaseShader/CompositeSystems/HueShift/Mask/Source/Channel,
+Item,BaseShader/CompositeSystems/HueShift/Mask/Source/UVSpace,BaseShader,Int,_HueShiftMaskSource_UVSpace,BaseShader/CompositeSystems/HueShift/Mask/Source/UVSpace,
+Item,BaseShader/CompositeSystems/HueShift/Mask/Source/TilingOffset,BaseShader,Float4,_HueShiftMaskSource_TilingOffset,BaseShader/CompositeSystems/HueShift/Mask/Source/TilingOffset,
+Item,BaseShader/CompositeSystems/HueShift/Mask/Source/Remap,BaseShader,Float4,_HueShiftMaskSource_Remap,BaseShader/CompositeSystems/HueShift/Mask/Source/Remap,
+
+# --- NormalMap ---
+Folder,BaseShader/CompositeSystems/NormalMap,,,,,
+Item,BaseShader/CompositeSystems/NormalMap/Enabled,BaseShader,Bool,_NormalMapEnabled,BaseShader/CompositeSystems/NormalMap/Enabled,
+Item,BaseShader/CompositeSystems/NormalMap/Strength,BaseShader,Float,_NormalMapStrength,BaseShader/CompositeSystems/NormalMap/Strength,
+Item,BaseShader/CompositeSystems/NormalMap/LightDir,BaseShader,Float3,_NormalMapLightDir,BaseShader/CompositeSystems/NormalMap/LightDir,
+Item,BaseShader/CompositeSystems/NormalMap/Source/SlotType,BaseShader,Int,_NormalMapSource_SlotType,BaseShader/CompositeSystems/NormalMap/Source/SlotType,
+Item,BaseShader/CompositeSystems/NormalMap/Source/Channel,BaseShader,Int,_NormalMapSource_Channel,BaseShader/CompositeSystems/NormalMap/Source/Channel,
+Item,BaseShader/CompositeSystems/NormalMap/Source/UVSpace,BaseShader,Int,_NormalMapSource_UVSpace,BaseShader/CompositeSystems/NormalMap/Source/UVSpace,
+Item,BaseShader/CompositeSystems/NormalMap/Source/TilingOffset,BaseShader,Float4,_NormalMapSource_TilingOffset,BaseShader/CompositeSystems/NormalMap/Source/TilingOffset,
+Item,BaseShader/CompositeSystems/NormalMap/Source/Remap,BaseShader,Float4,_NormalMapSource_Remap,BaseShader/CompositeSystems/NormalMap/Source/Remap,
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Transition System v1.0 Properties
+# Phase 3.5: External texture blend transition
+# Source texture uses _ExtTexA
+# ═══════════════════════════════════════════════════════════════════════════
+# --- Transition ---
+Folder,BaseShader/Transition,,,,,
+Item,BaseShader/Transition/Enabled,BaseShader,Bool,_TransitionEnabled,BaseShader/Transition/Enabled,
+Item,BaseShader/Transition/BlendMode,BaseShader,Int,_TransitionBlendMode,BaseShader/Transition/BlendMode,
+Item,BaseShader/Transition/Progress,BaseShader,Float,_TransitionProgress,BaseShader/Transition/Progress,
+Item,BaseShader/Transition/Params,BaseShader,Float4,_TransitionParams,BaseShader/Transition/Params,
+Item,BaseShader/Transition/FromSpriteUVRect,BaseShader,Float4,_TransitionFromSpriteUVRect,BaseShader/Transition/FromSpriteUVRect,
+
+# --- BlendColor2D ---
+Folder,BaseShader/CompositeSystems/BlendColor2D,,,,,
+Item,BaseShader/CompositeSystems/BlendColor2D/Enabled,BaseShader,Bool,_BlendColor2DEnabled,BaseShader/CompositeSystems/BlendColor2D/Enabled,
+Item,BaseShader/CompositeSystems/BlendColor2D/Color,BaseShader,Color,_BlendColor2DColor,BaseShader/CompositeSystems/BlendColor2D/Color,
+Item,BaseShader/CompositeSystems/BlendColor2D/BlendIntensity,BaseShader,Float,_BlendColor2DBlendIntensity,BaseShader/CompositeSystems/BlendColor2D/BlendIntensity,
+Item,BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection,BaseShader,Int,_BlendColor2DBlendGradDirection,BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection,
+Item,BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount,BaseShader,Float,_BlendColor2DBlendGradationAmount,BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount,
+Item,BaseShader/CompositeSystems/BlendColor2D/BlendSoftness,BaseShader,Float,_BlendColor2DBlendSoftness,BaseShader/CompositeSystems/BlendColor2D/BlendSoftness,
+
+# --- AdvancedFade2D ---
+# Wipe-based fade with boundary glow and wave effects
+Folder,BaseShader/CompositeSystems/AdvancedFade2D,,,,,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/Enabled,BaseShader,Bool,_AdvancedFade2DEnabled,BaseShader/CompositeSystems/AdvancedFade2D/Enabled,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/FadeDirection,BaseShader,Int,_AdvancedFade2DFadeDirection,BaseShader/CompositeSystems/AdvancedFade2D/FadeDirection,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/FadeAmount,BaseShader,Float,_AdvancedFade2DFadeAmount,BaseShader/CompositeSystems/AdvancedFade2D/FadeAmount,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/Soft,BaseShader,Float,_AdvancedFade2DSoft,BaseShader/CompositeSystems/AdvancedFade2D/Soft,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/GlowIntensity,BaseShader,Float,_AdvancedFade2DGlowIntensity,BaseShader/CompositeSystems/AdvancedFade2D/GlowIntensity,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/GlowRange,BaseShader,Float,_AdvancedFade2DGlowRange,BaseShader/CompositeSystems/AdvancedFade2D/GlowRange,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/GlowBlendMode,BaseShader,Int,_AdvancedFade2DGlowBlendMode,BaseShader/CompositeSystems/AdvancedFade2D/GlowBlendMode,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/WaveParamsA,BaseShader,Float4,_AdvancedFade2DWaveParamsA,BaseShader/CompositeSystems/AdvancedFade2D/WaveParamsA,
+Item,BaseShader/CompositeSystems/AdvancedFade2D/WaveParamsB,BaseShader,Float4,_AdvancedFade2DWaveParamsB,BaseShader/CompositeSystems/AdvancedFade2D/WaveParamsB,
+
+# --- External Textures ---
+Folder,BaseShader/ExternalTextures,,,,,
+Item,BaseShader/ExternalTextures/ExtTexA,BaseShader,Texture,_ExtTexA,BaseShader/ExternalTextures/ExtTexA,
+Item,BaseShader/ExternalTextures/ExtTexB,BaseShader,Texture,_ExtTexB,BaseShader/ExternalTextures/ExtTexB,
+
+# --- Outline ---
+Folder,BaseShader/Outline,,,,,
+Item,BaseShader/Outline/Enabled,BaseShader,Bool,_OutlineEnabled,BaseShader/Outline/Enabled,
+Item,BaseShader/Outline/Mode,BaseShader,Int,_OutlineMode,BaseShader/Outline/Mode,
+Item,BaseShader/Outline/Color,BaseShader,Color,_OutlineColor,BaseShader/Outline/Color,
+Item,BaseShader/Outline/Width,BaseShader,Float,_OutlineWidth,BaseShader/Outline/Width,
+Item,BaseShader/Outline/Opacity,BaseShader,Float,_OutlineOpacity,BaseShader/Outline/Opacity,
+Item,BaseShader/Outline/Softness,BaseShader,Float,_OutlineSoftness,BaseShader/Outline/Softness,
+Item,BaseShader/Outline/BlendMode,BaseShader,Int,_OutlineBlendMode,BaseShader/Outline/BlendMode,
+Item,BaseShader/Outline/PixelPerfect,BaseShader,Bool,_OutlinePixelPerfect,BaseShader/Outline/PixelPerfect,
+Item,BaseShader/Outline/WidthUnit,BaseShader,Int,_OutlineWidthUnit,BaseShader/Outline/WidthUnit,
+Item,BaseShader/Outline/PixelStep,BaseShader,Float,_OutlinePixelStep,BaseShader/Outline/PixelStep,
+Item,BaseShader/Outline/SamplePattern,BaseShader,Int,_OutlineSamplePattern,BaseShader/Outline/SamplePattern,
+Item,BaseShader/Outline/MaskRespect,BaseShader,Bool,_OutlineMaskRespect,BaseShader/Outline/MaskRespect,
+Item,BaseShader/Outline/UseVertexColor,BaseShader,Bool,_OutlineUseVertexColor,BaseShader/Outline/UseVertexColor,
+Item,BaseShader/Outline/ZTestMode,BaseShader,Int,_OutlineZTestMode,BaseShader/Outline/ZTestMode,
+Item,BaseShader/Outline/UVClampEnabled,BaseShader,Bool,_OutlineUVClampEnabled,BaseShader/Outline/UVClampEnabled,
