@@ -32,6 +32,7 @@ namespace Game.NoiseProducer
             public readonly string LayerTag;
             public NoiseParameterValue Value;
             public Tween? Tween;
+            public long Revision;
 
             public LayerEntry(string layerTag, NoiseParameterValue value)
             {
@@ -41,6 +42,7 @@ namespace Game.NoiseProducer
         }
 
         readonly Dictionary<string, ParameterEntry> _entries = new(StringComparer.Ordinal);
+        long _writeRevision;
 
         public int Count => _entries.Count;
 
@@ -65,12 +67,7 @@ namespace Game.NoiseProducer
         public void Initialize(IReadOnlyList<NoiseParameterDefinition> definitions)
         {
             Clear();
-            for (int i = 0; i < definitions.Count; i++)
-            {
-                var def = definitions[i];
-                if (string.IsNullOrEmpty(def.ParameterKey)) continue;
-                _entries[def.ParameterKey] = new ParameterEntry(def);
-            }
+            RebindDefinitions(definitions);
         }
 
         public void Clear()
@@ -85,6 +82,61 @@ namespace Game.NoiseProducer
                 entry.Layers.Clear();
             }
             _entries.Clear();
+            _writeRevision = 0;
+        }
+
+        public void RebindDefinitions(IReadOnlyList<NoiseParameterDefinition> definitions)
+        {
+            var previousEntries = new Dictionary<string, ParameterEntry>(_entries, StringComparer.Ordinal);
+            _entries.Clear();
+            long maxRevision = 0;
+
+            for (int i = 0; i < definitions.Count; i++)
+            {
+                var definition = definitions[i];
+                if (string.IsNullOrEmpty(definition.ParameterKey))
+                    continue;
+
+                if (previousEntries.TryGetValue(definition.ParameterKey, out var previousEntry)
+                    && previousEntry.Definition.ValueKind == definition.ValueKind)
+                {
+                    var entry = new ParameterEntry(definition);
+                    foreach (var previousLayer in previousEntry.Layers.Values)
+                    {
+                        previousLayer.Tween?.Kill();
+                        previousLayer.Tween = null;
+
+                        var layer = new LayerEntry(previousLayer.LayerTag, previousLayer.Value)
+                        {
+                            Revision = previousLayer.Revision,
+                        };
+                        if (layer.Revision > maxRevision)
+                            maxRevision = layer.Revision;
+                        entry.Layers[layer.LayerTag] = layer;
+                    }
+
+                    entry.Dirty = true;
+                    ResolveValue(entry);
+                    _entries[definition.ParameterKey] = entry;
+                    previousEntries.Remove(definition.ParameterKey);
+                    continue;
+                }
+
+                if (previousEntry != null)
+                {
+                    KillEntryTweens(previousEntry);
+                    previousEntries.Remove(definition.ParameterKey);
+                }
+
+                _entries[definition.ParameterKey] = new ParameterEntry(definition);
+            }
+
+            foreach (var entry in previousEntries.Values)
+            {
+                KillEntryTweens(entry);
+            }
+
+            _writeRevision = Math.Max(_writeRevision, maxRevision);
         }
 
         // ── Write ───────────────────────────────────────────────
@@ -98,11 +150,16 @@ namespace Game.NoiseProducer
             if (string.IsNullOrEmpty(layerTag))
                 return false;
 
+            if (!IsCompatible(entry.Definition.ValueKind, request.Value.Kind))
+                return false;
+
             if (!entry.Layers.TryGetValue(layerTag, out var layer))
             {
-                layer = new LayerEntry(layerTag, request.Value);
+                layer = new LayerEntry(layerTag, entry.CurrentValue);
                 entry.Layers[layerTag] = layer;
             }
+
+            layer.Revision = ++_writeRevision;
 
             // Kill existing tween
             if (layer.Tween != null)
@@ -135,6 +192,7 @@ namespace Game.NoiseProducer
                                 {
                                     capturedLayer.Value = NoiseParameterValue.Float(v);
                                     capturedEntry.Dirty = true;
+                                    ResolveValue(capturedEntry);
                                 },
                                 targetValue.FloatValue,
                                 request.Duration)
@@ -158,6 +216,7 @@ namespace Game.NoiseProducer
                                 var v = Vector2.Lerp(from, to, t);
                                 capturedLayer.Value = NoiseParameterValue.Vec2(v);
                                 capturedEntry.Dirty = true;
+                                ResolveValue(capturedEntry);
                             }, 1f, request.Duration)
                             .SetEase(ease)
                             .OnComplete(() =>
@@ -180,6 +239,7 @@ namespace Game.NoiseProducer
                                 var c = Color.Lerp(from, to, t);
                                 capturedLayer.Value = NoiseParameterValue.Col(c);
                                 capturedEntry.Dirty = true;
+                                ResolveValue(capturedEntry);
                             }, 1f, request.Duration)
                             .SetEase(ease)
                             .OnComplete(() =>
@@ -255,13 +315,29 @@ namespace Game.NoiseProducer
                 return;
             }
 
-            // last-writer-wins: Dictionary の最後の要素を取る
             NoiseParameterValue resolved = entry.Definition.GetDefaultValue();
+            long latestRevision = long.MinValue;
             foreach (var layer in entry.Layers.Values)
             {
+                if (layer.Revision < latestRevision)
+                    continue;
+
+                latestRevision = layer.Revision;
                 resolved = layer.Value;
             }
             entry.CurrentValue = resolved;
+        }
+
+        static bool IsCompatible(NoiseParameterValueKind expected, NoiseParameterValueKind actual)
+            => expected == actual;
+
+        static void KillEntryTweens(ParameterEntry entry)
+        {
+            foreach (var layer in entry.Layers.Values)
+            {
+                layer.Tween?.Kill();
+                layer.Tween = null;
+            }
         }
     }
 }

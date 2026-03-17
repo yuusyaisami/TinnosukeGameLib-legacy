@@ -61,9 +61,9 @@ namespace Game.NoiseProducer
         public void ReleaseResources()
         {
             Parameters.Clear();
-            ReleaseRT(ref OutputRT);
-            ReleaseRT(ref PingRT);
-            ReleaseRT(ref PongRT);
+            OutputRT = ReleaseRT(OutputRT);
+            PingRT = ReleaseRT(PingRT);
+            PongRT = ReleaseRT(PongRT);
 
             foreach (var rt in SlotTextures.Values)
             {
@@ -81,12 +81,12 @@ namespace Game.NoiseProducer
             }
         }
 
-        static void ReleaseRT(ref RenderTexture? rt)
+        static RenderTexture? ReleaseRT(RenderTexture? rt)
         {
-            if (rt == null) return;
+            if (rt == null) return null;
             if (rt.IsCreated()) rt.Release();
             Object.Destroy(rt);
-            rt = null;
+            return null;
         }
     }
 }

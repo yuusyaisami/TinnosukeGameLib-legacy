@@ -64,25 +64,25 @@ namespace Game.MaterialFx
         {
             if (service == null) return;
 
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Enabled, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.FlowWarp.Enabled, context,
                 MaterialFxTypedValue.FromBool(flowWarp.Enabled), MaterialFxBlendMode.Override, priority);
 
             // Source
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.SlotType, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.FlowWarp.Source.SlotType, context,
                 MaterialFxTypedValue.FromFloat((int)flowWarp.Source.SlotType), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.Channel, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.FlowWarp.Source.Channel, context,
                 MaterialFxTypedValue.FromFloat((int)flowWarp.Source.Channel), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.UVSpace, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.FlowWarp.Source.UVSpace, context,
                 MaterialFxTypedValue.FromFloat((int)flowWarp.Source.UVSpace), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.TilingOffset, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.FlowWarp.Source.TilingOffset, context,
                 MaterialFxTypedValue.FromVector4(flowWarp.Source.TilingOffset), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.Remap, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.FlowWarp.Source.Remap, context,
                 MaterialFxTypedValue.FromVector4(flowWarp.Source.Remap), MaterialFxBlendMode.Override, priority);
 
             // Params
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Strength, context,
-                MaterialFxTypedValue.FromFloat(flowWarp.Strength.magnitude), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Speed, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.FlowWarp.Strength, context,
+                MaterialFxTypedValue.FromVector2(flowWarp.Strength), MaterialFxBlendMode.Override, priority);
+            service.SetLayer(MaterialFxKeys.BaseShader.FlowWarp.Speed, context,
                 MaterialFxTypedValue.FromFloat(flowWarp.Speed), MaterialFxBlendMode.Override, priority);
         }
 
@@ -97,25 +97,25 @@ namespace Game.MaterialFx
         {
             if (service == null) return;
 
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Enabled, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Mask.Enabled, context,
             MaterialFxTypedValue.FromBool(mask.Enabled), MaterialFxBlendMode.Override, priority);
 
             // Source
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.SlotType, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Mask.Source.SlotType, context,
             MaterialFxTypedValue.FromFloat((int)mask.Source.SlotType), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.Channel, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Mask.Source.Channel, context,
             MaterialFxTypedValue.FromFloat((int)mask.Source.Channel), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.UVSpace, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Mask.Source.UVSpace, context,
             MaterialFxTypedValue.FromFloat((int)mask.Source.UVSpace), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.TilingOffset, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Mask.Source.TilingOffset, context,
             MaterialFxTypedValue.FromVector4(mask.Source.TilingOffset), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.Remap, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Mask.Source.Remap, context,
             MaterialFxTypedValue.FromVector4(mask.Source.Remap), MaterialFxBlendMode.Override, priority);
 
             // Params
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Threshold, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Mask.Threshold, context,
             MaterialFxTypedValue.FromFloat(mask.Threshold), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Softness, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Mask.Softness, context,
             MaterialFxTypedValue.FromFloat(mask.Softness), MaterialFxBlendMode.Override, priority);
         }
 
@@ -130,9 +130,9 @@ namespace Game.MaterialFx
         {
             if (service == null) return;
 
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Emission.Enabled, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Emission.Enabled, context,
                 MaterialFxTypedValue.FromBool(emission.Enabled), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.CompositeSystems.Emission.Color, context,
+            service.SetLayer(MaterialFxKeys.BaseShader.Emission.Color, context,
                 MaterialFxTypedValue.FromVector4(emission.GetShaderVector()), MaterialFxBlendMode.Override, priority);
         }
 

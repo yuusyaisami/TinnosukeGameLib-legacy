@@ -361,7 +361,10 @@ Shader "Game/Base/Surface2D_Lit_Fx"
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/ShapeLightShared.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/CombinedShapeLightShared.hlsl"
             TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
+            TEXTURE2D(_MaskTex); SAMPLER(sampler_MaskTex);
 
             #define SURFACE2D_WEBGL_SAFE 1
             #include "Assets/GameLib/Script/Shader/Core/BaseShader/Surface2D.hlsl"
@@ -398,13 +401,14 @@ Shader "Game/Base/Surface2D_Lit_Fx"
                 float4 positionCS : SV_POSITION;
                 half4  color      : COLOR;
                 float2 uv         : TEXCOORD0;
-                float2 screenUV   : TEXCOORD1;
-                float2 uiLocalPos : TEXCOORD2;
+                half2  lightingUV : TEXCOORD1;
+                float2 screenUV   : TEXCOORD2;
+                float2 uiLocalPos : TEXCOORD3;
 
                 SURFACE2D_VARYINGS_EXTRA_MEMBERS
 
             #if defined(DEBUG_DISPLAY)
-                float3 positionWS : TEXCOORD3;
+                float3 positionWS : TEXCOORD4;
             #endif
 
                 UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -429,6 +433,8 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
                 float4 screenPos = ComputeScreenPos(o.positionCS);
                 o.screenUV = screenPos.xy / screenPos.w;
+                float2 ndc = o.positionCS.xy / max(o.positionCS.w, 1e-6);
+                o.lightingUV = half2(ndc);
 
             #if defined(DEBUG_DISPLAY)
                 o.positionWS = TransformObjectToWorld(input.positionOS);
@@ -481,6 +487,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
                 {
                     baseCol = i.color * texCol;
                 }
+                half4 maskCol = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, uv);
 
                 #ifdef UNITY_UI_CLIP_RECT
                 baseCol.a *= UnityGet2DClipping(i.uiLocalPos, _ClipRect);
@@ -504,7 +511,12 @@ Shader "Game/Base/Surface2D_Lit_Fx"
                 baseCol.rgb *= blendIntensity;
                 baseCol.a *= blendIntensity;
 
-                return baseCol;
+                SurfaceData2D surfaceData;
+                InputData2D   inputData;
+                InitializeSurfaceData(baseCol.rgb, baseCol.a, maskCol, surfaceData);
+                InitializeInputData(uv, i.lightingUV, inputData);
+
+                return CombinedShapeLightShared(surfaceData, inputData);
             }
             ENDHLSL
         }

@@ -3,53 +3,23 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
-using Game.Vars.Generated;
 using System.Collections.Generic;
 
 namespace Game.Common
 {
     public class BlackboardMB : MonoBehaviour, IFeatureInstaller, IScopeAcquireHandler, IScopeReleaseHandler
     {
-        enum LocalVarKey
-        {
-            A = 0,
-            B = 1,
-            C = 2,
-            D = 3,
-            E = 4,
-            F = 5,
-            G = 6,
-        }
-
-        enum LocalVarValueType
-        {
-            Bool = 0,
-            Int = 1,
-            Float = 2,
-            String = 3,
-        }
-
         [System.Serializable]
-        sealed class LocalVarInitEntry
+        sealed class LocalBlackboardInitEntry
         {
-            [LabelText("Key")] public LocalVarKey Key = LocalVarKey.A;
-            [LabelText("Value Type")] public LocalVarValueType ValueType = LocalVarValueType.Bool;
+            [LabelText("VarId")]
+            [VarIdDropdown]
+            public int VarId = 0;
 
-            [LabelText("Bool Value")]
-            [ShowIf("@ValueType == LocalVarValueType.Bool")]
-            public bool BoolValue = false;
-
-            [LabelText("Int Value")]
-            [ShowIf("@ValueType == LocalVarValueType.Int")]
-            public int IntValue = 0;
-
-            [LabelText("Float Value")]
-            [ShowIf("@ValueType == LocalVarValueType.Float")]
-            public float FloatValue = 0f;
-
-            [LabelText("String Value")]
-            [ShowIf("@ValueType == LocalVarValueType.String")]
-            public string StringValue = string.Empty;
+            [LabelText("Value")]
+            [HideLabel]
+            [InlineProperty]
+            public DynamicValue Value;
         }
 
         [FoldoutGroup("Debug")]
@@ -64,21 +34,21 @@ namespace Game.Common
         [LabelText("Auto Write Transform Vars")]
         [SerializeField] bool autoWriteTransformVars = false;
 
-        [BoxGroup("Local Var Init")]
-        [LabelText("Initialize Base LocalVars")]
-        [SerializeField] bool initializeBaseLocalVars = false;
+        [BoxGroup("Local Blackboard Init")]
+        [LabelText("Initialize Local Blackboard")]
+        [SerializeField] bool initializeLocalBlackboard = false;
 
-        [BoxGroup("Local Var Init")]
+        [BoxGroup("Local Blackboard Init")]
         [LabelText("Reinitialize On Acquire")]
-        [Tooltip("有効化（Acquire）時に LocalVarInit を再適用して既定値へ戻します")]
-        [ShowIf(nameof(initializeBaseLocalVars))]
-        [SerializeField] bool reinitializeBaseLocalVarsOnAcquire = true;
+        [Tooltip("有効化（Acquire）時に Local Blackboard Init を再適用して既定値へ戻します")]
+        [ShowIf(nameof(initializeLocalBlackboard))]
+        [SerializeField] bool reinitializeLocalBlackboardOnAcquire = true;
 
-        [BoxGroup("Local Var Init")]
+        [BoxGroup("Local Blackboard Init")]
         [LabelText("Entries")]
-        [ShowIf(nameof(initializeBaseLocalVars))]
+        [ShowIf(nameof(initializeLocalBlackboard))]
         [ListDrawerSettings(ShowPaging = false, DraggableItems = false, ShowFoldout = true, DefaultExpandedState = true)]
-        [SerializeField] LocalVarInitEntry[] baseLocalVarEntries = System.Array.Empty<LocalVarInitEntry>();
+        [SerializeField] LocalBlackboardInitEntry[] localBlackboardInitEntries = System.Array.Empty<LocalBlackboardInitEntry>();
 
         IScopeNode _owner;
         bool _debugInitialized;
@@ -127,7 +97,7 @@ namespace Game.Common
                     break;
             }
 
-            // Save/initialization pipeline is handled by ProfileRegistry only.
+            // Save registration is handled by ScopeBindingRegistry. BlackboardMB only owns local blackboard initialization.
 
             if (autoWriteTransformVars)
             {
@@ -143,7 +113,7 @@ namespace Game.Common
         void Construct(IBlackboardService blackboard)
         {
             TryInitializeDebugView(blackboard);
-            TryInitializeBaseLocalVars(blackboard, overwrite: false);
+            TryInitializeLocalBlackboard(blackboard, overwrite: false);
         }
 
         void OnDisable()
@@ -164,7 +134,7 @@ namespace Game.Common
             if (resolver.TryResolve<IBlackboardService>(out var blackboard))
             {
                 TryInitializeDebugView(blackboard);
-                TryInitializeBaseLocalVars(blackboard, overwrite: false);
+                TryInitializeLocalBlackboard(blackboard, overwrite: false);
             }
         }
 
@@ -180,7 +150,7 @@ namespace Game.Common
                 return;
 
             TryInitializeDebugView(blackboard);
-            TryInitializeBaseLocalVars(blackboard, overwrite: reinitializeBaseLocalVarsOnAcquire);
+            TryInitializeLocalBlackboard(blackboard, overwrite: reinitializeLocalBlackboardOnAcquire);
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -198,41 +168,42 @@ namespace Game.Common
             _debugInitialized = true;
         }
 
-        void TryInitializeBaseLocalVars(IBlackboardService blackboard, bool overwrite)
+        void TryInitializeLocalBlackboard(IBlackboardService blackboard, bool overwrite)
         {
-            if (!initializeBaseLocalVars || blackboard == null)
+            if (!initializeLocalBlackboard || blackboard == null)
                 return;
 
-            if (baseLocalVarEntries == null || baseLocalVarEntries.Length == 0)
+            if (localBlackboardInitEntries == null || localBlackboardInitEntries.Length == 0)
                 return;
 
             var vars = blackboard.LocalVars;
             if (vars == null)
                 return;
 
-            var seenKeys = new HashSet<LocalVarKey>();
+            var ctx = new SimpleDynamicContext(vars, _owner);
+            var seenVarIds = new HashSet<int>();
 
-            for (int i = 0; i < baseLocalVarEntries.Length; i++)
+            for (int i = 0; i < localBlackboardInitEntries.Length; i++)
             {
-                var entry = baseLocalVarEntries[i];
+                var entry = localBlackboardInitEntries[i];
                 if (entry == null)
                     continue;
 
-                if (!seenKeys.Add(entry.Key))
-                {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    Debug.LogWarning($"[BlackboardMB] LocalVarInit has duplicate key '{entry.Key}' at index={i}. Later entries may override earlier values.", this);
-#endif
-                }
-
-                var varId = ResolveLocalVarId(entry.Key);
+                var varId = entry.VarId;
                 if (varId == 0)
                     continue;
+
+                if (!seenVarIds.Add(varId))
+                {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    Debug.LogWarning($"[BlackboardMB] LocalBlackboardInit has duplicate varId={varId} at index={i}. Later entries may override earlier values.", this);
+#endif
+                }
 
                 if (!overwrite && vars.Contains(varId))
                 {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    Debug.Log($"[BlackboardMB] LocalVarInit skipped (already exists). Key={entry.Key}, VarId={varId}, Overwrite={overwrite}", this);
+                    Debug.Log($"[BlackboardMB] LocalBlackboardInit skipped (already exists). VarId={varId}, Overwrite={overwrite}", this);
 #endif
                     continue;
                 }
@@ -242,39 +213,33 @@ namespace Game.Common
                     vars.TryUnset(varId);
                 }
 
-                DynamicVariant value = entry.ValueType switch
-                {
-                    LocalVarValueType.Int => DynamicVariant.FromInt(entry.IntValue),
-                    LocalVarValueType.Float => DynamicVariant.FromFloat(entry.FloatValue),
-                    LocalVarValueType.String => DynamicVariant.FromString(entry.StringValue),
-                    _ => DynamicVariant.FromBool(entry.BoolValue),
-                };
+                var value = entry.Value.Evaluate(ctx);
 
-                if (!vars.TrySetVariant(varId, value))
+                if (!TrySetLocalValue(vars, varId, value))
                 {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     var currentKind = vars.GetVarKind(varId);
                     Debug.LogWarning(
-                        $"[BlackboardMB] LocalVarInit failed. Key={entry.Key}, VarId={varId}, ValueType={entry.ValueType}, VariantKind={value.Kind}, Overwrite={overwrite}, CurrentKind={currentKind}",
+                        $"[BlackboardMB] LocalBlackboardInit failed. VarId={varId}, VariantKind={value.Kind}, Overwrite={overwrite}, CurrentKind={currentKind}",
                         this);
 #endif
                 }
             }
         }
 
-        static int ResolveLocalVarId(LocalVarKey key)
+        static bool TrySetLocalValue(IVarStore vars, int varId, in DynamicVariant value)
         {
-            return key switch
+            if (value.Kind == ValueKind.Null)
             {
-                LocalVarKey.A => VarIds.GameLib.Base.LocalVar.A,
-                LocalVarKey.B => VarIds.GameLib.Base.LocalVar.B,
-                LocalVarKey.C => VarIds.GameLib.Base.LocalVar.C,
-                LocalVarKey.D => VarIds.GameLib.Base.LocalVar.D,
-                LocalVarKey.E => VarIds.GameLib.Base.LocalVar.E,
-                LocalVarKey.F => VarIds.GameLib.Base.LocalVar.F,
-                LocalVarKey.G => VarIds.GameLib.Base.LocalVar.G,
-                _ => 0,
-            };
+                if (!vars.Contains(varId))
+                    return true;
+                return vars.TryUnset(varId);
+            }
+
+            if (value.Kind == ValueKind.ManagedRef)
+                return value.AsManagedRef != null && vars.TrySetManagedRef(varId, value.AsManagedRef);
+
+            return vars.TrySetVariant(varId, value);
         }
     }
 }

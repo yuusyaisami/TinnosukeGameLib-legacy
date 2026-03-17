@@ -9,15 +9,20 @@ Shader "Hidden/GameLib/NoiseGenerator"
         _NoiseScale ("Scale", Vector) = (1, 1, 0, 0)
         _NoiseOffset ("Offset", Vector) = (0, 0, 0, 0)
         _NoiseScroll ("Scroll", Vector) = (0, 0, 0, 0)
+        _NoiseRotation ("Rotation", Float) = 0
+        _NoiseCenter ("Center", Vector) = (0.5, 0.5, 0, 0)
+        _NoiseStrength ("Strength", Float) = 1
         _NoiseGradientA ("GradientA", Color) = (0, 0, 0, 1)
         _NoiseGradientB ("GradientB", Color) = (1, 1, 1, 1)
         _NoiseThreshold ("Threshold", Float) = 0.5
         _NoiseSoftness ("Softness", Float) = 0.1
         _NoiseBlend ("Blend", Float) = 0.5
+        _NoiseOpacity ("Opacity", Float) = 1
         _NoiseClearColor ("ClearColor", Color) = (0, 0, 0, 0)
         _NoiseOctaves ("Octaves", Int) = 4
         _NoiseLacunarity ("Lacunarity", Float) = 2.0
         _NoiseGain ("Gain", Float) = 0.5
+        _NoiseMaskTex ("Mask", 2D) = "black" {}
         _NoiseStageOp ("StageOp", Int) = 0
     }
 
@@ -26,17 +31,22 @@ Shader "Hidden/GameLib/NoiseGenerator"
 
     sampler2D _NoiseInputTex;
     sampler2D _NoiseSecondaryTex;
+    sampler2D _NoiseMaskTex;
 
     float _NoiseTime;
     float _NoiseSeed;
     float2 _NoiseScale;
     float2 _NoiseOffset;
     float2 _NoiseScroll;
+    float _NoiseRotation;
+    float2 _NoiseCenter;
+    float _NoiseStrength;
     float4 _NoiseGradientA;
     float4 _NoiseGradientB;
     float _NoiseThreshold;
     float _NoiseSoftness;
     float _NoiseBlend;
+    float _NoiseOpacity;
     float4 _NoiseClearColor;
     int _NoiseOctaves;
     float _NoiseLacunarity;
@@ -199,14 +209,14 @@ Shader "Hidden/GameLib/NoiseGenerator"
                 if (_NoiseStageOp == 20)
                 {
                     float2 flowDir = _NoiseScroll;
-                    uv += flowDir * sin(_NoiseTime) * 0.5;
+                    uv += flowDir * sin(_NoiseTime) * (0.5 * _NoiseStrength);
                 }
 
                 // Rotate = 30
                 if (_NoiseStageOp == 30)
                 {
-                    float angle = _NoiseTime * _NoiseScroll.x;
-                    float2 center = float2(0.5, 0.5);
+                    float angle = _NoiseTime * _NoiseRotation;
+                    float2 center = _NoiseCenter;
                     float s, c;
                     sincos(angle, s, c);
                     float2 p = uv - center;
@@ -216,7 +226,7 @@ Shader "Hidden/GameLib/NoiseGenerator"
                 // Polar = 40
                 if (_NoiseStageOp == 40)
                 {
-                    float2 center = float2(0.5, 0.5);
+                    float2 center = _NoiseCenter;
                     float2 delta = uv - center;
                     float r = length(delta);
                     float theta = atan2(delta.y, delta.x);
@@ -241,27 +251,30 @@ Shader "Hidden/GameLib/NoiseGenerator"
             float4 fragFilter(v2f i) : SV_Target
             {
                 float4 col = tex2D(_NoiseInputTex, i.uv);
+                float4 filtered = col;
 
                 // Levels = 20
                 if (_NoiseStageOp == 20)
                 {
                     float v = col.r;
                     v = smoothstep(_NoiseThreshold - _NoiseSoftness, _NoiseThreshold + _NoiseSoftness, v);
-                    return float4(v, v, v, col.a);
+                    filtered = float4(v, v, v, col.a);
                 }
 
                 // Clamp = 30
-                if (_NoiseStageOp == 30)
+                else if (_NoiseStageOp == 30)
                 {
                     float v = saturate((col.r - _NoiseThreshold) / max(_NoiseSoftness, 0.001));
-                    return float4(v, v, v, col.a);
+                    filtered = float4(v, v, v, col.a);
                 }
 
                 // Invert = 40
-                if (_NoiseStageOp == 40)
-                    return float4(1 - col.rgb, col.a);
+                else if (_NoiseStageOp == 40)
+                {
+                    filtered = float4(1 - col.rgb, col.a);
+                }
 
-                return col;
+                return lerp(col, filtered, saturate(_NoiseStrength));
             }
             ENDHLSL
         }
@@ -279,28 +292,35 @@ Shader "Hidden/GameLib/NoiseGenerator"
             {
                 float4 primary = tex2D(_NoiseInputTex, i.uv);
                 float4 secondary = tex2D(_NoiseSecondaryTex, i.uv);
+                float4 outputColor = primary;
 
                 // Blend = 10
                 if (_NoiseStageOp == 10)
-                    return lerp(primary, secondary, _NoiseBlend);
+                    outputColor = lerp(primary, secondary, _NoiseBlend);
 
                 // Add = 20
-                if (_NoiseStageOp == 20)
-                    return saturate(primary + secondary * _NoiseBlend);
+                else if (_NoiseStageOp == 20)
+                    outputColor = saturate(primary + secondary * _NoiseBlend);
 
                 // Multiply = 30
-                if (_NoiseStageOp == 30)
-                    return lerp(primary, primary * secondary, _NoiseBlend);
+                else if (_NoiseStageOp == 30)
+                    outputColor = lerp(primary, primary * secondary, _NoiseBlend);
 
                 // Min = 40
-                if (_NoiseStageOp == 40)
-                    return min(primary, secondary);
+                else if (_NoiseStageOp == 40)
+                    outputColor = min(primary, secondary);
 
                 // Max = 50
-                if (_NoiseStageOp == 50)
-                    return max(primary, secondary);
+                else if (_NoiseStageOp == 50)
+                    outputColor = max(primary, secondary);
 
-                return primary;
+                else if (_NoiseStageOp == 60)
+                {
+                    float mask = tex2D(_NoiseMaskTex, i.uv).r;
+                    outputColor = lerp(primary, secondary, saturate(mask * _NoiseBlend));
+                }
+
+                return lerp(primary, outputColor, saturate(_NoiseOpacity));
             }
             ENDHLSL
         }

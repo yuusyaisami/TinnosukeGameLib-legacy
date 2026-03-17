@@ -1,0 +1,2856 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0298adf49dfcadc41b10ba6e58071b23, type: 3}
+  m_Name: VarKeyRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Game.VarStoreKeys.VarKeyRegistry
+  nodes:
+  - id: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    parentId: 
+    name: GameLib
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: c6dbc8c6623a4382951e71e95dc72dde
+    parentId: 7fcb1e356f3e46a4b7943f229fbb9add
+    name: FirePattern
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 308752ecd5ae4b6eb328e6bfc83b293a
+    parentId: c6dbc8c6623a4382951e71e95dc72dde
+    name: CircleFire
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 3d4e073307ac45c69b67a3d8e51f92ab
+    parentId: 308752ecd5ae4b6eb328e6bfc83b293a
+    name: circleCount
+    isFolder: 0
+    description: 
+    varId: 2
+    stableKey: circleCount
+    aliases: []
+  - id: 9bd178965db14fbaad5dbba0dbf836a6
+    parentId: 308752ecd5ae4b6eb328e6bfc83b293a
+    name: circleRadius
+    isFolder: 0
+    description: 
+    varId: 3
+    stableKey: circleRadius
+    aliases: []
+  - id: 52528480c6344ca4ac888603ceb5aa4a
+    parentId: 308752ecd5ae4b6eb328e6bfc83b293a
+    name: circleStartAngle
+    isFolder: 0
+    description: 
+    varId: 4
+    stableKey: circleStartAngle
+    aliases: []
+  - id: a49df143ec8844f09018dc93f695e5dd
+    parentId: 308752ecd5ae4b6eb328e6bfc83b293a
+    name: circleEndAngle
+    isFolder: 0
+    description: 
+    varId: 5
+    stableKey: circleEndAngle
+    aliases: []
+  - id: 6242ecbfea734c4bbbac75d95859d88b
+    parentId: 81a6cfbf2d1144dbab0196b5c8278c48
+    name: InputMovement
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 83b00c1e322a4702b549c45df746adc9
+    parentId: 6242ecbfea734c4bbbac75d95859d88b
+    name: inputSpeed
+    isFolder: 0
+    description: 
+    varId: 6
+    stableKey: inputSpeed
+    aliases: []
+  - id: e7f998e5d0984f5881981190d0a9e3e9
+    parentId: 6242ecbfea734c4bbbac75d95859d88b
+    name: currentSpeed
+    isFolder: 0
+    description: 
+    varId: 7
+    stableKey: currentSpeed
+    aliases: []
+  - id: ad838041a5474ed9abb115556900d3df
+    parentId: 7fcb1e356f3e46a4b7943f229fbb9add
+    name: Common
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: ba4629ec890b433fafe798dac0576d4d
+    parentId: ad838041a5474ed9abb115556900d3df
+    name: emitterPosition
+    isFolder: 0
+    description: 
+    varId: 8
+    stableKey: emitterPosition
+    aliases: []
+  - id: 602fa929fe8144fe91b70627dcbfeb9a
+    parentId: ad838041a5474ed9abb115556900d3df
+    name: emitterRotation
+    isFolder: 0
+    description: 
+    varId: 9
+    stableKey: emitterRotation
+    aliases: []
+  - id: aed572a091654a29a24427312c1008ba
+    parentId: ad838041a5474ed9abb115556900d3df
+    name: emitIndex
+    isFolder: 0
+    description: 
+    varId: 10
+    stableKey: emitIndex
+    aliases: []
+  - id: bfef712c867941faa5f2d99286d70d8f
+    parentId: ad838041a5474ed9abb115556900d3df
+    name: emitCount
+    isFolder: 0
+    description: 
+    varId: 11
+    stableKey: emitCount
+    aliases: []
+  - id: b2fbda3accc6487cb031dfc695295f03
+    parentId: 7fcb1e356f3e46a4b7943f229fbb9add
+    name: Point
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 109ecdb2573443168ee55748a4a265b2
+    parentId: b2fbda3accc6487cb031dfc695295f03
+    name: index
+    isFolder: 0
+    description: 
+    varId: 12
+    stableKey: index
+    aliases: []
+  - id: 8409aac19faf45b1855e0ef5decf239d
+    parentId: b2fbda3accc6487cb031dfc695295f03
+    name: position
+    isFolder: 0
+    description: 
+    varId: 13
+    stableKey: position
+    aliases: []
+  - id: 7a0f184405f64a7eb80fcf0eac114898
+    parentId: b2fbda3accc6487cb031dfc695295f03
+    name: direction
+    isFolder: 0
+    description: 
+    varId: 14
+    stableKey: direction
+    aliases: []
+  - id: 7eeb94735a9d4df59f7716abf8677e4c
+    parentId: b2fbda3accc6487cb031dfc695295f03
+    name: distance
+    isFolder: 0
+    description: 
+    varId: 15
+    stableKey: distance
+    aliases: []
+  - id: 3d2fab27cdab49a699bdc4092e7d53d1
+    parentId: b2fbda3accc6487cb031dfc695295f03
+    name: tangent
+    isFolder: 0
+    description: 
+    varId: 16
+    stableKey: tangent
+    aliases: []
+  - id: 13b15545fa004b5ea9fdfb2721f2657b
+    parentId: b2fbda3accc6487cb031dfc695295f03
+    name: normalized
+    isFolder: 0
+    description: 
+    varId: 17
+    stableKey: normalized
+    aliases: []
+  - id: 62e3c742a04347ef9d794593913eaebc
+    parentId: b2fbda3accc6487cb031dfc695295f03
+    name: spawnCount
+    isFolder: 0
+    description: 
+    varId: 18
+    stableKey: spawnCount
+    aliases: []
+  - id: 711302f6f13d4f55ac05e775f0415989
+    parentId: c6dbc8c6623a4382951e71e95dc72dde
+    name: BurstFire
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: fac677b542664bbbb190c6aaff822822
+    parentId: 711302f6f13d4f55ac05e775f0415989
+    name: burstCount
+    isFolder: 0
+    description: 
+    varId: 19
+    stableKey: burstCount
+    aliases: []
+  - id: 9e4ff9b092fc4e9db33cba406aebac61
+    parentId: 711302f6f13d4f55ac05e775f0415989
+    name: burstInterval
+    isFolder: 0
+    description: 
+    varId: 20
+    stableKey: burstInterval
+    aliases: []
+  - id: c4f7587b4bd5459cabbb4fbf168a8229
+    parentId: c6dbc8c6623a4382951e71e95dc72dde
+    name: Common
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: d3115728c4c34eaeba4fbb6e6dcec4c9
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: fireIndex
+    isFolder: 0
+    description: 
+    varId: 21
+    stableKey: fireIndex
+    aliases: []
+  - id: b34ab47115924ab2b288f7e560099640
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: fireCount
+    isFolder: 0
+    description: 
+    varId: 22
+    stableKey: fireCount
+    aliases: []
+  - id: cb04ef65a1434d17b085b2a0446c5a89
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: hasTarget
+    isFolder: 0
+    description: 
+    varId: 23
+    stableKey: hasTarget
+    aliases: []
+  - id: ab4ec38ac09247a09fff150723005370
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: fireNormalized
+    isFolder: 0
+    description: 
+    varId: 24
+    stableKey: fireNormalized
+    aliases: []
+  - id: 274627b491434de597c1e1ea36e0a676
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: targetDistance
+    isFolder: 0
+    description: 
+    varId: 25
+    stableKey: targetDistance
+    aliases: []
+  - id: 80fa680d9c144fb297b1412fee778747
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: targetHitCount
+    isFolder: 0
+    description: 
+    varId: 26
+    stableKey: targetHitCount
+    aliases: []
+  - id: 237ba516cbf047b8935df5fd520a3c85
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: firePosition
+    isFolder: 0
+    description: 
+    varId: 27
+    stableKey: firePosition
+    aliases: []
+  - id: 578a465eea224cb99497f8432c5e5de6
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: fireBaseDirection
+    isFolder: 0
+    description: 
+    varId: 28
+    stableKey: fireBaseDirection
+    aliases: []
+  - id: 33f911575a5c4a2f8e6fd94edb34c659
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: fireTargetDirection
+    isFolder: 0
+    description: 
+    varId: 29
+    stableKey: fireTargetDirection
+    aliases: []
+  - id: 13198452b2ce48cc932ed4ec0e2d53ec
+    parentId: c4f7587b4bd5459cabbb4fbf168a8229
+    name: fireRepeatIndex
+    isFolder: 0
+    description: 
+    varId: 30
+    stableKey: fireRepeatIndex
+    aliases: []
+  - id: 163b92bdd82d4cd3b11f6ca979429fdd
+    parentId: 47905f98e34e4ab3a224a06e3961fd68
+    name: spawnDelay
+    isFolder: 0
+    description: 
+    varId: 31
+    stableKey: SpawnDelay
+    aliases: []
+  - id: 9851178d971e44278deeadffeefea94a
+    parentId: 47905f98e34e4ab3a224a06e3961fd68
+    name: spawnDuration
+    isFolder: 0
+    description: 
+    varId: 32
+    stableKey: spawnDuration
+    aliases: []
+  - id: bba3f51ba0c949b191258f38fd0381bd
+    parentId: 47905f98e34e4ab3a224a06e3961fd68
+    name: despawnDelay
+    isFolder: 0
+    description: 
+    varId: 33
+    stableKey: despawnDelay
+    aliases: []
+  - id: af9539fda074416285b85cb89b4a79a2
+    parentId: 47905f98e34e4ab3a224a06e3961fd68
+    name: despawnDuration
+    isFolder: 0
+    description: 
+    varId: 34
+    stableKey: despawnDuration
+    aliases: []
+  - id: 61cc1d7b0b5b4e4dbd1fa8f3ad0b6b2a
+    parentId: a3b8c2f1c1a6458fbf0e1ecf7c9f0c21
+    name: tileId
+    isFolder: 0
+    description: 
+    varId: 35
+    stableKey: tileId
+    aliases: []
+  - id: d58cf4d1976f4a1b9f28c457f2b14b0b
+    parentId: a3b8c2f1c1a6458fbf0e1ecf7c9f0c21
+    name: x
+    isFolder: 0
+    description: 
+    varId: 36
+    stableKey: x
+    aliases: []
+  - id: 2ed7a57f9d6b47b0a9d5d09ee5c7c5be
+    parentId: a3b8c2f1c1a6458fbf0e1ecf7c9f0c21
+    name: y
+    isFolder: 0
+    description: 
+    varId: 37
+    stableKey: y
+    aliases: []
+  - id: f091abdb8bd54ab6be4b75484c821ad6
+    parentId: a3b8c2f1c1a6458fbf0e1ecf7c9f0c21
+    name: worldPos
+    isFolder: 0
+    description: 
+    varId: 38
+    stableKey: worldPos
+    aliases: []
+  - id: 1d3f5e6a7b8c4d2fa1b2c3d4e5f60718
+    parentId: a3b8c2f1c1a6458fbf0e1ecf7c9f0c21
+    name: animPreset
+    isFolder: 0
+    description: 
+    varId: 54
+    stableKey: animPreset
+    aliases: []
+  - id: bf9d10780ffd431f9d1fe6f54d629bf6
+    parentId: 
+    name: GameLogic
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 2dd8e070014c4144b94615b780b5cf13
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: damage
+    isFolder: 0
+    description: 
+    varId: 40
+    stableKey: damage
+    aliases:
+    - Damage
+    - amage
+  - id: 3e3ea93363ff44249126f78416a5e968
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: damageType
+    isFolder: 0
+    description: 
+    varId: 41
+    stableKey: damageType
+    aliases:
+    - DamageType
+    - amageType
+  - id: 9b20cdcdbc0c45298d0208dd6f6618d6
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: isCritical
+    isFolder: 0
+    description: 
+    varId: 42
+    stableKey: isCritical
+    aliases:
+    - IsCritical
+    - sCritical
+  - id: 122a379beaa141e886e3191e917e3721
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: wasBlocked
+    isFolder: 0
+    description: 
+    varId: 43
+    stableKey: wasBlocked
+    aliases:
+    - WasBlocked
+    - asBlocked
+  - id: 0188e234c29e4230ae864923a8671714
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: wasDodged
+    isFolder: 0
+    description: 
+    varId: 44
+    stableKey: wasDodged
+    aliases:
+    - WasDodged
+    - asDodged
+  - id: f6e3154316b34b49b85fb5b667349863
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: prevHP
+    isFolder: 0
+    description: 
+    varId: 45
+    stableKey: prevHP
+    aliases:
+    - PrevHP
+    - revHP
+  - id: 76ebae3a9cb84543bee45d37135e5699
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: newHP
+    isFolder: 0
+    description: 
+    varId: 46
+    stableKey: newHP
+    aliases:
+    - NewHP
+    - ewHP
+  - id: a863e8feaf50470dbbf175869aed4d51
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: tag
+    isFolder: 0
+    description: 
+    varId: 47
+    stableKey: tag
+    aliases: []
+  - id: 9b514b5905424e1b9ebb6f9db1826971
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: heal
+    isFolder: 0
+    description: 
+    varId: 48
+    stableKey: heal
+    aliases:
+    - Heal
+    - eal
+  - id: 20616b3adba344769a9c711907481006
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: healType
+    isFolder: 0
+    description: 
+    varId: 49
+    stableKey: healType
+    aliases:
+    - HealType
+    - ealType
+  - id: a9589a5d501b4d4e8a3e432fa5730c0e
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: source
+    isFolder: 0
+    description: 
+    varId: 50
+    stableKey: source
+    aliases:
+    - Source
+    - ource
+  - id: f1b1d7ce431a482e8e963000cc2cb0f1
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: isInvincible
+    isFolder: 0
+    description: 
+    varId: 51
+    stableKey: isInvincible
+    aliases: []
+  - id: 52e1d92bc62746e28dc0d10d0aaa1d79
+    parentId: a3b8c2f1c1a6458fbf0e1ecf7c9f0c21
+    name: roomCenterPos
+    isFolder: 0
+    description: 
+    varId: 56
+    stableKey: roomCenterPos
+    aliases: []
+  - id: be69798b6bb045ba906debf12293f4c0
+    parentId: 33d2b0575d5b4156a34fd3a3a1e415e1
+    name: IsSelected
+    isFolder: 0
+    description: 
+    varId: 63
+    stableKey: IsSelected
+    aliases: []
+  - id: 5f958b7a4d6244c0ae5b6d4feb081861
+    parentId: 33d2b0575d5b4156a34fd3a3a1e415e1
+    name: IsNavigationSelectable
+    isFolder: 0
+    description: 
+    varId: 64
+    stableKey: IsNavigatable
+    aliases: []
+  - id: 7b9dda373518431495cbe22a3c650398
+    parentId: 3a6c24c4dc3c425e9508d63d5f367b87
+    name: IsWebGL
+    isFolder: 0
+    description: 
+    varId: 65
+    stableKey: IsWebGL
+    aliases: []
+  - id: e16e22d7078f4c9dbceedfc419f9ab55
+    parentId: e4d4e565d6794e3c839e119e9e888f23
+    name: IsHardwareNative
+    isFolder: 0
+    description: 
+    varId: 66
+    stableKey: IsHardwareNative
+    aliases: []
+  - id: c632e19ef209469e9ae4224f238597d0
+    parentId: 3a6c24c4dc3c425e9508d63d5f367b87
+    name: IsWindows
+    isFolder: 0
+    description: 
+    varId: 67
+    stableKey: IsWindows
+    aliases: []
+  - id: a93bbfbea05e4cf799a57b19dc112857
+    parentId: 84f7d4995a03419d8337eaef884e4acf
+    name: Hardware
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: e4d4e565d6794e3c839e119e9e888f23
+    parentId: a93bbfbea05e4cf799a57b19dc112857
+    name: Category
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 3a6c24c4dc3c425e9508d63d5f367b87
+    parentId: a93bbfbea05e4cf799a57b19dc112857
+    name: Kind
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: baafef06d0394ee59445f884ce77dd1f
+    parentId: 84f7d4995a03419d8337eaef884e4acf
+    name: Software
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 954d72ef1bdf4e99a8983ef896c9cc37
+    parentId: baafef06d0394ee59445f884ce77dd1f
+    name: Category
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 30c1f5a28ff74f7da2f0766993a007d5
+    parentId: baafef06d0394ee59445f884ce77dd1f
+    name: Kind
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: fb94e4579437435a840723a6c2757513
+    parentId: 30c1f5a28ff74f7da2f0766993a007d5
+    name: IsSteam
+    isFolder: 0
+    description: 
+    varId: 69
+    stableKey: IsSteam
+    aliases: []
+  - id: 5cf7bb3eff104545a074c835a9f8c2fb
+    parentId: 30c1f5a28ff74f7da2f0766993a007d5
+    name: IsSoftwareNative
+    isFolder: 0
+    description: 
+    varId: 70
+    stableKey: IsSoftwareNative
+    aliases: []
+  - id: 88d5725b7b7e48a69684395457e28fbf
+    parentId: 3a186071641f4ab88deabe78bc5228f3
+    name: IsLoading
+    isFolder: 0
+    description: 
+    varId: 71
+    stableKey: IsLoading
+    aliases: []
+  - id: d036fd2909e4411ca548161dba8df2ce
+    parentId: 3a186071641f4ab88deabe78bc5228f3
+    name: LoadingMessage
+    isFolder: 0
+    description: 
+    varId: 72
+    stableKey: LoadingMessage
+    aliases: []
+  - id: b23969b486634624ae900bb432ab3ec5
+    parentId: 3a186071641f4ab88deabe78bc5228f3
+    name: Progress
+    isFolder: 0
+    description: 
+    varId: 73
+    stableKey: Progress
+    aliases: []
+  - id: 21d6030877764247be2e7ccc05aaf82a
+    parentId: 33d2b0575d5b4156a34fd3a3a1e415e1
+    name: Button
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: f73313bca82744a589919735af7eaaeb
+    parentId: 21d6030877764247be2e7ccc05aaf82a
+    name: SetActive
+    isFolder: 0
+    description: 
+    varId: 76
+    stableKey: SetActive
+    aliases: []
+  - id: 21a391c832474f06a88b87510d9823fe
+    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
+    name: GameProfiles
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: a0c57d318be247e1a08353516aff6b8e
+    parentId: 21a391c832474f06a88b87510d9823fe
+    name: PlayerGameAction
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: bfe8c11fcb354318895e56c2ae5178a0
+    parentId: a0c57d318be247e1a08353516aff6b8e
+    name: currentGageColor
+    isFolder: 0
+    description: 
+    varId: 79
+    stableKey: currentGageColor
+    aliases: []
+  - id: 6ac76fc1224c4a7286f136c03634d027
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: nodeId
+    isFolder: 0
+    description: 
+    varId: 80
+    stableKey: nodeId
+    aliases: []
+  - id: f821a69b5bed4f2c9fbf68dc8443ed36
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: nodeType
+    isFolder: 0
+    description: 
+    varId: 81
+    stableKey: nodeType
+    aliases: []
+  - id: c1c77e32dd884dea98d32ee0ea4e4ade
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: nodeState
+    isFolder: 0
+    description: 
+    varId: 82
+    stableKey: nodeState
+    aliases: []
+  - id: 39662c26563e42cc9efbcff9dc3c7278
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: layerIndex
+    isFolder: 0
+    description: 
+    varId: 83
+    stableKey: layerIndex
+    aliases: []
+  - id: 539effce336a4cdab1770eb04356f048
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: widthIndex
+    isFolder: 0
+    description: 
+    varId: 84
+    stableKey: widthIndex
+    aliases: []
+  - id: eb0959bde61e4ba58d3b788503b86c81
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: layerWidth
+    isFolder: 0
+    description: 
+    varId: 85
+    stableKey: layerWidth
+    aliases: []
+  - id: 8ef45b7993ef459baab1f4d3dee8c329
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: totalDepth
+    isFolder: 0
+    description: 
+    varId: 86
+    stableKey: totalDepth
+    aliases: []
+  - id: dcef492c7a0649a3a75c89f83ee341cf
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: animNodePreset
+    isFolder: 0
+    description: 
+    varId: 91
+    stableKey: animNodePreset
+    aliases: []
+  - id: 81a6cfbf2d1144dbab0196b5c8278c48
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: Movement
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 47905f98e34e4ab3a224a06e3961fd68
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: Lifecycle
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 7fcb1e356f3e46a4b7943f229fbb9add
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: SpawnPattern
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 0d34e4b9e8684f54b653f0d05188ba82
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: MapNode
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: a3b8c2f1c1a6458fbf0e1ecf7c9f0c21
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: RoomMap
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 100455ba8e9a488ca13158ff512af288
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: Health
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 569c90ac79dc4aa0968ffb564ae5ae32
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: Base
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 84f7d4995a03419d8337eaef884e4acf
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: Platform
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 3a186071641f4ab88deabe78bc5228f3
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: SceneManager
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: be56bf8f8ba8452fad517557f4398d43
+    parentId: 62e09ff4d0d94d5eb93a64e946a6bb58
+    name: availableNodeIds
+    isFolder: 0
+    description: 
+    varId: 92
+    stableKey: availableNodeIds
+    aliases: []
+  - id: 803bdf2ab5ce4e93b4eaa49692b54422
+    parentId: 62e09ff4d0d94d5eb93a64e946a6bb58
+    name: visitedNodeIds
+    isFolder: 0
+    description: 
+    varId: 94
+    stableKey: visitedNodeIds
+    aliases: []
+  - id: 5179718c8aa14c71a00f135cce3904ad
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: worldNodePos
+    isFolder: 0
+    description: 
+    varId: 88
+    stableKey: worldNodePos
+    aliases: []
+  - id: 20ad7eee797c412f83032ddc8ef928ee
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: prevNodeIds
+    isFolder: 0
+    description: 
+    varId: 89
+    stableKey: prevNodeIds
+    aliases: []
+  - id: 7e83a965e0484b6182195073700ebca1
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: nextNodeIds
+    isFolder: 0
+    description: 
+    varId: 90
+    stableKey: nextNodeIds
+    aliases: []
+  - id: c1114b3c07a64830ae28628433061e5f
+    parentId: 7116b4d0effe453eb0ea9660785b1af7
+    name: totalWidth
+    isFolder: 0
+    description: 
+    varId: 87
+    stableKey: totalWidth
+    aliases: []
+  - id: 7116b4d0effe453eb0ea9660785b1af7
+    parentId: 0d34e4b9e8684f54b653f0d05188ba82
+    name: System
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 62e09ff4d0d94d5eb93a64e946a6bb58
+    parentId: 0d34e4b9e8684f54b653f0d05188ba82
+    name: Player
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 4a7c7a779a264442a3b9cf326d549d03
+    parentId: 62e09ff4d0d94d5eb93a64e946a6bb58
+    name: blockedNodeIds
+    isFolder: 0
+    description: 
+    varId: 93
+    stableKey: blockedNodeIds
+    aliases: []
+  - id: 5056684a9610427b8b7c7b3bcea18333
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: knockbackForce
+    isFolder: 0
+    description: 
+    varId: 95
+    stableKey: knockbackForce
+    aliases: []
+  - id: f51a6b8170284cc9afde6ef705c74e99
+    parentId: 100455ba8e9a488ca13158ff512af288
+    name: Effects
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 1d2e4b84543642c6a3f9407e60d435ee
+    parentId: f51a6b8170284cc9afde6ef705c74e99
+    name: defense
+    isFolder: 0
+    description: 
+    varId: 96
+    stableKey: defense
+    aliases: []
+  - id: ceedd96216ab49d5a89b33ea70331115
+    parentId: 62e09ff4d0d94d5eb93a64e946a6bb58
+    name: isVisitableNode
+    isFolder: 0
+    description: 
+    varId: 97
+    stableKey: isVisitableNode
+    aliases: []
+  - id: 2a48caadbdf940ee8c33eed3d9c8f394
+    parentId: 513987126a64467799d116203c6228a9
+    name: defaultAnim
+    isFolder: 0
+    description: "\u3082\u3057\u307B\u304B\u306EAnim\u3067\u898B\u3064\u304B\u3089\u306A\u304B\u3063\u305F\u3089\u3001\u3053\u306EAnim\u3092\u4F7F\u7528\u3057\u307E\u3059\u3002"
+    varId: 98
+    stableKey: defaultAnim
+    aliases: []
+  - id: 822adfcc036a42e1b304dc9b4ef3b535
+    parentId: 513987126a64467799d116203c6228a9
+    name: focusAnim
+    isFolder: 0
+    description: "\u4F55\u304B\u3057\u3089\u3067focus\u3055\u308C\u305F\u3068\u304D\u306B\u4F7F\u7528\u3055\u308C\u308B\u5909\u6570\u3067\u3059\u3002"
+    varId: 99
+    stableKey: focusAnim
+    aliases: []
+  - id: 8e497a267cf3451380385945d6abe3ca
+    parentId: 513987126a64467799d116203c6228a9
+    name: InteractAnim
+    isFolder: 0
+    description: "\u4F55\u304B\u3057\u3089\u3067\u30A4\u30F3\u30BF\u30E9\u30AF\u30C8\u3055\u308C\u305F\u3068\u304D\u306B\u5B9F\u884C\u3055\u308C\u308B\u6F14\u51FA\u3067\u3059\u3002"
+    varId: 100
+    stableKey: InteractAnim
+    aliases: []
+  - id: fe8e9b01845544a0828bb3ec13bd01d9
+    parentId: 513987126a64467799d116203c6228a9
+    name: disableAnim
+    isFolder: 0
+    description: 
+    varId: 101
+    stableKey: disableAnim
+    aliases: []
+  - id: bd7d3c55e3b240329ee6d3a19d9deef8
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: UI
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: fd9088134958414f87659d8b250fdbf0
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: TraitList
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 869a1c6eb9894901bbbb480dc4e0161a
+    parentId: fd9088134958414f87659d8b250fdbf0
+    name: Item
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 86831a6058744d03931b2ab8ce490818
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: listIndex
+    isFolder: 0
+    description: 
+    varId: 103
+    stableKey: listIndex
+    aliases: []
+  - id: a7dfcf06d3394af4b7b5b0e36052bb78
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: traitIndex
+    isFolder: 0
+    description: 
+    varId: 104
+    stableKey: traitIndex
+    aliases: []
+  - id: 2732157aa0924f95b8cf4597279a60bd
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: row
+    isFolder: 0
+    description: 
+    varId: 105
+    stableKey: row
+    aliases: []
+  - id: beae5d2ee3144ee9b30dc0bccb34e2c0
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: column
+    isFolder: 0
+    description: 
+    varId: 106
+    stableKey: column
+    aliases: []
+  - id: 8bde1f21e34c454e84a9a2e835bd14fe
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: traitDefinitionId
+    isFolder: 0
+    description: 
+    varId: 107
+    stableKey: traitDefinitionId
+    aliases: []
+  - id: 304ad33134024073aff5abda918f9d2a
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: traitInstanceId
+    isFolder: 0
+    description: 
+    varId: 108
+    stableKey: traitInstanceId
+    aliases: []
+  - id: f4f0d582eb92434fb71ed54611b959b7
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: holderKey
+    isFolder: 0
+    description: 
+    varId: 109
+    stableKey: holderKey
+    aliases: []
+  - id: 28749e374f5146468a5136828c5be0e2
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: rangeStart
+    isFolder: 0
+    description: 
+    varId: 110
+    stableKey: rangeStart
+    aliases: []
+  - id: b24c9dd323184796acf053a5f21ab97c
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: rangeCount
+    isFolder: 0
+    description: 
+    varId: 111
+    stableKey: rangeCount
+    aliases: []
+  - id: 3de724e585344550a69fa0fbe8a2ee72
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: traitDefinitionRef
+    isFolder: 0
+    description: 
+    varId: 112
+    stableKey: traitDefinitionRef
+    aliases: []
+  - id: 709b5773d11b4a2b99485a0e83b1dbe1
+    parentId: 869a1c6eb9894901bbbb480dc4e0161a
+    name: traitInstanceRef
+    isFolder: 0
+    description: 
+    varId: 113
+    stableKey: traitInstanceRef
+    aliases: []
+  - id: 90c702afc4a64b5b91031b932d15922c
+    parentId: e0f6c3da1e84498180c2a3814492a0bf
+    name: nameKey
+    isFolder: 0
+    description: 
+    varId: 114
+    stableKey: name
+    aliases: []
+  - id: e2c1de5b361d471fb7357b846ce4f892
+    parentId: e0f6c3da1e84498180c2a3814492a0bf
+    name: descriptionKey
+    isFolder: 0
+    description: 
+    varId: 115
+    stableKey: description
+    aliases: []
+  - id: 865c28fd06fe415d8a2c50261a243393
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: Chunk
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 8c252fcb494a41d78a27099a1e14985f
+    parentId: 865c28fd06fe415d8a2c50261a243393
+    name: seed
+    isFolder: 0
+    description: 
+    varId: 118
+    stableKey: seed
+    aliases: []
+  - id: c907bae459d14a81a516550b2b282831
+    parentId: 865c28fd06fe415d8a2c50261a243393
+    name: biomeId
+    isFolder: 0
+    description: 
+    varId: 119
+    stableKey: biomeId
+    aliases: []
+  - id: 5b9235a3467e4f1db29c413fce802eb3
+    parentId: 865c28fd06fe415d8a2c50261a243393
+    name: Origin
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 40f62df4dbd24d348c9e43c5349d2972
+    parentId: 5b9235a3467e4f1db29c413fce802eb3
+    name: worldCellX
+    isFolder: 0
+    description: 
+    varId: 122
+    stableKey: worldCellX
+    aliases: []
+  - id: 2d106085e0f940e98203ed04c2081ac8
+    parentId: 5b9235a3467e4f1db29c413fce802eb3
+    name: worldCellY
+    isFolder: 0
+    description: 
+    varId: 123
+    stableKey: worldCellY
+    aliases: []
+  - id: 413a201ead6b4ba09c6467a17db3d055
+    parentId: 5b9235a3467e4f1db29c413fce802eb3
+    name: worldPosX
+    isFolder: 0
+    description: 
+    varId: 124
+    stableKey: worldPosX
+    aliases: []
+  - id: 2150034a21c14384a03a02c63baf3d72
+    parentId: 5b9235a3467e4f1db29c413fce802eb3
+    name: worldPosY
+    isFolder: 0
+    description: 
+    varId: 125
+    stableKey: worldPosY
+    aliases: []
+  - id: c76cae7f7d5b48e593700123bd83b6eb
+    parentId: 865c28fd06fe415d8a2c50261a243393
+    name: coordX
+    isFolder: 0
+    description: 
+    varId: 126
+    stableKey: coordX
+    aliases: []
+  - id: 5d43c8440ebe4291b89dba5019474ea2
+    parentId: 865c28fd06fe415d8a2c50261a243393
+    name: sizeX
+    isFolder: 0
+    description: 
+    varId: 127
+    stableKey: sizeX
+    aliases: []
+  - id: 16e40bad56884f2db7cbef9b4ab2cced
+    parentId: 865c28fd06fe415d8a2c50261a243393
+    name: coordY
+    isFolder: 0
+    description: 
+    varId: 128
+    stableKey: coordY
+    aliases: []
+  - id: df7e21fe0108434b88d4a01f81ce34a7
+    parentId: 865c28fd06fe415d8a2c50261a243393
+    name: sizeY
+    isFolder: 0
+    description: 
+    varId: 129
+    stableKey: sizeY
+    aliases: []
+  - id: 3fc1fb35e83843d8915b5d0fe2e27a68
+    parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
+    name: Background
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 258bdc5553734fd28ae3038b4542b78d
+    parentId: 3fc1fb35e83843d8915b5d0fe2e27a68
+    name: Spawn
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 009ae6fca0664a50864b891f7816ffcf
+    parentId: 3fc1fb35e83843d8915b5d0fe2e27a68
+    name: Camera
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 73704657b2d34263bf7a98eaefcb6f4e
+    parentId: 009ae6fca0664a50864b891f7816ffcf
+    name: x
+    isFolder: 0
+    description: 
+    varId: 130
+    stableKey: GameLib.Background.Camera.x
+    aliases:
+    - x
+  - id: f0570632e6de42dbac853f830e62fb41
+    parentId: 009ae6fca0664a50864b891f7816ffcf
+    name: y
+    isFolder: 0
+    description: 
+    varId: 131
+    stableKey: GameLib.Background.Camera.y
+    aliases:
+    - y
+  - id: 97fe0f4a52d443ed8b4d852c7ac0df81
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: index
+    isFolder: 0
+    description: 
+    varId: 132
+    stableKey: GameLib.Background.Spawn.Layer.index
+    aliases:
+    - index
+  - id: e621d8789be644348947bb87914b8c2f
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: name
+    isFolder: 0
+    description: 
+    varId: 133
+    stableKey: GameLib.Background.Spawn.Layer.name
+    aliases:
+    - name
+  - id: 180d6b22f0c1457d9558a4568ccbc36c
+    parentId: 4885306310064915b682ca831b8852c0
+    name: x
+    isFolder: 0
+    description: 
+    varId: 134
+    stableKey: GameLib.Background.Spawn.Tile.x
+    aliases:
+    - x
+  - id: 7c48dd68e20740ed93812ba8d66a3670
+    parentId: 4885306310064915b682ca831b8852c0
+    name: y
+    isFolder: 0
+    description: 
+    varId: 135
+    stableKey: GameLib.Background.Spawn.Tile.y
+    aliases:
+    - y
+  - id: 15d84e0fe2034dcf9a3bedd42afe3940
+    parentId: 4885306310064915b682ca831b8852c0
+    name: Rect
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 1bc7498c0b6945b59ea5540a322e28c0
+    parentId: 15d84e0fe2034dcf9a3bedd42afe3940
+    name: x
+    isFolder: 0
+    description: 
+    varId: 136
+    stableKey: GameLib.Background.Spawn.Tile.Rect.x
+    aliases:
+    - x
+  - id: ae99f8e951d94166be2dc6121509b3e2
+    parentId: 15d84e0fe2034dcf9a3bedd42afe3940
+    name: y
+    isFolder: 0
+    description: 
+    varId: 137
+    stableKey: GameLib.Background.Spawn.Tile.Rect.y
+    aliases:
+    - y
+  - id: ddb44a9599f04adc906d06191f641999
+    parentId: 15d84e0fe2034dcf9a3bedd42afe3940
+    name: w
+    isFolder: 0
+    description: 
+    varId: 138
+    stableKey: w
+    aliases: []
+  - id: 830544089bf642e5a7edb7dc3d40df17
+    parentId: 15d84e0fe2034dcf9a3bedd42afe3940
+    name: h
+    isFolder: 0
+    description: 
+    varId: 139
+    stableKey: h
+    aliases: []
+  - id: df8feaecd6e94191865faf67656eb9d3
+    parentId: 4885306310064915b682ca831b8852c0
+    name: Size
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 68c187989b744173b90c992c7a755da8
+    parentId: df8feaecd6e94191865faf67656eb9d3
+    name: x
+    isFolder: 0
+    description: 
+    varId: 140
+    stableKey: GameLib.Background.Spawn.Tile.Size.x
+    aliases:
+    - x
+  - id: 482d81e99c11430a96bbd38ab661c4e3
+    parentId: df8feaecd6e94191865faf67656eb9d3
+    name: y
+    isFolder: 0
+    description: 
+    varId: 141
+    stableKey: GameLib.Background.Spawn.Tile.Size.y
+    aliases:
+    - y
+  - id: ebab2bf7cd9b4657b6f1057517bf4251
+    parentId: 4885306310064915b682ca831b8852c0
+    name: Padding
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 455222b6b2214b81864337c325c3eda2
+    parentId: ebab2bf7cd9b4657b6f1057517bf4251
+    name: x
+    isFolder: 0
+    description: 
+    varId: 142
+    stableKey: GameLib.Background.Spawn.Tile.Padding.x
+    aliases:
+    - x
+  - id: 777c92b5bfd14dbca3830749eb30841f
+    parentId: ebab2bf7cd9b4657b6f1057517bf4251
+    name: y
+    isFolder: 0
+    description: 
+    varId: 143
+    stableKey: GameLib.Background.Spawn.Tile.Padding.y
+    aliases:
+    - y
+  - id: bc29b4575866470280e3976a46b65a82
+    parentId: cba65774bbc6423190568e2926cf2b34
+    name: x
+    isFolder: 0
+    description: 
+    varId: 144
+    stableKey: GameLib.Background.Spawn.Parallax.x
+    aliases:
+    - x
+  - id: 8da030ad6cec4c66b8ff0702b556b571
+    parentId: cba65774bbc6423190568e2926cf2b34
+    name: y
+    isFolder: 0
+    description: 
+    varId: 145
+    stableKey: GameLib.Background.Spawn.Parallax.y
+    aliases:
+    - y
+  - id: ef0de5fa56be4cf1a0980ffb0086b548
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: Offset
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: c5da2cdb180b4b1e9c3ac4c776fb1430
+    parentId: ef0de5fa56be4cf1a0980ffb0086b548
+    name: x
+    isFolder: 0
+    description: 
+    varId: 146
+    stableKey: GameLib.Background.Spawn.Layer.Offset.x
+    aliases:
+    - x
+  - id: 9cf00a5f4ca742c8bfbc0bd41d92a713
+    parentId: ef0de5fa56be4cf1a0980ffb0086b548
+    name: y
+    isFolder: 0
+    description: 
+    varId: 147
+    stableKey: GameLib.Background.Spawn.Layer.Offset.y
+    aliases:
+    - y
+  - id: 635c45333cc44bfbb536e832899e9e48
+    parentId: 8dcfb13968374cb7bc5904969fac5c3e
+    name: Rect
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 061f4ea334f74122b5eab1236b99ac60
+    parentId: 635c45333cc44bfbb536e832899e9e48
+    name: x
+    isFolder: 0
+    description: 
+    varId: 148
+    stableKey: GameLib.Background.Spawn.View.Rect.x
+    aliases:
+    - x
+  - id: 88a437c772394e509c424b6290bb97b3
+    parentId: 635c45333cc44bfbb536e832899e9e48
+    name: y
+    isFolder: 0
+    description: 
+    varId: 149
+    stableKey: GameLib.Background.Spawn.View.Rect.y
+    aliases:
+    - y
+  - id: 520ce87c8b824aa88181f43e12c90844
+    parentId: 635c45333cc44bfbb536e832899e9e48
+    name: w
+    isFolder: 0
+    description: 
+    varId: 150
+    stableKey: GameLib.Background.Spawn.View.Rect.w
+    aliases:
+    - w
+  - id: 52841c9ad3a444148caa077d740b9c03
+    parentId: 635c45333cc44bfbb536e832899e9e48
+    name: h
+    isFolder: 0
+    description: 
+    varId: 151
+    stableKey: GameLib.Background.Spawn.View.Rect.h
+    aliases:
+    - h
+  - id: 8084ede9166b4f278c7bf162d3eaa194
+    parentId: 8dcfb13968374cb7bc5904969fac5c3e
+    name: Center
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: f7376fbb4aa948449a9e19820af13e39
+    parentId: 8084ede9166b4f278c7bf162d3eaa194
+    name: x
+    isFolder: 0
+    description: 
+    varId: 152
+    stableKey: GameLib.Background.Spawn.View.Center.x
+    aliases:
+    - x
+  - id: 3f2d8ce7e21b4c468fafcf97ec5fbf38
+    parentId: 8084ede9166b4f278c7bf162d3eaa194
+    name: y
+    isFolder: 0
+    description: 
+    varId: 153
+    stableKey: GameLib.Background.Spawn.View.Center.y
+    aliases:
+    - y
+  - id: 789493dbbb4348bb82a87f3a9ed85f5e
+    parentId: f4ae338dc82e43f88a8fb8f4fbce7780
+    name: Pos
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 749b7cedbf114af196a082b144f86a2d
+    parentId: 789493dbbb4348bb82a87f3a9ed85f5e
+    name: x
+    isFolder: 0
+    description: 
+    varId: 154
+    stableKey: GameLib.Background.Spawn.World.Pos.x
+    aliases:
+    - x
+  - id: ce76f7258257447f8f193d3f3d8d3b55
+    parentId: 789493dbbb4348bb82a87f3a9ed85f5e
+    name: y
+    isFolder: 0
+    description: 
+    varId: 155
+    stableKey: GameLib.Background.Spawn.World.Pos.y
+    aliases:
+    - y
+  - id: 75b18c6474e04e90adae02353228171c
+    parentId: 789493dbbb4348bb82a87f3a9ed85f5e
+    name: z
+    isFolder: 0
+    description: 
+    varId: 156
+    stableKey: z
+    aliases: []
+  - id: aecf92eb662548d484168f9d000d27ed
+    parentId: daa8468256534e0dad8a353aa33b3e32
+    name: order
+    isFolder: 0
+    description: 
+    varId: 157
+    stableKey: order
+    aliases: []
+  - id: ee3a67fe080441c6b805bec9dad45331
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: TileSize
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: b09a4b2c913a427cb996b437ca5b4590
+    parentId: ee3a67fe080441c6b805bec9dad45331
+    name: x
+    isFolder: 0
+    description: 
+    varId: 161
+    stableKey: GameLib.Background.Spawn.Layer.TileSize.x
+    aliases:
+    - x
+  - id: 4b319c7c68ea4bba8a974bd42c91af98
+    parentId: ee3a67fe080441c6b805bec9dad45331
+    name: y
+    isFolder: 0
+    description: 
+    varId: 162
+    stableKey: GameLib.Background.Spawn.Layer.TileSize.y
+    aliases:
+    - y
+  - id: 950b84b5d6104ae7986ad72bcfb7510d
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: ScrollSpeed
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 6e363c6f04c843c0bfdb9c7077ddeb45
+    parentId: 950b84b5d6104ae7986ad72bcfb7510d
+    name: x
+    isFolder: 0
+    description: 
+    varId: 163
+    stableKey: GameLib.Background.Spawn.Layer.ScrollSpeed.x
+    aliases:
+    - x
+  - id: 892addc9d5e84688ab2dbdf03f73c646
+    parentId: 950b84b5d6104ae7986ad72bcfb7510d
+    name: y
+    isFolder: 0
+    description: 
+    varId: 164
+    stableKey: GameLib.Background.Spawn.Layer.ScrollSpeed.y
+    aliases:
+    - y
+  - id: e09208319b7e46388c388e8e944f0427
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: InitialOffset
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: cf81c4707792499f9d6c2fd8ea812920
+    parentId: e09208319b7e46388c388e8e944f0427
+    name: x
+    isFolder: 0
+    description: 
+    varId: 165
+    stableKey: GameLib.Background.Spawn.Layer.InitialOffset.x
+    aliases:
+    - x
+  - id: e7d9a290557846f3bf02f5ae25201cc4
+    parentId: e09208319b7e46388c388e8e944f0427
+    name: y
+    isFolder: 0
+    description: 
+    varId: 166
+    stableKey: GameLib.Background.Spawn.Layer.InitialOffset.y
+    aliases:
+    - y
+  - id: 5c9e22f42ff94248a04941c258586daf
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: spawnPivot
+    isFolder: 0
+    description: 
+    varId: 167
+    stableKey: spawnPivot
+    aliases: []
+  - id: e2f134d96d24466c87a303a9082098cf
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: Spawner
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: facbbc2079074b8297cf8caa1886a58f
+    parentId: e2f134d96d24466c87a303a9082098cf
+    name: kind
+    isFolder: 0
+    description: 
+    varId: 168
+    stableKey: kind
+    aliases: []
+  - id: c8bfb87af1674ffebb1281f822f4bf25
+    parentId: e2f134d96d24466c87a303a9082098cf
+    name: tag
+    isFolder: 0
+    description: 
+    varId: 169
+    stableKey: GameLib.Background.Spawn.Layer.Spawner.tag
+    aliases:
+    - tag
+  - id: be60305867f84be993fe300c0718074a
+    parentId: 6475d79634bc479c84d43718220cadb6
+    name: ExtraMarginTiles
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 2a4e1887ec4e482890c3ed205102acc1
+    parentId: be60305867f84be993fe300c0718074a
+    name: x
+    isFolder: 0
+    description: 
+    varId: 170
+    stableKey: GameLib.Background.Spawn.Layer.ExtraMarginTiles.x
+    aliases:
+    - x
+  - id: 64e1d38dcb9d47aabbb8de71eb3b5f50
+    parentId: be60305867f84be993fe300c0718074a
+    name: y
+    isFolder: 0
+    description: 
+    varId: 171
+    stableKey: GameLib.Background.Spawn.Layer.ExtraMarginTiles.y
+    aliases:
+    - y
+  - id: 6475d79634bc479c84d43718220cadb6
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: Layer
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 4885306310064915b682ca831b8852c0
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: Tile
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: cba65774bbc6423190568e2926cf2b34
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: Parallax
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 8dcfb13968374cb7bc5904969fac5c3e
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: View
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: f4ae338dc82e43f88a8fb8f4fbce7780
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: World
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: daa8468256534e0dad8a353aa33b3e32
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: Sorting
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 2887eec3bc0d4e07aef5095aa8a17280
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: Root
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: e869d85afe364c929ee7482d94ec6b7d
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: zOffset
+    isFolder: 0
+    description: 
+    varId: 158
+    stableKey: zOffset
+    aliases: []
+  - id: 6b96f95a9d964814994b42a9a9193218
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: time
+    isFolder: 0
+    description: 
+    varId: 159
+    stableKey: time
+    aliases: []
+  - id: eacc0b3106ba48b0bfb866e1ccdfbb7a
+    parentId: 258bdc5553734fd28ae3038b4542b78d
+    name: deltaTime
+    isFolder: 0
+    description: 
+    varId: 160
+    stableKey: deltaTime
+    aliases: []
+  - id: bb18954bb49348f58040001989066a3b
+    parentId: 2887eec3bc0d4e07aef5095aa8a17280
+    name: name
+    isFolder: 0
+    description: 
+    varId: 172
+    stableKey: GameLib.Background.Spawn.Root.name
+    aliases:
+    - name
+  - id: 2d9d4a46a5024724b8066c75130c3d2c
+    parentId: 2887eec3bc0d4e07aef5095aa8a17280
+    name: instanceId
+    isFolder: 0
+    description: 
+    varId: 173
+    stableKey: instanceId
+    aliases: []
+  - id: 70d6906b7d4449e486baaa1c8049d26a
+    parentId: 2887eec3bc0d4e07aef5095aa8a17280
+    name: Scope
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: ea1f7b9759df4d6c81a4fa14d1d5a23f
+    parentId: 70d6906b7d4449e486baaa1c8049d26a
+    name: runtimeLTS
+    isFolder: 0
+    description: 
+    varId: 174
+    stableKey: runtimeLTS
+    aliases: []
+  - id: e15be0541a26457791ad1fbcf0754a72
+    parentId: 70d6906b7d4449e486baaa1c8049d26a
+    name: baseLTS
+    isFolder: 0
+    description: 
+    varId: 175
+    stableKey: baseLTS
+    aliases: []
+  - id: d593844fd3ef4d0fb418d3c229d72f7f
+    parentId: 2887eec3bc0d4e07aef5095aa8a17280
+    name: Has
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 0fab82581edf400dab3fcf3165ea9d77
+    parentId: d593844fd3ef4d0fb418d3c229d72f7f
+    name: adapter
+    isFolder: 0
+    description: 
+    varId: 176
+    stableKey: adapter
+    aliases: []
+  - id: a65e660ef2cc4cdda878c60370c77c71
+    parentId: 81a6cfbf2d1144dbab0196b5c8278c48
+    name: TransformController
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 5a6e93d48c014d18a4ea7503b1a9e09f
+    parentId: f8d3ca94b0334aaeb789dd0e983e9ea5
+    name: name
+    isFolder: 0
+    description: 
+    varId: 183
+    stableKey: GameLib.Movement.TransformController.Target.name
+    aliases:
+    - name
+  - id: fb9625d564194ce1b5fab40bdd5a10dd
+    parentId: f8d3ca94b0334aaeb789dd0e983e9ea5
+    name: instanceId
+    isFolder: 0
+    description: 
+    varId: 184
+    stableKey: GameLib.Movement.TransformController.Target.instanceId
+    aliases:
+    - instanceId
+  - id: 6d7bfa5fe44d46fa8aba234fcef88e84
+    parentId: f8d3ca94b0334aaeb789dd0e983e9ea5
+    name: WorldPos
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: e63e956239b84b97925c3f18585bdeb3
+    parentId: 6d7bfa5fe44d46fa8aba234fcef88e84
+    name: x
+    isFolder: 0
+    description: 
+    varId: 185
+    stableKey: GameLib.Movement.TransformController.Target.WorldPos.x
+    aliases:
+    - x
+  - id: c8ee762065a04edc9f56cf45eb8a2ed4
+    parentId: 6d7bfa5fe44d46fa8aba234fcef88e84
+    name: y
+    isFolder: 0
+    description: 
+    varId: 186
+    stableKey: GameLib.Movement.TransformController.Target.WorldPos.y
+    aliases:
+    - y
+  - id: 13ef2b8801dc4bc2acc81de4b1379bed
+    parentId: f8d3ca94b0334aaeb789dd0e983e9ea5
+    name: LocalEuler
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: cd80725c2e894d1bb311f52fb3d37b96
+    parentId: 13ef2b8801dc4bc2acc81de4b1379bed
+    name: z
+    isFolder: 0
+    description: 
+    varId: 187
+    stableKey: GameLib.Movement.TransformController.Target.LocalEuler.z
+    aliases:
+    - z
+  - id: 565b0bf5bca74f9cacc3866a45a28a78
+    parentId: 52db2b3c0c2d4646905b0b0b070742be
+    name: x
+    isFolder: 0
+    description: 
+    varId: 188
+    stableKey: GameLib.Movement.TransformController.Channel.Velocity.x
+    aliases:
+    - x
+  - id: 1c473214a11e4fce84618421a4f77a46
+    parentId: 52db2b3c0c2d4646905b0b0b070742be
+    name: y
+    isFolder: 0
+    description: 
+    varId: 189
+    stableKey: GameLib.Movement.TransformController.Channel.Velocity.y
+    aliases:
+    - y
+  - id: 5dcb1b285cff4ef6aefee63850f629fd
+    parentId: a65e660ef2cc4cdda878c60370c77c71
+    name: Rigidbody2D
+    isFolder: 1
+    description: "\u7D10\u3065\u3051\u3089\u308C\u305FRigidbody\u306E\u5909\u6570\u304C\u683C\u7D0D\u3055\u308C\u3066\u3044\u308B"
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: aefd6963aded489599bbdcb569c074b7
+    parentId: a65e660ef2cc4cdda878c60370c77c71
+    name: active
+    isFolder: 0
+    description: 
+    varId: 179
+    stableKey: active
+    aliases: []
+  - id: a9b13a376d514d8db20df7d2d6164dc2
+    parentId: a65e660ef2cc4cdda878c60370c77c71
+    name: outputTarget
+    isFolder: 0
+    description: 
+    varId: 180
+    stableKey: outputTarget
+    aliases: []
+  - id: eb2856e143684a3195c73f0034eb9468
+    parentId: a65e660ef2cc4cdda878c60370c77c71
+    name: movementEnabled
+    isFolder: 0
+    description: 
+    varId: 181
+    stableKey: movementEnabled
+    aliases: []
+  - id: c6b3363cb8ac4899ac57148849ed258d
+    parentId: a65e660ef2cc4cdda878c60370c77c71
+    name: rotationEnabled
+    isFolder: 0
+    description: 
+    varId: 182
+    stableKey: rotationEnabled
+    aliases: []
+  - id: f8d3ca94b0334aaeb789dd0e983e9ea5
+    parentId: a65e660ef2cc4cdda878c60370c77c71
+    name: Target
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 5850fabdc6674f12bc9f31b917b8bb40
+    parentId: a65e660ef2cc4cdda878c60370c77c71
+    name: Channel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 52db2b3c0c2d4646905b0b0b070742be
+    parentId: 5850fabdc6674f12bc9f31b917b8bb40
+    name: Velocity
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 51e0b3df9a5149978c44ed9be6c40906
+    parentId: 5850fabdc6674f12bc9f31b917b8bb40
+    name: angularVelocity
+    isFolder: 0
+    description: 
+    varId: 190
+    stableKey: angularVelocity
+    aliases: []
+  - id: d8eda8cbec784f93b7baeb56b860b01d
+    parentId: 5dcb1b285cff4ef6aefee63850f629fd
+    name: has
+    isFolder: 0
+    description: 
+    varId: 191
+    stableKey: has
+    aliases: []
+  - id: 0896c50d59504a7d9acb520da7b516e9
+    parentId: 5dcb1b285cff4ef6aefee63850f629fd
+    name: velocityMode
+    isFolder: 0
+    description: 
+    varId: 192
+    stableKey: velocityMode
+    aliases: []
+  - id: fabcb0bb0fa445acbc4eabb63b3afe7e
+    parentId: 5dcb1b285cff4ef6aefee63850f629fd
+    name: freezeRotation
+    isFolder: 0
+    description: 
+    varId: 193
+    stableKey: freezeRotation
+    aliases: []
+  - id: 52d2485a4ebf4a57946a7195ee566d92
+    parentId: 5dcb1b285cff4ef6aefee63850f629fd
+    name: gravityScale
+    isFolder: 0
+    description: 
+    varId: 194
+    stableKey: gravityScale
+    aliases: []
+  - id: 049a0aaae1a445a7a6d7487d058852d8
+    parentId: 5dcb1b285cff4ef6aefee63850f629fd
+    name: LinearVelocity
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 9e2ad83782464f5fbca1ce95ce513be1
+    parentId: 049a0aaae1a445a7a6d7487d058852d8
+    name: x
+    isFolder: 0
+    description: 
+    varId: 195
+    stableKey: GameLib.Movement.TransformController.Rigidbody2D.LinearVelocity.x
+    aliases:
+    - x
+  - id: 6c90fe54c7574563afa84627f4216d43
+    parentId: 049a0aaae1a445a7a6d7487d058852d8
+    name: y
+    isFolder: 0
+    description: 
+    varId: 196
+    stableKey: GameLib.Movement.TransformController.Rigidbody2D.LinearVelocity.y
+    aliases:
+    - y
+  - id: deea44c172044f74a8c4a72bc2977eaa
+    parentId: 5dcb1b285cff4ef6aefee63850f629fd
+    name: angularVelocity
+    isFolder: 0
+    description: 
+    varId: 197
+    stableKey: GameLib.Movement.TransformController.Rigidbody2D.angularVelocity
+    aliases:
+    - angularVelocity
+  - id: ecb17780224a4b37b900cc98bf718fd6
+    parentId: 5dcb1b285cff4ef6aefee63850f629fd
+    name: rotation
+    isFolder: 0
+    description: 
+    varId: 198
+    stableKey: rotation
+    aliases: []
+  - id: e94c5ba7bb274d2f9863407ef7517960
+    parentId: 81a6cfbf2d1144dbab0196b5c8278c48
+    name: UserInputAdapter
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 3fa15d911f17454dbb82dc611192cbde
+    parentId: e94c5ba7bb274d2f9863407ef7517960
+    name: inputDirection
+    isFolder: 0
+    description: 
+    varId: 199
+    stableKey: inputDirection
+    aliases: []
+  - id: 4f765af5720846e5a783b100ece3db6f
+    parentId: e94c5ba7bb274d2f9863407ef7517960
+    name: outputDirection
+    isFolder: 0
+    description: 
+    varId: 200
+    stableKey: outputDirection
+    aliases: []
+  - id: 0ab2776f52884aae90bad0cb815bb464
+    parentId: e94c5ba7bb274d2f9863407ef7517960
+    name: SpeedMultiplier
+    isFolder: 0
+    description: 
+    varId: 201
+    stableKey: SpeedMultiplier
+    aliases: []
+  - id: c60ecc2ad18944309caeb227781e5ad2
+    parentId: f56ae94ee02444d4beb6fa8570217831
+    name: Position
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: d10ee952520b4088b6e9eab1216cf351
+    parentId: b949aef2dc38467dbf506d6cd3f3f64f
+    name: x
+    isFolder: 0
+    description: 
+    varId: 202
+    stableKey: GameLib.Base.Transform.Position.World.x
+    aliases:
+    - x
+  - id: ea22660ddbde411488b7b8c9b583f02b
+    parentId: b949aef2dc38467dbf506d6cd3f3f64f
+    name: y
+    isFolder: 0
+    description: 
+    varId: 203
+    stableKey: GameLib.Base.Transform.Position.World.y
+    aliases:
+    - y
+  - id: 6baa5beda5ce45a4bef216038c06ff1b
+    parentId: b949aef2dc38467dbf506d6cd3f3f64f
+    name: z
+    isFolder: 0
+    description: 
+    varId: 204
+    stableKey: GameLib.Base.Transform.Position.World.z
+    aliases:
+    - z
+  - id: 638eac65f30642ed81cfc0b7880abf5a
+    parentId: f56ae94ee02444d4beb6fa8570217831
+    name: Rotation
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 7f5a18401ce8467ea0e13e287e8cd378
+    parentId: bc1e9fffedd0428cbed9a47ec2aa222a
+    name: x
+    isFolder: 0
+    description: 
+    varId: 205
+    stableKey: GameLib.Base.Transform.Rotation.World.x
+    aliases:
+    - x
+  - id: 6f8cd1e1ec684db19621d14c14861f91
+    parentId: bc1e9fffedd0428cbed9a47ec2aa222a
+    name: y
+    isFolder: 0
+    description: 
+    varId: 206
+    stableKey: GameLib.Base.Transform.Rotation.World.y
+    aliases:
+    - y
+  - id: 6bf7e945a20345428e199fedb220e214
+    parentId: bc1e9fffedd0428cbed9a47ec2aa222a
+    name: z
+    isFolder: 0
+    description: 
+    varId: 207
+    stableKey: GameLib.Base.Transform.Rotation.World.z
+    aliases:
+    - z
+  - id: 986d8052702b432aa28a0f5be9c96804
+    parentId: f56ae94ee02444d4beb6fa8570217831
+    name: Scale
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: b949aef2dc38467dbf506d6cd3f3f64f
+    parentId: c60ecc2ad18944309caeb227781e5ad2
+    name: World
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 6cb36841d7924a71af615920c68f2740
+    parentId: c60ecc2ad18944309caeb227781e5ad2
+    name: Local
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 07b89d667e794e4c95c11eb3634a9b3e
+    parentId: 6cb36841d7924a71af615920c68f2740
+    name: x
+    isFolder: 0
+    description: 
+    varId: 208
+    stableKey: GameLib.Base.Transform.Position.Local.x
+    aliases:
+    - x
+  - id: ae8f7a46e4c14b37934f64088a450532
+    parentId: 6cb36841d7924a71af615920c68f2740
+    name: y
+    isFolder: 0
+    description: 
+    varId: 209
+    stableKey: GameLib.Base.Transform.Position.Local.y
+    aliases:
+    - y
+  - id: eecb684171134b25ba80f77a079d7fe8
+    parentId: 6cb36841d7924a71af615920c68f2740
+    name: z
+    isFolder: 0
+    description: 
+    varId: 210
+    stableKey: GameLib.Base.Transform.Position.Local.z
+    aliases:
+    - z
+  - id: bc1e9fffedd0428cbed9a47ec2aa222a
+    parentId: 638eac65f30642ed81cfc0b7880abf5a
+    name: World
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: e1cc01b7cc0148bab1a2f9ecf1386770
+    parentId: 638eac65f30642ed81cfc0b7880abf5a
+    name: Local
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: e50421155d634d44bc61de0ebc3b3eb1
+    parentId: e1cc01b7cc0148bab1a2f9ecf1386770
+    name: x
+    isFolder: 0
+    description: 
+    varId: 211
+    stableKey: GameLib.Base.Transform.Rotation.Local.x
+    aliases:
+    - x
+  - id: 5a58cf649a4c44138cabd7f27cf2c959
+    parentId: e1cc01b7cc0148bab1a2f9ecf1386770
+    name: y
+    isFolder: 0
+    description: 
+    varId: 212
+    stableKey: GameLib.Base.Transform.Rotation.Local.y
+    aliases:
+    - y
+  - id: 7b2c672055364af1be4542aa9d18cf85
+    parentId: e1cc01b7cc0148bab1a2f9ecf1386770
+    name: z
+    isFolder: 0
+    description: 
+    varId: 213
+    stableKey: GameLib.Base.Transform.Rotation.Local.z
+    aliases:
+    - z
+  - id: 328cf199f92a4be884e3391e97b71c95
+    parentId: 21a391c832474f06a88b87510d9823fe
+    name: Player
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 54b50679377d45d5b3caf39e5f9e82a4
+    parentId: 21a391c832474f06a88b87510d9823fe
+    name: Game
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: cecc2ea383474dceafdfa5b9b609ba47
+    parentId: 54b50679377d45d5b3caf39e5f9e82a4
+    name: heightSaturn
+    isFolder: 0
+    description: 
+    varId: 222
+    stableKey: heightSaturn
+    aliases: []
+  - id: bf2b7db5d55947d0aed830181a86748d
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: MoneyBag
+    isFolder: 0
+    description: 
+    varId: 224
+    stableKey: MoneyBag
+    aliases: []
+  - id: 01fffd4caed14d89b5544c1bf20a1db2
+    parentId: b6136248df3e42aa85d07ae4d330becc
+    name: itemScore
+    isFolder: 0
+    description: 
+    varId: 225
+    stableKey: GameLogic.GameProfiles.Player.Items.itemScore
+    aliases:
+    - itemScore
+  - id: 8b52fe81bbd94b83bbaa687a527eb015
+    parentId: b6136248df3e42aa85d07ae4d330becc
+    name: List
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 4619af0262e0463c85bdcd1a790bfe05
+    parentId: 8cc679f79390493faf2b2dc3fe243272
+    name: A
+    isFolder: 0
+    description: 
+    varId: 226
+    stableKey: A
+    aliases: []
+  - id: 6614fc9f8b0e4deba81d5ca3799b0986
+    parentId: 8cc679f79390493faf2b2dc3fe243272
+    name: B
+    isFolder: 0
+    description: 
+    varId: 227
+    stableKey: B
+    aliases: []
+  - id: 9151227ad5994abe863b5d880413582f
+    parentId: 8cc679f79390493faf2b2dc3fe243272
+    name: C
+    isFolder: 0
+    description: 
+    varId: 228
+    stableKey: C
+    aliases: []
+  - id: a5eed26efbaf4eafb23a75a75075ab64
+    parentId: 8cc679f79390493faf2b2dc3fe243272
+    name: D
+    isFolder: 0
+    description: 
+    varId: 229
+    stableKey: D
+    aliases: []
+  - id: 3580deb6fa4748d983a6249b1e9fbc0e
+    parentId: 8cc679f79390493faf2b2dc3fe243272
+    name: E
+    isFolder: 0
+    description: 
+    varId: 230
+    stableKey: E
+    aliases: []
+  - id: 40008f9d993d48b2828ddbd760365f03
+    parentId: 8cc679f79390493faf2b2dc3fe243272
+    name: F
+    isFolder: 0
+    description: 
+    varId: 231
+    stableKey: F
+    aliases: []
+  - id: a9b6b88f42d24b65a1b8487944b8233e
+    parentId: 8cc679f79390493faf2b2dc3fe243272
+    name: G
+    isFolder: 0
+    description: 
+    varId: 232
+    stableKey: G
+    aliases: []
+  - id: bed35adcc8464f89938a9d7f618f3ce6
+    parentId: 54b50679377d45d5b3caf39e5f9e82a4
+    name: CheckPoint
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 00f6f951386b4fb68d5376b647b0e622
+    parentId: bed35adcc8464f89938a9d7f618f3ce6
+    name: maxCheckPoint
+    isFolder: 0
+    description: "\u5230\u9054\u3057\u305F\u6700\u5927\u30C1\u30A7\u30C3\u30AF\u30DD\u30A4\u30F3\u30C8(value*100)m"
+    varId: 233
+    stableKey: maxCheckPoint
+    aliases: []
+  - id: 23cad7090b30442ea7ad348cdc8b03d7
+    parentId: bed35adcc8464f89938a9d7f618f3ce6
+    name: lastCheckPoint
+    isFolder: 0
+    description: "\u6700\u5F8C\u306B\u8A2A\u308C\u305F\u30C1\u30A7\u30C3\u30AF\u30DD\u30A4\u30F3\u30C8"
+    varId: 234
+    stableKey: lastCheckPoint
+    aliases: []
+  - id: b1cd180a45734a1cbbb58844d6053fab
+    parentId: bed35adcc8464f89938a9d7f618f3ce6
+    name: currentCheckPoint
+    isFolder: 0
+    description: 
+    varId: 235
+    stableKey: currentCheckPoint
+    aliases: []
+  - id: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    parentId: 5a82fbdd83034a54b59bb48263d10fe7
+    name: Element
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 64a31ae93a454487a5d276d66bb73274
+    parentId: 5a82fbdd83034a54b59bb48263d10fe7
+    name: Holder
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 33d2b0575d5b4156a34fd3a3a1e415e1
+    parentId: 569c90ac79dc4aa0968ffb564ae5ae32
+    name: UIElement
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 513987126a64467799d116203c6228a9
+    parentId: 569c90ac79dc4aa0968ffb564ae5ae32
+    name: VisualSetting
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: e0f6c3da1e84498180c2a3814492a0bf
+    parentId: 569c90ac79dc4aa0968ffb564ae5ae32
+    name: RichText
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: f56ae94ee02444d4beb6fa8570217831
+    parentId: 569c90ac79dc4aa0968ffb564ae5ae32
+    name: Transform
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 5a82fbdd83034a54b59bb48263d10fe7
+    parentId: 569c90ac79dc4aa0968ffb564ae5ae32
+    name: Trait
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 8cc679f79390493faf2b2dc3fe243272
+    parentId: 569c90ac79dc4aa0968ffb564ae5ae32
+    name: LocalVar
+    isFolder: 1
+    description: "RPG\u30C4\u30AF\u30FC\u30EB\u98A8\u306EABCD(etc...)\u30ED\u30FC\u30AB\u30EB\u5909\u6570\u3067\u3059\uFF01"
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 693c7fcd0a904492ae8f419a9a0f3dee
+    parentId: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    name: definitionId
+    isFolder: 0
+    description: 
+    varId: 236
+    stableKey: DefinitionId
+    aliases: []
+  - id: 6a0231a686224510898362f8dbe51b90
+    parentId: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    name: instanceId
+    isFolder: 0
+    description: 
+    varId: 237
+    stableKey: GameLib.Base.Trait.Element.instanceId
+    aliases:
+    - instanceId
+  - id: 9295870f4db64e15a917985791b8884e
+    parentId: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    name: nameTemplate
+    isFolder: 0
+    description: 
+    varId: 238
+    stableKey: nameTemplate
+    aliases: []
+  - id: 480fb8578d224cc99ecd234a47acaf53
+    parentId: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    name: descriptionTemplate
+    isFolder: 0
+    description: 
+    varId: 239
+    stableKey: descriptionTemplate
+    aliases: []
+  - id: c06c5e5c5ca24e7dbff7257afa69703b
+    parentId: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    name: nameKey
+    isFolder: 0
+    description: 
+    varId: 240
+    stableKey: nameKey
+    aliases: []
+  - id: c244b28a84fd4b48abecf50e39f1382a
+    parentId: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    name: descriptionKey
+    isFolder: 0
+    description: 
+    varId: 241
+    stableKey: descriptionKey
+    aliases: []
+  - id: df583799500b45d1854edbfe5260c958
+    parentId: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    name: definitionAsset
+    isFolder: 0
+    description: 
+    varId: 242
+    stableKey: definitionAsset
+    aliases: []
+  - id: 283fb40e818743daac12a10d5aabd913
+    parentId: 64a31ae93a454487a5d276d66bb73274
+    name: holderKey
+    isFolder: 0
+    description: 
+    varId: 243
+    stableKey: GameLib.Base.Trait.Holder.holderKey
+    aliases:
+    - holderKey
+  - id: e237cbcc6b4f431bb0f2f4776dcfa84a
+    parentId: 64a31ae93a454487a5d276d66bb73274
+    name: holderId
+    isFolder: 0
+    description: 
+    varId: 244
+    stableKey: holderId
+    aliases: []
+  - id: bd4fd93a3373478c835abdd8e3336e3c
+    parentId: 64a31ae93a454487a5d276d66bb73274
+    name: traitCount
+    isFolder: 0
+    description: 
+    varId: 245
+    stableKey: traitCount
+    aliases: []
+  - id: fec47899d3184adbac4ec746d13d04c8
+    parentId: 64a31ae93a454487a5d276d66bb73274
+    name: heldCount
+    isFolder: 0
+    description: 
+    varId: 246
+    stableKey: heldCount
+    aliases: []
+  - id: 6cdc5c15f9d542b1b1d26bacccb6b3ee
+    parentId: 328cf199f92a4be884e3391e97b71c95
+    name: totalScore
+    isFolder: 0
+    description: 
+    varId: 217
+    stableKey: totalScore
+    aliases: []
+  - id: 5d4b01474cd34df48905ef73ed5421d4
+    parentId: 328cf199f92a4be884e3391e97b71c95
+    name: heightScore
+    isFolder: 0
+    description: 
+    varId: 218
+    stableKey: heightScore
+    aliases: []
+  - id: 2b15ab71c7b54f119db35dc20484b2d6
+    parentId: 328cf199f92a4be884e3391e97b71c95
+    name: itemScore
+    isFolder: 0
+    description: 
+    varId: 219
+    stableKey: GameLogic.GameProfiles.Player.itemScore
+    aliases:
+    - itemScore
+  - id: db5f105a825641eab2b1f6d0276e8689
+    parentId: 328cf199f92a4be884e3391e97b71c95
+    name: timeScore
+    isFolder: 0
+    description: 
+    varId: 247
+    stableKey: timeScore
+    aliases: []
+  - id: a3d4af32b57e4a69becf4fa00c403a87
+    parentId: 328cf199f92a4be884e3391e97b71c95
+    name: eventScore
+    isFolder: 0
+    description: 
+    varId: 220
+    stableKey: eventScore
+    aliases: []
+  - id: 57c9b2770b244a5c9a2ae2b4cc29eaf5
+    parentId: 328cf199f92a4be884e3391e97b71c95
+    name: gamePlayTimer
+    isFolder: 0
+    description: 
+    varId: 221
+    stableKey: gamePlayTimer
+    aliases: []
+  - id: 1a6c18c27d9d48eabf7bbe0140dc8c9a
+    parentId: 328cf199f92a4be884e3391e97b71c95
+    name: gameOverReason
+    isFolder: 0
+    description: 
+    varId: 223
+    stableKey: gameOverReason
+    aliases: []
+  - id: b6136248df3e42aa85d07ae4d330becc
+    parentId: 328cf199f92a4be884e3391e97b71c95
+    name: Items
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 4527717abd5e478ebac4de1e34831a9a
+    parentId: bed35adcc8464f89938a9d7f618f3ce6
+    name: startCheckPoint
+    isFolder: 0
+    description: "\u30B2\u30FC\u30E0\u958B\u59CB\u6642\u306E\u30B9\u30BF\u30FC\u30C8\u30DD\u30A4\u30F3\u30C80\u304B\u30896\u307E\u3067\uFF01"
+    varId: 248
+    stableKey: startCheckPoint
+    aliases: []
+  - id: f93a61366f974ad49afbdcc3239853f3
+    parentId: 54b50679377d45d5b3caf39e5f9e82a4
+    name: Stage
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 816e712a40a04784be6b97663b0c30d0
+    parentId: f93a61366f974ad49afbdcc3239853f3
+    name: Stage2BossEntry
+    isFolder: 0
+    description: 
+    varId: 249
+    stableKey: Stage2BossEntry
+    aliases: []
+  - id: 8501936415524fc883aa3a01e09ac26a
+    parentId: f93a61366f974ad49afbdcc3239853f3
+    name: Stage2BossEnd
+    isFolder: 0
+    description: 
+    varId: 250
+    stableKey: Stage2BossEnd
+    aliases: []
+  - id: 747ed64c5d2344849bfc1a586b4dbb9d
+    parentId: 54b50679377d45d5b3caf39e5f9e82a4
+    name: isGameOver
+    isFolder: 0
+    description: 
+    varId: 251
+    stableKey: isGameOver
+    aliases: []
+  - id: 4df74aee17ac4404b2547f946d1737ba
+    parentId: 569c90ac79dc4aa0968ffb564ae5ae32
+    name: CommandVar
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 2a0c6bdb5ab24e6ea525c827bd898f26
+    parentId: 4df74aee17ac4404b2547f946d1737ba
+    name: i
+    isFolder: 0
+    description: "\u5927\u4F53\u306Ffor\u5206\u306B\u4F7F\u7528\u3059\u308B"
+    varId: 252
+    stableKey: i
+    aliases: []
+  - id: e0e67bddbd2e413f95afae949bfdd121
+    parentId: f93a61366f974ad49afbdcc3239853f3
+    name: Stage4TestEntry
+    isFolder: 0
+    description: 
+    varId: 253
+    stableKey: Stage4TestEntry
+    aliases: []
+  - id: 15a96882cdb443d6b640b47c8d1a1792
+    parentId: f93a61366f974ad49afbdcc3239853f3
+    name: Stage4TestEnd
+    isFolder: 0
+    description: 
+    varId: 254
+    stableKey: Stage4TestEnd
+    aliases: []
+  - id: 391ccc893c12409d94b2b5c340321c29
+    parentId: f93a61366f974ad49afbdcc3239853f3
+    name: Traps
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: f6e642a6b4e84332b5f91ab1ecb0fe94
+    parentId: 391ccc893c12409d94b2b5c340321c29
+    name: isTrap1
+    isFolder: 0
+    description: 
+    varId: 255
+    stableKey: isTrap1
+    aliases:
+    - Trap1
+    - iTrap1
+  - id: 1bc80c9a8071462d8c81cc271ba9f1b9
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: SimCard
+    isFolder: 0
+    description: 
+    varId: 256
+    stableKey: SimCard
+    aliases: []
+  - id: c5838993bc074b039da730c58e09da23
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: GameBody
+    isFolder: 0
+    description: 
+    varId: 257
+    stableKey: GameBody
+    aliases: []
+  - id: 8304239c451a464f84e17b3ae9189efe
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: BanaPan
+    isFolder: 0
+    description: 
+    varId: 258
+    stableKey: BanaPan
+    aliases: []
+  - id: 555efb66f12f43a78fc6ced388740cf9
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: Coffee
+    isFolder: 0
+    description: 
+    varId: 259
+    stableKey: Coffee
+    aliases: []
+  - id: a14782f309b3407a818cb3bc529822d8
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: GanbaRirie
+    isFolder: 0
+    description: 
+    varId: 260
+    stableKey: GanbaRirie
+    aliases: []
+  - id: 62205b1e035147b1a4716677dec21a4f
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: CPlus
+    isFolder: 0
+    description: 
+    varId: 261
+    stableKey: CPlus
+    aliases: []
+  - id: 83c5424046c5436b9d71dea3654772c5
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: Monster
+    isFolder: 0
+    description: 
+    varId: 262
+    stableKey: Monster
+    aliases: []
+  - id: 0c8a84c90f9e4d04ba26325fb05d4f48
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: NecoArc
+    isFolder: 0
+    description: 
+    varId: 263
+    stableKey: NecoArc
+    aliases: []
+  - id: 75c10f3ee28c46888525c76d8aceffdb
+    parentId: 54b50679377d45d5b3caf39e5f9e82a4
+    name: ContinueCount
+    isFolder: 0
+    description: 
+    varId: 264
+    stableKey: ContinueCount
+    aliases: []
+  - id: 2a143613cb6d45efac4142152562f9f6
+    parentId: 54b50679377d45d5b3caf39e5f9e82a4
+    name: NoContinueBonus
+    isFolder: 0
+    description: 
+    varId: 265
+    stableKey: NoContinueBonus
+    aliases: []
+  - id: 1d7fe7eeb2b441a3974cfc6d13660ddc
+    parentId: 54b50679377d45d5b3caf39e5f9e82a4
+    name: Score
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 072cdfe037d84703ae61e99383f914ed
+    parentId: 1d7fe7eeb2b441a3974cfc6d13660ddc
+    name: bestScore
+    isFolder: 0
+    description: 
+    varId: 266
+    stableKey: bestScore
+    aliases: []
+  - id: 91a1415e687c46e8ab5863c09cc7a348
+    parentId: 1d7fe7eeb2b441a3974cfc6d13660ddc
+    name: bestHeight
+    isFolder: 0
+    description: 
+    varId: 267
+    stableKey: bestHeight
+    aliases: []
+  - id: 07d815de3417468aa1a1f4946b36bc14
+    parentId: 1d7fe7eeb2b441a3974cfc6d13660ddc
+    name: totalRetryCount
+    isFolder: 0
+    description: 
+    varId: 268
+    stableKey: totalRetryCount
+    aliases: []
+  - id: cbfac7fb865d459f9230553f1d6d708c
+    parentId: 8b52fe81bbd94b83bbaa687a527eb015
+    name: Knife
+    isFolder: 0
+    description: 
+    varId: 269
+    stableKey: Knife
+    aliases: []
+  nextVarId: 270
+  tombstones:
+  - varId: 58
+    stableKey: CurrentNecroCount
+    aliases: []
+  - varId: 68
+    stableKey: Kind
+    aliases: []
+  - varId: 77
+    stableKey: IsHoldKey1
+    aliases: []
+  - varId: 75
+    stableKey: MaxStageIndex
+    aliases: []
+  - varId: 74
+    stableKey: IsPause
+    aliases: []
+  - varId: 61
+    stableKey: IsTransitioningWorld
+    aliases: []
+  - varId: 60
+    stableKey: ReBuildMap
+    aliases: []
+  - varId: 59
+    stableKey: HasClearedCurrentStage
+    aliases:
+    - IsStageCleared
+  - varId: 55
+    stableKey: SpawnPlayerPosition
+    aliases: []
+  - varId: 57
+    stableKey: CurrentStageNecroRoomMapProfile
+    aliases: []
+  - varId: 53
+    stableKey: CurrentStageSO
+    aliases: []
+  - varId: 52
+    stableKey: CurrentStageIndex
+    aliases: []
+  - varId: 39
+    stableKey: CurrentWorld
+    aliases: []
+  - varId: 78
+    stableKey: StageIndex
+    aliases: []
+  - varId: 62
+    stableKey: IsTitleUIInitializing
+    aliases: []
+  - varId: 102
+    stableKey: UITraitList
+    aliases: []
+  - varId: 117
+    stableKey: y
+    aliases: []
+  - varId: 116
+    stableKey: x
+    aliases: []
+  - varId: 121
+    stableKey: y
+    aliases: []
+  - varId: 120
+    stableKey: x
+    aliases: []
+  - varId: 178
+    stableKey: y
+    aliases: []
+  - varId: 177
+    stableKey: x
+    aliases: []
+  - varId: 216
+    stableKey: z
+    aliases: []
+  - varId: 215
+    stableKey: y
+    aliases: []
+  - varId: 214
+    stableKey: x
+    aliases: []
+  csvFile: {fileID: 0}
