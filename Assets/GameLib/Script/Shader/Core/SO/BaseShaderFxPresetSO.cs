@@ -19,9 +19,9 @@ namespace Game.MaterialFx
     /// マテリアルエフェクトの組み合わせを保存・再利用できます。
     /// 
     /// ## テクスチャソース設定について
-    /// - SlotType: テクスチャを取得するスロット (0-4=AtlasSlot, 5=ExternalA, 6=ExternalB, 7=CustomRT)
-    /// - Channel: 使用するチャンネル (0=R, 1=G, 2=B, 3=A)
-    /// - UVSpace: UV座標系 (0=SpriteLocal, 1=Screen, 2=AtlasRaw, 3=WorldXY)
+    /// - SlotType: テクスチャを取得するスロット (5=ExternalA, 6=ExternalB, 7=CustomRT)
+    /// - Channel: 使用するチャンネル (R/G/B/A)
+    /// - UVSpace: UV座標系 (0=SpriteLocal, 1=Screen, 2=TextureRaw, 3=WorldXY)
     /// </summary>
     [Serializable]
     public sealed class BaseShaderFxPreset : MaterialFxPresetDataBase
@@ -63,8 +63,8 @@ namespace Game.MaterialFx
         [TitleGroup("Dissolve/Source", "ディゾルブパターンを取得するテクスチャソース設定")]
         [ShowIf(nameof(dissolveEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (0-4=Atlas, 5=ExtA, 6=ExtB, 7=CustomRT)")]
-        public int dissolveSourceSlotType = 0;
+        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        public int dissolveSourceSlotType = 5;
 
         [TitleGroup("Dissolve/Source")]
         [ShowIf(nameof(dissolveEnabled))]
@@ -75,7 +75,7 @@ namespace Game.MaterialFx
         [TitleGroup("Dissolve/Source")]
         [ShowIf(nameof(dissolveEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/AtlasRaw/WorldXY)")]
+        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int dissolveSourceUVSpace = 0;
 
         // ═══════════════════════════════════════════════════════════════════════════
@@ -100,8 +100,8 @@ namespace Game.MaterialFx
         [TitleGroup("Flow Warp/Source", "歪みパターンを取得するテクスチャソース設定")]
         [ShowIf(nameof(flowWarpEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (0-4=Atlas, 5=ExtA, 6=ExtB, 7=CustomRT)")]
-        public int flowWarpSourceSlotType = 0;
+        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        public int flowWarpSourceSlotType = 5;
 
         [TitleGroup("Flow Warp/Source")]
         [ShowIf(nameof(flowWarpEnabled))]
@@ -112,7 +112,7 @@ namespace Game.MaterialFx
         [TitleGroup("Flow Warp/Source")]
         [ShowIf(nameof(flowWarpEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/AtlasRaw/WorldXY)")]
+        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int flowWarpSourceUVSpace = 0;
 
         // ═══════════════════════════════════════════════════════════════════════════
@@ -144,8 +144,8 @@ namespace Game.MaterialFx
         [TitleGroup("Color Overlay/Source", "オーバーレイマスクを取得するテクスチャソース設定")]
         [ShowIf(nameof(colorOverlayEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (0-4=Atlas, 5=ExtA, 6=ExtB, 7=CustomRT)")]
-        public int colorOverlaySourceSlotType = 0;
+        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        public int colorOverlaySourceSlotType = 5;
 
         [TitleGroup("Color Overlay/Source")]
         [ShowIf(nameof(colorOverlayEnabled))]
@@ -156,7 +156,7 @@ namespace Game.MaterialFx
         [TitleGroup("Color Overlay/Source")]
         [ShowIf(nameof(colorOverlayEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/AtlasRaw/WorldXY)")]
+        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int colorOverlaySourceUVSpace = 0;
 
         // ═══════════════════════════════════════════════════════════════════════════
@@ -188,8 +188,8 @@ namespace Game.MaterialFx
         [TitleGroup("Color Ramp/Source", "ランプ参照値を取得するテクスチャソース設定")]
         [ShowIf(nameof(colorRampEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (0-4=Atlas, 5=ExtA, 6=ExtB, 7=CustomRT)")]
-        public int colorRampSourceSlotType = 0;
+        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        public int colorRampSourceSlotType = 5;
 
         [TitleGroup("Color Ramp/Source")]
         [ShowIf(nameof(colorRampEnabled))]
@@ -200,7 +200,7 @@ namespace Game.MaterialFx
         [TitleGroup("Color Ramp/Source")]
         [ShowIf(nameof(colorRampEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/AtlasRaw/WorldXY)")]
+        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int colorRampSourceUVSpace = 0;
 
         // ═══════════════════════════════════════════════════════════════════════════
@@ -226,8 +226,8 @@ namespace Game.MaterialFx
         [TitleGroup("Refraction/Source", "屈折パターンを取得するテクスチャソース設定")]
         [ShowIf(nameof(refractionEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (0-4=Atlas, 5=ExtA, 6=ExtB, 7=CustomRT)")]
-        public int refractionSourceSlotType = 0;
+        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        public int refractionSourceSlotType = 5;
 
         [TitleGroup("Refraction/Source")]
         [ShowIf(nameof(refractionEnabled))]
@@ -238,7 +238,7 @@ namespace Game.MaterialFx
         [TitleGroup("Refraction/Source")]
         [ShowIf(nameof(refractionEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/AtlasRaw/WorldXY)")]
+        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int refractionSourceUVSpace = 0;
 
         // ═══════════════════════════════════════════════════════════════════════════
@@ -287,7 +287,7 @@ namespace Game.MaterialFx
         [ShowIf(nameof(causticsEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
         [Tooltip("テクスチャスロット")]
-        public int causticsSourceASlotType = 0;
+        public int causticsSourceASlotType = 5;
 
         [TitleGroup("Caustics/Source A")]
         [ShowIf(nameof(causticsEnabled))]
@@ -305,7 +305,7 @@ namespace Game.MaterialFx
         [ShowIf(nameof(causticsEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
         [Tooltip("テクスチャスロット")]
-        public int causticsSourceBSlotType = 0;
+        public int causticsSourceBSlotType = 6;
 
         [TitleGroup("Caustics/Source B")]
         [ShowIf(nameof(causticsEnabled))]
@@ -435,7 +435,7 @@ namespace Game.MaterialFx
         [ShowIf(nameof(normalMapEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
         [Tooltip("テクスチャスロット")]
-        public int normalMapSourceSlotType = 0;
+        public int normalMapSourceSlotType = 5;
 
         [TitleGroup("Normal Map/Source")]
         [ShowIf(nameof(normalMapEnabled))]
@@ -494,7 +494,7 @@ namespace Game.MaterialFx
         [ShowIf(nameof(maskEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
         [Tooltip("テクスチャスロット")]
-        public int maskSourceSlotType = 0;
+        public int maskSourceSlotType = 5;
 
         [TitleGroup("Mask/Source")]
         [ShowIf(nameof(maskEnabled))]
@@ -947,11 +947,6 @@ namespace Game.MaterialFx
         {
             return new ValueDropdownList<int>
             {
-                { "Atlas Slot 0", 0 },
-                { "Atlas Slot 1", 1 },
-                { "Atlas Slot 2", 2 },
-                { "Atlas Slot 3", 3 },
-                { "Atlas Slot 4", 4 },
                 { "External A", 5 },
                 { "External B", 6 },
                 { "Custom RT", 7 },
@@ -1071,7 +1066,7 @@ namespace Game.MaterialFx
             {
                 { "Sprite Local", 0 },
                 { "Screen", 1 },
-                { "Atlas Raw", 2 },
+                { "Texture Raw", 2 },
                 { "World XY", 3 },
             };
         }

@@ -20,7 +20,7 @@ namespace Game.CameraSystem
             renderPassEvent = RenderPassEvent.AfterRendering;
         }
 
-#pragma warning disable CS0618
+        [Obsolete]
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             var camera = renderingData.cameraData.camera;
@@ -50,7 +50,6 @@ namespace Game.CameraSystem
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }
-#pragma warning restore CS0618
     }
 
     [DisallowMultipleRendererFeature("Camera Output Override")]

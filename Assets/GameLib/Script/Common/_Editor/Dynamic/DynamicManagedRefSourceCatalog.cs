@@ -56,6 +56,10 @@ namespace Game.Common.Editor
 
         static void BuildLiteralSourceCache()
         {
+            // BaseProfileData 自体を登録（DynamicValue<BaseProfileData> で polymorphic Preset 選択を可能にする）
+            s_literalSourceCache[typeof(BaseProfileData)] =
+                typeof(ManagedRefLiteralSource<>).MakeGenericType(typeof(BaseProfileData));
+
             // BaseProfileData 派生型を収集
             var profileDataTypes = TypeCache.GetTypesDerivedFrom<BaseProfileData>();
             foreach (var t in profileDataTypes)
@@ -106,6 +110,21 @@ namespace Game.Common.Editor
             foreach (var kvp in assetSourceMap)
             {
                 s_assetSourceCache[kvp.Key] = kvp.Value.ToArray();
+            }
+
+            // BaseProfileData 用の汎用 asset source を登録
+            // IDynamicValueAsset<T> の共変性により、任意の ProfileSO wrapper から Preset を取得可能
+            if (!s_assetSourceCache.ContainsKey(typeof(BaseProfileData)))
+            {
+                s_assetSourceCache[typeof(BaseProfileData)] = new[] { typeof(BindingPresetAssetSource) };
+            }
+            else
+            {
+                var existing = s_assetSourceCache[typeof(BaseProfileData)];
+                var extended = new Type[existing.Length + 1];
+                existing.CopyTo(extended, 0);
+                extended[existing.Length] = typeof(BindingPresetAssetSource);
+                s_assetSourceCache[typeof(BaseProfileData)] = extended;
             }
         }
     }

@@ -15,6 +15,7 @@ namespace Game.SharedTexture
         ProcessorOutput = 20,
         ImportedTexture = 30,
         ExternalTexture = 40,
+        NoiseGenerator = 50,
     }
 
     // ── SharedTextureDescriptor ─────────────────────────────────
@@ -151,6 +152,9 @@ namespace Game.SharedTexture
 
         public static SharedTexturePublishOptions ForProcessor(string producerTag)
             => new(producerTag, SharedTextureSourceKind.ProcessorOutput);
+
+        public static SharedTexturePublishOptions ForNoiseProducer(string producerTag)
+            => new(producerTag, SharedTextureSourceKind.NoiseGenerator);
     }
 
     // ── SharedTextureTagValidator ───────────────────────────────

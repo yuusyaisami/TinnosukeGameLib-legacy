@@ -14,7 +14,7 @@
 //
 // v2.0 変更点:
 //   - binding 引数を削除
-//   - TextureSlotRef.slotType から ResolveAtlasSlotBinding で自動解決
+//   - TextureSlotRef から直接 external texture を解決
 //   - 旧互換ラッパーを削除
 //
 // ═══════════════════════════════════════════════════════════════════════════
@@ -80,7 +80,7 @@ inline Dissolve2DParams MakeDefaultDissolve2DParams()
 
 // ---------------------------------------------------------------------------
 // Dissolve 適用
-// ★v2.0: binding 引数なし - 内部で自動解決
+// ★v2.0: binding 引数なし
 // ★修正: threshold=0 で完全表示、threshold=1 で完全透明に
 // 
 // 動作仕様:
@@ -96,7 +96,7 @@ inline Surface2D Surface2D_ApplyDissolve(Surface2D s, Dissolve2DParams p)
     if (p.source.slotType == TEXTURE_SLOT_NONE)
         return s;
     
-    // ソースからマスク値を取得（内部で ResolveAtlasSlotBinding が呼ばれる）
+    // ソースからマスク値を取得
     half mask = SampleSlotScalar(s, p.source);
     
     // ★修正: thresholdを拡張して0で完全表示、1で完全透明を保証

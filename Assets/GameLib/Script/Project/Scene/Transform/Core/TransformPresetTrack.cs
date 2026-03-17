@@ -386,7 +386,6 @@ namespace Game.TransformSystem
                         _worldPositionActive = true;
                         _activeMask |= TransformContributionMask.WorldPosition;
 
-                        var scrollElapsed = 0f;
                         var scrollDuration = duration;
 
                         if (step.FireAndForget)

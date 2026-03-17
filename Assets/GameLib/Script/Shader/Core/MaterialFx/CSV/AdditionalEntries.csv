@@ -37,6 +37,21 @@ Item,BaseShader/CompositeSystems/ColorRamp/Source/UVSpace,BaseShader,Int,_ColorR
 Item,BaseShader/CompositeSystems/ColorRamp/Source/TilingOffset,BaseShader,Float4,_ColorRampSource_TilingOffset,BaseShader/CompositeSystems/ColorRamp/Source/TilingOffset,
 Item,BaseShader/CompositeSystems/ColorRamp/Source/Remap,BaseShader,Float4,_ColorRampSource_Remap,BaseShader/CompositeSystems/ColorRamp/Source/Remap,
 
+# --- ExternalTextureComposite ---
+Folder,BaseShader/CompositeSystems/ExternalTextureComposite,,,,,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/Enabled,BaseShader,Bool,_ExternalTextureCompositeEnabled,BaseShader/CompositeSystems/ExternalTextureComposite/Enabled,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/BlendMode,BaseShader,Int,_ExternalTextureCompositeBlendMode,BaseShader/CompositeSystems/ExternalTextureComposite/BlendMode,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/Intensity,BaseShader,Float,_ExternalTextureCompositeIntensity,BaseShader/CompositeSystems/ExternalTextureComposite/Intensity,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/UseTextureAlpha,BaseShader,Bool,_ExternalTextureCompositeUseTextureAlpha,BaseShader/CompositeSystems/ExternalTextureComposite/UseTextureAlpha,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/Tint,BaseShader,Color,_ExternalTextureCompositeTint,BaseShader/CompositeSystems/ExternalTextureComposite/Tint,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/DisableWhenTextureMissing,BaseShader,Bool,_ExternalTextureCompositeDisableWhenTextureMissing,BaseShader/CompositeSystems/ExternalTextureComposite/DisableWhenTextureMissing,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/AffectSurfaceAlpha,BaseShader,Bool,_ExternalTextureCompositeAffectSurfaceAlpha,BaseShader/CompositeSystems/ExternalTextureComposite/AffectSurfaceAlpha,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/Source/SlotType,BaseShader,Int,_ExternalTextureCompositeSource_SlotType,BaseShader/CompositeSystems/ExternalTextureComposite/Source/SlotType,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/Source/Channel,BaseShader,Int,_ExternalTextureCompositeSource_Channel,BaseShader/CompositeSystems/ExternalTextureComposite/Source/Channel,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/Source/UVSpace,BaseShader,Int,_ExternalTextureCompositeSource_UVSpace,BaseShader/CompositeSystems/ExternalTextureComposite/Source/UVSpace,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/Source/TilingOffset,BaseShader,Float4,_ExternalTextureCompositeSource_TilingOffset,BaseShader/CompositeSystems/ExternalTextureComposite/Source/TilingOffset,
+Item,BaseShader/CompositeSystems/ExternalTextureComposite/Source/Remap,BaseShader,Float4,_ExternalTextureCompositeSource_Remap,BaseShader/CompositeSystems/ExternalTextureComposite/Source/Remap,
+
 # --- Refraction ---
 Folder,BaseShader/CompositeSystems/Refraction,,,,,
 Item,BaseShader/CompositeSystems/Refraction/Enabled,BaseShader,Bool,_RefractionEnabled,BaseShader/CompositeSystems/Refraction/Enabled,
@@ -141,6 +156,7 @@ Item,BaseShader/CompositeSystems/AdvancedFade2D/WaveParamsB,BaseShader,Float4,_A
 Folder,BaseShader/ExternalTextures,,,,,
 Item,BaseShader/ExternalTextures/ExtTexA,BaseShader,Texture,_ExtTexA,BaseShader/ExternalTextures/ExtTexA,
 Item,BaseShader/ExternalTextures/ExtTexB,BaseShader,Texture,_ExtTexB,BaseShader/ExternalTextures/ExtTexB,
+Item,BaseShader/ExternalTextures/CustomRT,BaseShader,Texture,_CustomRT,BaseShader/ExternalTextures/CustomRT,
 
 # --- Outline ---
 Folder,BaseShader/Outline,,,,,

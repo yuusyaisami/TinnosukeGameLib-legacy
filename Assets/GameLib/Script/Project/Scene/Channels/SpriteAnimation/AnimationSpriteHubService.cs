@@ -11,6 +11,7 @@ using UnityEngine;
 using Game.MaterialFx;
 using Game.Visual;
 using VContainer.Unity;
+using Game.SharedTexture;
 
 namespace Game.Channel
 {
@@ -31,7 +32,7 @@ namespace Game.Channel
             int basePriority = 0);
     }
 
-    public sealed class AnimationSpriteHubService : IAnimationSpriteHubService, IVisualHub, IScopeAcquireHandler, IScopeReleaseHandler, ITickable, IDisposable
+    public sealed class AnimationSpriteHubService : IAnimationSpriteHubService, ITaggedMaterialFxProvider, IVisualHub, IScopeAcquireHandler, IScopeReleaseHandler, ITickable, IDisposable
     {
         struct HubStateEntry
         {
@@ -256,6 +257,36 @@ namespace Game.Channel
             }
 
             player = null;
+            return false;
+        }
+
+        public bool TryGetMaterialFxReceiver(string tag, out IMaterialFxReceiver? receiver)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                tag = "default";
+
+            if (_players.TryGetValue(tag, out var player))
+            {
+                receiver = player;
+                return true;
+            }
+
+            receiver = null;
+            return false;
+        }
+
+        public bool TryGetMaterialFx(string tag, out IMaterialFxService? materialFx)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                tag = "default";
+
+            if (_players.TryGetValue(tag, out var player) && player.MaterialFx != null)
+            {
+                materialFx = player.MaterialFx;
+                return true;
+            }
+
+            materialFx = null;
             return false;
         }
 

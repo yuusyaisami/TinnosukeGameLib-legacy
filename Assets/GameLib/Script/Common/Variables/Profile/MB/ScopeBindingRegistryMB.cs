@@ -10,6 +10,8 @@ using VContainer;
 using Game;
 using Game.Common;
 using Game.Save;
+using Game.Profile;
+using Sirenix.OdinInspector;
 
 namespace Game.Profile
 {
@@ -17,11 +19,9 @@ namespace Game.Profile
     public sealed class ScopeBindingRegistryMB : MonoBehaviour, IFeatureInstaller
     {
         [Header("Profiles")]
-        [Tooltip("外部 Profile が未指定の場合に登録する Profile")]
-        [SerializeField] ScriptableObject[] _profilesFromInspector = Array.Empty<ScriptableObject>();
-        [SerializeReference]
-        [Tooltip("Inline Profile 定義（SerializeReference）。外部 Profile が未指定の場合に登録する。")]
-        [SerializeField] IProfileDefinition[] _profileDefinitionsFromInspector = Array.Empty<IProfileDefinition>();
+        [Tooltip("登録する Profile Preset。Literal (inline) または Asset (SO参照) で指定可能。")]
+        [SerializeField]
+        List<DynamicValue<BaseProfileData>> _profiles = new();
 
         [Header("Pool / Runtime")]
         [Tooltip("RuntimeLifetimeScope(Pool) の Acquire 時に Registry をリセットして再登録する")]
@@ -77,14 +77,14 @@ namespace Game.Profile
                 .As<IScopeBindingRegistry>()
                 .As<ScopeBindingRegistryService>();
 
-            // Convert SO array to IProfileDefinition and merge with inline definitions
+            // Evaluate DynamicValue entries to collect profile definitions
             var allProfiles = new List<IProfileDefinition>();
-            foreach (var so in _profilesFromInspector)
+            foreach (var dv in _profiles)
             {
-                if (so is IProfileDefinition def)
-                    allProfiles.Add(def);
+                if (!dv.HasSource) continue;
+                if (dv.TryGet(null, out BaseProfileData preset) && preset != null)
+                    allProfiles.Add(preset);
             }
-            allProfiles.AddRange(_profileDefinitionsFromInspector);
 
             var options = new ScopeBindingRegistryInstallService.Options(
                 inspectorProfiles: allProfiles.ToArray(),

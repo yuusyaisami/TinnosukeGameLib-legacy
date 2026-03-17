@@ -14,7 +14,7 @@
 //
 // v2.0 変更点:
 //   - binding 引数を削除
-//   - TextureSlotRef.slotType から ResolveAtlasSlotBinding で自動解決
+//   - TextureSlotRef から直接 external texture を解決
 //   - 旧互換ラッパーを削除
 //
 // ═══════════════════════════════════════════════════════════════════════════
@@ -72,7 +72,7 @@ inline Mask2DParams MakeDefaultMask2DParams()
 
 // ---------------------------------------------------------------------------
 // Mask 適用
-// ★v2.0: binding 引数なし - 内部で自動解決
+// ★v2.0: binding 引数なし
 // ★修正: ノイズ値の全範囲でソフトマスクが機能するように
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyMask(Surface2D s, Mask2DParams p)
@@ -82,7 +82,7 @@ inline Surface2D Surface2D_ApplyMask(Surface2D s, Mask2DParams p)
     if (p.source.slotType == TEXTURE_SLOT_NONE)
         return s;
     
-    // ソースからマスク値を取得（内部で ResolveAtlasSlotBinding が呼ばれる）
+    // ソースからマスク値を取得
     half mask = SampleSlotScalar(s, p.source);
     
     // ★修正: ソフトマスク
@@ -115,7 +115,7 @@ inline Surface2D Surface2D_ApplyInverseMask(Surface2D s, Mask2DParams p)
     if (p.source.slotType == TEXTURE_SLOT_NONE)
         return s;
     
-    // ソースからマスク値を取得（内部で ResolveAtlasSlotBinding が呼ばれる）
+    // ソースからマスク値を取得
     half mask = SampleSlotScalar(s, p.source);
     
     // 逆ソフトマスク

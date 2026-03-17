@@ -21,6 +21,11 @@ Note:
   - Noise セクション（4.4.4）のスコープ注記を追加
   - RTHandle 所有権の初期推奨を追記（Section 12）
 - v0.9 では、実装に着手しやすくするため、3段階の実装マイルストーンと各完了条件を追記しています。
+- 2026-03-14 追記:
+  - 現コード再確認により、`MaterialFxMB` の Compute 初期化記述は現状とずれているため、今後は Atlas / NoiseAtlas 残存側を legacy 中心として扱う
+  - `ITaggedMaterialFxProvider` は `AnimationSpriteHubService` へ実接続する方針を明確化
+  - さらに同日、`NoiseAtlas2D.hlsl` / `_AtlasSlot0-4` / `BaseShader/TextureSlot/*` はコード上から削除済み
+  - 本文中の Atlas / NoiseAtlas 残存記述は、削除前の分析ログとして扱う
 - 参照した主なコード:
   - Assets/GameLib/Script/Project/Scene/CameraSystem/MB/CameraSystemMB.cs
   - Assets/GameLib/Script/Project/Scene/CameraSystem/Core/CameraSystemService.cs

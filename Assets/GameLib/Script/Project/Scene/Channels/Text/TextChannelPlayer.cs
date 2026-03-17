@@ -71,7 +71,7 @@ namespace Game.Channel
             public float LineSpacing;
             public float ParagraphSpacing;
             public TextAlignmentOptions Alignment;
-            public bool EnableWordWrapping;
+            public TextWrappingModes TextWrappingMode;
             public TextOverflowModes Overflow;
         }
 
@@ -431,7 +431,7 @@ namespace Game.Channel
                 LineSpacing = t.lineSpacing,
                 ParagraphSpacing = t.paragraphSpacing,
                 Alignment = t.alignment,
-                EnableWordWrapping = t.enableWordWrapping,
+                TextWrappingMode = t.textWrappingMode,
                 Overflow = t.overflowMode,
             };
         }
@@ -466,7 +466,7 @@ namespace Game.Channel
             if (settings.ApplyAlignment)
                 next.Alignment = settings.Alignment;
             if (settings.ApplyWordWrapping)
-                next.EnableWordWrapping = settings.EnableWordWrapping;
+                next.TextWrappingMode = settings.EnableWordWrapping ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
             if (settings.ApplyOverflow)
                 next.Overflow = settings.Overflow;
 
@@ -491,7 +491,7 @@ namespace Game.Channel
             t.lineSpacing = state.LineSpacing;
             t.paragraphSpacing = state.ParagraphSpacing;
             t.alignment = state.Alignment;
-            t.enableWordWrapping = state.EnableWordWrapping;
+            t.textWrappingMode = state.TextWrappingMode;
             t.overflowMode = state.Overflow;
         }
 

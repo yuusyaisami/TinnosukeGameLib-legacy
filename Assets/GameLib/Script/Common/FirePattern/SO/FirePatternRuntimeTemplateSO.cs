@@ -37,15 +37,19 @@ namespace Game.Fire
             }
         }
 
-        void OnEnable()
+#if UNITY_EDITOR
+        protected override void OnEnable()
         {
+            base.OnEnable();
             EnsurePreset();
         }
 
-        void OnValidate()
+        protected override void OnValidate()
         {
+            base.OnValidate();
             EnsurePreset();
         }
+#endif
 
         public override void OnAcquire(IScopeNode scope, RuntimeIdentityData identity)
         {

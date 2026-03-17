@@ -127,22 +127,5 @@ namespace Game.StatusEffect
                 Tag = "Slow"
             };
         }
-
-        internal static SpeedModEffectPreset CreateFromLegacyFields(
-            ProfileFloatValue boostDur, ProfileFloatValue boostInt, ProfileFloatValue boostMul,
-            ProfileFloatValue slowDur, ProfileFloatValue slowInt,
-            EffectVisualData boostVis, EffectVisualData slowVis)
-        {
-            return new SpeedModEffectPreset
-            {
-                _boostDefaultDuration = boostDur,
-                _boostDefaultIntensity = boostInt,
-                _boostBaseMultiplier = boostMul,
-                _slowDefaultDuration = slowDur,
-                _slowDefaultIntensity = slowInt,
-                _boostVisualData = boostVis,
-                _slowVisualData = slowVis
-            };
-        }
     }
 }

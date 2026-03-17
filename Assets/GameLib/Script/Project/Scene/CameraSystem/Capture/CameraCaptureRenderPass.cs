@@ -13,7 +13,7 @@ namespace Game.CameraSystem
             renderPassEvent = passEvent;
         }
 
-#pragma warning disable CS0618
+        [Obsolete]
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             var desc = renderingData.cameraData.cameraTargetDescriptor;
@@ -25,13 +25,14 @@ namespace Game.CameraSystem
             CameraCaptureRegistry.EnsureSource(renderingData.cameraData.camera, desc);
         }
 
+        [Obsolete]
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             var camera = renderingData.cameraData.camera;
             if (camera == null)
                 return;
 
-            if (!CameraCaptureRegistry.TryGet(camera, out var tex, out _, out _))
+            if (!CameraCaptureRegistry.TryGet(camera, out _, out _, out _))
                 return;
 
             // RTHandle を再取得
@@ -47,6 +48,5 @@ namespace Game.CameraSystem
 
             CameraCaptureRegistry.MarkCaptured(camera, Time.frameCount);
         }
-#pragma warning restore CS0618
     }
 }

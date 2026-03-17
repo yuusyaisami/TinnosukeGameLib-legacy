@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using Febucci.TextAnimatorCore.Settings;
 using Febucci.TextAnimatorCore.Time;
@@ -67,8 +68,8 @@ namespace Game.Channel
         public bool IsTypewriterRunning => _typewriter != null && _typewriter.IsShowingText;
         public TypewriterComponent? Typewriter => _typewriter;
 
-        readonly TextAnimator_TMP _animator;
-        readonly TypewriterComponent _typewriter;
+        readonly TextAnimator_TMP? _animator;
+        readonly TypewriterComponent? _typewriter;
 
         public TextAnimatorBackend(TMP_Text target, bool ensureComponents)
         {

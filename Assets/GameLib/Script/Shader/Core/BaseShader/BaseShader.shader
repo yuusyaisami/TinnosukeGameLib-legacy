@@ -148,13 +148,6 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         // Composite System (BaseShader-CompositeSystem-v2.0 準拠)
         // ═══════════════════════════════════════════════════════════════════════════
 
-        // --- TextureSlot Bindings (Slot 0-4 → Atlas Tier/Slice) ---
-        [HideInInspector] _AtlasSlot0("Atlas Slot 0 (Tier,Slice)", Vector) = (-1,-1,0,0)
-        [HideInInspector] _AtlasSlot1("Atlas Slot 1 (Tier,Slice)", Vector) = (-1,-1,0,0)
-        [HideInInspector] _AtlasSlot2("Atlas Slot 2 (Tier,Slice)", Vector) = (-1,-1,0,0)
-        [HideInInspector] _AtlasSlot3("Atlas Slot 3 (Tier,Slice)", Vector) = (-1,-1,0,0)
-        [HideInInspector] _AtlasSlot4("Atlas Slot 4 (Tier,Slice)", Vector) = (-1,-1,0,0)
-
         // --- External Textures ---
         [NoScaleOffset] _ExtTexA("External Texture A", 2D) = "white" {}
         [NoScaleOffset] _ExtTexB("External Texture B", 2D) = "white" {}
@@ -162,7 +155,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
         // --- Dissolve ---
         _DissolveEnabled("Dissolve Enabled", Float) = 0
-        [HideInInspector] _DissolveSource_SlotType("Dissolve Source SlotType", Float) = 0
+        [HideInInspector] _DissolveSource_SlotType("Dissolve Source SlotType", Float) = 5
         [HideInInspector] _DissolveSource_Channel("Dissolve Source Channel", Float) = 1
         [HideInInspector] _DissolveSource_UVSpace("Dissolve Source UVSpace", Float) = 0
         [HideInInspector] _DissolveSource_TilingOffset("Dissolve Source TilingOffset", Vector) = (1,1,0,0)
@@ -173,7 +166,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
         // --- FlowWarp ---
         _FlowWarpEnabled("FlowWarp Enabled", Float) = 0
-        [HideInInspector] _FlowWarpSource_SlotType("FlowWarp Source SlotType", Float) = 1
+        [HideInInspector] _FlowWarpSource_SlotType("FlowWarp Source SlotType", Float) = 5
         [HideInInspector] _FlowWarpSource_Channel("FlowWarp Source Channel", Float) = 3
         [HideInInspector] _FlowWarpSource_UVSpace("FlowWarp Source UVSpace", Float) = 0
         [HideInInspector] _FlowWarpSource_TilingOffset("FlowWarp Source TilingOffset", Vector) = (1,1,0,0)
@@ -183,7 +176,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
         // --- Mask ---
         _MaskEnabled("Mask Enabled", Float) = 0
-        [HideInInspector] _MaskSource_SlotType("Mask Source SlotType", Float) = 2
+        [HideInInspector] _MaskSource_SlotType("Mask Source SlotType", Float) = 5
         [HideInInspector] _MaskSource_Channel("Mask Source Channel", Float) = 1
         [HideInInspector] _MaskSource_UVSpace("Mask Source UVSpace", Float) = 0
         [HideInInspector] _MaskSource_TilingOffset("Mask Source TilingOffset", Vector) = (1,1,0,0)
@@ -194,7 +187,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         // --- Emission ---
         _EmissionEnabled("Emission Enabled", Float) = 0
         [HDR] _EmissionColor("Emission Color", Color) = (0,0,0,1)
-        [HideInInspector] _EmissionSource_SlotType("Emission Source SlotType", Float) = 0
+        [HideInInspector] _EmissionSource_SlotType("Emission Source SlotType", Float) = 5
         [HideInInspector] _EmissionSource_Channel("Emission Source Channel", Float) = 1
         [HideInInspector] _EmissionSource_UVSpace("Emission Source UVSpace", Float) = 0
         [HideInInspector] _EmissionSource_TilingOffset("Emission Source TilingOffset", Vector) = (1,1,0,0)
@@ -206,7 +199,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
         // --- ColorOverlay ---
         _ColorOverlayEnabled("ColorOverlay Enabled", Float) = 0
-        [HideInInspector] _ColorOverlaySource_SlotType("ColorOverlay Source SlotType", Float) = 0
+        [HideInInspector] _ColorOverlaySource_SlotType("ColorOverlay Source SlotType", Float) = 5
         [HideInInspector] _ColorOverlaySource_Channel("ColorOverlay Source Channel", Float) = 1
         [HideInInspector] _ColorOverlaySource_UVSpace("ColorOverlay Source UVSpace", Float) = 0
         [HideInInspector] _ColorOverlaySource_TilingOffset("ColorOverlay Source TilingOffset", Vector) = (1,1,0,0)
@@ -226,7 +219,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
         // --- ColorRamp ---
         _ColorRampEnabled("ColorRamp Enabled", Float) = 0
-        [HideInInspector] _ColorRampSource_SlotType("ColorRamp Source SlotType", Float) = 0
+        [HideInInspector] _ColorRampSource_SlotType("ColorRamp Source SlotType", Float) = 5
         [HideInInspector] _ColorRampSource_Channel("ColorRamp Source Channel", Float) = 1
         [HideInInspector] _ColorRampSource_UVSpace("ColorRamp Source UVSpace", Float) = 0
         [HideInInspector] _ColorRampSource_TilingOffset("ColorRamp Source TilingOffset", Vector) = (1,1,0,0)
@@ -235,9 +228,23 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _ColorRampIntensity("ColorRamp Intensity", Range(0,1)) = 1
         _ColorRampPreserveAlpha("ColorRamp Preserve Alpha", Float) = 1
 
+        // --- ExternalTextureComposite ---
+        _ExternalTextureCompositeEnabled("ExternalTextureComposite Enabled", Float) = 0
+        [HideInInspector] _ExternalTextureCompositeSource_SlotType("ExternalTextureComposite Source SlotType", Float) = 5
+        [HideInInspector] _ExternalTextureCompositeSource_Channel("ExternalTextureComposite Source Channel", Float) = 15
+        [HideInInspector] _ExternalTextureCompositeSource_UVSpace("ExternalTextureComposite Source UVSpace", Float) = 0
+        [HideInInspector] _ExternalTextureCompositeSource_TilingOffset("ExternalTextureComposite Source TilingOffset", Vector) = (1,1,0,0)
+        [HideInInspector] _ExternalTextureCompositeSource_Remap("ExternalTextureComposite Source Remap", Vector) = (0.5,0.5,1,0)
+        _ExternalTextureCompositeBlendMode("ExternalTextureComposite Blend Mode", Float) = 0
+        _ExternalTextureCompositeIntensity("ExternalTextureComposite Intensity", Range(0,1)) = 1
+        _ExternalTextureCompositeUseTextureAlpha("ExternalTextureComposite Use Texture Alpha", Float) = 0
+        _ExternalTextureCompositeTint("ExternalTextureComposite Tint", Color) = (1,1,1,1)
+        _ExternalTextureCompositeDisableWhenTextureMissing("ExternalTextureComposite Disable When Texture Missing", Float) = 1
+        _ExternalTextureCompositeAffectSurfaceAlpha("ExternalTextureComposite Affect Surface Alpha", Float) = 0
+
         // --- Refraction ---
         _RefractionEnabled("Refraction Enabled", Float) = 0
-        [HideInInspector] _RefractionSource_SlotType("Refraction Source SlotType", Float) = 0
+        [HideInInspector] _RefractionSource_SlotType("Refraction Source SlotType", Float) = 5
         [HideInInspector] _RefractionSource_Channel("Refraction Source Channel", Float) = 3
         [HideInInspector] _RefractionSource_UVSpace("Refraction Source UVSpace", Float) = 0
         [HideInInspector] _RefractionSource_TilingOffset("Refraction Source TilingOffset", Vector) = (1,1,0,0)
@@ -247,12 +254,12 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
         // --- Caustics ---
         _CausticsEnabled("Caustics Enabled", Float) = 0
-        [HideInInspector] _CausticsSourceA_SlotType("Caustics Source A SlotType", Float) = 0
+        [HideInInspector] _CausticsSourceA_SlotType("Caustics Source A SlotType", Float) = 5
         [HideInInspector] _CausticsSourceA_Channel("Caustics Source A Channel", Float) = 1
         [HideInInspector] _CausticsSourceA_UVSpace("Caustics Source A UVSpace", Float) = 0
         [HideInInspector] _CausticsSourceA_TilingOffset("Caustics Source A TilingOffset", Vector) = (1,1,0,0)
         [HideInInspector] _CausticsSourceA_Remap("Caustics Source A Remap", Vector) = (0.5,0.5,1,0)
-        [HideInInspector] _CausticsSourceB_SlotType("Caustics Source B SlotType", Float) = 0
+        [HideInInspector] _CausticsSourceB_SlotType("Caustics Source B SlotType", Float) = 6
         [HideInInspector] _CausticsSourceB_Channel("Caustics Source B Channel", Float) = 1
         [HideInInspector] _CausticsSourceB_UVSpace("Caustics Source B UVSpace", Float) = 0
         [HideInInspector] _CausticsSourceB_TilingOffset("Caustics Source B TilingOffset", Vector) = (1,1,0,0)
@@ -276,7 +283,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
         // --- HueShift ---
         _HueShiftEnabled("HueShift Enabled", Float) = 0
-        [HideInInspector] _HueShiftMaskSource_SlotType("HueShift Mask Source SlotType", Float) = 255
+        [HideInInspector] _HueShiftMaskSource_SlotType("HueShift Mask Source SlotType", Float) = 5
         [HideInInspector] _HueShiftMaskSource_Channel("HueShift Mask Source Channel", Float) = 1
         [HideInInspector] _HueShiftMaskSource_UVSpace("HueShift Mask Source UVSpace", Float) = 0
         [HideInInspector] _HueShiftMaskSource_TilingOffset("HueShift Mask Source TilingOffset", Vector) = (1,1,0,0)
@@ -287,7 +294,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
 
         // --- NormalMap ---
         _NormalMapEnabled("NormalMap Enabled", Float) = 0
-        [HideInInspector] _NormalMapSource_SlotType("NormalMap Source SlotType", Float) = 0
+        [HideInInspector] _NormalMapSource_SlotType("NormalMap Source SlotType", Float) = 5
         [HideInInspector] _NormalMapSource_Channel("NormalMap Source Channel", Float) = 1
         [HideInInspector] _NormalMapSource_UVSpace("NormalMap Source UVSpace", Float) = 0
         [HideInInspector] _NormalMapSource_TilingOffset("NormalMap Source TilingOffset", Vector) = (1,1,0,0)

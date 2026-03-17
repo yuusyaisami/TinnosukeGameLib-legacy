@@ -22,8 +22,7 @@ namespace Game.SharedTexture
         // MaterialFx key constants (BaseShader/ExternalTextures)
         const string KeyExtTexA = "BaseShader/ExternalTextures/ExtTexA";
         const string KeyExtTexB = "BaseShader/ExternalTextures/ExtTexB";
-        // CustomRT は正規キーが不足しているため、暫定的に TextureSlot 系を使う
-        const string KeyCustomRT = "BaseShader/TextureSlot/CustomRT";
+        const string KeyCustomRT = "BaseShader/ExternalTextures/CustomRT";
 
         readonly ISharedTextureChannelHub _hub;
         readonly ITaggedMaterialFxProvider? _materialFxProvider;

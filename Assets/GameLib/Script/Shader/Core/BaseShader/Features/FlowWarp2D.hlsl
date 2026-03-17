@@ -14,7 +14,7 @@
 //
 // v2.0 変更点:
 //   - binding 引数を削除
-//   - TextureSlotRef.slotType から ResolveAtlasSlotBinding で自動解決
+//   - TextureSlotRef から直接 external texture を解決
 //   - time は内部で _Time.y を使用
 //   - 旧互換ラッパーを削除
 //
@@ -77,14 +77,14 @@ inline FlowWarp2DParams MakeDefaultFlowWarp2DParams()
 
 // ---------------------------------------------------------------------------
 // FlowWarp UV 変形（テクスチャサンプル前に適用）
-// ★v2.0: binding 引数なし - 内部で自動解決、time は _Time.y を使用
+// ★v2.0: binding 引数なし、time は _Time.y を使用
 // ★修正: UV ドリフトを防止するため、フロー値を中心化
 // ★修正: strengthXY で X/Y 個別の強度を適用
 //
 // 引数の役割:
 //   targetUV   : 歪ませる対象の UV（最終的にサンプリングに使われる）
 //   uvLocal    : スプライトローカル UV (0..1) - ComputeSlotUV で UVSpace 計算に使用
-//   uvMain     : アトラス UV - ComputeSlotUV で UVSpace=AtlasRaw 時に使用
+//   uvMain     : 元テクスチャ UV - ComputeSlotUV で UVSpace=TextureRaw 時に使用
 //   screenUV   : スクリーン座標 UV - ComputeSlotUV で UVSpace=Screen 時に使用
 //
 // 戻り値: 歪み適用後の targetUV
@@ -113,7 +113,7 @@ inline float2 FlowWarp2D_WarpUV(
     float2 uv1 = sourceUV + float2(timePhase, timePhase * 0.7);
     float2 uv2 = sourceUV + float2(frac(timePhase + 0.5), frac(timePhase * 0.7 + 0.5));
     
-    // フローベクトルを取得（内部で ResolveAtlasSlotBinding が呼ばれる）
+    // フローベクトルを取得
     half4 raw1 = SampleSlotRaw(uv1, p.source.slotType);
     half4 raw2 = SampleSlotRaw(uv2, p.source.slotType);
     

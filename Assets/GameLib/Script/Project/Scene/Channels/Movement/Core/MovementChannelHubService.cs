@@ -47,24 +47,13 @@ namespace Game.Movement
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public MovementChannelHubService(IScopeNode scopeNode = null, IBaseScalarService scalarService = null, MovementProfileSO movementProfile = null, IScopeBindingRegistry profileRegistry = null)
+        public MovementChannelHubService(IScopeNode scopeNode = null, IBaseScalarService scalarService = null, IScopeBindingRegistry profileRegistry = null)
         {
             _scope = scopeNode;
             _channels = new Dictionary<string, MovementChannelRuntime>(StringComparer.Ordinal);
             _sortedChannels = new List<MovementChannelRuntime>();
             _output = new MovementOutput();
             _scalarService = scalarService;
-
-            // プロファイルから初期チャネルを登録 (登録されていないなら登録)
-            if (movementProfile == null) movementProfile = ScriptableObject.CreateInstance<MovementProfileSO>();
-            if (movementProfile != null && profileRegistry != null)
-            {
-                if (!profileRegistry.TryResolveDefinition<MovementProfileSO>(out _))
-                {
-                    profileRegistry.SetProfileDefinition(movementProfile);
-                }
-            }
-
         }
 
         // ================================================================

@@ -48,18 +48,5 @@ namespace Game.Movement
         public float DefaultSpeedFallback => _defaultSpeed.Value;
         public float DefaultMultiplierFallback => _defaultMultiplier.Value;
         public float AgentRadius => _agentRadius;
-
-        internal static MovementPreset CreateFromLegacy(
-            ProfileFloatValue defaultSpeed,
-            ProfileFloatValue defaultMultiplier,
-            float agentRadius)
-        {
-            return new MovementPreset
-            {
-                _defaultSpeed = defaultSpeed,
-                _defaultMultiplier = defaultMultiplier,
-                _agentRadius = agentRadius
-            };
-        }
     }
 }

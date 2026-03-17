@@ -123,24 +123,5 @@ namespace Game.Health
         };
 
         public override Type ProfileType => typeof(HealthModifierPreset);
-
-        internal static HealthModifierPreset CreateFromLegacyFields(
-            ProfileFloatValue poisonDPS, ProfileFloatValue poisonTick,
-            ProfileFloatValue dmgReduction, ProfileFloatValue healBoost,
-            ProfileFloatValue critInMul, ProfileFloatValue critInChance,
-            ProfileFloatValue critOutMul, ProfileFloatValue critOutChance)
-        {
-            return new HealthModifierPreset
-            {
-                _poisonDamagePerSecond = poisonDPS,
-                _poisonTickInterval = poisonTick,
-                _damageReductionRate = dmgReduction,
-                _healBoostRate = healBoost,
-                _criticalIncomingMultiplier = critInMul,
-                _criticalIncomingChance = critInChance,
-                _criticalOutgoingMultiplier = critOutMul,
-                _criticalOutgoingChance = critOutChance
-            };
-        }
     }
 }

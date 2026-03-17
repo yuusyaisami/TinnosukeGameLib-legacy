@@ -19,29 +19,6 @@ namespace Game.MaterialFx
     public static class CompositeEffectKeys
     {
         /// <summary>
-        /// 指定コンテキストで TextureSlot バインドを設定。
-        /// </summary>
-        public static void SetAtlasSlotBindings(
-            IMaterialFxService service,
-            string context,
-            in CompositeEffectBundle bundle,
-            int priority = 0)
-        {
-            if (service == null) return;
-
-            service.SetLayer(MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot0, context,
-                MaterialFxTypedValue.FromVector4(bundle.Slot0.ToVector4()), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot1, context,
-                MaterialFxTypedValue.FromVector4(bundle.Slot1.ToVector4()), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot2, context,
-                MaterialFxTypedValue.FromVector4(bundle.Slot2.ToVector4()), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot3, context,
-                MaterialFxTypedValue.FromVector4(bundle.Slot3.ToVector4()), MaterialFxBlendMode.Override, priority);
-            service.SetLayer(MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot4, context,
-                MaterialFxTypedValue.FromVector4(bundle.Slot4.ToVector4()), MaterialFxBlendMode.Override, priority);
-        }
-
-        /// <summary>
         /// 指定コンテキストで Dissolve パラメータを設定。
         /// </summary>
         public static void SetDissolve(
@@ -168,7 +145,6 @@ namespace Game.MaterialFx
             in CompositeEffectBundle bundle,
             int priority = 0)
         {
-            SetAtlasSlotBindings(service, context, bundle, priority);
             SetDissolve(service, context, bundle.Dissolve, priority);
             SetFlowWarp(service, context, bundle.FlowWarp, priority);
             SetMask(service, context, bundle.Mask, priority);

@@ -42,6 +42,11 @@ MonoBehaviour:
     - Febucci.TextAnimatorForUnity.Runtime
     - Febucci.TextAnimatorForUnity.TMP.Runtime
     - Febucci.TextAnimatorForUnity.UITk.Runtime
+    - UniTask
+    - UniTask.Addressables
+    - UniTask.DOTween
+    - UniTask.Linq
+    - UniTask.TextMeshPro
     - VContainer
     - VInspector
     showAdvancedSettings: 0

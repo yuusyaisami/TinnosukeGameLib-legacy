@@ -14,8 +14,6 @@ namespace Game.TransformSystem
         readonly Transform _ownerTransform;
         TransformFollowOptions _options;
         bool _stopped;
-        bool _snapped;
-
         Vector3 _currentPosition;
 
         public bool IsAlive => !_stopped;
@@ -37,13 +35,11 @@ namespace Game.TransformSystem
         {
             _options = options;
             _followService.SetTarget(target, options);
-            _snapped = false;
         }
 
         public void SetPositionTarget(Vector3 position)
         {
             _followService.SetTarget(position);
-            _snapped = false;
         }
 
         public bool TrySnap()
@@ -52,7 +48,6 @@ namespace Game.TransformSystem
                 return false;
 
             _currentPosition = _followService.ResolveCurrentTargetPosition(_currentPosition, _options);
-            _snapped = true;
             return true;
         }
 
@@ -81,7 +76,6 @@ namespace Game.TransformSystem
         public void Reset()
         {
             _stopped = false;
-            _snapped = false;
             _currentPosition = _ownerTransform ? _ownerTransform.position : Vector3.zero;
         }
     }
