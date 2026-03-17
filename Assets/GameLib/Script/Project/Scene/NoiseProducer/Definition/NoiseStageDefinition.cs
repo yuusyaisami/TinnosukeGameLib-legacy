@@ -227,6 +227,9 @@ namespace Game.NoiseProducer
         public float Opacity => _opacity;
 
         public bool IsTimeReactive
-            => _stageKind == NoiseStageKind.Uv && _uvOp == NoiseUvOp.Scroll;
+            => _stageKind == NoiseStageKind.Uv
+               && (_uvOp == NoiseUvOp.Scroll
+                   || _uvOp == NoiseUvOp.Flow
+                   || _uvOp == NoiseUvOp.Rotate);
     }
 }

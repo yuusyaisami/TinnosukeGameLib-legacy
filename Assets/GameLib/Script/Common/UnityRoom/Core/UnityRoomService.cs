@@ -106,10 +106,10 @@ namespace Game.UnityRoom
                     HmacKey = _settings.HmacKey,
                 };
                 return true;
-            }
+                            }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[UnityRoomService] Failed to initialize client | ScoreboardId={_settings.ScoreboardId} Error={ex.Message}");
+                //Debug.LogWarning($"[UnityRoomService] Failed to initialize client | ScoreboardId={_settings.ScoreboardId} Error={ex.Message}");
                 return false;
             }
         }

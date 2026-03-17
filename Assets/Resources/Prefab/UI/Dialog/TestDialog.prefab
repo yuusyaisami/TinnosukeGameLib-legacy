@@ -1,0 +1,979 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &284433266001160299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1127598648029336699}
+  - component: {fileID: 1661494054385036400}
+  - component: {fileID: 2546010426566998755}
+  m_Layer: 0
+  m_Name: Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1127598648029336699
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 284433266001160299}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4826408091769910221}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &1661494054385036400
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 284433266001160299}
+  m_CullTransparentMesh: 1
+--- !u!114 &2546010426566998755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 284433266001160299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 2785564300681498144, guid: 4dffe6eab57ca4e4ba2f967307bd1c29, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &2496012406193450524
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1527461514959134522}
+  - component: {fileID: 1285143498954695452}
+  - component: {fileID: 881398426205766720}
+  m_Layer: 0
+  m_Name: Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1527461514959134522
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2496012406193450524}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3412529049891866352}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &1285143498954695452
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2496012406193450524}
+  m_CullTransparentMesh: 1
+--- !u!114 &881398426205766720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2496012406193450524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 981295067, guid: f6a663dc0aad4c942ba6d30ce44ac5e3, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &3630867076432680126
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3412529049891866352}
+  - component: {fileID: 376345927795700509}
+  - component: {fileID: 372446485543902265}
+  - component: {fileID: 8844958309875384765}
+  - component: {fileID: 4441767962698844660}
+  - component: {fileID: 3534252561726676623}
+  - component: {fileID: 6279069947301404768}
+  - component: {fileID: 3465696327512596248}
+  - component: {fileID: 7983820207989567412}
+  m_Layer: 0
+  m_Name: ButtonOK
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3412529049891866352
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1527461514959134522}
+  m_Father: {fileID: 6888854483099908227}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -127, y: -50}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &376345927795700509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+--- !u!114 &372446485543902265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 0
+  _debugView:
+    watchKeys: []
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!114 &8844958309875384765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c908c57ac520c7948a9a1e73ebd05f10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.EventMB
+  _captureEventLog: 1
+  _logCapacity: 64
+--- !u!114 &4441767962698844660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a513bb93c2de2a49b7f6d82c576a598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementStateMB
+  _initialActive: 1
+  _initialVisible: 1
+  _hitTestRects:
+  - {fileID: 3412529049891866352}
+  _selectionOrder: 0
+  _isNavigationSelectable:
+    _source:
+      rid: -2
+  _navigationOverride:
+    Up: {fileID: 0}
+    Down: {fileID: 0}
+    Left: {fileID: 0}
+    Right: {fileID: 0}
+  _onSelectedCommands:
+    _debugOwner: {fileID: 4441767962698844660}
+    _debugFieldPath: _onSelectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnSelected
+    _commands: []
+  _onDeselectedCommands:
+    _debugOwner: {fileID: 4441767962698844660}
+    _debugFieldPath: _onDeselectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnDeselected
+    _commands: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &3534252561726676623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 8
+  id: ButtonOK
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+  advanceOptions: 0
+  retryIntervalSeconds: 0.5
+--- !u!114 &6279069947301404768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ec127ea933e5841b6d80cc35226cfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  useAsGameLogicRoot: 0
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  initiallyVisible: 1
+--- !u!114 &3465696327512596248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c3163d90be9a2949b3c02398523366f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIButtonMB
+  _kind: 0
+  _canSubmit: 1
+  _triggerAction: 0
+  _holdTime: 1
+  _holdInterval: 0.1
+  _guardSelectionWhileHolding: 1
+  _onSubmitDownCommands:
+    _debugOwner: {fileID: 3465696327512596248}
+    _debugFieldPath: _onSubmitDownCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnSubmitDown
+    _commands:
+    - rid: 6309418214965117114
+    - rid: 6309418214965117116
+  _onSubmitUpCommands:
+    _debugOwner: {fileID: 3465696327512596248}
+    _debugFieldPath: _onSubmitUpCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnSubmitUp
+    _commands: []
+  _onHoldDecisionCommands:
+    _debugOwner: {fileID: 3465696327512596248}
+    _debugFieldPath: _onHoldDecisionCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnHoldDecision
+    _commands: []
+  _guardDuringCommandExecution: 1
+  _disableSelectionDuringCommandExecution: 0
+  _onHoldIntervalCommands:
+    _debugOwner: {fileID: 3465696327512596248}
+    _debugFieldPath: _onHoldIntervalCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnHoldInterval
+    _commands: []
+  _onHoldCancelCommands:
+    _debugOwner: {fileID: 3465696327512596248}
+    _debugFieldPath: _onHoldCancelCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnHoldCancel
+    _commands: []
+  _inputControlCondition:
+    _source:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6309418214965117114
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 6309418214965117115
+    - rid: 6309418214965117115
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        ApplyAnimation: 0
+        AwaitMode: 0
+        WaitForOnceCompletion: 1
+        PresetSource:
+          PreferVar: 1
+          VarId: 0
+          Asset:
+            animationA: {fileID: 0}
+            animationB: {fileID: 0}
+            playMode: 0
+            flipX: 0
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 1
+        MaterialFxSource:
+          PreferVar: 1
+          VarId: 0
+          Asset:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+    - rid: 6309418214965117116
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        data:
+          rid: 6309418214965117117
+    - rid: 6309418214965117117
+      type: {class: PublishEventCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        EventScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+        EventKey: OK
+        AwaitMode: 0
+        UseContextVars: 1
+        OverwriteExistingVars: 1
+        Payload:
+          entries: []
+--- !u!114 &7983820207989567412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3630867076432680126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dea5d2dfef5e5fd489f9e2d5dda8097f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.AnimationSpriteHubMB
+  channels:
+  - tag: default
+    spriteRenderer: {fileID: 0}
+    image: {fileID: 881398426205766720}
+    spritePreset:
+      animationA: {fileID: 11400000, guid: 9488e9fd69ec6004da4734bbca549b88, type: 2}
+      animationB: {fileID: 0}
+      playMode: 1
+      flipX: 0
+      crossFadeProfile:
+        rid: -2
+    playOnSpawn: 0
+    materialFxPresetEntries: []
+    baseShaderPreset: {fileID: 0}
+    kernelBindEnabled: 0
+    initialKernelTag: 
+    atlasSlotIndex: 0
+  hubTag: default
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!1 &5289554254514234418
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6888854483099908227}
+  - component: {fileID: 6758068021089771312}
+  - component: {fileID: 5570568303608641245}
+  - component: {fileID: 5716377341762102392}
+  - component: {fileID: 7040913350806735318}
+  - component: {fileID: 805573185353722930}
+  - component: {fileID: 1348995361595935002}
+  - component: {fileID: 3971623207539951534}
+  - component: {fileID: 1563363044268994130}
+  - component: {fileID: 1957706391471177707}
+  m_Layer: 0
+  m_Name: TestDialog
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6888854483099908227
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3412529049891866352}
+  - {fileID: 4826408091769910221}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 365, y: 137.38}
+  m_SizeDelta: {x: 373.9089, y: 215.1508}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6758068021089771312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+--- !u!114 &5570568303608641245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 0
+  _debugView:
+    watchKeys: []
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!114 &5716377341762102392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c908c57ac520c7948a9a1e73ebd05f10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.EventMB
+  _captureEventLog: 1
+  _logCapacity: 64
+--- !u!114 &7040913350806735318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a513bb93c2de2a49b7f6d82c576a598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementStateMB
+  _initialActive: 1
+  _initialVisible: 1
+  _hitTestRects:
+  - {fileID: 6888854483099908227}
+  _selectionOrder: 0
+  _isNavigationSelectable:
+    _source:
+      rid: -2
+  _navigationOverride:
+    Up: {fileID: 0}
+    Down: {fileID: 0}
+    Left: {fileID: 0}
+    Right: {fileID: 0}
+  _onSelectedCommands:
+    _debugOwner: {fileID: 7040913350806735318}
+    _debugFieldPath: _onSelectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnSelected
+    _commands: []
+  _onDeselectedCommands:
+    _debugOwner: {fileID: 7040913350806735318}
+    _debugFieldPath: _onDeselectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnDeselected
+    _commands: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &805573185353722930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 8
+  id: TestDialog
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+  advanceOptions: 0
+  retryIntervalSeconds: 0.5
+--- !u!114 &1348995361595935002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ec127ea933e5841b6d80cc35226cfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  useAsGameLogicRoot: 0
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  initiallyVisible: 1
+--- !u!222 &3971623207539951534
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_CullTransparentMesh: 1
+--- !u!114 &1563363044268994130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.18238991, g: 0.091194935, b: 0.091194935, a: 0.6313726}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1957706391471177707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5289554254514234418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6209b4a9d8270864886988edc0664129, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIDialogObjectMB
+  options:
+    EnableFocus: 1
+    FocusTargetMode: 1
+    ExplicitTarget: {fileID: 0}
+    IncludeInactive: 1
+--- !u!1 &6846996566093259750
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4826408091769910221}
+  - component: {fileID: 9164222808591385031}
+  - component: {fileID: 3736132856841144268}
+  - component: {fileID: 8439404406305613722}
+  - component: {fileID: 135046985805643668}
+  - component: {fileID: 2539898726961361189}
+  - component: {fileID: 1629123797067812910}
+  - component: {fileID: 2089482047538964729}
+  - component: {fileID: 4662693410372404075}
+  m_Layer: 0
+  m_Name: ButtonCancel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4826408091769910221
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1127598648029336699}
+  m_Father: {fileID: 6888854483099908227}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 124, y: -50}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &9164222808591385031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+--- !u!114 &3736132856841144268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 0
+  _debugView:
+    watchKeys: []
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!114 &8439404406305613722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c908c57ac520c7948a9a1e73ebd05f10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.EventMB
+  _captureEventLog: 1
+  _logCapacity: 64
+--- !u!114 &135046985805643668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a513bb93c2de2a49b7f6d82c576a598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementStateMB
+  _initialActive: 1
+  _initialVisible: 1
+  _hitTestRects:
+  - {fileID: 4826408091769910221}
+  _selectionOrder: 0
+  _isNavigationSelectable:
+    _source:
+      rid: -2
+  _navigationOverride:
+    Up: {fileID: 0}
+    Down: {fileID: 0}
+    Left: {fileID: 0}
+    Right: {fileID: 0}
+  _onSelectedCommands:
+    _debugOwner: {fileID: 135046985805643668}
+    _debugFieldPath: _onSelectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnSelected
+    _commands: []
+  _onDeselectedCommands:
+    _debugOwner: {fileID: 135046985805643668}
+    _debugFieldPath: _onDeselectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnDeselected
+    _commands: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &2539898726961361189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 8
+  id: ButtonCancel
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+  advanceOptions: 0
+  retryIntervalSeconds: 0.5
+--- !u!114 &1629123797067812910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ec127ea933e5841b6d80cc35226cfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  useAsGameLogicRoot: 0
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  initiallyVisible: 1
+--- !u!114 &2089482047538964729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c3163d90be9a2949b3c02398523366f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIButtonMB
+  _kind: 0
+  _canSubmit: 1
+  _triggerAction: 0
+  _holdTime: 1
+  _holdInterval: 0.1
+  _guardSelectionWhileHolding: 1
+  _onSubmitDownCommands:
+    _debugOwner: {fileID: 2089482047538964729}
+    _debugFieldPath: _onSubmitDownCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnSubmitDown
+    _commands: []
+  _onSubmitUpCommands:
+    _debugOwner: {fileID: 2089482047538964729}
+    _debugFieldPath: _onSubmitUpCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnSubmitUp
+    _commands: []
+  _onHoldDecisionCommands:
+    _debugOwner: {fileID: 2089482047538964729}
+    _debugFieldPath: _onHoldDecisionCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnHoldDecision
+    _commands: []
+  _guardDuringCommandExecution: 1
+  _disableSelectionDuringCommandExecution: 0
+  _onHoldIntervalCommands:
+    _debugOwner: {fileID: 2089482047538964729}
+    _debugFieldPath: _onHoldIntervalCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnHoldInterval
+    _commands: []
+  _onHoldCancelCommands:
+    _debugOwner: {fileID: 2089482047538964729}
+    _debugFieldPath: _onHoldCancelCommands
+    _debugAssetPath: 
+    _functionName: UIButton.OnHoldCancel
+    _commands: []
+  _inputControlCondition:
+    _source:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &4662693410372404075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6846996566093259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dea5d2dfef5e5fd489f9e2d5dda8097f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.AnimationSpriteHubMB
+  channels:
+  - tag: default
+    spriteRenderer: {fileID: 0}
+    image: {fileID: 2546010426566998755}
+    spritePreset:
+      animationA: {fileID: 0}
+      animationB: {fileID: 0}
+      playMode: 0
+      flipX: 0
+      crossFadeProfile:
+        rid: -2
+    playOnSpawn: 0
+    materialFxPresetEntries: []
+    baseShaderPreset: {fileID: 0}
+    kernelBindEnabled: 0
+    initialKernelTag: 
+    atlasSlotIndex: 0
+  hubTag: default
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

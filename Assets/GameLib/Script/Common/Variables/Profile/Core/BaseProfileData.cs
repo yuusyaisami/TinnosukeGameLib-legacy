@@ -16,7 +16,7 @@ namespace Game.Profile
 
         public abstract Type ProfileType { get; }
 
-        public IEnumerable<IProfileValueBinding> EnumerateBindings()
+        public virtual IEnumerable<IProfileValueBinding> EnumerateBindings()
         {
             var fields = GetBindingFields();
             for (int i = 0; i < fields.Length; i++)
@@ -29,7 +29,7 @@ namespace Game.Profile
             }
         }
 
-        public void CollectBindings(List<IProfileValueBinding> output)
+        public virtual void CollectBindings(List<IProfileValueBinding> output)
         {
             if (output == null)
                 throw new ArgumentNullException(nameof(output));
@@ -45,7 +45,7 @@ namespace Game.Profile
             }
         }
 
-        public int GetBindingCount()
+        public virtual int GetBindingCount()
         {
             var fields = GetBindingFields();
             int count = 0;

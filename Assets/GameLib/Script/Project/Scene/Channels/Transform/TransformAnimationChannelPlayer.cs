@@ -150,6 +150,7 @@ namespace Game.Channel
 
         ITransformAnimationTargetRegistry? _targetRegistry;
         ITransformTargetDirector? _director;
+        bool _directorIsStandalone;
 
         // active tracks
         readonly List<TransformPresetTrack> _presetTracks = new();
@@ -159,6 +160,8 @@ namespace Game.Channel
         readonly List<CancellationTokenSource> _presetCtsList = new();
         CancellationTokenSource? _followCts;
         CancellationTokenSource? _spawnOnAcquireCts;
+        CancellationTokenSource? _standaloneDirectorCts;
+        bool _standaloneDirectorOwnsTick;
 
         TransformAnimationRunMode _debugRunMode;
         TransformAnimationOperation? _debugCurrentOperation;
@@ -181,6 +184,8 @@ namespace Game.Channel
 
         ITransformTargetDirector? ResolveDirector()
         {
+            TryResolveTargetRegistry();
+
             if (_director != null)
                 return _director;
 
@@ -191,18 +196,22 @@ namespace Game.Channel
             if (_targetRegistry != null)
             {
                 _director = _targetRegistry.GetOrCreateDirector(target);
+                _directorIsStandalone = false;
+                _standaloneDirectorOwnsTick = false;
             }
             else
             {
-                // fallback: output registry 経由で互換動作
+                // fallback: registry を使えない場合は player 自身が director を tick する
                 ITransformAnimationOutputRegistry? outputRegistry = null;
                 _scope.Resolver?.TryResolve(out outputRegistry);
                 TransformAnimationOutput? output = null;
                 if (outputRegistry != null && outputRegistry.TryGetSink(target, out var sink))
                     output = sink.AnimationOutput;
                 output ??= new TransformAnimationOutput();
-                var director = new TransformTargetDirector(target, output);
+                var director = new TransformTargetDirector(target, output, applyDirectly: outputRegistry == null);
                 _director = director;
+                _directorIsStandalone = true;
+                _standaloneDirectorOwnsTick = true;
             }
 
             return _director;
@@ -232,6 +241,7 @@ namespace Game.Channel
             var track = new TransformPresetTrack(t, _scope);
             _presetTracks.Add(track);
             director.AddTrack(track);
+            EnsureStandaloneDirectorTickLoop();
 
             var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             _presetCtsList.Add(linkedCts);
@@ -254,6 +264,7 @@ namespace Game.Channel
                 _presetCtsList.Remove(linkedCts);
                 linkedCts.Dispose();
                 PruneDeadPresetTracks();
+                StopStandaloneDirectorTickLoopIfIdle();
                 if (_presetTracks.Count == 0)
                     SetDebugIdle();
             }
@@ -277,6 +288,7 @@ namespace Game.Channel
                 cts.Dispose();
             }
             _presetCtsList.Clear();
+            StopStandaloneDirectorTickLoopIfIdle();
         }
 
         void PruneDeadPresetTracks()
@@ -293,6 +305,8 @@ namespace Game.Channel
                 _director.RemoveTrack(track);
                 _presetTracks.RemoveAt(i);
             }
+
+            StopStandaloneDirectorTickLoopIfIdle();
         }
 
         // ===== Single Step =====
@@ -310,6 +324,7 @@ namespace Game.Channel
             var track = new TransformPresetTrack(t, _scope);
             _presetTracks.Add(track);
             director.AddTrack(track);
+            EnsureStandaloneDirectorTickLoop();
             _debugRunMode = TransformAnimationRunMode.SingleStep;
 
             try
@@ -320,6 +335,7 @@ namespace Game.Channel
             {
                 director.RemoveTrack(track);
                 _presetTracks.Remove(track);
+                StopStandaloneDirectorTickLoopIfIdle();
                 SetDebugIdle();
             }
         }
@@ -364,6 +380,7 @@ namespace Game.Channel
 
             _followTrack = track;
             director.AddTrack(track);
+            EnsureStandaloneDirectorTickLoop();
 
             var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             _followCts = linkedCts;
@@ -387,6 +404,7 @@ namespace Game.Channel
                 {
                     director.RemoveTrack(track);
                     _followTrack = null;
+                    StopStandaloneDirectorTickLoopIfIdle();
                 }
 
                 if (ReferenceEquals(_followCts, linkedCts))
@@ -421,6 +439,7 @@ namespace Game.Channel
             var track = new TransformShakeTrack(settings);
             _shakeTrack = track;
             director.AddTrack(track);
+            EnsureStandaloneDirectorTickLoop();
         }
 
         public void StopShake()
@@ -431,6 +450,7 @@ namespace Game.Channel
                 track.Stop();
                 _director?.RemoveTrack(track);
                 _shakeTrack = null;
+                StopStandaloneDirectorTickLoopIfIdle();
             }
         }
 
@@ -512,6 +532,7 @@ namespace Game.Channel
                 track.Stop();
                 _director?.RemoveTrack(track);
                 _followTrack = null;
+                StopStandaloneDirectorTickLoopIfIdle();
             }
 
             var cts = _followCts;
@@ -519,6 +540,85 @@ namespace Game.Channel
             if (cts != null)
             {
                 if (!cts.IsCancellationRequested) cts.Cancel();
+                cts.Dispose();
+            }
+        }
+
+        void TryResolveTargetRegistry()
+        {
+            if (_targetRegistry == null && _scope.Resolver != null)
+                _scope.Resolver.TryResolve(out _targetRegistry);
+
+            if (_targetRegistry != null)
+            {
+                if (!_directorIsStandalone)
+                {
+                    _standaloneDirectorOwnsTick = false;
+                    CancelStandaloneDirectorTickLoop();
+                }
+            }
+        }
+
+        void EnsureStandaloneDirectorTickLoop()
+        {
+            if (!_standaloneDirectorOwnsTick || _director == null || _standaloneDirectorCts != null)
+                return;
+
+            var cts = new CancellationTokenSource();
+            _standaloneDirectorCts = cts;
+            RunStandaloneDirectorTickAsync(cts).Forget();
+        }
+
+        void StopStandaloneDirectorTickLoopIfIdle()
+        {
+            if (!_standaloneDirectorOwnsTick || _director == null || _director.HasActiveTracks)
+                return;
+
+            if (_directorIsStandalone && _targetRegistry != null)
+            {
+                _director = null;
+                _directorIsStandalone = false;
+                _standaloneDirectorOwnsTick = false;
+            }
+
+            CancelStandaloneDirectorTickLoop();
+        }
+
+        void CancelStandaloneDirectorTickLoop()
+        {
+            var cts = _standaloneDirectorCts;
+            _standaloneDirectorCts = null;
+            if (cts == null)
+                return;
+
+            if (!cts.IsCancellationRequested)
+                cts.Cancel();
+        }
+
+        async UniTaskVoid RunStandaloneDirectorTickAsync(CancellationTokenSource cts)
+        {
+            try
+            {
+                while (!cts.IsCancellationRequested)
+                {
+                    var director = _director;
+                    if (!_standaloneDirectorOwnsTick || director == null || !director.HasActiveTracks)
+                        break;
+
+                    director.Tick(Time.deltaTime);
+                    await UniTask.Yield(PlayerLoopTiming.Update, cts.Token);
+                }
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            finally
+            {
+                if (ReferenceEquals(_standaloneDirectorCts, cts))
+                    _standaloneDirectorCts = null;
+
                 cts.Dispose();
             }
         }

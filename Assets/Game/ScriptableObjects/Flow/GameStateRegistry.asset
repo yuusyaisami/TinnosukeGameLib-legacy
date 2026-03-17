@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 403a30ed6b36c7f43b60cc0b56d51ac2, type: 3}
+  m_Name: GameStateRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Actions.GameStateRegistry
+  nodes:
+  - id: 42dcf73245794267a28be812f3c86dde
+    parentId: 
+    name: GameScene
+    isFolder: 1
+    description: 
+    stateId: 0
+    note: 
+  - id: 0b7719a2f8aa4eadb4317105f66bfc9a
+    parentId: 42dcf73245794267a28be812f3c86dde
+    name: Tutorial
+    isFolder: 1
+    description: 
+    stateId: 0
+    note: 
+  - id: 521bf67960b54cdbab6edcb48552acff
+    parentId: 42dcf73245794267a28be812f3c86dde
+    name: Game
+    isFolder: 1
+    description: 
+    stateId: 0
+    note: 
+  - id: 971d958851f7465b97ba4044226d9d4e
+    parentId: 521bf67960b54cdbab6edcb48552acff
+    name: Start
+    isFolder: 0
+    description: 
+    stateId: 12
+    note: 
+  - id: 489cba5135464264b563667a4781209c
+    parentId: 521bf67960b54cdbab6edcb48552acff
+    name: SelectNail
+    isFolder: 0
+    description: 
+    stateId: 13
+    note: 
+  - id: 707543ecf05243798083e4370ab4dd76
+    parentId: 521bf67960b54cdbab6edcb48552acff
+    name: CustomNailField
+    isFolder: 0
+    description: 
+    stateId: 14
+    note: 
+  - id: 436f2aced6c8440487a4210733fe8bf8
+    parentId: 521bf67960b54cdbab6edcb48552acff
+    name: FallCoin
+    isFolder: 0
+    description: 
+    stateId: 15
+    note: 
+  - id: bd1f9cc1cac54479ab2e8da863fc896e
+    parentId: 521bf67960b54cdbab6edcb48552acff
+    name: EndCoin
+    isFolder: 0
+    description: 
+    stateId: 16
+    note: 
+  nextStateId: 17

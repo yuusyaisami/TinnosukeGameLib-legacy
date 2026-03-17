@@ -1,0 +1,160 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4630198a21db8814e860add76a0478e7, type: 3}
+  m_Name: RoomMapTileRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RoomMap.RoomMapTileRegistry
+  nodes:
+  - id: 8e6ef7c7e7d543dfb33a4e33d63533cb
+    parentId: 
+    name: Floor
+    isFolder: 1
+    description: 
+    tileId: 0
+    stableKey: 
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 0.62, g: 0.8, b: 0.95, a: 1}
+  - id: 6525b4b574b54f4b9814d7a8664365cd
+    parentId: 8e6ef7c7e7d543dfb33a4e33d63533cb
+    name: Default
+    isFolder: 0
+    description: 
+    tileId: 1
+    stableKey: Default
+    aliases: []
+    deprecated: 0
+    tags: 1
+    paintColor: {r: 0.36110452, g: 0.66666657, b: 0.25366864, a: 1}
+  - id: 95f70d31ca1c43d2a413cf8ab8d792f6
+    parentId: 
+    name: Wall
+    isFolder: 1
+    description: 
+    tileId: 0
+    stableKey: 
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 0.62, g: 0.8, b: 0.95, a: 1}
+  - id: c14b03d6187d4c7483fd6f6ea0700098
+    parentId: 
+    name: PlayerSpawner
+    isFolder: 1
+    description: 
+    tileId: 0
+    stableKey: 
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 0.62, g: 0.8, b: 0.95, a: 1}
+  - id: 7f36d7ce2df645f78370b73dd4d986dc
+    parentId: c14b03d6187d4c7483fd6f6ea0700098
+    name: Default
+    isFolder: 0
+    description: 
+    tileId: 3
+    stableKey: Default
+    aliases: []
+    deprecated: 0
+    tags: 1
+    paintColor: {r: 0.8805031, g: 0.17032558, b: 0.124599375, a: 1}
+  - id: 6b0d76d67e1949ee9a5540f4c6b12b4e
+    parentId: 
+    name: PlayerGoal
+    isFolder: 1
+    description: 
+    tileId: 0
+    stableKey: 
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 0.62, g: 0.8, b: 0.95, a: 1}
+  - id: 463e86a817b04cc18c5bf5c94e8fe07d
+    parentId: 6b0d76d67e1949ee9a5540f4c6b12b4e
+    name: Default
+    isFolder: 0
+    description: 
+    tileId: 4
+    stableKey: Default
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 1, g: 0.9681511, b: 0.11635202, a: 1}
+  - id: 96d890322f4c43ee93d9804b74ea449f
+    parentId: 95f70d31ca1c43d2a413cf8ab8d792f6
+    name: Default
+    isFolder: 0
+    description: 
+    tileId: 2
+    stableKey: Default
+    aliases: []
+    deprecated: 0
+    tags: 2
+    paintColor: {r: 0.18238991, g: 0.18238991, b: 0.18238991, a: 1}
+  - id: 78ce5170b7ec47eeb3eefa695659e304
+    parentId: 95f70d31ca1c43d2a413cf8ab8d792f6
+    name: Hide
+    isFolder: 0
+    description: 
+    tileId: 5
+    stableKey: Hide
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 1, g: 1, b: 1, a: 1}
+  - id: 0ceb2ea58a4f423484defc729c183f88
+    parentId: 
+    name: Gimmick
+    isFolder: 1
+    description: 
+    tileId: 0
+    stableKey: 
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 0.62, g: 0.8, b: 0.95, a: 1}
+  - id: 69accccd9f78444da8fd544c5c2dde17
+    parentId: 0ceb2ea58a4f423484defc729c183f88
+    name: Key1
+    isFolder: 0
+    description: 
+    tileId: 6
+    stableKey: Key1
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 0.62, g: 0.8, b: 0.95, a: 1}
+  - id: 9880453455fc4125a8012c894d1310b6
+    parentId: 0ceb2ea58a4f423484defc729c183f88
+    name: WorldShift
+    isFolder: 0
+    description: 
+    tileId: 7
+    stableKey: WorldShiftTrap
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 0.62, g: 0.8, b: 0.95, a: 1}
+  - id: c2ca0330dddc455cae3bb6c1ead5f82f
+    parentId: 95f70d31ca1c43d2a413cf8ab8d792f6
+    name: KeyDoor
+    isFolder: 0
+    description: 
+    tileId: 8
+    stableKey: KeyDoor
+    aliases: []
+    deprecated: 0
+    tags: 0
+    paintColor: {r: 0.62, g: 0.8, b: 0.95, a: 1}
+  nextTileId: 9
+  tombstones: []

@@ -24,15 +24,17 @@ namespace Game.TransformSystem
         TransformAnimationOutput _output;
         readonly List<ITransformModifierTrack> _tracks = new();
         readonly List<ITransformModifierTrack> _removeBuffer = new();
+        bool _applyDirectly;
 
         public Transform Target => _target;
         public bool HasActiveTracks => _tracks.Count > 0;
         public IReadOnlyList<ITransformModifierTrack> ActiveTracks => _tracks;
 
-        public TransformTargetDirector(Transform target, TransformAnimationOutput output)
+        public TransformTargetDirector(Transform target, TransformAnimationOutput output, bool applyDirectly)
         {
             _target = target;
             _output = output;
+            _applyDirectly = applyDirectly;
         }
 
         public void BindOutput(TransformAnimationOutput output)
@@ -41,6 +43,7 @@ namespace Game.TransformSystem
                 return;
 
             _output = output;
+            _applyDirectly = false;
         }
 
         public void AddTrack(ITransformModifierTrack track)
@@ -81,6 +84,9 @@ namespace Game.TransformSystem
 
             // 4. Resolve and write to output
             ApplyToOutput(ref accumulator);
+
+            if (_applyDirectly)
+                ApplyDirectlyToTarget();
         }
 
         void ApplyToOutput(ref TransformPoseAccumulator acc)
@@ -134,6 +140,69 @@ namespace Game.TransformSystem
 
             if (acc.HasPivot)
                 _output.SetComposedPivot(acc.PivotValue);
+        }
+
+        void ApplyDirectlyToTarget()
+        {
+            if (_target == null)
+                return;
+
+            if (_output.IsActive(TransformAnimationProperty.WorldPosition))
+            {
+                _target.position = _output.WorldPosition;
+            }
+            else if (_output.IsActive(TransformAnimationProperty.LocalPosition))
+            {
+                if (_output.IsLocalPositionAdditiveOnly)
+                    _target.localPosition += _output.LocalPosition;
+                else
+                    _target.localPosition = _output.LocalPosition;
+            }
+            else if (_output.IsActive(TransformAnimationProperty.AnchoredPosition) && _target is RectTransform anchoredRect)
+            {
+                anchoredRect.anchoredPosition = _output.AnchoredPosition;
+            }
+
+            if (_output.IsActive(TransformAnimationProperty.LocalRotation))
+            {
+                if (_output.IsLocalRotationAdditiveOnly)
+                    _target.localEulerAngles += _output.LocalEulerAngles;
+                else
+                    _target.localEulerAngles = _output.LocalEulerAngles;
+            }
+
+            if (_output.IsActive(TransformAnimationProperty.LocalScale))
+                _target.localScale = _output.LocalScale;
+
+            if (_target is not RectTransform rect)
+                return;
+
+            if (_output.IsActive(TransformAnimationProperty.SizeDelta))
+                rect.sizeDelta = _output.SizeDelta;
+
+            if (_output.IsActive(TransformAnimationProperty.Pivot))
+            {
+                if (_output.IsActive(TransformAnimationProperty.AnchoredPosition))
+                {
+                    rect.pivot = _output.Pivot;
+                }
+                else
+                {
+                    SetPivotWithPositionPreserved(rect, _output.Pivot);
+                }
+            }
+        }
+
+        static void SetPivotWithPositionPreserved(RectTransform rect, Vector2 newPivot)
+        {
+            var oldPivot = rect.pivot;
+            var size = rect.rect.size;
+            var deltaPos = new Vector2(
+                (newPivot.x - oldPivot.x) * size.x,
+                (newPivot.y - oldPivot.y) * size.y);
+
+            rect.pivot = newPivot;
+            rect.anchoredPosition += deltaPos;
         }
     }
 }

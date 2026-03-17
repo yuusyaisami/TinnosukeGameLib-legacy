@@ -752,14 +752,14 @@ namespace Game.MaterialFx
             }
 
             // --- Flow Warp ---
-            SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Enabled, MakeBool(flowWarpEnabled));
+            SetAutoEntry(MaterialFxKeys.BaseShader.FlowWarp.Enabled, MakeBool(flowWarpEnabled));
             if (flowWarpEnabled)
             {
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Strength, MakeFloat2(flowWarpStrength));
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Speed, MakeFloat(flowWarpSpeed));
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.SlotType, MakeInt(flowWarpSourceSlotType));
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.Channel, MakeInt(flowWarpSourceChannel));
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.UVSpace, MakeInt(flowWarpSourceUVSpace));
+                SetAutoEntry(MaterialFxKeys.BaseShader.FlowWarp.Strength, MakeFloat2(flowWarpStrength));
+                SetAutoEntry(MaterialFxKeys.BaseShader.FlowWarp.Speed, MakeFloat(flowWarpSpeed));
+                SetAutoEntry(MaterialFxKeys.BaseShader.FlowWarp.Source.SlotType, MakeInt(flowWarpSourceSlotType));
+                SetAutoEntry(MaterialFxKeys.BaseShader.FlowWarp.Source.Channel, MakeInt(flowWarpSourceChannel));
+                SetAutoEntry(MaterialFxKeys.BaseShader.FlowWarp.Source.UVSpace, MakeInt(flowWarpSourceUVSpace));
             }
 
             // --- Color Overlay ---
@@ -860,24 +860,24 @@ namespace Game.MaterialFx
             }
 
             // --- Emission ---
-            SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.Emission.Enabled, MakeBool(emissionEnabled));
+            SetAutoEntry(MaterialFxKeys.BaseShader.Emission.Enabled, MakeBool(emissionEnabled));
             if (emissionEnabled)
             {
                 // ★修正: emissionColorのRGBとemissionIntensityを結合してColor(r,g,b,intensity)として設定
                 // シェーダー側の_EmissionColorは rgb=color, a=intensity として扱われる
                 var combinedEmissionColor = new Color(emissionColor.r, emissionColor.g, emissionColor.b, emissionIntensity);
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.Emission.Color, MakeColor(combinedEmissionColor));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Emission.Color, MakeColor(combinedEmissionColor));
             }
 
             // --- Mask ---
-            SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Enabled, MakeBool(maskEnabled));
+            SetAutoEntry(MaterialFxKeys.BaseShader.Mask.Enabled, MakeBool(maskEnabled));
             if (maskEnabled)
             {
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Threshold, MakeFloat(maskThreshold));
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Softness, MakeFloat(maskSoftness));
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.SlotType, MakeInt(maskSourceSlotType));
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.Channel, MakeInt(maskSourceChannel));
-                SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.UVSpace, MakeInt(maskSourceUVSpace));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Mask.Threshold, MakeFloat(maskThreshold));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Mask.Softness, MakeFloat(maskSoftness));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Mask.Source.SlotType, MakeInt(maskSourceSlotType));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Mask.Source.Channel, MakeInt(maskSourceChannel));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Mask.Source.UVSpace, MakeInt(maskSourceUVSpace));
             }
 
             // --- Text Fx ---

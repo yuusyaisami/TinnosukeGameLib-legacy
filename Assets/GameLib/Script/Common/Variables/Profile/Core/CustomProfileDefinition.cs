@@ -8,20 +8,31 @@ using UnityEngine;
 using Game.Common;
 using Game.Save;
 using Game.Scalar;
+using Sirenix.OdinInspector;
 
 namespace Game.Profile
 {
     [Serializable]
-    public sealed class CustomProfileDefinition : IProfileDefinition
+    public sealed class CustomProfileDefinition : BaseProfileData
     {
-        [SerializeField] string _profileName = "CustomProfile";
-        [SerializeReference] List<IProfileValueBinding> _bindings = new();
+        [BoxGroup("Profile")]
+        [LabelText("Profile Name")]
+        [SerializeField]
+        string _profileName = "CustomProfile";
+
+        [BoxGroup("Profile")]
+        [LabelText("Bindings")]
+        [SerializeReference]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true)]
+        List<IProfileValueBinding> _bindings = new();
 
         public string ProfileName => _profileName;
 
-        public Type ProfileType => typeof(CustomProfileDefinition);
+        public override Type ProfileType => typeof(CustomProfileDefinition);
 
-        public IEnumerable<IProfileValueBinding> EnumerateBindings()
+        public override string ToString() => string.IsNullOrEmpty(_profileName) ? nameof(CustomProfileDefinition) : _profileName;
+
+        public override IEnumerable<IProfileValueBinding> EnumerateBindings()
         {
             if (_bindings == null)
                 yield break;
@@ -34,7 +45,7 @@ namespace Game.Profile
             }
         }
 
-        public void CollectBindings(List<IProfileValueBinding> output)
+        public override void CollectBindings(List<IProfileValueBinding> output)
         {
             if (output == null)
                 throw new ArgumentNullException(nameof(output));
@@ -50,7 +61,7 @@ namespace Game.Profile
             }
         }
 
-        public int GetBindingCount()
+        public override int GetBindingCount()
         {
             if (_bindings == null)
                 return 0;
@@ -67,48 +78,165 @@ namespace Game.Profile
 
     public enum ProfileDynamicValueKind
     {
-        Float,
-        Int,
-        Bool,
-        String,
-        Vector2,
-        Vector3,
-        Color,
-        UnityObject
+        Float = 10,
+        Int = 20,
+        Bool = 30,
+        String = 40,
+        Vector2 = 50,
+        Vector3 = 60,
+        Color = 70,
+        UnityObject = 80,
     }
 
     [Serializable]
     public sealed class ProfileDynamicValue : IProfileValueBinding
     {
-        [SerializeField] ProfileDynamicValueKind _kind = ProfileDynamicValueKind.Float;
-        [SerializeField] float _floatValue;
-        [SerializeField] int _intValue;
-        [SerializeField] bool _boolValue;
-        [SerializeField] string _stringValue = string.Empty;
-        [SerializeField] Vector2 _vector2Value;
-        [SerializeField] Vector3 _vector3Value;
-        [SerializeField] Color _colorValue = Color.white;
-        [SerializeField] UnityEngine.Object _unityObjectValue;
+        [BoxGroup("Value")]
+        [LabelText("Kind")]
+        [SerializeField]
+        ProfileDynamicValueKind _kind = ProfileDynamicValueKind.Float;
 
-        [Header("Scalar Binding")]
-        [SerializeField] ScalarKey _scalarKey;
-        [SerializeField] ScalarBindPolicy _scalarPolicy = ScalarBindPolicy.UpdateBaseline;
-        [SerializeField] bool _useEffectMod;
-        [SerializeField] bool _useClampMod;
-        [SerializeField] bool _useLocalBase;
-        [SerializeField] float _localBaseValue;
-        [SerializeField] ScalarClamp _clamp;
-        [SerializeField] bool _scalarSaveEnabled;
-        [SerializeField] SaveLayer _scalarSaveLayer;
+        [BoxGroup("Value")]
+        [LabelText("Float Value")]
+        [ShowIf(nameof(IsFloat))]
+        [SerializeField]
+        float _floatValue;
 
-        [Header("Blackboard Binding")]
-        [SerializeField, VarIdDropdown] int _blackboardKey = 0;
-        [SerializeField] BlackboardBindPolicy _blackboardPolicy = BlackboardBindPolicy.Overwrite;
-        [SerializeField] bool _blackboardSaveEnabled;
-        [SerializeField] SaveLayer _blackboardSaveLayer;
+        [BoxGroup("Value")]
+        [LabelText("Int Value")]
+        [ShowIf(nameof(IsInt))]
+        [SerializeField]
+        int _intValue;
+
+        [BoxGroup("Value")]
+        [LabelText("Bool Value")]
+        [ShowIf(nameof(IsBool))]
+        [SerializeField]
+        bool _boolValue;
+
+        [BoxGroup("Value")]
+        [LabelText("String Value")]
+        [ShowIf(nameof(IsString))]
+        [SerializeField]
+        string _stringValue = string.Empty;
+
+        [BoxGroup("Value")]
+        [LabelText("Vector2 Value")]
+        [ShowIf(nameof(IsVector2))]
+        [SerializeField]
+        Vector2 _vector2Value;
+
+        [BoxGroup("Value")]
+        [LabelText("Vector3 Value")]
+        [ShowIf(nameof(IsVector3))]
+        [SerializeField]
+        Vector3 _vector3Value;
+
+        [BoxGroup("Value")]
+        [LabelText("Color Value")]
+        [ShowIf(nameof(IsColor))]
+        [SerializeField]
+        Color _colorValue = Color.white;
+
+        [BoxGroup("Value")]
+        [LabelText("Object Value")]
+        [ShowIf(nameof(IsUnityObject))]
+        [SerializeField]
+        UnityEngine.Object _unityObjectValue;
+
+        [FoldoutGroup("Scalar Binding")]
+        [LabelText("Scalar Key")]
+        [ShowIf(nameof(CanBindScalar))]
+        [SerializeField]
+        ScalarKey _scalarKey;
+
+        [FoldoutGroup("Scalar Binding")]
+        [LabelText("Policy")]
+        [ShowIf(nameof(ShowScalarSettings))]
+        [SerializeField]
+        ScalarBindPolicy _scalarPolicy = ScalarBindPolicy.UpdateBaseline;
+
+        [FoldoutGroup("Scalar Binding")]
+        [LabelText("Use Effect Mod")]
+        [ShowIf(nameof(ShowScalarSettings))]
+        [SerializeField]
+        bool _useEffectMod;
+
+        [FoldoutGroup("Scalar Binding")]
+        [LabelText("Use Clamp Mod")]
+        [ShowIf(nameof(ShowScalarSettings))]
+        [SerializeField]
+        bool _useClampMod;
+
+        [FoldoutGroup("Scalar Binding")]
+        [LabelText("Use Local Base")]
+        [ShowIf(nameof(ShowScalarSettings))]
+        [SerializeField]
+        bool _useLocalBase;
+
+        [FoldoutGroup("Scalar Binding")]
+        [LabelText("Local Base")]
+        [ShowIf(nameof(ShowLocalBaseSettings))]
+        [SerializeField]
+        float _localBaseValue;
+
+        [FoldoutGroup("Scalar Binding")]
+        [LabelText("Clamp")]
+        [ShowIf(nameof(ShowClampSettings))]
+        [SerializeField]
+        ScalarClamp _clamp;
+
+        [FoldoutGroup("Scalar Binding/Save")]
+        [LabelText("Save Enabled")]
+        [ShowIf(nameof(ShowScalarSettings))]
+        [SerializeField]
+        bool _scalarSaveEnabled;
+
+        [FoldoutGroup("Scalar Binding/Save")]
+        [LabelText("Save Layer")]
+        [ShowIf(nameof(ShowScalarSaveLayer))]
+        [SerializeField]
+        SaveLayer _scalarSaveLayer;
+
+        [FoldoutGroup("Blackboard Binding")]
+        [LabelText("Blackboard VarId")]
+        [SerializeField, VarIdDropdown]
+        int _blackboardKey = 0;
+
+        [FoldoutGroup("Blackboard Binding")]
+        [LabelText("Policy")]
+        [ShowIf(nameof(HasBlackboardKey))]
+        [SerializeField]
+        BlackboardBindPolicy _blackboardPolicy = BlackboardBindPolicy.Overwrite;
+
+        [FoldoutGroup("Blackboard Binding/Save")]
+        [LabelText("Save Enabled")]
+        [ShowIf(nameof(HasBlackboardKey))]
+        [SerializeField]
+        bool _blackboardSaveEnabled;
+
+        [FoldoutGroup("Blackboard Binding/Save")]
+        [LabelText("Save Layer")]
+        [ShowIf(nameof(ShowBlackboardSaveLayer))]
+        [SerializeField]
+        SaveLayer _blackboardSaveLayer;
 
         bool HasScalarKey => _scalarKey.Id != 0;
         bool HasBlackboardKey => _blackboardKey != 0;
+        bool IsFloat => _kind == ProfileDynamicValueKind.Float;
+        bool IsInt => _kind == ProfileDynamicValueKind.Int;
+        bool IsBool => _kind == ProfileDynamicValueKind.Bool;
+        bool IsString => _kind == ProfileDynamicValueKind.String;
+        bool IsVector2 => _kind == ProfileDynamicValueKind.Vector2;
+        bool IsVector3 => _kind == ProfileDynamicValueKind.Vector3;
+        bool IsColor => _kind == ProfileDynamicValueKind.Color;
+        bool IsUnityObject => _kind == ProfileDynamicValueKind.UnityObject;
+        bool CanBindScalar => IsFloat;
+        bool ShowScalarSettings => CanBindScalar && HasScalarKey;
+        bool ShowClampSettings => ShowScalarSettings && _useClampMod;
+        bool ShowLocalBaseSettings => ShowScalarSettings && _useLocalBase;
+        bool ShowScalarSaveLayer => ShowScalarSettings && _scalarSaveEnabled;
+        bool ShowBlackboardSaveLayer => HasBlackboardKey && _blackboardSaveEnabled;
 
         int IProfileValueBinding.BlackboardKey => _blackboardKey;
         ScalarKey IProfileValueBinding.ScalarKey => _scalarKey;

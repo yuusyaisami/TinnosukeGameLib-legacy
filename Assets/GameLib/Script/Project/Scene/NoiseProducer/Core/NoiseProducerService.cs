@@ -23,22 +23,26 @@ namespace Game.NoiseProducer
         static readonly int s_Scale = Shader.PropertyToID("_NoiseScale");
         static readonly int s_Offset = Shader.PropertyToID("_NoiseOffset");
         static readonly int s_Scroll = Shader.PropertyToID("_NoiseScroll");
+        static readonly int s_Rotation = Shader.PropertyToID("_NoiseRotation");
+        static readonly int s_Center = Shader.PropertyToID("_NoiseCenter");
+        static readonly int s_Strength = Shader.PropertyToID("_NoiseStrength");
         static readonly int s_GradientA = Shader.PropertyToID("_NoiseGradientA");
         static readonly int s_GradientB = Shader.PropertyToID("_NoiseGradientB");
         static readonly int s_Threshold = Shader.PropertyToID("_NoiseThreshold");
         static readonly int s_Softness = Shader.PropertyToID("_NoiseSoftness");
         static readonly int s_Blend = Shader.PropertyToID("_NoiseBlend");
+        static readonly int s_Opacity = Shader.PropertyToID("_NoiseOpacity");
         static readonly int s_ClearColor = Shader.PropertyToID("_NoiseClearColor");
         static readonly int s_Octaves = Shader.PropertyToID("_NoiseOctaves");
         static readonly int s_Lacunarity = Shader.PropertyToID("_NoiseLacunarity");
         static readonly int s_Gain = Shader.PropertyToID("_NoiseGain");
         static readonly int s_InputTex = Shader.PropertyToID("_NoiseInputTex");
         static readonly int s_SecondaryTex = Shader.PropertyToID("_NoiseSecondaryTex");
+        static readonly int s_MaskTex = Shader.PropertyToID("_NoiseMaskTex");
         static readonly int s_StageOp = Shader.PropertyToID("_NoiseStageOp");
 
         readonly ISharedTextureChannelHub _hub;
         readonly Dictionary<string, NoiseChannelRuntime> _channels = new(StringComparer.Ordinal);
-        readonly List<string> _removeBuffer = new();
         readonly List<NoiseChannelDefinition>? _initialDefinitions;
 
         Shader? _noiseShader;
@@ -65,7 +69,13 @@ namespace Game.NoiseProducer
 
             var identity = scope.Identity;
             if (identity != null)
-                _producerTagPrefix = $"noise-producer/{identity.ScopeTag}";
+            {
+                var scopeKey = string.IsNullOrEmpty(identity.Id)
+                    ? identity.SelfTransform != null ? identity.SelfTransform.name : string.Empty
+                    : identity.Id;
+                if (!string.IsNullOrEmpty(scopeKey))
+                    _producerTagPrefix = $"noise-producer/{scopeKey}";
+            }
 
             // Register initial definitions (after tag prefix is set)
             if (_initialDefinitions != null)
@@ -229,9 +239,12 @@ namespace Game.NoiseProducer
             var flags = runtime.PendingRefreshFlags;
             if (flags != NoiseChannelRefreshFlags.None)
             {
+                if ((flags & NoiseChannelRefreshFlags.ResolveParameters) != 0)
+                    runtime.Parameters.RebindDefinitions(def.Parameters);
+
                 if ((flags & NoiseChannelRefreshFlags.ReloadDefinition) != 0)
                 {
-                    runtime.Parameters.Initialize(def.Parameters);
+                    runtime.Parameters.RebindDefinitions(def.Parameters);
                     runtime.HasTimeReactiveStage = def.HasTimeReactiveStage;
                 }
 
@@ -280,6 +293,8 @@ namespace Game.NoiseProducer
             var stages = def.Stages;
             if (stages.Count == 0) return;
 
+            runtime.SlotTextures.Clear();
+
             // Find last enabled stage index
             int lastEnabledIndex = -1;
             int enabledCount = 0;
@@ -320,7 +335,10 @@ namespace Game.NoiseProducer
 
         void ApplyStageToMaterial(Material mat, NoiseStageDefinition stage, NoiseChannelRuntime runtime, RenderTexture? input)
         {
-            mat.SetFloat(s_Time, runtime.ChannelTime * stage.Speed + stage.Phase);
+            ResetStageMaterialState(mat, input);
+
+            float sourceTime = stage.UseGlobalTime ? Time.time : runtime.ChannelTime;
+            mat.SetFloat(s_Time, sourceTime * stage.Speed + stage.Phase);
             mat.SetFloat(s_Seed, runtime.Definition.Seed + stage.Seed);
             mat.SetInt(s_StageOp, GetOpIndex(stage));
 
@@ -338,28 +356,49 @@ namespace Game.NoiseProducer
 
                 case NoiseStageKind.Uv:
                     mat.SetVector(s_Scroll, new Vector4(stage.Scroll.x, stage.Scroll.y, 0, 0));
+                    mat.SetFloat(s_Strength, stage.FlowStrength);
+                    mat.SetFloat(s_Rotation, stage.UvRotation);
+                    mat.SetVector(s_Center, stage.PolarCenter);
                     break;
 
                 case NoiseStageKind.Filter:
-                    mat.SetFloat(s_Threshold, stage.Threshold);
-                    mat.SetFloat(s_Softness, stage.Softness);
-                    if (input != null)
-                        mat.SetTexture(s_InputTex, input);
-
-                    // Resolve named input
                     if (!string.IsNullOrEmpty(stage.PrimaryInput)
                         && runtime.SlotTextures.TryGetValue(stage.PrimaryInput, out var primaryRT))
+                    {
                         mat.SetTexture(s_InputTex, primaryRT);
+                    }
+
+                    mat.SetFloat(s_Threshold, stage.Threshold);
+                    mat.SetFloat(s_Softness, stage.Softness);
+                    mat.SetFloat(s_Strength, stage.Strength);
                     break;
 
                 case NoiseStageKind.Composite:
                     mat.SetFloat(s_Blend, stage.Blend);
+                    mat.SetFloat(s_Opacity, stage.Opacity);
+
+                    var primaryTexture = input != null ? (Texture)input : Texture2D.blackTexture;
                     if (!string.IsNullOrEmpty(stage.CompositePrimaryInput)
                         && runtime.SlotTextures.TryGetValue(stage.CompositePrimaryInput, out var priRT))
-                        mat.SetTexture(s_InputTex, priRT);
+                    {
+                        primaryTexture = priRT;
+                    }
+
+                    Texture secondaryTexture = primaryTexture;
                     if (!string.IsNullOrEmpty(stage.SecondaryInput)
                         && runtime.SlotTextures.TryGetValue(stage.SecondaryInput, out var secRT))
-                        mat.SetTexture(s_SecondaryTex, secRT);
+                    {
+                        secondaryTexture = secRT;
+                    }
+
+                    mat.SetTexture(s_InputTex, primaryTexture);
+                    mat.SetTexture(s_SecondaryTex, secondaryTexture);
+
+                    if (!string.IsNullOrEmpty(stage.MaskInput)
+                        && runtime.SlotTextures.TryGetValue(stage.MaskInput, out var maskRT))
+                    {
+                        mat.SetTexture(s_MaskTex, maskRT);
+                    }
                     break;
             }
 
@@ -392,6 +431,18 @@ namespace Game.NoiseProducer
                         if (val.Kind == NoiseParameterValueKind.Vector2)
                             mat.SetVector(s_Scroll, new Vector4(val.Vector2Value.x, val.Vector2Value.y, 0, 0));
                         break;
+                    case "FlowStrength":
+                        if (val.Kind == NoiseParameterValueKind.Float)
+                            mat.SetFloat(s_Strength, val.FloatValue);
+                        break;
+                    case "UvRotation":
+                        if (val.Kind == NoiseParameterValueKind.Float)
+                            mat.SetFloat(s_Rotation, val.FloatValue);
+                        break;
+                    case "PolarCenter":
+                        if (val.Kind == NoiseParameterValueKind.Vector2)
+                            mat.SetVector(s_Center, val.Vector2Value);
+                        break;
                     case "Threshold":
                         if (val.Kind == NoiseParameterValueKind.Float)
                             mat.SetFloat(s_Threshold, val.FloatValue);
@@ -400,13 +451,25 @@ namespace Game.NoiseProducer
                         if (val.Kind == NoiseParameterValueKind.Float)
                             mat.SetFloat(s_Softness, val.FloatValue);
                         break;
+                    case "Strength":
+                        if (val.Kind == NoiseParameterValueKind.Float)
+                            mat.SetFloat(s_Strength, val.FloatValue);
+                        break;
                     case "Blend":
                         if (val.Kind == NoiseParameterValueKind.Float)
                             mat.SetFloat(s_Blend, val.FloatValue);
                         break;
+                    case "Opacity":
+                        if (val.Kind == NoiseParameterValueKind.Float)
+                            mat.SetFloat(s_Opacity, val.FloatValue);
+                        break;
                     case "Seed":
                         if (val.Kind == NoiseParameterValueKind.Int)
                             mat.SetFloat(s_Seed, val.IntValue);
+                        break;
+                    case "Octaves":
+                        if (val.Kind == NoiseParameterValueKind.Int)
+                            mat.SetInt(s_Octaves, val.IntValue);
                         break;
                     case "Lacunarity":
                         if (val.Kind == NoiseParameterValueKind.Float)
@@ -426,6 +489,29 @@ namespace Game.NoiseProducer
                         break;
                 }
             }
+        }
+
+        static void ResetStageMaterialState(Material mat, Texture? input)
+        {
+            var primaryTexture = input != null ? input : Texture2D.blackTexture;
+            mat.SetTexture(s_InputTex, primaryTexture);
+            mat.SetTexture(s_SecondaryTex, primaryTexture);
+            mat.SetTexture(s_MaskTex, Texture2D.blackTexture);
+            mat.SetVector(s_Scale, Vector2.one);
+            mat.SetVector(s_Offset, Vector2.zero);
+            mat.SetVector(s_Scroll, Vector4.zero);
+            mat.SetFloat(s_Rotation, 0f);
+            mat.SetVector(s_Center, new Vector4(0.5f, 0.5f, 0f, 0f));
+            mat.SetFloat(s_Strength, 1f);
+            mat.SetColor(s_GradientA, Color.black);
+            mat.SetColor(s_GradientB, Color.white);
+            mat.SetFloat(s_Threshold, 0.5f);
+            mat.SetFloat(s_Softness, 0.1f);
+            mat.SetFloat(s_Blend, 0.5f);
+            mat.SetFloat(s_Opacity, 1f);
+            mat.SetInt(s_Octaves, 4);
+            mat.SetFloat(s_Lacunarity, 2f);
+            mat.SetFloat(s_Gain, 0.5f);
         }
 
         // ── Publish ─────────────────────────────────────────────

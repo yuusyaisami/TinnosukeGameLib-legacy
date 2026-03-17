@@ -36,8 +36,11 @@ namespace Game.TransformSystem
                 return existing;
             }
 
-            var output = ResolveOutput(target) ?? new TransformAnimationOutput();
-            var director = new TransformTargetDirector(target, output);
+            var output = ResolveOutput(target);
+            var director = new TransformTargetDirector(
+                target,
+                output ?? new TransformAnimationOutput(),
+                applyDirectly: output == null);
             _directors[target] = director;
             return director;
         }
