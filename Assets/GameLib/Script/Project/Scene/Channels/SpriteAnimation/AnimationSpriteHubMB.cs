@@ -5,6 +5,7 @@ using Game;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
+using Game.SharedTexture;
 
 namespace Game.Channel
 {
@@ -31,6 +32,7 @@ namespace Game.Channel
 
             builder.Register<AnimationSpriteHubService>(Lifetime.Singleton)
                     .As<IAnimationSpriteHubService>()
+                    .As<ITaggedMaterialFxProvider>()
                     .As<IScopeAcquireHandler>()
                     .As<IScopeReleaseHandler>()
                     .As<ITickable>()

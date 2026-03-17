@@ -62,8 +62,12 @@ namespace Game.TransformSystem
             {
                 if (kv.Key == null)
                 {
+                    var deadKey = kv.Key;
+                    if (deadKey == null)
+                        continue;
+
                     toRemove ??= new List<Transform>();
-                    toRemove.Add(kv.Key);
+                    toRemove.Add(deadKey);
                     continue;
                 }
 

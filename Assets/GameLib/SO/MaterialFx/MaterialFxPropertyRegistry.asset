@@ -157,18 +157,6 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
-  - id: 1461633e7947ef5e1f6375c49cabb48e
-    parentId: b78900541b7fbaed2c52cca9b69108e5
-    name: NoiseAtlas
-    isFolder: 1
-    description: 
-    stableKey: 
-    sender: 0
-    valueType: 0
-    shaderPropertyName: 
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
   - id: bf43b41bf022d07f500473ae6ff2007c
     parentId: b78900541b7fbaed2c52cca9b69108e5
     name: Outline
@@ -220,18 +208,6 @@ MonoBehaviour:
   - id: 1be2261b9f846bc0270ed0ba33887500
     parentId: b78900541b7fbaed2c52cca9b69108e5
     name: TextFx
-    isFolder: 1
-    description: 
-    stableKey: 
-    sender: 0
-    valueType: 0
-    shaderPropertyName: 
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: e88b92737d375eb8f32c056ba36f0ef1
-    parentId: b78900541b7fbaed2c52cca9b69108e5
-    name: TextureSlot
     isFolder: 1
     description: 
     stableKey: 
@@ -2413,126 +2389,6 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
-  - id: c798fc9f4825dc990a330d91493fd4e2
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: Atlas
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/Atlas
-    sender: 0
-    valueType: 0
-    shaderPropertyName: _NoiseAtlas
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: da207297da564cbc5fe27e2c788b1ee7
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: BlendAmount
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/BlendAmount
-    sender: 0
-    valueType: 0
-    shaderPropertyName: _NoiseBlendAmount
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: add66212fd1111d8b515028f2aa2ad4c
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: Enabled
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/Enabled
-    sender: 0
-    valueType: 5
-    shaderPropertyName: _NoiseEnabled
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 700579eb10ada477d4b8681ba6f33c6b
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: Slice
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/Slice
-    sender: 0
-    valueType: 0
-    shaderPropertyName: _NoiseSlice
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 4bceee80f818f4f80efdd4aded4e37dc
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: T0
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/T0
-    sender: 0
-    valueType: 9
-    shaderPropertyName: _NoiseAtlasT0
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 28b043c2cae7d808d226f660ea0dd946
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: T1
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/T1
-    sender: 0
-    valueType: 9
-    shaderPropertyName: _NoiseAtlasT1
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: b0773b23ae0eed51a90ae3d0ccbfb694
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: T2
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/T2
-    sender: 0
-    valueType: 9
-    shaderPropertyName: _NoiseAtlasT2
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 62d6d999c8a92b7f02ea2f86653df6d0
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: T3
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/T3
-    sender: 0
-    valueType: 9
-    shaderPropertyName: _NoiseAtlasT3
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: e71043f58c467a61c340332a130dc17c
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: T4
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/T4
-    sender: 0
-    valueType: 9
-    shaderPropertyName: _NoiseAtlasT4
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 7f8ad3fa3c42c9bd10e7132955af8296
-    parentId: 1461633e7947ef5e1f6375c49cabb48e
-    name: T5
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/NoiseAtlas/T5
-    sender: 0
-    valueType: 9
-    shaderPropertyName: _NoiseAtlasT5
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
   - id: e7249d63978929a7d9853cd94ba29f7d
     parentId: bf43b41bf022d07f500473ae6ff2007c
     name: BlendMode
@@ -3121,102 +2977,6 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
-  - id: 502cf5327c49be70f54adcde3b887488
-    parentId: e88b92737d375eb8f32c056ba36f0ef1
-    name: AtlasSlot0
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/TextureSlot/AtlasSlot0
-    sender: 0
-    valueType: 3
-    shaderPropertyName: _AtlasSlot0
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 08b112b8e9ef82c645e337919e49c8da
-    parentId: e88b92737d375eb8f32c056ba36f0ef1
-    name: AtlasSlot1
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/TextureSlot/AtlasSlot1
-    sender: 0
-    valueType: 3
-    shaderPropertyName: _AtlasSlot1
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: d9f090961838a6293eb5ad6f3176ab44
-    parentId: e88b92737d375eb8f32c056ba36f0ef1
-    name: AtlasSlot2
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/TextureSlot/AtlasSlot2
-    sender: 0
-    valueType: 3
-    shaderPropertyName: _AtlasSlot2
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 1a3f179f8548b46d81db80f0a8770153
-    parentId: e88b92737d375eb8f32c056ba36f0ef1
-    name: AtlasSlot3
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/TextureSlot/AtlasSlot3
-    sender: 0
-    valueType: 3
-    shaderPropertyName: _AtlasSlot3
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 238280dbd6497c4f0248e3f6cad1c2f0
-    parentId: e88b92737d375eb8f32c056ba36f0ef1
-    name: AtlasSlot4
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/TextureSlot/AtlasSlot4
-    sender: 0
-    valueType: 3
-    shaderPropertyName: _AtlasSlot4
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 67d271568671095591e4104766da5b11
-    parentId: e88b92737d375eb8f32c056ba36f0ef1
-    name: CustomRT
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/TextureSlot/CustomRT
-    sender: 0
-    valueType: 0
-    shaderPropertyName: _CustomRT
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 2b58db73a5b7702021e1f526cedc8bf9
-    parentId: e88b92737d375eb8f32c056ba36f0ef1
-    name: ExtTexA
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/TextureSlot/ExtTexA
-    sender: 0
-    valueType: 3
-    shaderPropertyName: _ExtTexA
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
-  - id: 156b83cceab7c2757eaeffbfcbbed1d6
-    parentId: e88b92737d375eb8f32c056ba36f0ef1
-    name: ExtTexB
-    isFolder: 0
-    description: 
-    stableKey: BaseShader/TextureSlot/ExtTexB
-    sender: 0
-    valueType: 0
-    shaderPropertyName: _ExtTexB
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
   - id: c9b3035bf0f4c4d143458b65d4b03efa
     parentId: 35f1799031521b8540d83cbbcc40ed9d
     name: BlendMode
@@ -3274,6 +3034,186 @@ MonoBehaviour:
     sender: 0
     valueType: 0
     shaderPropertyName: _TransitionProgress
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 48bc5d270e6f401793a9a7dcebf10853
+    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
+    name: ExternalTextureComposite
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 58d8d6f34d1b49aa9efa22d8bfd2e604
+    parentId: 48bc5d270e6f401793a9a7dcebf10853
+    name: Source
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5feefb38d14f4968900e05f98e2306e4
+    parentId: 48bc5d270e6f401793a9a7dcebf10853
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _ExternalTextureCompositeEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a3f06b524aef44cc8f5ffcf5d4ae1fd9
+    parentId: 48bc5d270e6f401793a9a7dcebf10853
+    name: BlendMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/BlendMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ExternalTextureCompositeBlendMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 776001a650d74af8b9cdeac2ae04b313
+    parentId: 48bc5d270e6f401793a9a7dcebf10853
+    name: Intensity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/Intensity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _ExternalTextureCompositeIntensity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 991ac5ee7b2047db8160f52c8b6e2c54
+    parentId: 48bc5d270e6f401793a9a7dcebf10853
+    name: UseTextureAlpha
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/UseTextureAlpha
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _ExternalTextureCompositeUseTextureAlpha
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 73d6f38c06af436eb6e36b2ad5f66776
+    parentId: 48bc5d270e6f401793a9a7dcebf10853
+    name: Tint
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/Tint
+    sender: 0
+    valueType: 6
+    shaderPropertyName: _ExternalTextureCompositeTint
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 917f9b2f75c14151a031f249ef0ee8d8
+    parentId: 48bc5d270e6f401793a9a7dcebf10853
+    name: DisableWhenTextureMissing
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/DisableWhenTextureMissing
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _ExternalTextureCompositeDisableWhenTextureMissing
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 979c70de9d1f4ccf9a7ca8d5b19f6f44
+    parentId: 48bc5d270e6f401793a9a7dcebf10853
+    name: AffectSurfaceAlpha
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/AffectSurfaceAlpha
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _ExternalTextureCompositeAffectSurfaceAlpha
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d61f40b120f240f5a82b7d9ed343a986
+    parentId: 58d8d6f34d1b49aa9efa22d8bfd2e604
+    name: SlotType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/Source/SlotType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ExternalTextureCompositeSource_SlotType
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f917cc35431c4e48bfcfc7c8f857715f
+    parentId: 58d8d6f34d1b49aa9efa22d8bfd2e604
+    name: Channel
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/Source/Channel
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ExternalTextureCompositeSource_Channel
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 23046ae0454d4e6087f27133c9c3398b
+    parentId: 58d8d6f34d1b49aa9efa22d8bfd2e604
+    name: UVSpace
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/Source/UVSpace
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _ExternalTextureCompositeSource_UVSpace
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d04b2390db114fe2a44284001a5aa4bc
+    parentId: 58d8d6f34d1b49aa9efa22d8bfd2e604
+    name: TilingOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/Source/TilingOffset
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _ExternalTextureCompositeSource_TilingOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 10299481cb9a49ac8d41e61d8e41ee3a
+    parentId: 58d8d6f34d1b49aa9efa22d8bfd2e604
+    name: Remap
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/CompositeSystems/ExternalTextureComposite/Source/Remap
+    sender: 0
+    valueType: 3
+    shaderPropertyName: _ExternalTextureCompositeSource_Remap
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7f6ab601fede4327b49e7d8c3160c864
+    parentId: 5a92a06117993e52ff567ba6106068a4
+    name: CustomRT
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/ExternalTextures/CustomRT
+    sender: 0
+    valueType: 8
+    shaderPropertyName: _CustomRT
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}

@@ -25,7 +25,7 @@ namespace Game.Health
         [SerializeReference, InlineProperty, HideLabel]
         HealthPreset? preset = new();
 
-        public Type ProfileType => typeof(HealthProfileSO);
+        public Type ProfileType => typeof(HealthPreset);
 
         public HealthPreset? Preset
         {

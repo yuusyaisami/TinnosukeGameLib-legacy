@@ -183,18 +183,19 @@ namespace Game.Common
             if (scope == null)
                 return false;
 
+            var commandRootScope = context.CommandRootScope;
             var ownerScope = ActorSourceFastResolver.ResolveCached(
                 scope,
                 boundsOwnerActorSource,
                 ref ownerCache,
-                context.CommandRootScope);
+                commandRootScope);
 
             if (TryResolveOutputFromScopeChain(ownerScope, out output, out service))
                 return true;
 
-            if (context.CommandRootScope != null &&
-                !ReferenceEquals(context.CommandRootScope, ownerScope) &&
-                TryResolveOutputFromScopeChain(context.CommandRootScope, out output, out service))
+            if (commandRootScope != null &&
+                !ReferenceEquals(commandRootScope, ownerScope) &&
+                TryResolveOutputFromScopeChain(commandRootScope, out output, out service))
             {
                 return true;
             }

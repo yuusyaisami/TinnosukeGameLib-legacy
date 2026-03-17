@@ -1,3 +1,4 @@
+#nullable enable
 // Game.Health.HealthService.cs
 //
 // Health 管理サービス実装 (v0.2)
@@ -158,22 +159,11 @@ namespace Game.Health
             if (_profileRegistry == null)
                 return false;
 
-            if (!_profileRegistry.TryResolveDefinition(typeof(HealthProfileSO), out var definition) || definition == null)
+            if (!_profileRegistry.TryResolveDefinition<HealthPreset>(out var preset) || preset == null)
                 return false;
 
-            if (definition is HealthPreset preset)
-            {
-                profile = preset;
-                return true;
-            }
-
-            if (definition is HealthProfileSO profileSo)
-            {
-                profile = profileSo.Preset;
-                return profile != null;
-            }
-
-            return false;
+            profile = preset;
+            return true;
         }
 
         // ================================================================

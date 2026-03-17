@@ -41,7 +41,7 @@ namespace Game.MaterialFx
 
         public static DissolveParams Default => new()
         {
-            Source = TextureSlotRef.ForAtlasSlot(0),
+            Source = TextureSlotRef.ForExternal(TextureSlotType.ExternalA),
             Progress = 0f,
             EdgeWidth = 0.05f,
             EdgeColor = Color.white,
@@ -87,7 +87,7 @@ namespace Game.MaterialFx
 
         public static FlowWarpParams Default => new()
         {
-            Source = TextureSlotRef.ForAtlasSlot(1),
+            Source = TextureSlotRef.ForExternal(TextureSlotType.ExternalA, ChannelMask.RG),
             Strength = Vector2.zero,
             Speed = 1f,
             Normalize = true,
@@ -133,7 +133,7 @@ namespace Game.MaterialFx
 
         public static MaskParams Default => new()
         {
-            Source = TextureSlotRef.ForAtlasSlot(2),
+            Source = TextureSlotRef.ForExternal(TextureSlotType.ExternalA),
             Threshold = 0f,
             Softness = 0.1f,
             Invert = false,
@@ -202,55 +202,12 @@ namespace Game.MaterialFx
         public MaskParams Mask;
         public EmissionParams Emission;
 
-        // Atlas Slot Bindings (Slot 0-4)
-        public AtlasSlotBinding Slot0;
-        public AtlasSlotBinding Slot1;
-        public AtlasSlotBinding Slot2;
-        public AtlasSlotBinding Slot3;
-        public AtlasSlotBinding Slot4;
-
         public static CompositeEffectBundle Default => new()
         {
             Dissolve = DissolveParams.Default,
             FlowWarp = FlowWarpParams.Default,
             Mask = MaskParams.Default,
             Emission = EmissionParams.Default,
-            Slot0 = AtlasSlotBinding.Invalid,
-            Slot1 = AtlasSlotBinding.Invalid,
-            Slot2 = AtlasSlotBinding.Invalid,
-            Slot3 = AtlasSlotBinding.Invalid,
-            Slot4 = AtlasSlotBinding.Invalid,
         };
-
-        /// <summary>
-        /// 指定した Slot インデックスのバインドを取得。
-        /// </summary>
-        public readonly AtlasSlotBinding GetSlotBinding(int slotIndex)
-        {
-            return slotIndex switch
-            {
-                0 => Slot0,
-                1 => Slot1,
-                2 => Slot2,
-                3 => Slot3,
-                4 => Slot4,
-                _ => AtlasSlotBinding.Invalid,
-            };
-        }
-
-        /// <summary>
-        /// 指定した Slot インデックスのバインドを設定。
-        /// </summary>
-        public void SetSlotBinding(int slotIndex, AtlasSlotBinding binding)
-        {
-            switch (slotIndex)
-            {
-                case 0: Slot0 = binding; break;
-                case 1: Slot1 = binding; break;
-                case 2: Slot2 = binding; break;
-                case 3: Slot3 = binding; break;
-                case 4: Slot4 = binding; break;
-            }
-        }
     }
 }

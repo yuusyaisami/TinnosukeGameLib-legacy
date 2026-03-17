@@ -23,7 +23,7 @@ struct Surface2D
     float  vertexAlpha;  // 頂点α（TextFxの外周にも適用するため保持）
     float  alphaFactor;  // マスク/フェード等の積（外周にも反映するため保持）
 
-    float2 uvMain;       // _MainTex 用 UV（SpriteAtlas の場合はアトラスUV）
+    float2 uvMain;       // _MainTex 用 UV（元テクスチャ座標）
     float2 uv;           // alias for uvMain - legacy features expect s.uv
     float2 uvLocal;      // スプライトローカル UV (0..1)、SpriteAtlas 依存を回避
     float2 screenUV;     // 0..1 のスクリーン座標
@@ -122,13 +122,6 @@ CBUFFER_START(UnityPerMaterial)
     // Composite System (BaseShader-CompositeSystem-v1.0 準拠)
     // ═══════════════════════════════════════════════════════════════════════════
 
-    // --- TextureSlot Bindings (Slot 0-4 → Atlas Tier/Slice) ---
-    float4 _AtlasSlot0;  // x=Tier, y=Slice, zw=reserved
-    float4 _AtlasSlot1;
-    float4 _AtlasSlot2;
-    float4 _AtlasSlot3;
-    float4 _AtlasSlot4;
-
     // --- Dissolve ---
     float  _DissolveEnabled;
     float  _DissolveSource_SlotType;
@@ -205,6 +198,20 @@ CBUFFER_START(UnityPerMaterial)
     // _ColorRampTex はテクスチャ宣言（ColorRamp2D.hlsl）
     float  _ColorRampIntensity;                      // float: 強度 0-1
     float  _ColorRampPreserveAlpha;                  // int: アルファを維持するか
+
+    // --- ExternalTextureComposite ---
+    float  _ExternalTextureCompositeEnabled;                // int: 有効フラグ
+    float  _ExternalTextureCompositeSource_SlotType;        // int: TEXTURE_SLOT_*
+    float  _ExternalTextureCompositeSource_Channel;         // int: CHANNEL_*
+    float  _ExternalTextureCompositeSource_UVSpace;         // int: NOISE_UV_SPACE_*
+    float4 _ExternalTextureCompositeSource_TilingOffset;    // float4: xy=tiling, zw=offset
+    float4 _ExternalTextureCompositeSource_Remap;           // float4: x=bias, y=gain, z=gamma, w=invert
+    float  _ExternalTextureCompositeBlendMode;              // int: blend mode
+    float  _ExternalTextureCompositeIntensity;              // float: 強度 0-1
+    float  _ExternalTextureCompositeUseTextureAlpha;        // int: source alpha を重みへ使うか
+    float4 _ExternalTextureCompositeTint;                   // float4: ティント
+    float  _ExternalTextureCompositeDisableWhenTextureMissing; // int: texture missing 時に無効化
+    float  _ExternalTextureCompositeAffectSurfaceAlpha;     // int: surface alpha に反映するか
 
     // --- Refraction (v3.0) ---
     // ★ BaseShader.shader のプロパティ名と一致させる
@@ -338,6 +345,7 @@ inline float2 SpriteLocalUVToAtlasUV(float2 uvLocal);
 // ═══════════════════════════════════════════════════════════════════════════
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/ColorOverlay2D.hlsl"
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/ColorRamp2D.hlsl"
+#include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/ExternalTextureComposite2D.hlsl"
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/Refraction2D.hlsl"
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/Caustics2D.hlsl"
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/Ripple2D.hlsl"
@@ -372,6 +380,7 @@ struct Surface2DContext
     // Composite System (BaseShader-CompositeSystem-v3.0)
     ColorOverlay2DParams   colorOverlay;
     ColorRamp2DParams      colorRamp;
+    ExternalTextureComposite2DParams externalTextureComposite;
     Refraction2DParams     refraction;
     Caustics2DParams       caustics;
     Ripple2DParams         ripple;
@@ -488,6 +497,21 @@ inline Surface2DContext MakeSurface2DContext()
         _ColorRampSource_Remap,
         _ColorRampIntensity,
         _ColorRampPreserveAlpha
+    );
+
+    ctx.externalTextureComposite = MakeExternalTextureComposite2DParams(
+        _ExternalTextureCompositeEnabled,
+        _ExternalTextureCompositeSource_SlotType,
+        _ExternalTextureCompositeSource_Channel,
+        _ExternalTextureCompositeSource_UVSpace,
+        _ExternalTextureCompositeSource_TilingOffset,
+        _ExternalTextureCompositeSource_Remap,
+        _ExternalTextureCompositeBlendMode,
+        _ExternalTextureCompositeIntensity,
+        _ExternalTextureCompositeUseTextureAlpha,
+        _ExternalTextureCompositeTint,
+        _ExternalTextureCompositeDisableWhenTextureMissing,
+        _ExternalTextureCompositeAffectSurfaceAlpha
     );
     
     ctx.refraction = MakeRefraction2DParamsSimple(
@@ -655,6 +679,7 @@ inline Surface2DContext MakeSurface2DContext()
     ctx.emission.enabled = 0;
     ctx.colorOverlay.enabled = 0;
     ctx.colorRamp.enabled = 0;
+    ctx.externalTextureComposite.enabled = 0;
     ctx.refraction.enabled = 0;
     ctx.caustics.enabled = 0;
     ctx.ripple.distortEnabled = 0;
@@ -842,6 +867,7 @@ inline float3 Surface2D_Vertex_ApplyPositionOS(float3 posOS, float2 uv, Surface2
         surface = Surface2D_ApplyColorOverlay(surface, (ctx).colorOverlay);    \
         surface = Surface2D_ApplyBlendColor(surface, (ctx).blendColor);        \
         surface = Surface2D_ApplyColorRamp(surface, (ctx).colorRamp);          \
+        surface = Surface2D_ApplyExternalTextureComposite(surface, (ctx).externalTextureComposite); \
         surface = Surface2D_ApplyCaustics(surface, (ctx).caustics, _Time.y);   \
         surface = Surface2D_ApplyHueShift(surface, (ctx).hueShift, _Time.y);   \
         surface = Surface2D_ApplyRainbow(surface, (ctx).rainbow, _Time.y);     \

@@ -253,52 +253,10 @@ namespace Game.MaterialFx.Generated
                 /// <remarks>
                 /// Sender: BaseShader
                 /// ValueType: Float
-                /// ShaderPropertyName: _BlendColor2DBlendGradationAmount
-                /// Path: BaseShader/BlendColor2D/BlendGradationAmount
-                /// </remarks>
-                public const string BlendGradationAmount = "BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Int
-                /// ShaderPropertyName: _BlendColor2DBlendGradDirection
-                /// Path: BaseShader/BlendColor2D/BlendGradDirection
-                /// </remarks>
-                public const string BlendGradDirection = "BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float
-                /// ShaderPropertyName: _BlendColor2DBlendSoftness
-                /// Path: BaseShader/BlendColor2D/BlendSoftness
-                /// </remarks>
-                public const string BlendSoftness = "BaseShader/CompositeSystems/BlendColor2D/BlendSoftness";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float
-                /// ShaderPropertyName: _BlendColor2DBlendIntensity
-                /// Path: BaseShader/BlendColor2D/BlendIntensity
-                /// </remarks>
-                public const string BlendIntensity = "BaseShader/CompositeSystems/BlendColor2D/BlendIntensity";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float
                 /// ShaderPropertyName: _BlendColor2DBlendMode
                 /// Path: BaseShader/BlendColor2D/BlendMode
                 /// </remarks>
                 public const string BlendMode = "BaseShader/BlendColor2D/BlendMode";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Color
-                /// ShaderPropertyName: _BlendColor2DColor
-                /// Path: BaseShader/BlendColor2D/Color
-                /// </remarks>
-                public const string Color = "BaseShader/CompositeSystems/BlendColor2D/Color";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Bool
-                /// ShaderPropertyName: _BlendColor2DEnabled
-                /// Path: BaseShader/BlendColor2D/Enabled
-                /// </remarks>
-                public const string Enabled = "BaseShader/CompositeSystems/BlendColor2D/Enabled";
             }
 
             public static partial class Common
@@ -328,6 +286,52 @@ namespace Game.MaterialFx.Generated
 
             public static partial class CompositeSystems
             {
+
+                public static partial class BlendColor2D
+                {
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _BlendColor2DBlendGradationAmount
+                    /// Path: BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount
+                    /// </remarks>
+                    public const string BlendGradationAmount = "BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Int
+                    /// ShaderPropertyName: _BlendColor2DBlendGradDirection
+                    /// Path: BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection
+                    /// </remarks>
+                    public const string BlendGradDirection = "BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _BlendColor2DBlendIntensity
+                    /// Path: BaseShader/CompositeSystems/BlendColor2D/BlendIntensity
+                    /// </remarks>
+                    public const string BlendIntensity = "BaseShader/CompositeSystems/BlendColor2D/BlendIntensity";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _BlendColor2DBlendSoftness
+                    /// Path: BaseShader/CompositeSystems/BlendColor2D/BlendSoftness
+                    /// </remarks>
+                    public const string BlendSoftness = "BaseShader/CompositeSystems/BlendColor2D/BlendSoftness";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Color
+                    /// ShaderPropertyName: _BlendColor2DColor
+                    /// Path: BaseShader/CompositeSystems/BlendColor2D/Color
+                    /// </remarks>
+                    public const string Color = "BaseShader/CompositeSystems/BlendColor2D/Color";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Bool
+                    /// ShaderPropertyName: _BlendColor2DEnabled
+                    /// Path: BaseShader/CompositeSystems/BlendColor2D/Enabled
+                    /// </remarks>
+                    public const string Enabled = "BaseShader/CompositeSystems/BlendColor2D/Enabled";
+                }
 
                 public static partial class Caustics
                 {
@@ -684,130 +688,95 @@ namespace Game.MaterialFx.Generated
                     }
                 }
 
-                public static partial class Emission
+                public static partial class ExternalTextureComposite
                 {
                     /// <remarks>
                     /// Sender: BaseShader
-                    /// ValueType: Float4
-                    /// ShaderPropertyName: _EmissionColor
-                    /// Path: BaseShader/CompositeSystems/Emission/Color
+                    /// ValueType: Bool
+                    /// ShaderPropertyName: _ExternalTextureCompositeAffectSurfaceAlpha
+                    /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/AffectSurfaceAlpha
                     /// </remarks>
-                    public const string Color = "BaseShader/Emission/Color";
+                    public const string AffectSurfaceAlpha = "BaseShader/CompositeSystems/ExternalTextureComposite/AffectSurfaceAlpha";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Int
+                    /// ShaderPropertyName: _ExternalTextureCompositeBlendMode
+                    /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/BlendMode
+                    /// </remarks>
+                    public const string BlendMode = "BaseShader/CompositeSystems/ExternalTextureComposite/BlendMode";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Bool
-                    /// ShaderPropertyName: _EmissionEnabled
-                    /// Path: BaseShader/CompositeSystems/Emission/Enabled
+                    /// ShaderPropertyName: _ExternalTextureCompositeDisableWhenTextureMissing
+                    /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/DisableWhenTextureMissing
                     /// </remarks>
-                    public const string Enabled = "BaseShader/Emission/Enabled";
+                    public const string DisableWhenTextureMissing = "BaseShader/CompositeSystems/ExternalTextureComposite/DisableWhenTextureMissing";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Bool
+                    /// ShaderPropertyName: _ExternalTextureCompositeEnabled
+                    /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/Enabled
+                    /// </remarks>
+                    public const string Enabled = "BaseShader/CompositeSystems/ExternalTextureComposite/Enabled";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Float
-                    /// Path: BaseShader/CompositeSystems/Emission/Intensity
+                    /// ShaderPropertyName: _ExternalTextureCompositeIntensity
+                    /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/Intensity
                     /// </remarks>
-                    public const string Intensity = "";
+                    public const string Intensity = "BaseShader/CompositeSystems/ExternalTextureComposite/Intensity";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Color
+                    /// ShaderPropertyName: _ExternalTextureCompositeTint
+                    /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/Tint
+                    /// </remarks>
+                    public const string Tint = "BaseShader/CompositeSystems/ExternalTextureComposite/Tint";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Bool
+                    /// ShaderPropertyName: _ExternalTextureCompositeUseTextureAlpha
+                    /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/UseTextureAlpha
+                    /// </remarks>
+                    public const string UseTextureAlpha = "BaseShader/CompositeSystems/ExternalTextureComposite/UseTextureAlpha";
 
                     public static partial class Source
                     {
                         /// <remarks>
                         /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _EmissionSource_Channel
-                        /// Path: BaseShader/CompositeSystems/Emission/Source/Channel
+                        /// ValueType: Int
+                        /// ShaderPropertyName: _ExternalTextureCompositeSource_Channel
+                        /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/Source/Channel
                         /// </remarks>
-                        public const string Channel = "BaseShader/Emission/Source/Channel";
+                        public const string Channel = "BaseShader/CompositeSystems/ExternalTextureComposite/Source/Channel";
                         /// <remarks>
                         /// Sender: BaseShader
                         /// ValueType: Float4
-                        /// ShaderPropertyName: _EmissionSource_Remap
-                        /// Path: BaseShader/CompositeSystems/Emission/Source/Remap
+                        /// ShaderPropertyName: _ExternalTextureCompositeSource_Remap
+                        /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/Source/Remap
                         /// </remarks>
-                        public const string Remap = "BaseShader/Emission/Source/Remap";
+                        public const string Remap = "BaseShader/CompositeSystems/ExternalTextureComposite/Source/Remap";
                         /// <remarks>
                         /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _EmissionSource_SlotType
-                        /// Path: BaseShader/CompositeSystems/Emission/Source/SlotType
+                        /// ValueType: Int
+                        /// ShaderPropertyName: _ExternalTextureCompositeSource_SlotType
+                        /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/Source/SlotType
                         /// </remarks>
-                        public const string SlotType = "BaseShader/Emission/Source/SlotType";
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float4
-                        /// ShaderPropertyName: _EmissionSource_TilingOffset
-                        /// Path: BaseShader/CompositeSystems/Emission/Source/TilingOffset
-                        /// </remarks>
-                        public const string TilingOffset = "BaseShader/Emission/Source/TilingOffset";
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _EmissionSource_UVSpace
-                        /// Path: BaseShader/CompositeSystems/Emission/Source/UVSpace
-                        /// </remarks>
-                        public const string UVSpace = "BaseShader/Emission/Source/UVSpace";
-                    }
-                }
-
-                public static partial class FlowWarp
-                {
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Bool
-                    /// ShaderPropertyName: _FlowWarpEnabled
-                    /// Path: BaseShader/CompositeSystems/FlowWarp/Enabled
-                    /// </remarks>
-                    public const string Enabled = "BaseShader/FlowWarp/Enabled";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _FlowWarpSpeed
-                    /// Path: BaseShader/CompositeSystems/FlowWarp/Speed
-                    /// </remarks>
-                    public const string Speed = "BaseShader/FlowWarp/Speed";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float2
-                    /// ShaderPropertyName: _FlowWarpStrength
-                    /// Path: BaseShader/CompositeSystems/FlowWarp/Strength
-                    /// </remarks>
-                    public const string Strength = "BaseShader/FlowWarp/Strength";
-
-                    public static partial class Source
-                    {
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _FlowWarpSource_Channel
-                        /// Path: BaseShader/CompositeSystems/FlowWarp/Source/Channel
-                        /// </remarks>
-                        public const string Channel = "BaseShader/FlowWarp/Source/Channel";
+                        public const string SlotType = "BaseShader/CompositeSystems/ExternalTextureComposite/Source/SlotType";
                         /// <remarks>
                         /// Sender: BaseShader
                         /// ValueType: Float4
-                        /// ShaderPropertyName: _FlowWarpSource_Remap
-                        /// Path: BaseShader/CompositeSystems/FlowWarp/Source/Remap
+                        /// ShaderPropertyName: _ExternalTextureCompositeSource_TilingOffset
+                        /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/Source/TilingOffset
                         /// </remarks>
-                        public const string Remap = "BaseShader/FlowWarp/Source/Remap";
+                        public const string TilingOffset = "BaseShader/CompositeSystems/ExternalTextureComposite/Source/TilingOffset";
                         /// <remarks>
                         /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _FlowWarpSource_SlotType
-                        /// Path: BaseShader/CompositeSystems/FlowWarp/Source/SlotType
+                        /// ValueType: Int
+                        /// ShaderPropertyName: _ExternalTextureCompositeSource_UVSpace
+                        /// Path: BaseShader/CompositeSystems/ExternalTextureComposite/Source/UVSpace
                         /// </remarks>
-                        public const string SlotType = "BaseShader/FlowWarp/Source/SlotType";
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float4
-                        /// ShaderPropertyName: _FlowWarpSource_TilingOffset
-                        /// Path: BaseShader/CompositeSystems/FlowWarp/Source/TilingOffset
-                        /// </remarks>
-                        public const string TilingOffset = "BaseShader/FlowWarp/Source/TilingOffset";
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _FlowWarpSource_UVSpace
-                        /// Path: BaseShader/CompositeSystems/FlowWarp/Source/UVSpace
-                        /// </remarks>
-                        public const string UVSpace = "BaseShader/FlowWarp/Source/UVSpace";
+                        public const string UVSpace = "BaseShader/CompositeSystems/ExternalTextureComposite/Source/UVSpace";
                     }
                 }
 
@@ -886,70 +855,6 @@ namespace Game.MaterialFx.Generated
                     }
                 }
 
-                public static partial class Mask
-                {
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Bool
-                    /// ShaderPropertyName: _MaskEnabled
-                    /// Path: BaseShader/CompositeSystems/Mask/Enabled
-                    /// </remarks>
-                    public const string Enabled = "BaseShader/Mask/Enabled";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _MaskSoftness
-                    /// Path: BaseShader/CompositeSystems/Mask/Softness
-                    /// </remarks>
-                    public const string Softness = "BaseShader/Mask/Softness";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _MaskThreshold
-                    /// Path: BaseShader/CompositeSystems/Mask/Threshold
-                    /// </remarks>
-                    public const string Threshold = "BaseShader/Mask/Threshold";
-
-                    public static partial class Source
-                    {
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _MaskSource_Channel
-                        /// Path: BaseShader/CompositeSystems/Mask/Source/Channel
-                        /// </remarks>
-                        public const string Channel = "BaseShader/Mask/Source/Channel";
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float4
-                        /// ShaderPropertyName: _MaskSource_Remap
-                        /// Path: BaseShader/CompositeSystems/Mask/Source/Remap
-                        /// </remarks>
-                        public const string Remap = "BaseShader/Mask/Source/Remap";
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _MaskSource_SlotType
-                        /// Path: BaseShader/CompositeSystems/Mask/Source/SlotType
-                        /// </remarks>
-                        public const string SlotType = "BaseShader/Mask/Source/SlotType";
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float4
-                        /// ShaderPropertyName: _MaskSource_TilingOffset
-                        /// Path: BaseShader/CompositeSystems/Mask/Source/TilingOffset
-                        /// </remarks>
-                        public const string TilingOffset = "BaseShader/Mask/Source/TilingOffset";
-                        /// <remarks>
-                        /// Sender: BaseShader
-                        /// ValueType: Float
-                        /// ShaderPropertyName: _MaskSource_UVSpace
-                        /// Path: BaseShader/CompositeSystems/Mask/Source/UVSpace
-                        /// </remarks>
-                        public const string UVSpace = "BaseShader/Mask/Source/UVSpace";
-                    }
-                }
-
                 public static partial class NormalMap
                 {
                     /// <remarks>
@@ -966,12 +871,6 @@ namespace Game.MaterialFx.Generated
                     /// Path: BaseShader/CompositeSystems/NormalMap/LightDir
                     /// </remarks>
                     public const string LightDir = "BaseShader/CompositeSystems/NormalMap/LightDir";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// Path: BaseShader/CompositeSystems/NormalMap/ParamC
-                    /// </remarks>
-                    public const string ParamC = "";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Float
@@ -1143,11 +1042,74 @@ namespace Game.MaterialFx.Generated
                     /// </remarks>
                     public const string WaveParams = "BaseShader/CompositeSystems/Ripple/WaveParams";
                 }
+            }
 
+            public static partial class Emission
+            {
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float4
+                /// ShaderPropertyName: _EmissionColor
+                /// Path: BaseShader/Emission/Color
+                /// </remarks>
+                public const string Color = "BaseShader/Emission/Color";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Bool
+                /// ShaderPropertyName: _EmissionEnabled
+                /// Path: BaseShader/Emission/Enabled
+                /// </remarks>
+                public const string Enabled = "BaseShader/Emission/Enabled";
+
+                public static partial class Source
+                {
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _EmissionSource_Channel
+                    /// Path: BaseShader/Emission/Source/Channel
+                    /// </remarks>
+                    public const string Channel = "BaseShader/Emission/Source/Channel";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float4
+                    /// ShaderPropertyName: _EmissionSource_Remap
+                    /// Path: BaseShader/Emission/Source/Remap
+                    /// </remarks>
+                    public const string Remap = "BaseShader/Emission/Source/Remap";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _EmissionSource_SlotType
+                    /// Path: BaseShader/Emission/Source/SlotType
+                    /// </remarks>
+                    public const string SlotType = "BaseShader/Emission/Source/SlotType";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float4
+                    /// ShaderPropertyName: _EmissionSource_TilingOffset
+                    /// Path: BaseShader/Emission/Source/TilingOffset
+                    /// </remarks>
+                    public const string TilingOffset = "BaseShader/Emission/Source/TilingOffset";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _EmissionSource_UVSpace
+                    /// Path: BaseShader/Emission/Source/UVSpace
+                    /// </remarks>
+                    public const string UVSpace = "BaseShader/Emission/Source/UVSpace";
+                }
             }
 
             public static partial class ExternalTextures
             {
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Texture
+                /// ShaderPropertyName: _CustomRT
+                /// Path: BaseShader/ExternalTextures/CustomRT
+                /// </remarks>
+                public const string CustomRT = "BaseShader/ExternalTextures/CustomRT";
                 /// <remarks>
                 /// Sender: BaseShader
                 /// ValueType: Texture
@@ -1226,155 +1188,134 @@ namespace Game.MaterialFx.Generated
                     /// </remarks>
                     public const string Speed = "BaseShader/Flash/Blink/Speed";
                 }
+            }
 
-                public static partial class HueShift
+            public static partial class FlowWarp
+            {
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Bool
+                /// ShaderPropertyName: _FlowWarpEnabled
+                /// Path: BaseShader/FlowWarp/Enabled
+                /// </remarks>
+                public const string Enabled = "BaseShader/FlowWarp/Enabled";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float
+                /// ShaderPropertyName: _FlowWarpSpeed
+                /// Path: BaseShader/FlowWarp/Speed
+                /// </remarks>
+                public const string Speed = "BaseShader/FlowWarp/Speed";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float2
+                /// ShaderPropertyName: _FlowWarpStrength
+                /// Path: BaseShader/FlowWarp/Strength
+                /// </remarks>
+                public const string Strength = "BaseShader/FlowWarp/Strength";
+
+                public static partial class Source
                 {
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Float
-                    /// ShaderPropertyName: _HueShiftAmount
-                    /// Path: BaseShader/Flash/HueShift/Amount
+                    /// ShaderPropertyName: _FlowWarpSource_Channel
+                    /// Path: BaseShader/FlowWarp/Source/Channel
                     /// </remarks>
-                    public const string Amount = "BaseShader/CompositeSystems/HueShift/Amount";
+                    public const string Channel = "BaseShader/FlowWarp/Source/Channel";
                     /// <remarks>
                     /// Sender: BaseShader
-                    /// ValueType: Bool
-                    /// ShaderPropertyName: _HueShiftEnabled
-                    /// Path: BaseShader/Flash/HueShift/Enabled
+                    /// ValueType: Float4
+                    /// ShaderPropertyName: _FlowWarpSource_Remap
+                    /// Path: BaseShader/FlowWarp/Source/Remap
                     /// </remarks>
-                    public const string Enabled = "BaseShader/CompositeSystems/HueShift/Enabled";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _HueSaturationMod
-                    /// Path: BaseShader/Flash/HueShift/SaturationMod
-                    /// </remarks>
-                    public const string SaturationMod = "BaseShader/CompositeSystems/HueShift/SaturationMod";
+                    public const string Remap = "BaseShader/FlowWarp/Source/Remap";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Float
-                    /// ShaderPropertyName: _HueValueMod
-                    /// Path: BaseShader/Flash/HueShift/ValueMod
+                    /// ShaderPropertyName: _FlowWarpSource_SlotType
+                    /// Path: BaseShader/FlowWarp/Source/SlotType
                     /// </remarks>
-                    public const string ValueMod = "BaseShader/CompositeSystems/HueShift/ValueMod";
-
-                    public static partial class Mask
-                    {
-
-                        public static partial class Source
-                        {
-                            /// <remarks>
-                            /// Sender: BaseShader
-                            /// ValueType: Int
-                            /// ShaderPropertyName: _HueShiftMaskSource_Channel
-                            /// Path: BaseShader/Flash/HueShift/Mask/Source/Channel
-                            /// </remarks>
-                            public const string Channel = "BaseShader/CompositeSystems/HueShift/Mask/Source/Channel";
-                            /// <remarks>
-                            /// Sender: BaseShader
-                            /// ValueType: Float4
-                            /// ShaderPropertyName: _HueShiftMaskSource_Remap
-                            /// Path: BaseShader/Flash/HueShift/Mask/Source/Remap
-                            /// </remarks>
-                            public const string Remap = "BaseShader/CompositeSystems/HueShift/Mask/Source/Remap";
-                            /// <remarks>
-                            /// Sender: BaseShader
-                            /// ValueType: Int
-                            /// ShaderPropertyName: _HueShiftMaskSource_SlotType
-                            /// Path: BaseShader/Flash/HueShift/Mask/Source/SlotType
-                            /// </remarks>
-                            public const string SlotType = "BaseShader/CompositeSystems/HueShift/Mask/Source/SlotType";
-                            /// <remarks>
-                            /// Sender: BaseShader
-                            /// ValueType: Float4
-                            /// ShaderPropertyName: _HueShiftMaskSource_TilingOffset
-                            /// Path: BaseShader/Flash/HueShift/Mask/Source/TilingOffset
-                            /// </remarks>
-                            public const string TilingOffset = "BaseShader/CompositeSystems/HueShift/Mask/Source/TilingOffset";
-                            /// <remarks>
-                            /// Sender: BaseShader
-                            /// ValueType: Int
-                            /// ShaderPropertyName: _HueShiftMaskSource_UVSpace
-                            /// Path: BaseShader/Flash/HueShift/Mask/Source/UVSpace
-                            /// </remarks>
-                            public const string UVSpace = "BaseShader/CompositeSystems/HueShift/Mask/Source/UVSpace";
-                        }
-                    }
+                    public const string SlotType = "BaseShader/FlowWarp/Source/SlotType";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float4
+                    /// ShaderPropertyName: _FlowWarpSource_TilingOffset
+                    /// Path: BaseShader/FlowWarp/Source/TilingOffset
+                    /// </remarks>
+                    public const string TilingOffset = "BaseShader/FlowWarp/Source/TilingOffset";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _FlowWarpSource_UVSpace
+                    /// Path: BaseShader/FlowWarp/Source/UVSpace
+                    /// </remarks>
+                    public const string UVSpace = "BaseShader/FlowWarp/Source/UVSpace";
                 }
             }
 
-            public static partial class NoiseAtlas
+            public static partial class Mask
             {
                 /// <remarks>
                 /// Sender: BaseShader
-                /// ValueType: Float
-                /// ShaderPropertyName: _NoiseAtlas
-                /// Path: BaseShader/NoiseAtlas/Atlas
-                /// </remarks>
-                public const string Atlas = "BaseShader/NoiseAtlas/Atlas";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float
-                /// ShaderPropertyName: _NoiseBlendAmount
-                /// Path: BaseShader/NoiseAtlas/BlendAmount
-                /// </remarks>
-                public const string BlendAmount = "BaseShader/NoiseAtlas/BlendAmount";
-                /// <remarks>
-                /// Sender: BaseShader
                 /// ValueType: Bool
-                /// ShaderPropertyName: _NoiseEnabled
-                /// Path: BaseShader/NoiseAtlas/Enabled
+                /// ShaderPropertyName: _MaskEnabled
+                /// Path: BaseShader/Mask/Enabled
                 /// </remarks>
-                public const string Enabled = "BaseShader/NoiseAtlas/Enabled";
+                public const string Enabled = "BaseShader/Mask/Enabled";
                 /// <remarks>
                 /// Sender: BaseShader
                 /// ValueType: Float
-                /// ShaderPropertyName: _NoiseSlice
-                /// Path: BaseShader/NoiseAtlas/Slice
+                /// ShaderPropertyName: _MaskSoftness
+                /// Path: BaseShader/Mask/Softness
                 /// </remarks>
-                public const string Slice = "BaseShader/NoiseAtlas/Slice";
+                public const string Softness = "BaseShader/Mask/Softness";
                 /// <remarks>
                 /// Sender: BaseShader
-                /// ValueType: TextureArray
-                /// ShaderPropertyName: _NoiseAtlasT0
-                /// Path: BaseShader/NoiseAtlas/T0
+                /// ValueType: Float
+                /// ShaderPropertyName: _MaskThreshold
+                /// Path: BaseShader/Mask/Threshold
                 /// </remarks>
-                public const string T0 = "BaseShader/NoiseAtlas/T0";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: TextureArray
-                /// ShaderPropertyName: _NoiseAtlasT1
-                /// Path: BaseShader/NoiseAtlas/T1
-                /// </remarks>
-                public const string T1 = "BaseShader/NoiseAtlas/T1";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: TextureArray
-                /// ShaderPropertyName: _NoiseAtlasT2
-                /// Path: BaseShader/NoiseAtlas/T2
-                /// </remarks>
-                public const string T2 = "BaseShader/NoiseAtlas/T2";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: TextureArray
-                /// ShaderPropertyName: _NoiseAtlasT3
-                /// Path: BaseShader/NoiseAtlas/T3
-                /// </remarks>
-                public const string T3 = "BaseShader/NoiseAtlas/T3";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: TextureArray
-                /// ShaderPropertyName: _NoiseAtlasT4
-                /// Path: BaseShader/NoiseAtlas/T4
-                /// </remarks>
-                public const string T4 = "BaseShader/NoiseAtlas/T4";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: TextureArray
-                /// ShaderPropertyName: _NoiseAtlasT5
-                /// Path: BaseShader/NoiseAtlas/T5
-                /// </remarks>
-                public const string T5 = "BaseShader/NoiseAtlas/T5";
+                public const string Threshold = "BaseShader/Mask/Threshold";
+
+                public static partial class Source
+                {
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _MaskSource_Channel
+                    /// Path: BaseShader/Mask/Source/Channel
+                    /// </remarks>
+                    public const string Channel = "BaseShader/Mask/Source/Channel";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float4
+                    /// ShaderPropertyName: _MaskSource_Remap
+                    /// Path: BaseShader/Mask/Source/Remap
+                    /// </remarks>
+                    public const string Remap = "BaseShader/Mask/Source/Remap";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _MaskSource_SlotType
+                    /// Path: BaseShader/Mask/Source/SlotType
+                    /// </remarks>
+                    public const string SlotType = "BaseShader/Mask/Source/SlotType";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float4
+                    /// ShaderPropertyName: _MaskSource_TilingOffset
+                    /// Path: BaseShader/Mask/Source/TilingOffset
+                    /// </remarks>
+                    public const string TilingOffset = "BaseShader/Mask/Source/TilingOffset";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _MaskSource_UVSpace
+                    /// Path: BaseShader/Mask/Source/UVSpace
+                    /// </remarks>
+                    public const string UVSpace = "BaseShader/Mask/Source/UVSpace";
+                }
             }
 
             public static partial class Outline
@@ -1752,66 +1693,6 @@ namespace Game.MaterialFx.Generated
                 }
             }
 
-            public static partial class TextureSlot
-            {
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float4
-                /// ShaderPropertyName: _AtlasSlot0
-                /// Path: BaseShader/TextureSlot/AtlasSlot0
-                /// </remarks>
-                public const string AtlasSlot0 = "BaseShader/TextureSlot/AtlasSlot0";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float4
-                /// ShaderPropertyName: _AtlasSlot1
-                /// Path: BaseShader/TextureSlot/AtlasSlot1
-                /// </remarks>
-                public const string AtlasSlot1 = "BaseShader/TextureSlot/AtlasSlot1";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float4
-                /// ShaderPropertyName: _AtlasSlot2
-                /// Path: BaseShader/TextureSlot/AtlasSlot2
-                /// </remarks>
-                public const string AtlasSlot2 = "BaseShader/TextureSlot/AtlasSlot2";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float4
-                /// ShaderPropertyName: _AtlasSlot3
-                /// Path: BaseShader/TextureSlot/AtlasSlot3
-                /// </remarks>
-                public const string AtlasSlot3 = "BaseShader/TextureSlot/AtlasSlot3";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float4
-                /// ShaderPropertyName: _AtlasSlot4
-                /// Path: BaseShader/TextureSlot/AtlasSlot4
-                /// </remarks>
-                public const string AtlasSlot4 = "BaseShader/TextureSlot/AtlasSlot4";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float
-                /// ShaderPropertyName: _CustomRT
-                /// Path: BaseShader/TextureSlot/CustomRT
-                /// </remarks>
-                public const string CustomRT = "BaseShader/TextureSlot/CustomRT";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float4
-                /// ShaderPropertyName: _ExtTexA
-                /// Path: BaseShader/TextureSlot/ExtTexA
-                /// </remarks>
-                public const string ExtTexA = "BaseShader/TextureSlot/ExtTexA";
-                /// <remarks>
-                /// Sender: BaseShader
-                /// ValueType: Float
-                /// ShaderPropertyName: _ExtTexB
-                /// Path: BaseShader/TextureSlot/ExtTexB
-                /// </remarks>
-                public const string ExtTexB = "BaseShader/TextureSlot/ExtTexB";
-            }
-
             public static partial class Transition
             {
                 /// <remarks>
@@ -1885,16 +1766,16 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.AdvancedFlip2D.EulerDeg.Z,
             MaterialFxKeys.BaseShader.AdvanceWarp.Bend,
             MaterialFxKeys.BaseShader.AdvanceWarp.Shear,
-            MaterialFxKeys.BaseShader.BlendColor2D.BlendGradationAmount,
-            MaterialFxKeys.BaseShader.BlendColor2D.BlendGradDirection,
-            MaterialFxKeys.BaseShader.BlendColor2D.BlendSoftness,
-            MaterialFxKeys.BaseShader.BlendColor2D.BlendIntensity,
             MaterialFxKeys.BaseShader.BlendColor2D.BlendMode,
-            MaterialFxKeys.BaseShader.BlendColor2D.Color,
-            MaterialFxKeys.BaseShader.BlendColor2D.Enabled,
             MaterialFxKeys.BaseShader.Common.Flip,
             MaterialFxKeys.BaseShader.Common.SpriteTexelSizeLocal,
             MaterialFxKeys.BaseShader.Common.SpriteUVRect,
+            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.BlendGradationAmount,
+            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.BlendGradDirection,
+            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.BlendIntensity,
+            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.BlendSoftness,
+            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.Color,
+            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.Enabled,
             MaterialFxKeys.BaseShader.CompositeSystems.Caustics.Color,
             MaterialFxKeys.BaseShader.CompositeSystems.Caustics.Enabled,
             MaterialFxKeys.BaseShader.CompositeSystems.Caustics.Intensity,
@@ -1940,22 +1821,18 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.CompositeSystems.Dissolve.Source.SlotType,
             MaterialFxKeys.BaseShader.CompositeSystems.Dissolve.Source.TilingOffset,
             MaterialFxKeys.BaseShader.CompositeSystems.Dissolve.Source.UVSpace,
-            MaterialFxKeys.BaseShader.CompositeSystems.Emission.Color,
-            MaterialFxKeys.BaseShader.CompositeSystems.Emission.Enabled,
-            MaterialFxKeys.BaseShader.CompositeSystems.Emission.Intensity,
-            MaterialFxKeys.BaseShader.CompositeSystems.Emission.Source.Channel,
-            MaterialFxKeys.BaseShader.CompositeSystems.Emission.Source.Remap,
-            MaterialFxKeys.BaseShader.CompositeSystems.Emission.Source.SlotType,
-            MaterialFxKeys.BaseShader.CompositeSystems.Emission.Source.TilingOffset,
-            MaterialFxKeys.BaseShader.CompositeSystems.Emission.Source.UVSpace,
-            MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Enabled,
-            MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Speed,
-            MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Strength,
-            MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.Channel,
-            MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.Remap,
-            MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.SlotType,
-            MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.TilingOffset,
-            MaterialFxKeys.BaseShader.CompositeSystems.FlowWarp.Source.UVSpace,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.AffectSurfaceAlpha,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.BlendMode,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.DisableWhenTextureMissing,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.Enabled,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.Intensity,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.Tint,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.UseTextureAlpha,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.Source.Channel,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.Source.Remap,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.Source.SlotType,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.Source.TilingOffset,
+            MaterialFxKeys.BaseShader.CompositeSystems.ExternalTextureComposite.Source.UVSpace,
             MaterialFxKeys.BaseShader.CompositeSystems.HueShift.Amount,
             MaterialFxKeys.BaseShader.CompositeSystems.HueShift.Enabled,
             MaterialFxKeys.BaseShader.CompositeSystems.HueShift.SaturationMod,
@@ -1965,17 +1842,8 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.CompositeSystems.HueShift.Mask.Source.SlotType,
             MaterialFxKeys.BaseShader.CompositeSystems.HueShift.Mask.Source.TilingOffset,
             MaterialFxKeys.BaseShader.CompositeSystems.HueShift.Mask.Source.UVSpace,
-            MaterialFxKeys.BaseShader.CompositeSystems.Mask.Enabled,
-            MaterialFxKeys.BaseShader.CompositeSystems.Mask.Softness,
-            MaterialFxKeys.BaseShader.CompositeSystems.Mask.Threshold,
-            MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.Channel,
-            MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.Remap,
-            MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.SlotType,
-            MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.TilingOffset,
-            MaterialFxKeys.BaseShader.CompositeSystems.Mask.Source.UVSpace,
             MaterialFxKeys.BaseShader.CompositeSystems.NormalMap.Enabled,
             MaterialFxKeys.BaseShader.CompositeSystems.NormalMap.LightDir,
-            MaterialFxKeys.BaseShader.CompositeSystems.NormalMap.ParamC,
             MaterialFxKeys.BaseShader.CompositeSystems.NormalMap.Strength,
             MaterialFxKeys.BaseShader.CompositeSystems.NormalMap.Source.Channel,
             MaterialFxKeys.BaseShader.CompositeSystems.NormalMap.Source.Remap,
@@ -1998,6 +1866,14 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.CompositeSystems.Ripple.Enabled,
             MaterialFxKeys.BaseShader.CompositeSystems.Ripple.Phase,
             MaterialFxKeys.BaseShader.CompositeSystems.Ripple.WaveParams,
+            MaterialFxKeys.BaseShader.Emission.Color,
+            MaterialFxKeys.BaseShader.Emission.Enabled,
+            MaterialFxKeys.BaseShader.Emission.Source.Channel,
+            MaterialFxKeys.BaseShader.Emission.Source.Remap,
+            MaterialFxKeys.BaseShader.Emission.Source.SlotType,
+            MaterialFxKeys.BaseShader.Emission.Source.TilingOffset,
+            MaterialFxKeys.BaseShader.Emission.Source.UVSpace,
+            MaterialFxKeys.BaseShader.ExternalTextures.CustomRT,
             MaterialFxKeys.BaseShader.ExternalTextures.ExtTexA,
             MaterialFxKeys.BaseShader.ExternalTextures.ExtTexB,
             MaterialFxKeys.BaseShader.Flash.Amount,
@@ -2008,25 +1884,22 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.Flash.Blink.Enabled,
             MaterialFxKeys.BaseShader.Flash.Blink.PhaseOffset,
             MaterialFxKeys.BaseShader.Flash.Blink.Speed,
-            MaterialFxKeys.BaseShader.Flash.HueShift.Amount,
-            MaterialFxKeys.BaseShader.Flash.HueShift.Enabled,
-            MaterialFxKeys.BaseShader.Flash.HueShift.SaturationMod,
-            MaterialFxKeys.BaseShader.Flash.HueShift.ValueMod,
-            MaterialFxKeys.BaseShader.Flash.HueShift.Mask.Source.Channel,
-            MaterialFxKeys.BaseShader.Flash.HueShift.Mask.Source.Remap,
-            MaterialFxKeys.BaseShader.Flash.HueShift.Mask.Source.SlotType,
-            MaterialFxKeys.BaseShader.Flash.HueShift.Mask.Source.TilingOffset,
-            MaterialFxKeys.BaseShader.Flash.HueShift.Mask.Source.UVSpace,
-            MaterialFxKeys.BaseShader.NoiseAtlas.Atlas,
-            MaterialFxKeys.BaseShader.NoiseAtlas.BlendAmount,
-            MaterialFxKeys.BaseShader.NoiseAtlas.Enabled,
-            MaterialFxKeys.BaseShader.NoiseAtlas.Slice,
-            MaterialFxKeys.BaseShader.NoiseAtlas.T0,
-            MaterialFxKeys.BaseShader.NoiseAtlas.T1,
-            MaterialFxKeys.BaseShader.NoiseAtlas.T2,
-            MaterialFxKeys.BaseShader.NoiseAtlas.T3,
-            MaterialFxKeys.BaseShader.NoiseAtlas.T4,
-            MaterialFxKeys.BaseShader.NoiseAtlas.T5,
+            MaterialFxKeys.BaseShader.FlowWarp.Enabled,
+            MaterialFxKeys.BaseShader.FlowWarp.Speed,
+            MaterialFxKeys.BaseShader.FlowWarp.Strength,
+            MaterialFxKeys.BaseShader.FlowWarp.Source.Channel,
+            MaterialFxKeys.BaseShader.FlowWarp.Source.Remap,
+            MaterialFxKeys.BaseShader.FlowWarp.Source.SlotType,
+            MaterialFxKeys.BaseShader.FlowWarp.Source.TilingOffset,
+            MaterialFxKeys.BaseShader.FlowWarp.Source.UVSpace,
+            MaterialFxKeys.BaseShader.Mask.Enabled,
+            MaterialFxKeys.BaseShader.Mask.Softness,
+            MaterialFxKeys.BaseShader.Mask.Threshold,
+            MaterialFxKeys.BaseShader.Mask.Source.Channel,
+            MaterialFxKeys.BaseShader.Mask.Source.Remap,
+            MaterialFxKeys.BaseShader.Mask.Source.SlotType,
+            MaterialFxKeys.BaseShader.Mask.Source.TilingOffset,
+            MaterialFxKeys.BaseShader.Mask.Source.UVSpace,
             MaterialFxKeys.BaseShader.Outline.BlendMode,
             MaterialFxKeys.BaseShader.Outline.Color,
             MaterialFxKeys.BaseShader.Outline.Enabled,
@@ -2076,14 +1949,6 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.TextFx.Shadow.Enabled,
             MaterialFxKeys.BaseShader.TextFx.Shadow.Offset,
             MaterialFxKeys.BaseShader.TextFx.Shadow.Softness,
-            MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot0,
-            MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot1,
-            MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot2,
-            MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot3,
-            MaterialFxKeys.BaseShader.TextureSlot.AtlasSlot4,
-            MaterialFxKeys.BaseShader.TextureSlot.CustomRT,
-            MaterialFxKeys.BaseShader.TextureSlot.ExtTexA,
-            MaterialFxKeys.BaseShader.TextureSlot.ExtTexB,
             MaterialFxKeys.BaseShader.Transition.BlendMode,
             MaterialFxKeys.BaseShader.Transition.Enabled,
             MaterialFxKeys.BaseShader.Transition.FromSpriteUVRect,

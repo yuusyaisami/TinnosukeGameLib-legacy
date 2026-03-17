@@ -90,20 +90,5 @@ namespace Game.StatusEffect
                 Tag = "Poison"
             };
         }
-
-        internal static PoisonEffectPreset CreateFromLegacyFields(
-            ProfileFloatValue dur, ProfileFloatValue intensity,
-            ProfileFloatValue dps, ProfileFloatValue tick,
-            EffectVisualData visual)
-        {
-            return new PoisonEffectPreset
-            {
-                _defaultDuration = dur,
-                _defaultIntensity = intensity,
-                _damagePerSecond = dps,
-                _tickInterval = tick,
-                _visualData = visual
-            };
-        }
     }
 }

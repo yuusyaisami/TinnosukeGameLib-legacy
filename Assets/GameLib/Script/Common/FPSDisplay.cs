@@ -69,7 +69,7 @@ public class FPSDisplay : MonoBehaviour
     [SerializeField] bool visibleOnStart = false;
     [SerializeField] float deleteSaveHoldSeconds = 2f;
     [BoxGroup("Custom Debug Buttons")]
-    [ListDrawerSettings(Expanded = true, DraggableItems = true, ShowFoldout = true)]
+    [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
     [SerializeField] CustomDebugButtonEntry[] customDebugButtons = Array.Empty<CustomDebugButtonEntry>();
     FrameTiming[] timings = new FrameTiming[1];
     float cpuMs, gpuMs;

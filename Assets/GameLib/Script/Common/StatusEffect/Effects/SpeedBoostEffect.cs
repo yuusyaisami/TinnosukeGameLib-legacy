@@ -11,23 +11,22 @@ namespace Game.StatusEffect
     /// <summary>
     /// 移動速度上昇効果。
     /// Scalar の DefaultSpeed に倍率を適用する。
-    /// 倍率は SpeedModEffectProfileSO で定義された ScalarKey から取得。
+    /// 倍率は SpeedModEffectPreset で定義された ScalarKey から取得。
     /// </summary>
     public sealed class SpeedBoostEffect : BaseEffectRuntime
     {
         public const string FlagKey = "SpeedBoost";
 
-        // ScalarKey（ProfileSO で定義）
+        // ScalarKey（Preset で定義）
         static readonly ScalarKey SpeedMultiplierKey = new(ScalarKeys.GameLib.StatusEffect.SpeedMod.Multiplier);
         static readonly ScalarKey DefaultSpeedKey = new(ScalarKeys.GameLib.Movement.DefaultSpeed);
 
-        SpeedModEffectProfileSO _profile;
+        SpeedModEffectPreset _profile;
         ScalarHandle _scalarHandle;
 
         public override string EffectId => "StatusEffect.SpeedBoost";
         public override EffectType Type => EffectType.Buff;
 
-        // ProfileSO から表示データを取得
         public override EffectVisualData VisualData => _profile?.BoostVisualData ?? _defaultVisualData;
         static readonly EffectVisualData _defaultVisualData = new()
         {
@@ -54,7 +53,6 @@ namespace Game.StatusEffect
 
         protected override void OnInitialize()
         {
-            // ProfileRegistry から ProfileSO を取得
             Context.ProfileRegistry?.TryResolveDefinition(out _profile);
         }
 
