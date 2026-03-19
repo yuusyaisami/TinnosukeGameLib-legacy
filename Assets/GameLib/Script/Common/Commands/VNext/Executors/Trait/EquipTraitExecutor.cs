@@ -121,7 +121,7 @@ namespace Game.Commands.VNext
             }
             else
             {
-                scope = ActorSourceFastResolver.Resolve(ctx.Scope, cmd.HubActorSource);
+                scope = ActorSourceFastResolver.Resolve(ctx, cmd.HubActorSource);
             }
 
             if (scope?.Resolver == null) return null;

@@ -144,6 +144,15 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _Rainbow2DIntensity("Rainbow2D Intensity", Range(0,1)) = 0.5
         _Rainbow2DBlendMode("Rainbow2D Blend Mode (0:Add, 1:Screen, 2:Overlay, 3:Lerp)", Float) = 1
 
+        // --- BlendColor2D ---
+        _BlendColor2DEnabled("BlendColor2D Enabled", Float) = 0
+        _BlendColor2DColor("BlendColor2D Color", Color) = (1,1,1,1)
+        _BlendColor2DBlendIntensity("BlendColor2D Intensity", Range(0,1)) = 0
+        _BlendColor2DBlendGradDirection("BlendColor2D Gradient Direction", Float) = 0
+        _BlendColor2DBlendGradationAmount("BlendColor2D Gradient Amount", Range(0,1)) = 0
+        _BlendColor2DBlendSoftness("BlendColor2D Gradient Softness", Range(0,1)) = 1
+        _BlendColor2DBlendMode("BlendColor2D Blend Mode", Float) = 0
+
         // ═══════════════════════════════════════════════════════════════════════════
         // Composite System (BaseShader-CompositeSystem-v2.0 準拠)
         // ═══════════════════════════════════════════════════════════════════════════
@@ -207,15 +216,6 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _ColorOverlayColor("ColorOverlay Color", Color) = (1,1,1,1)
         _ColorOverlayBlendMode("ColorOverlay Blend Mode", Float) = 0
         _ColorOverlayIntensity("ColorOverlay Intensity", Range(0,1)) = 1
-
-        // --- BlendColor2D ---
-        _BlendColor2DEnabled("BlendColor2D Enabled", Float) = 0
-        _BlendColor2DColor("BlendColor2D Color", Color) = (1,1,1,1)
-        _BlendColor2DBlendIntensity("BlendColor2D Intensity", Range(0,1)) = 0
-        _BlendColor2DBlendGradDirection("BlendColor2D Gradient Direction", Float) = 0
-        _BlendColor2DBlendGradationAmount("BlendColor2D Gradient Amount", Range(0,1)) = 0
-        _BlendColor2DBlendSoftness("BlendColor2D Gradient Softness", Range(0,1)) = 1
-        _BlendColor2DBlendMode("BlendColor2D Blend Mode", Float) = 0
 
         // --- ColorRamp ---
         _ColorRampEnabled("ColorRamp Enabled", Float) = 0

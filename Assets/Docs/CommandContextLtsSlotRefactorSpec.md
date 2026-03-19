@@ -463,6 +463,7 @@ Editor 表示:
 ### Phase 1: 基盤
 
 1. `CommandLtsSlot` 追加
+
 2. `CommandContext` の内部スロット化
 3. 既存 property を slot wrapper 化
 4. `ActorSourceKind.ContextSlot` 追加

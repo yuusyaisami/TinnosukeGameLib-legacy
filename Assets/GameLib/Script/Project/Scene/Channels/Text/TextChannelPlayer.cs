@@ -12,6 +12,7 @@ using Game.MaterialFx;
 using TMPro;
 using UnityEngine;
 using Game.Commands.VNext;
+using VContainer;
 
 namespace Game.Channel
 {
@@ -146,9 +147,21 @@ namespace Game.Channel
                 _materialFxService = materialFxFactory.CreateForTmpText(target);
                 if (materialFxPresetEntries != null && materialFxPresetEntries.Count > 0)
                 {
-                    _materialFxService.ApplyPreset("default", materialFxPresetEntries);
+                    _materialFxService.ApplyPreset("default", ResolveMaterialFxEntries(materialFxPresetEntries));
                 }
             }
+        }
+
+        IReadOnlyList<MaterialFxPresetEntry> ResolveMaterialFxEntries(IReadOnlyList<MaterialFxPresetEntry> entries)
+        {
+            var vars = _scope.Resolver != null && _scope.Resolver.TryResolve<IVarStore>(out var resolvedVars) && resolvedVars != null
+                ? resolvedVars
+                : NullVarStore.Instance;
+            var context = new SimpleDynamicContext(vars, _scope);
+            var resolved = new MaterialFxPresetEntry[entries.Count];
+            for (int i = 0; i < entries.Count; i++)
+                resolved[i] = entries[i].Resolve(context);
+            return resolved;
         }
 
         sealed class TypewriterEventCommandDispatcher : IDisposable

@@ -150,7 +150,8 @@ namespace Game.Commands.VNext
                 _catalog,
                 _keyResolver,
                 _logger,
-                normalized.AllowRuntimeKeyFallback);
+                normalized.AllowRuntimeKeyFallback,
+                effectiveCtx);
 
             var trace = new TraceBuilder(normalized);
             var failureCount = 0;
@@ -364,7 +365,7 @@ namespace Game.Commands.VNext
                 return new CommandContext(_scope, NullVarStore.Instance, this, _scope, options, _scope, _scope, _scope);
 
             if (!ReferenceEquals(ctx.Runner, this))
-                return new CommandContext(ctx.Scope, ctx.Vars, this, ctx.Actor, options, ctx.CommandRootScope, ctx.RootActor, ctx.CallerActor);
+                return new CommandContext(ctx.Scope, ctx.Vars, this, ctx.Actor, options, ctx.CommandRootScope, ctx.RootActor, ctx.CallerActor, ctx);
 
             if (!ctx.Options.Equals(options))
                 return ctx.WithOptions(options);

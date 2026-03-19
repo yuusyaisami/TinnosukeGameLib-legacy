@@ -157,6 +157,8 @@ namespace Game.Commands
                     BlackboardReadScope = src.BlackboardReadScope.ToString(),
                     ScalarKey = src.ScalarKey,
                     ChangeEpsilon = src.ChangeEpsilon,
+                    ExecuteInitialValueChangedEnter = src.ExecuteInitialValueChangedEnter,
+                    InitialValueChangedEnterDelaySeconds = src.InitialValueChangedEnterDelaySeconds,
                     EnterCount = src.OnEnterCommandCount,
                     ExitCount = src.OnExitCommandCount,
                     WhileTrueCount = src.WhileTrueCommandCount,
@@ -190,6 +192,8 @@ namespace Game.Commands
             [TableColumnWidth(110)] public string BlackboardReadScope = string.Empty;
             [TableColumnWidth(140)] public string ScalarKey = string.Empty;
             [TableColumnWidth(80)] public float ChangeEpsilon;
+            [TableColumnWidth(70)] public bool ExecuteInitialValueChangedEnter;
+            [TableColumnWidth(76)] public float InitialValueChangedEnterDelaySeconds;
             [TableColumnWidth(56)] public int EnterCount;
             [TableColumnWidth(56)] public int ExitCount;
             [TableColumnWidth(66)] public int WhileTrueCount;

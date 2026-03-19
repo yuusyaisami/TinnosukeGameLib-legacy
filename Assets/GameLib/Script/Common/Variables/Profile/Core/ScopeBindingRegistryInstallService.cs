@@ -70,6 +70,23 @@ namespace Game.Profile
                 }
             }
 
+            if (_scope.Kind == LifetimeScopeKind.Runtime)
+            {
+                if (isReset && _options.ResetOnAcquire)
+                {
+                    _registry.ClearAllProfiles(resetVersion: true);
+                    RegisterSelectedProfiles();
+                    return;
+                }
+
+                if (_registry.ProfileCount == 0)
+                {
+                    RegisterSelectedProfiles();
+                }
+
+                return;
+            }
+
             if (!isReset || !_options.ResetOnAcquire)
                 return;
 

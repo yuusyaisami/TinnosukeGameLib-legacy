@@ -15,6 +15,8 @@ namespace Game.Common
     [Serializable]
     public sealed class ActorDirectionDistance2Source : IDynamicSource
     {
+        const float NormalizeEpsilon = 0.000001f;
+
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Actor A\", actorA)")]
         [SerializeField]
         ActorSource actorA;
@@ -23,15 +25,20 @@ namespace Game.Common
         [SerializeField]
         ActorSource actorB;
 
+        [LabelText("Normalize")]
+        [SerializeField]
+        bool normalize = true;
+
         [LabelText("Multiplier")]
         [SerializeField]
-        float multiplier = 1f;
+        DynamicValue<float> multiplier = DynamicValueExtensions.FromLiteral(1f);
 
         [NonSerialized] ActorSourceResolveCache _cacheA;
         [NonSerialized] ActorSourceResolveCache _cacheB;
 
         public string SourceTypeName => "ActorDirDist";
-        public string GetDebugData => $"{actorA.Kind}->{actorB.Kind} x{multiplier:0.###} (Vector2)";
+        public string GetDebugData =>
+            $"{actorA.Kind}->{actorB.Kind} N={normalize} x={multiplier.SourceTypeName}:{multiplier.SourceDebugData} (Vector2)";
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -44,12 +51,12 @@ namespace Game.Common
                 return DynamicVariant.FromVector2(Vector2.zero);
 
             var delta = transformB.position - transformA.position;
-            Debug.Log($"[ActorDirectionDistance2Source] Actor A: {transformA.position}, Actor B: {transformB.position}, Delta: {delta}, Multiplier: {multiplier}");
-            var scopeName = context.Scope?.Identity?.SelfTransform != null
-                ? context.Scope.Identity.SelfTransform.name
-                : "(no scope transform)";
-            Debug.Log($"[ActorDirectionDistance2Source] context.Scope: {scopeName}, context.CommandRootScope: {context.CommandRootScope?.Identity?.SelfTransform?.name ?? "(no command root scope)"}");
-            return DynamicVariant.FromVector2(new Vector2(delta.x, delta.y) * multiplier);
+            var output = new Vector2(delta.x, delta.y);
+            if (normalize && output.sqrMagnitude > NormalizeEpsilon)
+                output.Normalize();
+
+            var scale = multiplier.GetOrDefault(context, 1f);
+            return DynamicVariant.FromVector2(output * scale);
         }
     }
 

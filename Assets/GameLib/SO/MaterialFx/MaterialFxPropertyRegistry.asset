@@ -253,18 +253,6 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
-  - id: 2ba9bae6c7125a96fb9b0fdb8102da06
-    parentId: 9149f1e61c749d5b8cc52ccb245b7faa
-    name: BlendColor2D
-    isFolder: 1
-    description: 
-    stableKey: 
-    sender: 0
-    valueType: 0
-    shaderPropertyName: 
-    enumDefinition: {fileID: 0}
-    rangeEnabled: 0
-    rangeMinMax: {x: 0, y: 1}
   - id: c71e974c3925b52f88c08f4c3b205c52
     parentId: 9149f1e61c749d5b8cc52ccb245b7faa
     name: Caustics
@@ -938,11 +926,11 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 055ff0119a1904ac606fb206703502a6
-    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    parentId: 33836bf43d785afc40e0bcce31c5cdf0
     name: BlendGradationAmount
     isFolder: 0
     description: 
-    stableKey: BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount
+    stableKey: BaseShader/BlendColor2D/BlendGradationAmount
     sender: 0
     valueType: 0
     shaderPropertyName: _BlendColor2DBlendGradationAmount
@@ -950,11 +938,11 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 25fff4a942ed7f77b1ace34f7efafc23
-    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    parentId: 33836bf43d785afc40e0bcce31c5cdf0
     name: BlendGradDirection
     isFolder: 0
     description: 
-    stableKey: BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection
+    stableKey: BaseShader/BlendColor2D/BlendGradDirection
     sender: 0
     valueType: 4
     shaderPropertyName: _BlendColor2DBlendGradDirection
@@ -962,11 +950,11 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: b4c997bff920fed2491923afe78563be
-    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    parentId: 33836bf43d785afc40e0bcce31c5cdf0
     name: BlendSoftness
     isFolder: 0
     description: 
-    stableKey: BaseShader/CompositeSystems/BlendColor2D/BlendSoftness
+    stableKey: BaseShader/BlendColor2D/BlendSoftness
     sender: 0
     valueType: 0
     shaderPropertyName: _BlendColor2DBlendSoftness
@@ -974,11 +962,11 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 5c789e0e1966643aee69eba0dd774967
-    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    parentId: 33836bf43d785afc40e0bcce31c5cdf0
     name: BlendIntensity
     isFolder: 0
     description: 
-    stableKey: BaseShader/CompositeSystems/BlendColor2D/BlendIntensity
+    stableKey: BaseShader/BlendColor2D/BlendIntensity
     sender: 0
     valueType: 0
     shaderPropertyName: _BlendColor2DBlendIntensity
@@ -998,11 +986,11 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 337838efc0532932b807fe8e2d2124ff
-    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    parentId: 33836bf43d785afc40e0bcce31c5cdf0
     name: Color
     isFolder: 0
     description: 
-    stableKey: BaseShader/CompositeSystems/BlendColor2D/Color
+    stableKey: BaseShader/BlendColor2D/Color
     sender: 0
     valueType: 6
     shaderPropertyName: _BlendColor2DColor
@@ -1010,11 +998,11 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: d1680abf530d4ca30eea8fb8cb185217
-    parentId: 2ba9bae6c7125a96fb9b0fdb8102da06
+    parentId: 33836bf43d785afc40e0bcce31c5cdf0
     name: Enabled
     isFolder: 0
     description: 
-    stableKey: BaseShader/CompositeSystems/BlendColor2D/Enabled
+    stableKey: BaseShader/BlendColor2D/Enabled
     sender: 0
     valueType: 5
     shaderPropertyName: _BlendColor2DEnabled
@@ -3217,3 +3205,4 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
+  csvFile: {fileID: 0}

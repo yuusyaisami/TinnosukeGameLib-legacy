@@ -127,10 +127,9 @@ namespace Game.Common
                 return null;
 
             return ActorSourceFastResolver.ResolveCached(
-                context.Scope,
+                context,
                 actorSource,
-                ref cache,
-                context.CommandRootScope);
+                ref cache);
         }
 
         public static bool TryGetScopeTransform(IScopeNode? scope, out Transform? transform)

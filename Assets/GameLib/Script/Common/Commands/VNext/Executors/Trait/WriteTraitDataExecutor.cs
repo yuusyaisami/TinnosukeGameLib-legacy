@@ -20,7 +20,7 @@ namespace Game.Commands.VNext
                 return UniTask.CompletedTask;
 
             var origin = ctx.Actor ?? ctx.Scope;
-            var targetScope = ActorSourceFastResolver.Resolve(origin, typed.TargetActorSource) ?? origin;
+            var targetScope = ActorSourceFastResolver.Resolve(ctx, typed.TargetActorSource, origin) ?? origin;
             if (!TryResolveBlackboard(targetScope, out var blackboard) || blackboard == null)
                 return UniTask.CompletedTask;
 

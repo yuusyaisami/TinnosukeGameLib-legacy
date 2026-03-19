@@ -119,7 +119,10 @@ namespace Game.Visual
             var nextHash = ComputeSnapshotHash(selector, stateEntries, clearMissingKeys, basePriority);
             if (_stateSlots.TryGetValue(selector, out var prev) && prev != null && prev.Hash == nextHash)
             {
-                // same snapshot → suppress resend
+                // same snapshot → suppress state resend
+                // but timed broadcast entries must still be replayed
+                if (broadcastEntries.Length > 0)
+                    Broadcast(selector, broadcastEntries, basePriority);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                 ////Debug.Log($"[VisualSystem] SetState suppressed (same snapshot) selector={selector} hash={nextHash}");
 #endif
@@ -203,8 +206,8 @@ namespace Game.Visual
             var normalized = source;
             normalized.ApplyWeightFade = false;
             normalized.LifetimeSeconds = -1f;
-            normalized.TargetWeight = 1f;
-            normalized.FadeDuration = 0f;
+            normalized.TargetWeight = Game.Common.DynamicValueExtensions.FromLiteral(1f);
+            normalized.FadeDuration = Game.Common.DynamicValueExtensions.FromLiteral(0f);
             return normalized;
         }
 
@@ -316,7 +319,7 @@ namespace Game.Visual
                 switch (v.Type)
                 {
                     case ValueKind.Float:
-                        h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float);
+                        h = (h * 31) ^ HashDynamicFloat(v.Float);
                         break;
                     case ValueKind.Int:
                     case ValueKind.Bool:
@@ -349,6 +352,20 @@ namespace Game.Visual
                         break;
                 }
 
+                return h;
+            }
+        }
+
+        static int HashDynamicFloat(in Game.Common.DynamicValue<float> value)
+        {
+            unchecked
+            {
+                if (!value.HasSource)
+                    return BitConverter.SingleToInt32Bits(value.GetOrDefault(default!, 0f));
+
+                var h = 17;
+                h = (h * 31) ^ StringComparer.Ordinal.GetHashCode(value.SourceTypeName ?? string.Empty);
+                h = (h * 31) ^ StringComparer.Ordinal.GetHashCode(value.SourceDebugData ?? string.Empty);
                 return h;
             }
         }

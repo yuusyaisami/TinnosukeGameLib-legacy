@@ -152,34 +152,51 @@ namespace Game.Commands
 
         [PropertyOrder(41)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Value Target\", ValueTarget)")]
+        public VNext.ActorSource ValueTarget;
+
+        [PropertyOrder(42)]
+        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
         [LabelText("Change Mode")]
         public MonitorValueChangeMode ValueChangeMode;
 
-        [PropertyOrder(42)]
+        [PropertyOrder(43)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueSource == MonitorValueSourceKind.VarStore")]
         [LabelText("VarStore Var Id"), VarIdDropdown]
         public int VarStoreVarId;
 
-        [PropertyOrder(43)]
+        [PropertyOrder(44)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueSource == MonitorValueSourceKind.Blackboard")]
         [LabelText("Blackboard Var Id"), VarIdDropdown]
         public int BlackboardVarId;
 
-        [PropertyOrder(44)]
+        [PropertyOrder(45)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueSource == MonitorValueSourceKind.Blackboard")]
         [LabelText("Blackboard Read Scope")]
         public BlackboardReadScope BlackboardReadScope;
 
-        [PropertyOrder(45)]
+        [PropertyOrder(46)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueSource == MonitorValueSourceKind.Scalar")]
         [LabelText("Scalar Key")]
         public ScalarKey ScalarKey;
 
-        [PropertyOrder(46)]
+        [PropertyOrder(47)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
         [LabelText("Change Epsilon")]
         [MinValue(0f)]
         public float ChangeEpsilon;
+
+        [PropertyOrder(48)]
+        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
+        [LabelText("Execute Initial Enter")]
+        [Tooltip("OnAcquire時に OnEnter Commands を一度だけ実行します。Value監視の初期化順序をずらしたい場合は Delay を併用します。")]
+        public bool ExecuteInitialValueChangedEnter;
+
+        [PropertyOrder(49)]
+        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ExecuteInitialValueChangedEnter")]
+        [LabelText("Initial Enter Delay Seconds")]
+        [MinValue(0f)]
+        public float InitialValueChangedEnterDelaySeconds;
 
         [PropertyOrder(100)]
         [LabelText("On Enter Commands")]

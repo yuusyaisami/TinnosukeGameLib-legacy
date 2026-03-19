@@ -23,7 +23,7 @@ namespace Game.CameraSystem
         readonly CameraFxService _fxService;
 
         bool _acquired;
-        bool _disposed;
+        bool _disposed = false;
 
         public ICameraZoomService Zoom => _zoomService;
         public ICameraPostProcessService PostProcess => _postProcessService;

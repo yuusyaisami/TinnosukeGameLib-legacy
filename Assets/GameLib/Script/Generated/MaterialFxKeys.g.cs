@@ -253,10 +253,52 @@ namespace Game.MaterialFx.Generated
                 /// <remarks>
                 /// Sender: BaseShader
                 /// ValueType: Float
+                /// ShaderPropertyName: _BlendColor2DBlendGradationAmount
+                /// Path: BaseShader/BlendColor2D/BlendGradationAmount
+                /// </remarks>
+                public const string BlendGradationAmount = "BaseShader/BlendColor2D/BlendGradationAmount";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Int
+                /// ShaderPropertyName: _BlendColor2DBlendGradDirection
+                /// Path: BaseShader/BlendColor2D/BlendGradDirection
+                /// </remarks>
+                public const string BlendGradDirection = "BaseShader/BlendColor2D/BlendGradDirection";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float
+                /// ShaderPropertyName: _BlendColor2DBlendIntensity
+                /// Path: BaseShader/BlendColor2D/BlendIntensity
+                /// </remarks>
+                public const string BlendIntensity = "BaseShader/BlendColor2D/BlendIntensity";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float
                 /// ShaderPropertyName: _BlendColor2DBlendMode
                 /// Path: BaseShader/BlendColor2D/BlendMode
                 /// </remarks>
                 public const string BlendMode = "BaseShader/BlendColor2D/BlendMode";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float
+                /// ShaderPropertyName: _BlendColor2DBlendSoftness
+                /// Path: BaseShader/BlendColor2D/BlendSoftness
+                /// </remarks>
+                public const string BlendSoftness = "BaseShader/BlendColor2D/BlendSoftness";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Color
+                /// ShaderPropertyName: _BlendColor2DColor
+                /// Path: BaseShader/BlendColor2D/Color
+                /// </remarks>
+                public const string Color = "BaseShader/BlendColor2D/Color";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Bool
+                /// ShaderPropertyName: _BlendColor2DEnabled
+                /// Path: BaseShader/BlendColor2D/Enabled
+                /// </remarks>
+                public const string Enabled = "BaseShader/BlendColor2D/Enabled";
             }
 
             public static partial class Common
@@ -286,52 +328,6 @@ namespace Game.MaterialFx.Generated
 
             public static partial class CompositeSystems
             {
-
-                public static partial class BlendColor2D
-                {
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _BlendColor2DBlendGradationAmount
-                    /// Path: BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount
-                    /// </remarks>
-                    public const string BlendGradationAmount = "BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Int
-                    /// ShaderPropertyName: _BlendColor2DBlendGradDirection
-                    /// Path: BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection
-                    /// </remarks>
-                    public const string BlendGradDirection = "BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _BlendColor2DBlendIntensity
-                    /// Path: BaseShader/CompositeSystems/BlendColor2D/BlendIntensity
-                    /// </remarks>
-                    public const string BlendIntensity = "BaseShader/CompositeSystems/BlendColor2D/BlendIntensity";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _BlendColor2DBlendSoftness
-                    /// Path: BaseShader/CompositeSystems/BlendColor2D/BlendSoftness
-                    /// </remarks>
-                    public const string BlendSoftness = "BaseShader/CompositeSystems/BlendColor2D/BlendSoftness";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Color
-                    /// ShaderPropertyName: _BlendColor2DColor
-                    /// Path: BaseShader/CompositeSystems/BlendColor2D/Color
-                    /// </remarks>
-                    public const string Color = "BaseShader/CompositeSystems/BlendColor2D/Color";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Bool
-                    /// ShaderPropertyName: _BlendColor2DEnabled
-                    /// Path: BaseShader/CompositeSystems/BlendColor2D/Enabled
-                    /// </remarks>
-                    public const string Enabled = "BaseShader/CompositeSystems/BlendColor2D/Enabled";
-                }
 
                 public static partial class Caustics
                 {
@@ -1766,16 +1762,16 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.AdvancedFlip2D.EulerDeg.Z,
             MaterialFxKeys.BaseShader.AdvanceWarp.Bend,
             MaterialFxKeys.BaseShader.AdvanceWarp.Shear,
+            MaterialFxKeys.BaseShader.BlendColor2D.BlendGradationAmount,
+            MaterialFxKeys.BaseShader.BlendColor2D.BlendGradDirection,
+            MaterialFxKeys.BaseShader.BlendColor2D.BlendIntensity,
             MaterialFxKeys.BaseShader.BlendColor2D.BlendMode,
+            MaterialFxKeys.BaseShader.BlendColor2D.BlendSoftness,
+            MaterialFxKeys.BaseShader.BlendColor2D.Color,
+            MaterialFxKeys.BaseShader.BlendColor2D.Enabled,
             MaterialFxKeys.BaseShader.Common.Flip,
             MaterialFxKeys.BaseShader.Common.SpriteTexelSizeLocal,
             MaterialFxKeys.BaseShader.Common.SpriteUVRect,
-            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.BlendGradationAmount,
-            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.BlendGradDirection,
-            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.BlendIntensity,
-            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.BlendSoftness,
-            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.Color,
-            MaterialFxKeys.BaseShader.CompositeSystems.BlendColor2D.Enabled,
             MaterialFxKeys.BaseShader.CompositeSystems.Caustics.Color,
             MaterialFxKeys.BaseShader.CompositeSystems.Caustics.Enabled,
             MaterialFxKeys.BaseShader.CompositeSystems.Caustics.Intensity,

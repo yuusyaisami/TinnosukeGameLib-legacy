@@ -1,0 +1,9 @@
+OVDF v1.1
+Game.Commands.CommandRunnerMB, Assembly-CSharp
+MetaGuid:dd2db65ab549f514fa91128d8cedd447
+
+# _defaultVars
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 0
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 70.56

@@ -1,0 +1,8 @@
+OVDF v1.1
+Game.Channel.AnimationSpriteChannelDef, Assembly-CSharp
+
+# baseShaderPreset
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 81
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 0.03

@@ -8,6 +8,21 @@ using VContainer;
 
 namespace Game.Commands.VNext
 {
+    static class VisualMaterialFxEntryResolver
+    {
+        public static IReadOnlyList<MaterialFxPresetEntry> ResolveEntries(IReadOnlyList<MaterialFxPresetEntry>? entries, CommandContext ctx)
+        {
+            if (entries == null || entries.Count == 0)
+                return System.Array.Empty<MaterialFxPresetEntry>();
+
+            var resolved = new MaterialFxPresetEntry[entries.Count];
+            for (int i = 0; i < entries.Count; i++)
+                resolved[i] = entries[i].Resolve(ctx);
+
+            return resolved;
+        }
+    }
+
     public sealed class VisualSetStateExecutor : ICommandExecutor
     {
         static readonly IReadOnlyList<MaterialFxPresetEntry> EmptyEntries = System.Array.Empty<MaterialFxPresetEntry>();
@@ -27,7 +42,7 @@ namespace Game.Commands.VNext
 
             if (cmd.MaterialFxSource.TryGet(ctx, out var payload) && payload != null)
             {
-                entries = payload.Entries ?? EmptyEntries;
+                entries = VisualMaterialFxEntryResolver.ResolveEntries(payload.Entries, ctx);
             }
             else if (!cmd.AllowEmpty)
             {
@@ -57,7 +72,7 @@ namespace Game.Commands.VNext
                 return UniTask.CompletedTask;
 
             var selector = cmd.Selector.ToSelector();
-            IReadOnlyList<MaterialFxPresetEntry> entries = payload.Entries ?? EmptyEntries;
+            IReadOnlyList<MaterialFxPresetEntry> entries = VisualMaterialFxEntryResolver.ResolveEntries(payload.Entries, ctx);
             visual.Broadcast(selector, entries, basePriority: cmd.BasePriority);
 
             return UniTask.CompletedTask;

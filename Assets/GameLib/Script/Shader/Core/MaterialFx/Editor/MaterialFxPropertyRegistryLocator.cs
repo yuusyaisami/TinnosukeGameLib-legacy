@@ -40,6 +40,22 @@ namespace Game.MaterialFx.Editor
             return _cachedRegistry;
         }
 
+        public static MaterialFxPropertyRegistrySO ReloadRegistry()
+        {
+            _cachedRegistry = null;
+            var guids = AssetDatabase.FindAssets("t:MaterialFxPropertyRegistrySO");
+            if (guids.Length > 0)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                _cachedRegistry = AssetDatabase.LoadAssetAtPath<MaterialFxPropertyRegistrySO>(path);
+            }
+
+            if (_cachedRegistry == null)
+                _cachedRegistry = GetOrCreate();
+
+            return _cachedRegistry;
+        }
+
         public static MaterialFxSettings GetOrCreateSettings()
         {
             if (_cachedSettings != null) return _cachedSettings;

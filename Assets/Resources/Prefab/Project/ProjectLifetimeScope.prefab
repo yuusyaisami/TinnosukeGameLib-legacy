@@ -169,126 +169,6 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1000
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1001
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1002
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 180
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1003
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 180
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1004
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 180
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1005
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 180
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1006
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 0
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1007
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 0
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1008
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 0
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 1009
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 0
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5619052126883283135
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -320,6 +200,8 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         UpdateBackup: 0
     - rid: 5619052203458691773
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
@@ -341,7 +223,157 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         UpdateBackup: 0
+    - rid: 5619052366731149535
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149536
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052366731149537
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149538
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149539
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149540
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149541
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149542
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052366731149543
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149544
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149545
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149546
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149547
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052366731149548
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149549
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149550
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149551
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149552
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052366731149553
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149554
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149555
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149556
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149557
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149558
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149559
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149560
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149561
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149562
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149563
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149564
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: -1
+    - rid: 5619052366731149565
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: -1
+    - rid: 5619052366731149566
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149567
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149585
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149586
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149590
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149591
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 6309418350403912174
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -360,6 +392,8 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         VarsPolicy: 0
         ExecutionScope: 2
         FilterMode: 0
@@ -372,6 +406,8 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         Common:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -490,18 +526,18 @@ MonoBehaviour:
         ApplyPlaybackSpeed: 0
         PlaybackSpeedSource:
           _source:
-            rid: 1000
+            rid: 5619052366731149535
           _defaultValue: 0
         ApplyFlipX: 0
         FlipXMode: 0
         FlipXAngleSource:
           _source:
-            rid: 1002
+            rid: 5619052366731149536
           _defaultValue: 0
         ApplySortingOrder: 0
         SortingOrderSource:
           _source:
-            rid: 1006
+            rid: 5619052366731149537
           _defaultValue: 0
     - rid: 6309418350403912178
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
@@ -600,18 +636,18 @@ MonoBehaviour:
         ApplyPlaybackSpeed: 0
         PlaybackSpeedSource:
           _source:
-            rid: 1001
+            rid: 5619052366731149541
           _defaultValue: 0
         ApplyFlipX: 0
         FlipXMode: 0
         FlipXAngleSource:
           _source:
-            rid: 1003
+            rid: 5619052366731149542
           _defaultValue: 0
         ApplySortingOrder: 0
         SortingOrderSource:
           _source:
-            rid: 1007
+            rid: 5619052366731149543
           _defaultValue: 0
     - rid: 6309418350403912180
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
@@ -755,7 +791,7 @@ MonoBehaviour:
         ApplyFontSize: 0
         FontSize:
           _source:
-            rid: -2
+            rid: 5619052366731149560
           _defaultValue: 0
     - rid: 6309418350403912182
       type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
@@ -781,6 +817,8 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         VarsPolicy: 0
         ExecutionScope: 2
         FilterMode: 0
@@ -793,6 +831,8 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         Common:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -929,12 +969,12 @@ MonoBehaviour:
         FlipXMode: 0
         FlipXAngleSource:
           _source:
-            rid: 1004
+            rid: 5619052366731149547
           _defaultValue: 0
         ApplySortingOrder: 0
         SortingOrderSource:
           _source:
-            rid: 1008
+            rid: 5619052366731149548
           _defaultValue: 0
     - rid: 6309418350403912189
       type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
@@ -1033,12 +1073,12 @@ MonoBehaviour:
         FlipXMode: 0
         FlipXAngleSource:
           _source:
-            rid: 1005
+            rid: 5619052366731149552
           _defaultValue: 0
         ApplySortingOrder: 0
         SortingOrderSource:
           _source:
-            rid: 1009
+            rid: 5619052366731149553
           _defaultValue: 0
     - rid: 6309418350403912190
       type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
@@ -1199,7 +1239,10 @@ MonoBehaviour:
           - Key: BaseShader/AdvancedFade2D/FadeAmount
             Value:
               Type: 0
-              Float: 0
+              Float:
+                _source:
+                  rid: 5619052366731149561
+                _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
               Float3: {x: 0, y: 0, z: 0}
@@ -1209,8 +1252,14 @@ MonoBehaviour:
             BlendMode: 0
             LifetimeSeconds: 0
             ApplyWeightFade: 1
-            TargetWeight: 0
-            FadeDuration: 0.5
+            TargetWeight:
+              _source:
+                rid: 5619052366731149562
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149563
+              _defaultValue: 0
             FadeEase: 3
     - rid: 7292586905691226285
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -1292,10 +1341,63 @@ MonoBehaviour:
           ClearContextFirst: 0
           Priority: 0
           Entries:
+          - Key: BaseShader/AdvancedFade2D/Enabled
+            Value:
+              Type: 4
+              Float:
+                _source:
+                  rid: 5619052366731149567
+                _defaultValue: 0
+              Int: 1
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/AdvancedFade2D/FadeDirection
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5619052366731149565
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052366731149590
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149591
+              _defaultValue: 0
+            FadeEase: 0
           - Key: BaseShader/AdvancedFade2D/FadeAmount
             Value:
               Type: 0
-              Float: 0
+              Float:
+                _source:
+                  rid: 5619052366731149544
+                _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
               Float3: {x: 0, y: 0, z: 0}
@@ -1305,8 +1407,14 @@ MonoBehaviour:
             BlendMode: 0
             LifetimeSeconds: 0
             ApplyWeightFade: 1
-            TargetWeight: 0
-            FadeDuration: 0.5
+            TargetWeight:
+              _source:
+                rid: 5619052366731149545
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149546
+              _defaultValue: 0
             FadeEase: 3
     - rid: 7292586905691226287
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -1388,10 +1496,63 @@ MonoBehaviour:
           ClearContextFirst: 0
           Priority: 0
           Entries:
+          - Key: BaseShader/AdvancedFade2D/Enabled
+            Value:
+              Type: 4
+              Float:
+                _source:
+                  rid: 5619052366731149566
+                _defaultValue: 0
+              Int: 1
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/AdvancedFade2D/FadeDirection
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5619052366731149564
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052366731149585
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149586
+              _defaultValue: 0
+            FadeEase: 0
           - Key: BaseShader/AdvancedFade2D/FadeAmount
             Value:
               Type: 0
-              Float: 0
+              Float:
+                _source:
+                  rid: 5619052366731149538
+                _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
               Float3: {x: 0, y: 0, z: 0}
@@ -1401,8 +1562,14 @@ MonoBehaviour:
             BlendMode: 0
             LifetimeSeconds: 0
             ApplyWeightFade: 1
-            TargetWeight: 0
-            FadeDuration: 0.5
+            TargetWeight:
+              _source:
+                rid: 5619052366731149539
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149540
+              _defaultValue: 0
             FadeEase: 3
     - rid: 7292586905691226289
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -1487,7 +1654,10 @@ MonoBehaviour:
           - Key: BaseShader/AdvancedFade2D/FadeAmount
             Value:
               Type: 0
-              Float: 1
+              Float:
+                _source:
+                  rid: 5619052366731149549
+                _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
               Float3: {x: 0, y: 0, z: 0}
@@ -1497,8 +1667,14 @@ MonoBehaviour:
             BlendMode: 0
             LifetimeSeconds: 0
             ApplyWeightFade: 1
-            TargetWeight: 0
-            FadeDuration: 0.5
+            TargetWeight:
+              _source:
+                rid: 5619052366731149550
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149551
+              _defaultValue: 0
             FadeEase: 3
     - rid: 7292586905691226291
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -1583,7 +1759,10 @@ MonoBehaviour:
           - Key: BaseShader/AdvancedFade2D/FadeAmount
             Value:
               Type: 0
-              Float: 1
+              Float:
+                _source:
+                  rid: 5619052366731149554
+                _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
               Float3: {x: 0, y: 0, z: 0}
@@ -1593,8 +1772,14 @@ MonoBehaviour:
             BlendMode: 0
             LifetimeSeconds: 0
             ApplyWeightFade: 1
-            TargetWeight: 0
-            FadeDuration: 0.5
+            TargetWeight:
+              _source:
+                rid: 5619052366731149555
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149556
+              _defaultValue: 0
             FadeEase: 3
     - rid: 7292586905691226293
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -1611,7 +1796,10 @@ MonoBehaviour:
           - Key: BaseShader/AdvancedFade2D/FadeAmount
             Value:
               Type: 0
-              Float: 1
+              Float:
+                _source:
+                  rid: 5619052366731149557
+                _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
               Float3: {x: 0, y: 0, z: 0}
@@ -1621,8 +1809,14 @@ MonoBehaviour:
             BlendMode: 0
             LifetimeSeconds: 0
             ApplyWeightFade: 1
-            TargetWeight: 0
-            FadeDuration: 0.5
+            TargetWeight:
+              _source:
+                rid: 5619052366731149558
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149559
+              _defaultValue: 0
             FadeEase: 3
     - rid: 7292586980878319616
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -1717,9 +1911,12 @@ MonoBehaviour:
     queryVarId: 0
     writeEntries: []
   autoWriteTransformVars: 0
-  initializeBaseLocalVars: 0
-  reinitializeBaseLocalVarsOnAcquire: 1
-  baseLocalVarEntries: []
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &7592404955456546275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1787,6 +1984,8 @@ MonoBehaviour:
       requireActive: 0
       searchScope: 0
     UnityObject: {fileID: 0}
+    SharedTag: 
+    ContextSlot: 0
   use2DDistanceAttenuation: 1
 --- !u!114 &6451344882290734357
 MonoBehaviour:
@@ -1982,6 +2181,8 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         CheckSelfIdentityFilter: 0
         SelfIdentityFilter:
           kind: 0
@@ -1999,6 +2200,8 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         VarsPolicy: 0
         ExecutionScope: 0
         Body:
@@ -2185,6 +2388,9 @@ MonoBehaviour:
     queryVarId: 0
     writeEntries: []
   autoWriteTransformVars: 0
-  initializeBaseLocalVars: 0
-  reinitializeBaseLocalVarsOnAcquire: 1
-  baseLocalVarEntries: []
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  references:
+    version: 2
+    RefIds: []

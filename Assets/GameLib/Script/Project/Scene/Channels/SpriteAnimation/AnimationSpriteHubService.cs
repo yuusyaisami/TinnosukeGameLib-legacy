@@ -1,5 +1,7 @@
 // Game.Channel.AnimationSpriteHubService.cs
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -56,10 +58,10 @@ namespace Game.Channel
 
         readonly IScopeNode _ownerScope;
         readonly VNext.ICommandRunner _commandRunner;
-        readonly IMaterialFxServiceFactory _materialFxFactory;
-        readonly IMaterialFxPropertyRegistry _materialFxRegistry;
+        readonly IMaterialFxServiceFactory? _materialFxFactory;
+        readonly IMaterialFxPropertyRegistry? _materialFxRegistry;
 
-        readonly IVisualSystem _visualSystem;
+        readonly IVisualSystem? _visualSystem;
         readonly string _hubTag;
         readonly int _hubInstanceId;
         bool _visualHubRegistered;
@@ -102,16 +104,16 @@ namespace Game.Channel
             AnimationSpriteChannelDef[] channelDefs,
             IScopeNode ownerScope,
             VNext.ICommandRunner commandRunner,
-            IMaterialFxServiceFactory materialFxFactory = null,
-            IMaterialFxPropertyRegistry materialFxRegistry = null,
+            IMaterialFxServiceFactory? materialFxFactory = null,
+            IMaterialFxPropertyRegistry? materialFxRegistry = null,
             string hubTag = "default")
         {
-            _ownerScope = ownerScope;
+            _ownerScope = ownerScope ?? throw new ArgumentNullException(nameof(ownerScope));
             _commandRunner = commandRunner;
             _materialFxFactory = materialFxFactory;
 
             _hubTag = string.IsNullOrWhiteSpace(hubTag) ? "default" : hubTag;
-            var resolver = ownerScope?.Resolver;
+            var resolver = ownerScope.Resolver;
             if (resolver != null && resolver.TryResolve<IVisualSystem>(out var vs) && vs != null)
                 _visualSystem = vs;
 
@@ -122,7 +124,7 @@ namespace Game.Channel
             _materialFxRegistry = materialFxRegistry;
 
             var hubInstanceId = 0;
-            var ownerTransform = _ownerScope?.Identity?.SelfTransform;
+            var ownerTransform = _ownerScope.Identity?.SelfTransform;
             if (ownerTransform != null)
             {
                 hubInstanceId = ownerTransform.GetInstanceID();
@@ -256,7 +258,7 @@ namespace Game.Channel
                 return true;
             }
 
-            player = null;
+            player = null!;
             return false;
         }
 
@@ -303,7 +305,7 @@ namespace Game.Channel
                 return true;
             }
 
-            def = null;
+            def = null!;
             return false;
         }
 
@@ -351,6 +353,7 @@ namespace Game.Channel
             _hubRemovedKeys.Clear();
             _hubAddedOrModified.Clear();
             _hubTimeBroadcastEntries.Clear();
+            var dynamicContext = CreateDynamicContext();
 
             //Debug.Log($"[AnimationSpriteHub] SetHubState called with {entries?.Count ?? 0} entries.");
 
@@ -378,7 +381,7 @@ namespace Game.Channel
                         continue;
                     }
 
-                    if (!TryNormalizeValue(entry.Value, valueType, out var typedValue))
+                    if (!TryNormalizeValue(entry.Value, valueType, dynamicContext, out var typedValue))
                         continue;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -520,6 +523,7 @@ namespace Game.Channel
                 var fx = _playerList[p].MaterialFx;
                 if (fx == null)
                     continue;
+                var dynamicContext = CreateDynamicContext();
 
                 for (int i = 0; i < entries.Count; i++)
                 {
@@ -537,15 +541,16 @@ namespace Game.Channel
                         continue;
                     }
 
-                    if (!TryNormalizeValue(entry.Value, valueType, out var typedValue))
+                    if (!TryNormalizeValue(entry.Value, valueType, dynamicContext, out var typedValue))
                         continue;
-
-                    fx.SetLayer(key, _hubBroadcastContextTag, typedValue, entry.BlendMode, basePriority, entry.LifetimeSeconds);
 
                     if (entry.ApplyWeightFade)
                     {
-                        fx.SetLayerFade(key, _hubBroadcastContextTag, typedValue, entry.FadeDuration, entry.FadeEase, entry.BlendMode, basePriority, entry.LifetimeSeconds);
+                        fx.SetLayerFade(key, _hubBroadcastContextTag, typedValue, entry.ResolveFadeDuration(dynamicContext), entry.FadeEase, entry.BlendMode, basePriority, entry.LifetimeSeconds);
+                        continue;
                     }
+
+                    fx.SetLayer(key, _hubBroadcastContextTag, typedValue, entry.BlendMode, basePriority, entry.LifetimeSeconds);
                 }
 
                 // Ensure immediate apply if the global MaterialFx tick is missing.
@@ -628,7 +633,7 @@ namespace Game.Channel
 
         static bool IsTimeDependent(in MaterialFxPresetEntry e)
         {
-            return e.LifetimeSeconds > 0f || e.ApplyWeightFade || e.FadeDuration > 0f;
+            return e.LifetimeSeconds > 0f || e.ApplyWeightFade || e.FadeDuration.HasSource || e.ResolveFadeDuration(context: null) > 0f;
         }
 
         static bool ValueEquals(ValueKind type, MaterialFxTypedValue a, MaterialFxTypedValue b)
@@ -660,7 +665,16 @@ namespace Game.Channel
             }
         }
 
-        static bool TryNormalizeValue(MaterialFxSerializedValue serialized, ValueKind expectedType, out MaterialFxTypedValue typed)
+        Game.Common.IDynamicContext CreateDynamicContext()
+        {
+            var resolver = _ownerScope.Resolver;
+            if (resolver != null && resolver.TryResolve<Game.Common.IVarStore>(out var vars) && vars != null)
+                return new Game.Common.SimpleDynamicContext(vars, _ownerScope);
+
+            return new Game.Common.SimpleDynamicContext(Game.Common.NullVarStore.Instance, _ownerScope);
+        }
+
+        static bool TryNormalizeValue(MaterialFxSerializedValue serialized, ValueKind expectedType, Game.Common.IDynamicContext? context, out MaterialFxTypedValue typed)
         {
             typed = default;
 
@@ -681,7 +695,7 @@ namespace Game.Channel
                 return false;
             }
 
-            typed = serialized.ToTypedValue(expectedType);
+            typed = serialized.ToTypedValue(expectedType, context);
             return true;
         }
 

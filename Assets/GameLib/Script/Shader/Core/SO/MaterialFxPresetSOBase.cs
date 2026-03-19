@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -197,7 +198,7 @@ namespace Game.MaterialFx
         // Helper Methods for Value Creation
         // ─────────────────────────────────────────────────────────────────────
 
-        protected static MaterialFxSerializedValue MakeFloat(float v) => new() { Type = ValueKind.Float, Float = v };
+        protected static MaterialFxSerializedValue MakeFloat(float v) => new() { Type = ValueKind.Float, Float = DynamicValueExtensions.FromLiteral(v) };
         protected static MaterialFxSerializedValue MakeInt(int v) => new() { Type = ValueKind.Int, Int = v };
         protected static MaterialFxSerializedValue MakeBool(bool v) => new() { Type = ValueKind.Bool, Int = v ? 1 : 0 };
         protected static MaterialFxSerializedValue MakeFloat2(Vector2 v) => new() { Type = ValueKind.Float2, Float2 = v };

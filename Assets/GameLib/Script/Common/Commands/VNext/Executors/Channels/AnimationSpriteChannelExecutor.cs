@@ -231,7 +231,7 @@ namespace Game.Commands.VNext
                 if (!registry.TryGetValueType(key, out var kind))
                     throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"MaterialFx key not found: '{key}'");
 
-                var value = e.Value.ToTypedValue(kind);
+                var value = e.Value.ToTypedValue(kind, ctx);
                 var lifetime = e.LifetimeSeconds;
                 if (lifetime == 0f)
                     lifetime = -1f;
@@ -243,7 +243,7 @@ namespace Game.Commands.VNext
                     // not fading the layer contribution weight.
                     // For backward compatibility, ApplyWeightFade is interpreted as Value Fade.
 
-                    fx.SetLayerFade(key, context, value, e.FadeDuration, e.FadeEase, e.BlendMode, payload.Priority, lifetime);
+                    fx.SetLayerFade(key, context, value, e.ResolveFadeDuration(ctx), e.FadeEase, e.BlendMode, payload.Priority, lifetime);
                     continue;
                 }
 

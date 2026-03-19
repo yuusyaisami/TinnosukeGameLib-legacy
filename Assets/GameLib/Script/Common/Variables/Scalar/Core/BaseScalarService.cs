@@ -14,6 +14,8 @@ namespace Game.Scalar
         IBaseScalarService,
         IScalarTelemetry,
         ITickable,
+        IScopeAcquireHandler,
+        IScopeReleaseHandler,
         IProjectScalarService,
         IPlatformScalarService,
         IGlobalScalarService,
@@ -23,8 +25,7 @@ namespace Game.Scalar
         IUIScalarService,
         IUIElementScalarService,
         IRuntimeScalarService,
-        IDisposable,
-        IStartable
+        IDisposable
     {
         // ================================================================
         // Subscription Types
@@ -84,11 +85,20 @@ namespace Game.Scalar
             _space = scope != null ? scope.Kind : LifetimeScopeKind.None;
         }
 
-        public void Start()
+        public void OnAcquire(IScopeNode scope, bool isReset)
         {
-            // BaseScalarServiceをリセットする
-            // RuntimeがPoolされて再利用される場合に備える
-            ClearAll();
+            if (!isReset)
+                return;
+
+            ResetForScopeReuse();
+        }
+
+        public void OnRelease(IScopeNode scope, bool isReset)
+        {
+            if (!isReset)
+                return;
+
+            ResetForScopeReuse();
         }
 
         public LifetimeScopeKind Space => _space;
@@ -308,10 +318,12 @@ namespace Game.Scalar
             if (key.HasValue)
             {
                 _runtimes.Remove(key.Value.Id);
+                _lastValues.Remove(key.Value.Id);
                 return;
             }
 
             _runtimes.Clear();
+            _lastValues.Clear();
         }
 
         /// <summary>
@@ -457,6 +469,14 @@ namespace Game.Scalar
             }
         }
 
+        void ResetForScopeReuse()
+        {
+            ClearAll();
+            _subscriptions.Clear();
+            _keySubscriptions.Clear();
+            _allSubscriptions.Clear();
+        }
+
         void CheckAndFireValueChangedEvents()
         {
             if (_subscriptions.Count == 0) return;
@@ -520,6 +540,28 @@ namespace Game.Scalar
                 foreach (var s in rt.EnumerateSnapshots())
                     yield return s;
             }
+        }
+
+        public IEnumerable<ScalarKey> EnumerateKeys()
+        {
+            if (_runtimes.Count == 0)
+                return Array.Empty<ScalarKey>();
+
+            var keys = new List<ScalarKey>(_runtimes.Count);
+            foreach (var runtime in _runtimes.Values)
+            {
+                if (runtime == null)
+                    continue;
+
+                var key = runtime.Key;
+                if (key.Id == 0 && string.IsNullOrWhiteSpace(key.Name))
+                    continue;
+
+                keys.Add(key);
+            }
+
+            keys.Sort(static (a, b) => string.CompareOrdinal(a.Name, b.Name));
+            return keys;
         }
 
         public void Dispose()

@@ -183,7 +183,7 @@ Transform:
   m_GameObject: {fileID: 65932046}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.2, y: 2.93, z: 0}
+  m_LocalPosition: {x: 7.87, y: 4.59, z: 0}
   m_LocalScale: {x: 7.2502813, y: 0.21, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -324,6 +324,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -360,7 +361,7 @@ SurfaceEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Speed: -1
+  m_Speed: -2
   m_SpeedVariation: 0
   m_ForceScale: 0.1
   m_UseContactForce: 0
@@ -375,6 +376,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 81914923}
+  - component: {fileID: 81914924}
   m_Layer: 0
   m_Name: Channel
   m_TagString: Untagged
@@ -395,10 +397,230 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2127456151}
   - {fileID: 578628926}
   - {fileID: 1673349412}
   m_Father: {fileID: 2105301252}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &81914924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 81914922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dea5d2dfef5e5fd489f9e2d5dda8097f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.AnimationSpriteHubMB
+  channels:
+  - tag: default
+    spriteRenderer: {fileID: 2127456152}
+    image: {fileID: 0}
+    playOnSpawn: 0
+    spritePreset:
+      animationA:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      animationB:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      playMode: 0
+      flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
+      usePlaybackSpeedMultiplier: 1
+      crossFadeProfile:
+        rid: -2
+    materialFxPresetEntries: []
+    baseShaderPreset:
+      sourceMode: 1
+      assetPreset: {fileID: 0}
+      inlinePreset:
+        rid: 5619052366731149503
+  hubTag: default
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052366731149503
+      type: {class: BaseShaderFxPreset, ns: Game.MaterialFx, asm: Assembly-CSharp}
+      data:
+        CustomEntries: []
+        AutoEntries: []
+        dissolveEnabled: 0
+        dissolveThreshold: 0
+        dissolveEdgeWidth: 0.1
+        dissolveEdgeColor: {r: 1, g: 1, b: 1, a: 1}
+        dissolveSourceSlotType: 5
+        dissolveSourceChannel: 1
+        dissolveSourceUVSpace: 0
+        flowWarpEnabled: 0
+        flowWarpStrength: {x: 0.1, y: 0.1}
+        flowWarpSpeed: 1
+        flowWarpSourceSlotType: 5
+        flowWarpSourceChannel: 1
+        flowWarpSourceUVSpace: 0
+        colorOverlayEnabled: 0
+        colorOverlayColor: {r: 1, g: 1, b: 1, a: 1}
+        colorOverlayBlendMode: 0
+        colorOverlayIntensity: 1
+        colorOverlaySourceSlotType: 5
+        colorOverlaySourceChannel: 1
+        colorOverlaySourceUVSpace: 0
+        colorRampEnabled: 0
+        colorRampTexture: {fileID: 0}
+        colorRampIntensity: 1
+        colorRampPreserveAlpha: 1
+        colorRampSourceSlotType: 5
+        colorRampSourceChannel: 1
+        colorRampSourceUVSpace: 0
+        refractionEnabled: 0
+        refractionStrength: {x: 0.1, y: 0.1}
+        refractionChromaticAberration: 0
+        refractionSourceSlotType: 5
+        refractionSourceChannel: 1
+        refractionSourceUVSpace: 0
+        causticsEnabled: 0
+        causticsColor: {r: 1, g: 1, b: 1, a: 1}
+        causticsIntensity: 1
+        causticsThreshold: 0.5
+        causticsSoftness: 0.1
+        causticsScrollA: {x: 0.1, y: 0.1}
+        causticsScrollB: {x: -0.1, y: 0.05}
+        causticsSourceASlotType: 5
+        causticsSourceAChannel: 0
+        causticsSourceAUVSpace: 0
+        causticsSourceBSlotType: 6
+        causticsSourceBChannel: 0
+        causticsSourceBUVSpace: 0
+        rippleEnabled: 0
+        rippleCenter: {x: 0.5, y: 0.5}
+        rippleWaveParams: {x: 10, y: 0.05, z: 2, w: 5}
+        rippleAmplitude: 0.1
+        ripplePhase: 0
+        rippleDistortUV: 1
+        rippleColorBlend: 0
+        rippleColor: {r: 1, g: 1, b: 1, a: 1}
+        hueShiftEnabled: 0
+        hueShiftAmount: 0
+        hueSaturationMod: 0
+        hueValueMod: 0
+        hueShiftMaskSlotType: 0
+        hueShiftMaskChannel: 0
+        hueShiftMaskUVSpace: 0
+        normalMapEnabled: 0
+        normalMapStrength: 1
+        normalMapLightDir: {x: 0, y: 0, z: 1}
+        normalMapSourceSlotType: 5
+        normalMapSourceChannel: 1
+        normalMapSourceUVSpace: 0
+        emissionEnabled: 0
+        emissionColor: {r: 1, g: 1, b: 1, a: 1}
+        emissionIntensity: 1
+        maskEnabled: 0
+        maskThreshold: 0.5
+        maskSoftness: 0.1
+        maskSourceSlotType: 5
+        maskSourceChannel: 1
+        maskSourceUVSpace: 0
+        textOutlineEnabled: 0
+        textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+        textOutlineThickness: 1
+        textOutlineSoftness: 0.1
+        textShadowEnabled: 0
+        textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+        textShadowOffset: {x: 1, y: -1}
+        textShadowSoftness: 0.1
+        textGlowEnabled: 0
+        textGlowColor: {r: 1, g: 1, b: 1, a: 0.5}
+        textGlowThickness: 2
+        textGlowSoftness: 0.2
+        rainbowEnabled: 0
+        rainbowMode: 0
+        rainbowPattern: 0
+        rainbowDirection: {x: 1, y: 0}
+        rainbowScale: 1
+        rainbowOffset: 0
+        rainbowSpeed: 0.5
+        rainbowPixelSize: 2
+        rainbowIntensity: 0.5
+        rainbowBlendMode: 1
+        advancedFadeBurnEnabled: 0
+        advancedFadeBurnProgress: 0
+        advancedFadeBurnEdgeWidth: 0.1
+        advancedFadeBurnNoiseScale: 4
+        advancedFadeBurnNoiseStrength: 0.5
+        advancedFadeBurnNoiseType: 0
+        advancedFadeBurnDirection: {x: 0, y: 1}
+        advancedFadeBurnEdgeColor: {r: 1, g: 0.5, b: 0.1, a: 1}
+        advancedFadeBurnBlendMode: 0
+        advancedFadeBurnInvert: 0
+        renderStateBlendPreset: 0
+        renderStateUseCustomBlendFactors: 0
+        renderStateSrcBlend: 5
+        renderStateDstBlend: 10
+        renderStateZWrite: 0
+        renderStateCull: 0
+        renderStateQueueOffset: 0
+        renderStateBlendIntensity: 1
 --- !u!1 &175959466
 GameObject:
   m_ObjectHideFlags: 0
@@ -424,7 +646,7 @@ Transform:
   m_GameObject: {fileID: 175959466}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.881, y: -0.383, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -554,7 +776,7 @@ Transform:
   m_GameObject: {fileID: 247894731}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.05, y: 2.96, z: 0}
+  m_LocalPosition: {x: -7.38, y: 4.62, z: 0}
   m_LocalScale: {x: 5.78864, y: 0.21, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -695,6 +917,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -731,7 +954,7 @@ SurfaceEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Speed: 1
+  m_Speed: 2
   m_SpeedVariation: 1
   m_ForceScale: 0.1
   m_UseContactForce: 0
@@ -1150,7 +1373,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
   enableDebugView: 0
   _debugView:
-    watchKeys: []
     editKey:
       Id: 0
       Name: 
@@ -1350,7 +1572,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
   enableDebugView: 0
   _debugView:
-    watchKeys: []
     editKey:
       Id: 0
       Name: 
@@ -1430,6 +1651,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -1459,7 +1681,7 @@ Transform:
   m_GameObject: {fileID: 394753035}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.10167, y: 1.41336, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1469,6 +1691,345 @@ Transform:
   - {fileID: 653697722}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &443806223
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 443806224}
+  - component: {fileID: 443806225}
+  m_Layer: 0
+  m_Name: Channel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &443806224
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443806223}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1140997181}
+  m_Father: {fileID: 1505620733}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &443806225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443806223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dea5d2dfef5e5fd489f9e2d5dda8097f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.AnimationSpriteHubMB
+  channels:
+  - tag: default
+    spriteRenderer: {fileID: 1140997182}
+    image: {fileID: 0}
+    playOnSpawn: 0
+    spritePreset:
+      animationA:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      animationB:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      playMode: 0
+      flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
+      usePlaybackSpeedMultiplier: 1
+      crossFadeProfile:
+        rid: -2
+    materialFxPresetEntries:
+    - Key: BaseShader/AdvancedFade2D/Enabled
+      Value:
+        Type: 4
+        Float:
+          _source:
+            rid: 5619052366731149921
+          _defaultValue: 0
+        Int: 1
+        Float2: {x: 0, y: 0}
+        Float3: {x: 0, y: 0, z: 0}
+        Float4: {x: 0, y: 0, z: 0, w: 0}
+        Color: {r: 0, g: 0, b: 0, a: 0}
+        Texture: {fileID: 0}
+      BlendMode: 0
+      LifetimeSeconds: 0
+      ApplyWeightFade: 0
+      TargetWeight:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeDuration:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeEase: 0
+    - Key: BaseShader/AdvancedFade2D/FadeAmount
+      Value:
+        Type: 0
+        Float:
+          _source:
+            rid: 5619052366731149922
+          _defaultValue: 0
+        Int: 0
+        Float2: {x: 0, y: 0}
+        Float3: {x: 0, y: 0, z: 0}
+        Float4: {x: 0, y: 0, z: 0, w: 0}
+        Color: {r: 0, g: 0, b: 0, a: 0}
+        Texture: {fileID: 0}
+      BlendMode: 0
+      LifetimeSeconds: 0
+      ApplyWeightFade: 0
+      TargetWeight:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeDuration:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeEase: 0
+    - Key: BaseShader/AdvancedFade2D/FadeDirection
+      Value:
+        Type: 0
+        Float:
+          _source:
+            rid: 5619052366731149923
+          _defaultValue: 0
+        Int: 0
+        Float2: {x: 0, y: 0}
+        Float3: {x: 0, y: 0, z: 0}
+        Float4: {x: 0, y: 0, z: 0, w: 0}
+        Color: {r: 0, g: 0, b: 0, a: 0}
+        Texture: {fileID: 0}
+      BlendMode: 0
+      LifetimeSeconds: 0
+      ApplyWeightFade: 0
+      TargetWeight:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeDuration:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeEase: 0
+    baseShaderPreset:
+      sourceMode: 1
+      assetPreset: {fileID: 0}
+      inlinePreset:
+        rid: 5619052366731149920
+  hubTag: default
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052366731149920
+      type: {class: BaseShaderFxPreset, ns: Game.MaterialFx, asm: Assembly-CSharp}
+      data:
+        CustomEntries: []
+        AutoEntries: []
+        dissolveEnabled: 0
+        dissolveThreshold: 0
+        dissolveEdgeWidth: 0.1
+        dissolveEdgeColor: {r: 1, g: 1, b: 1, a: 1}
+        dissolveSourceSlotType: 5
+        dissolveSourceChannel: 1
+        dissolveSourceUVSpace: 0
+        flowWarpEnabled: 0
+        flowWarpStrength: {x: 0.1, y: 0.1}
+        flowWarpSpeed: 1
+        flowWarpSourceSlotType: 5
+        flowWarpSourceChannel: 1
+        flowWarpSourceUVSpace: 0
+        colorOverlayEnabled: 0
+        colorOverlayColor: {r: 1, g: 1, b: 1, a: 1}
+        colorOverlayBlendMode: 0
+        colorOverlayIntensity: 1
+        colorOverlaySourceSlotType: 5
+        colorOverlaySourceChannel: 1
+        colorOverlaySourceUVSpace: 0
+        colorRampEnabled: 0
+        colorRampTexture: {fileID: 0}
+        colorRampIntensity: 1
+        colorRampPreserveAlpha: 1
+        colorRampSourceSlotType: 5
+        colorRampSourceChannel: 1
+        colorRampSourceUVSpace: 0
+        refractionEnabled: 0
+        refractionStrength: {x: 0.1, y: 0.1}
+        refractionChromaticAberration: 0
+        refractionSourceSlotType: 5
+        refractionSourceChannel: 1
+        refractionSourceUVSpace: 0
+        causticsEnabled: 0
+        causticsColor: {r: 1, g: 1, b: 1, a: 1}
+        causticsIntensity: 1
+        causticsThreshold: 0.5
+        causticsSoftness: 0.1
+        causticsScrollA: {x: 0.1, y: 0.1}
+        causticsScrollB: {x: -0.1, y: 0.05}
+        causticsSourceASlotType: 5
+        causticsSourceAChannel: 0
+        causticsSourceAUVSpace: 0
+        causticsSourceBSlotType: 6
+        causticsSourceBChannel: 0
+        causticsSourceBUVSpace: 0
+        rippleEnabled: 0
+        rippleCenter: {x: 0.5, y: 0.5}
+        rippleWaveParams: {x: 10, y: 0.05, z: 2, w: 5}
+        rippleAmplitude: 0.1
+        ripplePhase: 0
+        rippleDistortUV: 1
+        rippleColorBlend: 0
+        rippleColor: {r: 1, g: 1, b: 1, a: 1}
+        hueShiftEnabled: 0
+        hueShiftAmount: 0
+        hueSaturationMod: 0
+        hueValueMod: 0
+        hueShiftMaskSlotType: 0
+        hueShiftMaskChannel: 0
+        hueShiftMaskUVSpace: 0
+        normalMapEnabled: 0
+        normalMapStrength: 1
+        normalMapLightDir: {x: 0, y: 0, z: 1}
+        normalMapSourceSlotType: 5
+        normalMapSourceChannel: 1
+        normalMapSourceUVSpace: 0
+        emissionEnabled: 0
+        emissionColor: {r: 1, g: 1, b: 1, a: 1}
+        emissionIntensity: 1
+        maskEnabled: 0
+        maskThreshold: 0.5
+        maskSoftness: 0.1
+        maskSourceSlotType: 5
+        maskSourceChannel: 1
+        maskSourceUVSpace: 0
+        textOutlineEnabled: 0
+        textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+        textOutlineThickness: 1
+        textOutlineSoftness: 0.1
+        textShadowEnabled: 0
+        textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+        textShadowOffset: {x: 1, y: -1}
+        textShadowSoftness: 0.1
+        textGlowEnabled: 0
+        textGlowColor: {r: 1, g: 1, b: 1, a: 0.5}
+        textGlowThickness: 2
+        textGlowSoftness: 0.2
+        rainbowEnabled: 0
+        rainbowMode: 0
+        rainbowPattern: 0
+        rainbowDirection: {x: 1, y: 0}
+        rainbowScale: 1
+        rainbowOffset: 0
+        rainbowSpeed: 0.5
+        rainbowPixelSize: 2
+        rainbowIntensity: 0.5
+        rainbowBlendMode: 1
+        advancedFadeBurnEnabled: 0
+        advancedFadeBurnProgress: 0
+        advancedFadeBurnEdgeWidth: 0.1
+        advancedFadeBurnNoiseScale: 4
+        advancedFadeBurnNoiseStrength: 0.5
+        advancedFadeBurnNoiseType: 0
+        advancedFadeBurnDirection: {x: 0, y: 1}
+        advancedFadeBurnEdgeColor: {r: 1, g: 0.5, b: 0.1, a: 1}
+        advancedFadeBurnBlendMode: 0
+        advancedFadeBurnInvert: 0
+        renderStateBlendPreset: 0
+        renderStateUseCustomBlendFactors: 0
+        renderStateSrcBlend: 5
+        renderStateDstBlend: 10
+        renderStateZWrite: 0
+        renderStateCull: 0
+        renderStateQueueOffset: 0
+        renderStateBlendIntensity: 1
+    - rid: 5619052366731149921
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149922
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.59
+    - rid: 5619052366731149923
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 3
 --- !u!1 &472914867
 GameObject:
   m_ObjectHideFlags: 0
@@ -1624,6 +2185,7 @@ Transform:
   - {fileID: 794773038}
   - {fileID: 175959467}
   - {fileID: 1788464276}
+  - {fileID: 1603827029}
   m_Father: {fileID: 394753047}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &578628925
@@ -1651,7 +2213,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 578628925}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1706,7 +2268,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_MaskInteraction: 0
+  m_MaskInteraction: 2
   m_Sprite: {fileID: -4801876199072412580, guid: 36f91327910585c4b95fe8116e0b59f0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -2192,7 +2754,7 @@ Transform:
   m_GameObject: {fileID: 947864351}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.62, y: -7.4, z: 0}
+  m_LocalPosition: {x: 2.29, y: -5.7400002, z: 0}
   m_LocalScale: {x: 0.36446908, y: 1.7023283, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2287,6 +2849,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -2523,70 +3086,13 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052366731149414
-        - rid: 5619052366731149415
+        - rid: 5619052366731149469
+        - rid: 5619052366731149470
         - rid: 5619052366731149416
         - rid: 5619052366731149417
         - rid: 5619052366731149418
         - rid: 5619052366731149419
-    - rid: 5619052366731149414
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: 160700043
-          Name: GameLogic.GameProfile.Base.MoneyValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 1
-        UseClampMod: 1
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052366731149415
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: -1433182947
-          Name: GameLogic.GameProfile.Base.TurnValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
+        - rid: 5619052366731149924
     - rid: 5619052366731149416
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
@@ -2703,6 +3209,109 @@ MonoBehaviour:
         BlackboardPolicyValue: 0
         BlackboardSaveEnabledValue: 0
         BlackboardSaveLayerValue: 0
+    - rid: 5619052366731149469
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: 160700043
+          Name: GameLogic.GameProfile.Base.MoneyValue
+        ScalarPolicyValue: 0
+        UseEffectMod: 1
+        UseClampMod: 1
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: 5619052366731149471
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: 5619052366731149472
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052366731149470
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: -1433182947
+          Name: GameLogic.GameProfile.Base.TurnValue
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: 5619052366731149473
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: 5619052366731149474
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052366731149471
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149472
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149473
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149474
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149924
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: 753908669
+          Name: GameLogic.GameProfile.Base.LuckValue
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
 --- !u!1 &1054116816
 GameObject:
   m_ObjectHideFlags: 0
@@ -2712,6 +3321,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1054116817}
+  - component: {fileID: 1054116818}
   m_Layer: 0
   m_Name: Channel
   m_TagString: Untagged
@@ -2735,6 +3345,254 @@ Transform:
   - {fileID: 898078023}
   m_Father: {fileID: 1372153892}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1054116818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054116816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dea5d2dfef5e5fd489f9e2d5dda8097f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.AnimationSpriteHubMB
+  channels:
+  - tag: default
+    spriteRenderer: {fileID: 898078024}
+    image: {fileID: 0}
+    playOnSpawn: 0
+    spritePreset:
+      animationA:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      animationB:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      playMode: 0
+      flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
+      usePlaybackSpeedMultiplier: 1
+      crossFadeProfile:
+        rid: -2
+    materialFxPresetEntries:
+    - Key: BaseShader/AdvancedFade2D/Enabled
+      Value:
+        Type: 4
+        Float:
+          _source:
+            rid: 5619052366731149588
+          _defaultValue: 0
+        Int: 1
+        Float2: {x: 0, y: 0}
+        Float3: {x: 0, y: 0, z: 0}
+        Float4: {x: 0, y: 0, z: 0, w: 0}
+        Color: {r: 0, g: 0, b: 0, a: 0}
+        Texture: {fileID: 0}
+      BlendMode: 0
+      LifetimeSeconds: 0
+      ApplyWeightFade: 0
+      TargetWeight:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeDuration:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeEase: 0
+    baseShaderPreset:
+      sourceMode: 1
+      assetPreset: {fileID: 0}
+      inlinePreset:
+        rid: 5619052366731149587
+  hubTag: default
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052366731149587
+      type: {class: BaseShaderFxPreset, ns: Game.MaterialFx, asm: Assembly-CSharp}
+      data:
+        CustomEntries: []
+        AutoEntries: []
+        dissolveEnabled: 0
+        dissolveThreshold: 0
+        dissolveEdgeWidth: 0.1
+        dissolveEdgeColor: {r: 1, g: 1, b: 1, a: 1}
+        dissolveSourceSlotType: 5
+        dissolveSourceChannel: 1
+        dissolveSourceUVSpace: 0
+        flowWarpEnabled: 0
+        flowWarpStrength: {x: 0.1, y: 0.1}
+        flowWarpSpeed: 1
+        flowWarpSourceSlotType: 5
+        flowWarpSourceChannel: 1
+        flowWarpSourceUVSpace: 0
+        colorOverlayEnabled: 0
+        colorOverlayColor: {r: 1, g: 1, b: 1, a: 1}
+        colorOverlayBlendMode: 0
+        colorOverlayIntensity: 1
+        colorOverlaySourceSlotType: 5
+        colorOverlaySourceChannel: 1
+        colorOverlaySourceUVSpace: 0
+        colorRampEnabled: 0
+        colorRampTexture: {fileID: 0}
+        colorRampIntensity: 1
+        colorRampPreserveAlpha: 1
+        colorRampSourceSlotType: 5
+        colorRampSourceChannel: 1
+        colorRampSourceUVSpace: 0
+        refractionEnabled: 0
+        refractionStrength: {x: 0.1, y: 0.1}
+        refractionChromaticAberration: 0
+        refractionSourceSlotType: 5
+        refractionSourceChannel: 1
+        refractionSourceUVSpace: 0
+        causticsEnabled: 0
+        causticsColor: {r: 1, g: 1, b: 1, a: 1}
+        causticsIntensity: 1
+        causticsThreshold: 0.5
+        causticsSoftness: 0.1
+        causticsScrollA: {x: 0.1, y: 0.1}
+        causticsScrollB: {x: -0.1, y: 0.05}
+        causticsSourceASlotType: 5
+        causticsSourceAChannel: 0
+        causticsSourceAUVSpace: 0
+        causticsSourceBSlotType: 6
+        causticsSourceBChannel: 0
+        causticsSourceBUVSpace: 0
+        rippleEnabled: 0
+        rippleCenter: {x: 0.5, y: 0.5}
+        rippleWaveParams: {x: 10, y: 0.05, z: 2, w: 5}
+        rippleAmplitude: 0.1
+        ripplePhase: 0
+        rippleDistortUV: 1
+        rippleColorBlend: 0
+        rippleColor: {r: 1, g: 1, b: 1, a: 1}
+        hueShiftEnabled: 0
+        hueShiftAmount: 0
+        hueSaturationMod: 0
+        hueValueMod: 0
+        hueShiftMaskSlotType: 0
+        hueShiftMaskChannel: 0
+        hueShiftMaskUVSpace: 0
+        normalMapEnabled: 0
+        normalMapStrength: 1
+        normalMapLightDir: {x: 0, y: 0, z: 1}
+        normalMapSourceSlotType: 5
+        normalMapSourceChannel: 1
+        normalMapSourceUVSpace: 0
+        emissionEnabled: 0
+        emissionColor: {r: 1, g: 1, b: 1, a: 1}
+        emissionIntensity: 1
+        maskEnabled: 0
+        maskThreshold: 0.5
+        maskSoftness: 0.1
+        maskSourceSlotType: 5
+        maskSourceChannel: 1
+        maskSourceUVSpace: 0
+        textOutlineEnabled: 0
+        textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+        textOutlineThickness: 1
+        textOutlineSoftness: 0.1
+        textShadowEnabled: 0
+        textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+        textShadowOffset: {x: 1, y: -1}
+        textShadowSoftness: 0.1
+        textGlowEnabled: 0
+        textGlowColor: {r: 1, g: 1, b: 1, a: 0.5}
+        textGlowThickness: 2
+        textGlowSoftness: 0.2
+        rainbowEnabled: 0
+        rainbowMode: 0
+        rainbowPattern: 0
+        rainbowDirection: {x: 1, y: 0}
+        rainbowScale: 1
+        rainbowOffset: 0
+        rainbowSpeed: 0.5
+        rainbowPixelSize: 2
+        rainbowIntensity: 0.5
+        rainbowBlendMode: 1
+        advancedFadeBurnEnabled: 0
+        advancedFadeBurnProgress: 0
+        advancedFadeBurnEdgeWidth: 0.1
+        advancedFadeBurnNoiseScale: 4
+        advancedFadeBurnNoiseStrength: 0.5
+        advancedFadeBurnNoiseType: 0
+        advancedFadeBurnDirection: {x: 0, y: 1}
+        advancedFadeBurnEdgeColor: {r: 1, g: 0.5, b: 0.1, a: 1}
+        advancedFadeBurnBlendMode: 0
+        advancedFadeBurnInvert: 0
+        renderStateBlendPreset: 0
+        renderStateUseCustomBlendFactors: 0
+        renderStateSrcBlend: 5
+        renderStateDstBlend: 10
+        renderStateZWrite: 0
+        renderStateCull: 0
+        renderStateQueueOffset: 0
+        renderStateBlendIntensity: 1
+    - rid: 5619052366731149588
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
 --- !u!1 &1084634061
 GameObject:
   m_ObjectHideFlags: 0
@@ -2767,7 +3625,7 @@ Transform:
   m_GameObject: {fileID: 1084634061}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.47000027, y: 2.96, z: 0}
+  m_LocalPosition: {x: -3.8000002, y: 4.62, z: 0}
   m_LocalScale: {x: 1.9055333, y: 0.21, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2786,7 +3644,7 @@ SurfaceEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Speed: 1
+  m_Speed: 2
   m_SpeedVariation: 0
   m_ForceScale: 0.1
   m_UseContactForce: 0
@@ -2926,6 +3784,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -3037,6 +3896,97 @@ SpriteRenderer:
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!1 &1140997180
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1140997181}
+  - component: {fileID: 1140997182}
+  m_Layer: 0
+  m_Name: Sprite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1140997181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1140997180}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.0222, y: 0.782, z: 0}
+  m_LocalScale: {x: 1.0444888, y: 1.3373595, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 443806224}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1140997182
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1140997180}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 11d52799064862141b32003d1f790320, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -5689475728057696970, guid: 5f0c33d5c442f37419689c0108231f97, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.3882353}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.0625, y: 0.0625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -3234,7 +4184,7 @@ MonoBehaviour:
   m_RefResolutionX: 480
   m_RefResolutionY: 270
   m_CropFrame: 0
-  m_GridSnapping: 1
+  m_GridSnapping: 2
   m_FilterMode: 0
   m_UpscaleRT: 0
   m_PixelSnapping: 0
@@ -3816,7 +4766,7 @@ Transform:
   m_GameObject: {fileID: 1369340488}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.9699993, y: 2.93, z: 0}
+  m_LocalPosition: {x: 3.6399994, y: 4.59, z: 0}
   m_LocalScale: {x: 1.9944787, y: 0.21, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3957,6 +4907,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -3993,7 +4944,7 @@ SurfaceEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Speed: -1
+  m_Speed: -2
   m_SpeedVariation: 0
   m_ForceScale: 0.1
   m_UseContactForce: 0
@@ -4053,6 +5004,10 @@ GameObject:
   - component: {fileID: 1372153895}
   - component: {fileID: 1372153894}
   - component: {fileID: 1372153893}
+  - component: {fileID: 1372153903}
+  - component: {fileID: 1372153904}
+  - component: {fileID: 1372153905}
+  - component: {fileID: 1372153906}
   m_Layer: 0
   m_Name: BaseNail
   m_TagString: Untagged
@@ -4069,7 +5024,7 @@ Transform:
   m_GameObject: {fileID: 1372153891}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.61, y: 0.87, z: 0}
+  m_LocalPosition: {x: -0.07, y: 2.29, z: 0}
   m_LocalScale: {x: 0.75, y: 0.75, z: 0.75}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -4093,7 +5048,7 @@ MonoBehaviour:
   - enabled: 1
     name: default
     watchFlags: 2
-    eventMask: 7
+    eventMask: 1
     matchAnyInclude: 1
     useIncludeStaticKinds: 0
     includeStaticKinds: []
@@ -4107,8 +5062,10 @@ MonoBehaviour:
     useFilter: 0
     useStaleFrameThreshold: 0
     staleFrameThreshold: 2
-    commandTarget: 0
+    commandTarget: 2
     parallelWhenBoth: 1
+    counterpartContextSlot: 100
+    _invalidCounterpartContextSlotWarning: 0
     onEnterCommands:
       _debugOwner: {fileID: 1372153893}
       _debugFieldPath: _rules[0].onEnterCommands
@@ -4134,7 +5091,8 @@ MonoBehaviour:
       _debugFieldPath: _rules[0].onEnterCommandsSelf
       _debugAssetPath: 
       _functionName: 
-      _commands: []
+      _commands:
+      - rid: 5619052366731149510
     onStayCommandsSelf:
       _debugOwner: {fileID: 1372153893}
       _debugFieldPath: _rules[0].onStayCommandsSelf
@@ -4183,7 +5141,112 @@ MonoBehaviour:
   _debugLastOtherHandleGeneration: -1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052366731149510
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149511
+    - rid: 5619052366731149511
+      type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Op: 50
+        ServiceScope: 20
+        TargetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        Definition:
+          _source:
+            rid: -2
+        StackMode: 10
+        Intensity:
+          _source:
+            rid: 5619052366731149512
+          _defaultValue: 0
+        OverrideDuration: 0
+        DurationOverride:
+          _source:
+            rid: 5619052366731149513
+          _defaultValue: 0
+        RuntimeTag: 
+        HookMutations:
+          OnApply:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnRemove:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnEnable:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnDisable:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnUse:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnStackIntensity:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnStackDuration:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        FilterMode: 10
+        FilterValue: 
+    - rid: 5619052366731149512
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149513
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
 --- !u!114 &1372153894
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4212,7 +5275,7 @@ MonoBehaviour:
   _layerId: 0
   _hitMask: 4294967295
   _setId:
-    value: 70
+    value: 20
   _userData: 0
   _enabledByDefault: 1
   _debugIsRegistered: 0
@@ -4232,7 +5295,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 3589
+  _debugLastEnabledChangeFrame: 15647
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &1372153896
@@ -4264,7 +5327,7 @@ CircleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 5c0893a70b089be4cadf6b0dbe0f62f9, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -4378,6 +5441,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -4402,6 +5466,403 @@ MonoBehaviour:
   radius: 0
   advanceOptions: 0
   retryIntervalSeconds: 0.5
+--- !u!114 &1372153903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372153891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78e64c9b58c440947b30f7d845b16c1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.ScopeLifecycleMB
+  runSpawnOnStart: 1
+  spawnOnStartCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands:
+    - rid: 5619052366731149529
+  runSpawnOnEnd: 0
+  spawnOnEndCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  spawnDelaySeconds: 0
+  runDespawnOnStart: 0
+  despawnOnStartCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  runDespawnOnEnd: 0
+  despawnOnEndCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  despawnDelaySeconds: 0
+  cancelSpawnOnDespawn: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052366731149529
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149530
+    - rid: 5619052366731149530
+      type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Op: 10
+        ServiceScope: 20
+        TargetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        Definition:
+          _source:
+            rid: 5619052366731149534
+        StackMode: 30
+        Intensity:
+          _source:
+            rid: 5619052366731149531
+          _defaultValue: 0
+        OverrideDuration: 0
+        DurationOverride:
+          _source:
+            rid: 5619052366731149532
+          _defaultValue: 0
+        RuntimeTag: 
+        HookMutations:
+          OnApply:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnRemove:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnEnable:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnDisable:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnUse:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnStackIntensity:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnStackDuration:
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        FilterMode: 10
+        FilterValue: 
+    - rid: 5619052366731149531
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149532
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149534
+      type: {class: 'ManagedRefAssetSource`2[[Game.StatusEffect.StatusEffectDefinitionSO, Assembly-CSharp],[Game.StatusEffect.BaseStatusEffectDefinitionData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 8dbf54fda8cac3146a32773b347a2a56, type: 2}
+--- !u!114 &1372153904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372153891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff87a7e7a0ffc3478a4f79d8cb3c5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Profile.ScopeBindingRegistryMB
+  _profiles:
+  - _source:
+      rid: 5619052366731149622
+  _resetOnAcquire: 1
+  _clearOnRelease: 1
+  _enableSaveInRuntimeScope: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052366731149622
+      type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052366731149623
+    - rid: 5619052366731149623
+      type: {class: CustomProfileDefinition, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        _profileName: CustomProfile
+        _bindings:
+        - rid: 5619052366731149919
+    - rid: 5619052366731149670
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149671
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149919
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0.9
+        ScalarKeyValue:
+          Id: -1978594423
+          Name: GameLogic.NailProfile.Effect.Bounce
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 1
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: 5619052366731149670
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: 5619052366731149671
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+--- !u!114 &1372153905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372153891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 1
+  _debugView:
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!114 &1372153906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372153891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3e56c86e21233f4d9dfb01ebd1def3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.MonitorRuleMB
+  _monitorRules:
+  - RuleName: 
+    RuleKind: 3
+    EventName: 
+    EventTarget:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      SharedTag: 
+      ContextSlot: 0
+    Condition:
+      _source:
+        rid: 5619052366731149906
+      _defaultValue: 0
+    ExecuteInitialCondition: 0
+    ValueSource: 2
+    ValueTarget:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      SharedTag: 
+      ContextSlot: 0
+    ValueChangeMode: 0
+    VarStoreVarId: 0
+    BlackboardVarId: 0
+    BlackboardReadScope: 0
+    ScalarKey:
+      Id: -1978594423
+      Name: GameLogic.NailProfile.Effect.Bounce
+    ChangeEpsilon: 0
+    ExecuteInitialValueChangedEnter: 1
+    InitialValueChangedEnterDelaySeconds: 0.01
+    OnEnterCommands:
+      _debugOwner: {fileID: 1372153906}
+      _debugFieldPath: _monitorRules[0].OnEnterCommands
+      _debugAssetPath: 
+      _functionName: MonitorRule.OnEnter
+      _commands:
+      - rid: 5619052366731149907
+    OnExitCommands:
+      _debugOwner: {fileID: 1372153906}
+      _debugFieldPath: _monitorRules[0].OnExitCommands
+      _debugAssetPath: 
+      _functionName: MonitorRule.OnExit
+      _commands: []
+    WhileTrueCommands:
+      Commands:
+        _debugOwner: {fileID: 1372153906}
+        _debugFieldPath: _monitorRules[0].WhileTrueCommands.Commands
+        _debugAssetPath: 
+        _functionName: MonitorRule.WhileTrue
+        _commands: []
+      IntervalSeconds: 0
+    WhileFalseCommands:
+      Commands:
+        _debugOwner: {fileID: 1372153906}
+        _debugFieldPath: _monitorRules[0].WhileFalseCommands.Commands
+        _debugAssetPath: 
+        _functionName: MonitorRule.WhileFalse
+        _commands: []
+      IntervalSeconds: 0
+    CancelRunningOnConditionChange: 1
+    CancelRunningOnConditionChangeInitialized: 1
+    Behavior: 0
+  _sharedExpressionVariables: []
+  enableDebugViewer: 1
+  debugViewer:
+    autoRefreshEveryNFrames: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052366731149906
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables: []
+        _expression: true
+    - rid: 5619052366731149907
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149908
+    - rid: 5619052366731149908
+      type: {class: SetColliderPhysicsMaterialValuesCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        TemplateMaterial: {fileID: 0}
+        ApplyFriction: 0
+        Friction:
+          _source:
+            rid: 5619052366731149911
+          _defaultValue: 0
+        ApplyBounciness: 1
+        Bounciness:
+          _source:
+            rid: 5619052366731149913
+          _defaultValue: 0
+    - rid: 5619052366731149911
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.4
+    - rid: 5619052366731149913
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1978594423
+          Name: GameLogic.NailProfile.Effect.Bounce
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
 --- !u!1 &1395719581
 GameObject:
   m_ObjectHideFlags: 0
@@ -4499,7 +5960,7 @@ Transform:
   m_GameObject: {fileID: 1470168656}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.2899995, y: 2.96, z: 0}
+  m_LocalPosition: {x: -2.0400004, y: 4.62, z: 0}
   m_LocalScale: {x: 1.9055333, y: 0.21, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4640,6 +6101,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -4676,12 +6138,2105 @@ SurfaceEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Speed: 1
+  m_Speed: 2
   m_SpeedVariation: 0
   m_ForceScale: 0.1
   m_UseContactForce: 0
   m_UseFriction: 1
   m_UseBounce: 1
+--- !u!1 &1505620732
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1505620733}
+  - component: {fileID: 1505620742}
+  - component: {fileID: 1505620741}
+  - component: {fileID: 1505620740}
+  - component: {fileID: 1505620739}
+  - component: {fileID: 1505620738}
+  - component: {fileID: 1505620737}
+  - component: {fileID: 1505620736}
+  - component: {fileID: 1505620735}
+  - component: {fileID: 1505620734}
+  - component: {fileID: 1505620743}
+  m_Layer: 0
+  m_Name: LeftSlot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1505620733
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.215, y: -6.033, z: 0}
+  m_LocalScale: {x: 3, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 443806224}
+  m_Father: {fileID: 1603827029}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1505620734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef5a14c4fa1d6b849b18e8b9e56078e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.HitColliderControllerMB
+  _selfProvider: {fileID: 0}
+  _rules:
+  - enabled: 1
+    name: default
+    watchFlags: 2
+    eventMask: 1
+    matchAnyInclude: 1
+    useIncludeStaticKinds: 0
+    includeStaticKinds: []
+    useIncludeDynamicSets: 1
+    includeDynamicSets:
+    - value: 10
+    useExcludeStaticKinds: 0
+    excludeStaticKinds: []
+    useExcludeDynamicSets: 0
+    excludeDynamicSets: []
+    useFilter: 0
+    useStaleFrameThreshold: 0
+    staleFrameThreshold: 2
+    commandTarget: 2
+    parallelWhenBoth: 1
+    counterpartContextSlot: 100
+    _invalidCounterpartContextSlotWarning: 0
+    onEnterCommands:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onEnterCommands
+      _debugAssetPath: 
+      _functionName: 
+      _commands:
+      - rid: 5619052366731149933
+    onStayCommands:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onStayCommands
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+    onExitCommands:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onExitCommands
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+    stayIntervalSeconds: 0
+    enterExitDuplicateIntervalSeconds: 0
+    onEnterCommandsSelf:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onEnterCommandsSelf
+      _debugAssetPath: 
+      _functionName: 
+      _commands:
+      - rid: 5619052366731149940
+    onStayCommandsSelf:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onStayCommandsSelf
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+    onExitCommandsSelf:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onExitCommandsSelf
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+    onEnterCommandsOther:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onEnterCommandsOther
+      _debugAssetPath: 
+      _functionName: 
+      _commands:
+      - rid: 5619052366731149949
+      - rid: 5619052366731149946
+    onStayCommandsOther:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onStayCommandsOther
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+    onExitCommandsOther:
+      _debugOwner: {fileID: 1505620734}
+      _debugFieldPath: _rules[0].onExitCommandsOther
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  _debugSelfHandleValid: 0
+  _debugSelfHandleId: -1
+  _debugSelfHandleGeneration: -1
+  _debugBindingsCount: 0
+  _debugBindState: Idle
+  _debugEnterEventCount: 0
+  _debugStayEventCount: 0
+  _debugExitEventCount: 0
+  _debugExecutedSelfCount: 0
+  _debugExecutedOtherCount: 0
+  _debugSkippedCount: 0
+  _debugLastRule: 
+  _debugLastEventType: 
+  _debugLastSkipReason: 
+  _debugLastOtherHandleId: -1
+  _debugLastOtherHandleGeneration: -1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052366731149933
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149934
+    - rid: 5619052366731149934
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 3
+          Identity:
+            kind: 4
+            id: Scene-Root
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        VarOps: []
+        ScalarOps:
+        - Op: 2
+          Key:
+            Id: 568001711
+            Name: GameLogic.GameProfile.Base.InstanceMoneyValue
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052366731149937
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: 5619052366731149936
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+    - rid: 5619052366731149936
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149937
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731149938
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052366731149939
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: LeftMul * Value
+    - rid: 5619052366731149938
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -545404644
+          Name: GameLogic.SlotProfile.LeftMul
+        targetActorSource:
+          Kind: 3
+          Identity:
+            kind: 5
+            id: SlotField
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5619052366731149939
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1391682985
+          Name: GameLogic.BallProfile.Value
+        targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052366731149940
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149941
+    - rid: 5619052366731149941
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 3
+          Identity:
+            kind: 4
+            id: Scene-Root
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        VarOps: []
+        ScalarOps:
+        - Op: 2
+          Key:
+            Id: 568001711
+            Name: GameLogic.GameProfile.Base.InstanceMoneyValue
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052366731149942
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: 5619052366731149943
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+    - rid: 5619052366731149942
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731149944
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052366731149945
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: LeftMul * Value
+    - rid: 5619052366731149943
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149944
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -545404644
+          Name: GameLogic.SlotProfile.LeftMul
+        targetActorSource:
+          Kind: 3
+          Identity:
+            kind: 5
+            id: SlotField
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5619052366731149945
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1391682985
+          Name: GameLogic.BallProfile.Value
+        targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052366731149946
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149947
+    - rid: 5619052366731149947
+      type: {class: SelfDespawnCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        DelaySeconds:
+          _source:
+            rid: 5619052366731149948
+          _defaultValue: 0
+        BeforeDespawnCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnReacquireCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052366731149948
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149949
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149950
+    - rid: 5619052366731149950
+      type: {class: SetUnityColliderCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Mode: 0
+        ApplyEnabled: 1
+        Enabled:
+          _source:
+            rid: 5619052366731149961
+          _defaultValue: 0
+        ApplyIsTrigger: 0
+        IsTrigger:
+          _source:
+            rid: 5619052366731149952
+          _defaultValue: 0
+        ApplySharedMaterial: 0
+        SharedMaterial: {fileID: 0}
+        ApplyOffset: 0
+        Offset:
+          _source:
+            rid: 5619052366731149953
+          _defaultValue: {x: 0, y: 0}
+        ApplySize: 0
+        Size:
+          _source:
+            rid: 5619052366731149954
+          _defaultValue: {x: 0, y: 0}
+        CircleRadius:
+          _source:
+            rid: 5619052366731149955
+          _defaultValue: 0
+        BoxEdgeRadius:
+          _source:
+            rid: 5619052366731149956
+          _defaultValue: 0
+        CapsuleDirection: 0
+        ApplyLayerId: 0
+        LayerId:
+          _source:
+            rid: 5619052366731149957
+          _defaultValue: 0
+        ApplyHitMask: 0
+        HitMask:
+          _source:
+            rid: 5619052366731149958
+          _defaultValue: 0
+        ApplySetId: 0
+        SetId:
+          _source:
+            rid: 5619052366731149959
+          _defaultValue: 0
+        ApplyUserData: 0
+        UserData:
+          _source:
+            rid: 5619052366731149960
+          _defaultValue: 0
+    - rid: 5619052366731149952
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052366731149953
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 5619052366731149954
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 5619052366731149955
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0.5
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052366731149956
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052366731149957
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052366731149958
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: -1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052366731149959
+      type: {class: DynamicColliderSetIdIntSource, ns: Game.Collision, asm: Assembly-CSharp}
+      data:
+        setId:
+          value: 60
+    - rid: 5619052366731149960
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052366731149961
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+--- !u!114 &1505620735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 210884295d072e44a8424b89aec5e7f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.HitColliderChannelHubMB
+--- !u!114 &1505620736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3306a888122c6f4e846fbd111fbf70c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.UnityColliderObjectMB
+  _collider: {fileID: 0}
+  _layerId: 0
+  _hitMask: 4294967295
+  _setId:
+    value: 21
+  _userData: 0
+  _enabledByDefault: 1
+  _debugIsRegistered: 0
+  _debugResolverAvailable: 0
+  _debugManagerResolved: 0
+  _debugScopeRegistryResolved: 0
+  _debugLastAttemptFrame: -1
+  _debugRetryCount: 0
+  _debugLastState: Idle
+  _debugLastFailureReason: 
+  _debugManagerFrameIndex: -1
+  _debugManagerLastFrameHitCount: 0
+  _debugManagerRegisteredDynamicCount: 0
+  _debugManagerTicking: 0
+  _debugSetCountPlayerHurtbox: 0
+  _debugSetCountEnemyHurtbox: 0
+  _debugSetCountPlayerBullet: 0
+  _debugSetCountEnemyBullet: 0
+  _debugColliderEnabled: 1
+  _debugLastEnabledChangeFrame: 15647
+  _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
+  _debugLastRegistrationEvent: 
+--- !u!61 &1505620737
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!114 &1505620738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  debugAwakeFrame: -1
+  debugBuildFrame: -1
+  debugBuildDelayFrames: -1
+  debugAwakeRealtime: -1
+  debugBuildRealtime: -1
+  debugParent: null
+  debugParentHasResolver: 0
+  debugParentBuildStatus: Unknown
+  debugPath: 
+  debugBuildStatus: NotBuilt
+--- !u!114 &1505620739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1505620740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
+  enableDebugView: 0
+  _debugView:
+    queryKey: 
+    queryVarId: 0
+    writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1505620741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73a10913f1437c843b3c22bc4cf2127f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeTickHub
+  enableDistanceCulling: 0
+  distanceCullTarget:
+    Kind: 0
+    Identity:
+      kind: 0
+      id: 
+      category: 
+      requireActive: 0
+      searchScope: 0
+    UnityObject: {fileID: 0}
+    SharedTag: 
+    ContextSlot: 0
+  distanceCullRange: 0
+  distanceCullUse2D: 1
+  distanceCheckIntervalFrames: 5
+--- !u!114 &1505620742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 9
+  id: LeftSlot
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+  advanceOptions: 0
+  retryIntervalSeconds: 0.5
+--- !u!114 &1505620743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505620732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3e56c86e21233f4d9dfb01ebd1def3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.MonitorRuleMB
+  _monitorRules:
+  - RuleName: 
+    RuleKind: 3
+    EventName: 
+    EventTarget:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      SharedTag: 
+      ContextSlot: 0
+    Condition:
+      _source:
+        rid: 5619052366731149963
+      _defaultValue: 0
+    ExecuteInitialCondition: 0
+    ValueSource: 2
+    ValueTarget:
+      Kind: 3
+      Identity:
+        kind: 4
+        id: SlotField
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      SharedTag: 
+      ContextSlot: 0
+    ValueChangeMode: 0
+    VarStoreVarId: 0
+    BlackboardVarId: 0
+    BlackboardReadScope: 0
+    ScalarKey:
+      Id: -545404644
+      Name: GameLogic.SlotProfile.LeftMul
+    ChangeEpsilon: 0
+    ExecuteInitialValueChangedEnter: 0
+    InitialValueChangedEnterDelaySeconds: 0
+    OnEnterCommands:
+      _debugOwner: {fileID: 1505620743}
+      _debugFieldPath: _monitorRules[0].OnEnterCommands
+      _debugAssetPath: 
+      _functionName: MonitorRule.OnEnter
+      _commands:
+      - rid: 5619052366731149966
+      - rid: 5619052366731149989
+      - rid: 5619052366731150004
+    OnExitCommands:
+      _debugOwner: {fileID: 1505620743}
+      _debugFieldPath: _monitorRules[0].OnExitCommands
+      _debugAssetPath: 
+      _functionName: MonitorRule.OnExit
+      _commands: []
+    WhileTrueCommands:
+      Commands:
+        _debugOwner: {fileID: 1505620743}
+        _debugFieldPath: _monitorRules[0].WhileTrueCommands.Commands
+        _debugAssetPath: 
+        _functionName: MonitorRule.WhileTrue
+        _commands: []
+      IntervalSeconds: 0
+    WhileFalseCommands:
+      Commands:
+        _debugOwner: {fileID: 1505620743}
+        _debugFieldPath: _monitorRules[0].WhileFalseCommands.Commands
+        _debugAssetPath: 
+        _functionName: MonitorRule.WhileFalse
+        _commands: []
+      IntervalSeconds: 0
+    CancelRunningOnConditionChange: 1
+    CancelRunningOnConditionChangeInitialized: 1
+    Behavior: 0
+  _sharedExpressionVariables: []
+  enableDebugViewer: 1
+  debugViewer:
+    autoRefreshEveryNFrames: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052366731149963
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731149964
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: LeftMul >= 1.0
+    - rid: 5619052366731149964
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -545404644
+          Name: GameLogic.SlotProfile.LeftMul
+        targetActorSource:
+          Kind: 3
+          Identity:
+            kind: 5
+            id: SlotField
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052366731149966
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149971
+    - rid: 5619052366731149971
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5619052366731149973
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052366731149975
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052366731149973
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731149974
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: LeftMul > 1
+    - rid: 5619052366731149974
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -545404644
+          Name: GameLogic.SlotProfile.LeftMul
+        targetActorSource:
+          Kind: 3
+          Identity:
+            kind: 5
+            id: SlotField
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052366731149975
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149976
+    - rid: 5619052366731149976
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        ApplyAnimation: 0
+        AwaitMode: 0
+        WaitForOnceCompletion: 1
+        PresetSource:
+          _source:
+            rid: 5619052366731149980
+          _defaultValue:
+            animationA:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            animationB:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            playMode: 0
+            flipX: 0
+            useClipSwitchFlip: 0
+            switchFlipDuration: 0.2
+            switchFlipFullRotation: 0
+            usePlaybackSpeedMultiplier: 1
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 1
+        MaterialFxSource:
+          _source:
+            rid: 5619052366731149981
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyPlaybackSpeed: 0
+        PlaybackSpeedSource:
+          _source:
+            rid: 5619052366731149982
+          _defaultValue: 0
+        ApplyFlipX: 0
+        FlipXMode: 0
+        FlipXAngleSource:
+          _source:
+            rid: 5619052366731149983
+          _defaultValue: 0
+        ApplySortingOrder: 0
+        SortingOrderSource:
+          _source:
+            rid: 5619052366731149984
+          _defaultValue: 0
+    - rid: 5619052366731149980
+      type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          animationA:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          animationB:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          playMode: 0
+          flipX: 0
+          useClipSwitchFlip: 0
+          switchFlipDuration: 0.2
+          switchFlipFullRotation: 0
+          usePlaybackSpeedMultiplier: 1
+          crossFadeProfile:
+            rid: -2
+    - rid: 5619052366731149981
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries:
+          - Key: BaseShader/BlendColor2D/BlendMode
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5619052366731149985
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052366731149986
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731149987
+              _defaultValue: 0
+            FadeEase: 0
+    - rid: 5619052366731149982
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149983
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052366731149984
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149985
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149986
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149987
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149989
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149990
+    - rid: 5619052366731149990
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5619052366731149991
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052366731149992
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052366731149991
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731149993
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: LeftMul == 1
+    - rid: 5619052366731149992
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149994
+    - rid: 5619052366731149993
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -545404644
+          Name: GameLogic.SlotProfile.LeftMul
+        targetActorSource:
+          Kind: 3
+          Identity:
+            kind: 5
+            id: SlotField
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052366731149994
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        ApplyAnimation: 0
+        AwaitMode: 0
+        WaitForOnceCompletion: 1
+        PresetSource:
+          _source:
+            rid: 5619052366731149995
+          _defaultValue:
+            animationA:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            animationB:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            playMode: 0
+            flipX: 0
+            useClipSwitchFlip: 0
+            switchFlipDuration: 0.2
+            switchFlipFullRotation: 0
+            usePlaybackSpeedMultiplier: 1
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 1
+        MaterialFxSource:
+          _source:
+            rid: 5619052366731149996
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyPlaybackSpeed: 0
+        PlaybackSpeedSource:
+          _source:
+            rid: 5619052366731149997
+          _defaultValue: 0
+        ApplyFlipX: 0
+        FlipXMode: 0
+        FlipXAngleSource:
+          _source:
+            rid: 5619052366731149998
+          _defaultValue: 0
+        ApplySortingOrder: 0
+        SortingOrderSource:
+          _source:
+            rid: 5619052366731149999
+          _defaultValue: 0
+    - rid: 5619052366731149995
+      type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          animationA:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          animationB:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          playMode: 0
+          flipX: 0
+          useClipSwitchFlip: 0
+          switchFlipDuration: 0.2
+          switchFlipFullRotation: 0
+          usePlaybackSpeedMultiplier: 1
+          crossFadeProfile:
+            rid: -2
+    - rid: 5619052366731149996
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries:
+          - Key: BaseShader/BlendColor2D/BlendMode
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5619052366731150000
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052366731150001
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731150002
+              _defaultValue: 0
+            FadeEase: 0
+    - rid: 5619052366731149997
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731149998
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052366731149999
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731150000
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731150001
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731150002
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731150004
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731150005
+    - rid: 5619052366731150005
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5619052366731150006
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052366731150007
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052366731150006
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731150008
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: LeftMul < 1
+    - rid: 5619052366731150007
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731150009
+    - rid: 5619052366731150008
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -545404644
+          Name: GameLogic.SlotProfile.LeftMul
+        targetActorSource:
+          Kind: 3
+          Identity:
+            kind: 5
+            id: SlotField
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052366731150009
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        ApplyAnimation: 0
+        AwaitMode: 0
+        WaitForOnceCompletion: 1
+        PresetSource:
+          _source:
+            rid: 5619052366731150010
+          _defaultValue:
+            animationA:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            animationB:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            playMode: 0
+            flipX: 0
+            useClipSwitchFlip: 0
+            switchFlipDuration: 0.2
+            switchFlipFullRotation: 0
+            usePlaybackSpeedMultiplier: 1
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 1
+        MaterialFxSource:
+          _source:
+            rid: 5619052366731150011
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyPlaybackSpeed: 0
+        PlaybackSpeedSource:
+          _source:
+            rid: 5619052366731150012
+          _defaultValue: 0
+        ApplyFlipX: 0
+        FlipXMode: 0
+        FlipXAngleSource:
+          _source:
+            rid: 5619052366731150013
+          _defaultValue: 0
+        ApplySortingOrder: 0
+        SortingOrderSource:
+          _source:
+            rid: 5619052366731150014
+          _defaultValue: 0
+    - rid: 5619052366731150010
+      type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          animationA:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          animationB:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          playMode: 0
+          flipX: 0
+          useClipSwitchFlip: 0
+          switchFlipDuration: 0.2
+          switchFlipFullRotation: 0
+          usePlaybackSpeedMultiplier: 1
+          crossFadeProfile:
+            rid: -2
+    - rid: 5619052366731150011
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries:
+          - Key: BaseShader/BlendColor2D/BlendMode
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5619052366731150015
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052366731150016
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052366731150017
+              _defaultValue: 0
+            FadeEase: 0
+    - rid: 5619052366731150012
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052366731150013
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052366731150014
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731150015
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731150016
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731150017
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+--- !u!1 &1603827028
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1603827029}
+  - component: {fileID: 1603827036}
+  - component: {fileID: 1603827035}
+  - component: {fileID: 1603827034}
+  - component: {fileID: 1603827033}
+  - component: {fileID: 1603827032}
+  - component: {fileID: 1603827031}
+  - component: {fileID: 1603827030}
+  m_Layer: 0
+  m_Name: SlotField
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1603827029
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603827028}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1505620733}
+  m_Father: {fileID: 548990149}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1603827030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603827028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e37d0156c0742546b52a679848097af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Field.FieldLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  useAsGameLogicRoot: 0
+  debugAwakeFrame: -1
+  debugBuildFrame: -1
+  debugBuildDelayFrames: -1
+  debugAwakeRealtime: -1
+  debugBuildRealtime: -1
+  debugParent: null
+  debugParentHasResolver: 0
+  debugParentBuildStatus: Unknown
+  debugPath: 
+  debugBuildStatus: NotBuilt
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  initiallyVisible: 1
+--- !u!114 &1603827031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603827028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 5
+  id: SlotField
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+  advanceOptions: 0
+  retryIntervalSeconds: 0.5
+--- !u!114 &1603827032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603827028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c908c57ac520c7948a9a1e73ebd05f10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.EventMB
+  _captureEventLog: 1
+  _logCapacity: 64
+--- !u!114 &1603827033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603827028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 0
+  _debugView:
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!114 &1603827034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603827028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1603827035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603827028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
+  enableDebugView: 0
+  _debugView:
+    queryKey: 
+    queryVarId: 0
+    writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1603827036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603827028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff87a7e7a0ffc3478a4f79d8cb3c5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Profile.ScopeBindingRegistryMB
+  _profiles:
+  - _source:
+      rid: 5619052366731149925
+  _resetOnAcquire: 1
+  _clearOnRelease: 1
+  _enableSaveInRuntimeScope: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052366731149925
+      type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052366731149926
+    - rid: 5619052366731149926
+      type: {class: CustomProfileDefinition, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        _profileName: CustomProfile
+        _bindings:
+        - rid: 5619052366731149928
+        - rid: 5619052366731149931
+        - rid: 5619052366731149932
+    - rid: 5619052366731149928
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: -545404644
+          Name: GameLogic.SlotProfile.LeftMul
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: 5619052366731149929
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: 5619052366731149930
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052366731149929
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149930
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149931
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: -354043114
+          Name: GameLogic.SlotProfile.CenterMul
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052366731149932
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: 2120132904
+          Name: GameLogic.SlotProfile.RightMul
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
 --- !u!1 &1626135256
 GameObject:
   m_ObjectHideFlags: 0
@@ -4804,7 +8359,7 @@ Transform:
   m_GameObject: {fileID: 1635666129}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.0899997, y: 4.91, z: 0}
+  m_LocalPosition: {x: -0.24000025, y: 6.5699997, z: 0}
   m_LocalScale: {x: 13.154049, y: 1.7023283, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4945,6 +8500,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -5001,7 +8557,7 @@ Transform:
   m_GameObject: {fileID: 1656888558}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.1399994, y: 2.93, z: 0}
+  m_LocalPosition: {x: 1.8099995, y: 4.59, z: 0}
   m_LocalScale: {x: 1.9944787, y: 0.21, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5142,6 +8698,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -5178,7 +8735,7 @@ SurfaceEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_Speed: -1
+  m_Speed: -2
   m_SpeedVariation: 0
   m_ForceScale: 0.1
   m_UseContactForce: 0
@@ -5209,7 +8766,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1673349411}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5264,7 +8821,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_MaskInteraction: 0
+  m_MaskInteraction: 2
   m_Sprite: {fileID: 2229646771977232786, guid: 26e8e1c4ba027394eb7e0a1b18e12eb7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -5397,7 +8954,7 @@ Transform:
   m_GameObject: {fileID: 1692474652}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.7499995, y: -7.4, z: 0}
+  m_LocalPosition: {x: -2.5800004, y: -5.7400002, z: 0}
   m_LocalScale: {x: 0.36446908, y: 1.7023283, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5492,6 +9049,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -5722,7 +9280,7 @@ Transform:
   m_GameObject: {fileID: 1823362324}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.85, y: -2.98, z: 0}
+  m_LocalPosition: {x: -6.18, y: -1.32, z: 0}
   m_LocalScale: {x: 1, y: 12.017, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5863,6 +9421,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -5950,7 +9509,7 @@ Transform:
   m_GameObject: {fileID: 1893065032}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 9.16, y: -3.1, z: 0}
+  m_LocalPosition: {x: 5.83, y: -1.4399999, z: 0}
   m_LocalScale: {x: 1, y: 12.017, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6091,6 +9650,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -6496,6 +10056,10 @@ GameObject:
   - component: {fileID: 2105301254}
   - component: {fileID: 2105301253}
   - component: {fileID: 2105301260}
+  - component: {fileID: 2105301261}
+  - component: {fileID: 2105301262}
+  - component: {fileID: 2105301263}
+  - component: {fileID: 2105301264}
   m_Layer: 0
   m_Name: BallRuntime
   m_TagString: Untagged
@@ -6512,7 +10076,7 @@ Transform:
   m_GameObject: {fileID: 2105301251}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.53, y: 3.71, z: 0}
+  m_LocalPosition: {x: -1.751, y: 5.256, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6545,7 +10109,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!58 &2105301254
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -6556,7 +10120,7 @@ CircleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 6200000, guid: 0f983ae8b5e202648a50a1a30c72d336, type: 2}
+  m_Material: {fileID: 6200000, guid: 5c0893a70b089be4cadf6b0dbe0f62f9, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -6670,6 +10234,7 @@ MonoBehaviour:
       searchScope: 0
     UnityObject: {fileID: 0}
     SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -6727,8 +10292,8 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052366731149462
-        - rid: 5619052366731149463
+        - rid: 5619052366731149663
+        - rid: 5619052366731149664
     - rid: 5619052366731149448
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -6752,10 +10317,21 @@ MonoBehaviour:
         scalarKey:
           Id: -1973269918
           Name: GameLogic.BallProfile.MaxValue
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         createIfMissing: 0
         baselineValue: 0
         searchIncludeGlobal: 0
-    - rid: 5619052366731149462
+    - rid: 5619052366731149663
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
         Value: 5
@@ -6765,7 +10341,7 @@ MonoBehaviour:
         ScalarPolicyValue: 0
         UseEffectMod: 0
         UseClampMod: 0
-        UseLocalBase: 0
+        UseLocalBase: 1
         LocalBaseValue: 0
         Clamp:
           UseMin: 0
@@ -6784,7 +10360,7 @@ MonoBehaviour:
         BlackboardPolicyValue: 0
         BlackboardSaveEnabledValue: 0
         BlackboardSaveLayerValue: 0
-    - rid: 5619052366731149463
+    - rid: 5619052366731149664
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
         Value: 1
@@ -6794,7 +10370,7 @@ MonoBehaviour:
         ScalarPolicyValue: 0
         UseEffectMod: 0
         UseClampMod: 1
-        UseLocalBase: 0
+        UseLocalBase: 1
         LocalBaseValue: 0
         Clamp:
           UseMin: 0
@@ -6813,6 +10389,445 @@ MonoBehaviour:
         BlackboardPolicyValue: 0
         BlackboardSaveEnabledValue: 0
         BlackboardSaveLayerValue: 0
+--- !u!114 &2105301261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105301251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3e56c86e21233f4d9dfb01ebd1def3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.MonitorRuleMB
+  _monitorRules:
+  - RuleName: 
+    RuleKind: 3
+    EventName: 
+    EventTarget:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      SharedTag: 
+      ContextSlot: 0
+    Condition:
+      _source:
+        rid: 5619052366731149476
+      _defaultValue: 0
+    ExecuteInitialCondition: 0
+    ValueSource: 2
+    ValueTarget:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      SharedTag: 
+      ContextSlot: 0
+    ValueChangeMode: 0
+    VarStoreVarId: 0
+    BlackboardVarId: 0
+    BlackboardReadScope: 0
+    ScalarKey:
+      Id: -1391682985
+      Name: GameLogic.BallProfile.Value
+    ChangeEpsilon: 0
+    ExecuteInitialValueChangedEnter: 0
+    InitialValueChangedEnterDelaySeconds: 0
+    OnEnterCommands:
+      _debugOwner: {fileID: 2105301261}
+      _debugFieldPath: _monitorRules[0].OnEnterCommands
+      _debugAssetPath: 
+      _functionName: MonitorRule.OnEnter
+      _commands:
+      - rid: 5619052366731149478
+    OnExitCommands:
+      _debugOwner: {fileID: 2105301261}
+      _debugFieldPath: _monitorRules[0].OnExitCommands
+      _debugAssetPath: 
+      _functionName: MonitorRule.OnExit
+      _commands: []
+    WhileTrueCommands:
+      Commands:
+        _debugOwner: {fileID: 2105301261}
+        _debugFieldPath: _monitorRules[0].WhileTrueCommands.Commands
+        _debugAssetPath: 
+        _functionName: MonitorRule.WhileTrue
+        _commands: []
+      IntervalSeconds: 0
+    WhileFalseCommands:
+      Commands:
+        _debugOwner: {fileID: 2105301261}
+        _debugFieldPath: _monitorRules[0].WhileFalseCommands.Commands
+        _debugAssetPath: 
+        _functionName: MonitorRule.WhileFalse
+        _commands: []
+      IntervalSeconds: 0
+    CancelRunningOnConditionChange: 1
+    CancelRunningOnConditionChangeInitialized: 1
+    Behavior: 0
+  - RuleName: 
+    RuleKind: 3
+    EventName: 
+    EventTarget:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      SharedTag: 
+      ContextSlot: 0
+    Condition:
+      _source:
+        rid: 5619052366731149507
+      _defaultValue: 0
+    ExecuteInitialCondition: 0
+    ValueSource: 2
+    ValueTarget:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      SharedTag: 
+      ContextSlot: 0
+    ValueChangeMode: 0
+    VarStoreVarId: 0
+    BlackboardVarId: 0
+    BlackboardReadScope: 0
+    ScalarKey:
+      Id: -1973269918
+      Name: GameLogic.BallProfile.MaxValue
+    ChangeEpsilon: 0
+    ExecuteInitialValueChangedEnter: 0
+    InitialValueChangedEnterDelaySeconds: 0
+    OnEnterCommands:
+      _debugOwner: {fileID: 2105301261}
+      _debugFieldPath: _monitorRules[1].OnEnterCommands
+      _debugAssetPath: 
+      _functionName: MonitorRule.OnEnter
+      _commands:
+      - rid: 5619052366731149508
+    OnExitCommands:
+      _debugOwner: {fileID: 2105301261}
+      _debugFieldPath: _monitorRules[1].OnExitCommands
+      _debugAssetPath: 
+      _functionName: MonitorRule.OnExit
+      _commands: []
+    WhileTrueCommands:
+      Commands:
+        _debugOwner: {fileID: 2105301261}
+        _debugFieldPath: _monitorRules[1].WhileTrueCommands.Commands
+        _debugAssetPath: 
+        _functionName: MonitorRule.WhileTrue
+        _commands: []
+      IntervalSeconds: 0
+    WhileFalseCommands:
+      Commands:
+        _debugOwner: {fileID: 2105301261}
+        _debugFieldPath: _monitorRules[1].WhileFalseCommands.Commands
+        _debugAssetPath: 
+        _functionName: MonitorRule.WhileFalse
+        _commands: []
+      IntervalSeconds: 0
+    CancelRunningOnConditionChange: 1
+    CancelRunningOnConditionChangeInitialized: 1
+    Behavior: 0
+  _sharedExpressionVariables: []
+  enableDebugViewer: 1
+  debugViewer:
+    autoRefreshEveryNFrames: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052366731149476
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: -2
+          _useScalarLeafKey: 0
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: true
+    - rid: 5619052366731149478
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5619052366731149480
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5619052366731149480
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 4103debb1e1828947957fc8fbe1b3f2a, type: 2}
+    - rid: 5619052366731149507
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149508
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5619052366731149509
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5619052366731149509
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 4103debb1e1828947957fc8fbe1b3f2a, type: 2}
+--- !u!114 &2105301262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105301251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78e64c9b58c440947b30f7d845b16c1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.ScopeLifecycleMB
+  runSpawnOnStart: 1
+  spawnOnStartCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands:
+    - rid: 5619052366731149611
+  runSpawnOnEnd: 0
+  spawnOnEndCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  spawnDelaySeconds: 0
+  runDespawnOnStart: 0
+  despawnOnStartCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  runDespawnOnEnd: 0
+  despawnOnEndCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  despawnDelaySeconds: 0
+  cancelSpawnOnDespawn: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052366731149611
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5619052366731149612
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5619052366731149612
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 4103debb1e1828947957fc8fbe1b3f2a, type: 2}
+--- !u!114 &2105301263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105301251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3306a888122c6f4e846fbd111fbf70c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.UnityColliderObjectMB
+  _collider: {fileID: 0}
+  _layerId: 0
+  _hitMask: 4294967295
+  _setId:
+    value: 10
+  _userData: 0
+  _enabledByDefault: 1
+  _debugIsRegistered: 0
+  _debugResolverAvailable: 0
+  _debugManagerResolved: 0
+  _debugScopeRegistryResolved: 0
+  _debugLastAttemptFrame: -1
+  _debugRetryCount: 0
+  _debugLastState: Idle
+  _debugLastFailureReason: 
+  _debugManagerFrameIndex: -1
+  _debugManagerLastFrameHitCount: 0
+  _debugManagerRegisteredDynamicCount: 0
+  _debugManagerTicking: 0
+  _debugSetCountPlayerHurtbox: 0
+  _debugSetCountEnemyHurtbox: 0
+  _debugSetCountPlayerBullet: 0
+  _debugSetCountEnemyBullet: 0
+  _debugColliderEnabled: 1
+  _debugLastEnabledChangeFrame: 15647
+  _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
+  _debugLastRegistrationEvent: 
+--- !u!114 &2105301264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105301251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 1
+  _debugView:
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!1 &2127456150
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2127456151}
+  - component: {fileID: 2127456152}
+  m_Layer: 0
+  m_Name: in
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2127456151
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2127456150}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 81914923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &2127456152
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2127456150}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 11d52799064862141b32003d1f790320, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 2
+  m_Sprite: {fileID: -7201189137138843142, guid: 30905a19a28c76d4eabfb56437806066, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

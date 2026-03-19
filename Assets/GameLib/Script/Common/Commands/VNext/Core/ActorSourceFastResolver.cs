@@ -2,6 +2,7 @@
 using System;
 using Game;
 using Game.Commands;
+using Game.Common;
 using UnityEngine;
 using VContainer;
 
@@ -18,6 +19,54 @@ namespace Game.Commands.VNext
     public static class ActorSourceFastResolver
     {
         static IBaseLifetimeScopeRegistry? s_fallbackRegistry;
+
+        public static IScopeNode? ResolveCached(IDynamicContext context, in ActorSource source, ref ActorSourceResolveCache cache, IScopeNode? originOverride = null)
+        {
+            if (context == null)
+                return null;
+
+            var runtimeContext = GetRuntimeContext(context);
+            var origin = originOverride ?? context.Scope;
+            if (runtimeContext != null)
+                return ResolveCached(runtimeContext, source, ref cache, origin);
+
+            return ResolveCached(origin, source, ref cache, context.CommandRootScope);
+        }
+
+        public static IScopeNode? ResolveCached(CommandContext context, in ActorSource source, ref ActorSourceResolveCache cache, IScopeNode? originOverride = null)
+        {
+            if (context == null)
+                return null;
+
+            var origin = originOverride ?? context.Actor ?? context.Scope;
+            if (origin == null)
+                return null;
+
+            if (cache.HasCache &&
+                ReferenceEquals(cache.Origin, origin) &&
+                SourceEquals(cache.Source, source))
+            {
+                if (cache.CachedScope != null && IsCacheValid(origin, source, cache.CachedScope))
+                    return cache.CachedScope;
+            }
+
+            var resolved = Resolve(context, source, origin);
+            if (ShouldCache(source))
+            {
+                cache.Source = source;
+                cache.Origin = origin;
+                cache.CachedScope = resolved;
+                cache.HasCache = true;
+            }
+            else
+            {
+                cache.HasCache = false;
+                cache.CachedScope = null;
+                cache.Origin = null;
+            }
+
+            return resolved;
+        }
 
         public static IScopeNode? ResolveCached(IScopeNode? origin, in ActorSource source, ref ActorSourceResolveCache cache, IScopeNode? commandRootScope = null)
         {
@@ -50,6 +99,30 @@ namespace Game.Commands.VNext
             return resolved;
         }
 
+        public static IScopeNode? Resolve(IDynamicContext context, in ActorSource source, IScopeNode? originOverride = null)
+        {
+            if (context == null)
+                return null;
+
+            var runtimeContext = GetRuntimeContext(context);
+            if (runtimeContext != null)
+                return Resolve(runtimeContext, source, originOverride);
+
+            return Resolve(originOverride ?? context.Scope, source, context.CommandRootScope);
+        }
+
+        public static IScopeNode? Resolve(CommandContext context, in ActorSource source, IScopeNode? originOverride = null)
+        {
+            if (context == null)
+                return null;
+
+            if (source.Kind == ActorSourceKind.ContextSlot)
+                return context.GetScope(source.ContextSlot);
+
+            var origin = originOverride ?? context.Actor ?? context.Scope;
+            return Resolve(origin, source, context.CommandRootScope);
+        }
+
         public static IScopeNode? Resolve(IScopeNode? origin, in ActorSource source, IScopeNode? commandRootScope = null)
         {
             if (origin == null)
@@ -69,6 +142,8 @@ namespace Game.Commands.VNext
                     return ResolveNearestGlobalScope(origin);
                 case ActorSourceKind.Shared:
                     return ResolveShared(origin, source.SharedTag);
+                case ActorSourceKind.ContextSlot:
+                    return null;
                 case ActorSourceKind.ByIdentity:
                     return ResolveByIdentity(origin, source.Identity);
                 case ActorSourceKind.FromUnityObject:
@@ -76,6 +151,17 @@ namespace Game.Commands.VNext
                 default:
                     return null;
             }
+        }
+
+        static CommandContext? GetRuntimeContext(IDynamicContext context)
+        {
+            if (context is CommandContext commandContext)
+                return commandContext;
+
+            if (context is CommandResolveContext resolveContext)
+                return resolveContext.RuntimeContext;
+
+            return null;
         }
 
         static bool ShouldCache(in ActorSource source)
@@ -471,6 +557,8 @@ namespace Game.Commands.VNext
                     return IdentityEquals(a.Identity, b.Identity);
                 case ActorSourceKind.FromUnityObject:
                     return ReferenceEquals(a.UnityObject, b.UnityObject);
+                case ActorSourceKind.ContextSlot:
+                    return a.ContextSlot == b.ContextSlot;
                 default:
                     return true;
             }

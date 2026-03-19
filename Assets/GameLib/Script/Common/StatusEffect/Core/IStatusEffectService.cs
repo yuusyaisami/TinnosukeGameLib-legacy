@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
+using Game.Commands.VNext;
 using Game.Common;
 
 namespace Game.StatusEffect
@@ -12,7 +13,7 @@ namespace Game.StatusEffect
         bool TryApply(StatusEffectApplyRequest request, IDynamicContext? evaluationContext, out string instanceId);
         int Remove(StatusEffectRuntimeFilter filter);
         int SetEnabled(StatusEffectRuntimeFilter filter, bool enabled);
-        int Use(StatusEffectRuntimeFilter filter, IScopeNode? userScope = null);
+        int Use(StatusEffectRuntimeFilter filter, IScopeNode? userScope = null, CommandContext? sourceContext = null);
         int Reset(StatusEffectRuntimeFilter filter);
         void ClearAll();
 

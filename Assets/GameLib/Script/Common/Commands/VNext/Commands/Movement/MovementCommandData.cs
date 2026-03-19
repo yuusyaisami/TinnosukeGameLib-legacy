@@ -8,6 +8,12 @@ using UnityEngine.Serialization;
 
 namespace Game.Commands.VNext
 {
+    public enum AddForceTargetKind
+    {
+        MovementChannel = 10,
+        TransformControllerRigidbody2D = 20,
+    }
+
     [Serializable]
     public sealed class MovementChannelCreateSettings
     {
@@ -89,11 +95,23 @@ namespace Game.Commands.VNext
             get
             {
                 var key = string.IsNullOrEmpty(ChannelKey) ? "<none>" : ChannelKey;
-                return $"Channel={key}";
+                return $"Target={TargetKind} Channel={key} ForceMode={ForceMode}";
             }
         }
 
+        [BoxGroup("Target")]
+        [LabelText("Target Kind")]
+        [SerializeField]
+        public AddForceTargetKind TargetKind = AddForceTargetKind.MovementChannel;
+
+        [BoxGroup("Target")]
+        [ShowIf(nameof(UseTransformControllerTarget))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
+        [SerializeField]
+        public ActorSource Target = new() { Kind = ActorSourceKind.Current };
+
         [BoxGroup("Channel")]
+        [ShowIf(nameof(UseMovementChannel))]
         [LabelText("Channel Key")]
         [SerializeField]
         public string ChannelKey = "knockback";
@@ -102,6 +120,15 @@ namespace Game.Commands.VNext
         [LabelText("Force")]
         [SerializeField]
         public DynamicValue<Vector2> Force;
+
+        [BoxGroup("Force")]
+        [ShowIf(nameof(UseTransformControllerTarget))]
+        [LabelText("Force Mode")]
+        [SerializeField]
+        public ForceMode2D ForceMode = ForceMode2D.Force;
+
+        bool UseMovementChannel() => TargetKind == AddForceTargetKind.MovementChannel;
+        bool UseTransformControllerTarget() => TargetKind == AddForceTargetKind.TransformControllerRigidbody2D;
     }
 
     [Serializable]

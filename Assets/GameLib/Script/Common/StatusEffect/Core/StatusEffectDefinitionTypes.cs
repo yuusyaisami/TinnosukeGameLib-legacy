@@ -6,6 +6,7 @@ using Game.Commands.VNext;
 using Game.Common;
 using Game.Profile;
 using Game.Scalar;
+using Game.Vars.Generated;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -235,7 +236,7 @@ namespace Game.StatusEffect
         public EffectStackMode StackMode = EffectStackMode.Refresh;
 
         [LabelText("Intensity")]
-        [Tooltip("RuntimeIntensity を利用する operation に渡す強度値です。")]
+        [Tooltip("RuntimeIntensity を利用する operation に渡す強度値です。request 側で Intensity が指定されている場合はそちらが優先され、この値は使われません。")]
         public DynamicValue<float> Intensity;
 
         [LabelText("Override Duration")]
@@ -327,7 +328,7 @@ namespace Game.StatusEffect
         [BoxGroup("Presentation")]
         [LabelText("Default Intensity")]
         [SerializeField]
-        [Tooltip("Apply request 側で intensity が省略されたときの既定値です。")]
+        [Tooltip("Apply request / command 側で Intensity が未指定のときだけ使われる既定値です。command 側で Intensity が設定されている場合はその値が優先されます。")]
         DynamicValue<float> defaultIntensity;
 
         [BoxGroup("Runtime")]
@@ -393,6 +394,7 @@ namespace Game.StatusEffect
         void Enable();
         void Disable();
         void Reset();
+        void RefreshValue();
     }
 
     [Serializable]
@@ -414,12 +416,12 @@ namespace Game.StatusEffect
 
         [LabelText("Value Mode")]
         [EnumToggleButtons]
-        [Tooltip("値を intensity から取るか、別の DynamicValue から取るかを指定します。")]
+        [Tooltip("Intensity をそのまま使うか、StatusEffect Runtime の VarStore を含む DynamicValue 評価で決めるかを指定します。")]
         public StatusEffectScalarValueMode ValueMode = StatusEffectScalarValueMode.RuntimeIntensity;
 
         [ShowIf(nameof(UsesDynamicValue))]
         [LabelText("Value")]
-        [Tooltip("Value Mode が DynamicValue のときに実際に使う値です。")]
+        [Tooltip("Value Mode が DynamicValue のときに使う値です。StatusEffect の intensity など runtime vars を参照できます。")]
         public DynamicValue<float> Value;
 
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(TargetActorSource)")]
@@ -449,9 +451,13 @@ namespace Game.StatusEffect
             if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var scalarService) || scalarService == null)
                 return false;
 
-            var value = ValueMode == StatusEffectScalarValueMode.RuntimeIntensity
-                ? context.ResolvedIntensity
-                : Value.GetOrDefault(context, ApplyMode == ScalarModifierApplyMode.Mul ? 1f : 0f);
+            var evaluationContext = new StatusEffectOperationDynamicContext(
+                context.RuntimeVars,
+                context.OwnerScope,
+                context.CommandRootScope);
+            var valueExpression = Value;
+            if (ValueMode == StatusEffectScalarValueMode.DynamicValue)
+                valueExpression.TrySetExternalExpressionVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
 
             runtime = new ScalarModifierOperationRuntime(
                 targetScope,
@@ -460,11 +466,45 @@ namespace Game.StatusEffect
                 ApplyMode,
                 MulPhase,
                 Layer,
-                value,
-                context.RuntimeTag,
-                context.InstanceId);
+                ValueMode,
+                valueExpression,
+                evaluationContext,
+                context.Definition.DefinitionId);
             return true;
         }
+    }
+
+    static class StatusEffectExpressionVariables
+    {
+        public static readonly IReadOnlyList<ExpressionVariable> Variables = Build();
+
+        static IReadOnlyList<ExpressionVariable> Build()
+        {
+            return new List<ExpressionVariable>
+            {
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Element.intensity, "intensity"),
+                CreateInt(VarIds.GameLib.Base.StatusEffect.Element.stackCount, "stackCount"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Element.remainingDuration, "remainingDuration"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Element.totalDuration, "totalDuration"),
+                CreateBool(VarIds.GameLib.Base.StatusEffect.Element.isEnabled, "isEnabled"),
+                CreateBool(VarIds.GameLib.Base.StatusEffect.Element.isApplied, "isApplied"),
+                CreateBool(VarIds.GameLib.Base.StatusEffect.Element.isActive, "isActive"),
+                CreateBool(VarIds.GameLib.Base.StatusEffect.Element.isUseBlocked, "isUseBlocked"),
+                CreateInt(VarIds.GameLib.Base.StatusEffect.Element.usedCount, "usedCount"),
+                CreateInt(VarIds.GameLib.Base.StatusEffect.Element.remainingUseCount, "remainingUseCount"),
+                CreateInt(VarIds.GameLib.Base.StatusEffect.Element.maxUseCount, "maxUseCount"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Element.remainingInverseInterval, "remainingInverseInterval"),
+            };
+        }
+
+        static ExpressionVariable CreateFloat(int varId, string key)
+            => ExpressionVariable.Create(DynamicValue.FromVarId(varId), key, ValueKind.Float);
+
+        static ExpressionVariable CreateInt(int varId, string key)
+            => ExpressionVariable.Create(DynamicValue.FromVarId(varId), key, ValueKind.Int);
+
+        static ExpressionVariable CreateBool(int varId, string key)
+            => ExpressionVariable.Create(DynamicValue.FromVarId(varId), key, ValueKind.Bool);
     }
 
     public interface IStatusEffectDurationDefinition
@@ -574,7 +614,9 @@ namespace Game.StatusEffect
         readonly ScalarModifierApplyMode _applyMode;
         readonly ScalarMulPhase _mulPhase;
         readonly string _layer;
-        readonly float _value;
+        readonly StatusEffectScalarValueMode _valueMode;
+        readonly DynamicValue<float> _value;
+        readonly IDynamicContext _evaluationContext;
         readonly string _tag;
         readonly object _source;
 
@@ -588,9 +630,10 @@ namespace Game.StatusEffect
             ScalarModifierApplyMode applyMode,
             ScalarMulPhase mulPhase,
             string layer,
-            float value,
-            string runtimeTag,
-            string instanceId)
+            StatusEffectScalarValueMode valueMode,
+            DynamicValue<float> value,
+            IDynamicContext evaluationContext,
+            string definitionId)
         {
             _targetScope = targetScope;
             _scalarService = scalarService;
@@ -598,19 +641,25 @@ namespace Game.StatusEffect
             _applyMode = applyMode;
             _mulPhase = mulPhase;
             _layer = layer ?? string.Empty;
+            _valueMode = valueMode;
             _value = value;
-            _tag = BuildTag(runtimeTag, instanceId, targetKey, _layer);
+            _evaluationContext = evaluationContext;
+            _tag = BuildTag(definitionId);
             _source = targetScope;
         }
 
         public void Apply()
         {
+            var currentValue = EvaluateCurrentValue();
             if (_isApplied)
+            {
+                _handle?.SetValue(currentValue);
                 return;
+            }
 
             _handle = _applyMode == ScalarModifierApplyMode.Mul
-                ? _scalarService.LocalMul(_targetKey, _layer, _value, _mulPhase, -1f, _source, _tag)
-                : _scalarService.LocalAdd(_targetKey, _layer, _value, -1f, _source, _tag);
+                ? _scalarService.LocalMul(_targetKey, _layer, currentValue, _mulPhase, -1f, _source, _tag)
+                : _scalarService.LocalAdd(_targetKey, _layer, currentValue, -1f, _source, _tag);
             _isApplied = true;
         }
 
@@ -635,6 +684,11 @@ namespace Game.StatusEffect
             Apply();
         }
 
+        public void RefreshValue()
+        {
+            Apply();
+        }
+
         void DisposeHandle()
         {
             if (!_isApplied)
@@ -645,10 +699,24 @@ namespace Game.StatusEffect
             _isApplied = false;
         }
 
-        static string BuildTag(string runtimeTag, string instanceId, ScalarKey key, string layer)
+        float EvaluateCurrentValue()
+            => _valueMode == StatusEffectScalarValueMode.RuntimeIntensity
+                ? ResolveRuntimeIntensity()
+                : _value.GetOrDefault(_evaluationContext, _applyMode == ScalarModifierApplyMode.Mul ? 1f : 0f);
+
+        static string BuildTag(string definitionId)
+            => string.IsNullOrWhiteSpace(definitionId) ? "StatusEffect" : definitionId;
+
+        float ResolveRuntimeIntensity()
         {
-            var keyToken = key.Id != 0 ? key.Id.ToString() : (key.Name ?? "Key");
-            return $"{runtimeTag}:{instanceId}:{keyToken}:{layer}";
+            if (_evaluationContext?.Vars != null &&
+                _evaluationContext.Vars.TryGetVariant(VarIds.GameLib.Base.StatusEffect.Element.intensity, out var variant) &&
+                variant.TryGet(out float intensity))
+            {
+                return intensity;
+            }
+
+            return 0f;
         }
     }
 

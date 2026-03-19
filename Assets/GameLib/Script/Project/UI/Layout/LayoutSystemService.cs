@@ -36,7 +36,7 @@ namespace Game.Layout
         bool _membershipDirty = true;
         bool _contentDirty = true;
         bool _acquired;
-        bool _disposed;
+        bool _disposed = false;
         bool _hasOutput;
         LayoutOutput _lastOutput;
 

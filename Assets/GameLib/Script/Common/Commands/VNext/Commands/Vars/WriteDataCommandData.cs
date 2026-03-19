@@ -9,12 +9,6 @@ using UnityEngine;
 
 namespace Game.Commands.VNext
 {
-    public enum WriteServiceScope
-    {
-        Scope = 0,
-        Actor = 1,
-    }
-
     public enum VarStoreTarget
     {
         CommandVars = 0,
@@ -76,11 +70,11 @@ namespace Game.Commands.VNext
         public ScalarMulPhase MulPhase = ScalarMulPhase.PostAdd;
 
         [ShowIf("@Op == ScalarWriteOpKind.SetLocalBase || Op == ScalarWriteOpKind.SetGlobalBase || Op == ScalarWriteOpKind.LocalAdd || Op == ScalarWriteOpKind.GlobalAdd || Op == ScalarWriteOpKind.LocalMul || Op == ScalarWriteOpKind.GlobalMul")]
-        public DynamicValue Value;
+        public DynamicValue<float> Value;
 
         [ShowIf("@Op == ScalarWriteOpKind.LocalAdd || Op == ScalarWriteOpKind.GlobalAdd || Op == ScalarWriteOpKind.LocalMul || Op == ScalarWriteOpKind.GlobalMul")]
         [LabelText("Duration (sec)")]
-        public DynamicValue DurationSeconds;
+        public DynamicValue<float> DurationSeconds;
 
         [ShowIf("@Op == ScalarWriteOpKind.LocalAdd || Op == ScalarWriteOpKind.GlobalAdd || Op == ScalarWriteOpKind.LocalMul || Op == ScalarWriteOpKind.GlobalMul")]
         public string Tag = "";
@@ -107,12 +101,14 @@ namespace Game.Commands.VNext
             {
                 var varCount = VarOps?.Count ?? 0;
                 var scalarCount = ScalarOps?.Count ?? 0;
-                return $"Scope={ServiceScope} Vars={varCount} Scalars={scalarCount}";
+                return $"Source={Source.Kind} Vars={varCount} Scalars={scalarCount}";
             }
         }
 
-        [EnumToggleButtons]
-        public WriteServiceScope ServiceScope = WriteServiceScope.Actor;
+        [BoxGroup("Source")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Source)")]
+        [SerializeField]
+        public ActorSource Source = new() { Kind = ActorSourceKind.Current };
 
         [FoldoutGroup("Vars")]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]

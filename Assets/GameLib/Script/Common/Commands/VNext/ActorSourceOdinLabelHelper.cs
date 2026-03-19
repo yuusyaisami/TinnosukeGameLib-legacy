@@ -23,6 +23,7 @@ namespace Game.Commands.VNext
                 ActorSourceKind.ByIdentity => FormatIdentitySummary(actorSource.Identity),
                 ActorSourceKind.FromUnityObject => FormatUnityObjectSummary(actorSource.UnityObject),
                 ActorSourceKind.Shared => FormatSharedSummary(actorSource.SharedTag),
+                ActorSourceKind.ContextSlot => FormatContextSlotSummary(actorSource.ContextSlot),
                 var kind => kind.ToString(),
             };
 
@@ -68,6 +69,13 @@ namespace Game.Commands.VNext
             return string.IsNullOrWhiteSpace(sharedTag)
                 ? "Shared (None)"
                 : $"Shared: {sharedTag}";
+        }
+
+        static string FormatContextSlotSummary(CommandLtsSlot slot)
+        {
+            return slot == CommandLtsSlot.None
+                ? "ContextSlot (None)"
+                : $"ContextSlot: {slot}";
         }
     }
 }

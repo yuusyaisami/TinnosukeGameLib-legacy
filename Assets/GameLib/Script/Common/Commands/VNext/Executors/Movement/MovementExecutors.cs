@@ -6,6 +6,7 @@ using Game.Common;
 using Game.Movement;
 using Game.Scalar;
 using Game.Scalar.Generated;
+using Game.TransformSystem;
 using VContainer;
 using UnityEngine;
 using Game.DI;
@@ -41,24 +42,131 @@ namespace Game.Commands.VNext
 
     public sealed class AddForceExecutor : ICommandExecutor
     {
+        const int ResolveRetryFrames = 5;
+
         public int CommandId => CommandIds.AddForce;
 
-        public UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
+        public async UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
         {
             if (data is not AddForceCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AddForceCommandData is required.");
 
+            var force = typed.Force.Resolve(ctx);
+            switch (typed.TargetKind)
+            {
+                case AddForceTargetKind.MovementChannel:
+                    ApplyToMovementChannel(ctx, typed, force);
+                    break;
+                case AddForceTargetKind.TransformControllerRigidbody2D:
+                    await ApplyToTransformControllerRigidbody2DAsync(ctx, typed, force, typed.ForceMode, ct);
+                    break;
+            }
+        }
+
+        static void ApplyToMovementChannel(CommandContext ctx, AddForceCommandData typed, Vector2 force)
+        {
             if (string.IsNullOrEmpty(typed.ChannelKey))
-                return UniTask.CompletedTask;
+            {
+                Debug.LogWarning("[AddForceExecutor] ChannelKey is null or empty.");
+                return;
+            }
 
             if (!ctx.Resolver.TryResolve<IMovementChannelHub>(out var hub))
-                return UniTask.CompletedTask;
+            {
+                Debug.LogWarning($"[AddForceExecutor] IMovementChannelHub could not be resolved. channel='{typed.ChannelKey}'");
+                return;
+            }
 
             if (!hub.TryGetChannel(typed.ChannelKey, out var handle))
-                return UniTask.CompletedTask;
+            {
+                Debug.LogWarning($"[AddForceExecutor] Movement channel was not found. channel='{typed.ChannelKey}'");
+                return;
+            }
 
-            handle.AddForce(typed.Force.Resolve(ctx));
-            return UniTask.CompletedTask;
+            handle.AddForce(force);
+        }
+
+        static async UniTask ApplyToTransformControllerRigidbody2DAsync(
+            CommandContext ctx,
+            AddForceCommandData typed,
+            Vector2 force,
+            ForceMode2D forceMode,
+            CancellationToken ct)
+        {
+            var (resolvedScope, resolveError) = await ActorScopeResolver.ResolveAsync(typed.Target, ctx, ct);
+            if (resolvedScope == null)
+            {
+                Debug.LogWarning($"[AddForceExecutor] TransformController target resolve failed: {resolveError}");
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"AddForce target resolve failed: {resolveError}");
+            }
+
+            var resolver = resolvedScope.Resolver;
+            if (resolver == null)
+            {
+                Debug.LogWarning("[AddForceExecutor] Resolved target scope has no resolver.");
+                return;
+            }
+
+            TransformControllerService? service = null;
+            for (var attempt = 0; attempt <= ResolveRetryFrames; attempt++)
+            {
+                if (TryResolveTransformControllerService(resolver, out service) && service != null)
+                    break;
+
+                if (attempt == ResolveRetryFrames)
+                    break;
+
+                await UniTask.Yield(PlayerLoopTiming.Update, ct);
+            }
+
+            if (service != null && service.TryAddForceToRigidbody2D(force, forceMode))
+                return;
+
+            var directRigidbody = resolvedScope.Identity?.SelfTransform != null
+                ? resolvedScope.Identity.SelfTransform.GetComponent<Rigidbody2D>()
+                : null;
+            if (directRigidbody != null)
+            {
+                directRigidbody.AddForce(force, forceMode);
+                return;
+            }
+
+            var scopeId = resolvedScope.Identity?.Id ?? "(no id)";
+            var scopeKind = resolvedScope.Identity?.Kind.ToString() ?? resolvedScope.Kind.ToString();
+            Debug.LogWarning($"[AddForceExecutor] Failed to apply force. TransformControllerService and Rigidbody2D were both unavailable. target={scopeKind}:{scopeId}");
+        }
+
+        static bool TryResolveTransformControllerService(IObjectResolver resolver, out TransformControllerService? service)
+        {
+            service = null;
+            if (resolver == null)
+                return false;
+
+            if (resolver.TryResolve<TransformControllerService>(out var direct) && direct != null)
+            {
+                service = direct;
+                return true;
+            }
+
+            if (resolver.TryResolve<ITransformControllerTelemetry>(out var telemetry) && telemetry is TransformControllerService byTelemetry)
+            {
+                service = byTelemetry;
+                return true;
+            }
+
+            if (resolver.TryResolve<ITransformTeleportService>(out var teleport) && teleport is TransformControllerService byTeleport)
+            {
+                service = byTeleport;
+                return true;
+            }
+
+            if (resolver.TryResolve<ITransformControllerPoseReader>(out var poseReader) && poseReader is TransformControllerService byPoseReader)
+            {
+                service = byPoseReader;
+                return true;
+            }
+
+            return false;
         }
     }
 

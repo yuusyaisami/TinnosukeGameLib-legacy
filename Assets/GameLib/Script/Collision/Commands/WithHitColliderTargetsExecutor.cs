@@ -54,7 +54,8 @@ namespace Game.Commands.VNext
                         options: ctx.Options,
                         commandRootScope: ctx.CommandRootScope,
                         rootActor: ctx.RootActor,
-                        callerActor: ctx.Actor);
+                        callerActor: ctx.Actor,
+                        sourceContext: ctx);
 
                     var task = runner.ExecuteListAsync(typed.Body, targetCtx, ct, ctx.Options);
                     RunInBackground(task);
@@ -82,7 +83,8 @@ namespace Game.Commands.VNext
                     options: ctx.Options,
                     commandRootScope: ctx.CommandRootScope,
                     rootActor: ctx.RootActor,
-                    callerActor: ctx.Actor);
+                    callerActor: ctx.Actor,
+                    sourceContext: ctx);
 
                 var result = await runner.ExecuteListAsync(typed.Body, targetCtx, ct, ctx.Options);
                 if (result.Status == CommandRunStatus.Canceled)

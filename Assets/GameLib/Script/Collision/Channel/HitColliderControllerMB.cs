@@ -67,12 +67,14 @@ namespace Game.Collision
 
         void Awake()
         {
+            ValidateRuleSettings(logWarning: true);
             BindDebugOwners();
         }
 
 #if UNITY_EDITOR
         void OnValidate()
         {
+            ValidateRuleSettings(logWarning: true);
             BindDebugOwners();
         }
 #endif
@@ -135,6 +137,28 @@ namespace Game.Collision
                 rule.OnEnterCommandsOther?.BindDebugOwner(this, $"_rules[{i}].onEnterCommandsOther");
                 rule.OnStayCommandsOther?.BindDebugOwner(this, $"_rules[{i}].onStayCommandsOther");
                 rule.OnExitCommandsOther?.BindDebugOwner(this, $"_rules[{i}].onExitCommandsOther");
+            }
+        }
+
+        void ValidateRuleSettings(bool logWarning)
+        {
+            if (_rules == null || _rules.Count == 0)
+                return;
+
+            for (int i = 0; i < _rules.Count; i++)
+            {
+                var rule = _rules[i];
+                if (rule == null)
+                    continue;
+
+                if (!rule.HasInvalidCounterpartContextSlot())
+                    continue;
+
+                if (logWarning)
+                {
+                    var ruleName = string.IsNullOrWhiteSpace(rule.Name) ? $"Rule[{i}]" : rule.Name;
+                    Debug.LogWarning($"[HitColliderControllerMB] Counterpart Context Slot should use ContextA-D. Rule='{ruleName}' Slot={rule.CounterpartContextSlot}. It will fall back to ContextA at runtime.", this);
+                }
             }
         }
 
@@ -272,6 +296,16 @@ namespace Game.Collision
         [Tooltip("Both のとき Self/Other を同時に開始する。OFFだと Self 完了後に Other を実行。")]
         bool parallelWhenBoth = true;
 
+        [SerializeField]
+        [LabelText("Counterpart Context Slot")]
+        [Tooltip("実行主体の相手側LTSを格納するスロットです。Self実行時はOther、Other実行時はSelfが入ります。Bothの場合はSelf側コマンドではOther、Other側コマンドではSelfが入ります。ContextA-D を使用してください。")]
+        VNext.CommandLtsSlot counterpartContextSlot = VNext.CommandLtsSlot.ContextA;
+
+        [ShowIf(nameof(HasInvalidCounterpartContextSlot))]
+        [InfoBox("Counterpart Context Slot は ContextA-D を使ってください。Actor / RootActor などを指定した場合、実行時は ContextA にフォールバックします。", InfoMessageType.Warning)]
+        [SerializeField, HideInInspector]
+        bool _invalidCounterpartContextSlotWarning;
+
         [ShowIf("@HasEnter && commandTarget != HitColliderCommandTarget.Both")]
         [SerializeField] VNext.CommandListData onEnterCommands = new();
         [ShowIf("@HasStay && commandTarget != HitColliderCommandTarget.Both")]
@@ -329,6 +363,7 @@ namespace Game.Collision
         public int StaleFrameThreshold => staleFrameThreshold;
         public HitColliderCommandTarget CommandTarget => commandTarget;
         public bool ParallelWhenBoth => parallelWhenBoth;
+        public VNext.CommandLtsSlot CounterpartContextSlot => counterpartContextSlot;
 
         public VNext.CommandListData OnEnterCommands => onEnterCommands;
         public VNext.CommandListData OnStayCommands => onStayCommands;
@@ -401,6 +436,19 @@ namespace Game.Collision
         public void SetCommandTargetRuntime(HitColliderCommandTarget value) => commandTarget = value;
         public void SetParallelWhenBothRuntime(bool value) => parallelWhenBoth = value;
         public void SetStayIntervalSecondsRuntime(float value) => stayIntervalSeconds = Mathf.Max(0f, value);
+        public void SetCounterpartContextSlotRuntime(VNext.CommandLtsSlot value) => counterpartContextSlot = value;
+
+        public bool HasInvalidCounterpartContextSlot()
+        {
+            return !VNext.CommandLtsSlotUtility.IsContextSlot(counterpartContextSlot);
+        }
+
+        public VNext.CommandLtsSlot GetEffectiveCounterpartContextSlot()
+        {
+            return VNext.CommandLtsSlotUtility.IsContextSlot(counterpartContextSlot)
+                ? counterpartContextSlot
+                : VNext.CommandLtsSlot.ContextA;
+        }
 
         public void SetIncludeStaticKindsRuntime(bool use, StaticColliderKind[]? values)
         {

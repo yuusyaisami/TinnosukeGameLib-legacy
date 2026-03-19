@@ -15,18 +15,19 @@ namespace Game.Commands.VNext
     {
         public int CommandId => CommandIds.WriteData;
 
-        public UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
+        public async UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
         {
             if (data is not WriteDataCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "WriteDataCommandData is required.");
 
-            var serviceScope = ResolveServiceScope(ctx, typed.ServiceScope);
+            var sourceCtx = await ResolveSourceContextAsync(ctx, typed, ct);
+            var serviceScope = sourceCtx.Actor ?? sourceCtx.Scope;
             IBlackboardService? blackboard = null;
             TryResolveBlackboard(serviceScope, out blackboard);
 
             try
             {
-                ApplyVarOps(typed.VarOps, ctx, serviceScope, blackboard);
+                ApplyVarOps(typed.VarOps, sourceCtx, serviceScope, blackboard);
             }
             catch (Exception ex)
             {
@@ -36,7 +37,7 @@ namespace Game.Commands.VNext
 
             try
             {
-                ApplyScalarOps(typed.ScalarOps, ctx, serviceScope?.Resolver);
+                ApplyScalarOps(typed.ScalarOps, sourceCtx, serviceScope?.Resolver);
             }
             catch (Exception ex)
             {
@@ -44,14 +45,26 @@ namespace Game.Commands.VNext
                 Debug.LogException(ex);
             }
 
-            return UniTask.CompletedTask;
+            return;
         }
 
-        static Game.IScopeNode ResolveServiceScope(CommandContext ctx, WriteServiceScope scope)
+        static async UniTask<CommandContext> ResolveSourceContextAsync(CommandContext ctx, WriteDataCommandData typed, CancellationToken ct)
         {
-            if (scope == WriteServiceScope.Actor)
-                return ctx.Actor ?? ctx.Scope;
-            return ctx.Scope;
+            var (resolvedScope, _) = await ActorScopeResolver.ResolveAsync(typed.Source, ctx, ct);
+            var sourceScope = resolvedScope ?? ctx.Actor ?? ctx.Scope;
+            if (ReferenceEquals(sourceScope, ctx.Scope) && ReferenceEquals(sourceScope, ctx.Actor))
+                return ctx;
+
+            return new CommandContext(
+                sourceScope,
+                ctx.Vars,
+                ctx.Runner,
+                sourceScope,
+                ctx.Options,
+                commandRootScope: ctx.CommandRootScope,
+                rootActor: ctx.RootActor,
+                callerActor: ctx.Actor,
+                sourceContext: ctx);
         }
 
         static void ApplyVarOps(List<VarWriteOp> ops, CommandContext ctx, IScopeNode? scope, IBlackboardService? blackboard)
@@ -290,7 +303,10 @@ namespace Game.Commands.VNext
                 return;
 
             if (resolver == null || !resolver.TryResolve<IBaseScalarService>(out var scalar) || scalar == null)
+            {
+                Debug.LogError($"[WriteDataExecutor] Scalar ops require IBaseScalarService, but no scalar service exists in this LTS. scope={DescribeScope(ctx.Scope)}");
                 return;
+            }
 
             var source = (object)(ctx.Actor ?? ctx.Scope);
 
@@ -311,27 +327,27 @@ namespace Game.Commands.VNext
                         break;
 
                     case ScalarWriteOpKind.SetLocalBase:
-                        scalar.SetLocalBase(op.Key, op.Value.GetOrDefault<float>(ctx, 0f));
+                        scalar.SetLocalBase(op.Key, op.Value.GetOrDefault(ctx, 0f));
                         break;
 
                     case ScalarWriteOpKind.SetGlobalBase:
-                        scalar.SetGlobalBase(op.Key, op.Value.GetOrDefault<float>(ctx, 0f));
+                        scalar.SetGlobalBase(op.Key, op.Value.GetOrDefault(ctx, 0f));
                         break;
 
                     case ScalarWriteOpKind.LocalAdd:
-                        HandleScalarHandle(op, ctx, scalar.LocalAdd(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault<float>(ctx, 0f), ResolveDuration(op, ctx), source, op.Tag));
+                        HandleScalarHandle(op, ctx, scalar.LocalAdd(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault(ctx, 0f), ResolveDuration(op, ctx), source, op.Tag));
                         break;
 
                     case ScalarWriteOpKind.GlobalAdd:
-                        HandleScalarHandle(op, ctx, scalar.GlobalAdd(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault<float>(ctx, 0f), ResolveDuration(op, ctx), source, op.Tag));
+                        HandleScalarHandle(op, ctx, scalar.GlobalAdd(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault(ctx, 0f), ResolveDuration(op, ctx), source, op.Tag));
                         break;
 
                     case ScalarWriteOpKind.LocalMul:
-                        HandleScalarHandle(op, ctx, scalar.LocalMul(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault<float>(ctx, 1f), op.MulPhase, ResolveDuration(op, ctx), source, op.Tag));
+                        HandleScalarHandle(op, ctx, scalar.LocalMul(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault(ctx, 1f), op.MulPhase, ResolveDuration(op, ctx), source, op.Tag));
                         break;
 
                     case ScalarWriteOpKind.GlobalMul:
-                        HandleScalarHandle(op, ctx, scalar.GlobalMul(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault<float>(ctx, 1f), op.MulPhase, ResolveDuration(op, ctx), source, op.Tag));
+                        HandleScalarHandle(op, ctx, scalar.GlobalMul(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault(ctx, 1f), op.MulPhase, ResolveDuration(op, ctx), source, op.Tag));
                         break;
 
                     case ScalarWriteOpKind.DisposeHandleVar:
@@ -343,9 +359,8 @@ namespace Game.Commands.VNext
 
         static float ResolveDuration(ScalarWriteOp op, CommandContext ctx)
         {
-            if (!op.DurationSeconds.HasSource)
-                return -1f;
-            return op.DurationSeconds.GetOrDefault<float>(ctx, -1f);
+            var duration = op.DurationSeconds.GetOrDefault(ctx, -1f);
+            return duration <= 0f ? -1f : duration;
         }
 
         static void HandleScalarHandle(ScalarWriteOp op, CommandContext ctx, ScalarHandle handle)

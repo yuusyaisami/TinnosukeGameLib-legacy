@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using DG.Tweening;
+using Game.Commands;
 using Game.Common;
 using Game.MaterialFx;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 namespace Game.Channel
@@ -632,8 +634,8 @@ namespace Game.Channel
 
         readonly List<ActiveTrack> _tracks = new();
         readonly Dictionary<TrackKey, int> _trackIndices = new();
-
-        static readonly IDynamicContext LiteralReadContext = new SimpleDynamicContext(NullVarStore.Instance, null!);
+        IScopeNode? _scope;
+        static readonly IDynamicContext LiteralReadContext = new LiteralDynamicContext();
 
         public MeshFxAnimationService(
             IMeshFxChannelHubService meshFxHub,
@@ -645,12 +647,14 @@ namespace Game.Channel
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            _scope = scope;
             _tracks.Clear();
             _trackIndices.Clear();
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            _scope = null;
             _tracks.Clear();
             _trackIndices.Clear();
         }
@@ -696,6 +700,19 @@ namespace Game.Channel
                 clip.MaterialEntries,
                 clip.ClearContextBeforePlay,
                 clip.MaterialBasePriority);
+        }
+
+        sealed class LiteralDynamicContext : IDynamicContext
+        {
+            public IVarStore Vars => NullVarStore.Instance;
+            public IScopeNode Scope => null!;
+            public IScopeNode? CommandRootScope => null;
+
+            public IScopeNode ResolveOtherScope(CommandTargetIdentityFilter filter)
+            {
+                _ = filter;
+                return null!;
+            }
         }
 
         public bool Play(
@@ -829,7 +846,7 @@ namespace Game.Channel
                     continue;
                 }
 
-                var typedValue = entry.Value.ToTypedValue(valueType);
+                var typedValue = entry.Value.ToTypedValue(valueType, CreateDynamicContext());
                 var ok = player.SetMaterialLayer(
                     entry.Key,
                     contextTag,
@@ -845,6 +862,18 @@ namespace Game.Channel
             }
 
             return applied;
+        }
+
+        IDynamicContext? CreateDynamicContext()
+        {
+            if (_scope == null)
+                return null;
+
+            var resolver = _scope.Resolver;
+            var vars = resolver != null && resolver.TryResolve<IVarStore>(out var resolvedVars) && resolvedVars != null
+                ? resolvedVars
+                : NullVarStore.Instance;
+            return new SimpleDynamicContext(vars, _scope);
         }
 
         bool ClearContextInternal(

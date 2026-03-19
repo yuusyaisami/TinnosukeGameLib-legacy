@@ -22,6 +22,8 @@ namespace Game.Commands
         public readonly BlackboardReadScope BlackboardReadScope;
         public readonly string ScalarKey;
         public readonly float ChangeEpsilon;
+        public readonly bool ExecuteInitialValueChangedEnter;
+        public readonly float InitialValueChangedEnterDelaySeconds;
         public readonly int OnEnterCommandCount;
         public readonly int OnExitCommandCount;
         public readonly int WhileTrueCommandCount;
@@ -50,6 +52,8 @@ namespace Game.Commands
             BlackboardReadScope blackboardReadScope,
             string scalarKey,
             float changeEpsilon,
+            bool executeInitialValueChangedEnter,
+            float initialValueChangedEnterDelaySeconds,
             int onEnterCommandCount,
             int onExitCommandCount,
             int whileTrueCommandCount,
@@ -77,6 +81,8 @@ namespace Game.Commands
             BlackboardReadScope = blackboardReadScope;
             ScalarKey = scalarKey;
             ChangeEpsilon = changeEpsilon;
+            ExecuteInitialValueChangedEnter = executeInitialValueChangedEnter;
+            InitialValueChangedEnterDelaySeconds = initialValueChangedEnterDelaySeconds;
             OnEnterCommandCount = onEnterCommandCount;
             OnExitCommandCount = onExitCommandCount;
             WhileTrueCommandCount = whileTrueCommandCount;

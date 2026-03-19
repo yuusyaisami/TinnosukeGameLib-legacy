@@ -8,14 +8,16 @@ namespace Game.Commands.VNext
 {
     public sealed class CommandContext : IDynamicContext
     {
+        readonly IScopeNode?[] _ltsSlots;
+
         public IScopeNode Scope { get; }
         public IObjectResolver Resolver => Scope.Resolver!;
         public IVarStore Vars { get; }
         public ICommandRunner Runner { get; }
-        public IScopeNode? Actor { get; }
-        public IScopeNode? CommandRootScope { get; }
-        public IScopeNode? RootActor { get; }
-        public IScopeNode? CallerActor { get; }
+        public IScopeNode? Actor => GetScope(CommandLtsSlot.Actor) ?? Scope;
+        public IScopeNode? CommandRootScope => GetScope(CommandLtsSlot.CommandRoot) ?? Scope;
+        public IScopeNode? RootActor => GetScope(CommandLtsSlot.RootActor) ?? Actor;
+        public IScopeNode? CallerActor => GetScope(CommandLtsSlot.CallerActor) ?? Actor;
         public CommandRunOptions Options { get; }
 
         public CommandContext(IScopeNode scope, IVarStore vars, ICommandRunner runner)
@@ -36,7 +38,8 @@ namespace Game.Commands.VNext
             CommandRunOptions options,
             IScopeNode? commandRootScope,
             IScopeNode? rootActor,
-            IScopeNode? callerActor = null)
+            IScopeNode? callerActor = null,
+            CommandContext? sourceContext = null)
         {
             Scope = scope ?? throw new System.ArgumentNullException(nameof(scope));
             if (Scope.Resolver == null)
@@ -44,16 +47,50 @@ namespace Game.Commands.VNext
 
             Vars = vars ?? NullVarStore.Instance;
             Runner = runner;
-            Actor = actor ?? scope;
-            CommandRootScope = commandRootScope ?? Scope;
-            RootActor = rootActor ?? Actor;
-            CallerActor = callerActor ?? Actor;
             Options = options;
+
+            _ltsSlots = new IScopeNode?[CommandLtsSlotUtility.SlotCount];
+            if (sourceContext != null)
+                System.Array.Copy(sourceContext._ltsSlots, _ltsSlots, _ltsSlots.Length);
+
+            SetStoredScope(CommandLtsSlot.Actor, actor ?? scope);
+            SetStoredScope(CommandLtsSlot.CommandRoot, commandRootScope ?? Scope);
+            SetStoredScope(CommandLtsSlot.RootActor, rootActor ?? Actor);
+            SetStoredScope(CommandLtsSlot.CallerActor, callerActor ?? Actor);
         }
 
         public CommandContext WithOptions(CommandRunOptions options)
         {
-            return new CommandContext(Scope, Vars, Runner, Actor, options, CommandRootScope, RootActor, CallerActor);
+            return new CommandContext(Scope, Vars, Runner, Actor, options, CommandRootScope, RootActor, CallerActor, this);
+        }
+
+        public IScopeNode? GetScope(CommandLtsSlot slot)
+        {
+            if (slot == CommandLtsSlot.Scope)
+                return Scope;
+
+            var index = CommandLtsSlotUtility.ToStorageIndex(slot);
+            if ((uint)index >= _ltsSlots.Length)
+                return null;
+
+            return _ltsSlots[index];
+        }
+
+        public void SetScope(CommandLtsSlot slot, IScopeNode? scope)
+        {
+            if (slot == CommandLtsSlot.Scope || slot == CommandLtsSlot.None)
+                return;
+
+            SetStoredScope(slot, scope);
+        }
+
+        void SetStoredScope(CommandLtsSlot slot, IScopeNode? scope)
+        {
+            var index = CommandLtsSlotUtility.ToStorageIndex(slot);
+            if ((uint)index >= _ltsSlots.Length)
+                return;
+
+            _ltsSlots[index] = scope;
         }
 
         public IScopeNode ResolveOtherScope(CommandTargetIdentityFilter filter)

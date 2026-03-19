@@ -26,6 +26,7 @@ namespace Game.Collision
 
         readonly List<RuntimeBinding> _bindings = new(8);
         readonly HashSet<VNext.CommandListData> _runtimeMutatedCommandLists = new();
+        readonly HashSet<string> _warnedInvalidContextSlotRules = new(StringComparer.Ordinal);
         CancellationTokenSource? _cts;
         CancellationTokenSource? _selfHandleWatchCts;
         DynamicColliderHandle _boundSelfHandle;
@@ -219,6 +220,7 @@ namespace Game.Collision
             _selfHandleWatchCts?.Cancel();
             _selfHandleWatchCts?.Dispose();
             _selfHandleWatchCts = null;
+            _warnedInvalidContextSlotRules.Clear();
             ClearRuntimeMutatedCommandLists();
             CleanupBindings();
         }
@@ -262,26 +264,26 @@ namespace Game.Collision
             switch (rule.CommandTarget)
             {
                 case HitColliderCommandTarget.Self:
-                    _mb.RecordDebugExecuted(ExecuteOnSelf(GetCommandList(rule, eventType), vars, ct, rule.Name, evt.RoutedHit), false);
+                    _mb.RecordDebugExecuted(ExecuteOnSelf(rule, GetCommandList(rule, eventType), vars, ct, rule.Name, evt.RoutedHit), false);
                     break;
                 case HitColliderCommandTarget.Other:
-                    _mb.RecordDebugExecuted(false, ExecuteOnOther(GetCommandList(rule, eventType), vars, evt.RoutedHit, ct, rule.Name, eventType));
+                    _mb.RecordDebugExecuted(false, ExecuteOnOther(rule, GetCommandList(rule, eventType), vars, evt.RoutedHit, ct, rule.Name, eventType));
                     break;
                 case HitColliderCommandTarget.Both:
                     var selfList = GetCommandList(rule, eventType, forSelfWhenBoth: true);
                     var otherList = GetCommandList(rule, eventType, forSelfWhenBoth: false);
                     if (rule.ParallelWhenBoth)
                     {
-                        var selfExecuted = ExecuteOnSelf(selfList, vars, ct, rule.Name, evt.RoutedHit);
-                        var otherExecuted = ExecuteOnOther(otherList, vars, evt.RoutedHit, ct, rule.Name, eventType);
+                        var selfExecuted = ExecuteOnSelf(rule, selfList, vars, ct, rule.Name, evt.RoutedHit);
+                        var otherExecuted = ExecuteOnOther(rule, otherList, vars, evt.RoutedHit, ct, rule.Name, eventType);
                         _mb.RecordDebugExecuted(selfExecuted, otherExecuted);
                     }
                     else
                     {
                         UniTask.Void(async () =>
                         {
-                            var selfExecuted = await ExecuteOnSelfAsync(selfList, vars, ct, rule.Name, evt.RoutedHit, eventType);
-                            var otherExecuted = await ExecuteOnOtherAsync(otherList, vars, evt.RoutedHit, ct, rule.Name, eventType);
+                            var selfExecuted = await ExecuteOnSelfAsync(rule, selfList, vars, ct, rule.Name, evt.RoutedHit, eventType);
+                            var otherExecuted = await ExecuteOnOtherAsync(rule, otherList, vars, evt.RoutedHit, ct, rule.Name, eventType);
                             _mb.RecordDebugExecuted(selfExecuted, otherExecuted);
                         });
                     }
@@ -411,7 +413,7 @@ namespace Game.Collision
             }
         }
 
-        bool ExecuteOnSelf(VNext.CommandListData? list, IVarStore vars, CancellationToken ct, string ruleName, in RoutedHit routedHit)
+        bool ExecuteOnSelf(HitColliderControllerRule rule, VNext.CommandListData? list, IVarStore vars, CancellationToken ct, string ruleName, in RoutedHit routedHit)
         {
             if (list == null || list.Count == 0)
             {
@@ -428,11 +430,12 @@ namespace Game.Collision
 
             var options = VNext.CommandRunOptions.Default;
             var ctx = new VNext.CommandContext(_ownerScope, vars, runner, actor: _ownerScope, options);
+            ApplySelfContextSlots(ctx, rule, routedHit);
             ExecuteAsyncTask(list, ctx, ct, ruleName).Forget();
             return true;
         }
 
-        bool ExecuteOnOther(VNext.CommandListData? list, IVarStore vars, in RoutedHit rh, CancellationToken ct, string ruleName, HitEventType eventType)
+        bool ExecuteOnOther(HitColliderControllerRule rule, VNext.CommandListData? list, IVarStore vars, in RoutedHit rh, CancellationToken ct, string ruleName, HitEventType eventType)
         {
             if (list == null || list.Count == 0)
             {
@@ -468,11 +471,12 @@ namespace Game.Collision
                 commandRootScope: _ownerScope,
                 rootActor: _ownerScope,
                 callerActor: _ownerScope);
+            ApplyOtherContextSlots(ctx, rule, rh);
             ExecuteAsyncTask(list, ctx, ct, ruleName).Forget();
             return true;
         }
 
-        UniTask<bool> ExecuteOnSelfAsync(VNext.CommandListData? list, IVarStore vars, CancellationToken ct, string ruleName, in RoutedHit routedHit, HitEventType eventType)
+        UniTask<bool> ExecuteOnSelfAsync(HitColliderControllerRule rule, VNext.CommandListData? list, IVarStore vars, CancellationToken ct, string ruleName, in RoutedHit routedHit, HitEventType eventType)
         {
             if (list == null || list.Count == 0)
             {
@@ -489,6 +493,7 @@ namespace Game.Collision
 
             var options = VNext.CommandRunOptions.Default;
             var ctx = new VNext.CommandContext(_ownerScope, vars, runner, actor: _ownerScope, options);
+            ApplySelfContextSlots(ctx, rule, routedHit);
             return ExecuteOnSelfAsyncCore(list, ctx, ct, ruleName);
         }
 
@@ -511,7 +516,7 @@ namespace Game.Collision
             return true;
         }
 
-        UniTask<bool> ExecuteOnOtherAsync(VNext.CommandListData? list, IVarStore vars, in RoutedHit rh, CancellationToken ct, string ruleName, HitEventType eventType)
+        UniTask<bool> ExecuteOnOtherAsync(HitColliderControllerRule rule, VNext.CommandListData? list, IVarStore vars, in RoutedHit rh, CancellationToken ct, string ruleName, HitEventType eventType)
         {
             if (list == null || list.Count == 0)
             {
@@ -547,7 +552,43 @@ namespace Game.Collision
                 commandRootScope: _ownerScope,
                 rootActor: _ownerScope,
                 callerActor: _ownerScope);
+            ApplyOtherContextSlots(ctx, rule, rh);
             return ExecuteOnSelfAsyncCore(list, ctx, ct, ruleName);
+        }
+
+        void ApplySelfContextSlots(VNext.CommandContext ctx, HitColliderControllerRule rule, in RoutedHit routedHit)
+        {
+            var slot = ResolveCounterpartContextSlot(rule);
+            if (TryResolveOtherScope(routedHit, out var otherScope))
+                ctx.SetScope(slot, otherScope);
+            else
+                ctx.SetScope(slot, null);
+        }
+
+        void ApplyOtherContextSlots(VNext.CommandContext ctx, HitColliderControllerRule rule, in RoutedHit routedHit)
+        {
+            var slot = ResolveCounterpartContextSlot(rule);
+            ctx.SetScope(slot, _ownerScope);
+        }
+
+        VNext.CommandLtsSlot ResolveCounterpartContextSlot(HitColliderControllerRule rule)
+        {
+            if (rule.HasInvalidCounterpartContextSlot())
+            {
+                var ruleName = string.IsNullOrWhiteSpace(rule.Name) ? "default" : rule.Name;
+                if (_warnedInvalidContextSlotRules.Add(ruleName))
+                    Debug.LogWarning($"[HitColliderControllerService] Counterpart Context Slot should use ContextA-D. Rule='{ruleName}' Slot={rule.CounterpartContextSlot}. Falling back to ContextA.", _mb);
+            }
+            return rule.GetEffectiveCounterpartContextSlot();
+        }
+
+        bool TryResolveOtherScope(in RoutedHit routedHit, out IScopeNode? otherScope)
+        {
+            otherScope = null;
+            if (!routedHit.Hit.OtherDynamic.IsValid)
+                return false;
+
+            return _scopeRegistry.TryResolve(routedHit.Hit.OtherDynamic, out otherScope) && otherScope != null;
         }
 
         void CleanupBindings()
@@ -871,6 +912,7 @@ namespace Game.Collision
             _selfHandleWatchCts?.Cancel();
             _selfHandleWatchCts?.Dispose();
             _selfHandleWatchCts = null;
+            _warnedInvalidContextSlotRules.Clear();
             ClearRuntimeMutatedCommandLists();
             CleanupBindings();
         }

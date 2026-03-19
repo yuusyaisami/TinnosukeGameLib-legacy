@@ -179,16 +179,19 @@ namespace Game.Common
             output = null!;
             service = null;
 
-            var scope = context?.Scope;
+            if (context == null)
+                return false;
+
+            var scope = context.Scope;
             if (scope == null)
                 return false;
 
             var commandRootScope = context.CommandRootScope;
             var ownerScope = ActorSourceFastResolver.ResolveCached(
-                scope,
+                context,
                 boundsOwnerActorSource,
                 ref ownerCache,
-                commandRootScope);
+                scope);
 
             if (TryResolveOutputFromScopeChain(ownerScope, out output, out service))
                 return true;

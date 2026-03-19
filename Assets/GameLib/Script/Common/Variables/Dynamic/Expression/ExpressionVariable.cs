@@ -59,6 +59,9 @@ namespace Game.Common
                         return trimmed;
                 }
 
+                if (_useScalarLeafKey && TryGetScalarLeafKey(out var scalarLeafKey))
+                    return scalarLeafKey;
+
                 var key = Key;
                 if (_useScalarLeafKey && IsScalarSource && !string.IsNullOrEmpty(key))
                     return ExtractLeafKey(key);
@@ -94,6 +97,28 @@ namespace Game.Common
             }
         }
 
+        bool TryGetScalarLeafKey(out string key)
+        {
+            key = string.Empty;
+
+            if (!_value.HasSource)
+                return false;
+
+            if (_value.TryGetSource<SelfScalarSource>(out var selfScalarSource))
+            {
+                key = ExtractLeafKey(selfScalarSource.ScalarKey.Name);
+                return !string.IsNullOrEmpty(key);
+            }
+
+            if (_value.TryGetSource<OtherScalarSource>(out var otherScalarSource))
+            {
+                key = ExtractLeafKey(otherScalarSource.ScalarKey.Name);
+                return !string.IsNullOrEmpty(key);
+            }
+
+            return false;
+        }
+
         static string ExtractLeafKey(string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -107,5 +132,17 @@ namespace Game.Common
         }
 
         private string _variableLabel => string.IsNullOrEmpty(ExpressionKey) ? "<None>" : ExpressionKey;
+
+        public static ExpressionVariable Create(DynamicValue value, string customKey, ValueKind expectedType = ValueKind.Auto)
+        {
+            return new ExpressionVariable
+            {
+                _value = value,
+                _useCustomKey = !string.IsNullOrWhiteSpace(customKey),
+                _customKey = customKey ?? string.Empty,
+                _expectedType = expectedType,
+                _useScalarLeafKey = false,
+            };
+        }
     }
 }

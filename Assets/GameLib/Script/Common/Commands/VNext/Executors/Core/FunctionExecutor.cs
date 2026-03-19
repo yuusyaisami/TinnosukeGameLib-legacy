@@ -36,7 +36,8 @@ namespace Game.Commands.VNext
                 ctx.Options,
                 ctx.CommandRootScope,
                 ctx.RootActor,
-                ctx.CallerActor);
+                ctx.CallerActor,
+                ctx);
 
             var result = await runner.ExecuteListAsync(commands, runCtx, ct, ctx.Options);
             if (result.Status == CommandRunStatus.Canceled)

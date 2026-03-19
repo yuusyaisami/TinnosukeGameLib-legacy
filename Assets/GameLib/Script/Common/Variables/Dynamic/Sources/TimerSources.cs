@@ -27,7 +27,7 @@ namespace Game.Common
             if (context?.Scope == null || string.IsNullOrWhiteSpace(timerKey))
                 return DynamicVariant.Null;
 
-            var scope = ActorSourceFastResolver.ResolveCached(context.Scope, actorSource, ref _cache, context.CommandRootScope);
+            var scope = ActorSourceFastResolver.ResolveCached(context, actorSource, ref _cache);
             if (scope?.Resolver == null)
                 return DynamicVariant.Null;
 
