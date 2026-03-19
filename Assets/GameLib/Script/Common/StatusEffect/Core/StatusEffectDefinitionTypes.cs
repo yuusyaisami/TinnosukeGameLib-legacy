@@ -1,0 +1,761 @@
+#nullable enable
+
+using System;
+using System.Collections.Generic;
+using Game.Commands.VNext;
+using Game.Common;
+using Game.Profile;
+using Game.Scalar;
+using Sirenix.OdinInspector;
+using UnityEngine;
+using VContainer;
+
+namespace Game.StatusEffect
+{
+    public enum StatusEffectInverseIntervalAction
+    {
+        None = 0,
+        Disable = 10,
+        BlockUseOnly = 20,
+    }
+
+    public enum StatusEffectActivePolicy
+    {
+        EnabledOnly = 10,
+        RegisteredEvenIfDisabled = 20,
+    }
+
+    public enum StatusEffectRuntimeFilterMode
+    {
+        All = 10,
+        DefinitionId = 20,
+        RuntimeTag = 30,
+        InstanceId = 40,
+    }
+
+    public enum StatusEffectScalarValueMode
+    {
+        DynamicValue = 10,
+        RuntimeIntensity = 20,
+    }
+
+    public enum ScalarModifierApplyMode
+    {
+        Add = 10,
+        Mul = 20,
+    }
+
+    public enum StatusEffectHookKind
+    {
+        Apply = 10,
+        Remove = 20,
+        Enable = 30,
+        Disable = 40,
+        Use = 50,
+        StackIntensity = 60,
+        StackDuration = 70,
+    }
+
+    [Serializable]
+    public struct StatusEffectRuntimeFilter : IEquatable<StatusEffectRuntimeFilter>
+    {
+        [EnumToggleButtons]
+        [Tooltip("どの条件で effect を絞り込むかを指定します。")]
+        public StatusEffectRuntimeFilterMode Mode;
+
+        [ShowIf(nameof(UsesTextValue))]
+        [LabelText("Value")]
+        [Tooltip("Mode に応じて definitionId、runtimeTag、instanceId を入力します。")]
+        public string Value;
+
+        public StatusEffectRuntimeFilter(StatusEffectRuntimeFilterMode mode, string value)
+        {
+            Mode = mode;
+            Value = value ?? string.Empty;
+        }
+
+        public static StatusEffectRuntimeFilter All => new(StatusEffectRuntimeFilterMode.All, string.Empty);
+
+        public bool UsesTextValue()
+            => Mode != StatusEffectRuntimeFilterMode.All;
+
+        public bool Matches(StatusEffectRuntime runtime)
+        {
+            if (runtime == null)
+                return false;
+
+            return Matches(runtime.DefinitionId, runtime.RuntimeTag, runtime.InstanceId);
+        }
+
+        public bool Matches(string? definitionId, string? runtimeTag, string? instanceId)
+        {
+            switch (Mode)
+            {
+                case StatusEffectRuntimeFilterMode.All:
+                    return true;
+
+                case StatusEffectRuntimeFilterMode.DefinitionId:
+                    return !string.IsNullOrWhiteSpace(Value)
+                        && string.Equals(definitionId, Value, StringComparison.Ordinal);
+
+                case StatusEffectRuntimeFilterMode.RuntimeTag:
+                    return !string.IsNullOrWhiteSpace(Value)
+                        && string.Equals(runtimeTag, Value, StringComparison.Ordinal);
+
+                case StatusEffectRuntimeFilterMode.InstanceId:
+                    return !string.IsNullOrWhiteSpace(Value)
+                        && string.Equals(instanceId, Value, StringComparison.Ordinal);
+
+                default:
+                    return false;
+            }
+        }
+
+        public string GetDebugLabel()
+            => Mode == StatusEffectRuntimeFilterMode.All ? "All" : $"{Mode}:{Value}";
+
+        public bool Equals(StatusEffectRuntimeFilter other)
+            => Mode == other.Mode && string.Equals(Value, other.Value, StringComparison.Ordinal);
+
+        public override bool Equals(object? obj)
+            => obj is StatusEffectRuntimeFilter other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((int)Mode * 397) ^ (Value != null ? StringComparer.Ordinal.GetHashCode(Value) : 0);
+            }
+        }
+    }
+
+    [Serializable]
+    public sealed class StatusEffectHookSet
+    {
+        [CommandListFunctionName("StatusEffect.OnApply")]
+        [Tooltip("effect が最初に適用されたときに実行する command です。")]
+        public CommandListData OnApply = new();
+
+        [CommandListFunctionName("StatusEffect.OnRemove")]
+        [Tooltip("effect が完全に削除されたときに実行する command です。")]
+        public CommandListData OnRemove = new();
+
+        [CommandListFunctionName("StatusEffect.OnEnable")]
+        [Tooltip("一時的に無効だった effect が再度有効化されたときに実行する command です。")]
+        public CommandListData OnEnable = new();
+
+        [CommandListFunctionName("StatusEffect.OnDisable")]
+        [Tooltip("effect が一時的に無効化されたときに実行する command です。")]
+        public CommandListData OnDisable = new();
+
+        [CommandListFunctionName("StatusEffect.OnUse")]
+        [Tooltip("Use が実行されたときに呼ばれる command です。")]
+        public CommandListData OnUse = new();
+
+        [CommandListFunctionName("StatusEffect.OnStackIntensity")]
+        [Tooltip("スタックで intensity が変化したときに実行する command です。")]
+        public CommandListData OnStackIntensity = new();
+
+        [CommandListFunctionName("StatusEffect.OnStackDuration")]
+        [Tooltip("スタックで duration が変化したときに実行する command です。")]
+        public CommandListData OnStackDuration = new();
+
+        public StatusEffectHookSet Clone()
+        {
+            var clone = new StatusEffectHookSet();
+            clone.OnApply.SetCommands(OnApply);
+            clone.OnRemove.SetCommands(OnRemove);
+            clone.OnEnable.SetCommands(OnEnable);
+            clone.OnDisable.SetCommands(OnDisable);
+            clone.OnUse.SetCommands(OnUse);
+            clone.OnStackIntensity.SetCommands(OnStackIntensity);
+            clone.OnStackDuration.SetCommands(OnStackDuration);
+            return clone;
+        }
+
+        public CommandListData Resolve(StatusEffectHookKind kind)
+        {
+            return kind switch
+            {
+                StatusEffectHookKind.Apply => OnApply,
+                StatusEffectHookKind.Remove => OnRemove,
+                StatusEffectHookKind.Enable => OnEnable,
+                StatusEffectHookKind.Disable => OnDisable,
+                StatusEffectHookKind.Use => OnUse,
+                StatusEffectHookKind.StackIntensity => OnStackIntensity,
+                StatusEffectHookKind.StackDuration => OnStackDuration,
+                _ => OnApply,
+            };
+        }
+
+        public void ApplyMutations(StatusEffectHookMutationSet? mutations, ICommandListRuntimeMutationService? mutationService)
+        {
+            if (mutations == null)
+                return;
+
+            CommandListRuntimeMutationPipeline.Apply(OnApply, mutations.OnApply, mutationService);
+            CommandListRuntimeMutationPipeline.Apply(OnRemove, mutations.OnRemove, mutationService);
+            CommandListRuntimeMutationPipeline.Apply(OnEnable, mutations.OnEnable, mutationService);
+            CommandListRuntimeMutationPipeline.Apply(OnDisable, mutations.OnDisable, mutationService);
+            CommandListRuntimeMutationPipeline.Apply(OnUse, mutations.OnUse, mutationService);
+            CommandListRuntimeMutationPipeline.Apply(OnStackIntensity, mutations.OnStackIntensity, mutationService);
+            CommandListRuntimeMutationPipeline.Apply(OnStackDuration, mutations.OnStackDuration, mutationService);
+        }
+    }
+
+    [Serializable]
+    public sealed class StatusEffectHookMutationSet
+    {
+        [Tooltip("Apply 時に OnApply をどう変更するかの指定です。")]
+        public CommandListMutationStep OnApply = new();
+        [Tooltip("Apply 時に OnRemove をどう変更するかの指定です。")]
+        public CommandListMutationStep OnRemove = new();
+        [Tooltip("Apply 時に OnEnable をどう変更するかの指定です。")]
+        public CommandListMutationStep OnEnable = new();
+        [Tooltip("Apply 時に OnDisable をどう変更するかの指定です。")]
+        public CommandListMutationStep OnDisable = new();
+        [Tooltip("Apply 時に OnUse をどう変更するかの指定です。")]
+        public CommandListMutationStep OnUse = new();
+        [Tooltip("Apply 時に OnStackIntensity をどう変更するかの指定です。")]
+        public CommandListMutationStep OnStackIntensity = new();
+        [Tooltip("Apply 時に OnStackDuration をどう変更するかの指定です。")]
+        public CommandListMutationStep OnStackDuration = new();
+    }
+
+    [Serializable]
+    public sealed class StatusEffectApplyRequest
+    {
+        [LabelText("Definition")]
+        [Tooltip("付与する effect 定義です。DynamicValue で asset や inline を切り替えられます。")]
+        public DynamicValue<BaseStatusEffectDefinitionData> Definition;
+
+        [LabelText("Stack Mode")]
+        [EnumToggleButtons]
+        [Tooltip("同じ slot に既存 effect がある場合の上書き方です。")]
+        public EffectStackMode StackMode = EffectStackMode.Refresh;
+
+        [LabelText("Intensity")]
+        [Tooltip("RuntimeIntensity を利用する operation に渡す強度値です。")]
+        public DynamicValue<float> Intensity;
+
+        [LabelText("Override Duration")]
+        [Tooltip("definition 側の duration を無視して、この request 側の duration を使います。")]
+        public bool OverrideDuration;
+
+        [ShowIf(nameof(OverrideDuration))]
+        [LabelText("Duration Override")]
+        [Tooltip("Override Duration が有効なときに使う持続時間です。")]
+        public DynamicValue<float> DurationOverride;
+
+        [LabelText("Runtime Tag")]
+        [Tooltip("同じ definition を複数共存させたいときの slot 識別タグです。")]
+        public string RuntimeTag = string.Empty;
+
+        [LabelText("Hook Mutations")]
+        [InlineProperty]
+        [Tooltip("Apply 時に hook command を append / replace / clear するための変更セットです。")]
+        public StatusEffectHookMutationSet HookMutations = new();
+    }
+
+    public interface IStatusEffectDefinitionData
+    {
+        string DefinitionId { get; }
+        EffectVisualData VisualData { get; }
+        EffectStackMode DefaultStackMode { get; }
+        DynamicValue<float> DefaultIntensity { get; }
+        string DefaultRuntimeTag { get; }
+        bool UseDuration { get; }
+        bool UseCount { get; }
+        IStatusEffectDurationDefinition? DurationDefinition { get; }
+        IStatusEffectCountDefinition? CountDefinition { get; }
+        IReadOnlyList<IStatusEffectOperationDefinition> Operations { get; }
+        StatusEffectHookSet DefaultHooks { get; }
+    }
+
+    [Serializable]
+    public abstract class BaseStatusEffectDefinitionData :
+        BaseProfileData,
+        IStatusEffectDefinitionData
+    {
+        public override Type ProfileType => GetType();
+
+        public abstract string DefinitionId { get; }
+        public abstract EffectVisualData VisualData { get; }
+        public abstract EffectStackMode DefaultStackMode { get; }
+        public abstract DynamicValue<float> DefaultIntensity { get; }
+        public abstract string DefaultRuntimeTag { get; }
+        public abstract bool UseDuration { get; }
+        public abstract bool UseCount { get; }
+        public abstract IStatusEffectDurationDefinition? DurationDefinition { get; }
+        public abstract IStatusEffectCountDefinition? CountDefinition { get; }
+        public abstract IReadOnlyList<IStatusEffectOperationDefinition> Operations { get; }
+        public abstract StatusEffectHookSet DefaultHooks { get; }
+
+        public override string ToString()
+            => string.IsNullOrWhiteSpace(DefinitionId) ? GetType().Name : DefinitionId;
+    }
+
+    [Serializable]
+    public sealed class ConfigurableStatusEffectDefinitionData : BaseStatusEffectDefinitionData
+    {
+        [BoxGroup("Identity")]
+        [LabelText("Definition Id")]
+        [SerializeField]
+        [Tooltip("この effect 定義を一意に識別する固定 ID です。")]
+        string definitionId = string.Empty;
+
+        [BoxGroup("Identity")]
+        [LabelText("Default Stack Mode")]
+        [EnumToggleButtons]
+        [SerializeField]
+        [Tooltip("同じ slot に重なったときの既定のスタック挙動です。")]
+        EffectStackMode defaultStackMode = EffectStackMode.Refresh;
+
+        [BoxGroup("Identity")]
+        [LabelText("Default Runtime Tag")]
+        [SerializeField]
+        [Tooltip("Apply 時に runtimeTag が空だった場合に使う既定値です。")]
+        string defaultRuntimeTag = string.Empty;
+
+        [BoxGroup("Presentation")]
+        [InlineProperty]
+        [HideLabel]
+        [SerializeField]
+        [Tooltip("UI やログで見せる表示データです。")]
+        EffectVisualData visualData = new();
+
+        [BoxGroup("Presentation")]
+        [LabelText("Default Intensity")]
+        [SerializeField]
+        [Tooltip("Apply request 側で intensity が省略されたときの既定値です。")]
+        DynamicValue<float> defaultIntensity;
+
+        [BoxGroup("Runtime")]
+        [LabelText("Use Duration")]
+        [SerializeField]
+        [Tooltip("持続時間システムを使う effect の場合に有効にします。")]
+        bool useDuration;
+
+        [BoxGroup("Runtime")]
+        [ShowIf(nameof(useDuration))]
+        [SerializeReference]
+        [Tooltip("持続時間の生成方法です。Use Duration が有効なときだけ参照されます。")]
+        IStatusEffectDurationDefinition? durationDefinition;
+
+        [BoxGroup("Runtime")]
+        [LabelText("Use Count")]
+        [SerializeField]
+        [Tooltip("Use 回数システムを使う effect の場合に有効にします。")]
+        bool useCount;
+
+        [BoxGroup("Runtime")]
+        [ShowIf(nameof(useCount))]
+        [SerializeReference]
+        [Tooltip("回数上限や回数切れ時の挙動を指定します。")]
+        IStatusEffectCountDefinition? countDefinition;
+
+        [BoxGroup("Operations")]
+        [LabelText("Operations")]
+        [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = false, ShowFoldout = true)]
+        [SerializeReference]
+        [Tooltip("effect の本体処理です。複数の operation を並べて構成できます。")]
+        List<IStatusEffectOperationDefinition> operations = new();
+
+        [BoxGroup("Hooks")]
+        [InlineProperty]
+        [HideLabel]
+        [SerializeField]
+        [Tooltip("Apply / Remove / Use などの各タイミングで挟む command 群です。")]
+        StatusEffectHookSet defaultHooks = new();
+
+        public override string DefinitionId => definitionId;
+        public override EffectVisualData VisualData => visualData;
+        public override EffectStackMode DefaultStackMode => defaultStackMode;
+        public override DynamicValue<float> DefaultIntensity => defaultIntensity;
+        public override string DefaultRuntimeTag => defaultRuntimeTag;
+        public override bool UseDuration => useDuration;
+        public override bool UseCount => useCount;
+        public override IStatusEffectDurationDefinition? DurationDefinition => durationDefinition;
+        public override IStatusEffectCountDefinition? CountDefinition => countDefinition;
+        public override IReadOnlyList<IStatusEffectOperationDefinition> Operations => operations;
+        public override StatusEffectHookSet DefaultHooks => defaultHooks;
+    }
+
+    public interface IStatusEffectOperationDefinition
+    {
+        bool TryBuild(StatusEffectBuildContext context, out IStatusEffectOperationRuntime runtime);
+    }
+
+    public interface IStatusEffectOperationRuntime
+    {
+        void Apply();
+        void Remove();
+        void Enable();
+        void Disable();
+        void Reset();
+    }
+
+    [Serializable]
+    public sealed class ScalarModifierOperationDefinition : IStatusEffectOperationDefinition
+    {
+        [LabelText("Target Key")]
+        [Tooltip("変更対象の scalar key です。")]
+        public ScalarKey TargetKey;
+
+        [LabelText("Apply Mode")]
+        [EnumToggleButtons]
+        [Tooltip("加算で入れるか、乗算で入れるかを指定します。")]
+        public ScalarModifierApplyMode ApplyMode = ScalarModifierApplyMode.Add;
+
+        [ShowIf(nameof(UsesMulPhase))]
+        [LabelText("Mul Phase")]
+        [Tooltip("乗算 modifier をどの計算段階に入れるかを指定します。")]
+        public ScalarMulPhase MulPhase = ScalarMulPhase.PreAdd;
+
+        [LabelText("Value Mode")]
+        [EnumToggleButtons]
+        [Tooltip("値を intensity から取るか、別の DynamicValue から取るかを指定します。")]
+        public StatusEffectScalarValueMode ValueMode = StatusEffectScalarValueMode.RuntimeIntensity;
+
+        [ShowIf(nameof(UsesDynamicValue))]
+        [LabelText("Value")]
+        [Tooltip("Value Mode が DynamicValue のときに実際に使う値です。")]
+        public DynamicValue<float> Value;
+
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(TargetActorSource)")]
+        [Tooltip("どの Actor の ScalarService を変更するかを指定します。")]
+        public ActorSource TargetActorSource;
+
+        [LabelText("Layer")]
+        [Tooltip("modifier を積む layer 名です。空文字でも使用できます。")]
+        public string Layer = string.Empty;
+
+        bool UsesMulPhase() => ApplyMode == ScalarModifierApplyMode.Mul;
+        bool UsesDynamicValue() => ValueMode == StatusEffectScalarValueMode.DynamicValue;
+
+        public bool TryBuild(StatusEffectBuildContext context, out IStatusEffectOperationRuntime runtime)
+        {
+            runtime = default!;
+            if (!DynamicValueResolver.HasScalarKey(TargetKey))
+                return false;
+
+            var targetScope = ActorSourceFastResolver.Resolve(
+                context.OwnerScope,
+                TargetActorSource,
+                context.CommandRootScope);
+            if (targetScope?.Resolver == null)
+                return false;
+
+            if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var scalarService) || scalarService == null)
+                return false;
+
+            var value = ValueMode == StatusEffectScalarValueMode.RuntimeIntensity
+                ? context.ResolvedIntensity
+                : Value.GetOrDefault(context, ApplyMode == ScalarModifierApplyMode.Mul ? 1f : 0f);
+
+            runtime = new ScalarModifierOperationRuntime(
+                targetScope,
+                scalarService,
+                TargetKey,
+                ApplyMode,
+                MulPhase,
+                Layer,
+                value,
+                context.RuntimeTag,
+                context.InstanceId);
+            return true;
+        }
+    }
+
+    public interface IStatusEffectDurationDefinition
+    {
+        bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectDurationController controller);
+    }
+
+    public interface IStatusEffectCountDefinition
+    {
+        bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectCountController controller);
+    }
+
+    public interface IStatusEffectDurationController
+    {
+        float TotalDuration { get; }
+        float RemainingDuration { get; }
+        bool IsExpired { get; }
+        EffectLifetimeEndAction EndAction { get; }
+        void Tick(float deltaTime);
+        void Reset();
+        bool ApplyStack(float duration, EffectStackMode mode);
+    }
+
+    public interface IStatusEffectCountController
+    {
+        int MaxCount { get; }
+        int UsedCount { get; }
+        int RemainingCount { get; }
+        bool HasLimit { get; }
+        bool CanUse { get; }
+        EffectCountExhaustedAction ExhaustedAction { get; }
+        float InverseIntervalDuration { get; }
+        StatusEffectInverseIntervalAction InverseIntervalAction { get; }
+        StatusEffectActivePolicy ActivePolicy { get; }
+        bool ConsumeUse();
+        void Reset();
+    }
+
+    [Serializable]
+    public sealed class FixedDurationStatusEffectDefinition : IStatusEffectDurationDefinition
+    {
+        [LabelText("Duration")]
+        [Tooltip("effect の持続時間です。-1 を返すと無期限になります。")]
+        public DynamicValue<float> Duration;
+
+        [LabelText("Expire Action")]
+        [EnumToggleButtons]
+        [Tooltip("持続時間が切れたときに Disable するか Remove するかを指定します。")]
+        public EffectLifetimeEndAction EndAction = EffectLifetimeEndAction.Remove;
+
+        public bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectDurationController controller)
+        {
+            var duration = context.Request.OverrideDuration
+                ? context.Request.DurationOverride.GetOrDefault(context, Duration.GetOrDefault(context, -1f))
+                : Duration.GetOrDefault(context, -1f);
+
+            controller = new FixedStatusEffectDurationController(duration, EndAction);
+            return true;
+        }
+    }
+
+    [Serializable]
+    public sealed class DynamicCountStatusEffectDefinition : IStatusEffectCountDefinition
+    {
+        [LabelText("Max Count")]
+        [Tooltip("Use 可能な最大回数です。0 以下なら無制限です。")]
+        public DynamicValue<int> MaxCount;
+
+        [LabelText("Exhausted Action")]
+        [EnumToggleButtons]
+        [Tooltip("Use 回数が尽きたときに effect をどう扱うかを指定します。")]
+        public EffectCountExhaustedAction ExhaustedAction = EffectCountExhaustedAction.Disable;
+
+        [LabelText("Inverse Interval")]
+        [Tooltip("Use 後に一時的にオフにする時間です。0 なら無効です。")]
+        public DynamicValue<float> InverseIntervalDuration;
+
+        [LabelText("Inverse Interval Action")]
+        [EnumToggleButtons]
+        [Tooltip("逆 interval 中に effect を Disable するか、Use だけ止めるかを指定します。")]
+        public StatusEffectInverseIntervalAction InverseIntervalAction = StatusEffectInverseIntervalAction.Disable;
+
+        [LabelText("Active Policy")]
+        [EnumToggleButtons]
+        [Tooltip("一時的に無効でも Active 扱いにするかを指定します。")]
+        public StatusEffectActivePolicy ActivePolicy = StatusEffectActivePolicy.RegisteredEvenIfDisabled;
+
+        public bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectCountController controller)
+        {
+            var maxCount = Mathf.Max(0, MaxCount.GetOrDefault(context, 0));
+            var inverseInterval = Mathf.Max(0f, InverseIntervalDuration.GetOrDefault(context, 0f));
+            controller = new DynamicCountStatusEffectController(
+                maxCount,
+                ExhaustedAction,
+                inverseInterval,
+                InverseIntervalAction,
+                ActivePolicy);
+            return true;
+        }
+    }
+
+    sealed class ScalarModifierOperationRuntime : IStatusEffectOperationRuntime
+    {
+        readonly IScopeNode _targetScope;
+        readonly IBaseScalarService _scalarService;
+        readonly ScalarKey _targetKey;
+        readonly ScalarModifierApplyMode _applyMode;
+        readonly ScalarMulPhase _mulPhase;
+        readonly string _layer;
+        readonly float _value;
+        readonly string _tag;
+        readonly object _source;
+
+        ScalarHandle? _handle;
+        bool _isApplied;
+
+        public ScalarModifierOperationRuntime(
+            IScopeNode targetScope,
+            IBaseScalarService scalarService,
+            ScalarKey targetKey,
+            ScalarModifierApplyMode applyMode,
+            ScalarMulPhase mulPhase,
+            string layer,
+            float value,
+            string runtimeTag,
+            string instanceId)
+        {
+            _targetScope = targetScope;
+            _scalarService = scalarService;
+            _targetKey = targetKey;
+            _applyMode = applyMode;
+            _mulPhase = mulPhase;
+            _layer = layer ?? string.Empty;
+            _value = value;
+            _tag = BuildTag(runtimeTag, instanceId, targetKey, _layer);
+            _source = targetScope;
+        }
+
+        public void Apply()
+        {
+            if (_isApplied)
+                return;
+
+            _handle = _applyMode == ScalarModifierApplyMode.Mul
+                ? _scalarService.LocalMul(_targetKey, _layer, _value, _mulPhase, -1f, _source, _tag)
+                : _scalarService.LocalAdd(_targetKey, _layer, _value, -1f, _source, _tag);
+            _isApplied = true;
+        }
+
+        public void Remove()
+        {
+            DisposeHandle();
+        }
+
+        public void Enable()
+        {
+            Apply();
+        }
+
+        public void Disable()
+        {
+            DisposeHandle();
+        }
+
+        public void Reset()
+        {
+            DisposeHandle();
+            Apply();
+        }
+
+        void DisposeHandle()
+        {
+            if (!_isApplied)
+                return;
+
+            _handle?.Dispose();
+            _handle = null;
+            _isApplied = false;
+        }
+
+        static string BuildTag(string runtimeTag, string instanceId, ScalarKey key, string layer)
+        {
+            var keyToken = key.Id != 0 ? key.Id.ToString() : (key.Name ?? "Key");
+            return $"{runtimeTag}:{instanceId}:{keyToken}:{layer}";
+        }
+    }
+
+    sealed class FixedStatusEffectDurationController : IStatusEffectDurationController
+    {
+        readonly float _configuredDuration;
+
+        public float TotalDuration { get; private set; }
+        public float RemainingDuration { get; private set; }
+        public bool IsExpired => TotalDuration >= 0f && RemainingDuration <= 0f;
+        public EffectLifetimeEndAction EndAction { get; }
+
+        public FixedStatusEffectDurationController(float duration, EffectLifetimeEndAction endAction)
+        {
+            _configuredDuration = duration;
+            TotalDuration = duration;
+            RemainingDuration = duration;
+            EndAction = endAction;
+        }
+
+        public void Tick(float deltaTime)
+        {
+            if (TotalDuration < 0f)
+                return;
+
+            RemainingDuration -= Mathf.Max(0f, deltaTime);
+            if (RemainingDuration < 0f)
+                RemainingDuration = 0f;
+        }
+
+        public void Reset()
+        {
+            TotalDuration = _configuredDuration;
+            RemainingDuration = _configuredDuration;
+        }
+
+        public bool ApplyStack(float duration, EffectStackMode mode)
+        {
+            switch (mode)
+            {
+                case EffectStackMode.Refresh:
+                case EffectStackMode.Replace:
+                    TotalDuration = duration;
+                    RemainingDuration = duration;
+                    return true;
+
+                case EffectStackMode.ExtendDuration:
+                case EffectStackMode.StackBoth:
+                    if (TotalDuration < 0f || duration < 0f)
+                    {
+                        TotalDuration = -1f;
+                        RemainingDuration = -1f;
+                        return true;
+                    }
+
+                    TotalDuration += duration;
+                    RemainingDuration += duration;
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    sealed class DynamicCountStatusEffectController : IStatusEffectCountController
+    {
+        readonly int _configuredMaxCount;
+
+        public int MaxCount => _configuredMaxCount;
+        public int UsedCount { get; private set; }
+        public int RemainingCount => HasLimit ? Mathf.Max(0, _configuredMaxCount - UsedCount) : -1;
+        public bool HasLimit => _configuredMaxCount > 0;
+        public bool CanUse => !HasLimit || UsedCount < _configuredMaxCount;
+        public EffectCountExhaustedAction ExhaustedAction { get; }
+        public float InverseIntervalDuration { get; }
+        public StatusEffectInverseIntervalAction InverseIntervalAction { get; }
+        public StatusEffectActivePolicy ActivePolicy { get; }
+
+        public DynamicCountStatusEffectController(
+            int maxCount,
+            EffectCountExhaustedAction exhaustedAction,
+            float inverseIntervalDuration,
+            StatusEffectInverseIntervalAction inverseIntervalAction,
+            StatusEffectActivePolicy activePolicy)
+        {
+            _configuredMaxCount = maxCount;
+            ExhaustedAction = exhaustedAction;
+            InverseIntervalDuration = inverseIntervalDuration;
+            InverseIntervalAction = inverseIntervalAction;
+            ActivePolicy = activePolicy;
+        }
+
+        public bool ConsumeUse()
+        {
+            if (!CanUse)
+                return false;
+
+            if (HasLimit)
+                UsedCount++;
+
+            return true;
+        }
+
+        public void Reset()
+        {
+            UsedCount = 0;
+        }
+    }
+}

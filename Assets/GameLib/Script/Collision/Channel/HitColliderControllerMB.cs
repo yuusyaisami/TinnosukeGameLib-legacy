@@ -233,19 +233,19 @@ namespace Game.Collision
         // Toggle-based ShowIf for clarity in the inspector
         [SerializeField] bool useIncludeStaticKinds = false;
         [ShowIf(nameof(useIncludeStaticKinds))]
-        [SerializeField] StaticColliderKind[] includeStaticKinds = Array.Empty<StaticColliderKind>();
+        [SerializeField] StaticColliderKindRef[] includeStaticKinds = Array.Empty<StaticColliderKindRef>();
 
         [SerializeField] bool useIncludeDynamicSets = false;
         [ShowIf(nameof(useIncludeDynamicSets))]
-        [SerializeField] DynamicColliderSetId[] includeDynamicSets = Array.Empty<DynamicColliderSetId>();
+        [SerializeField] DynamicColliderSetRef[] includeDynamicSets = Array.Empty<DynamicColliderSetRef>();
 
         [SerializeField] bool useExcludeStaticKinds = false;
         [ShowIf(nameof(useExcludeStaticKinds))]
-        [SerializeField] StaticColliderKind[] excludeStaticKinds = Array.Empty<StaticColliderKind>();
+        [SerializeField] StaticColliderKindRef[] excludeStaticKinds = Array.Empty<StaticColliderKindRef>();
 
         [SerializeField] bool useExcludeDynamicSets = false;
         [ShowIf(nameof(useExcludeDynamicSets))]
-        [SerializeField] DynamicColliderSetId[] excludeDynamicSets = Array.Empty<DynamicColliderSetId>();
+        [SerializeField] DynamicColliderSetRef[] excludeDynamicSets = Array.Empty<DynamicColliderSetRef>();
 
         [Header("Filter")]
         [SerializeField] bool useFilter = false;
@@ -315,13 +315,13 @@ namespace Game.Collision
 
         public bool MatchAnyInclude => matchAnyInclude;
         public bool UseIncludeStaticKinds => useIncludeStaticKinds;
-        public StaticColliderKind[] IncludeStaticKinds => includeStaticKinds;
+        public StaticColliderKind[] IncludeStaticKinds => CollisionAuthoringArrayUtility.ConvertStaticKinds(includeStaticKinds);
         public bool UseIncludeDynamicSets => useIncludeDynamicSets;
-        public DynamicColliderSetId[] IncludeDynamicSets => includeDynamicSets;
+        public DynamicColliderSetId[] IncludeDynamicSets => CollisionAuthoringArrayUtility.ConvertDynamicSets(includeDynamicSets);
         public bool UseExcludeStaticKinds => useExcludeStaticKinds;
-        public StaticColliderKind[] ExcludeStaticKinds => excludeStaticKinds;
+        public StaticColliderKind[] ExcludeStaticKinds => CollisionAuthoringArrayUtility.ConvertStaticKinds(excludeStaticKinds);
         public bool UseExcludeDynamicSets => useExcludeDynamicSets;
-        public DynamicColliderSetId[] ExcludeDynamicSets => excludeDynamicSets;
+        public DynamicColliderSetId[] ExcludeDynamicSets => CollisionAuthoringArrayUtility.ConvertDynamicSets(excludeDynamicSets);
 
         public bool UseFilter => useFilter;
         public HitFilter Filter => filter;
@@ -349,10 +349,18 @@ namespace Game.Collision
 
         public HitContactWatchSpec ToSpec()
         {
-            var incS = (useIncludeStaticKinds && includeStaticKinds != null && includeStaticKinds.Length > 0) ? includeStaticKinds : null;
-            var incD = (useIncludeDynamicSets && includeDynamicSets != null && includeDynamicSets.Length > 0) ? includeDynamicSets : null;
-            var excS = (useExcludeStaticKinds && excludeStaticKinds != null && excludeStaticKinds.Length > 0) ? excludeStaticKinds : null;
-            var excD = (useExcludeDynamicSets && excludeDynamicSets != null && excludeDynamicSets.Length > 0) ? excludeDynamicSets : null;
+            var incS = (useIncludeStaticKinds && includeStaticKinds != null && includeStaticKinds.Length > 0)
+                ? CollisionAuthoringArrayUtility.ConvertStaticKinds(includeStaticKinds)
+                : null;
+            var incD = (useIncludeDynamicSets && includeDynamicSets != null && includeDynamicSets.Length > 0)
+                ? CollisionAuthoringArrayUtility.ConvertDynamicSets(includeDynamicSets)
+                : null;
+            var excS = (useExcludeStaticKinds && excludeStaticKinds != null && excludeStaticKinds.Length > 0)
+                ? CollisionAuthoringArrayUtility.ConvertStaticKinds(excludeStaticKinds)
+                : null;
+            var excD = (useExcludeDynamicSets && excludeDynamicSets != null && excludeDynamicSets.Length > 0)
+                ? CollisionAuthoringArrayUtility.ConvertDynamicSets(excludeDynamicSets)
+                : null;
 
             var specFilter = useFilter ? filter : default;
             var stale = useStaleFrameThreshold ? staleFrameThreshold : 0;
@@ -397,25 +405,49 @@ namespace Game.Collision
         public void SetIncludeStaticKindsRuntime(bool use, StaticColliderKind[]? values)
         {
             useIncludeStaticKinds = use;
-            includeStaticKinds = values ?? Array.Empty<StaticColliderKind>();
+            includeStaticKinds = Convert(values);
         }
 
         public void SetIncludeDynamicSetsRuntime(bool use, DynamicColliderSetId[]? values)
         {
             useIncludeDynamicSets = use;
-            includeDynamicSets = values ?? Array.Empty<DynamicColliderSetId>();
+            includeDynamicSets = Convert(values);
         }
 
         public void SetExcludeStaticKindsRuntime(bool use, StaticColliderKind[]? values)
         {
             useExcludeStaticKinds = use;
-            excludeStaticKinds = values ?? Array.Empty<StaticColliderKind>();
+            excludeStaticKinds = Convert(values);
         }
 
         public void SetExcludeDynamicSetsRuntime(bool use, DynamicColliderSetId[]? values)
         {
             useExcludeDynamicSets = use;
-            excludeDynamicSets = values ?? Array.Empty<DynamicColliderSetId>();
+            excludeDynamicSets = Convert(values);
+        }
+
+        static DynamicColliderSetRef[] Convert(DynamicColliderSetId[]? values)
+        {
+            if (values == null || values.Length == 0)
+                return Array.Empty<DynamicColliderSetRef>();
+
+            var result = new DynamicColliderSetRef[values.Length];
+            for (int i = 0; i < values.Length; i++)
+                result[i] = new DynamicColliderSetRef(values[i]);
+
+            return result;
+        }
+
+        static StaticColliderKindRef[] Convert(StaticColliderKind[]? values)
+        {
+            if (values == null || values.Length == 0)
+                return Array.Empty<StaticColliderKindRef>();
+
+            var result = new StaticColliderKindRef[values.Length];
+            for (int i = 0; i < values.Length; i++)
+                result[i] = new StaticColliderKindRef(values[i]);
+
+            return result;
         }
 
         public VNext.CommandListData? ResolveCommandList(HitColliderRuleCommandListSlot slot)

@@ -126,6 +126,9 @@ namespace Game.Commands.VNext
 
         public const int EquipTrait = 2200;
         public const int WriteTraitData = 2201;
+        public const int StatusEffectControl = 2202;
+        public const int SharedLTSChannel = 2203;
+        public const int Function = 2204;
 
         public const int BackgroundLayer = 2300;
 

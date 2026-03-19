@@ -6,6 +6,7 @@ using System;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using Game.Animation;
+using Game.Trait;
 
 namespace Game.Health
 {
@@ -17,10 +18,11 @@ namespace Game.Health
     [Serializable]
     public abstract class BaseVisualData
     {
-        /// <summary>表示名（ローカライズキー or 直接文字列）</summary>
+        /// <summary>表示名（RichText テンプレート）</summary>
         [LabelText("Display Name")]
         [Tooltip("UI 等で表示される名前")]
-        public string DisplayName;
+        [InlineProperty]
+        public RichTextTemplateData DisplayName = new();
 
         /// <summary>アイコン用 AnimationData（スプライトシート対応）</summary>
         [LabelText("Icon Animation")]
@@ -28,10 +30,13 @@ namespace Game.Health
         [AssetSelector, AssetOrInternal]
         public AnimationData IconAnimation;
 
-        /// <summary>説明文（ローカライズキー or 直接文字列）</summary>
+        /// <summary>説明文（RichText テンプレート）</summary>
         [LabelText("Description")]
-        [TextArea(2, 4)]
-        public string Description;
+        [InlineProperty]
+        public RichTextTemplateData Description = new();
+
+        public string DisplayNameText => DisplayName?.Template ?? string.Empty;
+        public string DescriptionText => Description?.Template ?? string.Empty;
 
         /// <summary>
         /// IconAnimation の最初のフレームのスプライトを取得。
@@ -63,12 +68,12 @@ namespace Game.Health
     public enum EffectType
     {
         /// <summary>バフ（有利な効果）</summary>
-        Buff,
+        Buff = 10,
 
         /// <summary>デバフ（不利な効果）</summary>
-        Debuff,
+        Debuff = 20,
 
         /// <summary>中立（有利でも不利でもない）</summary>
-        Neutral,
+        Neutral = 30,
     }
 }

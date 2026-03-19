@@ -2,7 +2,7 @@ using UnityEngine;
 using VContainer;
 using Sirenix.OdinInspector;
 using VNext = Game.Commands.VNext;
-
+/*
 namespace Game.Actions
 {
     public interface IPlayerGameActionSettings
@@ -48,3 +48,4 @@ namespace Game.Actions
         }
     }
 }
+*/

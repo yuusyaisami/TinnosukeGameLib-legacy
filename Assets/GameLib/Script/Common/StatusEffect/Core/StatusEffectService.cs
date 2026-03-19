@@ -1,354 +1,480 @@
-// Game.StatusEffect.StatusEffectService.cs
-//
-// StatusEffect 管理サービス実装
+#nullable enable
 
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Game.Commands.VNext;
 using Game.Common;
 using Game.Events.Generated;
-using Game.Health;
-using Game.Profile;
-using Game.Scalar;
+using Game.Vars.Generated;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 namespace Game.StatusEffect
 {
-    /// <summary>
-    /// StatusEffect 管理サービス実装。
-    /// </summary>
-    public sealed class StatusEffectService : IStatusEffectService, ITickable, IDisposable
+    public sealed class StatusEffectService :
+        IStatusEffectService,
+        ITickable,
+        IScopeAcquireHandler,
+        IScopeReleaseHandler,
+        IDisposable
     {
-        readonly EffectContext _context;
-        readonly Dictionary<string, BaseEffectRuntime> _activeEffects = new(StringComparer.Ordinal);
+        readonly IScopeNode _scope;
+        readonly Dictionary<string, StatusEffectRuntime> _effects = new(StringComparer.Ordinal);
         readonly List<string> _removeQueue = new(8);
-        readonly BoolLayer _effectFlagLayer;
-        readonly IScopeBindingRegistry _profileRegistry;
 
+        ICommandRunner? _commandRunner;
+        IRichTextRefService? _richTextRefService;
+        ICommandListRuntimeMutationService? _mutationService;
+        IEntityEventService? _eventService;
         bool _disposed;
+        bool _isActive;
 
-        // EventKey（直接参照）
-        // TODO: EventKeys.GameLib.StatusEffect.OnApplied/OnRemoved を生成後に使用
         const string OnEffectAppliedKey = EventKeys.GameLib.StatusEffect.OnApplied;
         const string OnEffectRemovedKey = EventKeys.GameLib.StatusEffect.OnRemoved;
 
-        public int ActiveEffectCount => _activeEffects.Count;
-        public BoolLayer EffectFlagLayer => _effectFlagLayer;
-
-        /// <summary>
-        /// ProfileRegistry（Effect が ProfileSO を取得するために公開）
-        /// </summary>
-        public IScopeBindingRegistry ProfileRegistry => _profileRegistry;
-
-        public StatusEffectService(
-            IHealthService healthService,
-            IBaseScalarService scalarService,
-            IBlackboardService blackboardService,
-            IEntityEventService eventService,
-            IScopeBindingRegistry profileRegistry,
-            Transform transform)
+        public StatusEffectService(IScopeNode scope)
         {
-            _effectFlagLayer = new BoolLayer(BoolCompositionMode.AnyTrue);
-            _profileRegistry = profileRegistry;
-
-            _context = new EffectContext(
-                statusEffectService: this,
-                healthService: healthService,
-                scalarService: scalarService ?? throw new ArgumentNullException(nameof(scalarService)),
-                blackboardService: blackboardService,
-                eventService: eventService ?? throw new ArgumentNullException(nameof(eventService)),
-                profileRegistry: profileRegistry,
-                effectFlagLayer: _effectFlagLayer,
-                transform: transform
-            );
+            _scope = scope;
         }
 
-        // ================================================================
-        // Effect 適用
-        // ================================================================
+        internal ICommandRunner? CommandRunner => _commandRunner ??= ResolveOptional<ICommandRunner>();
+        internal IRichTextRefService? RichTextRefService => _richTextRefService ??= ResolveOptional<IRichTextRefService>();
+        internal ICommandListRuntimeMutationService? MutationService => _mutationService ??= ResolveOptional<ICommandListRuntimeMutationService>();
+        internal IEntityEventService? EventService => _eventService ??= ResolveOptional<IEntityEventService>();
 
-        public string ApplyEffect<T>(EffectConfig config) where T : BaseEffectRuntime, new()
+        public int ActiveEffectCount
         {
-            if (_disposed)
-                return null;
-
-            var effect = new T();
-            return ApplyEffectInternal(effect, config);
-        }
-
-        public string ApplyEffect(BaseEffectRuntime effect, EffectConfig config)
-        {
-            if (_disposed || effect == null)
-                return null;
-
-            return ApplyEffectInternal(effect, config);
-        }
-
-        string ApplyEffectInternal(BaseEffectRuntime effect, EffectConfig config)
-        {
-            string effectId = effect.EffectId;
-
-            // 既存の同一 Effect があるか確認
-            if (_activeEffects.TryGetValue(effectId, out var existing))
+            get
             {
-                // スタッキング処理
-                if (config.StackMode == EffectStackMode.Ignore)
-                    return effectId;
+                int count = 0;
+                foreach (var effect in _effects.Values)
+                {
+                    if (effect != null && effect.IsActive)
+                        count++;
+                }
 
-                existing.Stack(config);
-                return effectId;
+                return count;
+            }
+        }
+
+        public bool TryApply(StatusEffectApplyRequest request, IDynamicContext? evaluationContext, out string instanceId)
+        {
+            instanceId = string.Empty;
+            if (_disposed || request == null)
+                return false;
+
+            var evalContext = evaluationContext ?? new SimpleDynamicContext(NullVarStore.Instance, _scope);
+            var definition = request.Definition.GetOrDefault(evalContext, default!);
+            if (definition == null || string.IsNullOrWhiteSpace(definition.DefinitionId))
+                return false;
+
+            var runtimeTag = string.IsNullOrWhiteSpace(request.RuntimeTag)
+                ? definition.DefaultRuntimeTag ?? string.Empty
+                : request.RuntimeTag;
+            var slotKey = BuildSlotKey(definition.DefinitionId, runtimeTag);
+            var resolvedIntensity = ResolveIntensity(definition, request, evalContext);
+
+            if (_effects.TryGetValue(slotKey, out var existing) && existing != null)
+            {
+                var stackContext = new StatusEffectBuildContext(
+                    _scope,
+                    evalContext.Vars,
+                    evalContext.CommandRootScope ?? _scope,
+                    request,
+                    definition,
+                    existing.InstanceId,
+                    runtimeTag,
+                    resolvedIntensity);
+
+                existing.ApplyMutations(request.HookMutations);
+                existing.ApplyStack(request, stackContext);
+                instanceId = existing.InstanceId;
+                return true;
             }
 
-            // 新規適用
-            _context.Config = config;
-            effect.Initialize(_context);
-            _activeEffects[effectId] = effect;
-            effect.Apply();
+            instanceId = Guid.NewGuid().ToString("N");
+            var buildContext = new StatusEffectBuildContext(
+                _scope,
+                evalContext.Vars,
+                evalContext.CommandRootScope ?? _scope,
+                request,
+                definition,
+                instanceId,
+                runtimeTag,
+                resolvedIntensity);
 
-            // イベント発行
-            PublishEffectApplied(effect);
-
-            return effectId;
-        }
-
-        // ================================================================
-        // Effect 削除
-        // ================================================================
-
-        public bool RemoveEffect(string effectId)
-        {
-            if (_disposed || string.IsNullOrEmpty(effectId))
+            if (!TryBuildRuntime(definition, buildContext, slotKey, out var runtime))
+            {
+                instanceId = string.Empty;
                 return false;
+            }
 
-            if (!_activeEffects.TryGetValue(effectId, out var effect))
-                return false;
+            _effects[slotKey] = runtime;
+            if (_isActive)
+                runtime.ApplyInitial();
 
-            RemoveEffectInternal(effect);
+            PublishEffectApplied(runtime);
             return true;
         }
 
-        public int RemoveEffects<T>() where T : BaseEffectRuntime
+        public int Remove(StatusEffectRuntimeFilter filter)
         {
             if (_disposed)
                 return 0;
 
             int count = 0;
-            foreach (var kvp in _activeEffects)
+            foreach (var pair in _effects)
             {
-                if (kvp.Value is T)
-                {
-                    _removeQueue.Add(kvp.Key);
-                    count++;
-                }
+                if (pair.Value == null || !filter.Matches(pair.Value))
+                    continue;
+
+                _removeQueue.Add(pair.Key);
+                count++;
             }
 
             ProcessRemoveQueue();
             return count;
         }
 
-        public int RemoveEffects(EffectType type)
+        public int SetEnabled(StatusEffectRuntimeFilter filter, bool enabled)
         {
-            if (_disposed)
+            int count = 0;
+            foreach (var runtime in _effects.Values)
+            {
+                if (runtime == null || !filter.Matches(runtime))
+                    continue;
+
+                if (enabled)
+                    runtime.Enable();
+                else
+                    runtime.Disable();
+
+                count++;
+            }
+
+            return count;
+        }
+
+        public int Use(StatusEffectRuntimeFilter filter, IScopeNode? userScope = null)
+        {
+            if (_disposed || !_isActive)
                 return 0;
 
             int count = 0;
-            foreach (var kvp in _activeEffects)
+            foreach (var pair in _effects)
             {
-                if (kvp.Value.Type == type)
-                {
-                    _removeQueue.Add(kvp.Key);
+                var runtime = pair.Value;
+                if (runtime == null || !filter.Matches(runtime))
+                    continue;
+
+                if (runtime.Use(userScope ?? _scope))
                     count++;
-                }
+
+                if (runtime.IsRemoveRequested)
+                    _removeQueue.Add(pair.Key);
             }
 
             ProcessRemoveQueue();
             return count;
         }
 
-        public void ClearAllEffects()
+        public int Reset(StatusEffectRuntimeFilter filter)
         {
-            if (_disposed)
-                return;
-
-            foreach (var kvp in _activeEffects)
+            int count = 0;
+            foreach (var runtime in _effects.Values)
             {
-                _removeQueue.Add(kvp.Key);
+                if (runtime == null || !filter.Matches(runtime))
+                    continue;
+
+                runtime.ResetRuntime();
+                count++;
             }
+
+            return count;
+        }
+
+        public void ClearAll()
+        {
+            foreach (var key in _effects.Keys)
+                _removeQueue.Add(key);
 
             ProcessRemoveQueue();
         }
 
-        void RemoveEffectInternal(BaseEffectRuntime effect)
+        public bool HasEffect(string definitionId)
         {
-            if (effect == null)
-                return;
-
-            effect.Remove();
-            _activeEffects.Remove(effect.EffectId);
-
-            // イベント発行
-            PublishEffectRemoved(effect);
-        }
-
-        void ProcessRemoveQueue()
-        {
-            for (int i = 0; i < _removeQueue.Count; i++)
-            {
-                if (_activeEffects.TryGetValue(_removeQueue[i], out var effect))
-                {
-                    RemoveEffectInternal(effect);
-                }
-            }
-            _removeQueue.Clear();
-        }
-
-        // ================================================================
-        // Effect クエリ
-        // ================================================================
-
-        public bool HasEffect(string effectId)
-        {
-            return !string.IsNullOrEmpty(effectId) && _activeEffects.ContainsKey(effectId);
-        }
-
-        public bool HasEffect<T>() where T : BaseEffectRuntime
-        {
-            foreach (var effect in _activeEffects.Values)
-            {
-                if (effect is T)
-                    return true;
-            }
-            return false;
-        }
-
-        public bool TryGetEffect(string effectId, out BaseEffectRuntime effect)
-        {
-            effect = null;
-            if (string.IsNullOrEmpty(effectId))
+            if (string.IsNullOrWhiteSpace(definitionId))
                 return false;
 
-            return _activeEffects.TryGetValue(effectId, out effect);
-        }
-
-        public bool TryGetEffect<T>(out T effect) where T : BaseEffectRuntime
-        {
-            effect = null;
-            foreach (var e in _activeEffects.Values)
+            foreach (var runtime in _effects.Values)
             {
-                if (e is T typed)
-                {
-                    effect = typed;
+                if (runtime != null && string.Equals(runtime.DefinitionId, definitionId, StringComparison.Ordinal))
                     return true;
-                }
             }
+
             return false;
         }
 
         public void GetActiveEffectStates(List<EffectState> output)
         {
+            output?.Clear();
             if (output == null)
                 return;
 
-            output.Clear();
-            foreach (var effect in _activeEffects.Values)
+            foreach (var runtime in _effects.Values)
             {
-                output.Add(effect.GetState());
+                if (runtime != null && runtime.IsActive)
+                    output.Add(runtime.ToState());
             }
         }
 
-        public void GetEffectStates(EffectType type, List<EffectState> output)
+        public void GetStates(List<EffectState> output, StatusEffectRuntimeFilter filter)
         {
+            output?.Clear();
             if (output == null)
                 return;
 
-            output.Clear();
-            foreach (var effect in _activeEffects.Values)
+            foreach (var runtime in _effects.Values)
             {
-                if (effect.Type == type)
-                {
-                    output.Add(effect.GetState());
-                }
+                if (runtime != null && filter.Matches(runtime))
+                    output.Add(runtime.ToState());
             }
         }
-
-        // ================================================================
-        // ITickable
-        // ================================================================
 
         public void Tick()
         {
-            if (_disposed)
+            if (_disposed || !_isActive)
                 return;
 
-            float dt = Time.deltaTime;
-
-            // 全 Effect の Tick
-            foreach (var kvp in _activeEffects)
+            var deltaTime = Time.deltaTime;
+            foreach (var pair in _effects)
             {
-                var effect = kvp.Value;
-                effect.Tick(dt);
+                var runtime = pair.Value;
+                if (runtime == null)
+                    continue;
 
-                if (effect.IsRemoveRequested)
-                {
-                    _removeQueue.Add(kvp.Key);
-                }
+                runtime.Tick(deltaTime);
+                if (runtime.IsRemoveRequested)
+                    _removeQueue.Add(pair.Key);
             }
 
-            // 削除キューを処理
             ProcessRemoveQueue();
         }
 
-        // ================================================================
-        // イベント発行
-        // ================================================================
-
-        void PublishEffectApplied(BaseEffectRuntime effect)
+        public void OnAcquire(IScopeNode scope, bool isReset)
         {
-            var payload = new VarStore();
-            SetVariant(payload, "EffectId", DynamicVariant.FromString(effect.EffectId ?? string.Empty));
-            SetVariant(payload, "DisplayName", DynamicVariant.FromString(effect.DisplayName ?? string.Empty));
-            SetVariant(payload, "Type", DynamicVariant.FromInt((int)effect.Type));
-            SetVariant(payload, "Duration", DynamicVariant.FromFloat(effect.TotalDuration));
-            SetVariant(payload, "Intensity", DynamicVariant.FromFloat(effect.Intensity));
+            _ = scope;
+            _isActive = true;
 
-            effect.EventPayload?.MergeInto(payload, overwrite: true);
+            foreach (var runtime in _effects.Values)
+            {
+                if (runtime == null)
+                    continue;
 
-            _context.EventService.PublishAsync(OnEffectAppliedKey, payload).Forget(ex => Debug.LogException(ex));
+                if (isReset)
+                    runtime.ResetRuntime();
+                else
+                    runtime.ResumeFromScopeAcquire();
+            }
         }
 
-        void PublishEffectRemoved(BaseEffectRuntime effect)
+        public void OnRelease(IScopeNode scope, bool isReset)
         {
-            var payload = new VarStore();
-            SetVariant(payload, "EffectId", DynamicVariant.FromString(effect.EffectId ?? string.Empty));
-            SetVariant(payload, "DisplayName", DynamicVariant.FromString(effect.DisplayName ?? string.Empty));
-            SetVariant(payload, "Type", DynamicVariant.FromInt((int)effect.Type));
+            _ = scope;
+            _ = isReset;
+            _isActive = false;
 
-            effect.EventPayload?.MergeInto(payload, overwrite: true);
-
-            _context.EventService.PublishAsync(OnEffectRemovedKey, payload).Forget(ex => Debug.LogException(ex));
+            foreach (var runtime in _effects.Values)
+                runtime?.SuspendForScopeRelease();
         }
-
-        static void SetVariant(IVarStore vars, string stableKey, in DynamicVariant variant)
-        {
-            if (vars == null) return;
-            if (!VarIdResolver.TryResolve(stableKey, out var varId) || varId == 0) return;
-            vars.TrySetVariant(varId, variant);
-        }
-
-        // ================================================================
-        // IDisposable
-        // ================================================================
 
         public void Dispose()
         {
             if (_disposed)
                 return;
-            _disposed = true;
 
-            ClearAllEffects();
-            _activeEffects.Clear();
+            _disposed = true;
+            ClearAll();
+            _effects.Clear();
             _removeQueue.Clear();
+            _commandRunner = null;
+            _richTextRefService = null;
+            _mutationService = null;
+            _eventService = null;
+        }
+
+        bool TryBuildRuntime(
+            BaseStatusEffectDefinitionData definition,
+            StatusEffectBuildContext buildContext,
+            string slotKey,
+            out StatusEffectRuntime runtime)
+        {
+            runtime = default!;
+
+            var operations = new List<IStatusEffectOperationRuntime>(definition.Operations.Count);
+            for (int i = 0; i < definition.Operations.Count; i++)
+            {
+                var operation = definition.Operations[i];
+                if (operation == null)
+                    continue;
+
+                if (!operation.TryBuild(buildContext, out var opRuntime) || opRuntime == null)
+                {
+                    Debug.LogWarning($"[StatusEffectService] Failed to build operation. DefinitionId={definition.DefinitionId} OperationType={operation.GetType().Name}");
+                    return false;
+                }
+
+                operations.Add(opRuntime);
+            }
+
+            IStatusEffectDurationController? durationController = null;
+            if (definition.UseDuration)
+            {
+                if (definition.DurationDefinition == null ||
+                    !definition.DurationDefinition.TryCreateController(buildContext, out durationController) ||
+                    durationController == null)
+                {
+                    Debug.LogWarning($"[StatusEffectService] Failed to create duration controller. DefinitionId={definition.DefinitionId}");
+                    return false;
+                }
+            }
+
+            IStatusEffectCountController? countController = null;
+            if (definition.UseCount)
+            {
+                if (definition.CountDefinition == null ||
+                    !definition.CountDefinition.TryCreateController(buildContext, out countController) ||
+                    countController == null)
+                {
+                    Debug.LogWarning($"[StatusEffectService] Failed to create count controller. DefinitionId={definition.DefinitionId}");
+                    return false;
+                }
+            }
+
+            var hooks = definition.DefaultHooks?.Clone() ?? new StatusEffectHookSet();
+            hooks.ApplyMutations(buildContext.Request.HookMutations, MutationService);
+
+            runtime = new StatusEffectRuntime(
+                this,
+                _scope,
+                definition,
+                buildContext.InstanceId,
+                buildContext.RuntimeTag,
+                slotKey,
+                buildContext.ResolvedIntensity,
+                operations,
+                hooks,
+                durationController,
+                countController);
+            return true;
+        }
+
+        float ResolveIntensity(BaseStatusEffectDefinitionData definition, StatusEffectApplyRequest request, IDynamicContext evaluationContext)
+        {
+            var defaultIntensity = definition.DefaultIntensity.GetOrDefault(evaluationContext, 1f);
+            if (!request.Intensity.HasSource)
+                return defaultIntensity;
+
+            return request.Intensity.GetOrDefault(evaluationContext, defaultIntensity);
+        }
+
+        static string BuildSlotKey(string definitionId, string runtimeTag)
+        {
+            if (string.IsNullOrWhiteSpace(runtimeTag))
+                return definitionId ?? string.Empty;
+
+            return $"{definitionId}:{runtimeTag}";
+        }
+
+        void ProcessRemoveQueue()
+        {
+            if (_removeQueue.Count == 0)
+                return;
+
+            for (int i = 0; i < _removeQueue.Count; i++)
+            {
+                var key = _removeQueue[i];
+                if (!_effects.TryGetValue(key, out var runtime) || runtime == null)
+                    continue;
+
+                runtime.Remove();
+                _effects.Remove(key);
+                PublishEffectRemoved(runtime);
+            }
+
+            _removeQueue.Clear();
+        }
+
+        T? ResolveOptional<T>() where T : class
+        {
+            var current = _scope;
+            while (current != null)
+            {
+                var resolver = current.Resolver;
+                if (resolver != null && resolver.TryResolve<T>(out var service) && service != null)
+                    return service;
+
+                current = current.Parent;
+            }
+
+            return null;
+        }
+
+        void PublishEffectApplied(StatusEffectRuntime runtime)
+        {
+            var eventService = EventService;
+            if (eventService == null || runtime == null)
+                return;
+
+            var payload = CreateEventPayload(runtime);
+            UniTask.Void(async () =>
+            {
+                try
+                {
+                    await eventService.PublishAsync(OnEffectAppliedKey, payload);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            });
+        }
+
+        void PublishEffectRemoved(StatusEffectRuntime runtime)
+        {
+            var eventService = EventService;
+            if (eventService == null || runtime == null)
+                return;
+
+            var payload = CreateEventPayload(runtime);
+            UniTask.Void(async () =>
+            {
+                try
+                {
+                    await eventService.PublishAsync(OnEffectRemovedKey, payload);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            });
+        }
+
+        static VarStore CreateEventPayload(StatusEffectRuntime runtime)
+        {
+            var payload = new VarStore();
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.effectId, DynamicVariant.FromString(runtime.DefinitionId));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.instanceId, DynamicVariant.FromString(runtime.InstanceId));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.runtimeTag, DynamicVariant.FromString(runtime.RuntimeTag));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.effectType, DynamicVariant.FromInt((int)runtime.Type));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.isUseBlocked, DynamicVariant.FromBool(runtime.IsUseBlocked));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.totalDuration, DynamicVariant.FromFloat(runtime.TotalDuration));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.remainingInverseInterval, DynamicVariant.FromFloat(runtime.RemainingInverseInterval));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.intensity, DynamicVariant.FromFloat(runtime.Intensity));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Element.usedCount, DynamicVariant.FromInt(runtime.UsedCount));
+            return payload;
         }
     }
 }

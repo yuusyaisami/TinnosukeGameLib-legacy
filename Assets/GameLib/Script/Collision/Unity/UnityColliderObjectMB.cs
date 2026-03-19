@@ -22,7 +22,7 @@ namespace Game.Collision
         [SerializeField] uint _hitMask = ~0u;
 
         [Header("Dynamic Settings")]
-        [SerializeField] DynamicColliderSetId _setId = DynamicColliderSetId.EnemyBullet;
+        [SerializeField] DynamicColliderSetRef _setId = new(DynamicColliderSetId.EnemyBullet);
 
         [Header("User Data")]
         [SerializeField] int _userData = 0;
@@ -59,7 +59,7 @@ namespace Game.Collision
         public Collider2D? Collider => _collider != null ? _collider : GetComponent<Collider2D>();
         public int LayerId => _layerId;
         public uint HitMask => _hitMask;
-        public DynamicColliderSetId SetId => _setId;
+        public DynamicColliderSetId SetId => _setId.Id;
         public int UserData => _userData;
         public bool EnabledByDefault => _enabledByDefault;
 
@@ -100,7 +100,7 @@ namespace Game.Collision
 
         internal void SetSetId(DynamicColliderSetId setId)
         {
-            _setId = setId;
+            _setId.Set(setId);
         }
 
         internal void SetUserData(int userData)

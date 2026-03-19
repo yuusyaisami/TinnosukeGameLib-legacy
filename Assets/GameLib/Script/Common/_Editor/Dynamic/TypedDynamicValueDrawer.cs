@@ -179,10 +179,11 @@ namespace Game.Common.Editor
             allowedList.Add(typeof(SelfBlackboardSource));
             allowedList.Add(typeof(OtherBlackboardSource));
 
-            // 5. Scalar（float / string に対応）
-            if (targetType == typeof(float) || targetType == typeof(string))
+            // 5. Scalar（int / float / string に対応）
+            if (targetType == typeof(int) || targetType == typeof(float) || targetType == typeof(string))
             {
-                // Allow scalar sources for float and for string (string will be produced by casting float->string)
+                // Allow scalar sources for numeric/string values.
+                // DynamicVariant handles float -> int / string conversions.
                 allowedList.Add(typeof(SelfScalarSource));
                 allowedList.Add(typeof(OtherScalarSource));
             }

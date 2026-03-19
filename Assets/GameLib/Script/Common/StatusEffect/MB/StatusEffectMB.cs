@@ -1,9 +1,6 @@
-// Game.StatusEffect.StatusEffectMB.cs
-//
-// StatusEffect 管理用の MonoBehaviour
-
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using Game.Health;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -12,13 +9,34 @@ using VContainer.Unity;
 
 namespace Game.StatusEffect
 {
-    /// <summary>
-    /// StatusEffect 管理用の MonoBehaviour。
-    /// Entity に配置して IStatusEffectService を DI 登録する。
-    /// </summary>
     [DisallowMultipleComponent]
-    public sealed class StatusEffectMB : MonoBehaviour, IFeatureInstaller, IDisposable
+    public sealed class StatusEffectMB :
+        MonoBehaviour,
+        IFeatureInstaller,
+        IScopeAcquireHandler,
+        IScopeReleaseHandler
     {
+        [Serializable]
+        struct EffectDebugEntry
+        {
+            public string EffectId;
+            public string InstanceId;
+            public string RuntimeTag;
+            public string DisplayName;
+            public EffectType Type;
+            public float RemainingTime;
+            public float RemainingInverseInterval;
+            public float Intensity;
+            public int StackCount;
+            public bool IsEnabled;
+            public bool IsApplied;
+            public bool IsActive;
+            public bool IsUseBlocked;
+            public int UsedCount;
+            public int RemainingUseCount;
+            public int MaxUseCount;
+        }
+
         [Header("Debug")]
         [SerializeField, ReadOnly]
         int _activeEffectCount;
@@ -26,38 +44,61 @@ namespace Game.StatusEffect
         [SerializeField]
         List<EffectDebugEntry> _activeEffects = new();
 
-        IStatusEffectService _statusEffectService;
-        readonly List<EffectState> _tempStates = new();
-        bool _disposed;
+        [Header("Debug Apply")]
+        [SerializeField]
+        global::Game.StatusEffect.StatusEffectDefinitionSO _debugDefinition;
 
-        [Serializable]
-        struct EffectDebugEntry
-        {
-            public string EffectId;
-            public string DisplayName;
-            public EffectType Type;
-            public float RemainingTime;
-            public float Intensity;
-            public int StackCount;
-        }
+        [SerializeField]
+        float _debugIntensity = 1f;
+
+        [SerializeField]
+        bool _debugOverrideDuration;
+
+        [SerializeField, ShowIf(nameof(_debugOverrideDuration))]
+        float _debugDuration = -1f;
+
+        [SerializeField]
+        string _debugRuntimeTag = string.Empty;
+
+        readonly List<EffectState> _tempStates = new();
+        IStatusEffectService _statusEffectService;
+        IScopeNode _scopeNode;
 
         public IStatusEffectService StatusEffectService => _statusEffectService;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
+            builder.RegisterComponent(this)
+                .AsSelf()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
+
             builder.Register<StatusEffectService>(Lifetime.Singleton)
-                .WithParameter(transform)
+                .WithParameter(scope)
                 .As<IStatusEffectService>()
-                .As<ITickable>();
+                .As<ITickable>()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
         }
 
-        void Start()
+        public void OnAcquire(IScopeNode scope, bool isReset)
         {
-            var lts = GetComponentInParent<BaseLifetimeScope>();
-            if (lts?.Container != null)
-            {
-                lts.Container.TryResolve(out _statusEffectService);
-            }
+            _ = isReset;
+            var resolver = scope?.Resolver;
+            _scopeNode = scope;
+            if (resolver != null && resolver.TryResolve<IStatusEffectService>(out var service) && service != null)
+                _statusEffectService = service;
+        }
+
+        public void OnRelease(IScopeNode scope, bool isReset)
+        {
+            _ = scope;
+            _ = isReset;
+            _statusEffectService = null;
+            _scopeNode = null;
+            _activeEffects.Clear();
+            _tempStates.Clear();
+            _activeEffectCount = 0;
         }
 
         void Update()
@@ -65,72 +106,72 @@ namespace Game.StatusEffect
             if (_statusEffectService == null)
                 return;
 
-            _activeEffectCount = _statusEffectService.ActiveEffectCount;
-
-            // デバッグ表示用
             _statusEffectService.GetActiveEffectStates(_tempStates);
+            _activeEffectCount = _tempStates.Count;
             _activeEffects.Clear();
-            foreach (var state in _tempStates)
+
+            for (int i = 0; i < _tempStates.Count; i++)
             {
+                var state = _tempStates[i];
                 _activeEffects.Add(new EffectDebugEntry
                 {
                     EffectId = state.EffectId,
+                    InstanceId = state.InstanceId,
+                    RuntimeTag = state.RuntimeTag,
                     DisplayName = state.DisplayName,
                     Type = state.Type,
                     RemainingTime = state.RemainingTime,
+                    RemainingInverseInterval = state.RemainingInverseInterval,
                     Intensity = state.Intensity,
-                    StackCount = state.StackCount
+                    StackCount = state.StackCount,
+                    IsEnabled = state.IsEnabled,
+                    IsApplied = state.IsApplied,
+                    IsActive = state.IsActive,
+                    IsUseBlocked = state.IsUseBlocked,
+                    UsedCount = state.UsedCount,
+                    RemainingUseCount = state.RemainingUseCount,
+                    MaxUseCount = state.MaxUseCount
                 });
             }
         }
 
-        void OnDestroy() => Dispose();
-
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-            _disposed = true;
-
-            (_statusEffectService as IDisposable)?.Dispose();
-            _statusEffectService = null;
-        }
-
 #if UNITY_EDITOR
-        [Button("Apply Poison (5s)")]
-        void DebugApplyPoison()
+        [Button("Apply Debug Definition")]
+        void DebugApplyDefinition()
         {
-            _statusEffectService?.ApplyEffect<PoisonEffect>(EffectConfig.Default(5f, 1f));
+            if (_statusEffectService == null || _debugDefinition == null)
+                return;
+            if (_scopeNode == null)
+                return;
+
+            var request = new StatusEffectApplyRequest
+            {
+                Definition = DynamicValue<BaseStatusEffectDefinitionData>.FromSource(
+                    ManagedRefSource.FromValue(_debugDefinition.Preset)),
+                Intensity = DynamicValue<float>.FromSource(LiteralSource.FromFloat(_debugIntensity)),
+                OverrideDuration = _debugOverrideDuration,
+                DurationOverride = DynamicValue<float>.FromSource(LiteralSource.FromFloat(_debugDuration)),
+                RuntimeTag = _debugRuntimeTag ?? string.Empty,
+                HookMutations = new StatusEffectHookMutationSet(),
+            };
+
+            var context = new SimpleDynamicContext(NullVarStore.Instance, _scopeNode);
+            _statusEffectService.TryApply(request, context, out _);
         }
 
-        [Button("Apply Speed Boost (3s)")]
-        void DebugApplySpeedBoost()
+        [Button("Use All")]
+        void DebugUseAll()
         {
-            _statusEffectService?.ApplyEffect<SpeedBoostEffect>(EffectConfig.Default(3f, 0.5f));
-        }
+            if (_scopeNode == null)
+                return;
 
-        [Button("Apply Invincible (2s)")]
-        void DebugApplyInvincible()
-        {
-            _statusEffectService?.ApplyEffect<InvincibleEffect>(EffectConfig.Default(2f, 1f));
-        }
-
-        [Button("Clear All Buffs")]
-        void DebugClearBuffs()
-        {
-            _statusEffectService?.RemoveEffects(EffectType.Buff);
-        }
-
-        [Button("Clear All Debuffs")]
-        void DebugClearDebuffs()
-        {
-            _statusEffectService?.RemoveEffects(EffectType.Debuff);
+            _statusEffectService?.Use(StatusEffectRuntimeFilter.All, _scopeNode);
         }
 
         [Button("Clear All Effects")]
         void DebugClearAll()
         {
-            _statusEffectService?.ClearAllEffects();
+            _statusEffectService?.ClearAll();
         }
 #endif
     }

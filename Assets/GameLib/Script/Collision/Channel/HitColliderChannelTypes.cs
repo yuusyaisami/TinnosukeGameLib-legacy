@@ -52,10 +52,10 @@ namespace Game.Collision
         public ColliderMobilityType Mobility;
 
         public bool UseDynamicSet;
-        public DynamicColliderSetId DynamicSetId;
+        public DynamicColliderSetRef DynamicSetId;
 
         public bool UseStaticKind;
-        public StaticColliderKind StaticKind;
+        public StaticColliderKindRef StaticKind;
 
         public bool Matches(in CollisionHit hit)
         {
@@ -69,10 +69,6 @@ namespace Game.Collision
             if (UseDynamicSet)
             {
                 if (!hit.OtherDynamic.IsValid) return false;
-                if (hit.OtherSetId != DynamicColliderSetId.EnemyBullet && hit.OtherSetId != DynamicColliderSetId.PlayerBullet && hit.OtherSetId != DynamicColliderSetId.PlayerHurtbox && hit.OtherSetId != DynamicColliderSetId.EnemyHurtbox)
-                {
-                    // We still check equality even if enum has other values.
-                }
                 if (hit.OtherSetId != DynamicSetId) return false;
             }
 

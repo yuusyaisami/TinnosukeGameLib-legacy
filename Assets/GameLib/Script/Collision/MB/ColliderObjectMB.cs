@@ -64,10 +64,10 @@ namespace Game.Collision
         [SerializeField] uint _hitMask = ~0u;
 
         [Header("Dynamic Settings")]
-        [SerializeField] DynamicColliderSetId _setId = DynamicColliderSetId.EnemyBullet;
+        [SerializeField] DynamicColliderSetRef _setId = new(DynamicColliderSetId.EnemyBullet);
 
         [Header("Static Settings")]
-        [SerializeField] StaticColliderKind _staticKind = StaticColliderKind.StageGeometry;
+        [SerializeField] StaticColliderKindRef _staticKind = new(StaticColliderKind.StageGeometry);
 
         [Header("User Data")]
         [SerializeField] int _userData = 0;
@@ -109,8 +109,17 @@ namespace Game.Collision
         public bool RetainOnScopeRelease => _retainOnScopeRelease;
 
         public uint HitMask { get => _hitMask; set => _hitMask = value; }
-        public DynamicColliderSetId SetId { get => _setId; set => _setId = value; }
-        public StaticColliderKind StaticKind { get => _staticKind; set => _staticKind = value; }
+        public DynamicColliderSetId SetId
+        {
+            get => _setId.Id;
+            set => _setId.Set(value);
+        }
+
+        public StaticColliderKind StaticKind
+        {
+            get => _staticKind.Id;
+            set => _staticKind.Set(value);
+        }
         public int UserData { get => _userData; set => _userData = value; }
 
         public DynamicColliderHandle DynamicHandle => _dynamicHandle;

@@ -9,7 +9,7 @@ using Game.Vars.Generated;
 using UnityEngine;
 using VContainer;
 using VNext = Game.Commands.VNext;
-
+/*
 namespace Game.Actions
 {
     public interface IPlayerGameActionUIService
@@ -716,3 +716,4 @@ namespace Game.Actions
         }
     }
 }
+*/

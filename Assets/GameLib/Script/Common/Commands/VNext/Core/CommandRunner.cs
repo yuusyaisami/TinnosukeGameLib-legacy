@@ -144,6 +144,8 @@ namespace Game.Commands.VNext
             var listFunctionName = commandList.FunctionName;
             var resolveContext = new CommandResolveContext(
                 effectiveCtx.Scope,
+                effectiveCtx.Vars,
+                effectiveCtx.CommandRootScope,
                 effectiveCtx.Scope?.Resolver,
                 _catalog,
                 _keyResolver,

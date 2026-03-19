@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using UnityEngine;
 using VContainer.Unity;
 using VContainer;
@@ -61,6 +62,7 @@ namespace Game.Scalar
 
         readonly LifetimeScopeKind _space;
         readonly IScopeNode _scope;
+        readonly SimpleDynamicContext _dynamicContext;
         readonly IScalarRuntimeConfigProvider _configProvider;
         readonly Dictionary<int, ScalarKeyRuntime> _runtimes = new();
 
@@ -77,6 +79,7 @@ namespace Game.Scalar
             IScalarRuntimeConfigProvider configProvider)
         {
             _scope = scope;
+            _dynamicContext = new SimpleDynamicContext(NullVarStore.Instance, scope);
             _configProvider = configProvider;
             _space = scope != null ? scope.Kind : LifetimeScopeKind.None;
         }
@@ -89,6 +92,7 @@ namespace Game.Scalar
         }
 
         public LifetimeScopeKind Space => _space;
+        internal IDynamicContext DynamicContext => _dynamicContext;
 
         public ScalarKeyRuntime GetOrCreateRuntime(ScalarKey key)
         {

@@ -279,13 +279,8 @@ namespace Game.Collision
 
         static DynamicColliderSetId MapStaticKind(StaticColliderKind kind)
         {
-            return kind switch
-            {
-                StaticColliderKind.Boundary => DynamicColliderSetId.Obstacle,
-                StaticColliderKind.LivingWall => DynamicColliderSetId.Obstacle,
-                StaticColliderKind.NecroWall => DynamicColliderSetId.Obstacle,
-                _ => DynamicColliderSetId.Obstacle,
-            };
+            CollisionIdCatalogLocator.TryResolveStaticProxySet(kind, out var setId);
+            return setId;
         }
 
         static void DestroyRuntimeObject(GameObject target)

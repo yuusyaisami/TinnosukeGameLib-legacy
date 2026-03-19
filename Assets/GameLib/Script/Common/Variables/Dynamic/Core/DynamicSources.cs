@@ -894,6 +894,21 @@ namespace Game.Common
         public string SourceTypeName => "SelfScalar";
         public string GetDebugData => scalarKey.ToString();
 
+        public static SelfScalarSource FromScalarKey(
+            ScalarKey scalarKey,
+            bool createIfMissing = false,
+            float baselineValue = 0f,
+            bool searchIncludeGlobal = false)
+        {
+            return new SelfScalarSource
+            {
+                scalarKey = scalarKey,
+                createIfMissing = createIfMissing,
+                baselineValue = baselineValue,
+                searchIncludeGlobal = searchIncludeGlobal,
+            };
+        }
+
         public DynamicVariant Evaluate(IDynamicContext context)
         {
             if (context?.Scope?.Resolver == null)
@@ -902,7 +917,7 @@ namespace Game.Common
             if (!context.Scope.Resolver.TryResolve<IBaseScalarService>(out var svc))
                 return DynamicVariant.Null;
 
-            if (svc.GlobalTryGet(scalarKey, out float value))
+            if (svc.LocalTryGet(scalarKey, out float value))
                 return DynamicVariant.FromFloat(value);
             if (searchIncludeGlobal && svc.GlobalTryGet(scalarKey, out float gvalue))
                 return DynamicVariant.FromFloat(gvalue);
@@ -937,6 +952,21 @@ namespace Game.Common
 
         public string SourceTypeName => "OtherScalar";
         public string GetDebugData => scalarKey.ToString();
+
+        public static OtherScalarSource FromScalarKey(
+            ScalarKey scalarKey,
+            CommandTargetIdentityFilter targetFilter,
+            bool createIfMissing = false,
+            float baselineValue = 0f)
+        {
+            return new OtherScalarSource
+            {
+                scalarKey = scalarKey,
+                targetFilter = targetFilter,
+                createIfMissing = createIfMissing,
+                baselineValue = baselineValue,
+            };
+        }
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {

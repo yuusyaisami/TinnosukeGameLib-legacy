@@ -1,5 +1,6 @@
 // Game.Health.HealthModifierPreset
 using System;
+using Game.Common;
 using Game.Profile;
 using Game.Scalar;
 using Game.Scalar.Generated;
@@ -22,7 +23,7 @@ namespace Game.Health
             ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
             UseEffectMod = true,
             UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f }
+            Clamp = new ScalarClamp { UseMin = true, Min = DynamicValueExtensions.FromLiteral(0f) }
         };
 
         [BoxGroup("Poison")]
@@ -35,7 +36,7 @@ namespace Game.Health
             ScalarKeyValue = new ScalarKey(ScalarKeys.GameLib.Health.Modifier.Poison.TickInterval),
             ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
             UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0.1f }
+            Clamp = new ScalarClamp { UseMin = true, Min = DynamicValueExtensions.FromLiteral(0.1f) }
         };
 
         [BoxGroup("DamageReduction")]
@@ -49,7 +50,13 @@ namespace Game.Health
             ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
             UseEffectMod = true,
             UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f, UseMax = true, Max = 1f }
+            Clamp = new ScalarClamp
+            {
+                UseMin = true,
+                Min = DynamicValueExtensions.FromLiteral(0f),
+                UseMax = true,
+                Max = DynamicValueExtensions.FromLiteral(1f)
+            }
         };
 
         [BoxGroup("HealBoost")]
@@ -63,7 +70,7 @@ namespace Game.Health
             ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
             UseEffectMod = true,
             UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f }
+            Clamp = new ScalarClamp { UseMin = true, Min = DynamicValueExtensions.FromLiteral(0f) }
         };
 
         [BoxGroup("Critical")]
@@ -77,7 +84,7 @@ namespace Game.Health
             ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
             UseEffectMod = true,
             UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 1f }
+            Clamp = new ScalarClamp { UseMin = true, Min = DynamicValueExtensions.FromLiteral(1f) }
         };
 
         [BoxGroup("Critical")]
@@ -91,7 +98,13 @@ namespace Game.Health
             ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
             UseEffectMod = true,
             UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f, UseMax = true, Max = 1f }
+            Clamp = new ScalarClamp
+            {
+                UseMin = true,
+                Min = DynamicValueExtensions.FromLiteral(0f),
+                UseMax = true,
+                Max = DynamicValueExtensions.FromLiteral(1f)
+            }
         };
 
         [BoxGroup("Critical")]
@@ -105,7 +118,7 @@ namespace Game.Health
             ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
             UseEffectMod = true,
             UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 1f }
+            Clamp = new ScalarClamp { UseMin = true, Min = DynamicValueExtensions.FromLiteral(1f) }
         };
 
         [BoxGroup("Critical")]
@@ -119,7 +132,13 @@ namespace Game.Health
             ScalarPolicyValue = ScalarBindPolicy.ReplaceRuntime,
             UseEffectMod = true,
             UseClampMod = true,
-            Clamp = new ScalarClamp { UseMin = true, Min = 0f, UseMax = true, Max = 1f }
+            Clamp = new ScalarClamp
+            {
+                UseMin = true,
+                Min = DynamicValueExtensions.FromLiteral(0f),
+                UseMax = true,
+                Max = DynamicValueExtensions.FromLiteral(1f)
+            }
         };
 
         public override Type ProfileType => typeof(HealthModifierPreset);

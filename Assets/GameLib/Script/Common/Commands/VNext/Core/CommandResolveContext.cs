@@ -1,20 +1,25 @@
 #nullable enable
 using Game;
+using Game.Common;
 using VContainer;
 
 namespace Game.Commands.VNext
 {
-    public readonly struct CommandResolveContext
+    public readonly struct CommandResolveContext : IDynamicContext
     {
-        public readonly IScopeNode Scope;
-        public readonly IObjectResolver? Resolver;
-        public readonly ICommandCatalog Catalog;
-        public readonly ICommandKeyResolver KeyResolver;
-        public readonly ICommandResolveLogger Logger;
-        public readonly bool AllowRuntimeKeyFallback;
+        public IScopeNode Scope { get; }
+        public IVarStore Vars { get; }
+        public IScopeNode? CommandRootScope { get; }
+        public IObjectResolver? Resolver { get; }
+        public ICommandCatalog Catalog { get; }
+        public ICommandKeyResolver KeyResolver { get; }
+        public ICommandResolveLogger Logger { get; }
+        public bool AllowRuntimeKeyFallback { get; }
 
         public CommandResolveContext(
             IScopeNode scope,
+            IVarStore vars,
+            IScopeNode? commandRootScope,
             IObjectResolver? resolver,
             ICommandCatalog catalog,
             ICommandKeyResolver keyResolver,
@@ -22,11 +27,24 @@ namespace Game.Commands.VNext
             bool allowRuntimeKeyFallback)
         {
             Scope = scope;
+            Vars = vars ?? NullVarStore.Instance;
+            CommandRootScope = commandRootScope;
             Resolver = resolver;
             Catalog = catalog;
             KeyResolver = keyResolver;
             Logger = logger;
             AllowRuntimeKeyFallback = allowRuntimeKeyFallback;
+        }
+
+        public IScopeNode ResolveOtherScope(CommandTargetIdentityFilter filter)
+        {
+            if (Scope?.Resolver == null)
+                return null!;
+
+            if (!Scope.Resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var registry) || registry == null)
+                return null!;
+
+            return registry.Resolve(filter, Scope);
         }
     }
 }

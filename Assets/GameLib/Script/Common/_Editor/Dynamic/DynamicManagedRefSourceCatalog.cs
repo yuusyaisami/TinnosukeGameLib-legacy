@@ -12,6 +12,7 @@ using UnityEditor;
 using UnityEngine;
 using Game.Common;
 using Game.Profile;
+using Game.StatusEffect;
 
 namespace Game.Common.Editor
 {
@@ -59,6 +60,11 @@ namespace Game.Common.Editor
             // BaseProfileData 自体を登録（DynamicValue<BaseProfileData> で polymorphic Preset 選択を可能にする）
             s_literalSourceCache[typeof(BaseProfileData)] =
                 typeof(ManagedRefLiteralSource<>).MakeGenericType(typeof(BaseProfileData));
+
+            // StatusEffect 定義ベース型も明示登録する。
+            // abstract base + SerializeReference の組み合わせで concrete definition を inline 選択できるようにする。
+            s_literalSourceCache[typeof(BaseStatusEffectDefinitionData)] =
+                typeof(ManagedRefLiteralSource<>).MakeGenericType(typeof(BaseStatusEffectDefinitionData));
 
             // BaseProfileData 派生型を収集
             var profileDataTypes = TypeCache.GetTypesDerivedFrom<BaseProfileData>();

@@ -311,103 +311,140 @@ namespace Game.Scalar.Generated
         public static partial class GameLogic
         {
 
-            public static partial class GameProfile
+            public static partial class BallProfile
             {
-                /// <summary>現在のマップの進行ノードのIndexを返します。</summary>
+                /// <summary>上限価値</summary>
                 /// <remarks>
-                /// Path: GameLogic/GameProfile/CurrentMapNodeIndex
+                /// Path: GameLogic/BallProfile/MaxValue
                 /// </remarks>
-                public const string CurrentMapNodeIndex = "GameLogic.GameProfile.CurrentMapNodeIndex";
+                public const string MaxValue = "GameLogic.BallProfile.MaxValue";
+                /// <summary>価値</summary>
+                /// <remarks>
+                /// Path: GameLogic/BallProfile/Value
+                /// </remarks>
+                public const string Value = "GameLogic.BallProfile.Value";
             }
 
-            public static partial class PlayerProfile
+            public static partial class GameProfile
             {
 
-                public static partial class AdditionalStatus
+                public static partial class Base
                 {
-
-                    public static partial class AddvanceGage
-                    {
-                        /// <summary>混色の基本倍率 default x0.75</summary>
-                        /// <remarks>
-                        /// Path: GameLogic/PlayerProfile/AdditionalStatus/AddvanceGage/MixedColorBaseMul
-                        /// </remarks>
-                        public const string MixedColorBaseMul = "GameLogic.PlayerProfile.AdditionalStatus.AddvanceGage.MixedColorBaseMul";
-                    }
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/BallCount
+                    /// </remarks>
+                    public const string BallCount = "GameLogic.GameProfile.Base.BallCount";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/MaxTurnValue
+                    /// </remarks>
+                    public const string MaxTurnValue = "GameLogic.GameProfile.Base.MaxTurnValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/MoneyValue
+                    /// </remarks>
+                    public const string MoneyValue = "GameLogic.GameProfile.Base.MoneyValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/Quota
+                    /// </remarks>
+                    public const string Quota = "GameLogic.GameProfile.Base.Quota";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/TimeLimit
+                    /// </remarks>
+                    public const string TimeLimit = "GameLogic.GameProfile.Base.TimeLimit";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/TurnValue
+                    /// </remarks>
+                    public const string TurnValue = "GameLogic.GameProfile.Base.TurnValue";
                 }
+            }
 
-                public static partial class BaseStatus
+            public static partial class NailProfile
+            {
+
+                public static partial class Effect
                 {
-                    /// <summary>攻撃の基本値</summary>
                     /// <remarks>
-                    /// Path: GameLogic/PlayerProfile/BaseStatus/AttackDamage
+                    /// Path: GameLogic/NailProfile/Effect/Attract
                     /// </remarks>
-                    public const string AttackDamage = "GameLogic.PlayerProfile.BaseStatus.AttackDamage";
-                    /// <summary>Run外で使用される、解放等に使う</summary>
+                    public const string Attract = "GameLogic.NailProfile.Effect.Attract";
+                    /// <summary>ボールのバウンド率を上げます。(0~1)</summary>
                     /// <remarks>
-                    /// Path: GameLogic/PlayerProfile/BaseStatus/GlobalExp
+                    /// Path: GameLogic/NailProfile/Effect/Bounce
                     /// </remarks>
-                    public const string GlobalExp = "GameLogic.PlayerProfile.BaseStatus.GlobalExp";
-                    /// <summary>回復の基本値</summary>
+                    public const string Bounce = "GameLogic.NailProfile.Effect.Bounce";
+                    /// <summary>連載起動</summary>
                     /// <remarks>
-                    /// Path: GameLogic/PlayerProfile/BaseStatus/HealHP
+                    /// Path: GameLogic/NailProfile/Effect/Chain
                     /// </remarks>
-                    public const string HealHP = "GameLogic.PlayerProfile.BaseStatus.HealHP";
-                    /// <summary>Run内で主に使用される通貨(経験値)</summary>
+                    public const string Chain = "GameLogic.NailProfile.Effect.Chain";
                     /// <remarks>
-                    /// Path: GameLogic/PlayerProfile/BaseStatus/InstanceExp
+                    /// Path: GameLogic/NailProfile/Effect/ColiderSize
                     /// </remarks>
-                    public const string InstanceExp = "GameLogic.PlayerProfile.BaseStatus.InstanceExp";
-                    /// <summary>shieldの基本値</summary>
+                    public const string ColiderSize = "GameLogic.NailProfile.Effect.ColiderSize";
+                    /// <summary>コンバート時の設定</summary>
                     /// <remarks>
-                    /// Path: GameLogic/PlayerProfile/BaseStatus/ShieldValue
+                    /// Path: GameLogic/NailProfile/Effect/Converter
                     /// </remarks>
-                    public const string ShieldValue = "GameLogic.PlayerProfile.BaseStatus.ShieldValue";
-
-                    public static partial class GageProfiles
-                    {
-                        /// <summary>シングル色の基本的な倍率 Default 1x</summary>
-                        /// <remarks>
-                        /// Path: GameLogic/PlayerProfile/BaseStatus/GageProfiles/SingleColorBaseMul
-                        /// </remarks>
-                        public const string SingleColorBaseMul = "GameLogic.PlayerProfile.BaseStatus.GageProfiles.SingleColorBaseMul";
-
-                        public static partial class Blue
-                        {
-                            /// <remarks>
-                            /// Path: GameLogic/PlayerProfile/BaseStatus/GageProfiles/Blue/BlueRange
-                            /// </remarks>
-                            public const string BlueRange = "GameLogic.PlayerProfile.BaseStatus.GageProfiles.Blue.BlueRange";
-                            /// <remarks>
-                            /// Path: GameLogic/PlayerProfile/BaseStatus/GageProfiles/Blue/BlueShieldValue
-                            /// </remarks>
-                            public const string BlueShieldValue = "GameLogic.PlayerProfile.BaseStatus.GageProfiles.Blue.BlueShieldValue";
-                        }
-
-                        public static partial class Green
-                        {
-                            /// <remarks>
-                            /// Path: GameLogic/PlayerProfile/BaseStatus/GageProfiles/Green/GreenRange
-                            /// </remarks>
-                            public const string GreenRange = "GameLogic.PlayerProfile.BaseStatus.GageProfiles.Green.GreenRange";
-                            /// <remarks>
-                            /// Path: GameLogic/PlayerProfile/BaseStatus/GageProfiles/Green/GreenSkillValue
-                            /// </remarks>
-                            public const string GreenSkillValue = "GameLogic.PlayerProfile.BaseStatus.GageProfiles.Green.GreenSkillValue";
-                        }
-
-                        public static partial class Red
-                        {
-                            /// <remarks>
-                            /// Path: GameLogic/PlayerProfile/BaseStatus/GageProfiles/Red/RedAttackDamage
-                            /// </remarks>
-                            public const string RedAttackDamage = "GameLogic.PlayerProfile.BaseStatus.GageProfiles.Red.RedAttackDamage";
-                            /// <remarks>
-                            /// Path: GameLogic/PlayerProfile/BaseStatus/GageProfiles/Red/RedRange
-                            /// </remarks>
-                            public const string RedRange = "GameLogic.PlayerProfile.BaseStatus.GageProfiles.Red.RedRange";
-                        }
-                    }
+                    public const string Converter = "GameLogic.NailProfile.Effect.Converter";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/Force
+                    /// </remarks>
+                    public const string Force = "GameLogic.NailProfile.Effect.Force";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/Gamble
+                    /// </remarks>
+                    public const string Gamble = "GameLogic.NailProfile.Effect.Gamble";
+                    /// <summary>霊体化</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/Ghost
+                    /// </remarks>
+                    public const string Ghost = "GameLogic.NailProfile.Effect.Ghost";
+                    /// <summary>運を上げます。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/LuckUp
+                    /// </remarks>
+                    public const string LuckUp = "GameLogic.NailProfile.Effect.LuckUp";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/MaxHitCount
+                    /// </remarks>
+                    public const string MaxHitCount = "GameLogic.NailProfile.Effect.MaxHitCount";
+                    /// <summary>ボールの最大価値上限を上げます。(lv)</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/MaxValueUp
+                    /// </remarks>
+                    public const string MaxValueUp = "GameLogic.NailProfile.Effect.MaxValueUp";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/SpeedUp
+                    /// </remarks>
+                    public const string SpeedUp = "GameLogic.NailProfile.Effect.SpeedUp";
+                    /// <summary>ボールの分裂率を上げます。(0~1)</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/Split
+                    /// </remarks>
+                    public const string Split = "GameLogic.NailProfile.Effect.Split";
+                    /// <summary>テレポートする</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/Teleport
+                    /// </remarks>
+                    public const string Teleport = "GameLogic.NailProfile.Effect.Teleport";
+                    /// <summary>制限時間を延ばします。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/TimeExtend
+                    /// </remarks>
+                    public const string TimeExtend = "GameLogic.NailProfile.Effect.TimeExtend";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/TimeValueUp
+                    /// </remarks>
+                    public const string TimeValueUp = "GameLogic.NailProfile.Effect.TimeValueUp";
+                    /// <summary>価値を倍にします。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/ValueMultiply
+                    /// </remarks>
+                    public const string ValueMultiply = "GameLogic.NailProfile.Effect.ValueMultiply";
+                    /// <summary>対象者の価値を上げます。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/ValueUp
+                    /// </remarks>
+                    public const string ValueUp = "GameLogic.NailProfile.Effect.ValueUp";
                 }
             }
         }
@@ -457,20 +494,32 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLib.StatusEffect.SpeedMod.DefaultDuration,
             ScalarKeys.GameLib.StatusEffect.SpeedMod.DefaultIntensity,
             ScalarKeys.GameLib.StatusEffect.SpeedMod.Multiplier,
-            ScalarKeys.GameLogic.GameProfile.CurrentMapNodeIndex,
-            ScalarKeys.GameLogic.PlayerProfile.AdditionalStatus.AddvanceGage.MixedColorBaseMul,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.AttackDamage,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.GlobalExp,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.HealHP,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.InstanceExp,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.ShieldValue,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.GageProfiles.SingleColorBaseMul,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.GageProfiles.Blue.BlueRange,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.GageProfiles.Blue.BlueShieldValue,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.GageProfiles.Green.GreenRange,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.GageProfiles.Green.GreenSkillValue,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.GageProfiles.Red.RedAttackDamage,
-            ScalarKeys.GameLogic.PlayerProfile.BaseStatus.GageProfiles.Red.RedRange,
+            ScalarKeys.GameLogic.BallProfile.MaxValue,
+            ScalarKeys.GameLogic.BallProfile.Value,
+            ScalarKeys.GameLogic.GameProfile.Base.BallCount,
+            ScalarKeys.GameLogic.GameProfile.Base.MaxTurnValue,
+            ScalarKeys.GameLogic.GameProfile.Base.MoneyValue,
+            ScalarKeys.GameLogic.GameProfile.Base.Quota,
+            ScalarKeys.GameLogic.GameProfile.Base.TimeLimit,
+            ScalarKeys.GameLogic.GameProfile.Base.TurnValue,
+            ScalarKeys.GameLogic.NailProfile.Effect.Attract,
+            ScalarKeys.GameLogic.NailProfile.Effect.Bounce,
+            ScalarKeys.GameLogic.NailProfile.Effect.Chain,
+            ScalarKeys.GameLogic.NailProfile.Effect.ColiderSize,
+            ScalarKeys.GameLogic.NailProfile.Effect.Converter,
+            ScalarKeys.GameLogic.NailProfile.Effect.Force,
+            ScalarKeys.GameLogic.NailProfile.Effect.Gamble,
+            ScalarKeys.GameLogic.NailProfile.Effect.Ghost,
+            ScalarKeys.GameLogic.NailProfile.Effect.LuckUp,
+            ScalarKeys.GameLogic.NailProfile.Effect.MaxHitCount,
+            ScalarKeys.GameLogic.NailProfile.Effect.MaxValueUp,
+            ScalarKeys.GameLogic.NailProfile.Effect.SpeedUp,
+            ScalarKeys.GameLogic.NailProfile.Effect.Split,
+            ScalarKeys.GameLogic.NailProfile.Effect.Teleport,
+            ScalarKeys.GameLogic.NailProfile.Effect.TimeExtend,
+            ScalarKeys.GameLogic.NailProfile.Effect.TimeValueUp,
+            ScalarKeys.GameLogic.NailProfile.Effect.ValueMultiply,
+            ScalarKeys.GameLogic.NailProfile.Effect.ValueUp,
         };
     }
 }

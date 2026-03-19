@@ -1,4 +1,5 @@
 using System;
+using Game.Common;
 
 namespace Game.Scalar
 {
@@ -26,12 +27,14 @@ namespace Game.Scalar
             }
         }
 
+        public bool UsesDynamicBounds => _clamp.UsesDynamicBounds;
+
         public float Min
         {
-            get => _clamp.Min;
+            get => TryGetLiteralValue(_clamp.Min, out var value) ? value : 0f;
             set
             {
-                _clamp.Min = value;
+                _clamp.Min = DynamicValueExtensions.FromLiteral(value);
                 _clamp.UseMin = true;
                 _invalidate();
             }
@@ -39,10 +42,10 @@ namespace Game.Scalar
 
         public float Max
         {
-            get => _clamp.Max;
+            get => TryGetLiteralValue(_clamp.Max, out var value) ? value : 0f;
             set
             {
-                _clamp.Max = value;
+                _clamp.Max = DynamicValueExtensions.FromLiteral(value);
                 _clamp.UseMax = true;
                 _invalidate();
             }
@@ -62,7 +65,25 @@ namespace Game.Scalar
 
         public void OnAfterEvaluate(ref ScalarGetContext ctx)
         {
-            ctx.Value = _clamp.Apply(ctx.Value);
+            ctx.Value = _clamp.Apply(ctx.Value, ctx.DynamicContext);
+        }
+
+        static bool TryGetLiteralValue(DynamicValue<float> value, out float result)
+        {
+            if (value.TryGetSource<LiteralFloatSource>(out var literalFloat))
+            {
+                result = literalFloat.Evaluate(null).AsFloat;
+                return true;
+            }
+
+            if (value.TryGetSource<LiteralSource>(out var literal))
+            {
+                result = literal.Evaluate(null).AsFloat;
+                return true;
+            }
+
+            result = default;
+            return false;
         }
     }
 }

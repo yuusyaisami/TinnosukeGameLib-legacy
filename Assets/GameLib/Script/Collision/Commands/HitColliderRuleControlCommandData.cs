@@ -187,7 +187,7 @@ namespace Game.Commands.VNext
         [ShowIf("@ApplyIncludeStaticKinds && UseIncludeStaticKinds")]
         [LabelText("Include Static Kinds")]
         [SerializeField]
-        public StaticColliderKind[] IncludeStaticKinds = Array.Empty<StaticColliderKind>();
+        public StaticColliderKindRef[] IncludeStaticKinds = Array.Empty<StaticColliderKindRef>();
 
         [BoxGroup("Include/Exclude")]
         [LabelText("Apply Include Dynamic Sets")]
@@ -204,7 +204,7 @@ namespace Game.Commands.VNext
         [ShowIf("@ApplyIncludeDynamicSets && UseIncludeDynamicSets")]
         [LabelText("Include Dynamic Sets")]
         [SerializeField]
-        public DynamicColliderSetId[] IncludeDynamicSets = Array.Empty<DynamicColliderSetId>();
+        public DynamicColliderSetRef[] IncludeDynamicSets = Array.Empty<DynamicColliderSetRef>();
 
         [BoxGroup("Include/Exclude")]
         [LabelText("Apply Exclude Static Kinds")]
@@ -221,7 +221,7 @@ namespace Game.Commands.VNext
         [ShowIf("@ApplyExcludeStaticKinds && UseExcludeStaticKinds")]
         [LabelText("Exclude Static Kinds")]
         [SerializeField]
-        public StaticColliderKind[] ExcludeStaticKinds = Array.Empty<StaticColliderKind>();
+        public StaticColliderKindRef[] ExcludeStaticKinds = Array.Empty<StaticColliderKindRef>();
 
         [BoxGroup("Include/Exclude")]
         [LabelText("Apply Exclude Dynamic Sets")]
@@ -238,7 +238,7 @@ namespace Game.Commands.VNext
         [ShowIf("@ApplyExcludeDynamicSets && UseExcludeDynamicSets")]
         [LabelText("Exclude Dynamic Sets")]
         [SerializeField]
-        public DynamicColliderSetId[] ExcludeDynamicSets = Array.Empty<DynamicColliderSetId>();
+        public DynamicColliderSetRef[] ExcludeDynamicSets = Array.Empty<DynamicColliderSetRef>();
 
         [BoxGroup("Command List")]
         [LabelText("Operation")]

@@ -45,7 +45,7 @@ namespace Game.Channel
         [SerializeField] bool collisionEnabled = true;
         [SerializeField, ShowIf(nameof(collisionEnabled)), Range(0, 31)] int layerId = 0;
         [SerializeField, ShowIf(nameof(collisionEnabled))] uint hitMask = ~0u;
-        [SerializeField, ShowIf(nameof(collisionEnabled))] DynamicColliderSetId setId = DynamicColliderSetId.EnemyBullet;
+        [SerializeField, ShowIf(nameof(collisionEnabled))] DynamicColliderSetRef setId = new(DynamicColliderSetId.EnemyBullet);
         [SerializeField, ShowIf(nameof(collisionEnabled))] MeshFxCollisionPathSource collisionPathSource = MeshFxCollisionPathSource.BaseCenterline;
         [SerializeField, ShowIf(nameof(collisionEnabled)), InlineProperty] MeshFxCollisionApproximationSettings collisionApproximation = new();
 
@@ -71,7 +71,7 @@ namespace Game.Channel
         public bool CollisionEnabled => collisionEnabled;
         public int LayerId => layerId;
         public uint HitMask => hitMask;
-        public DynamicColliderSetId SetId => setId;
+        public DynamicColliderSetId SetId => setId.Id;
         public MeshFxCollisionPathSource CollisionPathSource => collisionPathSource;
         public MeshFxCollisionApproximationSettings CollisionApproximation => collisionApproximation;
 

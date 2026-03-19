@@ -67,6 +67,10 @@ namespace Game.Commands
                 builder.Register<VNext.UnityCommandResolveLogger>(Lifetime.Singleton)
                     .As<VNext.ICommandResolveLogger>();
 
+                builder.Register<VNext.SharedLTSChannelHub>(Lifetime.Singleton)
+                    .As<VNext.ISharedLTSChannelHub>()
+                    .As<IScopeReleaseHandler>();
+
                 builder.Register<VNext.WithActorExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
@@ -79,6 +83,9 @@ namespace Game.Commands
                 builder.Register<VNext.CommandChannelExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
+                builder.Register<VNext.FunctionExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
                 builder.Register<VNext.HostCallExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
@@ -88,6 +95,10 @@ namespace Game.Commands
                 builder.Register<VNext.LifetimeScopeStateExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.MonitorChannelRuleControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.StatusEffectExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.SharedLTSChannelExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
                 builder.Register<VNext.WaitExecutor>(Lifetime.Singleton)

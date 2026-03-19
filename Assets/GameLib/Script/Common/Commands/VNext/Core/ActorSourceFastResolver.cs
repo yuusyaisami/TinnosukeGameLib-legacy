@@ -67,6 +67,8 @@ namespace Game.Commands.VNext
                     return commandRootScope;
                 case ActorSourceKind.Global:
                     return ResolveNearestGlobalScope(origin);
+                case ActorSourceKind.Shared:
+                    return ResolveShared(origin, source.SharedTag);
                 case ActorSourceKind.ByIdentity:
                     return ResolveByIdentity(origin, source.Identity);
                 case ActorSourceKind.FromUnityObject:
@@ -81,6 +83,30 @@ namespace Game.Commands.VNext
             if (source.Kind == ActorSourceKind.ByIdentity)
                 return source.Identity.searchScope == CommandTargetSearchScope.All;
             return source.Kind == ActorSourceKind.FromUnityObject;
+        }
+
+        static IScopeNode? ResolveShared(IScopeNode origin, string tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return null;
+
+            var current = origin;
+            while (current != null)
+            {
+                var resolver = current.Resolver;
+                if (resolver != null &&
+                    resolver.TryResolve<ISharedLTSChannelHub>(out var hub) &&
+                    hub != null &&
+                    hub.TryGet(tag, out var scope) &&
+                    scope != null)
+                {
+                    return scope;
+                }
+
+                current = current.Parent;
+            }
+
+            return null;
         }
 
         static bool IsCacheValid(IScopeNode origin, in ActorSource source, IScopeNode cachedScope)

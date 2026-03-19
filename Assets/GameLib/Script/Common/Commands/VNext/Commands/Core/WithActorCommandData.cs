@@ -15,6 +15,7 @@ namespace Game.Commands.VNext
         Player = 6,
         CommandRootActor = 7,
         Global = 8,
+        Shared = 9,
     }
 
     [Serializable]
@@ -31,6 +32,10 @@ namespace Game.Commands.VNext
         [ShowIf("@Kind == ActorSourceKind.FromUnityObject")]
         [LabelText("Unity Object")]
         public UnityEngine.Object? UnityObject;
+
+        [ShowIf("@Kind == ActorSourceKind.Shared")]
+        [LabelText("Shared Tag")]
+        public string SharedTag;
     }
 
     public enum WithActorExecutionScope

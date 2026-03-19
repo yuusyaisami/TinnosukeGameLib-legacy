@@ -5,6 +5,7 @@
 #nullable enable
 
 using System;
+using Game.Common;
 using Game.Profile;
 using Game.Scalar;
 using Game.Scalar.Generated;
@@ -95,7 +96,7 @@ namespace Game.Health
                 Clamp = new ScalarClamp
                 {
                     UseMin = true,
-                    Min = 1f,
+                    Min = DynamicValueExtensions.FromLiteral(1f),
                     UseMax = false
                 }
             };

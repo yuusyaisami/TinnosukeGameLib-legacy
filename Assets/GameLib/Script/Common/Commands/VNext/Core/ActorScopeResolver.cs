@@ -36,6 +36,7 @@ namespace Game.Commands.VNext
                 ActorSourceKind.Player => (null, "Player scope was not found."),
                 ActorSourceKind.CommandRootActor => (null, "Command root actor scope was not found."),
                 ActorSourceKind.Global => (null, "Global scope was not found."),
+                ActorSourceKind.Shared => (null, $"Shared actor tag was not found. tag='{source.SharedTag}'"),
                 ActorSourceKind.FromUnityObject => (null, "UnityObject does not resolve to a scope."),
                 _ => (null, "Unknown actor source."),
             };
