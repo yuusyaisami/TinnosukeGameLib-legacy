@@ -103,6 +103,8 @@ namespace Game.Flow
             {
                 var resolveCtx = new VNext.CommandResolveContext(
                     executionScope,
+                    ctx.Vars ?? NullVarStore.Instance,
+                    ctx.CommandRootScope,
                     resolver,
                     catalog,
                     keyResolver,

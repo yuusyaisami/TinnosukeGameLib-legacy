@@ -1,59 +1,114 @@
-// Game.StatusEffect.EffectState.cs
-//
-// StatusEffect の現在状態（UI 表示用等）
-
 using Game.Health;
 using UnityEngine;
 
 namespace Game.StatusEffect
 {
-    /// <summary>
-    /// StatusEffect の現在状態（UI 表示用等）
-    /// </summary>
     public readonly struct EffectState
     {
-        /// <summary>効果 ID</summary>
         public readonly string EffectId;
-
-        /// <summary>表示名</summary>
+        public readonly string InstanceId;
+        public readonly string RuntimeTag;
         public readonly string DisplayName;
-
-        /// <summary>アイコン（オプション）</summary>
+        public readonly string NameKey;
+        public readonly string DescriptionKey;
         public readonly Sprite Icon;
-
-        /// <summary>効果タイプ（Buff/Debuff）</summary>
         public readonly EffectType Type;
-
-        /// <summary>残り時間（秒）。-1 で永続。</summary>
         public readonly float RemainingTime;
-
-        /// <summary>総時間（秒）</summary>
         public readonly float TotalDuration;
-
-        /// <summary>現在の強度（スタック数等）</summary>
+        public readonly float RemainingInverseInterval;
         public readonly float Intensity;
-
-        /// <summary>スタック数</summary>
         public readonly int StackCount;
+        public readonly bool IsEnabled;
+        public readonly bool IsApplied;
+        public readonly bool IsActive;
+        public readonly bool IsUseBlocked;
+        public readonly int UsedCount;
+        public readonly int RemainingUseCount;
+        public readonly int MaxUseCount;
 
         public EffectState(
             string effectId,
+            string instanceId,
+            string runtimeTag,
             string displayName,
+            string nameKey,
+            string descriptionKey,
+            Sprite icon,
+            EffectType type,
+            float remainingTime,
+            float totalDuration,
+            float remainingInverseInterval,
+            float intensity,
+            int stackCount,
+            bool isEnabled,
+            bool isApplied,
+            bool isActive,
+            bool isUseBlocked,
+            int usedCount,
+            int remainingUseCount,
+            int maxUseCount)
+        {
+            EffectId = effectId;
+            InstanceId = instanceId;
+            RuntimeTag = runtimeTag;
+            DisplayName = displayName;
+            NameKey = nameKey;
+            DescriptionKey = descriptionKey;
+            Icon = icon;
+            Type = type;
+            RemainingTime = remainingTime;
+            TotalDuration = totalDuration;
+            RemainingInverseInterval = remainingInverseInterval;
+            Intensity = intensity;
+            StackCount = stackCount;
+            IsEnabled = isEnabled;
+            IsApplied = isApplied;
+            IsActive = isActive;
+            IsUseBlocked = isUseBlocked;
+            UsedCount = usedCount;
+            RemainingUseCount = remainingUseCount;
+            MaxUseCount = maxUseCount;
+        }
+
+        public EffectState(
+            string effectId,
+            string instanceId,
+            string displayName,
+            string nameKey,
+            string descriptionKey,
             Sprite icon,
             EffectType type,
             float remainingTime,
             float totalDuration,
             float intensity,
-            int stackCount)
+            int stackCount,
+            bool isEnabled,
+            bool isApplied,
+            bool isActive,
+            int remainingUseCount,
+            int maxUseCount)
+            : this(
+                effectId,
+                instanceId,
+                string.Empty,
+                displayName,
+                nameKey,
+                descriptionKey,
+                icon,
+                type,
+                remainingTime,
+                totalDuration,
+                0f,
+                intensity,
+                stackCount,
+                isEnabled,
+                isApplied,
+                isActive,
+                false,
+                0,
+                remainingUseCount,
+                maxUseCount)
         {
-            EffectId = effectId;
-            DisplayName = displayName;
-            Icon = icon;
-            Type = type;
-            RemainingTime = remainingTime;
-            TotalDuration = totalDuration;
-            Intensity = intensity;
-            StackCount = stackCount;
         }
     }
 }

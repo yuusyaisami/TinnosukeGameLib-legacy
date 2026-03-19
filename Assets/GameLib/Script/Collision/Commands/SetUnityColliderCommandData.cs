@@ -141,9 +141,9 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Dynamic Settings")]
         [ShowIf(nameof(ApplySetId))]
-        [LabelText("Set Id (enum int)")]
+        [LabelText("Set Id")]
         [SerializeField]
-        public DynamicValue<int> SetId = DynamicValueExtensions.FromLiteral((int)DynamicColliderSetId.EnemyBullet);
+        public DynamicValue<int> SetId = DynamicValue<int>.FromSource(new DynamicColliderSetIdIntSource());
 
         [BoxGroup("Dynamic Settings")]
         [LabelText("Apply User Data")]

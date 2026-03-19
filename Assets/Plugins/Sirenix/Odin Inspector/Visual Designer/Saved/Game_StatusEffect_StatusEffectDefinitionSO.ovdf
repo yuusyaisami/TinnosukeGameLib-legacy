@@ -1,0 +1,7 @@
+OVDF v1.1
+Game.StatusEffect.StatusEffectDefinitionSO, Assembly-CSharp
+MetaGuid:770327120433404448f0aea8ad9b1311
+
+# preset
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 122

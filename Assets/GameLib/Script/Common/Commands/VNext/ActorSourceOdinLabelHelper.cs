@@ -22,6 +22,7 @@ namespace Game.Commands.VNext
             {
                 ActorSourceKind.ByIdentity => FormatIdentitySummary(actorSource.Identity),
                 ActorSourceKind.FromUnityObject => FormatUnityObjectSummary(actorSource.UnityObject),
+                ActorSourceKind.Shared => FormatSharedSummary(actorSource.SharedTag),
                 var kind => kind.ToString(),
             };
 
@@ -60,6 +61,13 @@ namespace Game.Commands.VNext
 
             var name = string.IsNullOrWhiteSpace(unityObject.name) ? "Unnamed" : unityObject.name;
             return $"{unityObject.GetType().Name}: {name}";
+        }
+
+        static string FormatSharedSummary(string? sharedTag)
+        {
+            return string.IsNullOrWhiteSpace(sharedTag)
+                ? "Shared (None)"
+                : $"Shared: {sharedTag}";
         }
     }
 }

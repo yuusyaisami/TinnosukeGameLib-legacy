@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8896a8cb9097b5243b303698d6252e55, type: 3}
+  m_Name: CollisionIdCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.CollisionIdCatalogSO
+  dynamicSets:
+  - displayName: None
+    description: Unassigned
+    value: 0
+  - displayName: Ball
+    description: Legacy ball collider set.
+    value: 10
+  - displayName: Nail
+    description: Legacy nail collider set.
+    value: 20
+  - displayName: Obstacle Box
+    description: Legacy moving obstacle collider set.
+    value: 30
+  - displayName: Player Hurtbox
+    description: Player body / hurtbox.
+    value: 40
+  - displayName: Enemy Hurtbox
+    description: Enemy body / hurtbox.
+    value: 50
+  - displayName: Player Bullet
+    description: Projectile owned by player.
+    value: 60
+  - displayName: Enemy Bullet
+    description: Projectile owned by enemy.
+    value: 70
+  - displayName: Obstacle
+    description: Generic obstacle proxy set.
+    value: 80
+  staticKinds:
+  - displayName: Stage Geometry
+    description: Default static stage geometry.
+    value: 10
+  - displayName: Boundary
+    description: Out-of-bounds or screen boundary.
+    value: 20
+  - displayName: Living Wall
+    description: Temporary wall for living state.
+    value: 30
+  - displayName: Necro Wall
+    description: Temporary wall for necro state.
+    value: 40
+  staticProxyMappings:
+  - staticKind:
+      value: 10
+    dynamicSetValue: 80
+  - staticKind:
+      value: 20
+    dynamicSetValue: 80
+  - staticKind:
+      value: 30
+    dynamicSetValue: 80
+  - staticKind:
+      value: 40
+    dynamicSetValue: 80

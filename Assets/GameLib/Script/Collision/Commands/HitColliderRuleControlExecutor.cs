@@ -162,25 +162,33 @@ namespace Game.Commands.VNext
 
             if (typed.ApplyIncludeStaticKinds)
             {
-                rule.SetIncludeStaticKindsRuntime(typed.UseIncludeStaticKinds, typed.IncludeStaticKinds);
+                rule.SetIncludeStaticKindsRuntime(
+                    typed.UseIncludeStaticKinds,
+                    CollisionAuthoringArrayUtility.ConvertStaticKinds(typed.IncludeStaticKinds));
                 needsRebind = true;
             }
 
             if (typed.ApplyIncludeDynamicSets)
             {
-                rule.SetIncludeDynamicSetsRuntime(typed.UseIncludeDynamicSets, typed.IncludeDynamicSets);
+                rule.SetIncludeDynamicSetsRuntime(
+                    typed.UseIncludeDynamicSets,
+                    CollisionAuthoringArrayUtility.ConvertDynamicSets(typed.IncludeDynamicSets));
                 needsRebind = true;
             }
 
             if (typed.ApplyExcludeStaticKinds)
             {
-                rule.SetExcludeStaticKindsRuntime(typed.UseExcludeStaticKinds, typed.ExcludeStaticKinds);
+                rule.SetExcludeStaticKindsRuntime(
+                    typed.UseExcludeStaticKinds,
+                    CollisionAuthoringArrayUtility.ConvertStaticKinds(typed.ExcludeStaticKinds));
                 needsRebind = true;
             }
 
             if (typed.ApplyExcludeDynamicSets)
             {
-                rule.SetExcludeDynamicSetsRuntime(typed.UseExcludeDynamicSets, typed.ExcludeDynamicSets);
+                rule.SetExcludeDynamicSetsRuntime(
+                    typed.UseExcludeDynamicSets,
+                    CollisionAuthoringArrayUtility.ConvertDynamicSets(typed.ExcludeDynamicSets));
                 needsRebind = true;
             }
 

@@ -36,7 +36,7 @@ namespace Game.Collision
             Radius = 0.1f,
             LayerId = 0,
             HitLayerMask = ~0u,
-            SetId = DynamicColliderSetId.EnemyBullet,
+            SetId = DynamicColliderSetId.PlayerBullet,
             UserData = 0,
         };
     }

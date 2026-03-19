@@ -32,33 +32,130 @@ namespace Game.Collision
 
     /// <summary>
     /// Dynamic collider set ID for SoA partitioning.
-    /// Static colliders use <see cref="StaticColliderKind"/> instead of borrowing these IDs.
+    /// Runtime keeps this as a blittable byte wrapper so Job/Burst code can use it directly.
     /// </summary>
-    public enum DynamicColliderSetId : byte
+    [Serializable]
+    public struct DynamicColliderSetId : IEquatable<DynamicColliderSetId>
     {
-        EnemyBullet = 0,
-        PlayerBullet = 1,
-        PlayerHurtbox = 2,
-        EnemyHurtbox = 3,
-        Obstacle = 4,
+        [UnityEngine.SerializeField] byte value;
 
-        // ゲームロジック用
-        ShareBox = 10, // 単純な動く障害物。
-        Item = 11,     // プレイヤーが取得するアイテム。
+        public byte Value => value;
 
-        // Add project-specific dynamic sets (max 255)
+        public DynamicColliderSetId(byte value)
+        {
+            this.value = value;
+        }
+
+        public bool Equals(DynamicColliderSetId other) => value == other.value;
+        public override bool Equals(object obj) => obj is DynamicColliderSetId other && Equals(other);
+        public override int GetHashCode() => value;
+        public override string ToString() => CollisionIdCatalogLocator.GetDynamicDisplayName(value);
+
+        public static bool operator ==(DynamicColliderSetId left, DynamicColliderSetId right) => left.value == right.value;
+        public static bool operator !=(DynamicColliderSetId left, DynamicColliderSetId right) => left.value != right.value;
+
+        public static implicit operator byte(DynamicColliderSetId id) => id.value;
+        public static explicit operator int(DynamicColliderSetId id) => id.value;
+        public static explicit operator DynamicColliderSetId(byte value) => new(value);
+        public static explicit operator DynamicColliderSetId(int value) => new((byte)value);
+
+        public static readonly DynamicColliderSetId None = new(0);
+        public static readonly DynamicColliderSetId Ball = new(10);
+        public static readonly DynamicColliderSetId Nail = new(20);
+        public static readonly DynamicColliderSetId ObstacleBox = new(30);
+        public static readonly DynamicColliderSetId PlayerHurtbox = new(40);
+        public static readonly DynamicColliderSetId EnemyHurtbox = new(50);
+        public static readonly DynamicColliderSetId PlayerBullet = new(60);
+        public static readonly DynamicColliderSetId EnemyBullet = new(70);
+        public static readonly DynamicColliderSetId Obstacle = new(80);
+
+        static readonly DynamicColliderSetId[] BuiltinValuesInternal =
+        {
+            None,
+            Ball,
+            Nail,
+            ObstacleBox,
+            PlayerHurtbox,
+            EnemyHurtbox,
+            PlayerBullet,
+            EnemyBullet,
+            Obstacle,
+        };
+
+        public static DynamicColliderSetId[] BuiltinValues => BuiltinValuesInternal;
+
+        public static string GetBuiltinName(byte value)
+        {
+            return value switch
+            {
+                0 => nameof(None),
+                10 => nameof(Ball),
+                20 => nameof(Nail),
+                30 => nameof(ObstacleBox),
+                40 => nameof(PlayerHurtbox),
+                50 => nameof(EnemyHurtbox),
+                60 => nameof(PlayerBullet),
+                70 => nameof(EnemyBullet),
+                80 => nameof(Obstacle),
+                _ => value.ToString(),
+            };
+        }
     }
 
     /// <summary>
     /// Static collider classification. Kept small for branchless dispatch.
     /// </summary>
-    public enum StaticColliderKind : byte
+    [Serializable]
+    public struct StaticColliderKind : IEquatable<StaticColliderKind>
     {
-        StageGeometry = 0,
-        Boundary = 1,
-        // ゲームロジック用
-        LivingWall = 10,
-        NecroWall = 11,
+        [UnityEngine.SerializeField] byte value;
+
+        public byte Value => value;
+
+        public StaticColliderKind(byte value)
+        {
+            this.value = value;
+        }
+
+        public bool Equals(StaticColliderKind other) => value == other.value;
+        public override bool Equals(object obj) => obj is StaticColliderKind other && Equals(other);
+        public override int GetHashCode() => value;
+        public override string ToString() => CollisionIdCatalogLocator.GetStaticDisplayName(value);
+
+        public static bool operator ==(StaticColliderKind left, StaticColliderKind right) => left.value == right.value;
+        public static bool operator !=(StaticColliderKind left, StaticColliderKind right) => left.value != right.value;
+
+        public static implicit operator byte(StaticColliderKind kind) => kind.value;
+        public static explicit operator int(StaticColliderKind kind) => kind.value;
+        public static explicit operator StaticColliderKind(byte value) => new(value);
+        public static explicit operator StaticColliderKind(int value) => new((byte)value);
+
+        public static readonly StaticColliderKind StageGeometry = new(10);
+        public static readonly StaticColliderKind Boundary = new(20);
+        public static readonly StaticColliderKind LivingWall = new(30);
+        public static readonly StaticColliderKind NecroWall = new(40);
+
+        static readonly StaticColliderKind[] BuiltinValuesInternal =
+        {
+            StageGeometry,
+            Boundary,
+            LivingWall,
+            NecroWall,
+        };
+
+        public static StaticColliderKind[] BuiltinValues => BuiltinValuesInternal;
+
+        public static string GetBuiltinName(byte value)
+        {
+            return value switch
+            {
+                10 => nameof(StageGeometry),
+                20 => nameof(Boundary),
+                30 => nameof(LivingWall),
+                40 => nameof(NecroWall),
+                _ => value.ToString(),
+            };
+        }
     }
 
     /// <summary>

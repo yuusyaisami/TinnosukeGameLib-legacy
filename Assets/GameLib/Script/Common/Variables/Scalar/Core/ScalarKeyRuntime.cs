@@ -548,7 +548,7 @@ namespace Game.Scalar
 
         public float Get(IBaseScalarService service, bool includeAllLayers, string layer)
         {
-            bool useCache = includeAllLayers && string.IsNullOrEmpty(layer);
+            bool useCache = includeAllLayers && string.IsNullOrEmpty(layer) && !HasDynamicGetModifiers();
             float value;
 
             if (useCache && !_dirty)
@@ -566,7 +566,8 @@ namespace Game.Scalar
                     Layer = layer,
                     Value = value,
                     Runtime = this,
-                    Service = service
+                    Service = service,
+                    DynamicContext = service is BaseScalarService baseService ? baseService.DynamicContext : null
                 };
 
                 for (int i = 0; i < _getModifiers.Count; i++)
@@ -584,6 +585,11 @@ namespace Game.Scalar
             }
 
             return value;
+        }
+
+        bool HasDynamicGetModifiers()
+        {
+            return ResolveModifier<ClampScalarModifier>() is ClampScalarModifier clamp && clamp.UsesDynamicBounds;
         }
 
         public void ForceInvalidate()

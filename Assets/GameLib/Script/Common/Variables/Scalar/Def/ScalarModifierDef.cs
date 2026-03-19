@@ -1,4 +1,7 @@
 using System;
+using Game.Common;
+using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace Game.Scalar
 {
@@ -37,21 +40,64 @@ namespace Game.Scalar
 
         internal ScalarKeyRuntime Runtime;
         internal IBaseScalarService Service;
+        internal IDynamicContext DynamicContext;
     }
 
     [Serializable]
     public struct ScalarClamp
     {
+        [LabelText("Use Min")]
+        [Tooltip("下限クランプを有効にします。")]
         public bool UseMin;
-        public float Min;
-        public bool UseMax;
-        public float Max;
 
-        public float Apply(float v)
+        [ShowIf(nameof(UseMin))]
+        [LabelText("Min")]
+        [Tooltip("下限値です。DynamicValue を使って動的に決められます。")]
+        public DynamicValue<float> Min;
+
+        [LabelText("Use Max")]
+        [Tooltip("上限クランプを有効にします。")]
+        public bool UseMax;
+        
+        [ShowIf(nameof(UseMax))]
+        [LabelText("Max")]
+        [Tooltip("上限値です。DynamicValue を使って動的に決められます。")]
+        public DynamicValue<float> Max;
+
+        public bool UsesDynamicBounds
+            => UsesDynamicValue(Min) || UsesDynamicValue(Max);
+
+        public float Apply(float v, IDynamicContext context)
         {
-            if (UseMin && v < Min) v = Min;
-            if (UseMax && v > Max) v = Max;
+            if (UseMin)
+            {
+                var min = Min.GetOrDefault(context, float.MinValue);
+                if (v < min)
+                    v = min;
+            }
+
+            if (UseMax)
+            {
+                var max = Max.GetOrDefault(context, float.MaxValue);
+                if (v > max)
+                    v = max;
+            }
+
             return v;
+        }
+
+        static bool UsesDynamicValue(DynamicValue<float> value)
+        {
+            if (!value.HasSource)
+                return false;
+
+            if (value.TryGetSource<LiteralSource>(out _))
+                return false;
+
+            if (value.TryGetSource<LiteralFloatSource>(out _))
+                return false;
+
+            return true;
         }
     }
 
