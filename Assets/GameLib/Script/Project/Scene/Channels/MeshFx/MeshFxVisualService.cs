@@ -1,9 +1,12 @@
 #nullable enable
 using DG.Tweening;
 using System.Collections.Generic;
+using Game;
+using Game.Common;
 using Game.MaterialFx;
 using Game.MaterialFx.Generated;
 using UnityEngine;
+using VContainer;
 
 namespace Game.Channel
 {
@@ -294,12 +297,12 @@ namespace Game.Channel
                 if (basePreset != null)
                 {
                     basePreset.RefreshEntries();
-                    _materialFx.ApplyPreset(BasePresetContext, basePreset.Entries);
+                    _materialFx.ApplyPreset(BasePresetContext, ResolveMaterialFxEntries(basePreset.Entries));
                 }
 
                 if (_def.MaterialFxPresetEntries != null && _def.MaterialFxPresetEntries.Count > 0)
                 {
-                    _materialFx.ApplyPreset(EntryPresetContext, _def.MaterialFxPresetEntries);
+                    _materialFx.ApplyPreset(EntryPresetContext, ResolveMaterialFxEntries(_def.MaterialFxPresetEntries));
                 }
                 return;
             }
@@ -354,6 +357,47 @@ namespace Game.Channel
                 MaterialFxTypedValue.FromInt(_def.QueueOffset),
                 MaterialFxBlendMode.Override,
                 defaultPriority);
+        }
+
+        IReadOnlyList<MaterialFxPresetEntry> ResolveMaterialFxEntries(IReadOnlyList<MaterialFxPresetEntry> entries)
+        {
+            var ownerScope = ResolveOwnerScope();
+            if (ownerScope == null)
+                return entries;
+
+            var resolver = ownerScope.Resolver;
+            var vars = resolver != null && resolver.TryResolve<IVarStore>(out var resolvedVars) && resolvedVars != null
+                ? resolvedVars
+                : NullVarStore.Instance;
+            var context = new SimpleDynamicContext(vars, ownerScope);
+            var resolved = new MaterialFxPresetEntry[entries.Count];
+            for (int i = 0; i < entries.Count; i++)
+                resolved[i] = entries[i].Resolve(context);
+            return resolved;
+        }
+
+        IScopeNode? ResolveOwnerScope()
+        {
+            if (_ownerTransform == null)
+                return null;
+
+            for (var current = _ownerTransform; current != null; current = current.parent)
+            {
+                if (current.TryGetComponent<BaseLifetimeScope>(out var baseScope) && baseScope != null)
+                    return baseScope;
+
+                if (current.TryGetComponent<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+                    return runtimeScope;
+
+                var components = current.GetComponents<Component>();
+                for (int i = 0; i < components.Length; i++)
+                {
+                    if (components[i] is IScopeNode scopeNode)
+                        return scopeNode;
+                }
+            }
+
+            return null;
         }
 
         void ApplyFallbackRenderStateDirect()

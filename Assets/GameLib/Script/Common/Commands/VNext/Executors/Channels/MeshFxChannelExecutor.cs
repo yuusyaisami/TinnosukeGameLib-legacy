@@ -26,7 +26,7 @@ namespace Game.Commands.VNext
             if (!typed.ApplyAnimation && !typed.ApplyMaterialPreset)
                 return UniTask.CompletedTask;
 
-            var runTask = ExecuteAsync(service, typed, ct);
+            var runTask = ExecuteAsync(service, typed, ctx, ct);
             if (typed.AwaitMode == FlowRunAwaitMode.WaitForCompletion)
             {
                 if (typed.Loop && typed.LoopCount < 0)
@@ -46,6 +46,7 @@ namespace Game.Commands.VNext
         static async UniTask ExecuteAsync(
             IMeshFxAnimationService service,
             MeshFxAnimationChannelCommandData typed,
+            CommandContext ctx,
             CancellationToken ct)
         {
             var channelTag = typed.ChannelTag;
@@ -55,12 +56,12 @@ namespace Game.Commands.VNext
             List<MeshFxMaterialAnimationEntry>? materialEntries = null;
             if (typed.ApplyMaterialPreset && materialPayload.Entries.Count > 0)
             {
-                materialEntries = ConvertMaterialPresetEntries(materialPayload.Entries);
+                materialEntries = ConvertMaterialPresetEntries(materialPayload.Entries, ctx);
             }
 
             var maxWaitSeconds = Mathf.Max(
                 typed.ApplyAnimation ? ComputeParameterWaitSeconds(animationPayload.Entries) : 0f,
-                typed.ApplyMaterialPreset ? ComputeMaterialWaitSeconds(materialPayload.Entries) : 0f);
+                typed.ApplyMaterialPreset ? ComputeMaterialWaitSeconds(materialPayload.Entries, ctx) : 0f);
 
             if (!typed.Loop)
             {
@@ -118,7 +119,7 @@ namespace Game.Commands.VNext
             }
         }
 
-        static List<MeshFxMaterialAnimationEntry> ConvertMaterialPresetEntries(IReadOnlyList<MeshFxMaterialPresetCommandEntry> entries)
+        static List<MeshFxMaterialAnimationEntry> ConvertMaterialPresetEntries(IReadOnlyList<MeshFxMaterialPresetCommandEntry> entries, CommandContext ctx)
         {
             var result = new List<MeshFxMaterialAnimationEntry>(entries.Count);
             for (int i = 0; i < entries.Count; i++)
@@ -127,7 +128,7 @@ namespace Game.Commands.VNext
                 if (string.IsNullOrWhiteSpace(src.Key))
                     continue;
 
-                var duration = src.ApplyWeightFade ? Mathf.Max(0f, src.FadeDuration) : 0f;
+                var duration = src.ApplyWeightFade ? src.ResolveFadeDuration(ctx) : 0f;
                 var lifetime = src.LifetimeSeconds;
                 if (Mathf.Approximately(lifetime, 0f))
                     lifetime = -1f;
@@ -135,7 +136,7 @@ namespace Game.Commands.VNext
                 result.Add(new MeshFxMaterialAnimationEntry
                 {
                     Key = src.Key,
-                    Value = src.Value,
+                    Value = src.Value.Resolve(ctx),
                     BlendMode = src.BlendMode,
                     DurationSeconds = duration,
                     Easing = src.FadeEase,
@@ -162,7 +163,7 @@ namespace Game.Commands.VNext
             return max;
         }
 
-        static float ComputeMaterialWaitSeconds(IReadOnlyList<MeshFxMaterialPresetCommandEntry> entries)
+        static float ComputeMaterialWaitSeconds(IReadOnlyList<MeshFxMaterialPresetCommandEntry> entries, CommandContext ctx)
         {
             var max = 0f;
             for (int i = 0; i < entries.Count; i++)
@@ -175,7 +176,7 @@ namespace Game.Commands.VNext
                 if (!entry.ApplyWeightFade)
                     continue;
 
-                max = Mathf.Max(max, Mathf.Max(0f, entry.FadeDuration));
+                max = Mathf.Max(max, entry.ResolveFadeDuration(ctx));
             }
 
             return max;

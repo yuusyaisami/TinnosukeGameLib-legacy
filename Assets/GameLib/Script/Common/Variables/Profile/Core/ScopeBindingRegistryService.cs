@@ -235,6 +235,11 @@ namespace Game.Profile
                     {
                         binding.WriteToScalar(scalar);
                     }
+                    else if (scalar == null && binding.ScalarKey.Id != 0)
+                    {
+                        var scopeLabel = DescribeScope(_scope);
+                        Debug.LogError($"[ScopeBindingRegistryService] Scalar binding requires IBaseScalarService, but no scalar service exists in this LTS. scope={scopeLabel} profile='{profileTypeName}' scalarKey='{binding.ScalarKey.Name}'");
+                    }
 
                     // SaveEntry を収集（ScopeIdentity が設定されている場合のみ）
                     if (IsSaveEnabled)
@@ -273,6 +278,18 @@ namespace Game.Profile
             {
                 ListPool<IProfileValueBinding>.Release(bindings);
             }
+        }
+
+        static string DescribeScope(IScopeNode scope)
+        {
+            if (scope == null)
+                return "<null>";
+
+            var identity = scope.Identity;
+            if (identity != null && !string.IsNullOrEmpty(identity.Id))
+                return $"{identity.Kind}:{identity.Id}";
+
+            return scope.Kind.ToString();
         }
 
 

@@ -236,7 +236,7 @@ namespace Game.Common
             if (context?.Scope == null || string.IsNullOrWhiteSpace(channelTag))
                 return false;
 
-            var scope = ActorSourceFastResolver.ResolveCached(context.Scope, actorSource, ref actorCache, context.CommandRootScope);
+            var scope = ActorSourceFastResolver.ResolveCached(context, actorSource, ref actorCache);
             if (scope?.Resolver == null)
                 return false;
 

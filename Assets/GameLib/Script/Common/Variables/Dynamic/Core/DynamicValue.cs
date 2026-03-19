@@ -89,6 +89,15 @@ namespace Game.Common
             return TryGet<T>(context, out var value) ? value : defaultValue;
         }
 
+        /// <summary>
+        /// 文脈不要な評価を行う。
+        /// リテラルや null-safe な source を EmptyDynamicContext で評価する。
+        /// </summary>
+        public T GetOrDefaultWithoutContext<T>(T defaultValue = default)
+        {
+            return GetOrDefault(EmptyDynamicContext.Instance, defaultValue);
+        }
+
         // ================================================================
         // ファクトリメソッド
         // ================================================================
@@ -208,6 +217,15 @@ namespace Game.Common
                 return _defaultValue;
 
             return TryGet(context, out var value) ? value : defaultValue;
+        }
+
+        /// <summary>
+        /// 文脈不要な評価を行う。
+        /// リテラルや null-safe な source を EmptyDynamicContext で評価する。
+        /// </summary>
+        public T GetOrDefaultWithoutContext(T defaultValue = default)
+        {
+            return GetOrDefault(EmptyDynamicContext.Instance, defaultValue);
         }
 
         /// <summary>
@@ -354,4 +372,70 @@ namespace Game.Common
             return registry.Resolve(filter, Scope);
         }
     }
+
+    #nullable enable
+
+    sealed class EmptyDynamicContext : IDynamicContext
+    {
+        public static readonly EmptyDynamicContext Instance = new();
+
+        EmptyDynamicContext()
+        {
+        }
+
+        public IVarStore Vars => NullVarStore.Instance;
+        public IScopeNode Scope => EmptyScopeNode.Instance;
+        public IScopeNode? CommandRootScope => null;
+
+        public IScopeNode ResolveOtherScope(CommandTargetIdentityFilter filter)
+        {
+            _ = filter;
+            return null!;
+        }
+    }
+
+    sealed class EmptyScopeNode : IScopeNode
+    {
+        public static readonly EmptyScopeNode Instance = new();
+
+        EmptyScopeNode()
+        {
+        }
+
+        public IScopeNode? Parent => null;
+        public ILTSIdentityService? Identity => null;
+        public LifetimeScopeKind Kind => LifetimeScopeKind.None;
+        public IObjectResolver? Resolver => null;
+        public bool IsVisible => false;
+        public bool IsActive => false;
+
+        public bool TrySetVisible(bool visible, bool isReset = false)
+        {
+            _ = visible;
+            _ = isReset;
+            return false;
+        }
+
+        public bool TrySetActive(bool active, bool isReset = false)
+        {
+            _ = active;
+            _ = isReset;
+            return false;
+        }
+
+        public Cysharp.Threading.Tasks.UniTask SetActiveAsync(bool active, bool isReset = false, System.Threading.CancellationToken ct = default)
+        {
+            _ = active;
+            _ = isReset;
+            _ = ct;
+            return Cysharp.Threading.Tasks.UniTask.CompletedTask;
+        }
+
+        public System.Collections.Generic.IReadOnlyList<IScopeNode>? GetPathFromRoot()
+        {
+            return System.Array.Empty<IScopeNode>();
+        }
+    }
+
+    #nullable restore
 }

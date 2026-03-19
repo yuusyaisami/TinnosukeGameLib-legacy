@@ -781,9 +781,57 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: 11cef44acdc549ac88de2df082075c2c
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: MaxHitCount
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 9ff473f8aa5c41acb3880edab2d9e92d
+    parentId: 550c8f224cfd4a189fe337f7c3127a11
+    name: SlotProfile
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3dcacb92485c47b5827937bec63964f4
+    parentId: 9ff473f8aa5c41acb3880edab2d9e92d
+    name: LeftMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: e184a79d9b2c45f099978c370f02d23f
+    parentId: 9ff473f8aa5c41acb3880edab2d9e92d
+    name: CenterMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 2e4500fe16a04888a3840ad81cb5af3e
+    parentId: 9ff473f8aa5c41acb3880edab2d9e92d
+    name: RightMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   - id: 49fdfc719a114bc9bc908f0a65d7b7ac
     parentId: a2af5b9495c945e48a462a5e9bb14fc4
     name: MoneyValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 379ea277ca7840529acc7a86f7f7fed6
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: InstanceMoneyValue
     isFolder: 0
     description: 
     explicitKey: 
@@ -829,9 +877,9 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: 11cef44acdc549ac88de2df082075c2c
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: MaxHitCount
+  - id: f99fc776834f47bcb409431147af2289
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: LuckValue
     isFolder: 0
     description: 
     explicitKey: 

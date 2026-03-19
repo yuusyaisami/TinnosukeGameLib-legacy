@@ -25,7 +25,7 @@ namespace Game.Commands.VNext
 
         static (IScopeNode? scope, string error) ResolveWithoutIdentity(ActorSource source, CommandContext ctx)
         {
-            var resolved = ActorSourceFastResolver.Resolve(ctx.Scope, source, ctx.CommandRootScope);
+            var resolved = ActorSourceFastResolver.Resolve(ctx, source);
             if (resolved != null)
                 return (resolved, string.Empty);
 
@@ -37,6 +37,7 @@ namespace Game.Commands.VNext
                 ActorSourceKind.CommandRootActor => (null, "Command root actor scope was not found."),
                 ActorSourceKind.Global => (null, "Global scope was not found."),
                 ActorSourceKind.Shared => (null, $"Shared actor tag was not found. tag='{source.SharedTag}'"),
+                ActorSourceKind.ContextSlot => (null, $"Context slot scope was not found. slot={source.ContextSlot}"),
                 ActorSourceKind.FromUnityObject => (null, "UnityObject does not resolve to a scope."),
                 _ => (null, "Unknown actor source."),
             };

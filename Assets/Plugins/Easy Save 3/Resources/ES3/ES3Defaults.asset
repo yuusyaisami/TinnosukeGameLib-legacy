@@ -42,6 +42,8 @@ MonoBehaviour:
     - Febucci.TextAnimatorForUnity.Runtime
     - Febucci.TextAnimatorForUnity.TMP.Runtime
     - Febucci.TextAnimatorForUnity.UITk.Runtime
+    - SingularityGroup.HotReload.Runtime
+    - SingularityGroup.HotReload.Runtime.Public
     - UniTask
     - UniTask.Addressables
     - UniTask.DOTween

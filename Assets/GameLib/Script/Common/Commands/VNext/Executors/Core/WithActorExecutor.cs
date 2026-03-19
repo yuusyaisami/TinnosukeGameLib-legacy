@@ -112,7 +112,8 @@ namespace Game.Commands.VNext
                 ctx.Options,
                 commandRootScope: ctx.CommandRootScope,
                 rootActor: ctx.RootActor,
-                callerActor: ctx.Actor);
+                callerActor: ctx.Actor,
+                sourceContext: ctx);
 
             try
             {
@@ -174,13 +175,18 @@ namespace Game.Commands.VNext
                     return logicRoot != null && ReferenceEquals(scope, logicRoot);
                 case ActorSourceKind.Player:
                     {
-                        var playerScope = ActorSourceFastResolver.Resolve(actorScope, filter);
+                        var playerScope = ActorSourceFastResolver.Resolve(ctx, filter, actorScope);
                         return playerScope != null && ReferenceEquals(scope, playerScope);
                     }
                 case ActorSourceKind.Global:
                     {
-                        var globalScope = ActorSourceFastResolver.Resolve(actorScope, filter);
+                        var globalScope = ActorSourceFastResolver.Resolve(ctx, filter, actorScope);
                         return globalScope != null && ReferenceEquals(scope, globalScope);
+                    }
+                case ActorSourceKind.ContextSlot:
+                    {
+                        var slotScope = ActorSourceFastResolver.Resolve(ctx, filter);
+                        return slotScope != null && ReferenceEquals(scope, slotScope);
                     }
                 case ActorSourceKind.ByIdentity:
                     return MatchesIdentity(scope, filter.Identity);

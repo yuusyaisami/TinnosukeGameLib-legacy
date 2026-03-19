@@ -46,6 +46,11 @@ namespace Game.Scalar
     public interface IScalarTelemetry
     {
         /// <summary>
+        /// 現在このサービスに登録されているすべての ScalarKey を列挙。
+        /// </summary>
+        IEnumerable<ScalarKey> EnumerateKeys();
+
+        /// <summary>
         /// 特定キーに対するすべての修正値を列挙。
         /// </summary>
         IEnumerable<ScalarSnapshot> Enumerate(ScalarKey key);

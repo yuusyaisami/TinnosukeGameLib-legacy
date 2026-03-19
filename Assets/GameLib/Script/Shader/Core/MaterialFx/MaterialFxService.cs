@@ -176,7 +176,7 @@ namespace Game.MaterialFx
                 {
                     // NOTE: Weight Fade は設計上の寄与率だが、実運用では「値そのものの Fade」を期待されるケースが多い。
                     // 互換のため ApplyWeightFade は Value Fade として扱う（TargetWeight は無視）。
-                    SetLayerFade(entry.Key, contextTag, value, entry.FadeDuration, entry.FadeEase, entry.BlendMode, priority, entry.LifetimeSeconds);
+                    SetLayerFade(entry.Key, contextTag, value, entry.ResolveFadeDuration(context: null), entry.FadeEase, entry.BlendMode, priority, entry.LifetimeSeconds);
                 }
                 else
                 {
@@ -196,7 +196,7 @@ namespace Game.MaterialFx
                 var value = entry.Value.ToTypedValue(type);
                 if (entry.ApplyWeightFade)
                 {
-                    SetLayerFade(entry.Key, contextTag, value, entry.FadeDuration, entry.FadeEase, entry.BlendMode, priority, entry.LifetimeSeconds);
+                    SetLayerFade(entry.Key, contextTag, value, entry.ResolveFadeDuration(context: null), entry.FadeEase, entry.BlendMode, priority, entry.LifetimeSeconds);
                 }
                 else
                 {

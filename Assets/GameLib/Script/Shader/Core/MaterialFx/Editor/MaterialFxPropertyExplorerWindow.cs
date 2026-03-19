@@ -299,7 +299,12 @@ namespace Game.MaterialFx.Editor
                 GUILayout.FlexibleSpace();
 
                 if (GUILayout.Button("Refresh", EditorStyles.toolbarButton, GUILayout.Width(60)))
+                {
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+                    _registry = MaterialFxPropertyRegistryLocator.ReloadRegistry();
                     RequestRebuild();
+                }
 
                 if (GUILayout.Button("Generate Code", EditorStyles.toolbarButton, GUILayout.Width(100)))
                 {

@@ -335,6 +335,14 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string BallCount = "GameLogic.GameProfile.Base.BallCount";
                     /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/InstanceMoneyValue
+                    /// </remarks>
+                    public const string InstanceMoneyValue = "GameLogic.GameProfile.Base.InstanceMoneyValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/LuckValue
+                    /// </remarks>
+                    public const string LuckValue = "GameLogic.GameProfile.Base.LuckValue";
+                    /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/MaxTurnValue
                     /// </remarks>
                     public const string MaxTurnValue = "GameLogic.GameProfile.Base.MaxTurnValue";
@@ -447,6 +455,22 @@ namespace Game.Scalar.Generated
                     public const string ValueUp = "GameLogic.NailProfile.Effect.ValueUp";
                 }
             }
+
+            public static partial class SlotProfile
+            {
+                /// <remarks>
+                /// Path: GameLogic/SlotProfile/CenterMul
+                /// </remarks>
+                public const string CenterMul = "GameLogic.SlotProfile.CenterMul";
+                /// <remarks>
+                /// Path: GameLogic/SlotProfile/LeftMul
+                /// </remarks>
+                public const string LeftMul = "GameLogic.SlotProfile.LeftMul";
+                /// <remarks>
+                /// Path: GameLogic/SlotProfile/RightMul
+                /// </remarks>
+                public const string RightMul = "GameLogic.SlotProfile.RightMul";
+            }
         }
 
         public static readonly string[] AllKeys = new string[]
@@ -497,6 +521,8 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.BallProfile.MaxValue,
             ScalarKeys.GameLogic.BallProfile.Value,
             ScalarKeys.GameLogic.GameProfile.Base.BallCount,
+            ScalarKeys.GameLogic.GameProfile.Base.InstanceMoneyValue,
+            ScalarKeys.GameLogic.GameProfile.Base.LuckValue,
             ScalarKeys.GameLogic.GameProfile.Base.MaxTurnValue,
             ScalarKeys.GameLogic.GameProfile.Base.MoneyValue,
             ScalarKeys.GameLogic.GameProfile.Base.Quota,
@@ -520,6 +546,9 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.NailProfile.Effect.TimeValueUp,
             ScalarKeys.GameLogic.NailProfile.Effect.ValueMultiply,
             ScalarKeys.GameLogic.NailProfile.Effect.ValueUp,
+            ScalarKeys.GameLogic.SlotProfile.CenterMul,
+            ScalarKeys.GameLogic.SlotProfile.LeftMul,
+            ScalarKeys.GameLogic.SlotProfile.RightMul,
         };
     }
 }

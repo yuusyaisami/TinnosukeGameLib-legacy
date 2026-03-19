@@ -89,7 +89,7 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, reason);
             }
 
-            var executeCtx = new CommandContext(executeScope, ctx.Vars, ctx.Runner, actor: executeScope, options: ctx.Options, commandRootScope: ctx.CommandRootScope, rootActor: ctx.RootActor, callerActor: ctx.Actor);
+            var executeCtx = new CommandContext(executeScope, ctx.Vars, ctx.Runner, actor: executeScope, options: ctx.Options, commandRootScope: ctx.CommandRootScope, rootActor: ctx.RootActor, callerActor: ctx.Actor, sourceContext: ctx);
             var svc = MapNodePlayerCommandExecutorUtility.ResolvePlayerServiceOrThrow(executeCtx, out _, out _);
             var result = svc.TryMoveToNode(nodeId, typed.MoveOptions);
             if (result != MapNodeMoveResult.Ok)

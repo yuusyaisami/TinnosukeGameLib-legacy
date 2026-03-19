@@ -15,6 +15,7 @@ namespace Game.Commands.VNext
         public ICommandKeyResolver KeyResolver { get; }
         public ICommandResolveLogger Logger { get; }
         public bool AllowRuntimeKeyFallback { get; }
+        public CommandContext? RuntimeContext { get; }
 
         public CommandResolveContext(
             IScopeNode scope,
@@ -24,7 +25,8 @@ namespace Game.Commands.VNext
             ICommandCatalog catalog,
             ICommandKeyResolver keyResolver,
             ICommandResolveLogger logger,
-            bool allowRuntimeKeyFallback)
+            bool allowRuntimeKeyFallback,
+            CommandContext? runtimeContext = null)
         {
             Scope = scope;
             Vars = vars ?? NullVarStore.Instance;
@@ -34,6 +36,7 @@ namespace Game.Commands.VNext
             KeyResolver = keyResolver;
             Logger = logger;
             AllowRuntimeKeyFallback = allowRuntimeKeyFallback;
+            RuntimeContext = runtimeContext;
         }
 
         public IScopeNode ResolveOtherScope(CommandTargetIdentityFilter filter)

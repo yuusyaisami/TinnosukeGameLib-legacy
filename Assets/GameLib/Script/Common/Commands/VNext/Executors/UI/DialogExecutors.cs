@@ -82,7 +82,7 @@ namespace Game.Commands.VNext
                     InjectDialogRefs(channel, varsForCommands);
 
                     var actor = channel.DialogScope ?? ctx.Scope;
-                    var cmdCtx = new CommandContext(ctx.Scope, varsForCommands, ctx.Runner, actor: actor, options: ctx.Options, commandRootScope: ctx.CommandRootScope, rootActor: ctx.RootActor, callerActor: ctx.Actor);
+                    var cmdCtx = new CommandContext(ctx.Scope, varsForCommands, ctx.Runner, actor: actor, options: ctx.Options, commandRootScope: ctx.CommandRootScope, rootActor: ctx.RootActor, callerActor: ctx.Actor, sourceContext: ctx);
 
                     try
                     {

@@ -97,8 +97,11 @@ namespace Game.Channel
 
             if (useTypewriter && SupportsTypewriter)
             {
-                _typewriter.ShowText(text);
-                return;
+                if (_typewriter != null)
+                {
+                    _typewriter.ShowText(text);
+                    return;
+                }
             }
 
             if (_animator != null)
@@ -119,7 +122,7 @@ namespace Game.Channel
                 var useTypewriterAppend = useTypewriter && SupportsTypewriter;
                 _animator.AppendText(text, hideText: useTypewriterAppend);
 
-                if (useTypewriterAppend)
+                if (useTypewriterAppend && _typewriter != null)
                 {
                     _typewriter.StartShowingText(restart: false);
                 }

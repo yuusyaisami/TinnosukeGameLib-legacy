@@ -38,6 +38,10 @@ namespace Game.Commands.VNext
         public bool LogRunnerInfo = true;
 
         [BoxGroup("Output")]
+        [LabelText("Log Context Slots")]
+        public bool LogContextSlots = true;
+
+        [BoxGroup("Output")]
         [LabelText("Log Options")]
         public bool LogOptions = true;
 

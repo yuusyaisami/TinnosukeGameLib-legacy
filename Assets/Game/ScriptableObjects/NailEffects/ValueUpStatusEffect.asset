@@ -22,7 +22,7 @@ MonoBehaviour:
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
-        definitionId: 
+        definitionId: ValueUp
         defaultStackMode: 10
         defaultRuntimeTag: 
         visualData:
@@ -86,7 +86,10 @@ MonoBehaviour:
             _debugFieldPath: 
             _debugAssetPath: 
             _functionName: 
-            _commands: []
+            _commands:
+            - rid: 5619052366731149523
+            - rid: 5619052366731149516
+            - rid: 5619052366731149620
           OnStackIntensity:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
@@ -111,10 +114,10 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.ValueUp
         ApplyMode: 10
         MulPhase: 0
-        ValueMode: 20
+        ValueMode: 10
         Value:
           _source:
-            rid: 5619052366731149467
+            rid: 5619052366731149676
           _defaultValue: 0
         TargetActorSource:
           Kind: 0
@@ -126,17 +129,214 @@ MonoBehaviour:
             searchScope: 0
           UnityObject: {fileID: 0}
           SharedTag: 
+          ContextSlot: 0
         Layer: 
-    - rid: 5619052366731149467
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         scalarKey:
           Id: -1907293505
           Name: GameLogic.NailProfile.Effect.ValueUp
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         createIfMissing: 0
         baselineValue: 0
         searchIncludeGlobal: 0
+    - rid: 5619052366731149516
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149517
+    - rid: 5619052366731149517
+      type: {class: WithActorCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        CheckSelfIdentityFilter: 0
+        SelfIdentityFilter:
+          kind: 0
+          id: 
+          category: 
+          requireActive: 0
+          searchScope: 0
+        UseDescendantFilter: 0
+        DescendantFilter:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        VarsPolicy: 0
+        ExecutionScope: 0
+        Body:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052366731149518
+    - rid: 5619052366731149518
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149519
+    - rid: 5619052366731149519
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ServiceScope: 0
+        VarOps: []
+        ScalarOps:
+        - Op: 2
+          Key:
+            Id: -1391682985
+            Name: GameLogic.BallProfile.Value
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052366731149674
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: 5619052366731149528
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+    - rid: 5619052366731149523
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149524
+    - rid: 5619052366731149524
+      type: {class: SetContextSlotCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Slot: 110
+        ActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+    - rid: 5619052366731149528
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052366731149620
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052366731149621
+    - rid: 5619052366731149621
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: CommandDebug
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches:
+        - Label: 
+          Value:
+            _source:
+              rid: 5619052366731149675
+          IncludeSourceInfo: 1
+    - rid: 5619052366731149674
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1907293505
+          Name: GameLogic.NailProfile.Effect.ValueUp
+        targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 110
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052366731149675
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1907293505
+          Name: GameLogic.NailProfile.Effect.ValueUp
+        targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 110
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052366731149676
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731149677
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensity
+          _expectedType: 255
+        _expression: intensity
+    - rid: 5619052366731149677
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Element.intensity
+          varId: 100112

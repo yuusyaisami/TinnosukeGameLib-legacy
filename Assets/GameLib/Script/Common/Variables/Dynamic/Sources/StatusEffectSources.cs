@@ -51,7 +51,7 @@ namespace Game.Common
             if (context == null)
                 return DynamicVariant.FromString(string.Empty);
 
-            var scope = ActorSourceFastResolver.ResolveCached(context.Scope, actorSource, ref _cache, context.CommandRootScope);
+            var scope = ActorSourceFastResolver.ResolveCached(context, actorSource, ref _cache);
             if (scope?.Resolver == null)
                 return DynamicVariant.FromString(string.Empty);
 

@@ -18,8 +18,8 @@ namespace Game.Commands.VNext
             if (data is not TimerCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "TimerCommandData is required.");
 
-            var origin = ctx.Scope ?? ctx.Actor;
-            var scope = ActorSourceFastResolver.Resolve(origin, typed.ActorSource);
+            var origin = ctx.Actor ?? ctx.Scope;
+            var scope = ActorSourceFastResolver.Resolve(ctx, typed.ActorSource, origin);
             if (scope?.Resolver == null)
                 return UniTask.CompletedTask;
 

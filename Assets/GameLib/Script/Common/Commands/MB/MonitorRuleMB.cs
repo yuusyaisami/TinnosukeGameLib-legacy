@@ -427,6 +427,8 @@ namespace Game.Commands
                     blackboardReadScope: rule.BlackboardReadScope,
                     scalarKey: rule.ScalarKey.Name,
                     changeEpsilon: rule.ChangeEpsilon,
+                    executeInitialValueChangedEnter: rule.ExecuteInitialValueChangedEnter,
+                    initialValueChangedEnterDelaySeconds: rule.InitialValueChangedEnterDelaySeconds,
                     onEnterCommandCount: rule.OnEnterCommands?.Count ?? 0,
                     onExitCommandCount: rule.OnExitCommands?.Count ?? 0,
                     whileTrueCommandCount: rule.WhileTrueCommands.Commands?.Count ?? 0,

@@ -63,7 +63,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Apply")]
         [ShowIf(nameof(IsApply))]
         [LabelText("Intensity")]
-        [Tooltip("RuntimeIntensity を使う operation に渡す強度値です。")]
+        [Tooltip("RuntimeIntensity を使う operation に渡す強度値です。ここに source を設定すると definition 側の Default Intensity よりこちらが優先されます。未指定のときだけ definition 側の既定値が使われます。")]
         public DynamicValue<float> Intensity;
 
         [BoxGroup("Apply")]

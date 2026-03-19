@@ -208,7 +208,7 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "No ICommandRunner available in target or fallback scope.");
 
             var vars = ResolveVars(typed.VarsPolicy, ctx, executionScope);
-            var nextCtx = new CommandContext(executionScope, vars, runner, actor: targetScope, options: ctx.Options, commandRootScope: ctx.CommandRootScope, rootActor: ctx.RootActor, callerActor: ctx.Actor);
+            var nextCtx = new CommandContext(executionScope, vars, runner, actor: targetScope, options: ctx.Options, commandRootScope: ctx.CommandRootScope, rootActor: ctx.RootActor, callerActor: ctx.Actor, sourceContext: ctx);
 
             var result = await runner.ExecuteListAsync(typed.Then, nextCtx, ct, nextCtx.Options);
             if (result.Status == CommandRunStatus.Canceled)

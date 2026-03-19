@@ -75,12 +75,14 @@ namespace Game.StatusEffect
                 : request.RuntimeTag;
             var slotKey = BuildSlotKey(definition.DefinitionId, runtimeTag);
             var resolvedIntensity = ResolveIntensity(definition, request, evalContext);
+            var runtimeVars = new VarStore();
 
             if (_effects.TryGetValue(slotKey, out var existing) && existing != null)
             {
                 var stackContext = new StatusEffectBuildContext(
                     _scope,
                     evalContext.Vars,
+                    existing.Vars,
                     evalContext.CommandRootScope ?? _scope,
                     request,
                     definition,
@@ -98,6 +100,7 @@ namespace Game.StatusEffect
             var buildContext = new StatusEffectBuildContext(
                 _scope,
                 evalContext.Vars,
+                runtimeVars,
                 evalContext.CommandRootScope ?? _scope,
                 request,
                 definition,
@@ -157,7 +160,7 @@ namespace Game.StatusEffect
             return count;
         }
 
-        public int Use(StatusEffectRuntimeFilter filter, IScopeNode? userScope = null)
+        public int Use(StatusEffectRuntimeFilter filter, IScopeNode? userScope = null, CommandContext? sourceContext = null)
         {
             if (_disposed || !_isActive)
                 return 0;
@@ -169,7 +172,7 @@ namespace Game.StatusEffect
                 if (runtime == null || !filter.Matches(runtime))
                     continue;
 
-                if (runtime.Use(userScope ?? _scope))
+                if (runtime.Use(userScope ?? _scope, sourceContext))
                     count++;
 
                 if (runtime.IsRemoveRequested)
@@ -312,6 +315,9 @@ namespace Game.StatusEffect
             out StatusEffectRuntime runtime)
         {
             runtime = default!;
+            var runtimeVars = buildContext.RuntimeVars as VarStore;
+            if (runtimeVars == null)
+                return false;
 
             var operations = new List<IStatusEffectOperationRuntime>(definition.Operations.Count);
             for (int i = 0; i < definition.Operations.Count; i++)
@@ -364,6 +370,7 @@ namespace Game.StatusEffect
                 buildContext.RuntimeTag,
                 slotKey,
                 buildContext.ResolvedIntensity,
+                runtimeVars,
                 operations,
                 hooks,
                 durationController,

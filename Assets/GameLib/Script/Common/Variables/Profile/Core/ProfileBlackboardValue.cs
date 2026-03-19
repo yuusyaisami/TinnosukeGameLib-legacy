@@ -23,22 +23,22 @@ namespace Game.Profile
         [LabelText("Blackboard VarId")]
         [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
         [VarIdDropdown]
-        public int BlackboardVarId;
+        public int BlackboardVarId = 0;
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Policy")]
         [ShowIf(nameof(HasBlackboardKey))]
-        public BlackboardBindPolicy BlackboardPolicyValue;
+        public BlackboardBindPolicy BlackboardPolicyValue = default;
 
         [FoldoutGroup("Blackboard Binding/Save")]
         [LabelText("Save Enabled")]
         [ShowIf(nameof(HasBlackboardKey))]
-        public bool BlackboardSaveEnabledValue;
+        public bool BlackboardSaveEnabledValue = false;
 
         [FoldoutGroup("Blackboard Binding/Save")]
         [LabelText("Save Layer")]
         [ShowIf(nameof(ShowBlackboardSaveLayer))]
-        public SaveLayer BlackboardSaveLayerValue;
+        public SaveLayer BlackboardSaveLayerValue = default;
 
         protected bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && BlackboardSaveEnabledValue;

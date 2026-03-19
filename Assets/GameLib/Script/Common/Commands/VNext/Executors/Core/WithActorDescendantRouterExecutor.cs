@@ -96,9 +96,10 @@ namespace Game.Commands.VNext
                 ctx.Options,
                 commandRootScope: ctx.CommandRootScope,
                 rootActor: ctx.RootActor,
-                callerActor: ctx.Actor);
+                callerActor: ctx.Actor,
+                sourceContext: ctx);
 
-            var isMatch = DoesScopeMatchFilter(typed.DescendantFilter, targetScope, actorScope);
+            var isMatch = DoesScopeMatchFilter(typed.DescendantFilter, targetScope, actorScope, ctx);
             if (typed.FilterMode == DescendantFilterMode.Exclude)
                 isMatch = !isMatch;
 
@@ -154,7 +155,7 @@ namespace Game.Commands.VNext
             return resolver.TryResolve(out runner) && runner != null;
         }
 
-        static bool DoesScopeMatchFilter(ActorSource filter, IScopeNode scope, IScopeNode actorScope)
+        static bool DoesScopeMatchFilter(ActorSource filter, IScopeNode scope, IScopeNode actorScope, CommandContext ctx)
         {
             switch (filter.Kind)
             {
@@ -167,13 +168,18 @@ namespace Game.Commands.VNext
                     }
                 case ActorSourceKind.Player:
                     {
-                        var playerScope = ActorSourceFastResolver.Resolve(actorScope, filter);
+                        var playerScope = ActorSourceFastResolver.Resolve(ctx, filter, actorScope);
                         return playerScope != null && ReferenceEquals(scope, playerScope);
                     }
                 case ActorSourceKind.Global:
                     {
-                        var globalScope = ActorSourceFastResolver.Resolve(actorScope, filter);
+                        var globalScope = ActorSourceFastResolver.Resolve(ctx, filter, actorScope);
                         return globalScope != null && ReferenceEquals(scope, globalScope);
+                    }
+                case ActorSourceKind.ContextSlot:
+                    {
+                        var slotScope = ActorSourceFastResolver.Resolve(ctx, filter);
+                        return slotScope != null && ReferenceEquals(scope, slotScope);
                     }
                 case ActorSourceKind.ByIdentity:
                     return MatchesIdentity(scope, filter.Identity);

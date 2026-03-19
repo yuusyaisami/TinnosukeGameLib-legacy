@@ -1,0 +1,10 @@
+OVDF v1.1
+Game.Commands.VNext.WriteDataCommandData, Assembly-CSharp
+
+# ServiceScope
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 86.58
+
+# ScalarOps
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 121.09

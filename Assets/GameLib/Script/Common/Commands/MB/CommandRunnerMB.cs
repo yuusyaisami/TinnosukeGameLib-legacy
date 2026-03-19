@@ -83,6 +83,9 @@ namespace Game.Commands
                 builder.Register<VNext.CommandChannelExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
+                builder.Register<VNext.SetContextSlotExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
                 builder.Register<VNext.FunctionExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
@@ -286,6 +289,12 @@ namespace Game.Commands
                 builder.Register<global::Game.Commands.VNext.SetCollisionEnabledExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.SetUnityColliderExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.SetColliderSharedMaterialExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.SetColliderPhysicsMaterialValuesExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.SetGlobalPhysics2DExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.HitColliderRuleControlExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();

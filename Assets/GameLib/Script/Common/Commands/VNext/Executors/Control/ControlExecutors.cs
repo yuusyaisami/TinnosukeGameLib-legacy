@@ -379,7 +379,7 @@ namespace Game.Commands.VNext
             (ctx.Vars ?? NullVarStore.Instance).MergeInto(mergedVars, overwrite: true);
             trigger.Payload?.MergeInto(mergedVars, overwrite: true);
 
-            var runCtx = new CommandContext(ctx.Scope, mergedVars, runner, ctx.Actor, ctx.Options, ctx.CommandRootScope, ctx.RootActor, ctx.CallerActor);
+            var runCtx = new CommandContext(ctx.Scope, mergedVars, runner, ctx.Actor, ctx.Options, ctx.CommandRootScope, ctx.RootActor, ctx.CallerActor, ctx);
             var result = await runner.ExecuteListAsync(commands, runCtx, ct, ctx.Options);
             if (result.Status == CommandRunStatus.Canceled)
                 throw new OperationCanceledException();

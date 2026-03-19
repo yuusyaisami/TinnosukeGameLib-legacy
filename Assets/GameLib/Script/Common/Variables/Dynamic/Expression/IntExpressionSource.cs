@@ -199,7 +199,7 @@ namespace Game.Common
 
             var keys = new HashSet<string>(StringComparer.Ordinal);
 
-            bool AddVars(IReadOnlyList<ExpressionVariable> vars, string label, out string localError)
+            bool AddVars(IReadOnlyList<ExpressionVariable> vars, string label, bool allowOverrideExisting, out string localError)
             {
                 localError = null;
                 if (vars == null)
@@ -220,8 +220,11 @@ namespace Game.Common
 
                     if (!keys.Add(key))
                     {
-                        localError = $"Duplicate variable key: {key}";
-                        return false;
+                        if (!allowOverrideExisting)
+                        {
+                            localError = $"Duplicate variable key: {key}";
+                            return false;
+                        }
                     }
 
                     var expectedKind = ResolveExpectedKind(v, fallback: ValueKind.Float);
@@ -246,7 +249,7 @@ namespace Game.Common
 
             if (_externalVariables != null)
             {
-                if (!AddVars(_externalVariables, "ExternalVariable", out var e0))
+                if (!AddVars(_externalVariables, "ExternalVariable", allowOverrideExisting: false, out var e0))
                 {
                     error = e0;
                     return false;
@@ -254,7 +257,7 @@ namespace Game.Common
 
                 if (_includeLocalVariablesWithExternal)
                 {
-                    if (!AddVars(_variables, "LocalVariable", out var e1))
+                    if (!AddVars(_variables, "LocalVariable", allowOverrideExisting: true, out var e1))
                     {
                         error = e1;
                         return false;
@@ -263,7 +266,7 @@ namespace Game.Common
             }
             else
             {
-                if (!AddVars(_variables, "Variable", out var e2))
+                if (!AddVars(_variables, "Variable", allowOverrideExisting: false, out var e2))
                 {
                     error = e2;
                     return false;

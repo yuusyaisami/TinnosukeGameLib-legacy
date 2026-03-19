@@ -91,7 +91,7 @@ namespace Game.Common
             if (context == null)
                 return false;
 
-            var scope = ActorSourceFastResolver.ResolveCached(context.Scope, actorSource, ref cache, context.CommandRootScope);
+            var scope = ActorSourceFastResolver.ResolveCached(context, actorSource, ref cache);
             if (scope?.Resolver == null)
                 return false;
 

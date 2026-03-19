@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
-using UnityEngine;
 
 namespace Game.Scalar
 {
@@ -13,10 +12,6 @@ namespace Game.Scalar
         [NonSerialized] IScalarTelemetry _telemetry;
 
         bool _initialized;
-
-        [LabelText("Watch Keys")]
-        [Tooltip("監視したい ScalarKey を登録すると、現在値と修正値一覧が表示されます。")]
-        public List<ScalarKey> watchKeys = new();
 
         [FoldoutGroup("Edit"), LabelText("Key")]
         [InlineProperty, HideLabel]
@@ -93,54 +88,44 @@ namespace Game.Scalar
         }
 
         [FoldoutGroup("Watch"), ShowInInspector, ReadOnly]
-        [LabelText("Watched Scalars")]
+        [LabelText("Registered Scalars")]
         public List<WatchedScalarRow> WatchedScalars =>
-            !_initialized || watchKeys == null
+            !_initialized
                 ? new List<WatchedScalarRow>()
-                : BuildWatchedRows();
+                : BuildRegisteredRows();
 
-        List<WatchedScalarRow> BuildWatchedRows()
+        List<WatchedScalarRow> BuildRegisteredRows()
         {
             var list = new List<WatchedScalarRow>();
-            if (!_initialized || watchKeys == null)
+            if (!_initialized || _telemetry == null || _scalar == null)
                 return list;
 
-            for (int i = 0; i < watchKeys.Count; i++)
+            foreach (var key in _telemetry.EnumerateKeys())
             {
-                var key = watchKeys[i];
                 if (key.Id == 0 && string.IsNullOrEmpty(key.Name))
                     continue;
 
-                float val = 0f;
-                try
-                {
-                    if (_scalar != null)
-                        val = _scalar.LocalGet(key);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e);
-                    val = 0f;
-                }
-
-                list.Add(new WatchedScalarRow(key, val));
+                list.Add(new WatchedScalarRow(key, _scalar.LocalGet(key)));
             }
+
             return list;
         }
 
         [FoldoutGroup("Watch"), ShowInInspector, ReadOnly]
-        [LabelText("Watched Modifiers")]
+        [LabelText("Registered Modifiers")]
         public List<WatchedScalarModsRow> WatchedModifiers =>
-            !_initialized || watchKeys == null
+            !_initialized
                 ? new List<WatchedScalarModsRow>()
-                : BuildWatchedModRows();
+                : BuildRegisteredModRows();
 
-        List<WatchedScalarModsRow> BuildWatchedModRows()
+        List<WatchedScalarModsRow> BuildRegisteredModRows()
         {
             var list = new List<WatchedScalarModsRow>();
-            for (int i = 0; i < watchKeys.Count; i++)
+            if (!_initialized || _telemetry == null)
+                return list;
+
+            foreach (var key in _telemetry.EnumerateKeys())
             {
-                var key = watchKeys[i];
                 if (key.Id == 0 && string.IsNullOrEmpty(key.Name))
                     continue;
 
@@ -152,6 +137,7 @@ namespace Game.Scalar
 
                 list.Add(new WatchedScalarModsRow(key, pretty));
             }
+
             return list;
         }
 

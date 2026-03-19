@@ -131,13 +131,14 @@ Item,BaseShader/Transition/Params,BaseShader,Float4,_TransitionParams,BaseShader
 Item,BaseShader/Transition/FromSpriteUVRect,BaseShader,Float4,_TransitionFromSpriteUVRect,BaseShader/Transition/FromSpriteUVRect,
 
 # --- BlendColor2D ---
-Folder,BaseShader/CompositeSystems/BlendColor2D,,,,,
-Item,BaseShader/CompositeSystems/BlendColor2D/Enabled,BaseShader,Bool,_BlendColor2DEnabled,BaseShader/CompositeSystems/BlendColor2D/Enabled,
-Item,BaseShader/CompositeSystems/BlendColor2D/Color,BaseShader,Color,_BlendColor2DColor,BaseShader/CompositeSystems/BlendColor2D/Color,
-Item,BaseShader/CompositeSystems/BlendColor2D/BlendIntensity,BaseShader,Float,_BlendColor2DBlendIntensity,BaseShader/CompositeSystems/BlendColor2D/BlendIntensity,
-Item,BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection,BaseShader,Int,_BlendColor2DBlendGradDirection,BaseShader/CompositeSystems/BlendColor2D/BlendGradDirection,
-Item,BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount,BaseShader,Float,_BlendColor2DBlendGradationAmount,BaseShader/CompositeSystems/BlendColor2D/BlendGradationAmount,
-Item,BaseShader/CompositeSystems/BlendColor2D/BlendSoftness,BaseShader,Float,_BlendColor2DBlendSoftness,BaseShader/CompositeSystems/BlendColor2D/BlendSoftness,
+Folder,BaseShader/BlendColor2D,,,,,
+Item,BaseShader/BlendColor2D/Enabled,BaseShader,Bool,_BlendColor2DEnabled,BaseShader/BlendColor2D/Enabled,
+Item,BaseShader/BlendColor2D/Color,BaseShader,Color,_BlendColor2DColor,BaseShader/BlendColor2D/Color,
+Item,BaseShader/BlendColor2D/BlendIntensity,BaseShader,Float,_BlendColor2DBlendIntensity,BaseShader/BlendColor2D/BlendIntensity,
+Item,BaseShader/BlendColor2D/BlendGradDirection,BaseShader,Int,_BlendColor2DBlendGradDirection,BaseShader/BlendColor2D/BlendGradDirection,
+Item,BaseShader/BlendColor2D/BlendGradationAmount,BaseShader,Float,_BlendColor2DBlendGradationAmount,BaseShader/BlendColor2D/BlendGradationAmount,
+Item,BaseShader/BlendColor2D/BlendSoftness,BaseShader,Float,_BlendColor2DBlendSoftness,BaseShader/BlendColor2D/BlendSoftness,
+Item,BaseShader/BlendColor2D/BlendMode,BaseShader,Int,_BlendColor2DBlendMode,BaseShader/BlendColor2D/BlendMode,
 
 # --- AdvancedFade2D ---
 # Wipe-based fade with boundary glow and wave effects

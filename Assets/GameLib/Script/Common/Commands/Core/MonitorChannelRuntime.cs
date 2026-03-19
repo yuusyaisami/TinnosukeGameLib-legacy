@@ -67,8 +67,13 @@ namespace Game.Commands
         bool _hasLastWatchedValue;
         DynamicVariant _lastWatchedValue;
         IDisposable? _valueChangedSubscription;
+        Action<int>? _valueChangedVarChangedHandler;
+        IVarStore? _valueChangedObservedVars;
         Action<int>? _blackboardVarChangedHandler;
         IVarStore? _blackboardObservedVars;
+        CancellationTokenSource? _initialValueChangedEnterCts;
+        bool _initialValueChangedEnterScheduled;
+        bool _initialValueChangedEnterExecuted;
 
         // Instance id for diagnostics (stable during object lifetime)
         public int InstanceId => RuntimeHelpers.GetHashCode(this);
@@ -134,6 +139,8 @@ namespace Game.Commands
             _valueChangedTriggeredThisFrame = false;
             _hasLastWatchedValue = false;
             _lastWatchedValue = DynamicVariant.Null;
+            _initialValueChangedEnterScheduled = false;
+            _initialValueChangedEnterExecuted = false;
 
             // 依存キーをキャッシュ
             _cachedDependentKeys = rule.Condition.GetDependentKeys();
@@ -165,7 +172,10 @@ namespace Game.Commands
 
             // Initialize last watched value (do not trigger)
             if (_rule.RuleKind == MonitorRuleKind.ValueChanged)
+            {
                 TryInitializeLastWatchedValue();
+                TryStartInitialValueChangedEnter();
+            }
         }
 
         // ================================================================
@@ -235,7 +245,7 @@ namespace Game.Commands
             if (_rule.RuleKind != MonitorRuleKind.EventOnly && _rule.RuleKind != MonitorRuleKind.EventAndCondition) return;
 
             // resolve target scope
-            var targetScope = ResolveEventTargetScope(_rule.EventTarget);
+            var targetScope = ResolveActorSourceScope(_rule.EventTarget);
             if (targetScope == null || targetScope.Resolver == null) return;
 
             // Resolve an IEntityEventService or IEventService from the target scope
@@ -313,7 +323,7 @@ namespace Game.Commands
             return UniTask.CompletedTask;
         }
 
-        IScopeNode? ResolveEventTargetScope(in VNext.ActorSource source)
+        IScopeNode? ResolveActorSourceScope(in VNext.ActorSource source)
         {
             switch (source.Kind)
             {
@@ -336,6 +346,11 @@ namespace Game.Commands
                 default:
                     return null;
             }
+        }
+
+        IScopeNode? ResolveValueTargetScope()
+        {
+            return ResolveActorSourceScope(_rule.ValueTarget);
         }
 
         static bool TryResolveScopeRegistry(IScopeNode? origin, out IBaseLifetimeScopeRegistry? registry)
@@ -477,6 +492,9 @@ namespace Game.Commands
             if (_rule.ValueSource == MonitorValueSourceKind.Blackboard && _rule.BlackboardReadScope == BlackboardReadScope.Global)
                 return true;
 
+            if (_rule.ValueSource == MonitorValueSourceKind.VarStore && _valueChangedObservedVars == null)
+                return true;
+
             // If Scalar subscription couldn't be established, fall back to polling.
             if (_rule.ValueSource == MonitorValueSourceKind.Scalar && _valueChangedSubscription == null)
                 return true;
@@ -572,6 +590,56 @@ namespace Game.Commands
             TryExecuteCommands("Change", _rule.OnEnterCommands, ct);
         }
 
+        void TryStartInitialValueChangedEnter()
+        {
+            if (_disposed)
+                return;
+
+            if (_rule.RuleKind != MonitorRuleKind.ValueChanged)
+                return;
+
+            if (!_rule.ExecuteInitialValueChangedEnter)
+                return;
+
+            if (_initialValueChangedEnterScheduled || _initialValueChangedEnterExecuted)
+                return;
+
+            var delaySeconds = Mathf.Max(0f, _rule.InitialValueChangedEnterDelaySeconds);
+            _initialValueChangedEnterScheduled = true;
+            _initialValueChangedEnterCts = new CancellationTokenSource();
+            RunInitialValueChangedEnterAsync(delaySeconds, _initialValueChangedEnterCts.Token).Forget(ex =>
+            {
+                Debug.LogException(ex);
+            });
+        }
+
+        async UniTask RunInitialValueChangedEnterAsync(float delaySeconds, CancellationToken ct)
+        {
+            try
+            {
+                if (delaySeconds > 0f)
+                    await UniTask.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken: ct);
+
+                if (_disposed || ct.IsCancellationRequested)
+                    return;
+
+                _initialValueChangedEnterExecuted = true;
+                TryExecuteCommands("Change", _rule.OnEnterCommands, ct);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            finally
+            {
+                _initialValueChangedEnterScheduled = false;
+                if (_initialValueChangedEnterCts != null)
+                {
+                    _initialValueChangedEnterCts.Dispose();
+                    _initialValueChangedEnterCts = null;
+                }
+            }
+        }
+
         bool TryGetWatchedValue(out DynamicVariant value)
         {
             value = DynamicVariant.Null;
@@ -583,15 +651,18 @@ namespace Game.Commands
             {
                 case MonitorValueSourceKind.VarStore:
                     {
-                        if (_vars == null) return false;
+                        if (!TryResolveValueTargetVarStore(out var vars) || vars == null)
+                            return false;
                         var varId = _rule.VarStoreVarId;
-                        if (varId == 0) return false;
-                        return _vars.TryGetVariant(varId, out value) || (value = DynamicVariant.Null) == DynamicVariant.Null;
+                        if (varId == 0)
+                            return false;
+                        return vars.TryGetVariant(varId, out value) || (value = DynamicVariant.Null) == DynamicVariant.Null;
                     }
                 case MonitorValueSourceKind.Blackboard:
                     {
-                        if (_scope?.Resolver == null) return false;
-                        if (!_scope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null) return false;
+                        var targetScope = ResolveValueTargetScope();
+                        if (targetScope?.Resolver == null) return false;
+                        if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null) return false;
                         var varId = _rule.BlackboardVarId;
                         if (varId == 0) return false;
 
@@ -610,8 +681,9 @@ namespace Game.Commands
                             // Debug.Log($"[MonitorChannelRuntime] TryGetWatchedValue: Scalar source for rule '{_rule.RuleName}'");
                         }
 #endif
-                        if (_scope?.Resolver == null) return false;
-                        if (!_scope.Resolver.TryResolve<IBaseScalarService>(out var svc) || svc == null) return false;
+                        var targetScope = ResolveValueTargetScope();
+                        if (targetScope?.Resolver == null) return false;
+                        if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc) || svc == null) return false;
                         var key = _rule.ScalarKey;
                         if (key.Id == 0 && string.IsNullOrEmpty(key.Name)) return false;
 
@@ -696,15 +768,30 @@ namespace Game.Commands
             if (_rule.RuleKind != MonitorRuleKind.ValueChanged)
                 return;
 
-            if (_scope?.Resolver == null)
+            var targetScope = ResolveValueTargetScope();
+            if (targetScope?.Resolver == null)
                 return;
+
+            if (_rule.ValueSource == MonitorValueSourceKind.VarStore)
+            {
+                if (_valueChangedVarChangedHandler != null)
+                    return;
+
+                if (!TryResolveValueTargetVarStore(out var vars) || vars == null)
+                    return;
+
+                _valueChangedObservedVars = vars;
+                _valueChangedVarChangedHandler = OnValueTargetVarChanged;
+                vars.OnVarChanged += _valueChangedVarChangedHandler;
+                return;
+            }
 
             if (_rule.ValueSource == MonitorValueSourceKind.Blackboard)
             {
                 if (_blackboardVarChangedHandler != null)
                     return;
 
-                if (!_scope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
+                if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
                     return;
 
                 // LocalVars is observable; global chain isn't.
@@ -720,7 +807,7 @@ namespace Game.Commands
                 if (_valueChangedSubscription != null)
                     return;
 
-                if (!_scope.Resolver.TryResolve<IBaseScalarService>(out var svc) || svc == null)
+                if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc) || svc == null)
                 {
 #if UNITY_EDITOR
                     Debug.LogWarning($"[MonitorChannelRuntime] Scalar service not found for rule '{_rule.RuleName}'. Will fallback to polling.");
@@ -763,6 +850,13 @@ namespace Game.Commands
 
         void UnsubscribeValueChanged()
         {
+            if (_valueChangedObservedVars != null && _valueChangedVarChangedHandler != null)
+            {
+                try { _valueChangedObservedVars.OnVarChanged -= _valueChangedVarChangedHandler; } catch { }
+            }
+            _valueChangedObservedVars = null;
+            _valueChangedVarChangedHandler = null;
+
             if (_blackboardObservedVars != null && _blackboardVarChangedHandler != null)
             {
                 try { _blackboardObservedVars.OnVarChanged -= _blackboardVarChangedHandler; } catch { }
@@ -772,6 +866,16 @@ namespace Game.Commands
 
             try { _valueChangedSubscription?.Dispose(); } catch { }
             _valueChangedSubscription = null;
+        }
+
+        void OnValueTargetVarChanged(int varId)
+        {
+            if (_disposed) return;
+            if (_rule.RuleKind != MonitorRuleKind.ValueChanged) return;
+            if (_rule.ValueSource != MonitorValueSourceKind.VarStore) return;
+            if (varId == 0 || _rule.VarStoreVarId == 0) return;
+            if (_rule.VarStoreVarId != varId) return;
+            MarkValueChangedTriggered();
         }
 
         void OnBlackboardVarChanged(int varId)
@@ -892,6 +996,29 @@ namespace Game.Commands
 
             _lastWatchedValue = newV;
             _hasLastWatchedValue = true;
+        }
+
+        bool TryResolveValueTargetVarStore(out IVarStore? vars)
+        {
+            vars = null;
+
+            var targetScope = ResolveValueTargetScope();
+            if (targetScope?.Resolver == null)
+                return false;
+
+            if (targetScope.Resolver.TryResolve<IMonitorChannelHub>(out var hub) && hub?.CurrentVarStore != null)
+            {
+                vars = hub.CurrentVarStore;
+                return true;
+            }
+
+            if (targetScope.Resolver.TryResolve<IVarStore>(out var resolvedVars) && resolvedVars != null)
+            {
+                vars = resolvedVars;
+                return true;
+            }
+
+            return false;
         }
 
         void TryInitializeLastWatchedValue()
@@ -1381,6 +1508,29 @@ namespace Game.Commands
 
             // unsubscribe from value-changed sources
             UnsubscribeValueChanged();
+
+            if (_initialValueChangedEnterCts != null)
+            {
+                try
+                {
+                    _initialValueChangedEnterCts.Cancel();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+
+                try
+                {
+                    _initialValueChangedEnterCts.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+
+                _initialValueChangedEnterCts = null;
+            }
 
             _vars = null;
         }

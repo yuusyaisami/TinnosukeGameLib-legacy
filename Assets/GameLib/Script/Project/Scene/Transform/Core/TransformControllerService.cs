@@ -888,6 +888,19 @@ namespace Game.TransformSystem
             return true;
         }
 
+        public bool TryAddForceToRigidbody2D(Vector2 force, ForceMode2D mode = ForceMode2D.Force)
+        {
+            if (_config.OutputTarget != TransformOutputTarget.Rigidbody2D)
+                return false;
+
+            var rb = ResolveTelemetryRigidbody2D();
+            if (rb == null)
+                return false;
+
+            rb.AddForce(force, mode);
+            return true;
+        }
+
         public void ForceStopMovementNow()
         {
             if (_movementHub is MovementChannelHubService movementHub)

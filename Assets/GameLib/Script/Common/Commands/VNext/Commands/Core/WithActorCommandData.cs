@@ -16,6 +16,7 @@ namespace Game.Commands.VNext
         CommandRootActor = 7,
         Global = 8,
         Shared = 9,
+        ContextSlot = 10,
     }
 
     [Serializable]
@@ -36,6 +37,10 @@ namespace Game.Commands.VNext
         [ShowIf("@Kind == ActorSourceKind.Shared")]
         [LabelText("Shared Tag")]
         public string SharedTag;
+
+        [ShowIf("@Kind == ActorSourceKind.ContextSlot")]
+        [LabelText("Context Slot")]
+        public CommandLtsSlot ContextSlot;
     }
 
     public enum WithActorExecutionScope

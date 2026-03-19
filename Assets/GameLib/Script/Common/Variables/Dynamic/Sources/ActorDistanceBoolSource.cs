@@ -51,8 +51,8 @@ namespace Game.Common
             if (context?.Scope == null)
                 return DynamicVariant.FromBool(false);
 
-            var scopeA = ActorSourceFastResolver.ResolveCached(context.Scope, actorA, ref _cacheA, context.CommandRootScope);
-            var scopeB = ActorSourceFastResolver.ResolveCached(context.Scope, actorB, ref _cacheB, context.CommandRootScope);
+            var scopeA = ActorSourceFastResolver.ResolveCached(context, actorA, ref _cacheA);
+            var scopeB = ActorSourceFastResolver.ResolveCached(context, actorB, ref _cacheB);
 
             if (!TryGetScopePosition(scopeA, out var posA) || !TryGetScopePosition(scopeB, out var posB))
                 return DynamicVariant.FromBool(false);

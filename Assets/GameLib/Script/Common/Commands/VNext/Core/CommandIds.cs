@@ -108,6 +108,9 @@ namespace Game.Commands.VNext
         public const int WithHitColliderTargets = 1963;
         public const int TransformControllerRigidbody2D = 1964;
         public const int UnityRoomSendScore = 1965;
+        public const int SetColliderSharedMaterial = 1966;
+        public const int SetColliderPhysicsMaterialValues = 1967;
+        public const int SetGlobalPhysics2D = 1968;
         public const int Save = 1970;
         public const int SaveProfile = 1971;
         public const int LoadProfile = 1972;
@@ -119,6 +122,7 @@ namespace Game.Commands.VNext
         public const int WithActorDescendantRouter = 2002;
         public const int WithPlayer = 2003;
         public const int CommandChannelExecute = 2004;
+        public const int SetContextSlot = 2005;
         public const int HostCall = 3001;
 
         public const int LineDrawCreate = 2100;

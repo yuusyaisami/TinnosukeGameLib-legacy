@@ -138,7 +138,10 @@ namespace Game.Common
         {
             hit = default;
 
-            var scope = context?.Scope;
+            if (context == null)
+                return false;
+
+            var scope = context.Scope;
             if (scope == null)
                 return false;
 
@@ -150,10 +153,10 @@ namespace Game.Common
             }
 
             var channelOwnerScope = ActorSourceFastResolver.ResolveCached(
-                scope,
+                context,
                 channelOwnerActorSource,
                 ref channelOwnerCache,
-                context?.CommandRootScope);
+                scope);
             if (channelOwnerScope == null &&
                 channelOwnerActorSource.Kind == ActorSourceKind.FromUnityObject &&
                 channelOwnerActorSource.UnityObject != null &&
@@ -232,7 +235,9 @@ namespace Game.Common
                 return true;
             }
 
-            var filterScope = ActorSourceFastResolver.ResolveCached(scope, filterActorSource, ref filterActorCache, context?.CommandRootScope);
+            var filterScope = context != null
+                ? ActorSourceFastResolver.ResolveCached(context, filterActorSource, ref filterActorCache, scope)
+                : ActorSourceFastResolver.ResolveCached(scope, filterActorSource, ref filterActorCache);
             if (filterScope != null)
             {
                 for (var i = 0; i < hits.Count; i++)

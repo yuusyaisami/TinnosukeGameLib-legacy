@@ -45,7 +45,7 @@ namespace Game.Commands.VNext
                     break;
 
                 case StatusEffectCommandOp.Use:
-                    service.Use(typed.BuildFilter(), ctx.Actor ?? ctx.Scope);
+                    service.Use(typed.BuildFilter(), ctx.Actor ?? ctx.Scope, ctx);
                     break;
 
                 case StatusEffectCommandOp.Reset:
@@ -76,7 +76,7 @@ namespace Game.Commands.VNext
             if (typed.ServiceScope == StatusEffectServiceScope.Scope)
                 return ctx.Scope;
 
-            return ActorSourceFastResolver.Resolve(ctx.Scope, typed.TargetActorSource, ctx.CommandRootScope);
+            return ActorSourceFastResolver.Resolve(ctx, typed.TargetActorSource);
         }
     }
 }

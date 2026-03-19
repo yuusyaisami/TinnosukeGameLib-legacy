@@ -42,6 +42,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<IProjectScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
                 case LifetimeScopeKind.Platform:
@@ -50,6 +52,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<IPlatformScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
                 case LifetimeScopeKind.Global:
@@ -58,6 +62,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<IGlobalScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
                 case LifetimeScopeKind.Scene:
@@ -66,6 +72,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<ISceneScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
                 case LifetimeScopeKind.Field:
@@ -74,6 +82,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<IFieldScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
                 case LifetimeScopeKind.Entity:
@@ -82,6 +92,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<IEntityScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
                 case LifetimeScopeKind.UI:
@@ -90,6 +102,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<IUIScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
                 case LifetimeScopeKind.UIElement:
@@ -98,6 +112,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<IUIElementScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
                 case LifetimeScopeKind.Runtime:
@@ -106,6 +122,8 @@ namespace Game.Scalar
                            .As<IBaseScalarService>()
                            .As<IRuntimeScalarService>()
                            .As<IScalarTelemetry>()
+                           .As<IScopeAcquireHandler>()
+                           .As<IScopeReleaseHandler>()
                            .As<ITickable>();
                     break;
             }

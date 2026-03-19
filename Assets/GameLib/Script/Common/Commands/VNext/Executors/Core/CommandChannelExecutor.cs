@@ -123,7 +123,8 @@ namespace Game.Commands.VNext
                 options: ctx.Options,
                 commandRootScope: ctx.CommandRootScope,
                 rootActor: ctx.RootActor,
-                callerActor: ctx.Actor);
+                callerActor: ctx.Actor,
+                sourceContext: ctx);
         }
 
         static IScopeNode? ResolveExecutionScope(
@@ -149,8 +150,6 @@ namespace Game.Commands.VNext
 
         static IScopeNode? ResolveActorScope(ActorSource source, CommandContext ctx)
         {
-            var commandRoot = ctx.CommandRootScope;
-
             IScopeNode? TryResolveFrom(IScopeNode? origin, string label)
             {
                 if (origin == null)
@@ -161,7 +160,7 @@ namespace Game.Commands.VNext
                     return null;
                 }
 
-                var resolved = ActorSourceFastResolver.Resolve(origin, source, commandRoot);
+                var resolved = ActorSourceFastResolver.Resolve(ctx, source, origin);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                 //Debug.Log(
                 //    $"[CommandChannelExecutor] ActorResolve try: from={label}({DescribeScope(origin)}) " +
@@ -176,7 +175,7 @@ namespace Game.Commands.VNext
                 return resolved;
 
             // Fallback roots for nested command execution contexts.
-            resolved = TryResolveFrom(commandRoot, "ctx.CommandRootScope");
+            resolved = TryResolveFrom(ctx.CommandRootScope, "ctx.CommandRootScope");
             if (resolved != null)
                 return resolved;
 

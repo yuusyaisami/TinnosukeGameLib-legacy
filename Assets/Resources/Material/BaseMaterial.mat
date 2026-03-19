@@ -82,11 +82,11 @@ Material:
     - _AdvancedFade2DBurnProgress: 0
     - _AdvancedFade2DBurnSpeed: 1
     - _AdvancedFade2DEnabled: 1
-    - _AdvancedFade2DFadeAmount: 0
-    - _AdvancedFade2DFadeDirection: -1
-    - _AdvancedFade2DGlowBlendMode: 1.68
-    - _AdvancedFade2DGlowIntensity: 2.38
-    - _AdvancedFade2DGlowRange: 4.67
+    - _AdvancedFade2DFadeAmount: 0.59
+    - _AdvancedFade2DFadeDirection: 3
+    - _AdvancedFade2DGlowBlendMode: 2.84
+    - _AdvancedFade2DGlowIntensity: -1.15
+    - _AdvancedFade2DGlowRange: 3.1
     - _AdvancedFade2DSoft: 1
     - _BlendColor2DBlendGradDirection: 0
     - _BlendColor2DBlendGradationAmount: 1
@@ -129,6 +129,15 @@ Material:
     - _EmissionSource_SlotType: 0
     - _EmissionSource_UVSpace: 0
     - _EnableExternalAlpha: 0
+    - _ExternalTextureCompositeAffectSurfaceAlpha: 0
+    - _ExternalTextureCompositeBlendMode: 0
+    - _ExternalTextureCompositeDisableWhenTextureMissing: 1
+    - _ExternalTextureCompositeEnabled: 0
+    - _ExternalTextureCompositeIntensity: 1
+    - _ExternalTextureCompositeSource_Channel: 15
+    - _ExternalTextureCompositeSource_SlotType: 5
+    - _ExternalTextureCompositeSource_UVSpace: 0
+    - _ExternalTextureCompositeUseTextureAlpha: 0
     - _FlashAmount: 0
     - _FlashBlinkAmplitude: 1
     - _FlashBlinkEnabled: 0
@@ -248,8 +257,8 @@ Material:
     - _AdvWarpShear: {r: 0, g: 0, b: 0, a: 0}
     - _AdvancedFade2DBurnDirection: {r: 4.18, g: 0, b: 0, a: 0}
     - _AdvancedFade2DBurnEdgeColor: {r: 0, g: 1, b: 0.6560044, a: 1}
-    - _AdvancedFade2DWaveParamsA: {r: 6.62, g: 0.01, b: 9.16, a: -71.2}
-    - _AdvancedFade2DWaveParamsB: {r: 1.72, g: 0, b: 0.18, a: 0.02}
+    - _AdvancedFade2DWaveParamsA: {r: 16.19, g: 0.02, b: 5.55, a: 111.4}
+    - _AdvancedFade2DWaveParamsB: {r: 4.02, g: 0, b: 3.3, a: 43.4}
     - _AtlasSlot0: {r: -1, g: -1, b: 0, a: 0}
     - _AtlasSlot1: {r: -1, g: -1, b: 0, a: 0}
     - _AtlasSlot2: {r: -1, g: -1, b: 0, a: 0}
@@ -275,6 +284,9 @@ Material:
     - _EmissionColor: {r: 1, g: 0, b: 0, a: 1}
     - _EmissionSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
     - _EmissionSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _ExternalTextureCompositeSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _ExternalTextureCompositeSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _ExternalTextureCompositeTint: {r: 1, g: 1, b: 1, a: 1}
     - _FlashColor: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _FlowWarpSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}

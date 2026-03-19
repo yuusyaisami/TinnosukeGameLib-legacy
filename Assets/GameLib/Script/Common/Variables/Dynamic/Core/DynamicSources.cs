@@ -882,6 +882,12 @@ namespace Game.Common
         [SerializeField]
         ScalarKey scalarKey;
 
+        [SerializeField, LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
+        ActorSource targetActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [NonSerialized]
+        ActorSourceResolveCache _targetActorCache;
+
         [SerializeField, LabelText("Create If Missing")]
         bool createIfMissing;
 
@@ -891,8 +897,9 @@ namespace Game.Common
         [SerializeField, LabelText("Search Include Global")]
         bool searchIncludeGlobal;
 
+        public ScalarKey ScalarKey => scalarKey;
         public string SourceTypeName => "SelfScalar";
-        public string GetDebugData => scalarKey.ToString();
+        public string GetDebugData => $"{scalarKey} @ {targetActorSource.Kind}";
 
         public static SelfScalarSource FromScalarKey(
             ScalarKey scalarKey,
@@ -903,6 +910,7 @@ namespace Game.Common
             return new SelfScalarSource
             {
                 scalarKey = scalarKey,
+                targetActorSource = new ActorSource { Kind = ActorSourceKind.Current },
                 createIfMissing = createIfMissing,
                 baselineValue = baselineValue,
                 searchIncludeGlobal = searchIncludeGlobal,
@@ -911,10 +919,11 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            if (context?.Scope?.Resolver == null)
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache);
+            if (targetScope?.Resolver == null)
                 return DynamicVariant.Null;
 
-            if (!context.Scope.Resolver.TryResolve<IBaseScalarService>(out var svc))
+            if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc))
                 return DynamicVariant.Null;
 
             if (svc.LocalTryGet(scalarKey, out float value))
@@ -941,8 +950,11 @@ namespace Game.Common
         [SerializeField]
         ScalarKey scalarKey;
 
-        [SerializeField]
-        CommandTargetIdentityFilter targetFilter;
+        [SerializeField, LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
+        ActorSource targetActorSource = new() { Kind = ActorSourceKind.ContextSlot, ContextSlot = CommandLtsSlot.ContextA };
+
+        [NonSerialized]
+        ActorSourceResolveCache _targetActorCache;
 
         [SerializeField, LabelText("Create If Missing")]
         bool createIfMissing;
@@ -950,19 +962,20 @@ namespace Game.Common
         [SerializeField, ShowIf(nameof(createIfMissing)), LabelText("Baseline Value")]
         float baselineValue;
 
+        public ScalarKey ScalarKey => scalarKey;
         public string SourceTypeName => "OtherScalar";
-        public string GetDebugData => scalarKey.ToString();
+        public string GetDebugData => $"{scalarKey} @ {targetActorSource.Kind}";
 
         public static OtherScalarSource FromScalarKey(
             ScalarKey scalarKey,
-            CommandTargetIdentityFilter targetFilter,
+            ActorSource targetActorSource,
             bool createIfMissing = false,
             float baselineValue = 0f)
         {
             return new OtherScalarSource
             {
                 scalarKey = scalarKey,
-                targetFilter = targetFilter,
+                targetActorSource = targetActorSource,
                 createIfMissing = createIfMissing,
                 baselineValue = baselineValue,
             };
@@ -970,10 +983,7 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            if (context == null)
-                return DynamicVariant.Null;
-
-            var targetScope = context.ResolveOtherScope(targetFilter);
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache);
             if (targetScope?.Resolver == null)
                 return DynamicVariant.Null;
 
@@ -1150,7 +1160,7 @@ namespace Game.Common
                 return DynamicVariant.Null;
 
             var resolvedFallback = BlackboardSourceUtility.ResolveFallback(fallback, readScope);
-            var targetScope = ActorSourceFastResolver.ResolveCached(context.Scope, targetActor, ref _cache, context.CommandRootScope);
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
             if (targetScope?.Resolver == null)
             {
                 if (resolvedFallback == BlackboardReadFallback.Fail)

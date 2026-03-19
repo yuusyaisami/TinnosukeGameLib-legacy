@@ -196,7 +196,7 @@ namespace Game.Channel
             AnimationSpriteChannelDef def,
             IScopeNode scope,
             VNext.ICommandRunner commandRunner,
-            IMaterialFxServiceFactory materialFxFactory)
+            IMaterialFxServiceFactory? materialFxFactory)
         {
             _def = def ?? throw new ArgumentNullException(nameof(def));
             _scope = scope;
@@ -217,7 +217,7 @@ namespace Game.Channel
                     _materialFxService = materialFxFactory.CreateForGraphic(_def.Image);
                     if (_def.MaterialFxPresetEntries != null && _def.MaterialFxPresetEntries.Count > 0)
                     {
-                        _materialFxService.ApplyPreset("default", _def.MaterialFxPresetEntries);
+                        _materialFxService.ApplyPreset("default", ResolveMaterialFxEntries(_def.MaterialFxPresetEntries));
                     }
                     ApplyBaseShaderPreset(_materialFxService);
                 }
@@ -257,7 +257,7 @@ namespace Game.Channel
 
             if (def.MaterialFxPresetEntries != null && def.MaterialFxPresetEntries.Count > 0)
             {
-                service.ApplyPreset("default", def.MaterialFxPresetEntries);
+                service.ApplyPreset("default", ResolveMaterialFxEntries(def.MaterialFxPresetEntries));
             }
 
             ApplyBaseShaderPreset(service);
@@ -274,7 +274,19 @@ namespace Game.Channel
                 return;
 
             basePreset.RefreshEntries();
-            service.ApplyPreset(BaseShaderPresetContextTag, basePreset.Entries);
+            service.ApplyPreset(BaseShaderPresetContextTag, ResolveMaterialFxEntries(basePreset.Entries));
+        }
+
+        IReadOnlyList<MaterialFxPresetEntry> ResolveMaterialFxEntries(IReadOnlyList<MaterialFxPresetEntry> entries)
+        {
+            var vars = _scope.Resolver != null && _scope.Resolver.TryResolve<IVarStore>(out var resolvedVars) && resolvedVars != null
+                ? resolvedVars
+                : NullVarStore.Instance;
+            var context = new SimpleDynamicContext(vars, _scope);
+            var resolved = new MaterialFxPresetEntry[entries.Count];
+            for (int i = 0; i < entries.Count; i++)
+                resolved[i] = entries[i].Resolve(context);
+            return resolved;
         }
 
         // ═══════════════════════════════════════════════════════════════════════════

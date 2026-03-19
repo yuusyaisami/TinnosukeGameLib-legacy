@@ -43,7 +43,7 @@ namespace Game.Commands.VNext
             if (string.IsNullOrWhiteSpace(typed.Tag))
                 return;
 
-            var targetScope = ActorSourceFastResolver.Resolve(ctx.Scope, typed.ActorSource, ctx.CommandRootScope);
+            var targetScope = ActorSourceFastResolver.Resolve(ctx, typed.ActorSource);
             if (targetScope == null)
                 return;
 

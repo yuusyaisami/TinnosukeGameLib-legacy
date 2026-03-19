@@ -107,7 +107,7 @@ namespace Game.UnityRoom
                 };
                 return true;
                             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Debug.LogWarning($"[UnityRoomService] Failed to initialize client | ScoreboardId={_settings.ScoreboardId} Error={ex.Message}");
                 return false;

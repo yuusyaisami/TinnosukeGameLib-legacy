@@ -19,6 +19,7 @@ namespace Game.StatusEffect
     {
         public IScopeNode OwnerScope { get; }
         public IVarStore Vars { get; }
+        public IVarStore RuntimeVars { get; }
         public IScopeNode? CommandRootScope { get; }
         public StatusEffectApplyRequest Request { get; }
         public BaseStatusEffectDefinitionData Definition { get; }
@@ -31,6 +32,7 @@ namespace Game.StatusEffect
         public StatusEffectBuildContext(
             IScopeNode ownerScope,
             IVarStore vars,
+            IVarStore runtimeVars,
             IScopeNode? commandRootScope,
             StatusEffectApplyRequest request,
             BaseStatusEffectDefinitionData definition,
@@ -40,6 +42,7 @@ namespace Game.StatusEffect
         {
             OwnerScope = ownerScope;
             Vars = vars ?? NullVarStore.Instance;
+            RuntimeVars = runtimeVars ?? NullVarStore.Instance;
             CommandRootScope = commandRootScope;
             Request = request;
             Definition = definition;
@@ -81,6 +84,34 @@ namespace Game.StatusEffect
         }
     }
 
+    public sealed class StatusEffectOperationDynamicContext : IDynamicContext
+    {
+        public IVarStore Vars { get; }
+        public IScopeNode Scope { get; }
+        public IScopeNode? CommandRootScope { get; }
+
+        public StatusEffectOperationDynamicContext(
+            IVarStore vars,
+            IScopeNode scope,
+            IScopeNode? commandRootScope)
+        {
+            Vars = vars ?? NullVarStore.Instance;
+            Scope = scope;
+            CommandRootScope = commandRootScope;
+        }
+
+        public IScopeNode ResolveOtherScope(CommandTargetIdentityFilter filter)
+        {
+            if (Scope?.Resolver == null)
+                return null!;
+
+            if (!Scope.Resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var registry) || registry == null)
+                return null!;
+
+            return registry.Resolve(filter, Scope);
+        }
+    }
+
     public sealed class StatusEffectRuntime
     {
         readonly StatusEffectService _owner;
@@ -93,7 +124,7 @@ namespace Game.StatusEffect
         readonly IStatusEffectCountController? _countController;
         readonly string _slotKey;
 
-        readonly VarStore _vars = new();
+        readonly VarStore _vars;
 
         bool _isRemoveRequested;
         bool _isEnabled = true;
@@ -114,6 +145,7 @@ namespace Game.StatusEffect
             string runtimeTag,
             string slotKey,
             float intensity,
+            VarStore vars,
             List<IStatusEffectOperationRuntime> operations,
             StatusEffectHookSet hooks,
             IStatusEffectDurationController? durationController,
@@ -128,6 +160,7 @@ namespace Game.StatusEffect
             _durationController = durationController;
             _countController = countController;
             _slotKey = slotKey ?? string.Empty;
+            _vars = vars ?? new VarStore();
 
             InstanceId = string.IsNullOrWhiteSpace(instanceId) ? Guid.NewGuid().ToString("N") : instanceId;
             RuntimeTag = runtimeTag ?? string.Empty;
@@ -179,8 +212,10 @@ namespace Game.StatusEffect
                 return;
 
             RegisterRichText();
-            ApplyOperations();
             _isEnabled = true;
+            _isApplied = false;
+            WriteRuntimeVars();
+            ApplyOperations();
             _isApplied = true;
             WriteRuntimeVars();
             ExecuteHook(StatusEffectHookKind.Apply, _scope);
@@ -194,6 +229,8 @@ namespace Game.StatusEffect
             _isEnabled = true;
             if (!_isUseBlocked)
             {
+                _isApplied = false;
+                WriteRuntimeVars();
                 ApplyOperations();
                 _isApplied = true;
             }
@@ -237,6 +274,8 @@ namespace Game.StatusEffect
             _isSuspendedByScopeRelease = false;
             if (_isEnabled && !_isUseBlocked)
             {
+                _isApplied = false;
+                WriteRuntimeVars();
                 ApplyOperations();
                 _isApplied = true;
             }
@@ -264,7 +303,7 @@ namespace Game.StatusEffect
             _isRemoveRequested = true;
         }
 
-        public bool Use(IScopeNode? userScope)
+        public bool Use(IScopeNode? userScope, CommandContext? sourceContext = null)
         {
             if (!_isRegistered || _isUseBlocked)
                 return false;
@@ -276,7 +315,7 @@ namespace Game.StatusEffect
                 return false;
             }
 
-            ExecuteHook(StatusEffectHookKind.Use, userScope ?? _scope);
+            ExecuteHook(StatusEffectHookKind.Use, userScope ?? _scope, sourceContext);
 
             if (_countController != null)
             {
@@ -369,7 +408,7 @@ namespace Game.StatusEffect
 
             if (intensityChanged)
             {
-                ReapplyOperationsIfNeeded();
+                RefreshOperationsIfNeeded();
                 ExecuteHook(StatusEffectHookKind.StackIntensity, _scope);
             }
 
@@ -507,13 +546,14 @@ namespace Game.StatusEffect
             return true;
         }
 
-        void ReapplyOperationsIfNeeded()
+        void RefreshOperationsIfNeeded()
         {
             if (!_isEnabled)
                 return;
 
-            RemoveOperations(permanent: false);
-            ApplyOperations();
+            WriteRuntimeVars();
+            for (int i = 0; i < _operations.Count; i++)
+                _operations[i]?.RefreshValue();
             _isApplied = true;
         }
 
@@ -576,7 +616,7 @@ namespace Game.StatusEffect
             richText.TryRegister(key, new RichTextProvider(source), overwrite: true);
         }
 
-        void ExecuteHook(StatusEffectHookKind kind, IScopeNode actorScope)
+        void ExecuteHook(StatusEffectHookKind kind, IScopeNode actorScope, CommandContext? sourceContext = null)
         {
             var runner = _owner.CommandRunner;
             if (_scope == null || runner == null)
@@ -587,7 +627,18 @@ namespace Game.StatusEffect
                 return;
 
             WriteRuntimeVars();
-            var context = new CommandContext(_scope, _vars, runner, actorScope, CommandRunOptions.Default);
+            var context = sourceContext != null
+                ? new CommandContext(
+                    _scope,
+                    _vars,
+                    runner,
+                    actorScope,
+                    sourceContext.Options,
+                    sourceContext.CommandRootScope,
+                    sourceContext.RootActor,
+                    sourceContext.Actor,
+                    sourceContext)
+                : new CommandContext(_scope, _vars, runner, actorScope, CommandRunOptions.Default);
             UniTask.Void(async () =>
             {
                 try

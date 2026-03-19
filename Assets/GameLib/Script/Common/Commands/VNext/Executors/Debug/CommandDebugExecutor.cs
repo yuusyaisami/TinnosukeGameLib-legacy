@@ -45,6 +45,9 @@ namespace Game.Commands.VNext
                 sb.AppendLine($"Runner Vars Version: {ctx.Vars?.GlobalVersion ?? 0}");
             }
 
+            if (data.LogContextSlots)
+                AppendContextSlots(sb, ctx);
+
             if (data.LogOptions)
             {
                 var options = ctx.Options;
@@ -78,6 +81,31 @@ namespace Game.Commands.VNext
                 return $"{node.Identity.Id}:{node.Identity.Kind}";
 
             return node.GetType().Name;
+        }
+
+        static void AppendContextSlots(StringBuilder sb, CommandContext ctx)
+        {
+            sb.AppendLine("Context Slots:");
+            AppendContextSlot(sb, ctx, CommandLtsSlot.ContextA);
+            AppendContextSlot(sb, ctx, CommandLtsSlot.ContextB);
+            AppendContextSlot(sb, ctx, CommandLtsSlot.ContextC);
+            AppendContextSlot(sb, ctx, CommandLtsSlot.ContextD);
+        }
+
+        static void AppendContextSlot(StringBuilder sb, CommandContext ctx, CommandLtsSlot slot)
+        {
+            sb.AppendLine($"  {slot}: {DescribeSlotScope(ctx.GetScope(slot))}");
+        }
+
+        static string DescribeSlotScope(IScopeNode? node)
+        {
+            if (node == null)
+                return "<null>";
+
+            if (node.Identity != null)
+                return $"{node.Identity.Kind}:{node.Identity.Id}";
+
+            return DescribeScope(node);
         }
 
         static void AppendVarStore(StringBuilder sb, IVarStore? vars, int maxEntries)
@@ -126,9 +154,6 @@ namespace Game.Commands.VNext
                 return;
             }
 
-            var vars = ctx.Vars ?? NullVarStore.Instance;
-            var dynCtx = new SimpleDynamicContext(vars, ctx.Scope);
-
             sb.AppendLine("Watches:");
             var count = 0;
             for (int i = 0; i < watches.Count; i++)
@@ -144,7 +169,7 @@ namespace Game.Commands.VNext
                     continue;
 
                 var label = string.IsNullOrWhiteSpace(w.Label) ? $"watch[{i}]" : w.Label.Trim();
-                var v = w.Value.Evaluate(dynCtx);
+                var v = w.Value.Evaluate(ctx);
                 if (w.IncludeSourceInfo)
                     sb.AppendLine($"  {label}: {v} (Source={w.Value.SourceTypeName}, Data={w.Value.DebugData})");
                 else
