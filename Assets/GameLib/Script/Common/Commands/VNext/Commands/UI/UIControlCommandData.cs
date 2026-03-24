@@ -50,10 +50,11 @@ namespace Game.Commands.VNext
         }
 
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
+        [ShowIf(nameof(ShouldShowTarget))]
         public ActorSource Target;
 
         [LabelText("UI LTS Id")]
-        [Tooltip("空なら Target と同じスコープを使います。指定時は、その UILifetimeScope の UI サービスを対象にします。")]
+        [Tooltip("ModalPush/ModalPop 系では UI サービスの対象 LTS を指定します。ModalClearAll ではこれが唯一の対象指定です。")]
         public string UILifetimeScopeId = string.Empty;
 
         [LabelText("Operation")]
@@ -88,5 +89,8 @@ namespace Game.Commands.VNext
 
         [LabelText("Then (With Target As Actor)")]
         public CommandListData Then = new();
+
+        bool ShouldShowTarget()
+            => Operation != UIControlOperation.ModalClearAll;
     }
 }

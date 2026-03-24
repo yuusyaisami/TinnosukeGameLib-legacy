@@ -111,7 +111,7 @@ namespace Game.Visual
             SplitEntriesForSetState(entries, out var stateEntries, out var broadcastEntries);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log($"[VisualSystem] SetState selector={selector} entries={entries?.Count ?? 0} state={stateEntries.Length} broadcast={broadcastEntries.Length} clearMissing={clearMissingKeys} basePrio={basePriority}");
+            //Debug.Log($"[VisualSystem] SetState selector={selector} entries={entries?.Count ?? 0} state={stateEntries.Length} broadcast={broadcastEntries.Length} clearMissing={clearMissingKeys} basePrio={basePriority}");
 #endif
 
             // Broadcast only (when caller provided only time-dependent entries)

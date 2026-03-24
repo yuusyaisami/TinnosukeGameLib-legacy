@@ -245,8 +245,6 @@ MonoBehaviour:
   timeScaleBehavior: 0
   registerToDynamicRegistry: 1
   radius: 0
-  advanceOptions: 0
-  retryIntervalSeconds: 0.5
 --- !u!114 &818628101414456375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,7 +388,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0.6
   m_Material: {fileID: 6200000, guid: 0f983ae8b5e202648a50a1a30c72d336, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -398,7 +396,7 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
@@ -435,8 +433,8 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052366731149663
-        - rid: 5619052366731149664
+        - rid: 5619052451121070304
+        - rid: 5619052451121070305
     - rid: 5619052366731149448
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -474,7 +472,7 @@ MonoBehaviour:
         createIfMissing: 0
         baselineValue: 0
         searchIncludeGlobal: 0
-    - rid: 5619052366731149663
+    - rid: 5619052451121070304
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
         Value: 5
@@ -484,7 +482,7 @@ MonoBehaviour:
         ScalarPolicyValue: 0
         UseEffectMod: 0
         UseClampMod: 0
-        UseLocalBase: 1
+        UseLocalBase: 0
         LocalBaseValue: 0
         Clamp:
           UseMin: 0
@@ -503,7 +501,7 @@ MonoBehaviour:
         BlackboardPolicyValue: 0
         BlackboardSaveEnabledValue: 0
         BlackboardSaveLayerValue: 0
-    - rid: 5619052366731149664
+    - rid: 5619052451121070305
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
         Value: 1
@@ -513,7 +511,7 @@ MonoBehaviour:
         ScalarPolicyValue: 0
         UseEffectMod: 0
         UseClampMod: 1
-        UseLocalBase: 1
+        UseLocalBase: 0
         LocalBaseValue: 0
         Clamp:
           UseMin: 0
@@ -564,7 +562,7 @@ MonoBehaviour:
         rid: 5619052366731149476
       _defaultValue: 0
     ExecuteInitialCondition: 0
-    ValueChangedMode: 0
+    ValueChangedMode: 1
     SimpleValueChangedTarget:
       ValueSource: 0
       ValueTarget:
@@ -586,7 +584,47 @@ MonoBehaviour:
         Id: 0
         Name: 
       ChangeEpsilon: 0
-    ValueChangedTargets: []
+    ValueChangedTargets:
+    - ValueSource: 2
+      ValueTarget:
+        Kind: 0
+        Identity:
+          kind: 0
+          id: 
+          category: 
+          requireActive: 0
+          searchScope: 0
+        UnityObject: {fileID: 0}
+        SharedTag: 
+        ContextSlot: 0
+      ValueChangeMode: 0
+      VarStoreVarId: 0
+      BlackboardVarId: 0
+      BlackboardReadScope: 0
+      ScalarKey:
+        Id: -1391682985
+        Name: GameLogic.BallProfile.Value
+      ChangeEpsilon: 0
+    - ValueSource: 2
+      ValueTarget:
+        Kind: 0
+        Identity:
+          kind: 0
+          id: 
+          category: 
+          requireActive: 0
+          searchScope: 0
+        UnityObject: {fileID: 0}
+        SharedTag: 
+        ContextSlot: 0
+      ValueChangeMode: 0
+      VarStoreVarId: 0
+      BlackboardVarId: 0
+      BlackboardReadScope: 0
+      ScalarKey:
+        Id: -1973269918
+        Name: GameLogic.BallProfile.MaxValue
+      ChangeEpsilon: 0
     ExecuteInitialValueChangedEnter: 0
     InitialValueChangedEnterDelaySeconds: 0
     OnEnterCommands:
@@ -614,82 +652,6 @@ MonoBehaviour:
       Commands:
         _debugOwner: {fileID: 4230472558901189611}
         _debugFieldPath: _monitorRules[0].WhileFalseCommands.Commands
-        _debugAssetPath: 
-        _functionName: MonitorRule.WhileFalse
-        _commands: []
-      IntervalSeconds: 0
-    CancelRunningOnConditionChange: 1
-    CancelRunningOnConditionChangeInitialized: 1
-    Behavior: 0
-  - RuleName: 
-    RuleKind: 3
-    EventName: 
-    EventTarget:
-      Kind: 0
-      Identity:
-        kind: 0
-        id: 
-        category: 
-        requireActive: 0
-        searchScope: 0
-      UnityObject: {fileID: 0}
-      SharedTag: 
-      ContextSlot: 0
-    Condition:
-      _source:
-        rid: 5619052366731149507
-      _defaultValue: 0
-    ExecuteInitialCondition: 0
-    ValueChangedMode: 0
-    SimpleValueChangedTarget:
-      ValueSource: 0
-      ValueTarget:
-        Kind: 0
-        Identity:
-          kind: 0
-          id: 
-          category: 
-          requireActive: 0
-          searchScope: 0
-        UnityObject: {fileID: 0}
-        SharedTag: 
-        ContextSlot: 0
-      ValueChangeMode: 0
-      VarStoreVarId: 0
-      BlackboardVarId: 0
-      BlackboardReadScope: 0
-      ScalarKey:
-        Id: 0
-        Name: 
-      ChangeEpsilon: 0
-    ValueChangedTargets: []
-    ExecuteInitialValueChangedEnter: 0
-    InitialValueChangedEnterDelaySeconds: 0
-    OnEnterCommands:
-      _debugOwner: {fileID: 4230472558901189611}
-      _debugFieldPath: _monitorRules[1].OnEnterCommands
-      _debugAssetPath: 
-      _functionName: MonitorRule.OnEnter
-      _commands:
-      - rid: 5619052366731149508
-    OnExitCommands:
-      _debugOwner: {fileID: 4230472558901189611}
-      _debugFieldPath: _monitorRules[1].OnExitCommands
-      _debugAssetPath: 
-      _functionName: MonitorRule.OnExit
-      _commands: []
-    WhileTrueCommands:
-      Commands:
-        _debugOwner: {fileID: 4230472558901189611}
-        _debugFieldPath: _monitorRules[1].WhileTrueCommands.Commands
-        _debugAssetPath: 
-        _functionName: MonitorRule.WhileTrue
-        _commands: []
-      IntervalSeconds: 0
-    WhileFalseCommands:
-      Commands:
-        _debugOwner: {fileID: 4230472558901189611}
-        _debugFieldPath: _monitorRules[1].WhileFalseCommands.Commands
         _debugAssetPath: 
         _functionName: MonitorRule.WhileFalse
         _commands: []
@@ -732,29 +694,6 @@ MonoBehaviour:
               _commands: []
         initialVars: []
     - rid: 5619052366731149480
-      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: {fileID: 11400000, guid: 4103debb1e1828947957fc8fbe1b3f2a, type: 2}
-    - rid: 5619052366731149507
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052366731149508
-      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        function:
-          _source:
-            rid: 5619052366731149509
-          _defaultValue:
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-        initialVars: []
-    - rid: 5619052366731149509
       type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {fileID: 11400000, guid: 4103debb1e1828947957fc8fbe1b3f2a, type: 2}
@@ -860,7 +799,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 61556
+  _debugLastEnabledChangeFrame: 274
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &7495427074702374831
@@ -1025,10 +964,10 @@ MonoBehaviour:
   - tag: default
     spriteRenderer: {fileID: 9076613050328571579}
     image: {fileID: 0}
-    playOnSpawn: 0
+    playOnSpawn: 1
     spritePreset:
       animationA:
-        kind: 0
+        kind: 1
         asset: {fileID: 0}
         inline:
           animationName: 
@@ -1052,7 +991,15 @@ MonoBehaviour:
             _debugAssetPath: 
             _functionName: 
             _commands: []
-          frames: []
+          frames:
+          - sprite: {fileID: -7201189137138843142, guid: 30905a19a28c76d4eabfb56437806066, type: 3}
+            duration: 0.1
+            commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
         randomAsset:
           entries: []
         randomInline:

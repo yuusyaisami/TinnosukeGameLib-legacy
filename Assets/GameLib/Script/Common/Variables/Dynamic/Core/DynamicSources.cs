@@ -14,8 +14,10 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Game;
 using Game.Scalar;
 using Game.Commands;
@@ -25,6 +27,7 @@ using Game.Health;
 using Game.Movement;
 using Game.StateMachine;
 using Game.Trait;
+using Game.StatusEffect;
 using VContainer;
 using Object = UnityEngine.Object;
 using Game.DI;
@@ -495,6 +498,89 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
+    /// <summary>CommandListData 固定リテラル</summary>
+    [Serializable]
+    public sealed class LiteralCommandListDataSource : IDynamicSource
+    {
+        [SerializeReference, InlineProperty, HideLabel]
+        CommandListData? value = new();
+
+        public LiteralCommandListDataSource()
+        {
+        }
+
+        public LiteralCommandListDataSource(CommandListData? value)
+        {
+            this.value = value;
+        }
+
+        public string SourceTypeName => "Literal";
+        public string GetDebugData => value != null ? $"{value.Count} commands" : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
+    /// <summary>BaseStatusEffectDefinitionData 固定リテラル</summary>
+    [Serializable]
+    public sealed class LiteralStatusEffectDefinitionSource : IDynamicSource
+    {
+        [SerializeReference, InlineProperty, HideLabel]
+        BaseStatusEffectDefinitionData? value;
+
+        public string SourceTypeName => "Literal";
+        public string GetDebugData => value != null ? value.DefinitionId : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
+    /// <summary>BaseStatusEffectDefinitionData アセット参照</summary>
+    [Serializable]
+    public sealed class AssetStatusEffectDefinitionSource : IDynamicSource
+    {
+        [SerializeField, HideLabel]
+        StatusEffectDefinitionSO? value;
+
+        public string SourceTypeName => "Asset";
+        public string GetDebugData => value != null ? value.name : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null && value.Preset != null
+                ? DynamicVariant.FromManagedRef(value.Preset)
+                : DynamicVariant.Null;
+    }
+
+    /// <summary>StatusEffectStackPreset 固定リテラル</summary>
+    [Serializable]
+    public sealed class LiteralStatusEffectStackPresetSource : IDynamicSource
+    {
+        [SerializeReference, InlineProperty, HideLabel]
+        StatusEffectStackPreset? value;
+
+        public string SourceTypeName => "Literal";
+        public string GetDebugData => value != null ? "stack-preset" : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
+    /// <summary>StatusEffectStackPreset アセット参照</summary>
+    [Serializable]
+    public sealed class AssetStatusEffectStackPresetSource : IDynamicSource
+    {
+        [SerializeField, HideLabel]
+        StatusEffectStackPresetSO? value;
+
+        public string SourceTypeName => "Asset";
+        public string GetDebugData => value != null ? value.name : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null && value.Preset != null
+                ? DynamicVariant.FromManagedRef(value.Preset)
+                : DynamicVariant.Null;
+    }
+
     /// <summary>BaseRuntimeTemplatePreset 固定リテラル</summary>
     [Serializable]
     public sealed class LiteralRuntimeTemplatePresetSource : IDynamicSource
@@ -935,7 +1021,7 @@ namespace Game.Common
 
         public ScalarKey ScalarKey => scalarKey;
         public string SourceTypeName => "SelfScalar";
-        public string GetDebugData => $"{scalarKey} @ {targetActorSource.Kind}";
+        public string GetDebugData => $"{scalarKey} @ {DescribeTargetActorSource()}";
 
         public static SelfScalarSource FromScalarKey(
             ScalarKey scalarKey,
@@ -975,6 +1061,11 @@ namespace Game.Common
 
             return DynamicVariant.Null;
         }
+
+        string DescribeTargetActorSource()
+        {
+            return ActorSourceOdinLabelHelper.GetLabel("Target", targetActorSource);
+        }
     }
 
     /// <summary>
@@ -1000,7 +1091,7 @@ namespace Game.Common
 
         public ScalarKey ScalarKey => scalarKey;
         public string SourceTypeName => "OtherScalar";
-        public string GetDebugData => $"{scalarKey} @ {targetActorSource.Kind}";
+        public string GetDebugData => $"{scalarKey} @ {DescribeTargetActorSource()}";
 
         public static OtherScalarSource FromScalarKey(
             ScalarKey scalarKey,
@@ -1036,6 +1127,11 @@ namespace Game.Common
             }
 
             return DynamicVariant.Null;
+        }
+
+        string DescribeTargetActorSource()
+        {
+            return ActorSourceOdinLabelHelper.GetLabel("Target", targetActorSource);
         }
     }
 
@@ -1084,7 +1180,6 @@ namespace Game.Common
                     return BlackboardSourceUtility.FailOrNull(
                         context,
                         $"SelfBlackboard(global) resolve failed: key='{VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}' varId={blackboardId} was not found in hierarchy from scope id={context.Scope.Identity?.Id ?? "(none)"}.");
-                Debug.LogWarning($"[SelfBlackboardSource] Global read did not find varId={blackboardId}({VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}) in scope hierarchy starting from scope kind={context.Scope.Kind}, id={context.Scope.Identity?.Id ?? "(none)"}");
                 return BlackboardSourceUtility.ApplyFallback(context.Scope, null, blackboardId, resolvedFallback, initialValue);
             }
             if (!context.Scope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
@@ -1115,8 +1210,6 @@ namespace Game.Common
                 return BlackboardSourceUtility.FailOrNull(
                     context,
                     $"SelfBlackboard(local) resolve failed: key='{VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}' varId={blackboardId} was not found on scope id={context.Scope.Identity?.Id ?? "(none)"}.");
-
-            Debug.LogWarning($"[SelfBlackboardSource] Local read did not find varId={blackboardId}({VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}) in scope kind={context.Scope.Kind}, id={context.Scope.Identity?.Id ?? "(none)"}");
             return BlackboardSourceUtility.ApplyFallback(context.Scope, bb, blackboardId, resolvedFallback, initialValue);
         }
 
@@ -1286,6 +1379,611 @@ namespace Game.Common
 
             value = default;
             return false;
+        }
+    }
+
+    [Serializable]
+    public sealed class SelfGridBlackboardSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Var Keyで絞り込む")]
+        bool useVarKeyFilter = true;
+
+        [SerializeField, ShowIf(nameof(useVarKeyFilter)), LabelText("Var Key"), VarIdDropdown]
+        [FormerlySerializedAs("gridVarId")]
+        int varIdFilter;
+
+        [SerializeField, LabelText("参照スコープ")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Row")]
+        DynamicValue<int> row = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("Column")]
+        DynamicValue<int> column = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        public string SourceTypeName => "SelfGridBlackboard";
+        public string GetDebugData
+            => useVarKeyFilter
+                ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
+                : "(first var in cell)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context?.Scope == null)
+                return DynamicVariant.Null;
+
+            if (useVarKeyFilter && varIdFilter == 0)
+                return DynamicVariant.Null;
+
+            if (!GridBlackboardSourceUtility.TryEvaluateIndices(context, row, column, out var rowIndex, out var columnIndex))
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                return GridBlackboardSourceUtility.TryGetHierarchical(context.Scope, rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out var found)
+                    ? found
+                    : DynamicVariant.Null;
+            }
+
+            if (!context.Scope.Resolver.TryResolve<IGridBlackboardService>(out var grid) || grid == null)
+                return DynamicVariant.Null;
+
+            return grid.TryGetCellVariant(rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out var value, out _)
+                ? value
+                : DynamicVariant.Null;
+        }
+
+    }
+
+    [Serializable]
+    public sealed class OtherGridBlackboardSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Use Var Key Filter")]
+        bool useVarKeyFilter = true;
+
+        [SerializeField, ShowIf(nameof(useVarKeyFilter)), LabelText("Var Key"), VarIdDropdown]
+        [FormerlySerializedAs("gridVarId")]
+        int varIdFilter;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Row")]
+        DynamicValue<int> row = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("Column")]
+        DynamicValue<int> column = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActor)")]
+        ActorSource targetActor;
+
+        [NonSerialized] ActorSourceResolveCache _cache;
+
+        public string SourceTypeName => "OtherGridBlackboard";
+        public string GetDebugData
+            => useVarKeyFilter
+                ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
+                : "(first var in cell)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null)
+                return DynamicVariant.Null;
+
+            if (useVarKeyFilter && varIdFilter == 0)
+                return DynamicVariant.Null;
+
+            if (!GridBlackboardSourceUtility.TryEvaluateIndices(context, row, column, out var rowIndex, out var columnIndex))
+                return DynamicVariant.Null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope?.Resolver == null)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                return GridBlackboardSourceUtility.TryGetHierarchical(targetScope, rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out var found)
+                    ? found
+                    : DynamicVariant.Null;
+            }
+
+            if (!targetScope.Resolver.TryResolve<IGridBlackboardService>(out var grid) || grid == null)
+                return DynamicVariant.Null;
+
+            return grid.TryGetCellVariant(rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out var value, out _)
+                ? value
+                : DynamicVariant.Null;
+        }
+    }
+
+    [Serializable]
+    public sealed class SelfGridBlackboardColumnCountSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Use Var Key Filter")]
+        bool useVarKeyFilter = true;
+
+        [SerializeField, ShowIf(nameof(useVarKeyFilter)), LabelText("Var Key"), VarIdDropdown]
+        [FormerlySerializedAs("gridVarId")]
+        int varIdFilter;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Target Row")]
+        DynamicValue<int> targetRow = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        public string SourceTypeName => "SelfGridBlackboardColumnCount";
+        public string GetDebugData
+            => useVarKeyFilter
+                ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
+                : "(all vars)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context?.Scope == null)
+                return DynamicVariant.Null;
+
+            if (useVarKeyFilter && varIdFilter == 0)
+                return DynamicVariant.Null;
+
+            var rowIndex = GridBlackboardSourceUtility.EvaluateIndex(context, targetRow);
+            if (rowIndex < 0)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    var resolver = node.Resolver;
+                    if (resolver == null)
+                        continue;
+
+                    if (!resolver.TryResolve<IGridBlackboardService>(out var grid) || grid == null)
+                        continue;
+
+                    if (useVarKeyFilter
+                        ? grid.TryGetColumnCount(varIdFilter, rowIndex, out var count)
+                        : grid.TryGetColumnCount(rowIndex, out count))
+                        return DynamicVariant.FromInt(count);
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!context.Scope.Resolver.TryResolve<IGridBlackboardService>(out var selfGrid) || selfGrid == null)
+                return DynamicVariant.Null;
+
+            return (useVarKeyFilter
+                ? selfGrid.TryGetColumnCount(varIdFilter, rowIndex, out var localCount)
+                : selfGrid.TryGetColumnCount(rowIndex, out localCount))
+            ? DynamicVariant.FromInt(localCount)
+            : DynamicVariant.Null;
+        }
+    }
+
+    [Serializable]
+    public sealed class OtherGridBlackboardColumnCountSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Use Var Key Filter")]
+        bool useVarKeyFilter = true;
+
+        [SerializeField, ShowIf(nameof(useVarKeyFilter)), LabelText("Var Key"), VarIdDropdown]
+        int varIdFilter;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Target Row")]
+        DynamicValue<int> targetRow = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActor)")]
+        ActorSource targetActor;
+
+        [NonSerialized] ActorSourceResolveCache _cache;
+
+        public string SourceTypeName => "OtherGridBlackboardColumnCount";
+        public string GetDebugData
+            => useVarKeyFilter
+                ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
+                : "(all vars)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null)
+                return DynamicVariant.Null;
+
+            if (useVarKeyFilter && varIdFilter == 0)
+                return DynamicVariant.Null;
+
+            var rowIndex = GridBlackboardSourceUtility.EvaluateIndex(context, targetRow);
+            if (rowIndex < 0)
+                return DynamicVariant.Null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope?.Resolver == null)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    var resolver = node.Resolver;
+                    if (resolver == null)
+                        continue;
+
+                    if (!resolver.TryResolve<IGridBlackboardService>(out var grid) || grid == null)
+                        continue;
+
+                    if (useVarKeyFilter
+                        ? grid.TryGetColumnCount(varIdFilter, rowIndex, out var count)
+                        : grid.TryGetColumnCount(rowIndex, out count))
+                        return DynamicVariant.FromInt(count);
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!targetScope.Resolver.TryResolve<IGridBlackboardService>(out var localGrid) || localGrid == null)
+                return DynamicVariant.Null;
+
+            return (useVarKeyFilter
+                    ? localGrid.TryGetColumnCount(varIdFilter, rowIndex, out var localCount)
+                    : localGrid.TryGetColumnCount(rowIndex, out localCount))
+                ? DynamicVariant.FromInt(localCount)
+                : DynamicVariant.Null;
+        }
+    }
+
+    [Serializable]
+    public sealed class SelfGridBlackboardRowCountSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Use Var Key Filter")]
+        bool useVarKeyFilter = true;
+
+        [SerializeField, ShowIf(nameof(useVarKeyFilter)), LabelText("Var Key"), VarIdDropdown]
+        [FormerlySerializedAs("gridVarId")]
+        int varIdFilter;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        public string SourceTypeName => "SelfGridBlackboardRowCount";
+        public string GetDebugData
+            => useVarKeyFilter
+                ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
+                : "(all vars)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context?.Scope == null)
+                return DynamicVariant.Null;
+
+            if (useVarKeyFilter && varIdFilter == 0)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    var resolver = node.Resolver;
+                    if (resolver == null)
+                        continue;
+
+                    if (!resolver.TryResolve<IGridBlackboardService>(out var grid) || grid == null)
+                        continue;
+
+                    if (useVarKeyFilter
+                        ? grid.TryGetRowCount(varIdFilter, out var count)
+                        : grid.TryGetRowCount(out count))
+                        return DynamicVariant.FromInt(count);
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!context.Scope.Resolver.TryResolve<IGridBlackboardService>(out var selfGrid) || selfGrid == null)
+                return DynamicVariant.Null;
+
+            return (useVarKeyFilter
+                ? selfGrid.TryGetRowCount(varIdFilter, out var localCount)
+                : selfGrid.TryGetRowCount(out localCount))
+            ? DynamicVariant.FromInt(localCount)
+            : DynamicVariant.Null;
+        }
+    }
+
+    static class GridBlackboardSourceUtility
+    {
+        public static bool TryEvaluateIndices(IDynamicContext context, DynamicValue<int> rowValue, DynamicValue<int> columnValue, out int rowIndex, out int columnIndex)
+        {
+            rowIndex = EvaluateIndex(context, rowValue);
+            columnIndex = EvaluateIndex(context, columnValue);
+            return rowIndex >= 0 && columnIndex >= 0;
+        }
+
+        public static int EvaluateIndex(IDynamicContext context, DynamicValue<int> value)
+        {
+            if (value.HasSource)
+                return value.Evaluate(context).TryGet<int>(out var evaluated) ? evaluated : -1;
+
+            return 0;
+        }
+
+        public static bool TryGetHierarchical(
+            IScopeNode? origin,
+            int rowIndex,
+            int columnIndex,
+            bool useVarKeyFilter,
+            int varIdFilter,
+            out DynamicVariant value)
+        {
+            for (IScopeNode? node = origin; node != null; node = node.Parent)
+            {
+                var resolver = node.Resolver;
+                if (resolver == null)
+                    continue;
+
+                if (!resolver.TryResolve<IGridBlackboardService>(out var grid) || grid == null)
+                    continue;
+
+                if (grid.TryGetCellVariant(rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out value, out _))
+                    return true;
+            }
+
+            value = default;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// ActorSource の存在判定ソース。
+    /// - ResolveOnly: 指定 ActorSource が解決できるかを判定する
+    /// - SearchRelation: 指定 ActorSource を起点に、親/子方向へ別 ActorSource を探索する
+    /// </summary>
+    [Serializable]
+    public sealed class ActorSourceExistsSource : IDynamicSource
+    {
+        public enum EvaluateMode
+        {
+            ResolveOnly = 0,
+            SearchRelation = 1,
+        }
+
+        public enum SearchDirection
+        {
+            Parent = 0,
+            Child = 1,
+        }
+
+        [SerializeField, LabelText("Mode"), EnumToggleButtons]
+        EvaluateMode mode = EvaluateMode.ResolveOnly;
+
+        [SerializeField, ShowIf(nameof(IsResolveOnlyMode))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
+        ActorSource targetActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [SerializeField, ShowIf(nameof(IsSearchRelationMode))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(originActorSource)")]
+        ActorSource originActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [SerializeField, ShowIf(nameof(IsSearchRelationMode))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(relationTargetActorSource)")]
+        ActorSource relationTargetActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [SerializeField, ShowIf(nameof(IsSearchRelationMode)), EnumToggleButtons]
+        SearchDirection searchDirection = SearchDirection.Parent;
+
+        [SerializeField, ShowIf(nameof(IsSearchRelationMode)), MinValue(0)]
+        [LabelText("Search Range")]
+        [PropertyTooltip("0 = unlimited. 1 = immediate parent/child only.")]
+        int searchRange;
+
+        [NonSerialized]
+        ActorSourceResolveCache _originActorCache;
+
+        [NonSerialized]
+        ActorSourceResolveCache _targetActorCache;
+
+        public string SourceTypeName => "ActorExists";
+        public string GetDebugData => mode switch
+        {
+            EvaluateMode.ResolveOnly => $"Target={DescribeActorSource(targetActorSource)}",
+            EvaluateMode.SearchRelation => $"Origin={DescribeActorSource(originActorSource)} Target={DescribeActorSource(relationTargetActorSource)} Dir={searchDirection} Range={(searchRange <= 0 ? "All" : searchRange.ToString())}",
+            _ => "Unknown",
+        };
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null)
+                return DynamicVariant.Null;
+
+            var result = mode switch
+            {
+                EvaluateMode.ResolveOnly => EvaluateResolveOnly(context),
+                EvaluateMode.SearchRelation => EvaluateSearchRelation(context),
+                _ => false,
+            };
+
+            return DynamicVariant.FromBool(result);
+        }
+
+        bool EvaluateResolveOnly(IDynamicContext context)
+        {
+            return ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache) != null;
+        }
+
+        bool EvaluateSearchRelation(IDynamicContext context)
+        {
+            var originScope = ActorSourceFastResolver.ResolveCached(context, originActorSource, ref _originActorCache);
+            if (originScope == null)
+                return false;
+
+            if (relationTargetActorSource.Kind == ActorSourceKind.ByIdentity)
+                return SearchByIdentity(originScope, searchDirection, searchRange, relationTargetActorSource.Identity);
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, relationTargetActorSource, ref _targetActorCache, originScope);
+            if (targetScope == null)
+                return false;
+
+            return searchDirection == SearchDirection.Parent
+                ? HasAncestor(originScope, targetScope, searchRange)
+                : HasDescendant(originScope, targetScope, searchRange);
+        }
+
+        static bool HasAncestor(IScopeNode originScope, IScopeNode targetScope, int maxDepth)
+        {
+            var depth = 1;
+            for (var current = originScope.Parent; current != null; current = current.Parent, depth++)
+            {
+                if (maxDepth > 0 && depth > maxDepth)
+                    break;
+
+                if (ReferenceEquals(current, targetScope))
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool HasDescendant(IScopeNode originScope, IScopeNode targetScope, int maxDepth)
+        {
+            var stack = new Stack<(IScopeNode node, int depth)>();
+            var children = ScopeNodeHierarchy.GetChildrenOrEmpty(originScope);
+            for (var i = 0; i < children.Count; i++)
+            {
+                var child = children[i];
+                if (child != null)
+                    stack.Push((child, 1));
+            }
+
+            while (stack.Count > 0)
+            {
+                var (node, depth) = stack.Pop();
+                if (maxDepth > 0 && depth > maxDepth)
+                    continue;
+
+                if (ReferenceEquals(node, targetScope))
+                    return true;
+
+                if (maxDepth > 0 && depth >= maxDepth)
+                    continue;
+
+                var nodeChildren = ScopeNodeHierarchy.GetChildrenOrEmpty(node);
+                for (var i = 0; i < nodeChildren.Count; i++)
+                {
+                    var child = nodeChildren[i];
+                    if (child != null)
+                        stack.Push((child, depth + 1));
+                }
+            }
+
+            return false;
+        }
+
+        static bool SearchByIdentity(IScopeNode originScope, SearchDirection searchDirection, int searchRange, CommandTargetIdentityFilter filter)
+        {
+            if (searchDirection == SearchDirection.Parent)
+            {
+                var depth = 1;
+                for (IScopeNode? node = originScope.Parent; node != null; node = node.Parent, depth++)
+                {
+                    if (searchRange > 0 && depth > searchRange)
+                        break;
+
+                    if (MatchesIdentity(node, filter))
+                        return true;
+                }
+
+                return false;
+            }
+
+            var stack = new Stack<(IScopeNode node, int depth)>();
+            var children = ScopeNodeHierarchy.GetChildrenOrEmpty(originScope);
+            for (var i = 0; i < children.Count; i++)
+            {
+                var child = children[i];
+                if (child != null)
+                    stack.Push((child, 1));
+            }
+
+            while (stack.Count > 0)
+            {
+                var (node, depth) = stack.Pop();
+                if (searchRange > 0 && depth > searchRange)
+                    continue;
+
+                if (MatchesIdentity(node, filter))
+                    return true;
+
+                if (searchRange > 0 && depth >= searchRange)
+                    continue;
+
+                var nodeChildren = ScopeNodeHierarchy.GetChildrenOrEmpty(node);
+                for (var i = 0; i < nodeChildren.Count; i++)
+                {
+                    var child = nodeChildren[i];
+                    if (child != null)
+                        stack.Push((child, depth + 1));
+                }
+            }
+
+            return false;
+        }
+
+        static bool MatchesIdentity(IScopeNode scope, in CommandTargetIdentityFilter filter)
+        {
+            var identity = scope.Identity;
+            if (identity == null)
+                return false;
+
+            if (filter.requireActive && !identity.IsActive)
+                return false;
+
+            if (filter.kind != LifetimeScopeKind.None && filter.kind != identity.Kind)
+                return false;
+
+            if (!string.IsNullOrEmpty(filter.id) &&
+                !string.Equals(identity.Id, filter.id, StringComparison.Ordinal))
+                return false;
+
+            if (!string.IsNullOrEmpty(filter.category) &&
+                !string.Equals(identity.Category, filter.category, StringComparison.Ordinal))
+                return false;
+
+            return true;
+        }
+
+        static string DescribeActorSource(ActorSource source)
+        {
+            return ActorSourceOdinLabelHelper.GetLabel("Actor", source);
+        }
+
+        bool IsResolveOnlyMode() => mode == EvaluateMode.ResolveOnly;
+        bool IsSearchRelationMode() => mode == EvaluateMode.SearchRelation;
+
+        public static ActorSourceExistsSource FromResolveOnly(ActorSource targetActorSource)
+        {
+            return new ActorSourceExistsSource
+            {
+                mode = EvaluateMode.ResolveOnly,
+                targetActorSource = targetActorSource,
+            };
+        }
+
+        public static ActorSourceExistsSource FromSearchRelation(
+            ActorSource originActorSource,
+            ActorSource relationTargetActorSource,
+            SearchDirection searchDirection = SearchDirection.Parent,
+            int searchRange = 0)
+        {
+            return new ActorSourceExistsSource
+            {
+                mode = EvaluateMode.SearchRelation,
+                originActorSource = originActorSource,
+                relationTargetActorSource = relationTargetActorSource,
+                searchDirection = searchDirection,
+                searchRange = searchRange,
+            };
         }
     }
 

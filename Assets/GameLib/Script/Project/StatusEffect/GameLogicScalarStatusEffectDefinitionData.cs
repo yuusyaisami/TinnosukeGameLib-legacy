@@ -22,13 +22,6 @@ namespace Game.StatusEffect
         string definitionId = string.Empty;
 
         [BoxGroup("Identity")]
-        [LabelText("Default Stack Mode")]
-        [EnumToggleButtons]
-        [SerializeField]
-        [Tooltip("同じ effect が重なったときの既定のスタック処理です。")]
-        EffectStackMode defaultStackMode = EffectStackMode.Refresh;
-
-        [BoxGroup("Identity")]
         [LabelText("Default Runtime Tag")]
         [SerializeField]
         [Tooltip("付与時にタグが省略された場合に使う既定の runtimeTag です。")]
@@ -40,12 +33,6 @@ namespace Game.StatusEffect
         [HideLabel]
         [Tooltip("UI やログに見せる名前・説明・分類などの表示データです。")]
         EffectVisualData visualData = new();
-
-        [BoxGroup("Presentation")]
-        [LabelText("Default Intensity")]
-        [SerializeField]
-        [Tooltip("Apply 時に intensity が未指定だった場合に使う既定値です。")]
-        DynamicValue<float> defaultIntensity = DynamicValueExtensions.FromLiteral(1f);
 
         [BoxGroup("Operation")]
         [SerializeField]
@@ -90,8 +77,6 @@ namespace Game.StatusEffect
 
         public override string DefinitionId => definitionId ?? string.Empty;
         public override EffectVisualData VisualData => visualData ?? new EffectVisualData();
-        public override EffectStackMode DefaultStackMode => defaultStackMode;
-        public override DynamicValue<float> DefaultIntensity => defaultIntensity;
         public override string DefaultRuntimeTag => defaultRuntimeTag ?? string.Empty;
         public override bool UseDuration => useDuration;
         public override bool UseCount => useCount;

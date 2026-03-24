@@ -11,7 +11,7 @@ namespace Game.Trait
 {
     public enum TraitElementSelectorKind
     {
-        ByTraitKey = 10,
+        ByInstanceId = 10,
         ByDefinition = 20,
         ByDefinitionId = 30,
         ByIndex = 40,
@@ -78,9 +78,9 @@ namespace Game.Trait
         [EnumToggleButtons]
         public TraitElementSelectorKind Kind;
 
-        [ShowIf("@Kind == Game.Trait.TraitElementSelectorKind.ByTraitKey")]
-        [LabelText("Trait Key")]
-        public string TraitKey;
+        [ShowIf("@Kind == Game.Trait.TraitElementSelectorKind.ByInstanceId")]
+        [LabelText("Instance ID")]
+        public DynamicValue<string> InstanceId;
 
         [ShowIf("@Kind == Game.Trait.TraitElementSelectorKind.ByDefinition")]
         [LabelText("Definition")]
@@ -100,7 +100,7 @@ namespace Game.Trait
             {
                 return Kind switch
                 {
-                    TraitElementSelectorKind.ByTraitKey => $"TraitKey={TraitKey}",
+                    TraitElementSelectorKind.ByInstanceId => $"InstanceId={InstanceId.SourceDebugData}",
                     TraitElementSelectorKind.ByDefinition => $"Definition={Definition.SourceDebugData}",
                     TraitElementSelectorKind.ByDefinitionId => $"DefinitionId={DefinitionId}",
                     TraitElementSelectorKind.ByIndex => $"Index={Index.SourceDebugData}",
@@ -135,12 +135,18 @@ namespace Game.Trait
 
             switch (Kind)
             {
-                case TraitElementSelectorKind.ByTraitKey:
+                case TraitElementSelectorKind.ByInstanceId:
                 {
-                    var traitKey = string.IsNullOrWhiteSpace(TraitKey) ? string.Empty : TraitKey.Trim();
-                    if (string.IsNullOrEmpty(traitKey))
+                    if (!InstanceId.TryGet(dynamicContext, out var instanceIdValue))
                     {
-                        error = "TraitKey is empty.";
+                        error = "InstanceId could not be resolved.";
+                        return false;
+                    }
+
+                    var instanceId = string.IsNullOrWhiteSpace(instanceIdValue) ? string.Empty : instanceIdValue.Trim();
+                    if (string.IsNullOrEmpty(instanceId))
+                    {
+                        error = "InstanceId is empty.";
                         return false;
                     }
 
@@ -150,14 +156,14 @@ namespace Game.Trait
                         if (candidate == null)
                             continue;
 
-                        if (!string.Equals(candidate.InstanceId, traitKey, StringComparison.Ordinal))
+                        if (!string.Equals(candidate.InstanceId, instanceId, StringComparison.Ordinal))
                             continue;
 
                         instance = candidate;
                         return true;
                     }
 
-                    error = $"Trait '{traitKey}' was not found.";
+                    error = $"Trait instance '{instanceId}' was not found.";
                     return false;
                 }
                 case TraitElementSelectorKind.ByDefinition:

@@ -53,6 +53,9 @@ namespace Game.Health
         float _invincibleDurationOnDamaged;
         float _damageInvincibleRemaining;
         bool _lastInvincibleState;
+        float _lastSyncedCurrentHP = float.NaN;
+        float _lastSyncedMaxHP = float.NaN;
+        float _lastSyncedHPRatio = float.NaN;
 
         // ModifierContext（Runtime 生成時に渡す）
         HealthModifierContext _modifierContext;
@@ -114,6 +117,7 @@ namespace Game.Health
 
             // ProfileSO から初期値を取得
             InitializeFromProfile();
+            SyncHPRatio(force: true);
         }
 
         void InitializeFromProfile()
@@ -131,6 +135,7 @@ namespace Game.Health
                 };
                 initialHP = Mathf.Clamp(initialHP, 0f, Mathf.Max(0f, _initialMaxHP));
                 _scalarService.SetRuntimeBaseline(CurrentHPKey, initialHP);
+                SyncHPRatio(force: true);
 
                 // スポーン時無敵
                 if (profile.InvincibleDurationOnSpawn > 0f)
@@ -148,6 +153,7 @@ namespace Game.Health
                 _initialMaxHP = 100f;
                 _scalarService.SetRuntimeBaseline(MaxHPKey, _initialMaxHP);
                 _scalarService.SetRuntimeBaseline(CurrentHPKey, _initialMaxHP);
+                SyncHPRatio(force: true);
                 _enableInvincibleOnDamaged = false;
                 _invincibleDurationOnDamaged = 0f;
             }
@@ -245,8 +251,8 @@ namespace Game.Health
                 }
             }
 
-            // HP Ratio を更新
-            UpdateHPRatio();
+            // HP Ratio は変化時のみ同期する
+            SyncHPRatioIfNeeded();
             PublishInvincibleTransitionIfChanged();
         }
 
@@ -263,9 +269,31 @@ namespace Game.Health
             _invincibleLayer.Set(DamageInvincibleLayerKey, false);
         }
 
-        void UpdateHPRatio()
+        void SyncHPRatioIfNeeded()
         {
-            float ratio = HPRatio;
+            SyncHPRatio(force: false);
+        }
+
+        void SyncHPRatio(bool force)
+        {
+            float currentHP = CurrentHP;
+            float maxHP = MaxHP;
+
+            if (!force &&
+                Mathf.Approximately(currentHP, _lastSyncedCurrentHP) &&
+                Mathf.Approximately(maxHP, _lastSyncedMaxHP))
+            {
+                return;
+            }
+
+            _lastSyncedCurrentHP = currentHP;
+            _lastSyncedMaxHP = maxHP;
+
+            float ratio = maxHP > 0f ? Mathf.Clamp01(currentHP / maxHP) : 0f;
+            if (!force && Mathf.Approximately(ratio, _lastSyncedHPRatio))
+                return;
+
+            _lastSyncedHPRatio = ratio;
             _scalarService.SetRuntimeBaseline(HPRatioKey, ratio);
         }
 
@@ -311,6 +339,7 @@ namespace Game.Health
             float prevHP = CurrentHP;
             float newHP = Mathf.Max(0f, prevHP - context.FinalDamage);
             _scalarService.SetRuntimeBaseline(CurrentHPKey, newHP);
+            SyncHPRatio(force: true);
 
             if (_enableInvincibleOnDamaged && _invincibleDurationOnDamaged > 0f)
                 StartDamageInvincible(_invincibleDurationOnDamaged);
@@ -359,6 +388,7 @@ namespace Game.Health
             context.ActualHeal = newHP - prevHP;
 
             _scalarService.SetRuntimeBaseline(CurrentHPKey, newHP);
+            SyncHPRatio(force: true);
 
             // イベント発行
             PublishHealEvent(context, prevHP, newHP);
@@ -372,6 +402,7 @@ namespace Game.Health
                 return;
 
             _scalarService.SetRuntimeBaseline(CurrentHPKey, 0f);
+            SyncHPRatio(force: true);
             _isDead = true;
             StopDamageInvincible();
 
@@ -392,6 +423,7 @@ namespace Game.Health
             float maxHP = MaxHP;
             float newHP = maxHP * Mathf.Clamp01(hpRatio);
             _scalarService.SetRuntimeBaseline(CurrentHPKey, newHP);
+            SyncHPRatio(force: true);
             _isDead = false;
 
             PublishReviveEvent(newHP);
@@ -402,6 +434,7 @@ namespace Game.Health
             float maxHP = MaxHP;
             float newHP = Mathf.Clamp(hp, 0f, maxHP);
             _scalarService.SetRuntimeBaseline(CurrentHPKey, newHP);
+            SyncHPRatio(force: true);
 
             if (newHP <= 0f && !_isDead)
             {
@@ -426,6 +459,8 @@ namespace Game.Health
             {
                 _scalarService.SetRuntimeBaseline(CurrentHPKey, maxHP);
             }
+
+            SyncHPRatio(force: true);
         }
 
         // ================================================================
@@ -547,6 +582,9 @@ namespace Game.Health
             _damageInvincibleRemaining = 0f;
             _invincibleLayer.Set(DamageInvincibleLayerKey, false);
             _lastInvincibleState = _invincibleLayer.Value;
+            _lastSyncedCurrentHP = float.NaN;
+            _lastSyncedMaxHP = float.NaN;
+            _lastSyncedHPRatio = float.NaN;
         }
     }
 }

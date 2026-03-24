@@ -14,6 +14,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Game;
 using Game.Commands;
+using Game.Commands.VNext;
 using VContainer;
 
 namespace Game.Common
@@ -340,6 +341,12 @@ namespace Game.Common
         /// </summary>
         public static DynamicValue<Vector3> FromLiteral(Vector3 value)
             => DynamicValue<Vector3>.FromSource(new LiteralVector3Source(value));
+
+        /// <summary>
+        /// CommandListData 用リテラル作成。
+        /// </summary>
+        public static DynamicValue<CommandListData> FromLiteral(CommandListData value)
+            => DynamicValue<CommandListData>.FromSource(new LiteralCommandListDataSource(value));
     }
 
     // ================================================================
@@ -373,7 +380,7 @@ namespace Game.Common
         }
     }
 
-    #nullable enable
+#nullable enable
 
     sealed class EmptyDynamicContext : IDynamicContext
     {
@@ -437,5 +444,5 @@ namespace Game.Common
         }
     }
 
-    #nullable restore
+#nullable restore
 }

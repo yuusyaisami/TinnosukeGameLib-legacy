@@ -46,9 +46,27 @@ namespace Game.SelectRuntime
             if (IsValidPose(request, requestedPosition, requestedRotation))
                 return true;
 
-            var plane = ResolvePlane(request, requestedPosition);
-            const float radiusStep = 0.5f;
-            const int ringCount = 24;
+            if (TryClampToAreaBoundary(request, requestedPosition, out var boundaryPosition))
+            {
+                correctedPosition = boundaryPosition;
+                correctedRotation = requestedRotation;
+
+                if (IsValidPose(request, correctedPosition, correctedRotation))
+                {
+                    if (request.Editor != null && request.Editor.EnableDebugLog)
+                    {
+                        Debug.Log(
+                            $"[UserMoveRotateValidation] Clamped to area boundary editor={request.Editor.name} " +
+                            $"requested={requestedPosition} corrected={correctedPosition} plane={ResolvePlane(request, requestedPosition)}");
+                    }
+
+                    return true;
+                }
+            }
+
+            var plane = ResolvePlane(request, correctedPosition);
+            const float radiusStep = 0.25f;
+            const int ringCount = 16;
             const int samplesPerRing = 24;
             for (int ring = 1; ring <= ringCount; ring++)
             {
@@ -58,16 +76,89 @@ namespace Game.SelectRuntime
                     var angle = (sample / (float)samplesPerRing) * Mathf.PI * 2f;
                     var offset2D = new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius);
                     var candidate = plane == AreaPlane.XZ
-                        ? requestedPosition + new Vector3(offset2D.x, 0f, offset2D.y)
-                        : requestedPosition + new Vector3(offset2D.x, offset2D.y, 0f);
+                        ? correctedPosition + new Vector3(offset2D.x, 0f, offset2D.y)
+                        : correctedPosition + new Vector3(offset2D.x, offset2D.y, 0f);
 
                     if (!IsValidPose(request, candidate, requestedRotation))
                         continue;
 
                     correctedPosition = candidate;
                     correctedRotation = requestedRotation;
+
+                    if (request.Editor != null && request.Editor.EnableDebugLog)
+                    {
+                        Debug.Log(
+                            $"[UserMoveRotateValidation] Clamped to nearest valid pose editor={request.Editor.name} " +
+                            $"requested={requestedPosition} corrected={correctedPosition} plane={plane} radius={radius:0.###}");
+                    }
+
                     return true;
                 }
+            }
+
+            if (request.Editor != null && request.Editor.EnableDebugLog)
+            {
+                Debug.LogWarning(
+                    $"[UserMoveRotateValidation] No valid pose found editor={request.Editor.name} " +
+                    $"requested={requestedPosition} rotation={requestedRotation.eulerAngles} plane={ResolvePlane(request, requestedPosition)}");
+            }
+
+            return false;
+        }
+
+        static bool TryClampToAreaBoundary(UserMoveRotateValidationRequest request, Vector3 worldPosition, out Vector3 correctedPosition)
+        {
+            correctedPosition = worldPosition;
+
+            if (!TryResolveFirstAreaPlayer(request, out var player, out var basePosition))
+                return false;
+
+            var shape = player.Definition.Shape;
+            if (shape == null)
+                return false;
+
+            var plane = player.Definition.Plane;
+            var localOffset = worldPosition - basePosition;
+            var local = ToLocal(localOffset, plane);
+
+            switch (shape)
+            {
+                case CircleAreaShape circle:
+                    {
+                        var outer = Mathf.Max(0f, circle.Radius);
+                        if (outer <= 0f)
+                            return false;
+
+                        var inner = Mathf.Clamp(circle.InnerRadius, 0f, outer);
+                        var magnitude = local.magnitude;
+                        if (magnitude <= Mathf.Epsilon)
+                        {
+                            local = inner > 0f ? Vector2.right * inner : Vector2.zero;
+                        }
+                        else if (magnitude < inner)
+                        {
+                            local = local / magnitude * inner;
+                        }
+                        else if (magnitude > outer)
+                        {
+                            local = local / magnitude * outer;
+                        }
+
+                        correctedPosition = basePosition + ToPlane(local, plane);
+                        return true;
+                    }
+
+                case RectAreaShape rect:
+                    {
+                        var halfSize = rect.Size * 0.5f;
+                        if (halfSize.x <= 0f && halfSize.y <= 0f)
+                            return false;
+
+                        local.x = Mathf.Clamp(local.x, -halfSize.x, halfSize.x);
+                        local.y = Mathf.Clamp(local.y, -halfSize.y, halfSize.y);
+                        correctedPosition = basePosition + ToPlane(local, plane);
+                        return true;
+                    }
             }
 
             return false;
@@ -115,7 +206,23 @@ namespace Game.SelectRuntime
                     return true;
             }
 
-            return !hasResolvedArea;
+            if (request.Editor != null && request.Editor.EnableDebugLog)
+            {
+                if (!hasResolvedArea)
+                {
+                    Debug.LogWarning(
+                        $"[UserMoveRotateValidation] Area constraint failed because no area could be resolved editor={request.Editor.name} " +
+                        $"areaSource={request.Editor.AreaActorSource} tags={string.Join(",", areaTags)} position={position}");
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"[UserMoveRotateValidation] Position is outside resolved area editor={request.Editor.name} " +
+                        $"areaSource={request.Editor.AreaActorSource} tags={string.Join(",", areaTags)} position={position}");
+                }
+            }
+
+            return false;
         }
 
         static bool PassDistanceConstraint(UserMoveRotateValidationRequest request, Vector3 position)
@@ -221,13 +328,40 @@ namespace Game.SelectRuntime
 
             var areaScope = ActorSourceFastResolver.Resolve(request.RuntimeScope, request.Editor.AreaActorSource);
             if (areaScope?.Resolver == null)
+            {
+                if (request.Editor != null && request.Editor.EnableDebugLog)
+                {
+                    Debug.LogWarning(
+                        $"[UserMoveRotateValidation] Area scope not resolved editor={request.Editor.name} " +
+                        $"areaSource={request.Editor.AreaActorSource} tag={areaTag}");
+                }
+
                 return false;
+            }
 
             if (!areaScope.Resolver.TryResolve<IAreaChannelHubService>(out var hub) || hub == null)
+            {
+                if (request.Editor != null && request.Editor.EnableDebugLog)
+                {
+                    Debug.LogWarning(
+                        $"[UserMoveRotateValidation] Area hub not resolved editor={request.Editor.name} " +
+                        $"areaSource={request.Editor.AreaActorSource} tag={areaTag}");
+                }
+
                 return false;
+            }
 
             if (!hub.TryGetPlayer(areaTag, out player) || player == null)
+            {
+                if (request.Editor != null && request.Editor.EnableDebugLog)
+                {
+                    Debug.LogWarning(
+                        $"[UserMoveRotateValidation] Area player not resolved editor={request.Editor.name} " +
+                        $"areaSource={request.Editor.AreaActorSource} tag={areaTag}");
+                }
+
                 return false;
+            }
 
             basePosition = ResolveAreaBasePosition(player.Definition, areaScope);
             return true;
@@ -237,6 +371,20 @@ namespace Game.SelectRuntime
         {
             var anchor = definition.Anchor != null ? definition.Anchor : scope.Identity?.SelfTransform;
             return anchor != null ? anchor.position + definition.CenterOffset : definition.CenterOffset;
+        }
+
+        static Vector2 ToLocal(Vector3 offset, AreaPlane plane)
+        {
+            return plane == AreaPlane.XZ
+                ? new Vector2(offset.x, offset.z)
+                : new Vector2(offset.x, offset.y);
+        }
+
+        static Vector3 ToPlane(Vector2 offset, AreaPlane plane)
+        {
+            return plane == AreaPlane.XZ
+                ? new Vector3(offset.x, 0f, offset.y)
+                : new Vector3(offset.x, offset.y, 0f);
         }
 
         public static AreaPlane ResolvePlane(UserMoveRotateValidationRequest request, Vector3 currentPosition)

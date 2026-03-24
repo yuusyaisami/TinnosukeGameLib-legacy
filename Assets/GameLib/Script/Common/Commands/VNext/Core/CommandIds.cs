@@ -36,6 +36,7 @@ namespace Game.Commands.VNext
         public const int SpawnParticle = 1400;
         public const int SpawnRuntimeTemplate = 1401;
         public const int RuntimeAllDelete = 1402;
+        public const int SpawnRuntimeGrid = 1403;
         public const int StateMachine = 1500;
         public const int SetDirection = 1600;
 
@@ -91,6 +92,7 @@ namespace Game.Commands.VNext
         public const int DebugCommandContext = 1930;
         public const int SetLifetimeScopeState = 1940;
         public const int MonitorChannelRuleControl = 1941;
+        public const int ScopeLifecycleCondition = 1942;
 
         public const int SetCollisionEnabled = 1950;
         public const int CameraPostProcess = 1951;
@@ -111,6 +113,7 @@ namespace Game.Commands.VNext
         public const int SetColliderSharedMaterial = 1966;
         public const int SetColliderPhysicsMaterialValues = 1967;
         public const int SetGlobalPhysics2D = 1968;
+        public const int WorldPointerTargetControl = 1969;
         public const int Save = 1970;
         public const int SaveProfile = 1971;
         public const int LoadProfile = 1972;
@@ -123,6 +126,7 @@ namespace Game.Commands.VNext
         public const int WithPlayer = 2003;
         public const int CommandChannelExecute = 2004;
         public const int SetContextSlot = 2005;
+        public const int CommandChannelControl = 2006;
         public const int HostCall = 3001;
 
         public const int LineDrawCreate = 2100;
@@ -135,6 +139,8 @@ namespace Game.Commands.VNext
         public const int Function = 2204;
         public const int TraitLottery = 2205;
         public const int PlaceTraitRuntime = 2206;
+        public const int WriteStatusEffectData = 2207;
+        public const int Lottery = 2208;
 
         public const int BackgroundLayer = 2300;
 

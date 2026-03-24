@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Commands.VNext;
 using Game;
+using Game.Common;
 using Sirenix.OdinInspector;
 
 namespace Game.Commands
@@ -27,6 +28,12 @@ namespace Game.Commands
     public interface ICommandChannelHubService
     {
         bool TryGetCommands(string tag, out CommandListData commands);
+        bool RegisterOrUpdate(string tag, CommandListData commands);
+        bool Unregister(string tag);
+        void Clear();
+        bool MutateCommands(string tag, CommandListMutationStep mutation, ICommandListRuntimeMutationService? mutationService);
+        bool SetPayload(string tag, VarStorePayload payload, bool overwriteExistingVars);
+        bool ClearPayload(string tag);
         UniTask<CommandRunResult> ExecuteAsync(string tag, CommandContext ctx, CancellationToken ct);
     }
 
@@ -38,8 +45,15 @@ namespace Game.Commands
         IScopeAcquireHandler,
         IScopeReleaseHandler
     {
+        sealed class RuntimeEntry
+        {
+            public CommandListData Commands = new();
+            public VarStorePayload? Payload;
+            public bool PayloadOverwriteExistingVars;
+        }
+
         readonly ICommandChannelHubSettings _settings;
-        readonly Dictionary<string, CommandListData> _commandLookup = new(StringComparer.Ordinal);
+        readonly Dictionary<string, RuntimeEntry> _commandLookup = new(StringComparer.Ordinal);
 
         public CommandChannelHubService(ICommandChannelHubSettings settings)
         {
@@ -52,7 +66,79 @@ namespace Game.Commands
             if (string.IsNullOrWhiteSpace(tag))
                 return false;
 
-            return _commandLookup.TryGetValue(tag.Trim(), out commands) && commands != null;
+            if (!_commandLookup.TryGetValue(tag.Trim(), out var entry) || entry == null || entry.Commands == null)
+                return false;
+
+            commands = entry.Commands;
+            return true;
+        }
+
+        public bool RegisterOrUpdate(string tag, CommandListData commands)
+        {
+            if (string.IsNullOrWhiteSpace(tag) || commands == null)
+                return false;
+
+            var key = tag.Trim();
+            if (_commandLookup.TryGetValue(key, out var existing) && existing != null)
+            {
+                existing.Commands = commands;
+                return true;
+            }
+
+            _commandLookup[key] = new RuntimeEntry
+            {
+                Commands = commands,
+                Payload = null,
+                PayloadOverwriteExistingVars = false,
+            };
+            return true;
+        }
+
+        public bool Unregister(string tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return false;
+
+            return _commandLookup.Remove(tag.Trim());
+        }
+
+        public void Clear()
+        {
+            _commandLookup.Clear();
+        }
+
+        public bool MutateCommands(string tag, CommandListMutationStep mutation, ICommandListRuntimeMutationService? mutationService)
+        {
+            if (mutation == null)
+                return false;
+
+            if (!TryGetRuntimeEntry(tag, out var entry) || entry?.Commands == null)
+                return false;
+
+            return entry.Commands.ApplyRuntimeMutation(mutation, mutationService);
+        }
+
+        public bool SetPayload(string tag, VarStorePayload payload, bool overwriteExistingVars)
+        {
+            if (payload == null)
+                return false;
+
+            if (!TryGetRuntimeEntry(tag, out var entry) || entry == null)
+                return false;
+
+            entry.Payload = payload;
+            entry.PayloadOverwriteExistingVars = overwriteExistingVars;
+            return true;
+        }
+
+        public bool ClearPayload(string tag)
+        {
+            if (!TryGetRuntimeEntry(tag, out var entry) || entry == null)
+                return false;
+
+            entry.Payload = null;
+            entry.PayloadOverwriteExistingVars = false;
+            return true;
         }
 
         public async UniTask<CommandRunResult> ExecuteAsync(string tag, CommandContext ctx, CancellationToken ct)
@@ -60,10 +146,11 @@ namespace Game.Commands
             if (ctx == null)
                 return CommandRunResult.Error(0, 0, CommandRunFailureKind.InvalidArgs, "CommandContext is null.", null, null);
 
-            if (!TryGetCommands(tag, out var commands) || commands == null)
+            if (!TryGetRuntimeEntry(tag, out var entry) || entry == null || entry.Commands == null)
                 return CommandRunResult.Error(0, 0, CommandRunFailureKind.ResolveFailed, "CommandChannel tag not found.", null, null);
 
-            return await ctx.Runner.ExecuteListAsync(commands, ctx, ct, ctx.Options);
+            var runContext = BuildExecutionContext(ctx, entry);
+            return await runContext.Runner.ExecuteListAsync(entry.Commands, runContext, ct, runContext.Options);
         }
 
         void IScopeAcquireHandler.OnAcquire(IScopeNode scope, bool isReset)
@@ -77,7 +164,37 @@ namespace Game.Commands
         {
             _ = scope;
             _ = isReset;
-            _commandLookup.Clear();
+            Clear();
+        }
+
+        bool TryGetRuntimeEntry(string tag, out RuntimeEntry? entry)
+        {
+            entry = null;
+            if (string.IsNullOrWhiteSpace(tag))
+                return false;
+
+            return _commandLookup.TryGetValue(tag.Trim(), out entry) && entry != null;
+        }
+
+        static CommandContext BuildExecutionContext(CommandContext sourceContext, RuntimeEntry entry)
+        {
+            if (entry == null || entry.Payload == null)
+                return sourceContext;
+
+            var mergedVars = new VarStore();
+            (sourceContext.Vars ?? NullVarStore.Instance).MergeInto(mergedVars, overwrite: true);
+            entry.Payload.ApplyTo(mergedVars, entry.PayloadOverwriteExistingVars);
+
+            return new CommandContext(
+                sourceContext.Scope,
+                mergedVars,
+                sourceContext.Runner,
+                sourceContext.Actor,
+                sourceContext.Options,
+                sourceContext.CommandRootScope,
+                sourceContext.RootActor,
+                sourceContext.CallerActor,
+                sourceContext);
         }
 
         void BuildCommandLookup()
@@ -98,7 +215,12 @@ namespace Game.Commands
                 if (string.IsNullOrWhiteSpace(tag))
                     continue;
 
-                _commandLookup[tag.Trim()] = entry.Commands;
+                _commandLookup[tag.Trim()] = new RuntimeEntry
+                {
+                    Commands = entry.Commands,
+                    Payload = null,
+                    PayloadOverwriteExistingVars = false,
+                };
             }
         }
     }

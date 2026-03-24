@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using Game;
 using Game.Channel;
+using Game.Common;
 using Game.MaterialFx;
 using VContainer;
 using UnityEngine;
@@ -85,6 +86,7 @@ namespace Game.Commands.VNext
                         var resolvedText = resolved ?? string.Empty;
                         if (typed.PlayMode == TextPlayMode.Count)
                         {
+                            resolvedText = TryEvaluateRichTextTemplate(ctx, resolvedText);
                             var settings = typed.TextSettings;
                             settings.UseCounter = true;
 
@@ -331,6 +333,24 @@ namespace Game.Commands.VNext
                 return formatted;
 
             return CountNumberPattern.Replace(targetText, formatted);
+        }
+
+        static string TryEvaluateRichTextTemplate(CommandContext ctx, string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+
+            if (text.IndexOf('{') < 0 || text.IndexOf('}') < 0)
+                return text;
+
+            var source = new RichTextSource
+            {
+                AllowImplicitKeys = true,
+                Template = text,
+            };
+
+            var evaluated = source.Evaluate(ctx).AsString ?? string.Empty;
+            return string.IsNullOrEmpty(evaluated) ? text : evaluated;
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

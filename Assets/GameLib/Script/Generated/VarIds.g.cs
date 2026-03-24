@@ -615,6 +615,46 @@ namespace Game.Vars.Generated
                     public const int G = 232;
                 }
 
+                public static partial class PointerRelation
+                {
+                    /// <remarks>
+                    /// Path: GameLib/Base/PointerRelation/Descendant
+                    /// StableKey: Descendant
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/Base/PointerRelation/Descendant
+                    /// StableKey: Descendant
+                    /// </remarks>
+                    public const int Descendant = 101020;
+                    /// <remarks>
+                    /// Path: GameLib/Base/PointerRelation/isHovered
+                    /// StableKey: isHovered
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/Base/PointerRelation/isHovered
+                    /// StableKey: isHovered
+                    /// </remarks>
+                    public const int isHovered = 101021;
+                    /// <remarks>
+                    /// Path: GameLib/Base/PointerRelation/isSelf
+                    /// StableKey: isSelf
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/Base/PointerRelation/isSelf
+                    /// StableKey: isSelf
+                    /// </remarks>
+                    public const int isSelf = 101018;
+                    /// <remarks>
+                    /// Path: GameLib/Base/PointerRelation/isSelfOrDescendant
+                    /// StableKey: isSelfOrDescendant
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/Base/PointerRelation/isSelfOrDescendant
+                    /// StableKey: isSelfOrDescendant
+                    /// </remarks>
+                    public const int isSelfOrDescendant = 101019;
+                }
+
                 public static partial class RichText
                 {
                     /// <remarks>
@@ -640,197 +680,656 @@ namespace Game.Vars.Generated
                 public static partial class StatusEffect
                 {
 
-                    public static partial class Element
+                    public static partial class Definition
+                    {
+
+                        public static partial class Element
+                        {
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/countDefinition
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.countDefinition
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/countDefinition
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.countDefinition
+                            /// </remarks>
+                            public const int countDefinition = 101008;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/defaultHooks
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.defaultHooks
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/defaultHooks
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.defaultHooks
+                            /// </remarks>
+                            public const int defaultHooks = 101010;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/defaultIntensity
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.defaultIntensity
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/defaultIntensity
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.defaultIntensity
+                            /// </remarks>
+                            public const int defaultIntensity = 101004;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/defaultRuntimeTag
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.defaultRuntimeTag
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/defaultRuntimeTag
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.defaultRuntimeTag
+                            /// </remarks>
+                            public const int defaultRuntimeTag = 101003;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/defaultStackMode
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.defaultStackMode
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/defaultStackMode
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.defaultStackMode
+                            /// </remarks>
+                            public const int defaultStackMode = 101002;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/definitionAsset
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.definitionAsset
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/definitionAsset
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.definitionAsset
+                            /// </remarks>
+                            public const int definitionAsset = 101001;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/definitionId
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.definitionId
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/definitionId
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.definitionId
+                            /// </remarks>
+                            public const int definitionId = 101000;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/descriptionKey
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.descriptionKey
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/descriptionKey
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.descriptionKey
+                            /// </remarks>
+                            public const int descriptionKey = 101015;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/descriptionTemplate
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.descriptionTemplate
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/descriptionTemplate
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.descriptionTemplate
+                            /// </remarks>
+                            public const int descriptionTemplate = 101013;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/durationDefinition
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.durationDefinition
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/durationDefinition
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.durationDefinition
+                            /// </remarks>
+                            public const int durationDefinition = 101006;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/effectType
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.effectType
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/effectType
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.effectType
+                            /// </remarks>
+                            public const int effectType = 101016;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/nameKey
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.nameKey
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/nameKey
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.nameKey
+                            /// </remarks>
+                            public const int nameKey = 101014;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/nameTemplate
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.nameTemplate
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/nameTemplate
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.nameTemplate
+                            /// </remarks>
+                            public const int nameTemplate = 101012;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/operations
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.operations
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/operations
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.operations
+                            /// </remarks>
+                            public const int operations = 101009;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useCount
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useCount
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCount
+                            /// </remarks>
+                            public const int useCount = 101007;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useDuration
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useDuration
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useDuration
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useDuration
+                            /// </remarks>
+                            public const int useDuration = 101005;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/visualData
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.visualData
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/visualData
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.visualData
+                            /// </remarks>
+                            public const int visualData = 101011;
+                        }
+                    }
+
+                    public static partial class Runtime
+                    {
+
+                        public static partial class Element
+                        {
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/descriptionKey
+                            /// StableKey: GameLib.Base.StatusEffect.Element.descriptionKey
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/descriptionKey
+                            /// StableKey: GameLib.Base.StatusEffect.Element.descriptionKey
+                            /// </remarks>
+                            public const int descriptionKey = 100107;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/descriptionTemplate
+                            /// StableKey: GameLib.Base.StatusEffect.Element.descriptionTemplate
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/descriptionTemplate
+                            /// StableKey: GameLib.Base.StatusEffect.Element.descriptionTemplate
+                            /// </remarks>
+                            public const int descriptionTemplate = 100105;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/effectId
+                            /// StableKey: GameLib.Base.StatusEffect.Element.effectId
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/effectId
+                            /// StableKey: GameLib.Base.StatusEffect.Element.effectId
+                            /// </remarks>
+                            public const int effectId = 100100;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/effectType
+                            /// StableKey: GameLib.Base.StatusEffect.Element.effectType
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/effectType
+                            /// StableKey: GameLib.Base.StatusEffect.Element.effectType
+                            /// </remarks>
+                            public const int effectType = 100102;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/instanceId
+                            /// StableKey: GameLib.Base.StatusEffect.Element.instanceId
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/instanceId
+                            /// StableKey: GameLib.Base.StatusEffect.Element.instanceId
+                            /// </remarks>
+                            public const int instanceId = 100101;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/intensity
+                            /// StableKey: GameLib.Base.StatusEffect.Element.intensity
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/intensity
+                            /// StableKey: GameLib.Base.StatusEffect.Element.intensity
+                            /// </remarks>
+                            public const int intensity = 100112;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/isActive
+                            /// StableKey: GameLib.Base.StatusEffect.Element.isActive
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/isActive
+                            /// StableKey: GameLib.Base.StatusEffect.Element.isActive
+                            /// </remarks>
+                            public const int isActive = 100110;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/isApplied
+                            /// StableKey: GameLib.Base.StatusEffect.Element.isApplied
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/isApplied
+                            /// StableKey: GameLib.Base.StatusEffect.Element.isApplied
+                            /// </remarks>
+                            public const int isApplied = 100109;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/isEnabled
+                            /// StableKey: GameLib.Base.StatusEffect.Element.isEnabled
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/isEnabled
+                            /// StableKey: GameLib.Base.StatusEffect.Element.isEnabled
+                            /// </remarks>
+                            public const int isEnabled = 100108;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/isUseBlocked
+                            /// StableKey: GameLib.Base.StatusEffect.Element.isUseBlocked
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/isUseBlocked
+                            /// StableKey: GameLib.Base.StatusEffect.Element.isUseBlocked
+                            /// </remarks>
+                            public const int isUseBlocked = 100118;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/maxUseCount
+                            /// StableKey: GameLib.Base.StatusEffect.Element.maxUseCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/maxUseCount
+                            /// StableKey: GameLib.Base.StatusEffect.Element.maxUseCount
+                            /// </remarks>
+                            public const int maxUseCount = 100116;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/nameKey
+                            /// StableKey: GameLib.Base.StatusEffect.Element.nameKey
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/nameKey
+                            /// StableKey: GameLib.Base.StatusEffect.Element.nameKey
+                            /// </remarks>
+                            public const int nameKey = 100106;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/nameTemplate
+                            /// StableKey: GameLib.Base.StatusEffect.Element.nameTemplate
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/nameTemplate
+                            /// StableKey: GameLib.Base.StatusEffect.Element.nameTemplate
+                            /// </remarks>
+                            public const int nameTemplate = 100104;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/remainingDuration
+                            /// StableKey: GameLib.Base.StatusEffect.Element.remainingDuration
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/remainingDuration
+                            /// StableKey: GameLib.Base.StatusEffect.Element.remainingDuration
+                            /// </remarks>
+                            public const int remainingDuration = 100113;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/remainingInverseInterval
+                            /// StableKey: GameLib.Base.StatusEffect.Element.remainingInverseInterval
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/remainingInverseInterval
+                            /// StableKey: GameLib.Base.StatusEffect.Element.remainingInverseInterval
+                            /// </remarks>
+                            public const int remainingInverseInterval = 100119;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/remainingUseCount
+                            /// StableKey: GameLib.Base.StatusEffect.Element.remainingUseCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/remainingUseCount
+                            /// StableKey: GameLib.Base.StatusEffect.Element.remainingUseCount
+                            /// </remarks>
+                            public const int remainingUseCount = 100115;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/runtimeTag
+                            /// StableKey: GameLib.Base.StatusEffect.Element.runtimeTag
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/runtimeTag
+                            /// StableKey: GameLib.Base.StatusEffect.Element.runtimeTag
+                            /// </remarks>
+                            public const int runtimeTag = 100117;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/stackCount
+                            /// StableKey: GameLib.Base.StatusEffect.Element.stackCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/stackCount
+                            /// StableKey: GameLib.Base.StatusEffect.Element.stackCount
+                            /// </remarks>
+                            public const int stackCount = 100111;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/totalDuration
+                            /// StableKey: GameLib.Base.StatusEffect.Element.totalDuration
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/totalDuration
+                            /// StableKey: GameLib.Base.StatusEffect.Element.totalDuration
+                            /// </remarks>
+                            public const int totalDuration = 100114;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/usedCount
+                            /// StableKey: GameLib.Base.StatusEffect.Element.usedCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/usedCount
+                            /// StableKey: GameLib.Base.StatusEffect.Element.usedCount
+                            /// </remarks>
+                            public const int usedCount = 100120;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/visualData
+                            /// StableKey: GameLib.Base.StatusEffect.Element.visualData
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Element/visualData
+                            /// StableKey: GameLib.Base.StatusEffect.Element.visualData
+                            /// </remarks>
+                            public const int visualData = 100103;
+                        }
+
+                        public static partial class Global
+                        {
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/currentCount
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.currentCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/currentCount
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.currentCount
+                            /// </remarks>
+                            public const int currentCount = 101051;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/duration
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.duration
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/duration
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.duration
+                            /// </remarks>
+                            public const int duration = 101050;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/intensity
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.intensity
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/intensity
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.intensity
+                            /// </remarks>
+                            public const int intensity = 101049;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/maxCount
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.maxCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/maxCount
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.maxCount
+                            /// </remarks>
+                            public const int maxCount = 101052;
+                        }
+                    }
+
+                    public static partial class Stack
                     {
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/descriptionKey
-                        /// StableKey: GameLib.Base.StatusEffect.Element.descriptionKey
+                        /// Path: GameLib/Base/StatusEffect/Stack/applyCurrentCount
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.applyCurrentCount
                         /// </remarks>
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/descriptionKey
-                        /// StableKey: GameLib.Base.StatusEffect.Element.descriptionKey
+                        /// Path: GameLib/Base/StatusEffect/Stack/applyCurrentCount
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.applyCurrentCount
                         /// </remarks>
-                        public const int descriptionKey = 100107;
+                        public const int applyCurrentCount = 101026;
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/descriptionTemplate
-                        /// StableKey: GameLib.Base.StatusEffect.Element.descriptionTemplate
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/descriptionTemplate
-                        /// StableKey: GameLib.Base.StatusEffect.Element.descriptionTemplate
-                        /// </remarks>
-                        public const int descriptionTemplate = 100105;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/effectId
-                        /// StableKey: GameLib.Base.StatusEffect.Element.effectId
+                        /// Path: GameLib/Base/StatusEffect/Stack/applyDuration
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.applyDuration
                         /// </remarks>
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/effectId
-                        /// StableKey: GameLib.Base.StatusEffect.Element.effectId
+                        /// Path: GameLib/Base/StatusEffect/Stack/applyDuration
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.applyDuration
                         /// </remarks>
-                        public const int effectId = 100100;
+                        public const int applyDuration = 101025;
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/effectType
-                        /// StableKey: GameLib.Base.StatusEffect.Element.effectType
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/effectType
-                        /// StableKey: GameLib.Base.StatusEffect.Element.effectType
-                        /// </remarks>
-                        public const int effectType = 100102;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/instanceId
-                        /// StableKey: GameLib.Base.StatusEffect.Element.instanceId
+                        /// Path: GameLib/Base/StatusEffect/Stack/applyIntensity
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.applyIntensity
                         /// </remarks>
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/instanceId
-                        /// StableKey: GameLib.Base.StatusEffect.Element.instanceId
+                        /// Path: GameLib/Base/StatusEffect/Stack/applyIntensity
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.applyIntensity
                         /// </remarks>
-                        public const int instanceId = 100101;
+                        public const int applyIntensity = 101024;
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/intensity
-                        /// StableKey: GameLib.Base.StatusEffect.Element.intensity
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/intensity
-                        /// StableKey: GameLib.Base.StatusEffect.Element.intensity
-                        /// </remarks>
-                        public const int intensity = 100112;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/isActive
-                        /// StableKey: GameLib.Base.StatusEffect.Element.isActive
+                        /// Path: GameLib/Base/StatusEffect/Stack/applyMaxCount
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.applyMaxCount
                         /// </remarks>
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/isActive
-                        /// StableKey: GameLib.Base.StatusEffect.Element.isActive
+                        /// Path: GameLib/Base/StatusEffect/Stack/applyMaxCount
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.applyMaxCount
                         /// </remarks>
-                        public const int isActive = 100110;
+                        public const int applyMaxCount = 101027;
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/isApplied
-                        /// StableKey: GameLib.Base.StatusEffect.Element.isApplied
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/isApplied
-                        /// StableKey: GameLib.Base.StatusEffect.Element.isApplied
-                        /// </remarks>
-                        public const int isApplied = 100109;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/isEnabled
-                        /// StableKey: GameLib.Base.StatusEffect.Element.isEnabled
+                        /// Path: GameLib/Base/StatusEffect/Stack/ignoreIfExisting
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.ignoreIfExisting
                         /// </remarks>
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/isEnabled
-                        /// StableKey: GameLib.Base.StatusEffect.Element.isEnabled
+                        /// Path: GameLib/Base/StatusEffect/Stack/ignoreIfExisting
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.ignoreIfExisting
                         /// </remarks>
-                        public const int isEnabled = 100108;
+                        public const int ignoreIfExisting = 101023;
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/isUseBlocked
-                        /// StableKey: GameLib.Base.StatusEffect.Element.isUseBlocked
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/isUseBlocked
-                        /// StableKey: GameLib.Base.StatusEffect.Element.isUseBlocked
-                        /// </remarks>
-                        public const int isUseBlocked = 100118;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/maxUseCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.maxUseCount
+                        /// Path: GameLib/Base/StatusEffect/Stack/preset
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.preset
                         /// </remarks>
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/maxUseCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.maxUseCount
+                        /// Path: GameLib/Base/StatusEffect/Stack/preset
+                        /// StableKey: GameLib.Base.StatusEffect.Stack.preset
                         /// </remarks>
-                        public const int maxUseCount = 100116;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/nameKey
-                        /// StableKey: GameLib.Base.StatusEffect.Element.nameKey
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/nameKey
-                        /// StableKey: GameLib.Base.StatusEffect.Element.nameKey
-                        /// </remarks>
-                        public const int nameKey = 100106;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/nameTemplate
-                        /// StableKey: GameLib.Base.StatusEffect.Element.nameTemplate
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/nameTemplate
-                        /// StableKey: GameLib.Base.StatusEffect.Element.nameTemplate
-                        /// </remarks>
-                        public const int nameTemplate = 100104;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/remainingDuration
-                        /// StableKey: GameLib.Base.StatusEffect.Element.remainingDuration
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/remainingDuration
-                        /// StableKey: GameLib.Base.StatusEffect.Element.remainingDuration
-                        /// </remarks>
-                        public const int remainingDuration = 100113;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/remainingInverseInterval
-                        /// StableKey: GameLib.Base.StatusEffect.Element.remainingInverseInterval
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/remainingInverseInterval
-                        /// StableKey: GameLib.Base.StatusEffect.Element.remainingInverseInterval
-                        /// </remarks>
-                        public const int remainingInverseInterval = 100119;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/remainingUseCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.remainingUseCount
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/remainingUseCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.remainingUseCount
-                        /// </remarks>
-                        public const int remainingUseCount = 100115;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/runtimeTag
-                        /// StableKey: GameLib.Base.StatusEffect.Element.runtimeTag
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/runtimeTag
-                        /// StableKey: GameLib.Base.StatusEffect.Element.runtimeTag
-                        /// </remarks>
-                        public const int runtimeTag = 100117;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/stackCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.stackCount
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/stackCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.stackCount
-                        /// </remarks>
-                        public const int stackCount = 100111;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/totalDuration
-                        /// StableKey: GameLib.Base.StatusEffect.Element.totalDuration
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/totalDuration
-                        /// StableKey: GameLib.Base.StatusEffect.Element.totalDuration
-                        /// </remarks>
-                        public const int totalDuration = 100114;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/usedCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.usedCount
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/usedCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.usedCount
-                        /// </remarks>
-                        public const int usedCount = 100120;
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/visualData
-                        /// StableKey: GameLib.Base.StatusEffect.Element.visualData
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/visualData
-                        /// StableKey: GameLib.Base.StatusEffect.Element.visualData
-                        /// </remarks>
-                        public const int visualData = 100103;
+                        public const int preset = 101022;
+
+                        public static partial class CurrentCount
+                        {
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/global
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.global
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/global
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.global
+                            /// </remarks>
+                            public const int global = 101041;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/ignoreGlobalWhenMinusOne
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.ignoreGlobalWhenMinusOne
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/ignoreGlobalWhenMinusOne
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.ignoreGlobalWhenMinusOne
+                            /// </remarks>
+                            public const int ignoreGlobalWhenMinusOne = 101042;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/local
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.local
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/local
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.local
+                            /// </remarks>
+                            public const int local = 101039;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/operation
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.operation
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/operation
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.operation
+                            /// </remarks>
+                            public const int operation = 101038;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/useGlobal
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.useGlobal
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/CurrentCount/useGlobal
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.currentCount.useGlobal
+                            /// </remarks>
+                            public const int useGlobal = 101040;
+                        }
+
+                        public static partial class Duration
+                        {
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/global
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.global
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/global
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.global
+                            /// </remarks>
+                            public const int global = 101036;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/ignoreGlobalWhenMinusOne
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.ignoreGlobalWhenMinusOne
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/ignoreGlobalWhenMinusOne
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.ignoreGlobalWhenMinusOne
+                            /// </remarks>
+                            public const int ignoreGlobalWhenMinusOne = 101037;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/local
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.local
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/local
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.local
+                            /// </remarks>
+                            public const int local = 101034;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/operation
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.operation
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/operation
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.operation
+                            /// </remarks>
+                            public const int operation = 101033;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/useGlobal
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.useGlobal
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Duration/useGlobal
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.duration.useGlobal
+                            /// </remarks>
+                            public const int useGlobal = 101035;
+                        }
+
+                        public static partial class Intensity
+                        {
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/global
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.global
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/global
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.global
+                            /// </remarks>
+                            public const int global = 101031;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/ignoreGlobalWhenMinusOne
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.ignoreGlobalWhenMinusOne
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/ignoreGlobalWhenMinusOne
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.ignoreGlobalWhenMinusOne
+                            /// </remarks>
+                            public const int ignoreGlobalWhenMinusOne = 101032;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/local
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.local
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/local
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.local
+                            /// </remarks>
+                            public const int local = 101029;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/operation
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.operation
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/operation
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.operation
+                            /// </remarks>
+                            public const int operation = 101028;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/useGlobal
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.useGlobal
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/Intensity/useGlobal
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.intensity.useGlobal
+                            /// </remarks>
+                            public const int useGlobal = 101030;
+                        }
+
+                        public static partial class MaxCount
+                        {
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/global
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.global
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/global
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.global
+                            /// </remarks>
+                            public const int global = 101046;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/ignoreGlobalWhenMinusOne
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.ignoreGlobalWhenMinusOne
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/ignoreGlobalWhenMinusOne
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.ignoreGlobalWhenMinusOne
+                            /// </remarks>
+                            public const int ignoreGlobalWhenMinusOne = 101047;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/local
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.local
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/local
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.local
+                            /// </remarks>
+                            public const int local = 101044;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/operation
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.operation
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/operation
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.operation
+                            /// </remarks>
+                            public const int operation = 101043;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/useGlobal
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.useGlobal
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Stack/MaxCount/useGlobal
+                            /// StableKey: GameLib.Base.StatusEffect.Stack.maxCount.useGlobal
+                            /// </remarks>
+                            public const int useGlobal = 101045;
+                        }
                     }
                 }
 
@@ -2421,6 +2920,73 @@ namespace Game.Vars.Generated
         public static partial class GameLogic
         {
 
+            public static partial class LuckProfile
+            {
+
+                public static partial class Private
+                {
+                    /// <summary>グローバル倍率 (全体にかかるmul+ローカルmul)</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Private/GlobalMul
+                    /// StableKey: GlobalMul
+                    /// </remarks>
+                    /// <summary>グローバル倍率 (全体にかかるmul+ローカルmul)</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Private/GlobalMul
+                    /// StableKey: GlobalMul
+                    /// </remarks>
+                    public const int GlobalMul = 101053;
+                    /// <summary>ローカル倍率</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Private/LocalMul
+                    /// StableKey: LocalMul
+                    /// </remarks>
+                    /// <summary>ローカル倍率</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Private/LocalMul
+                    /// StableKey: LocalMul
+                    /// </remarks>
+                    public const int LocalMul = 101054;
+                    /// <summary>ローカル倍率を受けるSlotの個数</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Private/LocalMulCount
+                    /// StableKey: LocalMulCount
+                    /// </remarks>
+                    /// <summary>ローカル倍率を受けるSlotの個数</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Private/LocalMulCount
+                    /// StableKey: LocalMulCount
+                    /// </remarks>
+                    public const int LocalMulCount = 101055;
+                }
+
+                public static partial class Public
+                {
+                    /// <summary>Luck倍率のBase値 初期は1</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Public/LuckValue
+                    /// StableKey: LuckValue
+                    /// </remarks>
+                    /// <summary>Luck倍率のBase値 初期は1</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Public/LuckValue
+                    /// StableKey: LuckValue
+                    /// </remarks>
+                    public const int LuckValue = 101056;
+                    /// <summary>Luck倍率にかかる汎用的な変数、外部からLuck倍率を操作したい場合はここを操作する。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Public/LuckValueMul
+                    /// StableKey: LuckValueMul
+                    /// </remarks>
+                    /// <summary>Luck倍率にかかる汎用的な変数、外部からLuck倍率を操作したい場合はここを操作する。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/LuckProfile/Public/LuckValueMul
+                    /// StableKey: LuckValueMul
+                    /// </remarks>
+                    public const int LuckValueMul = 101057;
+                }
+            }
+
             public static partial class NailProfile
             {
                 /// <remarks>
@@ -2432,6 +2998,46 @@ namespace Game.Vars.Generated
                 /// StableKey: Value
                 /// </remarks>
                 public const int Price = 100121;
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/UpgradeTable
+                /// StableKey: UpgradeTable
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/UpgradeTable
+                /// StableKey: UpgradeTable
+                /// </remarks>
+                public const int UpgradeTable = 100123;
+
+                public static partial class UpgradePanel
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/Price
+                    /// StableKey: Price
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/Price
+                    /// StableKey: Price
+                    /// </remarks>
+                    public const int Price = 101017;
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/StackPreset
+                    /// StableKey: StackPreset
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/StackPreset
+                    /// StableKey: StackPreset
+                    /// </remarks>
+                    public const int StackPreset = 101048;
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/StatusEffect
+                    /// StableKey: StatusEffect
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/StatusEffect
+                    /// StableKey: StatusEffect
+                    /// </remarks>
+                    public const int StatusEffect = 100124;
+                }
             }
         }
 
@@ -2492,29 +3098,80 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.LocalVar.E,
             VarIds.GameLib.Base.LocalVar.F,
             VarIds.GameLib.Base.LocalVar.G,
+            VarIds.GameLib.Base.PointerRelation.Descendant,
+            VarIds.GameLib.Base.PointerRelation.isHovered,
+            VarIds.GameLib.Base.PointerRelation.isSelf,
+            VarIds.GameLib.Base.PointerRelation.isSelfOrDescendant,
             VarIds.GameLib.Base.RichText.descriptionKey,
             VarIds.GameLib.Base.RichText.nameKey,
-            VarIds.GameLib.Base.StatusEffect.Element.descriptionKey,
-            VarIds.GameLib.Base.StatusEffect.Element.descriptionTemplate,
-            VarIds.GameLib.Base.StatusEffect.Element.effectId,
-            VarIds.GameLib.Base.StatusEffect.Element.effectType,
-            VarIds.GameLib.Base.StatusEffect.Element.instanceId,
-            VarIds.GameLib.Base.StatusEffect.Element.intensity,
-            VarIds.GameLib.Base.StatusEffect.Element.isActive,
-            VarIds.GameLib.Base.StatusEffect.Element.isApplied,
-            VarIds.GameLib.Base.StatusEffect.Element.isEnabled,
-            VarIds.GameLib.Base.StatusEffect.Element.isUseBlocked,
-            VarIds.GameLib.Base.StatusEffect.Element.maxUseCount,
-            VarIds.GameLib.Base.StatusEffect.Element.nameKey,
-            VarIds.GameLib.Base.StatusEffect.Element.nameTemplate,
-            VarIds.GameLib.Base.StatusEffect.Element.remainingDuration,
-            VarIds.GameLib.Base.StatusEffect.Element.remainingInverseInterval,
-            VarIds.GameLib.Base.StatusEffect.Element.remainingUseCount,
-            VarIds.GameLib.Base.StatusEffect.Element.runtimeTag,
-            VarIds.GameLib.Base.StatusEffect.Element.stackCount,
-            VarIds.GameLib.Base.StatusEffect.Element.totalDuration,
-            VarIds.GameLib.Base.StatusEffect.Element.usedCount,
-            VarIds.GameLib.Base.StatusEffect.Element.visualData,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.countDefinition,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.defaultHooks,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.defaultIntensity,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.defaultRuntimeTag,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.defaultStackMode,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.definitionAsset,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.definitionId,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.descriptionKey,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.descriptionTemplate,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.durationDefinition,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.effectType,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.nameKey,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.nameTemplate,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.operations,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.useCount,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.useDuration,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.visualData,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.descriptionKey,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.descriptionTemplate,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.effectId,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.effectType,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.instanceId,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensity,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.isActive,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.isApplied,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.isEnabled,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.isUseBlocked,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.maxUseCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.nameKey,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.nameTemplate,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingDuration,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingUseCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.runtimeTag,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.duration,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.intensity,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount,
+            VarIds.GameLib.Base.StatusEffect.Stack.applyCurrentCount,
+            VarIds.GameLib.Base.StatusEffect.Stack.applyDuration,
+            VarIds.GameLib.Base.StatusEffect.Stack.applyIntensity,
+            VarIds.GameLib.Base.StatusEffect.Stack.applyMaxCount,
+            VarIds.GameLib.Base.StatusEffect.Stack.ignoreIfExisting,
+            VarIds.GameLib.Base.StatusEffect.Stack.preset,
+            VarIds.GameLib.Base.StatusEffect.Stack.CurrentCount.global,
+            VarIds.GameLib.Base.StatusEffect.Stack.CurrentCount.ignoreGlobalWhenMinusOne,
+            VarIds.GameLib.Base.StatusEffect.Stack.CurrentCount.local,
+            VarIds.GameLib.Base.StatusEffect.Stack.CurrentCount.operation,
+            VarIds.GameLib.Base.StatusEffect.Stack.CurrentCount.useGlobal,
+            VarIds.GameLib.Base.StatusEffect.Stack.Duration.global,
+            VarIds.GameLib.Base.StatusEffect.Stack.Duration.ignoreGlobalWhenMinusOne,
+            VarIds.GameLib.Base.StatusEffect.Stack.Duration.local,
+            VarIds.GameLib.Base.StatusEffect.Stack.Duration.operation,
+            VarIds.GameLib.Base.StatusEffect.Stack.Duration.useGlobal,
+            VarIds.GameLib.Base.StatusEffect.Stack.Intensity.global,
+            VarIds.GameLib.Base.StatusEffect.Stack.Intensity.ignoreGlobalWhenMinusOne,
+            VarIds.GameLib.Base.StatusEffect.Stack.Intensity.local,
+            VarIds.GameLib.Base.StatusEffect.Stack.Intensity.operation,
+            VarIds.GameLib.Base.StatusEffect.Stack.Intensity.useGlobal,
+            VarIds.GameLib.Base.StatusEffect.Stack.MaxCount.global,
+            VarIds.GameLib.Base.StatusEffect.Stack.MaxCount.ignoreGlobalWhenMinusOne,
+            VarIds.GameLib.Base.StatusEffect.Stack.MaxCount.local,
+            VarIds.GameLib.Base.StatusEffect.Stack.MaxCount.operation,
+            VarIds.GameLib.Base.StatusEffect.Stack.MaxCount.useGlobal,
             VarIds.GameLib.Base.Trait.Element.definitionAsset,
             VarIds.GameLib.Base.Trait.Element.definitionId,
             VarIds.GameLib.Base.Trait.Element.descriptionKey,
@@ -2667,7 +3324,16 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitIndex,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceId,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
+            VarIds.GameLogic.LuckProfile.Private.GlobalMul,
+            VarIds.GameLogic.LuckProfile.Private.LocalMul,
+            VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
+            VarIds.GameLogic.LuckProfile.Public.LuckValue,
+            VarIds.GameLogic.LuckProfile.Public.LuckValueMul,
             VarIds.GameLogic.NailProfile.Price,
+            VarIds.GameLogic.NailProfile.UpgradeTable,
+            VarIds.GameLogic.NailProfile.UpgradePanel.Price,
+            VarIds.GameLogic.NailProfile.UpgradePanel.StackPreset,
+            VarIds.GameLogic.NailProfile.UpgradePanel.StatusEffect,
         };
     }
 }

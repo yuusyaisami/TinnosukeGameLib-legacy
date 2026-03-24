@@ -949,4 +949,60 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: 17f8219ce5db4edd8eb9b0a2932cb28a
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: GameStage
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 1e0d50660cd64897815c3c445edc5655
+    parentId: 361941535be14ea8b8a21559ca384cd3
+    name: Upgrade
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 7c9e83eef9474a4d86452d4c68cd49c5
+    parentId: 1e0d50660cd64897815c3c445edc5655
+    name: MaxLevel
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3558e521fba34220979560e06c3c70f0
+    parentId: 1e0d50660cd64897815c3c445edc5655
+    name: LevelValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 013c180bf2474e378226017354c581ce
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: NailUpgradePriceMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: bdddf7d061fc4f0aa6eb7f88c8ef9e27
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: RerollValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 902e8956955f415f83a6328be8537731
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: RerollValueMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   csvFile: {fileID: 4900000, guid: 0f8f0a1f52c24534fa42d23481dae4e3, type: 3}

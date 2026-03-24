@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Commands.VNext;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -18,6 +19,23 @@ namespace Game.Common
     [Serializable]
     public sealed class VarStorePayload
     {
+        public enum EntryValueKind : byte
+        {
+            Null = 0,
+            Bool = 1,
+            Int = 2,
+            Float = 3,
+            String = 4,
+            Vector2 = 5,
+            Vector3 = 6,
+            Vector4 = 7,
+            Color = 8,
+            UnityObject = 9,
+            ManagedRef = 10,
+            CommandListData = 11,
+            Auto = 255,
+        }
+
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
         List<Entry> entries = new();
 
@@ -30,53 +48,12 @@ namespace Game.Common
             public int VarId;
 
             [SerializeField]
-            public ValueKind Kind;
+            [LabelText("Kind")]
+            public EntryValueKind Kind;
 
-            [SerializeField, ShowIf(nameof(ShowBool))]
-            public bool BoolValue;
-
-            [SerializeField, ShowIf(nameof(ShowInt))]
-            public int IntValue;
-
-            [SerializeField, ShowIf(nameof(ShowFloat))]
-            public float FloatValue;
-
-            [SerializeField, ShowIf(nameof(ShowString))]
-            public string StringValue;
-
-            [SerializeField, ShowIf(nameof(ShowVector2))]
-            public Vector2 Vector2Value;
-
-            [SerializeField, ShowIf(nameof(ShowVector3))]
-            public Vector3 Vector3Value;
-
-            [SerializeField, ShowIf(nameof(ShowVector4))]
-            public Vector4 Vector4Value;
-
-            [SerializeField, ShowIf(nameof(ShowColor))]
-            public Color ColorValue;
-
-            [SerializeField, ShowIf(nameof(ShowUnityObject))]
-            public UnityEngine.Object? UnityObjectValue;
-
-            /// <summary>
-            /// 非UnityEngine.Object の参照型を格納。
-            /// SerializeReference により任意の [Serializable] クラスを登録可能。
-            /// </summary>
-            [SerializeReference, ShowIf(nameof(ShowManagedRef))]
-            [LabelText("Managed Reference")]
-            public object? ManagedRefValue;
-
-            bool ShowBool() => Kind == ValueKind.Bool;
-            bool ShowInt() => Kind == ValueKind.Int;
-            bool ShowFloat() => Kind == ValueKind.Float;
-            bool ShowString() => Kind == ValueKind.String;
-            bool ShowVector2() => Kind == ValueKind.Vector2;
-            bool ShowVector3() => Kind == ValueKind.Vector3;
-            bool ShowVector4() => Kind == ValueKind.Vector4;
-            bool ShowColor() => Kind == ValueKind.Color;
-            bool ShowUnityObject() => Kind == ValueKind.UnityObject;
-            bool ShowManagedRef() => Kind == ValueKind.ManagedRef;
+            [SerializeField]
+            [LabelText("Value")]
+            public DynamicValue Value;
         }
 
         public void ApplyTo(IVarStore dest, bool overwrite)
@@ -94,40 +71,17 @@ namespace Game.Common
                 if (!overwrite && dest.Contains(e.VarId))
                     continue;
 
-                switch (e.Kind)
+                if (!VarStoreEntryValueKindConverter.TryConvertToVariant(in e, out var value))
+                    continue;
+
+                if (value.Kind == ValueKind.ManagedRef)
                 {
-                    case ValueKind.Bool:
-                        dest.TrySetVariant(varId, DynamicVariant.FromBool(e.BoolValue));
-                        break;
-                    case ValueKind.Int:
-                        dest.TrySetVariant(varId, DynamicVariant.FromInt(e.IntValue));
-                        break;
-                    case ValueKind.Float:
-                        dest.TrySetVariant(varId, DynamicVariant.FromFloat(e.FloatValue));
-                        break;
-                    case ValueKind.String:
-                        dest.TrySetVariant(varId, DynamicVariant.FromString(e.StringValue ?? string.Empty));
-                        break;
-                    case ValueKind.Vector2:
-                        dest.TrySetVariant(varId, DynamicVariant.FromVector2(e.Vector2Value));
-                        break;
-                    case ValueKind.Vector3:
-                        dest.TrySetVariant(varId, DynamicVariant.FromVector3(e.Vector3Value));
-                        break;
-                    case ValueKind.Vector4:
-                        dest.TrySetVariant(varId, DynamicVariant.FromVector4(e.Vector4Value));
-                        break;
-                    case ValueKind.Color:
-                        dest.TrySetVariant(varId, DynamicVariant.FromColor(e.ColorValue));
-                        break;
-                    case ValueKind.UnityObject:
-                        dest.TrySetVariant(varId, DynamicVariant.FromUnityObject(e.UnityObjectValue));
-                        break;
-                    case ValueKind.ManagedRef:
-                        if (e.ManagedRefValue != null)
-                            dest.TrySetManagedRef(varId, e.ManagedRefValue);
-                        break;
+                    if (value.AsManagedRef != null)
+                        dest.TrySetManagedRef(varId, value.AsManagedRef);
+                    continue;
                 }
+
+                dest.TrySetVariant(varId, value);
             }
         }
 

@@ -18,6 +18,24 @@ namespace Game.VarStoreKeys
     [CreateAssetMenu(menuName = "Game/Registry/Variables/Var Key Registry")]
     public sealed class VarKeyRegistry : HierarchyRegistryBase<VarKeyNode>, IVarKeyRegistry
     {
+        readonly struct BuiltInVarKey
+        {
+            public readonly int VarId;
+            public readonly string StableKey;
+
+            public BuiltInVarKey(int varId, string stableKey)
+            {
+                VarId = varId;
+                StableKey = stableKey ?? string.Empty;
+            }
+        }
+
+        static readonly BuiltInVarKey[] s_builtInKeys =
+        {
+            new(Game.Vars.Generated.VarIds.GameLib.Base.PointerRelation.isSelf, "GameLib.Base.PointerRelation.isSelf"),
+            new(Game.Vars.Generated.VarIds.GameLib.Base.PointerRelation.isSelfOrDescendant, "GameLib.Base.PointerRelation.isSelfOrDescendant"),
+        };
+
         [Serializable]
         sealed class Tombstone
         {
@@ -176,6 +194,7 @@ namespace Game.VarStoreKeys
             _idToKey.Clear();
 
             BuildFromNodes();
+            BuildFromBuiltInKeys();
             BuildFromTombstones();
 
             _built = true;
@@ -244,6 +263,26 @@ namespace Game.VarStoreKeys
                     if (string.IsNullOrEmpty(alias))
                         continue;
                     AddKey(alias, t.VarId, isReserved: true);
+                }
+            }
+        }
+
+        void BuildFromBuiltInKeys()
+        {
+            for (int i = 0; i < s_builtInKeys.Length; i++)
+            {
+                var builtIn = s_builtInKeys[i];
+                if (builtIn.VarId <= 0 || string.IsNullOrEmpty(builtIn.StableKey))
+                    continue;
+
+                if (!_keyToId.ContainsKey(builtIn.StableKey))
+                {
+                    _keyToId.Add(builtIn.StableKey, builtIn.VarId);
+                }
+
+                if (!_idToKey.ContainsKey(builtIn.VarId))
+                {
+                    _idToKey.Add(builtIn.VarId, builtIn.StableKey);
                 }
             }
         }

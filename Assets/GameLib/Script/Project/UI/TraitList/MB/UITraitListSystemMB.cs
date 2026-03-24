@@ -17,6 +17,7 @@ namespace Game.UI.TraitList
         ActorSource HolderHubSource { get; }
         string HolderKey { get; }
         UITraitListRange AutoBuildRange { get; }
+        RectTransform? LayoutRectTransform { get; }
         Transform? DefaultParentTransform { get; }
         int AutoBuildRetryCount { get; }
         int AutoBuildRetryFrameInterval { get; }
@@ -52,6 +53,12 @@ namespace Game.UI.TraitList
         Transform? _defaultParentTransform;
 
         [BoxGroup("Runtime")]
+        [LabelText("Layout Rect")]
+        [Tooltip("UITraitList の配置範囲として使用する RectTransform。指定時はこの Rect 内の座標系で並べます。")]
+        [SerializeField]
+        RectTransform? _layoutRectTransform;
+
+        [BoxGroup("Runtime")]
         [SerializeField]
         bool _autoBuildOnAcquire = false;
 
@@ -82,6 +89,9 @@ namespace Game.UI.TraitList
         public ActorSource HolderHubSource => _holderHubSource;
         public string HolderKey => _holderKey;
         public UITraitListRange AutoBuildRange => _autoBuildSettings != null ? _autoBuildSettings.Range : default;
+        public RectTransform? LayoutRectTransform => _layoutRectTransform != null
+            ? _layoutRectTransform
+            : _defaultParentTransform as RectTransform;
         public Transform? DefaultParentTransform => _defaultParentTransform != null ? _defaultParentTransform : transform;
         public int AutoBuildRetryCount => _autoBuildSettings != null ? _autoBuildSettings.AutoBuildRetryCount : 0;
         public int AutoBuildRetryFrameInterval => _autoBuildSettings != null ? _autoBuildSettings.AutoBuildRetryFrameInterval : 1;

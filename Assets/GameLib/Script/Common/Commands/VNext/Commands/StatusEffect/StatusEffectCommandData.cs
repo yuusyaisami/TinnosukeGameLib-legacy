@@ -55,28 +55,9 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Apply")]
         [ShowIf(nameof(IsApply))]
-        [LabelText("Stack Mode")]
-        [EnumToggleButtons]
-        [Tooltip("同じ slot に既存 effect がある場合の重ね方を指定します。")]
-        public EffectStackMode StackMode = EffectStackMode.Refresh;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Intensity")]
-        [Tooltip("RuntimeIntensity を使う operation に渡す強度値です。ここに source を設定すると definition 側の Default Intensity よりこちらが優先されます。未指定のときだけ definition 側の既定値が使われます。")]
-        public DynamicValue<float> Intensity;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Override Duration")]
-        [Tooltip("definition 側の duration を無視して、この command から持続時間を上書きします。")]
-        public bool OverrideDuration;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(ShowDurationOverride))]
-        [LabelText("Duration Override")]
-        [Tooltip("Override Duration が有効なときに使う持続時間です。-1 は無期限です。")]
-        public DynamicValue<float> DurationOverride;
+        [LabelText("Stack Preset")]
+        [Tooltip("同じ slot に既存 effect がある場合の重ね方を preset で指定します。未指定時は DurationRefresh 相当の既定 preset を使います。")]
+        public DynamicValue<StatusEffectStackPreset> StackPreset;
 
         [BoxGroup("Apply")]
         [ShowIf(nameof(IsApply))]
@@ -108,7 +89,6 @@ namespace Game.Commands.VNext
         bool UseActorSource => ServiceScope == StatusEffectServiceScope.Actor;
         bool ShowFilterSettings => !IsApply && !IsClearAll;
         bool ShowFilterValue => ShowFilterSettings && FilterMode != StatusEffectRuntimeFilterMode.All;
-        bool ShowDurationOverride => IsApply && OverrideDuration;
 
         public StatusEffectRuntimeFilter BuildFilter()
         {
@@ -123,10 +103,7 @@ namespace Game.Commands.VNext
             return new StatusEffectApplyRequest
             {
                 Definition = Definition,
-                StackMode = StackMode,
-                Intensity = Intensity,
-                OverrideDuration = OverrideDuration,
-                DurationOverride = DurationOverride,
+                StackPreset = StackPreset,
                 RuntimeTag = RuntimeTag ?? string.Empty,
                 HookMutations = HookMutations ?? new StatusEffectHookMutationSet(),
             };

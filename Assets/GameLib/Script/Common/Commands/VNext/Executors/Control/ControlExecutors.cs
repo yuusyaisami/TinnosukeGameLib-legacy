@@ -458,14 +458,24 @@ namespace Game.Commands.VNext
 
             if (typed.Cases != null)
             {
-                for (int i = 0; i < typed.Cases.Count; i++)
+                var startIndex = 0;
+                var endIndex = typed.Cases.Count;
+                var step = 1;
+
+                if (typed.EvaluateOrder == SwitchEvaluateOrder.BottomToTop)
+                {
+                    startIndex = typed.Cases.Count - 1;
+                    endIndex = -1;
+                    step = -1;
+                }
+
+                for (int i = startIndex; i != endIndex; i += step)
                 {
                     var entry = typed.Cases[i];
                     if (entry == null)
                         continue;
 
-                    var caseValue = entry.CaseValue.Evaluate(ctx);
-                    if (value.Equals(caseValue))
+                    if (IsMatched(entry, value, ctx))
                     {
                         matched = entry.Commands;
                         break;
@@ -485,6 +495,56 @@ namespace Game.Commands.VNext
                 throw new OperationCanceledException();
             if (result.Status == CommandRunStatus.Error)
                 throw new CommandExecutionException(result.FailureKind, result.Message);
+        }
+
+        static bool IsMatched(SwitchCase entry, DynamicVariant value, CommandContext ctx)
+        {
+            return entry.MatchMode switch
+            {
+                SwitchCaseMatchMode.Exact => value.Equals(entry.CaseValue.Evaluate(ctx)),
+                SwitchCaseMatchMode.Compare => EvaluateNumericComparison(value, entry.CompareTarget.Evaluate(ctx), entry.CompareOp),
+                SwitchCaseMatchMode.Condition => entry.Condition.GetOrDefault(ctx, false),
+                _ => false,
+            };
+        }
+
+        static bool EvaluateNumericComparison(DynamicVariant left, DynamicVariant right, SwitchNumericCompareOp op)
+        {
+            if (op == SwitchNumericCompareOp.Equal)
+                return left.Equals(right);
+            if (op == SwitchNumericCompareOp.NotEqual)
+                return !left.Equals(right);
+
+            if (!TryGetNumeric(left, out var l) || !TryGetNumeric(right, out var r))
+                return false;
+
+            return op switch
+            {
+                SwitchNumericCompareOp.LessThan => l < r,
+                SwitchNumericCompareOp.LessOrEqual => l <= r,
+                SwitchNumericCompareOp.GreaterThan => l > r,
+                SwitchNumericCompareOp.GreaterOrEqual => l >= r,
+                _ => false,
+            };
+        }
+
+        static bool TryGetNumeric(DynamicVariant value, out double number)
+        {
+            switch (value.Kind)
+            {
+                case ValueKind.Bool:
+                    number = value.AsBool ? 1d : 0d;
+                    return true;
+                case ValueKind.Int:
+                    number = value.AsInt;
+                    return true;
+                case ValueKind.Float:
+                    number = value.AsFloat;
+                    return true;
+                default:
+                    number = 0d;
+                    return false;
+            }
         }
     }
 

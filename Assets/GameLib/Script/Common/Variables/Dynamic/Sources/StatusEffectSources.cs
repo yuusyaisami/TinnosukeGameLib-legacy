@@ -52,15 +52,11 @@ namespace Game.Common
                 return DynamicVariant.FromString(string.Empty);
 
             var scope = ActorSourceFastResolver.ResolveCached(context, actorSource, ref _cache);
-            if (scope?.Resolver == null)
+            if (scope == null)
                 return DynamicVariant.FromString(string.Empty);
 
-            if (!scope.Resolver.TryResolve<IStatusEffectService>(out var service) || service == null)
+            if (!TryResolveStatusEffectService(scope, out var service) || service == null)
                 return DynamicVariant.FromString(string.Empty);
-
-            IRichTextRefService? richTextRef = null;
-            if (!scope.Resolver.TryResolve<IRichTextRefService>(out richTextRef) || richTextRef == null)
-                richTextRef = ResolveRichTextRefServiceFromAncestors(scope);
 
             SharedStates.Clear();
             service.GetActiveEffectStates(SharedStates);
@@ -74,7 +70,7 @@ namespace Game.Common
                 if (ShouldExclude(state.EffectId))
                     continue;
 
-                var text = ResolveDescription(state, context, richTextRef);
+                var text = ResolveDescription(state, context, scope);
                 if (string.IsNullOrWhiteSpace(text))
                     continue;
 
@@ -101,11 +97,9 @@ namespace Game.Common
             return false;
         }
 
-        string ResolveDescription(EffectState state, IDynamicContext context, IRichTextRefService? richTextRef)
+        string ResolveDescription(EffectState state, IDynamicContext context, IScopeNode? originScope)
         {
-            if (!string.IsNullOrEmpty(state.DescriptionKey) &&
-                richTextRef != null &&
-                richTextRef.TryEvaluate(state.DescriptionKey, context, out var text) &&
+            if (TryEvaluateDescriptionKey(state.DescriptionKey, context, originScope, out var text) &&
                 !string.IsNullOrWhiteSpace(text))
             {
                 return text;
@@ -124,19 +118,36 @@ namespace Game.Common
             };
         }
 
-        static IRichTextRefService? ResolveRichTextRefServiceFromAncestors(IScopeNode? origin)
+        static bool TryEvaluateDescriptionKey(
+            string key,
+            IDynamicContext context,
+            IScopeNode? origin,
+            out string text)
         {
-            var current = origin?.Parent;
-            while (current != null)
-            {
-                var resolver = current.Resolver;
-                if (resolver != null && resolver.TryResolve<IRichTextRefService>(out var service) && service != null)
-                    return service;
+            text = string.Empty;
+            if (string.IsNullOrWhiteSpace(key) || context == null)
+                return false;
 
-                current = current.Parent;
-            }
+            var resolver = origin?.Resolver;
+            if (resolver == null)
+                return false;
 
-            return null;
+            return resolver.TryResolve<IRichTextRefService>(out var service) &&
+                service != null &&
+                service.TryEvaluate(key, context, out text);
+        }
+
+        static bool TryResolveStatusEffectService(
+            IScopeNode origin,
+            out IStatusEffectService? service)
+        {
+            service = null;
+
+            var resolver = origin?.Resolver;
+            if (resolver == null)
+                return false;
+
+            return resolver.TryResolve<IStatusEffectService>(out service) && service != null;
         }
     }
 }

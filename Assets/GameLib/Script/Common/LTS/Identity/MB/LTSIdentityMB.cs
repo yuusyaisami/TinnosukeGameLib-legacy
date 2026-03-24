@@ -76,16 +76,6 @@ namespace Game
 
         public float Radius => radius;
 
-        public bool advanceOptions = false;
-
-        [ShowIf(nameof(advanceOptions))]
-        [LabelText("Retry interval (s)"), Tooltip("When the kind is None, the component will attempt to re-guess the kind every N seconds.")]
-        [SerializeField]
-        float retryIntervalSeconds = 0.5f;
-
-        // Last time we tried to refresh kind. Use realtimeSinceStartup so it works in Edit-mode and Play-mode.
-        double _lastRefreshAttemptTime = 0.0;
-
         // Exposed for Odin's VisibleIf and for convenience in the inspector
         public bool IsKindNone => kind == LifetimeScopeKind.None;
         bool ShowDynamicRegistryOptions => kind == LifetimeScopeKind.Entity || kind == LifetimeScopeKind.Runtime;
@@ -103,11 +93,7 @@ namespace Game
 
         void OnValidate()
         {
-            var guessed = GuessKind();
-            if (guessed != LifetimeScopeKind.None)
-            {
-                kind = guessed;
-            }
+            RefreshKindIfPossible();
         }
 
         void OnEnable()
@@ -120,45 +106,35 @@ namespace Game
                     UnityEditor.EditorUtility.SetDirty(this);
 #endif
             }
-            // Ensure we also attempt to resolve when the component is enabled. This covers cases where
-            // the LifetimeScope or other components are added after this one.
-            // Keep the initial timestamp so the first attempt happens immediately.
-            _lastRefreshAttemptTime = 0.0;
+            RefreshKindIfPossible();
         }
 
-        void Update()
+        void OnTransformParentChanged()
         {
-            // Only attempt periodic refresh if kind is None. This runs in play mode and (thanks to ExecuteAlways)
-            // will also run in the editor for edit-time resolution.
-            if (kind != LifetimeScopeKind.None)
+            RefreshKindIfPossible();
+        }
+
+        void RefreshKindIfPossible()
+        {
+            var guessed = GuessKind();
+            if (guessed == LifetimeScopeKind.None || guessed == kind)
                 return;
 
-            var now = Time.realtimeSinceStartup;
-            if (now - _lastRefreshAttemptTime < retryIntervalSeconds)
-                return;
-
-            _lastRefreshAttemptTime = now;
-
-            var changed = TryRefreshKind();
-            if (changed)
-            {
+            kind = guessed;
 #if UNITY_EDITOR
-                // Persist change to the scene/prefab when editing in the editor.
+            if (!Application.isPlaying)
+            {
                 try { UnityEditor.EditorUtility.SetDirty(this); } catch { }
-#endif
             }
+#endif
         }
 
         // Attempts a single refresh of the `kind` using GuessKind. Returns true if `kind` was updated to a non-None value.
         public bool TryRefreshKind()
         {
-            var guessed = GuessKind();
-            if (guessed != LifetimeScopeKind.None && guessed != kind)
-            {
-                kind = guessed;
-                return true;
-            }
-            return false;
+            var previous = kind;
+            RefreshKindIfPossible();
+            return previous != kind;
         }
 
         // Extracted mapping logic so it's easier to test and to keep `GuessKind` focused
@@ -222,22 +198,25 @@ namespace Game
 
         LifetimeScopeKind GuessKind()
         {
-            var scope = GetComponent<LifetimeScope>();
-
-            if (scope == null)
+            // 自分自身を含めて、Transform 階層の最も近い scope を優先して判定する。
+            // RuntimeLifetimeScope は LifetimeScope を継承しないため、個別に探索する。
+            var current = transform;
+            while (current != null)
             {
-                // Runtime scope の可能性
-                var runtimeScope = GetComponent<RuntimeLifetimeScope>();
-                if (runtimeScope != null)
+                if (current.TryGetComponent<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
                 {
                     return LifetimeScopeKind.Runtime;
                 }
-                return kind;
+
+                if (current.TryGetComponent<LifetimeScope>(out var scope) && scope != null)
+                {
+                    return PredictKindFromType(scope.GetType(), kind);
+                }
+
+                current = current.parent;
             }
 
-            var t = scope.GetType();
-
-            return PredictKindFromType(t, kind);
+            return kind;
         }
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode owner)

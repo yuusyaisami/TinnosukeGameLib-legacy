@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Common;
+using Game.Profile;
 using UnityEngine;
 using VContainer.Unity;
 using VContainer;
@@ -90,7 +91,17 @@ namespace Game.Scalar
             if (!isReset)
                 return;
 
+            // Runtime scope は pool 再利用される前提なので、Acquire 時の reset では
+            // まず scalar の local runtime を完全に破棄する。
+            // ここで古い baseline / modifier / subscription が残ると、profile の再適用結果と
+            // 実際に参照される値が食い違うため、いったん完全初期化する。
             ResetForScopeReuse();
+
+            // その直後に profile binding を再適用する。
+            // これは「profile が存在しているのに watch では 0/null になる」問題を防ぐためで、
+            // Acquire/Install の順序差や再生成タイミングの差で baseline が抜け落ちても、
+            // 最終的に profile 定義の値が必ず local runtime に戻るようにする。
+            ReapplyScopeBindingsIfAvailable();
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -475,6 +486,20 @@ namespace Game.Scalar
             _subscriptions.Clear();
             _keySubscriptions.Clear();
             _allSubscriptions.Clear();
+        }
+
+        void ReapplyScopeBindingsIfAvailable()
+        {
+            if (_scope?.Resolver == null)
+                return;
+
+            // ScopeBindingRegistry は profile 定義の実値を scalar/blackboard に流し込む責務を持つ。
+            // scalar 側は reset で runtime を消すため、registry を再実行しないと
+            // ProfileFloatValue の Default Value / UpdateBaseline が反映されない。
+            if (_scope.Resolver.TryResolve<IScopeBindingRegistry>(out var registry) && registry is ScopeBindingRegistryService scopeRegistry)
+            {
+                scopeRegistry.ReapplyAllBindings();
+            }
         }
 
         void CheckAndFireValueChangedEvents()

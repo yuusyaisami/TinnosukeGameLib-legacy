@@ -27,52 +27,52 @@ namespace Game.Profile
         // Scalar Binding
         // ================================================================
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Scalar Key")]
         [Tooltip("Scalar に登録するキー。default の場合は Scalar にバインドしない。")]
         public ScalarKey ScalarKeyValue;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Policy")]
         [Tooltip("Scalar への書き込みポリシー")]
         [ShowIf(nameof(HasScalarKey))]
         public ScalarBindPolicy ScalarPolicyValue;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Effect Mod")]
         [Tooltip("Scalar Runtime で EffectMod を使用するか")]
         [ShowIf(nameof(HasScalarKey))]
         public bool UseEffectMod;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Clamp Mod")]
         [Tooltip("Scalar Runtime で ClampMod を使用するか")]
         [ShowIf(nameof(HasScalarKey))]
         public bool UseClampMod;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Local Base")]
         [Tooltip("Scalar Runtime の LocalBase を設定するか")]
         [ShowIf(nameof(HasScalarKey))]
         public bool UseLocalBase;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Local Base")]
         [ShowIf(nameof(ShowLocalBaseSettings))]
         public float LocalBaseValue;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Clamp Settings")]
         [ShowIf(nameof(ShowClampSettings))]
         public ScalarClamp Clamp;
 
-        [FoldoutGroup("Scalar Binding/Save")]
+        [FoldoutGroup("$ScalarBindingSaveGroupName")]
         [LabelText("Save Enabled")]
         [Tooltip("Scalar 値を Save 対象にするか")]
         [ShowIf(nameof(HasScalarKey))]
         public bool ScalarSaveEnabledValue;
 
-        [FoldoutGroup("Scalar Binding/Save")]
+        [FoldoutGroup("$ScalarBindingSaveGroupName")]
         [LabelText("Save Layer")]
         [Tooltip("Scalar の Save レイヤー")]
         [ShowIf(nameof(ShowScalarSaveLayer))]
@@ -82,25 +82,25 @@ namespace Game.Profile
         // Blackboard Binding
         // ================================================================
 
-        [FoldoutGroup("Blackboard Binding")]
+        [FoldoutGroup("$BlackboardBindingGroupName")]
         [LabelText("Blackboard VarId")]
         [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
         [VarIdDropdown]
         public int BlackboardVarId;
 
-        [FoldoutGroup("Blackboard Binding")]
+        [FoldoutGroup("$BlackboardBindingGroupName")]
         [LabelText("Policy")]
         [Tooltip("Blackboard への書き込みポリシー")]
         [ShowIf(nameof(HasBlackboardKey))]
         public BlackboardBindPolicy BlackboardPolicyValue;
 
-        [FoldoutGroup("Blackboard Binding/Save")]
+        [FoldoutGroup("$BlackboardBindingSaveGroupName")]
         [LabelText("Save Enabled")]
         [Tooltip("Blackboard 値を Save 対象にするか")]
         [ShowIf(nameof(HasBlackboardKey))]
         public bool BlackboardSaveEnabledValue;
 
-        [FoldoutGroup("Blackboard Binding/Save")]
+        [FoldoutGroup("$BlackboardBindingSaveGroupName")]
         [LabelText("Save Layer")]
         [Tooltip("Blackboard の Save レイヤー")]
         [ShowIf(nameof(ShowBlackboardSaveLayer))]
@@ -116,6 +116,10 @@ namespace Game.Profile
         bool ShowLocalBaseSettings => HasScalarKey && UseLocalBase;
         bool ShowScalarSaveLayer => HasScalarKey && ScalarSaveEnabledValue;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && BlackboardSaveEnabledValue;
+        string ScalarBindingGroupName => $"Scalar Binding ({GetScalarBindingLabel()})";
+        string ScalarBindingSaveGroupName => $"{ScalarBindingGroupName}/Save";
+        string BlackboardBindingGroupName => $"Blackboard Binding ({GetBlackboardBindingLabel()})";
+        string BlackboardBindingSaveGroupName => $"{BlackboardBindingGroupName}/Save";
 
         // ================================================================
         // IProfileValueBinding - Base
@@ -241,6 +245,41 @@ namespace Game.Profile
                 UseClampMod = UseClampMod,
                 Clamp = Clamp
             };
+        }
+
+        string GetScalarBindingLabel()
+        {
+            if (!HasScalarKey)
+                return "Unbound";
+
+            return GetLeafLabel(ScalarKeyValue.Name);
+        }
+
+        string GetBlackboardBindingLabel()
+        {
+            if (!HasBlackboardKey)
+                return "Unbound";
+
+            if (VarIdResolver.TryGetStableKey(BlackboardVarId, out var stableKey) && !string.IsNullOrEmpty(stableKey))
+                return GetLeafLabel(stableKey);
+
+            return $"varId:{BlackboardVarId}";
+        }
+
+        static string GetLeafLabel(string fullKey)
+        {
+            if (string.IsNullOrEmpty(fullKey))
+                return "Unbound";
+
+            var lastDot = fullKey.LastIndexOf('.');
+            if (lastDot >= 0 && lastDot + 1 < fullKey.Length)
+                return fullKey.Substring(lastDot + 1);
+
+            var lastSlash = fullKey.LastIndexOf('/');
+            if (lastSlash >= 0 && lastSlash + 1 < fullKey.Length)
+                return fullKey.Substring(lastSlash + 1);
+
+            return fullKey;
         }
 
         // ================================================================

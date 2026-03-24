@@ -132,11 +132,10 @@ namespace Game.Save
             if (_save == null || _ownerForEditor == null)
                 return;
 
-            try { UnityEditor.EditorUtility.SetDirty(_ownerForEditor); }
-            catch { }
+            if (UnityEditor.Selection.activeObject != _ownerForEditor)
+                return;
 
-            try { UnityEditorInternal.InternalEditorUtility.RepaintAllViews(); }
-            catch { }
+            UnityEditor.EditorUtility.SetDirty(_ownerForEditor);
         }
 #endif
 

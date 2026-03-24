@@ -28,6 +28,8 @@ namespace Game.UI
         public float SelectionDelaySeconds => _options.SelectionDelaySeconds;
         public float PointerMoveThreshold => _options.PointerMoveThreshold;
         public TooltipSpawnMode SpawnMode => _options.SpawnMode;
+        public Vector2 FollowPointerOffset => _options.FollowPointerOffset;
+        public Vector2 FollowPointerMoveScale => _options.FollowPointerMoveScale;
         public Vector2 FixedOffset => _options.FixedOffset;
         public TooltipAnchorX AnchorX => _options.AnchorX;
         public TooltipAnchorY AnchorY => _options.AnchorY;

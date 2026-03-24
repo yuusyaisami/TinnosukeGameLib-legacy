@@ -101,7 +101,7 @@ namespace Game.Commands.VNext
             {
                 var varCount = VarOps?.Count ?? 0;
                 var scalarCount = ScalarOps?.Count ?? 0;
-                return $"Source={Source.Kind} Vars={varCount} Scalars={scalarCount}";
+                return $"Source={Source.Kind} Target={Target.Kind} Vars={varCount} Scalars={scalarCount}";
             }
         }
 
@@ -109,6 +109,11 @@ namespace Game.Commands.VNext
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Source)")]
         [SerializeField]
         public ActorSource Source = new() { Kind = ActorSourceKind.Current };
+
+        [BoxGroup("Target")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
+        [SerializeField]
+        public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [FoldoutGroup("Vars")]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]

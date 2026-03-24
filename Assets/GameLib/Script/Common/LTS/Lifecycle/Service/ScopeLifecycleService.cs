@@ -5,19 +5,26 @@ using Cysharp.Threading.Tasks;
 using VNext = Game.Commands.VNext;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 // UnityEngine.Time と Game.Time の曖昧さを解決
 using UnityTime = UnityEngine.Time;
 
 namespace Game.Common
 {
+    public interface IScopeLifecycleConditionController
+    {
+        void SetConditionOverride(DynamicValue<bool> condition);
+        void ClearConditionOverride();
+    }
+
     public interface IScopeLifecycleService
     {
         UniTask HandleSpawnAsync(CancellationToken ct);
         UniTask HandleDespawnAsync(CancellationToken ct);
     }
 
-    public sealed class ScopeLifecycleService : IScopeLifecycleService
+    public sealed class ScopeLifecycleService : IScopeLifecycleService, IScopeLifecycleConditionController, IScopeReleaseHandler, ITickable
     {
         readonly IScopeNode _scope;
         readonly ScopeLifecycleConfig _config;
@@ -26,6 +33,10 @@ namespace Game.Common
         CancellationTokenSource _spawnCts;
         CancellationTokenSource _despawnCts;
         bool _spawnInProgress;
+        bool _autoDespawnRequested;
+
+        bool _hasConditionOverride;
+        DynamicValue<bool> _conditionOverride;
 
         // Tracks Spawn calls without a matching Despawn.
         // 0 = idle, 1 = spawned, 2+ = duplicate spawn requests without despawn.
@@ -41,11 +52,82 @@ namespace Game.Common
             _resolver = resolver;
         }
 
+        public void SetConditionOverride(DynamicValue<bool> condition)
+        {
+            _conditionOverride = condition;
+            _hasConditionOverride = true;
+        }
+
+        public void ClearConditionOverride()
+        {
+            _conditionOverride = default;
+            _hasConditionOverride = false;
+        }
+
+        public void OnRelease(IScopeNode scope, bool isReset)
+        {
+            ClearConditionOverride();
+            _autoDespawnRequested = false;
+        }
+
+        public void Tick()
+        {
+            if (_autoDespawnRequested)
+                return;
+
+            if (!_config.AutoDespawnWhenConditionFalse)
+                return;
+
+            if (!EvaluateLifecycleCondition())
+            {
+                _autoDespawnRequested = true;
+                UniTask.Void(async () =>
+                {
+                    try
+                    {
+                        await HandleDespawnAsync(CancellationToken.None);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogException(ex);
+                        _autoDespawnRequested = false;
+                    }
+                });
+            }
+        }
+
         VNext.ICommandRunner TryGetRunner()
         {
             if (_resolver.TryResolve<VNext.ICommandRunner>(out var runner))
                 return runner;
             return null;
+        }
+
+        bool EvaluateLifecycleCondition()
+        {
+            var condition = _hasConditionOverride ? _conditionOverride : _config.AutoDespawnCondition;
+            if (!condition.HasSource)
+                return true;
+
+            var vars = new VarStore();
+            if (_resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null)
+                blackboard.MergeInto(vars, overwrite: true);
+
+            var resolveContext = new VNext.CommandResolveContext(
+                _scope,
+                vars,
+                _scope,
+                _scope.Resolver,
+                VNext.NullCommandCatalog.Instance,
+                VNext.NullCommandKeyResolver.Instance,
+                VNext.NullCommandResolveLogger.Instance,
+                allowRuntimeKeyFallback: true,
+                runtimeContext: null);
+
+            return condition.EvaluateBool(resolveContext);
         }
 
         // -------- Spawn --------

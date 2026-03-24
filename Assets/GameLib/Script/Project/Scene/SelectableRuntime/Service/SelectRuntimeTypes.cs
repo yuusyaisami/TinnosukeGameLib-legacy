@@ -19,9 +19,11 @@ namespace Game.SelectRuntime
 
     public interface IWorldPointerRuntimeOptions
     {
+        bool Enabled { get; }
         Camera? WorldCamera { get; }
         LayerMask HitMask { get; }
         QueryTriggerInteraction QueryTriggerInteraction { get; }
+        float ShortPressSeconds { get; }
         float LongPressSeconds { get; }
     }
 
@@ -104,6 +106,10 @@ namespace Game.SelectRuntime
         event Action<WorldPointerHoverChangedEventData>? OnHoveredChanged;
         event Action<WorldPointerEventData>? OnLeftClicked;
         event Action<WorldPointerEventData>? OnRightClicked;
+        event Action<WorldPointerEventData>? OnLeftShortPressStarted;
+        event Action<WorldPointerEventData>? OnLeftShortPressEnded;
+        event Action<WorldPointerEventData>? OnRightShortPressStarted;
+        event Action<WorldPointerEventData>? OnRightShortPressEnded;
         event Action<WorldPointerEventData>? OnLeftLongPressStarted;
         event Action<WorldPointerEventData>? OnLeftLongPressEnded;
         event Action<WorldPointerEventData>? OnRightLongPressStarted;

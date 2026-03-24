@@ -112,6 +112,7 @@ namespace Game.Channel
     {
         string Tag { get; }
         Transform TargetTransform { get; }
+        void Tick(float deltaTime);
 
         UniTask PlayPresetAsync(
             ITransformAnimationPreset preset,
@@ -150,7 +151,6 @@ namespace Game.Channel
 
         ITransformAnimationTargetRegistry? _targetRegistry;
         ITransformTargetDirector? _director;
-        bool _directorIsStandalone;
 
         // active tracks
         readonly List<TransformPresetTrack> _presetTracks = new();
@@ -160,8 +160,6 @@ namespace Game.Channel
         readonly List<CancellationTokenSource> _presetCtsList = new();
         CancellationTokenSource? _followCts;
         CancellationTokenSource? _spawnOnAcquireCts;
-        CancellationTokenSource? _standaloneDirectorCts;
-        bool _standaloneDirectorOwnsTick;
 
         TransformAnimationRunMode _debugRunMode;
         TransformAnimationOperation? _debugCurrentOperation;
@@ -196,8 +194,6 @@ namespace Game.Channel
             if (_targetRegistry != null)
             {
                 _director = _targetRegistry.GetOrCreateDirector(target);
-                _directorIsStandalone = false;
-                _standaloneDirectorOwnsTick = false;
             }
             else
             {
@@ -210,8 +206,6 @@ namespace Game.Channel
                 output ??= new TransformAnimationOutput();
                 var director = new TransformTargetDirector(target, output, applyDirectly: outputRegistry == null);
                 _director = director;
-                _directorIsStandalone = true;
-                _standaloneDirectorOwnsTick = true;
             }
 
             return _director;
@@ -238,10 +232,9 @@ namespace Game.Channel
             var director = ResolveDirector();
             if (director == null) return;
 
-            var track = new TransformPresetTrack(t, _scope);
+            var track = new TransformPresetTrack(t, _scope, _enableDebugLog);
             _presetTracks.Add(track);
             director.AddTrack(track);
-            EnsureStandaloneDirectorTickLoop();
 
             var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             _presetCtsList.Add(linkedCts);
@@ -252,6 +245,7 @@ namespace Game.Channel
             try
             {
                 await track.PlayPresetAsync(preset, variables, linkedCts.Token);
+                director.Tick(0f);
             }
             finally
             {
@@ -264,7 +258,6 @@ namespace Game.Channel
                 _presetCtsList.Remove(linkedCts);
                 linkedCts.Dispose();
                 PruneDeadPresetTracks();
-                StopStandaloneDirectorTickLoopIfIdle();
                 if (_presetTracks.Count == 0)
                     SetDebugIdle();
             }
@@ -288,13 +281,10 @@ namespace Game.Channel
                 cts.Dispose();
             }
             _presetCtsList.Clear();
-            StopStandaloneDirectorTickLoopIfIdle();
         }
 
         void PruneDeadPresetTracks()
         {
-            if (_director == null || _presetTracks.Count == 0)
-                return;
 
             for (int i = _presetTracks.Count - 1; i >= 0; i--)
             {
@@ -302,11 +292,9 @@ namespace Game.Channel
                 if (track.IsAlive)
                     continue;
 
-                _director.RemoveTrack(track);
+                _director?.RemoveTrack(track);
                 _presetTracks.RemoveAt(i);
             }
-
-            StopStandaloneDirectorTickLoopIfIdle();
         }
 
         // ===== Single Step =====
@@ -321,10 +309,9 @@ namespace Game.Channel
             var director = ResolveDirector();
             if (director == null) return;
 
-            var track = new TransformPresetTrack(t, _scope);
+            var track = new TransformPresetTrack(t, _scope, _enableDebugLog);
             _presetTracks.Add(track);
             director.AddTrack(track);
-            EnsureStandaloneDirectorTickLoop();
             _debugRunMode = TransformAnimationRunMode.SingleStep;
 
             try
@@ -335,7 +322,6 @@ namespace Game.Channel
             {
                 director.RemoveTrack(track);
                 _presetTracks.Remove(track);
-                StopStandaloneDirectorTickLoopIfIdle();
                 SetDebugIdle();
             }
         }
@@ -380,7 +366,6 @@ namespace Game.Channel
 
             _followTrack = track;
             director.AddTrack(track);
-            EnsureStandaloneDirectorTickLoop();
 
             var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             _followCts = linkedCts;
@@ -404,7 +389,6 @@ namespace Game.Channel
                 {
                     director.RemoveTrack(track);
                     _followTrack = null;
-                    StopStandaloneDirectorTickLoopIfIdle();
                 }
 
                 if (ReferenceEquals(_followCts, linkedCts))
@@ -439,7 +423,6 @@ namespace Game.Channel
             var track = new TransformShakeTrack(settings);
             _shakeTrack = track;
             director.AddTrack(track);
-            EnsureStandaloneDirectorTickLoop();
         }
 
         public void StopShake()
@@ -450,7 +433,6 @@ namespace Game.Channel
                 track.Stop();
                 _director?.RemoveTrack(track);
                 _shakeTrack = null;
-                StopStandaloneDirectorTickLoopIfIdle();
             }
         }
 
@@ -532,7 +514,6 @@ namespace Game.Channel
                 track.Stop();
                 _director?.RemoveTrack(track);
                 _followTrack = null;
-                StopStandaloneDirectorTickLoopIfIdle();
             }
 
             var cts = _followCts;
@@ -548,79 +529,17 @@ namespace Game.Channel
         {
             if (_targetRegistry == null && _scope.Resolver != null)
                 _scope.Resolver.TryResolve(out _targetRegistry);
-
-            if (_targetRegistry != null)
-            {
-                if (!_directorIsStandalone)
-                {
-                    _standaloneDirectorOwnsTick = false;
-                    CancelStandaloneDirectorTickLoop();
-                }
-            }
         }
 
-        void EnsureStandaloneDirectorTickLoop()
+        public void Tick(float deltaTime)
         {
-            if (!_standaloneDirectorOwnsTick || _director == null || _standaloneDirectorCts != null)
+            var director = _director;
+            if (director == null || !director.HasActiveTracks)
                 return;
 
-            var cts = new CancellationTokenSource();
-            _standaloneDirectorCts = cts;
-            RunStandaloneDirectorTickAsync(cts).Forget();
-        }
-
-        void StopStandaloneDirectorTickLoopIfIdle()
-        {
-            if (!_standaloneDirectorOwnsTick || _director == null || _director.HasActiveTracks)
-                return;
-
-            if (_directorIsStandalone && _targetRegistry != null)
-            {
-                _director = null;
-                _directorIsStandalone = false;
-                _standaloneDirectorOwnsTick = false;
-            }
-
-            CancelStandaloneDirectorTickLoop();
-        }
-
-        void CancelStandaloneDirectorTickLoop()
-        {
-            var cts = _standaloneDirectorCts;
-            _standaloneDirectorCts = null;
-            if (cts == null)
-                return;
-
-            if (!cts.IsCancellationRequested)
-                cts.Cancel();
-        }
-
-        async UniTaskVoid RunStandaloneDirectorTickAsync(CancellationTokenSource cts)
-        {
-            try
-            {
-                while (!cts.IsCancellationRequested)
-                {
-                    var director = _director;
-                    if (!_standaloneDirectorOwnsTick || director == null || !director.HasActiveTracks)
-                        break;
-
-                    director.Tick(Time.deltaTime);
-                    await UniTask.Yield(PlayerLoopTiming.Update, cts.Token);
-                }
-            }
-            catch (OperationCanceledException) { }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-            finally
-            {
-                if (ReferenceEquals(_standaloneDirectorCts, cts))
-                    _standaloneDirectorCts = null;
-
-                cts.Dispose();
-            }
+            // track は state を更新するだけで、最終反映は director がまとめて行う。
+            // ここで毎フレーム Tick しておかないと、最後の確定値しか出力されない。
+            director.Tick(deltaTime);
         }
 
         // ===== Telemetry =====

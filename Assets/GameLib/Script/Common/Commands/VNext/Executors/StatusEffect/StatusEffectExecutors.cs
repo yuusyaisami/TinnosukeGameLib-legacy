@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.StatusEffect;
@@ -63,11 +64,22 @@ namespace Game.Commands.VNext
         static void ExecuteApply(IStatusEffectService service, StatusEffectCommandData typed, CommandContext ctx)
         {
             var request = typed.BuildApplyRequest();
-            if (service.TryApply(request, ctx, out _))
+            if (service.TryApply(request, ctx, out var instanceId))
                 return;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.LogWarning("[StatusEffectExecutor] Failed to apply status effect.");
+            var targetScope = ResolveTargetScope(typed, ctx);
+            var definition = request.Definition.HasSource
+                ? request.Definition.GetOrDefault(ctx, default!)
+                : default;
+
+            Debug.LogWarning(
+                "[StatusEffectExecutor] Failed to apply status effect. " +
+                $"Op={typed.Op} ServiceScope={typed.ServiceScope} " +
+                $"TargetScope={DescribeScope(targetScope)} Actor={DescribeScope(ctx.Actor)} Scope={DescribeScope(ctx.Scope)} " +
+                $"Request={DescribeRequest(request, ctx)} " +
+                $"DefinitionResolved={(definition != null ? definition.DefinitionId : "<null>")} " +
+                $"InstanceId={(string.IsNullOrEmpty(instanceId) ? "<none>" : instanceId)}");
 #endif
         }
 
@@ -77,6 +89,30 @@ namespace Game.Commands.VNext
                 return ctx.Scope;
 
             return ActorSourceFastResolver.Resolve(ctx, typed.TargetActorSource);
+        }
+
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "<null>";
+
+            if (scope.Identity != null)
+                return $"{scope.Identity.Id}:{scope.Identity.Kind}";
+
+            return scope.GetType().Name;
+        }
+
+        static string DescribeRequest(StatusEffectApplyRequest request, CommandContext ctx)
+        {
+            var definitionText = request.Definition.HasSource
+                ? $"{request.Definition.SourceTypeName}:{request.Definition.SourceDebugData}"
+                : "<none>";
+            var stackPresetText = request.StackPreset.HasSource
+                ? $"{request.StackPreset.SourceTypeName}:{request.StackPreset.SourceDebugData}"
+                : "<duration-refresh-default>";
+            var hookText = request.HookMutations != null ? request.HookMutations.GetType().Name : "<null>";
+
+            return $"Definition={definitionText} StackPreset={stackPresetText} RuntimeTag={(string.IsNullOrEmpty(request.RuntimeTag) ? "<empty>" : request.RuntimeTag)} Hooks={hookText} CmdScope={DescribeScope(ctx.Scope)} CmdActor={DescribeScope(ctx.Actor)}";
         }
     }
 }

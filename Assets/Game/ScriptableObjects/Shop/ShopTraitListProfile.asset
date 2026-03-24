@@ -215,10 +215,38 @@ MonoBehaviour:
     - rid: 5619052416848363766
       type: {class: WriteTraitDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
+        SourceMode: 20
         TraitSource:
           _source:
-            rid: -2
+            rid: 5619052416848364347
           _defaultValue: {fileID: 0}
+        HubActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        HolderKey: Shop
+        Selector:
+          Kind: 10
+          InstanceId:
+            _source:
+              rid: 5619052416848364354
+            _defaultValue: 
+          Definition:
+            _source:
+              rid: -2
+            _defaultValue: {fileID: 0}
+          DefinitionId: 
+          Index:
+            _source:
+              rid: -2
+            _defaultValue: 0
         TargetActorSource:
           Kind: 0
           Identity:
@@ -773,8 +801,9 @@ MonoBehaviour:
           _functionName: 
           _commands:
           - rid: 5619052416848363803
-          - rid: 5619052416848363809
           - rid: 5619052416848363816
+          - rid: 5619052451121070259
+          - rid: 5619052416848363809
         ElseCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -905,24 +934,20 @@ MonoBehaviour:
     - rid: 5619052416848363810
       type: {class: RemoveTraitFromHolderCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
-        Target:
-          Kind: 0
+        Selector:
+          Kind: 10
+          InstanceId:
+            _source:
+              rid: 5619052416848364352
+            _defaultValue: 
           Definition:
             _source:
-              rid: 5619052416848363815
+              rid: -2
             _defaultValue: {fileID: 0}
-          InstanceId: 
-          TraitIndex:
+          DefinitionId: 
+          Index:
             _source:
-              rid: 5619052416848363811
-            _defaultValue: 0
-          Row:
-            _source:
-              rid: 5619052416848363812
-            _defaultValue: 0
-          Column:
-            _source:
-              rid: 5619052416848363813
+              rid: 5619052451121070254
             _defaultValue: 0
         UseBoundHolder: 0
         HolderActorSource:
@@ -937,27 +962,6 @@ MonoBehaviour:
           SharedTag: 
           ContextSlot: 0
         HolderKey: Shop
-    - rid: 5619052416848363811
-      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052416848363812
-      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052416848363813
-      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052416848363815
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 242
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
     - rid: 5619052416848363816
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -968,6 +972,17 @@ MonoBehaviour:
       type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Source:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        Target:
           Kind: 5
           Identity:
             kind: 0
@@ -1054,6 +1069,130 @@ MonoBehaviour:
           ContextSlot: 100
         createIfMissing: 0
         baselineValue: 0
+    - rid: 5619052416848364347
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: 
+          varId: 0
+    - rid: 5619052416848364352
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 237
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5619052416848364354
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.Trait.Element.instanceId
+          varId: 237
+    - rid: 5619052451121070254
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052451121070259
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052451121070260
+    - rid: 5619052451121070260
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: BuyNail
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches:
+        - Label: 
+          Value:
+            _source:
+              rid: 5619052451121070261
+          IncludeSourceInfo: 1
+    - rid: 5619052451121070261
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052451121070262
+          _useScalarLeafKey: 0
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052451121070263
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052451121070264
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: Value * ShopPriceMul
+    - rid: 5619052451121070262
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 100121
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5619052451121070263
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 160700043
+          Name: GameLogic.GameProfile.Base.MoneyValue
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052451121070264
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1799240082
+          Name: GameLogic.GameProfile.Base.ShopPriceMul
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
 --- !u!114 &-2030719370511570569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1066,12 +1205,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79d88578b6431b74ea34146b5ba8b0b6, type: 3}
   m_Name: UITraitListLayoutProfileSO
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TraitList.UITraitListLayoutProfileSO
-  Rows: 1
+  Rows: 9
   Columns: 1
-  RowSpacing: 0
+  RowSpacing: 1
   ColumnSpacing: 0
   Order: 0
   Offset: {x: 0, y: 0}
+  HorizontalAlignment: 10
+  VerticalAlignment: 10
+  AreaHorizontalAlignment: 10
+  AreaVerticalAlignment: 10
   UseTransformAnimation: 1
   ChannelTag: default
   MovePreset:
@@ -1098,4 +1241,4 @@ MonoBehaviour:
   VisualizerProfile: {fileID: -4136909987566622376}
   DefaultRange:
     StartIndex: 0
-    Count: 0
+    Count: 9

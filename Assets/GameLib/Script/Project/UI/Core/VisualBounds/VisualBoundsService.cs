@@ -16,6 +16,9 @@ namespace Game.UI
         public IReadOnlyList<Image> ImageTargets = System.Array.Empty<Image>();
         public IReadOnlyList<TMP_Text> TextTargets = System.Array.Empty<TMP_Text>();
         public IReadOnlyList<SpriteRenderer> SpriteTargets = System.Array.Empty<SpriteRenderer>();
+        public IReadOnlyList<MeshRenderer> MeshTargets = System.Array.Empty<MeshRenderer>();
+        public IReadOnlyList<Collider2D> Collider2DTargets = System.Array.Empty<Collider2D>();
+        public IReadOnlyList<Collider> ColliderTargets = System.Array.Empty<Collider>();
         public bool ExcludeInactive = true;
         public bool AutoRebuild = true;
         public bool AutoDetectChanges = true;
@@ -34,6 +37,7 @@ namespace Game.UI
     {
         const float MaxAbsCoordinate = 1_000_000f;
         const float MaxReasonableSize = 100_000f;
+        const float MinNonDegenerateBoundsSizeSqr = 0.000001f;
 
         readonly VisualBoundsConfig _config;
         readonly Vector3[] _rectCorners = new Vector3[4];
@@ -201,6 +205,48 @@ namespace Game.UI
                 }
             }
 
+            var meshes = _config.MeshTargets;
+            for (int i = 0; i < meshes.Count; i++)
+            {
+                var mr = meshes[i];
+                if (mr == null)
+                    continue;
+                var tr = mr.transform;
+                if (tr != null && tr.hasChanged)
+                {
+                    tr.hasChanged = false;
+                    changed = true;
+                }
+            }
+
+            var colliders2D = _config.Collider2DTargets;
+            for (int i = 0; i < colliders2D.Count; i++)
+            {
+                var c2d = colliders2D[i];
+                if (c2d == null)
+                    continue;
+                var tr = c2d.transform;
+                if (tr != null && tr.hasChanged)
+                {
+                    tr.hasChanged = false;
+                    changed = true;
+                }
+            }
+
+            var colliders3D = _config.ColliderTargets;
+            for (int i = 0; i < colliders3D.Count; i++)
+            {
+                var c3d = colliders3D[i];
+                if (c3d == null)
+                    continue;
+                var tr = c3d.transform;
+                if (tr != null && tr.hasChanged)
+                {
+                    tr.hasChanged = false;
+                    changed = true;
+                }
+            }
+
             if (changed)
                 MarkDirty();
         }
@@ -356,7 +402,105 @@ namespace Game.UI
                 }
             }
 
+            var meshes = _config.MeshTargets;
+            for (int i = 0; i < meshes.Count; i++)
+            {
+                var mr = meshes[i];
+                if (mr == null)
+                    continue;
+                if (_config.ExcludeInactive && (!mr.gameObject.activeInHierarchy || !mr.enabled))
+                    continue;
+                if (!_seen.Add(mr.GetInstanceID()))
+                    continue;
+
+                var b = mr.bounds;
+                if (IsDegenerateBounds(b))
+                {
+                    // Mesh の初期化前は zero-size bounds が返ることがあり、再構築時に頻発するため無音スキップ。
+                    continue;
+                }
+
+                if (!IsFinite(b) || !IsReasonable(b))
+                {
+                    WarnThrottled(mr.GetInstanceID(), 20, $"[VisualBounds] MeshRenderer bounds rejected. Name={mr.name} Center={b.center} Size={b.size}");
+                    continue;
+                }
+
+                if (!hasAny)
+                {
+                    bounds = b;
+                    hasAny = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(b);
+                }
+            }
+
+            var colliders2D = _config.Collider2DTargets;
+            for (int i = 0; i < colliders2D.Count; i++)
+            {
+                var c2d = colliders2D[i];
+                if (c2d == null)
+                    continue;
+                if (_config.ExcludeInactive && (!c2d.gameObject.activeInHierarchy || !c2d.enabled))
+                    continue;
+                if (!_seen.Add(c2d.GetInstanceID()))
+                    continue;
+
+                var b = c2d.bounds;
+                if (b.size == Vector3.zero || !IsFinite(b) || !IsReasonable(b))
+                {
+                    Debug.LogWarning($"[VisualBounds] Collider2D bounds rejected. Name={c2d.name} Center={b.center} Size={b.size}");
+                    continue;
+                }
+
+                if (!hasAny)
+                {
+                    bounds = b;
+                    hasAny = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(b);
+                }
+            }
+
+            var colliders3D = _config.ColliderTargets;
+            for (int i = 0; i < colliders3D.Count; i++)
+            {
+                var c3d = colliders3D[i];
+                if (c3d == null)
+                    continue;
+                if (_config.ExcludeInactive && (!c3d.gameObject.activeInHierarchy || !c3d.enabled))
+                    continue;
+                if (!_seen.Add(c3d.GetInstanceID()))
+                    continue;
+
+                var b = c3d.bounds;
+                if (b.size == Vector3.zero || !IsFinite(b) || !IsReasonable(b))
+                {
+                    Debug.LogWarning($"[VisualBounds] Collider bounds rejected. Name={c3d.name} Center={b.center} Size={b.size}");
+                    continue;
+                }
+
+                if (!hasAny)
+                {
+                    bounds = b;
+                    hasAny = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(b);
+                }
+            }
+
             return hasAny;
+        }
+
+        static bool IsDegenerateBounds(in Bounds bounds)
+        {
+            return bounds.size.sqrMagnitude <= MinNonDegenerateBoundsSizeSqr;
         }
 
         bool ShouldInclude(RectTransform? rt)

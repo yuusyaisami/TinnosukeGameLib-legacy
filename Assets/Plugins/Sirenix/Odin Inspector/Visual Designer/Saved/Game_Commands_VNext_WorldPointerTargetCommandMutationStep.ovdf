@@ -1,0 +1,6 @@
+OVDF v1.1
+Game.Commands.VNext.WorldPointerTargetCommandMutationStep, Assembly-CSharp
+
+# Mutation
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 56.79

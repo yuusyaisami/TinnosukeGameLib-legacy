@@ -16,7 +16,7 @@ namespace Game.Channel
         bool TryGetPlayer(string tag, out ITransformAnimationChannelPlayer player);
     }
 
-    public sealed class TransformAnimationHubService : ITransformAnimationHubService, IScopeAcquireHandler, IScopeReleaseHandler
+    public sealed class TransformAnimationHubService : ITransformAnimationHubService, IScopeAcquireHandler, IScopeReleaseHandler, ITickable
     {
         readonly Dictionary<string, ITransformAnimationChannelPlayer> _players =
             new(StringComparer.Ordinal);
@@ -149,6 +149,17 @@ namespace Game.Channel
                     lifecycle.OnRelease();
                 else
                     player.Stop();
+            }
+        }
+
+        public void Tick()
+        {
+            var deltaTime = Time.deltaTime;
+            // 以前は tick の経路が分散しており、buffer だけ更新されて見た目への反映が抜けることがあった。
+            // hub が毎フレーム全 player を tick して、同じ更新系で director まで流す。
+            foreach (var player in _players.Values)
+            {
+                player.Tick(deltaTime);
             }
         }
 

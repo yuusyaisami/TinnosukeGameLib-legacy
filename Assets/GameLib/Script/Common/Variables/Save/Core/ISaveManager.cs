@@ -13,6 +13,7 @@ namespace Game.Save
         public readonly ScopeKey ScopeKey;
         public readonly Game.Profile.ScopeBindingRegistryService? Profiles;
         public readonly Game.Common.IBlackboardService? Blackboard;
+        public readonly Game.Common.IGridBlackboardService? GridBlackboard;
         public readonly Game.Scalar.IBaseScalarService? Scalars;
         public readonly ISavePlanSource PlanSource;
 
@@ -21,12 +22,14 @@ namespace Game.Save
             ISavePlanSource planSource,
             Game.Profile.ScopeBindingRegistryService? profiles,
             Game.Common.IBlackboardService? blackboard,
+            Game.Common.IGridBlackboardService? gridBlackboard,
             Game.Scalar.IBaseScalarService? scalars)
         {
             ScopeKey = scopeKey;
             PlanSource = planSource;
             Profiles = profiles;
             Blackboard = blackboard;
+            GridBlackboard = gridBlackboard;
             Scalars = scalars;
         }
     }

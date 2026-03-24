@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b53cb4e9d365442ab02a53a829a9dc, type: 3}
+  m_Name: LuckOutputFunction
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.VNext.CommandFunctionSO
+  preset:
+    rid: 5619052506154533079
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052506154533079
+      type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Commands:
+          _debugOwner: {fileID: 11400000}
+          _debugFieldPath: preset.Commands
+          _debugAssetPath: Assets/Game/ScriptableObjects/Game/LuckOutputFunction.asset
+          _functionName: Command.Function.Body
+          _commands:
+          - rid: 5619052506154533080
+    - rid: 5619052506154533080
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052506154533082
+    - rid: 5619052506154533082
+      type: {class: LotteryCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Mode: 20
+        DrawCount:
+          _source:
+            rid: 5619052506154533084
+          _defaultValue: 0
+        WithReplacement: 0
+        ShortagePolicy: 20
+        ActorEntries: []
+        ScalarEntries:
+        - Weight: 1
+          Enabled: 1
+          Items: []
+        BlackboardEntries: []
+        VarStoreEntries: []
+    - rid: 5619052506154533084
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1

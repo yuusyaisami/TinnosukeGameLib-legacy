@@ -97,6 +97,11 @@ namespace Game.Common
                     break;
             }
 
+            builder.Register<IGridBlackboardService, GridBlackboardService>(Lifetime.Singleton)
+                .As<IGridBlackboardService>()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
+
             // Save registration is handled by ScopeBindingRegistry. BlackboardMB only owns local blackboard initialization.
 
             if (autoWriteTransformVars)

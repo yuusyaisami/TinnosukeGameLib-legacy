@@ -105,8 +105,9 @@ namespace Game.Profile
             {
                 var profiles = resolver.TryResolve<ScopeBindingRegistryService>(out var p) ? p : null;
                 var blackboard = resolver.TryResolve<IBlackboardService>(out var b) ? b : null;
+                var gridBlackboard = resolver.TryResolve<IGridBlackboardService>(out var gb) ? gb : null;
                 var scalar = resolver.TryResolve<Game.Scalar.IBaseScalarService>(out var s) ? s : null;
-                return new SaveScopeRegistrationService(profiles, blackboard, scalar, scope);
+                return new SaveScopeRegistrationService(profiles, blackboard, gridBlackboard, scalar, scope);
             }, Lifetime.Transient)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();

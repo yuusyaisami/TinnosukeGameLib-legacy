@@ -26,7 +26,9 @@ namespace Game.Commands.VNext
             {
                 var templateName = CommandDebugDataHelper.GetDynamicDebugData(Template, "null");
                 var tag = string.IsNullOrEmpty(SpawnerTag) ? "<none>" : SpawnerTag;
-                return $"Template={templateName} Spawner={SpawnerKind} Tag={tag}";
+                var contextLabel = WriteSpawnedScopeToContext ? $" Ctx={SpawnedScopeSlot}" : string.Empty;
+                var sourceLabel = WriteSpawnerToContext ? $" Src={SpawnerContextSlot}" : string.Empty;
+                return $"Template={templateName} Spawner={SpawnerKind} Tag={tag}{contextLabel}{sourceLabel}";
             }
         }
 
@@ -90,6 +92,22 @@ namespace Game.Commands.VNext
         [Header("Pooling")]
         [SerializeField]
         public bool AllowPooling = true;
+
+        [Header("Context")]
+        [SerializeField]
+        public bool WriteSpawnedScopeToContext = false;
+
+        [SerializeField, ShowIf(nameof(WriteSpawnedScopeToContext))]
+        [LabelText("Spawned Scope Slot")]
+        public CommandLtsSlot SpawnedScopeSlot = CommandLtsSlot.ContextA;
+
+        [SerializeField]
+        [LabelText("Write Spawner To Context")]
+        public bool WriteSpawnerToContext = false;
+
+        [SerializeField, ShowIf(nameof(WriteSpawnerToContext))]
+        [LabelText("Spawner Slot")]
+        public CommandLtsSlot SpawnerContextSlot = CommandLtsSlot.ContextB;
 
         [Header("After Spawn")]
         [SerializeField]

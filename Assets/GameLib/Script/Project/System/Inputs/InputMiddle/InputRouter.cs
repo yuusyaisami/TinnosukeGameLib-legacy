@@ -113,6 +113,12 @@ namespace Game.Input
                 Navigate = gameUI.Navigate.ReadValue<Vector2>(),
             };
 
+            frame.PointerDelta = Vector2.zero;
+            if (Mouse.current != null)
+                frame.PointerDelta += Mouse.current.delta.ReadValue();
+            if (Touchscreen.current != null)
+                frame.PointerDelta += Touchscreen.current.primaryTouch.delta.ReadValue();
+
             // ---- Locomotion ボタン ----
             frame.Dodge = ReadButton(locomotion.Dodge);
             frame.Slow = ReadButton(locomotion.Slow);

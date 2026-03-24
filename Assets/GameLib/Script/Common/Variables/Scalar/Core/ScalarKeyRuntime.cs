@@ -35,6 +35,7 @@ namespace Game.Scalar
         readonly List<IScalarMulModifier> _mulModifiers = new();
         readonly List<IScalarGetModifier> _getModifiers = new();
         readonly Dictionary<Type, IScalarModifier> _modByType = new();
+        readonly List<int> _tickRemovalBuffer = new();
 
         bool _touched;
         internal bool HasLocalData => _hasBaselineFromConfig || _touched;
@@ -481,7 +482,9 @@ namespace Game.Scalar
             if (_timedIndices.Count == 0)
                 return;
 
-            var toRemove = new List<int>();
+            var toRemove = _tickRemovalBuffer;
+            toRemove.Clear();
+
             foreach (var index in _timedIndices)
             {
                 if (index < 0 || index >= _mods.Count)
@@ -513,6 +516,8 @@ namespace Game.Scalar
 
                 MarkDirty();
             }
+
+            toRemove.Clear();
         }
 
         float EvaluateRaw(bool includeAllLayers, string layer)

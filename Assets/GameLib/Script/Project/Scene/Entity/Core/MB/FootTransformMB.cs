@@ -22,6 +22,7 @@ namespace Game.Entity
         public float radius = 0.5f;
         [SerializeField]
         public float offsetZ = 0f;
+        bool _needsFootUpdate = true;
         // ================================================================================
         // Foot Settings
         // ================================================================================
@@ -54,28 +55,55 @@ namespace Game.Entity
             set
             {
                 offsetZ = value;
+                MarkFootDirty();
                 UpdateZBasedOnFoot();
             }
         }
 
         void Awake()
         {
+            MarkFootDirty();
+            UpdateZBasedOnFoot();
+        }
+
+        void OnEnable()
+        {
+            MarkFootDirty();
             UpdateZBasedOnFoot();
         }
 
         void OnValidate()
         {
+            MarkFootDirty();
             UpdateZBasedOnFoot();
+        }
+
+        void OnTransformParentChanged()
+        {
+            MarkFootDirty();
         }
 
         void LateUpdate()
         {
-            if (transform == null) return;
+            if (transform == null)
+                return;
+
+            if (!_needsFootUpdate && !transform.hasChanged)
+                return;
+
             UpdateZBasedOnFoot();
+        }
+
+        void MarkFootDirty()
+        {
+            _needsFootUpdate = true;
         }
 
         void UpdateZBasedOnFoot()
         {
+            if (transform == null)
+                return;
+
             var footWorld = transform.TransformPoint(new Vector3(rootFoot.x, rootFoot.y, 0f));
             float runtimeOffsetZ = footWorld.y * 0.01f;
             float targetZ = runtimeOffsetZ + offsetZ;
@@ -83,6 +111,9 @@ namespace Game.Entity
             {
                 transform.position = new Vector3(transform.position.x, transform.position.y, targetZ);
             }
+
+            transform.hasChanged = false;
+            _needsFootUpdate = false;
         }
 
 #if UNITY_EDITOR
