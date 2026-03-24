@@ -7,7 +7,6 @@ using Cysharp.Threading.Tasks;
 using VNext = Game.Commands.VNext;
 using Game.Common;
 using VContainer;
-using Game.Commands;
 namespace Game.UI
 {
     // ================================================================
@@ -44,36 +43,11 @@ namespace Game.UI
         Hold,
     }
 
-    public enum UIButtonCommandListKind
-    {
-        SubmitDown = 0,
-        SubmitUp = 1,
-        HoldDecision = 2,
-        HoldInterval = 3,
-        HoldCancel = 4,
-    }
-
-    public enum UIButtonCommandListOperation
-    {
-        Set = 0,
-        Add = 1,
-        Remove = 2,
-        Swap = 3,
-    }
-
-    public interface IUIButtonCommandListController
-    {
-        bool ApplyCommandList(
-            UIButtonCommandListKind kind,
-            UIButtonCommandListOperation operation,
-            VNext.CommandListData? commands,
-            UIButtonCommandListKind swapTarget = UIButtonCommandListKind.SubmitDown);
-    }
-
     public interface IUIButtonService
     {
         UIButtonKind Kind { get; set; }
         bool CanSubmit { get; set; }
+        DynamicValue<bool> InputControlCondition { get; set; }
         float HoldTime { get; set; }
         float HoldInterval { get; set; }
         UIInputAction TriggerAction { get; set; }
@@ -94,6 +68,7 @@ namespace Game.UI
         bool DisableSelectionDuringCommandExecution { get; set; }
 
         void AppendSubmitUpCommands(IReadOnlyList<VNext.ICommandSource> commands);
+        void RefreshTelemetry();
     }
 
     // ================================================================
@@ -133,7 +108,6 @@ namespace Game.UI
     /// </summary>
     public sealed class UIButtonService :
         IUIButtonService,
-        IUIButtonCommandListController,
         IUIInputConsumer,
         IUIButtonTelemetry,
         IScopeAcquireHandler,
@@ -292,15 +266,19 @@ namespace Game.UI
             set => _triggerAction = value;
         }
 
+        public DynamicValue<bool> InputControlCondition
+        {
+            get => _inputControlCondition;
+            set => _inputControlCondition = value;
+        }
+
         /// <summary>
         /// SubmitDown時に実行するコマンドリスト。
-        /// Set/Add/Remove/Swap で操作可能。
         /// </summary>
         public VNext.CommandListData OnSubmitDownCommands => _onSubmitDownCommands;
 
         /// <summary>
         /// SubmitUp/Hold成功時に実行するコマンドリスト。
-        /// Set/Add/Remove/Swap で操作可能。
         /// </summary>
         public VNext.CommandListData OnSubmitUpCommands => _onSubmitUpCommands;
 
@@ -310,7 +288,6 @@ namespace Game.UI
 
         /// <summary>
         /// Hold中キャンセル時に実行するコマンドリスト。
-        /// Set/Add/Remove/Swap で操作可能。
         /// </summary>
         public VNext.CommandListData OnHoldCancelCommands => _onHoldCancelCommands;
 
@@ -381,109 +358,6 @@ namespace Game.UI
             }
 
             return false;
-        }
-
-        public bool ApplyCommandList(UIButtonCommandListKind kind, UIButtonCommandListOperation operation, VNext.CommandListData? commands, UIButtonCommandListKind swapTarget = UIButtonCommandListKind.SubmitDown)
-        {
-            var target = ResolveCommandList(kind);
-            if (target == null)
-                return false;
-
-            switch (operation)
-            {
-                case UIButtonCommandListOperation.Set:
-                    if (commands == null)
-                    {
-                        target.SetCommands(new List<VNext.ICommandSource>());
-                        return true;
-                    }
-                    target.SetCommands(CloneCommands(commands));
-                    return true;
-
-                case UIButtonCommandListOperation.Add:
-                    if (commands == null || commands.Count == 0)
-                        return false;
-
-                    var addList = commands.Commands;
-                    for (int i = 0; i < addList.Count; i++)
-                    {
-                        var src = addList[i];
-                        if (src != null)
-                            target.Add(src);
-                    }
-                    return true;
-
-                case UIButtonCommandListOperation.Remove:
-                    if (commands == null || commands.Count == 0)
-                        return false;
-
-                    RemoveCommands(target, commands);
-                    return true;
-
-                case UIButtonCommandListOperation.Swap:
-                    if (kind == swapTarget)
-                        return false;
-
-                    var other = ResolveCommandList(swapTarget);
-                    if (other == null)
-                        return false;
-
-                    var temp = CloneCommands(target);
-                    target.SetCommands(CloneCommands(other));
-                    other.SetCommands(temp);
-                    return true;
-            }
-
-            return false;
-        }
-
-        VNext.CommandListData? ResolveCommandList(UIButtonCommandListKind kind)
-        {
-            return kind switch
-            {
-                UIButtonCommandListKind.SubmitDown => _onSubmitDownCommands,
-                UIButtonCommandListKind.SubmitUp => _onSubmitUpCommands,
-                UIButtonCommandListKind.HoldDecision => _onHoldDecisionCommands,
-                UIButtonCommandListKind.HoldInterval => _onHoldIntervalCommands,
-                UIButtonCommandListKind.HoldCancel => _onHoldCancelCommands,
-                _ => null,
-            };
-        }
-
-        static List<VNext.ICommandSource> CloneCommands(VNext.CommandListData source)
-        {
-            var list = source.Commands;
-            if (list == null || list.Count == 0)
-                return new List<VNext.ICommandSource>();
-
-            return new List<VNext.ICommandSource>(list);
-        }
-
-        static void RemoveCommands(VNext.CommandListData target, VNext.CommandListData remove)
-        {
-            var current = target.Commands;
-            var removeList = remove.Commands;
-            if (current == null || current.Count == 0 || removeList == null || removeList.Count == 0)
-                return;
-
-            var list = new List<VNext.ICommandSource>(current);
-            for (int i = list.Count - 1; i >= 0; i--)
-            {
-                var item = list[i];
-                if (item == null)
-                    continue;
-
-                for (int k = 0; k < removeList.Count; k++)
-                {
-                    if (ReferenceEquals(removeList[k], item))
-                    {
-                        list.RemoveAt(i);
-                        break;
-                    }
-                }
-            }
-
-            target.SetCommands(list);
         }
 
         // ----------------------------------------------------------------
@@ -762,6 +636,11 @@ namespace Game.UI
                 timestampUtc: DateTime.UtcNow.ToOADate());
 
             OnTelemetryUpdated?.Invoke(_lastSnapshot);
+        }
+
+        public void RefreshTelemetry()
+        {
+            PublishTelemetry();
         }
 
         /// <summary>

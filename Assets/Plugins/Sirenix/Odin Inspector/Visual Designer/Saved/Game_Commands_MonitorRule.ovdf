@@ -1,0 +1,8 @@
+OVDF v1.1
+Game.Commands.MonitorRule, Assembly-CSharp
+
+# SimpleValueChangedTarget
+- [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 126
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 3.21

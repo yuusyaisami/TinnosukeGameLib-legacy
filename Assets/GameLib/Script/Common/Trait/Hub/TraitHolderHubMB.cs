@@ -42,6 +42,13 @@ namespace Game.Trait
                 // NOTE: Explicit interface typing avoids settings injection being missed by VContainer.
                 .WithParameter<IReadOnlyList<TraitHolderSettings>>(settings);
 
+            builder.Register<TraitPlacementService>(Lifetime.Singleton)
+                .AsSelf()
+                .As<ITraitPlacementService>()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>()
+                .WithParameter(scope);
+
             builder.RegisterBuildCallback(resolver =>
             {
                 resolver.TryResolve(out _hub);

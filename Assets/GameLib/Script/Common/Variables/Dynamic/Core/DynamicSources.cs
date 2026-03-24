@@ -24,6 +24,7 @@ using Game.Channel;
 using Game.Health;
 using Game.Movement;
 using Game.StateMachine;
+using Game.Trait;
 using VContainer;
 using Object = UnityEngine.Object;
 using Game.DI;
@@ -481,6 +482,19 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
+    /// <summary>TransformAnimationPreset 固定リテラル</summary>
+    [Serializable]
+    public sealed class LiteralTransformAnimationPresetSource : IDynamicSource
+    {
+        [SerializeReference, InlineProperty, HideLabel]
+        TransformAnimationPreset? value;
+
+        public string SourceTypeName => "Literal";
+        public string GetDebugData => value != null ? $"{value.Steps?.Count ?? 0} steps" : "null";
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
     /// <summary>BaseRuntimeTemplatePreset 固定リテラル</summary>
     [Serializable]
     public sealed class LiteralRuntimeTemplatePresetSource : IDynamicSource
@@ -650,6 +664,28 @@ namespace Game.Common
         }
 
         public static UnityObjectRefSource<T> FromObject(T obj) => new() { objectValue = obj };
+    }
+
+    /// <summary>
+    /// TraitDefinitionSO 専用の asset 参照ソース。
+    /// DynamicValue&lt;TraitDefinitionSO&gt; での authoring 意図を明確にする。
+    /// </summary>
+    [Serializable]
+    public sealed class AssetTraitDefinitionSource : IDynamicSource
+    {
+        [SerializeField, HideLabel]
+        TraitDefinitionSO? asset;
+
+        public string SourceTypeName => "Asset";
+        public string GetDebugData => asset != null ? asset.name : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            _ = context;
+            return DynamicVariant.FromUnityObject(asset);
+        }
+
+        public static AssetTraitDefinitionSource FromAsset(TraitDefinitionSO? value) => new() { asset = value };
     }
 
     // ================================================================

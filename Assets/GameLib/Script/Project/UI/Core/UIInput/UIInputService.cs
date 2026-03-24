@@ -645,6 +645,8 @@ namespace Game.UI
             frame.Submit.ForceConsume();
             frame.Cancel.ForceConsume();
             frame.Click.ForceConsume();
+            frame.PointerLeft.ForceConsume();
+            frame.PointerRight.ForceConsume();
             frame.Retry.ForceConsume();
         }
 

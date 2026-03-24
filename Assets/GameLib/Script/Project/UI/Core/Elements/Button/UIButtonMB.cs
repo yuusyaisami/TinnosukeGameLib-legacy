@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using VNext = Game.Commands.VNext;
 using Sirenix.OdinInspector;
 using Game.Common;
-using Game.Commands;
 
 namespace Game.UI
 {
@@ -379,7 +378,6 @@ namespace Game.UI
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<IUIInputConsumer>()
-                .As<IUIButtonCommandListController>()
                 .As<IUIButtonTelemetry>();
 
             builder.RegisterBuildCallback(container =>
@@ -442,6 +440,7 @@ namespace Game.UI
             service.HoldTime = _holdTime;
             service.HoldInterval = _holdInterval;
             service.TriggerAction = _triggerAction;
+            service.InputControlCondition = _inputControlCondition;
             service.GuardSelectionWhileHolding = _guardSelectionWhileHolding;
             service.GuardDuringCommandExecution = _guardDuringCommandExecution;
             service.DisableSelectionDuringCommandExecution = _disableSelectionDuringCommandExecution;
@@ -452,6 +451,7 @@ namespace Game.UI
             service.OnHoldDecisionCommands.SetCommands(new List<VNext.ICommandSource>(_onHoldDecisionCommands.Commands));
             service.OnHoldIntervalCommands.SetCommands(new List<VNext.ICommandSource>(_onHoldIntervalCommands.Commands));
             service.OnHoldCancelCommands.SetCommands(new List<VNext.ICommandSource>(_onHoldCancelCommands.Commands));
+            service.RefreshTelemetry();
 
             // (events removed)
         }

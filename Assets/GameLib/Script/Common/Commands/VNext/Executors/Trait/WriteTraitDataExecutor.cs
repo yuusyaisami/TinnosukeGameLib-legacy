@@ -16,7 +16,8 @@ namespace Game.Commands.VNext
             if (data is not WriteTraitDataCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "WriteTraitDataCommandData is required.");
 
-            if (!typed.TraitSource.TryResolve(ctx.Vars, out var trait) || trait == null)
+            var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
+            if (!typed.TraitSource.TryGet(dynCtx, out var trait) || trait == null)
                 return UniTask.CompletedTask;
 
             var origin = ctx.Actor ?? ctx.Scope;

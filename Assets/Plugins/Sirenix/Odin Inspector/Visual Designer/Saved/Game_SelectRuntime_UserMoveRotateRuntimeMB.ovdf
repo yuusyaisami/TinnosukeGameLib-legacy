@@ -1,0 +1,7 @@
+OVDF v1.1
+Game.SelectRuntime.UserMoveRotateRuntimeMB, Assembly-CSharp
+MetaGuid:a7a3d3bd0a21ad44290c50e1307706df
+
+# _rotateBinding
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 92.22

@@ -1,0 +1,7 @@
+OVDF v1.1
+Game.Trait.TraitDefinitionSO, Assembly-CSharp
+MetaGuid:20b777e5a10b0c944ae2d590f72cbaef
+
+# _placeableSettings
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 63.78

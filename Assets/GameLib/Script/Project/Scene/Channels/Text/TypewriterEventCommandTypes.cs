@@ -210,6 +210,7 @@ namespace Game.Channel
         public readonly IScopeNode? RootActor;
         public readonly IScopeNode? CallerActor;
         public readonly CommandRunOptions Options;
+        public readonly CommandContext SourceContext;
 
         public TypewriterEventCommandRuntimeContext(CommandContext ctx)
         {
@@ -221,6 +222,7 @@ namespace Game.Channel
             RootActor = ctx.RootActor;
             CallerActor = ctx.CallerActor;
             Options = ctx.Options;
+            SourceContext = ctx;
         }
 
         public CommandContext CreateCommandContext()
@@ -233,7 +235,8 @@ namespace Game.Channel
                 Options,
                 CommandRootScope,
                 RootActor,
-                CallerActor);
+                CallerActor,
+                SourceContext);
         }
     }
 }

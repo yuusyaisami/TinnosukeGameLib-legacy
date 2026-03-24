@@ -22,6 +22,8 @@ namespace Game.UI.TraitList
             UITraitListRange range,
             Transform parent,
             IScopeNode scopeParent,
+            ITraitPlacementService? placementService,
+            bool hideVisiblePlacedTraits,
             CancellationToken ct);
 
         UniTask RefreshAsync(UITraitListRefreshMode mode, CancellationToken ct);
@@ -78,6 +80,8 @@ namespace Game.UI.TraitList
             UITraitListRange range,
             Transform parent,
             IScopeNode scopeParent,
+            ITraitPlacementService? placementService,
+            bool hideVisiblePlacedTraits,
             CancellationToken ct)
         {
             if (profile == null || holder == null || parent == null || scopeParent == null)
@@ -91,7 +95,7 @@ namespace Game.UI.TraitList
                 var buildCt = _buildCts.Token;
 
                 await ClearInternalAsync();
-                return await BuildInternalAsync(profile, holder, holderKey, range, parent, scopeParent, buildCt);
+                return await BuildInternalAsync(profile, holder, holderKey, range, parent, scopeParent, placementService, hideVisiblePlacedTraits, buildCt);
             }
             catch (OperationCanceledException)
             {
@@ -148,6 +152,8 @@ namespace Game.UI.TraitList
                         range,
                         runtime.Parent,
                         runtime.ScopeParent,
+                        runtime.PlacementService,
+                        runtime.HideVisiblePlacedTraits,
                         buildCt);
                 }
                 else
@@ -182,6 +188,8 @@ namespace Game.UI.TraitList
             UITraitListRange range,
             Transform parent,
             IScopeNode scopeParent,
+            ITraitPlacementService? placementService,
+            bool hideVisiblePlacedTraits,
             CancellationToken ct)
         {
             if (profile == null || holder == null)
@@ -192,7 +200,8 @@ namespace Game.UI.TraitList
             if (layoutProfile == null || visualProfile == null)
                 return null;
 
-            if (!_listBuilder.TryBuildSlots(holder.Traits, range, layoutProfile, out var slots, out var normalizedRange, out var error))
+            var traits = CollectFilteredTraits(holder, holderKey, placementService, hideVisiblePlacedTraits);
+            if (!_listBuilder.TryBuildSlots(traits, range, layoutProfile, out var slots, out var normalizedRange, out var error))
             {
                 Debug.LogError($"[UITraitListBuilder] Build slots failed: {error}");
                 return null;
@@ -214,7 +223,17 @@ namespace Game.UI.TraitList
                 lookup[instance.Trait] = instance;
             }
 
-            var runtime = new UITraitListRuntime(holder, holderKey, profile, normalizedRange, parent, scopeParent, instances, lookup);
+            var runtime = new UITraitListRuntime(
+                holder,
+                holderKey,
+                profile,
+                normalizedRange,
+                parent,
+                scopeParent,
+                placementService,
+                hideVisiblePlacedTraits,
+                instances,
+                lookup);
             _runtime = runtime;
             SortInstancesByListIndex(instances);
             return runtime;
@@ -236,7 +255,8 @@ namespace Game.UI.TraitList
                 return;
 
             var range = rangeOverride ?? runtime.Range;
-            if (!_listBuilder.TryBuildSlots(runtime.Holder.Traits, range, layoutProfile, out var slots, out var normalizedRange, out var error))
+            var traits = CollectFilteredTraits(runtime.Holder, runtime.HolderKey, runtime.PlacementService, runtime.HideVisiblePlacedTraits);
+            if (!_listBuilder.TryBuildSlots(traits, range, layoutProfile, out var slots, out var normalizedRange, out var error))
             {
                 Debug.LogError($"[UITraitListBuilder] Refresh slots failed: {error}");
                 return;
@@ -254,6 +274,8 @@ namespace Game.UI.TraitList
                     normalizedRange,
                     runtime.Parent,
                     runtime.ScopeParent,
+                    runtime.PlacementService,
+                    runtime.HideVisiblePlacedTraits,
                     ct);
                 return;
             }
@@ -352,6 +374,38 @@ namespace Game.UI.TraitList
             _buildCts?.Cancel();
             _buildCts?.Dispose();
             _buildCts = null;
+        }
+
+        static IReadOnlyList<ITraitInstance> CollectFilteredTraits(
+            ITraitHolderService holder,
+            string holderKey,
+            ITraitPlacementService? placementService,
+            bool hideVisiblePlacedTraits)
+        {
+            if (!hideVisiblePlacedTraits || placementService == null)
+                return holder.Traits;
+
+            var traits = holder.Traits;
+            if (traits == null || traits.Count == 0)
+                return Array.Empty<ITraitInstance>();
+
+            var results = new List<ITraitInstance>(traits.Count);
+            for (int i = 0; i < traits.Count; i++)
+            {
+                var trait = traits[i];
+                if (trait == null)
+                    continue;
+
+                if (placementService.TryGetPresentationState(holderKey, trait.InstanceId, out var state) &&
+                    state == TraitRuntimePresentationState.Visible)
+                {
+                    continue;
+                }
+
+                results.Add(trait);
+            }
+
+            return results;
         }
 
         static void ApplyContextToSlots(List<UITraitListSlot> slots, string holderKey, UITraitListRange range)

@@ -85,6 +85,7 @@ namespace Game.UI
     public sealed class UIElementRuntimeSpawnerService : IUIElementRuntimeSpawnerService
     {
         readonly IRuntimeLifetimeScopeSpawnerService _runtimeSpawner;
+        readonly Transform _root;
         readonly ISceneSpawnerRegistry _registry;
 
         public SpawnerKind Kind => SpawnerKind.RuntimeUIElement;
@@ -92,10 +93,12 @@ namespace Game.UI
 
         public UIElementRuntimeSpawnerService(
             IRuntimeLifetimeScopeSpawnerService runtimeSpawner,
+            Transform root,
             string tag,
             ISceneSpawnerRegistry registry)
         {
             _runtimeSpawner = runtimeSpawner ?? throw new ArgumentNullException(nameof(runtimeSpawner));
+            _root = root != null ? root : throw new ArgumentNullException(nameof(root));
             Tag = tag ?? string.Empty;
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
             _registry.Register(this);
@@ -103,7 +106,12 @@ namespace Game.UI
         }
 
         public UniTask<IObjectResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
-            => _runtimeSpawner.SpawnAsync(p, ct);
+        {
+            if (p.TransformParent == null)
+                p.TransformParent = _root;
+
+            return _runtimeSpawner.SpawnAsync(p, ct);
+        }
 
         public UniTask WarmupAsync<T>(T template, int count, CancellationToken ct = default)
             where T : BaseRuntimeTemplateSO

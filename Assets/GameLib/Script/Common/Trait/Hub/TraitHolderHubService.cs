@@ -10,6 +10,7 @@ namespace Game.Trait
     {
         IReadOnlyList<string> Keys { get; }
         bool TryGetHolder(string key, out ITraitHolderService? holder);
+        bool TryGetPlacementSettings(string key, out TraitHolderPlacementSettings? settings);
     }
 
     public sealed class TraitHolderHubService :
@@ -18,6 +19,7 @@ namespace Game.Trait
         IScopeReleaseHandler
     {
         readonly Dictionary<string, TraitHolderService> _holders = new(System.StringComparer.Ordinal);
+        readonly Dictionary<string, TraitHolderSettings> _settingsByKey = new(System.StringComparer.Ordinal);
         readonly List<TraitHolderService> _holderList = new();
         readonly List<string> _keys = new();
         IRichTextRefService? _richTextRefService;
@@ -47,6 +49,7 @@ namespace Game.Trait
                     continue;
 
                 _holders.Add(key, service);
+                _settingsByKey.Add(key, setting.Clone());
                 _holderList.Add(service);
                 _keys.Add(key);
             }
@@ -67,6 +70,19 @@ namespace Game.Trait
 
             holder = service;
             return true;
+        }
+
+        public bool TryGetPlacementSettings(string key, out TraitHolderPlacementSettings? settings)
+        {
+            settings = null;
+            if (string.IsNullOrWhiteSpace(key))
+                return false;
+
+            var normalized = key.Trim();
+            if (!_settingsByKey.TryGetValue(normalized, out var setting) || setting == null)
+                return false;
+
+            return setting.TryGetPlacementSettings(out settings) && settings != null;
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)

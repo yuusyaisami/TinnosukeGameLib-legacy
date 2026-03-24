@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 using Sirenix.OdinInspector;
+using Game.Commands.VNext;
 using Game.Common;
 using Game.Scalar;
 using VNext = Game.Commands.VNext;
@@ -20,14 +21,11 @@ namespace Game.UI
         [Tooltip("独自入力で当たり判定に使うRect。透明Image + RaycastTarget=ON 推奨。未指定ならSliderのContainerを使う。")]
         [SerializeField] RectTransform? _hitTestRect;
 
-        [Tooltip("Unity標準のEventSystem入力を無効化したいならON（独自入力のみで動かす）。")]
-        [SerializeField] bool _disableUnityNativeInput = true;
-
         [Header("Value")]
-        [SerializeField] float _minValue = 0f;
-        [SerializeField] float _maxValue = 1f;
-        [SerializeField] float _initialValue = 0f;
-        [SerializeField] float _step = 0.1f;
+        [SerializeField] DynamicValue<float> _minValue = DynamicValueExtensions.FromLiteral(0f);
+        [SerializeField] DynamicValue<float> _maxValue = DynamicValueExtensions.FromLiteral(1f);
+        [SerializeField] DynamicValue<float> _initialValue = DynamicValueExtensions.FromLiteral(0f);
+        [SerializeField] DynamicValue<float> _step = DynamicValueExtensions.FromLiteral(0.1f);
         [SerializeField] UISliderStepMode _stepMode = UISliderStepMode.Raw;
         [SerializeField] float _updateEpsilon = 0.0001f;
         [SerializeField] bool _isEditable = true;
@@ -35,20 +33,40 @@ namespace Game.UI
 
         [Header("Input")]
         [SerializeField] UISliderInputMode _inputMode = UISliderInputMode.PointerCapture;
+        [ShowIf(nameof(HasInteractiveInput))]
         [SerializeField] float _paddingStart = 0f;
+        [ShowIf(nameof(HasInteractiveInput))]
         [SerializeField] float _paddingEnd = 0f;
+        [ShowIf(nameof(HasInteractiveInput))]
         [SerializeField] Camera? _uiCamera;
+        [ShowIf(nameof(HasInteractiveInput))]
         [SerializeField] float _navigateRepeatDelay = 0.25f;
+        [ShowIf(nameof(HasInteractiveInput))]
         [SerializeField] float _navigateRepeatInterval = 0.08f;
+        [ShowIf(nameof(HasInteractiveInput))]
         [SerializeField] float _scrollRepeatDelay = 0.1f;
+        [ShowIf(nameof(HasInteractiveInput))]
         [SerializeField] float _scrollRepeatInterval = 0.05f;
+        [ShowIf(nameof(HasInteractiveInput))]
+        [Tooltip("Unity標準入力を無効化して独自入力だけにしたい場合に使用する。InputMode=None では常に無効。")]
+        [SerializeField] bool _disableUnityNativeInput = true;
 
         [Header("Binding")]
         [SerializeField] bool _useScalarBinding;
         [ShowIf(nameof(_useScalarBinding))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Scalar Source\", _scalarBindingSource)")]
+        [Tooltip("ScalarKey を読む/書く先のスコープ。Current ならこの UISlider のスコープを使う。")]
+        [SerializeField] ActorSource _scalarBindingSource = new() { Kind = ActorSourceKind.Current };
+
+        [ShowIf(nameof(_useScalarBinding))]
         [SerializeField] ScalarKey _scalarKey;
 
         [SerializeField] bool _useBlackboardBinding;
+        [ShowIf(nameof(_useBlackboardBinding))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Blackboard Source\", _blackboardBindingSource)")]
+        [Tooltip("BlackboardKey を読む/書く先のスコープ。Current ならこの UISlider のスコープを使う。")]
+        [SerializeField] ActorSource _blackboardBindingSource = new() { Kind = ActorSourceKind.Current };
+
         [ShowIf(nameof(_useBlackboardBinding))]
         [SerializeField] VarKeyRef _blackboardKey;
 
@@ -111,17 +129,19 @@ namespace Game.UI
         public UISliderCancelBehavior CancelBehavior => _cancelBehavior;
 
         public bool UseScalarBinding => _useScalarBinding;
+        public ActorSource ScalarBindingSource => _scalarBindingSource;
         public ScalarKey ScalarKey => _scalarKey;
         public bool UseBlackboardBinding => _useBlackboardBinding;
+        public ActorSource BlackboardBindingSource => _blackboardBindingSource;
         public VarKeyRef BlackboardKey => _blackboardKey;
         public UISliderExternalBindingPriority BindingPriority => _bindingPriority;
         public bool WriteToBothBindings => _writeToBothBindings;
         public VNext.CommandListData OnValueChangedCommands => _onValueChangedCommands;
 
-        public float MinValue => _minValue;
-        public float MaxValue => _maxValue;
-        public float InitialValue => _initialValue;
-        public float Step => _step;
+        public DynamicValue<float> MinValue => _minValue;
+        public DynamicValue<float> MaxValue => _maxValue;
+        public DynamicValue<float> InitialValue => _initialValue;
+        public DynamicValue<float> Step => _step;
 
         public RectTransform TrackRect
         {
@@ -173,6 +193,7 @@ namespace Game.UI
         public float NavigateRepeatInterval => _navigateRepeatInterval;
         public float ScrollRepeatDelay => _scrollRepeatDelay;
         public float ScrollRepeatInterval => _scrollRepeatInterval;
+        public bool HasInteractiveInput => _inputMode != UISliderInputMode.None;
 
         Slider UnitySlider
         {
@@ -189,7 +210,6 @@ namespace Game.UI
             ApplyUnitySliderConfig();
 
             builder.Register<UISliderService>(Lifetime.Singleton)
-                .WithParameter(scope)
                 .WithParameter<IUISliderValueOptions>(this)
                 .WithParameter<Slider>(UnitySlider)
                 .As<IUISliderController>()
@@ -232,7 +252,6 @@ namespace Game.UI
 
         void OnValidate()
         {
-            if (_step < 0f) _step = 0f;
             if (_updateEpsilon < 0f) _updateEpsilon = 0f;
             if (_paddingStart < 0f) _paddingStart = 0f;
             if (_paddingEnd < 0f) _paddingEnd = 0f;
@@ -255,10 +274,12 @@ namespace Game.UI
         {
             if (_unitySlider == null) return;
 
-            _unitySlider.minValue = Mathf.Min(_minValue, _maxValue);
-            _unitySlider.maxValue = Mathf.Max(_minValue, _maxValue);
+            var minValue = ResolveEditorFloat(_minValue, _unitySlider.minValue);
+            var maxValue = ResolveEditorFloat(_maxValue, _unitySlider.maxValue);
+            _unitySlider.minValue = Mathf.Min(minValue, maxValue);
+            _unitySlider.maxValue = Mathf.Max(minValue, maxValue);
 
-            if (_disableUnityNativeInput)
+            if (_inputMode == UISliderInputMode.None || _disableUnityNativeInput)
             {
                 _unitySlider.transition = Selectable.Transition.None;
                 _unitySlider.interactable = false;
@@ -267,6 +288,17 @@ namespace Game.UI
             {
                 _unitySlider.interactable = _isEditable;
             }
+        }
+
+        static float ResolveEditorFloat(DynamicValue<float> value, float fallback)
+        {
+            if (!value.HasSource)
+                return value.GetOrDefaultWithoutContext(fallback);
+
+            if (value.TryGetSource<LiteralFloatSource>(out _))
+                return value.GetOrDefaultWithoutContext(fallback);
+
+            return fallback;
         }
 
         public void SetInspectorTelemetry(UISliderTelemetrySnapshot s)

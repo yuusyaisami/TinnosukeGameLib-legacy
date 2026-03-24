@@ -194,13 +194,13 @@ namespace Game.StatusEffect
             if (mutations == null)
                 return;
 
-            CommandListRuntimeMutationPipeline.Apply(OnApply, mutations.OnApply, mutationService);
-            CommandListRuntimeMutationPipeline.Apply(OnRemove, mutations.OnRemove, mutationService);
-            CommandListRuntimeMutationPipeline.Apply(OnEnable, mutations.OnEnable, mutationService);
-            CommandListRuntimeMutationPipeline.Apply(OnDisable, mutations.OnDisable, mutationService);
-            CommandListRuntimeMutationPipeline.Apply(OnUse, mutations.OnUse, mutationService);
-            CommandListRuntimeMutationPipeline.Apply(OnStackIntensity, mutations.OnStackIntensity, mutationService);
-            CommandListRuntimeMutationPipeline.Apply(OnStackDuration, mutations.OnStackDuration, mutationService);
+            OnApply.ApplyRuntimeMutation(mutations.OnApply, mutationService);
+            OnRemove.ApplyRuntimeMutation(mutations.OnRemove, mutationService);
+            OnEnable.ApplyRuntimeMutation(mutations.OnEnable, mutationService);
+            OnDisable.ApplyRuntimeMutation(mutations.OnDisable, mutationService);
+            OnUse.ApplyRuntimeMutation(mutations.OnUse, mutationService);
+            OnStackIntensity.ApplyRuntimeMutation(mutations.OnStackIntensity, mutationService);
+            OnStackDuration.ApplyRuntimeMutation(mutations.OnStackDuration, mutationService);
         }
     }
 

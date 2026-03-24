@@ -13,12 +13,17 @@ namespace Game.UI
     {
         [Header("Spawner")]
         [SerializeField] string spawnerTag = "";
+        [Tooltip("Spawn parent. Null の場合はこの GameObject 直下に生成")]
+        [SerializeField] Transform? root;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance(this);
 
+            var resolvedRoot = root != null ? root : transform;
+
             builder.Register<UIElementRuntimeSpawnerService>(Lifetime.Singleton)
+                .WithParameter(resolvedRoot)
                 .WithParameter(spawnerTag)
                 .AsSelf()
                 .As<IAsyncSpawnerService>()

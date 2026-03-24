@@ -130,6 +130,21 @@ namespace Game.Movement
         [ShowInInspector, ReadOnly, InlineProperty, HideLabel]
         InputMovementDebugView _debugView = new InputMovementDebugView();
 
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            if (_monitorRules == null || _monitorRules.Length == 0)
+                return;
+
+            for (int i = 0; i < _monitorRules.Length; i++)
+            {
+                var rule = _monitorRules[i];
+                rule.EnsureDefaults();
+                _monitorRules[i] = rule;
+            }
+        }
+#endif
+
         // ================================================================
         // IFeatureInstaller
         // ================================================================

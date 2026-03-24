@@ -1,0 +1,375 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
+  m_Name: TraitDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
+  _definitionId: TraitDefinition
+  _name:
+    Template: 
+    Variables: []
+  _description:
+    Template: 
+    Variables: []
+  _weight: 1
+  _visualSettings:
+    DefaultAnim:
+      animationA:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      animationB:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      playMode: 0
+      flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
+      usePlaybackSpeedMultiplier: 1
+      crossFadeProfile:
+        rid: -2
+    FocusAnim:
+      animationA:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      animationB:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      playMode: 0
+      flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
+      usePlaybackSpeedMultiplier: 1
+      crossFadeProfile:
+        rid: -2
+    InteractAnim:
+      animationA:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      animationB:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      playMode: 0
+      flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
+      usePlaybackSpeedMultiplier: 1
+      crossFadeProfile:
+        rid: -2
+    DisableAnim:
+      animationA:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      animationB:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      playMode: 0
+      flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
+      usePlaybackSpeedMultiplier: 1
+      crossFadeProfile:
+        rid: -2
+  _traitListMovePreset:
+    loop: 0
+    loopCount: -1
+    steps: []
+  _runOnHoldCommands: 0
+  _onHoldCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  _runOnUseCommands: 0
+  _onUseCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  _runOnRemoveCommands: 0
+  _onRemoveCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  _onLtsInstantiatedCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  _applyCommonVars: 1
+  _commonVars:
+    entries:
+    - VarId: 100121
+      Kind: 3
+      BoolValue: 0
+      IntValue: 0
+      FloatValue: 10
+      StringValue: 
+      Vector2Value: {x: 0, y: 0}
+      Vector3Value: {x: 0, y: 0, z: 0}
+      Vector4Value: {x: 0, y: 0, z: 0, w: 0}
+      ColorValue: {r: 0, g: 0, b: 0, a: 0}
+      UnityObjectValue: {fileID: 0}
+      ManagedRefValue:
+        rid: -2
+  _placeableSettings:
+    _enabled: 1
+    _runtimeTemplate:
+      _source:
+        rid: 5619052416848364315
+      _defaultValue:
+        prefab: {fileID: 0}
+        usePooling: 1
+        category: Runtime
+        templateId: 
+    _applyRuntimeTraitMb: 1
+    _defaultPlacementMode: 10
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052416848364315
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052416848364316
+    - rid: 5619052416848364316
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 9144259269532508853, guid: da822ed4bb2c281418a23d6da279ac9b, type: 3}
+        usePooling: 1
+        category: Runtime
+        templateId: 

@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using Game.Commands.VNext;
 using UnityEngine;
 using Game.Common;
 using Game.Scalar;
@@ -8,63 +9,64 @@ namespace Game.UI
 {
     public enum UISliderAxis
     {
-        Horizontal,
-        Vertical
+        Horizontal = 0,
+        Vertical = 1
     }
 
     public enum UISliderDirection
     {
-        LeftToRight,
-        RightToLeft,
-        BottomToTop,
-        TopToBottom
+        LeftToRight = 0,
+        RightToLeft = 1,
+        BottomToTop = 2,
+        TopToBottom = 3
     }
 
     public enum UISliderInputMode
     {
-        SubmitToggle,
-        PointerCapture
+        SubmitToggle = 0,
+        PointerCapture = 1,
+        None = 2
     }
 
     public enum UISliderStepMode
     {
-        Raw,
-        Normalized
+        Raw = 0,
+        Normalized = 1
     }
 
     public enum UISliderCancelBehavior
     {
-        KeepValue,
-        RevertToStart
+        KeepValue = 0,
+        RevertToStart = 1
     }
 
     public enum UISliderExternalBindingPriority
     {
-        Scalar,
-        Blackboard
+        Scalar = 0,
+        Blackboard = 1
     }
 
     public enum UISliderChangeSource
     {
-        UserPointer,
-        UserNavigate,
-        ExternalBinding,
-        Initialization
+        UserPointer = 0,
+        UserNavigate = 1,
+        ExternalBinding = 2,
+        Initialization = 3
     }
 
     public enum UISliderEditMode
     {
-        None,
-        PointerCapture,
-        SubmitToggle
+        None = 0,
+        PointerCapture = 1,
+        SubmitToggle = 2
     }
 
     public enum UISliderEndEditReason
     {
-        PointerUp,
-        SubmitToggle,
-        SelectionLost,
-        Cancel
+        PointerUp = 0,
+        SubmitToggle = 1,
+        SelectionLost = 2,
+        Cancel = 3
     }
 
     public interface IUISliderController
@@ -99,17 +101,19 @@ namespace Game.UI
 
     public interface IUISliderValueOptions
     {
-        float MinValue { get; }
-        float MaxValue { get; }
-        float InitialValue { get; }
-        float Step { get; }
+        DynamicValue<float> MinValue { get; }
+        DynamicValue<float> MaxValue { get; }
+        DynamicValue<float> InitialValue { get; }
+        DynamicValue<float> Step { get; }
         UISliderStepMode StepMode { get; }
         float UpdateEpsilon { get; }
         bool IsEditable { get; }
         UISliderCancelBehavior CancelBehavior { get; }
         bool UseScalarBinding { get; }
+        ActorSource ScalarBindingSource { get; }
         ScalarKey ScalarKey { get; }
         bool UseBlackboardBinding { get; }
+        ActorSource BlackboardBindingSource { get; }
         VarKeyRef BlackboardKey { get; }
         UISliderExternalBindingPriority BindingPriority { get; }
         bool WriteToBothBindings { get; }

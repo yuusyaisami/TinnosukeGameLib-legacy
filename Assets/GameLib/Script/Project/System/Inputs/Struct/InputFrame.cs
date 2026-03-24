@@ -53,6 +53,8 @@ namespace Game.Input
 
         /// <summary>画面座標のポインタ位置（IPointerService から取得）</summary>
         public Vector2 PointerScreen;
+        public ButtonState PointerLeft;
+        public ButtonState PointerRight;
 
         // ===== Locomotion =====
         /// <summary>移動入力（WASD / 左スティック等）</summary>

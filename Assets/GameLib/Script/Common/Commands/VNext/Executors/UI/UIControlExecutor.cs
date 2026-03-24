@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Game;
 using Game.Common;
 using Game.UI;
 using UnityEngine;
@@ -38,8 +39,10 @@ namespace Game.Commands.VNext
                 return;
 
             EnsureScopeBuiltIfNeeded(targetScope);
+            var controlScope = ResolveControlScopeOrThrow(typed, ctx, targetScope);
+            EnsureScopeBuiltIfNeeded(controlScope);
 
-            ExecuteOperation(typed, ctx, targetScope);
+            ExecuteOperation(typed, ctx, targetScope, controlScope);
 
             if (typed.Then == null || typed.Then.Count == 0)
                 return;
@@ -47,13 +50,13 @@ namespace Game.Commands.VNext
             await ExecuteThenAsync(typed, ctx, targetScope, ct);
         }
 
-        static void ExecuteOperation(UIControlCommandData typed, CommandContext ctx, IScopeNode targetScope)
+        static void ExecuteOperation(UIControlCommandData typed, CommandContext ctx, IScopeNode targetScope, IScopeNode controlScope)
         {
             switch (typed.Operation)
             {
                 // ---------------- Modal stack ----------------
                 case UIControlOperation.ModalPush:
-                    if (TryResolve(targetScope, out IUIModalStackService? modal) && modal != null
+                    if (TryResolve(controlScope, out IUIModalStackService? modal) && modal != null
                         && TryResolve(targetScope, out IUIModalRoot? root) && root != null)
                     {
                         if (HasStackKey(typed))
@@ -64,7 +67,7 @@ namespace Game.Commands.VNext
                     break;
 
                 case UIControlOperation.ModalPop:
-                    if (TryResolve(targetScope, out IUIModalStackService? modalPop) && modalPop != null
+                    if (TryResolve(controlScope, out IUIModalStackService? modalPop) && modalPop != null
                         && TryResolve(targetScope, out IUIModalRoot? rootPop) && rootPop != null)
                     {
                         if (HasStackKey(typed))
@@ -75,7 +78,7 @@ namespace Game.Commands.VNext
                     break;
 
                 case UIControlOperation.ModalPopTop:
-                    if (TryResolve(targetScope, out IUIModalStackService? modalPopTop) && modalPopTop != null)
+                    if (TryResolve(controlScope, out IUIModalStackService? modalPopTop) && modalPopTop != null)
                     {
                         if (HasStackKey(typed))
                             modalPopTop.PopTop(typed.StackKey);
@@ -85,14 +88,14 @@ namespace Game.Commands.VNext
                     break;
 
                 case UIControlOperation.ModalClearAll:
-                    if (TryResolve(targetScope, out IUIModalStackService? modalClear) && modalClear != null)
+                    if (TryResolve(controlScope, out IUIModalStackService? modalClear) && modalClear != null)
                     {
                         modalClear.ClearAll();
                     }
                     break;
 
                 case UIControlOperation.ModalSetDefaultRoot:
-                    if (TryResolve(targetScope, out IUIModalStackService? modalSetRoot) && modalSetRoot != null
+                    if (TryResolve(controlScope, out IUIModalStackService? modalSetRoot) && modalSetRoot != null
                         && TryResolve(targetScope, out IUIModalRoot? defaultRoot) && defaultRoot != null)
                     {
                         if (HasStackKey(typed))
@@ -104,21 +107,21 @@ namespace Game.Commands.VNext
 
                 // ---------------- Selection ----------------
                 case UIControlOperation.Select:
-                    if (TryResolve(targetScope, out IUISelectionNavigation? selection) && selection != null)
+                    if (TryResolve(controlScope, out IUISelectionNavigation? selection) && selection != null)
                     {
                         selection.Select(targetScope);
                     }
                     break;
 
                 case UIControlOperation.TrySelect:
-                    if (TryResolve(targetScope, out IUISelectionNavigation? selectionTry) && selectionTry != null)
+                    if (TryResolve(controlScope, out IUISelectionNavigation? selectionTry) && selectionTry != null)
                     {
                         selectionTry.TrySelect(targetScope);
                     }
                     break;
 
                 case UIControlOperation.ClearSelection:
-                    if (TryResolve(targetScope, out IUISelectionNavigation? selectionClear) && selectionClear != null)
+                    if (TryResolve(controlScope, out IUISelectionNavigation? selectionClear) && selectionClear != null)
                     {
                         selectionClear.ClearSelection();
                     }
@@ -282,6 +285,56 @@ namespace Game.Commands.VNext
         static bool HasStackKey(UIControlCommandData typed)
         {
             return !string.IsNullOrEmpty(typed.StackKey);
+        }
+
+        static IScopeNode ResolveControlScopeOrThrow(UIControlCommandData typed, CommandContext ctx, IScopeNode targetScope)
+        {
+            if (string.IsNullOrEmpty(typed.UILifetimeScopeId))
+                return targetScope;
+
+            var origin = ctx.Scope ?? targetScope;
+            if (!TryResolveScopeRegistry(origin, out var registry) || registry == null)
+            {
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ResolveFailed,
+                    $"UIControl could not resolve IBaseLifetimeScopeRegistry while looking for UILifetimeScope '{typed.UILifetimeScopeId}'.");
+            }
+
+            var filter = new CommandTargetIdentityFilter
+            {
+                kind = LifetimeScopeKind.UI,
+                id = typed.UILifetimeScopeId,
+                category = string.Empty,
+                requireActive = false,
+                searchScope = CommandTargetSearchScope.All,
+            };
+
+            var resolved = registry.Resolve(filter, origin);
+            if (resolved != null)
+                return resolved;
+
+            throw new CommandExecutionException(
+                CommandRunFailureKind.ResolveFailed,
+                $"UILifetimeScope '{typed.UILifetimeScopeId}' was not found for UIControl.");
+        }
+
+        static bool TryResolveScopeRegistry(IScopeNode? origin, out IBaseLifetimeScopeRegistry? registry)
+        {
+            var current = origin;
+            while (current != null)
+            {
+                var resolver = current.Resolver;
+                if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
+                {
+                    registry = resolved;
+                    return true;
+                }
+
+                current = current.Parent;
+            }
+
+            registry = null;
+            return false;
         }
 
         static string DescribeScope(IScopeNode scope)

@@ -7,83 +7,33 @@ namespace Game.Actions
 {
     public enum GameState
     {
-        /// <summary>初期状態</summary>
         /// <remarks>
-        /// Path: FoxGame/Default
+        /// Path: GameScene/Game/Start
         /// </remarks>
-        FoxGame_Default = 0,
-        /// <summary>マップ選択画面</summary>
+        GameScene_Game_Start = 12,
         /// <remarks>
-        /// Path: FoxGame/MapSelection
+        /// Path: GameScene/Game/SelectUpgrade
         /// </remarks>
-        FoxGame_MapSelection = 2,
-        /// <summary>ゲーム開始の演出</summary>
+        GameScene_Game_SelectUpgrade = 13,
         /// <remarks>
-        /// Path: FoxGame/GameEntry
+        /// Path: GameScene/Game/GameEditor
         /// </remarks>
-        FoxGame_GameEntry = 3,
-        /// <summary>プレイヤーのアクション選択</summary>
+        GameScene_Game_GameEditor = 14,
         /// <remarks>
-        /// Path: FoxGame/PlayerActionSelection
+        /// Path: GameScene/Game/FallCoin
         /// </remarks>
-        FoxGame_PlayerActionSelection = 4,
-        /// <summary>プレイヤーのアクション実行フェーズ</summary>
+        GameScene_Game_FallCoin = 15,
         /// <remarks>
-        /// Path: FoxGame/PlayerActionExecution
+        /// Path: GameScene/Game/EndCoin
         /// </remarks>
-        FoxGame_PlayerActionExecution = 5,
-        /// <summary>敵のアクション実行フェーズ</summary>
-        /// <remarks>
-        /// Path: FoxGame/EnemyActionExecution
-        /// </remarks>
-        FoxGame_EnemyActionExecution = 6,
-        /// <summary>アクションの解決フェーズ</summary>
-        /// <remarks>
-        /// Path: FoxGame/ActionResolution
-        /// </remarks>
-        FoxGame_ActionResolution = 7,
-        /// <summary>ゲームオーバー画面</summary>
-        /// <remarks>
-        /// Path: FoxGame/GameOver
-        /// </remarks>
-        FoxGame_GameOver = 8,
-        /// <summary>勝利画面</summary>
-        /// <remarks>
-        /// Path: FoxGame/Victory
-        /// </remarks>
-        FoxGame_Victory = 9,
-        /// <summary>ゲーム開始カウントダウン</summary>
-        /// <remarks>
-        /// Path: FoxGame/StartCountdown
-        /// </remarks>
-        FoxGame_StartCountdown = 10,
-        /// <remarks>
-        /// Path: CDonTK/GameScene/StartCountDown
-        /// </remarks>
-        CDonTK_GameScene_StartCountDown = 11,
-        /// <remarks>
-        /// Path: CDonTK/GameScene/GamePlay
-        /// </remarks>
-        CDonTK_GameScene_GamePlay = 12,
-        /// <remarks>
-        /// Path: CDonTK/GameScene/GameOver
-        /// </remarks>
-        CDonTK_GameScene_GameOver = 13,
-        /// <remarks>
-        /// Path: CDonTK/GameScene/PlayerDead
-        /// </remarks>
-        CDonTK_GameScene_PlayerDead = 14,
-        /// <remarks>
-        /// Path: CDonTK/GameScene/Victory
-        /// </remarks>
-        CDonTK_GameScene_Victory = 15,
-        /// <remarks>
-        /// Path: CDonTK/GameScene/GameEntry
-        /// </remarks>
-        CDonTK_GameScene_GameEntry = 16,
+        GameScene_Game_EndCoin = 16,
         /// <remarks>
         /// Path: Default
         /// </remarks>
         Default = 17,
+        /// <remarks>
+        /// Path: GameScene/Game/GameOver
+        /// </remarks>
+        GameScene_Game_GameOver = 18,
     }
 }

@@ -72,6 +72,17 @@ namespace Game.Channel
             return false;
         }
 
+        public bool ContainsPosition(Vector3 basePosition, Vector3 worldPosition)
+        {
+            var shape = _definition.Shape;
+            if (shape == null)
+                return false;
+
+            var localOffset = worldPosition - basePosition;
+            var localPosition = ToLocal(localOffset, _definition.Plane);
+            return shape.ContainsLocalPosition(localPosition);
+        }
+
         public bool IsFarEnough(Vector3 candidate)
         {
             var minDistance = Mathf.Max(0f, _definition.Sample.MinDistance);
@@ -127,6 +138,13 @@ namespace Game.Channel
             return plane == AreaPlane.XZ
                 ? new Vector3(offset.x, 0f, offset.y)
                 : new Vector3(offset.x, offset.y, 0f);
+        }
+
+        static Vector2 ToLocal(Vector3 offset, AreaPlane plane)
+        {
+            return plane == AreaPlane.XZ
+                ? new Vector2(offset.x, offset.z)
+                : new Vector2(offset.x, offset.y);
         }
 
         static int ResolveSeed(int seed)

@@ -27,6 +27,27 @@ namespace Game.Commands
 
         const int InitialRunningCapacity = 2;
 
+        sealed class ValueChangedWatchState
+        {
+            public readonly MonitorValueChangedTarget Target;
+            public bool HasLastValue;
+            public DynamicVariant LastValue;
+            public IDisposable? ScalarSubscription;
+            public Action<int>? VarChangedHandler;
+            public IVarStore? ObservedVarStore;
+            public Action<int>? BlackboardVarChangedHandler;
+            public IVarStore? ObservedBlackboardVars;
+            public bool PendingRefresh;
+            public bool PendingFire;
+
+            public ValueChangedWatchState(MonitorValueChangedTarget target)
+            {
+                Target = target ?? throw new ArgumentNullException(nameof(target));
+                HasLastValue = false;
+                LastValue = DynamicVariant.Null;
+            }
+        }
+
         // ================================================================
         // フィールド
         // ================================================================
@@ -62,15 +83,9 @@ namespace Game.Commands
         bool _conditionEvaluatedOnce;
 
         // ValueChanged rule state
+        readonly List<ValueChangedWatchState> _valueChangedStates = new(4);
         bool _valueChangedTriggeredThisFrame;
         int _valueChangedVersion;
-        bool _hasLastWatchedValue;
-        DynamicVariant _lastWatchedValue;
-        IDisposable? _valueChangedSubscription;
-        Action<int>? _valueChangedVarChangedHandler;
-        IVarStore? _valueChangedObservedVars;
-        Action<int>? _blackboardVarChangedHandler;
-        IVarStore? _blackboardObservedVars;
         CancellationTokenSource? _initialValueChangedEnterCts;
         bool _initialValueChangedEnterScheduled;
         bool _initialValueChangedEnterExecuted;
@@ -81,9 +96,6 @@ namespace Game.Commands
 
         float _lastWhileTrueExecution = float.NegativeInfinity;
         float _lastWhileFalseExecution = float.NegativeInfinity;
-
-        // Debug flag for TryGetWatchedValue (UNITY_EDITOR only)
-        bool _loggedTryGetWatchedValueOnce;
 
         bool _disposed;
         int _telemetryVersion;
@@ -137,14 +149,14 @@ namespace Game.Commands
             _conditionEvaluatedOnce = false;
 
             _valueChangedTriggeredThisFrame = false;
-            _hasLastWatchedValue = false;
-            _lastWatchedValue = DynamicVariant.Null;
             _initialValueChangedEnterScheduled = false;
             _initialValueChangedEnterExecuted = false;
 
             // 依存キーをキャッシュ
             _cachedDependentKeys = rule.Condition.GetDependentKeys();
             _cachedDependentVarIds = ResolveDependentVarIds(_cachedDependentKeys);
+
+            BuildValueChangedStates();
         }
 
         // ================================================================
@@ -189,13 +201,7 @@ namespace Game.Commands
         {
             if (varId == 0) return;
 
-            // ValueChanged (VarStore)
-            if (_rule.RuleKind == MonitorRuleKind.ValueChanged &&
-                _rule.ValueSource == MonitorValueSourceKind.VarStore &&
-                _rule.VarStoreVarId == varId)
-            {
-                MarkValueChangedTriggered();
-            }
+            NotifyValueChangedVarStore(varId);
 
             if (_cachedDependentVarIds == null || _cachedDependentVarIds.Length == 0) return;
 
@@ -218,7 +224,6 @@ namespace Game.Commands
 
         void MarkValueChangedTriggered()
         {
-            var before = _valueChangedVersion;
             _valueChangedTriggeredThisFrame = true;
             unchecked { _valueChangedVersion++; }
         }
@@ -348,9 +353,45 @@ namespace Game.Commands
             }
         }
 
-        IScopeNode? ResolveValueTargetScope()
+        IScopeNode? ResolveValueTargetScope(in MonitorValueChangedTarget target)
         {
-            return ResolveActorSourceScope(_rule.ValueTarget);
+            return ResolveActorSourceScope(target.ValueTarget);
+        }
+
+        void BuildValueChangedStates()
+        {
+            _valueChangedStates.Clear();
+
+            if (_rule.RuleKind != MonitorRuleKind.ValueChanged)
+                return;
+
+            var targetCount = _rule.GetValueChangedTargetCount();
+            for (int i = 0; i < targetCount; i++)
+            {
+                var target = _rule.GetValueChangedTarget(i);
+                if (target == null)
+                    continue;
+
+                _valueChangedStates.Add(new ValueChangedWatchState(target));
+            }
+        }
+
+        void NotifyValueChangedVarStore(int varId)
+        {
+            if (_rule.RuleKind != MonitorRuleKind.ValueChanged)
+                return;
+
+            for (int i = 0; i < _valueChangedStates.Count; i++)
+            {
+                var state = _valueChangedStates[i];
+                var target = state.Target;
+                if (target.ValueSource != MonitorValueSourceKind.VarStore)
+                    continue;
+                if (target.VarStoreVarId == 0 || target.VarStoreVarId != varId)
+                    continue;
+
+                MarkValueChangedRefresh(state);
+            }
         }
 
         static bool TryResolveScopeRegistry(IScopeNode? origin, out IBaseLifetimeScopeRegistry? registry)
@@ -480,114 +521,112 @@ namespace Game.Commands
 
         bool ShouldPollValueChanged(MonitorEvaluationMode mode)
         {
-            if (_rule.RuleKind != MonitorRuleKind.ValueChanged)
+            if (_rule.RuleKind != MonitorRuleKind.ValueChanged || _valueChangedStates.Count == 0)
                 return false;
 
-            // Polling: always check.
             if (mode == MonitorEvaluationMode.Polling)
-                return true;
+                return HasConfiguredValueChangedTarget();
 
-            // EventDriven: VarStore/Blackboard(Local)/Scalar can be event-driven.
-            // Blackboard(Global) has no reliable change event across scope chain.
-            if (_rule.ValueSource == MonitorValueSourceKind.Blackboard && _rule.BlackboardReadScope == BlackboardReadScope.Global)
-                return true;
+            for (int i = 0; i < _valueChangedStates.Count; i++)
+            {
+                var state = _valueChangedStates[i];
+                if (!IsValueChangedTargetConfigured(state.Target))
+                    continue;
 
-            if (_rule.ValueSource == MonitorValueSourceKind.VarStore && _valueChangedObservedVars == null)
-                return true;
-
-            // If Scalar subscription couldn't be established, fall back to polling.
-            if (_rule.ValueSource == MonitorValueSourceKind.Scalar && _valueChangedSubscription == null)
-                return true;
+                switch (state.Target.ValueSource)
+                {
+                    case MonitorValueSourceKind.VarStore:
+                        if (state.ObservedVarStore == null)
+                            return true;
+                        break;
+                    case MonitorValueSourceKind.Blackboard:
+                        if (state.Target.BlackboardReadScope == BlackboardReadScope.Global || state.ObservedBlackboardVars == null)
+                            return true;
+                        break;
+                    case MonitorValueSourceKind.Scalar:
+                        if (state.ScalarSubscription == null)
+                            return true;
+                        break;
+                }
+            }
 
             return false;
         }
 
         void ProcessValueChangedRule(CancellationToken ct)
         {
-            if (!TryGetWatchedValue(out var current))
-                return;
+            bool anyTriggered = false;
 
-            if (!_hasLastWatchedValue)
+            for (int i = 0; i < _valueChangedStates.Count; i++)
             {
-                _lastWatchedValue = current;
-                _hasLastWatchedValue = true;
-                return;
+                if (TryProcessValueChangedState(_valueChangedStates[i]))
+                    anyTriggered = true;
             }
 
-            var previous = _lastWatchedValue;
+            if (!anyTriggered)
+                return;
 
-            if (_valueChangedTriggeredThisFrame)
+            BumpTelemetry();
+            TryExecuteCommands("Change", _rule.OnEnterCommands, ct);
+        }
+
+        bool TryProcessValueChangedState(ValueChangedWatchState state)
+        {
+            if (!IsValueChangedTargetConfigured(state.Target))
             {
-                _valueChangedTriggeredThisFrame = false;
-                _lastWatchedValue = current;
-                _hasLastWatchedValue = true;
-
-                // Debug: Change triggered (subscription) - suppressed
-                // Debug.Log($"[MonitorChannelRuntime] Change triggered (subscription): Rule='{_rule.RuleName}', last={previous}, current={current}");
+                state.PendingFire = false;
+                state.PendingRefresh = false;
+                return false;
             }
 
-            if (!TryDetectValueDelta(previous, current, _rule.ChangeEpsilon, out var deltaSign, out var changed))
+            if (state.PendingFire)
             {
-                // Unsupported type for delta detection: only update baseline if exact kind/value differs.
-                if (previous != current)
-                {
-                    _lastWatchedValue = current;
-                    _hasLastWatchedValue = true;
+                state.PendingFire = false;
+                state.PendingRefresh = false;
+                return true;
+            }
 
-                    if (_rule.ValueChangeMode == MonitorValueChangeMode.AnyChange)
-                    {
-#if UNITY_EDITOR
-                        // Debug: AnyChange non-numeric detected - suppressed
-                        // Debug.Log($"[MonitorChannelRuntime] Change detected (AnyChange non-numeric): Rule='{_rule.RuleName}', last={previous}, current={current}");
-#endif
-                        BumpTelemetry();
-                        TryExecuteCommands("Change", _rule.OnEnterCommands, ct);
-                    }
-                }
-                return;
+            if (!TryGetWatchedValue(state, out var current))
+            {
+                state.PendingRefresh = false;
+                return false;
+            }
+
+            if (!state.HasLastValue)
+            {
+                state.LastValue = current;
+                state.HasLastValue = true;
+                state.PendingRefresh = false;
+                return false;
+            }
+
+            var previous = state.LastValue;
+            state.PendingRefresh = false;
+
+            if (!TryDetectValueDelta(previous, current, state.Target.ChangeEpsilon, out var deltaSign, out var changed))
+            {
+                if (previous == current)
+                    return false;
+
+                state.LastValue = current;
+                state.HasLastValue = true;
+                return state.Target.ValueChangeMode == MonitorValueChangeMode.AnyChange;
             }
 
             if (!changed)
             {
-                // For numeric kinds, TryDetectValueDelta may return changed==false when |delta| <= epsilon.
-                // If the mode is AnyChange but values differ exactly (e.g. boundary case), treat it as a change.
-                if (_rule.ValueChangeMode == MonitorValueChangeMode.AnyChange && previous != current)
+                if (state.Target.ValueChangeMode == MonitorValueChangeMode.AnyChange && previous != current)
                 {
-#if UNITY_EDITOR
-                    // Debug: AnyChange within epsilon - suppressed
-                    // Debug.Log($"[MonitorChannelRuntime] Change detected (AnyChange within epsilon): Rule='{_rule.RuleName}', last={previous}, current={current}, epsilon={_rule.ChangeEpsilon}");
-#endif
-                    _lastWatchedValue = current;
-                    _hasLastWatchedValue = true;
-                    BumpTelemetry();
-                    TryExecuteCommands("Change", _rule.OnEnterCommands, ct);
+                    state.LastValue = current;
+                    state.HasLastValue = true;
+                    return true;
                 }
-                return;
+                return false;
             }
 
-            // Always update baseline on real change (even if direction doesn't match)
-            _lastWatchedValue = current;
-            _hasLastWatchedValue = true;
-
-            var mode = _rule.ValueChangeMode;
-            var shouldFire = mode switch
-            {
-                MonitorValueChangeMode.AnyChange => true,
-                MonitorValueChangeMode.Increased => deltaSign > 0,
-                MonitorValueChangeMode.Decreased => deltaSign < 0,
-                _ => false,
-            };
-
-            if (!shouldFire)
-                return;
-
-#if UNITY_EDITOR
-            // Debug: Change triggered - suppressed
-            // Debug.Log($"[MonitorChannelRuntime] Change triggered: Rule='{_rule.RuleName}', last={previous}, current={current}, mode={mode}, sign={deltaSign}");
-#endif
-
-            BumpTelemetry();
-            TryExecuteCommands("Change", _rule.OnEnterCommands, ct);
+            state.LastValue = current;
+            state.HasLastValue = true;
+            return ShouldFireForValueChanged(state.Target.ValueChangeMode, deltaSign);
         }
 
         void TryStartInitialValueChangedEnter()
@@ -599,6 +638,9 @@ namespace Game.Commands
                 return;
 
             if (!_rule.ExecuteInitialValueChangedEnter)
+                return;
+
+            if (!HasConfiguredValueChangedTarget())
                 return;
 
             if (_initialValueChangedEnterScheduled || _initialValueChangedEnterExecuted)
@@ -640,51 +682,44 @@ namespace Game.Commands
             }
         }
 
-        bool TryGetWatchedValue(out DynamicVariant value)
+        bool TryGetWatchedValue(ValueChangedWatchState state, out DynamicVariant value)
         {
             value = DynamicVariant.Null;
 
-            if (_rule.RuleKind != MonitorRuleKind.ValueChanged)
+            if (_rule.RuleKind != MonitorRuleKind.ValueChanged || !IsValueChangedTargetConfigured(state.Target))
                 return false;
 
-            switch (_rule.ValueSource)
+            var target = state.Target;
+            switch (target.ValueSource)
             {
                 case MonitorValueSourceKind.VarStore:
                     {
-                        if (!TryResolveValueTargetVarStore(out var vars) || vars == null)
+                        if (!TryResolveValueTargetVarStore(state, out var vars) || vars == null)
                             return false;
-                        var varId = _rule.VarStoreVarId;
+                        var varId = target.VarStoreVarId;
                         if (varId == 0)
                             return false;
                         return vars.TryGetVariant(varId, out value) || (value = DynamicVariant.Null) == DynamicVariant.Null;
                     }
                 case MonitorValueSourceKind.Blackboard:
                     {
-                        var targetScope = ResolveValueTargetScope();
+                        var targetScope = ResolveValueTargetScope(target);
                         if (targetScope?.Resolver == null) return false;
                         if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null) return false;
-                        var varId = _rule.BlackboardVarId;
+                        var varId = target.BlackboardVarId;
                         if (varId == 0) return false;
 
-                        if (_rule.BlackboardReadScope == BlackboardReadScope.Global)
+                        if (target.BlackboardReadScope == BlackboardReadScope.Global)
                             return bb.TryGlobalGetVariant(varId, out value) || (value = DynamicVariant.Null) == DynamicVariant.Null;
 
                         return bb.TryLocalGetVariant(varId, out value) || (value = DynamicVariant.Null) == DynamicVariant.Null;
                     }
                 case MonitorValueSourceKind.Scalar:
                     {
-#if UNITY_EDITOR
-                        if (!_loggedTryGetWatchedValueOnce)
-                        {
-                            _loggedTryGetWatchedValueOnce = true;
-                            // Debug: TryGetWatchedValue scalar source - suppressed
-                            // Debug.Log($"[MonitorChannelRuntime] TryGetWatchedValue: Scalar source for rule '{_rule.RuleName}'");
-                        }
-#endif
-                        var targetScope = ResolveValueTargetScope();
+                        var targetScope = ResolveValueTargetScope(target);
                         if (targetScope?.Resolver == null) return false;
                         if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc) || svc == null) return false;
-                        var key = _rule.ScalarKey;
+                        var key = target.ScalarKey;
                         if (key.Id == 0 && string.IsNullOrEmpty(key.Name)) return false;
 
                         float f;
@@ -765,76 +800,67 @@ namespace Game.Commands
 
         void TryEnsureValueChangedSubscription()
         {
-            if (_rule.RuleKind != MonitorRuleKind.ValueChanged)
+            if (_rule.RuleKind != MonitorRuleKind.ValueChanged || _valueChangedStates.Count == 0)
                 return;
 
-            var targetScope = ResolveValueTargetScope();
+            for (int i = 0; i < _valueChangedStates.Count; i++)
+            {
+                TryEnsureValueChangedSubscription(_valueChangedStates[i]);
+            }
+        }
+
+        void TryEnsureValueChangedSubscription(ValueChangedWatchState state)
+        {
+            if (!IsValueChangedTargetConfigured(state.Target))
+                return;
+
+            var targetScope = ResolveValueTargetScope(state.Target);
             if (targetScope?.Resolver == null)
                 return;
 
-            if (_rule.ValueSource == MonitorValueSourceKind.VarStore)
+            if (state.Target.ValueSource == MonitorValueSourceKind.VarStore)
             {
-                if (_valueChangedVarChangedHandler != null)
+                if (state.VarChangedHandler != null)
                     return;
 
-                if (!TryResolveValueTargetVarStore(out var vars) || vars == null)
+                if (!TryResolveValueTargetVarStore(state, out var vars) || vars == null)
                     return;
 
-                _valueChangedObservedVars = vars;
-                _valueChangedVarChangedHandler = OnValueTargetVarChanged;
-                vars.OnVarChanged += _valueChangedVarChangedHandler;
+                state.ObservedVarStore = vars;
+                state.VarChangedHandler = varId => OnValueTargetVarChanged(state, varId);
+                vars.OnVarChanged += state.VarChangedHandler;
                 return;
             }
 
-            if (_rule.ValueSource == MonitorValueSourceKind.Blackboard)
+            if (state.Target.ValueSource == MonitorValueSourceKind.Blackboard)
             {
-                if (_blackboardVarChangedHandler != null)
+                if (state.BlackboardVarChangedHandler != null)
                     return;
 
                 if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
                     return;
 
-                // LocalVars is observable; global chain isn't.
-                var vars = bb.LocalVars;
-                _blackboardObservedVars = vars;
-                _blackboardVarChangedHandler = OnBlackboardVarChanged;
-                vars.OnVarChanged += _blackboardVarChangedHandler;
+                state.ObservedBlackboardVars = bb.LocalVars;
+                state.BlackboardVarChangedHandler = varId => OnBlackboardVarChanged(state, varId);
+                state.ObservedBlackboardVars.OnVarChanged += state.BlackboardVarChangedHandler;
                 return;
             }
 
-            if (_rule.ValueSource == MonitorValueSourceKind.Scalar)
+            if (state.Target.ValueSource == MonitorValueSourceKind.Scalar)
             {
-                if (_valueChangedSubscription != null)
+                if (state.ScalarSubscription != null)
                     return;
 
                 if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc) || svc == null)
-                {
-#if UNITY_EDITOR
-                    Debug.LogWarning($"[MonitorChannelRuntime] Scalar service not found for rule '{_rule.RuleName}'. Will fallback to polling.");
-#endif
                     return;
-                }
 
-                var key = _rule.ScalarKey;
+                var key = state.Target.ScalarKey;
                 if (key.Id == 0 && string.IsNullOrEmpty(key.Name))
-                {
-#if UNITY_EDITOR
-                    Debug.LogWarning($"[MonitorChannelRuntime] ScalarKey is empty for rule '{_rule.RuleName}'. Skipping subscription and falling back to polling.");
-#endif
                     return;
-                }
 
-                // Prefer local subscribe; if the key is expected to be global, the user can still set it via scalar hierarchy.
                 try
                 {
-                    _valueChangedSubscription = svc.GlobalSubscribe(key, OnScalarValueChanged);
-                    //#if UNITY_EDITOR
-                    //                    if (_valueChangedSubscription != null)
-                    //                        // Debug: Subscribed to scalar key - suppressed
-                    //                        // Debug.Log($"[MonitorChannelRuntime] Subscribed to scalar key '{key.FormatLabel()}' for rule '{_rule.RuleName}' (id={InstanceId}).");
-                    //                    else
-                    //                                Debug.LogWarning($"[MonitorChannelRuntime] Subscription returned null for scalar key '{key.FormatLabel()}' (rule '{_rule.RuleName}', id={InstanceId}). Will fallback to polling.");
-                    //#endif
+                    state.ScalarSubscription = svc.GlobalSubscribe(key, args => OnScalarValueChanged(state, args));
                 }
                 catch (Exception ex)
                 {
@@ -842,167 +868,84 @@ namespace Game.Commands
                     Debug.LogWarning($"[MonitorChannelRuntime] Subscribing to scalar key '{key.FormatLabel()}' failed for rule '{_rule.RuleName}' (id={InstanceId}): {ex.Message}. Falling back to polling.");
 #endif
                     _ = ex;
-                    _valueChangedSubscription = null;
+                    state.ScalarSubscription = null;
                 }
-                return;
             }
         }
 
         void UnsubscribeValueChanged()
         {
-            if (_valueChangedObservedVars != null && _valueChangedVarChangedHandler != null)
+            for (int i = 0; i < _valueChangedStates.Count; i++)
             {
-                try { _valueChangedObservedVars.OnVarChanged -= _valueChangedVarChangedHandler; } catch { }
+                var state = _valueChangedStates[i];
+
+                if (state.ObservedVarStore != null && state.VarChangedHandler != null)
+                {
+                    try { state.ObservedVarStore.OnVarChanged -= state.VarChangedHandler; } catch { }
+                }
+                state.ObservedVarStore = null;
+                state.VarChangedHandler = null;
+
+                if (state.ObservedBlackboardVars != null && state.BlackboardVarChangedHandler != null)
+                {
+                    try { state.ObservedBlackboardVars.OnVarChanged -= state.BlackboardVarChangedHandler; } catch { }
+                }
+                state.ObservedBlackboardVars = null;
+                state.BlackboardVarChangedHandler = null;
+
+                try { state.ScalarSubscription?.Dispose(); } catch { }
+                state.ScalarSubscription = null;
+                state.PendingFire = false;
+                state.PendingRefresh = false;
             }
-            _valueChangedObservedVars = null;
-            _valueChangedVarChangedHandler = null;
-
-            if (_blackboardObservedVars != null && _blackboardVarChangedHandler != null)
-            {
-                try { _blackboardObservedVars.OnVarChanged -= _blackboardVarChangedHandler; } catch { }
-            }
-            _blackboardObservedVars = null;
-            _blackboardVarChangedHandler = null;
-
-            try { _valueChangedSubscription?.Dispose(); } catch { }
-            _valueChangedSubscription = null;
         }
 
-        void OnValueTargetVarChanged(int varId)
+        void OnValueTargetVarChanged(ValueChangedWatchState state, int varId)
         {
             if (_disposed) return;
             if (_rule.RuleKind != MonitorRuleKind.ValueChanged) return;
-            if (_rule.ValueSource != MonitorValueSourceKind.VarStore) return;
-            if (varId == 0 || _rule.VarStoreVarId == 0) return;
-            if (_rule.VarStoreVarId != varId) return;
-            MarkValueChangedTriggered();
+            if (state.Target.ValueSource != MonitorValueSourceKind.VarStore) return;
+            if (varId == 0 || state.Target.VarStoreVarId == 0) return;
+            if (state.Target.VarStoreVarId != varId) return;
+            MarkValueChangedRefresh(state);
         }
 
-        void OnBlackboardVarChanged(int varId)
+        void OnBlackboardVarChanged(ValueChangedWatchState state, int varId)
         {
             if (_disposed) return;
             if (_rule.RuleKind != MonitorRuleKind.ValueChanged) return;
-            if (_rule.ValueSource != MonitorValueSourceKind.Blackboard) return;
-            if (varId == 0 || _rule.BlackboardVarId == 0) return;
-            if (_rule.BlackboardVarId != varId) return;
-            MarkValueChangedTriggered();
+            if (state.Target.ValueSource != MonitorValueSourceKind.Blackboard) return;
+            if (varId == 0 || state.Target.BlackboardVarId == 0) return;
+            if (state.Target.BlackboardVarId != varId) return;
+            MarkValueChangedRefresh(state);
         }
 
-        void OnScalarValueChanged(ScalarValueChangedArgs args)
+        void OnScalarValueChanged(ValueChangedWatchState state, ScalarValueChangedArgs args)
         {
             if (_disposed) return;
             if (_rule.RuleKind != MonitorRuleKind.ValueChanged) return;
-            if (_rule.ValueSource != MonitorValueSourceKind.Scalar) return;
+            if (state.Target.ValueSource != MonitorValueSourceKind.Scalar) return;
 
-            // Scalar always provides old/new; we can update baseline immediately.
             var oldV = DynamicVariant.FromFloat(args.OldValue);
             var newV = DynamicVariant.FromFloat(args.NewValue);
 
-#if UNITY_EDITOR
-            // Debug: OnScalarValueChanged entry - suppressed
-            // Debug.Log($"[MonitorChannelRuntime] OnScalarValueChanged: id={InstanceId}, Rule='{_rule.RuleName}', Key='{args.Key.FormatLabel()}', old={args.OldValue}, new={args.NewValue}");
-#endif
-
-#if UNITY_EDITOR
-            // Debug: OnScalarValueChanged details - suppressed
-            // Debug.Log($"[MonitorChannelRuntime] OnScalarValueChanged: id={InstanceId}, Rule='{_rule.RuleName}' entering. hasLast={_hasLastWatchedValue}, last={_lastWatchedValue}, old={oldV}, new={newV}, epsilon={_rule.ChangeEpsilon}, mode={_rule.ValueChangeMode}");
-#endif
-
-            if (!_hasLastWatchedValue)
+            if (TryShouldFireForValueChanged(state.Target, oldV, newV, out var shouldFire) && shouldFire)
             {
-                // First scalar event: we may still be able to detect a real change from old->new and trigger immediately.
-                if (TryDetectValueDelta(oldV, newV, _rule.ChangeEpsilon, out var firstSign, out var firstChanged) && firstChanged)
-                {
-                    var mode = _rule.ValueChangeMode;
-                    var shouldFire = mode switch
-                    {
-                        MonitorValueChangeMode.AnyChange => true,
-                        MonitorValueChangeMode.Increased => firstSign > 0,
-                        MonitorValueChangeMode.Decreased => firstSign < 0,
-                        _ => false,
-                    };
-#if UNITY_EDITOR
-                    // Debug: OnScalarValueChanged (first event) - suppressed
-                    // Debug.Log($"[MonitorChannelRuntime] OnScalarValueChanged (first event): Rule='{_rule.RuleName}', old={oldV}, new={newV}, firstChanged={firstChanged}, shouldFire={shouldFire} (mode={mode}, sign={firstSign})");
-#endif
-                    if (shouldFire)
-                    {
-                        MarkValueChangedTriggered();
-                    }
-                }
-                else
-                {
-                    // Non-numeric or undetectable delta: AnyChange should fire if values differ
-                    if (oldV != newV && _rule.ValueChangeMode == MonitorValueChangeMode.AnyChange)
-                    {
-#if UNITY_EDITOR
-                        // Debug: OnScalarValueChanged non-numeric change - suppressed
-                        // Debug.Log($"[MonitorChannelRuntime] OnScalarValueChanged (first non-numeric change): Rule='{_rule.RuleName}', old={oldV}, new={newV}");
-#endif
-                        MarkValueChangedTriggered();
-                    }
-                }
-
-                _lastWatchedValue = newV;
-                _hasLastWatchedValue = true;
+                state.LastValue = newV;
+                state.HasLastValue = true;
+                MarkValueChangedFired(state);
                 return;
             }
 
-            // Decide whether to trigger based on direction and epsilon, but always update baseline.
-            if (TryDetectValueDelta(oldV, newV, _rule.ChangeEpsilon, out var sign, out var changed))
-            {
-                var mode = _rule.ValueChangeMode;
-
-#if UNITY_EDITOR
-                // Debug: OnScalarValueChanged change details - suppressed
-                // Debug.Log($"[MonitorChannelRuntime] OnScalarValueChanged: id={InstanceId}, Rule='{_rule.RuleName}' changed={changed}, sign={sign}, mode={mode}");
-#endif
-
-                if (changed)
-                {
-                    var shouldFire = mode switch
-                    {
-                        MonitorValueChangeMode.AnyChange => true,
-                        MonitorValueChangeMode.Increased => sign > 0,
-                        MonitorValueChangeMode.Decreased => sign < 0,
-                        _ => false,
-                    };
-
-#if UNITY_EDITOR
-                    // Debug: OnScalarValueChanged shouldFire - suppressed
-                    // Debug.Log($"[MonitorChannelRuntime] OnScalarValueChanged: id={InstanceId}, Rule='{_rule.RuleName}' shouldFire={shouldFire} (mode={mode}, sign={sign})");
-#endif
-
-                    if (shouldFire)
-                    {
-                        MarkValueChangedTriggered();
-                        return;
-                    }
-                }
-                else
-                {
-                    // No significant delta (within epsilon), but for AnyChange we should still fire when values differ.
-                    if (_rule.ValueChangeMode == MonitorValueChangeMode.AnyChange && oldV != newV)
-                    {
-#if UNITY_EDITOR
-                        // Debug: OnScalarValueChanged AnyChange within epsilon - suppressed
-                        // Debug.Log($"[MonitorChannelRuntime] OnScalarValueChanged: id={InstanceId}, Rule='{_rule.RuleName}' AnyChange within epsilon (old={oldV}, new={newV}). Marking triggered.");
-#endif
-                        MarkValueChangedTriggered();
-                        // Note: Do NOT return here; we still update baseline below so ProcessValueChangedRule sees current baseline if it runs later.
-                    }
-                }
-            }
-
-            _lastWatchedValue = newV;
-            _hasLastWatchedValue = true;
+            state.LastValue = newV;
+            state.HasLastValue = true;
         }
 
-        bool TryResolveValueTargetVarStore(out IVarStore? vars)
+        bool TryResolveValueTargetVarStore(ValueChangedWatchState state, out IVarStore? vars)
         {
             vars = null;
 
-            var targetScope = ResolveValueTargetScope();
+            var targetScope = ResolveValueTargetScope(state.Target);
             if (targetScope?.Resolver == null)
                 return false;
 
@@ -1023,17 +966,91 @@ namespace Game.Commands
 
         void TryInitializeLastWatchedValue()
         {
-            if (_rule.RuleKind != MonitorRuleKind.ValueChanged)
-                return;
-
-            if (_hasLastWatchedValue)
-                return;
-
-            if (TryGetWatchedValue(out var current))
+            for (int i = 0; i < _valueChangedStates.Count; i++)
             {
-                _lastWatchedValue = current;
-                _hasLastWatchedValue = true;
+                var state = _valueChangedStates[i];
+                if (state.HasLastValue)
+                    continue;
+
+                if (TryGetWatchedValue(state, out var current))
+                {
+                    state.LastValue = current;
+                    state.HasLastValue = true;
+                }
             }
+        }
+
+        void MarkValueChangedRefresh(ValueChangedWatchState state)
+        {
+            state.PendingRefresh = true;
+            MarkValueChangedTriggered();
+        }
+
+        void MarkValueChangedFired(ValueChangedWatchState state)
+        {
+            state.PendingFire = true;
+            state.PendingRefresh = false;
+            MarkValueChangedTriggered();
+        }
+
+        bool HasConfiguredValueChangedTarget()
+        {
+            for (int i = 0; i < _valueChangedStates.Count; i++)
+            {
+                if (IsValueChangedTargetConfigured(_valueChangedStates[i].Target))
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool IsValueChangedTargetConfigured(MonitorValueChangedTarget? target)
+        {
+            if (target == null)
+                return false;
+
+            return target.ValueSource switch
+            {
+                MonitorValueSourceKind.VarStore => target.VarStoreVarId != 0,
+                MonitorValueSourceKind.Blackboard => target.BlackboardVarId != 0,
+                MonitorValueSourceKind.Scalar => target.ScalarKey.Id != 0 || !string.IsNullOrEmpty(target.ScalarKey.Name),
+                _ => false,
+            };
+        }
+
+        static bool TryShouldFireForValueChanged(
+            MonitorValueChangedTarget target,
+            in DynamicVariant previous,
+            in DynamicVariant current,
+            out bool shouldFire)
+        {
+            shouldFire = false;
+
+            if (!TryDetectValueDelta(previous, current, target.ChangeEpsilon, out var deltaSign, out var changed))
+            {
+                shouldFire = target.ValueChangeMode == MonitorValueChangeMode.AnyChange && previous != current;
+                return true;
+            }
+
+            if (!changed)
+            {
+                shouldFire = target.ValueChangeMode == MonitorValueChangeMode.AnyChange && previous != current;
+                return true;
+            }
+
+            shouldFire = ShouldFireForValueChanged(target.ValueChangeMode, deltaSign);
+            return true;
+        }
+
+        static bool ShouldFireForValueChanged(MonitorValueChangeMode mode, int deltaSign)
+        {
+            return mode switch
+            {
+                MonitorValueChangeMode.AnyChange => true,
+                MonitorValueChangeMode.Increased => deltaSign > 0,
+                MonitorValueChangeMode.Decreased => deltaSign < 0,
+                _ => false,
+            };
         }
 
         /// <summary>

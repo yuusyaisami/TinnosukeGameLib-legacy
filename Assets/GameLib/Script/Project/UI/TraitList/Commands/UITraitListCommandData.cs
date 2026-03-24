@@ -4,6 +4,7 @@ using Game.Common;
 using Game.Trait;
 using Game.UI.TraitList;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace Game.Commands.VNext
 {
@@ -65,14 +66,17 @@ namespace Game.Commands.VNext
     public sealed class AddTraitToHolderCommandData : ICommandData
     {
         public int CommandId => CommandIds.AddTraitToHolder;
-        public string DebugData => $"UseBound={UseBoundHolder} Key={HolderKey}";
+        public string DebugData => $"UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
-        public VarUnityObjectSource<TraitDefinitionSO> TraitDefinitionSource = new();
+        [LabelText("Trait")]
+        [Tooltip("追加する Trait。AssetTraitDefinitionSource、Var、Blackboard などから解決する。")]
+        public DynamicValue<TraitDefinitionSO> TraitDefinition;
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderHubSource)")]
-        public ActorSource HolderHubSource;
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]
+        [Tooltip("TraitHolder を保有する対象 Actor。ここから TraitHolderHubService を解決して HolderKey を参照する。")]
+        public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
         public string HolderKey = string.Empty;
@@ -82,15 +86,16 @@ namespace Game.Commands.VNext
     public sealed class RemoveTraitFromHolderCommandData : ICommandData
     {
         public int CommandId => CommandIds.RemoveTraitFromHolder;
-        public string DebugData => $"Target={Target.Kind} UseBound={UseBoundHolder} Key={HolderKey}";
+        public string DebugData => $"Target={Target.Kind} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [InlineProperty]
         public UITraitTarget Target;
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderHubSource)")]
-        public ActorSource HolderHubSource;
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]
+        [Tooltip("TraitHolder を保有する対象 Actor。ここから TraitHolderHubService を解決して HolderKey を参照する。")]
+        public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
         public string HolderKey = string.Empty;
@@ -100,15 +105,16 @@ namespace Game.Commands.VNext
     public sealed class UseTraitFromHolderCommandData : ICommandData
     {
         public int CommandId => CommandIds.UseTraitFromHolder;
-        public string DebugData => $"Target={Target.Kind} UseBound={UseBoundHolder} Key={HolderKey}";
+        public string DebugData => $"Target={Target.Kind} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [InlineProperty]
         public UITraitTarget Target;
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderHubSource)")]
-        public ActorSource HolderHubSource;
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]
+        [Tooltip("TraitHolder を保有する対象 Actor。ここから TraitHolderHubService を解決して HolderKey を参照する。")]
+        public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
         public string HolderKey = string.Empty;
@@ -129,7 +135,8 @@ namespace Game.Commands.VNext
         public UITraitTargetKind Kind;
 
         [ShowIf("@Kind == UITraitTargetKind.ByDefinition")]
-        public VarUnityObjectSource<TraitDefinitionSO> DefinitionSource;
+        [LabelText("Definition")]
+        public DynamicValue<TraitDefinitionSO> Definition;
 
         [ShowIf("@Kind == UITraitTargetKind.ByInstanceId")]
         public string InstanceId;

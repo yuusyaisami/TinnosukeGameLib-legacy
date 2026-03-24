@@ -670,7 +670,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _AdvancedFade2DBurnBlendMode
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: b096a855279eebf4fa2957ebf5633f90, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 7e2cdadd773c8dd00bf5943703cd9e7a
@@ -982,7 +982,7 @@ MonoBehaviour:
     sender: 0
     valueType: 0
     shaderPropertyName: _BlendColor2DBlendMode
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 0c458877f18d09a49b89efc1127c2c34, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 337838efc0532932b807fe8e2d2124ff
@@ -2326,7 +2326,7 @@ MonoBehaviour:
     sender: 0
     valueType: 0
     shaderPropertyName: _FlashMode
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: e33f8a080f1e3924d94c4c3efa576ebc, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 2f03c4ae3d68a36ade82b6faa356b2cf
@@ -2386,7 +2386,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _OutlineBlendMode
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 5610ea1206a951d469d9a33a43c94709, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 091cc5950a86290d03256ebb7a0cda87
@@ -2434,7 +2434,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _OutlineMode
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 68db9417f06af18428d74cdadebbdf32, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 66d33661abb10cbe3d8e1428a74ab3fe
@@ -2450,7 +2450,7 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 7aa5343ecc2aab61f6e7d97c316f88bd
-    parentId: bf43b41bf022d07f500473ae6ff2007c
+    parentId: a36de2bb311aebb744fbb81206e56e00
     name: PixelPerfect
     isFolder: 0
     description: 
@@ -2482,7 +2482,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _OutlineSamplePattern
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 17185d818e3768b48862c89842dd1f5a, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 62111e75e9d7e6a130991528db2344a8
@@ -2542,7 +2542,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _OutlineWidthUnit
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 24ea442f51979db48b142027ec618467, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: a9d5f99489b5db82e12a9f9d21747c49
@@ -2626,7 +2626,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _Rainbow2DBlendMode
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 7b0c96ee76f2f384fb9d3b58527752d3, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 7bbfc12b4bc6aeb86f8fe9a29e964b62
@@ -2674,7 +2674,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _Rainbow2DMode
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 6671c5d5d7a27b44c82262dbad6466d8, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 9f62b79c35691558ec750576ecb27b4e
@@ -2698,7 +2698,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _Rainbow2DPattern
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: e44b0edbf252f744696a021ecef2e177, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: ead3e5ad8b52762198044ac531b68e4c
@@ -2758,7 +2758,7 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _FxBlendPreset
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 62056fe226780b541847d153159f15b5, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 21c0c2613549823576479b07f2d47bb3

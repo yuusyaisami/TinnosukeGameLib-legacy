@@ -1,7 +1,9 @@
+#nullable enable
 using System.Collections.Generic;
 using VContainer.Unity;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using Game.Input;
 using System;
 namespace Game.Input
@@ -125,6 +127,12 @@ namespace Game.Input
             frame.Cancel = ReadButton(gameUI.Cancel);
             frame.Click = ReadButton(gameUI.Click);
             frame.Retry = ReadButton(gameUI.Retry);
+            frame.PointerLeft = MergeButtons(frame.Click, ReadPointerButton(Mouse.current != null ? Mouse.current.leftButton : null));
+            frame.PointerRight = ReadPointerButton(Mouse.current != null ? Mouse.current.rightButton : null);
+            if (Touchscreen.current != null)
+            {
+                frame.PointerLeft = MergeButtons(frame.PointerLeft, ReadPointerButton(Touchscreen.current.primaryTouch.press));
+            }
 
             // Pointer activity should promote usage mode to Pointer when mouse/touch moves.
             if (frame.Scheme == ControlScheme.Mouse ||
@@ -170,6 +178,31 @@ namespace Game.Input
                 Held = action.IsPressed(),
                 Up = action.WasReleasedThisFrame(),
                 Consumed = false
+            };
+        }
+
+        static ButtonState ReadPointerButton(ButtonControl? button)
+        {
+            if (button == null)
+                return default;
+
+            return new ButtonState
+            {
+                Down = button.wasPressedThisFrame,
+                Held = button.isPressed,
+                Up = button.wasReleasedThisFrame,
+                Consumed = false
+            };
+        }
+
+        static ButtonState MergeButtons(ButtonState primary, ButtonState secondary)
+        {
+            return new ButtonState
+            {
+                Down = primary.Down || secondary.Down,
+                Held = primary.Held || secondary.Held,
+                Up = primary.Up || secondary.Up,
+                Consumed = primary.Consumed || secondary.Consumed
             };
         }
 

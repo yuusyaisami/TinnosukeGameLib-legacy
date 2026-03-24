@@ -89,6 +89,7 @@ namespace Game.Channel
     {
         AreaShapeLayer Layer { get; }
         bool TrySample(in AreaShapeSampleContext context, Vector2 uv01, out Vector2 localPosition);
+        bool ContainsLocalPosition(Vector2 localPosition);
         void DrawGizmo(Vector3 center, AreaPlane plane);
     }
 
@@ -117,6 +118,17 @@ namespace Game.Channel
             var angle = Mathf.Repeat(uv01.y, 1f) * Mathf.PI * 2f;
             localPosition = new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r);
             return true;
+        }
+
+        public bool ContainsLocalPosition(Vector2 localPosition)
+        {
+            var outer = Mathf.Max(0f, Radius);
+            if (outer <= 0f)
+                return false;
+
+            var inner = Mathf.Clamp(InnerRadius, 0f, outer);
+            var sqrMagnitude = localPosition.sqrMagnitude;
+            return sqrMagnitude <= outer * outer && sqrMagnitude >= inner * inner;
         }
 
         public void DrawGizmo(Vector3 center, AreaPlane plane)
@@ -174,6 +186,13 @@ namespace Game.Channel
             var sy = Mathf.Max(0f, Size.y);
             localPosition = new Vector2((uv01.x - 0.5f) * sx, (uv01.y - 0.5f) * sy);
             return true;
+        }
+
+        public bool ContainsLocalPosition(Vector2 localPosition)
+        {
+            var halfWidth = Mathf.Max(0f, Size.x) * 0.5f;
+            var halfHeight = Mathf.Max(0f, Size.y) * 0.5f;
+            return Mathf.Abs(localPosition.x) <= halfWidth && Mathf.Abs(localPosition.y) <= halfHeight;
         }
 
         public void DrawGizmo(Vector3 center, AreaPlane plane)
@@ -241,11 +260,13 @@ namespace Game.Channel
         bool TryGetPlayer(string tag, out IAreaChannelPlayer player);
         bool TrySamplePosition(string tag, in AreaSampleRequest request, out Vector3 position);
         bool TrySamplePosition(IReadOnlyList<string> tags, AreaTagSelectionMode selectionMode, in AreaSampleRequest request, out Vector3 position, out string selectedTag);
+        bool ContainsPosition(string tag, Vector3 worldPosition);
     }
 
     public interface IAreaChannelPlayer
     {
         AreaChannelDefinition Definition { get; }
         bool TrySamplePosition(Vector3 basePosition, in AreaSampleRequest request, out Vector3 position);
+        bool ContainsPosition(Vector3 basePosition, Vector3 worldPosition);
     }
 }

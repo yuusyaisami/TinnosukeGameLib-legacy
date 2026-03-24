@@ -1,9 +1,9 @@
 #nullable enable
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 using Game.Input;
 using VContainer;
+using UnityEngine.UI;
 
 namespace Game.UI
 {
@@ -115,6 +115,9 @@ namespace Game.UI
 
         bool CanProcessInput()
         {
+            if (_inputOptions.InputMode == UISliderInputMode.None)
+                return false;
+
             if (!_valueOptions.IsEditable)
                 return false;
 

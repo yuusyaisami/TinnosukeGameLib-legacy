@@ -19,6 +19,8 @@ namespace Game.Trait
         string DefinitionId { get; }
         ITraitInstance CreateInstance(TraitInstanceContext context);
         string RefKeyPrefix { get; }
+        TransformAnimationPreset? TraitListMovePreset { get; }
+        PlaceableTraitSettings PlaceableSettings { get; }
     }
 
     public interface ITraitInstance
@@ -64,9 +66,22 @@ namespace Game.Trait
         [SerializeField]
         RichTextTemplateData _description = new();
 
+        [BoxGroup("Trait Info")]
+        [LabelText("Weight")]
+        [Tooltip("Trait 抽選時の選ばれやすさ。0 以下は抽選対象外。")]
+        [MinValue(0f)]
+        [SerializeField]
+        float _weight = 1f;
+
         [BoxGroup("Visual")]
         [SerializeField]
         VisualSettings _visualSettings = new();
+
+        [BoxGroup("Visual")]
+        [LabelText("Trait List Move Preset")]
+        [Tooltip("UITraitList の RelayoutAnimation で使う移動プリセット。各 Trait 側で決める。")]
+        [SerializeField]
+        TransformAnimationPreset? _traitListMovePreset;
 
         [BoxGroup("Commands")]
         [LabelText("Run On Equip")]
@@ -76,6 +91,7 @@ namespace Game.Trait
         [BoxGroup("Commands")]
         [ShowIf(nameof(_runOnHoldCommands))]
         [LabelText("On Equip Commands")]
+        [Tooltip("TraitDefinitionSO が Trait を Hold した時に実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
         [SerializeField]
         VNext.CommandListData _onHoldCommands = new();
 
@@ -87,6 +103,7 @@ namespace Game.Trait
         [BoxGroup("Commands")]
         [ShowIf(nameof(_runOnUseCommands))]
         [LabelText("On Use Commands")]
+        [Tooltip("TraitDefinitionSO が Trait を Use した時に実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
         [SerializeField]
         VNext.CommandListData _onUseCommands = new();
 
@@ -98,11 +115,13 @@ namespace Game.Trait
         [BoxGroup("Commands")]
         [ShowIf(nameof(_runOnRemoveCommands))]
         [LabelText("On Remove Commands")]
+        [Tooltip("TraitDefinitionSO が Trait を Remove した時に実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
         [SerializeField]
         VNext.CommandListData _onRemoveCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On LTS Instantiated Commands")]
+        [Tooltip("TraitDefinitionSO が Trait の LTS instantiate hook で実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
         [SerializeField]
         VNext.CommandListData _onLtsInstantiatedCommands = new();
 
@@ -117,11 +136,20 @@ namespace Game.Trait
         [SerializeField]
         VarStorePayload _commonVars = new();
 
+        [BoxGroup("Placement")]
+        [LabelText("Placeable")]
+        [InlineProperty]
+        [SerializeField]
+        PlaceableTraitSettings _placeableSettings = new();
+
         public string DefinitionId => _definitionId;
         public virtual string RefKeyPrefix => "trait";
         public RichTextTemplateData? Description => _description;
         public RichTextTemplateData? Name => _name;
         public VisualSettings VisualSettings => _visualSettings;
+        public TransformAnimationPreset? TraitListMovePreset => _traitListMovePreset;
+        public float Weight => Mathf.Max(0f, _weight);
+        public PlaceableTraitSettings PlaceableSettings => _placeableSettings;
 
         public virtual ITraitInstance CreateInstance(TraitInstanceContext context)
         {
@@ -131,6 +159,7 @@ namespace Game.Trait
             vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.definitionId, DynamicVariant.FromString(_definitionId));
             vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.instanceId, DynamicVariant.FromString(instance.InstanceId));
             vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.definitionAsset, DynamicVariant.FromUnityObject(this));
+            vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.weight, DynamicVariant.FromFloat(Weight));
             if (_name != null)
                 vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.nameTemplate, DynamicVariant.FromString(_name.Template ?? string.Empty));
             if (_description != null)

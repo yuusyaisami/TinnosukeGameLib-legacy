@@ -335,6 +335,14 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string BallCount = "GameLogic.GameProfile.Base.BallCount";
                     /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/BuffBallChance
+                    /// </remarks>
+                    public const string BuffBallChance = "GameLogic.GameProfile.Base.BuffBallChance";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/DebuffBallChance
+                    /// </remarks>
+                    public const string DebuffBallChance = "GameLogic.GameProfile.Base.DebuffBallChance";
+                    /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/InstanceMoneyValue
                     /// </remarks>
                     public const string InstanceMoneyValue = "GameLogic.GameProfile.Base.InstanceMoneyValue";
@@ -342,6 +350,18 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/GameProfile/Base/LuckValue
                     /// </remarks>
                     public const string LuckValue = "GameLogic.GameProfile.Base.LuckValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/MaxBall
+                    /// </remarks>
+                    public const string MaxBall = "GameLogic.GameProfile.Base.MaxBall";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/MaxNail
+                    /// </remarks>
+                    public const string MaxNail = "GameLogic.GameProfile.Base.MaxNail";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/MaxTimeLimit
+                    /// </remarks>
+                    public const string MaxTimeLimit = "GameLogic.GameProfile.Base.MaxTimeLimit";
                     /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/MaxTurnValue
                     /// </remarks>
@@ -351,13 +371,25 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string MoneyValue = "GameLogic.GameProfile.Base.MoneyValue";
                     /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/NailValue
+                    /// </remarks>
+                    public const string NailValue = "GameLogic.GameProfile.Base.NailValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/PlayerQuota
+                    /// </remarks>
+                    public const string PlayerQuota = "GameLogic.GameProfile.Base.PlayerQuota";
+                    /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/Quota
                     /// </remarks>
                     public const string Quota = "GameLogic.GameProfile.Base.Quota";
                     /// <remarks>
-                    /// Path: GameLogic/GameProfile/Base/TimeLimit
+                    /// Path: GameLogic/GameProfile/Base/ShopPriceMul
                     /// </remarks>
-                    public const string TimeLimit = "GameLogic.GameProfile.Base.TimeLimit";
+                    public const string ShopPriceMul = "GameLogic.GameProfile.Base.ShopPriceMul";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/TimeLimitValue
+                    /// </remarks>
+                    public const string TimeLimitValue = "GameLogic.GameProfile.Base.TimeLimitValue";
                     /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/TurnValue
                     /// </remarks>
@@ -521,12 +553,20 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.BallProfile.MaxValue,
             ScalarKeys.GameLogic.BallProfile.Value,
             ScalarKeys.GameLogic.GameProfile.Base.BallCount,
+            ScalarKeys.GameLogic.GameProfile.Base.BuffBallChance,
+            ScalarKeys.GameLogic.GameProfile.Base.DebuffBallChance,
             ScalarKeys.GameLogic.GameProfile.Base.InstanceMoneyValue,
             ScalarKeys.GameLogic.GameProfile.Base.LuckValue,
+            ScalarKeys.GameLogic.GameProfile.Base.MaxBall,
+            ScalarKeys.GameLogic.GameProfile.Base.MaxNail,
+            ScalarKeys.GameLogic.GameProfile.Base.MaxTimeLimit,
             ScalarKeys.GameLogic.GameProfile.Base.MaxTurnValue,
             ScalarKeys.GameLogic.GameProfile.Base.MoneyValue,
+            ScalarKeys.GameLogic.GameProfile.Base.NailValue,
+            ScalarKeys.GameLogic.GameProfile.Base.PlayerQuota,
             ScalarKeys.GameLogic.GameProfile.Base.Quota,
-            ScalarKeys.GameLogic.GameProfile.Base.TimeLimit,
+            ScalarKeys.GameLogic.GameProfile.Base.ShopPriceMul,
+            ScalarKeys.GameLogic.GameProfile.Base.TimeLimitValue,
             ScalarKeys.GameLogic.GameProfile.Base.TurnValue,
             ScalarKeys.GameLogic.NailProfile.Effect.Attract,
             ScalarKeys.GameLogic.NailProfile.Effect.Bounce,

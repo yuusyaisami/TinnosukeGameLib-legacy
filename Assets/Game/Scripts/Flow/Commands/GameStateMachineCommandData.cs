@@ -9,7 +9,10 @@ namespace Game.Commands.VNext
     public sealed class ChangeGameStateCommandData : ICommandData
     {
         public int CommandId => CommandIds.ChangeGameState;
-        public string DebugData => $"State={State}";
+        public string DebugData => $"{ActorSourceOdinLabelHelper.GetLabel("State Machine Source", StateMachineSource)} State={State}";
+
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"State Machine Source\", StateMachineSource)")]
+        public ActorSource StateMachineSource = new() { Kind = ActorSourceKind.Current };
 
         [LabelText("State")]
         public GameState State;

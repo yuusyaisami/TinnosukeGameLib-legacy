@@ -149,6 +149,8 @@ namespace Game.UI.TraitList
         public UITraitListRange Range { get; private set; }
         public Transform Parent { get; }
         public IScopeNode ScopeParent { get; }
+        public ITraitPlacementService? PlacementService { get; }
+        public bool HideVisiblePlacedTraits { get; }
         public List<UITraitListVisualInstance> Instances { get; }
         public Dictionary<ITraitInstance, UITraitListVisualInstance> Lookup { get; }
 
@@ -159,6 +161,8 @@ namespace Game.UI.TraitList
             UITraitListRange range,
             Transform parent,
             IScopeNode scopeParent,
+            ITraitPlacementService? placementService,
+            bool hideVisiblePlacedTraits,
             List<UITraitListVisualInstance> instances,
             Dictionary<ITraitInstance, UITraitListVisualInstance> lookup)
         {
@@ -168,6 +172,8 @@ namespace Game.UI.TraitList
             Range = range;
             Parent = parent;
             ScopeParent = scopeParent;
+            PlacementService = placementService;
+            HideVisiblePlacedTraits = hideVisiblePlacedTraits;
             Instances = instances;
             Lookup = lookup;
         }

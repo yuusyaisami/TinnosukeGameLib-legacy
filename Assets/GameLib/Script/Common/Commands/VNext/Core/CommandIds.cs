@@ -42,7 +42,7 @@ namespace Game.Commands.VNext
         public const int ShowTooltip = 1700;
         public const int HideTooltip = 1701;
         public const int UIControl = 1702;
-        public const int UIButtonCommandListControl = 1703;
+        public const int UIButtonControl = 1703;
         public const int ShowToast = 1704;
 
         public const int RunFlow = 1800;
@@ -133,6 +133,8 @@ namespace Game.Commands.VNext
         public const int StatusEffectControl = 2202;
         public const int SharedLTSChannel = 2203;
         public const int Function = 2204;
+        public const int TraitLottery = 2205;
+        public const int PlaceTraitRuntime = 2206;
 
         public const int BackgroundLayer = 2300;
 

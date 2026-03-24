@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.DI;
+using Game.Spawn;
 using UnityEngine;
 using UnityEngine.Pool;
 using VContainer;
@@ -1301,7 +1302,14 @@ namespace Game
         {
             var t = scope.transform;
             t.SetParent(parent, worldPositionStays: false);
-            t.SetPositionAndRotation(position, rotation);
+            SpawnPoseUtility.ApplySpawnPose(t, new SpawnParams
+            {
+                Position = position,
+                Rotation = rotation,
+                Scale = Vector3.one,
+                WorldSpace = true,
+                AllowPooling = true
+            });
 
             // Explicit DI parent override (independent from transform hierarchy).
             if (lifetimeScopeParent != null)
