@@ -136,6 +136,27 @@ namespace Game.Trait
         [SerializeField]
         VarStorePayload _commonVars = new();
 
+        [BoxGroup("VarStore/Grid")]
+        [LabelText("Apply Common Grid Table")]
+        [SerializeField]
+        bool _applyCommonGridTable;
+
+        [BoxGroup("VarStore/Grid")]
+        [ShowIf(nameof(_applyCommonGridTable))]
+        [LabelText("Grid Table Key")]
+        [Tooltip("Grid row/column count の参照キーとして各セルに書き込む VarId です。0 の場合は既存のセル VarId のみを書き込みます。")]
+        [VarIdDropdown]
+        [SerializeField]
+        int _commonGridTableKeyVarId;
+
+        [BoxGroup("VarStore/Grid")]
+        [ShowIf(nameof(_applyCommonGridTable))]
+        [LabelText("Common Grid Table")]
+        [InlineProperty]
+        [SerializeField]
+        TraitGridTablePayload _commonGridTable = new();
+
+
         [BoxGroup("Placement")]
         [LabelText("Placeable")]
         [InlineProperty]
@@ -179,6 +200,81 @@ namespace Game.Trait
             }
 
             return instance;
+        }
+
+        public void ApplyCommonVars(IVarStore destination, bool overwrite = true)
+        {
+            if (!_applyCommonVars)
+                return;
+
+            if (destination == null || _commonVars == null)
+                return;
+
+            _commonVars.ApplyTo(destination, overwrite);
+        }
+
+        public void ApplyCommonGridTable(IGridBlackboardService? grid, bool overwrite = true)
+        {
+            if (!_applyCommonGridTable)
+                return;
+
+            if (grid == null || _commonGridTable == null || !_commonGridTable.HasTable)
+                return;
+
+            var tableKeyVarId = _commonGridTableKeyVarId;
+            var hasTableKey = tableKeyVarId != 0;
+            var tableKeyValue = DynamicVariant.FromBool(true);
+
+            var rows = _commonGridTable.Rows;
+            for (int row = 0; row < rows.Count; row++)
+            {
+                var columns = rows[row]?.Columns;
+                if (columns == null)
+                    continue;
+
+                for (int column = 0; column < columns.Count; column++)
+                {
+                    var cell = columns[column];
+                    var vars = cell?.Vars;
+                    if (vars == null)
+                        continue;
+
+                    if (hasTableKey)
+                    {
+                        if (overwrite)
+                            grid.SetOrExpandVariant(tableKeyVarId, row, column, in tableKeyValue);
+                        else if (!grid.TryGetVariant(tableKeyVarId, row, column, out var _))
+                            grid.SetOrExpandVariant(tableKeyVarId, row, column, in tableKeyValue);
+                    }
+
+                    for (int varIndex = 0; varIndex < vars.Count; varIndex++)
+                    {
+                        var varPayload = vars[varIndex];
+                        if (varPayload == null)
+                            continue;
+
+                        if (varPayload.VarId == 0)
+                        {
+                            Debug.LogError($"[TraitDefinitionSO] CommonGridTable has var entry with empty VarKey. definition={_definitionId} row={row} col={column} index={varIndex}");
+                            continue;
+                        }
+
+                        if (!varPayload.TryToVariant(out var value))
+                        {
+                            Debug.LogError($"[TraitDefinitionSO] CommonGridTable value conversion failed. definition={_definitionId} row={row} col={column} index={varIndex} varId={varPayload.VarId}");
+                            continue;
+                        }
+
+                        if (!overwrite && grid.TryGetVariant(varPayload.VarId, row, column, out var _))
+                            continue;
+
+                        if (!grid.SetOrExpandVariant(varPayload.VarId, row, column, in value))
+                        {
+                            Debug.LogError($"[TraitDefinitionSO] CommonGridTable write failed. definition={_definitionId} row={row} col={column} varId={varPayload.VarId} kind={value.Kind}");
+                        }
+                    }
+                }
+            }
         }
 
         protected virtual void OnHold(ITraitInstance instance)

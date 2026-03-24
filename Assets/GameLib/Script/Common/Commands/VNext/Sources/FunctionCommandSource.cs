@@ -35,13 +35,21 @@ namespace Game.Commands.VNext
         {
             data = null!;
 
-            if (!function.TryGet(ctx, out CommandFunctionPreset preset) || preset == null)
+            var resolved = function.Evaluate(ctx);
+            if (!TryResolveFunction(resolved, out var preset))
             {
                 ctx.Logger.LogResolveFailed(this, "CommandFunctionPreset failed to resolve.");
                 return false;
             }
 
-            var commands = preset.Commands;
+            var functionPreset = preset;
+            if (functionPreset == null)
+            {
+                ctx.Logger.LogResolveFailed(this, "CommandFunctionPreset failed to resolve.");
+                return false;
+            }
+
+            var commands = functionPreset.Commands;
             if (commands == null || commands.Count == 0)
             {
                 ctx.Logger.LogResolveFailed(this, "CommandFunctionPreset.Commands is empty.");
@@ -49,10 +57,32 @@ namespace Game.Commands.VNext
             }
 
             data = new FunctionCommandData(
-                preset,
+                functionPreset,
                 initialVars,
-                $"Function={BuildFunctionLabel(preset)} Vars={initialVars?.Count ?? 0} Body={commands.Count}");
+                $"Function={BuildFunctionLabel(functionPreset)} Vars={initialVars?.Count ?? 0} Body={commands.Count}");
             return true;
+        }
+
+        static bool TryResolveFunction(DynamicVariant resolved, out CommandFunctionPreset? preset)
+        {
+            preset = null;
+
+            if (resolved.TryGet(out CommandFunctionPreset functionPreset) && functionPreset != null)
+            {
+                preset = functionPreset;
+                return true;
+            }
+
+            if (resolved.TryGet(out CommandListData commandList) && commandList != null && commandList.Count > 0)
+            {
+                preset = new CommandFunctionPreset
+                {
+                    Commands = commandList
+                };
+                return true;
+            }
+
+            return false;
         }
 
         string BuildDebugName()

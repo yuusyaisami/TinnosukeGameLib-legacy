@@ -64,6 +64,16 @@ namespace Game.UI
         [SerializeField] TooltipSpawnMode spawnMode = TooltipSpawnMode.FollowPointer;
 
         [BoxGroup(PlacementGroup)]
+        [ShowIf(nameof(IsFollowPointer))]
+        [LabelText("Follow Pointer Offset")]
+        [SerializeField] Vector2 followPointerOffset = Vector2.zero;
+
+        [BoxGroup(PlacementGroup)]
+        [ShowIf(nameof(IsFollowPointer))]
+        [LabelText("Follow Pointer Move Scale")]
+        [SerializeField] Vector2 followPointerMoveScale = Vector2.one;
+
+        [BoxGroup(PlacementGroup)]
         [ShowIf("IsFixedOffset")]
         [SerializeField] Vector2 fixedOffset = Vector2.zero;
 
@@ -113,6 +123,8 @@ namespace Game.UI
         public float SelectionDelaySeconds => selectionDelaySeconds;
         public float PointerMoveThreshold => pointerMoveThreshold;
         public TooltipSpawnMode SpawnMode => spawnMode;
+        public Vector2 FollowPointerOffset => followPointerOffset;
+        public Vector2 FollowPointerMoveScale => followPointerMoveScale;
         public Vector2 FixedOffset => fixedOffset;
         public TooltipAnchorX AnchorX => anchorX;
         public TooltipAnchorY AnchorY => anchorY;
@@ -175,6 +187,7 @@ namespace Game.UI
         }
 
         bool IsFixedOffset() => spawnMode == TooltipSpawnMode.FixedOffset;
+        bool IsFollowPointer() => spawnMode == TooltipSpawnMode.FollowPointer;
         bool IsUiKind() => adapterKind != TooltipAdapterKind.World;
         bool IsWorldKind() => adapterKind != TooltipAdapterKind.UIScreen;
 

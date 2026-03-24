@@ -5,12 +5,13 @@ using Cysharp.Threading.Tasks;
 using VNext = Game.Commands.VNext;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 using UnityTime = UnityEngine.Time;
 
 namespace Game.Common
 {
-    public sealed class RuntimeScopeLifecycleService : IScopeLifecycleService
+    public sealed class RuntimeScopeLifecycleService : IScopeLifecycleService, IScopeLifecycleConditionController, IScopeReleaseHandler, ITickable
     {
         readonly RuntimeLifetimeScope _scope;
         readonly ScopeLifecycleConfig _config;
@@ -18,6 +19,10 @@ namespace Game.Common
 
         CancellationTokenSource? _spawnCts;
         CancellationTokenSource? _despawnCts;
+        bool _autoDespawnRequested;
+
+        bool _hasConditionOverride;
+        DynamicValue<bool> _conditionOverride;
 
         public RuntimeScopeLifecycleService(
             RuntimeLifetimeScope scope,
@@ -27,6 +32,55 @@ namespace Game.Common
             _scope = scope;
             _config = config;
             _resolver = resolver;
+        }
+
+        public void SetConditionOverride(DynamicValue<bool> condition)
+        {
+            _conditionOverride = condition;
+            _hasConditionOverride = true;
+        }
+
+        public void ClearConditionOverride()
+        {
+            _conditionOverride = default;
+            _hasConditionOverride = false;
+        }
+
+        public void OnRelease(IScopeNode scope, bool isReset)
+        {
+            ClearConditionOverride();
+            _autoDespawnRequested = false;
+        }
+
+        public void Tick()
+        {
+            if (_autoDespawnRequested)
+                return;
+
+            if (!_config.AutoDespawnWhenConditionFalse)
+                return;
+
+            if (!EvaluateLifecycleCondition())
+            {
+                _autoDespawnRequested = true;
+                UniTask.Void(async () =>
+                {
+                    try
+                    {
+                        await HandleDespawnAsync(CancellationToken.None);
+                        if (_scope != null && _scope.gameObject != null)
+                            UnityEngine.Object.Destroy(_scope.gameObject);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogException(ex);
+                        _autoDespawnRequested = false;
+                    }
+                });
+            }
         }
 
         VNext.ICommandRunner? TryGetRunner()
@@ -48,6 +102,30 @@ namespace Game.Common
             }
 
             return null;
+        }
+
+        bool EvaluateLifecycleCondition()
+        {
+            var condition = _hasConditionOverride ? _conditionOverride : _config.AutoDespawnCondition;
+            if (!condition.HasSource)
+                return true;
+
+            var vars = new VarStore();
+            if (_resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null)
+                blackboard.MergeInto(vars, overwrite: true);
+
+            var resolveContext = new VNext.CommandResolveContext(
+                _scope,
+                vars,
+                _scope,
+                _scope.Resolver,
+                VNext.NullCommandCatalog.Instance,
+                VNext.NullCommandKeyResolver.Instance,
+                VNext.NullCommandResolveLogger.Instance,
+                allowRuntimeKeyFallback: true,
+                runtimeContext: null);
+
+            return condition.EvaluateBool(resolveContext);
         }
 
         public async UniTask HandleSpawnAsync(CancellationToken ct)

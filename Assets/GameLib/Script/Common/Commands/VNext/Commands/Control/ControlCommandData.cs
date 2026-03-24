@@ -16,6 +16,35 @@ namespace Game.Commands.VNext
         Random = 3,
     }
 
+    public enum SwitchEvaluateOrder
+    {
+        TopToBottom = 10,
+        BottomToTop = 20,
+    }
+
+    public enum SwitchCaseMatchMode
+    {
+        Exact = 10,
+        Compare = 20,
+        Condition = 30,
+    }
+
+    public enum SwitchNumericCompareOp
+    {
+        [InspectorName("S == T")]
+        Equal = 10,
+        [InspectorName("S != T")]
+        NotEqual = 20,
+        [InspectorName("S < T")]
+        LessThan = 30,
+        [InspectorName("S <= T")]
+        LessOrEqual = 40,
+        [InspectorName("S > T")]
+        GreaterThan = 50,
+        [InspectorName("S >= T")]
+        GreaterOrEqual = 60,
+    }
+
     [Serializable]
     public sealed class WaitCommandData : ICommandData
     {
@@ -80,20 +109,51 @@ namespace Game.Commands.VNext
         {
             get
             {
-                var caseValue = CommandDebugDataHelper.GetDynamicDebugData(CaseValue);
+                var caseValue = MatchMode switch
+                {
+                    SwitchCaseMatchMode.Exact => CommandDebugDataHelper.GetDynamicDebugData(CaseValue),
+                    SwitchCaseMatchMode.Compare => $"{CompareOp} {CommandDebugDataHelper.GetDynamicDebugData(CompareTarget)}",
+                    SwitchCaseMatchMode.Condition => CommandDebugDataHelper.GetDynamicDebugData(Condition),
+                    _ => "<unknown>",
+                };
                 var commandCount = Commands?.Count ?? 0;
-                return $"Case={caseValue} Cmds={commandCount}";
+                return $"Mode={MatchMode} Case={caseValue} Cmds={commandCount}";
             }
         }
 
+        [LabelText("Match Mode")]
+        [EnumToggleButtons]
+        [SerializeField]
+        public SwitchCaseMatchMode MatchMode = SwitchCaseMatchMode.Exact;
+
         [LabelText("Case Value")]
+        [ShowIf(nameof(IsExactMode))]
         [SerializeField]
         public DynamicValue CaseValue;
+
+        [LabelText("Compare Operator")]
+        [ShowIf(nameof(IsCompareMode))]
+        [SerializeField]
+        public SwitchNumericCompareOp CompareOp = SwitchNumericCompareOp.GreaterOrEqual;
+
+        [LabelText("Compare Target")]
+        [ShowIf(nameof(IsCompareMode))]
+        [SerializeField]
+        public DynamicValue CompareTarget;
+
+        [LabelText("Condition")]
+        [ShowIf(nameof(IsConditionMode))]
+        [SerializeField]
+        public DynamicValue<bool> Condition;
 
         [LabelText("Commands")]
         [CommandListFunctionName("Control.Switch.Case")]
         [SerializeField]
         public CommandListData Commands = new();
+
+        bool IsExactMode() => MatchMode == SwitchCaseMatchMode.Exact;
+        bool IsCompareMode() => MatchMode == SwitchCaseMatchMode.Compare;
+        bool IsConditionMode() => MatchMode == SwitchCaseMatchMode.Condition;
     }
 
     [Serializable]
@@ -115,6 +175,11 @@ namespace Game.Commands.VNext
         [LabelText("Switch Value")]
         [SerializeField]
         public DynamicValue SwitchValue;
+
+        [LabelText("Evaluate Order")]
+        [EnumToggleButtons]
+        [SerializeField]
+        public SwitchEvaluateOrder EvaluateOrder = SwitchEvaluateOrder.TopToBottom;
 
         [ListDrawerSettings(ShowFoldout = true, ListElementLabelName = nameof(SwitchCase.ListLabel))]
         [SerializeField]

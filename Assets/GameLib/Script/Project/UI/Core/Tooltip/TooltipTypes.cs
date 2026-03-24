@@ -75,6 +75,8 @@ namespace Game.UI
         float SelectionDelaySeconds { get; }
         float PointerMoveThreshold { get; }
         TooltipSpawnMode SpawnMode { get; }
+        Vector2 FollowPointerOffset { get; }
+        Vector2 FollowPointerMoveScale { get; }
         Vector2 FixedOffset { get; }
         TooltipAnchorX AnchorX { get; }
         TooltipAnchorY AnchorY { get; }
@@ -100,6 +102,8 @@ namespace Game.UI
         float SelectionDelaySeconds { get; }
         float PointerMoveThreshold { get; }
         TooltipSpawnMode SpawnMode { get; }
+        Vector2 FollowPointerOffset { get; }
+        Vector2 FollowPointerMoveScale { get; }
         Vector2 FixedOffset { get; }
         TooltipAnchorX AnchorX { get; }
         TooltipAnchorY AnchorY { get; }

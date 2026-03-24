@@ -18,7 +18,7 @@ namespace Game.TransformSystem
         void Clear();
     }
 
-    public sealed class TransformAnimationTargetRegistryService : ITransformAnimationTargetRegistry, ITickable, IScopeReleaseHandler
+    public sealed class TransformAnimationTargetRegistryService : ITransformAnimationTargetRegistry, IScopeReleaseHandler
     {
         readonly Dictionary<Transform, TransformTargetDirector> _directors = new();
         readonly ITransformAnimationOutputRegistry? _outputRegistry;
@@ -94,11 +94,6 @@ namespace Game.TransformSystem
         public void Clear()
         {
             _directors.Clear();
-        }
-
-        public void Tick()
-        {
-            TickAll(Time.deltaTime);
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)

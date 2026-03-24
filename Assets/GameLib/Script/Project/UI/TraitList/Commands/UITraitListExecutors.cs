@@ -7,6 +7,7 @@ using Game;
 using Game.Common;
 using Game.Trait;
 using Game.UI.TraitList;
+using Game.Vars.Generated;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -55,6 +56,8 @@ namespace Game.Commands.VNext
                 parent = (buildScope as Component)?.transform;
             }
 
+            if (options?.LayoutRectTransform != null)
+                parent = options.LayoutRectTransform;
             if (parent == null && options != null)
                 parent = options.DefaultParentTransform;
             if (parent == null && svcScope is Component svcComponent)
@@ -135,7 +138,10 @@ namespace Game.Commands.VNext
 
             var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
             if (!typed.TraitDefinition.TryGet(dynCtx, out var definition) || definition == null)
-                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "TraitDefinition could not be resolved.");
+            {
+                var detail = DescribeTraitDefinitionResolveFailure(typed, ctx);
+                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"TraitDefinition could not be resolved. {detail}");
+            }
 
             var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderActorSource, typed.HolderKey, ctx, ct);
             if (holder == null)
@@ -143,6 +149,35 @@ namespace Game.Commands.VNext
 
             if (!holder.TryRegister(definition, out var _))
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "Trait could not be registered.");
+        }
+
+        static string DescribeTraitDefinitionResolveFailure(AddTraitToHolderCommandData typed, CommandContext ctx)
+        {
+            var sourceType = typed.TraitDefinition.SourceTypeName;
+            var sourceDebug = typed.TraitDefinition.SourceDebugData;
+            var scope = ctx.Scope;
+            var scopeInfo = scope == null
+                ? "scope=(null)"
+                : $"scopeKind={scope.Kind} scopeId={scope.Identity?.Id ?? "(none)"}";
+
+            if (scope?.Resolver == null || !scope.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                return $"Source={sourceType}:{sourceDebug} {scopeInfo} blackboard=missing";
+
+            var vars = blackboard.LocalVars;
+            var varId = VarIds.GameLib.Base.Trait.Element.definitionAsset;
+            if (vars == null || varId == 0)
+                return $"Source={sourceType}:{sourceDebug} {scopeInfo} blackboardLocalVars=missing";
+
+            var contains = vars.Contains(varId);
+            var kind = contains ? vars.GetVarKind(varId).ToString() : "Missing";
+            var managedType = "(null)";
+            var variantValue = "(null)";
+            if (contains && vars.TryGetManagedRef(varId, out var managed) && managed != null)
+                managedType = managed.GetType().FullName ?? managed.GetType().Name;
+            if (contains && vars.TryGetVariant(varId, out var variant))
+                variantValue = variant.ToString();
+
+            return $"Source={sourceType}:{sourceDebug} {scopeInfo} blackboard.definitionAsset.Contains={contains} Kind={kind} ManagedType={managedType} Variant={variantValue}";
         }
     }
 
@@ -160,10 +195,8 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
 
             var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
-            if (!UITraitListCommandExecutorUtility.TryResolveTargetInstance(
-                    typed.Target,
+            if (!typed.Selector.TryResolve(
                     holder,
-                    UITraitListCommandExecutorUtility.TryResolvePlayerService(ctx),
                     dynCtx,
                     out var instance,
                     out var error))
@@ -190,10 +223,8 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
 
             var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
-            if (!UITraitListCommandExecutorUtility.TryResolveTargetInstance(
-                    typed.Target,
+            if (!typed.Selector.TryResolve(
                     holder,
-                    UITraitListCommandExecutorUtility.TryResolvePlayerService(ctx),
                     dynCtx,
                     out var instance,
                     out var error))
@@ -306,102 +337,6 @@ namespace Game.Commands.VNext
         {
             var (scope, _) = await ActorScopeResolver.ResolveAsync(holderSource, ctx, ct);
             return scope;
-        }
-
-        public static bool TryResolveTargetInstance(
-            UITraitTarget target,
-            ITraitHolderService holder,
-            IUITraitListPlayerService? player,
-            IDynamicContext dynCtx,
-            out ITraitInstance? instance,
-            out string? error)
-        {
-            instance = null;
-            error = null;
-            if (holder == null)
-            {
-                error = "Holder is null.";
-                return false;
-            }
-
-            switch (target.Kind)
-            {
-                case UITraitTargetKind.ByDefinition:
-                    if (!target.Definition.TryGet(dynCtx, out var definition) || definition == null)
-                    {
-                        error = "TraitDefinition could not be resolved.";
-                        return false;
-                    }
-
-                    if (!holder.TryGetInstance(definition, out instance) || instance == null)
-                    {
-                        error = "Trait instance not found for definition.";
-                        return false;
-                    }
-
-                    return true;
-
-                case UITraitTargetKind.ByInstanceId:
-                    if (string.IsNullOrEmpty(target.InstanceId))
-                    {
-                        error = "InstanceId is empty.";
-                        return false;
-                    }
-
-                    var traits = holder.Traits;
-                    for (int i = 0; i < traits.Count; i++)
-                    {
-                        var trait = traits[i];
-                        if (trait != null && trait.InstanceId == target.InstanceId)
-                        {
-                            instance = trait;
-                            return true;
-                        }
-                    }
-
-                    error = "Trait instance not found by InstanceId.";
-                    return false;
-
-                case UITraitTargetKind.ByIndex:
-                    if (!target.TraitIndex.TryGet(dynCtx, out var index))
-                    {
-                        error = "TraitIndex could not be resolved.";
-                        return false;
-                    }
-
-                    if (index < 0 || index >= holder.Traits.Count)
-                    {
-                        error = "TraitIndex is out of range.";
-                        return false;
-                    }
-
-                    instance = holder.Traits[index];
-                    return instance != null;
-
-                case UITraitTargetKind.ByRowAndColumn:
-                    if (player == null)
-                    {
-                        error = "Player service is not available for row/column resolution.";
-                        return false;
-                    }
-
-                    if (!target.Row.TryGet(dynCtx, out var row) || !target.Column.TryGet(dynCtx, out var column))
-                    {
-                        error = "Row/Column could not be resolved.";
-                        return false;
-                    }
-
-                    if (!player.TryResolveInstanceByRowColumn(row, column, out instance) || instance == null)
-                    {
-                        error = "Trait instance not found by row/column.";
-                        return false;
-                    }
-
-                    return true;
-            }
-
-            error = "Unknown target kind.";
-            return false;
         }
 
         public static void EnsureScopeBuiltIfNeeded(IScopeNode scope)

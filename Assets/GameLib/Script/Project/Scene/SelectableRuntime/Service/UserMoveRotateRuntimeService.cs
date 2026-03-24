@@ -1,6 +1,9 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Game.Commands.VNext;
 using Game.Common;
 using Game.Input;
 using UnityEngine;
@@ -35,6 +38,24 @@ namespace Game.SelectRuntime
             }
         }
 
+        sealed class EntryPressState
+        {
+            public UserMoveRotateRuntimeMB? Editor;
+            public WorldPointerTargetMB? Target;
+            public float PressedTime;
+            public WorldPointerEventData PressedData;
+
+            public bool IsActive => Editor != null && Target != null;
+
+            public void Clear()
+            {
+                Editor = null;
+                Target = null;
+                PressedTime = 0f;
+                PressedData = default;
+            }
+        }
+
         readonly IScopeNode _owner;
         readonly IWorldPointerRuntimeService _pointerService;
         readonly ISelectRuntimeManagerService _managerService;
@@ -44,7 +65,12 @@ namespace Game.SelectRuntime
         readonly HashSet<UserMoveRotateRuntimeMB> _editors = new();
         readonly Dictionary<WorldPointerTargetMB, UserMoveRotateRuntimeMB> _editorByTarget = new();
         readonly EditSession _session = new();
+        readonly EntryPressState _entryPress = new();
         readonly ExternalFloatBindingRuntime _rotateBinding = new();
+        readonly ExternalBoolBindingRuntime _isEditorModeBinding = new();
+        WorldPointerTargetMB? _hoveredTarget;
+        WorldPointerEventData _hoveredData;
+        Vector2 _lastPointerScreen;
 
         public UserMoveRotateRuntimeService(
             IScopeNode owner,
@@ -65,6 +91,7 @@ namespace Game.SelectRuntime
             _managerService.OnLeftLongPressSelectable += HandleLongPressSelectable;
             _managerService.OnSelectionChanged += HandleSelectionChanged;
             _managerService.OnEnabledChanged += HandleEnabledChanged;
+            _pointerService.OnHoveredChanged += HandleHoveredChanged;
             _pointerService.OnLeftClicked += HandleLeftClicked;
             _pointerService.OnRightClicked += HandleRightClicked;
             _pointerService.OnFrameUpdated += HandleFrameUpdated;
@@ -75,12 +102,18 @@ namespace Game.SelectRuntime
             _managerService.OnLeftLongPressSelectable -= HandleLongPressSelectable;
             _managerService.OnSelectionChanged -= HandleSelectionChanged;
             _managerService.OnEnabledChanged -= HandleEnabledChanged;
+            _pointerService.OnHoveredChanged -= HandleHoveredChanged;
             _pointerService.OnLeftClicked -= HandleLeftClicked;
             _pointerService.OnRightClicked -= HandleRightClicked;
             _pointerService.OnFrameUpdated -= HandleFrameUpdated;
 
             EndSession(runExitCommands: false);
             _rotateBinding.Release();
+            _isEditorModeBinding.Release();
+            _entryPress.Clear();
+            _hoveredTarget = null;
+            _hoveredData = default;
+            _lastPointerScreen = default;
             _editors.Clear();
             _editorByTarget.Clear();
         }
@@ -120,30 +153,18 @@ namespace Game.SelectRuntime
 
             var target = selectable.ResolveTarget();
             if (target == null || !_editorByTarget.TryGetValue(target, out var editor) || editor == null)
+            {
+                LogEditorEntryFailure(selectable, "Selectable long press ignored: editor target is not registered.");
                 return;
+            }
 
-            if (!editor.TryResolveActorScope(out var scope) || scope is not RuntimeLifetimeScope runtimeScope)
+            if (!CanEnterFromSelectable(editor))
+            {
+                LogEditorEntryFailure(editor, $"Selectable long press ignored: entry source is {editor.EditorEntrySource}.");
                 return;
+            }
 
-            if (ReferenceEquals(_session.Editor, editor))
-                return;
-
-            EndSession(runExitCommands: true);
-
-            var rootTransform = runtimeScope.Identity?.SelfTransform != null
-                ? runtimeScope.Identity.SelfTransform
-                : runtimeScope.transform;
-            _session.Editor = editor;
-            _session.RuntimeScope = runtimeScope;
-            _session.RootTransform = rootTransform;
-            _session.StartedFrame = Time.frameCount;
-            _session.LastValidPosition = rootTransform.position;
-            _session.LastValidRotation = rootTransform.rotation;
-
-            BindRotateExternal(editor, runtimeScope);
-
-            if (_managerService.Current != null)
-                SelectRuntimeCommandUtility.Execute(_managerService.Current, _owner, selected: true, hovered: ReferenceEquals(_managerService.Hovered, _managerService.Current), editing: true, editor.OnEditorEnterCommands);
+            TryEnterEditorMode(editor, runtimeScopeOverride: null, fromSelectableLongPress: true, _hoveredData);
         }
 
         void HandleSelectionChanged(SelectRuntimeSelectionChangedEvent eventData)
@@ -167,6 +188,15 @@ namespace Game.SelectRuntime
                 EndSession(runExitCommands: true);
         }
 
+        void HandleHoveredChanged(WorldPointerHoverChangedEventData eventData)
+        {
+            _hoveredTarget = eventData.CurrentTarget;
+            _hoveredData = eventData.EventData;
+
+            if (_entryPress.IsActive && !ReferenceEquals(_entryPress.Target, _hoveredTarget))
+                _entryPress.Clear();
+        }
+
         void HandleLeftClicked(WorldPointerEventData eventData)
         {
             if (!_session.IsActive || Time.frameCount <= _session.StartedFrame)
@@ -185,6 +215,17 @@ namespace Game.SelectRuntime
 
         void HandleFrameUpdated(InputFrame frame)
         {
+            if (_session.IsActive)
+            {
+                HandleEditingFrame(frame);
+                return;
+            }
+
+            HandleEditorEntryFrame(frame);
+        }
+
+        void HandleEditingFrame(InputFrame frame)
+        {
             if (!_session.IsActive || _session.Editor == null || _session.RuntimeScope == null || _session.RootTransform == null)
                 return;
 
@@ -201,7 +242,9 @@ namespace Game.SelectRuntime
             var candidateRotation = currentRotation;
 
             ApplyRotation(frame, request, currentPosition, ref candidateRotation);
-            ApplyMovement(frame, request, currentPosition, ref candidatePosition);
+            ApplyMovement(frame, request, currentPosition, currentRotation, ref candidatePosition);
+
+            _lastPointerScreen = frame.PointerScreen;
 
             if (candidatePosition == currentPosition && candidateRotation == currentRotation)
                 return;
@@ -215,26 +258,241 @@ namespace Game.SelectRuntime
             SyncRotateBinding(request, candidateRotation);
         }
 
-        void ApplyMovement(InputFrame frame, UserMoveRotateValidationRequest request, Vector3 currentPosition, ref Vector3 candidatePosition)
+        void HandleEditorEntryFrame(InputFrame frame)
+        {
+            if (frame.PointerLeft.Down)
+            {
+                TryBeginPointerEntry();
+            }
+
+            if (!_entryPress.IsActive)
+                return;
+
+            var editor = _entryPress.Editor;
+            if (editor == null || !CanEnterFromPointer(editor))
+            {
+                if (editor != null)
+                    LogEditorEntryFailure(editor, $"Pointer long press ignored: entry source is {editor.EditorEntrySource}.");
+                _entryPress.Clear();
+                return;
+            }
+
+            if (!frame.PointerLeft.Held)
+            {
+                if (frame.PointerLeft.Up)
+                    _entryPress.Clear();
+                return;
+            }
+
+            if (!ReferenceEquals(_entryPress.Target, _hoveredTarget))
+            {
+                LogEditorEntryFailure(editor, "Pointer long press canceled: target changed before threshold.");
+                _entryPress.Clear();
+                return;
+            }
+
+            if (Time.unscaledTime - _entryPress.PressedTime < editor.EditorLongPressSeconds)
+                return;
+
+            if (!TryEnterEditorMode(editor, runtimeScopeOverride: null, fromSelectableLongPress: false, _entryPress.PressedData))
+                LogEditorEntryFailure(editor, "Pointer long press reached threshold but editor mode entry failed.");
+            _entryPress.Clear();
+        }
+
+        void TryBeginPointerEntry()
+        {
+            if (_hoveredTarget == null)
+                return;
+
+            if (!_editorByTarget.TryGetValue(_hoveredTarget, out var editor) || editor == null)
+            {
+                if (_hoveredTarget != null)
+                    LogEditorEntryFailure(_hoveredTarget, "Pointer down ignored: no editor is registered for hovered target.");
+                return;
+            }
+
+            if (!CanEnterFromPointer(editor))
+            {
+                LogEditorEntryFailure(editor, $"Pointer down ignored: entry source is {editor.EditorEntrySource}.");
+                return;
+            }
+
+            _entryPress.Editor = editor;
+            _entryPress.Target = _hoveredTarget;
+            _entryPress.PressedTime = Time.unscaledTime;
+            _entryPress.PressedData = _hoveredData.Target != null ? _hoveredData : new WorldPointerEventData(_hoveredTarget, _hoveredData.ScreenPosition, _hoveredData.WorldPosition, _hoveredData.HitNormal, _hoveredData.HitCollider);
+
+        }
+
+        bool TryEnterEditorMode(
+            UserMoveRotateRuntimeMB editor,
+            RuntimeLifetimeScope? runtimeScopeOverride,
+            bool fromSelectableLongPress,
+            WorldPointerEventData eventData)
+        {
+            if (editor == null)
+                return false;
+
+            if (ReferenceEquals(_session.Editor, editor))
+                return true;
+
+            if (fromSelectableLongPress && !CanEnterFromSelectable(editor))
+            {
+                LogEditorEntryFailure(editor, $"Selectable entry blocked by source {editor.EditorEntrySource}.");
+                return false;
+            }
+
+            if (!fromSelectableLongPress && !CanEnterFromPointer(editor))
+            {
+                LogEditorEntryFailure(editor, $"Pointer entry blocked by source {editor.EditorEntrySource}.");
+                return false;
+            }
+
+            if (!editor.TryResolveActorScope(out var scope) || scope is not RuntimeLifetimeScope runtimeScope)
+            {
+                LogEditorEntryFailure(editor, "Could not resolve RuntimeLifetimeScope from editor actor scope.");
+                return false;
+            }
+
+            if (runtimeScopeOverride != null && !ReferenceEquals(runtimeScope, runtimeScopeOverride))
+                runtimeScope = runtimeScopeOverride;
+
+            EndSession(runExitCommands: true);
+
+            var rootTransform = runtimeScope.Identity?.SelfTransform != null
+                ? runtimeScope.Identity.SelfTransform
+                : runtimeScope.transform;
+            _session.Editor = editor;
+            _session.RuntimeScope = runtimeScope;
+            _session.RootTransform = rootTransform;
+            _session.StartedFrame = Time.frameCount;
+            _session.LastValidPosition = rootTransform.position;
+            _session.LastValidRotation = rootTransform.rotation;
+
+            BindRotateExternal(editor, runtimeScope);
+            BindIsEditorModeExternal(editor, runtimeScope);
+            SyncIsEditorModeBinding(true);
+
+            ExecuteEditorCommands(editor, editor.OnEditorEnterCommands, selected: true, hovered: false, editing: true);
+
+            return true;
+        }
+
+        static bool CanEnterFromSelectable(UserMoveRotateRuntimeMB editor)
+        {
+            return editor.EditorEntrySource != UserMoveRotateEditorEntrySource.PointerLongPress;
+        }
+
+        static bool CanEnterFromPointer(UserMoveRotateRuntimeMB editor)
+        {
+            return editor.EditorEntrySource != UserMoveRotateEditorEntrySource.SelectableLongPress;
+        }
+
+        void LogEditorEntryFailure(object subject, string message)
+        {
+            _ = subject;
+            _ = message;
+        }
+
+        static string DescribeEditor(UserMoveRotateRuntimeMB editor)
+        {
+            if (editor == null)
+                return "null";
+
+            return $"{editor.name} target={DescribeTarget(editor.Target)} source={editor.EditorEntrySource} longPress={editor.EditorLongPressSeconds:0.###}";
+        }
+
+        static string DescribeTarget(WorldPointerTargetMB? target)
+        {
+            return target != null ? target.name : "null";
+        }
+
+        static string DescribeRuntime(RuntimeLifetimeScope? runtime)
+        {
+            if (runtime == null)
+                return "null";
+
+            var id = runtime.Identity?.Id ?? "(no id)";
+            return $"{runtime.name}:{id}";
+        }
+
+        static string DescribeSelectable(SelectableRuntimeMB? selectable)
+        {
+            if (selectable == null)
+                return "null";
+
+            var target = selectable.ResolveTarget();
+            return $"{selectable.name} target={DescribeTarget(target)}";
+        }
+
+        void ExecuteEditorCommands(
+            UserMoveRotateRuntimeMB editor,
+            CommandListData? commands,
+            bool selected,
+            bool hovered,
+            bool editing)
+        {
+            if (editor == null || commands == null || commands.Count == 0)
+                return;
+
+            if (!editor.TryResolveActorScope(out var actorScope) || actorScope == null || actorScope.Resolver == null)
+                return;
+
+            ICommandRunner? runner = null;
+            if (!actorScope.Resolver.TryResolve<ICommandRunner>(out runner) || runner == null)
+            {
+                var ownerResolver = _owner.Resolver;
+                if (ownerResolver == null || !ownerResolver.TryResolve<ICommandRunner>(out runner) || runner == null)
+                    return;
+            }
+
+            var vars = new VarStore();
+            if (actorScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null)
+                blackboard.MergeInto(vars, overwrite: true);
+
+            SelectRuntimeVarKeys.WriteSelectionState(vars, selected, hovered, editing);
+
+            var context = new CommandContext(actorScope, vars, runner, actorScope, CommandRunOptions.Default, _owner, actorScope, actorScope);
+            UniTask.Void(async () =>
+            {
+                try
+                {
+                    await runner.ExecuteListAsync(commands, context, CancellationToken.None, context.Options);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[UserMoveRotateRuntime] Editor command execution failed: {ex.Message}");
+                }
+            });
+        }
+
+        void ApplyMovement(InputFrame frame, UserMoveRotateValidationRequest request, Vector3 currentPosition, Quaternion currentRotation, ref Vector3 candidatePosition)
         {
             if (_session.Editor == null)
                 return;
 
             var moveMode = _session.Editor.MoveSourceMode;
-            var usePointer = moveMode == UserMoveSourceMode.PointerFollow
-                || (moveMode == UserMoveSourceMode.Hybrid && _pointerActivity.HasRecentPointerActivity());
+            var usePointer = ShouldUsePointerFollow(frame, moveMode);
 
             if (usePointer)
             {
+                var pointerScreen = frame.PointerScreen;
+                var useRelativePointer = frame.PointerDelta != Vector2.zero && Vector2.Distance(pointerScreen, _lastPointerScreen) <= 0.01f;
+                if (useRelativePointer)
+                    pointerScreen += frame.PointerDelta;
+
                 if (UserMoveRotateValidationUtility.TryProjectPointerPosition(
                         request,
                         _pointerOptions.WorldCamera,
-                        frame.PointerScreen,
+                        pointerScreen,
                         currentPosition,
                         out var projectedPosition))
                 {
-                    candidatePosition = projectedPosition;
-                    return;
+                    if (TryClampToNearestValidPosition(request, projectedPosition, currentRotation, out candidatePosition))
+                        return;
                 }
             }
 
@@ -245,9 +503,53 @@ namespace Game.SelectRuntime
                 return;
 
             var moveDelta = frame.Move * _session.Editor.InputMoveSpeed * frame.DeltaTime;
-            candidatePosition = request.Editor.FallbackPlane == Channel.AreaPlane.XZ
+            var movedPosition = request.Editor.FallbackPlane == Channel.AreaPlane.XZ
                 ? currentPosition + new Vector3(moveDelta.x, 0f, moveDelta.y)
                 : currentPosition + new Vector3(moveDelta.x, moveDelta.y, 0f);
+
+            if (TryClampToNearestValidPosition(request, movedPosition, currentRotation, out candidatePosition))
+                return;
+        }
+
+        static bool TryClampToNearestValidPosition(
+            UserMoveRotateValidationRequest request,
+            Vector3 requestedPosition,
+            Quaternion requestedRotation,
+            out Vector3 correctedPosition)
+        {
+            correctedPosition = requestedPosition;
+
+            if (!request.IsValid)
+                return true;
+
+            if (UserMoveRotateValidationUtility.IsValidPose(request, requestedPosition, requestedRotation))
+                return true;
+
+            if (!UserMoveRotateValidationUtility.TryFindNearestValidPose(
+                    request,
+                    requestedPosition,
+                    requestedRotation,
+                    out correctedPosition,
+                    out _))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        bool ShouldUsePointerFollow(InputFrame frame, UserMoveSourceMode moveMode)
+        {
+            if (moveMode == UserMoveSourceMode.PointerFollow)
+                return true;
+
+            if (moveMode != UserMoveSourceMode.Hybrid)
+                return false;
+
+            if (frame.Scheme == Game.Input.ControlScheme.Mouse || frame.Scheme == Game.Input.ControlScheme.Touch)
+                return true;
+
+            return _pointerActivity.HasRecentPointerActivity();
         }
 
         void ApplyRotation(InputFrame frame, UserMoveRotateValidationRequest request, Vector3 currentPosition, ref Quaternion candidateRotation)
@@ -268,22 +570,24 @@ namespace Game.SelectRuntime
             if (!_session.IsActive || _session.Editor == null)
             {
                 _rotateBinding.Release();
+                _isEditorModeBinding.Release();
                 _session.Clear();
                 return;
             }
 
-            if (runExitCommands && _managerService.Current != null)
+            if (runExitCommands)
             {
-                SelectRuntimeCommandUtility.Execute(
-                    _managerService.Current,
-                    _owner,
-                    selected: true,
-                    hovered: ReferenceEquals(_managerService.Hovered, _managerService.Current),
-                    editing: false,
-                    _session.Editor.OnEditorExitCommands);
+                ExecuteEditorCommands(
+                    _session.Editor,
+                    _session.Editor.OnEditorExitCommands,
+                    selected: false,
+                    hovered: false,
+                    editing: false);
             }
 
+            SyncIsEditorModeBinding(false);
             _rotateBinding.Release();
+            _isEditorModeBinding.Release();
             _session.Clear();
         }
 
@@ -299,6 +603,19 @@ namespace Game.SelectRuntime
             }
 
             SyncRotateBinding(request, request.RootTransform.rotation);
+        }
+
+        void BindIsEditorModeExternal(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
+        {
+            _isEditorModeBinding.Acquire(runtimeScope, editor.IsEditorModeBinding);
+        }
+
+        void SyncIsEditorModeBinding(bool isEditing)
+        {
+            if (!_isEditorModeBinding.HasBinding)
+                return;
+
+            _isEditorModeBinding.Write(isEditing);
         }
 
         void HandleRotateBindingChanged(float value)

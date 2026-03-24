@@ -91,12 +91,12 @@ namespace Game.Commands.VNext
                 var scale = typed.Scale.HasSource ? typed.Scale.Resolve(dynCtx) : Vector3.one;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.Log(
-                    $"[SpawnRuntimeTemplateExecutor] Resolve idx={i}/{spawnCount - 1} " +
-                    $"worldSpace={typed.WorldSpace} parent={DescribeTransform(transformParent)} " +
-                    $"pos={basePos} offset={offset} finalPos={spawnPos} rot={rotation.eulerAngles} scale={scale} " +
-                    $"posSrc={typed.Position.SourceTypeName}:{typed.Position.SourceDebugData} " +
-                    $"offsetSrc={typed.Offset.SourceTypeName}:{typed.Offset.SourceDebugData}");
+                //Debug.Log(
+                //    $"[SpawnRuntimeTemplateExecutor] Resolve idx={i}/{spawnCount - 1} " +
+                //    $"worldSpace={typed.WorldSpace} parent={DescribeTransform(transformParent)} " +
+                //    $"pos={basePos} offset={offset} finalPos={spawnPos} rot={rotation.eulerAngles} scale={scale} " +
+                //    $"posSrc={typed.Position.SourceTypeName}:{typed.Position.SourceDebugData} " +
+                //    $"offsetSrc={typed.Offset.SourceTypeName}:{typed.Offset.SourceDebugData}");
 #endif
 
                 var spawnParams = SpawnParams.ForRuntime(
@@ -111,12 +111,23 @@ namespace Game.Commands.VNext
                     allowPooling: typed.AllowPooling);
 
                 var spawnedResolver = await spawner.SpawnAsync(spawnParams, ct);
-                if (spawnedResolver != null && shouldRunOnSpawnedCommands)
+                if (spawnedResolver != null)
                 {
                     if (!spawnedResolver.TryResolve<IScopeNode>(out var spawnedScope) || spawnedScope == null)
                         throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Spawned container does not expose IScopeNode.");
 
                     EnsureScopeBuiltIfNeeded(spawnedScope);
+
+                    if (typed.WriteSpawnedScopeToContext)
+                    {
+                        if (!CommandLtsSlotUtility.IsContextSlot(typed.SpawnedScopeSlot))
+                            throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"SpawnedScopeSlot must be a context slot. slot={typed.SpawnedScopeSlot}");
+
+                        ctx.SetScope(typed.SpawnedScopeSlot, spawnedScope);
+                    }
+
+                    if (!shouldRunOnSpawnedCommands)
+                        continue;
 
                     if (!TryResolveRunner(spawnedScope, out var runner) || runner == null)
                         throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "Spawned scope has no ICommandRunner.");
@@ -133,6 +144,15 @@ namespace Game.Commands.VNext
                         rootActor: ctx.RootActor,
                         callerActor: ctx.Actor,
                         sourceContext: ctx);
+
+                    if (typed.WriteSpawnerToContext)
+                    {
+                        if (!CommandLtsSlotUtility.IsContextSlot(typed.SpawnerContextSlot))
+                            throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"SpawnerContextSlot must be a context slot. slot={typed.SpawnerContextSlot}");
+
+                        var spawnerScope = ctx.Actor ?? ctx.Scope;
+                        spawnedCtx.SetScope(typed.SpawnerContextSlot, spawnerScope);
+                    }
 
                     if (typed.AwaitOnSpawnedCommands)
                     {

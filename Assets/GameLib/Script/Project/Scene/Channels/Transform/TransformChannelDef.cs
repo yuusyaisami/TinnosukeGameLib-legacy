@@ -186,7 +186,7 @@ namespace Game.Channel
         /// </summary>
         public void ApplyInitialTransform()
         {
-            var t = TargetTransformOrRectTransform;
+            var t = rectTransform != null ? (Transform)rectTransform : target;
             if (t == null) return;
 
             // Transform 共通設定

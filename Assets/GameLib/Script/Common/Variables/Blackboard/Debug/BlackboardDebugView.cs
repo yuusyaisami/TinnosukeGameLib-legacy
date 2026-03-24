@@ -100,24 +100,13 @@ namespace Game.Common
 
             _lastRepaintTime = now;
 
-            // Refresh query result and local rows so inspector shows fresh data
-            if (_blackboard != null && _ownerForEditor != null)
-            {
-                // Force recompute of properties (they are computed on access)
-                // and mark owner as dirty so inspector will repaint
-                try
-                {
-                    UnityEditor.EditorUtility.SetDirty(_ownerForEditor);
-                }
-                catch { }
+            if (_blackboard == null || _ownerForEditor == null)
+                return;
 
-                // Repaint all views to ensure inspector updates even when mouse not over it
-                try
-                {
-                    UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-                }
-                catch { }
-            }
+            if (UnityEditor.Selection.activeObject != _ownerForEditor)
+                return;
+
+            UnityEditor.EditorUtility.SetDirty(_ownerForEditor);
         }
 #endif
 

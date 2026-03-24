@@ -144,78 +144,78 @@ namespace Game.Profile
         [SerializeField]
         UnityEngine.Object _unityObjectValue;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Scalar Key")]
         [ShowIf(nameof(CanBindScalar))]
         [SerializeField]
         ScalarKey _scalarKey;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Policy")]
         [ShowIf(nameof(ShowScalarSettings))]
         [SerializeField]
         ScalarBindPolicy _scalarPolicy = ScalarBindPolicy.UpdateBaseline;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Effect Mod")]
         [ShowIf(nameof(ShowScalarSettings))]
         [SerializeField]
         bool _useEffectMod;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Clamp Mod")]
         [ShowIf(nameof(ShowScalarSettings))]
         [SerializeField]
         bool _useClampMod;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Local Base")]
         [ShowIf(nameof(ShowScalarSettings))]
         [SerializeField]
         bool _useLocalBase;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Local Base")]
         [ShowIf(nameof(ShowLocalBaseSettings))]
         [SerializeField]
         float _localBaseValue;
 
-        [FoldoutGroup("Scalar Binding")]
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Clamp")]
         [ShowIf(nameof(ShowClampSettings))]
         [SerializeField]
         ScalarClamp _clamp;
 
-        [FoldoutGroup("Scalar Binding/Save")]
+        [FoldoutGroup("$ScalarBindingSaveGroupName")]
         [LabelText("Save Enabled")]
         [ShowIf(nameof(ShowScalarSettings))]
         [SerializeField]
         bool _scalarSaveEnabled;
 
-        [FoldoutGroup("Scalar Binding/Save")]
+        [FoldoutGroup("$ScalarBindingSaveGroupName")]
         [LabelText("Save Layer")]
         [ShowIf(nameof(ShowScalarSaveLayer))]
         [SerializeField]
         SaveLayer _scalarSaveLayer;
 
-        [FoldoutGroup("Blackboard Binding")]
+        [FoldoutGroup("$BlackboardBindingGroupName")]
         [LabelText("Blackboard VarId")]
         [SerializeField, VarIdDropdown]
         int _blackboardKey = 0;
 
-        [FoldoutGroup("Blackboard Binding")]
+        [FoldoutGroup("$BlackboardBindingGroupName")]
         [LabelText("Policy")]
         [ShowIf(nameof(HasBlackboardKey))]
         [SerializeField]
         BlackboardBindPolicy _blackboardPolicy = BlackboardBindPolicy.Overwrite;
 
-        [FoldoutGroup("Blackboard Binding/Save")]
+        [FoldoutGroup("$BlackboardBindingSaveGroupName")]
         [LabelText("Save Enabled")]
         [ShowIf(nameof(HasBlackboardKey))]
         [SerializeField]
         bool _blackboardSaveEnabled;
 
-        [FoldoutGroup("Blackboard Binding/Save")]
+        [FoldoutGroup("$BlackboardBindingSaveGroupName")]
         [LabelText("Save Layer")]
         [ShowIf(nameof(ShowBlackboardSaveLayer))]
         [SerializeField]
@@ -237,6 +237,10 @@ namespace Game.Profile
         bool ShowLocalBaseSettings => ShowScalarSettings && _useLocalBase;
         bool ShowScalarSaveLayer => ShowScalarSettings && _scalarSaveEnabled;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && _blackboardSaveEnabled;
+        string ScalarBindingGroupName => $"Scalar Binding ({GetScalarBindingLabel()})";
+        string ScalarBindingSaveGroupName => $"{ScalarBindingGroupName}/Save";
+        string BlackboardBindingGroupName => $"Blackboard Binding ({GetBlackboardBindingLabel()})";
+        string BlackboardBindingSaveGroupName => $"{BlackboardBindingGroupName}/Save";
 
         int IProfileValueBinding.BlackboardKey => _blackboardKey;
         ScalarKey IProfileValueBinding.ScalarKey => _scalarKey;
@@ -366,6 +370,28 @@ namespace Game.Profile
                 UseClampMod = _useClampMod,
                 Clamp = _clamp
             };
+        }
+
+        string GetScalarBindingLabel()
+        {
+            if (!CanBindScalar)
+                return "Unavailable";
+
+            if (!HasScalarKey)
+                return "Unbound";
+
+            return _scalarKey.FormatLabel(includeId: false);
+        }
+
+        string GetBlackboardBindingLabel()
+        {
+            if (!HasBlackboardKey)
+                return "Unbound";
+
+            if (VarIdResolver.TryGetStableKey(_blackboardKey, out var stableKey) && !string.IsNullOrEmpty(stableKey))
+                return stableKey;
+
+            return $"varId:{_blackboardKey}";
         }
     }
 }

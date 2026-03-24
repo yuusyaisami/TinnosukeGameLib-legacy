@@ -11,6 +11,13 @@ using VContainer.Unity;
 
 namespace Game.SelectRuntime
 {
+    public enum UserMoveRotateEditorEntrySource
+    {
+        SelectableLongPress = 10,
+        PointerLongPress = 20,
+        Both = 30,
+    }
+
     [DisallowMultipleComponent]
     public sealed class UserMoveRotateRuntimeMB : MonoBehaviour, IFeatureInstaller
     {
@@ -18,6 +25,19 @@ namespace Game.SelectRuntime
         [LabelText("Pointer Target")]
         [SerializeField]
         WorldPointerTargetMB? _target;
+
+        [BoxGroup("Input")]
+        [LabelText("Editor Entry Source")]
+        [EnumToggleButtons]
+        [SerializeField]
+        UserMoveRotateEditorEntrySource _editorEntrySource = UserMoveRotateEditorEntrySource.Both;
+
+        [BoxGroup("Input")]
+        [ShowIf("@_editorEntrySource != Game.SelectRuntime.UserMoveRotateEditorEntrySource.SelectableLongPress")]
+        [LabelText("Editor Long Press Seconds")]
+        [MinValue(0.05f)]
+        [SerializeField]
+        float _editorLongPressSeconds = 0.35f;
 
         [BoxGroup("Move")]
         [LabelText("Move Source Mode")]
@@ -46,6 +66,12 @@ namespace Game.SelectRuntime
         [InlineProperty]
         [SerializeField]
         ExternalFloatBindingOptions _rotateBinding = new();
+
+        [BoxGroup("State/Binding")]
+        [LabelText("Editor Mode Binding")]
+        [InlineProperty]
+        [SerializeField]
+        ExternalBoolBindingOptions _isEditorModeBinding = new();
 
         [BoxGroup("Validation")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(_areaActorSource)")]
@@ -89,20 +115,29 @@ namespace Game.SelectRuntime
         [SerializeField]
         CommandListData _onEditorExitCommands = new();
 
+        [BoxGroup("Debug")]
+        [LabelText("Enable Debug Log")]
+        [SerializeField]
+        bool _enableDebugLog;
+
         readonly List<Collider> _resolvedColliders = new();
 
         public WorldPointerTargetMB? Target => ResolveTarget();
+        public UserMoveRotateEditorEntrySource EditorEntrySource => _editorEntrySource;
+        public float EditorLongPressSeconds => Mathf.Max(0.05f, _editorLongPressSeconds);
         public UserMoveSourceMode MoveSourceMode => _moveSourceMode;
         public float InputMoveSpeed => Mathf.Max(0f, _inputMoveSpeed);
         public AreaPlane FallbackPlane => _fallbackPlane;
         public float RotateDegreesPerScroll => _rotateDegreesPerScroll;
         public IExternalFloatBindingOptions RotateBinding => _rotateBinding;
+        public IExternalBoolBindingOptions IsEditorModeBinding => _isEditorModeBinding;
         public ActorSource AreaActorSource => _areaActorSource;
         public IReadOnlyList<string> AreaTags => _areaTags;
         public float MinDistanceToOtherSelectable => Mathf.Max(0f, _minDistanceToOtherSelectable);
         public LayerMask BlockLayerMask => _blockLayerMask;
         public CommandListData OnEditorEnterCommands => _onEditorEnterCommands;
         public CommandListData OnEditorExitCommands => _onEditorExitCommands;
+        public bool EnableDebugLog => _enableDebugLog;
 
         public WorldPointerTargetMB? ResolveTarget()
         {
@@ -149,13 +184,45 @@ namespace Game.SelectRuntime
             return ScopeFeatureInstallerUtility.TryGetNearestScopeNode(this, includeInactive: true, out scope);
         }
 
+        void OnEnable()
+        {
+            NotifyBridgeRefresh();
+        }
+
+        void OnDisable()
+        {
+            NotifyBridgeRelease();
+        }
+
+        void OnTransformParentChanged()
+        {
+            NotifyBridgeRefresh();
+        }
+
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<UserMoveRotateRuntimeBridgeService>(Lifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
                 .WithParameter(this);
+        }
+
+        void NotifyBridgeRefresh()
+        {
+            if (!TryResolveActorScope(out var scope) || scope?.Resolver == null)
+                return;
+
+            if (scope.Resolver.TryResolve<UserMoveRotateRuntimeBridgeService>(out var bridge) && bridge != null)
+                bridge.RefreshBinding();
+        }
+
+        void NotifyBridgeRelease()
+        {
+            if (!TryResolveActorScope(out var scope) || scope?.Resolver == null)
+                return;
+
+            if (scope.Resolver.TryResolve<UserMoveRotateRuntimeBridgeService>(out var bridge) && bridge != null)
+                bridge.ReleaseBinding();
         }
     }
 }

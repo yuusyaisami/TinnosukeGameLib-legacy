@@ -70,9 +70,7 @@ namespace Game.UI.TraitList
             if (!_options.AutoBuildOnAcquire || _options.DefaultProfile == null)
                 return;
 
-            var parent = _options.DefaultParentTransform != null
-                ? _options.DefaultParentTransform
-                : (_owner as Component)?.transform;
+            var parent = ResolveParentTransform(_options, _owner);
             if (parent == null)
                 return;
 
@@ -217,6 +215,17 @@ namespace Game.UI.TraitList
             }
 
             return false;
+        }
+
+        static Transform? ResolveParentTransform(IUITraitListSystemOptions options, IScopeNode owner)
+        {
+            if (options.LayoutRectTransform != null)
+                return options.LayoutRectTransform;
+
+            if (options.DefaultParentTransform != null)
+                return options.DefaultParentTransform;
+
+            return (owner as Component)?.transform;
         }
 
         void BindHolder(ITraitHolderService holder, string holderKey)

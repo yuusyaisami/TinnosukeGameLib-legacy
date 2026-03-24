@@ -71,15 +71,36 @@ namespace Game.UI.TraitList
             if (profile == null || parent == null || scopeParent == null)
                 return null;
 
+            if (slot.Trait == null)
+            {
+                Debug.LogError($"[UITraitListVisualizer] Slot trait is null. listIndex={slot.ListIndex} row={slot.Row} column={slot.Column}");
+                return null;
+            }
+
+            var trait = slot.Trait;
+
             var spawner = ResolveSpawner(profile.SpawnSource, _registry);
             if (spawner == null)
+            {
+                var kind = profile.SpawnSource == UITraitListSpawnSource.RuntimeTemplate
+                    ? SpawnerKind.RuntimeUIElement
+                    : SpawnerKind.UIElement;
+                Debug.LogError($"[UITraitListVisualizer] Spawner not found. kind={kind} registeredCount={_registry.Count}");
                 return null;
+            }
 
             var spawnParent = profile.SpawnParentOverride != null ? profile.SpawnParentOverride : parent;
             var position = Vector3.zero;
             var rotation = Quaternion.identity;
             var scale = Vector3.one;
             var worldSpace = false;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            //Debug.Log(
+            //    $"[UITraitListVisualizer] Spawn start traitInstanceId='{slot.Trait?.InstanceId ?? "(null)"}' " +
+            //    $"traitDefinitionId='{slot.Trait?.Definition?.DefinitionId ?? "(null)"}' listIndex={slot.ListIndex} row={slot.Row} column={slot.Column} " +
+            //    $"spawnSource={profile.SpawnSource} parent='{spawnParent.name}'");
+#endif
 
             SpawnParams spawnParams;
             if (profile.SpawnSource == UITraitListSpawnSource.RuntimeTemplate)
@@ -139,7 +160,10 @@ namespace Game.UI.TraitList
             }
 
             if (resolver == null)
+            {
+                Debug.LogError($"[UITraitListVisualizer] Spawn returned null resolver. traitInstanceId='{slot.Trait?.InstanceId ?? "(null)"}' listIndex={slot.ListIndex}");
                 return null;
+            }
 
             ExtractSpawnedInfo(resolver, out var root, out var scope, out _, out _);
             if (root == null || scope == null)
@@ -149,7 +173,7 @@ namespace Game.UI.TraitList
             }
 
             var instance = new UITraitListVisualInstance(
-                slot.Trait,
+                trait,
                 slot.TraitIndex,
                 slot.ListIndex,
                 slot.Row,
@@ -163,11 +187,15 @@ namespace Game.UI.TraitList
 
             ApplySize(profile, instance);
             ApplyBlackboard(slot, instance, hub);
-            SetPosition(instance, ResolvePlacementPosition(instance, slot.AnchoredPosition));
+            SetPosition(instance, ResolvePlacementPosition(
+                instance,
+                slot.AnchoredPosition,
+                slot.HorizontalAlignment,
+                slot.VerticalAlignment));
 
             try
             {
-                slot.Trait?.OnLtsInstantiated(scope);
+                trait.OnLtsInstantiated(scope);
             }
             catch (Exception ex)
             {
@@ -176,6 +204,12 @@ namespace Game.UI.TraitList
 
             if (TryResolveRunner(resolver, runner, out var runRunner))
                 await ExecuteCommandsAsync(slot, profile, instance, runRunner, ct);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            //Debug.Log(
+            //    $"[UITraitListVisualizer] Spawn complete traitInstanceId='{slot.Trait?.InstanceId ?? "(null)"}' " +
+            //    $"listIndex={slot.ListIndex} root='{instance.Root.name}'");
+#endif
 
             return instance;
         }
@@ -196,7 +230,11 @@ namespace Game.UI.TraitList
             instance.UpdateSlot(slot);
 
             var movePreset = ResolveMovePreset(slot.Trait);
-            var targetPosition = ResolvePlacementPosition(instance, slot.AnchoredPosition);
+            var targetPosition = ResolvePlacementPosition(
+                instance,
+                slot.AnchoredPosition,
+                slot.HorizontalAlignment,
+                slot.VerticalAlignment);
 
             if (!layoutProfile.UseTransformAnimation || movePreset == null)
             {
@@ -437,7 +475,15 @@ namespace Game.UI.TraitList
         {
             if (instance.RootRect != null)
             {
-                instance.RootRect.anchoredPosition = anchoredPosition;
+                var parentRect = instance.RootRect.parent as RectTransform;
+                if (parentRect != null)
+                {
+                    instance.RootRect.anchoredPosition = anchoredPosition - ResolveAnchorReference(instance.RootRect, parentRect);
+                }
+                else
+                {
+                    instance.RootRect.anchoredPosition = anchoredPosition;
+                }
                 return;
             }
 
@@ -447,12 +493,57 @@ namespace Game.UI.TraitList
             }
         }
 
-        static Vector2 ResolvePlacementPosition(UITraitListVisualInstance instance, Vector2 targetAnchoredPosition)
+        static Vector2 ResolveAnchorReference(RectTransform rectTransform, RectTransform parent)
+        {
+            var parentSize = parent.rect.size;
+            var parentPivot = parent.pivot;
+            var anchorMin = rectTransform.anchorMin;
+            var anchorMax = rectTransform.anchorMax;
+            var pivot = rectTransform.pivot;
+            var normalized = new Vector2(
+                Mathf.Lerp(anchorMin.x, anchorMax.x, pivot.x),
+                Mathf.Lerp(anchorMin.y, anchorMax.y, pivot.y));
+
+            return new Vector2(
+                (normalized.x - parentPivot.x) * parentSize.x,
+                (normalized.y - parentPivot.y) * parentSize.y);
+        }
+
+        static Vector2 ResolvePlacementPosition(
+            UITraitListVisualInstance instance,
+            Vector2 targetAnchoredPosition,
+            UITraitListHorizontalAlignment horizontalAlignment,
+            UITraitListVerticalAlignment verticalAlignment)
         {
             if (!TryResolveVisualBounds(instance, out var bounds))
                 return targetAnchoredPosition;
 
-            return targetAnchoredPosition - bounds.LocalCenter;
+            var anchor = new Vector2(
+                ResolveHorizontalAnchor(bounds.LocalRect, horizontalAlignment),
+                ResolveVerticalAnchor(bounds.LocalRect, verticalAlignment));
+            return targetAnchoredPosition - anchor;
+        }
+
+        static float ResolveHorizontalAnchor(Rect localRect, UITraitListHorizontalAlignment alignment)
+        {
+            return alignment switch
+            {
+                UITraitListHorizontalAlignment.Left => localRect.xMin,
+                UITraitListHorizontalAlignment.Right => localRect.xMax,
+                UITraitListHorizontalAlignment.Center => localRect.center.x,
+                _ => localRect.xMin
+            };
+        }
+
+        static float ResolveVerticalAnchor(Rect localRect, UITraitListVerticalAlignment alignment)
+        {
+            return alignment switch
+            {
+                UITraitListVerticalAlignment.Top => localRect.yMax,
+                UITraitListVerticalAlignment.Bottom => localRect.yMin,
+                UITraitListVerticalAlignment.Center => localRect.center.y,
+                _ => localRect.yMax
+            };
         }
 
         static bool TryResolveVisualBounds(UITraitListVisualInstance instance, out VisualBoundsOutput output)

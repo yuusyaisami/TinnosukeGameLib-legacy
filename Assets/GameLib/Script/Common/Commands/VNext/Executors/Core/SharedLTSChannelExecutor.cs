@@ -26,6 +26,10 @@ namespace Game.Commands.VNext
                     ExecuteRegister(hub, typed, ctx);
                     break;
 
+                case SharedLTSChannelOperation.Get:
+                    ExecuteGet(hub, typed, ctx);
+                    break;
+
                 case SharedLTSChannelOperation.Unregister:
                     hub.Unregister(typed.Tag);
                     break;
@@ -48,6 +52,23 @@ namespace Game.Commands.VNext
                 return;
 
             hub.Register(typed.Tag, targetScope);
+        }
+
+        static void ExecuteGet(ISharedLTSChannelHub hub, SharedLTSChannelCommandData typed, CommandContext ctx)
+        {
+            if (string.IsNullOrWhiteSpace(typed.Tag))
+            {
+                ctx.SetScope(typed.ContextSlot, null);
+                return;
+            }
+
+            if (hub.TryGet(typed.Tag, out var scope))
+            {
+                ctx.SetScope(typed.ContextSlot, scope);
+                return;
+            }
+
+            ctx.SetScope(typed.ContextSlot, null);
         }
 
         static bool TryResolveHub(IScopeNode? scope, out ISharedLTSChannelHub? hub)

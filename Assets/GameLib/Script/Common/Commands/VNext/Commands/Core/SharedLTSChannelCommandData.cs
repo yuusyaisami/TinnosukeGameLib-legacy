@@ -7,6 +7,7 @@ namespace Game.Commands.VNext
     public enum SharedLTSChannelOperation
     {
         Register = 10,
+        Get = 15,
         Unregister = 20,
         ClearAll = 30,
     }
@@ -15,7 +16,21 @@ namespace Game.Commands.VNext
     public sealed class SharedLTSChannelCommandData : ICommandData
     {
         public int CommandId => CommandIds.SharedLTSChannel;
-        public string DebugData => $"Op={Operation} Tag={Tag} Actor={ActorSource.Kind}";
+
+        public string DebugData
+        {
+            get
+            {
+                var baseText = $"Op={Operation} Tag={Tag}";
+                if (Operation == SharedLTSChannelOperation.Register)
+                    return $"{baseText} Actor={ActorSource.Kind}";
+
+                if (Operation == SharedLTSChannelOperation.Get)
+                    return $"{baseText} Slot={ContextSlot}";
+
+                return baseText;
+            }
+        }
 
         [LabelText("Operation")]
         [EnumToggleButtons]
@@ -24,10 +39,15 @@ namespace Game.Commands.VNext
         [LabelText("Tag")]
         public string Tag = string.Empty;
 
+        [ShowIf(nameof(UsesContextSlot))]
+        [LabelText("Context Slot")]
+        public CommandLtsSlot ContextSlot = CommandLtsSlot.ContextA;
+
         [ShowIf(nameof(UsesActorSource))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(ActorSource)")]
         public ActorSource ActorSource;
 
         bool UsesActorSource => Operation == SharedLTSChannelOperation.Register;
+        bool UsesContextSlot => Operation == SharedLTSChannelOperation.Get;
     }
 }

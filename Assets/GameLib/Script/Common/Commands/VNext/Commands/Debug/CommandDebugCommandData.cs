@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Game;
 using Game.Common;
 namespace Game.Commands.VNext
 {
@@ -48,6 +49,50 @@ namespace Game.Commands.VNext
         [BoxGroup("Output")]
         [LabelText("Log VarStore")]
         public bool LogVarStore = true;
+
+        [BoxGroup("Output")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(TargetScope)")]
+        public ActorSource TargetScope = new() { Kind = ActorSourceKind.Current };
+
+        [BoxGroup("Output")]
+        [LabelText("Log Target Scope Info")]
+        public bool LogTargetScopeInfo = true;
+
+        [BoxGroup("Output")]
+        [LabelText("Log Target Blackboard")]
+        public bool LogTargetBlackboard = true;
+
+        [BoxGroup("Output")]
+        [LabelText("Max Blackboard Entries")]
+        [MinValue(0)]
+        public int MaxBlackboardEntries = 0;
+
+        [BoxGroup("Output")]
+        [LabelText("Log Target Grid Blackboard")]
+        public bool LogTargetGridBlackboard = true;
+
+        [BoxGroup("Output")]
+        [LabelText("Max Grid Blackboard Entries")]
+        [MinValue(0)]
+        public int MaxGridBlackboardEntries = 0;
+
+        [BoxGroup("Output")]
+        [LabelText("Log Target Scalar")]
+        public bool LogTargetScalar = true;
+
+        [BoxGroup("Output")]
+        [LabelText("Max Scalar Keys")]
+        [MinValue(0)]
+        public int MaxScalarEntries = 0;
+
+        [BoxGroup("Output")]
+        [LabelText("Log Scalar Snapshots")]
+        public bool LogScalarSnapshots = true;
+
+        [BoxGroup("Output")]
+        [LabelText("Max Scalar Snapshots / Key")]
+        [MinValue(0)]
+        public int MaxScalarSnapshotsPerKey = 0;
 
         [BoxGroup("Output")]
         [LabelText("Max Var Entries")]

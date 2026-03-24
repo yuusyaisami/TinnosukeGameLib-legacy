@@ -65,6 +65,7 @@ namespace Game.Health
         bool _disposed;
         bool _loggedMissingHealthService;
         bool _initialModifiersRegistered;
+        float _nextDebugRefreshTime;
 
         public IHealthService HealthService => _healthService;
 
@@ -114,6 +115,10 @@ namespace Game.Health
             if (_healthService == null && !TryResolveHealthService())
                 return;
 
+            if (Time.unscaledTime < _nextDebugRefreshTime)
+                return;
+
+            _nextDebugRefreshTime = Time.unscaledTime + 0.1f;
             _currentHP = _healthService.CurrentHP;
             _maxHP = _healthService.MaxHP;
             _isDead = _healthService.IsDead;

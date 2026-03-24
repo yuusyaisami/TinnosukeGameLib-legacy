@@ -79,6 +79,7 @@ namespace Game.Save
     {
         public int SaveVer;
         public BlackboardVarPayload[] Blackboard;
+        public GridBlackboardVarPayload[] GridBlackboard;
         public ScalarKeyPayload[] Scalars;
     }
 
@@ -104,6 +105,21 @@ namespace Game.Save
         public float Remain;
         public string Layer;
         public string Tag;
+    }
+
+    [Serializable]
+    public struct GridBlackboardVarPayload
+    {
+        public int VarId;
+        public int Row;
+        public int Column;
+        public byte Kind;
+        public double Numeric;
+        public string Str;
+        public float X;
+        public float Y;
+        public float Z;
+        public float W;
     }
 
     [Serializable]

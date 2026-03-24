@@ -45,7 +45,12 @@ namespace Game.Channel
 
             for (int i = 0; i < channels.Length; i++)
             {
-                channels[i]?.ApplyInitialTransform();
+                var channel = channels[i];
+                if (channel == null)
+                    continue;
+
+                channel.EnsureIntegrity(this);
+                channel.ApplyInitialTransform();
             }
         }
 
@@ -66,12 +71,12 @@ namespace Game.Channel
 
             builder.Register<TransformAnimationTargetRegistryService>(Lifetime.Singleton)
                 .As<ITransformAnimationTargetRegistry>()
-                .As<ITickable>()
                 .As<IScopeReleaseHandler>();
 
             builder.Register<TransformAnimationHubService>(Lifetime.Singleton)
                 .As<ITransformAnimationHubService>()
                 .AsSelf()
+                                .As<ITickable>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
               .WithParameter<IScopeNode>(scope)
@@ -129,7 +134,7 @@ namespace Game.Channel
                 if (preset == null || preset.Steps == null || preset.Steps.Count == 0)
                     continue;
 
-                var target = def.TargetTransformOrRectTransform;
+                var target = def.RectTransform != null ? (Transform)def.RectTransform : def.Transform;
                 if (!target)
                     continue;
 
@@ -233,7 +238,7 @@ namespace Game.Channel
                 if (preset == null || preset.Steps == null || preset.Steps.Count == 0)
                     continue;
 
-                var target = def.TargetTransformOrRectTransform;
+                var target = def.RectTransform != null ? (Transform)def.RectTransform : def.Transform;
                 if (!target)
                     continue;
 

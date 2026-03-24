@@ -1,6 +1,7 @@
 // Game.Common
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 using Sirenix.OdinInspector;
 using VNext = Game.Commands.VNext;
 using Game;
@@ -31,6 +32,16 @@ namespace Game.Common
         /// When true, Despawn start will cancel any in-progress Spawn (default: true).
         /// </summary>
         public bool CancelSpawnOnDespawn = true;
+
+        /// <summary>
+        /// When true, this scope auto-despawns itself if AutoDespawnCondition evaluates false.
+        /// </summary>
+        public bool AutoDespawnWhenConditionFalse;
+
+        /// <summary>
+        /// Condition source for lifecycle self-despawn.
+        /// </summary>
+        public DynamicValue<bool> AutoDespawnCondition = DynamicValueExtensions.FromLiteral(true);
     }
 
     [DisallowMultipleComponent]
@@ -59,6 +70,13 @@ namespace Game.Common
         [Tooltip("When true, starting Despawn will cancel an in-progress Spawn. Set false to allow Spawn to complete.")]
         [SerializeField] bool cancelSpawnOnDespawn = true;
 
+        [Header("Condition Auto Despawn")]
+        [Tooltip("When true, this scope auto-despawns when the condition evaluates false.")]
+        [SerializeField] bool autoDespawnWhenConditionFalse = false;
+
+        [ShowIf(nameof(autoDespawnWhenConditionFalse))]
+        [SerializeField] DynamicValue<bool> autoDespawnCondition = DynamicValueExtensions.FromLiteral(true);
+
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
             var config = new ScopeLifecycleConfig
@@ -75,6 +93,8 @@ namespace Game.Common
                 DespawnOnEndCommands = despawnOnEndCommands ?? new VNext.CommandListData(),
                 DespawnDelaySeconds = despawnDelaySeconds,
                 CancelSpawnOnDespawn = cancelSpawnOnDespawn,
+                AutoDespawnWhenConditionFalse = autoDespawnWhenConditionFalse,
+                AutoDespawnCondition = autoDespawnCondition,
             };
 
             builder.RegisterInstance(config);
@@ -83,13 +103,19 @@ namespace Game.Common
             {
                 builder.Register<RuntimeScopeLifecycleService>(Lifetime.Singleton)
                     .WithParameter(runtime)
-                    .As<IScopeLifecycleService>();
+                    .As<IScopeLifecycleService>()
+                    .As<IScopeLifecycleConditionController>()
+                    .As<IScopeReleaseHandler>()
+                    .As<ITickable>();
                 return;
             }
 
             // Register as scope-multi so BaseLifetimeScope can resolve lifecycle locally without parent fallback.
             builder.RegisterAsScopeMulti<IScopeLifecycleService, ScopeLifecycleService>(Lifetime.Singleton)
-                .WithParameter(scope);
+                .WithParameter(scope)
+                .As<IScopeLifecycleConditionController>()
+                .As<IScopeReleaseHandler>()
+                .As<ITickable>();
         }
     }
 }

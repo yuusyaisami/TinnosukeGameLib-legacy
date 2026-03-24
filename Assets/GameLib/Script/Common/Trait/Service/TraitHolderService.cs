@@ -38,6 +38,7 @@ namespace Game.Trait
         VNext.CommandListData _onEquipCommands = new();
         bool _runOnUnequipCommands;
         VNext.CommandListData _onUnequipCommands = new();
+        bool _allowDuplicateDefinitions;
 
         public TraitHolderService(IScopeNode? scope)
         {
@@ -52,6 +53,9 @@ namespace Game.Trait
         {
             instance = null;
             if (definition == null)
+                return false;
+
+            if (!_allowDuplicateDefinitions && TryGetInstance(definition, out _))
                 return false;
 
             var context = new TraitInstanceContext(_scope);
@@ -197,6 +201,11 @@ namespace Game.Trait
             WriteHolderVarsToBlackboard();
         }
 
+        public void SetAllowDuplicateDefinitions(bool allowDuplicateDefinitions)
+        {
+            _allowDuplicateDefinitions = allowDuplicateDefinitions;
+        }
+
         internal void SetHolderCommands(
             bool runOnEquip,
             VNext.CommandListData? onEquipCommands,
@@ -218,9 +227,6 @@ namespace Game.Trait
             {
                 var definition = definitions[i];
                 if (definition == null)
-                    continue;
-
-                if (TryGetInstance(definition, out _))
                     continue;
 
                 TryRegister(definition, out _);

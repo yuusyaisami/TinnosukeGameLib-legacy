@@ -45,6 +45,21 @@ namespace Game.UI
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
         [SerializeField] List<SpriteRenderer> spriteTargets = new();
 
+        [BoxGroup(SourcesGroup)]
+        [LabelText("MeshRenderers")]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
+        [SerializeField] List<MeshRenderer> meshTargets = new();
+
+        [BoxGroup(SourcesGroup)]
+        [LabelText("Collider2D")]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
+        [SerializeField] List<Collider2D> collider2DTargets = new();
+
+        [BoxGroup(SourcesGroup)]
+        [LabelText("Collider (3D)")]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
+        [SerializeField] List<Collider> colliderTargets = new();
+
         [BoxGroup(OptionsGroup)]
         [SerializeField] bool excludeInactive = true;
 
@@ -171,6 +186,9 @@ namespace Game.UI
                 ImageTargets = imageTargets ?? new List<Image>(),
                 TextTargets = textTargets ?? new List<TMP_Text>(),
                 SpriteTargets = spriteTargets ?? new List<SpriteRenderer>(),
+                MeshTargets = meshTargets ?? new List<MeshRenderer>(),
+                Collider2DTargets = collider2DTargets ?? new List<Collider2D>(),
+                ColliderTargets = colliderTargets ?? new List<Collider>(),
                 ExcludeInactive = excludeInactive,
                 AutoRebuild = autoRebuild,
                 AutoDetectChanges = autoDetectChanges,

@@ -343,6 +343,10 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string DebuffBallChance = "GameLogic.GameProfile.Base.DebuffBallChance";
                     /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/GameStage
+                    /// </remarks>
+                    public const string GameStage = "GameLogic.GameProfile.Base.GameStage";
+                    /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/InstanceMoneyValue
                     /// </remarks>
                     public const string InstanceMoneyValue = "GameLogic.GameProfile.Base.InstanceMoneyValue";
@@ -371,6 +375,10 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string MoneyValue = "GameLogic.GameProfile.Base.MoneyValue";
                     /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/NailUpgradePriceMul
+                    /// </remarks>
+                    public const string NailUpgradePriceMul = "GameLogic.GameProfile.Base.NailUpgradePriceMul";
+                    /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/NailValue
                     /// </remarks>
                     public const string NailValue = "GameLogic.GameProfile.Base.NailValue";
@@ -382,6 +390,14 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/GameProfile/Base/Quota
                     /// </remarks>
                     public const string Quota = "GameLogic.GameProfile.Base.Quota";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/RerollValue
+                    /// </remarks>
+                    public const string RerollValue = "GameLogic.GameProfile.Base.RerollValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/RerollValueMul
+                    /// </remarks>
+                    public const string RerollValueMul = "GameLogic.GameProfile.Base.RerollValueMul";
                     /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/ShopPriceMul
                     /// </remarks>
@@ -486,6 +502,18 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string ValueUp = "GameLogic.NailProfile.Effect.ValueUp";
                 }
+
+                public static partial class Upgrade
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Upgrade/LevelValue
+                    /// </remarks>
+                    public const string LevelValue = "GameLogic.NailProfile.Upgrade.LevelValue";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Upgrade/MaxLevel
+                    /// </remarks>
+                    public const string MaxLevel = "GameLogic.NailProfile.Upgrade.MaxLevel";
+                }
             }
 
             public static partial class SlotProfile
@@ -555,6 +583,7 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Base.BallCount,
             ScalarKeys.GameLogic.GameProfile.Base.BuffBallChance,
             ScalarKeys.GameLogic.GameProfile.Base.DebuffBallChance,
+            ScalarKeys.GameLogic.GameProfile.Base.GameStage,
             ScalarKeys.GameLogic.GameProfile.Base.InstanceMoneyValue,
             ScalarKeys.GameLogic.GameProfile.Base.LuckValue,
             ScalarKeys.GameLogic.GameProfile.Base.MaxBall,
@@ -562,9 +591,12 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Base.MaxTimeLimit,
             ScalarKeys.GameLogic.GameProfile.Base.MaxTurnValue,
             ScalarKeys.GameLogic.GameProfile.Base.MoneyValue,
+            ScalarKeys.GameLogic.GameProfile.Base.NailUpgradePriceMul,
             ScalarKeys.GameLogic.GameProfile.Base.NailValue,
             ScalarKeys.GameLogic.GameProfile.Base.PlayerQuota,
             ScalarKeys.GameLogic.GameProfile.Base.Quota,
+            ScalarKeys.GameLogic.GameProfile.Base.RerollValue,
+            ScalarKeys.GameLogic.GameProfile.Base.RerollValueMul,
             ScalarKeys.GameLogic.GameProfile.Base.ShopPriceMul,
             ScalarKeys.GameLogic.GameProfile.Base.TimeLimitValue,
             ScalarKeys.GameLogic.GameProfile.Base.TurnValue,
@@ -586,6 +618,8 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.NailProfile.Effect.TimeValueUp,
             ScalarKeys.GameLogic.NailProfile.Effect.ValueMultiply,
             ScalarKeys.GameLogic.NailProfile.Effect.ValueUp,
+            ScalarKeys.GameLogic.NailProfile.Upgrade.LevelValue,
+            ScalarKeys.GameLogic.NailProfile.Upgrade.MaxLevel,
             ScalarKeys.GameLogic.SlotProfile.CenterMul,
             ScalarKeys.GameLogic.SlotProfile.LeftMul,
             ScalarKeys.GameLogic.SlotProfile.RightMul,

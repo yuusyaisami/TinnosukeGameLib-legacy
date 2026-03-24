@@ -49,13 +49,45 @@ namespace Game.SelectRuntime
             return ScopeFeatureInstallerUtility.TryGetNearestScopeNode(this, includeInactive: true, out scope);
         }
 
+        void OnEnable()
+        {
+            NotifyBridgeRefresh();
+        }
+
+        void OnDisable()
+        {
+            NotifyBridgeRelease();
+        }
+
+        void OnTransformParentChanged()
+        {
+            NotifyBridgeRefresh();
+        }
+
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<SelectableRuntimeBridgeService>(Lifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
                 .WithParameter(this);
+        }
+
+        void NotifyBridgeRefresh()
+        {
+            if (!TryResolveActorScope(out var scope) || scope?.Resolver == null)
+                return;
+
+            if (scope.Resolver.TryResolve<SelectableRuntimeBridgeService>(out var bridge) && bridge != null)
+                bridge.RefreshBinding();
+        }
+
+        void NotifyBridgeRelease()
+        {
+            if (!TryResolveActorScope(out var scope) || scope?.Resolver == null)
+                return;
+
+            if (scope.Resolver.TryResolve<SelectableRuntimeBridgeService>(out var bridge) && bridge != null)
+                bridge.ReleaseBinding();
         }
     }
 }

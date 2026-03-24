@@ -17,6 +17,7 @@ using Sirenix.Utilities.Editor;
 using Object = UnityEngine.Object;
 using Game.Commands.VNext;
 using Game.Health;
+using Game.StatusEffect;
 using Game.Trait;
 
 namespace Game.Common.Editor
@@ -66,6 +67,10 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(AssetStateAnimationPresetSource));
             if (targetType == typeof(HealthPreset))
                 allowedList.Add(typeof(AssetHealthPresetSource));
+            if (targetType == typeof(BaseStatusEffectDefinitionData))
+                allowedList.Add(typeof(AssetStatusEffectDefinitionSource));
+            if (targetType == typeof(StatusEffectStackPreset))
+                allowedList.Add(typeof(AssetStatusEffectStackPresetSource));
             if (targetType == typeof(MotionPreset))
                 allowedList.Add(typeof(AssetMotionPresetSource));
             if (targetType == typeof(TraitDefinitionSO))
@@ -121,6 +126,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(GameStateMachineCompareBoolSource));
                 allowedList.Add(typeof(StateMachineOptionIsSetBoolSource));
                 allowedList.Add(typeof(ActorDistanceCompareBoolSource));
+                allowedList.Add(typeof(ActorSourceExistsSource));
             }
             else if (targetType == typeof(int))
             {
@@ -158,6 +164,7 @@ namespace Game.Common.Editor
             {
                 allowedList.Add(typeof(RandomWeightedStringListSource));
                 allowedList.Add(typeof(RichTextSource));
+                allowedList.Add(typeof(StatusEffectStackDescriptionSource));
                 allowedList.Add(typeof(SceneNameSource));
             }
             else if (targetType == typeof(Color))
@@ -182,6 +189,26 @@ namespace Game.Common.Editor
             allowedList.Add(typeof(VarStoreSource));
             allowedList.Add(typeof(SelfBlackboardSource));
             allowedList.Add(typeof(OtherBlackboardSource));
+
+            if (targetType == typeof(int)
+                || targetType == typeof(float)
+                || targetType == typeof(bool)
+                || targetType == typeof(string)
+                || targetType == typeof(Vector2)
+                || targetType == typeof(Vector3)
+                || targetType == typeof(Vector4)
+                || targetType == typeof(Color))
+            {
+                allowedList.Add(typeof(SelfGridBlackboardSource));
+                allowedList.Add(typeof(OtherGridBlackboardSource));
+            }
+
+            if (targetType == typeof(int))
+            {
+                allowedList.Add(typeof(SelfGridBlackboardColumnCountSource));
+                allowedList.Add(typeof(OtherGridBlackboardColumnCountSource));
+                allowedList.Add(typeof(SelfGridBlackboardRowCountSource));
+            }
 
             // 5. Scalar（int / float / string に対応）
             if (targetType == typeof(int) || targetType == typeof(float) || targetType == typeof(string))
@@ -214,6 +241,9 @@ namespace Game.Common.Editor
             if (targetType == typeof(MaterialFxPayload)) return typeof(LiteralMaterialFxPayloadSource);
             if (targetType == typeof(MotionPreset)) return typeof(LiteralMotionPresetSource);
             if (targetType == typeof(TransformAnimationPreset)) return typeof(LiteralTransformAnimationPresetSource);
+            if (targetType == typeof(CommandListData)) return typeof(LiteralCommandListDataSource);
+            if (targetType == typeof(BaseStatusEffectDefinitionData)) return typeof(LiteralStatusEffectDefinitionSource);
+            if (targetType == typeof(StatusEffectStackPreset)) return typeof(LiteralStatusEffectStackPresetSource);
             if (targetType == typeof(BaseRuntimeTemplatePreset)) return typeof(LiteralRuntimeTemplatePresetSource);
             if (targetType == typeof(ParticleRuntimeTemplatePreset)) return typeof(LiteralParticleRuntimeTemplatePresetSource);
             if (targetType == typeof(FirePatternRuntimeTemplatePreset)) return typeof(LiteralFirePatternRuntimeTemplatePresetSource);
@@ -224,6 +254,12 @@ namespace Game.Common.Editor
         static string GetSourceDisplayName(Type sourceType)
         {
             if (sourceType == null) return "None";
+
+            if (sourceType == typeof(SelfGridBlackboardSource)) return "Grid Cell Value (Self)";
+            if (sourceType == typeof(OtherGridBlackboardSource)) return "Grid Cell Value (Other)";
+            if (sourceType == typeof(SelfGridBlackboardColumnCountSource)) return "Grid Column Count At Row (Self)";
+            if (sourceType == typeof(OtherGridBlackboardColumnCountSource)) return "Grid Column Count At Row (Other)";
+            if (sourceType == typeof(SelfGridBlackboardRowCountSource)) return "Grid Row Count (Self)";
 
             var name = sourceType.Name;
 

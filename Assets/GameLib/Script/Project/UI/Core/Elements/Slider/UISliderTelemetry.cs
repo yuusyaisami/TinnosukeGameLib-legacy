@@ -31,14 +31,14 @@ namespace Game.UI
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
-            Debug.Log($"[UISliderTelemetry] OnAcquire for scope={scope?.GetPathFromRoot()?.Count}");
+            //Debug.Log($"[UISliderTelemetry] OnAcquire for scope={scope?.GetPathFromRoot()?.Count}");
             _output.OnUpdated += HandleOutputUpdated;
             Publish();
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
-            Debug.Log($"[UISliderTelemetry] OnRelease for scope={scope?.GetPathFromRoot()?.Count}");
+            //Debug.Log($"[UISliderTelemetry] OnRelease for scope={scope?.GetPathFromRoot()?.Count}");
             _output.OnUpdated -= HandleOutputUpdated;
             CancelLongPress();
             _isPointerDown = false;

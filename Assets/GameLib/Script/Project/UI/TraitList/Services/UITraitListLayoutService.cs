@@ -102,7 +102,15 @@ namespace Game.UI.TraitList
                 var trait = traits[traitIndex];
                 var (row, column) = ResolveRowColumn(profile.Order, listIndex, rows, columns);
                 var pos = ComputeAnchoredPosition(profile, row, column);
-                slots.Add(new UITraitListSlot(trait, traitIndex, listIndex, row, column, pos));
+                slots.Add(new UITraitListSlot(
+                    trait,
+                    traitIndex,
+                    listIndex,
+                    row,
+                    column,
+                    pos,
+                    profile.HorizontalAlignment,
+                    profile.VerticalAlignment));
             }
 
             return true;
@@ -124,8 +132,10 @@ namespace Game.UI.TraitList
 
         static Vector2 ComputeAnchoredPosition(UITraitListLayoutProfileSO profile, int row, int column)
         {
-            var x = profile.Offset.x + column * profile.ColumnSpacing;
-            var y = profile.Offset.y - row * profile.RowSpacing;
+            var horizontalDirection = profile.AreaHorizontalAlignment == UITraitListHorizontalAlignment.Right ? -1f : 1f;
+            var verticalDirection = profile.AreaVerticalAlignment == UITraitListVerticalAlignment.Bottom ? 1f : -1f;
+            var x = profile.Offset.x + column * profile.ColumnSpacing * horizontalDirection;
+            var y = profile.Offset.y + row * profile.RowSpacing * verticalDirection;
             return new Vector2(x, y);
         }
     }

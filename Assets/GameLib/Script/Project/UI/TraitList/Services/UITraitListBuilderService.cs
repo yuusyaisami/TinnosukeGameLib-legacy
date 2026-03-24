@@ -198,15 +198,25 @@ namespace Game.UI.TraitList
             var layoutProfile = profile.LayoutProfile;
             var visualProfile = profile.VisualizerProfile;
             if (layoutProfile == null || visualProfile == null)
+            {
+                Debug.LogError($"[UITraitListBuilder] Build aborted: profile is invalid. LayoutProfile={(layoutProfile != null)} VisualizerProfile={(visualProfile != null)}");
                 return null;
+            }
 
             var traits = CollectFilteredTraits(holder, holderKey, placementService, hideVisiblePlacedTraits);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var sourceCount = holder.Traits?.Count ?? 0;
+            //Debug.Log(
+            //    $"[UITraitListBuilder] Build start holderKey='{holderKey}' sourceCount={sourceCount} filteredCount={traits.Count} " +
+            //    $"range=({range.StartIndex},{range.Count}) hideVisiblePlacedTraits={hideVisiblePlacedTraits}");
+#endif
             if (!_listBuilder.TryBuildSlots(traits, range, layoutProfile, out var slots, out var normalizedRange, out var error))
             {
                 Debug.LogError($"[UITraitListBuilder] Build slots failed: {error}");
                 return null;
             }
 
+            ApplyPlacementAreaToSlots(slots, layoutProfile, parent as RectTransform);
             ApplyContextToSlots(slots, holderKey, normalizedRange);
 
             var spawned = await _listBuilder.SpawnAsync(slots, visualProfile, parent, scopeParent, _runner, ct);
@@ -222,6 +232,12 @@ namespace Game.UI.TraitList
                 instances.Add(instance);
                 lookup[instance.Trait] = instance;
             }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            //Debug.Log(
+            //    $"[UITraitListBuilder] Build complete holderKey='{holderKey}' slots={slots.Count} " +
+            //    $"spawned={instances.Count} normalizedRange=({normalizedRange.StartIndex},{normalizedRange.Count})");
+#endif
 
             var runtime = new UITraitListRuntime(
                 holder,
@@ -256,12 +272,19 @@ namespace Game.UI.TraitList
 
             var range = rangeOverride ?? runtime.Range;
             var traits = CollectFilteredTraits(runtime.Holder, runtime.HolderKey, runtime.PlacementService, runtime.HideVisiblePlacedTraits);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var sourceCount = runtime.Holder.Traits?.Count ?? 0;
+            //Debug.Log(
+            //    $"[UITraitListBuilder] Refresh start mode={mode} holderKey='{runtime.HolderKey}' sourceCount={sourceCount} " +
+            //    $"filteredCount={traits.Count} range=({range.StartIndex},{range.Count})");
+#endif
             if (!_listBuilder.TryBuildSlots(traits, range, layoutProfile, out var slots, out var normalizedRange, out var error))
             {
                 Debug.LogError($"[UITraitListBuilder] Refresh slots failed: {error}");
                 return;
             }
 
+            ApplyPlacementAreaToSlots(slots, layoutProfile, runtime.Parent as RectTransform);
             ApplyContextToSlots(slots, runtime.HolderKey, normalizedRange);
 
             if (mode == UITraitListRefreshMode.FullRebuild)
@@ -340,6 +363,12 @@ namespace Game.UI.TraitList
 
             runtime.SetRange(normalizedRange);
             SortInstancesByListIndex(runtime.Instances);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            //Debug.Log(
+            //    $"[UITraitListBuilder] Refresh complete mode={mode} holderKey='{runtime.HolderKey}' slots={slots.Count} " +
+            //    $"activeInstances={runtime.Instances.Count} normalizedRange=({normalizedRange.StartIndex},{normalizedRange.Count})");
+#endif
         }
 
         async UniTask<UITraitListVisualInstance?> SpawnSingleAsync(
@@ -422,6 +451,49 @@ namespace Game.UI.TraitList
                 slot.RangeCount = range.Count;
                 slots[i] = slot;
             }
+        }
+
+        static void ApplyPlacementAreaToSlots(
+            List<UITraitListSlot> slots,
+            UITraitListLayoutProfileSO layoutProfile,
+            RectTransform? layoutRect)
+        {
+            if (slots == null || slots.Count == 0 || layoutProfile == null || layoutRect == null)
+                return;
+
+            var rect = layoutRect.rect;
+            var origin = new Vector2(
+                ResolveHorizontalOrigin(rect, layoutProfile.AreaHorizontalAlignment),
+                ResolveVerticalOrigin(rect, layoutProfile.AreaVerticalAlignment));
+
+            for (int i = 0; i < slots.Count; i++)
+            {
+                var slot = slots[i];
+                slot.AnchoredPosition += origin;
+                slots[i] = slot;
+            }
+        }
+
+        static float ResolveHorizontalOrigin(Rect rect, UITraitListHorizontalAlignment alignment)
+        {
+            return alignment switch
+            {
+                UITraitListHorizontalAlignment.Left => rect.xMin,
+                UITraitListHorizontalAlignment.Right => rect.xMax,
+                UITraitListHorizontalAlignment.Center => rect.center.x,
+                _ => rect.xMin
+            };
+        }
+
+        static float ResolveVerticalOrigin(Rect rect, UITraitListVerticalAlignment alignment)
+        {
+            return alignment switch
+            {
+                UITraitListVerticalAlignment.Top => rect.yMax,
+                UITraitListVerticalAlignment.Bottom => rect.yMin,
+                UITraitListVerticalAlignment.Center => rect.center.y,
+                _ => rect.yMax
+            };
         }
 
         static void SortInstancesByListIndex(List<UITraitListVisualInstance> instances)

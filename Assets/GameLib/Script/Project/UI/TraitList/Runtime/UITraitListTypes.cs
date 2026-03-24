@@ -14,6 +14,20 @@ namespace Game.UI.TraitList
         ColumnMajor = 1,
     }
 
+    public enum UITraitListHorizontalAlignment
+    {
+        Left = 10,
+        Center = 20,
+        Right = 30,
+    }
+
+    public enum UITraitListVerticalAlignment
+    {
+        Top = 10,
+        Center = 20,
+        Bottom = 30,
+    }
+
     public enum UITraitListSpawnSource
     {
         Prefab = 0,
@@ -71,6 +85,8 @@ namespace Game.UI.TraitList
         public int Row;
         public int Column;
         public Vector2 AnchoredPosition;
+        public UITraitListHorizontalAlignment HorizontalAlignment;
+        public UITraitListVerticalAlignment VerticalAlignment;
         public string HolderKey;
         public int RangeStart;
         public int RangeCount;
@@ -81,7 +97,9 @@ namespace Game.UI.TraitList
             int listIndex,
             int row,
             int column,
-            Vector2 anchoredPosition)
+            Vector2 anchoredPosition,
+            UITraitListHorizontalAlignment horizontalAlignment,
+            UITraitListVerticalAlignment verticalAlignment)
         {
             Trait = trait;
             TraitIndex = traitIndex;
@@ -89,6 +107,8 @@ namespace Game.UI.TraitList
             Row = row;
             Column = column;
             AnchoredPosition = anchoredPosition;
+            HorizontalAlignment = horizontalAlignment;
+            VerticalAlignment = verticalAlignment;
             HolderKey = string.Empty;
             RangeStart = 0;
             RangeCount = 0;

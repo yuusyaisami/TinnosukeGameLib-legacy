@@ -405,11 +405,24 @@ namespace Game.Trait
             if (!runtime.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
                 return;
 
-            var traitContext = new TraitInstanceContext(runtime);
-            definition.CreateInstance(traitContext);
-            traitContext.Vars.MergeInto(blackboard.LocalVars, overwrite: true);
-            blackboard.LocalVars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.instanceId, DynamicVariant.FromString(linkData.TraitKey));
-            blackboard.LocalVars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.definitionId, DynamicVariant.FromString(linkData.TraitDefinitionId));
+            runtime.Resolver.TryResolve<IGridBlackboardService>(out var gridBlackboard);
+
+            var runtimeBridge = runtime.GetComponentInChildren<RuntimeTraitMB>(true);
+            var shouldWriteTraitData = runtimeBridge == null || runtimeBridge.WriteTraitDataOnLink;
+            if (shouldWriteTraitData)
+            {
+                var traitContext = new TraitInstanceContext(runtime);
+                definition.CreateInstance(traitContext);
+                TraitDataWriteUtility.WriteTraitDataToStores(
+                    definition,
+                    traitContext.Vars,
+                    blackboard.LocalVars,
+                    gridBlackboard,
+                    overwrite: true);
+                blackboard.LocalVars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.instanceId, DynamicVariant.FromString(linkData.TraitKey));
+                blackboard.LocalVars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.definitionId, DynamicVariant.FromString(linkData.TraitDefinitionId));
+            }
+
             TraitRuntimeLinkVarKeys.WriteLinkData(blackboard.LocalVars, linkData, presentationState);
         }
 

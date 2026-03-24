@@ -53,6 +53,8 @@ namespace Game.Input
 
         /// <summary>画面座標のポインタ位置（IPointerService から取得）</summary>
         public Vector2 PointerScreen;
+        /// <summary>ポインタの相対移動量（マウス delta / タッチ delta）</summary>
+        public Vector2 PointerDelta;
         public ButtonState PointerLeft;
         public ButtonState PointerRight;
 

@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Game.Channel;
 using Game.Common;
+using Game.Times;
 using UnityEngine;
 using VContainer;
 using VNext = Game.Commands.VNext;
@@ -21,6 +22,9 @@ namespace Game.TransformSystem
         readonly Transform _ownerTransform;
         readonly RectTransform? _rectTransform;
         readonly IScopeNode _scope;
+        readonly bool _enableDebugLog;
+
+        TimeScaleBehavior CurrentTimeScaleBehavior => _scope.Identity?.TimeScaleBehavior ?? TimeScaleBehavior.Scaled;
 
         bool _stopped;
         bool _playing;
@@ -51,11 +55,12 @@ namespace Game.TransformSystem
         public int Priority => 50;
         public TransformContributionMask ContributedProperties => _activeMask;
 
-        public TransformPresetTrack(Transform ownerTransform, IScopeNode scope)
+        public TransformPresetTrack(Transform ownerTransform, IScopeNode scope, bool enableDebugLog = false)
         {
             _ownerTransform = ownerTransform;
             _rectTransform = ownerTransform as RectTransform;
             _scope = scope;
+            _enableDebugLog = enableDebugLog;
         }
 
         public async UniTask PlayPresetAsync(
@@ -184,6 +189,13 @@ namespace Game.TransformSystem
                         _worldPositionActive = true;
                         _activeMask |= TransformContributionMask.WorldPosition;
 
+                        if (duration <= 0f)
+                        {
+                            t.position = target;
+                            _worldPosition = target;
+                            return;
+                        }
+
                         if (step.PositionPathMode != TransformPositionPathMode.Linear)
                         {
                             var path = TransformAnimationChannelPlayer.BuildPositionPath(current, target, step);
@@ -192,12 +204,16 @@ namespace Game.TransformSystem
                             {
                                 progress = x;
                                 _worldPosition = TransformAnimationChannelPlayer.EvaluatePositionPath(path, progress);
-                            }, 1f, duration).SetId(this);
+                            }, 1f, duration)
+                                .SetId(this)
+                                .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         }
                         else
                         {
                             var value = current;
-                            tween = DOTween.To(() => value, x => { value = x; _worldPosition = x; }, target, duration).SetId(this);
+                            tween = DOTween.To(() => value, x => { value = x; _worldPosition = x; }, target, duration)
+                                .SetId(this)
+                                .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         }
                         break;
                     }
@@ -221,6 +237,13 @@ namespace Game.TransformSystem
                         _localPositionActive = true;
                         _activeMask |= TransformContributionMask.LocalPosition;
 
+                        if (duration <= 0f)
+                        {
+                            t.localPosition = target;
+                            _localPosition = target;
+                            return;
+                        }
+
                         if (step.PositionPathMode != TransformPositionPathMode.Linear)
                         {
                             var path = TransformAnimationChannelPlayer.BuildPositionPath(current, target, step);
@@ -229,12 +252,16 @@ namespace Game.TransformSystem
                             {
                                 progress = x;
                                 _localPosition = TransformAnimationChannelPlayer.EvaluatePositionPath(path, progress);
-                            }, 1f, duration).SetId(this);
+                            }, 1f, duration)
+                                .SetId(this)
+                                .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         }
                         else
                         {
                             var value = current;
-                            tween = DOTween.To(() => value, x => { value = x; _localPosition = x; }, target, duration).SetId(this);
+                            tween = DOTween.To(() => value, x => { value = x; _localPosition = x; }, target, duration)
+                                .SetId(this)
+                                .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         }
                         break;
                     }
@@ -252,8 +279,17 @@ namespace Game.TransformSystem
                         _localRotationActive = true;
                         _activeMask |= TransformContributionMask.LocalRotation;
 
+                        if (duration <= 0f)
+                        {
+                            t.localEulerAngles = target;
+                            _localEulerAngles = target;
+                            return;
+                        }
+
                         var value = current;
-                        tween = DOTween.To(() => value, x => { value = x; _localEulerAngles = x; }, target, duration).SetId(this);
+                        tween = DOTween.To(() => value, x => { value = x; _localEulerAngles = x; }, target, duration)
+                            .SetId(this)
+                            .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         break;
                     }
 
@@ -268,8 +304,17 @@ namespace Game.TransformSystem
                         _localScaleActive = true;
                         _activeMask |= TransformContributionMask.LocalScale;
 
+                        if (duration <= 0f)
+                        {
+                            t.localScale = target;
+                            _localScale = target;
+                            return;
+                        }
+
                         var value = current;
-                        tween = DOTween.To(() => value, x => { value = x; _localScale = x; }, target, duration).SetId(this);
+                        tween = DOTween.To(() => value, x => { value = x; _localScale = x; }, target, duration)
+                            .SetId(this)
+                            .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         break;
                     }
 
@@ -298,8 +343,17 @@ namespace Game.TransformSystem
                         _anchoredPositionActive = true;
                         _activeMask |= TransformContributionMask.AnchoredPosition;
 
+                        if (duration <= 0f)
+                        {
+                            rect.anchoredPosition = target;
+                            _anchoredPosition = target;
+                            return;
+                        }
+
                         var value = current;
-                        tween = DOTween.To(() => value, x => { value = x; _anchoredPosition = x; }, target, duration).SetId(this);
+                        tween = DOTween.To(() => value, x => { value = x; _anchoredPosition = x; }, target, duration)
+                            .SetId(this)
+                            .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         break;
                     }
 
@@ -316,8 +370,17 @@ namespace Game.TransformSystem
                         _sizeDeltaActive = true;
                         _activeMask |= TransformContributionMask.SizeDelta;
 
+                        if (duration <= 0f)
+                        {
+                            rect.sizeDelta = target;
+                            _sizeDelta = target;
+                            return;
+                        }
+
                         var value = current;
-                        tween = DOTween.To(() => value, x => { value = x; _sizeDelta = x; }, target, duration).SetId(this);
+                        tween = DOTween.To(() => value, x => { value = x; _sizeDelta = x; }, target, duration)
+                            .SetId(this)
+                            .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         break;
                     }
 
@@ -340,6 +403,18 @@ namespace Game.TransformSystem
                         _anchoredPositionActive = true;
                         _activeMask |= TransformContributionMask.Pivot | TransformContributionMask.AnchoredPosition;
 
+                        if (duration <= 0f)
+                        {
+                            rect.pivot = targetPivot;
+                            var deltaPos = new Vector2(
+                                (targetPivot.x - basePivot.x) * size.x,
+                                (targetPivot.y - basePivot.y) * size.y);
+                            rect.anchoredPosition = baseAnchored + deltaPos;
+                            _pivot = targetPivot;
+                            _anchoredPosition = baseAnchored + deltaPos;
+                            return;
+                        }
+
                         var value = currentPivot;
                         tween = DOTween.To(() => value, newPivot =>
                         {
@@ -349,7 +424,9 @@ namespace Game.TransformSystem
                                 (newPivot.x - basePivot.x) * size.x,
                                 (newPivot.y - basePivot.y) * size.y);
                             _anchoredPosition = baseAnchored + deltaPos;
-                        }, targetPivot, duration).SetId(this);
+                        }, targetPivot, duration)
+                            .SetId(this)
+                            .SetUpdateFromBehavior(CurrentTimeScaleBehavior);
                         break;
                     }
 

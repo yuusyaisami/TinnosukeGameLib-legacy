@@ -86,10 +86,10 @@ namespace Game.Commands.VNext
     public sealed class RemoveTraitFromHolderCommandData : ICommandData
     {
         public int CommandId => CommandIds.RemoveTraitFromHolder;
-        public string DebugData => $"Target={Target.Kind} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
+        public string DebugData => $"Selector={Selector.DebugData} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [InlineProperty]
-        public UITraitTarget Target;
+        public TraitElementSelector Selector;
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
@@ -105,10 +105,10 @@ namespace Game.Commands.VNext
     public sealed class UseTraitFromHolderCommandData : ICommandData
     {
         public int CommandId => CommandIds.UseTraitFromHolder;
-        public string DebugData => $"Target={Target.Kind} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
+        public string DebugData => $"Selector={Selector.DebugData} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [InlineProperty]
-        public UITraitTarget Target;
+        public TraitElementSelector Selector;
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]

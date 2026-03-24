@@ -115,6 +115,7 @@ namespace Game.Save
                 {
                     SaveVer = 2,
                     Blackboard = Array.Empty<BlackboardVarPayload>(),
+                    GridBlackboard = Array.Empty<GridBlackboardVarPayload>(),
                     Scalars = Array.Empty<ScalarKeyPayload>(),
                 };
 

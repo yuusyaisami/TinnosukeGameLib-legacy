@@ -30,7 +30,24 @@ namespace Game.UI.TraitList
         public UITraitListOrder Order = UITraitListOrder.RowMajor;
 
         [BoxGroup("Origin")]
+        [LabelText("Item Offset")]
         public Vector2 Offset = Vector2.zero;
+
+        [BoxGroup("Origin")]
+        [LabelText("Item Horizontal Origin")]
+        public UITraitListHorizontalAlignment HorizontalAlignment = UITraitListHorizontalAlignment.Left;
+
+        [BoxGroup("Origin")]
+        [LabelText("Item Vertical Origin")]
+        public UITraitListVerticalAlignment VerticalAlignment = UITraitListVerticalAlignment.Top;
+
+        [BoxGroup("Placement Area")]
+        [LabelText("Area Horizontal Start")]
+        public UITraitListHorizontalAlignment AreaHorizontalAlignment = UITraitListHorizontalAlignment.Left;
+
+        [BoxGroup("Placement Area")]
+        [LabelText("Area Vertical Start")]
+        public UITraitListVerticalAlignment AreaVerticalAlignment = UITraitListVerticalAlignment.Top;
 
         [BoxGroup("Relayout Animation")]
         [ToggleLeft]

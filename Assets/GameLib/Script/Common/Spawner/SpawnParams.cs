@@ -164,7 +164,7 @@ namespace Game.Spawn
             worldRotation = spawnParams.Rotation;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log($"[SpawnPoseUtility] ResolveAcquire parent={DescribeTransform(parent)} worldSpace={spawnParams.WorldSpace} inputPos={spawnParams.Position} inputRot={spawnParams.Rotation.eulerAngles}");
+            //Debug.Log($"[SpawnPoseUtility] ResolveAcquire parent={DescribeTransform(parent)} worldSpace={spawnParams.WorldSpace} inputPos={spawnParams.Position} inputRot={spawnParams.Rotation.eulerAngles}");
 #endif
 
             if (parent == null)
@@ -176,13 +176,13 @@ namespace Game.Spawn
                     TryProjectWorldToCanvasPlane(parentRect, spawnParams.Position, out worldPosition))
                 {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    Debug.Log($"[SpawnPoseUtility] ResolveAcquire result=Projected worldPos={worldPosition} worldRot={worldRotation.eulerAngles}");
+                    //Debug.Log($"[SpawnPoseUtility] ResolveAcquire result=Projected worldPos={worldPosition} worldRot={worldRotation.eulerAngles}");
 #endif
                     return true;
                 }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.Log($"[SpawnPoseUtility] ResolveAcquire result=DirectFallback worldPos={worldPosition} worldRot={worldRotation.eulerAngles}");
+                //Debug.Log($"[SpawnPoseUtility] ResolveAcquire result=DirectFallback worldPos={worldPosition} worldRot={worldRotation.eulerAngles}");
 #endif
                 return parent is RectTransform ? false : true;
             }
@@ -190,7 +190,7 @@ namespace Game.Spawn
             worldPosition = parent.TransformPoint(spawnParams.Position);
             worldRotation = parent.rotation * spawnParams.Rotation;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log($"[SpawnPoseUtility] ResolveAcquire result=LocalToWorld worldPos={worldPosition} worldRot={worldRotation.eulerAngles}");
+            //Debug.Log($"[SpawnPoseUtility] ResolveAcquire result=LocalToWorld worldPos={worldPosition} worldRot={worldRotation.eulerAngles}");
 #endif
             return true;
         }
@@ -223,7 +223,7 @@ namespace Game.Spawn
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             var canvas = target.GetComponentInParent<Canvas>(includeInactive: true);
-            Debug.Log($"[SpawnPoseUtility] Apply target={DescribeTransform(target)} canvas={DescribeCanvas(canvas)} worldSpace={spawnParams.WorldSpace} inputPos={spawnParams.Position} inputRot={spawnParams.Rotation.eulerAngles} finalWorldPos={target.position} finalLocalPos={target.localPosition} finalScale={target.localScale}");
+            //Debug.Log($"[SpawnPoseUtility] Apply target={DescribeTransform(target)} canvas={DescribeCanvas(canvas)} worldSpace={spawnParams.WorldSpace} inputPos={spawnParams.Position} inputRot={spawnParams.Rotation.eulerAngles} finalWorldPos={target.position} finalLocalPos={target.localPosition} finalScale={target.localScale}");
 #endif
 
             target.localScale = scale;

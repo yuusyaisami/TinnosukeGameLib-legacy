@@ -21,7 +21,8 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "WriteDataCommandData is required.");
 
             var sourceCtx = await ResolveSourceContextAsync(ctx, typed, ct);
-            var serviceScope = sourceCtx.Actor ?? sourceCtx.Scope;
+            var targetScope = await ResolveTargetScopeAsync(ctx, typed, ct);
+            var serviceScope = targetScope ?? ctx.Actor ?? ctx.Scope;
             IBlackboardService? blackboard = null;
             TryResolveBlackboard(serviceScope, out blackboard);
 
@@ -48,6 +49,12 @@ namespace Game.Commands.VNext
             return;
         }
 
+        static async UniTask<IScopeNode> ResolveTargetScopeAsync(CommandContext ctx, WriteDataCommandData typed, CancellationToken ct)
+        {
+            var (resolvedScope, _) = await ActorScopeResolver.ResolveAsync(typed.Target, ctx, ct);
+            return resolvedScope ?? ctx.Actor ?? ctx.Scope;
+        }
+
         static async UniTask<CommandContext> ResolveSourceContextAsync(CommandContext ctx, WriteDataCommandData typed, CancellationToken ct)
         {
             var (resolvedScope, _) = await ActorScopeResolver.ResolveAsync(typed.Source, ctx, ct);
@@ -67,12 +74,12 @@ namespace Game.Commands.VNext
                 sourceContext: ctx);
         }
 
-        static void ApplyVarOps(List<VarWriteOp> ops, CommandContext ctx, IScopeNode? scope, IBlackboardService? blackboard)
+        static void ApplyVarOps(List<VarWriteOp> ops, CommandContext ctx, IScopeNode? targetScope, IBlackboardService? blackboard)
         {
             if (ops == null || ops.Count == 0)
                 return;
 
-            var commandVars = ResolveCommandVars(ctx, scope, ops);
+            var commandVars = ResolveCommandVars(ctx, targetScope, ops);
 
             for (int i = 0; i < ops.Count; i++)
             {
@@ -89,40 +96,40 @@ namespace Game.Commands.VNext
                     switch (op.Op)
                     {
                         case VarWriteOpKind.Unset:
-                            if (!TryUnsetVariant(op.Target, ctx, scope, blackboard, commandVars, varId))
-                                LogVarOpFailed("Unset", op.Target, scope, varId);
+                            if (!TryUnsetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId))
+                                LogVarOpFailed("Unset", op.Target, targetScope, varId);
                             break;
 
                         case VarWriteOpKind.Set:
                             {
                                 var v = op.Value.Evaluate(ctx);
-                                if (!TrySetVariant(op.Target, ctx, scope, blackboard, commandVars, varId, v))
-                                    LogVarOpFailed("Set", op.Target, scope, varId);
+                                if (!TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, v))
+                                    LogVarOpFailed("Set", op.Target, targetScope, varId);
                                 break;
                             }
 
                         case VarWriteOpKind.Add:
                             {
                                 var add = op.Value.GetOrDefault<float>(ctx, 0f);
-                                var cur = GetNumericOrDefault(op.Target, ctx, scope, blackboard, commandVars, varId, 0f);
-                                if (!TrySetVariant(op.Target, ctx, scope, blackboard, commandVars, varId, DynamicVariant.FromFloat(cur + add)))
-                                    LogVarOpFailed("Add", op.Target, scope, varId);
+                                var cur = GetNumericOrDefault(op.Target, ctx, targetScope, blackboard, commandVars, varId, 0f);
+                                if (!TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, DynamicVariant.FromFloat(cur + add)))
+                                    LogVarOpFailed("Add", op.Target, targetScope, varId);
                                 break;
                             }
 
                         case VarWriteOpKind.Mul:
                             {
                                 var mul = op.Value.GetOrDefault<float>(ctx, 1f);
-                                var cur = GetNumericOrDefault(op.Target, ctx, scope, blackboard, commandVars, varId, 1f);
-                                if (!TrySetVariant(op.Target, ctx, scope, blackboard, commandVars, varId, DynamicVariant.FromFloat(cur * mul)))
-                                    LogVarOpFailed("Mul", op.Target, scope, varId);
+                                var cur = GetNumericOrDefault(op.Target, ctx, targetScope, blackboard, commandVars, varId, 1f);
+                                if (!TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, DynamicVariant.FromFloat(cur * mul)))
+                                    LogVarOpFailed("Mul", op.Target, targetScope, varId);
                                 break;
                             }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[WriteDataExecutor] Var op failed. op={op.Op} target={op.Target} varId={varId} scope={DescribeScope(scope)}");
+                    Debug.LogError($"[WriteDataExecutor] Var op failed. op={op.Op} target={op.Target} varId={varId} scope={DescribeScope(targetScope)}");
                     Debug.LogException(ex);
                 }
             }
@@ -140,7 +147,7 @@ namespace Game.Commands.VNext
             return true;
         }
 
-        static IVarStore ResolveCommandVars(CommandContext ctx, IScopeNode? scope, List<VarWriteOp> ops)
+        static IVarStore ResolveCommandVars(CommandContext ctx, IScopeNode? targetScope, List<VarWriteOp> ops)
         {
             if (!HasCommandVarOps(ops))
                 return ctx.Vars;
@@ -148,7 +155,7 @@ namespace Game.Commands.VNext
             if (ctx.Vars is not NullVarStore)
                 return ctx.Vars;
 
-            if (scope?.Resolver != null && scope.Resolver.TryResolve<IVarStore>(out var vars) && vars != null)
+            if (targetScope?.Resolver != null && targetScope.Resolver.TryResolve<IVarStore>(out var vars) && vars != null)
                 return vars;
 
             return new VarStore();
@@ -179,7 +186,7 @@ namespace Game.Commands.VNext
             }
         }
 
-        static bool TryGetVariant(VarStoreTarget target, CommandContext ctx, IScopeNode? scope, IBlackboardService? blackboard, IVarStore commandVars, int varId, out DynamicVariant value)
+        static bool TryGetVariant(VarStoreTarget target, CommandContext ctx, IScopeNode? targetScope, IBlackboardService? blackboard, IVarStore commandVars, int varId, out DynamicVariant value)
         {
             value = default;
 
@@ -194,21 +201,21 @@ namespace Game.Commands.VNext
                         return false;
                     return blackboard?.TryLocalGetVariant(varId, out value) ?? false;
                 case VarStoreTarget.BlackboardGlobal:
-                    if (scope == null)
+                    if (targetScope == null)
                         return false;
-                    return TryGetHierarchicalBlackboardVariant(scope, varId, out value);
+                    return TryGetHierarchicalBlackboardVariant(targetScope, varId, out value);
                 default:
                     return false;
             }
         }
 
-        static bool TrySetVariant(VarStoreTarget target, CommandContext ctx, IScopeNode? scope, IBlackboardService? blackboard, IVarStore commandVars, int varId, DynamicVariant value)
+        static bool TrySetVariant(VarStoreTarget target, CommandContext ctx, IScopeNode? targetScope, IBlackboardService? blackboard, IVarStore commandVars, int varId, DynamicVariant value)
         {
             if (value.Kind == ValueKind.Null)
-                return TryUnsetOrAlreadyUnset(target, scope, blackboard, commandVars, varId);
+                return TryUnsetOrAlreadyUnset(target, targetScope, blackboard, commandVars, varId);
 
             if (value.Kind == ValueKind.ManagedRef)
-                return TrySetManagedRef(target, scope, blackboard, commandVars, varId, value.AsManagedRef);
+                return TrySetManagedRef(target, targetScope, blackboard, commandVars, varId, value.AsManagedRef);
 
             switch (target)
             {
@@ -217,15 +224,15 @@ namespace Game.Commands.VNext
                 case VarStoreTarget.BlackboardLocal:
                     return blackboard?.TryLocalSetVariant(varId, value) ?? false;
                 case VarStoreTarget.BlackboardGlobal:
-                    if (scope == null)
+                    if (targetScope == null)
                         return false;
-                    return TrySetHierarchicalBlackboardVariant(scope, varId, value);
+                    return TrySetHierarchicalBlackboardVariant(targetScope, varId, value);
                 default:
                     return false;
             }
         }
 
-        static bool TrySetManagedRef(VarStoreTarget target, IScopeNode? scope, IBlackboardService? blackboard, IVarStore commandVars, int varId, object value)
+        static bool TrySetManagedRef(VarStoreTarget target, IScopeNode? targetScope, IBlackboardService? blackboard, IVarStore commandVars, int varId, object value)
         {
             switch (target)
             {
@@ -234,15 +241,15 @@ namespace Game.Commands.VNext
                 case VarStoreTarget.BlackboardLocal:
                     return blackboard?.LocalVars?.TrySetManagedRef(varId, value) ?? false;
                 case VarStoreTarget.BlackboardGlobal:
-                    if (scope == null)
+                    if (targetScope == null)
                         return false;
-                    return TrySetHierarchicalBlackboardManagedRef(scope, varId, value);
+                    return TrySetHierarchicalBlackboardManagedRef(targetScope, varId, value);
                 default:
                     return false;
             }
         }
 
-        static bool TryUnsetVariant(VarStoreTarget target, CommandContext ctx, IScopeNode? scope, IBlackboardService? blackboard, IVarStore commandVars, int varId)
+        static bool TryUnsetVariant(VarStoreTarget target, CommandContext ctx, IScopeNode? targetScope, IBlackboardService? blackboard, IVarStore commandVars, int varId)
         {
             switch (target)
             {
@@ -251,15 +258,15 @@ namespace Game.Commands.VNext
                 case VarStoreTarget.BlackboardLocal:
                     return blackboard?.LocalVars?.TryUnset(varId) ?? false;
                 case VarStoreTarget.BlackboardGlobal:
-                    if (scope == null)
+                    if (targetScope == null)
                         return false;
-                    return TryUnsetHierarchicalBlackboardVariant(scope, varId);
+                    return TryUnsetHierarchicalBlackboardVariant(targetScope, varId);
                 default:
                     return false;
             }
         }
 
-        static bool TryUnsetOrAlreadyUnset(VarStoreTarget target, IScopeNode? scope, IBlackboardService? blackboard, IVarStore commandVars, int varId)
+        static bool TryUnsetOrAlreadyUnset(VarStoreTarget target, IScopeNode? targetScope, IBlackboardService? blackboard, IVarStore commandVars, int varId)
         {
             switch (target)
             {
@@ -276,18 +283,18 @@ namespace Game.Commands.VNext
                     return blackboard.LocalVars.TryUnset(varId);
 
                 case VarStoreTarget.BlackboardGlobal:
-                    if (scope == null)
+                    if (targetScope == null)
                         return false;
-                    return TryUnsetHierarchicalBlackboardVariantOrAlreadyUnset(scope, varId);
+                    return TryUnsetHierarchicalBlackboardVariantOrAlreadyUnset(targetScope, varId);
 
                 default:
                     return false;
             }
         }
 
-        static float GetNumericOrDefault(VarStoreTarget target, CommandContext ctx, IScopeNode? scope, IBlackboardService? blackboard, IVarStore commandVars, int varId, float defaultValue)
+        static float GetNumericOrDefault(VarStoreTarget target, CommandContext ctx, IScopeNode? targetScope, IBlackboardService? blackboard, IVarStore commandVars, int varId, float defaultValue)
         {
-            if (TryGetVariant(target, ctx, scope, blackboard, commandVars, varId, out var v))
+            if (TryGetVariant(target, ctx, targetScope, blackboard, commandVars, varId, out var v))
             {
                 if (v.TryGet<float>(out var f))
                     return f;

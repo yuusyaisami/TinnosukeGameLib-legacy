@@ -63,11 +63,22 @@ namespace Game.TransformSystem
             if (_tracks.Count == 0)
                 return;
 
-            // 1. Tick all tracks
+            // track が保持する中間値を毎フレーム回収し、buffer を経由して最終 pose を更新する。
+            // ここを飛ばすと duration 終了時の確定値だけが残り、途中フレームが見えなくなる。
             for (int i = 0; i < _tracks.Count; i++)
                 _tracks[i].Tick(deltaTime);
 
-            // 2. Remove dead tracks
+            // 2. Collect contributions before pruning dead tracks so the final pose is flushed once.
+            var accumulator = TransformPoseAccumulator.Create();
+            for (int i = 0; i < _tracks.Count; i++)
+                _tracks[i].WriteContribution(ref accumulator);
+
+            // 3. Resolve and write to output
+            ApplyToOutput(ref accumulator);
+
+            ApplyDirectlyToTarget();
+
+            // 4. Remove dead tracks after the final pose has been written.
             _removeBuffer.Clear();
             for (int i = 0; i < _tracks.Count; i++)
             {
@@ -76,17 +87,6 @@ namespace Game.TransformSystem
             }
             for (int i = 0; i < _removeBuffer.Count; i++)
                 _tracks.Remove(_removeBuffer[i]);
-
-            // 3. Collect contributions
-            var accumulator = TransformPoseAccumulator.Create();
-            for (int i = 0; i < _tracks.Count; i++)
-                _tracks[i].WriteContribution(ref accumulator);
-
-            // 4. Resolve and write to output
-            ApplyToOutput(ref accumulator);
-
-            if (_applyDirectly)
-                ApplyDirectlyToTarget();
         }
 
         void ApplyToOutput(ref TransformPoseAccumulator acc)

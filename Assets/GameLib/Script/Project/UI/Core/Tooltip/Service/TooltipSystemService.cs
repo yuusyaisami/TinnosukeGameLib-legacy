@@ -76,6 +76,12 @@ namespace Game.UI
         IVisualBoundsOutput? _activeBoundsOutput;
         TooltipAnchorX _activeAnchorX;
         TooltipAnchorY _activeAnchorY;
+        Vector2 _activeFollowPointerStartUi;
+        Vector2 _activeFollowPointerBaseUi;
+        bool _hasActiveFollowPointerUi;
+        Vector3 _activeFollowPointerStartWorld;
+        Vector3 _activeFollowPointerBaseWorld;
+        bool _hasActiveFollowPointerWorld;
 
         ITooltipAdapter? _candidateAdapter;
         TriggerMode _candidateTrigger;
@@ -128,6 +134,8 @@ namespace Game.UI
             _candidateAdapter = null;
             _candidateTrigger = TriggerMode.None;
             _hasLastPointerPos = false;
+            _hasActiveFollowPointerUi = false;
+            _hasActiveFollowPointerWorld = false;
         }
 
         public void RegisterAdapter(ITooltipAdapter adapter)
@@ -540,6 +548,7 @@ namespace Game.UI
                 _activeAnchorX = adapter.AnchorX;
                 _activeAnchorY = adapter.AnchorY;
                 _hasLastPointerPos = false;
+                CaptureFollowPointerReference(adapter, pointerScreen);
 
                 // 初期フレームは画面外に退避し、Text/Layout 更新途中の崩れを見せない。
                 MoveActiveOffScreen();
@@ -716,6 +725,8 @@ namespace Game.UI
                 _activeBoundsService = null;
                 _activeBoundsOutput = null;
                 _state = TooltipState.Idle;
+                _hasActiveFollowPointerUi = false;
+                _hasActiveFollowPointerWorld = false;
             }
         }
 
@@ -908,7 +919,12 @@ namespace Game.UI
             {
                 var cam = ResolveUiCamera(adapter);
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(root, pointerScreen, cam, out var local);
-                return local;
+                if (!_hasActiveFollowPointerUi)
+                    return local + adapter.FollowPointerOffset;
+
+                var delta = local - _activeFollowPointerStartUi;
+                var scaledDelta = Vector2.Scale(delta, adapter.FollowPointerMoveScale);
+                return _activeFollowPointerBaseUi + scaledDelta;
             }
 
             var anchor = adapter.AnchorTransform != null ? adapter.AnchorTransform : root.transform;
@@ -925,13 +941,55 @@ namespace Game.UI
                 {
                     var z = ResolveWorldPlaneZ(adapter);
                     var world = _pointerService.PointerWorld(cam, z);
-                    return new Vector3(world.x, world.y, z);
+                    var current = new Vector3(world.x, world.y, z);
+                    if (!_hasActiveFollowPointerWorld)
+                        return current + new Vector3(adapter.FollowPointerOffset.x, adapter.FollowPointerOffset.y, 0f);
+
+                    var delta = current - _activeFollowPointerStartWorld;
+                    var scaledDelta = new Vector3(
+                        delta.x * adapter.FollowPointerMoveScale.x,
+                        delta.y * adapter.FollowPointerMoveScale.y,
+                        0f);
+                    return _activeFollowPointerBaseWorld + scaledDelta;
                 }
             }
 
             var anchor = adapter.AnchorTransform != null ? adapter.AnchorTransform : _activeTransform;
             var pos = anchor != null ? anchor.position : Vector3.zero;
             return pos + new Vector3(adapter.FixedOffset.x, adapter.FixedOffset.y, 0f);
+        }
+
+        void CaptureFollowPointerReference(ITooltipAdapter adapter, Vector2 pointerScreen)
+        {
+            _hasActiveFollowPointerUi = false;
+            _hasActiveFollowPointerWorld = false;
+
+            if (adapter.SpawnMode != TooltipSpawnMode.FollowPointer)
+                return;
+
+            if (adapter.Kind == TooltipAdapterKind.UIScreen)
+            {
+                var root = _config.TooltipRoot;
+                if (root == null)
+                    return;
+
+                var cam = ResolveUiCamera(adapter);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(root, pointerScreen, cam, out var local);
+                _activeFollowPointerStartUi = local;
+                _activeFollowPointerBaseUi = local + adapter.FollowPointerOffset;
+                _hasActiveFollowPointerUi = true;
+                return;
+            }
+
+            var worldCam = ResolveWorldCamera(adapter);
+            if (worldCam == null || _pointerService == null)
+                return;
+
+            var z = ResolveWorldPlaneZ(adapter);
+            var worldPointer = _pointerService.PointerWorld(worldCam, z);
+            _activeFollowPointerStartWorld = new Vector3(worldPointer.x, worldPointer.y, z);
+            _activeFollowPointerBaseWorld = _activeFollowPointerStartWorld + new Vector3(adapter.FollowPointerOffset.x, adapter.FollowPointerOffset.y, 0f);
+            _hasActiveFollowPointerWorld = true;
         }
 
         static Vector2 ResolveAnchorPoint(Rect localRect, TooltipAnchorX anchorX, TooltipAnchorY anchorY)

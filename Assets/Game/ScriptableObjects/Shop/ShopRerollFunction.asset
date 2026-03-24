@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b53cb4e9d365442ab02a53a829a9dc, type: 3}
+  m_Name: ShopRerollFunction
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.VNext.CommandFunctionSO
+  preset:
+    rid: 5619052506154533024
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052506154533024
+      type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Commands:
+          _debugOwner: {fileID: 11400000}
+          _debugFieldPath: preset.Commands
+          _debugAssetPath: Assets/Game/ScriptableObjects/Shop/ShopRerollFunction.asset
+          _functionName: Command.Function.Body
+          _commands:
+          - rid: 5619052506154533025
+    - rid: 5619052506154533025
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052506154533026
+    - rid: 5619052506154533026
+      type: {class: TraitLotteryCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        HolderHubSource:
+          Kind: 5
+          Identity:
+            kind: 8
+            id: ShopInventry
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        HolderKey: 
+        Candidates:
+        - {fileID: 11400000, guid: 1713b2f2c193949459e54a284d382167, type: 2}
+        ConditionalCandidates: []
+        DrawCount:
+          _source:
+            rid: 5619052506154533028
+          _defaultValue: 0
+        AllowDuplicates: 0
+        ExcludeExistingHolderTraits: 0
+        ShortageMode: 0
+        ApplyMode: 0
+    - rid: 5619052506154533028
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1

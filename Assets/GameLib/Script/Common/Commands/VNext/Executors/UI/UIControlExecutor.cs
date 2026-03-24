@@ -21,6 +21,15 @@ namespace Game.Commands.VNext
 
             ct.ThrowIfCancellationRequested();
 
+            if (typed.Operation == UIControlOperation.ModalClearAll)
+            {
+                var clearScope = await ResolveControlScopeByUiLtsIdOrThrowAsync(typed, ctx, ct);
+                EnsureScopeBuiltIfNeeded(clearScope);
+
+                ExecuteOperation(typed, ctx, clearScope, clearScope);
+                return;
+            }
+
             var (targetScope, error) = await ActorScopeResolver.ResolveAsync(typed.Target, ctx, ct);
             if (targetScope == null)
             {
@@ -302,7 +311,7 @@ namespace Game.Commands.VNext
 
             var filter = new CommandTargetIdentityFilter
             {
-                kind = LifetimeScopeKind.UI,
+                kind = LifetimeScopeKind.None,
                 id = typed.UILifetimeScopeId,
                 category = string.Empty,
                 requireActive = false,
@@ -316,6 +325,210 @@ namespace Game.Commands.VNext
             throw new CommandExecutionException(
                 CommandRunFailureKind.ResolveFailed,
                 $"UILifetimeScope '{typed.UILifetimeScopeId}' was not found for UIControl.");
+        }
+
+        static async UniTask<IScopeNode> ResolveControlScopeByUiLtsIdOrThrowAsync(UIControlCommandData typed, CommandContext ctx, CancellationToken ct)
+        {
+            if (string.IsNullOrEmpty(typed.UILifetimeScopeId))
+            {
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ResolveFailed,
+                    "UIControl.ModalClearAll requires UILifetimeScopeId.");
+            }
+
+            var origin = ctx.Scope;
+            if (!TryResolveScopeRegistry(origin, out var registry) || registry == null)
+            {
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ResolveFailed,
+                    $"UIControl could not resolve IBaseLifetimeScopeRegistry while looking for UILifetimeScope '{typed.UILifetimeScopeId}'.");
+            }
+
+            var filter = new CommandTargetIdentityFilter
+            {
+                kind = LifetimeScopeKind.None,
+                id = typed.UILifetimeScopeId,
+                category = string.Empty,
+                requireActive = false,
+                searchScope = CommandTargetSearchScope.All,
+            };
+
+            var resolved = registry.Resolve(filter, origin);
+            if (resolved != null)
+                return resolved;
+
+            if (TryFindUiLifetimeScopeById(typed.UILifetimeScopeId, out var uiScope) && uiScope != null)
+            {
+                await WaitForUiLifetimeScopeBuildAsync(uiScope, ct);
+
+                origin = ctx.Scope;
+                if (!TryResolveScopeRegistry(origin, out registry) || registry == null)
+                {
+                    throw new CommandExecutionException(
+                        CommandRunFailureKind.ResolveFailed,
+                        $"UIControl could not resolve IBaseLifetimeScopeRegistry while looking for UILifetimeScope '{typed.UILifetimeScopeId}'.");
+                }
+
+                resolved = registry.Resolve(filter, origin);
+                if (resolved != null)
+                    return resolved;
+
+                return uiScope;
+            }
+
+            await UniTask.DelayFrame(1, PlayerLoopTiming.Update, ct);
+
+            ct.ThrowIfCancellationRequested();
+
+            origin = ctx.Scope;
+            if (!TryResolveScopeRegistry(origin, out registry) || registry == null)
+            {
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ResolveFailed,
+                    $"UIControl could not resolve IBaseLifetimeScopeRegistry while looking for UILifetimeScope '{typed.UILifetimeScopeId}'.");
+            }
+
+            resolved = registry.Resolve(filter, origin);
+            if (resolved != null)
+                return resolved;
+
+            var uiLifetimeScopeId = typed.UILifetimeScopeId ?? string.Empty;
+            var diagnostics = BuildUiLifetimeScopeResolutionDiagnostics(uiLifetimeScopeId, origin, registry, filter);
+
+            throw new CommandExecutionException(
+                CommandRunFailureKind.ResolveFailed,
+                $"UILifetimeScope '{typed.UILifetimeScopeId}' was not found for UIControl.ModalClearAll.\n{diagnostics}");
+        }
+
+        static string BuildUiLifetimeScopeResolutionDiagnostics(
+            string uiLifetimeScopeId,
+            IScopeNode? origin,
+            IBaseLifetimeScopeRegistry registry,
+            CommandTargetIdentityFilter filter)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append("Detail:");
+            sb.Append("\n- UILifetimeScopeId=").Append(uiLifetimeScopeId ?? string.Empty);
+            sb.Append("\n- Origin=").Append(DescribeScope(origin));
+            sb.Append("\n- OriginChain=").Append(DescribeScopeChain(origin));
+
+            var registryHits = registry?.ResolveAll(filter, origin);
+            sb.Append("\n- RegistryResolveAllCount=").Append(registryHits?.Count ?? 0);
+            if (registryHits != null && registryHits.Count > 0)
+            {
+                sb.Append("\n- RegistryResolveAll=");
+                for (var index = 0; index < registryHits.Count; index++)
+                {
+                    if (index > 0)
+                        sb.Append(", ");
+                    sb.Append(DescribeScope(registryHits[index]));
+                }
+            }
+
+            DescribeUiLifetimeScopeSceneCandidates(uiLifetimeScopeId ?? string.Empty, sb);
+            return sb.ToString();
+        }
+
+        static bool TryFindUiLifetimeScopeById(string uiLifetimeScopeId, out UILifetimeScope? scope)
+        {
+#if UNITY_2022_2_OR_NEWER
+            var candidates = UnityEngine.Object.FindObjectsByType<UILifetimeScope>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#else
+            var candidates = UnityEngine.Object.FindObjectsOfType<UILifetimeScope>(true);
+#endif
+            foreach (var candidate in candidates)
+            {
+                if (candidate == null)
+                    continue;
+
+                if (string.Equals(candidate.name, uiLifetimeScopeId, StringComparison.Ordinal))
+                {
+                    scope = candidate;
+                    return true;
+                }
+
+                var identity = candidate.GetComponent<LTSIdentityMB>();
+                var authoringId = identity != null && !string.IsNullOrEmpty(identity.id) ? identity.id : candidate.name;
+                if (string.Equals(authoringId, uiLifetimeScopeId, StringComparison.Ordinal))
+                {
+                    scope = candidate;
+                    return true;
+                }
+            }
+
+            scope = null;
+            return false;
+        }
+
+        static async UniTask WaitForUiLifetimeScopeBuildAsync(UILifetimeScope scope, CancellationToken ct)
+        {
+            if (scope == null)
+                return;
+
+            if (scope is BaseLifetimeScope baseScope && !baseScope.IsBuildCompleted)
+            {
+                await baseScope.WhenBuiltAsync(ct);
+                return;
+            }
+
+            if (scope.Resolver == null)
+                await UniTask.Yield(PlayerLoopTiming.Update, ct);
+        }
+
+        static void DescribeUiLifetimeScopeSceneCandidates(string? uiLifetimeScopeId, System.Text.StringBuilder sb)
+        {
+#if UNITY_2022_2_OR_NEWER
+            var candidates = UnityEngine.Object.FindObjectsByType<UILifetimeScope>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#else
+            var candidates = UnityEngine.Object.FindObjectsOfType<UILifetimeScope>(true);
+#endif
+            sb.Append("\n- SceneUiScopeCount=").Append(candidates?.Length ?? 0);
+
+            if (candidates == null || candidates.Length == 0)
+                return;
+
+            sb.Append("\n- SceneUiScopes=");
+            for (var index = 0; index < candidates.Length; index++)
+            {
+                var candidate = candidates[index];
+                if (candidate == null)
+                    continue;
+
+                if (index > 0)
+                    sb.Append(", ");
+
+                var identity = candidate.Identity;
+                var runtimeId = identity?.Id;
+                var displayId = runtimeId ?? candidate.name ?? "(no id)";
+                sb.Append(candidate.name).Append('(').Append(displayId).Append(')');
+                if (string.Equals(candidate.name, uiLifetimeScopeId, StringComparison.Ordinal) ||
+                    string.Equals(displayId, uiLifetimeScopeId, StringComparison.Ordinal))
+                    sb.Append("[match]");
+            }
+        }
+
+        static string DescribeScopeChain(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "null";
+
+            var path = scope.GetPathFromRoot();
+            if (path == null || path.Count == 0)
+                return DescribeScope(scope);
+
+            var sb = new System.Text.StringBuilder();
+            for (var index = 0; index < path.Count; index++)
+            {
+                var chainNode = path[index];
+                if (chainNode == null)
+                    continue;
+
+                if (index > 0)
+                    sb.Append(" -> ");
+                sb.Append(DescribeScope(chainNode));
+            }
+
+            return sb.ToString();
         }
 
         static bool TryResolveScopeRegistry(IScopeNode? origin, out IBaseLifetimeScopeRegistry? registry)
@@ -337,7 +550,7 @@ namespace Game.Commands.VNext
             return false;
         }
 
-        static string DescribeScope(IScopeNode scope)
+        static string DescribeScope(IScopeNode? scope)
         {
             if (scope == null)
                 return "null";

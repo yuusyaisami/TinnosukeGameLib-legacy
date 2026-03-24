@@ -14,6 +14,11 @@ namespace Game.SelectRuntime
         IWorldPointerRuntimeOptions,
         ISelectRuntimeManagerOptions
     {
+        [BoxGroup("Pointer")]
+        [LabelText("Enabled")]
+        [SerializeField]
+        bool _enabled = true;
+
         [BoxGroup("State")]
         [LabelText("Is Enabled")]
         [SerializeField]
@@ -40,10 +45,18 @@ namespace Game.SelectRuntime
         [SerializeField]
         float _longPressSeconds = 0.35f;
 
+        [BoxGroup("Pointer")]
+        [LabelText("Short Press Seconds")]
+        [MinValue(0.05f)]
+        [SerializeField]
+        float _shortPressSeconds = 0.15f;
+
+        public bool Enabled => _enabled;
         public DynamicValue<bool> IsEnabled => _isEnabled;
         public Camera? WorldCamera => _worldCamera != null ? _worldCamera : Camera.main;
         public LayerMask HitMask => _hitMask;
         public QueryTriggerInteraction QueryTriggerInteraction => _queryTriggerInteraction;
+        public float ShortPressSeconds => Mathf.Max(0.05f, _shortPressSeconds);
         public float LongPressSeconds => Mathf.Max(0.05f, _longPressSeconds);
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)

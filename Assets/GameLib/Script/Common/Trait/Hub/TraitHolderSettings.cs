@@ -101,6 +101,12 @@ namespace Game.Trait
         [SerializeField]
         List<TraitDefinitionSO> _initialTraits = new();
 
+        [BoxGroup("Holder")]
+        [LabelText("Allow Duplicate Definitions")]
+        [Tooltip("OFF の場合、同じ TraitDefinitionSO は 1 holder 内に 1 つだけ保持します。ON の場合、同じ definition から複数 instance を保持できます。")]
+        [SerializeField]
+        bool _allowDuplicateDefinitions;
+
         [BoxGroup("Placement")]
         [LabelText("Place Enabled")]
         [SerializeField]
@@ -152,6 +158,7 @@ namespace Game.Trait
         {
             service.SetHolderKey(_key);
             service.SetHolderId(_holderId);
+            service.SetAllowDuplicateDefinitions(_allowDuplicateDefinitions);
             service.SetHolderCommands(_runOnEquipCommands, _onEquipCommands, _runOnUnequipCommands, _onUnequipCommands);
             service.RegisterInitialTraits(_initialTraits);
         }
@@ -173,6 +180,7 @@ namespace Game.Trait
                 _key = _key,
                 _holderId = _holderId,
                 _initialTraits = new List<TraitDefinitionSO>(_initialTraits),
+                _allowDuplicateDefinitions = _allowDuplicateDefinitions,
                 _placeEnabled = _placeEnabled,
                 _placement = _placement != null ? _placement.Clone() : new TraitHolderPlacementSettings(),
                 _commandsGroupAnchor = _commandsGroupAnchor,

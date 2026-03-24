@@ -83,6 +83,9 @@ namespace Game.Commands
                 builder.Register<VNext.CommandChannelExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
+                builder.Register<VNext.CommandChannelControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
                 builder.Register<VNext.SetContextSlotExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
@@ -96,6 +99,8 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
 
                 builder.Register<VNext.LifetimeScopeStateExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.ScopeLifecycleConditionExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.MonitorChannelRuleControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -169,6 +174,8 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.SpawnRuntimeTemplateExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SpawnRuntimeGridExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.RuntimeAllDeleteExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.StateMachineExecutor>(Lifetime.Singleton)
@@ -183,6 +190,8 @@ namespace Game.Commands
                 builder.Register<VNext.UIControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.UIButtonControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.WorldPointerTargetControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ShowTooltipExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -220,6 +229,10 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
 
                 builder.Register<global::Game.Commands.VNext.WriteDataExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.WriteStatusEffectDataExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.LotteryExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
 

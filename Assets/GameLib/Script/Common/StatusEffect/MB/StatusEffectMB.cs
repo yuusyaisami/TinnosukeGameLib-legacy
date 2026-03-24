@@ -63,6 +63,7 @@ namespace Game.StatusEffect
         readonly List<EffectState> _tempStates = new();
         IStatusEffectService _statusEffectService;
         IScopeNode _scopeNode;
+        float _nextDebugRefreshTime;
 
         public IStatusEffectService StatusEffectService => _statusEffectService;
 
@@ -88,6 +89,7 @@ namespace Game.StatusEffect
             _scopeNode = scope;
             if (resolver != null && resolver.TryResolve<IStatusEffectService>(out var service) && service != null)
                 _statusEffectService = service;
+            _nextDebugRefreshTime = 0f;
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -99,6 +101,7 @@ namespace Game.StatusEffect
             _activeEffects.Clear();
             _tempStates.Clear();
             _activeEffectCount = 0;
+            _nextDebugRefreshTime = 0f;
         }
 
         void Update()
@@ -106,6 +109,10 @@ namespace Game.StatusEffect
             if (_statusEffectService == null)
                 return;
 
+            if (Time.unscaledTime < _nextDebugRefreshTime)
+                return;
+
+            _nextDebugRefreshTime = Time.unscaledTime + 0.2f;
             _statusEffectService.GetActiveEffectStates(_tempStates);
             _activeEffectCount = _tempStates.Count;
             _activeEffects.Clear();
