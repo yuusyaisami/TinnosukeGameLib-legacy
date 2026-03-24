@@ -49,6 +49,21 @@ namespace Game.AI
         [LabelText("Default Execution Behavior")]
         public ExecutionBehavior DefaultExecutionBehavior = ExecutionBehavior.SkipIfRunning;
 
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            if (MonitorRules == null || MonitorRules.Count == 0)
+                return;
+
+            for (int i = 0; i < MonitorRules.Count; i++)
+            {
+                var rule = MonitorRules[i];
+                rule.EnsureDefaults();
+                MonitorRules[i] = rule;
+            }
+        }
+#endif
+
         public override AIClipRuntime CreateRuntime(in AIAgentContext ctx)
         {
             return new AICommandClipRuntime(this);

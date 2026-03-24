@@ -853,6 +853,22 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: ac12eff00d224a4995603622e2315709
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: MaxNail
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: d02a7c3bfa3f4bce9c2a0295822c94ff
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: NailValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   - id: a79058bfb2ad41839f9cf76b613e61ca
     parentId: a2af5b9495c945e48a462a5e9bb14fc4
     name: Quota
@@ -861,9 +877,33 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: c246cb2272c544fd8016b031cb582184
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: PlayerQuota
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 10f72bb481d044538e97a709419db14c
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: MaxTimeLimit
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   - id: f074a33793ad45cdb746dc72940e0a0d
     parentId: a2af5b9495c945e48a462a5e9bb14fc4
-    name: TimeLimit
+    name: TimeLimitValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: f3ba67a86a2e4ea397631bbbfb001380
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: MaxBall
     isFolder: 0
     description: 
     explicitKey: 
@@ -880,6 +920,30 @@ MonoBehaviour:
   - id: f99fc776834f47bcb409431147af2289
     parentId: a2af5b9495c945e48a462a5e9bb14fc4
     name: LuckValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8d8592640f414dcfb3fcca969d70702d
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: ShopPriceMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 9e16ef0c947d480a80ac7b105ef0ffe2
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: BuffBallChance
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 689fd13b733c456fb0ed17db76636eaa
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: DebuffBallChance
     isFolder: 0
     description: 
     explicitKey: 

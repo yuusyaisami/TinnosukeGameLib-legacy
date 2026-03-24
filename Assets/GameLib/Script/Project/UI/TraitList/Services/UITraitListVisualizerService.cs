@@ -161,9 +161,9 @@ namespace Game.UI.TraitList
 
             var hub = await ResolveHolderHubAsync(scopeParent, resolver, runner, ct);
 
-            SetPosition(instance, slot.AnchoredPosition);
             ApplySize(profile, instance);
             ApplyBlackboard(slot, instance, hub);
+            SetPosition(instance, ResolvePlacementPosition(instance, slot.AnchoredPosition));
 
             try
             {
@@ -195,40 +195,43 @@ namespace Game.UI.TraitList
             ApplyBlackboard(slot, instance, hub: null);
             instance.UpdateSlot(slot);
 
-            if (!layoutProfile.UseTransformAnimation || layoutProfile.MovePreset == null)
+            var movePreset = ResolveMovePreset(slot.Trait);
+            var targetPosition = ResolvePlacementPosition(instance, slot.AnchoredPosition);
+
+            if (!layoutProfile.UseTransformAnimation || movePreset == null)
             {
-                SetPosition(instance, slot.AnchoredPosition);
+                SetPosition(instance, targetPosition);
                 return;
             }
 
             var rect = instance.RootRect;
             if (rect == null)
             {
-                SetPosition(instance, slot.AnchoredPosition);
+                SetPosition(instance, targetPosition);
                 return;
             }
 
             if (!instance.Resolver.TryResolve<ITransformAnimationHubService>(out var hub) ||
                 hub == null)
             {
-                SetPosition(instance, slot.AnchoredPosition);
+                SetPosition(instance, targetPosition);
                 return;
             }
 
             if (!hub.TryGetPlayer(layoutProfile.ChannelTag, out var player) || player == null)
             {
-                SetPosition(instance, slot.AnchoredPosition);
+                SetPosition(instance, targetPosition);
                 return;
             }
 
-            var step = FindAnchoredStep(layoutProfile.MovePreset);
+            var step = FindAnchoredStep(movePreset);
             if (step == null)
             {
-                SetPosition(instance, slot.AnchoredPosition);
+                SetPosition(instance, targetPosition);
                 return;
             }
 
-            var to = new Vector3(slot.AnchoredPosition.x, slot.AnchoredPosition.y, 0f);
+            var to = new Vector3(targetPosition.x, targetPosition.y, 0f);
             var task = player.PlayStepAsync(to, step);
             if (layoutProfile.WaitForCompletion)
                 await task;
@@ -255,7 +258,13 @@ namespace Game.UI.TraitList
             UITraitListVisualInstance instance,
             ICommandRunner runner)
         {
-            var vars = new VarStore(initialCapacity: 12);
+            // Spawn commands need both the UI TraitList item vars and the underlying trait vars.
+            // The trait vars already contain GameLib.Base.Trait.Element.* written by TraitDefinitionSO.
+            var vars = new VarStore(initialCapacity: 32);
+            var traitVars = slot.Trait?.Context?.Vars;
+            if (traitVars != null)
+                traitVars.MergeInto(vars, overwrite: true);
+
             ApplyItemVars(vars, slot);
             return new CommandContext(instance.Scope, vars, runner, actor: instance.Scope, options: CommandRunOptions.Default);
         }
@@ -436,6 +445,35 @@ namespace Game.UI.TraitList
             {
                 instance.Root.localPosition = new Vector3(anchoredPosition.x, anchoredPosition.y, 0f);
             }
+        }
+
+        static Vector2 ResolvePlacementPosition(UITraitListVisualInstance instance, Vector2 targetAnchoredPosition)
+        {
+            if (!TryResolveVisualBounds(instance, out var bounds))
+                return targetAnchoredPosition;
+
+            return targetAnchoredPosition - bounds.LocalCenter;
+        }
+
+        static bool TryResolveVisualBounds(UITraitListVisualInstance instance, out VisualBoundsOutput output)
+        {
+            output = default;
+            if (instance.Resolver == null)
+                return false;
+
+            if (!instance.Resolver.TryResolve<IVisualBoundsService>(out var boundsService) || boundsService == null)
+                return false;
+
+            boundsService.RebuildNow();
+            return boundsService.TryGetLastOutput(out output) && output.HasBounds;
+        }
+
+        static TransformAnimationPreset? ResolveMovePreset(ITraitInstance? trait)
+        {
+            if (trait?.Definition == null)
+                return null;
+
+            return trait.Definition.TraitListMovePreset;
         }
 
         static void ApplySize(UITraitListVisualizerProfileSO profile, UITraitListVisualInstance instance)

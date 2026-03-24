@@ -133,10 +133,11 @@ namespace Game.Commands.VNext
             if (data is not AddTraitToHolderCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AddTraitToHolderCommandData is required.");
 
-            if (!typed.TraitDefinitionSource.TryResolve(ctx.Vars, out var definition) || definition == null)
+            var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
+            if (!typed.TraitDefinition.TryGet(dynCtx, out var definition) || definition == null)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "TraitDefinition could not be resolved.");
 
-            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderHubSource, typed.HolderKey, ctx, ct);
+            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderActorSource, typed.HolderKey, ctx, ct);
             if (holder == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
 
@@ -154,7 +155,7 @@ namespace Game.Commands.VNext
             if (data is not RemoveTraitFromHolderCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "RemoveTraitFromHolderCommandData is required.");
 
-            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderHubSource, typed.HolderKey, ctx, ct);
+            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderActorSource, typed.HolderKey, ctx, ct);
             if (holder == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
 
@@ -184,7 +185,7 @@ namespace Game.Commands.VNext
             if (data is not UseTraitFromHolderCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "UseTraitFromHolderCommandData is required.");
 
-            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderHubSource, typed.HolderKey, ctx, ct);
+            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderActorSource, typed.HolderKey, ctx, ct);
             if (holder == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
 
@@ -272,7 +273,7 @@ namespace Game.Commands.VNext
 
         public static async UniTask<ITraitHolderService?> ResolveHolderAsync(
             bool useBoundHolder,
-            ActorSource holderHubSource,
+            ActorSource holderActorSource,
             string holderKey,
             CommandContext ctx,
             CancellationToken ct)
@@ -285,13 +286,13 @@ namespace Game.Commands.VNext
                 return null;
             }
 
-            var (hubScope, _) = await ActorScopeResolver.ResolveAsync(holderHubSource, ctx, ct);
-            if (hubScope == null)
+            var holderScope = await ResolveHolderScopeAsync(holderActorSource, ctx, ct);
+            if (holderScope == null)
                 return null;
 
-            EnsureScopeBuiltIfNeeded(hubScope);
-            if (hubScope.Resolver == null ||
-                !hubScope.Resolver.TryResolve<ITraitHolderHubService>(out var hub) ||
+            EnsureScopeBuiltIfNeeded(holderScope);
+            if (holderScope.Resolver == null ||
+                !holderScope.Resolver.TryResolve<ITraitHolderHubService>(out var hub) ||
                 hub == null)
                 return null;
 
@@ -299,6 +300,12 @@ namespace Game.Commands.VNext
                 return null;
 
             return holder;
+        }
+
+        static async UniTask<IScopeNode?> ResolveHolderScopeAsync(ActorSource holderSource, CommandContext ctx, CancellationToken ct)
+        {
+            var (scope, _) = await ActorScopeResolver.ResolveAsync(holderSource, ctx, ct);
+            return scope;
         }
 
         public static bool TryResolveTargetInstance(
@@ -320,7 +327,7 @@ namespace Game.Commands.VNext
             switch (target.Kind)
             {
                 case UITraitTargetKind.ByDefinition:
-                    if (!target.DefinitionSource.TryResolve(dynCtx.Vars, out var definition) || definition == null)
+                    if (!target.Definition.TryGet(dynCtx, out var definition) || definition == null)
                     {
                         error = "TraitDefinition could not be resolved.";
                         return false;

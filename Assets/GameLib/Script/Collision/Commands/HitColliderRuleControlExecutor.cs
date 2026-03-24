@@ -217,41 +217,40 @@ namespace Game.Commands.VNext
             if (list == null)
                 return;
 
+            var mutated = false;
             switch (typed.CommandListOperation)
             {
                 case HitColliderRuleCommandListOperation.Append:
                     if (typed.Commands != null && typed.Commands.Count > 0)
                     {
-                        list.AddRuntimeCommands(typed.Commands);
-                        mutationService?.Register(list);
-                        controllerService?.RegisterRuntimeMutatedCommandList(list);
+                        list.ApplyRuntimeMutation(CommandListMutationOperation.Append, typed.Commands, mutationService);
+                        mutated = true;
                     }
                     break;
 
                 case HitColliderRuleCommandListOperation.Override:
-                    list.SetRuntimeOverride(typed.Commands);
-                    mutationService?.Register(list);
-                    controllerService?.RegisterRuntimeMutatedCommandList(list);
+                    list.ApplyRuntimeMutation(CommandListMutationOperation.Override, typed.Commands, mutationService);
+                    mutated = true;
                     break;
 
                 case HitColliderRuleCommandListOperation.ClearOverride:
-                    list.ClearRuntimeOverride();
-                    mutationService?.Register(list);
-                    controllerService?.RegisterRuntimeMutatedCommandList(list);
+                    list.ApplyRuntimeMutation(CommandListMutationOperation.ClearOverride, null, mutationService);
+                    mutated = true;
                     break;
 
                 case HitColliderRuleCommandListOperation.ClearAppended:
-                    list.ClearRuntimeAppendedCommands();
-                    mutationService?.Register(list);
-                    controllerService?.RegisterRuntimeMutatedCommandList(list);
+                    list.ApplyRuntimeMutation(CommandListMutationOperation.ClearAppended, null, mutationService);
+                    mutated = true;
                     break;
 
                 case HitColliderRuleCommandListOperation.ClearRuntimeMutations:
-                    list.ClearRuntimeMutations();
-                    mutationService?.Register(list);
-                    controllerService?.RegisterRuntimeMutatedCommandList(list);
+                    list.ApplyRuntimeMutation(CommandListMutationOperation.ClearAll, null, mutationService);
+                    mutated = true;
                     break;
             }
+
+            if (mutated)
+                controllerService?.RegisterRuntimeMutatedCommandList(list);
         }
     }
 }

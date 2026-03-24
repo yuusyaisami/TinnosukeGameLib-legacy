@@ -92,7 +92,12 @@ namespace Game.Channel
         public int loopCount = -1;
 
         [Header("Steps")]
-        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowIndexLabels = true)]
+        [ListDrawerSettings(
+            ShowFoldout = true,
+            DefaultExpandedState = true,
+            DraggableItems = true,
+            ShowIndexLabels = true,
+            ListElementLabelName = nameof(TransformAnimationPresetStep.ListLabel))]
         public List<TransformAnimationPresetStep> steps = new();
         public List<TransformAnimationPresetStep> Steps => steps;
 
@@ -196,6 +201,8 @@ namespace Game.Channel
         [VNext.CommandListFunctionName("TransformAnimation.Step.Command")]
         public VNext.CommandListData commands = new();
 
+        public string ListLabel => BuildListLabel();
+
         bool UsesVector3 =>
             operation == TransformAnimationOperation.WorldPosition ||
             operation == TransformAnimationOperation.LocalPosition ||
@@ -229,6 +236,14 @@ namespace Game.Channel
 
         bool UsesCommand =>
             operation == TransformAnimationOperation.Command;
+
+        string BuildListLabel()
+        {
+            var durationValue = duration.GetOrDefaultWithoutContext(0f);
+            var relativeFlag = relative ? "T" : "F";
+            var fireAndForgetFlag = fireAndForget ? "T" : "F";
+            return $"  op: {operation}, Dur: {durationValue:0.##}, Rel: {relativeFlag}, F&F: {fireAndForgetFlag}";
+        }
 
         TransformAnimationOperation ITransformAnimationStep.Operation => operation;
         DynamicValue<float> ITransformAnimationStep.Duration => duration;

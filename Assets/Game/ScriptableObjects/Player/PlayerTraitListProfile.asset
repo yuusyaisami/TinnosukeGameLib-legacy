@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8653062977685003094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79d88578b6431b74ea34146b5ba8b0b6, type: 3}
+  m_Name: UITraitListLayoutProfileSO
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TraitList.UITraitListLayoutProfileSO
+  Rows: 5
+  Columns: 1
+  RowSpacing: 0
+  ColumnSpacing: 0
+  Order: 0
+  Offset: {x: 0, y: 0}
+  UseTransformAnimation: 0
+  ChannelTag: default
+  MovePreset:
+    loop: 0
+    loopCount: -1
+    steps: []
+  WaitForCompletion: 0
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d292d594dc33eb4bb1aa3d4a1657e89, type: 3}
+  m_Name: PlayerTraitListProfile
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TraitList.UITraitListProfileSO
+  LayoutProfile: {fileID: -8653062977685003094}
+  VisualizerProfile: {fileID: 5821022395523636781}
+  DefaultRange:
+    StartIndex: 0
+    Count: 0
+--- !u!114 &5821022395523636781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b01bf98bae8773c4fab15635a4513606, type: 3}
+  m_Name: UITraitListVisualizerProfileSO
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TraitList.UITraitListVisualizerProfileSO
+  SpawnSource: 1
+  RuntimeTemplatePreset:
+    _source:
+      rid: 5619052416848363824
+    _defaultValue:
+      prefab: {fileID: 0}
+      usePooling: 1
+      category: Runtime
+      templateId: 
+  Prefab: {fileID: 0}
+  AllowPooling: 1
+  SpawnParentOverride: {fileID: 0}
+  OverrideSize: 0
+  Width: 0
+  Height: 0
+  SpawnCommands:
+    _debugOwner: {fileID: 5821022395523636781}
+    _debugFieldPath: SpawnCommands
+    _debugAssetPath: Assets/Game/ScriptableObjects/Player/PlayerTraitListProfile.asset
+    _functionName: UITraitList.Spawn
+    _commands: []
+  ByDefinition: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052416848363824
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052416848363825
+    - rid: 5619052416848363825
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 1255711634492439393, guid: a4553140702c59944acb9c64ceeedb28, type: 3}
+        usePooling: 1
+        category: Runtime
+        templateId: 

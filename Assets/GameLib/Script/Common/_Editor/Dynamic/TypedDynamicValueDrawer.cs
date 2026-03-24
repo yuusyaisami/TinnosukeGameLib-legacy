@@ -11,11 +11,13 @@ using Game.DI;
 using Game.Channel;
 using Game.Movement;
 using Game.StateMachine;
+using Game.MaterialFx;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using Object = UnityEngine.Object;
 using Game.Commands.VNext;
 using Game.Health;
+using Game.Trait;
 
 namespace Game.Common.Editor
 {
@@ -66,6 +68,8 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(AssetHealthPresetSource));
             if (targetType == typeof(MotionPreset))
                 allowedList.Add(typeof(AssetMotionPresetSource));
+            if (targetType == typeof(TraitDefinitionSO))
+                allowedList.Add(typeof(AssetTraitDefinitionSource));
             if (targetType == typeof(BaseRuntimeTemplatePreset))
             {
                 allowedList.Add(typeof(AssetRuntimeTemplatePresetSource));
@@ -209,6 +213,7 @@ namespace Game.Common.Editor
             if (targetType == typeof(HealthPreset)) return typeof(LiteralHealthPresetSource);
             if (targetType == typeof(MaterialFxPayload)) return typeof(LiteralMaterialFxPayloadSource);
             if (targetType == typeof(MotionPreset)) return typeof(LiteralMotionPresetSource);
+            if (targetType == typeof(TransformAnimationPreset)) return typeof(LiteralTransformAnimationPresetSource);
             if (targetType == typeof(BaseRuntimeTemplatePreset)) return typeof(LiteralRuntimeTemplatePresetSource);
             if (targetType == typeof(ParticleRuntimeTemplatePreset)) return typeof(LiteralParticleRuntimeTemplatePresetSource);
             if (targetType == typeof(FirePatternRuntimeTemplatePreset)) return typeof(LiteralFirePatternRuntimeTemplatePresetSource);
@@ -284,6 +289,7 @@ namespace Game.Common.Editor
                     sourceProp.ValueEntry.WeakSmartValue = converted;
                     currentSource = converted;
                 }
+
                 var currentIndex = GetCurrentSourceIndex(currentSource);
 
                 // --- 1行目：Label + Type選択 + ボタン ---
@@ -507,12 +513,23 @@ namespace Game.Common.Editor
             if (sourceProp == null || src == null)
                 return false;
 
+            if (src is LiteralTransformAnimationPresetSource)
+            {
+                if (TryGetChildValue(sourceProp, "value", out var raw) && raw is TransformAnimationPreset preset)
+                {
+                    detail = $"{preset.Steps?.Count ?? 0} steps";
+                    return true;
+                }
+
+                return TryGetChildValueAsString(sourceProp, "value", out detail);
+            }
+
             // 型固定 Literal
             if (src is LiteralIntSource or LiteralFloatSource or LiteralBoolSource
                 or LiteralStringSource or LiteralVector2Source or LiteralVector3Source
                 or LiteralVector4Source or LiteralColorSource
                 or LiteralAnimationSpritePresetSource or LiteralMaterialFxPayloadSource
-                or LiteralMotionPresetSource or LiteralRuntimeTemplatePresetSource
+                or LiteralMotionPresetSource or LiteralTransformAnimationPresetSource or LiteralRuntimeTemplatePresetSource
                 or LiteralParticleRuntimeTemplatePresetSource or LiteralFirePatternRuntimeTemplatePresetSource
                 or LiteralSpawnPatternRuntimeTemplatePresetSource)
             {

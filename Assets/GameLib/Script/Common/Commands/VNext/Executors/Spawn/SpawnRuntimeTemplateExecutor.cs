@@ -63,7 +63,16 @@ namespace Game.Commands.VNext
             }
 
             var dynamicVars = ctx.Vars ?? NullVarStore.Instance;
-            SimpleDynamicContext CreateDynamicContext() => new(dynamicVars, ctx.Scope);
+            CommandResolveContext CreateDynamicContext() => new(
+                ctx.Scope!,
+                dynamicVars,
+                ctx.CommandRootScope,
+                ctx.Resolver,
+                NullCommandCatalog.Instance,
+                NullCommandKeyResolver.Instance,
+                NullCommandResolveLogger.Instance,
+                allowRuntimeKeyFallback: ctx.Options.AllowRuntimeKeyFallback,
+                runtimeContext: ctx);
 
             var targetCount = typed.Count.Resolve(CreateDynamicContext());
             var spawnCount = Mathf.Max(1, targetCount);
@@ -80,6 +89,15 @@ namespace Game.Commands.VNext
 
                 var rotation = Quaternion.Euler(typed.RotationEuler.Resolve(dynCtx));
                 var scale = typed.Scale.HasSource ? typed.Scale.Resolve(dynCtx) : Vector3.one;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log(
+                    $"[SpawnRuntimeTemplateExecutor] Resolve idx={i}/{spawnCount - 1} " +
+                    $"worldSpace={typed.WorldSpace} parent={DescribeTransform(transformParent)} " +
+                    $"pos={basePos} offset={offset} finalPos={spawnPos} rot={rotation.eulerAngles} scale={scale} " +
+                    $"posSrc={typed.Position.SourceTypeName}:{typed.Position.SourceDebugData} " +
+                    $"offsetSrc={typed.Offset.SourceTypeName}:{typed.Offset.SourceDebugData}");
+#endif
 
                 var spawnParams = SpawnParams.ForRuntime(
                     runtimeTemplate,
@@ -105,7 +123,16 @@ namespace Game.Commands.VNext
 
                     var vars = ResolveVars(typed.VarsPolicy, ctx, spawnedScope);
                     var spawnedOptions = ctx.Options.WithSuppressCancelLog(true);
-                    var spawnedCtx = new CommandContext(spawnedScope, vars, runner, spawnedScope, spawnedOptions);
+                    var spawnedCtx = new CommandContext(
+                        spawnedScope,
+                        vars,
+                        runner,
+                        actor: spawnedScope,
+                        options: spawnedOptions,
+                        commandRootScope: ctx.CommandRootScope,
+                        rootActor: ctx.RootActor,
+                        callerActor: ctx.Actor,
+                        sourceContext: ctx);
 
                     if (typed.AwaitOnSpawnedCommands)
                     {
@@ -234,5 +261,15 @@ namespace Game.Commands.VNext
                 }
             });
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        static string DescribeTransform(Transform? t)
+        {
+            if (t == null)
+                return "<null>";
+
+            return $"{t.name} pos={t.position} local={t.localPosition}";
+        }
+#endif
     }
 }

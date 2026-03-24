@@ -209,6 +209,7 @@ namespace Game.Common
                 switch (optionKey)
                 {
                     case "empty":
+                        // 例: {value|empty="---"}
                         if (!hasValue)
                         {
                             error = "empty expects a value";
@@ -218,6 +219,7 @@ namespace Game.Common
                         formatOptions.EmptyFallback = value ?? string.Empty;
                         break;
                     case "sign":
+                        // 例: {value|sign=always} / {value|sign=auto}
                         if (!hasValue)
                         {
                             error = "sign expects a value";
@@ -234,16 +236,19 @@ namespace Game.Common
                         }
                         break;
                     case "round":
+                        // 例: {value|round=2}
                         if (!TryParseNonNegativeInt(value, hasValue, "round", out var roundDigits, out error))
                             return false;
                         formatOptions.RoundDigits = roundDigits;
                         break;
                     case "fixed":
+                        // 例: {value|fixed=1}
                         if (!TryParseNonNegativeInt(value, hasValue, "fixed", out var fixedDigits, out error))
                             return false;
                         formatOptions.FixedDigits = fixedDigits;
                         break;
                     case "percent":
+                        // 例: {value|percent} / {value|percent=2}
                         formatOptions.UsePercent = true;
                         if (hasValue)
                         {
@@ -253,6 +258,7 @@ namespace Game.Common
                         }
                         break;
                     case "prefix":
+                        // 例: {value|prefix="HP: "}
                         if (!hasValue)
                         {
                             error = "prefix expects a value";
@@ -261,6 +267,7 @@ namespace Game.Common
                         formatOptions.Prefix = value ?? string.Empty;
                         break;
                     case "suffix":
+                        // 例: {value|suffix=" pt"}
                         if (!hasValue)
                         {
                             error = "suffix expects a value";
@@ -269,6 +276,7 @@ namespace Game.Common
                         formatOptions.Suffix = value ?? string.Empty;
                         break;
                     case "cond":
+                        // 例: {value|cond=hp > 0}
                         if (!hasValue)
                         {
                             error = "cond expects a value";
@@ -283,6 +291,7 @@ namespace Game.Common
                         condExpression = value ?? string.Empty;
                         break;
                     case "effect":
+                        // 例: {value|effect=color_if|cond=hp > 0|trueColor="#00FF00"|falseColor="#FF0000"}
                         if (!hasValue)
                         {
                             error = "effect expects a value";
@@ -304,6 +313,7 @@ namespace Game.Common
                         }
                         break;
                     case "truecolor":
+                        // 例: effect=color_if と組み合わせて {value|effect=color_if|cond=...|trueColor="#FFF"}
                         if (!hasValue)
                         {
                             error = "trueColor expects a value";
@@ -312,6 +322,7 @@ namespace Game.Common
                         decoratorOptions.TrueColor = value ?? string.Empty;
                         break;
                     case "falsecolor":
+                        // 例: effect=color_if と組み合わせて {value|effect=color_if|cond=...|falseColor="#888"}
                         if (!hasValue)
                         {
                             error = "falseColor expects a value";
@@ -320,6 +331,7 @@ namespace Game.Common
                         decoratorOptions.FalseColor = value ?? string.Empty;
                         break;
                     case "color":
+                        // 例: {value|color="#FFD200"}
                         if (!hasValue)
                         {
                             error = "color expects a value";
@@ -328,6 +340,7 @@ namespace Game.Common
                         decoratorOptions.Color = value ?? string.Empty;
                         break;
                     case "wrap":
+                        // 例: {value|wrap="<b>"}
                         if (!hasValue)
                         {
                             error = "wrap expects a value";
@@ -336,6 +349,7 @@ namespace Game.Common
                         decoratorOptions.Wrap = value ?? string.Empty;
                         break;
                     case "wrapend":
+                        // 例: {value|wrapEnd="</b>"}
                         if (!hasValue)
                         {
                             error = "wrapEnd expects a value";

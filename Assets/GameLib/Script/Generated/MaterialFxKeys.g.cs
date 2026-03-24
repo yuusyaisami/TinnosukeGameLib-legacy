@@ -57,6 +57,13 @@ namespace Game.MaterialFx.Generated
                 public const string GlowRange = "BaseShader/AdvancedFade2D/GlowRange";
                 /// <remarks>
                 /// Sender: BaseShader
+                /// ValueType: Bool
+                /// ShaderPropertyName: _OutlinePixelPerfect
+                /// Path: BaseShader/AdvancedFade2D/PixelPerfect
+                /// </remarks>
+                public const string PixelPerfect = "BaseShader/Outline/PixelPerfect";
+                /// <remarks>
+                /// Sender: BaseShader
                 /// ValueType: Float
                 /// ShaderPropertyName: _AdvancedFade2DSoft
                 /// Path: BaseShader/AdvancedFade2D/Soft
@@ -1360,13 +1367,6 @@ namespace Game.MaterialFx.Generated
                 public const string Opacity = "BaseShader/Outline/Opacity";
                 /// <remarks>
                 /// Sender: BaseShader
-                /// ValueType: Bool
-                /// ShaderPropertyName: _OutlinePixelPerfect
-                /// Path: BaseShader/Outline/PixelPerfect
-                /// </remarks>
-                public const string PixelPerfect = "BaseShader/Outline/PixelPerfect";
-                /// <remarks>
-                /// Sender: BaseShader
                 /// ValueType: Float
                 /// ShaderPropertyName: _OutlinePixelStep
                 /// Path: BaseShader/Outline/PixelStep
@@ -1737,6 +1737,7 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.AdvancedFade2D.GlowBlendMode,
             MaterialFxKeys.BaseShader.AdvancedFade2D.GlowIntensity,
             MaterialFxKeys.BaseShader.AdvancedFade2D.GlowRange,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.PixelPerfect,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Soft,
             MaterialFxKeys.BaseShader.AdvancedFade2D.WaveParamsA,
             MaterialFxKeys.BaseShader.AdvancedFade2D.WaveParamsB,
@@ -1902,7 +1903,6 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.Outline.MaskRespect,
             MaterialFxKeys.BaseShader.Outline.Mode,
             MaterialFxKeys.BaseShader.Outline.Opacity,
-            MaterialFxKeys.BaseShader.Outline.PixelPerfect,
             MaterialFxKeys.BaseShader.Outline.PixelStep,
             MaterialFxKeys.BaseShader.Outline.SamplePattern,
             MaterialFxKeys.BaseShader.Outline.Softness,

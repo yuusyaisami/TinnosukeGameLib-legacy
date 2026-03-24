@@ -177,7 +177,7 @@ namespace Game.Commands.VNext
                             Operation = mutation.Operation,
                             Commands = CloneCommandList(mutation.Commands) ?? new CommandListData(),
                         };
-                        CommandListRuntimeMutationPipeline.Apply(resolved, step, mutationService);
+                        resolved.ApplyRuntimeMutation(step, mutationService);
                     }
                 }
 

@@ -20,6 +20,9 @@ namespace Game.Commands.VNext.Editor
         const float ElementSpacing = 4f;
         const float MinLabelWidth = 48f;
 
+        bool _pendingExpandedSync;
+        bool _pendingExpandedValue;
+
         protected override void DrawPropertyLayout(GUIContent label)
         {
             var value = ValueEntry.SmartValue;
@@ -27,7 +30,8 @@ namespace Game.Commands.VNext.Editor
 
             // ヘッダー行を描画
             expanded = DrawHeader(label, value, expanded);
-            Property.State.Expanded = expanded;
+            if (Property.State.Expanded != expanded)
+                QueueExpandedSync(expanded);
 
             // 展開されている場合、デフォルト描画
             if (expanded)
@@ -44,7 +48,6 @@ namespace Game.Commands.VNext.Editor
             var contentRect = EditorGUI.IndentedRect(rect);
             var displayLabel = label ?? new GUIContent(Property.NiceName);
 
-            // 「別ウィンドウで開く」ボタン（狭い幅では自動で縮小/非表示）
             var totalWidth = contentRect.width;
             var buttonWidth = Mathf.Min(OpenButtonWidth, Mathf.Max(OpenButtonMinWidth, totalWidth * 0.35f));
             var canShowButton = totalWidth >= (FoldoutWidth + MinLabelWidth + CountLabelWidth + buttonWidth + (ElementSpacing * 4f));
@@ -84,6 +87,27 @@ namespace Game.Commands.VNext.Editor
             }
 
             return expanded;
+        }
+
+        void QueueExpandedSync(bool expanded)
+        {
+            _pendingExpandedValue = expanded;
+            if (_pendingExpandedSync)
+                return;
+
+            _pendingExpandedSync = true;
+            EditorApplication.delayCall += ApplyPendingExpandedSync;
+        }
+
+        void ApplyPendingExpandedSync()
+        {
+            _pendingExpandedSync = false;
+
+            if (Property == null || Property.Tree == null)
+                return;
+
+            if (Property.State.Expanded != _pendingExpandedValue)
+                Property.State.Expanded = _pendingExpandedValue;
         }
 
         void OpenInWindow()
@@ -136,7 +160,6 @@ namespace Game.Commands.VNext.Editor
 
             CommandListEditorWindow.Open(fieldPath, value, ownerObject);
         }
-
     }
 }
 #endif

@@ -41,7 +41,8 @@ namespace Game.Commands.VNext
         [BoxGroup("Target")]
         [ShowIf("@IsEquip && TargetKind == Game.Trait.EquipTraitTargetKind.ByDefinition")]
         [LabelText("Definition")]
-        public VarUnityObjectSource<TraitDefinitionSO> DefinitionSource = new();
+        [Tooltip("装備対象の Trait。AssetTraitDefinitionSource、Var、Blackboard などから解決する。")]
+        public DynamicValue<TraitDefinitionSO> DefinitionSource;
 
         [BoxGroup("Target")]
         [ShowIf("@IsEquip && TargetKind == Game.Trait.EquipTraitTargetKind.ByDefinitionId")]

@@ -42,7 +42,8 @@ namespace Game.UI.TraitList
 
         [BoxGroup("Relayout Animation")]
         [ShowIf(nameof(UseTransformAnimation))]
-        public TransformAnimationPreset? MovePreset;
+        [HideInInspector]
+        public TransformAnimationPreset? MovePreset; // Legacy: trait-specific preset is resolved from TraitDefinitionSO.
 
         [BoxGroup("Relayout Animation")]
         [ShowIf(nameof(UseTransformAnimation))]

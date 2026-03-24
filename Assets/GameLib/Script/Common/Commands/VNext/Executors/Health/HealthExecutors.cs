@@ -215,7 +215,7 @@ namespace Game.Commands.VNext
             HealthEventCommandMutationStep step,
             ICommandListRuntimeMutationService? mutationService)
         {
-            CommandListRuntimeMutationPipeline.Apply(binding.Commands, step.Mutation, mutationService);
+            binding.Commands.ApplyRuntimeMutation(step.Mutation, mutationService);
         }
 
         static bool HasTarget(HealthEventCommandTargets value, HealthEventCommandTargets target)

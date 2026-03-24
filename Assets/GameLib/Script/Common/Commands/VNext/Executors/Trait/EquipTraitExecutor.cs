@@ -74,7 +74,8 @@ namespace Game.Commands.VNext
             ITraitDefinition? targetDef = null;
             if (cmd.TargetKind == EquipTraitTargetKind.ByDefinition)
             {
-                if (!cmd.DefinitionSource.TryResolve(ctx.Vars, out var defSO) || defSO == null)
+                var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
+                if (!cmd.DefinitionSource.TryGet(dynCtx, out var defSO) || defSO == null)
                 {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     UnityEngine.Debug.LogWarning("[EquipTraitExecutor] TraitDefinition could not be resolved for ByDefinition target.");

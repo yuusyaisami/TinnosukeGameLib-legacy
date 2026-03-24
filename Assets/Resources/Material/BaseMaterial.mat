@@ -82,7 +82,7 @@ Material:
     - _AdvancedFade2DBurnProgress: 0
     - _AdvancedFade2DBurnSpeed: 1
     - _AdvancedFade2DEnabled: 1
-    - _AdvancedFade2DFadeAmount: 0.59
+    - _AdvancedFade2DFadeAmount: 0
     - _AdvancedFade2DFadeDirection: 3
     - _AdvancedFade2DGlowBlendMode: 2.84
     - _AdvancedFade2DGlowIntensity: -1.15

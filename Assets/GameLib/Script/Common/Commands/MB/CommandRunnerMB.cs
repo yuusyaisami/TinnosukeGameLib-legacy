@@ -182,7 +182,7 @@ namespace Game.Commands
 
                 builder.Register<VNext.UIControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.UIButtonCommandListControlExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.UIButtonControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ShowTooltipExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -275,6 +275,12 @@ namespace Game.Commands
                 builder.Register<global::Game.Commands.VNext.EquipTraitExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.WriteTraitDataExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Trait.TraitLotteryService>(Lifetime.Singleton)
+                    .As<global::Game.Trait.ITraitLotteryService>();
+                builder.Register<global::Game.Commands.VNext.TraitLotteryExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.PlaceTraitRuntimeExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
 
                 builder.Register<VNext.BackgroundLayerExecutor>(Lifetime.Singleton)

@@ -20,17 +20,12 @@ namespace Game.UI.TraitList
         Transform? DefaultParentTransform { get; }
         int AutoBuildRetryCount { get; }
         int AutoBuildRetryFrameInterval { get; }
+        bool HideVisiblePlacedTraits { get; }
     }
 
     [Serializable]
     public sealed class UITraitListBuildSettings
     {
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderHubSource)")]
-        public ActorSource HolderHubSource;
-
-        [LabelText("Holder Key")]
-        public string HolderKey = string.Empty;
-
         [InlineProperty]
         public UITraitListRange Range;
 
@@ -60,6 +55,21 @@ namespace Game.UI.TraitList
         [SerializeField]
         bool _autoBuildOnAcquire = false;
 
+        [BoxGroup("Runtime")]
+        [LabelText("Hide Visible Placed Traits")]
+        [SerializeField]
+        bool _hideVisiblePlacedTraits;
+
+        [BoxGroup("Target")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(_holderHubSource)")]
+        [SerializeField]
+        ActorSource _holderHubSource;
+
+        [BoxGroup("Target")]
+        [LabelText("Holder Key")]
+        [SerializeField]
+        string _holderKey = string.Empty;
+
         [BoxGroup("Auto Build")]
         [ShowIf(nameof(_autoBuildOnAcquire))]
         [InlineProperty]
@@ -69,12 +79,13 @@ namespace Game.UI.TraitList
 
         public UITraitListProfileSO? DefaultProfile => _defaultProfile;
         public bool AutoBuildOnAcquire => _autoBuildOnAcquire;
-        public ActorSource HolderHubSource => _autoBuildSettings != null ? _autoBuildSettings.HolderHubSource : default;
-        public string HolderKey => _autoBuildSettings != null ? _autoBuildSettings.HolderKey : string.Empty;
+        public ActorSource HolderHubSource => _holderHubSource;
+        public string HolderKey => _holderKey;
         public UITraitListRange AutoBuildRange => _autoBuildSettings != null ? _autoBuildSettings.Range : default;
         public Transform? DefaultParentTransform => _defaultParentTransform != null ? _defaultParentTransform : transform;
         public int AutoBuildRetryCount => _autoBuildSettings != null ? _autoBuildSettings.AutoBuildRetryCount : 0;
         public int AutoBuildRetryFrameInterval => _autoBuildSettings != null ? _autoBuildSettings.AutoBuildRetryFrameInterval : 1;
+        public bool HideVisiblePlacedTraits => _hideVisiblePlacedTraits;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {

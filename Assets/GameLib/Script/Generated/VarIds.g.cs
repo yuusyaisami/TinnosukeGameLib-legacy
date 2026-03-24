@@ -688,15 +688,6 @@ namespace Game.Vars.Generated
                         /// </remarks>
                         public const int instanceId = 100101;
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/runtimeTag
-                        /// StableKey: GameLib.Base.StatusEffect.Element.runtimeTag
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/runtimeTag
-                        /// StableKey: GameLib.Base.StatusEffect.Element.runtimeTag
-                        /// </remarks>
-                        public const int runtimeTag = 100117;
-                        /// <remarks>
                         /// Path: GameLib/Base/StatusEffect/Element/intensity
                         /// StableKey: GameLib.Base.StatusEffect.Element.intensity
                         /// </remarks>
@@ -796,6 +787,15 @@ namespace Game.Vars.Generated
                         /// </remarks>
                         public const int remainingUseCount = 100115;
                         /// <remarks>
+                        /// Path: GameLib/Base/StatusEffect/Element/runtimeTag
+                        /// StableKey: GameLib.Base.StatusEffect.Element.runtimeTag
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/Base/StatusEffect/Element/runtimeTag
+                        /// StableKey: GameLib.Base.StatusEffect.Element.runtimeTag
+                        /// </remarks>
+                        public const int runtimeTag = 100117;
+                        /// <remarks>
                         /// Path: GameLib/Base/StatusEffect/Element/stackCount
                         /// StableKey: GameLib.Base.StatusEffect.Element.stackCount
                         /// </remarks>
@@ -805,15 +805,6 @@ namespace Game.Vars.Generated
                         /// </remarks>
                         public const int stackCount = 100111;
                         /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/usedCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.usedCount
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/Base/StatusEffect/Element/usedCount
-                        /// StableKey: GameLib.Base.StatusEffect.Element.usedCount
-                        /// </remarks>
-                        public const int usedCount = 100120;
-                        /// <remarks>
                         /// Path: GameLib/Base/StatusEffect/Element/totalDuration
                         /// StableKey: GameLib.Base.StatusEffect.Element.totalDuration
                         /// </remarks>
@@ -822,6 +813,15 @@ namespace Game.Vars.Generated
                         /// StableKey: GameLib.Base.StatusEffect.Element.totalDuration
                         /// </remarks>
                         public const int totalDuration = 100114;
+                        /// <remarks>
+                        /// Path: GameLib/Base/StatusEffect/Element/usedCount
+                        /// StableKey: GameLib.Base.StatusEffect.Element.usedCount
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/Base/StatusEffect/Element/usedCount
+                        /// StableKey: GameLib.Base.StatusEffect.Element.usedCount
+                        /// </remarks>
+                        public const int usedCount = 100120;
                         /// <remarks>
                         /// Path: GameLib/Base/StatusEffect/Element/visualData
                         /// StableKey: GameLib.Base.StatusEffect.Element.visualData
@@ -902,6 +902,15 @@ namespace Game.Vars.Generated
                         /// StableKey: nameTemplate
                         /// </remarks>
                         public const int nameTemplate = 238;
+                        /// <remarks>
+                        /// Path: GameLib/Base/Trait/Element/weight
+                        /// StableKey: GameLib.Base.Trait.Element.weight
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/Base/Trait/Element/weight
+                        /// StableKey: GameLib.Base.Trait.Element.weight
+                        /// </remarks>
+                        public const int weight = 100122;
                     }
 
                     public static partial class Holder
@@ -2412,365 +2421,17 @@ namespace Game.Vars.Generated
         public static partial class GameLogic
         {
 
-            public static partial class GameProfiles
+            public static partial class NailProfile
             {
-
-                public static partial class Game
-                {
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Game/ContinueCount
-                    /// StableKey: ContinueCount
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Game/ContinueCount
-                    /// StableKey: ContinueCount
-                    /// </remarks>
-                    public const int ContinueCount = 264;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Game/heightSaturn
-                    /// StableKey: heightSaturn
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Game/heightSaturn
-                    /// StableKey: heightSaturn
-                    /// </remarks>
-                    public const int heightSaturn = 222;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Game/isGameOver
-                    /// StableKey: isGameOver
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Game/isGameOver
-                    /// StableKey: isGameOver
-                    /// </remarks>
-                    public const int isGameOver = 251;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Game/NoContinueBonus
-                    /// StableKey: NoContinueBonus
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Game/NoContinueBonus
-                    /// StableKey: NoContinueBonus
-                    /// </remarks>
-                    public const int NoContinueBonus = 265;
-
-                    public static partial class CheckPoint
-                    {
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/CheckPoint/currentCheckPoint
-                        /// StableKey: currentCheckPoint
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/CheckPoint/currentCheckPoint
-                        /// StableKey: currentCheckPoint
-                        /// </remarks>
-                        public const int currentCheckPoint = 235;
-                        /// <summary>最後に訪れたチェックポイント</summary>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/CheckPoint/lastCheckPoint
-                        /// StableKey: lastCheckPoint
-                        /// </remarks>
-                        /// <summary>最後に訪れたチェックポイント</summary>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/CheckPoint/lastCheckPoint
-                        /// StableKey: lastCheckPoint
-                        /// </remarks>
-                        public const int lastCheckPoint = 234;
-                        /// <summary>到達した最大チェックポイント(value*100)m</summary>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/CheckPoint/maxCheckPoint
-                        /// StableKey: maxCheckPoint
-                        /// </remarks>
-                        /// <summary>到達した最大チェックポイント(value*100)m</summary>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/CheckPoint/maxCheckPoint
-                        /// StableKey: maxCheckPoint
-                        /// </remarks>
-                        public const int maxCheckPoint = 233;
-                        /// <summary>ゲーム開始時のスタートポイント0から6まで！</summary>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/CheckPoint/startCheckPoint
-                        /// StableKey: startCheckPoint
-                        /// </remarks>
-                        /// <summary>ゲーム開始時のスタートポイント0から6まで！</summary>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/CheckPoint/startCheckPoint
-                        /// StableKey: startCheckPoint
-                        /// </remarks>
-                        public const int startCheckPoint = 248;
-                    }
-
-                    public static partial class Score
-                    {
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Score/bestHeight
-                        /// StableKey: bestHeight
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Score/bestHeight
-                        /// StableKey: bestHeight
-                        /// </remarks>
-                        public const int bestHeight = 267;
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Score/bestScore
-                        /// StableKey: bestScore
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Score/bestScore
-                        /// StableKey: bestScore
-                        /// </remarks>
-                        public const int bestScore = 266;
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Score/totalRetryCount
-                        /// StableKey: totalRetryCount
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Score/totalRetryCount
-                        /// StableKey: totalRetryCount
-                        /// </remarks>
-                        public const int totalRetryCount = 268;
-                    }
-
-                    public static partial class Stage
-                    {
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Stage/Stage2BossEnd
-                        /// StableKey: Stage2BossEnd
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Stage/Stage2BossEnd
-                        /// StableKey: Stage2BossEnd
-                        /// </remarks>
-                        public const int Stage2BossEnd = 250;
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Stage/Stage2BossEntry
-                        /// StableKey: Stage2BossEntry
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Stage/Stage2BossEntry
-                        /// StableKey: Stage2BossEntry
-                        /// </remarks>
-                        public const int Stage2BossEntry = 249;
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Stage/Stage4TestEnd
-                        /// StableKey: Stage4TestEnd
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Stage/Stage4TestEnd
-                        /// StableKey: Stage4TestEnd
-                        /// </remarks>
-                        public const int Stage4TestEnd = 254;
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Stage/Stage4TestEntry
-                        /// StableKey: Stage4TestEntry
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Game/Stage/Stage4TestEntry
-                        /// StableKey: Stage4TestEntry
-                        /// </remarks>
-                        public const int Stage4TestEntry = 253;
-
-                        public static partial class Traps
-                        {
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Game/Stage/Traps/isTrap1
-                            /// StableKey: isTrap1
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Game/Stage/Traps/isTrap1
-                            /// StableKey: isTrap1
-                            /// </remarks>
-                            public const int isTrap1 = 255;
-                        }
-                    }
-                }
-
-                public static partial class Player
-                {
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/eventScore
-                    /// StableKey: eventScore
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/eventScore
-                    /// StableKey: eventScore
-                    /// </remarks>
-                    public const int eventScore = 220;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/gameOverReason
-                    /// StableKey: gameOverReason
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/gameOverReason
-                    /// StableKey: gameOverReason
-                    /// </remarks>
-                    public const int gameOverReason = 223;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/gamePlayTimer
-                    /// StableKey: gamePlayTimer
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/gamePlayTimer
-                    /// StableKey: gamePlayTimer
-                    /// </remarks>
-                    public const int gamePlayTimer = 221;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/heightScore
-                    /// StableKey: heightScore
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/heightScore
-                    /// StableKey: heightScore
-                    /// </remarks>
-                    public const int heightScore = 218;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/itemScore
-                    /// StableKey: GameLogic.GameProfiles.Player.itemScore
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/itemScore
-                    /// StableKey: GameLogic.GameProfiles.Player.itemScore
-                    /// </remarks>
-                    public const int itemScore = 219;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/timeScore
-                    /// StableKey: timeScore
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/timeScore
-                    /// StableKey: timeScore
-                    /// </remarks>
-                    public const int timeScore = 247;
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/totalScore
-                    /// StableKey: totalScore
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/Player/totalScore
-                    /// StableKey: totalScore
-                    /// </remarks>
-                    public const int totalScore = 217;
-
-                    public static partial class Items
-                    {
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Player/Items/itemScore
-                        /// StableKey: GameLogic.GameProfiles.Player.Items.itemScore
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLogic/GameProfiles/Player/Items/itemScore
-                        /// StableKey: GameLogic.GameProfiles.Player.Items.itemScore
-                        /// </remarks>
-                        public const int itemScore = 225;
-
-                        public static partial class List
-                        {
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/BanaPan
-                            /// StableKey: BanaPan
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/BanaPan
-                            /// StableKey: BanaPan
-                            /// </remarks>
-                            public const int BanaPan = 258;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/Coffee
-                            /// StableKey: Coffee
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/Coffee
-                            /// StableKey: Coffee
-                            /// </remarks>
-                            public const int Coffee = 259;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/CPlus
-                            /// StableKey: CPlus
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/CPlus
-                            /// StableKey: CPlus
-                            /// </remarks>
-                            public const int CPlus = 261;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/GameBody
-                            /// StableKey: GameBody
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/GameBody
-                            /// StableKey: GameBody
-                            /// </remarks>
-                            public const int GameBody = 257;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/GanbaRirie
-                            /// StableKey: GanbaRirie
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/GanbaRirie
-                            /// StableKey: GanbaRirie
-                            /// </remarks>
-                            public const int GanbaRirie = 260;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/Knife
-                            /// StableKey: Knife
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/Knife
-                            /// StableKey: Knife
-                            /// </remarks>
-                            public const int Knife = 269;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/MoneyBag
-                            /// StableKey: MoneyBag
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/MoneyBag
-                            /// StableKey: MoneyBag
-                            /// </remarks>
-                            public const int MoneyBag = 224;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/Monster
-                            /// StableKey: Monster
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/Monster
-                            /// StableKey: Monster
-                            /// </remarks>
-                            public const int Monster = 262;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/NecoArc
-                            /// StableKey: NecoArc
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/NecoArc
-                            /// StableKey: NecoArc
-                            /// </remarks>
-                            public const int NecoArc = 263;
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/SimCard
-                            /// StableKey: SimCard
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLogic/GameProfiles/Player/Items/List/SimCard
-                            /// StableKey: SimCard
-                            /// </remarks>
-                            public const int SimCard = 256;
-                        }
-                    }
-                }
-
-                public static partial class PlayerGameAction
-                {
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/PlayerGameAction/currentGageColor
-                    /// StableKey: currentGageColor
-                    /// </remarks>
-                    /// <remarks>
-                    /// Path: GameLogic/GameProfiles/PlayerGameAction/currentGageColor
-                    /// StableKey: currentGageColor
-                    /// </remarks>
-                    public const int currentGageColor = 79;
-                }
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/Price
+                /// StableKey: Value
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/Price
+                /// StableKey: Value
+                /// </remarks>
+                public const int Price = 100121;
             }
         }
 
@@ -2861,6 +2522,7 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.Trait.Element.instanceId,
             VarIds.GameLib.Base.Trait.Element.nameKey,
             VarIds.GameLib.Base.Trait.Element.nameTemplate,
+            VarIds.GameLib.Base.Trait.Element.weight,
             VarIds.GameLib.Base.Trait.Holder.heldCount,
             VarIds.GameLib.Base.Trait.Holder.holderId,
             VarIds.GameLib.Base.Trait.Holder.holderKey,
@@ -3005,41 +2667,7 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitIndex,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceId,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
-            VarIds.GameLogic.GameProfiles.Game.ContinueCount,
-            VarIds.GameLogic.GameProfiles.Game.heightSaturn,
-            VarIds.GameLogic.GameProfiles.Game.isGameOver,
-            VarIds.GameLogic.GameProfiles.Game.NoContinueBonus,
-            VarIds.GameLogic.GameProfiles.Game.CheckPoint.currentCheckPoint,
-            VarIds.GameLogic.GameProfiles.Game.CheckPoint.lastCheckPoint,
-            VarIds.GameLogic.GameProfiles.Game.CheckPoint.maxCheckPoint,
-            VarIds.GameLogic.GameProfiles.Game.CheckPoint.startCheckPoint,
-            VarIds.GameLogic.GameProfiles.Game.Score.bestHeight,
-            VarIds.GameLogic.GameProfiles.Game.Score.bestScore,
-            VarIds.GameLogic.GameProfiles.Game.Score.totalRetryCount,
-            VarIds.GameLogic.GameProfiles.Game.Stage.Stage2BossEnd,
-            VarIds.GameLogic.GameProfiles.Game.Stage.Stage2BossEntry,
-            VarIds.GameLogic.GameProfiles.Game.Stage.Stage4TestEnd,
-            VarIds.GameLogic.GameProfiles.Game.Stage.Stage4TestEntry,
-            VarIds.GameLogic.GameProfiles.Game.Stage.Traps.isTrap1,
-            VarIds.GameLogic.GameProfiles.Player.eventScore,
-            VarIds.GameLogic.GameProfiles.Player.gameOverReason,
-            VarIds.GameLogic.GameProfiles.Player.gamePlayTimer,
-            VarIds.GameLogic.GameProfiles.Player.heightScore,
-            VarIds.GameLogic.GameProfiles.Player.itemScore,
-            VarIds.GameLogic.GameProfiles.Player.timeScore,
-            VarIds.GameLogic.GameProfiles.Player.totalScore,
-            VarIds.GameLogic.GameProfiles.Player.Items.itemScore,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.BanaPan,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.Coffee,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.CPlus,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.GameBody,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.GanbaRirie,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.Knife,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.MoneyBag,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.Monster,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.NecoArc,
-            VarIds.GameLogic.GameProfiles.Player.Items.List.SimCard,
-            VarIds.GameLogic.GameProfiles.PlayerGameAction.currentGageColor,
+            VarIds.GameLogic.NailProfile.Price,
         };
     }
 }

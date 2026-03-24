@@ -34,11 +34,11 @@ namespace Game.Commands
     public enum MonitorEvaluationMode
     {
         /// <summary>毎フレーム条件を評価。</summary>
-        Polling,
+        Polling = 0,
         /// <summary>依存キー変更時のみ評価。</summary>
-        EventDriven,
+        EventDriven = 1,
         /// <summary>外部から明示的に評価を呼ぶ。</summary>
-        Manual,
+        Manual = 2,
     }
 
     /// <summary>
@@ -49,37 +49,88 @@ namespace Game.Commands
         /// <summary>
         /// 条件のみで評価。Enter/Exit/WhileTrue を条件遷移で発火。
         /// </summary>
-        ConditionOnly,
+        ConditionOnly = 0,
 
         /// <summary>
         /// イベントのみで発火。条件は無視し、外部イベント（NotifyEvent）で即時実行。
         /// </summary>
-        EventOnly,
+        EventOnly = 1,
 
         /// <summary>
         /// イベント＋条件。イベント受信時に条件を評価し、true なら実行。
         /// </summary>
-        EventAndCondition,
+        EventAndCondition = 2,
 
         /// <summary>
         /// 特定の値が変化した時に実行。
         /// VarStore / Blackboard / Scalar のみ対応。
         /// </summary>
-        ValueChanged,
+        ValueChanged = 3,
     }
 
     public enum MonitorValueSourceKind
     {
-        VarStore,
-        Blackboard,
-        Scalar,
+        VarStore = 0,
+        Blackboard = 1,
+        Scalar = 2,
     }
 
     public enum MonitorValueChangeMode
     {
-        AnyChange,
-        Increased,
-        Decreased,
+        AnyChange = 0,
+        Increased = 1,
+        Decreased = 2,
+    }
+
+    public enum MonitorValueChangedMode
+    {
+        Simple = 0,
+        AnyTarget = 1,
+    }
+
+    [Serializable]
+    public sealed class MonitorValueChangedTarget
+    {
+        [PropertyOrder(0)]
+        [LabelText("Value Source")]
+        public MonitorValueSourceKind ValueSource = MonitorValueSourceKind.VarStore;
+
+        [PropertyOrder(10)]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Value Target\", ValueTarget)")]
+        public VNext.ActorSource ValueTarget;
+
+        [PropertyOrder(20)]
+        [LabelText("Change Mode")]
+        public MonitorValueChangeMode ValueChangeMode = MonitorValueChangeMode.AnyChange;
+
+        [PropertyOrder(30)]
+        [ShowIf(nameof(IsVarStoreSource))]
+        [LabelText("VarStore Var Id"), VarIdDropdown]
+        public int VarStoreVarId;
+
+        [PropertyOrder(40)]
+        [ShowIf(nameof(IsBlackboardSource))]
+        [LabelText("Blackboard Var Id"), VarIdDropdown]
+        public int BlackboardVarId;
+
+        [PropertyOrder(50)]
+        [ShowIf(nameof(IsBlackboardSource))]
+        [LabelText("Blackboard Read Scope")]
+        public BlackboardReadScope BlackboardReadScope;
+
+        [PropertyOrder(60)]
+        [ShowIf(nameof(IsScalarSource))]
+        [LabelText("Scalar Key")]
+        public ScalarKey ScalarKey;
+
+        [PropertyOrder(70)]
+        [LabelText("Change Epsilon")]
+        [MinValue(0f)]
+        public float ChangeEpsilon;
+
+        bool IsVarStoreSource => ValueSource == MonitorValueSourceKind.VarStore;
+        bool IsBlackboardSource => ValueSource == MonitorValueSourceKind.Blackboard;
+        bool IsScalarSource => ValueSource == MonitorValueSourceKind.Scalar;
     }
 
     /// <summary>
@@ -87,9 +138,9 @@ namespace Game.Commands
     /// </summary>
     public enum ExecutionBehavior
     {
-        SkipIfRunning,
-        CancelAndRun,
-        AllowConcurrent,
+        SkipIfRunning = 0,
+        CancelAndRun = 1,
+        AllowConcurrent = 2,
     }
 
     /// <summary>
@@ -147,44 +198,23 @@ namespace Game.Commands
 
         [PropertyOrder(40)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
-        [LabelText("Value Source")]
-        public MonitorValueSourceKind ValueSource;
+        [LabelText("Value Changed Mode")]
+        [EnumToggleButtons]
+        public MonitorValueChangedMode ValueChangedMode;
 
         [PropertyOrder(41)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Value Target\", ValueTarget)")]
-        public VNext.ActorSource ValueTarget;
+        [InlineProperty]
+        [HideLabel]
+        [LabelText("Simple Target")]
+        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueChangedMode == MonitorValueChangedMode.Simple")]
+        public MonitorValueChangedTarget SimpleValueChangedTarget;
 
         [PropertyOrder(42)]
-        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
-        [LabelText("Change Mode")]
-        public MonitorValueChangeMode ValueChangeMode;
-
-        [PropertyOrder(43)]
-        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueSource == MonitorValueSourceKind.VarStore")]
-        [LabelText("VarStore Var Id"), VarIdDropdown]
-        public int VarStoreVarId;
-
-        [PropertyOrder(44)]
-        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueSource == MonitorValueSourceKind.Blackboard")]
-        [LabelText("Blackboard Var Id"), VarIdDropdown]
-        public int BlackboardVarId;
-
-        [PropertyOrder(45)]
-        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueSource == MonitorValueSourceKind.Blackboard")]
-        [LabelText("Blackboard Read Scope")]
-        public BlackboardReadScope BlackboardReadScope;
-
-        [PropertyOrder(46)]
-        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueSource == MonitorValueSourceKind.Scalar")]
-        [LabelText("Scalar Key")]
-        public ScalarKey ScalarKey;
-
-        [PropertyOrder(47)]
-        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
-        [LabelText("Change Epsilon")]
-        [MinValue(0f)]
-        public float ChangeEpsilon;
+        [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueChangedMode == MonitorValueChangedMode.AnyTarget")]
+        [LabelText("Value Targets")]
+        [ListDrawerSettings(ShowFoldout = true, DraggableItems = false, DefaultExpandedState = true)]
+        public List<MonitorValueChangedTarget> ValueChangedTargets;
 
         [PropertyOrder(48)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
@@ -232,6 +262,44 @@ namespace Game.Commands
         [PropertyOrder(140)]
         [LabelText("Execution Behavior")]
         public ExecutionBehavior Behavior;
+
+        public void EnsureDefaults()
+        {
+            if (!CancelRunningOnConditionChangeInitialized)
+            {
+                CancelRunningOnConditionChange = true;
+                CancelRunningOnConditionChangeInitialized = true;
+            }
+
+            SimpleValueChangedTarget ??= new MonitorValueChangedTarget();
+            ValueChangedTargets ??= new List<MonitorValueChangedTarget>();
+        }
+
+        public int GetValueChangedTargetCount()
+        {
+            if (RuleKind != MonitorRuleKind.ValueChanged)
+                return 0;
+
+            if (ValueChangedMode == MonitorValueChangedMode.AnyTarget)
+                return ValueChangedTargets?.Count ?? 0;
+
+            return SimpleValueChangedTarget != null ? 1 : 0;
+        }
+
+        public MonitorValueChangedTarget? GetValueChangedTarget(int index)
+        {
+            if (index < 0 || RuleKind != MonitorRuleKind.ValueChanged)
+                return null;
+
+            if (ValueChangedMode == MonitorValueChangedMode.AnyTarget)
+            {
+                if (ValueChangedTargets == null || index >= ValueChangedTargets.Count)
+                    return null;
+                return ValueChangedTargets[index];
+            }
+
+            return index == 0 ? SimpleValueChangedTarget : null;
+        }
     }
 
     /// <summary>

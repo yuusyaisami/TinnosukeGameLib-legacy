@@ -3,8 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Game.Common;
+using Game.Commands.VNext;
 using Game.MaterialFx;
 using UnityEngine;
+using VContainer;
 
 namespace Game.Visual
 {
@@ -15,7 +18,7 @@ namespace Game.Visual
     /// - SetState は保持＆新規Hubへ同期
     /// - Broadcast は保持しない
     /// </summary>
-    public sealed class VisualSystemService : IVisualSystem
+    public sealed class VisualSystemService : IVisualSystem, IScopeAcquireHandler, IScopeReleaseHandler
     {
         sealed class RefEqComparer<T> : IEqualityComparer<T>
             where T : class
@@ -39,6 +42,12 @@ namespace Game.Visual
         readonly Dictionary<VisualTargetSelector, StateSlot> _stateSlots = new();
 
         readonly List<KeyValuePair<VisualTargetSelector, StateSlot>> _sortedSlotsScratch = new();
+        readonly DynamicValue<MaterialFxPayload> _defaultMaterialFxSource;
+
+        public VisualSystemService(DynamicValue<MaterialFxPayload> defaultMaterialFxSource = default)
+        {
+            _defaultMaterialFxSource = defaultMaterialFxSource;
+        }
 
         // ----------------------------------------------------------------------------
         // IVisualSystem
@@ -183,9 +192,48 @@ namespace Game.Visual
 #endif
         }
 
+        public void OnAcquire(IScopeNode scope, bool isReset)
+        {
+            _ = isReset;
+
+            _stateSlots.Clear();
+
+            var payload = ResolveDefaultPayload(scope);
+            if (payload == null || payload.Entries == null || payload.Entries.Count == 0)
+                return;
+
+            SetState(VisualTargetSelector.All(), payload.Entries, clearMissingKeys: true, basePriority: payload.Priority);
+        }
+
+        public void OnRelease(IScopeNode scope, bool isReset)
+        {
+            _ = scope;
+            _ = isReset;
+
+            _stateSlots.Clear();
+            _sortedSlotsScratch.Clear();
+            _hubs.Clear();
+        }
+
         // ----------------------------------------------------------------------------
         // Internal
         // ----------------------------------------------------------------------------
+
+        MaterialFxPayload? ResolveDefaultPayload(IScopeNode scope)
+        {
+            if (!_defaultMaterialFxSource.HasSource)
+                return null;
+
+            if (scope?.Resolver != null &&
+                scope.Resolver.TryResolve<IVarStore>(out var vars) &&
+                vars != null)
+            {
+                var context = new SimpleDynamicContext(vars, scope);
+                return _defaultMaterialFxSource.GetOrDefault(context);
+            }
+
+            return _defaultMaterialFxSource.GetOrDefaultWithoutContext();
+        }
 
         static bool IsTimeDependent(in MaterialFxPresetEntry e)
         {
@@ -318,36 +366,36 @@ namespace Game.Visual
                 // Note: UnityEngine.Object hash is not stable across sessions, but snapshot hash is runtime-only.
                 switch (v.Type)
                 {
-                    case ValueKind.Float:
+                    case Game.MaterialFx.ValueKind.Float:
                         h = (h * 31) ^ HashDynamicFloat(v.Float);
                         break;
-                    case ValueKind.Int:
-                    case ValueKind.Bool:
+                    case Game.MaterialFx.ValueKind.Int:
+                    case Game.MaterialFx.ValueKind.Bool:
                         h = (h * 31) ^ v.Int;
                         break;
-                    case ValueKind.Float2:
+                    case Game.MaterialFx.ValueKind.Float2:
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float2.x);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float2.y);
                         break;
-                    case ValueKind.Float3:
+                    case Game.MaterialFx.ValueKind.Float3:
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float3.x);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float3.y);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float3.z);
                         break;
-                    case ValueKind.Float4:
+                    case Game.MaterialFx.ValueKind.Float4:
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float4.x);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float4.y);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float4.z);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Float4.w);
                         break;
-                    case ValueKind.Color:
+                    case Game.MaterialFx.ValueKind.Color:
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Color.r);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Color.g);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Color.b);
                         h = (h * 31) ^ BitConverter.SingleToInt32Bits(v.Color.a);
                         break;
-                    case ValueKind.Texture:
-                    case ValueKind.TextureArray:
+                    case Game.MaterialFx.ValueKind.Texture:
+                    case Game.MaterialFx.ValueKind.TextureArray:
                         h = (h * 31) ^ (v.Texture != null ? v.Texture.GetInstanceID() : 0);
                         break;
                 }

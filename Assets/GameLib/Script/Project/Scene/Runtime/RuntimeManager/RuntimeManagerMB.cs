@@ -672,42 +672,11 @@ namespace Game.Project.Scene.Runtime
             Transform transformParent = p.TransformParent != null ? p.TransformParent : _root;
             var lifetimeScopeParent = p.LifetimeScopeParent;
 
-            // UI spawn special-case:
-            // If the spawned instance is a RectTransform under a non-world-space Canvas, we want to treat
-            // SpawnParams.Position as an anchoredPosition (local UI space), even when SpawnParams.WorldSpace==true.
-            // We can't inspect the instance before acquiring, so decide using the intended parent.
-            var parentCanvas = transformParent.GetComponentInParent<Canvas>(includeInactive: true);
-            bool forceAnchoredByCanvas = parentCanvas != null && parentCanvas.renderMode != RenderMode.WorldSpace;
-
             // Pooling is controlled solely by SpawnParams.AllowPooling and Template.UsePooling.
             // Parent-based reuse restrictions are enforced inside RuntimeLifetimeScopePool by a
             // (Parent Transform + Template) key, so we no longer bypass pooling for non-root parents.
             // This allows pooling under arbitrary parents while still preventing cross-parent reuse.
             bool bypassPooling = !p.AllowPooling;
-
-            // IMPORTANT:
-            // RuntimeLifetimeScopePool.ConfigureOnAcquire は常に Acquire の前に WORLD 位置/回転を設定します。
-            // SpawnParams.WorldSpace が false（ローカル空間）の場合、Acquire の後に localPosition/localRotation を設定すると、
-            // BulkTransform の登録がローカル変換前のワールド位置をキャプチャし、後で変換が元に戻る可能性があります。バルクトランスフォームを同期させるには、まず意図したワールド空間の姿勢を計算し、
-            // それをAcquireAsyncに渡してください。
-            Vector3 acquireWorldPos;
-            Quaternion acquireWorldRot;
-            if (forceAnchoredByCanvas)
-            {
-                // Interpret p.Position/p.Rotation as local UI values and convert to world for Acquire.
-                acquireWorldPos = transformParent.TransformPoint(p.Position);
-                acquireWorldRot = transformParent.rotation * p.Rotation;
-            }
-            else if (p.WorldSpace)
-            {
-                acquireWorldPos = p.Position;
-                acquireWorldRot = p.Rotation;
-            }
-            else
-            {
-                acquireWorldPos = transformParent.TransformPoint(p.Position);
-                acquireWorldRot = transformParent.rotation * p.Rotation;
-            }
 
             RuntimeLifetimeScope scope;
             if (bypassPooling)
@@ -726,7 +695,7 @@ namespace Game.Project.Scene.Runtime
                 // Parent in hierarchy and set pose
                 var t = scope.transform;
                 t.SetParent(transformParent, worldPositionStays: false);
-                ApplyWorldPose(t, acquireWorldPos, acquireWorldRot);
+                SpawnPoseUtility.ApplySpawnPose(t, p);
 
                 // Build/DI parent selection: allow override, otherwise prefer nearest runtime scope, then base lifetime scope, then default.
                 if (lifetimeScopeParent != null)
@@ -776,6 +745,12 @@ namespace Game.Project.Scene.Runtime
             }
             else
             {
+                if (!SpawnPoseUtility.TryResolveAcquireWorldPose(transformParent, p, out var acquireWorldPos, out var acquireWorldRot))
+                {
+                    acquireWorldPos = p.Position;
+                    acquireWorldRot = p.Rotation;
+                }
+
                 var acquired = await _pool.AcquireAsync(
                     template,
                     transformParent,
@@ -788,7 +763,7 @@ namespace Game.Project.Scene.Runtime
             }
 
             // Apply the requested pose (should be consistent with the acquire world pose above).
-            ApplySpawnPose(scope.transform, p);
+            SpawnPoseUtility.ApplySpawnPose(scope.transform, p);
 
             // Diagnostics: warn if the spawned transform doesn't match the requested position.
             // (No per-frame logging; only emits when there's a meaningful mismatch.)
@@ -872,70 +847,6 @@ namespace Game.Project.Scene.Runtime
             }
 
             return true;
-        }
-
-        static void ApplyWorldPose(Transform target, Vector3 worldPosition, Quaternion worldRotation)
-        {
-            target.SetPositionAndRotation(worldPosition, worldRotation);
-            if (target is RectTransform rect)
-            {
-                // Keep anchoredPosition consistent with the resulting local pose.
-                var localPos = rect.localPosition;
-                rect.anchoredPosition3D = localPos;
-                rect.anchoredPosition = new Vector2(localPos.x, localPos.y);
-            }
-        }
-
-        static void ApplySpawnPose(Transform target, SpawnParams spawnParams)
-        {
-            var scale = spawnParams.Scale == default ? Vector3.one : spawnParams.Scale;
-            if (target is RectTransform rect)
-            {
-                var canvas = rect.GetComponentInParent<Canvas>(includeInactive: true);
-                bool forceAnchored = canvas != null && canvas.renderMode != RenderMode.WorldSpace;
-
-                if (forceAnchored)
-                {
-                    // Force UI anchored positioning (treat Position as anchored space).
-                    rect.anchoredPosition3D = spawnParams.Position;
-                    rect.anchoredPosition = new Vector2(spawnParams.Position.x, spawnParams.Position.y);
-                    rect.localRotation = spawnParams.Rotation;
-                }
-                else if (spawnParams.WorldSpace)
-                {
-                    // World-space (including WorldSpace canvas): use world pose.
-                    rect.SetPositionAndRotation(spawnParams.Position, spawnParams.Rotation);
-
-                    // Keep anchoredPosition consistent with the resulting local pose.
-                    var localPos = rect.localPosition;
-                    rect.anchoredPosition3D = localPos;
-                    rect.anchoredPosition = new Vector2(localPos.x, localPos.y);
-                }
-                else
-                {
-                    // Local-space spawn.
-                    rect.localPosition = spawnParams.Position;
-                    rect.localRotation = spawnParams.Rotation;
-                    rect.anchoredPosition3D = spawnParams.Position;
-                    rect.anchoredPosition = new Vector2(spawnParams.Position.x, spawnParams.Position.y);
-                }
-
-                rect.localScale = scale;
-            }
-            else
-            {
-                if (spawnParams.WorldSpace)
-                {
-                    target.SetPositionAndRotation(spawnParams.Position, spawnParams.Rotation);
-                }
-                else
-                {
-                    target.localPosition = spawnParams.Position;
-                    target.localRotation = spawnParams.Rotation;
-                }
-
-                target.localScale = scale;
-            }
         }
 
         public UniTask WarmupAsync<T>(T template, int count, System.Threading.CancellationToken ct = default) where T : BaseRuntimeTemplateSO

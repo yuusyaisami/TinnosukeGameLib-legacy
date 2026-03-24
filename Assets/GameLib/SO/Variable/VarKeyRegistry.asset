@@ -657,30 +657,6 @@ MonoBehaviour:
     varId: 76
     stableKey: SetActive
     aliases: []
-  - id: 21a391c832474f06a88b87510d9823fe
-    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
-    name: GameProfiles
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: a0c57d318be247e1a08353516aff6b8e
-    parentId: 21a391c832474f06a88b87510d9823fe
-    name: PlayerGameAction
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: bfe8c11fcb354318895e56c2ae5178a0
-    parentId: a0c57d318be247e1a08353516aff6b8e
-    name: currentGageColor
-    isFolder: 0
-    description: 
-    varId: 79
-    stableKey: currentGageColor
-    aliases: []
   - id: 6ac76fc1224c4a7286f136c03634d027
     parentId: 7116b4d0effe453eb0ea9660785b1af7
     name: nodeId
@@ -2209,55 +2185,6 @@ MonoBehaviour:
     stableKey: GameLib.Base.Transform.Rotation.Local.z
     aliases:
     - z
-  - id: 328cf199f92a4be884e3391e97b71c95
-    parentId: 21a391c832474f06a88b87510d9823fe
-    name: Player
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: 54b50679377d45d5b3caf39e5f9e82a4
-    parentId: 21a391c832474f06a88b87510d9823fe
-    name: Game
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: cecc2ea383474dceafdfa5b9b609ba47
-    parentId: 54b50679377d45d5b3caf39e5f9e82a4
-    name: heightSaturn
-    isFolder: 0
-    description: 
-    varId: 222
-    stableKey: heightSaturn
-    aliases: []
-  - id: bf2b7db5d55947d0aed830181a86748d
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: MoneyBag
-    isFolder: 0
-    description: 
-    varId: 224
-    stableKey: MoneyBag
-    aliases: []
-  - id: 01fffd4caed14d89b5544c1bf20a1db2
-    parentId: b6136248df3e42aa85d07ae4d330becc
-    name: itemScore
-    isFolder: 0
-    description: 
-    varId: 225
-    stableKey: GameLogic.GameProfiles.Player.Items.itemScore
-    aliases:
-    - itemScore
-  - id: 8b52fe81bbd94b83bbaa687a527eb015
-    parentId: b6136248df3e42aa85d07ae4d330becc
-    name: List
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
   - id: 4619af0262e0463c85bdcd1a790bfe05
     parentId: 8cc679f79390493faf2b2dc3fe243272
     name: A
@@ -2313,38 +2240,6 @@ MonoBehaviour:
     description: 
     varId: 232
     stableKey: G
-    aliases: []
-  - id: bed35adcc8464f89938a9d7f618f3ce6
-    parentId: 54b50679377d45d5b3caf39e5f9e82a4
-    name: CheckPoint
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: 00f6f951386b4fb68d5376b647b0e622
-    parentId: bed35adcc8464f89938a9d7f618f3ce6
-    name: maxCheckPoint
-    isFolder: 0
-    description: "\u5230\u9054\u3057\u305F\u6700\u5927\u30C1\u30A7\u30C3\u30AF\u30DD\u30A4\u30F3\u30C8(value*100)m"
-    varId: 233
-    stableKey: maxCheckPoint
-    aliases: []
-  - id: 23cad7090b30442ea7ad348cdc8b03d7
-    parentId: bed35adcc8464f89938a9d7f618f3ce6
-    name: lastCheckPoint
-    isFolder: 0
-    description: "\u6700\u5F8C\u306B\u8A2A\u308C\u305F\u30C1\u30A7\u30C3\u30AF\u30DD\u30A4\u30F3\u30C8"
-    varId: 234
-    stableKey: lastCheckPoint
-    aliases: []
-  - id: b1cd180a45734a1cbbb58844d6053fab
-    parentId: bed35adcc8464f89938a9d7f618f3ce6
-    name: currentCheckPoint
-    isFolder: 0
-    description: 
-    varId: 235
-    stableKey: currentCheckPoint
     aliases: []
   - id: 690fa4a5c9c648cf8d2dc3bf8ae8c488
     parentId: 5a82fbdd83034a54b59bb48263d10fe7
@@ -2483,6 +2378,15 @@ MonoBehaviour:
     varId: 242
     stableKey: definitionAsset
     aliases: []
+  - id: 7caa8f9b9f7546dea3c0d4b34df7cd7d
+    parentId: 690fa4a5c9c648cf8d2dc3bf8ae8c488
+    name: weight
+    isFolder: 0
+    description: 
+    varId: 100122
+    stableKey: GameLib.Base.Trait.Element.weight
+    aliases:
+    - weight
   - id: 9c766b1898d84480872a77d1adc523d5
     parentId: 0d1c30eb9d6544799f2727dce91ee5d0
     name: effectId
@@ -2687,111 +2591,6 @@ MonoBehaviour:
     varId: 246
     stableKey: heldCount
     aliases: []
-  - id: 6cdc5c15f9d542b1b1d26bacccb6b3ee
-    parentId: 328cf199f92a4be884e3391e97b71c95
-    name: totalScore
-    isFolder: 0
-    description: 
-    varId: 217
-    stableKey: totalScore
-    aliases: []
-  - id: 5d4b01474cd34df48905ef73ed5421d4
-    parentId: 328cf199f92a4be884e3391e97b71c95
-    name: heightScore
-    isFolder: 0
-    description: 
-    varId: 218
-    stableKey: heightScore
-    aliases: []
-  - id: 2b15ab71c7b54f119db35dc20484b2d6
-    parentId: 328cf199f92a4be884e3391e97b71c95
-    name: itemScore
-    isFolder: 0
-    description: 
-    varId: 219
-    stableKey: GameLogic.GameProfiles.Player.itemScore
-    aliases:
-    - itemScore
-  - id: db5f105a825641eab2b1f6d0276e8689
-    parentId: 328cf199f92a4be884e3391e97b71c95
-    name: timeScore
-    isFolder: 0
-    description: 
-    varId: 247
-    stableKey: timeScore
-    aliases: []
-  - id: a3d4af32b57e4a69becf4fa00c403a87
-    parentId: 328cf199f92a4be884e3391e97b71c95
-    name: eventScore
-    isFolder: 0
-    description: 
-    varId: 220
-    stableKey: eventScore
-    aliases: []
-  - id: 57c9b2770b244a5c9a2ae2b4cc29eaf5
-    parentId: 328cf199f92a4be884e3391e97b71c95
-    name: gamePlayTimer
-    isFolder: 0
-    description: 
-    varId: 221
-    stableKey: gamePlayTimer
-    aliases: []
-  - id: 1a6c18c27d9d48eabf7bbe0140dc8c9a
-    parentId: 328cf199f92a4be884e3391e97b71c95
-    name: gameOverReason
-    isFolder: 0
-    description: 
-    varId: 223
-    stableKey: gameOverReason
-    aliases: []
-  - id: b6136248df3e42aa85d07ae4d330becc
-    parentId: 328cf199f92a4be884e3391e97b71c95
-    name: Items
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: 4527717abd5e478ebac4de1e34831a9a
-    parentId: bed35adcc8464f89938a9d7f618f3ce6
-    name: startCheckPoint
-    isFolder: 0
-    description: "\u30B2\u30FC\u30E0\u958B\u59CB\u6642\u306E\u30B9\u30BF\u30FC\u30C8\u30DD\u30A4\u30F3\u30C80\u304B\u30896\u307E\u3067\uFF01"
-    varId: 248
-    stableKey: startCheckPoint
-    aliases: []
-  - id: f93a61366f974ad49afbdcc3239853f3
-    parentId: 54b50679377d45d5b3caf39e5f9e82a4
-    name: Stage
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: 816e712a40a04784be6b97663b0c30d0
-    parentId: f93a61366f974ad49afbdcc3239853f3
-    name: Stage2BossEntry
-    isFolder: 0
-    description: 
-    varId: 249
-    stableKey: Stage2BossEntry
-    aliases: []
-  - id: 8501936415524fc883aa3a01e09ac26a
-    parentId: f93a61366f974ad49afbdcc3239853f3
-    name: Stage2BossEnd
-    isFolder: 0
-    description: 
-    varId: 250
-    stableKey: Stage2BossEnd
-    aliases: []
-  - id: 747ed64c5d2344849bfc1a586b4dbb9d
-    parentId: 54b50679377d45d5b3caf39e5f9e82a4
-    name: isGameOver
-    isFolder: 0
-    description: 
-    varId: 251
-    stableKey: isGameOver
-    aliases: []
   - id: 4df74aee17ac4404b2547f946d1737ba
     parentId: 569c90ac79dc4aa0968ffb564ae5ae32
     name: CommandVar
@@ -2808,161 +2607,23 @@ MonoBehaviour:
     varId: 252
     stableKey: i
     aliases: []
-  - id: e0e67bddbd2e413f95afae949bfdd121
-    parentId: f93a61366f974ad49afbdcc3239853f3
-    name: Stage4TestEntry
-    isFolder: 0
-    description: 
-    varId: 253
-    stableKey: Stage4TestEntry
-    aliases: []
-  - id: 15a96882cdb443d6b640b47c8d1a1792
-    parentId: f93a61366f974ad49afbdcc3239853f3
-    name: Stage4TestEnd
-    isFolder: 0
-    description: 
-    varId: 254
-    stableKey: Stage4TestEnd
-    aliases: []
-  - id: 391ccc893c12409d94b2b5c340321c29
-    parentId: f93a61366f974ad49afbdcc3239853f3
-    name: Traps
+  - id: 550c79e9f5644ddbbe60095b28fc9b2b
+    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
+    name: NailProfile
     isFolder: 1
     description: 
     varId: 0
     stableKey: 
     aliases: []
-  - id: f6e642a6b4e84332b5f91ab1ecb0fe94
-    parentId: 391ccc893c12409d94b2b5c340321c29
-    name: isTrap1
+  - id: be487a3998574868b0bd22f10839f504
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Price
     isFolder: 0
     description: 
-    varId: 255
-    stableKey: isTrap1
-    aliases:
-    - Trap1
-    - iTrap1
-  - id: 1bc80c9a8071462d8c81cc271ba9f1b9
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: SimCard
-    isFolder: 0
-    description: 
-    varId: 256
-    stableKey: SimCard
+    varId: 100121
+    stableKey: Value
     aliases: []
-  - id: c5838993bc074b039da730c58e09da23
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: GameBody
-    isFolder: 0
-    description: 
-    varId: 257
-    stableKey: GameBody
-    aliases: []
-  - id: 8304239c451a464f84e17b3ae9189efe
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: BanaPan
-    isFolder: 0
-    description: 
-    varId: 258
-    stableKey: BanaPan
-    aliases: []
-  - id: 555efb66f12f43a78fc6ced388740cf9
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: Coffee
-    isFolder: 0
-    description: 
-    varId: 259
-    stableKey: Coffee
-    aliases: []
-  - id: a14782f309b3407a818cb3bc529822d8
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: GanbaRirie
-    isFolder: 0
-    description: 
-    varId: 260
-    stableKey: GanbaRirie
-    aliases: []
-  - id: 62205b1e035147b1a4716677dec21a4f
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: CPlus
-    isFolder: 0
-    description: 
-    varId: 261
-    stableKey: CPlus
-    aliases: []
-  - id: 83c5424046c5436b9d71dea3654772c5
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: Monster
-    isFolder: 0
-    description: 
-    varId: 262
-    stableKey: Monster
-    aliases: []
-  - id: 0c8a84c90f9e4d04ba26325fb05d4f48
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: NecoArc
-    isFolder: 0
-    description: 
-    varId: 263
-    stableKey: NecoArc
-    aliases: []
-  - id: 75c10f3ee28c46888525c76d8aceffdb
-    parentId: 54b50679377d45d5b3caf39e5f9e82a4
-    name: ContinueCount
-    isFolder: 0
-    description: 
-    varId: 264
-    stableKey: ContinueCount
-    aliases: []
-  - id: 2a143613cb6d45efac4142152562f9f6
-    parentId: 54b50679377d45d5b3caf39e5f9e82a4
-    name: NoContinueBonus
-    isFolder: 0
-    description: 
-    varId: 265
-    stableKey: NoContinueBonus
-    aliases: []
-  - id: 1d7fe7eeb2b441a3974cfc6d13660ddc
-    parentId: 54b50679377d45d5b3caf39e5f9e82a4
-    name: Score
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: 072cdfe037d84703ae61e99383f914ed
-    parentId: 1d7fe7eeb2b441a3974cfc6d13660ddc
-    name: bestScore
-    isFolder: 0
-    description: 
-    varId: 266
-    stableKey: bestScore
-    aliases: []
-  - id: 91a1415e687c46e8ab5863c09cc7a348
-    parentId: 1d7fe7eeb2b441a3974cfc6d13660ddc
-    name: bestHeight
-    isFolder: 0
-    description: 
-    varId: 267
-    stableKey: bestHeight
-    aliases: []
-  - id: 07d815de3417468aa1a1f4946b36bc14
-    parentId: 1d7fe7eeb2b441a3974cfc6d13660ddc
-    name: totalRetryCount
-    isFolder: 0
-    description: 
-    varId: 268
-    stableKey: totalRetryCount
-    aliases: []
-  - id: cbfac7fb865d459f9230553f1d6d708c
-    parentId: 8b52fe81bbd94b83bbaa687a527eb015
-    name: Knife
-    isFolder: 0
-    description: 
-    varId: 269
-    stableKey: Knife
-    aliases: []
-  nextVarId: 270
+  nextVarId: 100123
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount
@@ -3039,5 +2700,114 @@ MonoBehaviour:
     aliases: []
   - varId: 214
     stableKey: x
+    aliases: []
+  - varId: 269
+    stableKey: Knife
+    aliases: []
+  - varId: 268
+    stableKey: totalRetryCount
+    aliases: []
+  - varId: 267
+    stableKey: bestHeight
+    aliases: []
+  - varId: 266
+    stableKey: bestScore
+    aliases: []
+  - varId: 265
+    stableKey: NoContinueBonus
+    aliases: []
+  - varId: 264
+    stableKey: ContinueCount
+    aliases: []
+  - varId: 263
+    stableKey: NecoArc
+    aliases: []
+  - varId: 262
+    stableKey: Monster
+    aliases: []
+  - varId: 261
+    stableKey: CPlus
+    aliases: []
+  - varId: 260
+    stableKey: GanbaRirie
+    aliases: []
+  - varId: 259
+    stableKey: Coffee
+    aliases: []
+  - varId: 258
+    stableKey: BanaPan
+    aliases: []
+  - varId: 257
+    stableKey: GameBody
+    aliases: []
+  - varId: 256
+    stableKey: SimCard
+    aliases: []
+  - varId: 255
+    stableKey: isTrap1
+    aliases:
+    - Trap1
+    - iTrap1
+  - varId: 254
+    stableKey: Stage4TestEnd
+    aliases: []
+  - varId: 253
+    stableKey: Stage4TestEntry
+    aliases: []
+  - varId: 251
+    stableKey: isGameOver
+    aliases: []
+  - varId: 250
+    stableKey: Stage2BossEnd
+    aliases: []
+  - varId: 249
+    stableKey: Stage2BossEntry
+    aliases: []
+  - varId: 248
+    stableKey: startCheckPoint
+    aliases: []
+  - varId: 223
+    stableKey: gameOverReason
+    aliases: []
+  - varId: 221
+    stableKey: gamePlayTimer
+    aliases: []
+  - varId: 220
+    stableKey: eventScore
+    aliases: []
+  - varId: 247
+    stableKey: timeScore
+    aliases: []
+  - varId: 219
+    stableKey: GameLogic.GameProfiles.Player.itemScore
+    aliases:
+    - itemScore
+  - varId: 218
+    stableKey: heightScore
+    aliases: []
+  - varId: 217
+    stableKey: totalScore
+    aliases: []
+  - varId: 235
+    stableKey: currentCheckPoint
+    aliases: []
+  - varId: 234
+    stableKey: lastCheckPoint
+    aliases: []
+  - varId: 233
+    stableKey: maxCheckPoint
+    aliases: []
+  - varId: 225
+    stableKey: GameLogic.GameProfiles.Player.Items.itemScore
+    aliases:
+    - itemScore
+  - varId: 224
+    stableKey: MoneyBag
+    aliases: []
+  - varId: 222
+    stableKey: heightSaturn
+    aliases: []
+  - varId: 79
+    stableKey: currentGageColor
     aliases: []
   csvFile: {fileID: 0}

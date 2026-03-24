@@ -72,6 +72,21 @@ namespace Game.Movement
         [ShowIf(nameof(outputDirection))]
         [SerializeField] int directionPriority;
 
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            if (monitorRules == null || monitorRules.Length == 0)
+                return;
+
+            for (int i = 0; i < monitorRules.Length; i++)
+            {
+                var rule = monitorRules[i];
+                rule.EnsureDefaults();
+                monitorRules[i] = rule;
+            }
+        }
+#endif
+
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
             if (profile == null)

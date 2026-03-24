@@ -29,7 +29,6 @@ MonoBehaviour:
           _functionName: Command.Function.Body
           _commands:
           - rid: 5619052366731149483
-          - rid: 5619052366731149613
     - rid: 5619052366731149483
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -270,6 +269,31 @@ MonoBehaviour:
                 rid: 5619052366731149498
               _defaultValue: 0
             FadeEase: 27
+          - Key: BaseShader/AdvancedFade2D/Soft
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5619052416848363713
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052416848363714
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052416848363715
+              _defaultValue: 0
+            FadeEase: 0
     - rid: 5619052366731149490
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -362,138 +386,15 @@ MonoBehaviour:
         createIfMissing: 0
         baselineValue: 0
         searchIncludeGlobal: 0
-    - rid: 5619052366731149613
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+    - rid: 5619052416848363713
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        enabled: 1
-        data:
-          rid: 5619052366731149614
-    - rid: 5619052366731149614
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+        value: 0
+    - rid: 5619052416848363714
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        Label: CommandDebug
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches:
-        - Label: 
-          Value:
-            _source:
-              rid: 5619052366731149615
-          IncludeSourceInfo: 1
-        - Label: 
-          Value:
-            _source:
-              rid: 5619052366731149618
-          IncludeSourceInfo: 1
-        - Label: 
-          Value:
-            _source:
-              rid: 5619052366731149619
-          IncludeSourceInfo: 1
-    - rid: 5619052366731149615
-      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: 0
+    - rid: 5619052416848363715
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        _allowImplicitVariablesFromContext: 1
-        _variables:
-        - _value:
-            _source:
-              rid: 5619052366731149616
-          _useScalarLeafKey: 1
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        - _value:
-            _source:
-              rid: 5619052366731149617
-          _useScalarLeafKey: 1
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        _expression: 1 - (Value / MaxValue)
-    - rid: 5619052366731149616
-      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: -1391682985
-          Name: GameLogic.BallProfile.Value
-        targetActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 0
-        createIfMissing: 0
-        baselineValue: 0
-        searchIncludeGlobal: 0
-    - rid: 5619052366731149617
-      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: -1973269918
-          Name: GameLogic.BallProfile.MaxValue
-        targetActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 0
-        createIfMissing: 0
-        baselineValue: 0
-        searchIncludeGlobal: 0
-    - rid: 5619052366731149618
-      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: -1391682985
-          Name: GameLogic.BallProfile.Value
-        targetActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 0
-        createIfMissing: 0
-        baselineValue: 0
-        searchIncludeGlobal: 0
-    - rid: 5619052366731149619
-      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: -1973269918
-          Name: GameLogic.BallProfile.MaxValue
-        targetActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 0
-        createIfMissing: 0
-        baselineValue: 0
-        searchIncludeGlobal: 0
+        value: 0

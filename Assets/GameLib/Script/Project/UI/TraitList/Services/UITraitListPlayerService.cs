@@ -47,6 +47,7 @@ namespace Game.UI.TraitList
 
         ITraitHolderService? _boundHolder;
         string _boundHolderKey = string.Empty;
+        ITraitPlacementService? _placementService;
 
         public UITraitListRuntime? CurrentRuntime => _builder.CurrentRuntime;
         public ITraitHolderService? BoundHolder => _boundHolder;
@@ -159,9 +160,22 @@ namespace Game.UI.TraitList
             IScopeNode scopeParent,
             CancellationToken ct)
         {
-            var runtime = await _builder.BuildAsync(profile, holder, holderKey, range, parent, scopeParent, ct);
+            var placementService = await ResolvePlacementServiceAsync(ct);
+            var runtime = await _builder.BuildAsync(
+                profile,
+                holder,
+                holderKey,
+                range,
+                parent,
+                scopeParent,
+                placementService,
+                _options.HideVisiblePlacedTraits,
+                ct);
             if (runtime != null)
+            {
                 BindHolder(holder, holderKey);
+                BindPlacementService(placementService);
+            }
             return runtime;
         }
 
@@ -225,6 +239,7 @@ namespace Game.UI.TraitList
                 _boundHolder.OnTraitsChanged -= OnTraitsChanged;
             _boundHolder = null;
             _boundHolderKey = string.Empty;
+            UnbindPlacementService();
         }
 
         void OnTraitsChanged(IReadOnlyList<ITraitInstance> traits)
@@ -241,6 +256,68 @@ namespace Game.UI.TraitList
                 catch (Exception ex)
                 {
                     Debug.LogError($"[UITraitListPlayer] Refresh failed: {ex.Message}");
+                }
+            });
+        }
+
+        async UniTask<ITraitPlacementService?> ResolvePlacementServiceAsync(CancellationToken ct)
+        {
+            if (!_options.HideVisiblePlacedTraits)
+                return null;
+
+            var ctx = new CommandContext(_owner, new VarStore(), _runner);
+            var (hubScope, _) = await ActorScopeResolver.ResolveAsync(_options.HolderHubSource, ctx, ct);
+            if (hubScope == null)
+                return null;
+
+            EnsureScopeBuiltIfNeeded(hubScope);
+            if (hubScope.Resolver == null)
+                return null;
+
+            if (hubScope.Resolver.TryResolve<ITraitPlacementService>(out var placementService) && placementService != null)
+                return placementService;
+
+            return null;
+        }
+
+        void BindPlacementService(ITraitPlacementService? placementService)
+        {
+            if (ReferenceEquals(_placementService, placementService))
+                return;
+
+            UnbindPlacementService();
+            _placementService = placementService;
+            if (_placementService != null)
+                _placementService.OnPresentationStateChanged += OnPlacementPresentationStateChanged;
+        }
+
+        void UnbindPlacementService()
+        {
+            if (_placementService != null)
+                _placementService.OnPresentationStateChanged -= OnPlacementPresentationStateChanged;
+            _placementService = null;
+        }
+
+        void OnPlacementPresentationStateChanged(TraitRuntimePresentationChange change)
+        {
+            if (!_options.HideVisiblePlacedTraits)
+                return;
+
+            if (!string.Equals(_boundHolderKey, change.HolderKey, StringComparison.Ordinal))
+                return;
+
+            UniTask.Void(async () =>
+            {
+                try
+                {
+                    await _builder.RefreshAsync(UITraitListRefreshMode.Incremental, CancellationToken.None);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[UITraitListPlayer] Placement refresh failed: {ex.Message}");
                 }
             });
         }

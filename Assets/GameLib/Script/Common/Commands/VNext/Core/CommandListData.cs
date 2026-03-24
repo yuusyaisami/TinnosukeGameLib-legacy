@@ -18,6 +18,32 @@ namespace Game.Commands.VNext
         }
     }
 
+    public enum CommandListMutationOperation
+    {
+        Append = 0,
+        Override = 1,
+        ClearAppended = 2,
+        ClearOverride = 3,
+        ClearAll = 4,
+    }
+
+    [Serializable]
+    public sealed class CommandListMutationStep
+    {
+        [LabelText("Operation")]
+        [Tooltip("Append: runtime の末尾に追加します。Override: runtime 中の表示をこの Commands で置き換えます。ClearAppended: runtime 追加分だけ消します。ClearOverride: Override だけ消します。ClearAll: runtime mutation をすべて消します。Pool / Release 時は、この CommandListData を登録した scope の mutation service により自動で ClearAll されます。")]
+        public CommandListMutationOperation Operation = CommandListMutationOperation.Append;
+
+        [ShowIf(nameof(RequiresCommands))]
+        [LabelText("Commands")]
+        [CommandListFunctionName("CommandList.Mutation.Commands")]
+        public CommandListData Commands = new();
+
+        public bool RequiresCommands()
+            => Operation == CommandListMutationOperation.Append
+            || Operation == CommandListMutationOperation.Override;
+    }
+
     [Serializable]
     public sealed class CommandListData
     {
@@ -184,6 +210,43 @@ namespace Game.Commands.VNext
             _hasRuntimeOverride = false;
             _runtimeOverrideCommands = null;
             _runtimeAppendedCommands = null;
+        }
+
+        public bool ApplyRuntimeMutation(CommandListMutationStep? step, ICommandListRuntimeMutationService? mutationService = null)
+        {
+            if (step == null)
+                return false;
+
+            return ApplyRuntimeMutation(step.Operation, step.Commands, mutationService);
+        }
+
+        public bool ApplyRuntimeMutation(
+            CommandListMutationOperation operation,
+            CommandListData? commands,
+            ICommandListRuntimeMutationService? mutationService = null)
+        {
+            mutationService?.Register(this);
+
+            switch (operation)
+            {
+                case CommandListMutationOperation.Append:
+                    AddRuntimeCommands(commands);
+                    return true;
+                case CommandListMutationOperation.Override:
+                    SetRuntimeOverride(commands);
+                    return true;
+                case CommandListMutationOperation.ClearAppended:
+                    ClearRuntimeAppendedCommands();
+                    return true;
+                case CommandListMutationOperation.ClearOverride:
+                    ClearRuntimeOverride();
+                    return true;
+                case CommandListMutationOperation.ClearAll:
+                    ClearRuntimeMutations();
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         public void BindDebugOwner(UnityEngine.Object owner, string? fieldPath = null)

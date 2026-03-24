@@ -231,6 +231,8 @@ MonoBehaviour:
       requireActive: 0
       searchScope: 0
     UnityObject: {fileID: 0}
+    SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -252,9 +254,12 @@ MonoBehaviour:
     queryVarId: 0
     writeEntries: []
   autoWriteTransformVars: 0
-  initializeBaseLocalVars: 0
-  reinitializeBaseLocalVarsOnAcquire: 1
-  baseLocalVarEntries: []
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &6492978099401191921
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,6 +350,135 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5619052416848363729
+      type: {class: LiteralTransformAnimationPresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052416848363730
+    - rid: 5619052416848363730
+      type: {class: TransformAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        loop: 0
+        loopCount: -1
+        steps:
+        - operation: 5
+          duration:
+            _source:
+              rid: 5619052416848363731
+            _defaultValue: 0
+          ease: 1
+          relative: 0
+          fireAndForget: 0
+          ensureShortestLocalRotatePath: 0
+          vector3:
+            _source:
+              rid: -2
+            _defaultValue: {x: 0, y: 0, z: 0}
+          positionPathMode: 10
+          useBezierCurve: 1
+          curveControlSide: 1
+          curveHeight: 1
+          curveControlOffset: {x: 0, y: 0, z: 0}
+          curveSamplingCount: 16
+          polySides: 5
+          polyRadius: 1
+          polyRotationDeg: 0
+          polyDirection: 10
+          vector2:
+            _source:
+              rid: 5619052416848363733
+            _defaultValue: {x: 0, y: 0}
+          anchoredInputMode: 0
+          commandAwaitMode: 0
+          commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+        - operation: 6
+          duration:
+            _source:
+              rid: 5619052416848363734
+            _defaultValue: 0
+          ease: 1
+          relative: 0
+          fireAndForget: 0
+          ensureShortestLocalRotatePath: 0
+          vector3:
+            _source:
+              rid: -2
+            _defaultValue: {x: 0, y: 0, z: 0}
+          positionPathMode: 10
+          useBezierCurve: 1
+          curveControlSide: 1
+          curveHeight: 1
+          curveControlOffset: {x: 0, y: 0, z: 0}
+          curveSamplingCount: 16
+          polySides: 5
+          polyRadius: 1
+          polyRotationDeg: 0
+          polyDirection: 10
+          vector2:
+            _source:
+              rid: 5619052416848363736
+            _defaultValue: {x: 0, y: 0}
+          anchoredInputMode: 0
+          commandAwaitMode: 0
+          commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    - rid: 5619052416848363731
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052416848363733
+      type: {class: VisualBoundsValue2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        boundsOwnerActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        space: 0
+        anchor: 0
+        rebuildBeforeRead: 1
+        multiplier: 1
+        offset: {x: 0, y: 0}
+        fallback: {x: 0, y: 0}
+    - rid: 5619052416848363734
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052416848363736
+      type: {class: VisualBoundsValue2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        boundsOwnerActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        space: 0
+        anchor: 1
+        rebuildBeforeRead: 0
+        multiplier: 1
+        offset: {x: 0, y: 0}
+        fallback: {x: 0, y: 0}
     - rid: 7292587277246791877
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -365,79 +499,13 @@ MonoBehaviour:
           RotationAmplitudeDeg: 2
           DurationSeconds: 0
         Preset:
-          loop: 0
-          loopCount: -1
-          steps:
-          - operation: 5
-            duration:
-              _source:
-                rid: 7292587277246791879
-              _defaultValue: 0
-            ease: 1
-            relative: 0
-            fireAndForget: 0
-            ensureShortestLocalRotatePath: 0
-            vector3:
-              _source:
-                rid: -2
-              _defaultValue: {x: 0, y: 0, z: 0}
-            positionPathMode: 10
-            useBezierCurve: 1
-            curveControlSide: 1
-            curveHeight: 1
-            curveControlOffset: {x: 0, y: 0, z: 0}
-            curveSamplingCount: 16
-            polySides: 5
-            polyRadius: 1
-            polyRotationDeg: 0
-            polyDirection: 10
-            vector2:
-              _source:
-                rid: 7292587277246791880
-              _defaultValue: {x: 0, y: 0}
-            anchoredInputMode: 0
-            commandAwaitMode: 0
-            commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          - operation: 6
-            duration:
-              _source:
-                rid: 7292587277246791881
-              _defaultValue: 0
-            ease: 1
-            relative: 0
-            fireAndForget: 0
-            ensureShortestLocalRotatePath: 0
-            vector3:
-              _source:
-                rid: -2
-              _defaultValue: {x: 0, y: 0, z: 0}
-            positionPathMode: 10
-            useBezierCurve: 1
-            curveControlSide: 1
-            curveHeight: 1
-            curveControlOffset: {x: 0, y: 0, z: 0}
-            curveSamplingCount: 16
-            polySides: 5
-            polyRadius: 1
-            polyRotationDeg: 0
-            polyDirection: 10
-            vector2:
-              _source:
-                rid: 7292587277246791882
-              _defaultValue: {x: 0, y: 0}
-            anchoredInputMode: 0
-            commandAwaitMode: 0
-            commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
+          _source:
+            rid: 5619052416848363729
+          _defaultValue:
+            loop: 0
+            loopCount: -1
+            steps: []
+        PresetExecutionPolicy: 10
         WaitForCompletion: 1
         FollowAction: 0
         FollowAwaitMode: 1
@@ -471,50 +539,6 @@ MonoBehaviour:
           VelocitySourceType: 0
           LimitTurnRate: 0
           TurnRate: 360
-    - rid: 7292587277246791879
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 7292587277246791880
-      type: {class: VisualBoundsValue2Source, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        boundsOwnerActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-        space: 0
-        anchor: 0
-        rebuildBeforeRead: 0
-        multiplier: 1
-        offset: {x: 0, y: 0}
-        fallback: {x: 0, y: 0}
-    - rid: 7292587277246791881
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 7292587277246791882
-      type: {class: VisualBoundsValue2Source, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        boundsOwnerActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-        space: 0
-        anchor: 1
-        rebuildBeforeRead: 0
-        multiplier: 1
-        offset: {x: 0, y: 0}
-        fallback: {x: 0, y: 0}
 --- !u!1 &5265970239230943650
 GameObject:
   m_ObjectHideFlags: 0
@@ -647,9 +671,6 @@ MonoBehaviour:
       assetPreset: {fileID: 0}
       inlinePreset:
         rid: 7292587181578649756
-    kernelBindEnabled: 0
-    initialKernelTag: 
-    atlasSlotIndex: 0
   hubTag: default
   references:
     version: 2
@@ -795,10 +816,57 @@ MonoBehaviour:
     materialFxPresetEntries: []
     useRichTextAnimator: 0
     useTypewriter: 0
+    typewriterEventCommands:
+      Apply: 0
+      OnTypewriterStart:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextShowed:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextDisappeared:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterVisible:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitStarted:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitFinished:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnMessage:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
     useCounter: 0
     counterEase: 6
     counterDurationSeconds: 0.5
     counterUseUnscaledTime: 0
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &2531006373521767799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -906,6 +974,8 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
         space: 0
         anchor: 0
         rebuildBeforeRead: 0

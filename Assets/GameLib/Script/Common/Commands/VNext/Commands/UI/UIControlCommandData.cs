@@ -44,12 +44,17 @@ namespace Game.Commands.VNext
                 var targetLabel = ActorSourceOdinLabelHelper.GetLabel("Target", Target);
                 var thenCount = Then?.Count ?? 0;
                 var stackLabel = string.IsNullOrEmpty(StackKey) ? "" : $" Stack={StackKey}";
-                return $"{targetLabel} Op={Operation}{stackLabel} Then={thenCount}";
+                var uiScopeLabel = string.IsNullOrEmpty(UILifetimeScopeId) ? "" : $" UILTS={UILifetimeScopeId}";
+                return $"{targetLabel} Op={Operation}{stackLabel}{uiScopeLabel} Then={thenCount}";
             }
         }
 
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
         public ActorSource Target;
+
+        [LabelText("UI LTS Id")]
+        [Tooltip("空なら Target と同じスコープを使います。指定時は、その UILifetimeScope の UI サービスを対象にします。")]
+        public string UILifetimeScopeId = string.Empty;
 
         [LabelText("Operation")]
         public UIControlOperation Operation;

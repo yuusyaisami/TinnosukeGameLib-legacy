@@ -98,6 +98,17 @@ namespace Game.Channel
             return true;
         }
 
+        public bool ContainsPosition(string tag, Vector3 worldPosition)
+        {
+            if (!TryGetPlayer(tag, out var player) || player == null)
+                return false;
+
+            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+                return false;
+
+            return player.ContainsPosition(basePosition, worldPosition);
+        }
+
         public bool TryGetChannelDef(string tag, out ChannelDefBase def)
         {
             if (string.IsNullOrWhiteSpace(tag))

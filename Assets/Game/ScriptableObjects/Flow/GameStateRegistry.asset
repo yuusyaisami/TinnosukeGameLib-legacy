@@ -13,13 +13,6 @@ MonoBehaviour:
   m_Name: GameStateRegistry
   m_EditorClassIdentifier: Assembly-CSharp::Game.Actions.GameStateRegistry
   nodes:
-  - id: 42dcf73245794267a28be812f3c86dde
-    parentId: 
-    name: GameScene
-    isFolder: 1
-    description: 
-    stateId: 0
-    note: 
   - id: 0b7719a2f8aa4eadb4317105f66bfc9a
     parentId: 42dcf73245794267a28be812f3c86dde
     name: Tutorial
@@ -43,14 +36,14 @@ MonoBehaviour:
     note: 
   - id: 489cba5135464264b563667a4781209c
     parentId: 521bf67960b54cdbab6edcb48552acff
-    name: SelectNail
+    name: SelectUpgrade
     isFolder: 0
     description: 
     stateId: 13
     note: 
   - id: 707543ecf05243798083e4370ab4dd76
     parentId: 521bf67960b54cdbab6edcb48552acff
-    name: CustomNailField
+    name: GameEditor
     isFolder: 0
     description: 
     stateId: 14
@@ -69,4 +62,25 @@ MonoBehaviour:
     description: 
     stateId: 16
     note: 
-  nextStateId: 17
+  - id: 362b7160ed854a668c2b2800083545de
+    parentId: 
+    name: Default
+    isFolder: 0
+    description: 
+    stateId: 17
+    note: 
+  - id: 42dcf73245794267a28be812f3c86dde
+    parentId: 
+    name: GameScene
+    isFolder: 1
+    description: 
+    stateId: 0
+    note: 
+  - id: abe847ec11b148beae724145a04c52fc
+    parentId: 521bf67960b54cdbab6edcb48552acff
+    name: GameOver
+    isFolder: 0
+    description: 
+    stateId: 18
+    note: 
+  nextStateId: 19

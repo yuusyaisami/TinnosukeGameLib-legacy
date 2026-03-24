@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
+using Game.Commands.VNext;
 using Game.Common;
 using Game.Scalar;
 
@@ -14,9 +15,9 @@ namespace Game.UI
           IScopeAcquireHandler,
           IScopeReleaseHandler
     {
-        readonly IScopeNode _owner;
         readonly IUISliderValueOptions _options;
         readonly Slider _slider;
+        IDynamicContext? _dynamicContext;
 
         float _rawValue;
         float _normalizedValue;
@@ -32,11 +33,13 @@ namespace Game.UI
 
         IBaseScalarService? _scalarService;
         IDisposable? _scalarSubscription;
+        ActorSourceResolveCache _scalarBindingSourceCache;
         bool _suppressScalarEcho;
         float _lastScalarWrite;
 
         IVarStore? _blackboardVars;
         int _blackboardVarId;
+        ActorSourceResolveCache _blackboardBindingSourceCache;
         bool _suppressVarEcho;
         int _lastVarWriteVersion;
 
@@ -46,9 +49,8 @@ namespace Game.UI
         public float RawValue => _rawValue;
         public bool IsEditing => _isEditing;
 
-        public UISliderService(IScopeNode owner, IUISliderValueOptions options, Slider slider)
+        public UISliderService(IUISliderValueOptions options, Slider slider)
         {
-            _owner = owner;
             _options = options;
             _slider = slider;
         }
@@ -56,7 +58,7 @@ namespace Game.UI
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
             UnsubscribeExternal();
-            ResolveBindings();
+            ResolveBindings(scope);
             SubscribeExternal();
             InitializeValue();
         }
@@ -64,8 +66,15 @@ namespace Game.UI
         public void OnRelease(IScopeNode scope, bool isReset)
         {
             UnsubscribeExternal();
+            _dynamicContext = null;
             _isEditing = false;
             _pendingExternalResync = false;
+            _suppressScalarEcho = false;
+            _lastScalarWrite = 0f;
+            _suppressVarEcho = false;
+            _lastVarWriteVersion = 0;
+            _scalarBindingSourceCache = default;
+            _blackboardBindingSourceCache = default;
         }
 
         public void RequestBeginEdit(UISliderEditMode mode)
@@ -103,7 +112,8 @@ namespace Game.UI
         {
             if (!_isEditing || !_options.IsEditable) return;
 
-            float raw = Mathf.Lerp(GetMinValue(), GetMaxValue(), Mathf.Clamp01(normalized));
+            GetValueRange(out var min, out var max);
+            float raw = Mathf.Lerp(min, max, Mathf.Clamp01(normalized));
             SetRawValue(raw, source, allowExternalWrite: true);
         }
 
@@ -119,30 +129,37 @@ namespace Game.UI
             SetRawValue(raw, source, allowExternalWrite: true);
         }
 
-        void ResolveBindings()
+        void ResolveBindings(IScopeNode scope)
         {
             _scalarService = null;
             _blackboardVars = null;
             _blackboardVarId = 0;
+            _dynamicContext = null;
 
-            var resolver = _owner.Resolver;
-            if (resolver == null) return;
+            if (scope == null)
+                return;
+
+            var resolver = scope.Resolver;
+
+            IVarStore vars = NullVarStore.Instance;
+            if (resolver != null &&
+                resolver.TryResolve<IVarStore>(out var resolvedVars) &&
+                resolvedVars != null)
+                vars = resolvedVars;
+
+            _dynamicContext = new SimpleDynamicContext(vars, scope);
 
             if (_options.UseScalarBinding && _options.ScalarKey.Id != 0)
             {
-                if (resolver.TryResolve<IBaseScalarService>(out var scalar) && scalar != null)
+                if (TryResolveScalarService(scope, out var scalar))
                     _scalarService = scalar;
             }
 
             if (_options.UseBlackboardBinding)
             {
-                if (resolver.TryResolve<IBlackboardService>(out var bb) && bb != null)
-                {
-                    _blackboardVars = bb.LocalVars;
-                    _blackboardVarId = ResolveVarId(_options.BlackboardKey);
-                    if (_blackboardVarId == 0)
-                        _blackboardVars = null;
-                }
+                _blackboardVarId = ResolveVarId(_options.BlackboardKey);
+                if (_blackboardVarId != 0 && TryResolveBlackboardVars(scope, out var blackboardVars))
+                    _blackboardVars = blackboardVars;
             }
         }
 
@@ -168,13 +185,50 @@ namespace Game.UI
             _blackboardVarId = 0;
         }
 
+        bool TryResolveScalarService(IScopeNode scope, out IBaseScalarService? scalarService)
+        {
+            scalarService = null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(
+                scope,
+                _options.ScalarBindingSource,
+                ref _scalarBindingSourceCache);
+            if (targetScope?.Resolver == null)
+                return false;
+
+            if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var resolved) || resolved == null)
+                return false;
+
+            scalarService = resolved;
+            return true;
+        }
+
+        bool TryResolveBlackboardVars(IScopeNode scope, out IVarStore? blackboardVars)
+        {
+            blackboardVars = null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(
+                scope,
+                _options.BlackboardBindingSource,
+                ref _blackboardBindingSourceCache);
+            if (targetScope?.Resolver == null)
+                return false;
+
+            if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                return false;
+
+            blackboardVars = blackboard.LocalVars;
+            return blackboardVars != null;
+        }
+
         void InitializeValue()
         {
             _pendingExternalResync = false;
             _hasEmitted = false;
 
-            _slider.minValue = GetMinValue();
-            _slider.maxValue = GetMaxValue();
+            GetValueRange(out var minValue, out var maxValue);
+            _slider.minValue = minValue;
+            _slider.maxValue = maxValue;
 
             if (TryReadExternal(out var externalValue))
             {
@@ -182,7 +236,7 @@ namespace Game.UI
                 return;
             }
 
-            SetRawValue(_options.InitialValue, UISliderChangeSource.Initialization, allowExternalWrite: false);
+            SetRawValue(ResolveFloat(_options.InitialValue, 0f), UISliderChangeSource.Initialization, allowExternalWrite: false);
         }
 
         void SyncFromExternal()
@@ -347,11 +401,10 @@ namespace Game.UI
 
         float ApplySnap(float raw)
         {
-            float min = GetMinValue();
-            float max = GetMaxValue();
+            GetValueRange(out var min, out var max);
             raw = Mathf.Clamp(raw, min, max);
 
-            float step = Mathf.Max(0f, _options.Step);
+            float step = Mathf.Max(0f, ResolveFloat(_options.Step, 0f));
             if (step <= 0f)
                 return raw;
 
@@ -367,23 +420,38 @@ namespace Game.UI
 
         float ComputeNormalized(float raw)
         {
-            float min = GetMinValue();
-            float max = GetMaxValue();
+            GetValueRange(out var min, out var max);
             if (Mathf.Abs(max - min) <= Mathf.Epsilon)
                 return 0f;
 
             return Mathf.Clamp01((raw - min) / (max - min));
         }
 
-        float GetMinValue() => Mathf.Min(_options.MinValue, _options.MaxValue);
-        float GetMaxValue() => Mathf.Max(_options.MinValue, _options.MaxValue);
+        float GetMinValue()
+        {
+            GetValueRange(out var min, out _);
+            return min;
+        }
+
+        float GetMaxValue()
+        {
+            GetValueRange(out _, out var max);
+            return max;
+        }
+
+        void GetValueRange(out float min, out float max)
+        {
+            float resolvedMin = ResolveFloat(_options.MinValue, 0f);
+            float resolvedMax = ResolveFloat(_options.MaxValue, 1f);
+            min = Mathf.Min(resolvedMin, resolvedMax);
+            max = Mathf.Max(resolvedMin, resolvedMax);
+        }
 
         float GetStepSize()
         {
-            float min = GetMinValue();
-            float max = GetMaxValue();
+            GetValueRange(out var min, out var max);
 
-            float step = Mathf.Max(0f, _options.Step);
+            float step = Mathf.Max(0f, ResolveFloat(_options.Step, 0f));
             if (step <= 0f)
                 return 0f;
 
@@ -391,6 +459,20 @@ namespace Game.UI
                 step *= Mathf.Abs(max - min);
 
             return step;
+        }
+
+        float ResolveFloat(DynamicValue<float> value, float fallback)
+        {
+            if (_dynamicContext != null)
+                return value.GetOrDefault(_dynamicContext, fallback);
+
+            if (!value.HasSource)
+                return value.GetOrDefaultWithoutContext(fallback);
+
+            if (value.TryGetSource<LiteralFloatSource>(out _))
+                return value.GetOrDefaultWithoutContext(fallback);
+
+            return fallback;
         }
 
         void EmitUpdated()
