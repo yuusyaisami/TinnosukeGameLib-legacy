@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.Channel
@@ -81,6 +82,37 @@ namespace Game.Channel
             var localOffset = worldPosition - basePosition;
             var localPosition = ToLocal(localOffset, _definition.Plane);
             return shape.ContainsLocalPosition(localPosition);
+        }
+
+        public bool TryGetContour(Vector3 basePosition, out AreaContourData contour)
+        {
+            contour = default;
+
+            var shape = _definition.Shape;
+            if (shape == null || !shape.TryGetContourLocal(out var localContour))
+                return false;
+
+            var worldPaths = new List<AreaContourPath>(localContour.Paths.Count);
+            for (var i = 0; i < localContour.Paths.Count; i++)
+            {
+                var localPath = localContour.Paths[i];
+                if (localPath.Points == null || localPath.Points.Count == 0)
+                    continue;
+
+                var worldPoints = new List<Vector2>(localPath.Points.Count);
+                for (var p = 0; p < localPath.Points.Count; p++)
+                {
+                    var world = basePosition + ToPlane(localPath.Points[p], _definition.Plane);
+                    worldPoints.Add(_definition.Plane == AreaPlane.XZ
+                        ? new Vector2(world.x, world.z)
+                        : new Vector2(world.x, world.y));
+                }
+
+                worldPaths.Add(new AreaContourPath(worldPoints, localPath.IsHole));
+            }
+
+            contour = new AreaContourData(_definition.Plane, worldPaths);
+            return worldPaths.Count > 0;
         }
 
         public bool IsFarEnough(Vector3 candidate)

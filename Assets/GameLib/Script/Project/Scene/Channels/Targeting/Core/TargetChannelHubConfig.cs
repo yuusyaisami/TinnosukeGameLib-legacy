@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using UnityEngine;
 
 namespace Game.Targeting
@@ -9,13 +10,12 @@ namespace Game.Targeting
     public sealed class TargetChannelHubConfig
     {
         public bool AutoInitializeOnStart;
-        public List<TargetChannelDef> InitialChannels = new();
+        public List<DynamicValue<TargetChannelPreset>> InitialChannels = new();
 
-        public TargetChannelHubConfig(bool autoInitializeOnStart, List<TargetChannelDef> initialChannels)
+        public TargetChannelHubConfig(bool autoInitializeOnStart, List<DynamicValue<TargetChannelPreset>> initialChannels)
         {
             AutoInitializeOnStart = autoInitializeOnStart;
-            InitialChannels = initialChannels ?? new List<TargetChannelDef>();
+            InitialChannels = initialChannels ?? new List<DynamicValue<TargetChannelPreset>>();
         }
     }
 }
-

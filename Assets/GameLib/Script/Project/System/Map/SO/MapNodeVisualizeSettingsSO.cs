@@ -5,7 +5,6 @@ using Game.Channel;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.DI;
-using Game.LineDraw;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -80,7 +79,10 @@ namespace Game.MapNode
         public AnimationSpritePreset? DefaultAnimPreset;
 
         [BoxGroup("Line")]
-        public LineDrawSettings LineSettings = new();
+        public string LineChannelTag = "default";
+
+        [BoxGroup("Line")]
+        public MeshLineSettings LineSettings = new();
 
         bool ShowLineRuntimeTemplate => UseLineSpawn && LineSpawnSource == MapNodeSpawnSource.RuntimeTemplate;
         bool ShowLinePrefab => UseLineSpawn && LineSpawnSource == MapNodeSpawnSource.Prefab;
@@ -138,9 +140,9 @@ namespace Game.MapNode
     }
 
     [Serializable]
-    public struct LineDrawSettings
+    public struct MeshLineSettings
     {
-        public LineStyle DefaultStyle;
+        public MapNodeLineStyle DefaultStyle;
         public List<LineStyleByNodeType> ByType;
         public List<LineStyleByState> ByState;
     }
@@ -149,13 +151,23 @@ namespace Game.MapNode
     public struct LineStyleByNodeType
     {
         public MapNodeType Type;
-        public LineStyle Style;
+        public MapNodeLineStyle Style;
     }
 
     [Serializable]
     public struct LineStyleByState
     {
         public MapNodeState State;
-        public LineStyle Style;
+        public MapNodeLineStyle Style;
+    }
+
+    [Serializable]
+    public sealed class MapNodeLineStyle
+    {
+        [InlineProperty]
+        public MeshLineTrackVisualizerPreset Visualizer = new();
+
+        [InlineProperty]
+        public MeshTrackMaterialPreset Material = new();
     }
 }

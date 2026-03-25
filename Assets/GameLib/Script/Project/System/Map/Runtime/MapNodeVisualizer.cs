@@ -7,7 +7,6 @@ using VContainer;
 using Game.Channel;
 using Game.Commands.VNext;
 using Game.Common;
-using Game.LineDraw;
 using Game.Spawn;
 using Game.UI;
 using UnityEngine;
@@ -26,7 +25,7 @@ namespace Game.MapNode
             MapNodeFailurePolicy failurePolicy,
             CancellationToken ct);
 
-        void UpdateConnectionsForNode(MapNodeManager manager, int nodeId, ILineDrawService lineDrawService);
+        void UpdateConnectionsForNode(MapNodeManager manager, int nodeId, IMeshChannelControlService lineControlService);
     }
 
     public sealed class MapNodeVisualizer : IMapNodeVisualizer
@@ -51,14 +50,14 @@ namespace Game.MapNode
                 return new MapNodeRuntime(CreateEmptyGraph(graph), new List<MapNodeInstance>(), new List<MapNodeConnectionInstance>());
 
             var resolver = scopeParent.Resolver;
-            ILineDrawService? lineDrawService = null;
+            IMeshChannelControlService? lineControlService = null;
             MapNodeLineInstance? lineInstance = null;
             if (!settings.UseLineSpawn)
-                resolver?.TryResolve(out lineDrawService);
+                resolver?.TryResolve(out lineControlService);
 
             var spawner = ResolveSpawner(settings.Space, settings.SpawnSource, failurePolicy, _registry);
             if (spawner == null)
-                return new MapNodeRuntime(graph, new List<MapNodeInstance>(), new List<MapNodeConnectionInstance>(), lineDrawService);
+                return new MapNodeRuntime(graph, new List<MapNodeInstance>(), new List<MapNodeConnectionInstance>(), lineControlService, settings.LineChannelTag);
 
             var dynamicContext = new SimpleDynamicContext(NullVarStore.Instance, scopeParent);
 
@@ -150,16 +149,16 @@ namespace Game.MapNode
                         else
                         {
                             lineInstance = new MapNodeLineInstance(lineRoot, lineScope, lineResolver);
-                            lineResolver.TryResolve(out lineDrawService);
-                            if (lineDrawService == null && failurePolicy == MapNodeFailurePolicy.FailFast)
-                                throw new InvalidOperationException("[MapNodeVisualizer] Line draw service not found.");
+                            lineResolver.TryResolve(out lineControlService);
+                            if (lineControlService == null && failurePolicy == MapNodeFailurePolicy.FailFast)
+                                throw new InvalidOperationException("[MapNodeVisualizer] Mesh channel control service not found.");
                         }
                     }
                 }
             }
 
-            if (lineDrawService == null && failurePolicy != MapNodeFailurePolicy.FailFast)
-                resolver?.TryResolve(out lineDrawService);
+            if (lineControlService == null && failurePolicy != MapNodeFailurePolicy.FailFast)
+                resolver?.TryResolve(out lineControlService);
 
             var instances = new List<MapNodeInstance>(graph.Nodes.Count);
             var instanceLookup = new Dictionary<int, MapNodeInstance>(graph.Nodes.Count);
@@ -261,27 +260,27 @@ namespace Game.MapNode
                     await UniTask.Yield(PlayerLoopTiming.Update, ct);
             }
 
-            var connections = BuildConnections(graph, settings, instanceLookup, lineDrawService);
+            var connections = BuildConnections(graph, settings, instanceLookup, lineControlService);
             if (graph.Nodes.Count > 0)
             {
                 await UniTask.Yield(PlayerLoopTiming.PostLateUpdate, ct);
-                if (lineDrawService == null && lineInstance != null)
-                    lineInstance.Resolver?.TryResolve(out lineDrawService);
-                if (lineDrawService == null)
-                    resolver?.TryResolve(out lineDrawService);
-                if (lineDrawService != null)
-                    RefreshConnections(graph, settings, instanceLookup, connections, lineDrawService);
+                if (lineControlService == null && lineInstance != null)
+                    lineInstance.Resolver?.TryResolve(out lineControlService);
+                if (lineControlService == null)
+                    resolver?.TryResolve(out lineControlService);
+                if (lineControlService != null)
+                    RefreshConnections(graph, settings, instanceLookup, connections, lineControlService);
             }
 
-            if (lineDrawService == null)
-                Debug.LogWarning("[MapNodeVisualizer] LineDrawService not resolved. Lines will not render.");
+            if (lineControlService == null)
+                Debug.LogWarning("[MapNodeVisualizer] MeshChannel control service not resolved. Lines will not render.");
 
-            return new MapNodeRuntime(graph, instances, connections, lineDrawService, lineInstance);
+            return new MapNodeRuntime(graph, instances, connections, lineControlService, settings.LineChannelTag, lineInstance);
         }
 
-        public void UpdateConnectionsForNode(MapNodeManager manager, int nodeId, ILineDrawService lineDrawService)
+        public void UpdateConnectionsForNode(MapNodeManager manager, int nodeId, IMeshChannelControlService lineControlService)
         {
-            if (manager == null || lineDrawService == null)
+            if (manager == null || lineControlService == null)
                 return;
 
             var runtime = manager.Runtime;
@@ -293,7 +292,6 @@ namespace Game.MapNode
             if (!manager.TryGetNode(nodeId, out var _))
                 return;
 
-            var lineSpace = ResolveLineSpace(settings.Space);
             var connections = manager.GetConnectionsForNode(nodeId);
 
             for (int i = 0; i < connections.Count; i++)
@@ -310,13 +308,7 @@ namespace Game.MapNode
                     continue;
 
                 var style = ResolveLineStyle(settings.LineSettings, fromNode);
-                var request = new LineSegmentRequest(
-                    new LineAnchor(fromInstance.Root, Vector3.zero),
-                    new LineAnchor(toInstance.Root, Vector3.zero),
-                    lineSpace,
-                    style);
-
-                if (!TryApplyConnection(lineDrawService, connection, request))
+                if (!TryApplyConnection(settings.LineChannelTag, lineControlService, connection, fromInstance, toInstance, style))
                     continue;
             }
         }
@@ -343,11 +335,6 @@ namespace Game.MapNode
                 return source == MapNodeSpawnSource.RuntimeTemplate ? SpawnerKind.RuntimeUIElement : SpawnerKind.UIElement;
 
             return source == MapNodeSpawnSource.RuntimeTemplate ? SpawnerKind.RuntimeEntity : SpawnerKind.Entity;
-        }
-
-        static LineSpace ResolveLineSpace(MapNodeSpace space)
-        {
-            return space == MapNodeSpace.UI ? LineSpace.RectTransform : LineSpace.World;
         }
 
         static Vector3 ComputeNodePosition(MapNodeVisualizeSettingsSO settings, int layerIndex, int widthIndex, int layerWidth)
@@ -559,13 +546,11 @@ namespace Game.MapNode
             MapGraph graph,
             MapNodeVisualizeSettingsSO settings,
             Dictionary<int, MapNodeInstance> instanceLookup,
-            ILineDrawService? lineDrawService)
+            IMeshChannelControlService? lineControlService)
         {
             var connections = new List<MapNodeConnectionInstance>();
             if (graph == null || graph.Nodes == null)
                 return connections;
-
-            var lineSpace = ResolveLineSpace(settings.Space);
 
             for (int i = 0; i < graph.Nodes.Count; i++)
             {
@@ -584,18 +569,11 @@ namespace Game.MapNode
                     if (!instanceLookup.TryGetValue(toNodeId, out var toInstance))
                         continue;
 
-                    var handle = LineHandle.Invalid;
-                    if (lineDrawService != null)
-                    {
-                        var request = new LineSegmentRequest(
-                            new LineAnchor(fromInstance.Root, Vector3.zero),
-                            new LineAnchor(toInstance.Root, Vector3.zero),
-                            lineSpace,
-                            style);
-                        handle = lineDrawService.CreateSegment(request);
-                    }
-
-                    connections.Add(new MapNodeConnectionInstance(fromNode.Id, toNodeId, handle));
+                    var trackKey = BuildConnectionTrackKey(fromNode.Id, toNodeId);
+                    var connection = new MapNodeConnectionInstance(fromNode.Id, toNodeId, trackKey);
+                    if (lineControlService != null)
+                        TryApplyConnection(settings.LineChannelTag, lineControlService, connection, fromInstance, toInstance, style);
+                    connections.Add(connection);
                 }
             }
 
@@ -607,12 +585,11 @@ namespace Game.MapNode
             MapNodeVisualizeSettingsSO settings,
             Dictionary<int, MapNodeInstance> instanceLookup,
             List<MapNodeConnectionInstance> connections,
-            ILineDrawService lineDrawService)
+            IMeshChannelControlService lineControlService)
         {
-            if (graph == null || settings == null || instanceLookup == null || connections == null || lineDrawService == null)
+            if (graph == null || settings == null || instanceLookup == null || connections == null || lineControlService == null)
                 return;
 
-            var lineSpace = ResolveLineSpace(settings.Space);
             for (int i = 0; i < connections.Count; i++)
             {
                 var connection = connections[i];
@@ -632,35 +609,30 @@ namespace Game.MapNode
                     continue;
 
                 var style = ResolveLineStyle(settings.LineSettings, fromNode);
-                var request = new LineSegmentRequest(
-                    new LineAnchor(fromInstance.Root, Vector3.zero),
-                    new LineAnchor(toInstance.Root, Vector3.zero),
-                    lineSpace,
-                    style);
-                TryApplyConnection(lineDrawService, connection, request);
+                TryApplyConnection(settings.LineChannelTag, lineControlService, connection, fromInstance, toInstance, style);
             }
         }
 
         static bool TryApplyConnection(
-            ILineDrawService lineDrawService,
+            string channelTag,
+            IMeshChannelControlService lineControlService,
             MapNodeConnectionInstance connection,
-            LineSegmentRequest request)
+            MapNodeInstance fromInstance,
+            MapNodeInstance toInstance,
+            MapNodeLineStyle style)
         {
-            if (lineDrawService == null || connection == null)
+            if (lineControlService == null || connection == null || fromInstance == null || toInstance == null)
                 return false;
 
-            if (!connection.LineHandle.IsValid)
-            {
-                connection.LineHandle = lineDrawService.CreateSegment(request);
-                return connection.LineHandle.IsValid;
-            }
-
-            return lineDrawService.UpdateSegment(connection.LineHandle, request);
+            var fromPosition = fromInstance.Root != null ? fromInstance.Root.position : fromInstance.WorldPos;
+            var toPosition = toInstance.Root != null ? toInstance.Root.position : toInstance.WorldPos;
+            var definition = BuildConnectionTrackDefinition(connection.TrackKey, fromPosition, toPosition, style);
+            return lineControlService.SwapTrackDefinition(channelTag, connection.TrackKey, definition);
         }
 
-        static LineStyle ResolveLineStyle(LineDrawSettings settings, MapNode node)
+        static MapNodeLineStyle ResolveLineStyle(MeshLineSettings settings, MapNode node)
         {
-            var style = settings.DefaultStyle.BaseWidth > 0f ? settings.DefaultStyle : LineStyle.Default;
+            var style = settings.DefaultStyle ?? new MapNodeLineStyle();
 
             if (settings.ByType != null)
             {
@@ -685,6 +657,56 @@ namespace Game.MapNode
             }
 
             return style;
+        }
+
+        static string BuildConnectionTrackKey(int fromNodeId, int toNodeId)
+        {
+            return $"map.connection.{fromNodeId}.{toNodeId}";
+        }
+
+        static MeshTrackDefinition BuildConnectionTrackDefinition(string trackKey, Vector3 fromPosition, Vector3 toPosition, MapNodeLineStyle? style)
+        {
+            style ??= new MapNodeLineStyle();
+
+            var linePlayer = new MeshLineTrackPlayerPreset
+            {
+                Points = new List<DynamicValue<Vector3>>
+                {
+                    DynamicValueExtensions.FromLiteral(fromPosition),
+                    DynamicValueExtensions.FromLiteral(toPosition),
+                },
+                Closed = false,
+                SmoothPath = true,
+                SmoothingSubdivisions = 8,
+            };
+
+            var visualizer = style.Visualizer?.CreateRuntimeCopy() as MeshLineTrackVisualizerPreset ?? new MeshLineTrackVisualizerPreset();
+            var material = style.Material?.CreateRuntimeCopy() ?? new MeshTrackMaterialPreset();
+            var collider = new MeshPolygonTrackColliderPreset
+            {
+                SyncPolygonToCollider = false,
+                EnableHitCapture = false,
+                CaptureEnter = false,
+                CaptureStay = false,
+                CaptureExit = false,
+                Sync = new MeshPolygonSyncSettings
+                {
+                    UpdateIntervalFrames = 2,
+                    MaxPointCount = 64,
+                },
+            };
+
+            return new MeshTrackDefinition
+            {
+                Key = trackKey,
+                Tag = trackKey,
+                Priority = 0,
+                Enabled = true,
+                Player = MeshChannelDynamicValueFactory.FromManaged<MeshTrackPlayerPresetBase>(linePlayer),
+                Visualizer = MeshChannelDynamicValueFactory.FromManaged<MeshTrackVisualizerPresetBase>(visualizer),
+                Collider = MeshChannelDynamicValueFactory.FromManaged<MeshTrackColliderPresetBase>(collider),
+                Material = MeshChannelDynamicValueFactory.FromManaged(material),
+            };
         }
 
         static void TrySetVariant(IVarStore vars, int varId, DynamicVariant value)

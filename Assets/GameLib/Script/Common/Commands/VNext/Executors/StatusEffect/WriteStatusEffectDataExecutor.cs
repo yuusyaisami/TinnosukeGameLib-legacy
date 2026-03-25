@@ -210,6 +210,8 @@ namespace Game.Commands.VNext
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.defaultRuntimeTag, DynamicVariant.FromString(definition.DefaultRuntimeTag ?? string.Empty), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.useDuration, DynamicVariant.FromBool(definition.UseDuration), overwrite);
             WriteManagedRef(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.durationDefinition, definition.DurationDefinition, overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.useUseCooldown, DynamicVariant.FromBool(definition.UseUseCooldown), overwrite);
+            WriteManagedRef(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.useCooldownDefinition, definition.UseCooldownDefinition, overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.useCount, DynamicVariant.FromBool(definition.UseCount), overwrite);
             WriteManagedRef(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.countDefinition, definition.CountDefinition, overwrite);
             WriteManagedRef(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.operations, definition.Operations, overwrite);
@@ -239,7 +241,7 @@ namespace Game.Commands.VNext
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount, DynamicVariant.FromInt(state.UsedCount), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingDuration, DynamicVariant.FromFloat(state.RemainingTime), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration, DynamicVariant.FromFloat(state.TotalDuration), overwrite);
-            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, DynamicVariant.FromFloat(state.RemainingInverseInterval), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, DynamicVariant.FromFloat(state.RemainingUseCooldown), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingUseCount, DynamicVariant.FromInt(state.RemainingUseCount), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.maxUseCount, DynamicVariant.FromInt(state.MaxUseCount), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.nameTemplate, DynamicVariant.FromString(state.DisplayName ?? string.Empty), overwrite);

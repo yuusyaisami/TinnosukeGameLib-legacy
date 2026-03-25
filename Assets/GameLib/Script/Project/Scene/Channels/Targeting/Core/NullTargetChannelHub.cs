@@ -17,10 +17,16 @@ namespace Game.Targeting
             return false;
         }
 
-        public ITargetChannelRuntime GetOrRegister(TargetChannelDef def, bool replaceIfExists = false)
+        public ITargetChannelRuntime RegisterOrReplace(TargetChannelPreset preset)
         {
             throw new InvalidOperationException("Targeting is disabled (IDynamicSearchService not available).");
         }
+
+        public bool SwapPreset(string tag, TargetChannelPreset preset) => false;
+        public bool MutateSettings(string tag, TargetChannelRuntimeMutation mutation) => false;
+        public bool ResetRuntimeOverrides(string tag) => false;
+        public bool SetDirectTargets(string tag, System.Collections.Generic.IReadOnlyList<Search.DynamicSearchHit> hits) => false;
+        public bool ClearDirectTargets(string tag) => false;
 
         public bool Unregister(string tag) => false;
         public void Clear() { }

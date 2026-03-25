@@ -1,0 +1,10 @@
+OVDF v1.1
+Game.UI.WorldSliderPlayerPreset, Assembly-CSharp
+
+# _increaseTransition
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 118
+
+# _decreaseTransition
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 117

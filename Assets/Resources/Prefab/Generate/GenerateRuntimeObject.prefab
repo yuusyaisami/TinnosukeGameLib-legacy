@@ -81,15 +81,15 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -5689475728057696970, guid: 5f0c33d5c442f37419689c0108231f97, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 0
+  m_DrawMode: 1
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
 --- !u!1 &4926164762123958829
 GameObject:
@@ -169,6 +169,10 @@ MonoBehaviour:
             _functionName: 
             _commands: []
           frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
       animationB:
         kind: 0
         asset: {fileID: 0}
@@ -195,8 +199,15 @@ MonoBehaviour:
             _functionName: 
             _commands: []
           frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
       playMode: 0
       flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
       usePlaybackSpeedMultiplier: 1
       crossFadeProfile:
         rid: -2
@@ -206,9 +217,6 @@ MonoBehaviour:
       assetPreset: {fileID: 0}
       inlinePreset:
         rid: 7292587055229960480
-    kernelBindEnabled: 0
-    initialKernelTag: 
-    atlasSlotIndex: 0
   hubTag: default
   references:
     version: 2
@@ -353,6 +361,7 @@ MonoBehaviour:
     target: {fileID: 3152351969274393416}
     rectTransform: {fileID: 0}
     playOnSpawnPreset: 0
+    playOnSpawnDelaySeconds: 0
     transformPreset:
       loop: 0
       loopCount: -1
@@ -381,6 +390,7 @@ MonoBehaviour:
     target: {fileID: 1666246753386764939}
     rectTransform: {fileID: 0}
     playOnSpawnPreset: 0
+    playOnSpawnDelaySeconds: 0
     transformPreset:
       loop: 0
       loopCount: -1
@@ -405,6 +415,13 @@ MonoBehaviour:
       anchorMin: {x: 0.5, y: 0.5}
       applyAnchorMax: 0
       anchorMax: {x: 0.5, y: 0.5}
+  showCurveGizmo: 1
+  curveSelectedOnly: 1
+  curvePointRadius: 0.08
+  enableSceneHandles: 1
+  moveDestinationHandle: 1
+  moveCurveControlHandle: 1
+  enableDebugLog: 0
   debugViewer:
     autoRefreshEveryNFrames: 1
   references:
@@ -466,8 +483,6 @@ MonoBehaviour:
   timeScaleBehavior: 0
   registerToDynamicRegistry: 1
   radius: 0
-  advanceOptions: 0
-  retryIntervalSeconds: 0.5
 --- !u!114 &5022031701747297524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -490,6 +505,8 @@ MonoBehaviour:
       requireActive: 0
       searchScope: 0
     UnityObject: {fileID: 0}
+    SharedTag: 
+    ContextSlot: 0
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
@@ -511,8 +528,12 @@ MonoBehaviour:
     queryVarId: 0
     writeEntries: []
   autoWriteTransformVars: 0
-  initializeBaseLocalVars: 0
-  baseLocalVarEntries: []
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &2346119411283484037
 MonoBehaviour:
   m_ObjectHideFlags: 0

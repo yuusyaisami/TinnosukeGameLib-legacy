@@ -21,7 +21,7 @@ namespace Game.Commands.VNext
         {
             get
             {
-                var baseText = $"Op={Operation} Tag={Tag}";
+                var baseText = $"Hub={HubSource.Kind} Op={Operation} Tag={Tag}";
                 if (Operation == SharedLTSChannelOperation.Register)
                     return $"{baseText} Actor={ActorSource.Kind}";
 
@@ -35,6 +35,9 @@ namespace Game.Commands.VNext
         [LabelText("Operation")]
         [EnumToggleButtons]
         public SharedLTSChannelOperation Operation = SharedLTSChannelOperation.Register;
+
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Hub Source\", HubSource)")]
+        public ActorSource HubSource = new() { Kind = ActorSourceKind.Current };
 
         [LabelText("Tag")]
         public string Tag = string.Empty;

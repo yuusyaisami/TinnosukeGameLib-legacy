@@ -351,6 +351,7 @@ namespace Game.Scalar
             object source,
             string tag)
         {
+            duration = NormalizeDuration(duration);
             _touched = true;
 
             var ctx = new ScalarAddContext
@@ -405,6 +406,7 @@ namespace Game.Scalar
             object source,
             string tag)
         {
+            duration = NormalizeDuration(duration);
             _touched = true;
 
             var ctx = new ScalarMulContext
@@ -448,6 +450,16 @@ namespace Game.Scalar
             MarkDirty();
 
             return new ScalarHandle(this, entry.Id);
+        }
+
+        static float NormalizeDuration(float duration)
+        {
+            // Duration=0 is usually an uninitialized/default inspector input.
+            // Treat it as infinite to avoid immediate expiry on next tick.
+            if (Mathf.Approximately(duration, 0f))
+                return -1f;
+
+            return duration;
         }
 
         public void RemoveHandle(ScalarHandle handle)

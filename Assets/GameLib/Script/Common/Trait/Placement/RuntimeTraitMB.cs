@@ -70,6 +70,7 @@ namespace Game.Trait
                 .WithParameter(this);
 
             builder.Register<RuntimeTraitPresentationBridgeService>(Lifetime.Singleton)
+                .As<IRuntimeTraitPresentationCommandMutationService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<ITickable>()

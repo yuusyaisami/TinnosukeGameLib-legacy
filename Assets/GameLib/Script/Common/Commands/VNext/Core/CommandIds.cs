@@ -52,8 +52,7 @@ namespace Game.Commands.VNext
         public const int PublishEvent = 1830;
         public const int TransformAnimation = 1835;
         public const int VelocityDrivenRotation = 1836;
-        public const int MeshFxAnimationChannel = 1837;
-        public const int MeshFxChannelControl = 1838;
+        public const int MeshChannelControl = 1837;
         public const int ParallaxChannel = 1839;
         public const int UIDialogChannel = 1840;
         public const int WriteData = 1850;
@@ -120,6 +119,8 @@ namespace Game.Commands.VNext
         public const int ClearProfile = 1973;
         public const int ProfileChange = 1974;
         public const int DeleteAllSaveData = 1975;
+        public const int WorldSliderControl = 1976;
+        public const int TargetChannelControl = 1977;
 
         public const int WithActor = 2001;
         public const int WithActorDescendantRouter = 2002;
@@ -128,9 +129,6 @@ namespace Game.Commands.VNext
         public const int SetContextSlot = 2005;
         public const int CommandChannelControl = 2006;
         public const int HostCall = 3001;
-
-        public const int LineDrawCreate = 2100;
-        public const int LineDrawControl = 2101;
 
         public const int EquipTrait = 2200;
         public const int WriteTraitData = 2201;
@@ -141,6 +139,7 @@ namespace Game.Commands.VNext
         public const int PlaceTraitRuntime = 2206;
         public const int WriteStatusEffectData = 2207;
         public const int Lottery = 2208;
+        public const int RuntimeTraitPresentationCommandMutation = 2209;
 
         public const int BackgroundLayer = 2300;
 

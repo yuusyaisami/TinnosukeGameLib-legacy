@@ -1,6 +1,6 @@
 #nullable enable
 using System.Collections.Generic;
-using Game.LineDraw;
+using Game.Channel;
 using UnityEngine;
 using VContainer;
 
@@ -78,13 +78,13 @@ namespace Game.MapNode
     {
         public int FromNodeId;
         public int ToNodeId;
-        public LineHandle LineHandle;
+        public string TrackKey;
 
-        public MapNodeConnectionInstance(int fromNodeId, int toNodeId, LineHandle lineHandle)
+        public MapNodeConnectionInstance(int fromNodeId, int toNodeId, string trackKey)
         {
             FromNodeId = fromNodeId;
             ToNodeId = toNodeId;
-            LineHandle = lineHandle;
+            TrackKey = trackKey ?? string.Empty;
         }
     }
 
@@ -93,20 +93,23 @@ namespace Game.MapNode
         public MapGraph Graph;
         public IReadOnlyList<MapNodeInstance> NodeInstances;
         public IReadOnlyList<MapNodeConnectionInstance> Connections;
-        public ILineDrawService? LineDrawService;
+        public IMeshChannelControlService? LineControlService;
+        public string LineChannelTag;
         public MapNodeLineInstance? LineInstance;
 
         public MapNodeRuntime(
             MapGraph graph,
             IReadOnlyList<MapNodeInstance> nodes,
             IReadOnlyList<MapNodeConnectionInstance> connections,
-            ILineDrawService? lineDrawService = null,
+            IMeshChannelControlService? lineControlService = null,
+            string lineChannelTag = "default",
             MapNodeLineInstance? lineInstance = null)
         {
             Graph = graph;
             NodeInstances = nodes ?? new List<MapNodeInstance>();
             Connections = connections ?? new List<MapNodeConnectionInstance>();
-            LineDrawService = lineDrawService;
+            LineControlService = lineControlService;
+            LineChannelTag = string.IsNullOrWhiteSpace(lineChannelTag) ? "default" : lineChannelTag;
             LineInstance = lineInstance;
         }
     }

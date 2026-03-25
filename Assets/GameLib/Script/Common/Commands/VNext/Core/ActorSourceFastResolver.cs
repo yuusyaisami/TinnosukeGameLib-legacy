@@ -3,6 +3,7 @@ using System;
 using Game;
 using Game.Commands;
 using Game.Common;
+using Game.Targeting;
 using UnityEngine;
 using VContainer;
 
@@ -141,13 +142,15 @@ namespace Game.Commands.VNext
                 case ActorSourceKind.Global:
                     return ResolveNearestGlobalScope(origin);
                 case ActorSourceKind.Shared:
-                    return ResolveShared(origin, source.SharedTag);
+                    return ResolveShared(origin, source.Shared, commandRootScope);
                 case ActorSourceKind.ContextSlot:
                     return null;
                 case ActorSourceKind.ByIdentity:
                     return ResolveByIdentity(origin, source.Identity);
                 case ActorSourceKind.FromUnityObject:
                     return TryResolveFromUnityObject(source.UnityObject, out var scope) ? scope : null;
+                case ActorSourceKind.TargetChannel:
+                    return ResolveFromTargetChannel(origin, source, commandRootScope);
                 default:
                     return null;
             }
@@ -171,12 +174,17 @@ namespace Game.Commands.VNext
             return source.Kind == ActorSourceKind.FromUnityObject;
         }
 
-        static IScopeNode? ResolveShared(IScopeNode origin, string tag)
+        static IScopeNode? ResolveShared(IScopeNode origin, SharedActorSourceRef? shared, IScopeNode? commandRootScope)
         {
+            if (shared == null)
+                return null;
+
+            var tag = shared.SharedTag;
             if (string.IsNullOrWhiteSpace(tag))
                 return null;
 
-            var current = origin;
+            var hubOwner = Resolve(origin, shared.SharedHubActorSource, commandRootScope) ?? origin;
+            var current = hubOwner;
             while (current != null)
             {
                 var resolver = current.Resolver;
@@ -557,11 +565,75 @@ namespace Game.Commands.VNext
                     return IdentityEquals(a.Identity, b.Identity);
                 case ActorSourceKind.FromUnityObject:
                     return ReferenceEquals(a.UnityObject, b.UnityObject);
+                case ActorSourceKind.Shared:
+                    return SharedEquals(a.Shared, b.Shared);
                 case ActorSourceKind.ContextSlot:
                     return a.ContextSlot == b.ContextSlot;
+                case ActorSourceKind.TargetChannel:
+                    return TargetChannelEquals(a.TargetChannel, b.TargetChannel);
                 default:
                     return true;
             }
+        }
+
+        static IScopeNode? ResolveFromTargetChannel(IScopeNode origin, in ActorSource source, IScopeNode? commandRootScope)
+        {
+            var targetChannel = source.TargetChannel;
+            if (targetChannel == null)
+                return null;
+
+            var channelOwner = Resolve(origin, targetChannel.ChannelOwnerActorSource, commandRootScope);
+            if (channelOwner == null)
+                return null;
+
+            var normalizedTag = string.IsNullOrWhiteSpace(targetChannel.ChannelTag) ? "default" : targetChannel.ChannelTag.Trim();
+            if (!TargetChannelTargetPositionSourceHelper.TryResolveRuntimeFromScopeChain(channelOwner, normalizedTag, out var runtime) || runtime == null)
+                return null;
+
+            var hits = runtime.Hits;
+            if (hits == null || hits.Count == 0)
+                return null;
+
+            if (targetChannel.TargetSelectMode != TargetChannelTargetSelectMode.FilterByActorSource)
+                return hits[0].Scope;
+
+            var filterScope = Resolve(origin, targetChannel.FilterActorSource, commandRootScope);
+            if (filterScope != null)
+            {
+                for (int i = 0; i < hits.Count; i++)
+                {
+                    var candidate = hits[i];
+                    if (ReferenceEquals(candidate.Scope, filterScope) || ReferenceEquals(candidate.Identity, filterScope.Identity))
+                        return candidate.Scope;
+                }
+            }
+
+            return targetChannel.FallbackToFirstIfFilterMiss ? hits[0].Scope : null;
+        }
+
+        static bool TargetChannelEquals(TargetChannelActorSourceRef? a, TargetChannelActorSourceRef? b)
+        {
+            if (ReferenceEquals(a, b))
+                return true;
+            if (a == null || b == null)
+                return false;
+
+            return string.Equals(a.ChannelTag, b.ChannelTag, StringComparison.Ordinal)
+                   && a.TargetSelectMode == b.TargetSelectMode
+                   && a.FallbackToFirstIfFilterMiss == b.FallbackToFirstIfFilterMiss
+                   && SourceEquals(a.ChannelOwnerActorSource, b.ChannelOwnerActorSource)
+                   && SourceEquals(a.FilterActorSource, b.FilterActorSource);
+        }
+
+        static bool SharedEquals(SharedActorSourceRef? a, SharedActorSourceRef? b)
+        {
+            if (ReferenceEquals(a, b))
+                return true;
+            if (a == null || b == null)
+                return false;
+
+            return string.Equals(a.SharedTag, b.SharedTag, StringComparison.Ordinal)
+                   && SourceEquals(a.SharedHubActorSource, b.SharedHubActorSource);
         }
 
         static bool IdentityEquals(in CommandTargetIdentityFilter a, in CommandTargetIdentityFilter b)

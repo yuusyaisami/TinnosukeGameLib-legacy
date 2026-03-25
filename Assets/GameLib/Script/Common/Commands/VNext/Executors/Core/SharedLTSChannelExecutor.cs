@@ -10,15 +10,14 @@ namespace Game.Commands.VNext
     {
         public int CommandId => CommandIds.SharedLTSChannel;
 
-        public UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
+        public async UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
         {
-            _ = ct;
-
             if (data is not SharedLTSChannelCommandData typed)
-                return UniTask.CompletedTask;
+                return;
 
-            if (!TryResolveHub(ctx.Scope, out var hub) || hub == null)
-                return UniTask.CompletedTask;
+            var (hubScope, _) = await ActorScopeResolver.ResolveAsync(typed.HubSource, ctx, ct);
+            if (!TryResolveHub(hubScope, out var hub) || hub == null)
+                return;
 
             switch (typed.Operation)
             {
@@ -38,8 +37,6 @@ namespace Game.Commands.VNext
                     hub.Clear();
                     break;
             }
-
-            return UniTask.CompletedTask;
         }
 
         static void ExecuteRegister(ISharedLTSChannelHub hub, SharedLTSChannelCommandData typed, CommandContext ctx)

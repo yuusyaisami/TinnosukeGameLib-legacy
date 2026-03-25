@@ -127,6 +127,8 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(StateMachineOptionIsSetBoolSource));
                 allowedList.Add(typeof(ActorDistanceCompareBoolSource));
                 allowedList.Add(typeof(ActorSourceExistsSource));
+                allowedList.Add(typeof(SharedActorSourceExistsSource));
+                allowedList.Add(typeof(UIModalStackActorMatchSource));
             }
             else if (targetType == typeof(int))
             {
@@ -166,6 +168,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(RichTextSource));
                 allowedList.Add(typeof(StatusEffectStackDescriptionSource));
                 allowedList.Add(typeof(SceneNameSource));
+                allowedList.Add(typeof(SharedActorSourceTagSource));
             }
             else if (targetType == typeof(Color))
                 allowedList.Add(typeof(RandomWeightedColorListSource));
@@ -365,6 +368,22 @@ namespace Game.Common.Editor
                     GUI.backgroundColor = oldBg;
                 }
                 EditorGUILayout.EndHorizontal();
+
+                var headerRect = GUILayoutUtility.GetLastRect();
+                var evt = Event.current;
+                if (evt != null && evt.type == EventType.ContextClick && headerRect.Contains(evt.mousePosition))
+                {
+                    if (currentSource is FloatExpressionSource || currentSource is IntExpressionSource)
+                    {
+                        var menu = new GenericMenu();
+                        menu.AddItem(new GUIContent("Open Graph Preview"), false, () =>
+                        {
+                            ExpressionGraphPreviewWindow.Open(currentSource);
+                        });
+                        menu.ShowAsContext();
+                        evt.Use();
+                    }
+                }
 
                 // --- 展開：Sourceの中身を描画 ---
                 if (!expanded) return;
@@ -608,6 +627,11 @@ namespace Game.Common.Editor
             if (src is TransformAnimationChannelPosition2Source or TransformAnimationChannelPosition3Source)
             {
                 return TryGetChildValueAsString(sourceProp, "channelTag", out detail);
+            }
+
+            if (src is SharedActorSourceExistsSource or SharedActorSourceTagSource)
+            {
+                return TryGetChildValueAsString(sourceProp, "sharedHubActorSource", out detail);
             }
 
             return false;

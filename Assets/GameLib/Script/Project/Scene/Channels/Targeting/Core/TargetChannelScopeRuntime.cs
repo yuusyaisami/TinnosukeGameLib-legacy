@@ -1,48 +1,52 @@
 #nullable enable
-// Game.Targeting
-// ================================================================================
-// TargetChannelScopeRuntime - LifetimeScope search-based TargetChannel runtime
-// ================================================================================
 
+using System;
 using System.Collections.Generic;
+using Game.Common;
+using Game.Entity;
+using Game.Search;
 using Unity.Mathematics;
 using UnityEngine;
-using Game.Common;
-using Game.Search;
 using VContainer;
 using VNext = Game.Commands.VNext;
 
 namespace Game.Targeting
 {
-    /// <summary>
-    /// TargetChannel runtime that resolves targets via LifetimeScope lookup.
-    /// ActorSource is used to resolve scopes and cache results.
-    /// </summary>
-    public sealed class TargetChannelScopeRuntime : ITargetChannelRuntime
+    public sealed class TargetChannelRuntime : ITargetChannelRuntime
     {
+        readonly IDynamicSearchService? _search;
         readonly TargetChannelOwner _owner;
-        readonly TargetChannelDef _def;
         readonly List<DynamicSearchHit> _hits;
+        readonly List<DynamicSearchHit> _directHits;
 
+        TargetChannelPreset _basePreset;
+        TargetChannelPreset _currentPreset;
         int _lastUpdatedFrame = int.MinValue;
 
-        public TargetChannelScopeRuntime(in TargetChannelOwner owner, TargetChannelDef def)
+        public TargetChannelRuntime(IDynamicSearchService? search, in TargetChannelOwner owner, TargetChannelPreset preset)
         {
+            _search = search;
             _owner = owner;
-            _def = def ?? throw new System.ArgumentNullException(nameof(def));
-            _hits = new List<DynamicSearchHit>(Mathf.Max(0, def.ExpectedResultCount));
+            _basePreset = preset?.CreateRuntimeCopy() ?? throw new ArgumentNullException(nameof(preset));
+            _currentPreset = _basePreset.CreateRuntimeCopy();
+            _hits = new List<DynamicSearchHit>(Mathf.Max(0, _currentPreset.ExpectedResultCount));
+            _directHits = new List<DynamicSearchHit>(Mathf.Max(0, _currentPreset.ExpectedResultCount));
         }
 
-        public string Tag => _def.Tag;
-
+        public string Tag => _currentPreset.Tag;
         public bool Enabled
         {
-            get => _def.Enabled;
-            set => _def.Enabled = value;
+            get => _currentPreset.Enabled;
+            set
+            {
+                _currentPreset.Enabled = value;
+                if (!value)
+                    _hits.Clear();
+            }
         }
 
+        public TargetChannelPreset CurrentPreset => _currentPreset;
         public int LastUpdatedFrame => _lastUpdatedFrame;
-
         public List<DynamicSearchHit> Hits
         {
             get
@@ -55,6 +59,8 @@ namespace Game.Targeting
         public void Invalidate()
         {
             _lastUpdatedFrame = int.MinValue;
+            if (!_currentPreset.IsNoneSearch)
+                _hits.Clear();
         }
 
         public void ForceRefresh()
@@ -62,11 +68,75 @@ namespace Game.Targeting
             EnsureUpdated(ignoreInterval: true);
         }
 
+        public bool SwapPreset(TargetChannelPreset preset)
+        {
+            if (preset == null || string.IsNullOrWhiteSpace(preset.Tag))
+                return false;
+
+            _basePreset = preset.CreateRuntimeCopy();
+            _currentPreset = _basePreset.CreateRuntimeCopy();
+            _directHits.Clear();
+            ResizeHitCapacity();
+            Invalidate();
+            return true;
+        }
+
+        public bool MutateSettings(TargetChannelRuntimeMutation mutation)
+        {
+            if (mutation == null || !mutation.HasAnyMutation())
+                return false;
+
+            _currentPreset.ApplyMutation(mutation);
+            ResizeHitCapacity();
+            Invalidate();
+            return true;
+        }
+
+        public bool ResetRuntimeOverrides()
+        {
+            _currentPreset = _basePreset.CreateRuntimeCopy();
+            _directHits.Clear();
+            ResizeHitCapacity();
+            Invalidate();
+            return true;
+        }
+
+        public bool SetDirectTargets(IReadOnlyList<DynamicSearchHit> hits)
+        {
+            if (!_currentPreset.IsNoneSearch)
+                return false;
+
+            _directHits.Clear();
+            if (hits != null)
+            {
+                for (int i = 0; i < hits.Count; i++)
+                    _directHits.Add(hits[i]);
+            }
+
+            _lastUpdatedFrame = Time.frameCount;
+            _hits.Clear();
+            _hits.AddRange(_directHits);
+            ApplySelfExclusion();
+            return true;
+        }
+
+        public bool ClearDirectTargets()
+        {
+            if (!_currentPreset.IsNoneSearch)
+                return false;
+
+            var changed = _directHits.Count > 0 || _hits.Count > 0;
+            _directHits.Clear();
+            _hits.Clear();
+            _lastUpdatedFrame = Time.frameCount;
+            return changed;
+        }
+
         void EnsureUpdated(bool ignoreInterval)
         {
             MainThread.AssertMainThread();
 
-            if (!_def.Enabled)
+            if (!_currentPreset.Enabled)
             {
                 _hits.Clear();
                 return;
@@ -76,35 +146,70 @@ namespace Game.Targeting
             if (frame == _lastUpdatedFrame)
                 return;
 
-            if (!ignoreInterval && _def.RefreshIntervalFrames > 1)
+            if (!ignoreInterval && _currentPreset.RefreshIntervalFrames > 1)
             {
                 int delta = frame - _lastUpdatedFrame;
-                if (delta > 0 && delta < _def.RefreshIntervalFrames)
+                if (delta > 0 && delta < _currentPreset.RefreshIntervalFrames)
                     return;
             }
 
             _lastUpdatedFrame = frame;
             _hits.Clear();
 
-            CollectHits();
-
-            if (_def.ExcludeSelf && _owner.OwnerScope != null)
+            switch (_currentPreset.SearchType)
             {
-                var self = _owner.OwnerScope;
-                for (int i = _hits.Count - 1; i >= 0; i--)
-                {
-                    if (ReferenceEquals(_hits[i].Scope, self))
-                        _hits.RemoveAt(i);
-                }
+                case TargetChannelSearchType.DynamicSearch:
+                    CollectDynamicHits();
+                    break;
+                case TargetChannelSearchType.ScopeSearch:
+                    CollectScopeHits();
+                    break;
+                case TargetChannelSearchType.None:
+                    _hits.AddRange(_directHits);
+                    break;
             }
+
+            ApplySelfExclusion();
         }
 
-        void CollectHits()
+        void CollectDynamicHits()
         {
-            if (_def.SearchType != TargetChannelSearchType.ScopeSearch)
+            if (_search == null)
+            {
+                Debug.LogError($"[TargetChannelRuntime] IDynamicSearchService not found for '{_currentPreset.Tag}'.");
                 return;
+            }
 
-            var source = _def.ActorSource;
+            float2 origin = ResolveOrigin();
+            float radius = Mathf.Max(0.01f, _currentPreset.Radius);
+            if (_currentPreset.Kind == TargetQueryKind.Cone)
+            {
+                var q = new DynamicSearchQuery(
+                    origin,
+                    radius,
+                    ResolveForward(),
+                    _currentPreset.CosHalfAngle,
+                    kindMask: _currentPreset.KindMask,
+                    requireActive: true,
+                    filterId: _currentPreset.FilterId,
+                    filterCategory: _currentPreset.FilterCategory);
+                _search.Query(in q, _hits);
+                return;
+            }
+
+            var query = new DynamicSearchQuery(
+                origin,
+                radius,
+                kindMask: _currentPreset.KindMask,
+                requireActive: true,
+                filterId: _currentPreset.FilterId,
+                filterCategory: _currentPreset.FilterCategory);
+            _search.Query(in query, _hits);
+        }
+
+        void CollectScopeHits()
+        {
+            var source = _currentPreset.ActorSource;
             if (source.Kind == VNext.ActorSourceKind.ByIdentity)
             {
                 if (!TryResolveScopeRegistry(out var registry) || registry == null)
@@ -116,18 +221,16 @@ namespace Game.Targeting
 
                 var origin = ResolveOwnerOrigin();
                 for (int i = 0; i < scopes.Count; i++)
-                {
                     AddScopeHit(scopes[i], origin, requireActive: false);
-                }
 
                 return;
             }
 
-            if (TryResolveScope(source, out var scope) && scope != null)
-            {
-                var origin = ResolveOwnerOrigin();
-                AddScopeHit(scope, origin, requireActive: _def.ScopeRequireActive);
-            }
+            var scope = VNext.ActorSourceFastResolver.Resolve(_owner.OwnerScope, source);
+            if (scope == null)
+                return;
+
+            AddScopeHit(scope, ResolveOwnerOrigin(), _currentPreset.ScopeRequireActive);
         }
 
         void AddScopeHit(IScopeNode scope, float2 origin, bool requireActive)
@@ -150,18 +253,119 @@ namespace Game.Targeting
             _hits.Add(new DynamicSearchHit(scope, identity, distSq, pos));
         }
 
+        void ApplySelfExclusion()
+        {
+            if (!_currentPreset.ExcludeSelf || _owner.OwnerScope == null)
+                return;
+
+            for (int i = _hits.Count - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(_hits[i].Scope, _owner.OwnerScope))
+                    _hits.RemoveAt(i);
+            }
+        }
+
+        void ResizeHitCapacity()
+        {
+            var capacity = Mathf.Max(0, _currentPreset.ExpectedResultCount);
+            if (_hits.Capacity < capacity)
+                _hits.Capacity = capacity;
+            if (_directHits.Capacity < capacity)
+                _directHits.Capacity = capacity;
+        }
+
+        float2 ResolveOrigin()
+        {
+            switch (_currentPreset.OriginSource)
+            {
+                case TargetOriginSource.OwnerFoot:
+                    {
+                        var foot = _owner.ResolveFootTransform();
+                        if (foot != null)
+                        {
+                            var p = foot.FootWorldPosition;
+                            return new float2(p.x, p.y);
+                        }
+
+                        var ownerPos = _owner.OwnerTransform.position;
+                        return new float2(ownerPos.x, ownerPos.y);
+                    }
+
+                case TargetOriginSource.CustomTransform:
+                    {
+                        var tr = _currentPreset.CustomOriginTransform != null ? _currentPreset.CustomOriginTransform : _owner.OwnerTransform;
+                        var p = tr.position;
+                        return new float2(p.x, p.y);
+                    }
+
+                default:
+                    {
+                        var p = _owner.OwnerTransform.position;
+                        return new float2(p.x, p.y);
+                    }
+            }
+        }
+
+        float2 ResolveForward()
+        {
+            Vector2 f;
+            switch (_currentPreset.ForwardSource)
+            {
+                case TargetForwardSource.OwnerTransformRight:
+                    f = _owner.OwnerTransform.right;
+                    break;
+                case TargetForwardSource.CustomTransformUp:
+                    f = (_currentPreset.CustomForwardTransform ?? _owner.OwnerTransform).up;
+                    break;
+                case TargetForwardSource.CustomTransformRight:
+                    f = (_currentPreset.CustomForwardTransform ?? _owner.OwnerTransform).right;
+                    break;
+                case TargetForwardSource.CustomVector:
+                    f = _currentPreset.CustomForwardVector;
+                    break;
+                default:
+                    f = _owner.OwnerTransform.up;
+                    break;
+            }
+
+            float lenSq = f.sqrMagnitude;
+            if (lenSq < 0.000001f)
+                f = Vector2.up;
+            else
+                f /= Mathf.Sqrt(lenSq);
+
+            return new float2(f.x, f.y);
+        }
+
         float2 ResolveOwnerOrigin()
         {
-            var t = _owner.OwnerTransform;
-            var p = t.position;
+            var p = _owner.OwnerTransform.position;
             return new float2(p.x, p.y);
+        }
+
+        bool TryResolveScopeRegistry(out IBaseLifetimeScopeRegistry? registry)
+        {
+            var current = _owner.OwnerScope;
+            while (current != null)
+            {
+                var resolver = current.Resolver;
+                if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
+                {
+                    registry = resolved;
+                    return true;
+                }
+
+                current = current.Parent;
+            }
+
+            registry = null;
+            return false;
         }
 
         static bool TryResolveScopePosition(IScopeNode scope, ILTSIdentityService identity, out float2 pos)
         {
             pos = default;
-
-            if (identity != null && identity.SelfTransform != null)
+            if (identity.SelfTransform != null)
             {
                 var p = identity.SelfTransform.position;
                 pos = new float2(p.x, p.y);
@@ -177,90 +381,28 @@ namespace Game.Targeting
 
             return false;
         }
+    }
 
-        bool TryResolveScope(VNext.ActorSource source, out IScopeNode? scope)
+    public sealed class TargetChannelScopeRuntime : ITargetChannelRuntime
+    {
+        readonly TargetChannelRuntime _runtime;
+
+        public TargetChannelScopeRuntime(in TargetChannelOwner owner, TargetChannelPreset preset)
         {
-            scope = null;
-            switch (source.Kind)
-            {
-                case VNext.ActorSourceKind.Current:
-                    scope = _owner.OwnerScope;
-                    return scope != null;
-                case VNext.ActorSourceKind.GameLogicRoot:
-                    scope = ScopeNodeHierarchy.FindNearestGameLogicRoot(_owner.OwnerScope, includeSelf: true);
-                    return scope != null;
-                case VNext.ActorSourceKind.Player:
-                    scope = VNext.ActorSourceFastResolver.Resolve(_owner.OwnerScope, source);
-                    return scope != null;
-                case VNext.ActorSourceKind.Global:
-                    scope = VNext.ActorSourceFastResolver.Resolve(_owner.OwnerScope, source);
-                    return scope != null;
-                case VNext.ActorSourceKind.FromUnityObject:
-                    return TryResolveFromUnityObject(source.UnityObject, out scope);
-                default:
-                    return false;
-            }
+            _runtime = new TargetChannelRuntime(search: null, owner, preset);
         }
 
-        bool TryResolveScopeRegistry(out IBaseLifetimeScopeRegistry? registry)
-        {
-            var current = _owner.OwnerScope;
-            while (current != null)
-            {
-                var resolver = current.Resolver;
-                if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
-                {
-                    registry = resolved;
-                    return true;
-                }
-                current = current.Parent;
-            }
-
-            registry = null;
-            return false;
-        }
-
-        static bool TryResolveFromUnityObject(UnityEngine.Object? obj, out IScopeNode? scope)
-        {
-            scope = null;
-            if (obj == null)
-                return false;
-
-            if (obj is IScopeNode node)
-            {
-                scope = node;
-                return true;
-            }
-
-            if (obj is Component comp)
-            {
-                scope = FindScopeNode(comp.gameObject);
-                return scope != null;
-            }
-
-            if (obj is GameObject go)
-            {
-                scope = FindScopeNode(go);
-                return scope != null;
-            }
-
-            return false;
-        }
-
-        static IScopeNode? FindScopeNode(GameObject go)
-        {
-            if (go == null)
-                return null;
-
-            var baseScope = go.GetComponentInParent<BaseLifetimeScope>();
-            if (baseScope != null)
-                return baseScope;
-
-            var runtimeScope = go.GetComponentInParent<RuntimeLifetimeScope>();
-            if (runtimeScope != null)
-                return runtimeScope;
-
-            return null;
-        }
+        public string Tag => _runtime.Tag;
+        public bool Enabled { get => _runtime.Enabled; set => _runtime.Enabled = value; }
+        public TargetChannelPreset CurrentPreset => _runtime.CurrentPreset;
+        public int LastUpdatedFrame => _runtime.LastUpdatedFrame;
+        public List<DynamicSearchHit> Hits => _runtime.Hits;
+        public void Invalidate() => _runtime.Invalidate();
+        public void ForceRefresh() => _runtime.ForceRefresh();
+        public bool SwapPreset(TargetChannelPreset preset) => _runtime.SwapPreset(preset);
+        public bool MutateSettings(TargetChannelRuntimeMutation mutation) => _runtime.MutateSettings(mutation);
+        public bool ResetRuntimeOverrides() => _runtime.ResetRuntimeOverrides();
+        public bool SetDirectTargets(IReadOnlyList<DynamicSearchHit> hits) => _runtime.SetDirectTargets(hits);
+        public bool ClearDirectTargets() => _runtime.ClearDirectTargets();
     }
 }

@@ -9,6 +9,7 @@ namespace Game.Commands.VNext
         void Register(string tag, IScopeNode scope);
         bool Unregister(string tag, IScopeNode? scope = null);
         bool TryGet(string tag, out IScopeNode? scope);
+        bool TryFindTag(IScopeNode scope, out string tag);
         void Clear();
     }
 
@@ -56,6 +57,52 @@ namespace Game.Commands.VNext
             }
 
             scope = registered;
+            return true;
+        }
+
+        public bool TryFindTag(IScopeNode scope, out string tag)
+        {
+            tag = string.Empty;
+            if (scope == null)
+                return false;
+
+            string? foundTag = null;
+            List<string>? staleTags = null;
+            foreach (var pair in _scopes)
+            {
+                var registered = pair.Value;
+                if (registered == null)
+                {
+                    staleTags ??= new List<string>();
+                    staleTags.Add(pair.Key);
+                    continue;
+                }
+
+                var identity = registered.Identity;
+                if (identity != null && !identity.IsActive)
+                {
+                    staleTags ??= new List<string>();
+                    staleTags.Add(pair.Key);
+                    continue;
+                }
+
+                if (!ReferenceEquals(registered, scope))
+                    continue;
+
+                if (foundTag == null || string.CompareOrdinal(pair.Key, foundTag) < 0)
+                    foundTag = pair.Key;
+            }
+
+            if (staleTags != null)
+            {
+                for (int i = 0; i < staleTags.Count; i++)
+                    _scopes.Remove(staleTags[i]);
+            }
+
+            if (string.IsNullOrEmpty(foundTag))
+                return false;
+
+            tag = foundTag;
             return true;
         }
 

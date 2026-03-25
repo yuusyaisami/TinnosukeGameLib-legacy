@@ -2,6 +2,7 @@
 
 using System;
 using Game.Channel;
+using Game.Commands.VNext;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -17,6 +18,10 @@ namespace Game.Common
     [Serializable]
     public sealed class AreaChannelPosition3Source : IDynamicSource
     {
+        [SerializeField]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Area Actor\", areaActorSource)")]
+        ActorSource areaActorSource = new() { Kind = ActorSourceKind.Current };
+
         [SerializeField, LabelText("Channel Tag")]
         string channelTag = "default";
 
@@ -28,6 +33,9 @@ namespace Game.Common
 
         [SerializeField, LabelText("Fallback")]
         Vector3 fallback = Vector3.zero;
+
+        [NonSerialized]
+        ActorSourceResolveCache _areaActorSourceCache;
 
         public string SourceTypeName => "AreaChannelPos";
         public string GetDebugData => $"{channelTag}:{sampleMode}:{layerKey} (Vector3)";
@@ -44,7 +52,7 @@ namespace Game.Common
         {
             sampled = default;
 
-            var scope = context?.Scope;
+            var scope = ActorSourceFastResolver.ResolveCached(context, areaActorSource, ref _areaActorSourceCache);
             if (scope?.Resolver == null)
                 return false;
 
@@ -85,6 +93,10 @@ namespace Game.Common
     [Serializable]
     public sealed class AreaChannelPosition2Source : IDynamicSource
     {
+        [SerializeField]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Area Actor\", areaActorSource)")]
+        ActorSource areaActorSource = new() { Kind = ActorSourceKind.Current };
+
         [SerializeField, LabelText("Channel Tag")]
         string channelTag = "default";
 
@@ -99,6 +111,9 @@ namespace Game.Common
 
         [SerializeField, LabelText("Fallback")]
         Vector2 fallback = Vector2.zero;
+
+        [NonSerialized]
+        ActorSourceResolveCache _areaActorSourceCache;
 
         public string SourceTypeName => "AreaChannelPos";
         public string GetDebugData => $"{channelTag}:{sampleMode}:{layerKey}:{outputPlane} (Vector2)";
@@ -119,7 +134,7 @@ namespace Game.Common
         {
             sampled = default;
 
-            var scope = context?.Scope;
+            var scope = ActorSourceFastResolver.ResolveCached(context, areaActorSource, ref _areaActorSourceCache);
             if (scope?.Resolver == null)
                 return false;
 

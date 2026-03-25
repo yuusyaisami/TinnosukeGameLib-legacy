@@ -42,16 +42,28 @@ namespace Game.StatusEffect
         ScalarModifierOperationDefinition scalarOperation = CreateDefaultOperation();
 
         [BoxGroup("Duration")]
-        [LabelText("Use Duration")]
+        [LabelText("Use Lifetime")]
         [SerializeField]
-        [Tooltip("持続時間システムを使う effect の場合に有効にします。")]
+        [Tooltip("effect 登録時から進む lifetime timer を使う場合に有効にします。")]
         bool useDuration;
 
         [BoxGroup("Duration")]
         [ShowIf(nameof(useDuration))]
         [SerializeReference]
-        [Tooltip("持続時間の計算方法です。Use Duration が有効なときだけ使われます。")]
+        [Tooltip("lifetime timer の計算方法です。Use Lifetime が有効なときだけ使われます。")]
         IStatusEffectDurationDefinition? durationDefinition;
+
+        [BoxGroup("Cooldown")]
+        [LabelText("Use Cooldown")]
+        [SerializeField]
+        [Tooltip("Use 実行後に始まる cooldown timer を使う場合に有効にします。")]
+        bool useUseCooldown;
+
+        [BoxGroup("Cooldown")]
+        [ShowIf(nameof(useUseCooldown))]
+        [SerializeReference]
+        [Tooltip("Use 実行後の cooldown の計算方法です。")]
+        IStatusEffectUseCooldownDefinition? useCooldownDefinition;
 
         [BoxGroup("Count")]
         [LabelText("Use Count")]
@@ -79,8 +91,10 @@ namespace Game.StatusEffect
         public override EffectVisualData VisualData => visualData ?? new EffectVisualData();
         public override string DefaultRuntimeTag => defaultRuntimeTag ?? string.Empty;
         public override bool UseDuration => useDuration;
+        public override bool UseUseCooldown => useUseCooldown;
         public override bool UseCount => useCount;
         public override IStatusEffectDurationDefinition? DurationDefinition => durationDefinition;
+        public override IStatusEffectUseCooldownDefinition? UseCooldownDefinition => useCooldownDefinition;
         public override IStatusEffectCountDefinition? CountDefinition => countDefinition;
         public override IReadOnlyList<IStatusEffectOperationDefinition> Operations => GetOperations();
         public override StatusEffectHookSet DefaultHooks => defaultHooks ?? new StatusEffectHookSet();
@@ -137,8 +151,6 @@ namespace Game.StatusEffect
                 MaxCount = DynamicValue<int>.FromSource(
                     SelfScalarSource.FromScalarKey(new ScalarKey(ScalarKeys.GameLogic.NailProfile.Effect.MaxHitCount))),
                 ExhaustedAction = EffectCountExhaustedAction.Disable,
-                InverseIntervalDuration = DynamicValueExtensions.FromLiteral(0f),
-                InverseIntervalAction = StatusEffectInverseIntervalAction.Disable,
                 ActivePolicy = StatusEffectActivePolicy.RegisteredEvenIfDisabled,
             };
         }

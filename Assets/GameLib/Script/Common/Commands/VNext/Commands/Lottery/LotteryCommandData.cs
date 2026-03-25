@@ -109,6 +109,12 @@ namespace Game.Commands.VNext
         public LotteryScalarOpKind SelectedOp = LotteryScalarOpKind.SetLocalBase;
 
         [FoldoutGroup("Selected")]
+        [ShowIf(nameof(ShowSelectedKeepLocalBaseOnClearKey))]
+        [LabelText("Keep LocalBase")]
+        [SerializeField]
+        public bool SelectedKeepLocalBaseOnClearKey;
+
+        [FoldoutGroup("Selected")]
         [ShowIf(nameof(NeedsSelectedScalarValue))]
         [SerializeField]
         public DynamicValue<float> SelectedValue;
@@ -140,6 +146,12 @@ namespace Game.Commands.VNext
         public LotteryScalarOpKind UnselectedOp = LotteryScalarOpKind.None;
 
         [FoldoutGroup("Unselected")]
+        [ShowIf(nameof(ShowUnselectedKeepLocalBaseOnClearKey))]
+        [LabelText("Keep LocalBase")]
+        [SerializeField]
+        public bool UnselectedKeepLocalBaseOnClearKey;
+
+        [FoldoutGroup("Unselected")]
         [ShowIf(nameof(NeedsUnselectedScalarValue))]
         [SerializeField]
         public DynamicValue<float> UnselectedValue;
@@ -169,11 +181,13 @@ namespace Game.Commands.VNext
         bool NeedsSelectedLayer() => NeedsScalarLayer(SelectedOp);
         bool NeedsSelectedMulPhase() => NeedsScalarMulPhase(SelectedOp);
         bool NeedsSelectedDuration() => NeedsScalarDuration(SelectedOp);
+        bool ShowSelectedKeepLocalBaseOnClearKey() => SelectedOp == LotteryScalarOpKind.ClearKey;
 
         bool NeedsUnselectedScalarValue() => NeedsScalarValue(UnselectedOp);
         bool NeedsUnselectedLayer() => NeedsScalarLayer(UnselectedOp);
         bool NeedsUnselectedMulPhase() => NeedsScalarMulPhase(UnselectedOp);
         bool NeedsUnselectedDuration() => NeedsScalarDuration(UnselectedOp);
+        bool ShowUnselectedKeepLocalBaseOnClearKey() => UnselectedOp == LotteryScalarOpKind.ClearKey;
 
         static bool NeedsScalarValue(LotteryScalarOpKind op)
         {

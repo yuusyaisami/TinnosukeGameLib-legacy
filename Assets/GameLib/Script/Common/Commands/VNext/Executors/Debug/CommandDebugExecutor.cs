@@ -142,7 +142,11 @@ namespace Game.Commands.VNext
             {
                 ActorSourceKind.ByIdentity => $"ByIdentity ({source.Identity.kind}, Id={source.Identity.id}, Category={source.Identity.category}, Search={source.Identity.searchScope}, ActiveOnly={source.Identity.requireActive})",
                 ActorSourceKind.FromUnityObject => source.UnityObject != null ? $"FromUnityObject ({source.UnityObject.name})" : "FromUnityObject (null)",
-                ActorSourceKind.Shared => string.IsNullOrWhiteSpace(source.SharedTag) ? "Shared (empty)" : $"Shared ({source.SharedTag})",
+                ActorSourceKind.Shared => source.Shared == null
+                    ? "Shared (null)"
+                    : string.IsNullOrWhiteSpace(source.Shared.SharedTag)
+                        ? $"Shared (empty, Owner={source.Shared.SharedHubActorSource.Kind})"
+                        : $"Shared ({source.Shared.SharedTag}, Owner={source.Shared.SharedHubActorSource.Kind})",
                 ActorSourceKind.ContextSlot => $"ContextSlot ({source.ContextSlot})",
                 _ => source.Kind.ToString(),
             };

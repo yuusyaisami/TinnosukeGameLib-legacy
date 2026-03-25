@@ -263,8 +263,10 @@ namespace Game.StatusEffect
         EffectVisualData VisualData { get; }
         string DefaultRuntimeTag { get; }
         bool UseDuration { get; }
+        bool UseUseCooldown { get; }
         bool UseCount { get; }
         IStatusEffectDurationDefinition? DurationDefinition { get; }
+        IStatusEffectUseCooldownDefinition? UseCooldownDefinition { get; }
         IStatusEffectCountDefinition? CountDefinition { get; }
         IReadOnlyList<IStatusEffectOperationDefinition> Operations { get; }
         StatusEffectHookSet DefaultHooks { get; }
@@ -281,8 +283,10 @@ namespace Game.StatusEffect
         public abstract EffectVisualData VisualData { get; }
         public abstract string DefaultRuntimeTag { get; }
         public abstract bool UseDuration { get; }
+        public abstract bool UseUseCooldown { get; }
         public abstract bool UseCount { get; }
         public abstract IStatusEffectDurationDefinition? DurationDefinition { get; }
+        public abstract IStatusEffectUseCooldownDefinition? UseCooldownDefinition { get; }
         public abstract IStatusEffectCountDefinition? CountDefinition { get; }
         public abstract IReadOnlyList<IStatusEffectOperationDefinition> Operations { get; }
         public abstract StatusEffectHookSet DefaultHooks { get; }
@@ -314,16 +318,28 @@ namespace Game.StatusEffect
         EffectVisualData visualData = new();
 
         [BoxGroup("Runtime")]
-        [LabelText("Use Duration")]
+        [LabelText("Use Lifetime")]
         [SerializeField]
-        [Tooltip("持続時間システムを使う effect の場合に有効にします。")]
+        [Tooltip("effect の登録時から進む lifetime timer を使う場合に有効にします。")]
         bool useDuration;
 
         [BoxGroup("Runtime")]
         [ShowIf(nameof(useDuration))]
         [SerializeReference]
-        [Tooltip("持続時間の生成方法です。Use Duration が有効なときだけ参照されます。")]
+        [Tooltip("lifetime timer の生成方法です。Use Lifetime が有効なときだけ参照されます。")]
         IStatusEffectDurationDefinition? durationDefinition;
+
+        [BoxGroup("Runtime")]
+        [LabelText("Use Cooldown")]
+        [SerializeField]
+        [Tooltip("Use 実行後に始まる cooldown timer を使う場合に有効にします。")]
+        bool useUseCooldown;
+
+        [BoxGroup("Runtime")]
+        [ShowIf(nameof(useUseCooldown))]
+        [SerializeReference]
+        [Tooltip("Use 後の cooldown の生成方法です。Use Cooldown が有効なときだけ参照されます。")]
+        IStatusEffectUseCooldownDefinition? useCooldownDefinition;
 
         [BoxGroup("Runtime")]
         [LabelText("Use Count")]
@@ -355,8 +371,10 @@ namespace Game.StatusEffect
         public override EffectVisualData VisualData => visualData;
         public override string DefaultRuntimeTag => defaultRuntimeTag;
         public override bool UseDuration => useDuration;
+        public override bool UseUseCooldown => useUseCooldown;
         public override bool UseCount => useCount;
         public override IStatusEffectDurationDefinition? DurationDefinition => durationDefinition;
+        public override IStatusEffectUseCooldownDefinition? UseCooldownDefinition => useCooldownDefinition;
         public override IStatusEffectCountDefinition? CountDefinition => countDefinition;
         public override IReadOnlyList<IStatusEffectOperationDefinition> Operations => operations;
         public override StatusEffectHookSet DefaultHooks => defaultHooks;
@@ -473,6 +491,7 @@ namespace Game.StatusEffect
                 CreateInt(VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount, "usedCount"),
                 CreateInt(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingUseCount, "remainingUseCount"),
                 CreateInt(VarIds.GameLib.Base.StatusEffect.Runtime.Element.maxUseCount, "maxUseCount"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, "remainingUseCooldown"),
                 CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, "remainingInverseInterval"),
             };
         }
@@ -489,11 +508,22 @@ namespace Game.StatusEffect
 
     public interface IStatusEffectDurationDefinition
     {
+        bool SyncWithGlobalLifetime { get; }
+        EffectLifetimeEndAction EndAction { get; }
         bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectDurationController controller);
+    }
+
+    public interface IStatusEffectUseCooldownDefinition
+    {
+        bool SyncWithGlobalUseCooldown { get; }
+        bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectUseCooldownController controller);
     }
 
     public interface IStatusEffectCountDefinition
     {
+        bool SyncWithGlobalCount { get; }
+        EffectCountExhaustedAction ExhaustedAction { get; }
+        StatusEffectActivePolicy ActivePolicy { get; }
         bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectCountController controller);
     }
 
@@ -508,6 +538,17 @@ namespace Game.StatusEffect
         bool ApplyStack(float value, StatusEffectStackOperation operation);
     }
 
+    public interface IStatusEffectUseCooldownController
+    {
+        float TotalDuration { get; }
+        float RemainingDuration { get; }
+        bool IsActive { get; }
+        bool CanUse { get; }
+        void Tick(float deltaTime);
+        void Start();
+        void Reset();
+    }
+
     public interface IStatusEffectCountController
     {
         int MaxCount { get; }
@@ -516,8 +557,6 @@ namespace Game.StatusEffect
         bool HasLimit { get; }
         bool CanUse { get; }
         EffectCountExhaustedAction ExhaustedAction { get; }
-        float InverseIntervalDuration { get; }
-        StatusEffectInverseIntervalAction InverseIntervalAction { get; }
         StatusEffectActivePolicy ActivePolicy { get; }
         bool ConsumeUse();
         void Reset();
@@ -527,7 +566,12 @@ namespace Game.StatusEffect
     [Serializable]
     public sealed class FixedDurationStatusEffectDefinition : IStatusEffectDurationDefinition
     {
+        [LabelText("Sync With Global Lifetime")]
+        [Tooltip("有効な場合、この runtime は service-global lifetime を参照します。Duration の値は local では使いません。")]
+        public bool SyncWithGlobalLifetime;
+
         [LabelText("Duration")]
+        [ShowIf("@!SyncWithGlobalLifetime")]
         [Tooltip("effect の持続時間です。-1 を返すと無期限になります。")]
         public DynamicValue<float> Duration;
 
@@ -536,8 +580,15 @@ namespace Game.StatusEffect
         [Tooltip("持続時間が切れたときに Disable するか Remove するかを指定します。")]
         public EffectLifetimeEndAction EndAction = EffectLifetimeEndAction.Remove;
 
+        bool IStatusEffectDurationDefinition.SyncWithGlobalLifetime => SyncWithGlobalLifetime;
+        EffectLifetimeEndAction IStatusEffectDurationDefinition.EndAction => EndAction;
+
         public bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectDurationController controller)
         {
+            controller = default!;
+            if (SyncWithGlobalLifetime)
+                return false;
+
             var duration = context.Request.OverrideDuration
                 ? context.Request.DurationOverride.GetOrDefault(context, Duration.GetOrDefault(context, -1f))
                 : Duration.GetOrDefault(context, -1f);
@@ -548,9 +599,40 @@ namespace Game.StatusEffect
     }
 
     [Serializable]
+    public sealed class FixedUseCooldownStatusEffectDefinition : IStatusEffectUseCooldownDefinition
+    {
+        [LabelText("Sync With Global Cooldown")]
+        [Tooltip("有効な場合、この runtime は service-global use cooldown を参照します。Duration の値は local では使いません。")]
+        public bool SyncWithGlobalUseCooldown;
+
+        [LabelText("Duration")]
+        [ShowIf("@!SyncWithGlobalUseCooldown")]
+        [Tooltip("Use 実行後に再使用可能になるまでの cooldown 秒数です。0 以下なら cooldown は発生しません。")]
+        public DynamicValue<float> Duration;
+
+        bool IStatusEffectUseCooldownDefinition.SyncWithGlobalUseCooldown => SyncWithGlobalUseCooldown;
+
+        public bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectUseCooldownController controller)
+        {
+            controller = default!;
+            if (SyncWithGlobalUseCooldown)
+                return false;
+
+            var duration = Mathf.Max(0f, Duration.GetOrDefault(context, 0f));
+            controller = new FixedStatusEffectUseCooldownController(duration);
+            return true;
+        }
+    }
+
+    [Serializable]
     public sealed class DynamicCountStatusEffectDefinition : IStatusEffectCountDefinition
     {
+        [LabelText("Sync With Global Count")]
+        [Tooltip("有効な場合、この runtime は service-global count を参照します。Max Count は local では使いません。")]
+        public bool SyncWithGlobalCount;
+
         [LabelText("Max Count")]
+        [ShowIf("@!SyncWithGlobalCount")]
         [Tooltip("Use 可能な最大回数です。0 以下なら無制限です。")]
         public DynamicValue<int> MaxCount;
 
@@ -559,29 +641,25 @@ namespace Game.StatusEffect
         [Tooltip("Use 回数が尽きたときに effect をどう扱うかを指定します。")]
         public EffectCountExhaustedAction ExhaustedAction = EffectCountExhaustedAction.Disable;
 
-        [LabelText("Inverse Interval")]
-        [Tooltip("Use 後に一時的にオフにする時間です。0 なら無効です。")]
-        public DynamicValue<float> InverseIntervalDuration;
-
-        [LabelText("Inverse Interval Action")]
-        [EnumToggleButtons]
-        [Tooltip("逆 interval 中に effect を Disable するか、Use だけ止めるかを指定します。")]
-        public StatusEffectInverseIntervalAction InverseIntervalAction = StatusEffectInverseIntervalAction.Disable;
-
         [LabelText("Active Policy")]
         [EnumToggleButtons]
         [Tooltip("一時的に無効でも Active 扱いにするかを指定します。")]
         public StatusEffectActivePolicy ActivePolicy = StatusEffectActivePolicy.RegisteredEvenIfDisabled;
 
+        bool IStatusEffectCountDefinition.SyncWithGlobalCount => SyncWithGlobalCount;
+        EffectCountExhaustedAction IStatusEffectCountDefinition.ExhaustedAction => ExhaustedAction;
+        StatusEffectActivePolicy IStatusEffectCountDefinition.ActivePolicy => ActivePolicy;
+
         public bool TryCreateController(StatusEffectBuildContext context, out IStatusEffectCountController controller)
         {
+            controller = default!;
+            if (SyncWithGlobalCount)
+                return false;
+
             var maxCount = Mathf.Max(0, MaxCount.GetOrDefault(context, 0));
-            var inverseInterval = Mathf.Max(0f, InverseIntervalDuration.GetOrDefault(context, 0f));
             controller = new DynamicCountStatusEffectController(
                 maxCount,
                 ExhaustedAction,
-                inverseInterval,
-                InverseIntervalAction,
                 ActivePolicy);
             return true;
         }
@@ -704,6 +782,7 @@ namespace Game.StatusEffect
     sealed class FixedStatusEffectDurationController : IStatusEffectDurationController
     {
         readonly float _configuredDuration;
+        bool _skipNextTick;
 
         public float TotalDuration { get; private set; }
         public float RemainingDuration { get; private set; }
@@ -716,12 +795,19 @@ namespace Game.StatusEffect
             TotalDuration = duration;
             RemainingDuration = duration;
             EndAction = endAction;
+            _skipNextTick = duration >= 0f && duration > 0f;
         }
 
         public void Tick(float deltaTime)
         {
             if (TotalDuration < 0f)
                 return;
+
+            if (_skipNextTick)
+            {
+                _skipNextTick = false;
+                return;
+            }
 
             RemainingDuration -= Mathf.Max(0f, deltaTime);
             if (RemainingDuration < 0f)
@@ -732,6 +818,7 @@ namespace Game.StatusEffect
         {
             TotalDuration = _configuredDuration;
             RemainingDuration = _configuredDuration;
+            _skipNextTick = _configuredDuration >= 0f && _configuredDuration > 0f;
         }
 
         public bool ApplyStack(float value, StatusEffectStackOperation operation)
@@ -783,21 +870,15 @@ namespace Game.StatusEffect
         public bool HasLimit => _configuredMaxCount > 0;
         public bool CanUse => !HasLimit || UsedCount < _configuredMaxCount;
         public EffectCountExhaustedAction ExhaustedAction { get; }
-        public float InverseIntervalDuration { get; }
-        public StatusEffectInverseIntervalAction InverseIntervalAction { get; }
         public StatusEffectActivePolicy ActivePolicy { get; }
 
         public DynamicCountStatusEffectController(
             int maxCount,
             EffectCountExhaustedAction exhaustedAction,
-            float inverseIntervalDuration,
-            StatusEffectInverseIntervalAction inverseIntervalAction,
             StatusEffectActivePolicy activePolicy)
         {
             _configuredMaxCount = maxCount;
             ExhaustedAction = exhaustedAction;
-            InverseIntervalDuration = inverseIntervalDuration;
-            InverseIntervalAction = inverseIntervalAction;
             ActivePolicy = activePolicy;
         }
 
@@ -843,6 +924,50 @@ namespace Game.StatusEffect
                 UsedCount = _configuredMaxCount;
 
             return before != _configuredMaxCount;
+        }
+    }
+
+    sealed class FixedStatusEffectUseCooldownController : IStatusEffectUseCooldownController
+    {
+        readonly float _configuredDuration;
+        bool _skipNextTick;
+
+        public float TotalDuration => _configuredDuration;
+        public float RemainingDuration { get; private set; }
+        public bool IsActive => RemainingDuration > 0f;
+        public bool CanUse => RemainingDuration <= 0f;
+
+        public FixedStatusEffectUseCooldownController(float duration)
+        {
+            _configuredDuration = Mathf.Max(0f, duration);
+        }
+
+        public void Tick(float deltaTime)
+        {
+            if (RemainingDuration <= 0f)
+                return;
+
+            if (_skipNextTick)
+            {
+                _skipNextTick = false;
+                return;
+            }
+
+            RemainingDuration -= Mathf.Max(0f, deltaTime);
+            if (RemainingDuration < 0f)
+                RemainingDuration = 0f;
+        }
+
+        public void Start()
+        {
+            RemainingDuration = _configuredDuration;
+            _skipNextTick = _configuredDuration > 0f;
+        }
+
+        public void Reset()
+        {
+            RemainingDuration = 0f;
+            _skipNextTick = false;
         }
     }
 }

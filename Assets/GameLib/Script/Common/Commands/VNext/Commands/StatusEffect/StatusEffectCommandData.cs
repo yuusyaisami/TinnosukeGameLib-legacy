@@ -17,6 +17,7 @@ namespace Game.Commands.VNext
         Use = 50,
         Reset = 60,
         ClearAll = 70,
+        UseGlobal = 80,
     }
 
     public enum StatusEffectServiceScope
@@ -86,13 +87,14 @@ namespace Game.Commands.VNext
 
         bool IsApply => Op == StatusEffectCommandOp.Apply;
         bool IsClearAll => Op == StatusEffectCommandOp.ClearAll;
+        bool IsUseGlobal => Op == StatusEffectCommandOp.UseGlobal;
         bool UseActorSource => ServiceScope == StatusEffectServiceScope.Actor;
-        bool ShowFilterSettings => !IsApply && !IsClearAll;
+        bool ShowFilterSettings => !IsApply && !IsClearAll && !IsUseGlobal;
         bool ShowFilterValue => ShowFilterSettings && FilterMode != StatusEffectRuntimeFilterMode.All;
 
         public StatusEffectRuntimeFilter BuildFilter()
         {
-            if (IsApply || IsClearAll)
+            if (IsApply || IsClearAll || IsUseGlobal)
                 return StatusEffectRuntimeFilter.All;
 
             return new StatusEffectRuntimeFilter(FilterMode, FilterValue);
