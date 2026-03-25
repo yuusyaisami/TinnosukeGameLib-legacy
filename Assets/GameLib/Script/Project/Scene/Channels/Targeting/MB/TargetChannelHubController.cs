@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -35,9 +36,8 @@ namespace Game.Targeting
 
         [FoldoutGroup("Setup")]
         [LabelText("Initial Channels")]
-        // Odin: Expanded は非推奨なので ShowFoldout のみ使用
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, DefaultExpandedState = true)]
-        [SerializeField] List<TargetChannelDef> initialChannels = new(); // 初期登録するチャネル一覧
+        [SerializeField] List<DynamicValue<TargetChannelPreset>> initialChannels = new(); // 初期登録するチャネル一覧
 
         // ================================================================
         // Runtime
@@ -95,9 +95,12 @@ namespace Game.Targeting
             var set = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < initialChannels.Count; i++)
             {
-                var c = initialChannels[i];
-                if (c == null) continue;
-                if (string.IsNullOrEmpty(c.Tag)) continue;
+                if (!initialChannels[i].TryGet(EmptyDynamicContext.Instance, out TargetChannelPreset? c) || c == null)
+                    continue;
+
+                if (string.IsNullOrEmpty(c.Tag))
+                    continue;
+
                 if (!set.Add(c.Tag))
                 {
                     Debug.LogWarning($"[TargetChannelHubController] Duplicate tag in Initial Channels: {c.Tag}", this);
@@ -114,11 +117,41 @@ namespace Game.Targeting
             return false;
         }
 
-        public ITargetChannelRuntime GetOrRegister(TargetChannelDef def, bool replaceIfExists = false)
+        public ITargetChannelRuntime RegisterOrReplace(TargetChannelPreset preset)
         {
             var hub = TryResolveHub();
             if (hub == null) throw new InvalidOperationException("[TargetChannelHubController] Hub not available.");
-            return hub.GetOrRegister(def, replaceIfExists);
+            return hub.RegisterOrReplace(preset);
+        }
+
+        public bool SwapPreset(string tag, TargetChannelPreset preset)
+        {
+            var hub = TryResolveHub();
+            return hub != null && hub.SwapPreset(tag, preset);
+        }
+
+        public bool MutateSettings(string tag, TargetChannelRuntimeMutation mutation)
+        {
+            var hub = TryResolveHub();
+            return hub != null && hub.MutateSettings(tag, mutation);
+        }
+
+        public bool ResetRuntimeOverrides(string tag)
+        {
+            var hub = TryResolveHub();
+            return hub != null && hub.ResetRuntimeOverrides(tag);
+        }
+
+        public bool SetDirectTargets(string tag, IReadOnlyList<Game.Search.DynamicSearchHit> hits)
+        {
+            var hub = TryResolveHub();
+            return hub != null && hub.SetDirectTargets(tag, hits);
+        }
+
+        public bool ClearDirectTargets(string tag)
+        {
+            var hub = TryResolveHub();
+            return hub != null && hub.ClearDirectTargets(tag);
         }
 
         public bool Unregister(string tag)

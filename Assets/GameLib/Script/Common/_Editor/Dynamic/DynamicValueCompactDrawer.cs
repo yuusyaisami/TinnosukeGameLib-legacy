@@ -71,6 +71,22 @@ namespace Game.Common.Editor
             }
             EditorGUILayout.EndHorizontal();
 
+            var headerRect = GUILayoutUtility.GetLastRect();
+            var evt = Event.current;
+            if (evt != null && evt.type == EventType.ContextClick && headerRect.Contains(evt.mousePosition))
+            {
+                if (src is FloatExpressionSource || src is IntExpressionSource)
+                {
+                    var menu = new GenericMenu();
+                    menu.AddItem(new GUIContent("Open Graph Preview"), false, () =>
+                    {
+                        ExpressionGraphPreviewWindow.Open(src);
+                    });
+                    menu.ShowAsContext();
+                    evt.Use();
+                }
+            }
+
             // --- 展開：Sourceの中身(フィールド)だけ描く（ShowIfが効く） ---
             if (!expanded) return;
 
@@ -155,6 +171,11 @@ namespace Game.Common.Editor
                 case SelfScalarSource _:
                 case OtherScalarSource _:
                     return TryGetChildValueAsString(sourceProp, "scalarKey", out detail);
+                case SharedActorSourceExistsSource _:
+                case SharedActorSourceTagSource _:
+                    return TryGetChildValueAsString(sourceProp, "sharedHubActorSource", out detail);
+                case UIModalStackActorMatchSource _:
+                    return TryGetChildValueAsString(sourceProp, "modalStackActorSource", out detail);
             }
 
             if (TryGetChildValue(sourceProp, "objectValue", out var obj) && obj is Object unityObj)

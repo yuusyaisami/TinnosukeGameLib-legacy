@@ -821,6 +821,30 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: 1e0d50660cd64897815c3c445edc5655
+    parentId: 361941535be14ea8b8a21559ca384cd3
+    name: Upgrade
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 7c9e83eef9474a4d86452d4c68cd49c5
+    parentId: 1e0d50660cd64897815c3c445edc5655
+    name: MaxLevel
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3558e521fba34220979560e06c3c70f0
+    parentId: 1e0d50660cd64897815c3c445edc5655
+    name: LevelValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   - id: 49fdfc719a114bc9bc908f0a65d7b7ac
     parentId: a2af5b9495c945e48a462a5e9bb14fc4
     name: MoneyValue
@@ -925,6 +949,22 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: b5a00417aa344426a69667e1b2bf8782
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: LuckWayPoint
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 9ba5f0c4f8d940cf806dd6e2dc5629a6
+    parentId: a2af5b9495c945e48a462a5e9bb14fc4
+    name: LuckUniqueValueMulAdd
+    isFolder: 0
+    description: "Luck\u500D\u7387\u306E\u4E2D\u3067\u3082\u3001\u4E0A\u632F\u308C\u3092\u884C\u3046\u6642\u306EMulAdd"
+    explicitKey: 
+    obsolete: 0
+    tags: []
   - id: 8d8592640f414dcfb3fcca969d70702d
     parentId: a2af5b9495c945e48a462a5e9bb14fc4
     name: ShopPriceMul
@@ -952,30 +992,6 @@ MonoBehaviour:
   - id: 17f8219ce5db4edd8eb9b0a2932cb28a
     parentId: a2af5b9495c945e48a462a5e9bb14fc4
     name: GameStage
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 1e0d50660cd64897815c3c445edc5655
-    parentId: 361941535be14ea8b8a21559ca384cd3
-    name: Upgrade
-    isFolder: 1
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 7c9e83eef9474a4d86452d4c68cd49c5
-    parentId: 1e0d50660cd64897815c3c445edc5655
-    name: MaxLevel
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 3558e521fba34220979560e06c3c70f0
-    parentId: 1e0d50660cd64897815c3c445edc5655
-    name: LevelValue
     isFolder: 0
     description: 
     explicitKey: 

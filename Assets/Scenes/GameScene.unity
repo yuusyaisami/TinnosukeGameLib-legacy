@@ -2216,6 +2216,33 @@ MonoBehaviour:
             _source:
               rid: 5619052416848363979
         ScalarOps: []
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052416848363979
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -16327,6 +16354,7 @@ MonoBehaviour:
       _commands:
       - rid: 5619052451121070339
       - rid: 5619052416848364047
+      - rid: 5619052506154533153
     endCommands:
       _debugOwner: {fileID: 0}
       _debugFieldPath: 
@@ -16668,6 +16696,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052451121070203
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -16797,6 +16852,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052451121070208
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -16991,6 +17073,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052451121070299
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -17096,6 +17205,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052451121070315
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -17243,6 +17379,25 @@ MonoBehaviour:
       type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {fileID: 11400000, guid: 2bed4f4c7d61662469308fe8d8c519ad, type: 2}
+    - rid: 5619052506154533153
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5619052506154533154
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5619052506154533154
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 2b2cdf103b5fa844a82057863e47be0a, type: 2}
 --- !u!114 &1046528813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17258,6 +17413,8 @@ MonoBehaviour:
   _profiles:
   - _source:
       rid: 5619052366731149400
+  - _source:
+      rid: 5619052506154533157
   _resetOnAcquire: 1
   _clearOnRelease: 1
   _enableSaveInRuntimeScope: 0
@@ -17870,6 +18027,106 @@ MonoBehaviour:
         ScalarKeyValue:
           Id: 1291327690
           Name: GameLogic.GameProfile.Base.RerollValue
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052506154533157
+      type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052506154533158
+    - rid: 5619052506154533158
+      type: {class: CustomProfileDefinition, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        _profileName: CustomProfile
+        _bindings:
+        - rid: 5619052506154533161
+        - rid: 5619052506154533163
+        - rid: 5619052506154533194
+    - rid: 5619052506154533161
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 10
+        ScalarKeyValue:
+          Id: 394194146
+          Name: GameLogic.GameProfile.Base.LuckWayPoint
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052506154533163
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 1
+        ScalarKeyValue:
+          Id: 0
+          Name: 
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 101057
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052506154533194
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0.5
+        ScalarKeyValue:
+          Id: 1558893705
+          Name: GameLogic.GameProfile.Base.LuckUniqueValueMulAdd
         ScalarPolicyValue: 0
         UseEffectMod: 0
         UseClampMod: 0
@@ -26267,6 +26524,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052366731149936
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -26429,6 +26713,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052366731149942
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -27985,7 +28296,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 7898
+  _debugLastEnabledChangeFrame: 1894
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1484563809
@@ -29000,6 +29311,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052366731149936
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -29162,6 +29500,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052366731149942
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -30726,7 +31091,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 7898
+  _debugLastEnabledChangeFrame: 1894
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1505620737
@@ -32625,7 +32990,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
-  enableDebugView: 0
+  enableDebugView: 1
   _debugView:
     editKey:
       Id: 0
@@ -32707,9 +33072,9 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052416848363703
-        - rid: 5619052416848363701
-        - rid: 5619052416848363702
+        - rid: 5619052506154533190
+        - rid: 5619052506154533191
+        - rid: 5619052506154533192
     - rid: 5619052366731149929
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -32726,10 +33091,39 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052416848363701
+    - rid: 5619052506154533190
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
-        Value: 1
+        Value: 0
+        ScalarKeyValue:
+          Id: -545404644
+          Name: GameLogic.SlotProfile.LeftMul
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: 5619052366731149929
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: 5619052366731149930
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052506154533191
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
         ScalarKeyValue:
           Id: -354043114
           Name: GameLogic.SlotProfile.CenterMul
@@ -32755,10 +33149,10 @@ MonoBehaviour:
         BlackboardPolicyValue: 0
         BlackboardSaveEnabledValue: 0
         BlackboardSaveLayerValue: 0
-    - rid: 5619052416848363702
+    - rid: 5619052506154533192
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
-        Value: 1
+        Value: 0
         ScalarKeyValue:
           Id: 2120132904
           Name: GameLogic.SlotProfile.RightMul
@@ -32777,35 +33171,6 @@ MonoBehaviour:
           Max:
             _source:
               rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052416848363703
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: -545404644
-          Name: GameLogic.SlotProfile.LeftMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: 5619052366731149929
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052366731149930
             _defaultValue: 0
         ScalarSaveEnabledValue: 0
         ScalarSaveLayerValue: 0
@@ -37390,7 +37755,7 @@ MonoBehaviour:
         Name: GameLogic.GameProfile.Base.LuckValue
       ChangeEpsilon: 0
     ValueChangedTargets: []
-    ExecuteInitialValueChangedEnter: 0
+    ExecuteInitialValueChangedEnter: 1
     InitialValueChangedEnterDelaySeconds: 0
     OnEnterCommands:
       _debugOwner: {fileID: 1888176851}
@@ -37398,6 +37763,7 @@ MonoBehaviour:
       _debugAssetPath: 
       _functionName: MonitorRule.OnEnter
       _commands:
+      - rid: 5619052506154533166
       - rid: 5619052506154533066
     OnExitCommands:
       _debugOwner: {fileID: 1888176851}
@@ -37621,6 +37987,73 @@ MonoBehaviour:
           ContextSlot: 100
         createIfMissing: 0
         baselineValue: 0
+    - rid: 5619052506154533166
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052506154533167
+    - rid: 5619052506154533167
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5619052506154533169
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052506154533171
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052506154533169
+      type: {class: GameStateMachineCompareBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        actorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        op: 0
+        targetState: 14
+    - rid: 5619052506154533171
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5619052506154533172
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5619052506154533172
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 2b2cdf103b5fa844a82057863e47be0a, type: 2}
 --- !u!1 &1892661347
 GameObject:
   m_ObjectHideFlags: 0
@@ -39661,6 +40094,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052366731149936
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -39823,6 +40283,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052366731149942
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -41378,7 +41865,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 7898
+  _debugLastEnabledChangeFrame: 1894
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1979925667
@@ -42249,6 +42736,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052506154533052
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

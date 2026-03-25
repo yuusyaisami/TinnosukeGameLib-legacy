@@ -15,7 +15,7 @@ namespace Game.StatusEffect
         public readonly EffectType Type;
         public readonly float RemainingTime;
         public readonly float TotalDuration;
-        public readonly float RemainingInverseInterval;
+        public readonly float RemainingUseCooldown;
         public readonly float Intensity;
         public readonly int StackCount;
         public readonly bool IsEnabled;
@@ -37,7 +37,7 @@ namespace Game.StatusEffect
             EffectType type,
             float remainingTime,
             float totalDuration,
-            float remainingInverseInterval,
+            float remainingUseCooldown,
             float intensity,
             int stackCount,
             bool isEnabled,
@@ -58,7 +58,7 @@ namespace Game.StatusEffect
             Type = type;
             RemainingTime = remainingTime;
             TotalDuration = totalDuration;
-            RemainingInverseInterval = remainingInverseInterval;
+            RemainingUseCooldown = remainingUseCooldown;
             Intensity = intensity;
             StackCount = stackCount;
             IsEnabled = isEnabled;

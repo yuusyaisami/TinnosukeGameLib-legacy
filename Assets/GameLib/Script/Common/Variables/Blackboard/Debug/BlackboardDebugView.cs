@@ -313,7 +313,7 @@ namespace Game.Common
             [ShowInInspector, ReadOnly, LabelText("Kind")]
             public readonly string KindName;
 
-            [ShowInInspector, ReadOnly, LabelText("Version")]
+            [ShowInInspector, ReadOnly, LabelText("Write Version")]
             public readonly int Version;
 
             [ShowInInspector, ReadOnly, LabelText("Value")]

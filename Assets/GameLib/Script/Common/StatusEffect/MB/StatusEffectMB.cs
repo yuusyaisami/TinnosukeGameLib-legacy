@@ -9,12 +9,59 @@ using VContainer.Unity;
 
 namespace Game.StatusEffect
 {
+    public interface IStatusEffectServiceOptions
+    {
+        StatusEffectGlobalLifetimeSettings GlobalLifetimeSettings { get; }
+        StatusEffectGlobalUseCooldownSettings GlobalUseCooldownSettings { get; }
+        StatusEffectGlobalCountSettings GlobalCountSettings { get; }
+    }
+
+    [Serializable]
+    public sealed class StatusEffectGlobalLifetimeSettings
+    {
+        [LabelText("Enabled")]
+        [Tooltip("有効な場合、この service は shared lifetime timer を保持します。global lifetime sync runtime はこの値を参照します。")]
+        public bool Enabled;
+
+        [ShowIf(nameof(Enabled))]
+        [LabelText("Duration")]
+        [Tooltip("service acquire/reset 時に初期化される global lifetime 秒数です。-1 なら無期限です。")]
+        public DynamicValue<float> Duration;
+    }
+
+    [Serializable]
+    public sealed class StatusEffectGlobalUseCooldownSettings
+    {
+        [LabelText("Enabled")]
+        [Tooltip("有効な場合、この service は shared use cooldown を保持します。UseGlobal 実行時に開始されます。")]
+        public bool Enabled;
+
+        [ShowIf(nameof(Enabled))]
+        [LabelText("Duration")]
+        [Tooltip("UseGlobal 実行後に再使用可能になるまでの shared cooldown 秒数です。")]
+        public DynamicValue<float> Duration;
+    }
+
+    [Serializable]
+    public sealed class StatusEffectGlobalCountSettings
+    {
+        [LabelText("Enabled")]
+        [Tooltip("有効な場合、この service は shared count を保持します。UseGlobal 実行で 1 減少します。0 以下なら無制限です。")]
+        public bool Enabled;
+
+        [ShowIf(nameof(Enabled))]
+        [LabelText("Max Count")]
+        [Tooltip("service acquire/reset 時に初期化する shared count 上限です。0 以下なら無制限です。")]
+        public DynamicValue<int> MaxCount;
+    }
+
     [DisallowMultipleComponent]
     public sealed class StatusEffectMB :
         MonoBehaviour,
         IFeatureInstaller,
         IScopeAcquireHandler,
-        IScopeReleaseHandler
+        IScopeReleaseHandler,
+        IStatusEffectServiceOptions
     {
         [Serializable]
         struct EffectDebugEntry
@@ -25,7 +72,7 @@ namespace Game.StatusEffect
             public string DisplayName;
             public EffectType Type;
             public float RemainingTime;
-            public float RemainingInverseInterval;
+            public float RemainingUseCooldown;
             public float Intensity;
             public int StackCount;
             public bool IsEnabled;
@@ -43,6 +90,19 @@ namespace Game.StatusEffect
 
         [SerializeField]
         List<EffectDebugEntry> _activeEffects = new();
+
+        [Header("Global Runtime")]
+        [SerializeField, InlineProperty]
+        [Tooltip("service 全体で共有する lifetime timer 設定です。global lifetime sync runtime が参照します。")]
+        StatusEffectGlobalLifetimeSettings _globalLifetimeSettings = new();
+
+        [SerializeField, InlineProperty]
+        [Tooltip("service 全体で共有する use cooldown 設定です。UseGlobal 実行時に開始されます。")]
+        StatusEffectGlobalUseCooldownSettings _globalUseCooldownSettings = new();
+
+        [SerializeField, InlineProperty]
+        [Tooltip("service 全体で共有する count 設定です。UseGlobal 実行で消費されます。")]
+        StatusEffectGlobalCountSettings _globalCountSettings = new();
 
         [Header("Debug Apply")]
         [SerializeField]
@@ -66,6 +126,9 @@ namespace Game.StatusEffect
         float _nextDebugRefreshTime;
 
         public IStatusEffectService StatusEffectService => _statusEffectService;
+        public StatusEffectGlobalLifetimeSettings GlobalLifetimeSettings => _globalLifetimeSettings ?? new StatusEffectGlobalLifetimeSettings();
+        public StatusEffectGlobalUseCooldownSettings GlobalUseCooldownSettings => _globalUseCooldownSettings ?? new StatusEffectGlobalUseCooldownSettings();
+        public StatusEffectGlobalCountSettings GlobalCountSettings => _globalCountSettings ?? new StatusEffectGlobalCountSettings();
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
@@ -73,6 +136,8 @@ namespace Game.StatusEffect
                 .AsSelf()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
+
+            builder.RegisterInstance<IStatusEffectServiceOptions>(this);
 
             builder.Register<StatusEffectService>(Lifetime.Singleton)
                 .WithParameter(scope)
@@ -128,7 +193,7 @@ namespace Game.StatusEffect
                     DisplayName = state.DisplayName,
                     Type = state.Type,
                     RemainingTime = state.RemainingTime,
-                    RemainingInverseInterval = state.RemainingInverseInterval,
+                    RemainingUseCooldown = state.RemainingUseCooldown,
                     Intensity = state.Intensity,
                     StackCount = state.StackCount,
                     IsEnabled = state.IsEnabled,
@@ -173,6 +238,15 @@ namespace Game.StatusEffect
                 return;
 
             _statusEffectService?.Use(StatusEffectRuntimeFilter.All, _scopeNode);
+        }
+
+        [Button("Use Global")]
+        void DebugUseGlobal()
+        {
+            if (_scopeNode == null)
+                return;
+
+            _statusEffectService?.UseGlobal(_scopeNode);
         }
 
         [Button("Clear All Effects")]

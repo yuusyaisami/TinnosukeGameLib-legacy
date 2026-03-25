@@ -154,7 +154,7 @@ namespace Game.Commands.VNext
                         for (var j = 0; j < candidate.Items.Count; j++)
                         {
                             var item = candidate.Items[j];
-                            ApplyScalarOp(item, item.Item.SelectedOp, item.Item.SelectedValue, item.Item.SelectedLayer, item.Item.SelectedMulPhase, item.Item.SelectedDurationSeconds, item.Item.SelectedTag, ctx);
+                            ApplyScalarOp(item, item.Item.SelectedOp, item.Item.SelectedValue, item.Item.SelectedLayer, item.Item.SelectedMulPhase, item.Item.SelectedDurationSeconds, item.Item.SelectedTag, item.Item.SelectedKeepLocalBaseOnClearKey, ctx);
                         }
                     }
                 }
@@ -163,7 +163,7 @@ namespace Game.Commands.VNext
                     for (var j = 0; j < candidate.Items.Count; j++)
                     {
                         var item = candidate.Items[j];
-                        ApplyScalarOp(item, item.Item.UnselectedOp, item.Item.UnselectedValue, item.Item.UnselectedLayer, item.Item.UnselectedMulPhase, item.Item.UnselectedDurationSeconds, item.Item.UnselectedTag, ctx);
+                        ApplyScalarOp(item, item.Item.UnselectedOp, item.Item.UnselectedValue, item.Item.UnselectedLayer, item.Item.UnselectedMulPhase, item.Item.UnselectedDurationSeconds, item.Item.UnselectedTag, item.Item.UnselectedKeepLocalBaseOnClearKey, ctx);
                     }
                 }
             }
@@ -432,6 +432,7 @@ namespace Game.Commands.VNext
             ScalarMulPhase mulPhase,
             DynamicValue<float> duration,
             string tag,
+            bool keepLocalBaseOnClearKey,
             CommandContext ctx)
         {
             if (op == LotteryScalarOpKind.None)
@@ -462,8 +463,21 @@ namespace Game.Commands.VNext
                     scalar.GlobalMul(key, layer ?? string.Empty, value.GetOrDefault(ctx, 1f), mulPhase, Mathf.Max(-1f, duration.GetOrDefault(ctx, -1f)), source, tag);
                     return;
                 case LotteryScalarOpKind.ClearKey:
-                    scalar.ClearAll(key);
-                    return;
+                    {
+                        var hasRuntime = false;
+                        var localBase = 0f;
+                        if (scalar.TryGetRuntime(key, out var runtime) && runtime != null)
+                        {
+                            hasRuntime = true;
+                            localBase = runtime.LocalBase;
+                        }
+
+                        scalar.ClearAll(key);
+                        if (keepLocalBaseOnClearKey && hasRuntime)
+                            scalar.SetLocalBase(key, localBase);
+
+                        return;
+                    }
                 case LotteryScalarOpKind.ClearAll:
                     scalar.ClearAll(null);
                     return;

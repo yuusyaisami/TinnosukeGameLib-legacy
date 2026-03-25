@@ -47,6 +47,11 @@ namespace Game.Channel
         IAnimationData? CurrentClip { get; }
 
         /// <summary>
+        /// The SpriteRenderer target if this channel uses SpriteRenderer, otherwise null.
+        /// </summary>
+        SpriteRenderer? SpriteRenderer { get; }
+
+        /// <summary>
         /// The Image target if this channel uses uGUI Graphic, otherwise null.
         /// </summary>
         UnityEngine.UI.Image? Image { get; }
@@ -183,6 +188,7 @@ namespace Game.Channel
         public string Tag => _def.Tag;
         public IAnimationData? CurrentClip => _currentClip;
 
+        public SpriteRenderer? SpriteRenderer => _def.SpriteRenderer;
         public UnityEngine.UI.Image? Image => _def.Image;
         public Game.MaterialFx.IMaterialFxService? MaterialFx => _materialFxService;
         public float PlaybackSpeedMultiplier => _clipPlayer.PlaybackSpeedMultiplier;

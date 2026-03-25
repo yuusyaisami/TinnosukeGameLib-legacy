@@ -7,28 +7,29 @@ namespace Game.Targeting
 {
     public sealed class NullTargetChannelRuntime : ITargetChannelRuntime
     {
-        readonly TargetChannelDef _def;
+        readonly TargetChannelPreset _preset;
         readonly List<DynamicSearchHit> _hits = new();
         int _lastUpdatedFrame = int.MinValue;
 
-        public NullTargetChannelRuntime(TargetChannelDef def)
+        public NullTargetChannelRuntime(TargetChannelPreset preset)
         {
-            _def = def ?? throw new System.ArgumentNullException(nameof(def));
+            _preset = preset?.CreateRuntimeCopy() ?? throw new System.ArgumentNullException(nameof(preset));
         }
 
-        public string Tag => _def.Tag;
+        public string Tag => _preset.Tag;
 
         public bool Enabled
         {
-            get => _def.Enabled;
+            get => _preset.Enabled;
             set
             {
-                _def.Enabled = value;
-                if (!_def.Enabled)
+                _preset.Enabled = value;
+                if (!_preset.Enabled)
                     _hits.Clear();
             }
         }
 
+        public TargetChannelPreset CurrentPreset => _preset;
         public int LastUpdatedFrame => _lastUpdatedFrame;
 
         public List<DynamicSearchHit> Hits => _hits;
@@ -43,6 +44,37 @@ namespace Game.Targeting
         {
             _lastUpdatedFrame = Time.frameCount;
             _hits.Clear();
+        }
+
+        public bool SwapPreset(TargetChannelPreset preset)
+        {
+            _ = preset;
+            return false;
+        }
+
+        public bool MutateSettings(TargetChannelRuntimeMutation mutation)
+        {
+            _ = mutation;
+            return false;
+        }
+
+        public bool ResetRuntimeOverrides()
+        {
+            _hits.Clear();
+            return false;
+        }
+
+        public bool SetDirectTargets(IReadOnlyList<DynamicSearchHit> hits)
+        {
+            _ = hits;
+            return false;
+        }
+
+        public bool ClearDirectTargets()
+        {
+            var changed = _hits.Count > 0;
+            _hits.Clear();
+            return changed;
         }
     }
 }

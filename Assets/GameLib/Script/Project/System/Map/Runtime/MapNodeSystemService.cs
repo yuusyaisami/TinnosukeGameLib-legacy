@@ -6,7 +6,7 @@ using Cysharp.Threading.Tasks;
 using VContainer;
 using Game.Commands.VNext;
 using Game.Common;
-using Game.LineDraw;
+using Game.Channel;
 using UnityEngine;
 using Game.Vars.Generated;
 
@@ -156,12 +156,12 @@ namespace Game.MapNode
             if (_manager.TryGetNodeInstance(nodeId, out var instance) && instance != null)
                 UpdateNodeStateBlackboard(instance, state);
 
-            ILineDrawService? lineDraw = _manager.Runtime?.LineDrawService;
-            if (lineDraw == null && _owner != null && _owner.Resolver != null)
-                _owner.Resolver.TryResolve<ILineDrawService>(out lineDraw);
+            IMeshChannelControlService? lineControl = _manager.Runtime?.LineControlService;
+            if (lineControl == null && _owner != null && _owner.Resolver != null)
+                _owner.Resolver.TryResolve<IMeshChannelControlService>(out lineControl);
 
-            if (lineDraw != null)
-                _visualizer.UpdateConnectionsForNode(_manager, nodeId, lineDraw);
+            if (lineControl != null)
+                _visualizer.UpdateConnectionsForNode(_manager, nodeId, lineControl);
 
             return true;
         }
@@ -190,20 +190,20 @@ namespace Game.MapNode
             await UniTask.SwitchToMainThread();
 
             var resolver = _owner?.Resolver;
-            ILineDrawService? lineDraw = runtime.LineDrawService;
-            if (lineDraw == null && resolver != null)
-                resolver.TryResolve<ILineDrawService>(out lineDraw);
+            IMeshChannelControlService? lineControl = runtime.LineControlService;
+            if (lineControl == null && resolver != null)
+                resolver.TryResolve<IMeshChannelControlService>(out lineControl);
 
-            if (lineDraw != null)
+            if (lineControl != null)
             {
                 if (runtime.Connections != null)
                 {
                     for (int i = 0; i < runtime.Connections.Count; i++)
                     {
                         var connection = runtime.Connections[i];
-                        if (connection == null || !connection.LineHandle.IsValid)
+                        if (connection == null || string.IsNullOrWhiteSpace(connection.TrackKey))
                             continue;
-                        lineDraw.Release(connection.LineHandle);
+                        lineControl.SetTrackEnabled(runtime.LineChannelTag, connection.TrackKey, enabled: false);
                     }
                 }
             }

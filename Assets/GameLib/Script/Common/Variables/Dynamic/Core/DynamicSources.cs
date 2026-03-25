@@ -28,6 +28,7 @@ using Game.Movement;
 using Game.StateMachine;
 using Game.Trait;
 using Game.StatusEffect;
+using Game.UI;
 using VContainer;
 using Object = UnityEngine.Object;
 using Game.DI;
@@ -1984,6 +1985,234 @@ namespace Game.Common
                 searchDirection = searchDirection,
                 searchRange = searchRange,
             };
+        }
+    }
+
+    /// <summary>
+    /// 指定した Shared hub 内に対象 ActorSource が登録されているかを判定するソース。
+    /// </summary>
+    [Serializable]
+    public sealed class SharedActorSourceExistsSource : IDynamicSource
+    {
+        [SerializeField]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(sharedHubActorSource)")]
+        ActorSource sharedHubActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [SerializeField]
+        [LabelText("Tag")]
+        string tag = string.Empty;
+
+        [SerializeField]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
+        ActorSource targetActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [NonSerialized]
+        ActorSourceResolveCache _sharedHubActorCache;
+
+        [NonSerialized]
+        ActorSourceResolveCache _targetActorCache;
+
+        public string SourceTypeName => "SharedActorExists";
+        public string GetDebugData => $"Hub={ActorSourceOdinLabelHelper.GetActorSourceLabel(sharedHubActorSource)} Tag={tag} Target={ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)}";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null)
+                return DynamicVariant.Null;
+
+            var exists = TryFindSharedTag(context, out _);
+            return DynamicVariant.FromBool(exists);
+        }
+
+        bool TryFindSharedTag(IDynamicContext context, out string tag)
+        {
+            tag = string.Empty;
+
+            var hubOwnerScope = ActorSourceFastResolver.ResolveCached(context, sharedHubActorSource, ref _sharedHubActorCache);
+            if (hubOwnerScope == null)
+                return false;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache, hubOwnerScope);
+            if (targetScope == null)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(this.tag))
+                return TryFindTagFromSharedHub(hubOwnerScope, targetScope, out tag);
+
+            return TryMatchTagFromSharedHub(hubOwnerScope, targetScope, this.tag, out tag);
+        }
+
+        internal static bool TryFindTagFromSharedHub(IScopeNode hubOwnerScope, IScopeNode targetScope, out string tag)
+        {
+            tag = string.Empty;
+            for (var current = hubOwnerScope; current != null; current = current.Parent)
+            {
+                var resolver = current.Resolver;
+                if (resolver == null)
+                    continue;
+
+                if (!resolver.TryResolve<ISharedLTSChannelHub>(out var hub) || hub == null)
+                    continue;
+
+                if (hub.TryFindTag(targetScope, out tag))
+                    return true;
+
+                return false;
+            }
+
+            return false;
+        }
+
+        static bool TryMatchTagFromSharedHub(IScopeNode hubOwnerScope, IScopeNode targetScope, string expectedTag, out string resolvedTag)
+        {
+            resolvedTag = string.Empty;
+            if (string.IsNullOrWhiteSpace(expectedTag))
+                return false;
+
+            for (var current = hubOwnerScope; current != null; current = current.Parent)
+            {
+                var resolver = current.Resolver;
+                if (resolver == null)
+                    continue;
+
+                if (!resolver.TryResolve<ISharedLTSChannelHub>(out var hub) || hub == null)
+                    continue;
+
+                if (!hub.TryGet(expectedTag, out var registeredScope) || registeredScope == null)
+                    return false;
+
+                if (!ReferenceEquals(registeredScope, targetScope))
+                    return false;
+
+                resolvedTag = expectedTag;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 指定した Shared hub 内で対象 ActorSource に対応する shared tag 名を返すソース。
+    /// 見つからない場合は空文字列を返す。
+    /// </summary>
+    [Serializable]
+    public sealed class SharedActorSourceTagSource : IDynamicSource
+    {
+        [SerializeField]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(sharedHubActorSource)")]
+        ActorSource sharedHubActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [SerializeField]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
+        ActorSource targetActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [NonSerialized]
+        ActorSourceResolveCache _sharedHubActorCache;
+
+        [NonSerialized]
+        ActorSourceResolveCache _targetActorCache;
+
+        public string SourceTypeName => "SharedActorTag";
+        public string GetDebugData => $"Hub={ActorSourceOdinLabelHelper.GetActorSourceLabel(sharedHubActorSource)} Target={ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)}";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null)
+                return DynamicVariant.Null;
+
+            var hubOwnerScope = ActorSourceFastResolver.ResolveCached(context, sharedHubActorSource, ref _sharedHubActorCache);
+            if (hubOwnerScope == null)
+                return DynamicVariant.FromString(string.Empty);
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache, hubOwnerScope);
+            if (targetScope == null)
+                return DynamicVariant.FromString(string.Empty);
+
+            return SharedActorSourceExistsSource.TryFindTagFromSharedHub(hubOwnerScope, targetScope, out var tag)
+                ? DynamicVariant.FromString(tag)
+                : DynamicVariant.FromString(string.Empty);
+        }
+    }
+
+    /// <summary>
+    /// 指定した UI LTS の ModalStack で現在アクティブな root、またはその影響範囲に
+    /// 比較対象 ActorSource が含まれているかを判定する。
+    /// </summary>
+    [Serializable]
+    public sealed class UIModalStackActorMatchSource : IDynamicSource
+    {
+        [SerializeField]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"UI Modal Stack\", modalStackActorSource)")]
+        ActorSource modalStackActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [SerializeField]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Compare Actor\", compareActorSource)")]
+        ActorSource compareActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [SerializeField]
+        [LabelText("Include Affected Scope")]
+        bool includeAffectedScope;
+
+        [NonSerialized]
+        ActorSourceResolveCache _modalStackActorCache;
+
+        [NonSerialized]
+        ActorSourceResolveCache _compareActorCache;
+
+        public string SourceTypeName => "UIModalStackActorMatch";
+        public string GetDebugData => $"Modal={modalStackActorSource.Kind} Compare={compareActorSource.Kind} IncludeAffected={includeAffectedScope}";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null)
+                return DynamicVariant.Null;
+
+            var modalScope = ActorSourceFastResolver.ResolveCached(context, modalStackActorSource, ref _modalStackActorCache);
+            if (!TryResolveModalStackService(modalScope, out var modalStackService) || modalStackService == null)
+                return DynamicVariant.FromBool(false);
+
+            var compareScope = ActorSourceFastResolver.ResolveCached(context, compareActorSource, ref _compareActorCache);
+            if (compareScope == null)
+                return DynamicVariant.FromBool(false);
+
+            var activeRoots = modalStackService.ActiveRoots;
+            if (activeRoots == null || activeRoots.Count == 0)
+                return DynamicVariant.FromBool(false);
+
+            for (int i = 0; i < activeRoots.Count; i++)
+            {
+                var root = activeRoots[i].Root;
+                var ownerScope = root?.OwnerScope;
+                if (root == null || ownerScope == null)
+                    continue;
+
+                if (ReferenceEquals(ownerScope, compareScope))
+                    return DynamicVariant.FromBool(true);
+
+                if (includeAffectedScope && root.IsDescendant(compareScope))
+                    return DynamicVariant.FromBool(true);
+            }
+
+            return DynamicVariant.FromBool(false);
+        }
+
+        static bool TryResolveModalStackService(IScopeNode? scope, out IUIModalStackService? modalStackService)
+        {
+            modalStackService = null;
+            for (var current = scope; current != null; current = current.Parent)
+            {
+                var resolver = current.Resolver;
+                if (resolver != null &&
+                    resolver.TryResolve<IUIModalStackService>(out var resolved) &&
+                    resolved != null)
+                {
+                    modalStackService = resolved;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

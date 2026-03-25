@@ -109,6 +109,19 @@ namespace Game.Channel
             return player.ContainsPosition(basePosition, worldPosition);
         }
 
+        public bool TryGetContour(string tag, out AreaContourData contour)
+        {
+            contour = default;
+
+            if (!TryGetPlayer(tag, out var player) || player == null)
+                return false;
+
+            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+                return false;
+
+            return player.TryGetContour(basePosition, out contour);
+        }
+
         public bool TryGetChannelDef(string tag, out ChannelDefBase def)
         {
             if (string.IsNullOrWhiteSpace(tag))

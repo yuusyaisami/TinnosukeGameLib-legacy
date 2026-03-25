@@ -36,9 +36,10 @@ namespace Game.Commands.VNext
                 ActorSourceKind.Player => (null, "Player scope was not found."),
                 ActorSourceKind.CommandRootActor => (null, "Command root actor scope was not found."),
                 ActorSourceKind.Global => (null, "Global scope was not found."),
-                ActorSourceKind.Shared => (null, $"Shared actor tag was not found. tag='{source.SharedTag}'"),
+                ActorSourceKind.Shared => (null, $"Shared actor tag was not found. tag='{source.Shared?.SharedTag}'"),
                 ActorSourceKind.ContextSlot => (null, $"Context slot scope was not found. slot={source.ContextSlot}"),
                 ActorSourceKind.FromUnityObject => (null, "UnityObject does not resolve to a scope."),
+                ActorSourceKind.TargetChannel => (null, $"TargetChannel actor scope was not found. tag='{source.TargetChannel?.ChannelTag}'"),
                 _ => (null, "Unknown actor source."),
             };
         }

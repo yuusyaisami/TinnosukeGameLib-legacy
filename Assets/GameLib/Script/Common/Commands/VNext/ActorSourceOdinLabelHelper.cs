@@ -1,6 +1,7 @@
 #nullable enable
 using System.Collections.Generic;
 using Game.Commands;
+using Game.Common;
 using UnityEngine;
 
 namespace Game.Commands.VNext
@@ -22,8 +23,9 @@ namespace Game.Commands.VNext
             {
                 ActorSourceKind.ByIdentity => FormatIdentitySummary(actorSource.Identity),
                 ActorSourceKind.FromUnityObject => FormatUnityObjectSummary(actorSource.UnityObject),
-                ActorSourceKind.Shared => FormatSharedSummary(actorSource.SharedTag),
+                ActorSourceKind.Shared => FormatSharedSummary(actorSource.Shared),
                 ActorSourceKind.ContextSlot => FormatContextSlotSummary(actorSource.ContextSlot),
+                ActorSourceKind.TargetChannel => FormatTargetChannelSummary(actorSource),
                 var kind => kind.ToString(),
             };
 
@@ -64,11 +66,14 @@ namespace Game.Commands.VNext
             return $"{unityObject.GetType().Name}: {name}";
         }
 
-        static string FormatSharedSummary(string? sharedTag)
+        static string FormatSharedSummary(SharedActorSourceRef? shared)
         {
-            return string.IsNullOrWhiteSpace(sharedTag)
-                ? "Shared (None)"
-                : $"Shared: {sharedTag}";
+            if (shared == null)
+                return "Shared (None)";
+
+            var tag = string.IsNullOrWhiteSpace(shared.SharedTag) ? "None" : shared.SharedTag;
+            var owner = GetLabel("Owner", shared.SharedHubActorSource);
+            return $"Shared: {tag}, {owner}";
         }
 
         static string FormatContextSlotSummary(CommandLtsSlot slot)
@@ -76,6 +81,21 @@ namespace Game.Commands.VNext
             return slot == CommandLtsSlot.None
                 ? "ContextSlot (None)"
                 : $"ContextSlot: {slot}";
+        }
+
+        static string FormatTargetChannelSummary(in ActorSource actorSource)
+        {
+            var targetChannel = actorSource.TargetChannel;
+            if (targetChannel == null)
+                return "TargetChannel (None)";
+
+            var owner = GetLabel("Owner", targetChannel.ChannelOwnerActorSource);
+            var tag = string.IsNullOrWhiteSpace(targetChannel.ChannelTag) ? "default" : targetChannel.ChannelTag;
+            if (targetChannel.TargetSelectMode != TargetChannelTargetSelectMode.FilterByActorSource)
+                return $"TargetChannel: {tag}, {owner}";
+
+            var filter = GetLabel("Filter", targetChannel.FilterActorSource);
+            return $"TargetChannel: {tag}, {owner}, {filter}";
         }
     }
 }

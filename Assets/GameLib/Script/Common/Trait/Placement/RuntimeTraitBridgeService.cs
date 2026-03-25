@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game;
@@ -82,7 +83,23 @@ namespace Game.Trait
         }
     }
 
+    public enum RuntimeTraitPresentationCommandTarget
+    {
+        Hidden = 10,
+        Visible = 20,
+        Both = 30,
+    }
+
+    public interface IRuntimeTraitPresentationCommandMutationService
+    {
+        bool MutatePresentationCommands(
+            RuntimeTraitPresentationCommandTarget target,
+            CommandListMutationStep mutation,
+            ICommandListRuntimeMutationService? mutationService);
+    }
+
     public sealed class RuntimeTraitPresentationBridgeService :
+        IRuntimeTraitPresentationCommandMutationService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
         ITickable
@@ -102,6 +119,8 @@ namespace Game.Trait
         Quaternion _visibleRotation = Quaternion.identity;
         bool _hasVisiblePose;
         bool _isHidden;
+        readonly PresentationCommandMutationSlot _hiddenCommandsMutation = new();
+        readonly PresentationCommandMutationSlot _visibleCommandsMutation = new();
 
         public RuntimeTraitPresentationBridgeService(RuntimeTraitMB owner)
         {
@@ -117,6 +136,25 @@ namespace Game.Trait
         public void OnRelease(IScopeNode scope, bool isReset)
         {
             Unbind();
+        }
+
+        public bool MutatePresentationCommands(
+            RuntimeTraitPresentationCommandTarget target,
+            CommandListMutationStep mutation,
+            ICommandListRuntimeMutationService? mutationService)
+        {
+            if (mutation == null)
+                return false;
+
+            return target switch
+            {
+                RuntimeTraitPresentationCommandTarget.Hidden => _hiddenCommandsMutation.Apply(mutation, mutationService),
+                RuntimeTraitPresentationCommandTarget.Visible => _visibleCommandsMutation.Apply(mutation, mutationService),
+                RuntimeTraitPresentationCommandTarget.Both
+                    => _hiddenCommandsMutation.Apply(mutation, mutationService)
+                       && _visibleCommandsMutation.Apply(mutation, mutationService),
+                _ => false,
+            };
         }
 
         public void Tick()
@@ -241,7 +279,7 @@ namespace Game.Trait
                     runtimeScope.transform.position = _visiblePosition + HiddenOffset;
                     runtimeScope.transform.rotation = _visibleRotation;
                     _isHidden = true;
-                    ExecutePresentationCommands(runtimeScope, _owner.OnHiddenCommands, "Hidden");
+                    ExecutePresentationCommands(runtimeScope, _owner.OnHiddenCommands, _hiddenCommandsMutation, "Hidden");
                 }
 
                 runtimeScope.TrySetVisible(false);
@@ -259,11 +297,15 @@ namespace Game.Trait
                 runtimeScope.TrySetVisible(true);
                 _isHidden = false;
                 if (wasHidden)
-                    ExecutePresentationCommands(runtimeScope, _owner.OnVisibleCommands, "Visible");
+                    ExecutePresentationCommands(runtimeScope, _owner.OnVisibleCommands, _visibleCommandsMutation, "Visible");
             }
         }
 
-        void ExecutePresentationCommands(RuntimeLifetimeScope scope, DynamicValue<CommandListData> commandSource, string eventName)
+        void ExecutePresentationCommands(
+            RuntimeLifetimeScope scope,
+            DynamicValue<CommandListData> commandSource,
+            PresentationCommandMutationSlot mutationSlot,
+            string eventName)
         {
             if (scope == null)
                 return;
@@ -277,7 +319,7 @@ namespace Game.Trait
 
             var vars = CreateVars(scope);
             var dynamicContext = new SimpleDynamicContext(vars, scope);
-            if (!commandSource.TryGet(dynamicContext, out var commands) || commands == null || commands.Count == 0)
+            if (!mutationSlot.TryBuild(commandSource, dynamicContext, out var commands) || commands == null || commands.Count == 0)
                 return;
 
             var context = new CommandContext(scope, vars, runner, actor: scope, CommandRunOptions.Default, scope, scope, scope);
@@ -320,6 +362,8 @@ namespace Game.Trait
             _registeredKey = default;
             _isHidden = false;
             _hasVisiblePose = false;
+            _hiddenCommandsMutation.Clear();
+            _visibleCommandsMutation.Clear();
         }
 
         void UnbindPointerOnly()
@@ -366,6 +410,68 @@ namespace Game.Trait
 
             runtimeScope = scope as RuntimeLifetimeScope;
             return runtimeScope != null;
+        }
+
+        sealed class PresentationCommandMutationSlot
+        {
+            readonly List<CommandListMutationStep> _history = new();
+            readonly CommandListData _runtimeView = new();
+            readonly CommandListData _emptyBase = new();
+
+            public bool Apply(CommandListMutationStep? mutation, ICommandListRuntimeMutationService? mutationService)
+            {
+                if (mutation == null)
+                    return false;
+
+                if (mutation.Operation == CommandListMutationOperation.ClearAll)
+                {
+                    _history.Clear();
+                    _runtimeView.ClearRuntimeMutations();
+                    return true;
+                }
+
+                if (mutation.RequiresCommands() && mutation.Commands == null)
+                    return false;
+
+                mutationService?.Register(_runtimeView);
+                _history.Add(new CommandListMutationStep
+                {
+                    Operation = mutation.Operation,
+                    Commands = mutation.Commands,
+                });
+                return true;
+            }
+
+            public bool TryBuild(DynamicValue<CommandListData> source, IDynamicContext dynamicContext, out CommandListData? commands)
+            {
+                commands = null;
+
+                var hasBaseCommands = source.TryGet(dynamicContext, out var resolvedBase) && resolvedBase != null;
+                if (_history.Count == 0)
+                {
+                    if (!hasBaseCommands)
+                        return false;
+
+                    commands = resolvedBase;
+                    return true;
+                }
+
+                _runtimeView.SetCommands(hasBaseCommands ? resolvedBase : _emptyBase);
+                _runtimeView.ClearRuntimeMutations();
+                for (var i = 0; i < _history.Count; i++)
+                {
+                    _runtimeView.ApplyRuntimeMutation(_history[i]);
+                }
+
+                commands = _runtimeView;
+                return true;
+            }
+
+            public void Clear()
+            {
+                _history.Clear();
+                _runtimeView.ClearRuntimeMutations();
+            }
         }
     }
 }

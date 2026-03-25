@@ -49,6 +49,10 @@ namespace Game.Commands.VNext
                     service.Use(typed.BuildFilter(), ctx.Actor ?? ctx.Scope, ctx);
                     break;
 
+                case StatusEffectCommandOp.UseGlobal:
+                    service.UseGlobal(ctx.Actor ?? ctx.Scope, ctx);
+                    break;
+
                 case StatusEffectCommandOp.Reset:
                     service.Reset(typed.BuildFilter());
                     break;

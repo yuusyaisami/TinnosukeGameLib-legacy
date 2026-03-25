@@ -274,11 +274,7 @@ namespace Game.Commands.VNext
             var events = typed.Events ?? EmptyEvents;
             var hasEventEntries = events.Count > 0;
 
-            if (!hasCondition && !hasEventEntries)
-                return;
-
-            if (hasCondition && typed.Condition.EvaluateBool(ctx))
-                return;
+            ValidateConfiguration(typed.WaitMode, hasCondition, hasEventEntries);
 
             UniTaskCompletionSource<TriggerResult>? triggerTcs = null;
             var subscriptions = hasEventEntries ? new System.Collections.Generic.List<IDisposable>(events.Count) : null;
@@ -320,34 +316,35 @@ namespace Game.Commands.VNext
                 }
 
                 var hasEventSubscriptions = subscriptions != null && subscriptions.Count > 0;
-                if (!hasCondition && !hasEventSubscriptions)
-                    return;
+                ValidateResolvedConfiguration(typed.WaitMode, hasCondition, hasEventSubscriptions);
 
-                if (hasCondition && hasEventSubscriptions)
+                switch (typed.WaitMode)
                 {
-                    if (triggerTcs == null)
+                    case AdvanceWaitMode.ConditionOnly:
+                        if (typed.Condition.EvaluateBool(ctx))
+                            return;
+
+                        await UniTask.WaitUntil(() => typed.Condition.EvaluateBool(ctx), cancellationToken: ct);
                         return;
 
-                    var conditionTask = UniTask.WaitUntil(() => typed.Condition.EvaluateBool(ctx), cancellationToken: ct);
-                    var (eventTriggered, trigger) = await UniTask.WhenAny(triggerTcs.Task, conditionTask);
-                    if (!eventTriggered)
+                    case AdvanceWaitMode.EventOnly:
+                        if (triggerTcs == null)
+                            return;
+
+                        var eventResult = await triggerTcs.Task;
+                        await ExecuteTriggeredCommandsAsync(ctx, eventResult, ct);
                         return;
 
-                    await ExecuteTriggeredCommandsAsync(ctx, trigger, ct);
-                    return;
+                    case AdvanceWaitMode.ConditionAndEvent:
+                        if (triggerTcs == null)
+                            return;
+
+                        await WaitForConditionAndEventAsync(typed, ctx, ct, triggerTcs);
+                        return;
+
+                    default:
+                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"Unsupported AdvanceWait mode: {typed.WaitMode}");
                 }
-
-                if (hasCondition)
-                {
-                    await UniTask.WaitUntil(() => typed.Condition.EvaluateBool(ctx), cancellationToken: ct);
-                    return;
-                }
-
-                if (triggerTcs == null)
-                    return;
-
-                var result = await triggerTcs.Task;
-                await ExecuteTriggeredCommandsAsync(ctx, result, ct);
             }
             finally
             {
@@ -360,6 +357,86 @@ namespace Game.Commands.VNext
                     }
                 }
             }
+        }
+
+        static void ValidateConfiguration(AdvanceWaitMode waitMode, bool hasCondition, bool hasEventEntries)
+        {
+            switch (waitMode)
+            {
+                case AdvanceWaitMode.ConditionOnly:
+                    if (!hasCondition)
+                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AdvanceWait ConditionOnly requires a condition source.");
+                    break;
+
+                case AdvanceWaitMode.EventOnly:
+                    if (!hasEventEntries)
+                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AdvanceWait EventOnly requires at least one event entry.");
+                    break;
+
+                case AdvanceWaitMode.ConditionAndEvent:
+                    if (!hasCondition)
+                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AdvanceWait ConditionAndEvent requires a condition source.");
+                    if (!hasEventEntries)
+                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AdvanceWait ConditionAndEvent requires at least one event entry.");
+                    break;
+
+                default:
+                    throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"Unsupported AdvanceWait mode: {waitMode}");
+            }
+        }
+
+        static void ValidateResolvedConfiguration(AdvanceWaitMode waitMode, bool hasCondition, bool hasEventSubscriptions)
+        {
+            switch (waitMode)
+            {
+                case AdvanceWaitMode.ConditionOnly:
+                    if (!hasCondition)
+                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AdvanceWait ConditionOnly requires a condition source.");
+                    break;
+
+                case AdvanceWaitMode.EventOnly:
+                case AdvanceWaitMode.ConditionAndEvent:
+                    if (!hasEventSubscriptions)
+                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AdvanceWait requires at least one valid event subscription.");
+                    break;
+            }
+        }
+
+        static async UniTask WaitForConditionAndEventAsync(
+            AdvanceWaitCommandData typed,
+            CommandContext ctx,
+            CancellationToken ct,
+            UniTaskCompletionSource<TriggerResult> triggerTcs)
+        {
+            var conditionSatisfied = typed.Condition.EvaluateBool(ctx);
+            TriggerResult? trigger = null;
+
+            while (!ct.IsCancellationRequested)
+            {
+                if (conditionSatisfied && trigger != null)
+                    break;
+
+                if (!conditionSatisfied)
+                {
+                    var conditionTask = UniTask.WaitUntil(() => typed.Condition.EvaluateBool(ctx), cancellationToken: ct);
+                    var (eventTriggered, eventResult) = await UniTask.WhenAny(triggerTcs.Task, conditionTask);
+                    if (eventTriggered)
+                    {
+                        trigger = eventResult;
+                    }
+                    else
+                    {
+                        conditionSatisfied = true;
+                    }
+
+                    continue;
+                }
+
+                trigger = await triggerTcs.Task;
+            }
+
+            if (trigger != null)
+                await ExecuteTriggeredCommandsAsync(ctx, trigger, ct);
         }
 
         static async UniTask ExecuteTriggeredCommandsAsync(CommandContext ctx, TriggerResult trigger, CancellationToken ct)

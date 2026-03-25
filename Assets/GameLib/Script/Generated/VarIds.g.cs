@@ -821,6 +821,15 @@ namespace Game.Vars.Generated
                             /// </remarks>
                             public const int useCount = 101007;
                             /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useCooldownDefinition
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCooldownDefinition
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useCooldownDefinition
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCooldownDefinition
+                            /// </remarks>
+                            public const int useCooldownDefinition = 101076;
+                            /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Definition/Element/useDuration
                             /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useDuration
                             /// </remarks>
@@ -829,6 +838,15 @@ namespace Game.Vars.Generated
                             /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useDuration
                             /// </remarks>
                             public const int useDuration = 101005;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useUseCooldown
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useUseCooldown
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useUseCooldown
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useUseCooldown
+                            /// </remarks>
+                            public const int useUseCooldown = 101075;
                             /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Definition/Element/visualData
                             /// StableKey: GameLib.Base.StatusEffect.Definition.Element.visualData
@@ -1040,6 +1058,33 @@ namespace Game.Vars.Generated
                         public static partial class Global
                         {
                             /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/canUse
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.canUse
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/canUse
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.canUse
+                            /// </remarks>
+                            public const int canUse = 101081;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownRemaining
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownRemaining
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining
+                            /// </remarks>
+                            public const int cooldownRemaining = 101079;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownMax
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownMax
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownMax
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownMax
+                            /// </remarks>
+                            public const int cooldownMax = 101080;
+                            /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/currentCount
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.currentCount
                             /// </remarks>
@@ -1066,6 +1111,24 @@ namespace Game.Vars.Generated
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.intensity
                             /// </remarks>
                             public const int intensity = 101049;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/lifetimeRemaining
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/lifetimeRemaining
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining
+                            /// </remarks>
+                            public const int lifetimeRemaining = 101077;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/lifetimeTotal
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/lifetimeTotal
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal
+                            /// </remarks>
+                            public const int lifetimeTotal = 101078;
                             /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/maxCount
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.maxCount
@@ -2915,6 +2978,90 @@ namespace Game.Vars.Generated
                     }
                 }
             }
+
+            public static partial class WorldSlider
+            {
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/targetRaw
+                /// StableKey: GameLib.WorldSlider.targetRaw
+                /// </remarks>
+                public const int targetRaw = 101059;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/targetNormalized
+                /// StableKey: GameLib.WorldSlider.targetNormalized
+                /// </remarks>
+                public const int targetNormalized = 101060;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/displayedRaw
+                /// StableKey: GameLib.WorldSlider.displayedRaw
+                /// </remarks>
+                public const int displayedRaw = 101061;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/displayedNormalized
+                /// StableKey: GameLib.WorldSlider.displayedNormalized
+                /// </remarks>
+                public const int displayedNormalized = 101062;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/deltaRaw
+                /// StableKey: GameLib.WorldSlider.deltaRaw
+                /// </remarks>
+                public const int deltaRaw = 101063;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/deltaNormalized
+                /// StableKey: GameLib.WorldSlider.deltaNormalized
+                /// </remarks>
+                public const int deltaNormalized = 101064;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/crossingDirection
+                /// StableKey: GameLib.WorldSlider.crossingDirection
+                /// </remarks>
+                public const int crossingDirection = 101065;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/entryIndex
+                /// StableKey: GameLib.WorldSlider.entryIndex
+                /// </remarks>
+                public const int entryIndex = 101066;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/entryValue
+                /// StableKey: GameLib.WorldSlider.entryValue
+                /// </remarks>
+                public const int entryValue = 101067;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/entryNormalized
+                /// StableKey: GameLib.WorldSlider.entryNormalized
+                /// </remarks>
+                public const int entryNormalized = 101068;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/unitKind
+                /// StableKey: GameLib.WorldSlider.unitKind
+                /// </remarks>
+                public const int unitKind = 101069;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/unitIndex
+                /// StableKey: GameLib.WorldSlider.unitIndex
+                /// </remarks>
+                public const int unitIndex = 101070;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/segmentStartRaw
+                /// StableKey: GameLib.WorldSlider.segmentStartRaw
+                /// </remarks>
+                public const int segmentStartRaw = 101071;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/segmentEndRaw
+                /// StableKey: GameLib.WorldSlider.segmentEndRaw
+                /// </remarks>
+                public const int segmentEndRaw = 101072;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/segmentStartNormalized
+                /// StableKey: GameLib.WorldSlider.segmentStartNormalized
+                /// </remarks>
+                public const int segmentStartNormalized = 101073;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/segmentEndNormalized
+                /// StableKey: GameLib.WorldSlider.segmentEndNormalized
+                /// </remarks>
+                public const int segmentEndNormalized = 101074;
+            }
         }
 
         public static partial class GameLogic
@@ -2938,15 +3085,15 @@ namespace Game.Vars.Generated
                     public const int GlobalMul = 101053;
                     /// <summary>ローカル倍率</summary>
                     /// <remarks>
-                    /// Path: GameLogic/LuckProfile/Private/LocalMul
-                    /// StableKey: LocalMul
+                    /// Path: GameLogic/LuckProfile/Private/LocalMulAdd
+                    /// StableKey: LocalMulAdd
                     /// </remarks>
                     /// <summary>ローカル倍率</summary>
                     /// <remarks>
-                    /// Path: GameLogic/LuckProfile/Private/LocalMul
-                    /// StableKey: LocalMul
+                    /// Path: GameLogic/LuckProfile/Private/LocalMulAdd
+                    /// StableKey: LocalMulAdd
                     /// </remarks>
-                    public const int LocalMul = 101054;
+                    public const int LocalMulAdd = 101054;
                     /// <summary>ローカル倍率を受けるSlotの個数</summary>
                     /// <remarks>
                     /// Path: GameLogic/LuckProfile/Private/LocalMulCount
@@ -2962,17 +3109,6 @@ namespace Game.Vars.Generated
 
                 public static partial class Public
                 {
-                    /// <summary>Luck倍率のBase値 初期は1</summary>
-                    /// <remarks>
-                    /// Path: GameLogic/LuckProfile/Public/LuckValue
-                    /// StableKey: LuckValue
-                    /// </remarks>
-                    /// <summary>Luck倍率のBase値 初期は1</summary>
-                    /// <remarks>
-                    /// Path: GameLogic/LuckProfile/Public/LuckValue
-                    /// StableKey: LuckValue
-                    /// </remarks>
-                    public const int LuckValue = 101056;
                     /// <summary>Luck倍率にかかる汎用的な変数、外部からLuck倍率を操作したい場合はここを操作する。</summary>
                     /// <remarks>
                     /// Path: GameLogic/LuckProfile/Public/LuckValueMul
@@ -3119,7 +3255,9 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.StatusEffect.Definition.Element.nameTemplate,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.operations,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.useCount,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.useCooldownDefinition,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.useDuration,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.useUseCooldown,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.visualData,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.descriptionKey,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.descriptionTemplate,
@@ -3142,9 +3280,14 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.duration,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.intensity,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount,
             VarIds.GameLib.Base.StatusEffect.Stack.applyCurrentCount,
             VarIds.GameLib.Base.StatusEffect.Stack.applyDuration,
@@ -3324,10 +3467,25 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitIndex,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceId,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
+            VarIds.GameLib.WorldSlider.targetRaw,
+            VarIds.GameLib.WorldSlider.targetNormalized,
+            VarIds.GameLib.WorldSlider.displayedRaw,
+            VarIds.GameLib.WorldSlider.displayedNormalized,
+            VarIds.GameLib.WorldSlider.deltaRaw,
+            VarIds.GameLib.WorldSlider.deltaNormalized,
+            VarIds.GameLib.WorldSlider.crossingDirection,
+            VarIds.GameLib.WorldSlider.entryIndex,
+            VarIds.GameLib.WorldSlider.entryValue,
+            VarIds.GameLib.WorldSlider.entryNormalized,
+            VarIds.GameLib.WorldSlider.unitKind,
+            VarIds.GameLib.WorldSlider.unitIndex,
+            VarIds.GameLib.WorldSlider.segmentStartRaw,
+            VarIds.GameLib.WorldSlider.segmentEndRaw,
+            VarIds.GameLib.WorldSlider.segmentStartNormalized,
+            VarIds.GameLib.WorldSlider.segmentEndNormalized,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
-            VarIds.GameLogic.LuckProfile.Private.LocalMul,
+            VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
-            VarIds.GameLogic.LuckProfile.Public.LuckValue,
             VarIds.GameLogic.LuckProfile.Public.LuckValueMul,
             VarIds.GameLogic.NailProfile.Price,
             VarIds.GameLogic.NailProfile.UpgradeTable,

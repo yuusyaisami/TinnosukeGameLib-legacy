@@ -85,56 +85,71 @@ namespace Game.Channel
         }
     }
 
+    public readonly struct AreaContourPath
+    {
+        public readonly IReadOnlyList<Vector2> Points;
+        public readonly bool IsHole;
+
+        public AreaContourPath(IReadOnlyList<Vector2> points, bool isHole)
+        {
+            Points = points ?? Array.Empty<Vector2>();
+            IsHole = isHole;
+        }
+    }
+
+    public readonly struct AreaContourData
+    {
+        public readonly AreaPlane Plane;
+        public readonly IReadOnlyList<AreaContourPath> Paths;
+
+        public AreaContourData(AreaPlane plane, IReadOnlyList<AreaContourPath> paths)
+        {
+            Plane = plane;
+            Paths = paths ?? Array.Empty<AreaContourPath>();
+        }
+    }
+
     public interface IAreaShape
     {
         AreaShapeLayer Layer { get; }
         bool TrySample(in AreaShapeSampleContext context, Vector2 uv01, out Vector2 localPosition);
         bool ContainsLocalPosition(Vector2 localPosition);
+        bool TryGetContourLocal(out AreaContourData contour);
         void DrawGizmo(Vector3 center, AreaPlane plane);
     }
 
-    [Serializable]
-    public sealed class CircleAreaShape : IAreaShape
+    static class AreaCircleShapeUtility
     {
-        [LabelText("Radius"), MinValue(0f)]
-        public float Radius = 5f;
-
-        [LabelText("Inner Radius"), MinValue(0f)]
-        public float InnerRadius = 0f;
-
-        public AreaShapeLayer Layer => AreaShapeLayer.Area;
-
-        public bool TrySample(in AreaShapeSampleContext context, Vector2 uv01, out Vector2 localPosition)
+        public static bool TrySampleRing(Vector2 uv01, float outerRadius, float innerRadius, out Vector2 localPosition)
         {
-            if (context.Mode != AreaSampleMode.InteriorRandom)
-            {
-                localPosition = Vector2.zero;
-                return false;
-            }
+            localPosition = Vector2.zero;
 
-            var outer = Mathf.Max(0f, Radius);
-            var inner = Mathf.Clamp(InnerRadius, 0f, outer);
+            var outer = Mathf.Max(0f, outerRadius);
+            if (outer <= 0f)
+                return false;
+
+            var inner = Mathf.Clamp(innerRadius, 0f, outer);
             var r = Mathf.Sqrt(Mathf.Clamp01(uv01.x)) * (outer - inner) + inner;
             var angle = Mathf.Repeat(uv01.y, 1f) * Mathf.PI * 2f;
             localPosition = new Vector2(Mathf.Cos(angle) * r, Mathf.Sin(angle) * r);
             return true;
         }
 
-        public bool ContainsLocalPosition(Vector2 localPosition)
+        public static bool ContainsRing(Vector2 localPosition, float outerRadius, float innerRadius)
         {
-            var outer = Mathf.Max(0f, Radius);
+            var outer = Mathf.Max(0f, outerRadius);
             if (outer <= 0f)
                 return false;
 
-            var inner = Mathf.Clamp(InnerRadius, 0f, outer);
+            var inner = Mathf.Clamp(innerRadius, 0f, outer);
             var sqrMagnitude = localPosition.sqrMagnitude;
             return sqrMagnitude <= outer * outer && sqrMagnitude >= inner * inner;
         }
 
-        public void DrawGizmo(Vector3 center, AreaPlane plane)
+        public static void DrawRingGizmo(Vector3 center, float outerRadius, float innerRadius, AreaPlane plane)
         {
-            DrawCircle(center, Mathf.Max(0f, Radius), plane);
-            var inner = Mathf.Clamp(InnerRadius, 0f, Mathf.Max(0f, Radius));
+            DrawCircle(center, Mathf.Max(0f, outerRadius), plane);
+            var inner = Mathf.Clamp(innerRadius, 0f, Mathf.Max(0f, outerRadius));
             if (inner > 0f)
                 DrawCircle(center, inner, plane);
         }
@@ -167,6 +182,103 @@ namespace Game.Channel
     }
 
     [Serializable]
+    public sealed class CircleAreaShape : IAreaShape
+    {
+        [LabelText("Radius"), MinValue(0f)]
+        public float Radius = 5f;
+
+        [LabelText("Inner Radius"), MinValue(0f)]
+        public float InnerRadius = 0f;
+
+        public AreaShapeLayer Layer => AreaShapeLayer.Area;
+
+        public bool TrySample(in AreaShapeSampleContext context, Vector2 uv01, out Vector2 localPosition)
+        {
+            if (context.Mode != AreaSampleMode.InteriorRandom)
+            {
+                localPosition = Vector2.zero;
+                return false;
+            }
+
+            return AreaCircleShapeUtility.TrySampleRing(uv01, Radius, InnerRadius, out localPosition);
+        }
+
+        public bool ContainsLocalPosition(Vector2 localPosition)
+        {
+            return AreaCircleShapeUtility.ContainsRing(localPosition, Radius, InnerRadius);
+        }
+
+        public bool TryGetContourLocal(out AreaContourData contour)
+        {
+            contour = new AreaContourData(
+                AreaPlane.XY,
+                new[]
+                {
+                    new AreaContourPath(AreaContourUtility.BuildCirclePoints(Mathf.Max(0f, Radius), clockwise: false), isHole: false),
+                });
+            return Radius > 0f;
+        }
+
+        public void DrawGizmo(Vector3 center, AreaPlane plane)
+        {
+            AreaCircleShapeUtility.DrawRingGizmo(center, Radius, InnerRadius, plane);
+        }
+    }
+
+    [Serializable]
+    public sealed class DonutAreaShape : IAreaShape
+    {
+        [LabelText("Outer Radius"), MinValue(0f)]
+        public float OuterRadius = 5f;
+
+        [LabelText("Inner Radius"), MinValue(0f)]
+        public float InnerRadius = 2f;
+
+        public AreaShapeLayer Layer => AreaShapeLayer.Area;
+
+        public bool TrySample(in AreaShapeSampleContext context, Vector2 uv01, out Vector2 localPosition)
+        {
+            if (context.Mode != AreaSampleMode.InteriorRandom)
+            {
+                localPosition = Vector2.zero;
+                return false;
+            }
+
+            return AreaCircleShapeUtility.TrySampleRing(uv01, OuterRadius, InnerRadius, out localPosition);
+        }
+
+        public bool ContainsLocalPosition(Vector2 localPosition)
+        {
+            return AreaCircleShapeUtility.ContainsRing(localPosition, OuterRadius, InnerRadius);
+        }
+
+        public bool TryGetContourLocal(out AreaContourData contour)
+        {
+            if (OuterRadius <= 0f)
+            {
+                contour = default;
+                return false;
+            }
+
+            var paths = new List<AreaContourPath>
+            {
+                new(AreaContourUtility.BuildCirclePoints(Mathf.Max(0f, OuterRadius), clockwise: false), isHole: false),
+            };
+
+            if (InnerRadius > 0f)
+                paths.Add(new AreaContourPath(AreaContourUtility.BuildCirclePoints(Mathf.Clamp(InnerRadius, 0f, OuterRadius), clockwise: true), isHole: true));
+
+            contour = new AreaContourData(AreaPlane.XY, paths);
+            return true;
+        }
+
+        public void DrawGizmo(Vector3 center, AreaPlane plane)
+        {
+            AreaCircleShapeUtility.DrawRingGizmo(center, OuterRadius, InnerRadius, plane);
+        }
+    }
+
+    [Serializable]
     public sealed class RectAreaShape : IAreaShape
     {
         [LabelText("Size")]
@@ -193,6 +305,34 @@ namespace Game.Channel
             var halfWidth = Mathf.Max(0f, Size.x) * 0.5f;
             var halfHeight = Mathf.Max(0f, Size.y) * 0.5f;
             return Mathf.Abs(localPosition.x) <= halfWidth && Mathf.Abs(localPosition.y) <= halfHeight;
+        }
+
+        public bool TryGetContourLocal(out AreaContourData contour)
+        {
+            var size = new Vector2(Mathf.Max(0f, Size.x), Mathf.Max(0f, Size.y));
+            if (size.x <= 0f || size.y <= 0f)
+            {
+                contour = default;
+                return false;
+            }
+
+            var halfWidth = size.x * 0.5f;
+            var halfHeight = size.y * 0.5f;
+            contour = new AreaContourData(
+                AreaPlane.XY,
+                new[]
+                {
+                    new AreaContourPath(
+                        new[]
+                        {
+                            new Vector2(-halfWidth, -halfHeight),
+                            new Vector2(-halfWidth, halfHeight),
+                            new Vector2(halfWidth, halfHeight),
+                            new Vector2(halfWidth, -halfHeight),
+                        },
+                        isHole: false),
+                });
+            return true;
         }
 
         public void DrawGizmo(Vector3 center, AreaPlane plane)
@@ -261,6 +401,7 @@ namespace Game.Channel
         bool TrySamplePosition(string tag, in AreaSampleRequest request, out Vector3 position);
         bool TrySamplePosition(IReadOnlyList<string> tags, AreaTagSelectionMode selectionMode, in AreaSampleRequest request, out Vector3 position, out string selectedTag);
         bool ContainsPosition(string tag, Vector3 worldPosition);
+        bool TryGetContour(string tag, out AreaContourData contour);
     }
 
     public interface IAreaChannelPlayer
@@ -268,5 +409,28 @@ namespace Game.Channel
         AreaChannelDefinition Definition { get; }
         bool TrySamplePosition(Vector3 basePosition, in AreaSampleRequest request, out Vector3 position);
         bool ContainsPosition(Vector3 basePosition, Vector3 worldPosition);
+        bool TryGetContour(Vector3 basePosition, out AreaContourData contour);
+    }
+
+    static class AreaContourUtility
+    {
+        public static List<Vector2> BuildCirclePoints(float radius, bool clockwise)
+        {
+            const int segments = 48;
+            var points = new List<Vector2>(segments);
+            if (radius <= 0f)
+                return points;
+
+            for (var i = 0; i < segments; i++)
+            {
+                var t = i / (float)segments;
+                if (clockwise)
+                    t = 1f - t;
+                var angle = t * Mathf.PI * 2f;
+                points.Add(new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius));
+            }
+
+            return points;
+        }
     }
 }

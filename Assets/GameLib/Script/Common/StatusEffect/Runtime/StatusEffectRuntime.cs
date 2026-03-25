@@ -123,22 +123,17 @@ namespace Game.StatusEffect
         readonly EffectVisualData _visualData;
         readonly List<IStatusEffectOperationRuntime> _operations;
         readonly StatusEffectHookSet _hooks;
+        readonly IStatusEffectDurationDefinition? _durationDefinition;
         readonly IStatusEffectDurationController? _durationController;
+        readonly IStatusEffectUseCooldownDefinition? _useCooldownDefinition;
+        readonly IStatusEffectUseCooldownController? _useCooldownController;
+        readonly IStatusEffectCountDefinition? _countDefinition;
         readonly IStatusEffectCountController? _countController;
         readonly string _slotKey;
-        readonly StatusEffectOperationDynamicContext _globalEvaluationContext;
 
         readonly VarStore _vars;
 
         StatusEffectStackPreset _runtimeStackPreset;
-        float _lastGlobalIntensityValue;
-        float _lastGlobalDurationValue;
-        float _lastGlobalCurrentCountValue;
-        float _lastGlobalMaxCountValue;
-        bool _hasLastGlobalIntensityValue;
-        bool _hasLastGlobalDurationValue;
-        bool _hasLastGlobalCurrentCountValue;
-        bool _hasLastGlobalMaxCountValue;
 
         bool _isRemoveRequested;
         bool _isEnabled = true;
@@ -146,8 +141,9 @@ namespace Game.StatusEffect
         bool _isRegistered = true;
         bool _isSuspendedByScopeRelease;
         bool _isUseBlocked;
-        float _inverseIntervalRemaining;
-        StatusEffectInverseIntervalAction _inverseIntervalAction = StatusEffectInverseIntervalAction.None;
+        bool _hasHandledGlobalLifetimeExpiration;
+        bool _hasHandledGlobalCountExhaustion;
+        bool _hasHandledLocalCountExhaustion;
         string _nameKey = string.Empty;
         string _descriptionKey = string.Empty;
 
@@ -163,7 +159,11 @@ namespace Game.StatusEffect
             VarStore vars,
             List<IStatusEffectOperationRuntime> operations,
             StatusEffectHookSet hooks,
+            IStatusEffectDurationDefinition? durationDefinition,
             IStatusEffectDurationController? durationController,
+            IStatusEffectUseCooldownDefinition? useCooldownDefinition,
+            IStatusEffectUseCooldownController? useCooldownController,
+            IStatusEffectCountDefinition? countDefinition,
             IStatusEffectCountController? countController)
         {
             _owner = owner;
@@ -172,20 +172,20 @@ namespace Game.StatusEffect
             _visualData = definition.VisualData ?? new EffectVisualData();
             _operations = operations ?? new List<IStatusEffectOperationRuntime>();
             _hooks = hooks ?? new StatusEffectHookSet();
+            _durationDefinition = durationDefinition;
             _durationController = durationController;
+            _useCooldownDefinition = useCooldownDefinition;
+            _useCooldownController = useCooldownController;
+            _countDefinition = countDefinition;
             _countController = countController;
             _slotKey = slotKey ?? string.Empty;
             _vars = vars ?? new VarStore();
             _runtimeStackPreset = runtimeStackPreset ?? StatusEffectStackPreset.CreateDurationRefreshPreset();
-            _globalEvaluationContext = new StatusEffectOperationDynamicContext(_vars, _scope, _scope);
 
             InstanceId = string.IsNullOrWhiteSpace(instanceId) ? Guid.NewGuid().ToString("N") : instanceId;
             RuntimeTag = runtimeTag ?? string.Empty;
             Intensity = intensity;
             StackCount = 1;
-
-            if (_countController != null)
-                _inverseIntervalAction = _countController.InverseIntervalAction;
         }
 
         public string DefinitionId => _definition.DefinitionId ?? string.Empty;
@@ -200,12 +200,16 @@ namespace Game.StatusEffect
         public bool IsApplied => _isApplied;
         public bool IsRemoveRequested => _isRemoveRequested;
         public bool IsUseBlocked => _isUseBlocked;
-        public float RemainingDuration => _durationController?.RemainingDuration ?? -1f;
-        public float TotalDuration => _durationController?.TotalDuration ?? -1f;
-        public int MaxUseCount => _countController?.MaxCount ?? 0;
-        public int UsedCount => _countController?.UsedCount ?? 0;
-        public int RemainingUseCount => _countController?.RemainingCount ?? -1;
-        public float RemainingInverseInterval => _inverseIntervalRemaining;
+        public bool UsesServiceGlobalLifetime => _definition.UseDuration && (_durationDefinition?.SyncWithGlobalLifetime ?? false);
+        public bool UsesServiceGlobalUseCooldown => _definition.UseUseCooldown && (_useCooldownDefinition?.SyncWithGlobalUseCooldown ?? false);
+        public bool UsesServiceGlobalCount => _definition.UseCount && (_countDefinition?.SyncWithGlobalCount ?? false);
+        public bool UsesAnyServiceGlobalUseState => UsesServiceGlobalUseCooldown || UsesServiceGlobalCount;
+        public float RemainingDuration => UsesServiceGlobalLifetime ? _owner.GlobalLifetimeRemaining : _durationController?.RemainingDuration ?? -1f;
+        public float TotalDuration => UsesServiceGlobalLifetime ? _owner.GlobalLifetimeTotal : _durationController?.TotalDuration ?? -1f;
+        public int MaxUseCount => UsesServiceGlobalCount ? _owner.GlobalMaxCount : _countController?.MaxCount ?? 0;
+        public int UsedCount => UsesServiceGlobalCount ? _owner.GlobalUsedCount : _countController?.UsedCount ?? 0;
+        public int RemainingUseCount => UsesServiceGlobalCount ? _owner.GlobalCurrentCount : _countController?.RemainingCount ?? -1;
+        public float RemainingUseCooldown => UsesServiceGlobalUseCooldown ? _owner.GlobalCooldownRemaining : _useCooldownController?.RemainingDuration ?? 0f;
         public EffectType Type => _visualData?.EffectType ?? EffectType.Neutral;
         public string DisplayName => _visualData?.DisplayNameText ?? DefinitionId;
         public string NameKey => _nameKey;
@@ -217,7 +221,7 @@ namespace Game.StatusEffect
         {
             get
             {
-                if (_countController != null && _countController.ActivePolicy == StatusEffectActivePolicy.RegisteredEvenIfDisabled)
+                if (ResolveActivePolicy() == StatusEffectActivePolicy.RegisteredEvenIfDisabled)
                     return _isRegistered;
 
                 return _isRegistered && _isEnabled && _isApplied;
@@ -235,6 +239,7 @@ namespace Game.StatusEffect
             WriteRuntimeVars();
             ApplyOperations();
             _isApplied = true;
+            RefreshUseBlockedState();
             WriteRuntimeVars();
             ExecuteHook(StatusEffectHookKind.Apply, _scope);
         }
@@ -245,14 +250,12 @@ namespace Game.StatusEffect
                 return;
 
             _isEnabled = true;
-            if (!_isUseBlocked)
-            {
-                _isApplied = false;
-                WriteRuntimeVars();
-                ApplyOperations();
-                _isApplied = true;
-            }
+            _isApplied = false;
+            WriteRuntimeVars();
+            ApplyOperations();
+            _isApplied = true;
 
+            RefreshUseBlockedState();
             WriteRuntimeVars();
             ExecuteHook(StatusEffectHookKind.Enable, _scope);
         }
@@ -291,7 +294,7 @@ namespace Game.StatusEffect
 
             _isSuspendedByScopeRelease = false;
             RegisterRichText();
-            if (_isEnabled && !_isUseBlocked)
+            if (_isEnabled)
             {
                 _isApplied = false;
                 WriteRuntimeVars();
@@ -299,6 +302,7 @@ namespace Game.StatusEffect
                 _isApplied = true;
             }
 
+            RefreshUseBlockedState();
             WriteRuntimeVars();
         }
 
@@ -324,12 +328,13 @@ namespace Game.StatusEffect
 
         public bool Use(IScopeNode? userScope, CommandContext? sourceContext = null)
         {
+            RefreshUseBlockedState();
             if (!_isRegistered || _isUseBlocked)
                 return false;
 
             if (_countController != null && !_countController.ConsumeUse())
             {
-                HandleCountExhausted();
+                EvaluateLocalCountExhaustion();
                 WriteRuntimeVars();
                 return false;
             }
@@ -339,14 +344,93 @@ namespace Game.StatusEffect
             if (_countController != null)
             {
                 if (!_countController.CanUse)
-                    HandleCountExhausted();
-
-                if (_countController.InverseIntervalDuration > 0f)
-                    StartInverseInterval();
+                    EvaluateLocalCountExhaustion();
             }
 
+            _useCooldownController?.Start();
+
+            RefreshUseBlockedState();
             WriteRuntimeVars();
             return true;
+        }
+
+        public bool CanUseViaGlobalRequest()
+        {
+            RefreshUseBlockedState();
+            if (!_isRegistered || !UsesAnyServiceGlobalUseState || _isUseBlocked)
+                return false;
+
+            return CanUseLocalControllers();
+        }
+
+        public bool UseViaGlobal(IScopeNode? userScope, CommandContext? sourceContext = null)
+        {
+            if (!_isRegistered || !UsesAnyServiceGlobalUseState || !CanUseLocalControllers())
+                return false;
+
+            if (_countController != null && !_countController.ConsumeUse())
+            {
+                EvaluateLocalCountExhaustion();
+                WriteRuntimeVars();
+                return false;
+            }
+
+            ExecuteHook(StatusEffectHookKind.Use, userScope ?? _scope, sourceContext);
+
+            if (_countController != null && !_countController.CanUse)
+                EvaluateLocalCountExhaustion();
+
+            _useCooldownController?.Start();
+
+            RefreshUseBlockedState();
+            WriteRuntimeVars();
+            return true;
+        }
+
+        bool CanUseLocalControllers()
+        {
+            if (_countController != null && !_countController.CanUse)
+                return false;
+
+            if (_useCooldownController != null && !_useCooldownController.CanUse)
+                return false;
+
+            return true;
+        }
+
+        public void RefreshFromServiceGlobalState(bool applyActions)
+        {
+            if (!_isRegistered)
+                return;
+
+            if (UsesServiceGlobalLifetime)
+            {
+                if (!applyActions || !_owner.IsGlobalLifetimeExpired)
+                {
+                    _hasHandledGlobalLifetimeExpiration = false;
+                }
+                else if (!_hasHandledGlobalLifetimeExpiration)
+                {
+                    _hasHandledGlobalLifetimeExpiration = true;
+                    ApplyLifetimeExpiredAction(_durationDefinition?.EndAction ?? EffectLifetimeEndAction.Remove);
+                }
+            }
+
+            if (UsesServiceGlobalCount)
+            {
+                if (!_owner.IsGlobalCountExhausted)
+                {
+                    _hasHandledGlobalCountExhaustion = false;
+                }
+                else if (applyActions && !_hasHandledGlobalCountExhaustion)
+                {
+                    _hasHandledGlobalCountExhaustion = true;
+                    ApplyCountExhaustedAction(_countDefinition?.ExhaustedAction ?? EffectCountExhaustedAction.Disable);
+                }
+            }
+
+            RefreshUseBlockedState();
+            WriteRuntimeVars();
         }
 
         public void Tick(float deltaTime)
@@ -361,13 +445,9 @@ namespace Game.StatusEffect
                     HandleDurationExpired();
             }
 
-            if (_inverseIntervalRemaining > 0f)
-            {
-                _inverseIntervalRemaining -= Mathf.Max(0f, deltaTime);
-                if (_inverseIntervalRemaining <= 0f)
-                    CompleteInverseInterval();
-            }
+            _useCooldownController?.Tick(deltaTime);
 
+            RefreshUseBlockedState();
             WriteRuntimeVars();
         }
 
@@ -378,13 +458,16 @@ namespace Game.StatusEffect
 
             _durationController?.Reset();
             _countController?.Reset();
-            _inverseIntervalRemaining = 0f;
-            _isUseBlocked = false;
+            _useCooldownController?.Reset();
             _isSuspendedByScopeRelease = false;
+            _hasHandledGlobalLifetimeExpiration = false;
+            _hasHandledGlobalCountExhaustion = false;
+            _hasHandledLocalCountExhaustion = false;
             RemoveOperations(permanent: false);
             _isEnabled = true;
             _isApplied = false;
             ApplyInitial();
+            RefreshFromServiceGlobalState(applyActions: true);
         }
 
         public void ApplyMutations(StatusEffectHookMutationSet? mutations)
@@ -438,6 +521,9 @@ namespace Game.StatusEffect
             if (preset.ApplyMaxCount)
                 ApplyMaxCountRule(context, preset.MaxCount);
 
+            EvaluateLocalCountExhaustion();
+            RefreshFromServiceGlobalState(applyActions: true);
+
             if (intensityChanged)
             {
                 RefreshOperationsIfNeeded();
@@ -463,7 +549,7 @@ namespace Game.StatusEffect
                 Type,
                 RemainingDuration,
                 TotalDuration,
-                RemainingInverseInterval,
+                RemainingUseCooldown,
                 Intensity,
                 StackCount,
                 _isEnabled,
@@ -477,7 +563,30 @@ namespace Game.StatusEffect
 
         void HandleDurationExpired()
         {
-            switch (_durationController?.EndAction)
+            ApplyLifetimeExpiredAction(_durationController?.EndAction ?? _durationDefinition?.EndAction ?? EffectLifetimeEndAction.Remove);
+        }
+
+        void EvaluateLocalCountExhaustion()
+        {
+            if (_countController == null)
+                return;
+
+            if (_countController.CanUse)
+            {
+                _hasHandledLocalCountExhaustion = false;
+                return;
+            }
+
+            if (_hasHandledLocalCountExhaustion)
+                return;
+
+            _hasHandledLocalCountExhaustion = true;
+            ApplyCountExhaustedAction(_countController.ExhaustedAction);
+        }
+
+        void ApplyLifetimeExpiredAction(EffectLifetimeEndAction action)
+        {
+            switch (action)
             {
                 case EffectLifetimeEndAction.Disable:
                     Disable();
@@ -489,9 +598,9 @@ namespace Game.StatusEffect
             }
         }
 
-        void HandleCountExhausted()
+        void ApplyCountExhaustedAction(EffectCountExhaustedAction action)
         {
-            switch (_countController?.ExhaustedAction)
+            switch (action)
             {
                 case EffectCountExhaustedAction.Remove:
                     RequestRemove();
@@ -499,51 +608,9 @@ namespace Game.StatusEffect
 
                 case EffectCountExhaustedAction.Disable:
                     Disable();
-                    _isUseBlocked = true;
                     break;
 
                 case EffectCountExhaustedAction.DisableUseOnly:
-                    _isUseBlocked = true;
-                    break;
-            }
-        }
-
-        void StartInverseInterval()
-        {
-            if (_countController == null || _countController.InverseIntervalDuration <= 0f)
-                return;
-
-            _inverseIntervalRemaining = _countController.InverseIntervalDuration;
-            _inverseIntervalAction = _countController.InverseIntervalAction;
-
-            switch (_inverseIntervalAction)
-            {
-                case StatusEffectInverseIntervalAction.Disable:
-                    _isUseBlocked = true;
-                    Disable(runHook: false);
-                    break;
-
-                case StatusEffectInverseIntervalAction.BlockUseOnly:
-                    _isUseBlocked = true;
-                    break;
-            }
-        }
-
-        void CompleteInverseInterval()
-        {
-            _inverseIntervalRemaining = 0f;
-
-            switch (_inverseIntervalAction)
-            {
-                case StatusEffectInverseIntervalAction.Disable:
-                    _isUseBlocked = false;
-                    if (_isRegistered)
-                        Enable();
-                    break;
-
-                case StatusEffectInverseIntervalAction.BlockUseOnly:
-                    _isUseBlocked = false;
-                    WriteRuntimeVars();
                     break;
             }
         }
@@ -643,15 +710,26 @@ namespace Game.StatusEffect
             var changed = _countController.ApplyMaxCountStack(Mathf.RoundToInt(local), rule.Operation);
 
             if (!rule.UseGlobalValue)
+            {
+                if (_countController.CanUse)
+                    _hasHandledLocalCountExhaustion = false;
                 return changed;
+            }
 
             var global = rule.GlobalValue.HasSource
                 ? rule.GlobalValue.GetOrDefault(context, 0f)
                 : 0f;
             if (rule.IgnoreGlobalWhenMinusOne && Mathf.Approximately(global, -1f))
+            {
+                if (_countController.CanUse)
+                    _hasHandledLocalCountExhaustion = false;
                 return changed;
+            }
 
-            return _countController.ApplyMaxCountStack(Mathf.RoundToInt(global), rule.Operation) || changed;
+            changed = _countController.ApplyMaxCountStack(Mathf.RoundToInt(global), rule.Operation) || changed;
+            if (_countController.CanUse)
+                _hasHandledLocalCountExhaustion = false;
+            return changed;
         }
 
         static float ApplyOperation(float current, float value, StatusEffectStackOperation operation)
@@ -683,11 +761,45 @@ namespace Game.StatusEffect
             if (!_isEnabled)
                 return;
 
+            RefreshUseBlockedState();
             WriteRuntimeVars();
             for (int i = 0; i < _operations.Count; i++)
                 _operations[i]?.RefreshValue();
             _isApplied = true;
         }
+
+        StatusEffectActivePolicy ResolveActivePolicy()
+        {
+            if (_countController != null)
+                return _countController.ActivePolicy;
+
+            if (_countDefinition != null)
+                return _countDefinition.ActivePolicy;
+
+            return StatusEffectActivePolicy.EnabledOnly;
+        }
+
+        void RefreshUseBlockedState()
+        {
+            bool isBlocked = false;
+
+            if (_countController != null && !_countController.CanUse && ShouldBlockFromCountExhaustion(_countController.ExhaustedAction))
+                isBlocked = true;
+
+            if (UsesServiceGlobalCount && _owner.IsGlobalCountExhausted && ShouldBlockFromCountExhaustion(_countDefinition?.ExhaustedAction ?? EffectCountExhaustedAction.Disable))
+                isBlocked = true;
+
+            if (_useCooldownController != null && !_useCooldownController.CanUse)
+                isBlocked = true;
+
+            if (UsesServiceGlobalUseCooldown && _owner.IsGlobalUseCooldownActive)
+                isBlocked = true;
+
+            _isUseBlocked = isBlocked;
+        }
+
+        static bool ShouldBlockFromCountExhaustion(EffectCountExhaustedAction action)
+            => action == EffectCountExhaustedAction.Disable || action == EffectCountExhaustedAction.DisableUseOnly;
 
         void ApplyOperations()
         {
@@ -827,6 +939,7 @@ namespace Game.StatusEffect
         void WriteRuntimeVars()
         {
             WriteRuntimeGlobalVars();
+            RefreshUseBlockedState();
 
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.effectId, DynamicVariant.FromString(DefinitionId));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.instanceId, DynamicVariant.FromString(InstanceId));
@@ -841,7 +954,7 @@ namespace Game.StatusEffect
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount, DynamicVariant.FromInt(UsedCount));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingDuration, DynamicVariant.FromFloat(RemainingDuration));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration, DynamicVariant.FromFloat(TotalDuration));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, DynamicVariant.FromFloat(RemainingInverseInterval));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, DynamicVariant.FromFloat(RemainingUseCooldown));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingUseCount, DynamicVariant.FromInt(RemainingUseCount));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.maxUseCount, DynamicVariant.FromInt(MaxUseCount));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.nameTemplate, DynamicVariant.FromString(_visualData?.DisplayName?.Template ?? string.Empty));
@@ -855,74 +968,13 @@ namespace Game.StatusEffect
 
         void WriteRuntimeGlobalVars()
         {
-            if (_runtimeStackPreset == null)
-                return;
-
-            var intensityValue = EvaluateGlobalRuleValue(_runtimeStackPreset.ApplyIntensity, _runtimeStackPreset.Intensity);
-            var durationValue = EvaluateGlobalRuleValue(_runtimeStackPreset.ApplyDuration, _runtimeStackPreset.Duration);
-            var currentCountValue = EvaluateGlobalRuleValue(_runtimeStackPreset.ApplyCurrentCount, _runtimeStackPreset.CurrentCount);
-            var maxCountValue = EvaluateGlobalRuleValue(_runtimeStackPreset.ApplyMaxCount, _runtimeStackPreset.MaxCount);
-
-            TryWriteRuntimeGlobalFloat(
-                VarIds.GameLib.Base.StatusEffect.Runtime.Global.intensity,
-                intensityValue,
-                ref _lastGlobalIntensityValue,
-                ref _hasLastGlobalIntensityValue);
-
-            TryWriteRuntimeGlobalFloat(
-                VarIds.GameLib.Base.StatusEffect.Runtime.Global.duration,
-                durationValue,
-                ref _lastGlobalDurationValue,
-                ref _hasLastGlobalDurationValue);
-
-            TryWriteRuntimeGlobalFloat(
-                VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount,
-                currentCountValue,
-                ref _lastGlobalCurrentCountValue,
-                ref _hasLastGlobalCurrentCountValue);
-
-            TryWriteRuntimeGlobalFloat(
-                VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount,
-                maxCountValue,
-                ref _lastGlobalMaxCountValue,
-                ref _hasLastGlobalMaxCountValue);
-        }
-
-        float EvaluateGlobalRuleValue(bool applyRule, StatusEffectStackRule? rule)
-        {
-            if (!applyRule || rule == null || !rule.UseGlobalValue)
-                return 0f;
-
-            return rule.GlobalValue.HasSource
-                ? rule.GlobalValue.GetOrDefault(_globalEvaluationContext, 0f)
-                : 0f;
-        }
-
-        void TryWriteRuntimeGlobalFloat(
-            int varId,
-            float value,
-            ref float lastValue,
-            ref bool hasLastValue)
-        {
-            if (varId == 0)
-                return;
-
-            _vars.TrySetVariant(varId, DynamicVariant.FromFloat(value));
-
-            if (hasLastValue && Mathf.Approximately(lastValue, value))
-                return;
-
-            hasLastValue = true;
-            lastValue = value;
-
-            var resolver = _scope?.Resolver;
-            if (resolver == null)
-                return;
-
-            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard?.LocalVars == null)
-                return;
-
-            blackboard.LocalVars.TrySetVariant(varId, DynamicVariant.FromFloat(value));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining, DynamicVariant.FromFloat(_owner.GlobalLifetimeRemaining));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal, DynamicVariant.FromFloat(_owner.GlobalLifetimeTotal));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining, DynamicVariant.FromFloat(_owner.GlobalCooldownRemaining));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax, DynamicVariant.FromFloat(_owner.GlobalCooldownMax));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount, DynamicVariant.FromInt(_owner.GlobalCurrentCount));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount, DynamicVariant.FromInt(_owner.GlobalMaxCount));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse, DynamicVariant.FromBool(_owner.GlobalCanUse));
         }
     }
 }

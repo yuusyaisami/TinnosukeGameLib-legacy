@@ -54,6 +54,9 @@ MonoBehaviour:
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
+        useUseCooldown: 1
+        useCooldownDefinition:
+          rid: 5619052506154533830
         useCount: 0
         countDefinition:
           rid: 5619052465085481674
@@ -253,6 +256,33 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052366731149523
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -383,6 +413,7 @@ MonoBehaviour:
     - rid: 5619052465085481672
       type: {class: FixedDurationStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        SyncWithGlobalLifetime: 0
         Duration:
           _source:
             rid: 5619052465085481673
@@ -395,23 +426,15 @@ MonoBehaviour:
     - rid: 5619052465085481674
       type: {class: DynamicCountStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        SyncWithGlobalCount: 0
         MaxCount:
           _source:
             rid: 5619052465085481675
           _defaultValue: 0
         ExhaustedAction: 20
-        InverseIntervalDuration:
-          _source:
-            rid: 5619052465085481676
-          _defaultValue: 0
-        InverseIntervalAction: 10
         ActivePolicy: 20
     - rid: 5619052465085481675
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052465085481676
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
     - rid: 5619052465085481745
@@ -420,3 +443,15 @@ MonoBehaviour:
         key:
           stableKey: GameLib.Base.StatusEffect.Stack.intensity.local
           varId: 101029
+    - rid: 5619052506154533830
+      type: {class: FixedUseCooldownStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        SyncWithGlobalUseCooldown: 1
+        Duration:
+          _source:
+            rid: 5619052506154533831
+          _defaultValue: 0
+    - rid: 5619052506154533831
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0

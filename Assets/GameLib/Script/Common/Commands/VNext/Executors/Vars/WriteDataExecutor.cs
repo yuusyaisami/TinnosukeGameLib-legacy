@@ -13,6 +13,156 @@ namespace Game.Commands.VNext
 {
     public sealed class WriteDataExecutor : ICommandExecutor
     {
+        sealed class WriteDataDebugRuntime
+        {
+            public readonly bool Enabled;
+            public readonly WriteDataDebugSettings Settings;
+
+            public WriteDataDebugRuntime(WriteDataCommandData data)
+            {
+                Enabled = data != null && data.DebugMode;
+                Settings = data?.Debug ?? new WriteDataDebugSettings();
+            }
+
+            public void LogCommandSummary(WriteDataCommandData data, IScopeNode? sourceScope, IScopeNode? targetScope)
+            {
+                if (!Enabled || data == null || !Settings.IncludeCommandSummary)
+                    return;
+
+                Emit($"Command Start source={DescribeScope(sourceScope)} target={DescribeScope(targetScope)} vars={data.VarOps?.Count ?? 0} scalars={data.ScalarOps?.Count ?? 0}");
+            }
+
+            public void LogVarOp(
+                int index,
+                string opName,
+                VarStoreTarget target,
+                int varId,
+                IScopeNode? scope,
+                bool success,
+                bool hasInput,
+                DynamicVariant input,
+                bool hasBefore,
+                DynamicVariant before,
+                bool hasAfter,
+                DynamicVariant after)
+            {
+                if (!Enabled || Settings.Vars == null || !Settings.Vars.Enabled)
+                    return;
+
+                if (success && !Settings.Vars.LogSuccess)
+                    return;
+                if (!success && !Settings.Vars.LogFailure)
+                    return;
+
+                var level = !success ? WriteDataDebugLogLevel.Warning : Settings.LogLevel;
+                var msg = $"Var {opName} {(success ? "OK" : "FAILED")} target={target}";
+
+                if (Settings.IncludeOpIndex)
+                    msg += $" index={index}";
+
+                msg += $" varId={varId}";
+
+                if (Settings.Vars.IncludeVarKey)
+                    msg += $" key={DescribeVarKey(varId)}";
+
+                if (Settings.Vars.IncludeInputValue && hasInput)
+                    msg += $" input={DescribeVariant(input)}";
+
+                if (Settings.Vars.IncludeBeforeValue)
+                    msg += $" before={(hasBefore ? DescribeVariant(before) : "<unset>")}";
+
+                if (Settings.Vars.IncludeAfterValue)
+                    msg += $" after={(hasAfter ? DescribeVariant(after) : "<unset>")}";
+
+                if (Settings.Vars.IncludeScope)
+                    msg += $" scope={DescribeScope(scope)}";
+
+                Emit(msg, level);
+            }
+
+            public void LogScalarOp(
+                int index,
+                ScalarWriteOp op,
+                IScopeNode? scope,
+                bool success,
+                bool hasInput,
+                float input,
+                bool hasBefore,
+                float before,
+                bool hasAfter,
+                float after,
+                float duration)
+            {
+                if (!Enabled || Settings.Scalars == null || !Settings.Scalars.Enabled)
+                    return;
+
+                if (success && !Settings.Scalars.LogSuccess)
+                    return;
+                if (!success && !Settings.Scalars.LogFailure)
+                    return;
+
+                var level = !success ? WriteDataDebugLogLevel.Warning : Settings.LogLevel;
+                var msg = $"Scalar {op.Op} {(success ? "OK" : "FAILED")}";
+
+                if (Settings.IncludeOpIndex)
+                    msg += $" index={index}";
+
+                if (Settings.Scalars.IncludeScalarKey)
+                    msg += $" key={DescribeScalarKey(op.Key)}";
+
+                if (Settings.Scalars.IncludeInputValue && hasInput)
+                    msg += $" input={input}";
+
+                if (Settings.Scalars.IncludeBeforeValue)
+                    msg += $" before={(hasBefore ? before.ToString() : "<unset>")}";
+
+                if (Settings.Scalars.IncludeAfterValue)
+                    msg += $" after={(hasAfter ? after.ToString() : "<unset>")}";
+
+                if (Settings.Scalars.IncludeLayer && !string.IsNullOrEmpty(op.Layer))
+                    msg += $" layer={op.Layer}";
+
+                if (Settings.Scalars.IncludeDuration)
+                    msg += $" duration={duration}";
+
+                if (Settings.Scalars.IncludeTag && !string.IsNullOrEmpty(op.Tag))
+                    msg += $" tag={op.Tag}";
+
+                if (Settings.Scalars.IncludeScope)
+                    msg += $" scope={DescribeScope(scope)}";
+
+                Emit(msg, level);
+            }
+
+            public void LogScalarServiceMissing(IScopeNode? scope)
+            {
+                if (!Enabled || Settings.Scalars == null || !Settings.Scalars.Enabled || !Settings.Scalars.LogFailure)
+                    return;
+
+                Emit($"Scalar service missing. scope={DescribeScope(scope)}", WriteDataDebugLogLevel.Warning);
+            }
+
+            void Emit(string message, WriteDataDebugLogLevel? overrideLevel = null)
+            {
+                var level = overrideLevel ?? Settings.LogLevel;
+                var prefix = string.IsNullOrWhiteSpace(Settings.Prefix) ? "[WriteDataDebug]" : Settings.Prefix.Trim();
+                var line = $"{prefix} {message}";
+
+                switch (level)
+                {
+                    case WriteDataDebugLogLevel.Error:
+                        Debug.LogError(line);
+                        break;
+                    case WriteDataDebugLogLevel.Warning:
+                        Debug.LogWarning(line);
+                        break;
+                    default:
+                        Debug.Log(line);
+                        break;
+                }
+            }
+        }
+
         public int CommandId => CommandIds.WriteData;
 
         public async UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
@@ -23,12 +173,14 @@ namespace Game.Commands.VNext
             var sourceCtx = await ResolveSourceContextAsync(ctx, typed, ct);
             var targetScope = await ResolveTargetScopeAsync(ctx, typed, ct);
             var serviceScope = targetScope ?? ctx.Actor ?? ctx.Scope;
+            var debug = new WriteDataDebugRuntime(typed);
             IBlackboardService? blackboard = null;
             TryResolveBlackboard(serviceScope, out blackboard);
+            debug.LogCommandSummary(typed, sourceCtx.Scope, serviceScope);
 
             try
             {
-                ApplyVarOps(typed.VarOps, sourceCtx, serviceScope, blackboard);
+                ApplyVarOps(typed.VarOps, sourceCtx, serviceScope, blackboard, debug);
             }
             catch (Exception ex)
             {
@@ -38,7 +190,7 @@ namespace Game.Commands.VNext
 
             try
             {
-                ApplyScalarOps(typed.ScalarOps, sourceCtx, serviceScope?.Resolver);
+                ApplyScalarOps(typed.ScalarOps, sourceCtx, serviceScope, serviceScope?.Resolver, debug);
             }
             catch (Exception ex)
             {
@@ -74,7 +226,7 @@ namespace Game.Commands.VNext
                 sourceContext: ctx);
         }
 
-        static void ApplyVarOps(List<VarWriteOp> ops, CommandContext ctx, IScopeNode? targetScope, IBlackboardService? blackboard)
+        static void ApplyVarOps(List<VarWriteOp> ops, CommandContext ctx, IScopeNode? targetScope, IBlackboardService? blackboard, WriteDataDebugRuntime debug)
         {
             if (ops == null || ops.Count == 0)
                 return;
@@ -93,17 +245,30 @@ namespace Game.Commands.VNext
 
                 try
                 {
+                    var hasBefore = false;
+                    var before = DynamicVariant.Null;
+                    if (debug.Enabled && debug.Settings.Vars != null && debug.Settings.Vars.IncludeBeforeValue)
+                        hasBefore = TryGetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, out before);
+
+                    var success = false;
+                    var hasInput = false;
+                    var input = DynamicVariant.Null;
+
                     switch (op.Op)
                     {
                         case VarWriteOpKind.Unset:
-                            if (!TryUnsetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId))
+                            success = TryUnsetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId);
+                            if (!success)
                                 LogVarOpFailed("Unset", op.Target, targetScope, varId);
                             break;
 
                         case VarWriteOpKind.Set:
                             {
                                 var v = op.Value.Evaluate(ctx);
-                                if (!TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, v))
+                                hasInput = true;
+                                input = v;
+                                success = TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, v);
+                                if (!success)
                                     LogVarOpFailed("Set", op.Target, targetScope, varId);
                                 break;
                             }
@@ -112,7 +277,10 @@ namespace Game.Commands.VNext
                             {
                                 var add = op.Value.GetOrDefault<float>(ctx, 0f);
                                 var cur = GetNumericOrDefault(op.Target, ctx, targetScope, blackboard, commandVars, varId, 0f);
-                                if (!TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, DynamicVariant.FromFloat(cur + add)))
+                                hasInput = true;
+                                input = DynamicVariant.FromFloat(add);
+                                success = TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, DynamicVariant.FromFloat(cur + add));
+                                if (!success)
                                     LogVarOpFailed("Add", op.Target, targetScope, varId);
                                 break;
                             }
@@ -121,11 +289,21 @@ namespace Game.Commands.VNext
                             {
                                 var mul = op.Value.GetOrDefault<float>(ctx, 1f);
                                 var cur = GetNumericOrDefault(op.Target, ctx, targetScope, blackboard, commandVars, varId, 1f);
-                                if (!TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, DynamicVariant.FromFloat(cur * mul)))
+                                hasInput = true;
+                                input = DynamicVariant.FromFloat(mul);
+                                success = TrySetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, DynamicVariant.FromFloat(cur * mul));
+                                if (!success)
                                     LogVarOpFailed("Mul", op.Target, targetScope, varId);
                                 break;
                             }
                     }
+
+                    var hasAfter = false;
+                    var after = DynamicVariant.Null;
+                    if (debug.Enabled && debug.Settings.Vars != null && debug.Settings.Vars.IncludeAfterValue)
+                        hasAfter = TryGetVariant(op.Target, ctx, targetScope, blackboard, commandVars, varId, out after);
+
+                    debug.LogVarOp(i, op.Op.ToString(), op.Target, varId, targetScope, success, hasInput, input, hasBefore, before, hasAfter, after);
                 }
                 catch (Exception ex)
                 {
@@ -304,7 +482,7 @@ namespace Game.Commands.VNext
             return defaultValue;
         }
 
-        static void ApplyScalarOps(List<ScalarWriteOp> ops, CommandContext ctx, VContainer.IObjectResolver? resolver)
+        static void ApplyScalarOps(List<ScalarWriteOp> ops, CommandContext ctx, IScopeNode? serviceScope, VContainer.IObjectResolver? resolver, WriteDataDebugRuntime debug)
         {
             if (ops == null || ops.Count == 0)
                 return;
@@ -312,6 +490,7 @@ namespace Game.Commands.VNext
             if (resolver == null || !resolver.TryResolve<IBaseScalarService>(out var scalar) || scalar == null)
             {
                 Debug.LogError($"[WriteDataExecutor] Scalar ops require IBaseScalarService, but no scalar service exists in this LTS. scope={DescribeScope(ctx.Scope)}");
+                debug.LogScalarServiceMissing(serviceScope ?? ctx.Scope);
                 return;
             }
 
@@ -322,6 +501,13 @@ namespace Game.Commands.VNext
                 var op = ops[i];
                 if (op == null)
                     continue;
+
+                var duration = ResolveDuration(op, ctx);
+                var hasInput = OpUsesInput(op.Op);
+                var input = hasInput ? op.Value.GetOrDefault(ctx, GetDefaultInputForScalarOp(op.Op)) : 0f;
+
+                var hasBefore = TryGetScalarValueForOp(scalar, op, out var before);
+                var success = true;
 
                 switch (op.Op)
                 {
@@ -334,33 +520,73 @@ namespace Game.Commands.VNext
                         break;
 
                     case ScalarWriteOpKind.SetLocalBase:
-                        scalar.SetLocalBase(op.Key, op.Value.GetOrDefault(ctx, 0f));
+                        scalar.SetLocalBase(op.Key, input);
                         break;
 
                     case ScalarWriteOpKind.SetGlobalBase:
-                        scalar.SetGlobalBase(op.Key, op.Value.GetOrDefault(ctx, 0f));
+                        scalar.SetGlobalBase(op.Key, input);
                         break;
 
                     case ScalarWriteOpKind.LocalAdd:
-                        HandleScalarHandle(op, ctx, scalar.LocalAdd(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault(ctx, 0f), ResolveDuration(op, ctx), source, op.Tag));
+                        HandleScalarHandle(op, ctx, scalar.LocalAdd(op.Key, op.Layer ?? string.Empty, input, duration, source, op.Tag));
                         break;
 
                     case ScalarWriteOpKind.GlobalAdd:
-                        HandleScalarHandle(op, ctx, scalar.GlobalAdd(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault(ctx, 0f), ResolveDuration(op, ctx), source, op.Tag));
+                        HandleScalarHandle(op, ctx, scalar.GlobalAdd(op.Key, op.Layer ?? string.Empty, input, duration, source, op.Tag));
                         break;
 
                     case ScalarWriteOpKind.LocalMul:
-                        HandleScalarHandle(op, ctx, scalar.LocalMul(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault(ctx, 1f), op.MulPhase, ResolveDuration(op, ctx), source, op.Tag));
+                        HandleScalarHandle(op, ctx, scalar.LocalMul(op.Key, op.Layer ?? string.Empty, input, op.MulPhase, duration, source, op.Tag));
                         break;
 
                     case ScalarWriteOpKind.GlobalMul:
-                        HandleScalarHandle(op, ctx, scalar.GlobalMul(op.Key, op.Layer ?? string.Empty, op.Value.GetOrDefault(ctx, 1f), op.MulPhase, ResolveDuration(op, ctx), source, op.Tag));
+                        HandleScalarHandle(op, ctx, scalar.GlobalMul(op.Key, op.Layer ?? string.Empty, input, op.MulPhase, duration, source, op.Tag));
                         break;
 
                     case ScalarWriteOpKind.DisposeHandleVar:
-                        DisposeHandleFromVar(op, ctx);
+                        success = DisposeHandleFromVar(op, ctx);
                         break;
                 }
+
+                var hasAfter = TryGetScalarValueForOp(scalar, op, out var after);
+                debug.LogScalarOp(i, op, serviceScope ?? ctx.Scope, success, hasInput, input, hasBefore, before, hasAfter, after, duration);
+            }
+        }
+
+        static bool OpUsesInput(ScalarWriteOpKind op)
+        {
+            return op == ScalarWriteOpKind.SetLocalBase
+                || op == ScalarWriteOpKind.SetGlobalBase
+                || op == ScalarWriteOpKind.LocalAdd
+                || op == ScalarWriteOpKind.GlobalAdd
+                || op == ScalarWriteOpKind.LocalMul
+                || op == ScalarWriteOpKind.GlobalMul;
+        }
+
+        static float GetDefaultInputForScalarOp(ScalarWriteOpKind op)
+        {
+            return op == ScalarWriteOpKind.LocalMul || op == ScalarWriteOpKind.GlobalMul ? 1f : 0f;
+        }
+
+        static bool TryGetScalarValueForOp(IBaseScalarService scalar, ScalarWriteOp op, out float value)
+        {
+            value = 0f;
+
+            switch (op.Op)
+            {
+                case ScalarWriteOpKind.SetLocalBase:
+                case ScalarWriteOpKind.LocalAdd:
+                case ScalarWriteOpKind.LocalMul:
+                case ScalarWriteOpKind.ClearKey:
+                    return scalar.LocalTryGet(op.Key, out value);
+
+                case ScalarWriteOpKind.SetGlobalBase:
+                case ScalarWriteOpKind.GlobalAdd:
+                case ScalarWriteOpKind.GlobalMul:
+                    return scalar.GlobalTryGet(op.Key, out value);
+
+                default:
+                    return false;
             }
         }
 
@@ -379,21 +605,24 @@ namespace Game.Commands.VNext
             ctx.Vars.TrySetManagedRef(varId, handle);
         }
 
-        static void DisposeHandleFromVar(ScalarWriteOp op, CommandContext ctx)
+        static bool DisposeHandleFromVar(ScalarWriteOp op, CommandContext ctx)
         {
             var varId = op.HandleVar.VarId;
             if (varId == 0)
-                return;
+                return false;
 
             if (!ctx.Vars.TryGetManagedRef(varId, out var obj) || obj == null)
-                return;
+                return false;
 
             if (obj is ScalarHandle handle)
             {
                 handle.Dispose();
                 if (op.UnsetAfterDispose)
                     ctx.Vars.TryUnset(varId);
+                return true;
             }
+
+            return false;
         }
 
         static bool TryGetHierarchicalBlackboardVariant(IScopeNode origin, int varId, out DynamicVariant value)
@@ -491,6 +720,30 @@ namespace Game.Commands.VNext
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.LogWarning($"[WriteDataExecutor] Var op failed. op={opName} target={target} varId={varId} scope={DescribeScope(scope)}");
 #endif
+        }
+
+        static string DescribeVariant(DynamicVariant value)
+        {
+            if (value.Kind == ValueKind.Null)
+                return "Null";
+
+            if (value.Kind == ValueKind.ManagedRef)
+            {
+                var managed = value.AsManagedRef;
+                return managed == null ? "ManagedRef:null" : $"ManagedRef:{managed.GetType().Name}";
+            }
+
+            return $"{value.Kind}:{value}";
+        }
+
+        static string DescribeVarKey(int varId)
+        {
+            return VarIdResolver.TryGetIdToStable(varId) ?? $"varId={varId}";
+        }
+
+        static string DescribeScalarKey(ScalarKey key)
+        {
+            return string.IsNullOrEmpty(key.Name) ? key.Id.ToString() : $"{key.Name} ({key.Id})";
         }
 
         static string DescribeScope(IScopeNode? scope)

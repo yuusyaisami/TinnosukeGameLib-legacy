@@ -350,10 +350,19 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/GameProfile/Base/InstanceMoneyValue
                     /// </remarks>
                     public const string InstanceMoneyValue = "GameLogic.GameProfile.Base.InstanceMoneyValue";
+                    /// <summary>Luck倍率の中でも、上振れを行う時のMulAdd</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/LuckUniqueValueMulAdd
+                    /// </remarks>
+                    public const string LuckUniqueValueMulAdd = "GameLogic.GameProfile.Base.LuckUniqueValueMulAdd";
                     /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/LuckValue
                     /// </remarks>
                     public const string LuckValue = "GameLogic.GameProfile.Base.LuckValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/LuckWayPoint
+                    /// </remarks>
+                    public const string LuckWayPoint = "GameLogic.GameProfile.Base.LuckWayPoint";
                     /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/MaxBall
                     /// </remarks>
@@ -585,7 +594,9 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Base.DebuffBallChance,
             ScalarKeys.GameLogic.GameProfile.Base.GameStage,
             ScalarKeys.GameLogic.GameProfile.Base.InstanceMoneyValue,
+            ScalarKeys.GameLogic.GameProfile.Base.LuckUniqueValueMulAdd,
             ScalarKeys.GameLogic.GameProfile.Base.LuckValue,
+            ScalarKeys.GameLogic.GameProfile.Base.LuckWayPoint,
             ScalarKeys.GameLogic.GameProfile.Base.MaxBall,
             ScalarKeys.GameLogic.GameProfile.Base.MaxNail,
             ScalarKeys.GameLogic.GameProfile.Base.MaxTimeLimit,

@@ -1,212 +1,376 @@
 #nullable enable
-// Game.Targeting
-// ================================================================================
-// TargetChannelDefs - Target 検索用の定義とインターフェース群
-// ================================================================================
-//
-// 本ファイルは「ターゲット検索チャンネル」を宣言するためのデータ構造をまとめる。
-// TargetChannelRuntime/Hub がこの定義をもとに検索を実行し、結果をキャッシュする。
-// コメントを多めに入れて、意図と使用方法を明示している。
-// ================================================================================
-
 using System;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
-using Unity.Mathematics;
-using VContainer;
-using UnityEngine;
+using Game.Common;
 using Game.Entity;
 using Game.Search;
+using Sirenix.OdinInspector;
+using Unity.Mathematics;
+using UnityEngine;
+using VContainer;
 using VNext = Game.Commands.VNext;
 
 namespace Game.Targeting
 {
-    /// <summary>検索クエリ種別。</summary>
     public enum TargetQueryKind
     {
-        Circle = 0, // 円検索。角度指定なし。
-        Cone = 1,   // 円錐検索。半角と方向ベクトルを使用。
+        Circle = 10,
+        Cone = 20,
     }
 
-    /// <summary>Origin の取得元。</summary>
     public enum TargetOriginSource
     {
-        OwnerFoot = 0,            // FootTransformMB.FootWorldPosition を使用
-        OwnerTransformPosition = 1, // Transform.position を使用
-        CustomTransform = 2,      // 任意の Transform から取得
+        OwnerFoot = 10,
+        OwnerTransformPosition = 20,
+        CustomTransform = 30,
     }
 
-    /// <summary>Forward の取得元（Cone のときのみ意味を持つ）。</summary>
     public enum TargetForwardSource
     {
-        OwnerTransformUp = 0,     // Transform.up
-        OwnerTransformRight = 1,  // Transform.right
-        CustomTransformUp = 2,    // 任意 Transform の up
-        CustomTransformRight = 3, // 任意 Transform の right
-        CustomVector = 4,         // 固定ベクトル（Vector2）
+        OwnerTransformUp = 10,
+        OwnerTransformRight = 20,
+        CustomTransformUp = 30,
+        CustomTransformRight = 40,
+        CustomVector = 50,
     }
 
-    /// <summary>検索の実装タイプ。</summary>
     public enum TargetChannelSearchType
     {
-        DynamicSearch = 0,
-        ScopeSearch = 1,
+        DynamicSearch = 10,
+        ScopeSearch = 20,
+        None = 30,
     }
 
-    /// <summary>
-    /// TargetChannel の定義（Inspector / Template 用）。
-    /// 外部は Tag を指定して TargetChannelRuntime へアクセスする。
-    /// </summary>
     [Serializable]
-    public sealed class TargetChannelDef
+    public sealed class TargetChannelPreset : IDynamicManagedRefValue
     {
         public bool IsDynamicSearch => SearchType == TargetChannelSearchType.DynamicSearch;
         public bool IsScopeSearch => SearchType == TargetChannelSearchType.ScopeSearch;
-
-        // ================================================================
-        // Identity
-        // ================================================================
+        public bool IsNoneSearch => SearchType == TargetChannelSearchType.None;
 
         [BoxGroup("Identity")]
         [LabelText("Tag")]
         [Required]
-        public string Tag = "default"; // 識別用タグ。Hub でキーとして利用。
+        public string Tag = "default";
 
         [BoxGroup("Identity")]
         [LabelText("Enabled")]
-        public bool Enabled = true; // false のときは検索をスキップし、結果をクリア。
-
-        // ================================================================
-        // Search
-        // ================================================================
+        public bool Enabled = true;
 
         [BoxGroup("Search")]
         [LabelText("Type")]
         [EnumToggleButtons]
         public TargetChannelSearchType SearchType = TargetChannelSearchType.DynamicSearch;
 
-        // ================================================================
-        // Query
-        // ================================================================
-
         [BoxGroup("Query")]
+        [ShowIf(nameof(IsDynamicSearch))]
         [LabelText("Kind")]
-        [ShowIf(nameof(IsDynamicSearch))]
-        public TargetQueryKind Kind = TargetQueryKind.Circle; // 検索形状
+        public TargetQueryKind Kind = TargetQueryKind.Circle;
 
         [BoxGroup("Query")]
+        [ShowIf(nameof(IsDynamicSearch))]
         [LabelText("Radius")]
-        [ShowIf(nameof(IsDynamicSearch))]
         [MinValue(0.01f)]
-        public float Radius = 5f; // 検索半径（円）または円錐の外半径
+        public float Radius = 5f;
 
         [BoxGroup("Query")]
-        [LabelText("Half Angle (deg)")]
         [ShowIf("@IsDynamicSearch && Kind == TargetQueryKind.Cone")]
+        [LabelText("Half Angle (deg)")]
         [Range(1f, 179f)]
-        public float HalfAngleDeg = 60f; // 円錐の半角（度数法）
+        public float HalfAngleDeg = 60f;
 
         [BoxGroup("Query")]
         [LabelText("Refresh Interval (frames)")]
-        [Tooltip("同一フレーム内の複数リクエストは必ずキャッシュ。さらに軽量化したい場合は 2〜8 などに上げる。")]
         [MinValue(1)]
-        public int RefreshIntervalFrames = 1; // 何フレームに1回再検索するか（キャッシュ間隔）
+        public int RefreshIntervalFrames = 1;
 
         [BoxGroup("Query")]
         [LabelText("Expected Results")]
         [MinValue(0)]
-        [Tooltip("内部 List の Capacity を最低限この数まで確保するヒント。")]
-        public int ExpectedResultCount = 32; // 結果リストの初期容量ヒント
-
-        // ================================================================
-        // Filters (LTS Identity)
-        // ================================================================
+        public int ExpectedResultCount = 32;
 
         [BoxGroup("Filters")]
-        [LabelText("Kind Mask")]
         [ShowIf(nameof(IsDynamicSearch))]
-        [Tooltip("検索対象に含める LifetimeScopeKind のマスク。Entity だけにしたい場合は Entity のみ。Runtime も含めたい場合は Entity|Runtime。")]
+        [LabelText("Kind Mask")]
         public LifetimeScopeMask KindMask = LifetimeScopeMask.Entity;
 
         [BoxGroup("Filters")]
-        [LabelText("Filter Id")]
         [ShowIf(nameof(IsDynamicSearch))]
-        [Tooltip("ILTSIdentityService.Id でフィルタ。空なら無効。")]
-        public string? FilterId; // Id フィルタ（null/空で無効）
+        [LabelText("Filter Id")]
+        public string? FilterId;
 
         [BoxGroup("Filters")]
-        [LabelText("Filter Category")]
         [ShowIf(nameof(IsDynamicSearch))]
-        [Tooltip("ILTSIdentityService.Category でフィルタ。空なら無効。")]
-        public string? FilterCategory; // Category フィルタ（null/空で無効）
+        [LabelText("Filter Category")]
+        public string? FilterCategory;
 
         [BoxGroup("Filters")]
         [LabelText("Exclude Self")]
-        public bool ExcludeSelf = true; // 検索結果から自分自身（Owner）を除外するか
-
-        // ================================================================
-        // Sources
-        // ================================================================
+        public bool ExcludeSelf = true;
 
         [BoxGroup("Sources")]
-        [LabelText("Origin Source")]
         [ShowIf(nameof(IsDynamicSearch))]
-        public TargetOriginSource OriginSource = TargetOriginSource.OwnerFoot; // 原点の取得方法
+        [LabelText("Origin Source")]
+        public TargetOriginSource OriginSource = TargetOriginSource.OwnerFoot;
 
         [BoxGroup("Sources")]
-        [LabelText("Custom Origin Transform")]
         [ShowIf("@IsDynamicSearch && OriginSource == TargetOriginSource.CustomTransform")]
-        public Transform? CustomOriginTransform; // 原点用の Transform（任意）
+        [LabelText("Custom Origin Transform")]
+        public Transform? CustomOriginTransform;
 
         [BoxGroup("Sources")]
-        [LabelText("Forward Source")]
         [ShowIf("@IsDynamicSearch && Kind == TargetQueryKind.Cone")]
-        public TargetForwardSource ForwardSource = TargetForwardSource.OwnerTransformUp; // 方向ベクトルの取得方法
+        [LabelText("Forward Source")]
+        public TargetForwardSource ForwardSource = TargetForwardSource.OwnerTransformUp;
 
         [BoxGroup("Sources")]
-        [LabelText("Custom Forward Transform")]
         [ShowIf("@IsDynamicSearch && Kind == TargetQueryKind.Cone && (ForwardSource == TargetForwardSource.CustomTransformUp || ForwardSource == TargetForwardSource.CustomTransformRight)")]
-        public Transform? CustomForwardTransform; // 方向用 Transform
+        [LabelText("Custom Forward Transform")]
+        public Transform? CustomForwardTransform;
 
         [BoxGroup("Sources")]
-        [LabelText("Custom Forward Vector")]
         [ShowIf("@IsDynamicSearch && Kind == TargetQueryKind.Cone && ForwardSource == TargetForwardSource.CustomVector")]
-        public Vector2 CustomForwardVector = Vector2.up; // 固定方向ベクトル
-
-        // ================================================================
-        // Scope Search
-        // ================================================================
+        [LabelText("Custom Forward Vector")]
+        public Vector2 CustomForwardVector = Vector2.up;
 
         [BoxGroup("Scope Search")]
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(ActorSource)")]
         [ShowIf(nameof(IsScopeSearch))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(ActorSource)")]
         public VNext.ActorSource ActorSource;
 
         [BoxGroup("Scope Search")]
-        [LabelText("Require Active")]
         [ShowIf("@IsScopeSearch && ActorSource.Kind != Game.Commands.VNext.ActorSourceKind.ByIdentity")]
+        [LabelText("Require Active")]
         public bool ScopeRequireActive = true;
 
-        // ================================================================
-        // Validation / Helpers
-        // ================================================================
-
-        /// <summary>円錐の半角 cos 値（Kind が Cone のときのみ有効）</summary>
         public float CosHalfAngle
         {
             get
             {
-                if (Kind != TargetQueryKind.Cone) return -1f; // 円検索では -1f を返し、フィルタ無効扱い
+                if (Kind != TargetQueryKind.Cone)
+                    return -1f;
+
                 var rad = HalfAngleDeg * Mathf.Deg2Rad;
                 return Mathf.Cos(rad);
             }
         }
+
+        public TargetChannelPreset CreateRuntimeCopy()
+        {
+            return new TargetChannelPreset
+            {
+                Tag = Tag,
+                Enabled = Enabled,
+                SearchType = SearchType,
+                Kind = Kind,
+                Radius = Radius,
+                HalfAngleDeg = HalfAngleDeg,
+                RefreshIntervalFrames = RefreshIntervalFrames,
+                ExpectedResultCount = ExpectedResultCount,
+                KindMask = KindMask,
+                FilterId = FilterId,
+                FilterCategory = FilterCategory,
+                ExcludeSelf = ExcludeSelf,
+                OriginSource = OriginSource,
+                CustomOriginTransform = CustomOriginTransform,
+                ForwardSource = ForwardSource,
+                CustomForwardTransform = CustomForwardTransform,
+                CustomForwardVector = CustomForwardVector,
+                ActorSource = ActorSource,
+                ScopeRequireActive = ScopeRequireActive,
+            };
+        }
+
+        public void ApplyMutation(TargetChannelRuntimeMutation mutation)
+        {
+            if (mutation == null)
+                return;
+
+            if (mutation.ApplyEnabled)
+                Enabled = mutation.Enabled;
+
+            if (mutation.ApplySearchType)
+                SearchType = mutation.SearchType;
+
+            if (mutation.ApplyDynamicSearch)
+            {
+                Kind = mutation.Kind;
+                Radius = mutation.Radius;
+                HalfAngleDeg = mutation.HalfAngleDeg;
+                RefreshIntervalFrames = mutation.RefreshIntervalFrames;
+                ExpectedResultCount = mutation.ExpectedResultCount;
+                KindMask = mutation.KindMask;
+                FilterId = mutation.FilterId;
+                FilterCategory = mutation.FilterCategory;
+                ExcludeSelf = mutation.ExcludeSelf;
+                OriginSource = mutation.OriginSource;
+                CustomOriginTransform = mutation.CustomOriginTransform;
+                ForwardSource = mutation.ForwardSource;
+                CustomForwardTransform = mutation.CustomForwardTransform;
+                CustomForwardVector = mutation.CustomForwardVector;
+            }
+
+            if (mutation.ApplyScopeSearch)
+            {
+                ActorSource = mutation.ActorSource;
+                ScopeRequireActive = mutation.ScopeRequireActive;
+            }
+        }
     }
 
-    /// <summary>
-    /// Channel 実行コンテキスト（Owner 情報）。
-    /// 検索を行う際の「自分自身」を保持し、Origin/Forward 解決に使用する。
-    /// </summary>
+    [Serializable]
+    public sealed class TargetChannelRuntimeMutation
+    {
+        [BoxGroup("General")]
+        [ToggleLeft]
+        [LabelText("Apply Enabled")]
+        public bool ApplyEnabled;
+
+        [BoxGroup("General")]
+        [ShowIf(nameof(ApplyEnabled))]
+        [LabelText("Enabled")]
+        public bool Enabled = true;
+
+        [BoxGroup("General")]
+        [ToggleLeft]
+        [LabelText("Apply Search Type")]
+        public bool ApplySearchType;
+
+        [BoxGroup("General")]
+        [ShowIf(nameof(ApplySearchType))]
+        [LabelText("Search Type")]
+        [EnumToggleButtons]
+        public TargetChannelSearchType SearchType = TargetChannelSearchType.DynamicSearch;
+
+        [BoxGroup("Dynamic Search")]
+        [ToggleLeft]
+        [LabelText("Apply Dynamic Search")]
+        public bool ApplyDynamicSearch;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Kind")]
+        public TargetQueryKind Kind = TargetQueryKind.Circle;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [MinValue(0.01f)]
+        [LabelText("Radius")]
+        public float Radius = 5f;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [Range(1f, 179f)]
+        [LabelText("Half Angle (deg)")]
+        public float HalfAngleDeg = 60f;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [MinValue(1)]
+        [LabelText("Refresh Interval (frames)")]
+        public int RefreshIntervalFrames = 1;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [MinValue(0)]
+        [LabelText("Expected Results")]
+        public int ExpectedResultCount = 32;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Kind Mask")]
+        public LifetimeScopeMask KindMask = LifetimeScopeMask.Entity;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Filter Id")]
+        public string? FilterId;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Filter Category")]
+        public string? FilterCategory;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Exclude Self")]
+        public bool ExcludeSelf = true;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Origin Source")]
+        public TargetOriginSource OriginSource = TargetOriginSource.OwnerFoot;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Custom Origin Transform")]
+        public Transform? CustomOriginTransform;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Forward Source")]
+        public TargetForwardSource ForwardSource = TargetForwardSource.OwnerTransformUp;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Custom Forward Transform")]
+        public Transform? CustomForwardTransform;
+
+        [BoxGroup("Dynamic Search")]
+        [ShowIf(nameof(ApplyDynamicSearch))]
+        [LabelText("Custom Forward Vector")]
+        public Vector2 CustomForwardVector = Vector2.up;
+
+        [BoxGroup("Scope Search")]
+        [ToggleLeft]
+        [LabelText("Apply Scope Search")]
+        public bool ApplyScopeSearch;
+
+        [BoxGroup("Scope Search")]
+        [ShowIf(nameof(ApplyScopeSearch))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(ActorSource)")]
+        public VNext.ActorSource ActorSource;
+
+        [BoxGroup("Scope Search")]
+        [ShowIf(nameof(ApplyScopeSearch))]
+        [LabelText("Require Active")]
+        public bool ScopeRequireActive = true;
+
+        public bool HasAnyMutation()
+        {
+            return ApplyEnabled || ApplySearchType || ApplyDynamicSearch || ApplyScopeSearch;
+        }
+    }
+
+    [CreateAssetMenu(menuName = "Game/Targeting/Target Channel Preset", fileName = "TargetChannelPreset")]
+    public sealed class TargetChannelPresetSO : ScriptableObject, IDynamicValueAsset<TargetChannelPreset>
+    {
+        [SerializeReference, InlineProperty, HideLabel]
+        TargetChannelPreset? _preset = new();
+
+        public TargetChannelPreset? Preset
+        {
+            get
+            {
+                if (_preset == null)
+                    _preset = new TargetChannelPreset();
+                return _preset;
+            }
+        }
+
+        void OnEnable()
+        {
+            if (_preset == null)
+                _preset = new TargetChannelPreset();
+        }
+
+        void OnValidate()
+        {
+            if (_preset == null)
+                _preset = new TargetChannelPreset();
+        }
+    }
+
     public readonly struct TargetChannelOwner
     {
         public readonly Transform OwnerTransform;
@@ -245,44 +409,33 @@ namespace Game.Targeting
         }
     }
 
-    /// <summary>
-    /// TargetChannel のランタイム（外部は基本 Hits を読むだけ）。
-    /// </summary>
     public interface ITargetChannelRuntime
     {
         string Tag { get; }
         bool Enabled { get; set; }
-
-        /// <summary>キャッシュ更新された最終フレーム。</summary>
+        TargetChannelPreset CurrentPreset { get; }
         int LastUpdatedFrame { get; }
-
-        /// <summary>内部キャッシュ（必要なら取得時に自動更新される）。</summary>
         List<DynamicSearchHit> Hits { get; }
-
-        /// <summary>次回アクセスで必ず再検索させたいとき。</summary>
         void Invalidate();
-
-        /// <summary>Interval を無視して即時更新。</summary>
         void ForceRefresh();
+        bool SwapPreset(TargetChannelPreset preset);
+        bool MutateSettings(TargetChannelRuntimeMutation mutation);
+        bool ResetRuntimeOverrides();
+        bool SetDirectTargets(IReadOnlyList<DynamicSearchHit> hits);
+        bool ClearDirectTargets();
     }
 
-    /// <summary>
-    /// Tag で TargetChannelRuntime を管理する Hub。
-    /// </summary>
     public interface ITargetChannelHub
     {
         int ChannelCount { get; }
-
         bool TryGetRuntime(string tag, out ITargetChannelRuntime runtime);
-
-        /// <summary>
-        /// 既存があれば返す。なければ作って返す（柔軟な生成パターン用）。
-        /// replaceIfExists = true で上書き登録。
-        /// </summary>
-        ITargetChannelRuntime GetOrRegister(TargetChannelDef def, bool replaceIfExists = false);
-
+        ITargetChannelRuntime RegisterOrReplace(TargetChannelPreset preset);
+        bool SwapPreset(string tag, TargetChannelPreset preset);
+        bool MutateSettings(string tag, TargetChannelRuntimeMutation mutation);
+        bool ResetRuntimeOverrides(string tag);
+        bool SetDirectTargets(string tag, IReadOnlyList<DynamicSearchHit> hits);
+        bool ClearDirectTargets(string tag);
         bool Unregister(string tag);
-
         void Clear();
     }
 }

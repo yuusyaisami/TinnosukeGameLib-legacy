@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using Game.Commands;
+using Game.Common;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -17,6 +18,38 @@ namespace Game.Commands.VNext
         Global = 8,
         Shared = 9,
         ContextSlot = 10,
+        TargetChannel = 11,
+    }
+
+    [Serializable]
+    public sealed class SharedActorSourceRef
+    {
+        [LabelText("Shared Tag")]
+        public string SharedTag = string.Empty;
+
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Hub Owner\", SharedHubActorSource)")]
+        public ActorSource SharedHubActorSource = new() { Kind = ActorSourceKind.Current };
+    }
+
+    [Serializable]
+    public sealed class TargetChannelActorSourceRef
+    {
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Channel Owner\", ChannelOwnerActorSource)")]
+        public ActorSource ChannelOwnerActorSource;
+
+        [LabelText("Channel Tag")]
+        public string ChannelTag = string.Empty;
+
+        [LabelText("Target Select")]
+        public TargetChannelTargetSelectMode TargetSelectMode = TargetChannelTargetSelectMode.First;
+
+        [ShowIf("@TargetSelectMode == Game.Common.TargetChannelTargetSelectMode.FilterByActorSource")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Filter Actor\", FilterActorSource)")]
+        public ActorSource FilterActorSource;
+
+        [ShowIf("@TargetSelectMode == Game.Common.TargetChannelTargetSelectMode.FilterByActorSource")]
+        [LabelText("Fallback To First On Miss")]
+        public bool FallbackToFirstIfFilterMiss = true;
     }
 
     [Serializable]
@@ -35,12 +68,18 @@ namespace Game.Commands.VNext
         public UnityEngine.Object? UnityObject;
 
         [ShowIf("@Kind == ActorSourceKind.Shared")]
-        [LabelText("Shared Tag")]
-        public string SharedTag;
+        [InlineProperty]
+        [HideLabel]
+        public SharedActorSourceRef? Shared;
 
         [ShowIf("@Kind == ActorSourceKind.ContextSlot")]
         [LabelText("Context Slot")]
         public CommandLtsSlot ContextSlot;
+
+        [ShowIf("@Kind == ActorSourceKind.TargetChannel")]
+        [InlineProperty]
+        [HideLabel]
+        public TargetChannelActorSourceRef? TargetChannel;
     }
 
     public enum WithActorExecutionScope

@@ -21,6 +21,7 @@ namespace Game.StatusEffect
         IDisposable
     {
         readonly IScopeNode _scope;
+        readonly IStatusEffectServiceOptions? _options;
         readonly Dictionary<string, StatusEffectRuntime> _effects = new(StringComparer.Ordinal);
         readonly List<string> _removeQueue = new(8);
 
@@ -28,21 +29,53 @@ namespace Game.StatusEffect
         IRichTextRefService? _richTextRefService;
         ICommandListRuntimeMutationService? _mutationService;
         IEntityEventService? _eventService;
+        IBlackboardService? _blackboardService;
         bool _disposed;
         bool _isActive;
+        bool _hasInitializedGlobalState;
+        float _globalLifetimeRemaining = -1f;
+        float _globalLifetimeTotal = -1f;
+        bool _skipNextGlobalLifetimeTick;
+        float _globalCooldownRemaining;
+        float _globalCooldownTotal;
+        bool _skipNextGlobalCooldownTick;
+        int _globalCurrentCount = -1;
+        int _globalMaxCount;
+        bool _globalCanUse = true;
+        bool _hasWrittenGlobalState;
+        float _lastWrittenGlobalLifetimeRemaining;
+        float _lastWrittenGlobalLifetimeTotal;
+        float _lastWrittenGlobalCooldownRemaining;
+        float _lastWrittenGlobalCooldownMax;
+        int _lastWrittenGlobalCurrentCount;
+        int _lastWrittenGlobalMaxCount;
+        bool _lastWrittenGlobalCanUse;
 
         const string OnEffectAppliedKey = EventKeys.GameLib.StatusEffect.OnApplied;
         const string OnEffectRemovedKey = EventKeys.GameLib.StatusEffect.OnRemoved;
 
-        public StatusEffectService(IScopeNode scope)
+        public StatusEffectService(IScopeNode scope, IStatusEffectServiceOptions? options = null)
         {
             _scope = scope;
+            _options = options;
         }
 
         internal ICommandRunner? CommandRunner => _commandRunner ??= ResolveOptional<ICommandRunner>();
         internal IRichTextRefService? RichTextRefService => _richTextRefService ??= ResolveOptional<IRichTextRefService>();
         internal ICommandListRuntimeMutationService? MutationService => _mutationService ??= ResolveOptional<ICommandListRuntimeMutationService>();
         internal IEntityEventService? EventService => _eventService ??= ResolveOptional<IEntityEventService>();
+        internal IBlackboardService? BlackboardService => _blackboardService ??= ResolveOptional<IBlackboardService>();
+        internal float GlobalLifetimeRemaining => _globalLifetimeRemaining;
+        internal float GlobalLifetimeTotal => _globalLifetimeTotal;
+        internal float GlobalCooldownRemaining => _globalCooldownRemaining;
+        internal float GlobalCooldownMax => _globalCooldownTotal;
+        internal int GlobalCurrentCount => _globalCurrentCount;
+        internal int GlobalMaxCount => _globalMaxCount;
+        internal int GlobalUsedCount => _globalMaxCount > 0 && _globalCurrentCount >= 0 ? Mathf.Max(0, _globalMaxCount - _globalCurrentCount) : 0;
+        internal bool GlobalCanUse => _globalCanUse;
+        internal bool IsGlobalLifetimeExpired => _globalLifetimeTotal >= 0f && _globalLifetimeRemaining <= 0f;
+        internal bool IsGlobalUseCooldownActive => _globalCooldownRemaining > 0f;
+        internal bool IsGlobalCountExhausted => _globalMaxCount > 0 && _globalCurrentCount == 0;
 
         public int ActiveEffectCount
         {
@@ -65,6 +98,7 @@ namespace Game.StatusEffect
             if (_disposed || request == null)
                 return false;
 
+            EnsureGlobalStateInitialized(forceReset: false);
             var evalContext = evaluationContext ?? new SimpleDynamicContext(NullVarStore.Instance, _scope);
             var definition = request.Definition.GetOrDefault(evalContext, default!);
             if (definition == null || string.IsNullOrWhiteSpace(definition.DefinitionId))
@@ -119,7 +153,17 @@ namespace Game.StatusEffect
 
             _effects[slotKey] = runtime;
             if (_isActive)
+            {
                 runtime.ApplyInitial();
+                runtime.RefreshFromServiceGlobalState(applyActions: true);
+            }
+
+            if (runtime.IsRemoveRequested)
+            {
+                _removeQueue.Add(slotKey);
+                ProcessRemoveQueue();
+                return true;
+            }
 
             PublishEffectApplied(runtime);
             return true;
@@ -168,11 +212,12 @@ namespace Game.StatusEffect
             if (_disposed || !_isActive)
                 return 0;
 
+            EnsureGlobalStateInitialized(forceReset: false);
             int count = 0;
             foreach (var pair in _effects)
             {
                 var runtime = pair.Value;
-                if (runtime == null || !filter.Matches(runtime))
+                if (runtime == null || runtime.UsesAnyServiceGlobalUseState || !filter.Matches(runtime))
                     continue;
 
                 if (runtime.Use(userScope ?? _scope, sourceContext))
@@ -182,6 +227,61 @@ namespace Game.StatusEffect
                     _removeQueue.Add(pair.Key);
             }
 
+            ProcessRemoveQueue();
+            return count;
+        }
+
+        public int UseGlobal(IScopeNode? userScope = null, CommandContext? sourceContext = null)
+        {
+            if (_disposed || !_isActive)
+                return 0;
+
+            EnsureGlobalStateInitialized(forceReset: false);
+
+            bool needsGlobalCountConsumption = false;
+            bool needsGlobalCooldownStart = false;
+            int candidateCount = 0;
+
+            foreach (var runtime in _effects.Values)
+            {
+                if (runtime == null || !runtime.UsesAnyServiceGlobalUseState || !runtime.CanUseViaGlobalRequest())
+                    continue;
+
+                candidateCount++;
+                needsGlobalCountConsumption |= runtime.UsesServiceGlobalCount;
+                needsGlobalCooldownStart |= runtime.UsesServiceGlobalUseCooldown;
+            }
+
+            if (candidateCount == 0)
+                return 0;
+
+            if (needsGlobalCountConsumption && _globalMaxCount > 0 && _globalCurrentCount > 0)
+                _globalCurrentCount--;
+
+            if (needsGlobalCooldownStart && _globalCooldownTotal > 0f)
+            {
+                _globalCooldownRemaining = _globalCooldownTotal;
+                _skipNextGlobalCooldownTick = true;
+            }
+
+            UpdateGlobalCanUse();
+            WriteGlobalStateToBlackboard(force: false);
+
+            int count = 0;
+            foreach (var pair in _effects)
+            {
+                var runtime = pair.Value;
+                if (runtime == null || !runtime.UsesAnyServiceGlobalUseState)
+                    continue;
+
+                if (runtime.UseViaGlobal(userScope ?? _scope, sourceContext))
+                    count++;
+
+                if (runtime.IsRemoveRequested)
+                    _removeQueue.Add(pair.Key);
+            }
+
+            SyncAllRuntimeGlobalState(applyActions: true);
             ProcessRemoveQueue();
             return count;
         }
@@ -269,7 +369,46 @@ namespace Game.StatusEffect
             if (_disposed || !_isActive)
                 return;
 
+            EnsureGlobalStateInitialized(forceReset: false);
             var deltaTime = Time.deltaTime;
+            bool globalStateChanged = false;
+
+            if (_globalLifetimeTotal >= 0f && _globalLifetimeRemaining > 0f)
+            {
+                if (_skipNextGlobalLifetimeTick)
+                {
+                    _skipNextGlobalLifetimeTick = false;
+                }
+                else
+                {
+                    _globalLifetimeRemaining -= Mathf.Max(0f, deltaTime);
+                    if (_globalLifetimeRemaining < 0f)
+                        _globalLifetimeRemaining = 0f;
+                    globalStateChanged = true;
+                }
+            }
+
+            if (_globalCooldownRemaining > 0f)
+            {
+                if (_skipNextGlobalCooldownTick)
+                {
+                    _skipNextGlobalCooldownTick = false;
+                }
+                else
+                {
+                    _globalCooldownRemaining -= Mathf.Max(0f, deltaTime);
+                    if (_globalCooldownRemaining < 0f)
+                        _globalCooldownRemaining = 0f;
+                    globalStateChanged = true;
+                }
+            }
+
+            if (globalStateChanged)
+            {
+                UpdateGlobalCanUse();
+                WriteGlobalStateToBlackboard(force: false);
+            }
+
             foreach (var pair in _effects)
             {
                 var runtime = pair.Value;
@@ -281,6 +420,9 @@ namespace Game.StatusEffect
                     _removeQueue.Add(pair.Key);
             }
 
+            if (globalStateChanged)
+                SyncAllRuntimeGlobalState(applyActions: true);
+
             ProcessRemoveQueue();
         }
 
@@ -288,6 +430,7 @@ namespace Game.StatusEffect
         {
             _ = scope;
             _isActive = true;
+            EnsureGlobalStateInitialized(forceReset: isReset || !_hasInitializedGlobalState);
 
             foreach (var runtime in _effects.Values)
             {
@@ -305,6 +448,9 @@ namespace Game.StatusEffect
                 if (!runtime.IsApplied && runtime.IsEnabled)
                     runtime.ApplyInitial();
             }
+
+            SyncAllRuntimeGlobalState(applyActions: true);
+            ProcessRemoveQueue();
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -330,6 +476,7 @@ namespace Game.StatusEffect
             _richTextRefService = null;
             _mutationService = null;
             _eventService = null;
+            _blackboardService = null;
         }
 
         bool TryBuildRuntime(
@@ -359,24 +506,54 @@ namespace Game.StatusEffect
                 operations.Add(opRuntime);
             }
 
+            var durationDefinition = definition.DurationDefinition;
             IStatusEffectDurationController? durationController = null;
             if (definition.UseDuration)
             {
-                if (definition.DurationDefinition == null ||
-                    !definition.DurationDefinition.TryCreateController(buildContext, out durationController) ||
-                    durationController == null)
+                if (durationDefinition == null)
+                {
+                    Debug.LogWarning($"[StatusEffectService] Failed to create duration controller. DefinitionId={definition.DefinitionId}");
+                    return false;
+                }
+
+                if (!durationDefinition.SyncWithGlobalLifetime &&
+                    (!durationDefinition.TryCreateController(buildContext, out durationController) || durationController == null))
                 {
                     Debug.LogWarning($"[StatusEffectService] Failed to create duration controller. DefinitionId={definition.DefinitionId}");
                     return false;
                 }
             }
 
+            var useCooldownDefinition = definition.UseCooldownDefinition;
+            IStatusEffectUseCooldownController? useCooldownController = null;
+            if (definition.UseUseCooldown)
+            {
+                if (useCooldownDefinition == null)
+                {
+                    Debug.LogWarning($"[StatusEffectService] Failed to create use cooldown controller. DefinitionId={definition.DefinitionId}");
+                    return false;
+                }
+
+                if (!useCooldownDefinition.SyncWithGlobalUseCooldown &&
+                    (!useCooldownDefinition.TryCreateController(buildContext, out useCooldownController) || useCooldownController == null))
+                {
+                    Debug.LogWarning($"[StatusEffectService] Failed to create use cooldown controller. DefinitionId={definition.DefinitionId}");
+                    return false;
+                }
+            }
+
+            var countDefinition = definition.CountDefinition;
             IStatusEffectCountController? countController = null;
             if (definition.UseCount)
             {
-                if (definition.CountDefinition == null ||
-                    !definition.CountDefinition.TryCreateController(buildContext, out countController) ||
-                    countController == null)
+                if (countDefinition == null)
+                {
+                    Debug.LogWarning($"[StatusEffectService] Failed to create count controller. DefinitionId={definition.DefinitionId}");
+                    return false;
+                }
+
+                if (!countDefinition.SyncWithGlobalCount &&
+                    (!countDefinition.TryCreateController(buildContext, out countController) || countController == null))
                 {
                     Debug.LogWarning($"[StatusEffectService] Failed to create count controller. DefinitionId={definition.DefinitionId}");
                     return false;
@@ -398,7 +575,11 @@ namespace Game.StatusEffect
                 runtimeVars,
                 operations,
                 hooks,
+                durationDefinition,
                 durationController,
+                useCooldownDefinition,
+                useCooldownController,
+                countDefinition,
                 countController);
             return true;
         }
@@ -462,6 +643,120 @@ namespace Game.StatusEffect
             return null;
         }
 
+        void EnsureGlobalStateInitialized(bool forceReset)
+        {
+            if (_hasInitializedGlobalState && !forceReset)
+                return;
+
+            _hasInitializedGlobalState = true;
+            var context = CreateGlobalSettingsContext();
+
+            var lifetimeSettings = _options?.GlobalLifetimeSettings;
+            if (lifetimeSettings != null && lifetimeSettings.Enabled)
+            {
+                _globalLifetimeTotal = lifetimeSettings.Duration.GetOrDefault(context, -1f);
+                _globalLifetimeRemaining = _globalLifetimeTotal;
+                _skipNextGlobalLifetimeTick = _globalLifetimeTotal >= 0f && _globalLifetimeRemaining > 0f;
+            }
+            else
+            {
+                _globalLifetimeTotal = -1f;
+                _globalLifetimeRemaining = -1f;
+                _skipNextGlobalLifetimeTick = false;
+            }
+
+            var cooldownSettings = _options?.GlobalUseCooldownSettings;
+            if (cooldownSettings != null && cooldownSettings.Enabled)
+                _globalCooldownTotal = Mathf.Max(0f, cooldownSettings.Duration.GetOrDefault(context, 0f));
+            else
+                _globalCooldownTotal = 0f;
+            _globalCooldownRemaining = 0f;
+            _skipNextGlobalCooldownTick = false;
+
+            var countSettings = _options?.GlobalCountSettings;
+            if (countSettings != null && countSettings.Enabled)
+                _globalMaxCount = Mathf.Max(0, countSettings.MaxCount.GetOrDefault(context, 0));
+            else
+                _globalMaxCount = 0;
+            _globalCurrentCount = _globalMaxCount > 0 ? _globalMaxCount : -1;
+
+            UpdateGlobalCanUse();
+            WriteGlobalStateToBlackboard(force: true);
+        }
+
+        IDynamicContext CreateGlobalSettingsContext()
+        {
+            var vars = BlackboardService?.LocalVars ?? NullVarStore.Instance;
+            return new SimpleDynamicContext(vars, _scope);
+        }
+
+        void UpdateGlobalCanUse()
+        {
+            bool canUse = true;
+
+            if (_globalCooldownRemaining > 0f)
+                canUse = false;
+
+            if (_globalMaxCount > 0 && _globalCurrentCount <= 0)
+                canUse = false;
+
+            if (_globalLifetimeTotal >= 0f && _globalLifetimeRemaining <= 0f)
+                canUse = false;
+
+            _globalCanUse = canUse;
+        }
+
+        void WriteGlobalStateToBlackboard(bool force)
+        {
+            var vars = BlackboardService?.LocalVars;
+            if (vars == null)
+                return;
+
+            if (!force &&
+                _hasWrittenGlobalState &&
+                Mathf.Approximately(_lastWrittenGlobalLifetimeRemaining, _globalLifetimeRemaining) &&
+                Mathf.Approximately(_lastWrittenGlobalLifetimeTotal, _globalLifetimeTotal) &&
+                Mathf.Approximately(_lastWrittenGlobalCooldownRemaining, _globalCooldownRemaining) &&
+                Mathf.Approximately(_lastWrittenGlobalCooldownMax, _globalCooldownTotal) &&
+                _lastWrittenGlobalCurrentCount == _globalCurrentCount &&
+                _lastWrittenGlobalMaxCount == _globalMaxCount &&
+                _lastWrittenGlobalCanUse == _globalCanUse)
+            {
+                return;
+            }
+
+            _hasWrittenGlobalState = true;
+            _lastWrittenGlobalLifetimeRemaining = _globalLifetimeRemaining;
+            _lastWrittenGlobalLifetimeTotal = _globalLifetimeTotal;
+            _lastWrittenGlobalCooldownRemaining = _globalCooldownRemaining;
+            _lastWrittenGlobalCooldownMax = _globalCooldownTotal;
+            _lastWrittenGlobalCurrentCount = _globalCurrentCount;
+            _lastWrittenGlobalMaxCount = _globalMaxCount;
+            _lastWrittenGlobalCanUse = _globalCanUse;
+
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining, DynamicVariant.FromFloat(_globalLifetimeRemaining));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal, DynamicVariant.FromFloat(_globalLifetimeTotal));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining, DynamicVariant.FromFloat(_globalCooldownRemaining));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax, DynamicVariant.FromFloat(_globalCooldownTotal));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount, DynamicVariant.FromInt(_globalCurrentCount));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount, DynamicVariant.FromInt(_globalMaxCount));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse, DynamicVariant.FromBool(_globalCanUse));
+        }
+
+        void SyncAllRuntimeGlobalState(bool applyActions)
+        {
+            foreach (var pair in _effects)
+            {
+                var runtime = pair.Value;
+                if (runtime == null)
+                    continue;
+
+                runtime.RefreshFromServiceGlobalState(applyActions);
+                if (runtime.IsRemoveRequested)
+                    _removeQueue.Add(pair.Key);
+            }
+        }
+
         void PublishEffectApplied(StatusEffectRuntime runtime)
         {
             var eventService = EventService;
@@ -513,7 +808,7 @@ namespace Game.StatusEffect
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isUseBlocked, DynamicVariant.FromBool(state.IsUseBlocked));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration, DynamicVariant.FromFloat(state.TotalDuration));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingDuration, DynamicVariant.FromFloat(state.RemainingTime));
-            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, DynamicVariant.FromFloat(state.RemainingInverseInterval));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, DynamicVariant.FromFloat(state.RemainingUseCooldown));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensity, DynamicVariant.FromFloat(state.Intensity));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount, DynamicVariant.FromInt(state.StackCount));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isEnabled, DynamicVariant.FromBool(state.IsEnabled));

@@ -284,7 +284,7 @@ namespace Game.Common
             return false;
         }
 
-        static bool TryResolveRuntimeFromScopeChain(IScopeNode? startScope, string tag, out ITargetChannelRuntime? runtime)
+        internal static bool TryResolveRuntimeFromScopeChain(IScopeNode? startScope, string tag, out ITargetChannelRuntime? runtime)
         {
             runtime = null;
             if (startScope == null || string.IsNullOrWhiteSpace(tag))
@@ -307,7 +307,7 @@ namespace Game.Common
             return false;
         }
 
-        static bool TryResolveHubAtScope(IScopeNode scope, out ITargetChannelHub? hub)
+        internal static bool TryResolveHubAtScope(IScopeNode scope, out ITargetChannelHub? hub)
         {
             hub = null;
             if (scope == null)

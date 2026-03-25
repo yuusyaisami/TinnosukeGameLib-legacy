@@ -191,7 +191,11 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.UIButtonControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.WorldSliderControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.WorldPointerTargetControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TargetChannelControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ShowTooltipExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -208,13 +212,7 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.AnimationSpriteChannelExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.MeshFxAnimationChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.MeshFxChannelControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.LineDrawCreateExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.LineDrawControlExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.MeshChannelControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.PublishEventExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -294,6 +292,8 @@ namespace Game.Commands
                 builder.Register<global::Game.Commands.VNext.TraitLotteryExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.PlaceTraitRuntimeExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.RuntimeTraitPresentationCommandMutationExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
 
                 builder.Register<VNext.BackgroundLayerExecutor>(Lifetime.Singleton)

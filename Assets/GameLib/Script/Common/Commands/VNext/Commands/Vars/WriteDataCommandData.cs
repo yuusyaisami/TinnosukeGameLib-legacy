@@ -54,6 +54,105 @@ namespace Game.Commands.VNext
         DisposeHandleVar = 20,
     }
 
+    public enum WriteDataDebugLogLevel
+    {
+        Info = 10,
+        Warning = 20,
+        Error = 30,
+    }
+
+    [Serializable]
+    public sealed class WriteDataVarDebugSettings
+    {
+        [LabelText("Enabled")]
+        public bool Enabled = true;
+
+        [LabelText("Log Success")]
+        public bool LogSuccess = true;
+
+        [LabelText("Log Failure")]
+        public bool LogFailure = true;
+
+        [LabelText("Include Input Value")]
+        public bool IncludeInputValue = true;
+
+        [LabelText("Include Before Value")]
+        public bool IncludeBeforeValue = true;
+
+        [LabelText("Include After Value")]
+        public bool IncludeAfterValue = true;
+
+        [LabelText("Include Var Key")]
+        public bool IncludeVarKey = true;
+
+        [LabelText("Include Scope")]
+        public bool IncludeScope = true;
+    }
+
+    [Serializable]
+    public sealed class WriteDataScalarDebugSettings
+    {
+        [LabelText("Enabled")]
+        public bool Enabled = true;
+
+        [LabelText("Log Success")]
+        public bool LogSuccess = true;
+
+        [LabelText("Log Failure")]
+        public bool LogFailure = true;
+
+        [LabelText("Include Input Value")]
+        public bool IncludeInputValue = true;
+
+        [LabelText("Include Before Value")]
+        public bool IncludeBeforeValue = true;
+
+        [LabelText("Include After Value")]
+        public bool IncludeAfterValue = true;
+
+        [LabelText("Include Scalar Key")]
+        public bool IncludeScalarKey = true;
+
+        [LabelText("Include Scope")]
+        public bool IncludeScope = true;
+
+        [LabelText("Include Layer")]
+        public bool IncludeLayer = true;
+
+        [LabelText("Include Duration")]
+        public bool IncludeDuration = true;
+
+        [LabelText("Include Tag")]
+        public bool IncludeTag = true;
+    }
+
+    [Serializable]
+    public sealed class WriteDataDebugSettings
+    {
+        [LabelText("Log Level")]
+        [EnumToggleButtons]
+        public WriteDataDebugLogLevel LogLevel = WriteDataDebugLogLevel.Info;
+
+        [LabelText("Log Prefix")]
+        public string Prefix = "[WriteDataDebug]";
+
+        [LabelText("Include Command Summary")]
+        public bool IncludeCommandSummary = true;
+
+        [LabelText("Include Op Index")]
+        public bool IncludeOpIndex = true;
+
+        [LabelText("Vars")]
+        [InlineProperty]
+        [HideLabel]
+        public WriteDataVarDebugSettings Vars = new();
+
+        [LabelText("Scalars")]
+        [InlineProperty]
+        [HideLabel]
+        public WriteDataScalarDebugSettings Scalars = new();
+    }
+
     [Serializable]
     public sealed class ScalarWriteOp
     {
@@ -122,5 +221,15 @@ namespace Game.Commands.VNext
         [FoldoutGroup("Scalar")]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
         public List<ScalarWriteOp> ScalarOps = new();
+
+        [FoldoutGroup("Debug")]
+        [LabelText("Debug Mode")]
+        public bool DebugMode;
+
+        [FoldoutGroup("Debug")]
+        [ShowIf(nameof(DebugMode))]
+        [InlineProperty]
+        [HideLabel]
+        public WriteDataDebugSettings Debug = new();
     }
 }

@@ -15,6 +15,7 @@ using UnityEngine;
 using Game.Common;
 using Game.DI;
 using Game.Search;
+using VContainer;
 
 namespace Game.Targeting
 {
@@ -75,28 +76,82 @@ namespace Game.Targeting
             return false;
         }
 
-        public ITargetChannelRuntime GetOrRegister(TargetChannelDef def, bool replaceIfExists = false)
+        public ITargetChannelRuntime RegisterOrReplace(TargetChannelPreset preset)
         {
             MainThread.AssertMainThread();
 
             if (_disposed) throw new ObjectDisposedException(nameof(TargetChannelHubService));
             if (!IsEnabled) throw new InvalidOperationException("TargetChannelHubService is disabled.");
-            if (def == null) throw new ArgumentNullException(nameof(def));
-            if (string.IsNullOrEmpty(def.Tag)) throw new ArgumentException("TargetChannelDef.Tag is null or empty.", nameof(def));
+            if (preset == null) throw new ArgumentNullException(nameof(preset));
+            if (string.IsNullOrEmpty(preset.Tag)) throw new ArgumentException("TargetChannelPreset.Tag is null or empty.", nameof(preset));
 
-            // 既存がある場合、replaceIfExists が false ならそれを返す
-            if (_channels.TryGetValue(def.Tag, out var existing))
-            {
-                if (!replaceIfExists)
-                    return existing;
-
-                // 差し替え要求なのでいったん削除して新規作成
-                _channels.Remove(def.Tag);
-            }
-
-            var runtime = CreateRuntime(def);
-            _channels[def.Tag] = runtime;
+            var runtime = CreateRuntime(preset);
+            _channels[preset.Tag] = runtime;
             return runtime;
+        }
+
+        public bool SwapPreset(string tag, TargetChannelPreset preset)
+        {
+            MainThread.AssertMainThread();
+
+            if (_disposed || string.IsNullOrWhiteSpace(tag) || preset == null)
+                return false;
+
+            if (!_channels.TryGetValue(tag, out var runtime) || runtime == null)
+                return false;
+
+            if (!string.Equals(tag, preset.Tag, StringComparison.Ordinal))
+                return false;
+
+            return runtime.SwapPreset(preset);
+        }
+
+        public bool MutateSettings(string tag, TargetChannelRuntimeMutation mutation)
+        {
+            MainThread.AssertMainThread();
+
+            if (_disposed || string.IsNullOrWhiteSpace(tag) || mutation == null)
+                return false;
+
+            return _channels.TryGetValue(tag, out var runtime) &&
+                   runtime != null &&
+                   runtime.MutateSettings(mutation);
+        }
+
+        public bool ResetRuntimeOverrides(string tag)
+        {
+            MainThread.AssertMainThread();
+
+            if (_disposed || string.IsNullOrWhiteSpace(tag))
+                return false;
+
+            return _channels.TryGetValue(tag, out var runtime) &&
+                   runtime != null &&
+                   runtime.ResetRuntimeOverrides();
+        }
+
+        public bool SetDirectTargets(string tag, IReadOnlyList<DynamicSearchHit> hits)
+        {
+            MainThread.AssertMainThread();
+
+            if (_disposed || string.IsNullOrWhiteSpace(tag))
+                return false;
+
+            return _channels.TryGetValue(tag, out var runtime) &&
+                   runtime != null &&
+                   runtime.SetDirectTargets(hits);
+        }
+
+        public bool ClearDirectTargets(string tag)
+        {
+            MainThread.AssertMainThread();
+
+            if (_disposed || string.IsNullOrWhiteSpace(tag))
+                return false;
+
+            return _channels.TryGetValue(tag, out var runtime) &&
+                   runtime != null &&
+                   runtime.ClearDirectTargets();
         }
 
         public bool Unregister(string tag)
@@ -175,31 +230,42 @@ namespace Game.Targeting
             if (list == null || list.Count == 0)
                 return;
 
+            var vars = ResolveVars(_owner.OwnerScope);
+            var context = new SimpleDynamicContext(vars, _owner.OwnerScope);
+
             for (int i = 0; i < list.Count; i++)
             {
-                var def = list[i];
-                if (def == null)
+                if (!list[i].TryGet(context, out TargetChannelPreset? preset) || preset == null)
                     continue;
 
-                if (string.IsNullOrEmpty(def.Tag))
+                if (string.IsNullOrEmpty(preset.Tag))
                     continue;
 
-                GetOrRegister(def, replaceIfExists: true);
+                RegisterOrReplace(preset);
             }
         }
 
-        ITargetChannelRuntime CreateRuntime(TargetChannelDef def)
+        ITargetChannelRuntime CreateRuntime(TargetChannelPreset preset)
         {
-            if (def.SearchType == TargetChannelSearchType.ScopeSearch)
-                return new TargetChannelScopeRuntime(_owner, def);
-
-            if (_search == null)
+            if (preset.SearchType == TargetChannelSearchType.DynamicSearch && _search == null)
             {
-                Debug.LogError($"[TargetChannelHubService] IDynamicSearchService not found for '{def.Tag}'.");
-                return new NullTargetChannelRuntime(def);
+                Debug.LogError($"[TargetChannelHubService] IDynamicSearchService not found for '{preset.Tag}'.");
+                return new NullTargetChannelRuntime(preset);
             }
 
-            return new TargetChannelRuntime(_search, _owner, def);
+            return new TargetChannelRuntime(_search, _owner, preset);
+        }
+
+        static IVarStore ResolveVars(IScopeNode? scope)
+        {
+            if (scope?.Resolver != null &&
+                scope.Resolver.TryResolve<IVarStore>(out var vars) &&
+                vars != null)
+            {
+                return vars;
+            }
+
+            return NullVarStore.Instance;
         }
     }
 }

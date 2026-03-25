@@ -17,6 +17,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 5619052506154533079
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -26,7 +28,9 @@ MonoBehaviour:
           _debugAssetPath: Assets/Game/ScriptableObjects/Game/LuckOutputFunction.asset
           _functionName: Command.Function.Body
           _commands:
+          - rid: 5619052506154533103
           - rid: 5619052506154533080
+          - rid: 5619052506154533196
     - rid: 5619052506154533080
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -39,18 +43,705 @@ MonoBehaviour:
         Mode: 20
         DrawCount:
           _source:
-            rid: 5619052506154533084
+            rid: 5619052506154533109
           _defaultValue: 0
         WithReplacement: 0
-        ShortagePolicy: 20
+        ShortagePolicy: 10
         ActorEntries: []
         ScalarEntries:
         - Weight: 1
           Enabled: 1
-          Items: []
+          Items:
+          - Target:
+              Kind: 3
+              Identity:
+                kind: 5
+                id: SlotField
+                category: 
+                requireActive: 0
+                searchScope: 0
+              UnityObject: {fileID: 0}
+              SharedTag: 
+              ContextSlot: 0
+            Key:
+              Id: -545404644
+              Name: GameLogic.SlotProfile.LeftMul
+            Enabled: 1
+            SelectedOp: 30
+            SelectedKeepLocalBaseOnClearKey: 0
+            SelectedValue:
+              _source:
+                rid: 5619052506154533107
+              _defaultValue: 0
+            SelectedLayer: 
+            SelectedMulPhase: 1
+            SelectedDurationSeconds:
+              _source:
+                rid: 5619052506154533090
+              _defaultValue: 0
+            SelectedTag: 
+            UnselectedOp: 0
+            UnselectedKeepLocalBaseOnClearKey: 0
+            UnselectedValue:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedLayer: 
+            UnselectedMulPhase: 1
+            UnselectedDurationSeconds:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedTag: 
+        - Weight: 1
+          Enabled: 1
+          Items:
+          - Target:
+              Kind: 3
+              Identity:
+                kind: 5
+                id: SlotField
+                category: 
+                requireActive: 0
+                searchScope: 0
+              UnityObject: {fileID: 0}
+              SharedTag: 
+              ContextSlot: 0
+            Key:
+              Id: -354043114
+              Name: GameLogic.SlotProfile.CenterMul
+            Enabled: 1
+            SelectedOp: 30
+            SelectedKeepLocalBaseOnClearKey: 0
+            SelectedValue:
+              _source:
+                rid: 5619052506154533110
+              _defaultValue: 0
+            SelectedLayer: 
+            SelectedMulPhase: 1
+            SelectedDurationSeconds:
+              _source:
+                rid: 5619052506154533098
+              _defaultValue: 0
+            SelectedTag: 
+            UnselectedOp: 0
+            UnselectedKeepLocalBaseOnClearKey: 0
+            UnselectedValue:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedLayer: 
+            UnselectedMulPhase: 1
+            UnselectedDurationSeconds:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedTag: 
+        - Weight: 1
+          Enabled: 1
+          Items:
+          - Target:
+              Kind: 3
+              Identity:
+                kind: 5
+                id: SlotField
+                category: 
+                requireActive: 0
+                searchScope: 0
+              UnityObject: {fileID: 0}
+              SharedTag: 
+              ContextSlot: 0
+            Key:
+              Id: 2120132904
+              Name: GameLogic.SlotProfile.RightMul
+            Enabled: 1
+            SelectedOp: 30
+            SelectedKeepLocalBaseOnClearKey: 0
+            SelectedValue:
+              _source:
+                rid: 5619052506154533112
+              _defaultValue: 0
+            SelectedLayer: 
+            SelectedMulPhase: 1
+            SelectedDurationSeconds:
+              _source:
+                rid: 5619052506154533102
+              _defaultValue: 0
+            SelectedTag: 
+            UnselectedOp: 0
+            UnselectedKeepLocalBaseOnClearKey: 0
+            UnselectedValue:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedLayer: 
+            UnselectedMulPhase: 1
+            UnselectedDurationSeconds:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedTag: 
         BlackboardEntries: []
         VarStoreEntries: []
-    - rid: 5619052506154533084
+    - rid: 5619052506154533090
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052506154533098
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052506154533102
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052506154533103
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052506154533104
+    - rid: 5619052506154533104
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        Target:
+          Kind: 3
+          Identity:
+            kind: 5
+            id: SlotField
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+        VarOps: []
+        ScalarOps:
+        - Op: 6
+          Key:
+            Id: -545404644
+            Name: GameLogic.SlotProfile.LeftMul
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052506154533218
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+        - Op: 6
+          Key:
+            Id: -354043114
+            Name: GameLogic.SlotProfile.CenterMul
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052506154533219
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+        - Op: 6
+          Key:
+            Id: 2120132904
+            Name: GameLogic.SlotProfile.RightMul
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052506154533220
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+        - Op: 0
+          Key:
+            Id: -545404644
+            Name: GameLogic.SlotProfile.LeftMul
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052506154533155
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+        - Op: 0
+          Key:
+            Id: -354043114
+            Name: GameLogic.SlotProfile.CenterMul
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052506154533116
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+        - Op: 0
+          Key:
+            Id: 2120132904
+            Name: GameLogic.SlotProfile.RightMul
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052506154533118
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
+    - rid: 5619052506154533107
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052506154533108
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: LocalMulAdd
+          _expectedType: 255
+        _expression: LocalMulAdd
+    - rid: 5619052506154533108
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: LocalMulAdd
+          varId: 101054
+    - rid: 5619052506154533109
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: LocalMulCount
+          varId: 101055
+    - rid: 5619052506154533110
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052506154533111
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: LocalMulAdd
+          _expectedType: 255
+        _expression: LocalMulAdd
+    - rid: 5619052506154533111
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: LocalMulAdd
+          varId: 101054
+    - rid: 5619052506154533112
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052506154533113
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: LocalMulAdd
+          _expectedType: 255
+        _expression: LocalMulAdd
+    - rid: 5619052506154533113
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: LocalMulAdd
+          varId: 101054
+    - rid: 5619052506154533116
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GlobalMul
+          varId: 101053
+    - rid: 5619052506154533118
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GlobalMul
+          varId: 101053
+    - rid: 5619052506154533155
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052506154533164
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052506154533165
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: GlobalMul
+          _expectedType: 3
+        _expression: LuckValueMul * GlobalMul
+    - rid: 5619052506154533164
+      type: {class: OtherBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101057
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+        targetActor:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 0
+    - rid: 5619052506154533165
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GlobalMul
+          varId: 101053
+    - rid: 5619052506154533196
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052506154533197
+    - rid: 5619052506154533197
+      type: {class: LotteryCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Mode: 20
+        DrawCount:
+          _source:
+            rid: 5619052506154533214
+          _defaultValue: 0
+        WithReplacement: 0
+        ShortagePolicy: 10
+        ActorEntries: []
+        ScalarEntries:
+        - Weight: 1
+          Enabled: 1
+          Items:
+          - Target:
+              Kind: 3
+              Identity:
+                kind: 5
+                id: SlotField
+                category: 
+                requireActive: 0
+                searchScope: 0
+              UnityObject: {fileID: 0}
+              SharedTag: 
+              ContextSlot: 0
+            Key:
+              Id: -545404644
+              Name: GameLogic.SlotProfile.LeftMul
+            Enabled: 1
+            SelectedOp: 30
+            SelectedKeepLocalBaseOnClearKey: 0
+            SelectedValue:
+              _source:
+                rid: 5619052506154533215
+              _defaultValue: 0
+            SelectedLayer: 
+            SelectedMulPhase: 1
+            SelectedDurationSeconds:
+              _source:
+                rid: 5619052506154533202
+              _defaultValue: 0
+            SelectedTag: 
+            UnselectedOp: 0
+            UnselectedKeepLocalBaseOnClearKey: 0
+            UnselectedValue:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedLayer: 
+            UnselectedMulPhase: 1
+            UnselectedDurationSeconds:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedTag: 
+        - Weight: 1
+          Enabled: 1
+          Items:
+          - Target:
+              Kind: 3
+              Identity:
+                kind: 5
+                id: SlotField
+                category: 
+                requireActive: 0
+                searchScope: 0
+              UnityObject: {fileID: 0}
+              SharedTag: 
+              ContextSlot: 0
+            Key:
+              Id: -354043114
+              Name: GameLogic.SlotProfile.CenterMul
+            Enabled: 1
+            SelectedOp: 30
+            SelectedKeepLocalBaseOnClearKey: 0
+            SelectedValue:
+              _source:
+                rid: 5619052506154533216
+              _defaultValue: 0
+            SelectedLayer: 
+            SelectedMulPhase: 1
+            SelectedDurationSeconds:
+              _source:
+                rid: 5619052506154533206
+              _defaultValue: 0
+            SelectedTag: 
+            UnselectedOp: 0
+            UnselectedKeepLocalBaseOnClearKey: 0
+            UnselectedValue:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedLayer: 
+            UnselectedMulPhase: 1
+            UnselectedDurationSeconds:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedTag: 
+        - Weight: 1
+          Enabled: 1
+          Items:
+          - Target:
+              Kind: 3
+              Identity:
+                kind: 5
+                id: SlotField
+                category: 
+                requireActive: 0
+                searchScope: 0
+              UnityObject: {fileID: 0}
+              SharedTag: 
+              ContextSlot: 0
+            Key:
+              Id: 2120132904
+              Name: GameLogic.SlotProfile.RightMul
+            Enabled: 1
+            SelectedOp: 30
+            SelectedKeepLocalBaseOnClearKey: 0
+            SelectedValue:
+              _source:
+                rid: 5619052506154533217
+              _defaultValue: 0
+            SelectedLayer: 
+            SelectedMulPhase: 1
+            SelectedDurationSeconds:
+              _source:
+                rid: 5619052506154533210
+              _defaultValue: 0
+            SelectedTag: 
+            UnselectedOp: 0
+            UnselectedKeepLocalBaseOnClearKey: 0
+            UnselectedValue:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedLayer: 
+            UnselectedMulPhase: 1
+            UnselectedDurationSeconds:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UnselectedTag: 
+        BlackboardEntries: []
+        VarStoreEntries: []
+    - rid: 5619052506154533202
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052506154533206
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052506154533210
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052506154533214
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
+    - rid: 5619052506154533215
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1558893705
+          Name: GameLogic.GameProfile.Base.LuckUniqueValueMulAdd
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052506154533216
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1558893705
+          Name: GameLogic.GameProfile.Base.LuckUniqueValueMulAdd
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052506154533217
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1558893705
+          Name: GameLogic.GameProfile.Base.LuckUniqueValueMulAdd
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          SharedTag: 
+          ContextSlot: 100
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052506154533218
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052506154533219
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052506154533220
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
