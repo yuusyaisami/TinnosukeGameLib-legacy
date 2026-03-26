@@ -23,13 +23,18 @@ namespace Game.Commands.VNext
             }
         }
 
+        [Tooltip("使用する UITraitListProfileSO。Var 参照が有効なら実行時に差し替えられ、無効なら Asset 側をそのまま使います。")]
         public VarUnityObjectSource<UITraitListProfileSO> ProfileSource = new();
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderHubSource)")]
+        [Tooltip("TraitHolderHubService を持つ Actor。ここから HolderKey を使って表示対象 holder を解決します。")]
         public ActorSource HolderHubSource;
+        [Tooltip("Build 対象の TraitHolder キー。HolderHubSource 側の TraitHolderHubMB に登録されている key を指定します。")]
         public string HolderKey = string.Empty;
         [InlineProperty]
+        [Tooltip("今回の Build で表示する範囲。Profile の DefaultRange よりこちらが優先されます。")]
         public UITraitListRange Range;
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(BuildScope)")]
+        [Tooltip("UITraitListBuilderService を解決する対象 Actor。通常は UITraitListSystemMB が付いている scope を指定します。")]
         public ActorSource BuildScope;
     }
 
@@ -39,6 +44,7 @@ namespace Game.Commands.VNext
         public int CommandId => CommandIds.RefreshUITraitList;
         public string DebugData => $"Mode={RefreshMode}";
 
+        [Tooltip("差分更新にするか、全 rebuild にするかの方針。通常は Incremental、見た目崩れや構成差分が大きい場合は Full が向きます。")]
         public UITraitListRefreshMode RefreshMode = UITraitListRefreshMode.Incremental;
     }
 
@@ -49,7 +55,9 @@ namespace Game.Commands.VNext
         public string DebugData => $"Start={Range.StartIndex} Count={Range.Count} Rebuild={Rebuild}";
 
         [InlineProperty]
+        [Tooltip("更新後の表示範囲。現在の runtime に対してこの範囲へ切り替えます。")]
         public UITraitListRange Range;
+        [Tooltip("true の場合、Range 設定後に即 rebuild/refresh を行います。false の場合は範囲だけ変えて描画更新は別タイミングで行います。")]
         public bool Rebuild = true;
     }
 
@@ -59,6 +67,7 @@ namespace Game.Commands.VNext
         public int CommandId => CommandIds.ClearUITraitList;
         public string DebugData => $"KeepBinding={KeepBinding}";
 
+        [Tooltip("true の場合、表示だけ消して BoundHolder / BoundProfile の紐付けは維持します。false の場合は binding も解除します。")]
         public bool KeepBinding = false;
     }
 
@@ -71,6 +80,7 @@ namespace Game.Commands.VNext
         [LabelText("Trait")]
         [Tooltip("追加する Trait。AssetTraitDefinitionSource、Var、Blackboard などから解決する。")]
         public DynamicValue<TraitDefinitionSO> TraitDefinition;
+        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
@@ -79,6 +89,7 @@ namespace Game.Commands.VNext
         public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
+        [Tooltip("UseBoundHolder が false のときに使う holder key。HolderActorSource 側の TraitHolderHubMB に登録されている key を指定します。")]
         public string HolderKey = string.Empty;
     }
 
@@ -89,7 +100,9 @@ namespace Game.Commands.VNext
         public string DebugData => $"Selector={Selector.DebugData} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [InlineProperty]
+        [Tooltip("削除対象 Trait の選択条件。InstanceId / Definition / Index などで対象を 1 件解決します。")]
         public TraitElementSelector Selector;
+        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
@@ -98,6 +111,7 @@ namespace Game.Commands.VNext
         public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
+        [Tooltip("UseBoundHolder が false のときに使う holder key。削除対象 holder をこの key で解決します。")]
         public string HolderKey = string.Empty;
     }
 
@@ -108,7 +122,9 @@ namespace Game.Commands.VNext
         public string DebugData => $"Selector={Selector.DebugData} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [InlineProperty]
+        [Tooltip("使用対象 Trait の選択条件。定義・instanceId・index などから 1 件解決して use を実行します。")]
         public TraitElementSelector Selector;
+        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
@@ -117,6 +133,7 @@ namespace Game.Commands.VNext
         public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
+        [Tooltip("UseBoundHolder が false のときに使う holder key。使用対象 holder をこの key で解決します。")]
         public string HolderKey = string.Empty;
     }
 
@@ -132,22 +149,28 @@ namespace Game.Commands.VNext
     public struct UITraitTarget
     {
         [EnumToggleButtons]
+        [Tooltip("どの方法で UI 上の Trait を特定するか。Definition / InstanceId / Index / Row+Column から選びます。")]
         public UITraitTargetKind Kind;
 
         [ShowIf("@Kind == UITraitTargetKind.ByDefinition")]
         [LabelText("Definition")]
+        [Tooltip("Kind=ByDefinition のときに使う TraitDefinition。最初に一致したスロットを対象にします。")]
         public DynamicValue<TraitDefinitionSO> Definition;
 
         [ShowIf("@Kind == UITraitTargetKind.ByInstanceId")]
+        [Tooltip("Kind=ByInstanceId のときに使う Trait instanceId。完全一致でスロットを探します。")]
         public string InstanceId;
 
         [ShowIf("@Kind == UITraitTargetKind.ByIndex")]
+        [Tooltip("Kind=ByIndex のときに使う一覧 index。現在の表示範囲内インデックスではなく holder 全体の trait index を想定します。")]
         public DynamicValue<int> TraitIndex;
 
         [ShowIf("@Kind == UITraitTargetKind.ByRowAndColumn")]
+        [Tooltip("Kind=ByRowAndColumn のときに使う row 値。現在のレイアウト上の行番号で対象を探します。")]
         public DynamicValue<int> Row;
 
         [ShowIf("@Kind == UITraitTargetKind.ByRowAndColumn")]
+        [Tooltip("Kind=ByRowAndColumn のときに使う column 値。Row と組み合わせて現在のレイアウト上のスロットを特定します。")]
         public DynamicValue<int> Column;
     }
 }

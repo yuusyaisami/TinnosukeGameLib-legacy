@@ -812,15 +812,6 @@ namespace Game.Vars.Generated
                             /// </remarks>
                             public const int operations = 101009;
                             /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useCount
-                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCount
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useCount
-                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCount
-                            /// </remarks>
-                            public const int useCount = 101007;
-                            /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Definition/Element/useCooldownDefinition
                             /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCooldownDefinition
                             /// </remarks>
@@ -829,6 +820,15 @@ namespace Game.Vars.Generated
                             /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCooldownDefinition
                             /// </remarks>
                             public const int useCooldownDefinition = 101076;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useCount
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Definition/Element/useCount
+                            /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useCount
+                            /// </remarks>
+                            public const int useCount = 101007;
                             /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Definition/Element/useDuration
                             /// StableKey: GameLib.Base.StatusEffect.Definition.Element.useDuration
@@ -1067,15 +1067,6 @@ namespace Game.Vars.Generated
                             /// </remarks>
                             public const int canUse = 101081;
                             /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownRemaining
-                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownRemaining
-                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining
-                            /// </remarks>
-                            public const int cooldownRemaining = 101079;
-                            /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownMax
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownMax
                             /// </remarks>
@@ -1084,6 +1075,15 @@ namespace Game.Vars.Generated
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownMax
                             /// </remarks>
                             public const int cooldownMax = 101080;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownRemaining
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownRemaining
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining
+                            /// </remarks>
+                            public const int cooldownRemaining = 101079;
                             /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/currentCount
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.currentCount
@@ -2982,70 +2982,90 @@ namespace Game.Vars.Generated
             public static partial class WorldSlider
             {
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/targetRaw
-                /// StableKey: GameLib.WorldSlider.targetRaw
+                /// Path: GameLib/WorldSlider/crossingDirection
+                /// StableKey: GameLib.WorldSlider.crossingDirection
                 /// </remarks>
-                public const int targetRaw = 101059;
-                /// <remarks>
-                /// Path: GameLib/WorldSlider/targetNormalized
-                /// StableKey: GameLib.WorldSlider.targetNormalized
-                /// </remarks>
-                public const int targetNormalized = 101060;
-                /// <remarks>
-                /// Path: GameLib/WorldSlider/displayedRaw
-                /// StableKey: GameLib.WorldSlider.displayedRaw
-                /// </remarks>
-                public const int displayedRaw = 101061;
-                /// <remarks>
-                /// Path: GameLib/WorldSlider/displayedNormalized
-                /// StableKey: GameLib.WorldSlider.displayedNormalized
-                /// </remarks>
-                public const int displayedNormalized = 101062;
-                /// <remarks>
-                /// Path: GameLib/WorldSlider/deltaRaw
-                /// StableKey: GameLib.WorldSlider.deltaRaw
-                /// </remarks>
-                public const int deltaRaw = 101063;
-                /// <remarks>
-                /// Path: GameLib/WorldSlider/deltaNormalized
-                /// StableKey: GameLib.WorldSlider.deltaNormalized
-                /// </remarks>
-                public const int deltaNormalized = 101064;
                 /// <remarks>
                 /// Path: GameLib/WorldSlider/crossingDirection
                 /// StableKey: GameLib.WorldSlider.crossingDirection
                 /// </remarks>
                 public const int crossingDirection = 101065;
                 /// <remarks>
+                /// Path: GameLib/WorldSlider/deltaNormalized
+                /// StableKey: GameLib.WorldSlider.deltaNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/deltaNormalized
+                /// StableKey: GameLib.WorldSlider.deltaNormalized
+                /// </remarks>
+                public const int deltaNormalized = 101064;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/deltaRaw
+                /// StableKey: GameLib.WorldSlider.deltaRaw
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/deltaRaw
+                /// StableKey: GameLib.WorldSlider.deltaRaw
+                /// </remarks>
+                public const int deltaRaw = 101063;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/displayedNormalized
+                /// StableKey: GameLib.WorldSlider.displayedNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/displayedNormalized
+                /// StableKey: GameLib.WorldSlider.displayedNormalized
+                /// </remarks>
+                public const int displayedNormalized = 101062;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/displayedRaw
+                /// StableKey: GameLib.WorldSlider.displayedRaw
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/displayedRaw
+                /// StableKey: GameLib.WorldSlider.displayedRaw
+                /// </remarks>
+                public const int displayedRaw = 101061;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/entryIndex
+                /// StableKey: GameLib.WorldSlider.entryIndex
+                /// </remarks>
+                /// <remarks>
                 /// Path: GameLib/WorldSlider/entryIndex
                 /// StableKey: GameLib.WorldSlider.entryIndex
                 /// </remarks>
                 public const int entryIndex = 101066;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/entryValue
-                /// StableKey: GameLib.WorldSlider.entryValue
+                /// Path: GameLib/WorldSlider/entryNormalized
+                /// StableKey: GameLib.WorldSlider.entryNormalized
                 /// </remarks>
-                public const int entryValue = 101067;
                 /// <remarks>
                 /// Path: GameLib/WorldSlider/entryNormalized
                 /// StableKey: GameLib.WorldSlider.entryNormalized
                 /// </remarks>
                 public const int entryNormalized = 101068;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/unitKind
-                /// StableKey: GameLib.WorldSlider.unitKind
+                /// Path: GameLib/WorldSlider/entryValue
+                /// StableKey: GameLib.WorldSlider.entryValue
                 /// </remarks>
-                public const int unitKind = 101069;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/unitIndex
-                /// StableKey: GameLib.WorldSlider.unitIndex
+                /// Path: GameLib/WorldSlider/entryValue
+                /// StableKey: GameLib.WorldSlider.entryValue
                 /// </remarks>
-                public const int unitIndex = 101070;
+                public const int entryValue = 101067;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentStartRaw
-                /// StableKey: GameLib.WorldSlider.segmentStartRaw
+                /// Path: GameLib/WorldSlider/segmentEndNormalized
+                /// StableKey: GameLib.WorldSlider.segmentEndNormalized
                 /// </remarks>
-                public const int segmentStartRaw = 101071;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/segmentEndNormalized
+                /// StableKey: GameLib.WorldSlider.segmentEndNormalized
+                /// </remarks>
+                public const int segmentEndNormalized = 101074;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/segmentEndRaw
+                /// StableKey: GameLib.WorldSlider.segmentEndRaw
+                /// </remarks>
                 /// <remarks>
                 /// Path: GameLib/WorldSlider/segmentEndRaw
                 /// StableKey: GameLib.WorldSlider.segmentEndRaw
@@ -3055,12 +3075,56 @@ namespace Game.Vars.Generated
                 /// Path: GameLib/WorldSlider/segmentStartNormalized
                 /// StableKey: GameLib.WorldSlider.segmentStartNormalized
                 /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/segmentStartNormalized
+                /// StableKey: GameLib.WorldSlider.segmentStartNormalized
+                /// </remarks>
                 public const int segmentStartNormalized = 101073;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentEndNormalized
-                /// StableKey: GameLib.WorldSlider.segmentEndNormalized
+                /// Path: GameLib/WorldSlider/segmentStartRaw
+                /// StableKey: GameLib.WorldSlider.segmentStartRaw
                 /// </remarks>
-                public const int segmentEndNormalized = 101074;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/segmentStartRaw
+                /// StableKey: GameLib.WorldSlider.segmentStartRaw
+                /// </remarks>
+                public const int segmentStartRaw = 101071;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/targetNormalized
+                /// StableKey: GameLib.WorldSlider.targetNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/targetNormalized
+                /// StableKey: GameLib.WorldSlider.targetNormalized
+                /// </remarks>
+                public const int targetNormalized = 101060;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/targetRaw
+                /// StableKey: GameLib.WorldSlider.targetRaw
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/targetRaw
+                /// StableKey: GameLib.WorldSlider.targetRaw
+                /// </remarks>
+                public const int targetRaw = 101059;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/unitIndex
+                /// StableKey: GameLib.WorldSlider.unitIndex
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/unitIndex
+                /// StableKey: GameLib.WorldSlider.unitIndex
+                /// </remarks>
+                public const int unitIndex = 101070;
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/unitKind
+                /// StableKey: GameLib.WorldSlider.unitKind
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/WorldSlider/unitKind
+                /// StableKey: GameLib.WorldSlider.unitKind
+                /// </remarks>
+                public const int unitKind = 101069;
             }
         }
 
@@ -3134,6 +3198,15 @@ namespace Game.Vars.Generated
                 /// StableKey: Value
                 /// </remarks>
                 public const int Price = 100121;
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/StatusEffect
+                /// StableKey: StatusEffect
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/StatusEffect
+                /// StableKey: StatusEffect
+                /// </remarks>
+                public const int StatusEffect = 101082;
                 /// <remarks>
                 /// Path: GameLogic/NailProfile/UpgradeTable
                 /// StableKey: UpgradeTable
@@ -3254,8 +3327,8 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.StatusEffect.Definition.Element.nameKey,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.nameTemplate,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.operations,
-            VarIds.GameLib.Base.StatusEffect.Definition.Element.useCount,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.useCooldownDefinition,
+            VarIds.GameLib.Base.StatusEffect.Definition.Element.useCount,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.useDuration,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.useUseCooldown,
             VarIds.GameLib.Base.StatusEffect.Definition.Element.visualData,
@@ -3281,8 +3354,8 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.duration,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.intensity,
@@ -3467,27 +3540,28 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitIndex,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceId,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
-            VarIds.GameLib.WorldSlider.targetRaw,
-            VarIds.GameLib.WorldSlider.targetNormalized,
-            VarIds.GameLib.WorldSlider.displayedRaw,
-            VarIds.GameLib.WorldSlider.displayedNormalized,
-            VarIds.GameLib.WorldSlider.deltaRaw,
-            VarIds.GameLib.WorldSlider.deltaNormalized,
             VarIds.GameLib.WorldSlider.crossingDirection,
+            VarIds.GameLib.WorldSlider.deltaNormalized,
+            VarIds.GameLib.WorldSlider.deltaRaw,
+            VarIds.GameLib.WorldSlider.displayedNormalized,
+            VarIds.GameLib.WorldSlider.displayedRaw,
             VarIds.GameLib.WorldSlider.entryIndex,
-            VarIds.GameLib.WorldSlider.entryValue,
             VarIds.GameLib.WorldSlider.entryNormalized,
-            VarIds.GameLib.WorldSlider.unitKind,
-            VarIds.GameLib.WorldSlider.unitIndex,
-            VarIds.GameLib.WorldSlider.segmentStartRaw,
+            VarIds.GameLib.WorldSlider.entryValue,
+            VarIds.GameLib.WorldSlider.segmentEndNormalized,
             VarIds.GameLib.WorldSlider.segmentEndRaw,
             VarIds.GameLib.WorldSlider.segmentStartNormalized,
-            VarIds.GameLib.WorldSlider.segmentEndNormalized,
+            VarIds.GameLib.WorldSlider.segmentStartRaw,
+            VarIds.GameLib.WorldSlider.targetNormalized,
+            VarIds.GameLib.WorldSlider.targetRaw,
+            VarIds.GameLib.WorldSlider.unitIndex,
+            VarIds.GameLib.WorldSlider.unitKind,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
             VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
             VarIds.GameLogic.LuckProfile.Public.LuckValueMul,
             VarIds.GameLogic.NailProfile.Price,
+            VarIds.GameLogic.NailProfile.StatusEffect,
             VarIds.GameLogic.NailProfile.UpgradeTable,
             VarIds.GameLogic.NailProfile.UpgradePanel.Price,
             VarIds.GameLogic.NailProfile.UpgradePanel.StackPreset,

@@ -3165,38 +3165,6 @@ MonoBehaviour:
     varId: 252
     stableKey: i
     aliases: []
-  - id: 550c79e9f5644ddbbe60095b28fc9b2b
-    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
-    name: NailProfile
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: be487a3998574868b0bd22f10839f504
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: Price
-    isFolder: 0
-    description: 
-    varId: 100121
-    stableKey: Value
-    aliases: []
-  - id: e84759ea46f247a4bff25064706c7bf8
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: UpgradeTable
-    isFolder: 0
-    description: 
-    varId: 100123
-    stableKey: UpgradeTable
-    aliases: []
-  - id: b08882a0c8e24de48a4f005e0b281469
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: UpgradePanel
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
   - id: 53629fd4d7cb41a08fc460afe475c010
     parentId: b08882a0c8e24de48a4f005e0b281469
     name: StatusEffect
@@ -3261,14 +3229,6 @@ MonoBehaviour:
     description: 
     varId: 101048
     stableKey: StackPreset
-    aliases: []
-  - id: 2d1b609322f1489787aca5fdb9479dc8
-    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
-    name: LuckProfile
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
     aliases: []
   - id: 0e7a503de1254704bc4a2b7a61becd79
     parentId: d5c23d44265b4cf58b598d6b7bb33aa8
@@ -3454,7 +3414,56 @@ MonoBehaviour:
     varId: 101074
     stableKey: GameLib.WorldSlider.segmentEndNormalized
     aliases: []
-  nextVarId: 101082
+  - id: 550c79e9f5644ddbbe60095b28fc9b2b
+    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
+    name: NailProfile
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 2d1b609322f1489787aca5fdb9479dc8
+    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
+    name: LuckProfile
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: ccfa7f9a86004733ae585511d3c058c5
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: StatusEffect
+    isFolder: 0
+    description: 
+    varId: 101082
+    stableKey: GameLogic.NailProfile.StatusEffect
+    aliases:
+    - StatusEffect
+  - id: be487a3998574868b0bd22f10839f504
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Price
+    isFolder: 0
+    description: 
+    varId: 100121
+    stableKey: Value
+    aliases: []
+  - id: e84759ea46f247a4bff25064706c7bf8
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: UpgradeTable
+    isFolder: 0
+    description: 
+    varId: 100123
+    stableKey: UpgradeTable
+    aliases: []
+  - id: b08882a0c8e24de48a4f005e0b281469
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: UpgradePanel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  nextVarId: 101083
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

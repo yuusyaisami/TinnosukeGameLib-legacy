@@ -37,6 +37,8 @@ namespace Game.UI.TraitList
         IScopeReleaseHandler
     {
         readonly IUITransformListBuilderService<ITraitInstance, UITraitListSlot, UITraitListVisualInstance, UITraitListLayoutProfileSO, UITraitListVisualizerProfileSO> _listBuilder;
+        readonly IUITraitListLayoutService _layoutService;
+        readonly IUITraitListVisualizerService _visualizerService;
         readonly ICommandRunner _runner;
 
         readonly SemaphoreSlim _mutex = new(1, 1);
@@ -47,9 +49,13 @@ namespace Game.UI.TraitList
 
         public UITraitListBuilderService(
             IUITransformListBuilderService<ITraitInstance, UITraitListSlot, UITraitListVisualInstance, UITraitListLayoutProfileSO, UITraitListVisualizerProfileSO> listBuilder,
+            IUITraitListLayoutService layoutService,
+            IUITraitListVisualizerService visualizerService,
             ICommandRunner runner)
         {
             _listBuilder = listBuilder;
+            _layoutService = layoutService;
+            _visualizerService = visualizerService;
             _runner = runner;
         }
 
@@ -216,7 +222,6 @@ namespace Game.UI.TraitList
                 return null;
             }
 
-            ApplyPlacementAreaToSlots(slots, layoutProfile, parent as RectTransform);
             ApplyContextToSlots(slots, holderKey, normalizedRange);
 
             var spawned = await _listBuilder.SpawnAsync(slots, visualProfile, parent, scopeParent, _runner, ct);
@@ -231,6 +236,18 @@ namespace Game.UI.TraitList
 
                 instances.Add(instance);
                 lookup[instance.Trait] = instance;
+            }
+
+            RecalculateSlotPositions(slots, instances, layoutProfile, visualProfile, ResolveLayoutRect(parent));
+            for (int i = 0; i < slots.Count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+                var slot = slots[i];
+                if (slot.Trait == null)
+                    continue;
+
+                if (lookup.TryGetValue(slot.Trait, out var instance) && instance != null)
+                    await _listBuilder.RelayoutAsync(instance, slot, layoutProfile, ct);
             }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -284,7 +301,6 @@ namespace Game.UI.TraitList
                 return;
             }
 
-            ApplyPlacementAreaToSlots(slots, layoutProfile, runtime.Parent as RectTransform);
             ApplyContextToSlots(slots, runtime.HolderKey, normalizedRange);
 
             if (mode == UITraitListRefreshMode.FullRebuild)
@@ -349,6 +365,8 @@ namespace Game.UI.TraitList
                     }
                 }
             }
+
+            RecalculateSlotPositions(slots, runtime.Instances, layoutProfile, visualProfile, ResolveLayoutRect(runtime.Parent));
 
             for (int i = 0; i < slots.Count; i++)
             {
@@ -453,55 +471,65 @@ namespace Game.UI.TraitList
             }
         }
 
-        static void ApplyPlacementAreaToSlots(
-            List<UITraitListSlot> slots,
-            UITraitListLayoutProfileSO layoutProfile,
-            RectTransform? layoutRect)
-        {
-            if (slots == null || slots.Count == 0 || layoutProfile == null || layoutRect == null)
-                return;
-
-            var rect = layoutRect.rect;
-            var origin = new Vector2(
-                ResolveHorizontalOrigin(rect, layoutProfile.AreaHorizontalAlignment),
-                ResolveVerticalOrigin(rect, layoutProfile.AreaVerticalAlignment));
-
-            for (int i = 0; i < slots.Count; i++)
-            {
-                var slot = slots[i];
-                slot.AnchoredPosition += origin;
-                slots[i] = slot;
-            }
-        }
-
-        static float ResolveHorizontalOrigin(Rect rect, UITraitListHorizontalAlignment alignment)
-        {
-            return alignment switch
-            {
-                UITraitListHorizontalAlignment.Left => rect.xMin,
-                UITraitListHorizontalAlignment.Right => rect.xMax,
-                UITraitListHorizontalAlignment.Center => rect.center.x,
-                _ => rect.xMin
-            };
-        }
-
-        static float ResolveVerticalOrigin(Rect rect, UITraitListVerticalAlignment alignment)
-        {
-            return alignment switch
-            {
-                UITraitListVerticalAlignment.Top => rect.yMax,
-                UITraitListVerticalAlignment.Bottom => rect.yMin,
-                UITraitListVerticalAlignment.Center => rect.center.y,
-                _ => rect.yMax
-            };
-        }
-
         static void SortInstancesByListIndex(List<UITraitListVisualInstance> instances)
         {
             if (instances == null || instances.Count <= 1)
                 return;
 
             instances.Sort((a, b) => a.ListIndex.CompareTo(b.ListIndex));
+        }
+
+        void RecalculateSlotPositions(
+            List<UITraitListSlot> slots,
+            IReadOnlyList<UITraitListVisualInstance> instances,
+            UITraitListLayoutProfileSO layoutProfile,
+            UITraitListVisualizerProfileSO visualProfile,
+            RectTransform? layoutRect)
+        {
+            if (slots == null || slots.Count == 0 || layoutProfile == null || visualProfile == null)
+                return;
+
+            var itemSize = ResolveLayoutItemSize(instances, visualProfile);
+            _layoutService.RecalculateAnchoredPositions(slots, layoutProfile, layoutRect, itemSize);
+        }
+
+        Vector2 ResolveLayoutItemSize(
+            IReadOnlyList<UITraitListVisualInstance> instances,
+            UITraitListVisualizerProfileSO visualProfile)
+        {
+            var resolved = Vector2.zero;
+            if (visualProfile == null)
+                return resolved;
+
+            if (visualProfile.OverrideSize)
+            {
+                resolved = new Vector2(Mathf.Max(0f, visualProfile.Width), Mathf.Max(0f, visualProfile.Height));
+                if (resolved.x > 0f || resolved.y > 0f)
+                    return resolved;
+            }
+
+            if (instances == null || instances.Count == 0)
+                return resolved;
+
+            for (int i = 0; i < instances.Count; i++)
+            {
+                var instance = instances[i];
+                if (instance == null)
+                    continue;
+
+                if (!_visualizerService.TryResolveLayoutElementSize(instance, visualProfile, out var size))
+                    continue;
+
+                resolved.x = Mathf.Max(resolved.x, size.x);
+                resolved.y = Mathf.Max(resolved.y, size.y);
+            }
+
+            return resolved;
+        }
+
+        static RectTransform? ResolveLayoutRect(Transform parent)
+        {
+            return parent as RectTransform;
         }
     }
 }

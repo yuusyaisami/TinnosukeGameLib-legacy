@@ -13,7 +13,7 @@ namespace Game.Channel
         MeshChannelEntry[] _entries = Array.Empty<MeshChannelEntry>();
 
         [SerializeField]
-        Material? _defaultMaterial;
+        Shader? _defaultShader;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
@@ -22,10 +22,11 @@ namespace Game.Channel
                     _entries ?? Array.Empty<MeshChannelEntry>(),
                     scope,
                     transform,
-                    _defaultMaterial),
+                    _defaultShader),
                 Lifetime.Singleton)
                 .As<IMeshChannelHubService>()
                 .As<IMeshChannelControlService>()
+                .As<IMeshMaterialFxControlService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<ITickable>()

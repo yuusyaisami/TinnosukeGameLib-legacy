@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Common;
@@ -97,8 +98,53 @@ namespace Game.Commands.VNext
             if (runtime == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Trait runtime could not be placed.");
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log(
+                $"[PlaceTraitRuntime] Placed runtime. Holder='{typed.HolderKey}' TraitInstanceId='{traitInstance.InstanceId}' " +
+                $"Runtime='{DescribeScope(runtime)}' SettingsRunOnPlaced={placementSettings.RunOnPlacedCommands} " +
+                $"SettingsCount={(placementSettings.OnPlacedCommands != null ? placementSettings.OnPlacedCommands.Count : -1)} " +
+                $"CommandRunOnPlaced={typed.RunOnPlacedCommands} " +
+                $"CommandCount={(typed.OnPlacedCommands != null ? typed.OnPlacedCommands.Count : -1)}");
+#endif
+
             if (placementSettings.RunOnPlacedCommands && placementSettings.OnPlacedCommands != null && placementSettings.OnPlacedCommands.Count > 0)
-                await ExecuteOnPlacedCommandsAsync(holderScope, runtime, traitInstance, ctx, placementSettings.OnPlacedCommands, ct);
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log(
+                    $"[PlaceTraitRuntime] Running placement-settings OnPlaced commands. Holder='{typed.HolderKey}' " +
+                    $"TraitInstanceId='{traitInstance.InstanceId}' Count={placementSettings.OnPlacedCommands.Count} " +
+                    $"List={placementSettings.OnPlacedCommands.GetDebugLabel()}");
+#endif
+                await ExecuteOnPlacedCommandsAsync(runtime, traitInstance, ctx, placementSettings.OnPlacedCommands);
+            }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            else
+            {
+                Debug.Log(
+                    $"[PlaceTraitRuntime] Skipped placement-settings OnPlaced commands. Holder='{typed.HolderKey}' " +
+                    $"RunFlag={placementSettings.RunOnPlacedCommands} " +
+                    $"Count={(placementSettings.OnPlacedCommands != null ? placementSettings.OnPlacedCommands.Count : -1)}");
+            }
+#endif
+
+            if (typed.RunOnPlacedCommands && typed.OnPlacedCommands != null && typed.OnPlacedCommands.Count > 0)
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log(
+                    $"[PlaceTraitRuntime] Running command-local OnPlaced commands. Holder='{typed.HolderKey}' " +
+                    $"TraitInstanceId='{traitInstance.InstanceId}' Count={typed.OnPlacedCommands.Count} " +
+                    $"List={typed.OnPlacedCommands.GetDebugLabel()}");
+#endif
+                await ExecuteOnPlacedCommandsAsync(runtime, traitInstance, ctx, typed.OnPlacedCommands);
+            }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            else
+            {
+                Debug.Log(
+                    $"[PlaceTraitRuntime] Skipped command-local OnPlaced commands. Holder='{typed.HolderKey}' " +
+                    $"RunFlag={typed.RunOnPlacedCommands} Count={(typed.OnPlacedCommands != null ? typed.OnPlacedCommands.Count : -1)}");
+            }
+#endif
         }
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
@@ -127,39 +173,90 @@ namespace Game.Commands.VNext
         }
 
         static async UniTask ExecuteOnPlacedCommandsAsync(
-            IScopeNode ownerScope,
             RuntimeLifetimeScope runtimeScope,
             ITraitInstance traitInstance,
             CommandContext sourceContext,
-            CommandListData commands,
-            CancellationToken ct)
+            CommandListData commands)
         {
             var runner = sourceContext.Runner;
+            var resolver = runtimeScope.Resolver;
+            if (resolver != null &&
+                resolver.TryResolve<ICommandRunner>(out var resolvedRunner) &&
+                resolvedRunner != null)
+            {
+                runner = resolvedRunner;
+            }
+
             if (runner == null)
-                return;
+                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "Placed runtime scope has no ICommandRunner.");
 
             var vars = new VarStore();
             sourceContext.Vars?.MergeInto(vars, overwrite: true);
             traitInstance?.Context?.Vars?.MergeInto(vars, overwrite: true);
-            if (runtimeScope.Resolver != null &&
-                runtimeScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) &&
+            if (resolver != null &&
+                resolver.TryResolve<IBlackboardService>(out var blackboard) &&
                 blackboard != null)
             {
                 blackboard.MergeInto(vars, overwrite: true);
             }
 
+            var detachedOptions = sourceContext.Options.WithSuppressCancelLog(true);
             var placedCtx = new CommandContext(
-                ownerScope,
+                runtimeScope,
                 vars,
                 runner,
                 runtimeScope,
-                sourceContext.Options,
-                ownerScope,
+                detachedOptions,
+                runtimeScope,
                 runtimeScope,
                 runtimeScope,
                 sourceContext);
+            var traitInstanceId = traitInstance?.InstanceId ?? string.Empty;
 
-            await runner.ExecuteListAsync(commands, placedCtx, ct, placedCtx.Options);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log(
+                $"[PlaceTraitRuntime] ExecuteOnPlaced begin. TraitInstanceId='{traitInstanceId}' " +
+                $"Scope='{DescribeScope(placedCtx.Scope)}' Actor='{DescribeScope(placedCtx.Actor)}' " +
+                $"Caller='{DescribeScope(placedCtx.CallerActor)}' RootActor='{DescribeScope(placedCtx.RootActor)}' " +
+                $"Count={commands.Count} List={commands.GetDebugLabel()} DetachedFromSourceCancellation=True");
+#endif
+
+            var result = await runner.ExecuteListAsync(commands, placedCtx, CancellationToken.None, detachedOptions);
+            if (result.Status == CommandRunStatus.Canceled)
+                throw new CommandExecutionException(CommandRunFailureKind.Canceled, "PlaceTraitRuntime OnPlaced command list was canceled on runtime scope.");
+
+            if (result.Status == CommandRunStatus.Error || result.FailureCount > 0)
+            {
+                var label = commands.GetDebugLabel();
+                if (string.IsNullOrEmpty(label))
+                    label = "<inline>";
+
+                throw new CommandExecutionException(
+                    result.FailureKind,
+                    $"PlaceTraitRuntime OnPlaced command list failed. List={label} FailureCount={result.FailureCount} ErrorIndex={result.ErrorIndex} Message={result.Message}");
+            }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log(
+                $"[PlaceTraitRuntime] ExecuteOnPlaced complete. TraitInstanceId='{traitInstanceId}' " +
+                $"Status={result.Status} FailureCount={result.FailureCount} List={commands.GetDebugLabel()}");
+#endif
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "<null>";
+
+            var name = scope.Identity?.SelfTransform != null
+                ? scope.Identity.SelfTransform.name
+                : scope.Identity?.Id;
+            if (string.IsNullOrEmpty(name))
+                name = scope.GetType().Name;
+
+            return $"{name} ({scope.GetType().Name})";
+        }
+#endif
     }
 }

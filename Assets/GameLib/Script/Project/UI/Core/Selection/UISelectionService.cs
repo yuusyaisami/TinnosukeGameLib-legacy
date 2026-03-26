@@ -672,6 +672,8 @@ namespace Game.UI
                 return false;
             if (state != null && !state.IsVisible)
                 return false;
+            if (state != null && !state.EvaluateIsSelectable())
+                return false;
 
             return true;
         }
@@ -813,8 +815,8 @@ namespace Game.UI
                 {
                     var aState = a.GetUIElementState();
                     var bState = b.GetUIElementState();
-                    var aOrder = aState?.SelectionOrder ?? 0;
-                    var bOrder = bState?.SelectionOrder ?? 0;
+                    var aOrder = aState?.NavigationSelectionOrder ?? 0;
+                    var bOrder = bState?.NavigationSelectionOrder ?? 0;
                     return bOrder.CompareTo(aOrder);
                 });
 

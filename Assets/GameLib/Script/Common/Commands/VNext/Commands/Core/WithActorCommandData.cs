@@ -68,6 +68,7 @@ namespace Game.Commands.VNext
         public UnityEngine.Object? UnityObject;
 
         [ShowIf("@Kind == ActorSourceKind.Shared")]
+        [SerializeReference]
         [InlineProperty]
         [HideLabel]
         public SharedActorSourceRef? Shared;

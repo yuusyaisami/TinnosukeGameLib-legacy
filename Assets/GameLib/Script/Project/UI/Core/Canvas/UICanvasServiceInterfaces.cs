@@ -283,6 +283,8 @@ namespace Game.UI
 
         /// <summary>そのTransform直下のGraphicバッファ（境界打ち切り用）</summary>
         readonly List<Graphic> _nodeGraphics = new();
+        readonly List<Transform> _hierarchyPathA = new();
+        readonly List<Transform> _hierarchyPathB = new();
 
         /// <summary>RectTransform corners buffer（GC対策）</summary>
         readonly Vector3[] _corners = new Vector3[4];
@@ -349,7 +351,7 @@ namespace Game.UI
         public SelectCandidateProviderScreen(IUICanvasService canvasService)
         {
             _canvasService = canvasService;
-            _pointerComparer = new PointerCandidateComparer(_pointerSortKeyCache);
+            _pointerComparer = new PointerCandidateComparer(this, _pointerSortKeyCache);
             _navigationComparer = new NavigationCandidateComparer(_navigationSelectionOrderCache);
         }
 
@@ -386,17 +388,41 @@ namespace Game.UI
 
             var directionVector = DirectionToVector(direction);
             var camera = GetCamera();
+            Game.IScopeNode? explicitTarget = null;
+
+            if (current != null)
+            {
+                TryGetElementState(current, out var currentState);
+                explicitTarget = currentState?.NavigationOverride?.GetOverride(direction);
+                if (explicitTarget != null && !ReferenceEquals(explicitTarget, current))
+                {
+                    TryGetElementState(explicitTarget, out var explicitState);
+                    if ((explicitState == null || explicitState.EvaluateIsSelectable()) &&
+                        (explicitState == null || explicitState.EvaluateIsNavigationSelectable()) &&
+                        TestElementVisibilityAgainstParentMasks(explicitTarget, rootScope, camera))
+                    {
+                        results.Add(SelectCandidate.FromExplicitLink(explicitTarget));
+                        _navigationSelectionOrderCache[explicitTarget] = explicitState?.NavigationSelectionOrder ?? 0;
+                    }
+                    else
+                    {
+                        explicitTarget = null;
+                    }
+                }
+            }
 
             // 各候補をスコアリング
             foreach (var candidate in _allCandidatesBuffer)
             {
                 // 自分自身は除外
                 if (ReferenceEquals(candidate, current)) continue;
+                if (explicitTarget != null && ReferenceEquals(candidate, explicitTarget)) continue;
 
-                // ナビゲーション選択不可の要素は除外
+                // 全体選択不可 / ナビゲーション選択不可の要素は除外
                 TryGetElementState(candidate, out var state);
+                if (state != null && !state.EvaluateIsSelectable()) continue;
                 if (state != null && !state.EvaluateIsNavigationSelectable()) continue;
-                var selectionOrder = state?.SelectionOrder ?? 0;
+                var selectionOrder = state?.NavigationSelectionOrder ?? 0;
 
                 // Mask 判定: 親階層の全ての Mask をチェック
                 if (!TestElementVisibilityAgainstParentMasks(candidate, rootScope, camera))
@@ -466,7 +492,7 @@ namespace Game.UI
                 // Active/Visible をここで先に落とす
                 if (st != null && !st.IsEffectivelyActive) continue;
                 if (st != null && !st.IsVisible) continue;
-                if (st != null && !st.EvaluateIsNavigationSelectable()) continue;
+                if (st != null && !st.EvaluateIsSelectable()) continue;
 
                 // ヒットテスト
                 if (!HitTestElement(candidate, screenPosition, st)) continue;
@@ -1110,6 +1136,45 @@ namespace Game.UI
             }
         }
 
+        int CompareHierarchyFrontToBack(Game.IScopeNode a, Game.IScopeNode b)
+        {
+            if (!TryGetElementTransform(a, out var at) || at == null)
+                return 0;
+            if (!TryGetElementTransform(b, out var bt) || bt == null)
+                return 0;
+
+            _hierarchyPathA.Clear();
+            _hierarchyPathB.Clear();
+
+            for (var t = at; t != null; t = t.parent)
+                _hierarchyPathA.Add(t);
+            for (var t = bt; t != null; t = t.parent)
+                _hierarchyPathB.Add(t);
+
+            var ia = _hierarchyPathA.Count - 1;
+            var ib = _hierarchyPathB.Count - 1;
+            while (ia >= 0 && ib >= 0 && ReferenceEquals(_hierarchyPathA[ia], _hierarchyPathB[ib]))
+            {
+                ia--;
+                ib--;
+            }
+
+            if (ia >= 0 && ib >= 0)
+            {
+                var aSibling = _hierarchyPathA[ia].GetSiblingIndex();
+                var bSibling = _hierarchyPathB[ib].GetSiblingIndex();
+                if (aSibling != bSibling)
+                    return bSibling.CompareTo(aSibling);
+            }
+
+            if (ia >= 0 && ib < 0)
+                return -1;
+            if (ib >= 0 && ia < 0)
+                return 1;
+
+            return 0;
+        }
+
         bool IsOtherUIElementBoundary(Transform t, Transform owner)
         {
             if (t == owner) return false;
@@ -1178,10 +1243,12 @@ namespace Game.UI
         /// </summary>
         sealed class PointerCandidateComparer : IComparer<SelectCandidate>
         {
+            readonly SelectCandidateProviderScreen _owner;
             readonly Dictionary<Game.IScopeNode, PointerSortKey> _cache;
 
-            public PointerCandidateComparer(Dictionary<Game.IScopeNode, PointerSortKey> cache)
+            public PointerCandidateComparer(SelectCandidateProviderScreen owner, Dictionary<Game.IScopeNode, PointerSortKey> cache)
             {
+                _owner = owner;
                 _cache = cache;
             }
 
@@ -1196,10 +1263,10 @@ namespace Game.UI
                 if (!_cache.TryGetValue(ae, out var ak)) return 1;
                 if (!_cache.TryGetValue(be, out var bk)) return -1;
 
-                // 優先度（SelectionOrder）が高いほうを最優先
+                // まず SelectionOrder を最優先にする
                 if (ak.SelectionOrder != bk.SelectionOrder) return bk.SelectionOrder.CompareTo(ak.SelectionOrder);
 
-                // まず見た目（前面）で決める
+                // 同 order 内では見た目上の前面を優先
                 if (ak.SortingLayerValue != bk.SortingLayerValue) return bk.SortingLayerValue.CompareTo(ak.SortingLayerValue);
                 if (ak.SortingOrder != bk.SortingOrder) return bk.SortingOrder.CompareTo(ak.SortingOrder);
                 if (ak.RenderOrder != bk.RenderOrder) return bk.RenderOrder.CompareTo(ak.RenderOrder);
@@ -1207,6 +1274,11 @@ namespace Game.UI
 
                 // 優先度が同じなら「子（深いUIElement）」を優先
                 if (ak.UiDepth != bk.UiDepth) return bk.UiDepth.CompareTo(ak.UiDepth);
+
+                // 最後に階層上の前後関係で安定化する
+                var hierarchyCmp = _owner.CompareHierarchyFrontToBack(ae, be);
+                if (hierarchyCmp != 0)
+                    return hierarchyCmp;
 
                 // 最終同点潰し（安定化）
                 if (ak.StableTie != bk.StableTie) return bk.StableTie.CompareTo(ak.StableTie);

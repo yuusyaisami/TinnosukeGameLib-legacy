@@ -139,34 +139,34 @@ namespace Game.UI
         /// <summary>
         /// 上方向を押したときの移動先。
         /// nullの場合は自動計算。
-        /// UIElementLifetimeScope / RuntimeLifetimeScope のいずれも指定可能。
+        /// UIElementStateMB を指定する。
         /// </summary>
-        [Tooltip("上方向を押したときの移動先UIElement。空の場合は自動計算。")]
-        public Component? Up;
+        [Tooltip("上入力時の移動先。空なら自動計算。UIElementStateMB を指定する。")]
+        public UIElementStateMB? Up;
 
         /// <summary>
         /// 下方向を押したときの移動先。
         /// nullの場合は自動計算。
-        /// UIElementLifetimeScope / RuntimeLifetimeScope のいずれも指定可能。
+        /// UIElementStateMB を指定する。
         /// </summary>
-        [Tooltip("下方向を押したときの移動先UIElement。空の場合は自動計算。")]
-        public Component? Down;
+        [Tooltip("下入力時の移動先。空なら自動計算。UIElementStateMB を指定する。")]
+        public UIElementStateMB? Down;
 
         /// <summary>
         /// 左方向を押したときの移動先。
         /// nullの場合は自動計算。
-        /// UIElementLifetimeScope / RuntimeLifetimeScope のいずれも指定可能。
+        /// UIElementStateMB を指定する。
         /// </summary>
-        [Tooltip("左方向を押したときの移動先UIElement。空の場合は自動計算。")]
-        public Component? Left;
+        [Tooltip("左入力時の移動先。空なら自動計算。UIElementStateMB を指定する。")]
+        public UIElementStateMB? Left;
 
         /// <summary>
         /// 右方向を押したときの移動先。
         /// nullの場合は自動計算。
-        /// UIElementLifetimeScope / RuntimeLifetimeScope のいずれも指定可能。
+        /// UIElementStateMB を指定する。
         /// </summary>
-        [Tooltip("右方向を押したときの移動先UIElement。空の場合は自動計算。")]
-        public Component? Right;
+        [Tooltip("右入力時の移動先。空なら自動計算。UIElementStateMB を指定する。")]
+        public UIElementStateMB? Right;
 
         /// <summary>
         /// 指定方向のオーバーライドを取得する。
@@ -195,13 +195,10 @@ namespace Game.UI
             return GetOverride(direction) != null;
         }
 
-        static IScopeNode? ResolveScopeNode(Component? target)
+        static IScopeNode? ResolveScopeNode(UIElementStateMB? target)
         {
             if (target == null)
                 return null;
-
-            if (target is IScopeNode node)
-                return node;
 
             if (ScopeFeatureInstallerUtility.TryGetNearestScopeNode(target, includeInactive: true, out var owner))
                 return owner;
@@ -315,9 +312,21 @@ namespace Game.UI
         /// 
         int SelectionOrder { get; }
 
+        /// <summary>
+        /// ナビゲーション専用の優先度。
+        /// 数値が大きいほど優先される。
+        /// </summary>
+        int NavigationSelectionOrder { get; }
+
         // ----------------------------------------------------------------
         // ナビゲーション設定
         // ----------------------------------------------------------------
+
+        /// <summary>
+        /// このUIElement自体が選択対象になれる条件。
+        /// false の場合、ポインター/ナビゲーション/直接選択のすべてから除外される。
+        /// </summary>
+        Game.Common.DynamicValue<bool> IsSelectable { get; }
 
         /// <summary>
         /// ナビゲーション（キーボード/ゲームパッド）選択可能条件（DynamicValue&lt;bool&gt;）。
@@ -355,6 +364,12 @@ namespace Game.UI
         // ----------------------------------------------------------------
         // ナビゲーション評価メソッド
         // ----------------------------------------------------------------
+
+        /// <summary>
+        /// ナビゲーション選択可能条件を評価する。
+        /// </summary>
+        /// <returns>ナビゲーション選択可能な場合true</returns>
+        bool EvaluateIsSelectable();
 
         /// <summary>
         /// ナビゲーション選択可能条件を評価する。
@@ -496,6 +511,13 @@ namespace Game.UI
         readonly List<RectTransform> _hitTestRects = new();
 
         /// <summary>ナビゲーションで選択可能かどうか</summary>
+        /// <summary>このUIElement自体が選択可能かを決める条件（DynamicValue<bool>）</summary>
+        Game.Common.DynamicValue<bool> _isSelectableCondition;
+
+        /// <summary>キャッシュされた選択可能フラグ</summary>
+        bool _isSelectableCached = true;
+
+        /// <summary>ナビゲーションで選択可能かどうかを決める条件（DynamicValue<bool>）</summary>
         /// <summary>ナビゲーションで選択可能かを決める条件（DynamicValue<bool>）</summary>
         Game.Common.DynamicValue<bool> _isNavigationSelectableCondition;
 
@@ -507,6 +529,9 @@ namespace Game.UI
 
         /// <summary>選択優先度</summary>
         int _selectionOrder = 0;
+
+        /// <summary>ナビゲーション専用優先度</summary>
+        int _navigationSelectionOrder = 0;
 
         /// <summary>選択時に実行するコマンドリスト</summary>
         readonly VNext.CommandListData _onSelectedCommands;
@@ -619,9 +644,15 @@ namespace Game.UI
         /// <inheritdoc/>
         public int SelectionOrder => _selectionOrder;
 
+        /// <inheritdoc/>
+        public int NavigationSelectionOrder => _navigationSelectionOrder;
+
         // ----------------------------------------------------------------
         // プロパティ - ナビゲーション
         // ----------------------------------------------------------------
+
+        /// <inheritdoc/>
+        public Game.Common.DynamicValue<bool> IsSelectable => _isSelectableCondition;
 
         /// <inheritdoc/>
         public Game.Common.DynamicValue<bool> IsNavigationSelectable => _isNavigationSelectableCondition;
@@ -674,6 +705,7 @@ namespace Game.UI
             _commandRunner = commandRunner;
 
             // 初期設定を反映
+            _isSelectableCondition = options.IsSelectable;
             _isNavigationSelectableCondition = options.IsNavigationSelectable;
             _navigationOverride = options.NavigationOverride;
             _onSelectedCommands = options.OnSelectedCommands ?? new VNext.CommandListData();
@@ -681,6 +713,7 @@ namespace Game.UI
             SetHitTestRects(options.HitTestRects);
 
             _selectionOrder = options.SelectionOrder;
+            _navigationSelectionOrder = options.NavigationSelectionOrder;
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
@@ -887,6 +920,19 @@ namespace Game.UI
         /// DynamicValue<bool>の値源に応じて、現在の条件を評価する。
         /// </summary>
         /// <returns>ナビゲーション選択可能な場合true</returns>
+        public bool EvaluateIsSelectable()
+        {
+            var varStore = _owner.Resolver?.TryResolve<IVarStore>(out var resolved) == true ? resolved : new VarStore();
+            var context = new Game.Common.SimpleDynamicContext(varStore, _owner);
+            if (_isSelectableCondition.TryGet(context, out var selectable))
+            {
+                _isSelectableCached = selectable;
+                return _isSelectableCached;
+            }
+
+            return _isSelectableCached;
+        }
+
         public bool EvaluateIsNavigationSelectable()
         {
             var varStore = _owner.Resolver?.TryResolve<IVarStore>(out var resolved) == true ? resolved : new VarStore();
@@ -911,6 +957,38 @@ namespace Game.UI
         public void SetNavigationSelectable(bool selectable)
         {
             _isNavigationSelectableCached = selectable;
+        }
+
+        /// <summary>
+        /// 選択可能条件を設定する。
+        /// </summary>
+        public void SetSelectableCondition(Game.Common.DynamicValue<bool> condition)
+        {
+            _isSelectableCondition = condition;
+        }
+
+        /// <summary>
+        /// ナビゲーション選択可能条件を設定する。
+        /// </summary>
+        public void SetNavigationSelectableCondition(Game.Common.DynamicValue<bool> condition)
+        {
+            _isNavigationSelectableCondition = condition;
+        }
+
+        /// <summary>
+        /// 選択優先度を設定する。
+        /// </summary>
+        public void SetSelectionOrder(int selectionOrder)
+        {
+            _selectionOrder = selectionOrder;
+        }
+
+        /// <summary>
+        /// ナビゲーション優先度を設定する。
+        /// </summary>
+        public void SetNavigationSelectionOrder(int navigationSelectionOrder)
+        {
+            _navigationSelectionOrder = navigationSelectionOrder;
         }
 
         /// <summary>

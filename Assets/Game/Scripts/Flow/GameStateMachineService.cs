@@ -86,7 +86,7 @@ namespace Game.Actions
             if (_settings.ExecuteInitialStateCommandsOnAcquire)
             {
                 _hasState = true;
-                ChangeStateAsync(_settings.InitialState).Forget();
+                RunInitialStateCommandsOnAcquireAsync().Forget();
             }
         }
 
@@ -138,6 +138,23 @@ namespace Game.Actions
 
                 _commandLookup[entry.key] = entry;
             }
+        }
+
+        async UniTask RunInitialStateCommandsOnAcquireAsync()
+        {
+            var cancellationToken = _lifetimeCts != null ? _lifetimeCts.Token : CancellationToken.None;
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            var delayFrames = Mathf.Max(0, _settings.InitialStateCommandDelayFramesOnAcquire);
+            for (var i = 0; i < delayFrames; i++)
+            {
+                await UniTask.NextFrame(cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+            }
+
+            await ChangeStateAsync(_settings.InitialState);
         }
 
         async UniTask ExecuteCommandsAsync(GameState state, StateCommandPhase phase, CancellationToken ct)

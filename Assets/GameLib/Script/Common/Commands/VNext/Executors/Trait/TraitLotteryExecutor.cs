@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -24,9 +25,11 @@ namespace Game.Commands.VNext
             if (data is not TraitLotteryCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "TraitLotteryCommandData is required.");
 
-            var holder = await ResolveHolderAsync(typed, ctx, ct);
-            if (holder == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
+            var holderResolveResult = await ResolveHolderAsync(typed, ctx, ct);
+            if (holderResolveResult.Holder == null)
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, holderResolveResult.ErrorMessage);
+
+            var holder = holderResolveResult.Holder;
 
             var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
             var resolvedCandidates = ResolveCandidates(typed, dynCtx);
@@ -51,27 +54,64 @@ namespace Game.Commands.VNext
             _traitLotteryService.Apply(holder, result.Selected, typed.ApplyMode);
         }
 
-        static async UniTask<ITraitHolderService?> ResolveHolderAsync(
+        static async UniTask<HolderResolveResult> ResolveHolderAsync(
             TraitLotteryCommandData data,
             CommandContext ctx,
             CancellationToken ct)
         {
+            var requestedKey = NormalizeKey(data.HolderKey);
             var (hubScope, error) = await ActorScopeResolver.ResolveAsync(data.HolderHubSource, ctx, ct);
             if (hubScope == null)
             {
-                _ = error;
-                return null;
+                return HolderResolveResult.Failed(
+                    $"TraitHolderHub actor could not be resolved. RequestedKey='{requestedKey}'. Detail={error ?? "Unknown"}");
             }
 
             EnsureScopeBuiltIfNeeded(hubScope);
             var resolver = hubScope.Resolver;
-            if (resolver == null || !resolver.TryResolve<ITraitHolderHubService>(out var hub) || hub == null)
-                return null;
+            if (resolver == null)
+            {
+                return HolderResolveResult.Failed(
+                    $"Resolved holder actor '{GetScopeLabel(hubScope)}' has no resolver. RequestedKey='{requestedKey}'.");
+            }
 
+            if (!resolver.TryResolve<ITraitHolderHubService>(out var hub) || hub == null)
+            {
+                return HolderResolveResult.Failed(
+                    $"TraitHolderHubService was not found on actor '{GetScopeLabel(hubScope)}'. RequestedKey='{requestedKey}'.");
+            }
+
+            var availableKeys = FormatAvailableKeys(hub.Keys);
             if (!hub.TryGetHolder(data.HolderKey, out var holder) || holder == null)
-                return null;
+            {
+                return HolderResolveResult.Failed(
+                    $"TraitHolder was not found on actor '{GetScopeLabel(hubScope)}'. RequestedKey='{requestedKey}'. AvailableKeys={availableKeys}");
+            }
 
-            return holder;
+            return HolderResolveResult.Succeeded(holder);
+        }
+
+        static string NormalizeKey(string? key)
+        {
+            return string.IsNullOrWhiteSpace(key) ? string.Empty : key.Trim();
+        }
+
+        static string GetScopeLabel(IScopeNode scope)
+        {
+            var identityId = scope.Identity?.Id;
+            if (!string.IsNullOrWhiteSpace(identityId))
+                return identityId.Trim();
+
+            var transformName = scope.Identity?.SelfTransform != null ? scope.Identity.SelfTransform.name : string.Empty;
+            return string.IsNullOrWhiteSpace(transformName) ? scope.Kind.ToString() : transformName;
+        }
+
+        static string FormatAvailableKeys(IReadOnlyList<string>? keys)
+        {
+            if (keys == null || keys.Count == 0)
+                return "[]";
+
+            return $"[{string.Join(", ", keys)}]";
         }
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
@@ -126,6 +166,28 @@ namespace Game.Commands.VNext
             }
 
             return resolved;
+        }
+
+        readonly struct HolderResolveResult
+        {
+            public readonly ITraitHolderService? Holder;
+            public readonly string ErrorMessage;
+
+            HolderResolveResult(ITraitHolderService? holder, string errorMessage)
+            {
+                Holder = holder;
+                ErrorMessage = errorMessage ?? string.Empty;
+            }
+
+            public static HolderResolveResult Succeeded(ITraitHolderService holder)
+            {
+                return new HolderResolveResult(holder, string.Empty);
+            }
+
+            public static HolderResolveResult Failed(string errorMessage)
+            {
+                return new HolderResolveResult(null, errorMessage);
+            }
         }
     }
 }
