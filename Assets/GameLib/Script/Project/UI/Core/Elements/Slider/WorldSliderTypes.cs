@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using Game.Common;
 using Game.Commands.VNext;
 using UnityEngine;
@@ -50,17 +51,20 @@ namespace Game.UI
 
     public readonly struct WorldSliderOutputSnapshot
     {
+        public readonly bool IsVisible;
         public readonly float TargetRawValue;
         public readonly float TargetNormalizedValue;
         public readonly float DisplayedRawValue;
         public readonly float DisplayedNormalizedValue;
 
         public WorldSliderOutputSnapshot(
+            bool isVisible,
             float targetRawValue,
             float targetNormalizedValue,
             float displayedRawValue,
             float displayedNormalizedValue)
         {
+            IsVisible = isVisible;
             TargetRawValue = targetRawValue;
             TargetNormalizedValue = targetNormalizedValue;
             DisplayedRawValue = displayedRawValue;
@@ -70,6 +74,7 @@ namespace Game.UI
 
     public interface IWorldSliderOutput
     {
+        bool IsVisible { get; }
         float TargetRawValue { get; }
         float TargetNormalizedValue { get; }
         float DisplayedRawValue { get; }
@@ -79,6 +84,15 @@ namespace Game.UI
 
     public interface IWorldSliderPlayerService : IWorldSliderOutput
     {
+    }
+
+    public interface IWorldSliderChannelHubService
+    {
+        int ChannelCount { get; }
+        bool Contains(string tag);
+        bool TryGetOutput(string tag, out IWorldSliderOutput? output);
+        bool TryGetControl(string tag, out IWorldSliderControlService? control);
+        void GetTags(List<string> output);
     }
 
     public interface IWorldSliderVisualizerService

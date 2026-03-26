@@ -78,6 +78,7 @@ namespace Game.Commands.VNext
         public CommandLtsSlot ContextSlot;
 
         [ShowIf("@Kind == ActorSourceKind.TargetChannel")]
+        [SerializeReference]
         [InlineProperty]
         [HideLabel]
         public TargetChannelActorSourceRef? TargetChannel;

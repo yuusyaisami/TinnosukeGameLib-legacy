@@ -1,14 +1,18 @@
 #ifndef GAME_MESH_CONTOUR_DISTANCE_INCLUDED
 #define GAME_MESH_CONTOUR_DISTANCE_INCLUDED
 
-float MeshContourDistance_MinDistance(float2 localPos, float4 contourSamples[GAME_MESH_MAX_CONTOUR_SAMPLES], int sampleCount, int sampleCapacity)
+#ifndef GAME_MESH_MAX_CONTOUR_SAMPLES
+#define GAME_MESH_MAX_CONTOUR_SAMPLES 64
+#endif
+
+float MeshContourDistance_MinDistance(float2 localPos, int sampleCount, int sampleCapacity)
 {
     float minDistance = 999999.0;
     int safeCount = clamp(sampleCount, 0, sampleCapacity);
     [loop]
     for (int i = 0; i < safeCount; i++)
     {
-        float2 samplePoint = contourSamples[i].xy;
+        float2 samplePoint = _MeshContourSamples[i].xy;
         minDistance = min(minDistance, distance(localPos, samplePoint));
     }
 

@@ -271,7 +271,8 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AdvanceWaitCommandData is required.");
 
             var hasCondition = typed.Condition.HasSource;
-            var events = typed.Events ?? EmptyEvents;
+            var usesEvents = typed.WaitMode != AdvanceWaitMode.ConditionOnly;
+            var events = usesEvents ? typed.Events ?? EmptyEvents : EmptyEvents;
             var hasEventEntries = events.Count > 0;
 
             ValidateConfiguration(typed.WaitMode, hasCondition, hasEventEntries);
@@ -637,14 +638,16 @@ namespace Game.Commands.VNext
             if (typed.BodyCommands == null || typed.BodyCommands.Count == 0)
                 return;
 
+            var loopCtx = EnsureWritableLoopContext(ctx);
+
             if (!typed.WaitForCompletion)
             {
                 var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                RunLoopFireAndForgetAsync(typed, ctx, cts).Forget();
+                RunLoopFireAndForgetAsync(typed, loopCtx, cts).Forget();
                 return;
             }
 
-            await ExecuteLoopCoreAsync(typed, ctx, ct, throwOnCanceled: true);
+            await ExecuteLoopCoreAsync(typed, loopCtx, ct, throwOnCanceled: true);
         }
 
         async UniTaskVoid RunLoopFireAndForgetAsync(ForCommandData typed, CommandContext ctx, CancellationTokenSource linkedCts)
@@ -823,6 +826,24 @@ namespace Game.Commands.VNext
                 return;
 
             ctx.Vars?.TrySetVariant(varId, DynamicVariant.FromInt(value));
+        }
+
+        static CommandContext EnsureWritableLoopContext(CommandContext ctx)
+        {
+            if (ctx.Vars != null && ctx.Vars is not NullVarStore)
+                return ctx;
+
+            var vars = new VarStore(initialCapacity: 4);
+            return new CommandContext(
+                ctx.Scope,
+                vars,
+                ctx.Runner,
+                ctx.Actor,
+                ctx.Options,
+                ctx.CommandRootScope,
+                ctx.RootActor,
+                ctx.CallerActor,
+                ctx);
         }
 
         static bool ShouldBreak(ForCommandData typed, CommandContext ctx)

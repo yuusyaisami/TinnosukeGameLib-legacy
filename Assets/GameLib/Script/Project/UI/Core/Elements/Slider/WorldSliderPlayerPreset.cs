@@ -1,4 +1,5 @@
 #nullable enable
+using System.Collections.Generic;
 using DG.Tweening;
 using Game.Commands.VNext;
 using Game.Common;
@@ -54,8 +55,20 @@ namespace Game.UI
     }
 
     [System.Serializable]
-    public sealed class WorldSliderPlayerPreset : IDynamicManagedRefValue
+    public sealed class WorldSliderPlayerBindingEntry
     {
+        [BoxGroup("Entry")]
+        [LabelText("Condition")]
+        [Tooltip("true のときだけこの binding entry を採用候補にします。すべて false なら slider は非表示になります。")]
+        [SerializeField]
+        DynamicValue<bool> _condition = DynamicValueExtensions.FromLiteral(true);
+
+        [BoxGroup("Entry")]
+        [LabelText("Order")]
+        [Tooltip("Condition を満たす entry が複数ある場合の優先度です。高いほど優先されます。")]
+        [SerializeField]
+        int _order;
+
         [BoxGroup("Binding")]
         [LabelText("Use Scalar Binding")]
         [Tooltip("ScalarService から値を読む場合に有効にします。")]
@@ -102,6 +115,51 @@ namespace Game.UI
         [SerializeField]
         WorldSliderBindingPriority _bindingPriority = WorldSliderBindingPriority.Scalar;
 
+        public DynamicValue<bool> Condition => _condition;
+        public int Order => _order;
+        public bool UseScalarBinding => _useScalarBinding;
+        public ActorSource ScalarBindingSource => _scalarBindingSource;
+        public ScalarKey ScalarKey => _scalarKey;
+        public bool UseBlackboardBinding => _useBlackboardBinding;
+        public ActorSource BlackboardBindingSource => _blackboardBindingSource;
+        public VarKeyRef BlackboardKey => _blackboardKey;
+        public WorldSliderBindingPriority BindingPriority => _bindingPriority;
+
+        internal bool EvaluateCondition(IDynamicContext? context)
+        {
+            if (context != null)
+                return _condition.GetOrDefault(context, true);
+
+            return _condition.GetOrDefaultWithoutContext(true);
+        }
+
+        internal WorldSliderPlayerBindingEntry CreateRuntimeCopy()
+        {
+            return new WorldSliderPlayerBindingEntry
+            {
+                _condition = _condition,
+                _order = _order,
+                _useScalarBinding = _useScalarBinding,
+                _scalarBindingSource = _scalarBindingSource,
+                _scalarKey = _scalarKey,
+                _useBlackboardBinding = _useBlackboardBinding,
+                _blackboardBindingSource = _blackboardBindingSource,
+                _blackboardKey = _blackboardKey,
+                _bindingPriority = _bindingPriority,
+            };
+        }
+    }
+
+    [System.Serializable]
+    public sealed class WorldSliderPlayerPreset : IDynamicManagedRefValue
+    {
+        [BoxGroup("Binding")]
+        [LabelText("Binding Entries")]
+        [Tooltip("Condition=true の entry を候補にし、Order が最も高いものを採用します。候補が 1 件も無い場合は slider を非表示にします。")]
+        [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
+        [SerializeField]
+        List<WorldSliderPlayerBindingEntry> _bindingEntries = new() { new() };
+
         [BoxGroup("Range")]
         [LabelText("Min Value")]
         [Tooltip("Slider の生値の最小値です。normalized 値の 0 に対応します。")]
@@ -147,13 +205,7 @@ namespace Game.UI
         [CommandListFunctionName("WorldSlider.Player.OnTargetChanged")]
         CommandListData _onTargetValueChangedCommands = new();
 
-        public bool UseScalarBinding => _useScalarBinding;
-        public ActorSource ScalarBindingSource => _scalarBindingSource;
-        public ScalarKey ScalarKey => _scalarKey;
-        public bool UseBlackboardBinding => _useBlackboardBinding;
-        public ActorSource BlackboardBindingSource => _blackboardBindingSource;
-        public VarKeyRef BlackboardKey => _blackboardKey;
-        public WorldSliderBindingPriority BindingPriority => _bindingPriority;
+        public IReadOnlyList<WorldSliderPlayerBindingEntry> BindingEntries => _bindingEntries;
         public DynamicValue<float> MinValue => _minValue;
         public DynamicValue<float> MaxValue => _maxValue;
         public DynamicValue<float> InitialValue => _initialValue;
@@ -164,15 +216,16 @@ namespace Game.UI
 
         internal WorldSliderPlayerPreset CreateRuntimeCopy()
         {
+            var bindingEntries = new List<WorldSliderPlayerBindingEntry>(_bindingEntries.Count);
+            for (int i = 0; i < _bindingEntries.Count; i++)
+            {
+                var entry = _bindingEntries[i];
+                bindingEntries.Add(entry?.CreateRuntimeCopy() ?? new WorldSliderPlayerBindingEntry());
+            }
+
             return new WorldSliderPlayerPreset
             {
-                _useScalarBinding = _useScalarBinding,
-                _scalarBindingSource = _scalarBindingSource,
-                _scalarKey = _scalarKey,
-                _useBlackboardBinding = _useBlackboardBinding,
-                _blackboardBindingSource = _blackboardBindingSource,
-                _blackboardKey = _blackboardKey,
-                _bindingPriority = _bindingPriority,
+                _bindingEntries = bindingEntries,
                 _minValue = _minValue,
                 _maxValue = _maxValue,
                 _initialValue = _initialValue,
@@ -192,13 +245,15 @@ namespace Game.UI
 
             if (mutation.ApplyBinding)
             {
-                _useScalarBinding = mutation.UseScalarBinding;
-                _scalarBindingSource = mutation.ScalarBindingSource;
-                _scalarKey = mutation.ScalarKey;
-                _useBlackboardBinding = mutation.UseBlackboardBinding;
-                _blackboardBindingSource = mutation.BlackboardBindingSource;
-                _blackboardKey = mutation.BlackboardKey;
-                _bindingPriority = mutation.BindingPriority;
+                _bindingEntries = new List<WorldSliderPlayerBindingEntry>(mutation.BindingEntries.Count);
+                for (int i = 0; i < mutation.BindingEntries.Count; i++)
+                {
+                    var entry = mutation.BindingEntries[i];
+                    _bindingEntries.Add(entry?.CreateRuntimeCopy() ?? new WorldSliderPlayerBindingEntry());
+                }
+
+                if (_bindingEntries.Count == 0)
+                    _bindingEntries.Add(new WorldSliderPlayerBindingEntry());
             }
 
             if (mutation.ApplyRange)

@@ -13,7 +13,7 @@ using VContainer.Unity;
 
 namespace Game.UI
 {
-    public sealed class WorldSliderVisualizerService :
+    public sealed class WorldSliderChannelVisualizerRuntime :
         IWorldSliderVisualizerService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
@@ -21,6 +21,8 @@ namespace Game.UI
     {
         readonly IScopeNode _owner;
         readonly IWorldSliderOptions _options;
+        readonly IWorldSliderOutput? _directOutput;
+        readonly IWorldSliderRuntimePresetProvider? _directPresetProvider;
 
         ISceneSpawnerRegistry? _spawnerRegistry;
         IWorldSliderOutput? _output;
@@ -62,12 +64,16 @@ namespace Game.UI
         bool _loggedSegmentScaleFallback;
         bool _loggedSegmentBarRendererMissing;
 
-        public WorldSliderVisualizerService(
+        public WorldSliderChannelVisualizerRuntime(
             IScopeNode owner,
-            IWorldSliderOptions options)
+            IWorldSliderOptions options,
+            IWorldSliderOutput? output = null,
+            IWorldSliderRuntimePresetProvider? presetProvider = null)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _options = options ?? throw new ArgumentNullException(nameof(options));
+            _directOutput = output;
+            _directPresetProvider = presetProvider;
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
@@ -101,6 +107,7 @@ namespace Game.UI
             if (_output != null)
             {
                 _lastSnapshot = new WorldSliderOutputSnapshot(
+                    _output.IsVisible,
                     _output.TargetRawValue,
                     _output.TargetNormalizedValue,
                     _output.DisplayedRawValue,
@@ -143,6 +150,13 @@ namespace Game.UI
             if (!_acquired || !_hasLastSnapshot || _activeScope == null)
                 return;
 
+            if (!_lastSnapshot.IsVisible)
+            {
+                ApplyHiddenState();
+                _visualDirty = false;
+                return;
+            }
+
             if (RequiresRuntimeBuild() && !IsRuntimeBuildReady())
                 return;
 
@@ -161,17 +175,19 @@ namespace Game.UI
 
         void ResolveServices(IScopeNode scope)
         {
-            _output = null;
+            _output = _directOutput;
             _spawnerRegistry = null;
-            _presetProvider = null;
+            _presetProvider = _directPresetProvider;
             _commandRunner = null;
 
             var resolver = scope?.Resolver;
             if (resolver == null)
                 return;
 
-            resolver.TryResolve(out _output);
-            resolver.TryResolve(out _presetProvider);
+            if (_output == null)
+                resolver.TryResolve(out _output);
+            if (_presetProvider == null)
+                resolver.TryResolve(out _presetProvider);
             if (!scope.TryResolveInAncestors(out _spawnerRegistry))
                 resolver.TryResolve(out _spawnerRegistry);
             if (!scope.TryResolveInAncestors(out _commandRunner))
@@ -384,6 +400,7 @@ namespace Game.UI
             if (!_hasSimpleState || simpleBarRenderer == null)
                 return;
 
+            simpleBarRenderer.enabled = snapshot.IsVisible;
             ApplyBarSnapshot(
                 simpleBarRenderer,
                 _simplePose,
@@ -403,6 +420,9 @@ namespace Game.UI
             var instance = _simpleRuntimeBar;
             if (instance == null || instance.VisualTargetKind == WorldSliderRuntimeVisualTargetKind.None)
                 return;
+
+            if (instance.Root != null)
+                instance.Root.gameObject.SetActive(snapshot.IsVisible);
 
             ApplySpawnedBarSnapshot(
                 instance,
@@ -916,6 +936,19 @@ namespace Game.UI
             }
         }
 
+        void ApplyHiddenState()
+        {
+            var simpleBarRenderer = _options.SimpleBarRenderer;
+            if (simpleBarRenderer != null)
+                simpleBarRenderer.enabled = false;
+
+            if (_simpleRuntimeBar?.Root != null)
+                _simpleRuntimeBar.Root.gameObject.SetActive(false);
+
+            SetRuntimeInstancesActive(_segmentBars, false);
+            SetRuntimeInstancesActive(_segmentMarkers, false);
+        }
+
         bool TryResolveRuntimeSpawner(out IAsyncSpawnerService? spawner)
         {
             spawner = null;
@@ -1015,6 +1048,16 @@ namespace Game.UI
         {
             for (int i = 0; i < instances.Count; i++)
                 ReleaseRuntimeInstance(instances[i]);
+        }
+
+        static void SetRuntimeInstancesActive(List<WorldSliderSpawnedRuntimeInstance> instances, bool isActive)
+        {
+            for (int i = 0; i < instances.Count; i++)
+            {
+                var root = instances[i]?.Root;
+                if (root != null)
+                    root.gameObject.SetActive(isActive);
+            }
         }
 
         static void ReleaseRuntimeInstance(WorldSliderSpawnedRuntimeInstance? instance)

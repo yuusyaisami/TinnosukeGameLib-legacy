@@ -34,6 +34,14 @@ namespace Game.VarStoreKeys
         {
             new(Game.Vars.Generated.VarIds.GameLib.Base.PointerRelation.isSelf, "GameLib.Base.PointerRelation.isSelf"),
             new(Game.Vars.Generated.VarIds.GameLib.Base.PointerRelation.isSelfOrDescendant, "GameLib.Base.PointerRelation.isSelfOrDescendant"),
+            new(Game.Vars.Generated.VarIds.GameLib.UI.Button.HoldTime, "HoldTime"),
+            new(Game.Vars.Generated.VarIds.GameLib.UI.Button.HoldProgress, "HoldProgress"),
+            new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.State, "UIButton.ShortLong.State"),
+            new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.ShortProgress, "UIButton.ShortLong.ShortProgress"),
+            new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.LongProgress, "UIButton.ShortLong.LongProgress"),
+            new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.IsLong, "UIButton.ShortLong.IsLong"),
+            new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.IsLongMax, "UIButton.ShortLong.IsLongMax"),
+            new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.LongMaxTime, "UIButton.ShortLong.LongMaxTime"),
         };
 
         [Serializable]

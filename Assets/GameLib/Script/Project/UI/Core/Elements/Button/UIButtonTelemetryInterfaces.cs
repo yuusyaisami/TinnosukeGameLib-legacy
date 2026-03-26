@@ -5,20 +5,21 @@ namespace Game.UI
 {
     public enum UIButtonInputRejectReason
     {
-        None,
-        GuardDuringCommandExecution,
-        CanSubmitFalse,
-        ElementNotActive,
-        ElementNotVisible,
-        SelectionStateMissing,
-        NotSelected,
-        InputControlConditionFalse
+        None = 0,
+        GuardDuringCommandExecution = 10,
+        CanSubmitFalse = 20,
+        ElementNotActive = 30,
+        ElementNotVisible = 40,
+        SelectionStateMissing = 50,
+        NotSelected = 60,
+        InputControlConditionFalse = 70,
     }
 
     public readonly struct UIButtonTelemetrySnapshot
     {
         public readonly string OwnerName;
         public readonly UIButtonKind Kind;
+        public readonly UIButtonShortLongPhase CurrentPhase;
         public readonly UIInputAction TriggerAction;
         public readonly bool CanSubmit;
 
@@ -32,6 +33,11 @@ namespace Game.UI
 
         public readonly bool IsHolding;
         public readonly float HoldProgress;
+        public readonly float ShortProgress;
+        public readonly float LongProgress;
+        public readonly bool IsLongMax;
+        public readonly float LongMaxTime;
+        public readonly bool AutoDecideOnLongMax;
         public readonly bool IsHoldDecisionExecuting;
         public readonly bool IsSubmitUpExecuting;
 
@@ -49,6 +55,7 @@ namespace Game.UI
         public UIButtonTelemetrySnapshot(
             string ownerName,
             UIButtonKind kind,
+            UIButtonShortLongPhase currentPhase,
             UIInputAction triggerAction,
             bool canSubmit,
             bool isSelected,
@@ -59,6 +66,11 @@ namespace Game.UI
             bool disableSelectionDuringCommandExecution,
             bool isHolding,
             float holdProgress,
+            float shortProgress,
+            float longProgress,
+            bool isLongMax,
+            float longMaxTime,
+            bool autoDecideOnLongMax,
             bool isHoldDecisionExecuting,
             bool isSubmitUpExecuting,
             UIInputEventType lastInputEventType,
@@ -72,6 +84,7 @@ namespace Game.UI
         {
             OwnerName = ownerName;
             Kind = kind;
+            CurrentPhase = currentPhase;
             TriggerAction = triggerAction;
             CanSubmit = canSubmit;
             IsSelected = isSelected;
@@ -82,6 +95,11 @@ namespace Game.UI
             DisableSelectionDuringCommandExecution = disableSelectionDuringCommandExecution;
             IsHolding = isHolding;
             HoldProgress = holdProgress;
+            ShortProgress = shortProgress;
+            LongProgress = longProgress;
+            IsLongMax = isLongMax;
+            LongMaxTime = longMaxTime;
+            AutoDecideOnLongMax = autoDecideOnLongMax;
             IsHoldDecisionExecuting = isHoldDecisionExecuting;
             IsSubmitUpExecuting = isSubmitUpExecuting;
             LastInputEventType = lastInputEventType;

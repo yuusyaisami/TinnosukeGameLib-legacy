@@ -6,7 +6,7 @@ using VContainer;
 
 namespace Game.UI
 {
-    public sealed class WorldSliderRuntimePresetService :
+    public sealed class WorldSliderChannelPresetRuntime :
         IWorldSliderRuntimePresetProvider,
         IWorldSliderControlService,
         IScopeAcquireHandler,
@@ -25,7 +25,7 @@ namespace Game.UI
         public event Action? OnVisualizerPresetChanged;
         public event Action? OnPlayerPresetChanged;
 
-        public WorldSliderRuntimePresetService(IWorldSliderOptions options)
+        public WorldSliderChannelPresetRuntime(IWorldSliderOptions options)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }

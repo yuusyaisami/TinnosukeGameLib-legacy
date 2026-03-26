@@ -40,6 +40,8 @@ namespace Game.UI
         UIButtonKind Kind { get; }
         bool CanSubmit { get; }
         float HoldTime { get; }
+        float LongMaxTime { get; }
+        bool AutoDecideOnLongMax { get; }
 
         float HoldInterval { get; }
 
@@ -50,6 +52,14 @@ namespace Game.UI
         VNext.CommandListData OnHoldDecisionCommands { get; }
         VNext.CommandListData OnHoldIntervalCommands { get; }
         VNext.CommandListData OnHoldCancelCommands { get; }
+        VNext.CommandListData OnGenericStartCommands { get; }
+        VNext.CommandListData OnShortStartCommands { get; }
+        VNext.CommandListData OnLongStartCommands { get; }
+        VNext.CommandListData OnGenericDecisionCommands { get; }
+        VNext.CommandListData OnShortDecisionCommands { get; }
+        VNext.CommandListData OnLongDecisionCommands { get; }
+        VNext.CommandListData OnLongMaxDecisionCommands { get; }
+        VNext.CommandListData OnCancelCommands { get; }
 
         // Guard: when true, selection/navigation/pointer changes are blocked while holding
         bool GuardSelectionWhileHolding { get; }
@@ -76,7 +86,8 @@ namespace Game.UI
         [Header("基本設定")]
         [Tooltip("ボタンの種類。\n" +
                  "Instant: 即座に反応\n" +
-                 "Hold: 長押しが必要")]
+                 "Hold: 長押しが必要\n" +
+                 "ShortLong: 短押しと長押しを分ける")]
         [SerializeField]
         UIButtonKind _kind = UIButtonKind.Instant;
 
@@ -95,19 +106,29 @@ namespace Game.UI
         // Inspector設定 - Hold専用
         // ================================================================
 
-        [Header("Hold設定")]
-        [Tooltip("長押し必要時間（秒）。")]
-        [ShowIf(nameof(_kind), UIButtonKind.Hold)]
+        [Header("時間設定")]
+        [Tooltip("Hold では成功までの時間。\nShortLong では Short から Long に切り替わるまでの時間。")]
+        [ShowIf(nameof(UsesTimedPressSettings))]
         [SerializeField]
         float _holdTime = 1.0f;
 
-        [ShowIf(nameof(_kind), UIButtonKind.Hold)]
+        [ShowIf(nameof(IsHoldMode))]
         [Tooltip("Hold中に一定間隔で実行するコマンドの間隔（秒）。\nデフォルト: 0.1")]
         [SerializeField]
         float _holdInterval = 0.1f;
 
-        [ShowIf(nameof(_kind), UIButtonKind.Hold)]
-        [Tooltip("Hold中は他のUIへの選択移動をブロックします（ナビ/ポインタ両方）。Inspectorで有効/無効を切り替えできます。）")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [Tooltip("Long に入ってから LongMax に到達するまでの追加時間。")]
+        [SerializeField]
+        float _longMaxTime = 1.0f;
+
+        [ShowIf(nameof(IsShortLongMode))]
+        [Tooltip("LongMax に到達した瞬間に自動で決定するか。")]
+        [SerializeField]
+        bool _autoDecideOnLongMax;
+
+        [ShowIf(nameof(UsesTimedPressSettings))]
+        [Tooltip("入力継続中は他のUIへの選択移動をブロックします。Hold は hold 中、ShortLong は press 全体に適用します。")]
         [SerializeField]
         bool _guardSelectionWhileHolding = true;
 
@@ -116,22 +137,21 @@ namespace Game.UI
         // ================================================================
 
         [Header("コマンド")]
-        [Tooltip("Submit押下時に実行するコマンド。\n" +
-                 "Instant/Hold両方で使用。")]
+        [Tooltip("Submit 押下時に実行するコマンド。\nInstant/Hold で使用。")]
         [SerializeField]
+        [ShowIf(nameof(UsesLegacyStartCommands))]
         [VNext.CommandListFunctionName("UIButton.OnSubmitDown")]
         VNext.CommandListData _onSubmitDownCommands = new();
 
-        [Tooltip("Submit解放/Hold成功時に実行するコマンド。\n" +
-                 "Instant: Submit解放時\n" +
-                 "Hold: Hold時間達成時")]
+        [Tooltip("Submit 解放時に実行するコマンド。\nInstant で使用し、Hold では互換用 fallback としてのみ使います。")]
         [SerializeField]
+        [ShowIf(nameof(UsesLegacyDecisionCommands))]
         [VNext.CommandListFunctionName("UIButton.OnSubmitUp")]
         VNext.CommandListData _onSubmitUpCommands = new();
 
         [Tooltip("Hold時間達成時（Decision）に実行するコマンド。\n" +
              "空の場合は互換のため OnSubmitUpCommands を使用する。")]
-        [ShowIf(nameof(_kind), UIButtonKind.Hold)]
+        [ShowIf(nameof(IsHoldMode))]
         [SerializeField]
         [VNext.CommandListFunctionName("UIButton.OnHoldDecision")]
         VNext.CommandListData _onHoldDecisionCommands = new();
@@ -148,17 +168,65 @@ namespace Game.UI
 
         [Tooltip("Hold中に一定間隔で実行するコマンド。\n" +
             "Holdボタンでのみ使用。")]
-        [ShowIf(nameof(_kind), UIButtonKind.Hold)]
+        [ShowIf(nameof(IsHoldMode))]
         [SerializeField]
         [VNext.CommandListFunctionName("UIButton.OnHoldInterval")]
         VNext.CommandListData _onHoldIntervalCommands = new();
 
         [Tooltip("Hold中キャンセル時に実行するコマンド。\n" +
                  "Holdボタンでのみ使用。")]
-        [ShowIf(nameof(_kind), UIButtonKind.Hold)]
+        [ShowIf(nameof(IsHoldMode))]
         [SerializeField]
         [VNext.CommandListFunctionName("UIButton.OnHoldCancel")]
         VNext.CommandListData _onHoldCancelCommands = new();
+
+        [Tooltip("入力開始時に必ず実行する共通コマンド。ShortLong 専用。")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [SerializeField]
+        [VNext.CommandListFunctionName("UIButton.OnGenericStart")]
+        VNext.CommandListData _onGenericStartCommands = new();
+
+        [Tooltip("Short 入力開始時に実行するコマンド。ShortLong 専用。")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [SerializeField]
+        [VNext.CommandListFunctionName("UIButton.OnShortStart")]
+        VNext.CommandListData _onShortStartCommands = new();
+
+        [Tooltip("Short を超えて Long に入った瞬間に 1 回だけ実行するコマンド。ShortLong 専用。")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [SerializeField]
+        [VNext.CommandListFunctionName("UIButton.OnLongStart")]
+        VNext.CommandListData _onLongStartCommands = new();
+
+        [Tooltip("最終決定時に必ず実行する共通コマンド。ShortLong 専用。")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [SerializeField]
+        [VNext.CommandListFunctionName("UIButton.OnGenericDecision")]
+        VNext.CommandListData _onGenericDecisionCommands = new();
+
+        [Tooltip("Short のまま離したときに実行するコマンド。ShortLong 専用。")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [SerializeField]
+        [VNext.CommandListFunctionName("UIButton.OnShortDecision")]
+        VNext.CommandListData _onShortDecisionCommands = new();
+
+        [Tooltip("Long 状態で離したときに実行するコマンド。LongMax では使いません。ShortLong 専用。")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [SerializeField]
+        [VNext.CommandListFunctionName("UIButton.OnLongDecision")]
+        VNext.CommandListData _onLongDecisionCommands = new();
+
+        [Tooltip("LongMax 状態で決定したときにだけ実行するコマンド。ShortLong 専用。")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [SerializeField]
+        [VNext.CommandListFunctionName("UIButton.OnLongMaxDecision")]
+        VNext.CommandListData _onLongMaxDecisionCommands = new();
+
+        [Tooltip("入力途中で中断されたときに実行するコマンド。短押し release は cancel ではありません。ShortLong 専用。")]
+        [ShowIf(nameof(IsShortLongMode))]
+        [SerializeField]
+        [VNext.CommandListFunctionName("UIButton.OnCancel")]
+        VNext.CommandListData _onCancelCommands = new();
 
         // ================================================================
         // Inspector設定 - Input Control
@@ -198,6 +266,10 @@ namespace Game.UI
         /// </summary>
         public float HoldTime => _holdTime;
 
+        public float LongMaxTime => _longMaxTime;
+
+        public bool AutoDecideOnLongMax => _autoDecideOnLongMax;
+
         public float HoldInterval => _holdInterval;
 
         public UIInputAction TriggerAction => _triggerAction;
@@ -220,8 +292,24 @@ namespace Game.UI
         /// Holdキャンセルコマンドリスト。
         /// </summary>
         public VNext.CommandListData OnHoldCancelCommands => _onHoldCancelCommands;
+
+        public VNext.CommandListData OnGenericStartCommands => _onGenericStartCommands;
+
+        public VNext.CommandListData OnShortStartCommands => _onShortStartCommands;
+
+        public VNext.CommandListData OnLongStartCommands => _onLongStartCommands;
+
+        public VNext.CommandListData OnGenericDecisionCommands => _onGenericDecisionCommands;
+
+        public VNext.CommandListData OnShortDecisionCommands => _onShortDecisionCommands;
+
+        public VNext.CommandListData OnLongDecisionCommands => _onLongDecisionCommands;
+
+        public VNext.CommandListData OnLongMaxDecisionCommands => _onLongMaxDecisionCommands;
+
+        public VNext.CommandListData OnCancelCommands => _onCancelCommands;
         // Guard
-        [ShowIf(nameof(_kind), UIButtonKind.Hold)]
+        [ShowIf(nameof(UsesTimedPressSettings))]
         public bool GuardSelectionWhileHolding => _guardSelectionWhileHolding;
 
         public bool GuardDuringCommandExecution => _guardDuringCommandExecution;
@@ -236,6 +324,12 @@ namespace Game.UI
         /// 入力制御条件。true の場合のみ入力を受け付けます。
         /// </summary>
         public DynamicValue<bool> InputControlCondition => _inputControlCondition;
+
+        bool UsesTimedPressSettings() => _kind == UIButtonKind.Hold || _kind == UIButtonKind.ShortLong;
+        bool IsHoldMode() => _kind == UIButtonKind.Hold;
+        bool IsShortLongMode() => _kind == UIButtonKind.ShortLong;
+        bool UsesLegacyStartCommands() => _kind == UIButtonKind.Instant || _kind == UIButtonKind.Hold;
+        bool UsesLegacyDecisionCommands() => _kind == UIButtonKind.Instant || _kind == UIButtonKind.Hold;
 
         // ================================================================
         // Debug Info (Runtime Only)
@@ -253,6 +347,9 @@ namespace Game.UI
 
             [ShowInInspector, ReadOnly]
             public UIButtonKind Kind = UIButtonKind.Instant;
+
+            [ShowInInspector, ReadOnly]
+            public UIButtonShortLongPhase CurrentPhase = UIButtonShortLongPhase.Idle;
 
             [ShowInInspector, ReadOnly]
             public UIInputAction TriggerAction = UIInputAction.Submit;
@@ -283,6 +380,21 @@ namespace Game.UI
 
             [ShowInInspector, ReadOnly]
             public float HoldProgress;
+
+            [ShowInInspector, ReadOnly]
+            public float ShortProgress;
+
+            [ShowInInspector, ReadOnly]
+            public float LongProgress;
+
+            [ShowInInspector, ReadOnly]
+            public bool IsLongMax;
+
+            [ShowInInspector, ReadOnly]
+            public float LongMaxTime;
+
+            [ShowInInspector, ReadOnly]
+            public bool AutoDecideOnLongMax;
 
             [ShowInInspector, ReadOnly]
             public bool IsHoldDecisionExecuting;
@@ -318,6 +430,7 @@ namespace Game.UI
             {
                 OwnerName = s.OwnerName;
                 Kind = s.Kind;
+                CurrentPhase = s.CurrentPhase;
                 TriggerAction = s.TriggerAction;
                 CanSubmit = s.CanSubmit;
                 IsSelected = s.IsSelected;
@@ -328,6 +441,11 @@ namespace Game.UI
                 DisableSelectionDuringCommandExecution = s.DisableSelectionDuringCommandExecution;
                 IsHolding = s.IsHolding;
                 HoldProgress = s.HoldProgress;
+                ShortProgress = s.ShortProgress;
+                LongProgress = s.LongProgress;
+                IsLongMax = s.IsLongMax;
+                LongMaxTime = s.LongMaxTime;
+                AutoDecideOnLongMax = s.AutoDecideOnLongMax;
                 IsHoldDecisionExecuting = s.IsHoldDecisionExecuting;
                 IsSubmitUpExecuting = s.IsSubmitUpExecuting;
                 LastInputEventType = s.LastInputEventType;
@@ -426,6 +544,14 @@ namespace Game.UI
             _onHoldDecisionCommands?.BindDebugOwner(this, nameof(_onHoldDecisionCommands));
             _onHoldIntervalCommands?.BindDebugOwner(this, nameof(_onHoldIntervalCommands));
             _onHoldCancelCommands?.BindDebugOwner(this, nameof(_onHoldCancelCommands));
+            _onGenericStartCommands?.BindDebugOwner(this, nameof(_onGenericStartCommands));
+            _onShortStartCommands?.BindDebugOwner(this, nameof(_onShortStartCommands));
+            _onLongStartCommands?.BindDebugOwner(this, nameof(_onLongStartCommands));
+            _onGenericDecisionCommands?.BindDebugOwner(this, nameof(_onGenericDecisionCommands));
+            _onShortDecisionCommands?.BindDebugOwner(this, nameof(_onShortDecisionCommands));
+            _onLongDecisionCommands?.BindDebugOwner(this, nameof(_onLongDecisionCommands));
+            _onLongMaxDecisionCommands?.BindDebugOwner(this, nameof(_onLongMaxDecisionCommands));
+            _onCancelCommands?.BindDebugOwner(this, nameof(_onCancelCommands));
         }
 
         /// <summary>
@@ -438,6 +564,8 @@ namespace Game.UI
             service.Kind = _kind;
             service.CanSubmit = _canSubmit;
             service.HoldTime = _holdTime;
+            service.LongMaxTime = _longMaxTime;
+            service.AutoDecideOnLongMax = _autoDecideOnLongMax;
             service.HoldInterval = _holdInterval;
             service.TriggerAction = _triggerAction;
             service.InputControlCondition = _inputControlCondition;
@@ -451,6 +579,14 @@ namespace Game.UI
             service.OnHoldDecisionCommands.SetCommands(new List<VNext.ICommandSource>(_onHoldDecisionCommands.Commands));
             service.OnHoldIntervalCommands.SetCommands(new List<VNext.ICommandSource>(_onHoldIntervalCommands.Commands));
             service.OnHoldCancelCommands.SetCommands(new List<VNext.ICommandSource>(_onHoldCancelCommands.Commands));
+            service.OnGenericStartCommands.SetCommands(new List<VNext.ICommandSource>(_onGenericStartCommands.Commands));
+            service.OnShortStartCommands.SetCommands(new List<VNext.ICommandSource>(_onShortStartCommands.Commands));
+            service.OnLongStartCommands.SetCommands(new List<VNext.ICommandSource>(_onLongStartCommands.Commands));
+            service.OnGenericDecisionCommands.SetCommands(new List<VNext.ICommandSource>(_onGenericDecisionCommands.Commands));
+            service.OnShortDecisionCommands.SetCommands(new List<VNext.ICommandSource>(_onShortDecisionCommands.Commands));
+            service.OnLongDecisionCommands.SetCommands(new List<VNext.ICommandSource>(_onLongDecisionCommands.Commands));
+            service.OnLongMaxDecisionCommands.SetCommands(new List<VNext.ICommandSource>(_onLongMaxDecisionCommands.Commands));
+            service.OnCancelCommands.SetCommands(new List<VNext.ICommandSource>(_onCancelCommands.Commands));
             service.RefreshTelemetry();
 
             // (events removed)

@@ -59,50 +59,15 @@ namespace Game.UI
         [BoxGroup("Binding")]
         [ToggleLeft]
         [LabelText("Apply Binding")]
-        [Tooltip("現在の player binding 設定をこの command で上書きする場合に有効にします。")]
+        [Tooltip("現在の player binding entry 設定をこの command で上書きする場合に有効にします。")]
         public bool ApplyBinding;
 
         [BoxGroup("Binding")]
         [ShowIf(nameof(ApplyBinding))]
-        [LabelText("Use Scalar Binding")]
-        [Tooltip("Scalar binding を有効にします。")]
-        public bool UseScalarBinding = true;
-
-        [BoxGroup("Binding")]
-        [ShowIf(nameof(ApplyBinding))]
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Scalar Source\", ScalarBindingSource)")]
-        [Tooltip("ScalarService を解決する actor / scope です。")]
-        public ActorSource ScalarBindingSource = new() { Kind = ActorSourceKind.Current };
-
-        [BoxGroup("Binding")]
-        [ShowIf(nameof(ApplyBinding))]
-        [LabelText("Scalar Key")]
-        [Tooltip("監視する scalar key です。")]
-        public ScalarKey ScalarKey;
-
-        [BoxGroup("Binding")]
-        [ShowIf(nameof(ApplyBinding))]
-        [LabelText("Use Blackboard Binding")]
-        [Tooltip("Blackboard binding を有効にします。")]
-        public bool UseBlackboardBinding;
-
-        [BoxGroup("Binding")]
-        [ShowIf(nameof(ApplyBinding))]
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Blackboard Source\", BlackboardBindingSource)")]
-        [Tooltip("BlackboardService を解決する actor / scope です。")]
-        public ActorSource BlackboardBindingSource = new() { Kind = ActorSourceKind.Current };
-
-        [BoxGroup("Binding")]
-        [ShowIf(nameof(ApplyBinding))]
-        [LabelText("Blackboard Key")]
-        [Tooltip("監視する blackboard var key です。")]
-        public VarKeyRef BlackboardKey;
-
-        [BoxGroup("Binding")]
-        [ShowIf(nameof(ApplyBinding))]
-        [LabelText("Binding Priority")]
-        [Tooltip("Scalar と Blackboard の両方が使えるとき、どちらを優先するかを指定します。")]
-        public WorldSliderBindingPriority BindingPriority = WorldSliderBindingPriority.Scalar;
+        [LabelText("Binding Entries")]
+        [Tooltip("Condition=true の entry を候補にし、Order が最も高いものを採用します。候補が 1 件も無い場合は slider を非表示にします。")]
+        [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
+        public System.Collections.Generic.List<WorldSliderPlayerBindingEntry> BindingEntries = new() { new() };
 
         [BoxGroup("Range")]
         [ToggleLeft]

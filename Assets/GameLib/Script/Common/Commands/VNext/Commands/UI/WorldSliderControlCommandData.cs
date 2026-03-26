@@ -17,14 +17,19 @@ namespace Game.Commands.VNext
             get
             {
                 var targetLabel = ActorSourceOdinLabelHelper.GetLabel("Target", Target);
-                return $"{targetLabel} Op={Operation} SwapV={ApplyVisualizerPreset} SwapP={ApplyPlayerPreset} MutV={ApplyVisualizerMutation} MutP={ApplyPlayerMutation} ResetV={ResetVisualizer} ResetP={ResetPlayer}";
+                return $"{targetLabel} Tag={NormalizedChannelTag} Op={Operation} SwapV={ApplyVisualizerPreset} SwapP={ApplyPlayerPreset} MutV={ApplyVisualizerMutation} MutP={ApplyPlayerMutation} ResetV={ResetVisualizer} ResetP={ResetPlayer}";
             }
         }
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
-        [Tooltip("IWorldSliderControlService を持つ target scope を指定します。通常は操作したい WorldSlider 自身を指します。")]
+        [Tooltip("IWorldSliderChannelHubService を持つ target scope を指定します。通常は操作したい WorldSliderChannelHub 自身を指します。")]
         public ActorSource Target;
+
+        [BoxGroup("Target")]
+        [LabelText("Channel Tag")]
+        [Tooltip("操作対象の WorldSlider channel tag です。空白の場合は default を使用します。")]
+        public string ChannelTag = "default";
 
         [BoxGroup("Operation")]
         [LabelText("Operation")]
@@ -93,15 +98,17 @@ namespace Game.Commands.VNext
         [ShowIf(nameof(IsResetOperation))]
         [ToggleLeft]
         [LabelText("Reset Visualizer")]
-        [Tooltip("有効な場合、visualizer の runtime override を破棄して WorldSliderMB の source preset へ戻します。")]
+        [Tooltip("有効な場合、visualizer の runtime override を破棄して WorldSliderChannelHub の source preset へ戻します。")]
         public bool ResetVisualizer = true;
 
         [BoxGroup("Reset")]
         [ShowIf(nameof(IsResetOperation))]
         [ToggleLeft]
         [LabelText("Reset Player")]
-        [Tooltip("有効な場合、player の runtime override を破棄して WorldSliderMB の source preset へ戻します。")]
+        [Tooltip("有効な場合、player の runtime override を破棄して WorldSliderChannelHub の source preset へ戻します。")]
         public bool ResetPlayer = true;
+
+        public string NormalizedChannelTag => string.IsNullOrWhiteSpace(ChannelTag) ? "default" : ChannelTag.Trim();
 
         bool IsSwapOperation() => Operation == WorldSliderControlOperation.SwapPreset;
         bool IsMutateOperation() => Operation == WorldSliderControlOperation.MutateSettings;

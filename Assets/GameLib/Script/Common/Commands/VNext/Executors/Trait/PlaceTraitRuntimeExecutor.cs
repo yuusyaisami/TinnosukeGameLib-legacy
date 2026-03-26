@@ -99,50 +99,50 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Trait runtime could not be placed.");
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log(
-                $"[PlaceTraitRuntime] Placed runtime. Holder='{typed.HolderKey}' TraitInstanceId='{traitInstance.InstanceId}' " +
-                $"Runtime='{DescribeScope(runtime)}' SettingsRunOnPlaced={placementSettings.RunOnPlacedCommands} " +
-                $"SettingsCount={(placementSettings.OnPlacedCommands != null ? placementSettings.OnPlacedCommands.Count : -1)} " +
-                $"CommandRunOnPlaced={typed.RunOnPlacedCommands} " +
-                $"CommandCount={(typed.OnPlacedCommands != null ? typed.OnPlacedCommands.Count : -1)}");
+            //Debug.Log(
+            //    $"[PlaceTraitRuntime] Placed runtime. Holder='{typed.HolderKey}' TraitInstanceId='{traitInstance.InstanceId}' " +
+            //    $"Runtime='{DescribeScope(runtime)}' SettingsRunOnPlaced={placementSettings.RunOnPlacedCommands} " +
+            //    $"SettingsCount={(placementSettings.OnPlacedCommands != null ? placementSettings.OnPlacedCommands.Count : -1)} " +
+            //    $"CommandRunOnPlaced={typed.RunOnPlacedCommands} " +
+            //    $"CommandCount={(typed.OnPlacedCommands != null ? typed.OnPlacedCommands.Count : -1)}");
 #endif
 
             if (placementSettings.RunOnPlacedCommands && placementSettings.OnPlacedCommands != null && placementSettings.OnPlacedCommands.Count > 0)
             {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.Log(
-                    $"[PlaceTraitRuntime] Running placement-settings OnPlaced commands. Holder='{typed.HolderKey}' " +
-                    $"TraitInstanceId='{traitInstance.InstanceId}' Count={placementSettings.OnPlacedCommands.Count} " +
-                    $"List={placementSettings.OnPlacedCommands.GetDebugLabel()}");
+                //Debug.Log(
+                //    $"[PlaceTraitRuntime] Running placement-settings OnPlaced commands. Holder='{typed.HolderKey}' " +
+                //    $"TraitInstanceId='{traitInstance.InstanceId}' Count={placementSettings.OnPlacedCommands.Count} " +
+                //    $"List={placementSettings.OnPlacedCommands.GetDebugLabel()}");
 #endif
                 await ExecuteOnPlacedCommandsAsync(runtime, traitInstance, ctx, placementSettings.OnPlacedCommands);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             else
             {
-                Debug.Log(
-                    $"[PlaceTraitRuntime] Skipped placement-settings OnPlaced commands. Holder='{typed.HolderKey}' " +
-                    $"RunFlag={placementSettings.RunOnPlacedCommands} " +
-                    $"Count={(placementSettings.OnPlacedCommands != null ? placementSettings.OnPlacedCommands.Count : -1)}");
+                //Debug.Log(
+                //    $"[PlaceTraitRuntime] Skipped placement-settings OnPlaced commands. Holder='{typed.HolderKey}' " +
+                //    $"RunFlag={placementSettings.RunOnPlacedCommands} " +
+                //    $"Count={(placementSettings.OnPlacedCommands != null ? placementSettings.OnPlacedCommands.Count : -1)}");
             }
 #endif
 
             if (typed.RunOnPlacedCommands && typed.OnPlacedCommands != null && typed.OnPlacedCommands.Count > 0)
             {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.Log(
-                    $"[PlaceTraitRuntime] Running command-local OnPlaced commands. Holder='{typed.HolderKey}' " +
-                    $"TraitInstanceId='{traitInstance.InstanceId}' Count={typed.OnPlacedCommands.Count} " +
-                    $"List={typed.OnPlacedCommands.GetDebugLabel()}");
+                //Debug.Log(
+                //    $"[PlaceTraitRuntime] Running command-local OnPlaced commands. Holder='{typed.HolderKey}' " +
+                //    $"TraitInstanceId='{traitInstance.InstanceId}' Count={typed.OnPlacedCommands.Count} " +
+                //    $"List={typed.OnPlacedCommands.GetDebugLabel()}");
 #endif
                 await ExecuteOnPlacedCommandsAsync(runtime, traitInstance, ctx, typed.OnPlacedCommands);
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             else
             {
-                Debug.Log(
-                    $"[PlaceTraitRuntime] Skipped command-local OnPlaced commands. Holder='{typed.HolderKey}' " +
-                    $"RunFlag={typed.RunOnPlacedCommands} Count={(typed.OnPlacedCommands != null ? typed.OnPlacedCommands.Count : -1)}");
+                //Debug.Log(
+                //    $"[PlaceTraitRuntime] Skipped command-local OnPlaced commands. Holder='{typed.HolderKey}' " +
+                //    $"RunFlag={typed.RunOnPlacedCommands} Count={(typed.OnPlacedCommands != null ? typed.OnPlacedCommands.Count : -1)}");
             }
 #endif
         }
@@ -214,11 +214,11 @@ namespace Game.Commands.VNext
             var traitInstanceId = traitInstance?.InstanceId ?? string.Empty;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log(
-                $"[PlaceTraitRuntime] ExecuteOnPlaced begin. TraitInstanceId='{traitInstanceId}' " +
-                $"Scope='{DescribeScope(placedCtx.Scope)}' Actor='{DescribeScope(placedCtx.Actor)}' " +
-                $"Caller='{DescribeScope(placedCtx.CallerActor)}' RootActor='{DescribeScope(placedCtx.RootActor)}' " +
-                $"Count={commands.Count} List={commands.GetDebugLabel()} DetachedFromSourceCancellation=True");
+            //Debug.Log(
+            //    $"[PlaceTraitRuntime] ExecuteOnPlaced begin. TraitInstanceId='{traitInstanceId}' " +
+            //    $"Scope='{DescribeScope(placedCtx.Scope)}' Actor='{DescribeScope(placedCtx.Actor)}' " +
+            //    $"Caller='{DescribeScope(placedCtx.CallerActor)}' RootActor='{DescribeScope(placedCtx.RootActor)}' " +
+            //    $"Count={commands.Count} List={commands.GetDebugLabel()} DetachedFromSourceCancellation=True");
 #endif
 
             var result = await runner.ExecuteListAsync(commands, placedCtx, CancellationToken.None, detachedOptions);
@@ -237,9 +237,9 @@ namespace Game.Commands.VNext
             }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log(
-                $"[PlaceTraitRuntime] ExecuteOnPlaced complete. TraitInstanceId='{traitInstanceId}' " +
-                $"Status={result.Status} FailureCount={result.FailureCount} List={commands.GetDebugLabel()}");
+            //Debug.Log(
+            //    $"[PlaceTraitRuntime] ExecuteOnPlaced complete. TraitInstanceId='{traitInstanceId}' " +
+            //    $"Status={result.Status} FailureCount={result.FailureCount} List={commands.GetDebugLabel()}");
 #endif
         }
 

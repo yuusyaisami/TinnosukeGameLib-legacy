@@ -173,7 +173,11 @@ namespace Game.Actions
                 return;
 
             var options = VNext.CommandRunOptions.Default;
-            var ctx = new VNext.CommandContext(_scope, NullVarStore.Instance, _commandRunner, _scope, options);
+            var vars = new VarStore(initialCapacity: 8);
+            if (_commandRunner is VNext.ICommandRunnerDefaultVarsProvider defaultVarsProvider)
+                defaultVarsProvider.ApplyDefaultVars(vars, overwrite: false);
+
+            var ctx = new VNext.CommandContext(_scope, vars, _commandRunner, _scope, options);
 
             try
             {

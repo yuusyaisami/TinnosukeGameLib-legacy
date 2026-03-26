@@ -2871,6 +2871,86 @@ namespace Game.Vars.Generated
             public static partial class UI
             {
 
+                public static partial class Button
+                {
+                    /// <remarks>
+                    /// Path: GameLib/UI/Button/HoldProgress
+                    /// StableKey: HoldProgress
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/Button/HoldProgress
+                    /// StableKey: HoldProgress
+                    /// </remarks>
+                    public const int HoldProgress = 101084;
+                    /// <remarks>
+                    /// Path: GameLib/UI/Button/HoldTime
+                    /// StableKey: HoldTime
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/Button/HoldTime
+                    /// StableKey: HoldTime
+                    /// </remarks>
+                    public const int HoldTime = 101083;
+
+                    public static partial class ShortLong
+                    {
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/IsLong
+                        /// StableKey: UIButton.ShortLong.IsLong
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/IsLong
+                        /// StableKey: UIButton.ShortLong.IsLong
+                        /// </remarks>
+                        public const int IsLong = 101088;
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/IsLongMax
+                        /// StableKey: UIButton.ShortLong.IsLongMax
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/IsLongMax
+                        /// StableKey: UIButton.ShortLong.IsLongMax
+                        /// </remarks>
+                        public const int IsLongMax = 101089;
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/LongMaxTime
+                        /// StableKey: UIButton.ShortLong.LongMaxTime
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/LongMaxTime
+                        /// StableKey: UIButton.ShortLong.LongMaxTime
+                        /// </remarks>
+                        public const int LongMaxTime = 101090;
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/LongProgress
+                        /// StableKey: UIButton.ShortLong.LongProgress
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/LongProgress
+                        /// StableKey: UIButton.ShortLong.LongProgress
+                        /// </remarks>
+                        public const int LongProgress = 101087;
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/ShortProgress
+                        /// StableKey: UIButton.ShortLong.ShortProgress
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/ShortProgress
+                        /// StableKey: UIButton.ShortLong.ShortProgress
+                        /// </remarks>
+                        public const int ShortProgress = 101086;
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/State
+                        /// StableKey: UIButton.ShortLong.State
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/Button/ShortLong/State
+                        /// StableKey: UIButton.ShortLong.State
+                        /// </remarks>
+                        public const int State = 101085;
+                    }
+                }
+
                 public static partial class TraitList
                 {
 
@@ -3529,6 +3609,14 @@ namespace Game.Vars.Generated
             VarIds.GameLib.SpawnPattern.Point.position,
             VarIds.GameLib.SpawnPattern.Point.spawnCount,
             VarIds.GameLib.SpawnPattern.Point.tangent,
+            VarIds.GameLib.UI.Button.HoldProgress,
+            VarIds.GameLib.UI.Button.HoldTime,
+            VarIds.GameLib.UI.Button.ShortLong.IsLong,
+            VarIds.GameLib.UI.Button.ShortLong.IsLongMax,
+            VarIds.GameLib.UI.Button.ShortLong.LongMaxTime,
+            VarIds.GameLib.UI.Button.ShortLong.LongProgress,
+            VarIds.GameLib.UI.Button.ShortLong.ShortProgress,
+            VarIds.GameLib.UI.Button.ShortLong.State,
             VarIds.GameLib.UI.TraitList.Item.column,
             VarIds.GameLib.UI.TraitList.Item.holderKey,
             VarIds.GameLib.UI.TraitList.Item.listIndex,
