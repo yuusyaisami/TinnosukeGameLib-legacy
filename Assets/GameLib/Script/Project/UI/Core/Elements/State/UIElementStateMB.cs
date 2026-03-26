@@ -56,6 +56,8 @@ namespace Game.UI
     {
         IReadOnlyList<RectTransform> HitTestRects { get; }
         int SelectionOrder { get; }
+        int NavigationSelectionOrder { get; }
+        Game.Common.DynamicValue<bool> IsSelectable { get; }
         Game.Common.DynamicValue<bool> IsNavigationSelectable { get; }
         NavigationOverride? NavigationOverride { get; }
         VNext.CommandListData OnSelectedCommands { get; }
@@ -102,22 +104,36 @@ namespace Game.UI
         [SerializeField]
         List<RectTransform> _hitTestRects = new();
 
+        [Tooltip("ポインター選択や汎用選択の優先度。\n" +
+                 "数値が大きいほど優先される。\n" +
+                 "同値なら見た目上前に描画されている要素が優先される。")]
         [SerializeField]
         int _selectionOrder = 0;
+
+        [Tooltip("方向ナビゲーション専用の優先度。\n" +
+                 "数値が大きいほど優先される。\n" +
+                 "Selection Order とは別に、上下左右移動だけで使われる。")]
+        [SerializeField]
+        int _navigationSelectionOrder = 0;
         // ================================================================
         // Inspector設定 - ナビゲーション
         // ================================================================
 
         [Header("ナビゲーション設定")]
-        [Tooltip("ナビゲーション（キーボード/ゲームパッド）で選択可能かどうかを決める条件。\n" +
-                 "DynamicValue<bool>により、複数の値源（Blackboard, Scalar, VarStore など）をサポート。\n" +
-                 "Page、Window等のコンテナ要素はfalseを返すように設定してください。")]
+        [Tooltip("このUI自体を選択対象に含めるか。\n" +
+                 "false ならポインター・直接選択・ナビゲーションの全部で選ばれない。")]
+        [SerializeField]
+        [DynamicValueDefaultLiteral(true)]
+        Game.Common.DynamicValue<bool> _isSelectable = new Game.Common.DynamicValue<bool>();
+
+        [Tooltip("方向ナビゲーションでだけ選択対象に含めるか。\n" +
+                 "Is Selectable が true でも、ここが false ならクリックはできるがナビゲーションでは止まらない。")]
         [SerializeField]
         [DynamicValueDefaultLiteral(true)]
         Game.Common.DynamicValue<bool> _isNavigationSelectable = new Game.Common.DynamicValue<bool>();
 
-        [Tooltip("ナビゲーション方向のオーバーライド設定。\n" +
-                 "設定された方向は自動計算より優先される。")]
+        [Tooltip("方向ごとの移動先を明示指定する。\n" +
+                 "設定した方向は自動計算より優先される。")]
         [SerializeField]
         NavigationOverride? _navigationOverride;
 
@@ -163,6 +179,16 @@ namespace Game.UI
         /// 選択順序。
         /// </summary>
         public int SelectionOrder => _selectionOrder;
+
+        /// <summary>
+        /// ナビゲーション専用の優先度。
+        /// </summary>
+        public int NavigationSelectionOrder => _navigationSelectionOrder;
+
+        /// <summary>
+        /// このUIElement自体が選択対象になれるかを決める条件。
+        /// </summary>
+        public Game.Common.DynamicValue<bool> IsSelectable => _isSelectable;
 
         /// <summary>
         /// ナビゲーションで選択可能かを決める条件（DynamicValue<bool>）。
@@ -231,6 +257,10 @@ namespace Game.UI
                 {
                     _service = service;  // _service をキャッシュ
                     service.SetHitTestRects(_hitTestRects);
+                    service.SetSelectionOrder(_selectionOrder);
+                    service.SetNavigationSelectionOrder(_navigationSelectionOrder);
+                    service.SetSelectableCondition(_isSelectable);
+                    service.SetNavigationSelectableCondition(_isNavigationSelectable);
                     service.SetNavigationOverride(_navigationOverride);
                     service.OnSelectedCommands.SetCommands(_onSelectedCommands);
                     service.OnDeselectedCommands.SetCommands(_onDeselectedCommands);
@@ -340,6 +370,10 @@ namespace Game.UI
             service.SetHitTestRects(_hitTestRects);
 
             // ナビゲーション設定
+            service.SetSelectionOrder(_selectionOrder);
+            service.SetNavigationSelectionOrder(_navigationSelectionOrder);
+            service.SetSelectableCondition(_isSelectable);
+            service.SetNavigationSelectableCondition(_isNavigationSelectable);
             service.SetNavigationOverride(_navigationOverride);
 
             // 選択イベントコマンド

@@ -24,6 +24,7 @@ namespace Game.Actions
         GameStateCommandEntry[] StateCommands { get; }
         GameState InitialState { get; }
         bool ExecuteInitialStateCommandsOnAcquire { get; }
+        int InitialStateCommandDelayFramesOnAcquire { get; }
     }
 
     [DisallowMultipleComponent]
@@ -45,6 +46,13 @@ namespace Game.Actions
         [SerializeField]
         bool _executeInitialStateCommandsOnAcquire = true;
 
+        [BoxGroup("Initialization")]
+        [ShowIf(nameof(_executeInitialStateCommandsOnAcquire))]
+        [LabelText("Initial Command Delay Frames")]
+        [MinValue(0)]
+        [SerializeField]
+        int _initialStateCommandDelayFramesOnAcquire;
+
         [BoxGroup("Debug")]
         [LabelText("Debug Viewer")]
         [SerializeField, InlineProperty, HideLabel]
@@ -53,6 +61,7 @@ namespace Game.Actions
         public GameStateCommandEntry[] StateCommands => _stateCommands;
         public GameState InitialState => _initialState;
         public bool ExecuteInitialStateCommandsOnAcquire => _executeInitialStateCommandsOnAcquire;
+        public int InitialStateCommandDelayFramesOnAcquire => _initialStateCommandDelayFramesOnAcquire;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
         {

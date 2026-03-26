@@ -129,11 +129,13 @@ namespace Game.Channel
     {
         [BoxGroup("Visual")]
         [LabelText("Enable Visual")]
+        [Tooltip("Mesh 自体の描画を有効にします。Material preset の Enabled とは別で、こちらが false の場合は見た目を描画しません。")]
         public bool EnableVisual = true;
 
         [BoxGroup("Visual")]
-        [LabelText("Default Material")]
-        public Material? DefaultMaterial;
+        [LabelText("Default Shader")]
+        [Tooltip("Track material に個別 Material が未指定の場合に使う標準 Shader です。runtime で fallback Material を生成します。")]
+        public Shader? DefaultShader;
 
         [BoxGroup("Visual")]
         [LabelText("Sorting Order")]
@@ -152,7 +154,7 @@ namespace Game.Channel
             return new MeshRenderPipelinePreset
             {
                 EnableVisual = EnableVisual,
-                DefaultMaterial = DefaultMaterial,
+                DefaultShader = DefaultShader,
                 SortingOrder = SortingOrder,
                 EnableColliderObject = EnableColliderObject,
                 EnableDebugLog = EnableDebugLog,
@@ -177,6 +179,7 @@ namespace Game.Channel
 
         [BoxGroup("Meta")]
         [LabelText("Enabled")]
+        [Tooltip("Track の要求有効状態です。Line preset の Condition と合成されて、runtime の最終 Enabled が決まります。")]
         public bool Enabled = true;
 
         [BoxGroup("Visualizer")]
@@ -257,26 +260,32 @@ namespace Game.Channel
     {
         [LabelText("Contour Tolerance")]
         [MinValue(0f)]
+        [Tooltip("Collider 同期時の輪郭近似許容値です。大きいほど頂点数を減らしやすくなりますが、形状精度は下がります。")]
         public float ContourTolerance = 0.02f;
 
         [LabelText("Max Point Count")]
         [MinValue(3)]
+        [Tooltip("1 path あたりで collider 同期に使う最大頂点数です。上げるほど精密になりますが負荷も増えます。")]
         public int MaxPointCount = 128;
 
         [LabelText("Min Point Move")]
         [MinValue(0f)]
+        [Tooltip("前回同期から各頂点の移動量がこの値未満なら、path 更新を省略しやすくします。")]
         public float MinPointMove = 0.01f;
 
         [LabelText("Min Area Delta")]
         [MinValue(0f)]
+        [Tooltip("ポリゴン面積差がこの値未満なら collider 更新を抑制します。微小な揺れを無視したい時に使います。")]
         public float MinAreaDelta = 0.005f;
 
         [LabelText("Min Angle Delta")]
         [MinValue(0f)]
+        [Tooltip("輪郭角度の変化がこの値未満なら更新を省略しやすくします。細かな法線揺れの同期抑制用です。")]
         public float MinAngleDelta = 0.5f;
 
         [LabelText("Update Interval Frames")]
         [MinValue(1)]
+        [Tooltip("PolygonCollider2D への同期を行う最短フレーム間隔です。1 なら毎フレーム評価します。")]
         public int UpdateIntervalFrames = 1;
 
         internal MeshPolygonSyncSettings CreateRuntimeCopy()
@@ -294,45 +303,184 @@ namespace Game.Channel
     }
 
     [Serializable]
-    public sealed class MeshMaterialLayerPreset
+    public sealed class MeshContourSamplingPreset
     {
-        [LabelText("Stable Key")]
-        public string StableKey = string.Empty;
+        [LabelText("Max Samples")]
+        [MinValue(4)]
+        [Tooltip("Shader へ送る輪郭サンプル数の上限です。多いほど輪郭距離表現は安定しますが送信コストは増えます。")]
+        public int MaxSamples = 48;
 
-        [LabelText("Context Tag")]
-        public string ContextTag = "default";
+        [LabelText("Min Sample Spacing")]
+        [MinValue(0.001f)]
+        [Tooltip("輪郭サンプル同士の最小間隔です。小さいほど密に取りますが、近接サンプルが増えます。")]
+        public float MinSampleSpacing = 0.025f;
 
-        [LabelText("Priority")]
-        public int Priority = 0;
+        internal MeshContourSamplingPreset CreateRuntimeCopy()
+        {
+            return new MeshContourSamplingPreset
+            {
+                MaxSamples = MaxSamples,
+                MinSampleSpacing = MinSampleSpacing,
+            };
+        }
+    }
 
-        [LabelText("Blend Mode")]
-        public MeshMaterialBlendMode BlendMode = MeshMaterialBlendMode.Override;
+    [Serializable]
+    public sealed class MeshContourGradientMaterialPreset
+    {
+        [LabelText("Enabled")]
+        public bool Enabled = true;
 
         [LabelText("Color")]
-        public Color Color = Color.white;
+        public Color Color = new(1f, 0.35f, 0.35f, 1f);
 
-        [LabelText("Duration Seconds")]
+        [LabelText("Strength")]
         [MinValue(0f)]
-        public float DurationSeconds = 0f;
+        public float Strength = 0.2f;
 
-        [LabelText("Lifetime Seconds (-1 = Infinite)")]
-        public float LifetimeSeconds = -1f;
+        [LabelText("Range")]
+        [MinValue(0.001f)]
+        public float Range = 0.5f;
 
-        [LabelText("Ease")]
-        public Ease Ease = Ease.Linear;
+        [LabelText("Falloff")]
+        [MinValue(0.001f)]
+        public float Falloff = 1.5f;
 
-        internal MeshMaterialLayerPreset CreateRuntimeCopy()
+        internal MeshContourGradientMaterialPreset CreateRuntimeCopy()
         {
-            return new MeshMaterialLayerPreset
+            return new MeshContourGradientMaterialPreset
             {
-                StableKey = StableKey,
-                ContextTag = ContextTag,
-                Priority = Priority,
-                BlendMode = BlendMode,
+                Enabled = Enabled,
                 Color = Color,
-                DurationSeconds = DurationSeconds,
-                LifetimeSeconds = LifetimeSeconds,
-                Ease = Ease,
+                Strength = Strength,
+                Range = Range,
+                Falloff = Falloff,
+            };
+        }
+    }
+
+    [Serializable]
+    public sealed class MeshEdgeAlphaMaterialPreset
+    {
+        [LabelText("Enabled")]
+        public bool Enabled = true;
+
+        [LabelText("Gain")]
+        [MinValue(0f)]
+        public float Gain = 0.35f;
+
+        [LabelText("Range")]
+        [MinValue(0.001f)]
+        public float Range = 0.2f;
+
+        [LabelText("Softness")]
+        [Range(0f, 1f)]
+        public float Softness = 0.65f;
+
+        internal MeshEdgeAlphaMaterialPreset CreateRuntimeCopy()
+        {
+            return new MeshEdgeAlphaMaterialPreset
+            {
+                Enabled = Enabled,
+                Gain = Gain,
+                Range = Range,
+                Softness = Softness,
+            };
+        }
+    }
+
+    [Serializable]
+    public sealed class MeshBandMaterialPreset
+    {
+        [LabelText("Enabled")]
+        public bool Enabled = false;
+
+        [LabelText("Count")]
+        [MinValue(1)]
+        public int Count = 4;
+
+        [LabelText("Contrast")]
+        [MinValue(0f)]
+        public float Contrast = 0.65f;
+
+        [LabelText("Color")]
+        public Color Color = new(0.95f, 0.95f, 1f, 1f);
+
+        [LabelText("Intensity")]
+        [MinValue(0f)]
+        public float Intensity = 0.25f;
+
+        internal MeshBandMaterialPreset CreateRuntimeCopy()
+        {
+            return new MeshBandMaterialPreset
+            {
+                Enabled = Enabled,
+                Count = Count,
+                Contrast = Contrast,
+                Color = Color,
+                Intensity = Intensity,
+            };
+        }
+    }
+
+    [Serializable]
+    public sealed class MeshEdgeFlowMaterialPreset
+    {
+        [LabelText("Enabled")]
+        public bool Enabled = false;
+
+        [LabelText("Color")]
+        public Color Color = new(1f, 1f, 1f, 1f);
+
+        [LabelText("Width")]
+        [MinValue(0.001f)]
+        public float Width = 0.12f;
+
+        [LabelText("Speed")]
+        public float Speed = 1.2f;
+
+        [LabelText("Intensity")]
+        [MinValue(0f)]
+        public float Intensity = 0.45f;
+
+        internal MeshEdgeFlowMaterialPreset CreateRuntimeCopy()
+        {
+            return new MeshEdgeFlowMaterialPreset
+            {
+                Enabled = Enabled,
+                Color = Color,
+                Width = Width,
+                Speed = Speed,
+                Intensity = Intensity,
+            };
+        }
+    }
+
+    [Serializable]
+    public sealed class MeshInteriorNoiseMaterialPreset
+    {
+        [LabelText("Enabled")]
+        public bool Enabled = false;
+
+        [LabelText("Scale")]
+        [MinValue(0.001f)]
+        public float Scale = 8f;
+
+        [LabelText("Speed")]
+        public float Speed = 0.5f;
+
+        [LabelText("Strength")]
+        [MinValue(0f)]
+        public float Strength = 0.08f;
+
+        internal MeshInteriorNoiseMaterialPreset CreateRuntimeCopy()
+        {
+            return new MeshInteriorNoiseMaterialPreset
+            {
+                Enabled = Enabled,
+                Scale = Scale,
+                Speed = Speed,
+                Strength = Strength,
             };
         }
     }
@@ -341,35 +489,77 @@ namespace Game.Channel
     public sealed class MeshTrackMaterialPreset : IDynamicManagedRefValue
     {
         [BoxGroup("Base")]
+        [LabelText("Enabled")]
+        [Tooltip("false の間は MeshMaterialFx の見た目設定を適用しません。Mesh 自体の描画可否は RenderPipeline の Enable Visual が管理します。")]
+        public bool Enabled = true;
+
+        [BoxGroup("Base")]
         [LabelText("Material")]
+        [ShowIf(nameof(Enabled))]
+        [Tooltip("個別に Material を差し替えたい場合だけ指定します。未指定時は RenderPipeline の Default Shader から fallback Material を生成して使います。")]
         public Material? Material;
 
         [BoxGroup("Base")]
-        [LabelText("Base Color")]
-        public Color BaseColor = Color.white;
+        [LabelText("Base Tint")]
+        [ShowIf(nameof(Enabled))]
+        public Color BaseTint = Color.white;
 
         [BoxGroup("Base")]
         [LabelText("Sorting Order Offset")]
+        [ShowIf(nameof(Enabled))]
         public int SortingOrderOffset = 0;
 
-        [BoxGroup("Layers")]
-        [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, DefaultExpandedState = false)]
-        public List<MeshMaterialLayerPreset> Layers = new();
+        [BoxGroup("Contour Input")]
+        [ShowIf(nameof(Enabled))]
+        [InlineProperty]
+        [HideLabel]
+        public MeshContourSamplingPreset ContourSampling = new();
+
+        [BoxGroup("Contour Gradient")]
+        [ShowIf(nameof(Enabled))]
+        [InlineProperty]
+        [HideLabel]
+        public MeshContourGradientMaterialPreset ContourGradient = new();
+
+        [BoxGroup("Edge Alpha")]
+        [ShowIf(nameof(Enabled))]
+        [InlineProperty]
+        [HideLabel]
+        public MeshEdgeAlphaMaterialPreset EdgeAlpha = new();
+
+        [BoxGroup("Bands")]
+        [ShowIf(nameof(Enabled))]
+        [InlineProperty]
+        [HideLabel]
+        public MeshBandMaterialPreset Bands = new();
+
+        [BoxGroup("Edge Flow")]
+        [ShowIf(nameof(Enabled))]
+        [InlineProperty]
+        [HideLabel]
+        public MeshEdgeFlowMaterialPreset EdgeFlow = new();
+
+        [BoxGroup("Interior Noise")]
+        [ShowIf(nameof(Enabled))]
+        [InlineProperty]
+        [HideLabel]
+        public MeshInteriorNoiseMaterialPreset InteriorNoise = new();
 
         internal MeshTrackMaterialPreset CreateRuntimeCopy()
         {
-            var copy = new MeshTrackMaterialPreset
+            return new MeshTrackMaterialPreset
             {
+                Enabled = Enabled,
                 Material = Material,
-                BaseColor = BaseColor,
+                BaseTint = BaseTint,
                 SortingOrderOffset = SortingOrderOffset,
+                ContourSampling = ContourSampling?.CreateRuntimeCopy() ?? new MeshContourSamplingPreset(),
+                ContourGradient = ContourGradient?.CreateRuntimeCopy() ?? new MeshContourGradientMaterialPreset(),
+                EdgeAlpha = EdgeAlpha?.CreateRuntimeCopy() ?? new MeshEdgeAlphaMaterialPreset(),
+                Bands = Bands?.CreateRuntimeCopy() ?? new MeshBandMaterialPreset(),
+                EdgeFlow = EdgeFlow?.CreateRuntimeCopy() ?? new MeshEdgeFlowMaterialPreset(),
+                InteriorNoise = InteriorNoise?.CreateRuntimeCopy() ?? new MeshInteriorNoiseMaterialPreset(),
             };
-
-            copy.Layers = new List<MeshMaterialLayerPreset>(Layers.Count);
-            for (int i = 0; i < Layers.Count; i++)
-                copy.Layers.Add(Layers[i]?.CreateRuntimeCopy() ?? new MeshMaterialLayerPreset());
-
-            return copy;
         }
     }
 
@@ -401,8 +591,14 @@ namespace Game.Channel
     public sealed class MeshLineTrackPlayerPreset : MeshTrackPlayerPresetBase
     {
         [BoxGroup("Line")]
+        [LabelText("Condition")]
+        [Tooltip("Track の最終 Enabled を構成する DynamicValue<bool> です。false のときは RequestedEnabled が true でも track.Enabled は false になります。")]
+        public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
+
+        [BoxGroup("Line")]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, DefaultExpandedState = true)]
         [LabelText("Points")]
+        [Tooltip("Line を構成する基準点です。2 点未満しか解決できない場合は line を生成しません。")]
         public List<DynamicValue<Vector3>> Points = new()
         {
             DynamicValueExtensions.FromLiteral(Vector3.zero),
@@ -411,21 +607,25 @@ namespace Game.Channel
 
         [BoxGroup("Line")]
         [LabelText("Closed")]
+        [Tooltip("有効にすると末尾と先頭を結び、閉じたループとして line を扱います。")]
         public bool Closed = false;
 
         [BoxGroup("Line")]
         [LabelText("Smooth Path")]
+        [Tooltip("有効時は中間点を補間して折れを滑らかにします。点数が増えるため見た目と負荷の両方に影響します。")]
         public bool SmoothPath = true;
 
         [BoxGroup("Line")]
         [LabelText("Smoothing Subdivisions")]
         [MinValue(1)]
+        [Tooltip("Smooth Path 使用時の補間分割数です。大きいほど滑らかですが、生成点数も増えます。")]
         public int SmoothingSubdivisions = 8;
 
         internal override MeshTrackPlayerPresetBase CreateRuntimeCopy()
         {
             return new MeshLineTrackPlayerPreset
             {
+                Condition = Condition,
                 Points = new List<DynamicValue<Vector3>>(Points),
                 Closed = Closed,
                 SmoothPath = SmoothPath,
@@ -512,20 +712,24 @@ namespace Game.Channel
         [BoxGroup("Shape")]
         [LabelText("Base Width")]
         [MinValue(0.001f)]
+        [Tooltip("line の基準太さです。Head/Tail taper がない区間ではこの幅が使われます。")]
         public float BaseWidth = 0.08f;
 
         [BoxGroup("Shape")]
         [LabelText("Head Taper Normalized")]
         [Range(0f, 1f)]
+        [Tooltip("線全長に対して、先頭側を細くする割合です。0.25 なら前方 25% を使って先端へ向かって細くします。")]
         public float HeadTaperNormalized = 0.1f;
 
         [BoxGroup("Shape")]
         [LabelText("Tail Taper Normalized")]
         [Range(0f, 1f)]
+        [Tooltip("線全長に対して、後端側を細くする割合です。軌道線などで尻尾を細くしたい時に使います。")]
         public float TailTaperNormalized = 0.1f;
 
         [BoxGroup("Wave")]
         [LabelText("Wave Space")]
+        [Tooltip("波長の基準空間です。World はワールド距離、NormalizedLength は線全長 0-1 を基準にします。")]
         public MeshWaveSpace WaveSpace = MeshWaveSpace.NormalizedLength;
 
         [BoxGroup("Wave")]
@@ -549,11 +753,13 @@ namespace Game.Channel
         [BoxGroup("Sampling")]
         [LabelText("Min Segment Length")]
         [MinValue(0.001f)]
+        [Tooltip("line 再サンプリング時の最小セグメント長です。小さいほど形状追従は上がりますが点数も増えます。")]
         public float MinSegmentLength = 0.05f;
 
         [BoxGroup("Sampling")]
         [LabelText("Max Point Count")]
         [MinValue(4)]
+        [Tooltip("line 再サンプリング後の最大点数です。滑らかさの上限と負荷上限を兼ねます。")]
         public int MaxPointCount = 128;
 
         internal override MeshTrackVisualizerPresetBase CreateRuntimeCopy()
@@ -716,9 +922,74 @@ namespace Game.Channel
         public float Radius = 0.8f;
 
         [BoxGroup("Fluid")]
+        [LabelText("Wave Speed")]
+        [MinValue(0f)]
+        public float WaveSpeed = 2.5f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Band Width")]
+        [MinValue(0.001f)]
+        public float BandWidth = 0.2f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Spatial Frequency")]
+        [MinValue(0f)]
+        public float SpatialFrequency = 14f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Temporal Frequency")]
+        [MinValue(0f)]
+        public float TemporalFrequency = 8f;
+
+        [BoxGroup("Fluid")]
         [LabelText("Wave Strength")]
         [MinValue(0f)]
         public float WaveStrength = 0.15f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Impact Scale")]
+        [MinValue(0f)]
+        public float ImpactScale = 0.1f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Max Amplitude")]
+        [MinValue(0f)]
+        public float MaxAmplitude = 0.2f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Max Active Ripples")]
+        [MinValue(1)]
+        public int MaxActiveRipples = 64;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Distance Damping")]
+        [MinValue(0f)]
+        public float DistanceDamping = 1.1f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Distance Falloff Weight")]
+        [Range(0f, 1f)]
+        public float DistanceFalloffWeight = 0f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Edge Softness")]
+        [Range(0f, 1f)]
+        public float EdgeSoftness = 0.2f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Radial Blend")]
+        [Range(0f, 1f)]
+        public float RadialBlend = 0.2f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Radial Falloff Weight")]
+        [Range(0f, 1f)]
+        public float RadialFalloffWeight = 0f;
+
+        [BoxGroup("Fluid")]
+        [LabelText("Frequency Jitter")]
+        [Range(0f, 0.5f)]
+        public float FrequencyJitter = 0.1f;
 
         [BoxGroup("Fluid")]
         [LabelText("Damping")]
@@ -730,7 +1001,20 @@ namespace Game.Channel
             return new MeshFluidSimulationPreset
             {
                 Radius = Radius,
+                WaveSpeed = WaveSpeed,
+                BandWidth = BandWidth,
+                SpatialFrequency = SpatialFrequency,
+                TemporalFrequency = TemporalFrequency,
                 WaveStrength = WaveStrength,
+                ImpactScale = ImpactScale,
+                MaxAmplitude = MaxAmplitude,
+                MaxActiveRipples = MaxActiveRipples,
+                DistanceDamping = DistanceDamping,
+                DistanceFalloffWeight = DistanceFalloffWeight,
+                EdgeSoftness = EdgeSoftness,
+                RadialBlend = RadialBlend,
+                RadialFalloffWeight = RadialFalloffWeight,
+                FrequencyJitter = FrequencyJitter,
                 Damping = Damping,
             };
         }
@@ -740,6 +1024,7 @@ namespace Game.Channel
     public sealed class MeshTrackVisualizerRuntimeMutation
     {
         [LabelText("Replace Preset")]
+        [Tooltip("Visualizer preset 全体を差し替えます。下の Apply 系指定より優先して新 preset が基準になります。")]
         public bool ReplacePreset = false;
 
         [ShowIf(nameof(ReplacePreset))]
@@ -756,6 +1041,7 @@ namespace Game.Channel
         public float BaseWidth = 0.08f;
 
         [LabelText("Apply Taper")]
+        [Tooltip("Head/Tail taper を上書きします。線の先端と後端の細り方を変更したい時に使います。")]
         public bool ApplyTaper = false;
 
         [ShowIf(nameof(ApplyTaper))]
@@ -767,6 +1053,7 @@ namespace Game.Channel
         public float TailTaperNormalized = 0.1f;
 
         [LabelText("Apply Wave")]
+        [Tooltip("波線パラメータを上書きします。Amplitude/Length/Phase/Scroll Speed をまとめて反映します。")]
         public bool ApplyWave = false;
 
         [ShowIf(nameof(ApplyWave))]
@@ -793,6 +1080,7 @@ namespace Game.Channel
     public sealed class MeshTrackPlayerRuntimeMutation
     {
         [LabelText("Replace Preset")]
+        [Tooltip("Player preset 全体を差し替えます。Line/Trail/AreaFill の種別変更もここで行います。")]
         public bool ReplacePreset = false;
 
         [ShowIf(nameof(ReplacePreset))]
@@ -801,7 +1089,16 @@ namespace Game.Channel
         public DynamicValue<MeshTrackPlayerPresetBase> Preset =
             MeshChannelDynamicValueFactory.FromManaged<MeshTrackPlayerPresetBase>(new MeshLineTrackPlayerPreset());
 
+        [LabelText("Apply Condition")]
+        [Tooltip("Line preset の DynamicValue<bool> condition を差し替えます。最終的な track.Enabled は RequestedEnabled とこの条件の AND です。")]
+        public bool ApplyCondition = false;
+
+        [ShowIf(nameof(ApplyCondition))]
+        [Tooltip("Line track の最終 Enabled を構成する DynamicValue<bool> です。")]
+        public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
+
         [LabelText("Apply Points")]
+        [Tooltip("Line preset の points を上書きします。")]
         public bool ApplyPoints = false;
 
         [ShowIf(nameof(ApplyPoints))]
@@ -809,6 +1106,7 @@ namespace Game.Channel
         public List<DynamicValue<Vector3>> Points = new();
 
         [LabelText("Apply Trail Config")]
+        [Tooltip("Trail preset の target と sampling 設定をまとめて上書きします。")]
         public bool ApplyTrailConfig = false;
 
         [ShowIf(nameof(ApplyTrailConfig))]
@@ -831,6 +1129,7 @@ namespace Game.Channel
         public int MaxPoints = 64;
 
         [LabelText("Apply Area Tag")]
+        [Tooltip("AreaFill preset が参照する Area Tag を上書きします。")]
         public bool ApplyAreaTag = false;
 
         [ShowIf(nameof(ApplyAreaTag))]
@@ -838,7 +1137,7 @@ namespace Game.Channel
 
         public bool HasAnyMutation()
         {
-            return ReplacePreset || ApplyPoints || ApplyTrailConfig || ApplyAreaTag;
+            return ReplacePreset || ApplyCondition || ApplyPoints || ApplyTrailConfig || ApplyAreaTag;
         }
     }
 
@@ -846,6 +1145,7 @@ namespace Game.Channel
     public sealed class MeshTrackColliderRuntimeMutation
     {
         [LabelText("Replace Preset")]
+        [Tooltip("Collider preset 全体を差し替えます。")]
         public bool ReplacePreset = false;
 
         [ShowIf(nameof(ReplacePreset))]
@@ -855,18 +1155,21 @@ namespace Game.Channel
             MeshChannelDynamicValueFactory.FromManaged<MeshTrackColliderPresetBase>(new MeshPolygonTrackColliderPreset());
 
         [LabelText("Apply Sync Toggle")]
+        [Tooltip("PolygonCollider2D への見た目同期を有効/無効化します。")]
         public bool ApplySyncToggle = false;
 
         [ShowIf(nameof(ApplySyncToggle))]
         public bool SyncPolygonToCollider = true;
 
         [LabelText("Apply Hit Capture Toggle")]
+        [Tooltip("MeshChannel 内部の hit capture を有効/無効化します。外部の UnityColliderObject 連携とは別です。")]
         public bool ApplyHitCaptureToggle = false;
 
         [ShowIf(nameof(ApplyHitCaptureToggle))]
         public bool EnableHitCapture = true;
 
         [LabelText("Apply Sync Settings")]
+        [Tooltip("Polygon 同期の閾値と更新頻度をまとめて上書きします。")]
         public bool ApplySyncSettings = false;
 
         [ShowIf(nameof(ApplySyncSettings))]
@@ -883,6 +1186,7 @@ namespace Game.Channel
     public sealed class MeshTrackMaterialRuntimeMutation
     {
         [LabelText("Replace Preset")]
+        [Tooltip("Material preset 全体を差し替えます。")]
         public bool ReplacePreset = false;
 
         [ShowIf(nameof(ReplacePreset))]
@@ -891,13 +1195,22 @@ namespace Game.Channel
         public DynamicValue<MeshTrackMaterialPreset> Preset =
             MeshChannelDynamicValueFactory.FromManaged(new MeshTrackMaterialPreset());
 
-        [LabelText("Apply Base Color")]
-        public bool ApplyBaseColor = false;
+        [LabelText("Apply Enabled")]
+        [Tooltip("MeshMaterialFx の見た目設定を適用するかを上書きします。false の間は material 演出を送信しません。")]
+        public bool ApplyEnabled = false;
 
-        [ShowIf(nameof(ApplyBaseColor))]
-        public Color BaseColor = Color.white;
+        [ShowIf(nameof(ApplyEnabled))]
+        public bool Enabled = true;
+
+        [LabelText("Apply Base Tint")]
+        [Tooltip("Material preset の Base Tint を上書きします。")]
+        public bool ApplyBaseTint = false;
+
+        [ShowIf(nameof(ApplyBaseTint))]
+        public Color BaseTint = Color.white;
 
         [LabelText("Apply Sorting Order Offset")]
+        [Tooltip("Composite の sorting order に加算するオフセットを上書きします。")]
         public bool ApplySortingOrderOffset = false;
 
         [ShowIf(nameof(ApplySortingOrderOffset))]
@@ -905,7 +1218,7 @@ namespace Game.Channel
 
         public bool HasAnyMutation()
         {
-            return ReplacePreset || ApplyBaseColor || ApplySortingOrderOffset;
+            return ReplacePreset || ApplyEnabled || ApplyBaseTint || ApplySortingOrderOffset;
         }
     }
 

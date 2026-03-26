@@ -1,0 +1,323 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MeshMaterial
+  m_Shader: {fileID: 4800000, guid: b9e5b6282645d2848a6cd97fc35fc2e8, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ColorRampTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CustomRT:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ExtTexA:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ExtTexB:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ScreenFxBlurTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ScreenFxSourceTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AdvFlipDepthScale: 0
+    - _AdvFlipEnabled: 1
+    - _AdvFlipEulerDegX: 0
+    - _AdvFlipEulerDegY: 0.03
+    - _AdvFlipEulerDegZ: 0
+    - _AdvFlipPerspective: 0
+    - _AdvFlipPerspectiveSign: -1
+    - _AdvancedFade2DBurnBlendMode: 1
+    - _AdvancedFade2DBurnEdgeWidth: 0.192
+    - _AdvancedFade2DBurnEnabled: 1
+    - _AdvancedFade2DBurnInvert: 0
+    - _AdvancedFade2DBurnNoiseScale: 7.18
+    - _AdvancedFade2DBurnNoiseStrength: 1
+    - _AdvancedFade2DBurnNoiseType: 0
+    - _AdvancedFade2DBurnProgress: 0
+    - _AdvancedFade2DBurnSpeed: 1
+    - _AdvancedFade2DEnabled: 1
+    - _AdvancedFade2DFadeAmount: 0
+    - _AdvancedFade2DFadeDirection: 3
+    - _AdvancedFade2DGlowBlendMode: 2.84
+    - _AdvancedFade2DGlowIntensity: 0.79
+    - _AdvancedFade2DGlowRange: 3.1
+    - _AdvancedFade2DSoft: 1
+    - _BlendColor2DBlendGradDirection: 0
+    - _BlendColor2DBlendGradationAmount: 1
+    - _BlendColor2DBlendIntensity: 1
+    - _BlendColor2DBlendMode: 4
+    - _BlendColor2DBlendSoftness: 1
+    - _BlendColor2DEnabled: 0
+    - _CausticsEnabled: 0
+    - _CausticsIntensity: 1
+    - _CausticsSoftness: 0.1
+    - _CausticsSourceA_Channel: 1
+    - _CausticsSourceA_SlotType: 0
+    - _CausticsSourceA_UVSpace: 0
+    - _CausticsSourceB_Channel: 1
+    - _CausticsSourceB_SlotType: 0
+    - _CausticsSourceB_UVSpace: 0
+    - _CausticsThreshold: 0.5
+    - _ColorMask: 15
+    - _ColorOverlayBlendMode: 1
+    - _ColorOverlayEnabled: 0
+    - _ColorOverlayIntensity: 1
+    - _ColorOverlaySource_Channel: 1
+    - _ColorOverlaySource_SlotType: 0
+    - _ColorOverlaySource_UVSpace: 0
+    - _ColorRampEnabled: 0
+    - _ColorRampIntensity: 1
+    - _ColorRampPreserveAlpha: 1
+    - _ColorRampSource_Channel: 1
+    - _ColorRampSource_SlotType: 0
+    - _ColorRampSource_UVSpace: 0
+    - _CullMode: 0
+    - _DissolveEdgeWidth: 0
+    - _DissolveEnabled: 0
+    - _DissolveSource_Channel: 1
+    - _DissolveSource_SlotType: 0
+    - _DissolveSource_UVSpace: 0
+    - _DissolveThreshold: 0.222
+    - _EmissionEnabled: 0
+    - _EmissionSource_Channel: 1
+    - _EmissionSource_SlotType: 0
+    - _EmissionSource_UVSpace: 0
+    - _EnableExternalAlpha: 0
+    - _ExternalTextureCompositeAffectSurfaceAlpha: 0
+    - _ExternalTextureCompositeBlendMode: 0
+    - _ExternalTextureCompositeDisableWhenTextureMissing: 1
+    - _ExternalTextureCompositeEnabled: 0
+    - _ExternalTextureCompositeIntensity: 1
+    - _ExternalTextureCompositeSource_Channel: 15
+    - _ExternalTextureCompositeSource_SlotType: 5
+    - _ExternalTextureCompositeSource_UVSpace: 0
+    - _ExternalTextureCompositeUseTextureAlpha: 0
+    - _FlashAmount: 0
+    - _FlashBlinkAmplitude: 1
+    - _FlashBlinkEnabled: 0
+    - _FlashBlinkPhaseOffset: 0
+    - _FlashBlinkSpeed: 20
+    - _FlashEnabled: 1
+    - _FlashMode: 0
+    - _FlowWarpEnabled: 0
+    - _FlowWarpSource_Channel: 3
+    - _FlowWarpSource_SlotType: 1
+    - _FlowWarpSource_UVSpace: 0
+    - _FlowWarpSpeed: 1.06
+    - _FxBlendIntensity: 1
+    - _FxBlendPreset: 0
+    - _FxCull: 0
+    - _FxDstBlend: 10
+    - _FxQueueOffset: 0
+    - _FxSrcBlend: 5
+    - _FxZWrite: 0
+    - _HueSaturationMod: 0
+    - _HueShiftAmount: 0
+    - _HueShiftEnabled: 0
+    - _HueShiftMaskSource_Channel: 1
+    - _HueShiftMaskSource_SlotType: 255
+    - _HueShiftMaskSource_UVSpace: 0
+    - _HueValueMod: 0
+    - _MaskEnabled: 1
+    - _MaskSoftness: 0
+    - _MaskSource_Channel: 1
+    - _MaskSource_SlotType: 2
+    - _MaskSource_UVSpace: 0
+    - _MaskThreshold: 0.143
+    - _NoiseAtlas: 0
+    - _NoiseBlendAmount: 1
+    - _NoiseEnabled: 0
+    - _NoiseSlice: 0
+    - _NormalMapBlendWithBase: 0
+    - _NormalMapEnabled: 0
+    - _NormalMapSource_Channel: 1
+    - _NormalMapSource_SlotType: 0
+    - _NormalMapSource_UVSpace: 0
+    - _NormalMapStrength: 1
+    - _OutlineBlendMode: 10
+    - _OutlineEnabled: 0
+    - _OutlineMaskRespect: 1
+    - _OutlineMode: 10
+    - _OutlineOpacity: 1
+    - _OutlinePixelPerfect: 1
+    - _OutlinePixelStep: 1
+    - _OutlineSamplePattern: 10
+    - _OutlineSoftness: 1
+    - _OutlineUVClampEnabled: 1
+    - _OutlineUseVertexColor: 0
+    - _OutlineWidth: 1
+    - _OutlineWidthUnit: 10
+    - _OutlineZTestMode: 10
+    - _PixelAlphaSteps: 0
+    - _PixelColorSteps: 0
+    - _PixelateMode: 0
+    - _PixelationEnabled: 1
+    - _Rainbow2DBlendMode: 3
+    - _Rainbow2DEnabled: 0
+    - _Rainbow2DIntensity: 0.802
+    - _Rainbow2DMode: 1
+    - _Rainbow2DOffset: 0
+    - _Rainbow2DPattern: 1
+    - _Rainbow2DPixelSize: 2
+    - _Rainbow2DScale: 1
+    - _Rainbow2DSpeed: 0.5
+    - _RefractionChromaticAberration: 0
+    - _RefractionEnabled: 0
+    - _RefractionSource_Channel: 3
+    - _RefractionSource_SlotType: 0
+    - _RefractionSource_UVSpace: 0
+    - _RippleAmplitude: 1
+    - _RippleColorBlend: 0
+    - _RippleDistortUV: 1
+    - _RippleEnabled: 0
+    - _RipplePhase: 0
+    - _ScreenFxBlendMode: 0
+    - _ScreenFxEnabled: 0
+    - _ScreenFxIntensity: 1
+    - _ScreenFxMaskSoftness: 0.1
+    - _ScreenFxMaskSource: 0
+    - _ScreenFxMaskSource_Channel: 1
+    - _ScreenFxMaskSource_SlotType: -1
+    - _ScreenFxMaskSource_UVSpace: 0
+    - _ScreenFxMaskThreshold: 0.5
+    - _ScreenFxMode: 0
+    - _ScreenFxParamA: 1
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextGlowEnabled: 0
+    - _TextGlowSoftness: 0
+    - _TextGlowThickness: 2
+    - _TextMode: 0
+    - _TextOutlineEnabled: 0
+    - _TextOutlineSoftness: 0.1
+    - _TextOutlineThickness: 1
+    - _TextShadowEnabled: 0
+    - _TextShadowSoftness: 0.1
+    - _TransitionBlendMode: 0
+    - _TransitionEnabled: 0
+    - _TransitionProgress: 1
+    - _UseUIAlphaClip: 0
+    - _UseVertexColorOnly: 0
+    - _ZWrite: 0
+    m_Colors:
+    - _AdvFlipEulerDeg: {r: 0, g: 0, b: 0, a: 0}
+    - _AdvFlipFallbackHalfSize: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _AdvFlipPivotLocal: {r: 0, g: 0, b: 0, a: 0}
+    - _AdvFlipScaleClamp: {r: 0.25, g: 2, b: 0, a: 0}
+    - _AdvWarpBend: {r: 0, g: 0, b: 0, a: 0}
+    - _AdvWarpShear: {r: 0, g: 0, b: 0, a: 0}
+    - _AdvancedFade2DBurnDirection: {r: 4.18, g: 0, b: 0, a: 0}
+    - _AdvancedFade2DBurnEdgeColor: {r: 0, g: 1, b: 0.6560044, a: 1}
+    - _AdvancedFade2DWaveParamsA: {r: 16.19, g: 0.02, b: 5.55, a: 111.4}
+    - _AdvancedFade2DWaveParamsB: {r: 4.02, g: 0, b: 3.3, a: 43.4}
+    - _AtlasSlot0: {r: -1, g: -1, b: 0, a: 0}
+    - _AtlasSlot1: {r: -1, g: -1, b: 0, a: 0}
+    - _AtlasSlot2: {r: -1, g: -1, b: 0, a: 0}
+    - _AtlasSlot3: {r: -1, g: -1, b: 0, a: 0}
+    - _AtlasSlot4: {r: -1, g: -1, b: 0, a: 0}
+    - _BlendColor2DColor: {r: 0, g: 0, b: 0, a: 1}
+    - _CausticsColor: {r: 1, g: 1, b: 1, a: 1}
+    - _CausticsScrollA: {r: 0.1, g: 0.05, b: 0, a: 0}
+    - _CausticsScrollB: {r: -0.08, g: 0.06, b: 0, a: 0}
+    - _CausticsSourceA_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _CausticsSourceA_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _CausticsSourceB_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _CausticsSourceB_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorOverlayColor: {r: 1, g: 0.9867961, b: 0.14779866, a: 1}
+    - _ColorOverlaySource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _ColorOverlaySource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _ColorRampSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _ColorRampSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _DissolveEdgeColor: {r: 0.4716981, g: 0.27144888, b: 0.27144888, a: 1}
+    - _DissolveSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _DissolveSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _EmissionColor: {r: 1, g: 0, b: 0, a: 1}
+    - _EmissionSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _EmissionSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _ExternalTextureCompositeSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _ExternalTextureCompositeSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _ExternalTextureCompositeTint: {r: 1, g: 1, b: 1, a: 1}
+    - _FlashColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _FlowWarpSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _FlowWarpSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _FlowWarpStrength: {r: 1, g: 1, b: 0, a: 0}
+    - _HueShiftMaskSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _HueShiftMaskSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _MaskSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _MaskSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _NormalMapLightDir: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _NormalMapSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _NormalMapSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _PixelBlockScreenSize: {r: 4, g: 4, b: 0, a: 0}
+    - _Rainbow2DDirection: {r: 1, g: 0, b: 0, a: 0}
+    - _RefractionSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _RefractionSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _RefractionStrength: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _RippleCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _RippleColor: {r: 1, g: 1, b: 1, a: 0.5}
+    - _RippleWaveParams: {r: 10, g: 2, b: 3, a: 0}
+    - _ScreenFxMaskSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
+    - _ScreenFxMaskSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _SpriteTexelSizeLocal: {r: 0.01, g: 0.01, b: 0, a: 0}
+    - _SpriteUVRect: {r: 0, g: 0, b: 1, a: 1}
+    - _TextGlowColor: {r: 1, g: 1, b: 1, a: 0.5}
+    - _TextOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _TextShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+    - _TextShadowOffset: {r: 1, g: -1, b: 0, a: 0}
+    - _TransitionFromSpriteUVRect: {r: 0, g: 0, b: 1, a: 1}
+    - _TransitionParams: {r: 0.1, g: 0.1, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

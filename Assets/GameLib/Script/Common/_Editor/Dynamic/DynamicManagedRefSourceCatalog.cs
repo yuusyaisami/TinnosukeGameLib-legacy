@@ -79,7 +79,7 @@ namespace Game.Common.Editor
             var markerTypes = TypeCache.GetTypesDerivedFrom<IDynamicManagedRefValue>();
             foreach (var t in markerTypes)
             {
-                if (t.IsAbstract || t.IsGenericTypeDefinition || t.IsInterface) continue;
+                if (t.IsGenericTypeDefinition || t.IsInterface) continue;
                 if (s_literalSourceCache.ContainsKey(t)) continue; // 既に登録済み
                 var closedType = typeof(ManagedRefLiteralSource<>).MakeGenericType(t);
                 s_literalSourceCache[t] = closedType;

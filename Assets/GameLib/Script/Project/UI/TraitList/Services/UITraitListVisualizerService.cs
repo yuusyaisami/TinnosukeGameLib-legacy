@@ -35,6 +35,11 @@ namespace Game.UI.TraitList
             CancellationToken ct);
 
         UniTask DespawnAsync(UITraitListVisualInstance instance, CancellationToken ct);
+
+        bool TryResolveLayoutElementSize(
+            UITraitListVisualInstance instance,
+            UITraitListVisualizerProfileSO profile,
+            out Vector2 size);
     }
 
     public sealed class UITraitListVisualizerService :
@@ -280,6 +285,40 @@ namespace Game.UI.TraitList
         public async UniTask DespawnAsync(UITraitListVisualInstance instance, CancellationToken ct)
         {
             await ReleaseSpawnedInstanceAsync(instance.Root, instance.Scope, instance.Resolver);
+        }
+
+        public bool TryResolveLayoutElementSize(
+            UITraitListVisualInstance instance,
+            UITraitListVisualizerProfileSO profile,
+            out Vector2 size)
+        {
+            size = Vector2.zero;
+            if (instance == null || profile == null)
+                return false;
+
+            if (profile.OverrideSize)
+            {
+                size = new Vector2(Mathf.Max(0f, profile.Width), Mathf.Max(0f, profile.Height));
+                return size.x > 0f || size.y > 0f;
+            }
+
+            if (TryResolveVisualBounds(instance, out var bounds) && bounds.LocalSize.x > 0f && bounds.LocalSize.y > 0f)
+            {
+                size = bounds.LocalSize;
+                return true;
+            }
+
+            if (instance.RootRect != null)
+            {
+                var rectSize = instance.RootRect.rect.size;
+                if (rectSize.x > 0f || rectSize.y > 0f)
+                {
+                    size = rectSize;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         static void ApplyBlackboard(UITraitListSlot slot, UITraitListVisualInstance instance, ITraitHolderHubService? hub)

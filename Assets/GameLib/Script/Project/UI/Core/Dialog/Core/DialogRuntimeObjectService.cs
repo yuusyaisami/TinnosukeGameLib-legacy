@@ -134,7 +134,7 @@ namespace Game.UI
                 return null;
 
             Game.IScopeNode? best = null;
-            var bestOrder = int.MaxValue;
+            var bestOrder = int.MinValue;
 
             for (int i = 0; i < states.Length; i++)
             {
@@ -142,24 +142,24 @@ namespace Game.UI
                 if (stMb == null)
                     continue;
 
-                // UIElementStateService を取得
-                var stService = stMb.GetComponent<UIElementStateService>();
+                if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(stMb, includeInactive: true, out var node) ||
+                    node == null)
+                    continue;
+
+                var stService = node.GetUIElementState();
                 if (stService == null)
                     continue;
-
-                if (!stService.EvaluateIsNavigationSelectable())
+                if (!stService.EvaluateIsSelectable())
                     continue;
-
-                var node = stMb.GetComponent<Game.IScopeNode>();
-                if (node == null)
+                if (!stService.EvaluateIsNavigationSelectable())
                     continue;
 
                 if (_selection != null && !_selection.CanSelect(node))
                     continue;
 
-                if (stService.SelectionOrder < bestOrder)
+                if (stService.NavigationSelectionOrder > bestOrder)
                 {
-                    bestOrder = stService.SelectionOrder;
+                    bestOrder = stService.NavigationSelectionOrder;
                     best = node;
                 }
             }

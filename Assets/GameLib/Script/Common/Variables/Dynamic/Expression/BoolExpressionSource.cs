@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -106,7 +107,7 @@ namespace Game.Common
                 if (!TryCompile(out _validationMessage))
                 {
                     _validationIsError = true;
-                    Debug.LogError($"[BoolExpressionSource] Compile failed at runtime: {_validationMessage} (Expr: {_expression})");
+                    Debug.LogError($"[BoolExpressionSource] Compile failed at runtime: {_validationMessage}\n{BuildRuntimeDebugDetails()}");
                     return DynamicVariant.FromBool(false);
                 }
             }
@@ -131,7 +132,7 @@ namespace Game.Common
             {
                 _validationMessage = $"Runtime error: {ex.Message}";
                 _validationIsError = true;
-                Debug.LogError($"[BoolExpressionSource] {_validationMessage} (Expr: {_expression})");
+                Debug.LogError($"[BoolExpressionSource] {_validationMessage}\n{BuildRuntimeDebugDetails()}");
                 return DynamicVariant.FromBool(false);
             }
         }
@@ -263,7 +264,7 @@ namespace Game.Common
                     var key = v.ExpressionKey;
                     if (string.IsNullOrEmpty(key))
                     {
-                        localError = $"{label} [{i}] has no key (source not set)";
+                        localError = $"{label} [{i}] has no key (source not set). {DescribeVariable(label, i, v)}";
                         return false;
                     }
 
@@ -271,7 +272,7 @@ namespace Game.Common
                     {
                         if (!allowOverrideExisting)
                         {
-                            localError = $"Duplicate variable key: {key}";
+                            localError = $"Duplicate variable key: {key}. {DescribeVariable(label, i, v)}";
                             return false;
                         }
                     }
@@ -279,13 +280,13 @@ namespace Game.Common
                     var expectedKind = ResolveExpectedKind(v, fallback: ValueKind.Float);
                     if (expectedKind == ValueKind.Null)
                     {
-                        localError = $"Variable '{key}' expected type is Null";
+                        localError = $"Variable '{key}' expected type is Null. {DescribeVariable(label, i, v)}";
                         return false;
                     }
 
                     if (!v.HasSource)
                     {
-                        localError = $"Variable '{key}' has no DynamicValue source";
+                        localError = $"Variable '{key}' has no DynamicValue source. {DescribeVariable(label, i, v)}";
                         return false;
                     }
 
@@ -356,6 +357,47 @@ namespace Game.Common
                 }
             }
             return true;
+        }
+
+        string BuildRuntimeDebugDetails()
+        {
+            var sb = new StringBuilder(512);
+            sb.Append("Expr: ").Append(string.IsNullOrWhiteSpace(_expression) ? "(empty)" : _expression);
+            sb.Append("\nAllowImplicitKeys: ").Append(_allowImplicitVariablesFromContext);
+            sb.Append("\nVariables: ").Append(GetExpressionVariablesDebugData());
+
+            AppendVariableList(sb, _externalVariables, "ExternalVariable");
+            if (_externalVariables == null || _includeLocalVariablesWithExternal)
+                AppendVariableList(sb, _variables, "LocalVariable");
+
+            return sb.ToString();
+        }
+
+        void AppendVariableList(StringBuilder sb, IReadOnlyList<ExpressionVariable> vars, string label)
+        {
+            if (vars == null || vars.Count == 0)
+            {
+                sb.Append("\n").Append(label).Append("s: (none)");
+                return;
+            }
+
+            sb.Append("\n").Append(label).Append("s:");
+            for (var i = 0; i < vars.Count; i++)
+            {
+                sb.Append("\n- ").Append(DescribeVariable(label, i, vars[i]));
+            }
+        }
+
+        static string DescribeVariable(string label, int index, ExpressionVariable variable)
+        {
+            if (variable == null)
+                return $"{label}[{index}] <null>";
+
+            var expressionKey = string.IsNullOrWhiteSpace(variable.ExpressionKey) ? "(empty)" : variable.ExpressionKey;
+            var debugKey = string.IsNullOrWhiteSpace(variable.Key) ? "(empty)" : variable.Key;
+            var sourceType = variable.Value.SourceTypeName;
+            var sourceDebug = string.IsNullOrWhiteSpace(variable.Value.SourceDebugData) ? "(empty)" : variable.Value.SourceDebugData;
+            return $"{label}[{index}] ExpressionKey='{expressionKey}' Key='{debugKey}' Expected={variable.ExpectedKind} HasSource={variable.HasSource} SourceType={sourceType} Source='{sourceDebug}'";
         }
 
         // ================================================================

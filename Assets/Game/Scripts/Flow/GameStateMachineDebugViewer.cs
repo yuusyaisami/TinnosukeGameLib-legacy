@@ -51,6 +51,16 @@ namespace Game.Actions
             }
         }
 
+        [ShowInInspector, ReadOnly, LabelText("Initial Delay Frames")]
+        public int InitialDelayFramesOnAcquire
+        {
+            get
+            {
+                AutoRefresh();
+                return _settings?.InitialStateCommandDelayFramesOnAcquire ?? 0;
+            }
+        }
+
         [ShowInInspector, ReadOnly, LabelText("State Command Count")]
         public int StateCommandCount
         {
