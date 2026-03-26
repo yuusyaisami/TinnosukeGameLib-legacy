@@ -38,8 +38,11 @@ namespace Game.Commands.VNext
 
             EnsureScopeBuiltIfNeeded(targetScope);
 
-            if (!TryResolve(targetScope, out IWorldSliderControlService? controlService) || controlService == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "IWorldSliderControlService is missing on target scope.");
+            if (!TryResolve(targetScope, out IWorldSliderChannelHubService? channelHub) || channelHub == null)
+                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "IWorldSliderChannelHubService is missing on target scope.");
+
+            if (!channelHub.TryGetControl(typed.NormalizedChannelTag, out var controlService) || controlService == null)
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"WorldSlider channel '{typed.NormalizedChannelTag}' was not found.");
 
             TryResolve(targetScope, out ICommandListRuntimeMutationService? mutationService);
 

@@ -6,6 +6,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using VNext = Game.Commands.VNext;
 using Game.Common;
+using Game.Vars.Generated;
 using VContainer;
 namespace Game.UI
 {
@@ -37,10 +38,22 @@ namespace Game.UI
     public enum UIButtonKind
     {
         /// <summary>即座に反応するボタン</summary>
-        Instant,
+        Instant = 10,
 
         /// <summary>長押しが必要なボタン</summary>
-        Hold,
+        Hold = 20,
+
+        /// <summary>短押しと長押しを分岐するボタン</summary>
+        ShortLong = 30,
+    }
+
+    public enum UIButtonShortLongPhase
+    {
+        Idle = 0,
+        Short = 10,
+        Long = 20,
+        LongMax = 30,
+        CompletedWaitingRelease = 40,
     }
 
     public interface IUIButtonService
@@ -49,6 +62,8 @@ namespace Game.UI
         bool CanSubmit { get; set; }
         DynamicValue<bool> InputControlCondition { get; set; }
         float HoldTime { get; set; }
+        float LongMaxTime { get; set; }
+        bool AutoDecideOnLongMax { get; set; }
         float HoldInterval { get; set; }
         UIInputAction TriggerAction { get; set; }
 
@@ -57,11 +72,23 @@ namespace Game.UI
         VNext.CommandListData OnHoldDecisionCommands { get; }
         VNext.CommandListData OnHoldIntervalCommands { get; }
         VNext.CommandListData OnHoldCancelCommands { get; }
+        VNext.CommandListData OnGenericStartCommands { get; }
+        VNext.CommandListData OnShortStartCommands { get; }
+        VNext.CommandListData OnLongStartCommands { get; }
+        VNext.CommandListData OnGenericDecisionCommands { get; }
+        VNext.CommandListData OnShortDecisionCommands { get; }
+        VNext.CommandListData OnLongDecisionCommands { get; }
+        VNext.CommandListData OnLongMaxDecisionCommands { get; }
+        VNext.CommandListData OnCancelCommands { get; }
 
         bool IsHoldDecisionExecuting { get; }
         bool IsSubmitUpExecuting { get; }
         bool IsHolding { get; }
         float HoldProgress { get; }
+        UIButtonShortLongPhase CurrentPhase { get; }
+        float ShortProgress { get; }
+        float LongProgress { get; }
+        bool IsLongMax { get; }
 
         bool GuardSelectionWhileHolding { get; set; }
         bool GuardDuringCommandExecution { get; set; }
@@ -126,6 +153,13 @@ namespace Game.UI
         /// <summary>VarStore キー: ホールド進捗率</summary>
         public const string VarKeyHoldProgress = "HoldProgress";
 
+        public const string VarKeyShortLongState = "UIButton.ShortLong.State";
+        public const string VarKeyShortLongShortProgress = "UIButton.ShortLong.ShortProgress";
+        public const string VarKeyShortLongLongProgress = "UIButton.ShortLong.LongProgress";
+        public const string VarKeyShortLongIsLong = "UIButton.ShortLong.IsLong";
+        public const string VarKeyShortLongIsLongMax = "UIButton.ShortLong.IsLongMax";
+        public const string VarKeyShortLongLongMaxTime = "UIButton.ShortLong.LongMaxTime";
+
         // ----------------------------------------------------------------
         // フィールド
         // ----------------------------------------------------------------
@@ -145,6 +179,11 @@ namespace Game.UI
         /// <summary>長押し必要時間（秒）</summary>
         float _holdTime = 1.0f;
 
+        /// <summary>Long開始後にLongMaxへ達するまでの追加時間（秒）</summary>
+        float _longMaxTime = 1.0f;
+
+        bool _autoDecideOnLongMax;
+
         /// <summary>Hold中に一定間隔で実行する間隔（秒）</summary>
         float _holdInterval = 0.1f;
 
@@ -162,6 +201,15 @@ namespace Game.UI
 
         /// <summary>Hold中キャンセル時に実行するコマンド</summary>
         readonly VNext.CommandListData _onHoldCancelCommands = new();
+
+        readonly VNext.CommandListData _onGenericStartCommands = new();
+        readonly VNext.CommandListData _onShortStartCommands = new();
+        readonly VNext.CommandListData _onLongStartCommands = new();
+        readonly VNext.CommandListData _onGenericDecisionCommands = new();
+        readonly VNext.CommandListData _onShortDecisionCommands = new();
+        readonly VNext.CommandListData _onLongDecisionCommands = new();
+        readonly VNext.CommandListData _onLongMaxDecisionCommands = new();
+        readonly VNext.CommandListData _onCancelCommands = new();
 
         /// <summary>UIElementState参照</summary>
         IUIElementState? _elementState;
@@ -186,6 +234,10 @@ namespace Game.UI
 
         /// <summary>現在長押し中かどうか</summary>
         bool _isHolding;
+
+        UIButtonShortLongPhase _currentPhase = UIButtonShortLongPhase.Idle;
+        float _shortElapsed;
+        float _longElapsed;
 
         /// <summary>OnHoldDecision コマンド実行中かどうか</summary>
         bool _isHoldDecisionExecuting;
@@ -217,8 +269,8 @@ namespace Game.UI
         /// <summary>長押し経過時間</summary>
         float _holdElapsed;
 
-        /// <summary>コマンド実行用CancellationTokenSource</summary>
-        CancellationTokenSource? _commandCts;
+        /// <summary>サービス寿命に紐づくコマンド用CancellationTokenSource</summary>
+        CancellationTokenSource? _serviceCommandCts;
 
         /// <summary>Hold中の定期実行ループ用CancellationTokenSource</summary>
         CancellationTokenSource? _holdIntervalCts;
@@ -252,6 +304,18 @@ namespace Game.UI
         {
             get => _holdTime;
             set => _holdTime = Mathf.Max(0.01f, value);
+        }
+
+        public float LongMaxTime
+        {
+            get => _longMaxTime;
+            set => _longMaxTime = Mathf.Max(0.01f, value);
+        }
+
+        public bool AutoDecideOnLongMax
+        {
+            get => _autoDecideOnLongMax;
+            set => _autoDecideOnLongMax = value;
         }
 
         public float HoldInterval
@@ -291,6 +355,22 @@ namespace Game.UI
         /// </summary>
         public VNext.CommandListData OnHoldCancelCommands => _onHoldCancelCommands;
 
+        public VNext.CommandListData OnGenericStartCommands => _onGenericStartCommands;
+
+        public VNext.CommandListData OnShortStartCommands => _onShortStartCommands;
+
+        public VNext.CommandListData OnLongStartCommands => _onLongStartCommands;
+
+        public VNext.CommandListData OnGenericDecisionCommands => _onGenericDecisionCommands;
+
+        public VNext.CommandListData OnShortDecisionCommands => _onShortDecisionCommands;
+
+        public VNext.CommandListData OnLongDecisionCommands => _onLongDecisionCommands;
+
+        public VNext.CommandListData OnLongMaxDecisionCommands => _onLongMaxDecisionCommands;
+
+        public VNext.CommandListData OnCancelCommands => _onCancelCommands;
+
         /// <summary>
         /// OnHoldDecision実行中かどうか。
         /// </summary>
@@ -306,7 +386,15 @@ namespace Game.UI
         /// <summary>
         /// 長押し進捗率（0.0～1.0）。
         /// </summary>
-        public float HoldProgress => _holdTime > 0 ? Mathf.Clamp01(_holdElapsed / _holdTime) : 0f;
+        public float HoldProgress => _kind == UIButtonKind.ShortLong ? ShortProgress : (_holdTime > 0 ? Mathf.Clamp01(_holdElapsed / _holdTime) : 0f);
+
+        public UIButtonShortLongPhase CurrentPhase => _currentPhase;
+
+        public float ShortProgress => _holdTime > 0f ? Mathf.Clamp01(_shortElapsed / _holdTime) : 0f;
+
+        public float LongProgress => _longMaxTime > 0f ? Mathf.Clamp01(_longElapsed / _longMaxTime) : 0f;
+
+        public bool IsLongMax => _currentPhase == UIButtonShortLongPhase.LongMax || _currentPhase == UIButtonShortLongPhase.CompletedWaitingRelease;
 
         /// <summary>
         /// Whether to guard selection/navigation while holding (exposed to runtime to allow inspector updates)
@@ -395,6 +483,8 @@ namespace Game.UI
             _kind = options.Kind;
             _canSubmit = options.CanSubmit;
             _holdTime = options.HoldTime;
+            _longMaxTime = Mathf.Max(0.01f, options.LongMaxTime);
+            _autoDecideOnLongMax = options.AutoDecideOnLongMax;
             _holdInterval = Mathf.Max(0.01f, options.HoldInterval);
             _guardSelectionWhileHolding = options.GuardSelectionWhileHolding;
             _guardDuringCommandExecution = options.GuardDuringCommandExecution;
@@ -408,6 +498,14 @@ namespace Game.UI
             _onHoldDecisionCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnHoldDecisionCommands.Commands));
             _onHoldIntervalCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnHoldIntervalCommands.Commands));
             _onHoldCancelCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnHoldCancelCommands.Commands));
+            _onGenericStartCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnGenericStartCommands.Commands));
+            _onShortStartCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnShortStartCommands.Commands));
+            _onLongStartCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnLongStartCommands.Commands));
+            _onGenericDecisionCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnGenericDecisionCommands.Commands));
+            _onShortDecisionCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnShortDecisionCommands.Commands));
+            _onLongDecisionCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnLongDecisionCommands.Commands));
+            _onLongMaxDecisionCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnLongMaxDecisionCommands.Commands));
+            _onCancelCommands.SetCommands(new System.Collections.Generic.List<VNext.ICommandSource>(options.OnCancelCommands.Commands));
 
             // events removed
             PublishTelemetry();
@@ -415,6 +513,9 @@ namespace Game.UI
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            _serviceCommandCts?.Cancel();
+            _serviceCommandCts?.Dispose();
+            _serviceCommandCts = new CancellationTokenSource();
             // ConsumerHubに登録
             _consumerHub?.Register(this);
             // 選択変更を監視してHold中キャンセルを検出
@@ -426,6 +527,11 @@ namespace Game.UI
         }
         public void OnRelease(IScopeNode scope, bool isDestroy)
         {
+            if (_kind == UIButtonKind.Hold && _isHolding)
+                CancelHold();
+            else if (_kind == UIButtonKind.ShortLong && IsShortLongActive())
+                CancelShortLong();
+
             // ConsumerHubから登録解除
             _consumerHub?.Unregister(this);
             // 選択変更監視解除
@@ -440,9 +546,9 @@ namespace Game.UI
 
             StopHoldIntervalLoop();
 
-            _commandCts?.Cancel();
-            _commandCts?.Dispose();
-            _commandCts = null;
+            _serviceCommandCts?.Cancel();
+            _serviceCommandCts?.Dispose();
+            _serviceCommandCts = null;
 
             PublishTelemetry();
         }
@@ -501,7 +607,10 @@ namespace Game.UI
                     // ナビゲーション入力でHoldをキャンセル
                     if (_isHolding && e.Direction.sqrMagnitude > 0.01f)
                     {
-                        CancelHold();
+                        if (_kind == UIButtonKind.Hold)
+                            CancelHold();
+                        else if (_kind == UIButtonKind.ShortLong)
+                            CancelShortLong();
                     }
                     _lastInputAccepted = false;
                     PublishTelemetry();
@@ -514,7 +623,10 @@ namespace Game.UI
                         var delta = e.PointerPosition - _holdStartPosition;
                         if (delta.sqrMagnitude > 100f) // 10px以上移動
                         {
-                            CancelHold();
+                            if (_kind == UIButtonKind.Hold)
+                                CancelHold();
+                            else if (_kind == UIButtonKind.ShortLong)
+                                CancelShortLong();
                         }
                     }
                     _lastInputAccepted = false;
@@ -614,6 +726,7 @@ namespace Game.UI
             _lastSnapshot = new UIButtonTelemetrySnapshot(
                 ownerName: _owner?.Identity?.SelfTransform != null ? _owner.Identity.SelfTransform.name : "(none)",
                 kind: _kind,
+                currentPhase: _currentPhase,
                 triggerAction: _triggerAction,
                 canSubmit: _canSubmit,
                 isSelected: selected,
@@ -624,6 +737,11 @@ namespace Game.UI
                 disableSelectionDuringCommandExecution: _disableSelectionDuringCommandExecution,
                 isHolding: _isHolding,
                 holdProgress: HoldProgress,
+                shortProgress: ShortProgress,
+                longProgress: LongProgress,
+                isLongMax: IsLongMax,
+                longMaxTime: _longMaxTime,
+                autoDecideOnLongMax: _autoDecideOnLongMax,
                 isHoldDecisionExecuting: _isHoldDecisionExecuting,
                 isSubmitUpExecuting: _isSubmitUpExecuting,
                 lastInputEventType: _lastInputEventType,
@@ -648,37 +766,33 @@ namespace Game.UI
         /// </summary>
         bool HandleTriggerDown(in UIInputEvent e)
         {
-            // OnSubmitDownCommands実行
-            ExecuteCommands(_onSubmitDownCommands, createHoldVariables: _kind == UIButtonKind.Hold).Forget();
-
-            // Capture values to avoid capturing the 'in' parameter inside lambda
             var pointerPosition = e.PointerPosition;
-
-            if (_kind == UIButtonKind.Hold)
+            switch (_kind)
             {
-                // 長押し開始
-                _isHolding = true;
-                _holdStartPosition = pointerPosition;
-                _holdElapsed = 0f;
+                case UIButtonKind.Instant:
+                    ExecuteCommands(_onSubmitDownCommands, UIButtonCommandVariableMode.None).Forget();
+                    return true;
 
-                StartHoldIntervalLoop();
+                case UIButtonKind.Hold:
+                    ExecuteCommands(_onSubmitDownCommands, UIButtonCommandVariableMode.Hold).Forget();
+                    _isHolding = true;
+                    _holdStartPosition = pointerPosition;
+                    _holdElapsed = 0f;
+                    _shortElapsed = 0f;
+                    _longElapsed = 0f;
+                    _currentPhase = UIButtonShortLongPhase.Idle;
+                    StartHoldIntervalLoop();
+                    AcquireSelectionBlockIfNeeded();
+                    return true;
 
-                // If configured, acquire a selection block to prevent other UI selection/navigation while holding
-                if (_guardSelectionWhileHolding && _selectionBlockService != null)
-                {
-                    try
-                    {
-                        _selectionBlockHandle = _selectionBlockService.AcquireBlock(this, UISelectionBlockMask.Navigation | UISelectionBlockMask.Pointer);
-                    }
-                    catch
-                    {
-                        // best-effort: ignore failures
-                        _selectionBlockHandle = null;
-                    }
-                }
+                case UIButtonKind.ShortLong:
+                    BeginShortLongPress(pointerPosition);
+                    ExecuteShortLongStartCommands(CaptureShortLongSnapshot()).Forget();
+                    return true;
+
+                default:
+                    return false;
             }
-
-            return true;
         }
 
         /// <summary>
@@ -686,28 +800,30 @@ namespace Game.UI
         /// </summary>
         bool HandleTriggerHeld(in UIInputEvent e)
         {
-            if (_kind != UIButtonKind.Hold) return false;
-            if (!_isHolding) return false;
-
-            // 経過時間を加算
-            _holdElapsed += e.DeltaTime;
-
-            // 長押し完了チェック
-            if (_holdElapsed >= _holdTime)
+            switch (_kind)
             {
-                // 成功
-                _isHolding = false;
-                StopHoldIntervalLoop();
-                // Release selection block if any
-                try { _selectionBlockHandle?.Dispose(); } catch { }
-                _selectionBlockHandle = null;
-                // HoldDecision があればそれを、なければ互換のため OnSubmitUp を使う
-                var decisionCommands = _onHoldDecisionCommands.Count > 0 ? _onHoldDecisionCommands : _onSubmitUpCommands;
-                ExecuteHoldDecisionCommands(decisionCommands).Forget();
+                case UIButtonKind.Hold:
+                    if (!_isHolding)
+                        return false;
 
+                    _holdElapsed += e.DeltaTime;
+                    if (_holdElapsed >= _holdTime)
+                    {
+                        _holdElapsed = _holdTime;
+                        _isHolding = false;
+                        StopHoldIntervalLoop();
+                        ReleaseSelectionBlock();
+                        var decisionCommands = _onHoldDecisionCommands.Count > 0 ? _onHoldDecisionCommands : _onSubmitUpCommands;
+                        ExecuteHoldDecisionCommands(decisionCommands).Forget();
+                    }
+                    return true;
+
+                case UIButtonKind.ShortLong:
+                    return HandleShortLongHeld(e.DeltaTime);
+
+                default:
+                    return false;
             }
-
-            return true;
         }
 
         /// <summary>
@@ -715,20 +831,22 @@ namespace Game.UI
         /// </summary>
         bool HandleTriggerUp(in UIInputEvent e)
         {
-            if (_kind == UIButtonKind.Hold)
+            switch (_kind)
             {
-                // Holdボタンの場合、タイマー完了前のUpはキャンセル扱い
-                if (_isHolding)
-                {
-                    CancelHold();
-                }
-                return true;
-            }
-            else
-            {
-                // Instantボタンの場合、OnSubmitUpCommands実行
-                ExecuteSubmitUpCommands(_onSubmitUpCommands).Forget();
-                return true;
+                case UIButtonKind.Hold:
+                    if (_isHolding)
+                        CancelHold();
+                    return true;
+
+                case UIButtonKind.ShortLong:
+                    return HandleShortLongUp();
+
+                case UIButtonKind.Instant:
+                    ExecuteSubmitUpCommands(_onSubmitUpCommands).Forget();
+                    return true;
+
+                default:
+                    return false;
             }
         }
 
@@ -748,11 +866,21 @@ namespace Game.UI
             _isHolding = false;
             _holdElapsed = 0f;
             StopHoldIntervalLoop();
-            // Release selection block if any
-            try { _selectionBlockHandle?.Dispose(); } catch { }
-            _selectionBlockHandle = null;
-            // OnHoldCancelCommands実行
-            ExecuteCommands(_onHoldCancelCommands, createHoldVariables: true, forcedHoldProgress: progress).Forget();
+            ReleaseSelectionBlock();
+            ExecuteCommands(_onHoldCancelCommands, UIButtonCommandVariableMode.Hold, forcedHoldProgress: progress).Forget();
+        }
+
+        void CancelShortLong()
+        {
+            if (!IsShortLongActive())
+                return;
+
+            var snapshot = CaptureShortLongSnapshot();
+            _isHolding = false;
+            _holdElapsed = 0f;
+            ReleaseSelectionBlock();
+            ResetShortLongPhase(UIButtonShortLongPhase.Idle);
+            ExecuteCommands(_onCancelCommands, UIButtonCommandVariableMode.ShortLong, shortLongSnapshot: snapshot).Forget();
         }
 
         /// <summary>
@@ -761,10 +889,201 @@ namespace Game.UI
         /// </summary>
         void HandleSelectionChanged(IScopeNode? newSelection)
         {
-            if (_isHolding && !ReferenceEquals(newSelection, _owner))
-            {
+            if (ReferenceEquals(newSelection, _owner))
+                return;
+
+            if (_kind == UIButtonKind.Hold && _isHolding)
                 CancelHold();
+            else if (_kind == UIButtonKind.ShortLong && IsShortLongActive())
+                CancelShortLong();
+        }
+
+        void BeginShortLongPress(Vector2 pointerPosition)
+        {
+            _isHolding = true;
+            _holdStartPosition = pointerPosition;
+            _holdElapsed = 0f;
+            _shortElapsed = 0f;
+            _longElapsed = 0f;
+            ResetShortLongPhase(UIButtonShortLongPhase.Short);
+            AcquireSelectionBlockIfNeeded();
+        }
+
+        bool HandleShortLongHeld(float deltaTime)
+        {
+            if (_currentPhase == UIButtonShortLongPhase.CompletedWaitingRelease)
+                return true;
+            if (!IsShortLongActive())
+                return false;
+
+            if (_currentPhase == UIButtonShortLongPhase.Short)
+            {
+                _shortElapsed += deltaTime;
+                _holdElapsed = _shortElapsed;
+                if (_shortElapsed >= _holdTime)
+                {
+                    var overflow = _shortElapsed - _holdTime;
+                    _shortElapsed = _holdTime;
+                    ResetShortLongPhase(UIButtonShortLongPhase.Long);
+                    _longElapsed = Mathf.Max(0f, overflow);
+                    ExecuteCommands(_onLongStartCommands, UIButtonCommandVariableMode.ShortLong, shortLongSnapshot: CaptureShortLongSnapshot()).Forget();
+                }
             }
+            else if (_currentPhase == UIButtonShortLongPhase.Long || _currentPhase == UIButtonShortLongPhase.LongMax)
+            {
+                _longElapsed += deltaTime;
+            }
+
+            if (_currentPhase == UIButtonShortLongPhase.Long && _longElapsed >= _longMaxTime)
+            {
+                _longElapsed = _longMaxTime;
+                ResetShortLongPhase(UIButtonShortLongPhase.LongMax);
+                if (_autoDecideOnLongMax)
+                    AutoDecideShortLongAtLongMax();
+            }
+            else if (_currentPhase == UIButtonShortLongPhase.LongMax && _longElapsed > _longMaxTime)
+            {
+                _longElapsed = _longMaxTime;
+            }
+
+            return true;
+        }
+
+        bool HandleShortLongUp()
+        {
+            if (_currentPhase == UIButtonShortLongPhase.CompletedWaitingRelease)
+            {
+                ResetShortLongPhase(UIButtonShortLongPhase.Idle);
+                _shortElapsed = 0f;
+                _longElapsed = 0f;
+                return true;
+            }
+
+            if (!IsShortLongActive())
+                return false;
+
+            var decisionPhase = _currentPhase == UIButtonShortLongPhase.LongMax
+                ? UIButtonShortLongPhase.LongMax
+                : _currentPhase == UIButtonShortLongPhase.Long
+                    ? UIButtonShortLongPhase.Long
+                    : UIButtonShortLongPhase.Short;
+
+            CompleteShortLongDecision(decisionPhase);
+            return true;
+        }
+
+        void CompleteShortLongDecision(UIButtonShortLongPhase decisionPhase)
+        {
+            var snapshot = CaptureShortLongSnapshot(decisionPhase);
+            _isHolding = false;
+            _holdElapsed = 0f;
+            ReleaseSelectionBlock();
+            ResetShortLongPhase(UIButtonShortLongPhase.Idle);
+            _shortElapsed = 0f;
+            _longElapsed = 0f;
+
+            var specificCommands = decisionPhase switch
+            {
+                UIButtonShortLongPhase.Short => _onShortDecisionCommands,
+                UIButtonShortLongPhase.LongMax => _onLongMaxDecisionCommands,
+                _ => _onLongDecisionCommands,
+            };
+
+            ExecuteShortLongDecisionCommands(specificCommands, snapshot).Forget();
+        }
+
+        void AutoDecideShortLongAtLongMax()
+        {
+            var snapshot = CaptureShortLongSnapshot(UIButtonShortLongPhase.LongMax);
+            _isHolding = false;
+            _holdElapsed = 0f;
+            ReleaseSelectionBlock();
+            ResetShortLongPhase(UIButtonShortLongPhase.CompletedWaitingRelease);
+            _shortElapsed = _holdTime;
+            _longElapsed = _longMaxTime;
+            ExecuteShortLongDecisionCommands(_onLongMaxDecisionCommands, snapshot).Forget();
+        }
+
+        bool IsShortLongActive()
+        {
+            return _currentPhase == UIButtonShortLongPhase.Short ||
+                _currentPhase == UIButtonShortLongPhase.Long ||
+                _currentPhase == UIButtonShortLongPhase.LongMax;
+        }
+
+        void ResetShortLongPhase(UIButtonShortLongPhase phase)
+        {
+            _currentPhase = phase;
+        }
+
+        void AcquireSelectionBlockIfNeeded()
+        {
+            if (!_guardSelectionWhileHolding || _selectionBlockService == null)
+                return;
+
+            try
+            {
+                _selectionBlockHandle = _selectionBlockService.AcquireBlock(this, UISelectionBlockMask.Navigation | UISelectionBlockMask.Pointer);
+            }
+            catch
+            {
+                _selectionBlockHandle = null;
+            }
+        }
+
+        void ReleaseSelectionBlock()
+        {
+            try { _selectionBlockHandle?.Dispose(); } catch { }
+            _selectionBlockHandle = null;
+        }
+
+        enum UIButtonCommandVariableMode
+        {
+            None = 0,
+            Hold = 10,
+            ShortLong = 20,
+        }
+
+        readonly struct UIButtonShortLongCommandSnapshot
+        {
+            public readonly UIButtonShortLongPhase Phase;
+            public readonly float ShortProgress;
+            public readonly float LongProgress;
+            public readonly bool IsLong;
+            public readonly bool IsLongMax;
+            public readonly float LongMaxTime;
+
+            public UIButtonShortLongCommandSnapshot(
+                UIButtonShortLongPhase phase,
+                float shortProgress,
+                float longProgress,
+                bool isLong,
+                bool isLongMax,
+                float longMaxTime)
+            {
+                Phase = phase;
+                ShortProgress = shortProgress;
+                LongProgress = longProgress;
+                IsLong = isLong;
+                IsLongMax = isLongMax;
+                LongMaxTime = longMaxTime;
+            }
+        }
+
+        UIButtonShortLongCommandSnapshot CaptureShortLongSnapshot(UIButtonShortLongPhase? forcedPhase = null)
+        {
+            var phase = forcedPhase ?? _currentPhase;
+            var shortProgress = _holdTime > 0f ? Mathf.Clamp01(_shortElapsed / _holdTime) : 0f;
+            var longProgress = _longMaxTime > 0f ? Mathf.Clamp01(_longElapsed / _longMaxTime) : 0f;
+            var isLong = phase == UIButtonShortLongPhase.Long || phase == UIButtonShortLongPhase.LongMax;
+            var isLongMax = phase == UIButtonShortLongPhase.LongMax;
+            return new UIButtonShortLongCommandSnapshot(
+                phase,
+                shortProgress,
+                longProgress,
+                isLong,
+                isLongMax,
+                _longMaxTime);
         }
 
         // ----------------------------------------------------------------
@@ -808,10 +1127,8 @@ namespace Game.UI
                 if (_onHoldIntervalCommands.Count == 0) continue;
 
                 var variables = new VarStore();
-                if (VarIdResolver.TryResolve(VarKeyHoldTime, out var varId) && varId != 0)
-                    variables.TrySetVariant(varId, DynamicVariant.FromFloat(_holdTime));
-                if (VarIdResolver.TryResolve(VarKeyHoldProgress, out varId) && varId != 0)
-                    variables.TrySetVariant(varId, DynamicVariant.FromFloat(HoldProgress));
+                variables.TrySetVariant(VarIds.GameLib.UI.Button.HoldTime, DynamicVariant.FromFloat(_holdTime));
+                variables.TrySetVariant(VarIds.GameLib.UI.Button.HoldProgress, DynamicVariant.FromFloat(HoldProgress));
 
                 var options = VNext.CommandRunOptions.Default;
                 var ctx = new VNext.CommandContext(_owner, variables, _commandRunner, _owner, options);
@@ -830,37 +1147,34 @@ namespace Game.UI
         /// <summary>
         /// コマンドを実行する。
         /// </summary>
-        async UniTaskVoid ExecuteCommands(VNext.CommandListData commands, bool createHoldVariables, float? forcedHoldProgress = null)
+        async UniTaskVoid ExecuteCommands(
+            VNext.CommandListData commands,
+            UIButtonCommandVariableMode variableMode,
+            float? forcedHoldProgress = null,
+            UIButtonShortLongCommandSnapshot? shortLongSnapshot = null)
         {
-            await ExecuteCommandsAsync(commands, createHoldVariables, forcedHoldProgress);
+            await ExecuteCommandsAsync(commands, variableMode, forcedHoldProgress, shortLongSnapshot);
         }
 
-        async UniTask ExecuteCommandsAsync(VNext.CommandListData commands, bool createHoldVariables, float? forcedHoldProgress = null)
+        async UniTask ExecuteCommandsAsync(
+            VNext.CommandListData commands,
+            UIButtonCommandVariableMode variableMode,
+            float? forcedHoldProgress = null,
+            UIButtonShortLongCommandSnapshot? shortLongSnapshot = null)
         {
             if (_commandRunner == null) return;
             if (commands.Count == 0) return;
 
-            // 既存の実行をキャンセル
-            _commandCts?.Cancel();
-            _commandCts?.Dispose();
-            _commandCts = new CancellationTokenSource();
-
             // Vars作成
-            var variables = new VarStore();
-            if (createHoldVariables)
-            {
-                if (VarIdResolver.TryResolve(VarKeyHoldTime, out var varId) && varId != 0)
-                    variables.TrySetVariant(varId, DynamicVariant.FromFloat(_holdTime));
-                if (VarIdResolver.TryResolve(VarKeyHoldProgress, out varId) && varId != 0)
-                    variables.TrySetVariant(varId, DynamicVariant.FromFloat(forcedHoldProgress ?? HoldProgress));
-            }
+            var variables = BuildCommandVariables(variableMode, forcedHoldProgress, shortLongSnapshot);
 
             var options = VNext.CommandRunOptions.Default;
             var ctx = new VNext.CommandContext(_owner, variables, _commandRunner, _owner, options);
+            var ct = _serviceCommandCts?.Token ?? CancellationToken.None;
 
             try
             {
-                var result = await _commandRunner.ExecuteListAsync(commands, ctx, _commandCts.Token, options);
+                var result = await _commandRunner.ExecuteListAsync(commands, ctx, ct, options);
                 if (result.Status == VNext.CommandRunStatus.Error)
                 {
                     Debug.LogError($"[UIButtonService] Command execution failed: {result.Message}");
@@ -869,6 +1183,70 @@ namespace Game.UI
             catch (OperationCanceledException)
             {
                 // キャンセルは正常終了
+            }
+        }
+
+        VarStore BuildCommandVariables(
+            UIButtonCommandVariableMode variableMode,
+            float? forcedHoldProgress,
+            UIButtonShortLongCommandSnapshot? shortLongSnapshot)
+        {
+            var variables = new VarStore();
+            switch (variableMode)
+            {
+                case UIButtonCommandVariableMode.Hold:
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.HoldTime, DynamicVariant.FromFloat(_holdTime));
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.HoldProgress, DynamicVariant.FromFloat(forcedHoldProgress ?? HoldProgress));
+                    break;
+
+                case UIButtonCommandVariableMode.ShortLong:
+                    var snapshot = shortLongSnapshot ?? CaptureShortLongSnapshot();
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.HoldTime, DynamicVariant.FromFloat(_holdTime));
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.HoldProgress, DynamicVariant.FromFloat(snapshot.ShortProgress));
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.ShortLong.State, DynamicVariant.FromInt((int)snapshot.Phase));
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.ShortLong.ShortProgress, DynamicVariant.FromFloat(snapshot.ShortProgress));
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.ShortLong.LongProgress, DynamicVariant.FromFloat(snapshot.LongProgress));
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.ShortLong.IsLong, DynamicVariant.FromBool(snapshot.IsLong));
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.ShortLong.IsLongMax, DynamicVariant.FromBool(snapshot.IsLongMax));
+                    variables.TrySetVariant(VarIds.GameLib.UI.Button.ShortLong.LongMaxTime, DynamicVariant.FromFloat(snapshot.LongMaxTime));
+                    break;
+            }
+
+            return variables;
+        }
+
+        async UniTaskVoid ExecuteShortLongStartCommands(UIButtonShortLongCommandSnapshot snapshot)
+        {
+            await ExecuteCommandsAsync(_onGenericStartCommands, UIButtonCommandVariableMode.ShortLong, shortLongSnapshot: snapshot);
+            await ExecuteCommandsAsync(_onShortStartCommands, UIButtonCommandVariableMode.ShortLong, shortLongSnapshot: snapshot);
+        }
+
+        async UniTaskVoid ExecuteShortLongDecisionCommands(
+            VNext.CommandListData specificCommands,
+            UIButtonShortLongCommandSnapshot snapshot)
+        {
+            _isSubmitUpExecuting = true;
+
+            IUIElementStateController? stateController = null;
+            if (_guardDuringCommandExecution &&
+                _disableSelectionDuringCommandExecution &&
+                _elementState is IUIElementStateController controller)
+            {
+                stateController = controller;
+                stateController.SetActive(false);
+            }
+
+            try
+            {
+                await ExecuteCommandsAsync(_onGenericDecisionCommands, UIButtonCommandVariableMode.ShortLong, shortLongSnapshot: snapshot);
+                await ExecuteCommandsAsync(specificCommands, UIButtonCommandVariableMode.ShortLong, shortLongSnapshot: snapshot);
+            }
+            finally
+            {
+                if (stateController != null)
+                    stateController.SetActive(true);
+
+                _isSubmitUpExecuting = false;
             }
         }
 
@@ -893,7 +1271,7 @@ namespace Game.UI
 
             try
             {
-                await ExecuteCommandsAsync(commands, createHoldVariables: true, forcedHoldProgress: 1f);
+                await ExecuteCommandsAsync(commands, UIButtonCommandVariableMode.Hold, forcedHoldProgress: 1f);
             }
             finally
             {
@@ -927,7 +1305,7 @@ namespace Game.UI
 
             try
             {
-                await ExecuteCommandsAsync(commands, createHoldVariables: false, forcedHoldProgress: null);
+                await ExecuteCommandsAsync(commands, UIButtonCommandVariableMode.None);
             }
             finally
             {

@@ -1041,6 +1041,86 @@ MonoBehaviour:
     varId: 113
     stableKey: traitInstanceRef
     aliases: []
+  - id: ea23671d6ebf4e7e8404197464a7aa6e
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: Button
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: c6e05408598d472d81107a0a1f79662b
+    parentId: ea23671d6ebf4e7e8404197464a7aa6e
+    name: HoldTime
+    isFolder: 0
+    description: 
+    varId: 101083
+    stableKey: HoldTime
+    aliases: []
+  - id: d27af97ea36343f79a9e699a254a3127
+    parentId: ea23671d6ebf4e7e8404197464a7aa6e
+    name: HoldProgress
+    isFolder: 0
+    description: 
+    varId: 101084
+    stableKey: HoldProgress
+    aliases: []
+  - id: 0b5e989b21cf497cab37add923ff4eb8
+    parentId: ea23671d6ebf4e7e8404197464a7aa6e
+    name: ShortLong
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 2053ce5a10874ba5b82199f2748183e1
+    parentId: 0b5e989b21cf497cab37add923ff4eb8
+    name: State
+    isFolder: 0
+    description: 
+    varId: 101085
+    stableKey: UIButton.ShortLong.State
+    aliases: []
+  - id: dbb779f07aed41b9aee1dc37d8d88210
+    parentId: 0b5e989b21cf497cab37add923ff4eb8
+    name: ShortProgress
+    isFolder: 0
+    description: 
+    varId: 101086
+    stableKey: UIButton.ShortLong.ShortProgress
+    aliases: []
+  - id: fb0a7a1e40844c828b235586aa9c12da
+    parentId: 0b5e989b21cf497cab37add923ff4eb8
+    name: LongProgress
+    isFolder: 0
+    description: 
+    varId: 101087
+    stableKey: UIButton.ShortLong.LongProgress
+    aliases: []
+  - id: 10b369ef9a5946f58a4ff2a0bf7be266
+    parentId: 0b5e989b21cf497cab37add923ff4eb8
+    name: IsLong
+    isFolder: 0
+    description: 
+    varId: 101088
+    stableKey: UIButton.ShortLong.IsLong
+    aliases: []
+  - id: fb27a3224ff04b9994db6e9b93c63665
+    parentId: 0b5e989b21cf497cab37add923ff4eb8
+    name: IsLongMax
+    isFolder: 0
+    description: 
+    varId: 101089
+    stableKey: UIButton.ShortLong.IsLongMax
+    aliases: []
+  - id: 80a36ddbb4164ad1b673c8fd0c339981
+    parentId: 0b5e989b21cf497cab37add923ff4eb8
+    name: LongMaxTime
+    isFolder: 0
+    description: 
+    varId: 101090
+    stableKey: UIButton.ShortLong.LongMaxTime
+    aliases: []
   - id: 90c702afc4a64b5b91031b932d15922c
     parentId: e0f6c3da1e84498180c2a3814492a0bf
     name: nameKey
@@ -3463,7 +3543,7 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
-  nextVarId: 101083
+  nextVarId: 101091
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

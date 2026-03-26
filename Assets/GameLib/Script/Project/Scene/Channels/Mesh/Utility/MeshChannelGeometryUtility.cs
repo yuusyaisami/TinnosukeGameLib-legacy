@@ -177,8 +177,11 @@ namespace Game.Channel
             int frameIndex,
             int lastSyncFrame)
         {
-            if (frameIndex - lastSyncFrame < Mathf.Max(1, settings.UpdateIntervalFrames))
+            if (lastSyncFrame != int.MinValue &&
+                (long)frameIndex - lastSyncFrame < Mathf.Max(1, settings.UpdateIntervalFrames))
+            {
                 return false;
+            }
 
             if (lastPaths == null || lastPaths.Count != nextPaths.Count)
                 return true;

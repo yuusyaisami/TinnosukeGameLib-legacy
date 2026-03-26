@@ -243,11 +243,19 @@ MonoBehaviour:
       requireActive: 0
       searchScope: 0
     UnityObject: {fileID: 0}
-    SharedTag: 
+    Shared:
+      rid: -2
     ContextSlot: 0
+    TargetChannel:
+      rid: -2
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &5048208680146602564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -517,7 +525,6 @@ MonoBehaviour:
       _debugAssetPath: 
       _functionName: 
       _commands:
-      - rid: 5619052465085481768
       - rid: 5619052465085481211
       - rid: 5619052465085481215
       - rid: 5619052465085481300
@@ -890,8 +897,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052465085481243
@@ -921,8 +931,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
         Target:
           Kind: 0
           Identity:
@@ -932,8 +945,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
         VarOps:
         - Target: 1
           Key:
@@ -944,6 +960,33 @@ MonoBehaviour:
             _source:
               rid: 5619052465085481307
         ScalarOps: []
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
     - rid: 5619052465085481307
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -963,8 +1006,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052465085481746
@@ -1144,130 +1190,6 @@ MonoBehaviour:
         fallbackInitialValue:
           _source:
             rid: -2
-    - rid: 5619052465085481768
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052465085481770
-    - rid: 5619052465085481770
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: Show
-        Message: "\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u30D1\u30CD\u30EB\u306E\u8981\u7D20\u8A2D\u5B9A\u3092\u884C\u3044\u307E\u3057\u305F\u3002(Text1:
-          $ {NailUpgradePriceMul * Price|effect=color_if|cond=MoneyValue >= NailUpgradePriceMul
-          * Price|trueColor=\"#00FF00\"|falseColor=\"#FF0000\"})(Text2"
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 0
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches:
-        - Label: NailUpgradePriceMul
-          Value:
-            _source:
-              rid: 5619052465085481817
-          IncludeSourceInfo: 1
-        - Label: Price
-          Value:
-            _source:
-              rid: 5619052465085481820
-          IncludeSourceInfo: 1
-        - Label: 
-          Value:
-            _source:
-              rid: 5619052465085481865
-          IncludeSourceInfo: 1
-        - Label: MoneyValue
-          Value:
-            _source:
-              rid: 5619052465085481823
-          IncludeSourceInfo: 1
-        - Label: StatusEffectStackDescription
-          Value:
-            _source:
-              rid: 5619052465085481833
-          IncludeSourceInfo: 1
-        - Label: Definition
-          Value:
-            _source:
-              rid: 5619052465085481855
-          IncludeSourceInfo: 1
-        - Label: Stack
-          Value:
-            _source:
-              rid: 5619052465085481858
-          IncludeSourceInfo: 1
-    - rid: 5619052465085481817
-      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: 617272028
-          Name: GameLogic.GameProfile.Base.NailUpgradePriceMul
-        targetActorSource:
-          Kind: 5
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 100
-        createIfMissing: 0
-        baselineValue: 0
-    - rid: 5619052465085481820
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101017
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
-    - rid: 5619052465085481823
-      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: 160700043
-          Name: GameLogic.GameProfile.Base.MoneyValue
-        targetActorSource:
-          Kind: 5
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 100
-        createIfMissing: 0
-        baselineValue: 0
     - rid: 5619052465085481826
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1284,281 +1206,6 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052465085481833
-      type: {class: StatusEffectStackDescriptionSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        Definition:
-          _source:
-            rid: 5619052465085481844
-        StackPreset:
-          _source:
-            rid: 5619052465085481845
-          _defaultValue:
-            IgnoreIfExisting: 0
-            ApplyIntensity: 0
-            Intensity:
-              Operation: 20
-              LocalValue:
-                _source:
-                  rid: 5619052465085481846
-                _defaultValue: 0
-              UseGlobalValue: 0
-              GlobalValue:
-                _source:
-                  rid: 5619052465085481847
-                _defaultValue: 0
-              IgnoreGlobalWhenMinusOne: 0
-            ApplyDuration: 1
-            Duration:
-              Operation: 10
-              LocalValue:
-                _source:
-                  rid: 5619052465085481848
-                _defaultValue: 0
-              UseGlobalValue: 0
-              GlobalValue:
-                _source:
-                  rid: 5619052465085481849
-                _defaultValue: 0
-              IgnoreGlobalWhenMinusOne: 1
-            ApplyCurrentCount: 0
-            CurrentCount:
-              Operation: 20
-              LocalValue:
-                _source:
-                  rid: 5619052465085481850
-                _defaultValue: 0
-              UseGlobalValue: 0
-              GlobalValue:
-                _source:
-                  rid: 5619052465085481851
-                _defaultValue: 0
-              IgnoreGlobalWhenMinusOne: 0
-            ApplyMaxCount: 0
-            MaxCount:
-              Operation: 20
-              LocalValue:
-                _source:
-                  rid: 5619052465085481852
-                _defaultValue: 0
-              UseGlobalValue: 0
-              GlobalValue:
-                _source:
-                  rid: 5619052465085481853
-                _defaultValue: 0
-              IgnoreGlobalWhenMinusOne: 0
-    - rid: 5619052465085481844
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101048
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
-    - rid: 5619052465085481845
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101048
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
-    - rid: 5619052465085481846
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481847
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481848
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481849
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481850
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481851
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481852
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481853
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481855
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101048
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
-    - rid: 5619052465085481858
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101048
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
-    - rid: 5619052465085481865
-      type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        _sourceMode: 0
-        _refKey:
-          _source:
-            rid: -2
-          _defaultValue: 
-        _allowImplicitKeys: 1
-        _variables:
-        - _value:
-            _source:
-              rid: 5619052465085481866
-          _useScalarLeafKey: 1
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        - _value:
-            _source:
-              rid: 5619052465085481867
-          _useScalarLeafKey: 0
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        - _value:
-            _source:
-              rid: 5619052465085481868
-          _useScalarLeafKey: 1
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        _template: $ {NailUpgradePriceMul * Price|effect=color_if|cond=MoneyValue
-          >= NailUpgradePriceMul * Price|trueColor="#00FF00"|falseColor="#FF0000"}
-    - rid: 5619052465085481866
-      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: 617272028
-          Name: GameLogic.GameProfile.Base.NailUpgradePriceMul
-        targetActorSource:
-          Kind: 5
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 100
-        createIfMissing: 0
-        baselineValue: 0
-    - rid: 5619052465085481867
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101017
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
-    - rid: 5619052465085481868
-      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: 160700043
-          Name: GameLogic.GameProfile.Base.MoneyValue
-        targetActorSource:
-          Kind: 5
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          SharedTag: 
-          ContextSlot: 100
-        createIfMissing: 0
-        baselineValue: 0
 --- !u!114 &7436875465967711475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1655,7 +1302,8 @@ MonoBehaviour:
     _debugFieldPath: 
     _debugAssetPath: 
     _functionName: 
-    _commands: []
+    _commands:
+    - rid: 5619052575314673869
   runDespawnOnEnd: 0
   despawnOnEndCommands:
     _debugOwner: {fileID: 0}
@@ -1693,8 +1341,72 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: Parent
+          Shared:
+            rid: 5619052575314673977
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
+    - rid: 5619052575314673869
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052575314673870
+    - rid: 5619052575314673870
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: "UpgradePanel\u524A\u9664"
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
+    - rid: 5619052575314673977
+      type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        SharedTag: Parent
+        SharedHubActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
 --- !u!114 &4105534307656006857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1720,8 +1432,11 @@ MonoBehaviour:
         requireActive: 0
         searchScope: 0
       UnityObject: {fileID: 0}
-      SharedTag: 
+      Shared:
+        rid: -2
       ContextSlot: 0
+      TargetChannel:
+        rid: -2
     Condition:
       _source:
         rid: 5619052465085481329
@@ -1739,8 +1454,11 @@ MonoBehaviour:
           requireActive: 0
           searchScope: 0
         UnityObject: {fileID: 0}
-        SharedTag: 
+        Shared:
+          rid: -2
         ContextSlot: 0
+        TargetChannel:
+          rid: -2
       ValueChangeMode: 0
       VarStoreVarId: 0
       BlackboardVarId: 0
@@ -1760,8 +1478,11 @@ MonoBehaviour:
           requireActive: 0
           searchScope: 0
         UnityObject: {fileID: 0}
-        SharedTag: 
+        Shared:
+          rid: -2
         ContextSlot: 0
+        TargetChannel:
+          rid: -2
       ValueChangeMode: 0
       VarStoreVarId: 0
       BlackboardVarId: 101017
@@ -2071,8 +1792,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052465085481364
@@ -2099,8 +1823,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
 --- !u!114 &3900731220571847115

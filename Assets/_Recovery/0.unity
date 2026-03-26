@@ -1355,8 +1355,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 298.4, y: 95.5}
-  m_SizeDelta: {x: 120.14, y: 35.27}
+  m_AnchoredPosition: {x: 298.4, y: 96.3}
+  m_SizeDelta: {x: 120.14, y: 47.58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &127184675
 MonoBehaviour:
@@ -2147,15 +2147,7 @@ MonoBehaviour:
       _commands:
       - rid: 5619052416848363976
       - rid: 5619052416848363968
-  - Tag: ClearBall
-    Commands:
-      _debugOwner: {fileID: 0}
-      _debugFieldPath: 
-      _debugAssetPath: 
-      _functionName: 
-      _commands:
-      - rid: 5619052580083597661
-      - rid: 5619052580083597666
+      - rid: 5619052451121070293
   references:
     version: 2
     RefIds:
@@ -2254,7 +2246,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Target:
-          Kind: 0
+          Kind: 5
           Identity:
             kind: 0
             id: 
@@ -2316,7 +2308,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: Round(Random(0, MaxBall-1))
+        _expression: Random(0, MaxBall)
     - rid: 5619052416848363980
       type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2463,7 +2455,7 @@ MonoBehaviour:
           _source:
             rid: 5619052416848364000
           _defaultValue: 0
-        TransformParentPolicy: 2
+        TransformParentPolicy: 0
         TransformParent: {fileID: 0}
         TransformParentActorSource:
           Kind: 0
@@ -2605,7 +2597,7 @@ MonoBehaviour:
           _source:
             rid: 5619052416848364012
           _defaultValue: 0
-        TransformParentPolicy: 2
+        TransformParentPolicy: 0
         TransformParent: {fileID: 0}
         TransformParentActorSource:
           Kind: 0
@@ -2703,16 +2695,23 @@ MonoBehaviour:
         usePooling: 1
         category: Runtime
         templateId: 
-    - rid: 5619052580083597661
+    - rid: 5619052451121070293
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         enabled: 1
         data:
-          rid: 5619052580083597662
-    - rid: 5619052580083597662
-      type: {class: WithActorDescendantRouterCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+          rid: 5619052451121070294
+    - rid: 5619052451121070294
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
-        ActorSource:
+        Label: CommandDebug
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
           Kind: 0
           Identity:
             kind: 0
@@ -2726,95 +2725,50 @@ MonoBehaviour:
           ContextSlot: 0
           TargetChannel:
             rid: -2
-        VarsPolicy: 0
-        ExecutionScope: 2
-        FilterMode: 0
-        DescendantFilter:
-          Kind: 3
-          Identity:
-            kind: 9
-            id: BallRuntime
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        Common:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        OnMatched:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands:
-          - rid: 5619052580083597663
-        OnUnmatched:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-    - rid: 5619052580083597663
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches:
+        - Label: 
+          Value:
+            _source:
+              rid: 5619052451121070295
+          IncludeSourceInfo: 1
+        - Label: 
+          Value:
+            _source:
+              rid: 5619052451121070296
+          IncludeSourceInfo: 1
+        - Label: 
+          Value:
+            _source:
+              rid: 5619052451121070306
+          IncludeSourceInfo: 1
+    - rid: 5619052451121070295
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        enabled: 1
-        data:
-          rid: 5619052580083597664
-    - rid: 5619052580083597664
-      type: {class: SelfDespawnCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        DelaySeconds:
+        blackboardId: 226
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
           _source:
-            rid: 5619052580083597665
-          _defaultValue: 0
-        BeforeDespawnCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        OnReacquireCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-    - rid: 5619052580083597665
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052580083597666
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052580083597667
-    - rid: 5619052580083597667
-      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Source:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
             rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        Target:
+    - rid: 5619052451121070296
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 590335990
+          Name: GameLogic.GameProfile.Base.MaxBall
+        targetActorSource:
           Kind: 5
           Identity:
             kind: 0
@@ -2825,68 +2779,46 @@ MonoBehaviour:
           UnityObject: {fileID: 0}
           Shared:
             rid: -2
-          ContextSlot: 0
+          ContextSlot: 100
           TargetChannel:
             rid: -2
-        VarOps: []
-        ScalarOps:
-        - Op: 6
-          Key:
-            Id: 1866400761
-            Name: GameLogic.GameProfile.Base.BallCount
-          Layer: 
-          MulPhase: 1
-          Value:
-            _source:
-              rid: 5619052580083597668
-            _defaultValue: 0
-          DurationSeconds:
-            _source:
-              rid: 5619052580083597670
-            _defaultValue: 0
-          Tag: 
-          StoreHandleVar:
-            stableKey: 
-            varId: 0
-          HandleVar:
-            stableKey: 
-            varId: 0
-          UnsetAfterDispose: 1
-        DebugMode: 0
-        Debug:
-          LogLevel: 10
-          Prefix: '[WriteDataDebug]'
-          IncludeCommandSummary: 1
-          IncludeOpIndex: 1
-          Vars:
-            Enabled: 1
-            LogSuccess: 1
-            LogFailure: 1
-            IncludeInputValue: 1
-            IncludeBeforeValue: 1
-            IncludeAfterValue: 1
-            IncludeVarKey: 1
-            IncludeScope: 1
-          Scalars:
-            Enabled: 1
-            LogSuccess: 1
-            LogFailure: 1
-            IncludeInputValue: 1
-            IncludeBeforeValue: 1
-            IncludeAfterValue: 1
-            IncludeScalarKey: 1
-            IncludeScope: 1
-            IncludeLayer: 1
-            IncludeDuration: 1
-            IncludeTag: 1
-    - rid: 5619052580083597668
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052451121070306
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0
-    - rid: 5619052580083597670
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052451121070307
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: Random(0, MaxBall)
+    - rid: 5619052451121070307
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0
+        scalarKey:
+          Id: 590335990
+          Name: GameLogic.GameProfile.Base.MaxBall
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
 --- !u!114 &175959469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4690,8 +4622,6 @@ GameObject:
   - component: {fileID: 321809357}
   - component: {fileID: 321809356}
   - component: {fileID: 321809367}
-  - component: {fileID: 321809368}
-  - component: {fileID: 321809369}
   m_Layer: 0
   m_Name: ScreenCanvas-Root
   m_TagString: Untagged
@@ -4872,8 +4802,6 @@ MonoBehaviour:
     CandidateProvider: (none)
     NavigationCandidateTexts: []
     PointerCandidateTexts: []
-  _includeGraphicsInDump: 1
-  _includeNodesWithoutUIState: 0
 --- !u!114 &321809361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4997,41 +4925,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementRuntimeSpawnerMB
   spawnerTag: 
   root: {fileID: 0}
---- !u!114 &321809368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 321809352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0486971128f9d4a43b671127e7d0de07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TooltipSystemMB
-  tooltipRoot: {fileID: 321809353}
-  worldRoot: {fileID: 0}
-  clampArea: {fileID: 321809353}
-  inputMode: 3
-  enableClamp: 1
-  flipThresholdX: 0.2
-  flipThresholdY: 0.2
-  uiCamera: {fileID: 1264291797}
-  worldCamera: {fileID: 1264291797}
-  runInLateUpdate: 1
-  spawnWarmupFrames: 2
---- !u!114 &321809369
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 321809352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f108241cf7b84d4caef941251ea390d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.RichTextRefServiceMB
 --- !u!1 &359043668
 GameObject:
   m_ObjectHideFlags: 0
@@ -6244,8 +6137,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 317, y: 206.65}
-  m_SizeDelta: {x: 154.19, y: 26.67}
+  m_AnchoredPosition: {x: 334.9, y: 206.6}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &446062022
 MonoBehaviour:
@@ -8068,7 +7961,7 @@ MonoBehaviour:
   _navigationSelectionOrder: 0
   _isSelectable:
     _source:
-      rid: 5619052575314673864
+      rid: -2
     _defaultValue: 0
   _isNavigationSelectable:
     _source:
@@ -8094,11 +7987,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 5619052416848364287
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
-    - rid: 5619052575314673864
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
@@ -9995,7 +9886,7 @@ MonoBehaviour:
     - rid: 5619052416848364086
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: </>Fall Start
+        value: Fall Start
     - rid: 5619052416848364087
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -10085,13 +9976,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c3163d90be9a2949b3c02398523366f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIButtonMB
-  _kind: 10
+  _kind: 0
   _canSubmit: 1
   _triggerAction: 0
   _holdTime: 1
   _holdInterval: 0.1
-  _longMaxTime: 1
-  _autoDecideOnLongMax: 0
   _guardSelectionWhileHolding: 1
   _onSubmitDownCommands:
     _debugOwner: {fileID: 605526239}
@@ -10127,54 +10016,6 @@ MonoBehaviour:
     _debugAssetPath: 
     _functionName: UIButton.OnHoldCancel
     _commands: []
-  _onGenericStartCommands:
-    _debugOwner: {fileID: 605526239}
-    _debugFieldPath: _onGenericStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnGenericStart
-    _commands: []
-  _onShortStartCommands:
-    _debugOwner: {fileID: 605526239}
-    _debugFieldPath: _onShortStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnShortStart
-    _commands: []
-  _onLongStartCommands:
-    _debugOwner: {fileID: 605526239}
-    _debugFieldPath: _onLongStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongStart
-    _commands: []
-  _onGenericDecisionCommands:
-    _debugOwner: {fileID: 605526239}
-    _debugFieldPath: _onGenericDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnGenericDecision
-    _commands: []
-  _onShortDecisionCommands:
-    _debugOwner: {fileID: 605526239}
-    _debugFieldPath: _onShortDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnShortDecision
-    _commands: []
-  _onLongDecisionCommands:
-    _debugOwner: {fileID: 605526239}
-    _debugFieldPath: _onLongDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongDecision
-    _commands: []
-  _onLongMaxDecisionCommands:
-    _debugOwner: {fileID: 605526239}
-    _debugFieldPath: _onLongMaxDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongMaxDecision
-    _commands: []
-  _onCancelCommands:
-    _debugOwner: {fileID: 605526239}
-    _debugFieldPath: _onCancelCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnCancel
-    _commands: []
   _inputControlCondition:
     _source:
       rid: 5619052416848364092
@@ -10182,7 +10023,6 @@ MonoBehaviour:
   _inspectorTelemetry:
     OwnerName: (none)
     Kind: 0
-    CurrentPhase: 0
     TriggerAction: 0
     CanSubmit: 1
     IsSelected: 0
@@ -10193,11 +10033,6 @@ MonoBehaviour:
     DisableSelectionDuringCommandExecution: 0
     IsHolding: 0
     HoldProgress: 0
-    ShortProgress: 0
-    LongProgress: 0
-    IsLongMax: 0
-    LongMaxTime: 0
-    AutoDecideOnLongMax: 0
     IsHoldDecisionExecuting: 0
     IsSubmitUpExecuting: 0
     LastInputEventType: 0
@@ -11223,8 +11058,6 @@ MonoBehaviour:
     CandidateProvider: (none)
     NavigationCandidateTexts: []
     PointerCandidateTexts: []
-  _includeGraphicsInDump: 1
-  _includeNodesWithoutUIState: 0
 --- !u!114 &653697730
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11504,8 +11337,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.25}
   m_AnchorMax: {x: 1, y: 0.75}
-  m_AnchoredPosition: {x: -1.8075027, y: -9.8613}
-  m_SizeDelta: {x: 3.62, y: -6.3875}
+  m_AnchoredPosition: {x: -22.4, y: -8.7}
+  m_SizeDelta: {x: 53.39, y: -40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &694518452
 GameObject:
@@ -13069,7 +12902,7 @@ MonoBehaviour:
   _navigationSelectionOrder: 0
   _isSelectable:
     _source:
-      rid: 5619052574234116245
+      rid: -2
     _defaultValue: 0
   _isNavigationSelectable:
     _source:
@@ -13095,14 +12928,12 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 5619052416848364298
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052574234116245
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
 --- !u!114 &913044391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13292,7 +13123,7 @@ MonoBehaviour:
   _navigationSelectionOrder: 0
   _isSelectable:
     _source:
-      rid: 5619052575314673838
+      rid: -2
     _defaultValue: 0
   _isNavigationSelectable:
     _source:
@@ -13318,11 +13149,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 5619052416848364107
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052575314673838
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
@@ -15035,13 +14864,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c3163d90be9a2949b3c02398523366f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIButtonMB
-  _kind: 10
+  _kind: 0
   _canSubmit: 1
   _triggerAction: 0
   _holdTime: 1
   _holdInterval: 0.1
-  _longMaxTime: 1
-  _autoDecideOnLongMax: 0
   _guardSelectionWhileHolding: 1
   _onSubmitDownCommands:
     _debugOwner: {fileID: 1026787990}
@@ -15076,54 +14903,6 @@ MonoBehaviour:
     _debugAssetPath: 
     _functionName: UIButton.OnHoldCancel
     _commands: []
-  _onGenericStartCommands:
-    _debugOwner: {fileID: 1026787990}
-    _debugFieldPath: _onGenericStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnGenericStart
-    _commands: []
-  _onShortStartCommands:
-    _debugOwner: {fileID: 1026787990}
-    _debugFieldPath: _onShortStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnShortStart
-    _commands: []
-  _onLongStartCommands:
-    _debugOwner: {fileID: 1026787990}
-    _debugFieldPath: _onLongStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongStart
-    _commands: []
-  _onGenericDecisionCommands:
-    _debugOwner: {fileID: 1026787990}
-    _debugFieldPath: _onGenericDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnGenericDecision
-    _commands: []
-  _onShortDecisionCommands:
-    _debugOwner: {fileID: 1026787990}
-    _debugFieldPath: _onShortDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnShortDecision
-    _commands: []
-  _onLongDecisionCommands:
-    _debugOwner: {fileID: 1026787990}
-    _debugFieldPath: _onLongDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongDecision
-    _commands: []
-  _onLongMaxDecisionCommands:
-    _debugOwner: {fileID: 1026787990}
-    _debugFieldPath: _onLongMaxDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongMaxDecision
-    _commands: []
-  _onCancelCommands:
-    _debugOwner: {fileID: 1026787990}
-    _debugFieldPath: _onCancelCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnCancel
-    _commands: []
   _inputControlCondition:
     _source:
       rid: 5619052416848364146
@@ -15131,7 +14910,6 @@ MonoBehaviour:
   _inspectorTelemetry:
     OwnerName: (none)
     Kind: 0
-    CurrentPhase: 0
     TriggerAction: 0
     CanSubmit: 1
     IsSelected: 0
@@ -15142,11 +14920,6 @@ MonoBehaviour:
     DisableSelectionDuringCommandExecution: 0
     IsHolding: 0
     HoldProgress: 0
-    ShortProgress: 0
-    LongProgress: 0
-    IsLongMax: 0
-    LongMaxTime: 0
-    AutoDecideOnLongMax: 0
     IsHoldDecisionExecuting: 0
     IsSubmitUpExecuting: 0
     LastInputEventType: 0
@@ -17591,7 +17364,89 @@ MonoBehaviour:
       data:
         enabled: 1
         data:
-          rid: 5619052580083597669
+          rid: 5619052451121070238
+    - rid: 5619052451121070238
+      type: {class: WithActorDescendantRouterCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ActorSource:
+          Kind: 3
+          Identity:
+            kind: 5
+            id: BallField
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarsPolicy: 0
+        ExecutionScope: 2
+        FilterMode: 0
+        DescendantFilter:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Common:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnMatched:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052451121070239
+        OnUnmatched:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052451121070239
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052451121070240
+    - rid: 5619052451121070240
+      type: {class: SelfDespawnCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        DelaySeconds:
+          _source:
+            rid: 5619052451121070241
+          _defaultValue: 0
+        BeforeDespawnCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnReacquireCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052451121070241
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052451121070297
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -18018,41 +17873,6 @@ MonoBehaviour:
       type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {fileID: 11400000, guid: 2b2cdf103b5fa844a82057863e47be0a, type: 2}
-    - rid: 5619052580083597669
-      type: {class: CommandChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        ActorSource:
-          Kind: 3
-          Identity:
-            kind: 5
-            id: BallField
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        ExecutionActorMode: 0
-        ExecutorActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        ExecutionScope: 0
-        Tag: ClearBall
-        AwaitMode: 0
 --- !u!114 &1046528813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18088,7 +17908,7 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052580083597672
+        - rid: 5619052451121070163
         - rid: 5619052366731149470
         - rid: 5619052366731149416
         - rid: 5619052451121070161
@@ -18407,6 +18227,35 @@ MonoBehaviour:
           Max:
             _source:
               rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5619052451121070163
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 15
+        ScalarKeyValue:
+          Id: 160700043
+          Name: GameLogic.GameProfile.Base.MoneyValue
+        ScalarPolicyValue: 0
+        UseEffectMod: 1
+        UseClampMod: 1
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: 5619052366731149471
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: 5619052366731149472
             _defaultValue: 0
         ScalarSaveEnabledValue: 0
         ScalarSaveLayerValue: 0
@@ -18768,35 +18617,6 @@ MonoBehaviour:
           Max:
             _source:
               rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052580083597672
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 30
-        ScalarKeyValue:
-          Id: 160700043
-          Name: GameLogic.GameProfile.Base.MoneyValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 1
-        UseClampMod: 1
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: 5619052366731149471
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052366731149472
             _defaultValue: 0
         ScalarSaveEnabledValue: 0
         ScalarSaveLayerValue: 0
@@ -19395,8 +19215,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 298.4, y: 144.13}
-  m_SizeDelta: {x: 120.14, y: 19.59}
+  m_AnchoredPosition: {x: 298.4, y: 145.2}
+  m_SizeDelta: {x: 120.14, y: 27.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1080493744
 MonoBehaviour:
@@ -22895,8 +22715,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 298.4, y: 124.990005}
-  m_SizeDelta: {x: 120.14, y: 18.69}
+  m_AnchoredPosition: {x: 298.4, y: 124.5}
+  m_SizeDelta: {x: 120.14, y: 27.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1271722465
 MonoBehaviour:
@@ -33787,7 +33607,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 19.287, y: -11.665}
+  m_AnchoredPosition: {x: 0.90498, y: -11.9}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1599955620
@@ -35898,7 +35718,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 303.01, y: 55.53}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1778301586
 MonoBehaviour:
@@ -35993,7 +35813,7 @@ MonoBehaviour:
   _navigationSelectionOrder: 0
   _isSelectable:
     _source:
-      rid: 5619052575314673840
+      rid: -2
     _defaultValue: 0
   _isNavigationSelectable:
     _source:
@@ -36019,11 +35839,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 5619052416848364171
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052575314673840
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
@@ -36923,7 +36741,7 @@ MonoBehaviour:
   _navigationSelectionOrder: 0
   _isSelectable:
     _source:
-      rid: 5619052575314673839
+      rid: -2
     _defaultValue: 0
   _isNavigationSelectable:
     _source:
@@ -36949,11 +36767,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 5619052416848364106
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052575314673839
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
@@ -37635,7 +37451,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 25.5, y: 7.2875}
+  m_AnchoredPosition: {x: 8.85, y: 6.45}
   m_SizeDelta: {x: 90.89, y: 27.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1812546934
@@ -38705,11 +38521,11 @@ MonoBehaviour:
   _navigationSelectionOrder: 0
   _isSelectable:
     _source:
-      rid: 5619052575314673824
+      rid: -2
     _defaultValue: 0
   _isNavigationSelectable:
     _source:
-      rid: 5619052575314673825
+      rid: -2
     _defaultValue: 0
   _navigationOverride:
     Up: {fileID: 0}
@@ -38731,14 +38547,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 5619052575314673824
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
-    - rid: 5619052575314673825
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1888176848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43639,13 +43449,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c3163d90be9a2949b3c02398523366f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIButtonMB
-  _kind: 10
+  _kind: 0
   _canSubmit: 1
   _triggerAction: 0
   _holdTime: 1
   _holdInterval: 0.1
-  _longMaxTime: 1
-  _autoDecideOnLongMax: 0
   _guardSelectionWhileHolding: 1
   _onSubmitDownCommands:
     _debugOwner: {fileID: 2028242499}
@@ -43680,54 +43488,6 @@ MonoBehaviour:
     _debugAssetPath: 
     _functionName: UIButton.OnHoldCancel
     _commands: []
-  _onGenericStartCommands:
-    _debugOwner: {fileID: 2028242499}
-    _debugFieldPath: _onGenericStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnGenericStart
-    _commands: []
-  _onShortStartCommands:
-    _debugOwner: {fileID: 2028242499}
-    _debugFieldPath: _onShortStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnShortStart
-    _commands: []
-  _onLongStartCommands:
-    _debugOwner: {fileID: 2028242499}
-    _debugFieldPath: _onLongStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongStart
-    _commands: []
-  _onGenericDecisionCommands:
-    _debugOwner: {fileID: 2028242499}
-    _debugFieldPath: _onGenericDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnGenericDecision
-    _commands: []
-  _onShortDecisionCommands:
-    _debugOwner: {fileID: 2028242499}
-    _debugFieldPath: _onShortDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnShortDecision
-    _commands: []
-  _onLongDecisionCommands:
-    _debugOwner: {fileID: 2028242499}
-    _debugFieldPath: _onLongDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongDecision
-    _commands: []
-  _onLongMaxDecisionCommands:
-    _debugOwner: {fileID: 2028242499}
-    _debugFieldPath: _onLongMaxDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongMaxDecision
-    _commands: []
-  _onCancelCommands:
-    _debugOwner: {fileID: 2028242499}
-    _debugFieldPath: _onCancelCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnCancel
-    _commands: []
   _inputControlCondition:
     _source:
       rid: 5619052506154533034
@@ -43735,7 +43495,6 @@ MonoBehaviour:
   _inspectorTelemetry:
     OwnerName: (none)
     Kind: 0
-    CurrentPhase: 0
     TriggerAction: 0
     CanSubmit: 1
     IsSelected: 0
@@ -43746,11 +43505,6 @@ MonoBehaviour:
     DisableSelectionDuringCommandExecution: 0
     IsHolding: 0
     HoldProgress: 0
-    ShortProgress: 0
-    LongProgress: 0
-    IsLongMax: 0
-    LongMaxTime: 0
-    AutoDecideOnLongMax: 0
     IsHoldDecisionExecuting: 0
     IsSubmitUpExecuting: 0
     LastInputEventType: 0

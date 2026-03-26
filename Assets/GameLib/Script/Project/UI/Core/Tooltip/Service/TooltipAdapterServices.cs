@@ -51,12 +51,14 @@ namespace Game.UI
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
-            var resolver = scope?.Resolver;
-            if (resolver != null && resolver.TryResolve<ITooltipSystemService>(out var system) && system != null)
+            if (scope.TryResolveInAncestors<ITooltipSystemService>(out var system) && system != null)
             {
                 _system = system;
                 _system.RegisterAdapter(this);
+                return;
             }
+
+            Debug.LogWarning($"[TooltipAdapter] TooltipSystemService was not found for owner '{_owner.Identity?.Id ?? _owner.Identity?.SelfTransform?.name ?? "(unknown)"}'.");
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)

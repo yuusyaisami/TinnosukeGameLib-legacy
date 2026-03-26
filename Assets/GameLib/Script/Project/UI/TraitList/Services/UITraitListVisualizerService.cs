@@ -191,7 +191,7 @@ namespace Game.UI.TraitList
             var hub = await ResolveHolderHubAsync(scopeParent, resolver, runner, ct);
 
             ApplySize(profile, instance);
-            ApplyBlackboard(slot, instance, hub);
+            ApplyBlackboard(slot, instance, hub, logRichTextFailures: true);
             SetPosition(instance, ResolvePlacementPosition(
                 instance,
                 slot.AnchoredPosition,
@@ -231,7 +231,7 @@ namespace Game.UI.TraitList
             ct.ThrowIfCancellationRequested();
             await UniTask.SwitchToMainThread();
 
-            ApplyBlackboard(slot, instance, hub: null);
+            ApplyBlackboard(slot, instance, hub: null, logRichTextFailures: false);
             instance.UpdateSlot(slot);
 
             var movePreset = ResolveMovePreset(slot.Trait);
@@ -321,13 +321,17 @@ namespace Game.UI.TraitList
             return false;
         }
 
-        static void ApplyBlackboard(UITraitListSlot slot, UITraitListVisualInstance instance, ITraitHolderHubService? hub)
+        static void ApplyBlackboard(
+            UITraitListSlot slot,
+            UITraitListVisualInstance instance,
+            ITraitHolderHubService? hub,
+            bool logRichTextFailures)
         {
             if (!instance.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
                 return;
 
             ApplyItemVars(blackboard.LocalVars, slot);
-            ApplyRichTextKeys(blackboard.LocalVars, slot, hub);
+            ApplyRichTextKeys(blackboard.LocalVars, slot, instance, hub, logRichTextFailures);
         }
 
         static CommandContext CreateCommandContext(
@@ -437,7 +441,12 @@ namespace Game.UI.TraitList
             vars.TrySetVariant(varId, value);
         }
 
-        static void ApplyRichTextKeys(IVarStore vars, UITraitListSlot slot, ITraitHolderHubService? hub)
+        static void ApplyRichTextKeys(
+            IVarStore vars,
+            UITraitListSlot slot,
+            UITraitListVisualInstance instance,
+            ITraitHolderHubService? hub,
+            bool logFailures)
         {
             if (vars == null)
                 return;
@@ -446,23 +455,47 @@ namespace Game.UI.TraitList
                 return;
 
             if (hub == null)
+            {
+                if (logFailures)
+                {
+                    Debug.LogWarning(
+                        $"[UITraitListVisualizer] Rich text key resolve skipped because holder hub is null. " +
+                        $"{FormatRichTextContext(slot, instance)}");
+                }
                 return;
+            }
 
             if (!hub.TryGetHolder(slot.HolderKey, out var holder) || holder == null)
             {
-                Debug.LogWarning("[UITraitListVisualizer] Failed to get TraitHolderService from hub.");
+                if (logFailures)
+                {
+                    Debug.LogWarning(
+                        $"[UITraitListVisualizer] Trait holder was not found in hub. " +
+                        $"{FormatRichTextContext(slot, instance)} RequestedHolderKey='{slot.HolderKey ?? string.Empty}' " +
+                        $"AvailableHolderKeys={FormatAvailableKeys(hub.Keys)}");
+                }
                 return;
             }
 
             if (holder is not TraitHolderService concreteHolder)
             {
-                Debug.LogWarning("[UITraitListVisualizer] TraitHolderService is not concrete type.");
+                if (logFailures)
+                {
+                    Debug.LogWarning(
+                        $"[UITraitListVisualizer] Trait holder could not provide rich text diagnostics because the concrete type is unsupported. " +
+                        $"{FormatRichTextContext(slot, instance)} HolderType='{holder.GetType().FullName}'");
+                }
                 return;
             }
 
-            if (!concreteHolder.TryGetRichTextKeys(slot.Trait, out var descriptionKey, out var nameKey))
+            if (!concreteHolder.TryGetRichTextKeys(slot.Trait, out var descriptionKey, out var nameKey, out var diagnostic))
             {
-                Debug.LogWarning("[UITraitListVisualizer] Failed to get rich text keys from TraitHolderService.");
+                if (logFailures)
+                {
+                    Debug.LogWarning(
+                        $"[UITraitListVisualizer] Failed to get rich text keys from TraitHolderService. " +
+                        $"{FormatRichTextFailureDetail(slot, instance, concreteHolder, diagnostic)}");
+                }
                 vars.TryUnset(VarIds.GameLib.Base.RichText.descriptionKey);
                 vars.TryUnset(VarIds.GameLib.Base.RichText.nameKey);
                 return;
@@ -472,7 +505,12 @@ namespace Game.UI.TraitList
                 vars.TrySetVariant(VarIds.GameLib.Base.RichText.descriptionKey, DynamicVariant.FromString(descriptionKey));
             else
             {
-                Debug.LogWarning("[UITraitListVisualizer] Description key is null or empty.");
+                if (logFailures)
+                {
+                    Debug.LogWarning(
+                        $"[UITraitListVisualizer] Rich text description key is null or empty. " +
+                        $"{FormatRichTextFailureDetail(slot, instance, concreteHolder, diagnostic)}");
+                }
                 vars.TryUnset(VarIds.GameLib.Base.RichText.descriptionKey);
             }
 
@@ -480,9 +518,79 @@ namespace Game.UI.TraitList
                 vars.TrySetVariant(VarIds.GameLib.Base.RichText.nameKey, DynamicVariant.FromString(nameKey));
             else
             {
-                Debug.LogWarning("[UITraitListVisualizer] Name key is null or empty.");
+                if (logFailures)
+                {
+                    Debug.LogWarning(
+                        $"[UITraitListVisualizer] Rich text name key is null or empty. " +
+                        $"{FormatRichTextFailureDetail(slot, instance, concreteHolder, diagnostic)}");
+                }
                 vars.TryUnset(VarIds.GameLib.Base.RichText.nameKey);
             }
+        }
+
+        static string FormatRichTextFailureDetail(
+            UITraitListSlot slot,
+            UITraitListVisualInstance instance,
+            TraitHolderService concreteHolder,
+            in TraitRichTextKeyLookupDiagnostic diagnostic)
+        {
+            return
+                $"{FormatRichTextContext(slot, instance)} HolderRuntimeId='{concreteHolder.HolderId}' " +
+                $"FailureReason='{GetRichTextFailureReasonLabel(diagnostic.FailureReason)}' " +
+                $"TraitDisplayName='{diagnostic.TraitDisplayName}' " +
+                $"DefinitionId='{diagnostic.DefinitionId}' InstanceId='{diagnostic.InstanceId}' " +
+                $"RefKeyPrefix='{diagnostic.RefKeyPrefix}' " +
+                $"ExpectedDescriptionKey='{diagnostic.ExpectedDescriptionKey}' ExpectedNameKey='{diagnostic.ExpectedNameKey}' " +
+                $"ResolvedDescriptionKey='{diagnostic.DescriptionKey}' ResolvedNameKey='{diagnostic.NameKey}' " +
+                $"HasRichTextRefService={diagnostic.HasRichTextRefService} " +
+                $"IsRichTextDescribable={diagnostic.IsRichTextDescribable} " +
+                $"HasDescriptionTemplate={diagnostic.HasDescriptionTemplate} " +
+                $"HasNameTemplate={diagnostic.HasNameTemplate} " +
+                $"HasRegistration={diagnostic.HasRegistration}";
+        }
+
+        static string FormatRichTextContext(UITraitListSlot slot, UITraitListVisualInstance instance)
+        {
+            var runtimeRootName = instance.Root != null ? instance.Root.name : "(null)";
+            var scopeName = instance.Scope?.Identity?.SelfTransform != null
+                ? instance.Scope.Identity.SelfTransform.name
+                : "(null)";
+            var traitDefinitionId = slot.Trait?.Definition?.DefinitionId ?? string.Empty;
+            var traitInstanceId = slot.Trait?.InstanceId ?? string.Empty;
+
+            return
+                $"RuntimeRoot='{runtimeRootName}' Scope='{scopeName}' " +
+                $"HolderKey='{slot.HolderKey ?? string.Empty}' TraitDefinitionId='{traitDefinitionId}' " +
+                $"TraitInstanceId='{traitInstanceId}' ListIndex={slot.ListIndex} TraitIndex={slot.TraitIndex}";
+        }
+
+        static string FormatAvailableKeys(IReadOnlyList<string>? keys)
+        {
+            if (keys == null || keys.Count == 0)
+                return "[]";
+
+            return "[" + string.Join(", ", keys) + "]";
+        }
+
+        static string GetRichTextFailureReasonLabel(TraitRichTextKeyLookupFailureReason reason)
+        {
+            return reason switch
+            {
+                TraitRichTextKeyLookupFailureReason.None => "None",
+                TraitRichTextKeyLookupFailureReason.InstanceNull => "InstanceNull",
+                TraitRichTextKeyLookupFailureReason.DefinitionNull => "DefinitionNull",
+                TraitRichTextKeyLookupFailureReason.NotRichTextDescribable => "NotRichTextDescribable",
+                TraitRichTextKeyLookupFailureReason.DefinitionIdMissing => "DefinitionIdMissing",
+                TraitRichTextKeyLookupFailureReason.InstanceIdMissing => "InstanceIdMissing",
+                TraitRichTextKeyLookupFailureReason.RefKeyPrefixMissing => "RefKeyPrefixMissing",
+                TraitRichTextKeyLookupFailureReason.RichTextRefServiceMissing => "RichTextRefServiceMissing",
+                TraitRichTextKeyLookupFailureReason.BothTemplatesMissing => "BothTemplatesMissing",
+                TraitRichTextKeyLookupFailureReason.RegistrationMissing => "RegistrationMissing",
+                TraitRichTextKeyLookupFailureReason.BothKeysEmpty => "BothKeysEmpty",
+                TraitRichTextKeyLookupFailureReason.DescriptionKeyMissing => "DescriptionKeyMissing",
+                TraitRichTextKeyLookupFailureReason.NameKeyMissing => "NameKeyMissing",
+                _ => reason.ToString(),
+            };
         }
 
         async UniTask<ITraitHolderHubService?> ResolveHolderHubAsync(

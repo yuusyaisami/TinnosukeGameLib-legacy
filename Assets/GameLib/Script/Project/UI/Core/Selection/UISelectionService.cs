@@ -507,12 +507,16 @@ namespace Game.UI
             {
                 var e = candidate.Element;
                 if (e == null) continue;
-                if (candidate.Element == _current) return false; // No change
-
                 if (!CanSelect(e)) continue;
 
                 // Reset miss counter when we have a hit
                 _consecutivePointerMisses = 0;
+
+                if (ReferenceEquals(e, _current))
+                {
+                    SetHoverInternal(e);
+                    return false;
+                }
 
                 SetHoverInternal(e);
 

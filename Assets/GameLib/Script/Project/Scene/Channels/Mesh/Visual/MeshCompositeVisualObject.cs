@@ -32,6 +32,7 @@ namespace Game.Channel
             _meshFilter = _rootObject.AddComponent<MeshFilter>();
             _meshRenderer = _rootObject.AddComponent<MeshRenderer>();
             _polygonCollider = _rootObject.AddComponent<PolygonCollider2D>();
+            _polygonCollider.pathCount = 0;
             _polygonCollider.enabled = false;
             _hitRelay = _rootObject.AddComponent<MeshChannelColliderRelay>();
 
@@ -90,7 +91,7 @@ namespace Game.Channel
                 deltaTime);
 
             if (pipeline.EnableVisual)
-                RebuildMeshFromCollider();
+                RebuildMesh(simplifiedPaths);
             else
                 _mesh.Clear();
         }
@@ -164,17 +165,9 @@ namespace Game.Channel
             }
         }
 
-        void RebuildMeshFromCollider()
+        void RebuildMesh(List<Vector2[]> paths)
         {
-            var generated = _polygonCollider.CreateMesh(false, false);
-            if (generated != null)
-            {
-                MeshChannelGeometryUtility.CopyMesh(generated, _mesh);
-                UnityEngine.Object.Destroy(generated);
-                return;
-            }
-
-            MeshChannelGeometryUtility.BuildFallbackMesh(_lastPaths, _mesh);
+            MeshChannelGeometryUtility.BuildFallbackMesh(paths, _mesh);
         }
     }
 }

@@ -1,15 +1,9 @@
 #ifndef GAME_MESH_MATERIAL_SURFACE_INCLUDED
 #define GAME_MESH_MATERIAL_SURFACE_INCLUDED
 
-#include "UnityCG.cginc"
-#include "Features/MeshContourDistance.hlsl"
-#include "Features/MeshContourGradient.hlsl"
-#include "Features/MeshEdgeAlpha.hlsl"
-#include "Features/MeshBands.hlsl"
-#include "Features/MeshEdgeFlow.hlsl"
-#include "Features/MeshInteriorNoise.hlsl"
-
 #define GAME_MESH_MAX_CONTOUR_SAMPLES 64
+
+#include "UnityCG.cginc"
 
 CBUFFER_START(UnityPerMaterial)
     float4 _MeshBaseColor;
@@ -72,6 +66,13 @@ struct MeshMaterialVaryings
     float2 localPos : TEXCOORD1;
 };
 
+#include "Features/MeshContourDistance.hlsl"
+#include "Features/MeshContourGradient.hlsl"
+#include "Features/MeshEdgeAlpha.hlsl"
+#include "Features/MeshBands.hlsl"
+#include "Features/MeshEdgeFlow.hlsl"
+#include "Features/MeshInteriorNoise.hlsl"
+
 MeshMaterialVaryings MeshMaterialVert(MeshMaterialAppData input)
 {
     MeshMaterialVaryings output;
@@ -91,7 +92,6 @@ float4 MeshMaterialFrag(MeshMaterialVaryings input) : SV_Target
     context.Color = _MeshBaseColor * input.color;
     context.DistanceToContour = MeshContourDistance_MinDistance(
         context.LocalPos,
-        _MeshContourSamples,
         (int)_MeshContourSampleCount,
         GAME_MESH_MAX_CONTOUR_SAMPLES);
     context.DistanceNormalized = MeshContourDistance_Normalize(

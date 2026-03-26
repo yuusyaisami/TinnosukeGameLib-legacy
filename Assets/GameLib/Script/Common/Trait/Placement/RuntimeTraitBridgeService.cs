@@ -119,6 +119,8 @@ namespace Game.Trait
         Quaternion _visibleRotation = Quaternion.identity;
         bool _hasVisiblePose;
         bool _isHidden;
+        bool _hasAppliedPresentationState;
+        TraitRuntimePresentationState _appliedPresentationState;
         readonly PresentationCommandMutationSlot _hiddenCommandsMutation = new();
         readonly PresentationCommandMutationSlot _visibleCommandsMutation = new();
 
@@ -271,9 +273,13 @@ namespace Game.Trait
             if (!TryResolveRuntimeScope(_owner, out var runtimeScope) || runtimeScope == null)
                 return;
 
+            var previousState = _hasAppliedPresentationState
+                ? _appliedPresentationState
+                : TraitRuntimePresentationState.None;
+
             if (state == TraitRuntimePresentationState.Hidden)
             {
-                if (!_isHidden)
+                if (previousState != TraitRuntimePresentationState.Hidden)
                 {
                     CaptureVisiblePose();
                     runtimeScope.transform.position = _visiblePosition + HiddenOffset;
@@ -283,12 +289,13 @@ namespace Game.Trait
                 }
 
                 runtimeScope.TrySetVisible(false);
+                _hasAppliedPresentationState = true;
+                _appliedPresentationState = TraitRuntimePresentationState.Hidden;
                 return;
             }
 
             if (state == TraitRuntimePresentationState.Visible)
             {
-                var wasHidden = _isHidden;
                 if (_isHidden && _hasVisiblePose)
                 {
                     runtimeScope.transform.SetPositionAndRotation(_visiblePosition, _visibleRotation);
@@ -296,8 +303,11 @@ namespace Game.Trait
 
                 runtimeScope.TrySetVisible(true);
                 _isHidden = false;
-                if (wasHidden)
+                if (previousState != TraitRuntimePresentationState.Visible)
                     ExecutePresentationCommands(runtimeScope, _owner.OnVisibleCommands, _visibleCommandsMutation, "Visible");
+
+                _hasAppliedPresentationState = true;
+                _appliedPresentationState = TraitRuntimePresentationState.Visible;
             }
         }
 
@@ -311,10 +321,7 @@ namespace Game.Trait
                 return;
 
             var resolver = scope.Resolver;
-            if (resolver == null)
-                return;
-
-            if (!resolver.TryResolve(out ICommandRunner? runner) || runner == null)
+            if (!TryResolveCommandRunner(scope, out var runner) || runner == null)
                 return;
 
             var vars = CreateVars(scope);
@@ -362,6 +369,8 @@ namespace Game.Trait
             _registeredKey = default;
             _isHidden = false;
             _hasVisiblePose = false;
+            _hasAppliedPresentationState = false;
+            _appliedPresentationState = TraitRuntimePresentationState.None;
             _hiddenCommandsMutation.Clear();
             _visibleCommandsMutation.Clear();
         }
@@ -410,6 +419,20 @@ namespace Game.Trait
 
             runtimeScope = scope as RuntimeLifetimeScope;
             return runtimeScope != null;
+        }
+
+        static bool TryResolveCommandRunner(IScopeNode scope, out ICommandRunner? runner)
+        {
+            runner = null;
+            var resolver = scope?.Resolver;
+            if (resolver != null &&
+                resolver.TryResolve<ICommandRunner>(out runner) &&
+                runner != null)
+            {
+                return true;
+            }
+
+            return scope.TryResolveInAncestors(out runner) && runner != null;
         }
 
         sealed class PresentationCommandMutationSlot

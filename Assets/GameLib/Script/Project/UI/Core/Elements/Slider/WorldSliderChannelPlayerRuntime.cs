@@ -14,7 +14,7 @@ using VContainer.Unity;
 
 namespace Game.UI
 {
-    public sealed class WorldSliderPlayerService :
+    public sealed class WorldSliderChannelPlayerRuntime :
         IWorldSliderPlayerService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
@@ -22,6 +22,7 @@ namespace Game.UI
     {
         readonly IScopeNode _owner;
         readonly IWorldSliderOptions _options;
+        readonly IWorldSliderRuntimePresetProvider? _directPresetProvider;
         IWorldSliderRuntimePresetProvider? _presetProvider;
         IScopeNode? _activeScope;
 
@@ -37,6 +38,8 @@ namespace Game.UI
         IVarStore? _blackboardVars;
         int _blackboardVarId;
         ActorSourceResolveCache _blackboardBindingSourceCache;
+        WorldSliderPlayerBindingEntry? _activeBindingEntry;
+        int _activeBindingEntryIndex = -1;
 
         ICommandRunner? _commandRunner;
         CancellationTokenSource? _commandCts;
@@ -51,6 +54,7 @@ namespace Game.UI
         float _displayedRawValue;
         float _displayedNormalizedValue;
         bool _hasInitialized;
+        bool _isVisible;
 
         bool _transitionActive;
         float _transitionDelayRemaining;
@@ -63,15 +67,20 @@ namespace Game.UI
 
         public event Action<WorldSliderOutputSnapshot>? OnUpdated;
 
+        public bool IsVisible => _isVisible;
         public float TargetRawValue => _targetRawValue;
         public float TargetNormalizedValue => _targetNormalizedValue;
         public float DisplayedRawValue => _displayedRawValue;
         public float DisplayedNormalizedValue => _displayedNormalizedValue;
 
-        public WorldSliderPlayerService(IScopeNode owner, IWorldSliderOptions options)
+        public WorldSliderChannelPlayerRuntime(
+            IScopeNode owner,
+            IWorldSliderOptions options,
+            IWorldSliderRuntimePresetProvider? presetProvider = null)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _options = options ?? throw new ArgumentNullException(nameof(options));
+            _directPresetProvider = presetProvider;
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
@@ -93,13 +102,9 @@ namespace Game.UI
 
             ResolveRange();
             _segmentLayout = WorldSliderRuntimeHelpers.BuildSegmentLayout(_visualizerPreset, _dynamicContext, _minValue, _maxValue);
-            ResolveBindings(scope);
             ResolveCommandRunner(scope);
-            SubscribeExternal();
             SubscribePresetProvider();
-
-            var initialRawValue = ResolveInitialRawValue();
-            SetInitialSnapshot(initialRawValue);
+            RefreshActiveBindingEntry(scope, forceRebind: true);
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -124,13 +129,22 @@ namespace Game.UI
             _continuousDisplayedNormalizedValue = 0f;
             _displayedRawValue = 0f;
             _displayedNormalizedValue = 0f;
+            _isVisible = false;
             _scalarBindingSourceCache = default;
             _blackboardBindingSourceCache = default;
+            _activeBindingEntry = null;
+            _activeBindingEntryIndex = -1;
             _suppressRuntimeCommands = false;
         }
 
         public void Tick()
         {
+            if (_activeScope != null)
+                RefreshActiveBindingEntry(_activeScope, forceRebind: false);
+
+            if (!_isVisible)
+                return;
+
             if (!_transitionActive)
                 return;
 
@@ -178,16 +192,17 @@ namespace Game.UI
             _blackboardVars = null;
             _blackboardVarId = 0;
 
-            if (_playerPreset.UseScalarBinding &&
-                _playerPreset.ScalarKey.Id != 0 &&
+            if (_activeBindingEntry != null &&
+                _activeBindingEntry.UseScalarBinding &&
+                _activeBindingEntry.ScalarKey.Id != 0 &&
                 TryResolveScalarService(scope, out var scalarService))
             {
                 _scalarService = scalarService;
             }
 
-            if (_playerPreset.UseBlackboardBinding)
+            if (_activeBindingEntry != null && _activeBindingEntry.UseBlackboardBinding)
             {
-                _blackboardVarId = WorldSliderRuntimeHelpers.ResolveVarId(_playerPreset.BlackboardKey);
+                _blackboardVarId = WorldSliderRuntimeHelpers.ResolveVarId(_activeBindingEntry.BlackboardKey);
                 if (_blackboardVarId != 0 &&
                     TryResolveBlackboardVars(scope, out var blackboardVars))
                 {
@@ -205,8 +220,8 @@ namespace Game.UI
 
         void SubscribeExternal()
         {
-            if (_scalarService != null && _playerPreset.UseScalarBinding && _playerPreset.ScalarKey.Id != 0)
-                _scalarSubscription = _scalarService.GlobalSubscribe(_playerPreset.ScalarKey, HandleScalarChanged);
+            if (_scalarService != null && _activeBindingEntry != null && _activeBindingEntry.UseScalarBinding && _activeBindingEntry.ScalarKey.Id != 0)
+                _scalarSubscription = _scalarService.GlobalSubscribe(_activeBindingEntry.ScalarKey, HandleScalarChanged);
 
             if (_blackboardVars != null && _blackboardVarId != 0)
                 _blackboardVars.OnVarChanged += HandleBlackboardVarChanged;
@@ -228,9 +243,12 @@ namespace Game.UI
         bool TryResolveScalarService(IScopeNode scope, out IBaseScalarService? scalarService)
         {
             scalarService = null;
+            if (_activeBindingEntry == null)
+                return false;
+
             var targetScope = ActorSourceFastResolver.ResolveCached(
                 scope,
-                _playerPreset.ScalarBindingSource,
+                _activeBindingEntry.ScalarBindingSource,
                 ref _scalarBindingSourceCache);
             if (targetScope?.Resolver == null)
                 return false;
@@ -245,9 +263,12 @@ namespace Game.UI
         bool TryResolveBlackboardVars(IScopeNode scope, out IVarStore? blackboardVars)
         {
             blackboardVars = null;
+            if (_activeBindingEntry == null)
+                return false;
+
             var targetScope = ActorSourceFastResolver.ResolveCached(
                 scope,
-                _playerPreset.BlackboardBindingSource,
+                _activeBindingEntry.BlackboardBindingSource,
                 ref _blackboardBindingSourceCache);
             if (targetScope?.Resolver == null)
                 return false;
@@ -275,6 +296,9 @@ namespace Game.UI
 
         void RefreshTargetFromBinding()
         {
+            if (!_isVisible || _activeBindingEntry == null)
+                return;
+
             ResolveRange();
             if (!TryReadBoundValue(out var rawValue))
                 return;
@@ -285,6 +309,7 @@ namespace Game.UI
 
         void SetInitialSnapshot(float rawValue)
         {
+            _isVisible = true;
             ResolveRange();
             var clamped = Mathf.Clamp(rawValue, _minValue, _maxValue);
             _targetRawValue = clamped;
@@ -293,6 +318,17 @@ namespace Game.UI
             _continuousDisplayedNormalizedValue = _targetNormalizedValue;
             _displayedRawValue = ResolveDisplayedRawValue(clamped);
             _displayedNormalizedValue = Normalize(_displayedRawValue);
+            _hasInitialized = true;
+            EmitUpdated();
+        }
+
+        void SetHiddenSnapshot()
+        {
+            if (!_isVisible && _hasInitialized)
+                return;
+
+            ResetTransition();
+            _isVisible = false;
             _hasInitialized = true;
             EmitUpdated();
         }
@@ -523,6 +559,9 @@ namespace Game.UI
 
         float ResolveInitialRawValue()
         {
+            if (_activeBindingEntry == null)
+                return ResolveFloat(_playerPreset.InitialValue, _minValue);
+
             ResolveRange();
             if (TryReadBoundValue(out var boundValue))
                 return boundValue;
@@ -533,7 +572,10 @@ namespace Game.UI
         bool TryReadBoundValue(out float rawValue)
         {
             rawValue = 0f;
-            if (_playerPreset.BindingPriority == WorldSliderBindingPriority.Scalar)
+            if (_activeBindingEntry == null)
+                return false;
+
+            if (_activeBindingEntry.BindingPriority == WorldSliderBindingPriority.Scalar)
             {
                 if (TryReadScalar(out rawValue))
                     return true;
@@ -550,10 +592,13 @@ namespace Game.UI
         bool TryReadScalar(out float rawValue)
         {
             rawValue = 0f;
+            if (_activeBindingEntry == null)
+                return false;
+
             return _scalarService != null &&
-                   _playerPreset.UseScalarBinding &&
-                   _playerPreset.ScalarKey.Id != 0 &&
-                   _scalarService.GlobalTryGet(_playerPreset.ScalarKey, out rawValue);
+                   _activeBindingEntry.UseScalarBinding &&
+                   _activeBindingEntry.ScalarKey.Id != 0 &&
+                   _scalarService.GlobalTryGet(_activeBindingEntry.ScalarKey, out rawValue);
         }
 
         bool TryReadBlackboard(out float rawValue)
@@ -601,6 +646,7 @@ namespace Game.UI
         WorldSliderOutputSnapshot BuildSnapshot()
         {
             return new WorldSliderOutputSnapshot(
+                _isVisible,
                 _targetRawValue,
                 _targetNormalizedValue,
                 _displayedRawValue,
@@ -625,7 +671,10 @@ namespace Game.UI
 
         void ResolvePresetProvider(IScopeNode scope)
         {
-            _presetProvider = null;
+            _presetProvider = _directPresetProvider;
+            if (_presetProvider != null)
+                return;
+
             var resolver = scope?.Resolver;
             if (resolver == null)
                 return;
@@ -702,6 +751,12 @@ namespace Game.UI
             if (!_hasInitialized)
                 return;
 
+            if (!_isVisible)
+            {
+                EmitUpdated();
+                return;
+            }
+
             ApplyPublicDisplayedValue(_continuousDisplayedRawValue, allowCrossingCommands: false);
         }
 
@@ -723,27 +778,13 @@ namespace Game.UI
             _commandCts = new CancellationTokenSource();
             ResolveRange();
             _segmentLayout = WorldSliderRuntimeHelpers.BuildSegmentLayout(_visualizerPreset, dynamicContext, _minValue, _maxValue);
-            ResolveBindings(scope);
             ResolveCommandRunner(scope);
-            SubscribeExternal();
-
-            if (!hadInitialized)
-            {
-                SetInitialSnapshot(ResolveInitialRawValue());
-                return;
-            }
-
             _targetRawValue = Mathf.Clamp(previousTargetRawValue, _minValue, _maxValue);
             _targetNormalizedValue = Normalize(_targetRawValue);
             _continuousDisplayedRawValue = Mathf.Clamp(previousContinuousDisplayedRawValue, _minValue, _maxValue);
             _continuousDisplayedNormalizedValue = Normalize(_continuousDisplayedRawValue);
-            _hasInitialized = true;
-
-            ApplyPublicDisplayedValue(_continuousDisplayedRawValue, allowCrossingCommands: false);
-            _suppressRuntimeCommands = true;
-            SetTargetRawValue(ResolveInitialRawValue(), allowCommands: false);
-            if (!_transitionActive)
-                _suppressRuntimeCommands = false;
+            _hasInitialized = hadInitialized;
+            RefreshActiveBindingEntry(scope, forceRebind: true);
         }
 
         void StopCommands()
@@ -766,6 +807,71 @@ namespace Game.UI
             }
 
             return NullVarStore.Instance;
+        }
+
+        void RefreshActiveBindingEntry(IScopeNode scope, bool forceRebind)
+        {
+            var resolvedIndex = ResolveActiveBindingEntryIndex();
+            var resolvedEntry = resolvedIndex >= 0 &&
+                                resolvedIndex < _playerPreset.BindingEntries.Count
+                ? _playerPreset.BindingEntries[resolvedIndex]
+                : null;
+
+            var wasVisible = _isVisible;
+            var entryChanged = forceRebind || resolvedIndex != _activeBindingEntryIndex || !ReferenceEquals(resolvedEntry, _activeBindingEntry);
+            if (!entryChanged)
+                return;
+
+            UnsubscribeExternal();
+            _activeBindingEntry = resolvedEntry;
+            _activeBindingEntryIndex = resolvedIndex;
+            _scalarBindingSourceCache = default;
+            _blackboardBindingSourceCache = default;
+            ResolveBindings(scope);
+            SubscribeExternal();
+
+            if (_activeBindingEntry == null)
+            {
+                SetHiddenSnapshot();
+                return;
+            }
+
+            if (!wasVisible || !_hasInitialized)
+            {
+                SetInitialSnapshot(ResolveInitialRawValue());
+                return;
+            }
+
+            ApplyPublicDisplayedValue(_continuousDisplayedRawValue, allowCrossingCommands: false);
+            _suppressRuntimeCommands = true;
+            SetTargetRawValue(ResolveInitialRawValue(), allowCommands: false);
+            if (!_transitionActive)
+                _suppressRuntimeCommands = false;
+        }
+
+        int ResolveActiveBindingEntryIndex()
+        {
+            var entries = _playerPreset.BindingEntries;
+            if (entries == null || entries.Count == 0)
+                return -1;
+
+            var bestIndex = -1;
+            var bestOrder = int.MinValue;
+
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                if (entry == null || !entry.EvaluateCondition(_dynamicContext))
+                    continue;
+
+                if (bestIndex >= 0 && entry.Order <= bestOrder)
+                    continue;
+
+                bestIndex = i;
+                bestOrder = entry.Order;
+            }
+
+            return bestIndex;
         }
     }
 }

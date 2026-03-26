@@ -277,6 +277,7 @@ namespace Game.UI
 
         /// <summary>Graphicバッファ（点ベース描画順計算用）</summary>
         readonly List<Graphic> _graphicBuffer = new();
+        readonly List<PointerGraphicFrontHit> _pointerFrontGraphicHits = new();
 
         /// <summary>Traverse stack（Transform単位で境界を尊重して走査）</summary>
         readonly List<Transform> _traverseStack = new();
@@ -296,6 +297,8 @@ namespace Game.UI
         readonly Stack<Game.IScopeNode> _traverseScopeStack = new();
 
         readonly Dictionary<Game.IScopeNode, PointerSortKey> _pointerSortKeyCache = new();
+        readonly Dictionary<Game.IScopeNode, int> _pointerFrontIndexCache =
+            new(Game.ReferenceEqualityComparer<Game.IScopeNode>.Instance);
         readonly Dictionary<Game.IScopeNode, int> _navigationSelectionOrderCache =
             new(Game.ReferenceEqualityComparer<Game.IScopeNode>.Instance);
 
@@ -305,12 +308,15 @@ namespace Game.UI
 
         /// <summary>ポインターソート用の Comparer（GC対策でキャッシュ）</summary>
         readonly PointerCandidateComparer _pointerComparer;
+        readonly PointerGraphicFrontHitComparer _pointerFrontHitComparer;
 
         /// <summary>ナビゲーションソート用の Comparer（GC対策でキャッシュ）</summary>
         readonly NavigationCandidateComparer _navigationComparer;
 
         readonly struct PointerSortKey
         {
+            public readonly bool HasFrontGraphicHit;
+            public readonly int FrontGraphicIndex;
             public readonly int SortingLayerValue;
             public readonly int SortingOrder;
             public readonly int RenderOrder;
@@ -326,15 +332,48 @@ namespace Game.UI
             public readonly int SiblingIndex;
 
             public PointerSortKey(
+                bool hasFrontGraphicHit,
+                int frontGraphicIndex,
                 int sortingLayerValue, int sortingOrder, int renderOrder, int absoluteDepth,
                 int selectionOrder, int uiDepth, int stableTie, int siblingIndex)
             {
+                HasFrontGraphicHit = hasFrontGraphicHit;
+                FrontGraphicIndex = frontGraphicIndex;
                 SortingLayerValue = sortingLayerValue;
                 SortingOrder = sortingOrder;
                 RenderOrder = renderOrder;
                 AbsoluteDepth = absoluteDepth;
                 SelectionOrder = selectionOrder;
                 UiDepth = uiDepth;
+                StableTie = stableTie;
+                SiblingIndex = siblingIndex;
+            }
+        }
+
+        readonly struct PointerGraphicFrontHit
+        {
+            public readonly Game.IScopeNode Owner;
+            public readonly int SortingLayerValue;
+            public readonly int SortingOrder;
+            public readonly int RenderOrder;
+            public readonly int AbsoluteDepth;
+            public readonly int StableTie;
+            public readonly int SiblingIndex;
+
+            public PointerGraphicFrontHit(
+                Game.IScopeNode owner,
+                int sortingLayerValue,
+                int sortingOrder,
+                int renderOrder,
+                int absoluteDepth,
+                int stableTie,
+                int siblingIndex)
+            {
+                Owner = owner;
+                SortingLayerValue = sortingLayerValue;
+                SortingOrder = sortingOrder;
+                RenderOrder = renderOrder;
+                AbsoluteDepth = absoluteDepth;
                 StableTie = stableTie;
                 SiblingIndex = siblingIndex;
             }
@@ -351,6 +390,7 @@ namespace Game.UI
         public SelectCandidateProviderScreen(IUICanvasService canvasService)
         {
             _canvasService = canvasService;
+            _pointerFrontHitComparer = new PointerGraphicFrontHitComparer();
             _pointerComparer = new PointerCandidateComparer(this, _pointerSortKeyCache);
             _navigationComparer = new NavigationCandidateComparer(_navigationSelectionOrderCache);
         }
@@ -476,6 +516,8 @@ namespace Game.UI
             results.Clear();
 
             _pointerSortKeyCache.Clear();
+            _pointerFrontIndexCache.Clear();
+            _pointerFrontGraphicHits.Clear();
             _elementStateCache.Clear();
 
             // 全候補を収集
@@ -483,6 +525,7 @@ namespace Game.UI
             CollectAllSelectableCandidates(rootScope, _allCandidatesBuffer);
 
             var camera = GetCamera();
+            PopulatePointerFrontGraphicCache(screenPosition, rootScope, camera);
 
             // 各候補でヒットテスト
             foreach (var candidate in _allCandidatesBuffer)
@@ -722,13 +765,7 @@ namespace Game.UI
                     continue;
                 }
 
-                var resolver = current.Resolver;
-                IUIElementState? state = null;
-                if (resolver != null)
-                {
-                    resolver.TryResolve<IUIElementState>(out state);
-                }
-
+                TryResolveOwnedUIState(current, out var state);
                 _elementStateCache[current] = state;
 
                 if (state != null)
@@ -814,9 +851,9 @@ namespace Game.UI
                 }
             }
 
-            // UIElementState の HitTestRects を厳密に優先する。
-            // 拡張ヒット（所有 Graphic フォールバック）は指定領域より大きく当たる原因になるため使用しない。
-            return false;
+            // LTS 本体 Rect と Channel 配下の実表示がズレる構成があるため、
+            // Rect が外れても所有 Graphic 上に見えている場合はヒット扱いにする。
+            return HitTestOwnedGraphics(element, screenPosition, camera);
         }
 
         bool HitTestOwnedGraphics(Game.IScopeNode element, Vector2 screenPosition, Camera? camera)
@@ -840,13 +877,7 @@ namespace Game.UI
                 for (int i = 0; i < _nodeGraphics.Count; i++)
                 {
                     var g = _nodeGraphics[i];
-                    if (g == null || !g.isActiveAndEnabled || !g.raycastTarget)
-                        continue;
-                    if (g.canvasRenderer != null && g.canvasRenderer.cull)
-                        continue;
-
-                    var rt = g.rectTransform;
-                    if (rt != null && RectTransformUtility.RectangleContainsScreenPoint(rt, screenPosition, camera))
+                    if (IsGraphicPointHit(g, screenPosition, camera))
                         return true;
                 }
 
@@ -855,6 +886,23 @@ namespace Game.UI
             }
 
             return false;
+        }
+
+        static bool IsGraphicPointHit(Graphic? graphic, Vector2 screenPosition, Camera? camera)
+        {
+            if (graphic == null || !graphic.isActiveAndEnabled)
+                return false;
+            if (graphic.canvasRenderer != null && graphic.canvasRenderer.cull)
+                return false;
+
+            var rectTransform = graphic.rectTransform;
+            if (rectTransform == null)
+                return false;
+
+            if (!RectTransformUtility.RectangleContainsScreenPoint(rectTransform, screenPosition, camera))
+                return false;
+
+            return graphic.Raycast(screenPosition, camera);
         }
 
         /// <summary>
@@ -904,16 +952,7 @@ namespace Game.UI
             if (_elementStateCache.TryGetValue(element, out state))
                 return;
 
-            state = null;
-            var resolver = element.Resolver;
-            if (resolver != null && resolver.TryResolve<IUIElementState>(out var resolved) && resolved != null)
-            {
-                state = resolved;
-                _elementStateCache[element] = state;
-                return;
-            }
-
-            state = element.GetUIElementState();
+            TryResolveOwnedUIState(element, out state);
             _elementStateCache[element] = state;
         }
 
@@ -1080,6 +1119,110 @@ namespace Game.UI
             };
         }
 
+        void PopulatePointerFrontGraphicCache(
+            Vector2 screenPosition,
+            Game.IScopeNode rootScope,
+            Camera? camera)
+        {
+            if (!TryGetElementTransform(rootScope, out var rootTransform) || rootTransform == null)
+                return;
+
+            _traverseStack.Clear();
+            _traverseStack.Add(rootTransform);
+
+            while (_traverseStack.Count > 0)
+            {
+                var tr = _traverseStack[^1];
+                _traverseStack.RemoveAt(_traverseStack.Count - 1);
+
+                _nodeGraphics.Clear();
+                tr.GetComponents(_nodeGraphics);
+                for (int i = 0; i < _nodeGraphics.Count; i++)
+                {
+                    var graphic = _nodeGraphics[i];
+                    if (!IsGraphicPointHit(graphic, screenPosition, camera))
+                        continue;
+
+                    if (!TryResolveGraphicOwnerElement(graphic.transform, rootScope, out var owner))
+                        continue;
+
+                    TryGetElementState(owner, out var ownerState);
+                    if (ownerState != null && !ownerState.IsEffectivelyActive)
+                        continue;
+                    if (ownerState != null && !ownerState.IsVisible)
+                        continue;
+                    if (ownerState != null && !ownerState.EvaluateIsSelectable())
+                        continue;
+
+                    var renderKey = GetGraphicRenderKey(graphic);
+                    var rectTransform = graphic.rectTransform;
+                    _pointerFrontGraphicHits.Add(new PointerGraphicFrontHit(
+                        owner,
+                        renderKey.SortingLayerValue,
+                        renderKey.SortingOrder,
+                        renderKey.RenderOrder,
+                        renderKey.AbsoluteDepth,
+                        GetStableTie(rectTransform),
+                        renderKey.SiblingIndex));
+                }
+
+                for (int cidx = tr.childCount - 1; cidx >= 0; cidx--)
+                    _traverseStack.Add(tr.GetChild(cidx));
+            }
+
+            if (_pointerFrontGraphicHits.Count == 0)
+                return;
+
+            _pointerFrontGraphicHits.Sort(_pointerFrontHitComparer);
+            for (int i = 0; i < _pointerFrontGraphicHits.Count; i++)
+            {
+                var owner = _pointerFrontGraphicHits[i].Owner;
+                if (_pointerFrontIndexCache.ContainsKey(owner))
+                    continue;
+
+                _pointerFrontIndexCache.Add(owner, i);
+            }
+        }
+
+        bool TryResolveGraphicOwnerElement(
+            Transform graphicTransform,
+            Game.IScopeNode rootScope,
+            out Game.IScopeNode owner)
+        {
+            owner = null!;
+            var rootTransform = rootScope.Identity?.SelfTransform;
+            for (var current = graphicTransform; current != null; current = current.parent)
+            {
+                var scope = TryGetScopeNode(current);
+                if (scope != null && TryResolveOwnedUIState(scope, out _))
+                {
+                    owner = scope;
+                    return true;
+                }
+
+                if (rootTransform != null && ReferenceEquals(current, rootTransform))
+                    break;
+            }
+
+            return false;
+        }
+
+        static RenderKey GetGraphicRenderKey(Graphic graphic)
+        {
+            var canvas = graphic.canvas;
+            var rectTransform = graphic.rectTransform;
+            return new RenderKey
+            {
+                SortingLayerValue = canvas != null ? SortingLayer.GetLayerValueFromID(canvas.sortingLayerID) : 0,
+                SortingOrder = canvas != null ? canvas.sortingOrder : 0,
+                RenderOrder = canvas != null
+                    ? (canvas.rootCanvas != null ? canvas.rootCanvas.renderOrder : canvas.renderOrder)
+                    : 0,
+                AbsoluteDepth = graphic.canvasRenderer != null ? graphic.canvasRenderer.absoluteDepth : 0,
+                SiblingIndex = rectTransform != null ? rectTransform.GetSiblingIndex() : 0,
+            };
+        }
+
         PointerSortKey BuildPointerSortKey(
             Game.IScopeNode e,
             IUIElementState? st,
@@ -1093,12 +1236,17 @@ namespace Game.UI
             }
 
             var renderKey = GetPointerRenderKeyAtPoint(elementTransform, screenPos, cam);
+            var hasFrontGraphicHit = _pointerFrontIndexCache.TryGetValue(e, out var frontGraphicIndex);
+            if (!hasFrontGraphicHit)
+                frontGraphicIndex = int.MaxValue;
 
             int selectionOrder = st?.SelectionOrder ?? 0;
             int uiDepth = GetUiElementDepth(e, rootScope);
             int stableTie = GetStableTie(elementTransform);
 
             return new PointerSortKey(
+                hasFrontGraphicHit,
+                frontGraphicIndex,
                 renderKey.SortingLayerValue,
                 renderKey.SortingOrder,
                 renderKey.RenderOrder,
@@ -1134,6 +1282,26 @@ namespace Game.UI
                 }
                 return h;
             }
+        }
+
+        static int CompareAncestorFrontToBack(Game.IScopeNode a, Game.IScopeNode b)
+        {
+            if (ReferenceEquals(a, b))
+                return 0;
+
+            for (var current = b.Parent; current != null; current = current.Parent)
+            {
+                if (ReferenceEquals(current, a))
+                    return 1;
+            }
+
+            for (var current = a.Parent; current != null; current = current.Parent)
+            {
+                if (ReferenceEquals(current, b))
+                    return -1;
+            }
+
+            return 0;
         }
 
         int CompareHierarchyFrontToBack(Game.IScopeNode a, Game.IScopeNode b)
@@ -1266,7 +1434,13 @@ namespace Game.UI
                 // まず SelectionOrder を最優先にする
                 if (ak.SelectionOrder != bk.SelectionOrder) return bk.SelectionOrder.CompareTo(ak.SelectionOrder);
 
-                // 同 order 内では見た目上の前面を優先
+                // 親子が同時ヒットしている場合は、必ず子孫 UI を優先する。
+                // これを描画順より先に置くことで、全面 panel/root が子要素を奪う揺れを抑える。
+                var ancestorCmp = CompareAncestorFrontToBack(ae, be);
+                if (ancestorCmp != 0)
+                    return ancestorCmp;
+
+                // まずは見た目の描画順そのものを優先する。
                 if (ak.SortingLayerValue != bk.SortingLayerValue) return bk.SortingLayerValue.CompareTo(ak.SortingLayerValue);
                 if (ak.SortingOrder != bk.SortingOrder) return bk.SortingOrder.CompareTo(ak.SortingOrder);
                 if (ak.RenderOrder != bk.RenderOrder) return bk.RenderOrder.CompareTo(ak.RenderOrder);
@@ -1280,11 +1454,30 @@ namespace Game.UI
                 if (hierarchyCmp != 0)
                     return hierarchyCmp;
 
+                // 完全に同等な描画順のときだけ、pointer 位置で実際に Graphic が当たっている方を優先する。
+                if (ak.HasFrontGraphicHit != bk.HasFrontGraphicHit)
+                    return bk.HasFrontGraphicHit.CompareTo(ak.HasFrontGraphicHit);
+                if (ak.HasFrontGraphicHit && bk.HasFrontGraphicHit && ak.FrontGraphicIndex != bk.FrontGraphicIndex)
+                    return ak.FrontGraphicIndex.CompareTo(bk.FrontGraphicIndex);
+
                 // 最終同点潰し（安定化）
                 if (ak.StableTie != bk.StableTie) return bk.StableTie.CompareTo(ak.StableTie);
 
                 // 最後の保険: sibling index
                 return bk.SiblingIndex.CompareTo(ak.SiblingIndex);
+            }
+        }
+
+        sealed class PointerGraphicFrontHitComparer : IComparer<PointerGraphicFrontHit>
+        {
+            public int Compare(PointerGraphicFrontHit a, PointerGraphicFrontHit b)
+            {
+                if (a.SortingLayerValue != b.SortingLayerValue) return b.SortingLayerValue.CompareTo(a.SortingLayerValue);
+                if (a.SortingOrder != b.SortingOrder) return b.SortingOrder.CompareTo(a.SortingOrder);
+                if (a.RenderOrder != b.RenderOrder) return b.RenderOrder.CompareTo(a.RenderOrder);
+                if (a.AbsoluteDepth != b.AbsoluteDepth) return b.AbsoluteDepth.CompareTo(a.AbsoluteDepth);
+                if (a.StableTie != b.StableTie) return b.StableTie.CompareTo(a.StableTie);
+                return b.SiblingIndex.CompareTo(a.SiblingIndex);
             }
         }
 

@@ -17,6 +17,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 5619052506154533073
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -46,8 +48,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
         Target:
           Kind: 0
           Identity:
@@ -57,8 +62,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
         VarOps:
         - Target: 0
           Key:
@@ -85,7 +93,7 @@ MonoBehaviour:
             _source:
               rid: 5619052506154533143
         ScalarOps: []
-        DebugMode: 1
+        DebugMode: 0
         Debug:
           LogLevel: 10
           Prefix: '[WriteDataDebug]'
@@ -148,8 +156,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052506154533141
@@ -167,8 +178,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052506154533142
@@ -218,8 +232,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052506154533145
@@ -237,8 +254,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052506154533146
