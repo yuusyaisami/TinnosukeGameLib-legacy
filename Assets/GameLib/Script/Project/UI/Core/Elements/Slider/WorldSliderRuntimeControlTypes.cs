@@ -27,6 +27,7 @@ namespace Game.UI
         SimpleBar = 10,
         SegmentBar = 20,
         Marker = 30,
+        Background = 40,
     }
 
     public interface IWorldSliderRuntimePresetProvider
@@ -172,6 +173,59 @@ namespace Game.UI
         [LabelText("Mode")]
         [Tooltip("Simple か Segmented かを切り替えます。切り替え時は旧 visual runtime を破棄して再構築します。")]
         public WorldSliderVisualizerMode Mode = WorldSliderVisualizerMode.Simple;
+
+        [BoxGroup("Background")]
+        [ToggleLeft]
+        [LabelText("Apply Background")]
+        [Tooltip("Background 表示設定をこの command で上書きする場合に有効にします。")]
+        public bool ApplyBackground;
+
+        [BoxGroup("Background")]
+        [ShowIf(nameof(ApplyBackground))]
+        [LabelText("Enabled")]
+        [Tooltip("Slider 背面の runtime background を表示するかを切り替えます。")]
+        public bool BackgroundEnabled;
+
+        [BoxGroup("Background")]
+        [ShowIf(nameof(ApplyBackground))]
+        [LabelText("Template")]
+        [Tooltip("Background を生成する runtime template です。")]
+        public DynamicValue<BaseRuntimeTemplatePreset> BackgroundTemplatePreset;
+
+        [BoxGroup("Background")]
+        [ShowIf(nameof(ApplyBackground))]
+        [LabelText("Animation Channel Tag")]
+        [Tooltip("Background 生成後に IAnimationSpriteHubService から見た目ターゲットを取得する channel tag です。")]
+        public string BackgroundAnimationChannelTag = "default";
+
+        [BoxGroup("Background")]
+        [ShowIf(nameof(ApplyBackground))]
+        [LabelText("Allow Pooling")]
+        [Tooltip("Background の生成/破棄で pool を使うかを決めます。")]
+        public bool BackgroundAllowPooling = true;
+
+        [BoxGroup("Background")]
+        [ShowIf(nameof(ApplyBackground))]
+        [LabelText("Depth Offset")]
+        [Tooltip("+ 方向へ押し出して Bar より背面に配置する深度オフセットです。XY 平面では +Z、XZ 平面では +Y を使います。")]
+        [MinValue(0f)]
+        public float BackgroundDepthOffset = 0.01f;
+
+        [BoxGroup("Background")]
+        [ToggleLeft]
+        [LabelText("Apply Background Spawn Commands")]
+        [Tooltip("Background の spawn command list を runtime mutation する場合に有効にします。")]
+        public bool ApplyBackgroundSpawnCommands;
+
+        [BoxGroup("Background")]
+        [ShowIf(nameof(ApplyBackgroundSpawnCommands))]
+        [InlineProperty]
+        [HideLabel]
+        [Tooltip("Background の spawn command list に対する runtime mutation です。")]
+        public CommandListMutationStep BackgroundSpawnCommands = new()
+        {
+            Operation = CommandListMutationOperation.Override,
+        };
 
         [BoxGroup("Simple/Layout")]
         [ToggleLeft]
@@ -358,6 +412,8 @@ namespace Game.UI
         public bool HasAnyMutation()
         {
             return ApplyMode ||
+                   ApplyBackground ||
+                   ApplyBackgroundSpawnCommands ||
                    ApplySimpleLayout ||
                    ApplySimpleBackend ||
                    ApplySimpleSpawnCommands ||

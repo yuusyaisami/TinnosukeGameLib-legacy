@@ -714,7 +714,7 @@ namespace Game.UI
             ProcessButton(ref frame.Cancel, UIInputEventType.CancelDown, UIInputEventType.CancelHeld, UIInputEventType.CancelUp, pointerPos, dt, scheme, usage);
             ProcessButton(ref frame.Retry, UIInputEventType.RetryDown, UIInputEventType.RetryHeld, UIInputEventType.RetryUp, pointerPos, dt, scheme, usage);
 
-            // Gameplay buttons that may be used by UI elements (e.g., UIButton trigger)
+            // Gameplay buttons that may be used by UI elements (e.g., ButtonChannel trigger)
             ProcessButton(ref frame.Attack, UIInputEventType.AttackDown, UIInputEventType.AttackHeld, UIInputEventType.AttackUp, pointerPos, dt, scheme, usage);
             ProcessButton(ref frame.Interact, UIInputEventType.InteractDown, UIInputEventType.InteractHeld, UIInputEventType.InteractUp, pointerPos, dt, scheme, usage);
             ProcessButton(ref frame.Pause, UIInputEventType.PauseDown, UIInputEventType.PauseHeld, UIInputEventType.PauseUp, pointerPos, dt, scheme, usage);

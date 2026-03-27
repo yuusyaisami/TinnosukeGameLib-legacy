@@ -52,6 +52,7 @@ namespace Game.Targeting
             get
             {
                 EnsureUpdated(ignoreInterval: false);
+                PruneInvalidHits();
                 return _hits;
             }
         }
@@ -170,6 +171,24 @@ namespace Game.Targeting
             }
 
             ApplySelfExclusion();
+        }
+
+        void PruneInvalidHits()
+        {
+            for (int i = _hits.Count - 1; i >= 0; i--)
+            {
+                if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(_hits[i]))
+                    _hits.RemoveAt(i);
+            }
+
+            if (!_currentPreset.IsNoneSearch)
+                return;
+
+            for (int i = _directHits.Count - 1; i >= 0; i--)
+            {
+                if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(_directHits[i]))
+                    _directHits.RemoveAt(i);
+            }
         }
 
         void CollectDynamicHits()

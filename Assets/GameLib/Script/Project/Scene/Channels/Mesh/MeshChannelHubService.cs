@@ -21,19 +21,16 @@ namespace Game.Channel
         readonly List<IMeshChannelPlayerRuntime> _players = new();
         readonly IScopeNode _scope;
         readonly Transform _ownerTransform;
-        readonly Shader? _defaultShader;
 
         public IReadOnlyList<IMeshChannelPlayerRuntime> Players => _players;
 
         public MeshChannelHubService(
             MeshChannelEntry[] entries,
             IScopeNode scope,
-            Transform ownerTransform,
-            Shader? defaultShader)
+            Transform ownerTransform)
         {
             _scope = scope;
             _ownerTransform = ownerTransform;
-            _defaultShader = defaultShader;
 
             if (entries == null)
                 return;
@@ -45,7 +42,7 @@ namespace Game.Channel
                     continue;
 
                 var tag = string.IsNullOrWhiteSpace(entry.Tag) ? "default" : entry.Tag.Trim();
-                var runtime = new MeshChannelPlayerRuntime(tag, entry.Definition, scope, ownerTransform, defaultShader);
+                var runtime = new MeshChannelPlayerRuntime(tag, entry.Definition, scope, ownerTransform);
                 _playersByTag[tag] = runtime;
                 _players.Add(runtime);
             }
@@ -216,8 +213,7 @@ namespace Game.Channel
                 tag,
                 MeshChannelDynamicValueFactory.FromManaged(new MeshDefinitionPreset()),
                 _scope,
-                _ownerTransform,
-                _defaultShader);
+                _ownerTransform);
             _playersByTag[tag] = runtime;
             _players.Add(runtime);
             runtime.OnAcquire();

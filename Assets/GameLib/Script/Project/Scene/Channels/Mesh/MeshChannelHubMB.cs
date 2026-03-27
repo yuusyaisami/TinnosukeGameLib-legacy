@@ -12,17 +12,13 @@ namespace Game.Channel
         [SerializeField]
         MeshChannelEntry[] _entries = Array.Empty<MeshChannelEntry>();
 
-        [SerializeField]
-        Shader? _defaultShader;
-
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<MeshChannelHubService>(resolver =>
                 new MeshChannelHubService(
                     _entries ?? Array.Empty<MeshChannelEntry>(),
                     scope,
-                    transform,
-                    _defaultShader),
+                    transform),
                 Lifetime.Singleton)
                 .As<IMeshChannelHubService>()
                 .As<IMeshChannelControlService>()

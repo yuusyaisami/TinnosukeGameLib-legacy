@@ -9,7 +9,11 @@ void MeshBands_Apply(inout MeshMaterialSurfaceContext context)
     float count = max(_MeshBandsCount, 1.0);
     float stepped = frac(context.DistanceNormalized * count);
     float pulse = smoothstep(0.5 - _MeshBandsContrast * 0.5, 0.5 + _MeshBandsContrast * 0.5, stepped);
-    context.Color.rgb = lerp(context.Color.rgb, _MeshBandsColor.rgb, pulse * saturate(_MeshBandsIntensity));
+    context.Color.rgb = MeshMaterialSurface_BlendColor(
+        context.Color.rgb,
+        _MeshBandsColor.rgb,
+        pulse * saturate(_MeshBandsIntensity),
+        _MeshBandsBlendMode);
 }
 
 #endif

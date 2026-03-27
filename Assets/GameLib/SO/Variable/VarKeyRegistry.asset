@@ -1121,6 +1121,134 @@ MonoBehaviour:
     varId: 101090
     stableKey: UIButton.ShortLong.LongMaxTime
     aliases: []
+  - id: a288e842fcb84ab0a9f2a382e3c499c3
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: ButtonChannel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 206e3df987cb409983955e52ed20864c
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: ChannelTag
+    isFolder: 0
+    description: 
+    varId: 101091
+    stableKey: UIButtonChannel.ChannelTag
+    aliases: []
+  - id: ae8e3161324846538ecdb6565b292920
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: IsEnabled
+    isFolder: 0
+    description: 
+    varId: 101092
+    stableKey: UIButtonChannel.IsEnabled
+    aliases: []
+  - id: 11a8353bd82e4203a046cdbb5c68a26f
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: IsSelected
+    isFolder: 0
+    description: 
+    varId: 101093
+    stableKey: UIButtonChannel.IsSelected
+    aliases: []
+  - id: eb170e52d91041748905d0464364758f
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: IsHovered
+    isFolder: 0
+    description: 
+    varId: 101094
+    stableKey: UIButtonChannel.IsHovered
+    aliases: []
+  - id: f975617bafec4c8fa04dc0c6986c0600
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: IsInteracting
+    isFolder: 0
+    description: 
+    varId: 101095
+    stableKey: UIButtonChannel.IsInteracting
+    aliases: []
+  - id: 19eb408c5a0849939a93f91c153eb786
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: Phase
+    isFolder: 0
+    description: 
+    varId: 101096
+    stableKey: UIButtonChannel.Phase
+    aliases: []
+  - id: 4a17c34a8ba24250a1bd5ed71b1f2cc4
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: HoldTime
+    isFolder: 0
+    description: 
+    varId: 101097
+    stableKey: UIButtonChannel.HoldTime
+    aliases: []
+  - id: f84d0525c6804c3eb972bed1581cbd8d
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: HoldProgress
+    isFolder: 0
+    description: 
+    varId: 101098
+    stableKey: UIButtonChannel.HoldProgress
+    aliases: []
+  - id: 13acaab7eaeb4853a05cda23f38b4c05
+    parentId: a288e842fcb84ab0a9f2a382e3c499c3
+    name: ShortLong
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 2c65c537f3e94f84a6cce9bb13e22545
+    parentId: 13acaab7eaeb4853a05cda23f38b4c05
+    name: State
+    isFolder: 0
+    description: 
+    varId: 101099
+    stableKey: UIButtonChannel.ShortLong.State
+    aliases: []
+  - id: 6610dbd0902a49cd905edf29696c9a95
+    parentId: 13acaab7eaeb4853a05cda23f38b4c05
+    name: ShortProgress
+    isFolder: 0
+    description: 
+    varId: 101100
+    stableKey: UIButtonChannel.ShortLong.ShortProgress
+    aliases: []
+  - id: 632747741b9c4d3392533ff2d0fe7a2a
+    parentId: 13acaab7eaeb4853a05cda23f38b4c05
+    name: LongProgress
+    isFolder: 0
+    description: 
+    varId: 101101
+    stableKey: UIButtonChannel.ShortLong.LongProgress
+    aliases: []
+  - id: a7ce479b06b1474d99ae6a765c7eca86
+    parentId: 13acaab7eaeb4853a05cda23f38b4c05
+    name: IsLong
+    isFolder: 0
+    description: 
+    varId: 101102
+    stableKey: UIButtonChannel.ShortLong.IsLong
+    aliases: []
+  - id: d5e90056dde64eb18add40973c15c912
+    parentId: 13acaab7eaeb4853a05cda23f38b4c05
+    name: IsLongMax
+    isFolder: 0
+    description: 
+    varId: 101103
+    stableKey: UIButtonChannel.ShortLong.IsLongMax
+    aliases: []
+  - id: 5a46dbe912294a33b693e3e904fbc4ee
+    parentId: 13acaab7eaeb4853a05cda23f38b4c05
+    name: LongMaxTime
+    isFolder: 0
+    description: 
+    varId: 101104
+    stableKey: UIButtonChannel.ShortLong.LongMaxTime
+    aliases: []
   - id: 90c702afc4a64b5b91031b932d15922c
     parentId: e0f6c3da1e84498180c2a3814492a0bf
     name: nameKey
@@ -3543,7 +3671,7 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
-  nextVarId: 101091
+  nextVarId: 101105
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

@@ -25,6 +25,9 @@ namespace Game.Commands.VNext
 
         static (IScopeNode? scope, string error) ResolveWithoutIdentity(ActorSource source, CommandContext ctx)
         {
+            if (TryGetConfigurationError(source, out var configurationError))
+                return (null, configurationError);
+
             var resolved = ActorSourceFastResolver.Resolve(ctx, source);
             if (resolved != null)
                 return (resolved, string.Empty);
@@ -42,6 +45,19 @@ namespace Game.Commands.VNext
                 ActorSourceKind.TargetChannel => (null, $"TargetChannel actor scope was not found. tag='{source.TargetChannel?.ChannelTag}'"),
                 _ => (null, "Unknown actor source."),
             };
+        }
+
+        static bool TryGetConfigurationError(ActorSource source, out string error)
+        {
+            error = string.Empty;
+
+            if (source.Kind == ActorSourceKind.TargetChannel && source.TargetChannel == null)
+            {
+                error = "ActorSource(TargetChannel) requires TargetChannelActorSourceRef, but it is None.";
+                return true;
+            }
+
+            return false;
         }
 
         static async UniTask<(IScopeNode? scope, string error)> ResolveByIdentityWithRetryAsync(

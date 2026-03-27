@@ -73,7 +73,7 @@ namespace Game.MapNode
         public MapNodeVisualCommandTable CommandTable = new();
 
         [BoxGroup("Commands")]
-        public MapNodeUIButtonCommandTable UIButtonCommandTable = new();
+        public MapNodeButtonChannelCommandTable ButtonChannelCommandTable = new();
 
         [BoxGroup("Commands")]
         public AnimationSpritePreset? DefaultAnimPreset;
@@ -132,11 +132,14 @@ namespace Game.MapNode
     }
 
     [Serializable]
-    public struct MapNodeUIButtonCommandTable
+    public struct MapNodeButtonChannelCommandTable
     {
-        public CommandListData SubmitUpAppendCommon;
-        public List<MapNodeTypeCommand> SubmitUpAppendByType;
-        public List<MapNodeStateCommand> SubmitUpAppendByState;
+        public string ChannelTag;
+        public CommandListData DecisionAppendCommon;
+        public List<MapNodeTypeCommand> DecisionAppendByType;
+        public List<MapNodeStateCommand> DecisionAppendByState;
+
+        public string NormalizedChannelTag => string.IsNullOrWhiteSpace(ChannelTag) ? "default" : ChannelTag.Trim();
     }
 
     [Serializable]

@@ -24,6 +24,7 @@ namespace Game.Targeting
     /// </summary>
     public sealed class TargetChannelHubService :
         ITargetChannelHub,
+        ITargetChannelHubTelemetry,
         IDisposable,
         IResettableService,
         IEnabledService,
@@ -38,6 +39,7 @@ namespace Game.Targeting
         bool _disposed;
         bool _enabled = true;
         bool _initialized;
+        int _telemetryVersion;
 
         public TargetChannelHubService(
             TargetChannelHubConfig config,
@@ -55,6 +57,7 @@ namespace Game.Targeting
         }
 
         public int ChannelCount => _channels.Count;
+        public int TelemetryVersion => _telemetryVersion;
 
         /// <inheritdoc/>
         public bool IsEnabled => !_disposed && _enabled;
@@ -87,6 +90,7 @@ namespace Game.Targeting
 
             var runtime = CreateRuntime(preset);
             _channels[preset.Tag] = runtime;
+            BumpTelemetry();
             return runtime;
         }
 
@@ -103,7 +107,11 @@ namespace Game.Targeting
             if (!string.Equals(tag, preset.Tag, StringComparison.Ordinal))
                 return false;
 
-            return runtime.SwapPreset(preset);
+            var changed = runtime.SwapPreset(preset);
+            if (changed)
+                BumpTelemetry();
+
+            return changed;
         }
 
         public bool MutateSettings(string tag, TargetChannelRuntimeMutation mutation)
@@ -113,9 +121,14 @@ namespace Game.Targeting
             if (_disposed || string.IsNullOrWhiteSpace(tag) || mutation == null)
                 return false;
 
-            return _channels.TryGetValue(tag, out var runtime) &&
-                   runtime != null &&
-                   runtime.MutateSettings(mutation);
+            if (!_channels.TryGetValue(tag, out var runtime) || runtime == null)
+                return false;
+
+            var changed = runtime.MutateSettings(mutation);
+            if (changed)
+                BumpTelemetry();
+
+            return changed;
         }
 
         public bool ResetRuntimeOverrides(string tag)
@@ -125,9 +138,14 @@ namespace Game.Targeting
             if (_disposed || string.IsNullOrWhiteSpace(tag))
                 return false;
 
-            return _channels.TryGetValue(tag, out var runtime) &&
-                   runtime != null &&
-                   runtime.ResetRuntimeOverrides();
+            if (!_channels.TryGetValue(tag, out var runtime) || runtime == null)
+                return false;
+
+            var changed = runtime.ResetRuntimeOverrides();
+            if (changed)
+                BumpTelemetry();
+
+            return changed;
         }
 
         public bool SetDirectTargets(string tag, IReadOnlyList<DynamicSearchHit> hits)
@@ -161,7 +179,11 @@ namespace Game.Targeting
             if (_disposed) return false;
             if (string.IsNullOrEmpty(tag)) return false;
 
-            return _channels.Remove(tag);
+            var removed = _channels.Remove(tag);
+            if (removed)
+                BumpTelemetry();
+
+            return removed;
         }
 
         public void Clear()
@@ -169,7 +191,11 @@ namespace Game.Targeting
             MainThread.AssertMainThread();
 
             if (_disposed) return;
+            if (_channels.Count == 0)
+                return;
+
             _channels.Clear();
+            BumpTelemetry();
         }
 
         public void Dispose()
@@ -177,7 +203,11 @@ namespace Game.Targeting
             if (_disposed) return;
             _disposed = true;
             _initialized = false;
-            _channels.Clear(); // Runtime 自体は軽量なため破棄のみ
+            if (_channels.Count > 0)
+            {
+                _channels.Clear(); // Runtime 自体は軽量なため破棄のみ
+                BumpTelemetry();
+            }
         }
 
         /// <inheritdoc/>
@@ -186,7 +216,11 @@ namespace Game.Targeting
             _disposed = false;
             _enabled = true;
             _initialized = false;
-            _channels.Clear();
+            if (_channels.Count > 0)
+            {
+                _channels.Clear();
+                BumpTelemetry();
+            }
         }
 
         /// <inheritdoc/>
@@ -196,8 +230,52 @@ namespace Game.Targeting
             if (!enabled)
             {
                 _initialized = false;
-                _channels.Clear();
+                if (_channels.Count > 0)
+                {
+                    _channels.Clear();
+                    BumpTelemetry();
+                }
             }
+        }
+
+        public TargetChannelHubTelemetrySnapshot GetTelemetrySnapshot()
+        {
+            var runtimes = new List<ITargetChannelRuntime>(_channels.Count);
+            foreach (var pair in _channels)
+            {
+                if (pair.Value != null)
+                    runtimes.Add(pair.Value);
+            }
+
+            runtimes.Sort(static (a, b) => string.CompareOrdinal(a.Tag, b.Tag));
+
+            var channels = new List<TargetChannelTelemetrySnapshot>(runtimes.Count);
+            for (int i = 0; i < runtimes.Count; i++)
+            {
+                var runtime = runtimes[i];
+                var preset = runtime.CurrentPreset;
+                channels.Add(new TargetChannelTelemetrySnapshot(
+                    tag: runtime.Tag,
+                    enabled: runtime.Enabled,
+                    searchType: preset.SearchType,
+                    kind: preset.Kind,
+                    radius: preset.Radius,
+                    halfAngleDeg: preset.HalfAngleDeg,
+                    refreshIntervalFrames: preset.RefreshIntervalFrames,
+                    expectedResultCount: preset.ExpectedResultCount,
+                    kindMask: preset.KindMask,
+                    filterId: preset.FilterId,
+                    filterCategory: preset.FilterCategory,
+                    excludeSelf: preset.ExcludeSelf,
+                    originSource: preset.OriginSource,
+                    forwardSource: preset.ForwardSource,
+                    scopeRequireActive: preset.ScopeRequireActive));
+            }
+
+            return new TargetChannelHubTelemetrySnapshot(
+                version: _telemetryVersion,
+                channelCount: _channels.Count,
+                channels: channels);
         }
 
         void IScopeAcquireHandler.OnAcquire(IScopeNode scope, bool isReset)
@@ -266,6 +344,17 @@ namespace Game.Targeting
             }
 
             return NullVarStore.Instance;
+        }
+
+        void BumpTelemetry()
+        {
+            if (_telemetryVersion == int.MaxValue)
+            {
+                _telemetryVersion = 1;
+                return;
+            }
+
+            _telemetryVersion++;
         }
     }
 }

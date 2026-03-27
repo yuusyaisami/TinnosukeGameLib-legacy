@@ -39,6 +39,10 @@ namespace Game.Targeting
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, DefaultExpandedState = true)]
         [SerializeField] List<DynamicValue<TargetChannelPreset>> initialChannels = new(); // 初期登録するチャネル一覧
 
+        [FoldoutGroup("Debug")]
+        [SerializeField, InlineProperty, HideLabel]
+        TargetChannelHubDebugViewer debugViewer = new();
+
         // ================================================================
         // Runtime
         // ================================================================
@@ -76,11 +80,18 @@ namespace Game.Targeting
                 return new TargetChannelHubService(config, owner, search, config.InitialChannels.Count);
             }, Lifetime.Singleton)
                 .As<ITargetChannelHub>()
+                .As<ITargetChannelHubTelemetry>()
                 .As<IDisposable>()
                 .As<IResettableService>()
                 .As<IEnabledService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
+
+            builder.RegisterBuildCallback(container =>
+            {
+                if (debugViewer != null && container.TryResolve<ITargetChannelHubTelemetry>(out var telemetry) && telemetry != null)
+                    debugViewer.Bind(telemetry);
+            });
         }
 
         // ================================================================
@@ -176,6 +187,146 @@ namespace Game.Targeting
                 return null;
 
             return resolver.TryResolve<ITargetChannelHub>(out var hub) ? hub : null;
+        }
+    }
+
+    [Serializable]
+    public sealed class TargetChannelHubDebugViewer
+    {
+        [ShowInInspector, ReadOnly, LabelText("Bound")]
+        public bool IsBound => _telemetry != null;
+
+        [ShowInInspector, ReadOnly, LabelText("Telemetry Version")]
+        public int TelemetryVersion
+        {
+            get
+            {
+                AutoRefresh();
+                return _snapshot.Version;
+            }
+        }
+
+        [ShowInInspector, ReadOnly, LabelText("Channel Count")]
+        public int ChannelCount
+        {
+            get
+            {
+                AutoRefresh();
+                return _snapshot.ChannelCount;
+            }
+        }
+
+        [ShowInInspector]
+        [TableList(IsReadOnly = true, AlwaysExpanded = true)]
+        [LabelText("Runtime Channel Settings")]
+        public List<ChannelRow> Channels
+        {
+            get
+            {
+                AutoRefresh();
+                return _rows;
+            }
+        }
+
+        [SerializeField, LabelText("Auto Refresh Every N Frames"), MinValue(1)]
+        int autoRefreshEveryNFrames = 1;
+
+        ITargetChannelHubTelemetry? _telemetry;
+        TargetChannelHubTelemetrySnapshot _snapshot;
+        int _lastVersion = -1;
+        int _lastRefreshFrame = -1;
+        readonly List<ChannelRow> _rows = new();
+
+        public void Bind(ITargetChannelHubTelemetry telemetry)
+        {
+            _telemetry = telemetry;
+            _lastVersion = -1;
+            _lastRefreshFrame = -1;
+            Refresh();
+        }
+
+        [Button(ButtonSizes.Small)]
+        public void Refresh()
+        {
+            if (_telemetry == null)
+                return;
+
+            ApplySnapshot(_telemetry.GetTelemetrySnapshot());
+        }
+
+        void AutoRefresh()
+        {
+            if (_telemetry == null)
+                return;
+
+            var frame = Time.frameCount;
+            var interval = Mathf.Max(1, autoRefreshEveryNFrames);
+            if (_lastRefreshFrame >= 0 && frame - _lastRefreshFrame < interval)
+                return;
+
+            var telemetryVersion = _telemetry.TelemetryVersion;
+            if (telemetryVersion == _lastVersion)
+            {
+                _lastRefreshFrame = frame;
+                return;
+            }
+
+            ApplySnapshot(_telemetry.GetTelemetrySnapshot());
+        }
+
+        void ApplySnapshot(in TargetChannelHubTelemetrySnapshot snapshot)
+        {
+            _snapshot = snapshot;
+            _lastVersion = snapshot.Version;
+            _lastRefreshFrame = Time.frameCount;
+
+            _rows.Clear();
+            var channels = snapshot.Channels;
+            if (channels == null)
+                return;
+
+            for (int i = 0; i < channels.Count; i++)
+            {
+                var channel = channels[i];
+                _rows.Add(new ChannelRow
+                {
+                    Tag = channel.Tag,
+                    Enabled = channel.Enabled,
+                    SearchType = channel.SearchType,
+                    Kind = channel.Kind,
+                    Radius = channel.Radius,
+                    HalfAngleDeg = channel.HalfAngleDeg,
+                    RefreshIntervalFrames = channel.RefreshIntervalFrames,
+                    ExpectedResultCount = channel.ExpectedResultCount,
+                    KindMask = channel.KindMask.ToString(),
+                    FilterId = string.IsNullOrEmpty(channel.FilterId) ? "(empty)" : channel.FilterId,
+                    FilterCategory = string.IsNullOrEmpty(channel.FilterCategory) ? "(empty)" : channel.FilterCategory,
+                    ExcludeSelf = channel.ExcludeSelf,
+                    OriginSource = channel.OriginSource,
+                    ForwardSource = channel.ForwardSource,
+                    ScopeRequireActive = channel.ScopeRequireActive,
+                });
+            }
+        }
+
+        [Serializable]
+        public sealed class ChannelRow
+        {
+            [TableColumnWidth(140)] public string Tag = string.Empty;
+            [TableColumnWidth(60)] public bool Enabled;
+            [TableColumnWidth(90)] public TargetChannelSearchType SearchType;
+            [TableColumnWidth(70)] public TargetQueryKind Kind;
+            [TableColumnWidth(60)] public float Radius;
+            [TableColumnWidth(85)] public float HalfAngleDeg;
+            [TableColumnWidth(80)] public int RefreshIntervalFrames;
+            [TableColumnWidth(70)] public int ExpectedResultCount;
+            [TableColumnWidth(120)] public string KindMask = string.Empty;
+            [TableColumnWidth(100)] public string FilterId = string.Empty;
+            [TableColumnWidth(120)] public string FilterCategory = string.Empty;
+            [TableColumnWidth(70)] public bool ExcludeSelf;
+            [TableColumnWidth(100)] public TargetOriginSource OriginSource;
+            [TableColumnWidth(105)] public TargetForwardSource ForwardSource;
+            [TableColumnWidth(90)] public bool ScopeRequireActive;
         }
     }
 }

@@ -6,3 +6,9 @@ Game.UI.WorldSliderVisualizerPreset, Assembly-CSharp
 	Width = 72.85
 * [Sirenix.OdinInspector.InlinePropertyAttribute]
 	LabelWidth = 137
+
+# _background
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 72.05
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 139

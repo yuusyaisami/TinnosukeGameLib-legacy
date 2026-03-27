@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -82,65 +83,47 @@ namespace Game.Channel
             }
         }
 
-        public static void BuildRibbonOutline(
+        public static void BuildLineVisualPaths(
             IReadOnlyList<Vector2> points,
             IReadOnlyList<float> distances,
             bool closed,
             MeshLineTrackVisualizerPreset preset,
             float timeSeconds,
-            List<Vector2> left,
-            List<Vector2> right)
+            List<MeshRuntimePath> outputPaths)
         {
-            left.Clear();
-            right.Clear();
+            outputPaths.Clear();
             if (points == null || points.Count < 2)
                 return;
 
-            var totalLength = distances.Count > 0 ? distances[distances.Count - 1] : 0f;
-            if (totalLength <= Epsilon)
-                totalLength = 1f;
+            var deformedPoints = ListPool<Vector2>.Get();
+            var deformedDistances = ListPool<float>.Get();
+            var chunkPoints = ListPool<Vector2>.Get();
+            var chunkDistances = ListPool<float>.Get();
 
-            for (var i = 0; i < points.Count; i++)
+            try
             {
-                var prev = i == 0 ? (closed ? points[points.Count - 1] : points[i]) : points[i - 1];
-                var next = i == points.Count - 1 ? (closed ? points[0] : points[i]) : points[i + 1];
-                var tangent = next - prev;
-                if (tangent.sqrMagnitude <= Epsilon)
-                    tangent = Vector2.right;
-                tangent.Normalize();
+                BuildDeformedCenterLine(
+                    points,
+                    distances,
+                    closed,
+                    preset,
+                    timeSeconds,
+                    deformedPoints,
+                    deformedDistances,
+                    out var totalLength);
 
-                var normal = new Vector2(-tangent.y, tangent.x);
-                var point = points[i];
-                var distance = i < distances.Count ? distances[i] : 0f;
+                if (deformedPoints.Count < 2)
+                    return;
 
-                if (preset.WaveAmplitude > 0f)
-                {
-                    var sampleLength = preset.WaveSpace == MeshWaveSpace.NormalizedLength
-                        ? distance / Mathf.Max(Epsilon, totalLength)
-                        : distance;
-                    var theta = (sampleLength / Mathf.Max(Epsilon, preset.WaveLength)) * Mathf.PI * 2f +
-                                preset.WavePhase +
-                                timeSeconds * preset.WaveScrollSpeed;
-                    point += normal * (Mathf.Sin(theta) * preset.WaveAmplitude);
-                }
-
-                var widthScale = 1f;
-                if (preset.HeadTaperNormalized > Epsilon)
-                {
-                    var t = Mathf.Clamp01(distance / Mathf.Max(Epsilon, totalLength * preset.HeadTaperNormalized));
-                    widthScale = Mathf.Min(widthScale, t);
-                }
-
-                if (preset.TailTaperNormalized > Epsilon)
-                {
-                    var tailLength = totalLength * preset.TailTaperNormalized;
-                    var tailT = Mathf.Clamp01((totalLength - distance) / Mathf.Max(Epsilon, tailLength));
-                    widthScale = Mathf.Min(widthScale, tailT);
-                }
-
-                var halfWidth = Mathf.Max(Epsilon, preset.BaseWidth * Mathf.Max(Epsilon, widthScale)) * 0.5f;
-                left.Add(point + normal * halfWidth);
-                right.Add(point - normal * halfWidth);
+                if (!preset.DashEnabled || !TryBuildDashedLineVisualPaths(deformedPoints, deformedDistances, preset, timeSeconds, totalLength, outputPaths, chunkPoints, chunkDistances))
+                    AppendRibbonPath(deformedPoints, deformedDistances, closed, totalLength, preset, outputPaths);
+            }
+            finally
+            {
+                ListPool<Vector2>.Release(deformedPoints);
+                ListPool<float>.Release(deformedDistances);
+                ListPool<Vector2>.Release(chunkPoints);
+                ListPool<float>.Release(chunkDistances);
             }
         }
 
@@ -250,6 +233,320 @@ namespace Game.Channel
             {
                 ListPool<Vector3>.Release(vertices);
                 ListPool<int>.Release(triangles);
+            }
+        }
+
+        static void BuildDeformedCenterLine(
+            IReadOnlyList<Vector2> points,
+            IReadOnlyList<float> distances,
+            bool closed,
+            MeshLineTrackVisualizerPreset preset,
+            float timeSeconds,
+            List<Vector2> outputPoints,
+            List<float> outputDistances,
+            out float totalLength)
+        {
+            outputPoints.Clear();
+            outputDistances.Clear();
+
+            totalLength = distances.Count > 0 ? distances[distances.Count - 1] : 0f;
+            if (points == null || points.Count == 0)
+                return;
+
+            var safeTotalLength = Mathf.Max(Epsilon, totalLength);
+            for (var i = 0; i < points.Count; i++)
+            {
+                var prev = i == 0 ? (closed ? points[points.Count - 1] : points[i]) : points[i - 1];
+                var next = i == points.Count - 1 ? (closed ? points[0] : points[i]) : points[i + 1];
+                var tangent = next - prev;
+                if (tangent.sqrMagnitude <= Epsilon)
+                    tangent = Vector2.right;
+                tangent.Normalize();
+
+                var normal = new Vector2(-tangent.y, tangent.x);
+                var point = points[i];
+                var distance = i < distances.Count ? distances[i] : 0f;
+
+                if (preset.WaveEnabled && preset.WaveAmplitude > 0f)
+                {
+                    var sampleLength = preset.WaveSpace == MeshWaveSpace.NormalizedLength
+                        ? distance / safeTotalLength
+                        : distance;
+                    var theta = (sampleLength / Mathf.Max(Epsilon, preset.WaveLength)) * Mathf.PI * 2f +
+                                preset.WavePhase +
+                                timeSeconds * preset.WaveScrollSpeed;
+                    point += normal * (Mathf.Sin(theta) * preset.WaveAmplitude);
+                }
+
+                outputPoints.Add(point);
+                outputDistances.Add(distance);
+            }
+        }
+
+        static bool TryBuildDashedLineVisualPaths(
+            IReadOnlyList<Vector2> points,
+            IReadOnlyList<float> distances,
+            MeshLineTrackVisualizerPreset preset,
+            float timeSeconds,
+            float totalLength,
+            List<MeshRuntimePath> outputPaths,
+            List<Vector2> chunkPoints,
+            List<float> chunkDistances)
+        {
+            if (!TryBuildResolvedDashPattern(preset, totalLength, timeSeconds, out var patternLengths, out var patternKinds, out var patternTotalLength, out var patternOffset))
+                return false;
+
+            chunkPoints.Clear();
+            chunkDistances.Clear();
+
+            try
+            {
+                for (var i = 0; i < points.Count - 1; i++)
+                {
+                    var startDistance = distances[i];
+                    var endDistance = distances[i + 1];
+                    var segmentLength = endDistance - startDistance;
+                    if (segmentLength <= Epsilon)
+                        continue;
+
+                    var startPoint = points[i];
+                    var endPoint = points[i + 1];
+                    var cursor = startDistance;
+
+                    while (cursor < endDistance - Epsilon)
+                    {
+                        var shifted = Mathf.Repeat(cursor + patternOffset, patternTotalLength);
+                        ResolvePatternSegment(patternLengths, shifted, out var patternIndex, out var localOffset);
+
+                        var remainingInPattern = Mathf.Max(Epsilon, patternLengths[patternIndex] - localOffset);
+                        var nextCursor = Mathf.Min(endDistance, cursor + remainingInPattern);
+                        var visible = patternKinds[patternIndex] == MeshLineDashPatternKind.Visible;
+
+                        if (visible)
+                        {
+                            var localStart = Mathf.Clamp01((cursor - startDistance) / segmentLength);
+                            var localEnd = Mathf.Clamp01((nextCursor - startDistance) / segmentLength);
+                            var visibleStart = Vector2.LerpUnclamped(startPoint, endPoint, localStart);
+                            var visibleEnd = Vector2.LerpUnclamped(startPoint, endPoint, localEnd);
+
+                            AppendChunkPoint(chunkPoints, chunkDistances, visibleStart, cursor);
+                            AppendChunkPoint(chunkPoints, chunkDistances, visibleEnd, nextCursor);
+                        }
+
+                        var crossedGap = !visible && chunkPoints.Count >= 2;
+                        if (crossedGap)
+                        {
+                            AppendRibbonPath(chunkPoints, chunkDistances, false, totalLength, preset, outputPaths);
+                            chunkPoints.Clear();
+                            chunkDistances.Clear();
+                        }
+
+                        cursor = nextCursor;
+                    }
+                }
+
+                if (chunkPoints.Count >= 2)
+                    AppendRibbonPath(chunkPoints, chunkDistances, false, totalLength, preset, outputPaths);
+            }
+            finally
+            {
+                ArrayPool<float>.Shared.Return(patternLengths);
+                ArrayPool<MeshLineDashPatternKind>.Shared.Return(patternKinds);
+            }
+
+            return true;
+        }
+
+        static bool TryBuildResolvedDashPattern(
+            MeshLineTrackVisualizerPreset preset,
+            float totalLength,
+            float timeSeconds,
+            out float[] patternLengths,
+            out MeshLineDashPatternKind[] patternKinds,
+            out float patternTotalLength,
+            out float patternOffset)
+        {
+            patternLengths = Array.Empty<float>();
+            patternKinds = Array.Empty<MeshLineDashPatternKind>();
+            patternTotalLength = 0f;
+            patternOffset = 0f;
+
+            if (!preset.DashEnabled || preset.Pattern == null || preset.Pattern.Count == 0)
+                return false;
+
+            var count = preset.Pattern.Count;
+            patternLengths = ArrayPool<float>.Shared.Rent(count);
+            patternKinds = ArrayPool<MeshLineDashPatternKind>.Shared.Rent(count);
+
+            var hasVisible = false;
+            patternTotalLength = 0f;
+            for (var i = 0; i < count; i++)
+            {
+                var element = preset.Pattern[i];
+                var resolvedLength = ResolveLengthBySpace(element.Length, preset.DashSpace, totalLength);
+                if (resolvedLength <= Epsilon)
+                {
+                    patternLengths[i] = 0f;
+                    patternKinds[i] = element.Kind;
+                    continue;
+                }
+
+                patternLengths[i] = resolvedLength;
+                patternKinds[i] = element.Kind;
+                patternTotalLength += resolvedLength;
+                if (element.Kind == MeshLineDashPatternKind.Visible)
+                    hasVisible = true;
+            }
+
+            if (!hasVisible || patternTotalLength <= Epsilon)
+            {
+                ArrayPool<float>.Shared.Return(patternLengths);
+                ArrayPool<MeshLineDashPatternKind>.Shared.Return(patternKinds);
+                patternLengths = Array.Empty<float>();
+                patternKinds = Array.Empty<MeshLineDashPatternKind>();
+                patternTotalLength = 0f;
+                return false;
+            }
+
+            patternOffset = ResolveSignedLengthBySpace(preset.DashScrollOffset + timeSeconds * preset.DashScrollSpeed, preset.DashSpace, totalLength);
+            return true;
+        }
+
+        static void ResolvePatternSegment(float[] patternLengths, float shiftedDistance, out int patternIndex, out float localOffset)
+        {
+            var cursor = shiftedDistance;
+            for (var i = 0; i < patternLengths.Length; i++)
+            {
+                var length = patternLengths[i];
+                if (length <= Epsilon)
+                    continue;
+
+                if (cursor < length)
+                {
+                    patternIndex = i;
+                    localOffset = cursor;
+                    return;
+                }
+
+                cursor -= length;
+            }
+
+            patternIndex = 0;
+            localOffset = 0f;
+        }
+
+        static float ResolveLengthBySpace(float value, MeshWaveSpace space, float totalLength)
+        {
+            if (space == MeshWaveSpace.NormalizedLength)
+                return Mathf.Abs(value) * Mathf.Max(Epsilon, totalLength);
+            return Mathf.Abs(value);
+        }
+
+        static float ResolveSignedLengthBySpace(float value, MeshWaveSpace space, float totalLength)
+        {
+            if (space == MeshWaveSpace.NormalizedLength)
+                return value * Mathf.Max(Epsilon, totalLength);
+            return value;
+        }
+
+        static void AppendChunkPoint(List<Vector2> chunkPoints, List<float> chunkDistances, Vector2 point, float distance)
+        {
+            if (chunkPoints.Count > 0)
+            {
+                var lastPoint = chunkPoints[chunkPoints.Count - 1];
+                var lastDistance = chunkDistances[chunkDistances.Count - 1];
+                if ((lastPoint - point).sqrMagnitude <= Epsilon * Epsilon &&
+                    Mathf.Abs(lastDistance - distance) <= Epsilon)
+                {
+                    return;
+                }
+            }
+
+            chunkPoints.Add(point);
+            chunkDistances.Add(distance);
+        }
+
+        static void AppendRibbonPath(
+            IReadOnlyList<Vector2> points,
+            IReadOnlyList<float> distances,
+            bool closed,
+            float totalLength,
+            MeshLineTrackVisualizerPreset preset,
+            List<MeshRuntimePath> outputPaths)
+        {
+            if (points == null || points.Count < 2)
+                return;
+
+            var left = ListPool<Vector2>.Get();
+            var right = ListPool<Vector2>.Get();
+
+            try
+            {
+                BuildRibbonOutline(points, distances, closed, totalLength, preset, left, right);
+                if (left.Count < 2 || right.Count < 2)
+                    return;
+
+                var path = new MeshRuntimePath();
+                for (var i = 0; i < left.Count; i++)
+                    path.Points.Add(left[i]);
+                for (var i = right.Count - 1; i >= 0; i--)
+                    path.Points.Add(right[i]);
+
+                if (path.Points.Count >= 3)
+                    outputPaths.Add(path);
+            }
+            finally
+            {
+                ListPool<Vector2>.Release(left);
+                ListPool<Vector2>.Release(right);
+            }
+        }
+
+        static void BuildRibbonOutline(
+            IReadOnlyList<Vector2> points,
+            IReadOnlyList<float> distances,
+            bool closed,
+            float totalLength,
+            MeshLineTrackVisualizerPreset preset,
+            List<Vector2> left,
+            List<Vector2> right)
+        {
+            left.Clear();
+            right.Clear();
+            if (points == null || points.Count < 2)
+                return;
+
+            var safeTotalLength = Mathf.Max(Epsilon, totalLength);
+            for (var i = 0; i < points.Count; i++)
+            {
+                var prev = i == 0 ? (closed ? points[points.Count - 1] : points[i]) : points[i - 1];
+                var next = i == points.Count - 1 ? (closed ? points[0] : points[i]) : points[i + 1];
+                var tangent = next - prev;
+                if (tangent.sqrMagnitude <= Epsilon)
+                    tangent = Vector2.right;
+                tangent.Normalize();
+
+                var normal = new Vector2(-tangent.y, tangent.x);
+                var point = points[i];
+                var distance = i < distances.Count ? distances[i] : 0f;
+
+                var widthScale = 1f;
+                if (preset.HeadTaperNormalized > Epsilon)
+                {
+                    var t = Mathf.Clamp01(distance / Mathf.Max(Epsilon, safeTotalLength * preset.HeadTaperNormalized));
+                    widthScale = Mathf.Min(widthScale, t);
+                }
+
+                if (preset.TailTaperNormalized > Epsilon)
+                {
+                    var tailLength = safeTotalLength * preset.TailTaperNormalized;
+                    var tailT = Mathf.Clamp01((safeTotalLength - distance) / Mathf.Max(Epsilon, tailLength));
+                    widthScale = Mathf.Min(widthScale, tailT);
+                }
+
+                var halfWidth = Mathf.Max(Epsilon, preset.BaseWidth * Mathf.Max(Epsilon, widthScale)) * 0.5f;
+                left.Add(point + normal * halfWidth);
+                right.Add(point - normal * halfWidth);
             }
         }
 

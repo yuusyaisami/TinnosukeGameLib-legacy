@@ -13,30 +13,40 @@ namespace Game.Commands.VNext
     {
         public int CommandId => CommandIds.Teleport;
 
-        public UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
+        public async UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
         {
             if (data is not TeleportCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "TeleportCommandData is required.");
 
             if (ctx == null || ctx.Actor == null)
-                return UniTask.CompletedTask;
+                return;
 
-            var actorResolver = ctx.Actor.Resolver ?? ctx.Resolver;
-            if (actorResolver == null)
-                return UniTask.CompletedTask;
+            var (targetScope, resolveError) = await ActorScopeResolver.ResolveAsync(typed.TargetActorSource, ctx, ct);
+            if (targetScope == null)
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, resolveError ?? "Teleport target actor could not be resolved.");
+
+            var targetTransform = targetScope.Identity?.SelfTransform;
+            if (targetTransform == null && targetScope is Component targetComponent)
+                targetTransform = targetComponent.transform;
+
+            if (targetTransform == null)
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Teleport target actor does not expose a Transform.");
+
+            var targetResolver = targetScope.Resolver ?? ctx.Resolver;
 
             if (!typed.Position.TryGet(ctx, out Vector3 pos))
-                return UniTask.CompletedTask;
+                return;
 
             if (typed.Relative)
             {
-                var current = ctx.Actor?.Identity?.SelfTransform;
-                if (current != null)
-                    pos += current.position;
+                pos += targetTransform.position;
             }
 
-            // 1) Stop any transform animations in the actor scope (they can overwrite transform position).
-            if (typed.StopTransformAnimations && actorResolver.TryResolve<ITransformAnimationHubService>(out var hub) && hub != null)
+            // 1) Stop any transform animations in the target scope (they can overwrite transform position).
+            if (typed.StopTransformAnimations &&
+                targetResolver != null &&
+                targetResolver.TryResolve<ITransformAnimationHubService>(out var hub) &&
+                hub != null)
             {
                 var players = hub.Players;
                 if (players != null)
@@ -47,39 +57,38 @@ namespace Game.Commands.VNext
                     }
                 }
             }
-            // 2) Teleport using the authoritative transform system if present.
-            if (actorResolver.TryResolve<ITransformTeleportService>(out var teleporter) && teleporter != null)
+
+            // 2) Teleport using the authoritative transform system if present on the target actor.
+            if (targetResolver != null &&
+                targetResolver.TryResolve<ITransformTeleportService>(out var teleporter) &&
+                teleporter != null)
             {
                 var ok = teleporter.TryTeleportWorld(pos, typed.ResetVelocity);
                 if (ok)
                 {
-                    // If camera system is available for this actor, trigger a ResetAll to ensure pose is applied immediately
-                    var actorResolver2 = ctx.Actor?.Resolver ?? ctx.Resolver;
-                    if (actorResolver2 != null && actorResolver2.TryResolve<Game.CameraSystem.ICameraSystemService>(out var camSvc2) && camSvc2 != null)
+                    if (targetResolver.TryResolve<Game.CameraSystem.ICameraSystemService>(out var camSvc2) && camSvc2 != null)
                     {
                         camSvc2.ResetAll();
                     }
-                    //return UniTask.CompletedTask;
                 }
             }
 
             // Fallback: direct transform write.
-            var t = ctx.Actor?.Identity?.SelfTransform;
-            if (t != null)
+            if (targetTransform != null)
             {
-                t.position = pos;
+                targetTransform.position = pos;
 
                 // If BulkTransform is managing this transform, also update its internal buffer.
                 // Otherwise BulkTransform may snap the Transform back on the next Late tick.
-                if (actorResolver != null
-                    && actorResolver.TryResolve<Game.TransformSystem.IBulkTransformTransformBridge>(out var bulkBridge)
+                if (targetResolver != null
+                    && targetResolver.TryResolve<Game.TransformSystem.IBulkTransformTransformBridge>(out var bulkBridge)
                     && bulkBridge != null)
                 {
-                    var managed = bulkBridge.IsManaged(t);
+                    var managed = bulkBridge.IsManaged(targetTransform);
                     if (managed)
                     {
-                        var ok = bulkBridge.TryTeleportTransform(t, (Unity.Mathematics.float3)pos);
-                        if (bulkBridge.TryGetManagedPosition(t, out var managedPos))
+                        var ok = bulkBridge.TryTeleportTransform(targetTransform, (Unity.Mathematics.float3)pos);
+                        if (bulkBridge.TryGetManagedPosition(targetTransform, out var managedPos))
                         {
                             // BulkTransform sync info removed.
                         }
@@ -91,13 +100,13 @@ namespace Game.Commands.VNext
                 }
 
                 // Diagnostic: if CameraPoseOutput is registered in the actor resolver, trigger ResetAll.
-                if (actorResolver != null && actorResolver.TryResolve<Game.CameraSystem.ICameraSystemService>(out var camSvc3) && camSvc3 != null)
+                if (targetResolver != null && targetResolver.TryResolve<Game.CameraSystem.ICameraSystemService>(out var camSvc3) && camSvc3 != null)
                 {
 
-                    return UniTask.CompletedTask;
+                    return;
                 }
             }
-            return UniTask.CompletedTask;
+            return;
         }
     }
 }

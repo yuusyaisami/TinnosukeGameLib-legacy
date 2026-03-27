@@ -15,12 +15,12 @@ GameObject:
   - component: {fileID: 679350126330972818}
   - component: {fileID: 6492978099401191921}
   - component: {fileID: 8678687384512050743}
-  - component: {fileID: 7565847444441482711}
   - component: {fileID: 8317537581727454009}
   - component: {fileID: -2887419149302282808}
   - component: {fileID: -6095151710688462051}
   - component: {fileID: 1460712374558288071}
   - component: {fileID: 7468374127794232134}
+  - component: {fileID: 6537669074505010513}
   m_Layer: 0
   m_Name: UIButtonRuntimeElementObject
   m_TagString: Untagged
@@ -175,146 +175,6 @@ MonoBehaviour:
   debugParentBuildStatus: Unknown
   debugPath: 
   debugBuildStatus: NotBuilt
---- !u!114 &7565847444441482711
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1255711634492439393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c3163d90be9a2949b3c02398523366f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIButtonMB
-  _kind: 10
-  _canSubmit: 1
-  _triggerAction: 0
-  _holdTime: 1
-  _holdInterval: 0.1
-  _longMaxTime: 1
-  _autoDecideOnLongMax: 0
-  _guardSelectionWhileHolding: 1
-  _onSubmitDownCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onSubmitDownCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnSubmitDown
-    _commands: []
-  _onSubmitUpCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onSubmitUpCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnSubmitUp
-    _commands: []
-  _onHoldDecisionCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onHoldDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnHoldDecision
-    _commands: []
-  _guardDuringCommandExecution: 1
-  _disableSelectionDuringCommandExecution: 0
-  _onHoldIntervalCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onHoldIntervalCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnHoldInterval
-    _commands: []
-  _onHoldCancelCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onHoldCancelCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnHoldCancel
-    _commands: []
-  _onGenericStartCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onGenericStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnGenericStart
-    _commands: []
-  _onShortStartCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onShortStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnShortStart
-    _commands: []
-  _onLongStartCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onLongStartCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongStart
-    _commands: []
-  _onGenericDecisionCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onGenericDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnGenericDecision
-    _commands: []
-  _onShortDecisionCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onShortDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnShortDecision
-    _commands: []
-  _onLongDecisionCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onLongDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongDecision
-    _commands: []
-  _onLongMaxDecisionCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onLongMaxDecisionCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnLongMaxDecision
-    _commands: []
-  _onCancelCommands:
-    _debugOwner: {fileID: 7565847444441482711}
-    _debugFieldPath: _onCancelCommands
-    _debugAssetPath: 
-    _functionName: UIButton.OnCancel
-    _commands: []
-  _inputControlCondition:
-    _source:
-      rid: 3456565944453169280
-    _defaultValue: 0
-  _inspectorTelemetry:
-    OwnerName: (none)
-    Kind: 0
-    CurrentPhase: 0
-    TriggerAction: 0
-    CanSubmit: 1
-    IsSelected: 0
-    IsVisible: 0
-    IsEffectivelyActive: 0
-    GuardSelectionWhileHolding: 0
-    GuardDuringCommandExecution: 0
-    DisableSelectionDuringCommandExecution: 0
-    IsHolding: 0
-    HoldProgress: 0
-    ShortProgress: 0
-    LongProgress: 0
-    IsLongMax: 0
-    LongMaxTime: 0
-    AutoDecideOnLongMax: 0
-    IsHoldDecisionExecuting: 0
-    IsSubmitUpExecuting: 0
-    LastInputEventType: 0
-    LastInputPhase: 0
-    LastInputMatched: 0
-    LastInputAccepted: 0
-    LastRejectReason: 0
-    InputConditionHasSource: 0
-    InputConditionValue: 0
-    TimestampUtc: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 3456565944453169280
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
 --- !u!114 &8317537581727454009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -704,6 +564,205 @@ MonoBehaviour:
         multiplier: 1
         offset: {x: 0, y: 0}
         fallback: {x: 0, y: 0}
+--- !u!114 &6537669074505010513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38de24b4e088bae489d7199516c7f8c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.ButtonChannelHubMB
+  _channels:
+  - _channelTag: default
+    _presetValue:
+      _source:
+        rid: 5619052592248914349
+      _defaultValue:
+        _inputPreset:
+          _source:
+            rid: 5619052592248914350
+        _playerPreset:
+          _source:
+            rid: 5619052592248914351
+          _defaultValue:
+            _enabledCondition:
+              _source:
+                rid: 5619052592248914352
+              _defaultValue: 0
+            _uiTriggerAction: 0
+            _worldTriggerButton: 10
+            _guardDuringCommandExecution: 1
+            _disableSelectionDuringCommandExecution: 0
+            _allowNavigationSelectionChangeWhileInteracting: 0
+            _allowPointerSelectionChangeWhileInteracting: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052592248914349
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914353
+    - rid: 5619052592248914350
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914354
+    - rid: 5619052592248914351
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914355
+    - rid: 5619052592248914352
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914353
+      type: {class: ButtonChannelPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _inputPreset:
+          _source:
+            rid: 5619052592248914356
+        _playerPreset:
+          _source:
+            rid: 5619052592248914357
+          _defaultValue:
+            _enabledCondition:
+              _source:
+                rid: 5619052592248914358
+              _defaultValue: 0
+            _uiTriggerAction: 0
+            _worldTriggerButton: 10
+            _guardDuringCommandExecution: 1
+            _disableSelectionDuringCommandExecution: 0
+            _allowNavigationSelectionChangeWhileInteracting: 0
+            _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5619052592248914354
+      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _onDownCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onUpCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onCancelCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052592248914355
+      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabledCondition:
+          _source:
+            rid: 5619052592248914359
+          _defaultValue: 0
+        _uiTriggerAction: 0
+        _worldTriggerButton: 10
+        _guardDuringCommandExecution: 1
+        _disableSelectionDuringCommandExecution: 0
+        _allowNavigationSelectionChangeWhileInteracting: 0
+        _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5619052592248914356
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914360
+    - rid: 5619052592248914357
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914361
+    - rid: 5619052592248914358
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914359
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914360
+      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _onDownCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onUpCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onCancelCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052592248914361
+      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabledCondition:
+          _source:
+            rid: 5619052592248914362
+          _defaultValue: 0
+        _uiTriggerAction: 0
+        _worldTriggerButton: 10
+        _guardDuringCommandExecution: 1
+        _disableSelectionDuringCommandExecution: 0
+        _allowNavigationSelectionChangeWhileInteracting: 0
+        _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5619052592248914362
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &2264479253822188057
 GameObject:
   m_ObjectHideFlags: 0

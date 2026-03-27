@@ -20,7 +20,7 @@ namespace Game.UI
     // ## UIElementの設計思想
     //
     // UIElementはFeatureInstallerにより柔軟に機能を追加できる:
-    // - ボタン機能を追加 → UIButtonFeatureInstaller
+    // - ボタン機能を追加 → ButtonChannelHubMB
     // - ページ機能を追加 → UIPageFeatureInstaller
     // - トグル機能を追加 → UIToggleFeatureInstaller
     //

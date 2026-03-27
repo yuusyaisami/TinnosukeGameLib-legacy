@@ -73,7 +73,7 @@ namespace Game.Channel
         public string Tag = string.Empty;
         public int HighestPriority = int.MinValue;
         public MeshTrackMaterialPreset MaterialPreset = new();
-        public MeshPolygonTrackColliderPreset ColliderPreset = new();
+        public MeshPolygonTrackColliderPreset? ColliderPreset;
         public readonly List<MeshRuntimePath> Paths = new();
     }
 

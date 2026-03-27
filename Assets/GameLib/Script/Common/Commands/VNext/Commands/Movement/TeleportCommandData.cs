@@ -10,7 +10,12 @@ namespace Game.Commands.VNext
     public sealed class TeleportCommandData : ICommandData
     {
         public int CommandId => CommandIds.Teleport;
-        public string DebugData => $"Relative={Relative} ResetVel={ResetVelocity} StopAnim={StopTransformAnimations}";
+        public string DebugData => $"Target={TargetActorSource.Kind} Relative={Relative} ResetVel={ResetVelocity} StopAnim={StopTransformAnimations}";
+
+        [BoxGroup("Target")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(TargetActorSource)")]
+        [SerializeField]
+        public ActorSource TargetActorSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Destination")]
         [LabelText("Position")]
