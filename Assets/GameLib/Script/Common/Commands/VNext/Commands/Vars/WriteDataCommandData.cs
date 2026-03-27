@@ -188,6 +188,11 @@ namespace Game.Commands.VNext
 
         [ShowIf("@Op == ScalarWriteOpKind.DisposeHandleVar")]
         public bool UnsetAfterDispose = true;
+
+        [ShowIf("@Op == ScalarWriteOpKind.ClearKey")]
+        [LabelText("Keep LocalBase")]
+        [Tooltip("ClearKey 実行後も、そのキーの LocalBase だけを残します。Add/Mul や他の runtime 状態は消えます。")]
+        public bool KeepLocalBaseOnClearKey;
     }
 
     [Serializable]

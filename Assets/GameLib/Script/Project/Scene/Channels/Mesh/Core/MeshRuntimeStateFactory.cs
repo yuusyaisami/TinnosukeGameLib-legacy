@@ -148,8 +148,16 @@ namespace Game.Channel
 
         public static MeshTrackColliderPresetBase ResolveColliderPreset(DynamicValue<MeshTrackColliderPresetBase> value, IDynamicContext context, MeshTrackColliderPresetBase fallback)
         {
-            if (value.TryGet(context, out MeshTrackColliderPresetBase? preset) && preset != null)
+            if (!value.HasSource)
+                return fallback.CreateRuntimeCopy();
+
+            var variant = value.Evaluate(context);
+            if (variant.IsNull)
+                return new MeshNoColliderTrackColliderPreset();
+
+            if (variant.TryGet(out MeshTrackColliderPresetBase? preset) && preset != null)
                 return preset.CreateRuntimeCopy();
+
             return fallback.CreateRuntimeCopy();
         }
 
@@ -210,8 +218,9 @@ namespace Game.Channel
         {
             return preset switch
             {
+                MeshNoColliderTrackColliderPreset => new MeshNoColliderTrackColliderRuntime(),
                 MeshPolygonTrackColliderPreset polygon => new MeshPolygonTrackColliderRuntime(polygon),
-                _ => new MeshPolygonTrackColliderRuntime(new MeshPolygonTrackColliderPreset()),
+                _ => new MeshNoColliderTrackColliderRuntime(),
             };
         }
 

@@ -1,7 +1,12 @@
 #ifndef GAME_MESH_MATERIAL_SURFACE_INCLUDED
 #define GAME_MESH_MATERIAL_SURFACE_INCLUDED
 
-#define GAME_MESH_MAX_CONTOUR_SAMPLES 64
+#define GAME_MESH_MAX_CONTOUR_SAMPLES 256
+
+#define GAME_MESH_BLEND_OVERRIDE 10.0
+#define GAME_MESH_BLEND_ADD 20.0
+#define GAME_MESH_BLEND_MULTIPLY 30.0
+#define GAME_MESH_BLEND_OVERLAY 40.0
 
 #include "UnityCG.cginc"
 
@@ -10,11 +15,13 @@ CBUFFER_START(UnityPerMaterial)
 
     float _MeshContourGradientEnabled;
     float4 _MeshContourGradientColor;
+    float _MeshContourGradientBlendMode;
     float _MeshContourGradientStrength;
     float _MeshContourGradientRange;
     float _MeshContourGradientFalloff;
 
     float _MeshEdgeAlphaEnabled;
+    float _MeshEdgeAlphaMode;
     float _MeshEdgeAlphaGain;
     float _MeshEdgeAlphaRange;
     float _MeshEdgeAlphaSoftness;
@@ -23,10 +30,12 @@ CBUFFER_START(UnityPerMaterial)
     float _MeshBandsCount;
     float _MeshBandsContrast;
     float4 _MeshBandsColor;
+    float _MeshBandsBlendMode;
     float _MeshBandsIntensity;
 
     float _MeshEdgeFlowEnabled;
     float4 _MeshEdgeFlowColor;
+    float _MeshEdgeFlowBlendMode;
     float _MeshEdgeFlowWidth;
     float _MeshEdgeFlowSpeed;
     float _MeshEdgeFlowIntensity;
@@ -65,6 +74,32 @@ struct MeshMaterialVaryings
     float4 color : COLOR;
     float2 localPos : TEXCOORD1;
 };
+
+float3 MeshMaterialSurface_Overlay(float3 baseColor, float3 effectColor)
+{
+    float3 lower = 2.0 * baseColor * effectColor;
+    float3 upper = 1.0 - (2.0 * (1.0 - baseColor) * (1.0 - effectColor));
+    return lerp(lower, upper, step(0.5, baseColor));
+}
+
+float3 MeshMaterialSurface_BlendColor(float3 baseColor, float3 effectColor, float amount, float mode)
+{
+    float safeAmount = saturate(amount);
+    if (safeAmount <= 0.0)
+        return baseColor;
+
+    float3 blended = baseColor * effectColor;
+    if (mode < 15.0)
+        blended = effectColor;
+    else if (mode < 25.0)
+        blended = baseColor + effectColor;
+    else if (mode < 35.0)
+        blended = baseColor * effectColor;
+    else
+        blended = MeshMaterialSurface_Overlay(baseColor, effectColor);
+
+    return lerp(baseColor, blended, safeAmount);
+}
 
 #include "Features/MeshContourDistance.hlsl"
 #include "Features/MeshContourGradient.hlsl"

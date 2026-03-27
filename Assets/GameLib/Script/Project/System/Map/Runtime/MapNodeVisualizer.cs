@@ -254,7 +254,7 @@ namespace Game.MapNode
 
                 ApplyBlackboard(node, graph, layerWidth, instance, settings.DefaultAnimPreset);
                 await ExecuteCommandsAsync(node, graph, layerWidth, instance, settings, runner, failurePolicy, ct);
-                ApplyUIButtonCommands(node, settings, instance);
+                ApplyButtonChannelCommands(node, settings, instance);
 
                 if (instances.Count % yieldEvery == 0)
                     await UniTask.Yield(PlayerLoopTiming.Update, ct);
@@ -464,24 +464,27 @@ namespace Game.MapNode
             return new CommandContext(instance.Scope, vars, runner, actor: instance.Scope, options: CommandRunOptions.Default);
         }
 
-        static void ApplyUIButtonCommands(MapNode node, MapNodeVisualizeSettingsSO settings, MapNodeInstance instance)
+        static void ApplyButtonChannelCommands(MapNode node, MapNodeVisualizeSettingsSO settings, MapNodeInstance instance)
         {
             if (instance.Resolver == null)
                 return;
 
-            if (!instance.Resolver.TryResolve<IUIButtonService>(out var buttonService) || buttonService == null)
+            if (!instance.Resolver.TryResolve<IButtonChannelHubService>(out var buttonChannelHub) || buttonChannelHub == null)
                 return;
 
+            var table = settings.ButtonChannelCommandTable;
+            if (!buttonChannelHub.TryGetControl(table.NormalizedChannelTag, out var buttonControl) || buttonControl == null)
+                return;
 
             SetNodeInfoToUIElementBlackboard(node, instance.Scope);
 
-            var table = settings.UIButtonCommandTable;
+            instance.Resolver.TryResolve(out ICommandListRuntimeMutationService? mutationService);
 
-            AppendIfAny(buttonService, table.SubmitUpAppendCommon);
-            if (TryResolveByType(table.SubmitUpAppendByType, node.Type, out var typeCommands))
-                AppendIfAny(buttonService, typeCommands);
-            if (TryResolveByState(table.SubmitUpAppendByState, node.State, out var stateCommands))
-                AppendIfAny(buttonService, stateCommands);
+            AppendIfAny(buttonControl, mutationService, table.DecisionAppendCommon);
+            if (TryResolveByType(table.DecisionAppendByType, node.Type, out var typeCommands))
+                AppendIfAny(buttonControl, mutationService, typeCommands);
+            if (TryResolveByState(table.DecisionAppendByState, node.State, out var stateCommands))
+                AppendIfAny(buttonControl, mutationService, stateCommands);
         }
 
         static void SetNodeInfoToUIElementBlackboard(MapNode node, IScopeNode scope)
@@ -500,12 +503,15 @@ namespace Game.MapNode
             TrySetVariant(vars, VarIds.GameLib.MapNode.System.widthIndex, DynamicVariant.FromInt(node.WidthIndex));
         }
 
-        static void AppendIfAny(IUIButtonService buttonService, CommandListData? commands)
+        static void AppendIfAny(
+            IButtonChannelControlService buttonControl,
+            ICommandListRuntimeMutationService? mutationService,
+            CommandListData? commands)
         {
-            if (buttonService == null || commands == null || commands.Count == 0)
+            if (buttonControl == null || commands == null || commands.Count == 0)
                 return;
 
-            buttonService.AppendSubmitUpCommands(commands.Commands);
+            buttonControl.AppendDecisionCommands(commands, mutationService);
         }
 
         static bool TryResolveByType(List<MapNodeTypeCommand>? list, MapNodeType type, out CommandListData? commands)

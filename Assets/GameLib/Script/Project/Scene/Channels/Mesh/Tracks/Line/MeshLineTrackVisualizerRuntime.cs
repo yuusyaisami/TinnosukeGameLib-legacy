@@ -27,8 +27,6 @@ namespace Game.Channel
             var smoothed = ListPool<Vector2>.Get();
             var resampled = ListPool<Vector2>.Get();
             var distances = ListPool<float>.Get();
-            var left = ListPool<Vector2>.Get();
-            var right = ListPool<Vector2>.Get();
 
             try
             {
@@ -44,37 +42,20 @@ namespace Game.Channel
                 if (resampled.Count < 2)
                     return false;
 
-                MeshChannelGeometryUtility.BuildRibbonOutline(
+                MeshChannelGeometryUtility.BuildLineVisualPaths(
                     resampled,
                     distances,
                     centerLine.Closed,
                     _preset,
                     context.TimeSeconds,
-                    left,
-                    right);
-
-                if (left.Count < 2 || right.Count < 2)
-                    return false;
-
-                var path = new MeshRuntimePath();
-                for (var i = 0; i < left.Count; i++)
-                    path.Points.Add(left[i]);
-                for (var i = right.Count - 1; i >= 0; i--)
-                    path.Points.Add(right[i]);
-
-                if (path.Points.Count < 3)
-                    return false;
-
-                outputPaths.Add(path);
-                return true;
+                    outputPaths);
+                return outputPaths.Count > 0;
             }
             finally
             {
                 ListPool<Vector2>.Release(smoothed);
                 ListPool<Vector2>.Release(resampled);
                 ListPool<float>.Release(distances);
-                ListPool<Vector2>.Release(left);
-                ListPool<Vector2>.Release(right);
             }
         }
     }

@@ -15,6 +15,13 @@ namespace Game.Common
         XZ = 1,
     }
 
+    public enum AreaChannelResolveFailureBehavior
+    {
+        ReturnNull = 10,
+        ReturnFallback = 20,
+        Fail = 30,
+    }
+
     [Serializable]
     public sealed class AreaChannelPosition3Source : IDynamicSource
     {
@@ -31,7 +38,13 @@ namespace Game.Common
         [SerializeField, LabelText("Layer Key")]
         string layerKey = string.Empty;
 
+        [SerializeField, LabelText("On Resolve Failed")]
+        [EnumToggleButtons]
+        [Tooltip("Area の actor / hub / player / sample 解決に失敗したときの挙動です。ReturnNull は null、ReturnFallback は Fallback 値、Fail はコマンド中なら ResolveFailed を投げ、それ以外ではエラーログを出して null を返します。")]
+        AreaChannelResolveFailureBehavior failureBehavior = AreaChannelResolveFailureBehavior.ReturnFallback;
+
         [SerializeField, LabelText("Fallback")]
+        [ShowIf(nameof(UseFallbackValue))]
         Vector3 fallback = Vector3.zero;
 
         [NonSerialized]
@@ -42,32 +55,56 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            if (!TrySample(context, out var sampled))
-                sampled = fallback;
+            if (TrySample(context, out var sampled, out var error))
+                return DynamicVariant.FromVector3(sampled);
 
-            return DynamicVariant.FromVector3(sampled);
+            return failureBehavior switch
+            {
+                AreaChannelResolveFailureBehavior.ReturnNull => DynamicVariant.Null,
+                AreaChannelResolveFailureBehavior.Fail => BlackboardSourceUtility.FailOrNull(context, BuildResolveFailureMessage(error)),
+                _ => DynamicVariant.FromVector3(fallback),
+            };
         }
 
-        bool TrySample(IDynamicContext context, out Vector3 sampled)
+        bool TrySample(IDynamicContext context, out Vector3 sampled, out string error)
         {
             sampled = default;
+            error = string.Empty;
 
             var scope = ActorSourceFastResolver.ResolveCached(context, areaActorSource, ref _areaActorSourceCache);
             if (scope?.Resolver == null)
+            {
+                error = $"AreaChannelPosition3 failed to resolve area actor. ActorSource={areaActorSource.Kind} Tag='{NormalizeTag(channelTag)}'";
                 return false;
+            }
 
             if (!scope.Resolver.TryResolve<IAreaChannelHubService>(out var hub) || hub == null)
+            {
+                error = $"AreaChannelPosition3 could not resolve IAreaChannelHubService. Scope='{scope.Identity?.Id}' Tag='{NormalizeTag(channelTag)}'";
                 return false;
+            }
 
-            var normalizedTag = string.IsNullOrWhiteSpace(channelTag) ? "default" : channelTag.Trim();
+            var normalizedTag = NormalizeTag(channelTag);
             if (!hub.TryGetPlayer(normalizedTag, out var player) || player == null)
+            {
+                error = $"AreaChannelPosition3 area channel was not found. Tag='{normalizedTag}'";
                 return false;
+            }
 
             if (!TryResolveBasePosition(scope, player.Definition, out var basePosition))
+            {
+                error = $"AreaChannelPosition3 could not resolve base position. Tag='{normalizedTag}'";
                 return false;
+            }
 
             var request = new AreaSampleRequest(sampleMode, layerKey ?? string.Empty);
-            return player.TrySamplePosition(basePosition, in request, out sampled);
+            if (!player.TrySamplePosition(basePosition, in request, out sampled))
+            {
+                error = $"AreaChannelPosition3 sampling returned no position. Tag='{normalizedTag}' SampleMode={sampleMode} Layer='{layerKey ?? string.Empty}'";
+                return false;
+            }
+
+            return true;
         }
 
         static bool TryResolveBasePosition(IScopeNode scope, AreaChannelDefinition definition, out Vector3 basePosition)
@@ -88,6 +125,17 @@ namespace Game.Common
             basePosition = anchor.position + definition.CenterOffset;
             return true;
         }
+
+        string BuildResolveFailureMessage(string error)
+        {
+            return !string.IsNullOrWhiteSpace(error)
+                ? error
+                : $"AreaChannelPosition3 failed to resolve. Tag='{NormalizeTag(channelTag)}' ActorSource={areaActorSource.Kind}";
+        }
+
+        bool UseFallbackValue() => failureBehavior == AreaChannelResolveFailureBehavior.ReturnFallback;
+
+        static string NormalizeTag(string value) => string.IsNullOrWhiteSpace(value) ? "default" : value.Trim();
     }
 
     [Serializable]

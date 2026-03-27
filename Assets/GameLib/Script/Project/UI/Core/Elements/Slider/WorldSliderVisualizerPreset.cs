@@ -9,6 +9,103 @@ using UnityEngine;
 namespace Game.UI
 {
     [System.Serializable]
+    public sealed class WorldSliderBackgroundVisualizerSettings
+    {
+        [LabelText("Enabled")]
+        [Tooltip("Slider の背面に、bar の全範囲を覆う runtime background を生成します。Slider が非表示のときは background も一緒に非表示になります。")]
+        [SerializeField]
+        bool _enabled;
+
+        [ShowIf(nameof(_enabled))]
+        [LabelText("Template")]
+        [Tooltip("Background の生成に使う runtime template です。")]
+        [SerializeField]
+        DynamicValue<BaseRuntimeTemplatePreset> _templatePreset;
+
+        [ShowIf(nameof(_enabled))]
+        [LabelText("Animation Channel Tag")]
+        [Tooltip("Background 生成後に IAnimationSpriteHubService から見た目ターゲットを取得する channel tag です。既定は default です。")]
+        [SerializeField]
+        string _animationChannelTag = "default";
+
+        [ShowIf(nameof(_enabled))]
+        [LabelText("Allow Pooling")]
+        [Tooltip("Background の生成/破棄で pool を使うかを決めます。")]
+        [SerializeField]
+        bool _allowPooling = true;
+
+        [ShowIf(nameof(_enabled))]
+        [LabelText("Depth Offset")]
+        [Tooltip("+ 方向へ押し出して Bar より背面に配置する深度オフセットです。XY 平面では +Z、XZ 平面では +Y を使います。")]
+        [SerializeField]
+        [MinValue(0f)]
+        float _depthOffset = 0.01f;
+
+        [ShowIf(nameof(_enabled))]
+        [LabelText("On Background Spawn")]
+        [Tooltip("Background を生成し、初回 geometry を適用した直後に 1 回だけ実行されます。")]
+        [SerializeField]
+        [CommandListFunctionName("WorldSlider.Background.OnSpawn")]
+        CommandListData _onSpawnCommands = new();
+
+        public bool Enabled => _enabled;
+        public DynamicValue<BaseRuntimeTemplatePreset> TemplatePreset => _templatePreset;
+        public string AnimationChannelTag => string.IsNullOrWhiteSpace(_animationChannelTag) ? "default" : _animationChannelTag.Trim();
+        public bool AllowPooling => _allowPooling;
+        public float DepthOffset => Mathf.Max(0f, _depthOffset);
+        public CommandListData OnSpawnCommands => _onSpawnCommands;
+
+        internal WorldSliderBackgroundVisualizerSettings CreateRuntimeCopy()
+        {
+            return new WorldSliderBackgroundVisualizerSettings
+            {
+                _enabled = _enabled,
+                _templatePreset = _templatePreset,
+                _animationChannelTag = _animationChannelTag,
+                _allowPooling = _allowPooling,
+                _depthOffset = _depthOffset,
+                _onSpawnCommands = CloneCommandList(_onSpawnCommands),
+            };
+        }
+
+        internal void ApplyMutation(
+            WorldSliderVisualizerRuntimeMutation mutation,
+            ICommandListRuntimeMutationService? mutationService)
+        {
+            if (mutation == null)
+                return;
+
+            if (mutation.ApplyBackground)
+            {
+                _enabled = mutation.BackgroundEnabled;
+                _templatePreset = mutation.BackgroundTemplatePreset;
+                _animationChannelTag = mutation.BackgroundAnimationChannelTag;
+                _allowPooling = mutation.BackgroundAllowPooling;
+                _depthOffset = mutation.BackgroundDepthOffset;
+            }
+
+            if (mutation.ApplyBackgroundSpawnCommands)
+            {
+                _onSpawnCommands ??= new CommandListData();
+                _onSpawnCommands.ApplyRuntimeMutation(mutation.BackgroundSpawnCommands, mutationService);
+            }
+        }
+
+        internal void BindDebugOwners(Object owner, string prefix)
+        {
+            _onSpawnCommands?.BindDebugOwner(owner, $"{prefix}.{nameof(_onSpawnCommands)}");
+        }
+
+        static CommandListData CloneCommandList(CommandListData? source)
+        {
+            var clone = new CommandListData();
+            if (source != null)
+                clone.SetCommands(source);
+            return clone;
+        }
+    }
+
+    [System.Serializable]
     public sealed class WorldSliderSimpleVisualizerSettings
     {
         [LabelText("Fill Axis")]
@@ -448,6 +545,11 @@ namespace Game.UI
         [SerializeField]
         WorldSliderSimpleVisualizerSettings _simple = new();
 
+        [BoxGroup("Background")]
+        [InlineProperty]
+        [SerializeField]
+        WorldSliderBackgroundVisualizerSettings _background = new();
+
         [BoxGroup("Segmented")]
         [ShowIf(nameof(IsSegmentedMode))]
         [InlineProperty]
@@ -456,6 +558,7 @@ namespace Game.UI
 
         public WorldSliderVisualizerMode Mode => _mode;
         public WorldSliderSimpleVisualizerSettings Simple => _simple;
+        public WorldSliderBackgroundVisualizerSettings Background => _background;
         public WorldSliderSegmentedVisualizerSettings Segmented => _segmented;
 
         bool IsSimpleMode() => _mode == WorldSliderVisualizerMode.Simple;
@@ -467,6 +570,7 @@ namespace Game.UI
             {
                 _mode = _mode,
                 _simple = _simple?.CreateRuntimeCopy() ?? new WorldSliderSimpleVisualizerSettings(),
+                _background = _background?.CreateRuntimeCopy() ?? new WorldSliderBackgroundVisualizerSettings(),
                 _segmented = _segmented?.CreateRuntimeCopy() ?? new WorldSliderSegmentedVisualizerSettings(),
             };
         }
@@ -482,14 +586,17 @@ namespace Game.UI
                 _mode = mutation.Mode;
 
             _simple ??= new WorldSliderSimpleVisualizerSettings();
+            _background ??= new WorldSliderBackgroundVisualizerSettings();
             _segmented ??= new WorldSliderSegmentedVisualizerSettings();
             _simple.ApplyMutation(mutation, mutationService);
+            _background.ApplyMutation(mutation, mutationService);
             _segmented.ApplyMutation(mutation, mutationService);
         }
 
         internal void BindDebugOwners(Object owner, string prefix)
         {
             _simple?.BindDebugOwners(owner, $"{prefix}.{nameof(_simple)}");
+            _background?.BindDebugOwners(owner, $"{prefix}.{nameof(_background)}");
             _segmented?.BindDebugOwners(owner, $"{prefix}.{nameof(_segmented)}");
         }
     }

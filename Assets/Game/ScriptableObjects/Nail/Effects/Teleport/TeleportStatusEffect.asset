@@ -71,7 +71,6 @@ MonoBehaviour:
             _debugAssetPath: 
             _functionName: 
             _commands:
-            - rid: 5619052580083597344
             - rid: 5619052545064042621
           OnRemove:
             _debugOwner: {fileID: 0}
@@ -411,7 +410,7 @@ MonoBehaviour:
             rid: -2
           ContextSlot: 0
           TargetChannel:
-            rid: -2
+            rid: 5619052589399671286
         originActorSource:
           Kind: 0
           Identity:
@@ -450,13 +449,13 @@ MonoBehaviour:
             rid: 5619052545064043289
           _defaultValue: {x: 0, y: 0, z: 0}
         Relative: 0
-        ResetVelocity: 1
+        ResetVelocity: 0
         StopTransformAnimations: 1
     - rid: 5619052545064043289
       type: {class: AreaChannelPosition3Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         areaActorSource:
-          Kind: 10
+          Kind: 11
           Identity:
             kind: 0
             id: 
@@ -466,30 +465,33 @@ MonoBehaviour:
           UnityObject: {fileID: 0}
           Shared:
             rid: -2
-          ContextSlot: 110
+          ContextSlot: 0
           TargetChannel:
-            rid: -2
+            rid: 5619052589399671288
         channelTag: outArea
         sampleMode: 0
         layerKey: 
         fallback: {x: 0, y: 0, z: 0}
-    - rid: 5619052580083597344
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+    - rid: 5619052589399671286
+      type: {class: TargetChannelActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
-        enabled: 1
-        data:
-          rid: 5619052580083597345
-    - rid: 5619052580083597345
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: "OnApply\u5B9F\u884C"
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
+        ChannelOwnerActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: 5619052589399671287
+        ChannelTag: TargetBaseNail
+        TargetSelectMode: 0
+        FilterActorSource:
           Kind: 0
           Identity:
             kind: 0
@@ -503,16 +505,106 @@ MonoBehaviour:
           ContextSlot: 0
           TargetChannel:
             rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
+        FallbackToFirstIfFilterMiss: 1
+    - rid: 5619052589399671287
+      type: {class: TargetChannelActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelOwnerActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        ChannelTag: TargetBaseNail
+        TargetSelectMode: 0
+        FilterActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        FallbackToFirstIfFilterMiss: 1
+    - rid: 5619052589399671288
+      type: {class: TargetChannelActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelOwnerActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: 5619052589399671289
+        ChannelTag: TargetBaseNail
+        TargetSelectMode: 0
+        FilterActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        FallbackToFirstIfFilterMiss: 1
+    - rid: 5619052589399671289
+      type: {class: TargetChannelActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelOwnerActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        ChannelTag: TargetBaseNail
+        TargetSelectMode: 0
+        FilterActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        FallbackToFirstIfFilterMiss: 1

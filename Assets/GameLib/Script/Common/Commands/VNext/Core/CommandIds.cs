@@ -43,7 +43,6 @@ namespace Game.Commands.VNext
         public const int ShowTooltip = 1700;
         public const int HideTooltip = 1701;
         public const int UIControl = 1702;
-        public const int UIButtonControl = 1703;
         public const int ShowToast = 1704;
 
         public const int RunFlow = 1800;
@@ -122,6 +121,8 @@ namespace Game.Commands.VNext
         public const int DeleteAllSaveData = 1975;
         public const int WorldSliderControl = 1976;
         public const int TargetChannelControl = 1977;
+        public const int ButtonChannelHubControl = 1978;
+        public const int ButtonChannelPlayerControl = 1979;
 
         public const int WithActor = 2001;
         public const int WithActorDescendantRouter = 2002;

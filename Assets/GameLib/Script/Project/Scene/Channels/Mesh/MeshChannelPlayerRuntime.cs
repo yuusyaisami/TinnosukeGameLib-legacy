@@ -10,11 +10,12 @@ namespace Game.Channel
 {
     public sealed class MeshChannelPlayerRuntime : IMeshChannelPlayerRuntime
     {
+        static readonly int MeshBaseColorPropertyId = Shader.PropertyToID("_MeshBaseColor");
+
         readonly string _tag;
         readonly DynamicValue<MeshDefinitionPreset> _definitionSource;
         readonly IScopeNode _scope;
         readonly Transform _ownerTransform;
-        readonly Shader? _defaultShader;
 
         readonly Dictionary<string, MeshCompositeVisualObject> _visualsByTag = new(StringComparer.Ordinal);
         readonly List<string> _trackKeys = new();
@@ -38,14 +39,12 @@ namespace Game.Channel
             string tag,
             DynamicValue<MeshDefinitionPreset> definitionSource,
             IScopeNode scope,
-            Transform ownerTransform,
-            Shader? defaultShader)
+            Transform ownerTransform)
         {
             _tag = string.IsNullOrWhiteSpace(tag) ? "default" : tag;
             _definitionSource = definitionSource;
             _scope = scope;
             _ownerTransform = ownerTransform;
-            _defaultShader = defaultShader;
         }
 
         public void OnAcquire()
@@ -178,10 +177,21 @@ namespace Game.Channel
                 }
                 if (mutation.ApplyWave)
                 {
+                    line.WaveEnabled = mutation.WaveEnabled;
                     line.WaveAmplitude = mutation.WaveAmplitude;
                     line.WaveLength = mutation.WaveLength;
                     line.WavePhase = mutation.WavePhase;
                     line.WaveScrollSpeed = mutation.WaveScrollSpeed;
+                }
+                if (mutation.ApplyDash)
+                {
+                    line.DashEnabled = mutation.DashEnabled;
+                    line.DashSpace = mutation.DashSpace;
+                    line.DashScrollSpeed = mutation.DashScrollSpeed;
+                    line.DashScrollOffset = mutation.DashScrollOffset;
+                    line.Pattern = mutation.Pattern != null
+                        ? new List<MeshLineDashPatternElement>(mutation.Pattern)
+                        : new List<MeshLineDashPatternElement>();
                 }
             }
 
@@ -450,7 +460,7 @@ namespace Game.Channel
                     composite.MaterialPreset = contributor.Track.MaterialPreset.CreateRuntimeCopy();
                     composite.ColliderPreset = contributor.Track.ColliderPreset is MeshPolygonTrackColliderPreset polygon
                         ? (MeshPolygonTrackColliderPreset)polygon.CreateRuntimeCopy()
-                        : new MeshPolygonTrackColliderPreset();
+                        : null;
                 }
             }
 
@@ -517,22 +527,54 @@ namespace Game.Channel
 
         Material GetOrCreateFallbackMaterial()
         {
-            if (_fallbackMaterial != null)
+            var shader = ResolveCompatibleFallbackShader();
+            if (_fallbackMaterial != null && _fallbackMaterial.shader == shader)
                 return _fallbackMaterial;
 
-            var shader = _currentState.RenderPipeline.DefaultShader;
-            if (shader == null)
-                shader = _defaultShader;
-            if (shader == null)
-                shader = Shader.Find("Game/Mesh/MeshChannelSurface");
-            if (shader == null)
-                shader = Shader.Find("Sprites/Default");
+            if (_fallbackMaterial != null)
+            {
+                UnityEngine.Object.Destroy(_fallbackMaterial);
+                _fallbackMaterial = null;
+            }
+
             _fallbackMaterial = new Material(shader)
             {
                 name = $"MeshChannel.{_tag}.FallbackMaterial",
                 hideFlags = HideFlags.DontSave,
             };
             return _fallbackMaterial;
+        }
+
+        Shader ResolveCompatibleFallbackShader()
+        {
+            var configuredShader = _currentState.RenderPipeline.DefaultShader;
+            if (ShaderSupportsMaterialFx(configuredShader))
+                return configuredShader!;
+
+            var meshChannelShader = Shader.Find("Game/Mesh/MeshChannelSurface");
+            if (meshChannelShader != null)
+                return meshChannelShader;
+
+            if (configuredShader != null)
+                return configuredShader;
+
+            return Shader.Find("Sprites/Default");
+        }
+
+        static bool ShaderSupportsMaterialFx(Shader? shader)
+        {
+            if (shader == null)
+                return false;
+
+            var probe = new Material(shader);
+            try
+            {
+                return probe.HasProperty(MeshBaseColorPropertyId);
+            }
+            finally
+            {
+                UnityEngine.Object.Destroy(probe);
+            }
         }
 
         MeshCompositeVisualObject GetOrCreateVisual(string compositeTag)

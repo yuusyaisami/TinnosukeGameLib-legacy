@@ -516,8 +516,20 @@ namespace Game.Commands.VNext
                         break;
 
                     case ScalarWriteOpKind.ClearKey:
-                        scalar.ClearAll(op.Key);
-                        break;
+                        {
+                            var hasRuntime = false;
+                            var localBase = 0f;
+                            if (scalar.TryGetRuntime(op.Key, out var runtime) && runtime != null)
+                            {
+                                hasRuntime = true;
+                                localBase = runtime.LocalBase;
+                            }
+
+                            scalar.ClearAll(op.Key);
+                            if (op.KeepLocalBaseOnClearKey && hasRuntime)
+                                scalar.SetLocalBase(op.Key, localBase);
+                            break;
+                        }
 
                     case ScalarWriteOpKind.SetLocalBase:
                         scalar.SetLocalBase(op.Key, input);

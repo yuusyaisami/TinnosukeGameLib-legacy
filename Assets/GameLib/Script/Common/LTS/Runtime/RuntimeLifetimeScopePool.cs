@@ -41,6 +41,48 @@ namespace Game
     public sealed class RuntimeLifetimeScopePool : IRuntimeLifetimeScopePool, IRuntimeLifetimeScopePoolTelemetry
     {
         const int MaxRecentTelemetryEvents = 64;
+        static bool s_isApplicationQuitting;
+#if UNITY_EDITOR
+        static bool s_isEditorExitingPlayMode;
+#endif
+
+        static RuntimeLifetimeScopePool()
+        {
+            Application.quitting += OnApplicationQuitting;
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.playModeStateChanged += OnEditorPlayModeStateChanged;
+#endif
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetShutdownFlags()
+        {
+            s_isApplicationQuitting = false;
+#if UNITY_EDITOR
+            s_isEditorExitingPlayMode = false;
+#endif
+        }
+
+        static void OnApplicationQuitting()
+        {
+            s_isApplicationQuitting = true;
+        }
+
+#if UNITY_EDITOR
+        static void OnEditorPlayModeStateChanged(UnityEditor.PlayModeStateChange state)
+        {
+            switch (state)
+            {
+                case UnityEditor.PlayModeStateChange.ExitingPlayMode:
+                    s_isEditorExitingPlayMode = true;
+                    break;
+                case UnityEditor.PlayModeStateChange.EnteredEditMode:
+                case UnityEditor.PlayModeStateChange.EnteredPlayMode:
+                    s_isEditorExitingPlayMode = false;
+                    break;
+            }
+        }
+#endif
 
         sealed class ScopeRefComparer : IEqualityComparer<RuntimeLifetimeScope>
         {
@@ -371,6 +413,38 @@ namespace Game
                         try
                         {
                             await lifecycleNonPooled.HandleDespawnAsync(CancellationToken.None);
+                        }
+                        finally
+                        {
+                            await scope.SetActiveAsync(active: false, isReset: true, CancellationToken.None);
+                            CompleteReleaseTelemetry(scope, template, fallbackKey: null, returnedToPool: false, destroyed: true);
+                            UnityEngine.Object.Destroy(scope.gameObject);
+                            EndRelease(scope);
+                        }
+                    });
+                    return;
+                }
+
+                _ = scope.SetActiveAsync(active: false, isReset: true, CancellationToken.None);
+                CompleteReleaseTelemetry(scope, template, fallbackKey: null, returnedToPool: false, destroyed: true);
+                UnityEngine.Object.Destroy(scope.gameObject);
+                EndRelease(scope);
+                return;
+            }
+
+            if (ShouldDestroyInsteadOfReturnToPool(scope))
+            {
+                scope.PoolKey = null;
+                ClearPendingOnAcquire(scope);
+
+                if (scope.TryResolveLocal<IScopeLifecycleService>(out var shutdownLifecycle) &&
+                    shutdownLifecycle != null)
+                {
+                    UniTask.Void(async () =>
+                    {
+                        try
+                        {
+                            await shutdownLifecycle.HandleDespawnAsync(CancellationToken.None);
                         }
                         finally
                         {
@@ -1167,6 +1241,22 @@ namespace Game
                 return;
 
             _pendingOnAcquireCommands.Remove(scope);
+        }
+
+        static bool ShouldDestroyInsteadOfReturnToPool(RuntimeLifetimeScope scope)
+        {
+            if (scope == null || !scope)
+                return true;
+
+            if (s_isApplicationQuitting)
+                return true;
+
+#if UNITY_EDITOR
+            if (s_isEditorExitingPlayMode)
+                return true;
+#endif
+
+            return false;
         }
 
         ObjectPool<RuntimeLifetimeScope> GetOrCreatePool(RuntimeLifetimeScopePoolKey poolKey)

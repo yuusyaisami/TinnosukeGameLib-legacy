@@ -15,7 +15,7 @@ namespace Game.UI
     // ## 必要性
     //
     // UIElementには複数の入力機能が付与される可能性がある:
-    // - ボタン押下 (UIButtonConsumer)
+    // - ボタン押下 (ButtonChannel consumer)
     // - スクロール (UIScrollConsumer)
     // - ドラッグ&ドロップ (UIDragConsumer)
     // - カスタム入力 (Custom IUIInputConsumer)

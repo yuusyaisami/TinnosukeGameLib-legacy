@@ -1,0 +1,302 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b53cb4e9d365442ab02a53a829a9dc, type: 3}
+  m_Name: RerollButtonFunction
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.VNext.CommandFunctionSO
+  preset:
+    rid: 5619052592248914141
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052592248914141
+      type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Commands:
+          _debugOwner: {fileID: 11400000}
+          _debugFieldPath: preset.Commands
+          _debugAssetPath: Assets/Game/ScriptableObjects/Temp/RerollButtonFunction.asset
+          _functionName: Command.Function.Body
+          _commands:
+          - rid: 5619052592248914154
+    - rid: 5619052592248914154
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052592248914155
+    - rid: 5619052592248914155
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5619052592248914156
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052592248914157
+          - rid: 5619052592248914158
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052592248914156
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052592248914159
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052592248914160
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052592248914161
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052592248914162
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: MoneyValue >= RerollValue * RerollValueMul * ShopPriceMul
+    - rid: 5619052592248914157
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5619052592248914163
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5619052592248914158
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052592248914164
+    - rid: 5619052592248914159
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 160700043
+          Name: GameLogic.GameProfile.Base.MoneyValue
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052592248914160
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1291327690
+          Name: GameLogic.GameProfile.Base.RerollValue
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052592248914161
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1007326956
+          Name: GameLogic.GameProfile.Base.RerollValueMul
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052592248914162
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1799240082
+          Name: GameLogic.GameProfile.Base.ShopPriceMul
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052592248914163
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 2bed4f4c7d61662469308fe8d8c519ad, type: 2}
+    - rid: 5619052592248914164
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarOps: []
+        ScalarOps:
+        - Op: 2
+          Key:
+            Id: 1007326956
+            Name: GameLogic.GameProfile.Base.RerollValueMul
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5619052592248914165
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: 5619052592248914166
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
+    - rid: 5619052592248914165
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.5
+    - rid: 5619052592248914166
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0

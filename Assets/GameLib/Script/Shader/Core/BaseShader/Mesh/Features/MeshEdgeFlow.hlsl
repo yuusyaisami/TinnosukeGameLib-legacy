@@ -10,7 +10,11 @@ void MeshEdgeFlow_Apply(inout MeshMaterialSurfaceContext context)
     float edgeMask = 1.0 - smoothstep(0.0, width, context.DistanceToContour);
     float wave = sin((context.DistanceNormalized * 32.0) - (context.TimeSeconds * _MeshEdgeFlowSpeed * 6.2831853)) * 0.5 + 0.5;
     float flow = edgeMask * wave * saturate(_MeshEdgeFlowIntensity);
-    context.Color.rgb += _MeshEdgeFlowColor.rgb * flow;
+    context.Color.rgb = MeshMaterialSurface_BlendColor(
+        context.Color.rgb,
+        _MeshEdgeFlowColor.rgb,
+        flow,
+        _MeshEdgeFlowBlendMode);
 }
 
 #endif

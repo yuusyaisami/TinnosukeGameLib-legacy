@@ -10,6 +10,7 @@ namespace Game.Channel
     sealed class MeshCompositeVisualObject : IDisposable
     {
         static readonly IMeshMaterialFxServiceFactory MaterialFxFactory = new MeshMaterialFxServiceFactory();
+        static readonly MeshPolygonSyncSettings DefaultContourSyncSettings = new();
 
         readonly Transform _ownerTransform;
         readonly GameObject _rootObject;
@@ -66,22 +67,31 @@ namespace Game.Channel
             var colliderPreset = draft.ColliderPreset;
             var materialPreset = draft.MaterialPreset;
             var localPaths = MeshChannelGeometryUtility.ConvertWorldPathsToLocal(_ownerTransform, draft.Paths);
-            var simplifiedPaths = MeshChannelGeometryUtility.SimplifyPaths(localPaths, colliderPreset.Sync);
+            var syncSettings = colliderPreset?.Sync ?? DefaultContourSyncSettings;
+            var simplifiedPaths = MeshChannelGeometryUtility.SimplifyPaths(localPaths, syncSettings);
 
-            var shouldSync = MeshChannelGeometryUtility.ShouldSyncPaths(
-                _lastPaths,
-                simplifiedPaths,
-                colliderPreset.Sync,
-                frameIndex,
-                _lastSyncFrame);
-
-            if (shouldSync)
+            if (colliderPreset != null)
             {
-                SyncColliderPaths(simplifiedPaths);
-                _lastSyncFrame = frameIndex;
+                var shouldSync = MeshChannelGeometryUtility.ShouldSyncPaths(
+                    _lastPaths,
+                    simplifiedPaths,
+                    colliderPreset.Sync,
+                    frameIndex,
+                    _lastSyncFrame);
+
+                if (shouldSync)
+                {
+                    SyncColliderPaths(simplifiedPaths);
+                    _lastSyncFrame = frameIndex;
+                }
+
+                _polygonCollider.enabled = colliderPreset.SyncPolygonToCollider || colliderPreset.EnableHitCapture;
+            }
+            else
+            {
+                DisableCollider();
             }
 
-            _polygonCollider.enabled = colliderPreset.SyncPolygonToCollider || colliderPreset.EnableHitCapture;
             _meshRenderer.enabled = pipeline.EnableVisual;
             _materialFx.Update(
                 materialPreset,
@@ -134,12 +144,9 @@ namespace Game.Channel
         public void Clear()
         {
             _mesh.Clear();
-            _polygonCollider.pathCount = 0;
-            _polygonCollider.enabled = false;
+            DisableCollider();
             _meshRenderer.enabled = false;
             _hitRelay.ClearAll();
-            _lastPaths.Clear();
-            _lastSyncFrame = int.MinValue;
         }
 
         public void Dispose()
@@ -168,6 +175,15 @@ namespace Game.Channel
         void RebuildMesh(List<Vector2[]> paths)
         {
             MeshChannelGeometryUtility.BuildFallbackMesh(paths, _mesh);
+        }
+
+        void DisableCollider()
+        {
+            _polygonCollider.pathCount = 0;
+            _polygonCollider.enabled = false;
+            _hitRelay.ClearAll();
+            _lastPaths.Clear();
+            _lastSyncFrame = int.MinValue;
         }
     }
 }

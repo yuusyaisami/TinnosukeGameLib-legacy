@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using Game.Commands.VNext;
 using Game.Search;
 using Game.Targeting;
@@ -231,8 +232,7 @@ namespace Game.Common
 
             if (selectMode != TargetChannelTargetSelectMode.FilterByActorSource)
             {
-                hit = hits[0];
-                return true;
+                return TryGetFirstAliveHit(hits, out hit);
             }
 
             var filterScope = context != null
@@ -243,6 +243,9 @@ namespace Game.Common
                 for (var i = 0; i < hits.Count; i++)
                 {
                     var candidate = hits[i];
+                    if (!IsHitAlive(candidate))
+                        continue;
+
                     if (ReferenceEquals(candidate.Scope, filterScope) || ReferenceEquals(candidate.Identity, filterScope.Identity))
                     {
                         hit = candidate;
@@ -254,8 +257,7 @@ namespace Game.Common
             if (!fallbackToFirstIfFilterMiss)
                 return false;
 
-            hit = hits[0];
-            return true;
+            return TryGetFirstAliveHit(hits, out hit);
         }
 
         public static float ResolveWorldZ(in DynamicSearchHit hit)
@@ -303,6 +305,39 @@ namespace Game.Common
                     return true;
                 }
             }
+
+            return false;
+        }
+
+        internal static bool TryGetFirstAliveHit(IReadOnlyList<DynamicSearchHit>? hits, out DynamicSearchHit hit)
+        {
+            hit = default;
+            if (hits == null || hits.Count == 0)
+                return false;
+
+            for (var i = 0; i < hits.Count; i++)
+            {
+                var candidate = hits[i];
+                if (!IsHitAlive(candidate))
+                    continue;
+
+                hit = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
+        internal static bool IsHitAlive(in DynamicSearchHit hit)
+        {
+            if (hit.Identity?.SelfTransform != null)
+                return true;
+
+            if (hit.Scope is Component component && component != null)
+                return true;
+
+            if (hit.Scope is UnityEngine.Object unityObject && unityObject != null)
+                return true;
 
             return false;
         }

@@ -57,7 +57,7 @@ namespace Game.Channel
 
     public sealed class MeshMaterialFxService : IMeshMaterialFxService
     {
-        internal const int MaxContourSamples = 64;
+        internal const int MaxContourSamples = 256;
 
         static readonly int ContourSampleCountId = Shader.PropertyToID("_MeshContourSampleCount");
         static readonly int ContourBoundsId = Shader.PropertyToID("_MeshContourBounds");
@@ -154,11 +154,13 @@ namespace Game.Channel
 
             SyncDefault(MeshMaterialPropertyCatalog.Ids.ContourGradientEnabled, VariableLayerValue.FromBool(preset.ContourGradient.Enabled));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.ContourGradientColor, VariableLayerValue.FromColor(preset.ContourGradient.Color));
+            SyncDefault(MeshMaterialPropertyCatalog.Ids.ContourGradientBlendMode, VariableLayerValue.FromInt((int)preset.ContourGradient.BlendMode));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.ContourGradientStrength, VariableLayerValue.FromFloat(preset.ContourGradient.Strength));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.ContourGradientRange, VariableLayerValue.FromFloat(preset.ContourGradient.Range));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.ContourGradientFalloff, VariableLayerValue.FromFloat(preset.ContourGradient.Falloff));
 
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeAlphaEnabled, VariableLayerValue.FromBool(preset.EdgeAlpha.Enabled));
+            SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeAlphaMode, VariableLayerValue.FromInt((int)preset.EdgeAlpha.Mode));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeAlphaGain, VariableLayerValue.FromFloat(preset.EdgeAlpha.Gain));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeAlphaRange, VariableLayerValue.FromFloat(preset.EdgeAlpha.Range));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeAlphaSoftness, VariableLayerValue.FromFloat(preset.EdgeAlpha.Softness));
@@ -167,10 +169,12 @@ namespace Game.Channel
             SyncDefault(MeshMaterialPropertyCatalog.Ids.BandsCount, VariableLayerValue.FromInt(preset.Bands.Count));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.BandsContrast, VariableLayerValue.FromFloat(preset.Bands.Contrast));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.BandsColor, VariableLayerValue.FromColor(preset.Bands.Color));
+            SyncDefault(MeshMaterialPropertyCatalog.Ids.BandsBlendMode, VariableLayerValue.FromInt((int)preset.Bands.BlendMode));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.BandsIntensity, VariableLayerValue.FromFloat(preset.Bands.Intensity));
 
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeFlowEnabled, VariableLayerValue.FromBool(preset.EdgeFlow.Enabled));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeFlowColor, VariableLayerValue.FromColor(preset.EdgeFlow.Color));
+            SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeFlowBlendMode, VariableLayerValue.FromInt((int)preset.EdgeFlow.BlendMode));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeFlowWidth, VariableLayerValue.FromFloat(preset.EdgeFlow.Width));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeFlowSpeed, VariableLayerValue.FromFloat(preset.EdgeFlow.Speed));
             SyncDefault(MeshMaterialPropertyCatalog.Ids.EdgeFlowIntensity, VariableLayerValue.FromFloat(preset.EdgeFlow.Intensity));
@@ -187,9 +191,13 @@ namespace Game.Channel
         {
             _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.BaseTint, VariableLayerValue.FromColor(Color.white));
             _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.ContourGradientEnabled, VariableLayerValue.FromBool(false));
+            _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.ContourGradientBlendMode, VariableLayerValue.FromInt((int)MeshMaterialBlendMode.Multiply));
             _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.EdgeAlphaEnabled, VariableLayerValue.FromBool(false));
+            _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.EdgeAlphaMode, VariableLayerValue.FromInt((int)MeshEdgeAlphaMode.FadeInterior));
             _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.BandsEnabled, VariableLayerValue.FromBool(false));
+            _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.BandsBlendMode, VariableLayerValue.FromInt((int)MeshMaterialBlendMode.Multiply));
             _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.EdgeFlowEnabled, VariableLayerValue.FromBool(false));
+            _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.EdgeFlowBlendMode, VariableLayerValue.FromInt((int)MeshMaterialBlendMode.Multiply));
             _adapter.SetValue(MeshMaterialPropertyCatalog.Ids.InteriorNoiseEnabled, VariableLayerValue.FromBool(false));
             _adapter.SetValue(ContourSampleCountId, VariableLayerValue.FromInt(0));
             _adapter.SetValue(ContourBoundsId, VariableLayerValue.FromVector4(Vector4.zero));
@@ -236,59 +244,109 @@ namespace Game.Channel
             if (!_adapter.SupportsContourEffects)
                 return;
 
-            var count = BuildContourSamples(contourPaths, sampling, _contourSamples, out var bounds);
-            _adapter.SetValue(ContourSampleCountId, VariableLayerValue.FromInt(count));
+            var segmentCount = BuildContourSegments(contourPaths, sampling, _contourSamples, out var bounds);
+            _adapter.SetValue(ContourSampleCountId, VariableLayerValue.FromInt(segmentCount));
             _adapter.SetValue(ContourBoundsId, VariableLayerValue.FromVector4(bounds));
-            _adapter.SetVectorArray(ContourSamplesId, _contourSamples, count);
+            _adapter.SetVectorArray(ContourSamplesId, _contourSamples, segmentCount);
         }
 
-        static int BuildContourSamples(
+        static int BuildContourSegments(
             IReadOnlyList<Vector2[]> contourPaths,
             MeshContourSamplingPreset sampling,
-            Vector4[] output,
+            Vector4[] contourSegments,
             out Vector4 bounds)
         {
-            var maxSamples = Mathf.Clamp(sampling.MaxSamples, 4, MaxContourSamples);
             var minSpacing = Mathf.Max(0.001f, sampling.MinSampleSpacing);
-            var count = 0;
+            var segmentCount = 0;
             var min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
             var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
             var hasAny = false;
-            var lastAccepted = Vector2.zero;
 
+            var allSegments = ListPool<Vector4>.Get();
             if (contourPaths != null)
             {
-                for (var pathIndex = 0; pathIndex < contourPaths.Count && count < maxSamples; pathIndex++)
+                var accepted = ListPool<Vector2>.Get();
+                try
                 {
-                    var path = contourPaths[pathIndex];
-                    if (path == null || path.Length == 0)
-                        continue;
-
-                    for (var pointIndex = 0; pointIndex < path.Length && count < maxSamples; pointIndex++)
+                    for (var pathIndex = 0; pathIndex < contourPaths.Count; pathIndex++)
                     {
-                        var point = path[pointIndex];
-                        min = Vector2.Min(min, point);
-                        max = Vector2.Max(max, point);
+                        var path = contourPaths[pathIndex];
+                        if (path == null || path.Length < 2)
+                            continue;
 
-                        if (!hasAny || (point - lastAccepted).sqrMagnitude >= minSpacing * minSpacing)
+                        accepted.Clear();
+                        var lastAccepted = Vector2.zero;
+                        for (var pointIndex = 0; pointIndex < path.Length; pointIndex++)
                         {
-                            output[count] = new Vector4(point.x, point.y, 0f, 0f);
-                            lastAccepted = point;
-                            count++;
+                            var point = path[pointIndex];
+                            min = Vector2.Min(min, point);
+                            max = Vector2.Max(max, point);
+
+                            if (accepted.Count == 0 || (point - lastAccepted).sqrMagnitude >= minSpacing * minSpacing)
+                            {
+                                accepted.Add(point);
+                                lastAccepted = point;
+                            }
+                        }
+
+                        if (accepted.Count < 2)
+                            continue;
+
+                        for (var segmentIndex = 0; segmentIndex < accepted.Count; segmentIndex++)
+                        {
+                            var a = accepted[segmentIndex];
+                            var b = accepted[(segmentIndex + 1) % accepted.Count];
+                            if ((a - b).sqrMagnitude <= minSpacing * minSpacing)
+                                continue;
+
+                            allSegments.Add(new Vector4(a.x, a.y, b.x, b.y));
                             hasAny = true;
                         }
                     }
                 }
+                finally
+                {
+                    ListPool<Vector2>.Release(accepted);
+                }
             }
 
-            for (var i = count; i < output.Length; i++)
-                output[i] = Vector4.zero;
+            try
+            {
+                var availableCount = allSegments.Count;
+                if (availableCount > 0)
+                {
+                    var maxSamples = contourSegments.Length;
+                    segmentCount = Mathf.Min(maxSamples, availableCount);
+                    if (availableCount <= maxSamples)
+                    {
+                        for (var i = 0; i < availableCount; i++)
+                            contourSegments[i] = allSegments[i];
+                    }
+                    else
+                    {
+                        for (var i = 0; i < maxSamples; i++)
+                        {
+                            var sourceIndex = Mathf.Min(
+                                availableCount - 1,
+                                Mathf.FloorToInt((i / (float)maxSamples) * availableCount));
+                            contourSegments[i] = allSegments[sourceIndex];
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                ListPool<Vector4>.Release(allSegments);
+            }
+
+            for (var i = segmentCount; i < contourSegments.Length; i++)
+                contourSegments[i] = Vector4.zero;
 
             bounds = hasAny
                 ? new Vector4(min.x, min.y, max.x, max.y)
                 : Vector4.zero;
 
-            return count;
+            return segmentCount;
         }
     }
 }

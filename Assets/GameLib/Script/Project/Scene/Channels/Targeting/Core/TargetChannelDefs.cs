@@ -409,6 +409,82 @@ namespace Game.Targeting
         }
     }
 
+    public readonly struct TargetChannelTelemetrySnapshot
+    {
+        public readonly string Tag;
+        public readonly bool Enabled;
+        public readonly TargetChannelSearchType SearchType;
+        public readonly TargetQueryKind Kind;
+        public readonly float Radius;
+        public readonly float HalfAngleDeg;
+        public readonly int RefreshIntervalFrames;
+        public readonly int ExpectedResultCount;
+        public readonly LifetimeScopeMask KindMask;
+        public readonly string? FilterId;
+        public readonly string? FilterCategory;
+        public readonly bool ExcludeSelf;
+        public readonly TargetOriginSource OriginSource;
+        public readonly TargetForwardSource ForwardSource;
+        public readonly bool ScopeRequireActive;
+
+        public TargetChannelTelemetrySnapshot(
+            string tag,
+            bool enabled,
+            TargetChannelSearchType searchType,
+            TargetQueryKind kind,
+            float radius,
+            float halfAngleDeg,
+            int refreshIntervalFrames,
+            int expectedResultCount,
+            LifetimeScopeMask kindMask,
+            string? filterId,
+            string? filterCategory,
+            bool excludeSelf,
+            TargetOriginSource originSource,
+            TargetForwardSource forwardSource,
+            bool scopeRequireActive)
+        {
+            Tag = tag;
+            Enabled = enabled;
+            SearchType = searchType;
+            Kind = kind;
+            Radius = radius;
+            HalfAngleDeg = halfAngleDeg;
+            RefreshIntervalFrames = refreshIntervalFrames;
+            ExpectedResultCount = expectedResultCount;
+            KindMask = kindMask;
+            FilterId = filterId;
+            FilterCategory = filterCategory;
+            ExcludeSelf = excludeSelf;
+            OriginSource = originSource;
+            ForwardSource = forwardSource;
+            ScopeRequireActive = scopeRequireActive;
+        }
+    }
+
+    public readonly struct TargetChannelHubTelemetrySnapshot
+    {
+        public readonly int Version;
+        public readonly int ChannelCount;
+        public readonly IReadOnlyList<TargetChannelTelemetrySnapshot> Channels;
+
+        public TargetChannelHubTelemetrySnapshot(
+            int version,
+            int channelCount,
+            IReadOnlyList<TargetChannelTelemetrySnapshot> channels)
+        {
+            Version = version;
+            ChannelCount = channelCount;
+            Channels = channels;
+        }
+    }
+
+    public interface ITargetChannelHubTelemetry
+    {
+        int TelemetryVersion { get; }
+        TargetChannelHubTelemetrySnapshot GetTelemetrySnapshot();
+    }
+
     public interface ITargetChannelRuntime
     {
         string Tag { get; }

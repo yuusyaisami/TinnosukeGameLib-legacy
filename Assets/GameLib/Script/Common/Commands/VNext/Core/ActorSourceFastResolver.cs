@@ -595,7 +595,11 @@ namespace Game.Commands.VNext
                 return null;
 
             if (targetChannel.TargetSelectMode != TargetChannelTargetSelectMode.FilterByActorSource)
-                return hits[0].Scope;
+            {
+                return TargetChannelTargetPositionSourceHelper.TryGetFirstAliveHit(hits, out var firstHit)
+                    ? firstHit.Scope
+                    : null;
+            }
 
             var filterScope = Resolve(origin, targetChannel.FilterActorSource, commandRootScope);
             if (filterScope != null)
@@ -603,12 +607,20 @@ namespace Game.Commands.VNext
                 for (int i = 0; i < hits.Count; i++)
                 {
                     var candidate = hits[i];
+                    if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(candidate))
+                        continue;
+
                     if (ReferenceEquals(candidate.Scope, filterScope) || ReferenceEquals(candidate.Identity, filterScope.Identity))
                         return candidate.Scope;
                 }
             }
 
-            return targetChannel.FallbackToFirstIfFilterMiss ? hits[0].Scope : null;
+            if (!targetChannel.FallbackToFirstIfFilterMiss)
+                return null;
+
+            return TargetChannelTargetPositionSourceHelper.TryGetFirstAliveHit(hits, out var fallbackHit)
+                ? fallbackHit.Scope
+                : null;
         }
 
         static bool TargetChannelEquals(TargetChannelActorSourceRef? a, TargetChannelActorSourceRef? b)

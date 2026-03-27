@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Game.Channel;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.DI;
@@ -52,12 +53,16 @@ namespace Game.UI
         WorldSliderSpriteRenderState _simpleSpriteState;
 
         CancellationTokenSource? _spawnCts;
+        WorldSliderSpawnedRuntimeInstance? _backgroundRuntime;
         WorldSliderSpawnedRuntimeInstance? _simpleRuntimeBar;
         readonly List<WorldSliderSpawnedRuntimeInstance> _segmentBars = new();
         readonly List<WorldSliderSpawnedRuntimeInstance> _segmentMarkers = new();
+        bool _backgroundReady;
         bool _simpleRuntimeReady;
         bool _segmentedReady;
 
+        bool _loggedBackgroundRendererMissing;
+        bool _loggedBackgroundScaleFallback;
         bool _loggedSimpleRendererMissing;
         bool _loggedSimpleScaleFallback;
         bool _loggedSimpleRuntimeRendererMissing;
@@ -91,6 +96,8 @@ namespace Game.UI
             _loggedSimpleRuntimeRendererMissing = false;
             _loggedSegmentScaleFallback = false;
             _loggedSegmentBarRendererMissing = false;
+            _loggedBackgroundRendererMissing = false;
+            _loggedBackgroundScaleFallback = false;
 
             StopSpawn();
             ReleaseRuntimeInstances();
@@ -291,21 +298,30 @@ namespace Game.UI
             StopSpawn();
             ReleaseRuntimeInstances();
             RestoreSimpleState();
-            _simpleRuntimeReady = false;
-            _segmentedReady = false;
+            _backgroundReady = !IsBackgroundEnabled();
+            _simpleRuntimeReady = !IsSimpleRuntimeBackend();
+            _segmentedReady = _visualizerPreset.Mode != WorldSliderVisualizerMode.Segmented;
             _visualDirty = true;
 
             if (!_acquired || _activeScope == null)
                 return;
 
             if (IsSimpleSceneBackend())
-            {
                 CacheSimpleState();
+
+            if (!RequiresRuntimeBuild())
+            {
                 Tick();
                 return;
             }
 
             _spawnCts = new CancellationTokenSource();
+            if (IsSimpleSceneBackend())
+            {
+                RebuildBackgroundOnlyAsync(_spawnCts.Token).Forget();
+                return;
+            }
+
             if (IsSimpleRuntimeBackend())
             {
                 RebuildSimpleRuntimeAsync(_spawnCts.Token).Forget();
@@ -317,11 +333,14 @@ namespace Game.UI
 
         bool RequiresRuntimeBuild()
         {
-            return IsSimpleRuntimeBackend() || _visualizerPreset.Mode == WorldSliderVisualizerMode.Segmented;
+            return IsBackgroundEnabled() || IsSimpleRuntimeBackend() || _visualizerPreset.Mode == WorldSliderVisualizerMode.Segmented;
         }
 
         bool IsRuntimeBuildReady()
         {
+            if (IsBackgroundEnabled() && !_backgroundReady)
+                return false;
+
             if (IsSimpleRuntimeBackend())
                 return _simpleRuntimeReady;
 
@@ -341,6 +360,11 @@ namespace Game.UI
         {
             return _visualizerPreset.Mode == WorldSliderVisualizerMode.Simple &&
                    _visualizerPreset.Simple.RenderBackend == WorldSliderSimpleRenderBackend.RuntimeGeneratedBar;
+        }
+
+        bool IsBackgroundEnabled()
+        {
+            return _visualizerPreset.Background.Enabled;
         }
 
         void CacheSimpleState()
@@ -377,6 +401,8 @@ namespace Game.UI
             in WorldSliderOutputSnapshot snapshot,
             in WorldSliderAreaSnapshot areaSnapshot)
         {
+            ApplyBackgroundSnapshot(snapshot, areaSnapshot);
+
             if (IsSimpleSceneBackend())
             {
                 ApplySimpleSceneSnapshot(snapshot, areaSnapshot);
@@ -433,6 +459,50 @@ namespace Game.UI
                 ResolveSimpleRuntimeBarSpanScale(),
                 ref _loggedSimpleScaleFallback,
                 "[WorldSliderVisualizerService] Simple runtime bar SpriteRenderer drawMode is Simple. Falling back to transform scale.");
+        }
+
+        void ApplyBackgroundSnapshot(
+            in WorldSliderOutputSnapshot snapshot,
+            in WorldSliderAreaSnapshot areaSnapshot)
+        {
+            var instance = _backgroundRuntime;
+            if (instance == null || instance.VisualTargetKind == WorldSliderRuntimeVisualTargetKind.None)
+                return;
+
+            if (instance.Root != null)
+                instance.Root.gameObject.SetActive(snapshot.IsVisible);
+
+            var fillAxis = ResolveCurrentFillAxis();
+            var originSide = ResolveCurrentOriginSide();
+            WorldSliderRuntimeHelpers.ResolveIntervalBarGeometry(
+                areaSnapshot,
+                fillAxis,
+                originSide,
+                0f,
+                1f,
+                out var worldCenter,
+                out var majorLength);
+
+            var depthOffset = _visualizerPreset.Background.DepthOffset;
+            if (areaSnapshot.Plane == AreaPlane.XZ)
+                worldCenter.y += depthOffset;
+            else
+                worldCenter.z += depthOffset;
+
+            var minorLength = WorldSliderRuntimeHelpers.ResolveAreaCrossLength(areaSnapshot, fillAxis);
+            var usedScaleFallback = WorldSliderRuntimeHelpers.ApplySpawnedBarGeometry(
+                instance,
+                areaSnapshot,
+                fillAxis,
+                worldCenter,
+                majorLength,
+                minorLength);
+
+            if (usedScaleFallback && !_loggedBackgroundScaleFallback)
+            {
+                Debug.LogWarning("[WorldSliderVisualizerService] Background SpriteRenderer drawMode is Simple. Falling back to transform scale.");
+                _loggedBackgroundScaleFallback = true;
+            }
         }
 
         static void ApplyBarSnapshot(
@@ -512,6 +582,7 @@ namespace Game.UI
             if (_dynamicContext == null)
                 return;
 
+            WorldSliderSpawnedRuntimeInstance? localBackground = null;
             WorldSliderSpawnedRuntimeInstance? localBar = null;
 
             try
@@ -519,6 +590,13 @@ namespace Game.UI
                 if (!TryResolveRuntimeSpawner(out var resolvedSpawner) || resolvedSpawner == null)
                     return;
                 var spawner = resolvedSpawner;
+
+                if (IsBackgroundEnabled())
+                {
+                    localBackground = await SpawnBackgroundInstanceAsync(spawner, ct);
+                    _backgroundRuntime = localBackground;
+                    _backgroundReady = true;
+                }
 
                 var barTemplate = WorldSliderRuntimeHelpers.ResolveRuntimeTemplate(_visualizerPreset.Simple.RuntimeBarTemplatePreset, _dynamicContext);
                 if (barTemplate == null)
@@ -553,6 +631,8 @@ namespace Game.UI
 
                 await UniTask.SwitchToMainThread(ct);
                 Tick();
+                if (localBackground != null)
+                    await ExecuteSpawnCommandsAsync(localBackground, _visualizerPreset.Background.OnSpawnCommands, ct);
                 await ExecuteSpawnCommandsAsync(localBar, _visualizerPreset.Simple.OnBarSpawnCommands, ct);
             }
             catch (OperationCanceledException)
@@ -564,8 +644,61 @@ namespace Game.UI
             }
             finally
             {
+                if (!_simpleRuntimeReady && localBackground != null)
+                {
+                    ReleaseRuntimeInstance(localBackground);
+                    _backgroundRuntime = null;
+                    _backgroundReady = !IsBackgroundEnabled();
+                }
+                else if (!_backgroundReady && localBackground != null)
+                    ReleaseRuntimeInstance(localBackground);
                 if (!_simpleRuntimeReady && localBar != null)
                     ReleaseRuntimeInstance(localBar);
+            }
+        }
+
+        async UniTaskVoid RebuildBackgroundOnlyAsync(CancellationToken ct)
+        {
+            WorldSliderSpawnedRuntimeInstance? localBackground = null;
+
+            try
+            {
+                if (!IsBackgroundEnabled())
+                {
+                    _backgroundReady = true;
+                    Tick();
+                    return;
+                }
+
+                if (!TryResolveRuntimeSpawner(out var resolvedSpawner) || resolvedSpawner == null)
+                {
+                    _backgroundReady = true;
+                    Tick();
+                    return;
+                }
+
+                localBackground = await SpawnBackgroundInstanceAsync(resolvedSpawner, ct);
+                _backgroundRuntime = localBackground;
+                _backgroundReady = true;
+                _visualDirty = true;
+
+                await UniTask.SwitchToMainThread(ct);
+                Tick();
+                if (localBackground != null)
+                    await ExecuteSpawnCommandsAsync(localBackground, _visualizerPreset.Background.OnSpawnCommands, ct);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                _backgroundReady = true;
+                Debug.LogError($"[WorldSliderVisualizerService] Background build failed: {ex.Message}");
+            }
+            finally
+            {
+                if (!_backgroundReady && localBackground != null)
+                    ReleaseRuntimeInstance(localBackground);
             }
         }
 
@@ -575,6 +708,7 @@ namespace Game.UI
                 return;
 
             var segmented = _visualizerPreset.Segmented;
+            WorldSliderSpawnedRuntimeInstance? localBackground = null;
             var localBars = new List<WorldSliderSpawnedRuntimeInstance>();
             var localMarkers = new List<WorldSliderSpawnedRuntimeInstance>();
 
@@ -583,6 +717,13 @@ namespace Game.UI
                 if (!TryResolveRuntimeSpawner(out var resolvedSpawner) || resolvedSpawner == null)
                     return;
                 var spawner = resolvedSpawner;
+
+                if (IsBackgroundEnabled())
+                {
+                    localBackground = await SpawnBackgroundInstanceAsync(spawner, ct);
+                    _backgroundRuntime = localBackground;
+                    _backgroundReady = true;
+                }
 
                 var (minValue, maxValue) = ResolvePlayerRange();
 
@@ -665,6 +806,9 @@ namespace Game.UI
                 await UniTask.SwitchToMainThread(ct);
                 Tick();
 
+                if (localBackground != null)
+                    await ExecuteSpawnCommandsAsync(localBackground, _visualizerPreset.Background.OnSpawnCommands, ct);
+
                 for (int i = 0; i < _segmentBars.Count; i++)
                     await ExecuteSpawnCommandsAsync(_segmentBars[i], segmented.OnSegmentBarSpawnCommands, ct);
 
@@ -682,10 +826,46 @@ namespace Game.UI
             {
                 if (!_segmentedReady)
                 {
+                    _backgroundRuntime = null;
+                    _backgroundReady = !IsBackgroundEnabled();
+                    ReleaseRuntimeInstance(localBackground);
                     ReleaseRuntimeInstances(localBars);
                     ReleaseRuntimeInstances(localMarkers);
                 }
             }
+        }
+
+        async UniTask<WorldSliderSpawnedRuntimeInstance?> SpawnBackgroundInstanceAsync(
+            IAsyncSpawnerService spawner,
+            CancellationToken ct)
+        {
+            if (_dynamicContext == null)
+                return null;
+
+            var template = WorldSliderRuntimeHelpers.ResolveRuntimeTemplate(_visualizerPreset.Background.TemplatePreset, _dynamicContext);
+            if (template == null)
+            {
+                Debug.LogWarning("[WorldSliderVisualizerService] Background template is null.");
+                return null;
+            }
+
+            var (minValue, maxValue) = ResolvePlayerRange();
+            var instance = await SpawnBarInstanceAsync(
+                spawner,
+                template,
+                ResolveBackgroundRoot(),
+                _visualizerPreset.Background.AnimationChannelTag,
+                WorldSliderSpawnUnitKind.Background,
+                unitIndex: 0,
+                startRawValue: minValue,
+                endRawValue: maxValue,
+                startNormalized: 0f,
+                endNormalized: 1f,
+                allowPooling: _visualizerPreset.Background.AllowPooling,
+                isSimpleRuntime: false,
+                ct);
+
+            return instance;
         }
 
         async UniTask<WorldSliderSpawnedRuntimeInstance?> SpawnBarInstanceAsync(
@@ -737,6 +917,14 @@ namespace Game.UI
                     {
                         Debug.LogWarning("[WorldSliderVisualizerService] Simple runtime bar template requires an AnimationSprite target (SpriteRenderer/Image) or a fallback SpriteRenderer.");
                         _loggedSimpleRuntimeRendererMissing = true;
+                    }
+                }
+                else if (unitKind == WorldSliderSpawnUnitKind.Background)
+                {
+                    if (!_loggedBackgroundRendererMissing)
+                    {
+                        Debug.LogWarning("[WorldSliderVisualizerService] Background template requires an AnimationSprite target (SpriteRenderer/Image) or a fallback SpriteRenderer.");
+                        _loggedBackgroundRendererMissing = true;
                     }
                 }
                 else if (!_loggedSegmentBarRendererMissing)
@@ -942,6 +1130,9 @@ namespace Game.UI
             if (simpleBarRenderer != null)
                 simpleBarRenderer.enabled = false;
 
+            if (_backgroundRuntime?.Root != null)
+                _backgroundRuntime.Root.gameObject.SetActive(false);
+
             if (_simpleRuntimeBar?.Root != null)
                 _simpleRuntimeBar.Root.gameObject.SetActive(false);
 
@@ -975,6 +1166,14 @@ namespace Game.UI
         }
 
         Transform ResolveSimpleRuntimeParent()
+        {
+            if (_options.SegmentBarsRoot != null)
+                return _options.SegmentBarsRoot;
+
+            return _options.OwnerTransform;
+        }
+
+        Transform ResolveBackgroundRoot()
         {
             if (_options.SegmentBarsRoot != null)
                 return _options.SegmentBarsRoot;
@@ -1034,14 +1233,31 @@ namespace Game.UI
 
         void ReleaseRuntimeInstances()
         {
+            ReleaseRuntimeInstance(_backgroundRuntime);
+            _backgroundRuntime = null;
             ReleaseRuntimeInstance(_simpleRuntimeBar);
             _simpleRuntimeBar = null;
             ReleaseRuntimeInstances(_segmentBars);
             ReleaseRuntimeInstances(_segmentMarkers);
             _segmentBars.Clear();
             _segmentMarkers.Clear();
+            _backgroundReady = false;
             _simpleRuntimeReady = false;
             _segmentedReady = false;
+        }
+
+        WorldSliderAreaFillAxis ResolveCurrentFillAxis()
+        {
+            return _visualizerPreset.Mode == WorldSliderVisualizerMode.Segmented
+                ? _visualizerPreset.Segmented.FillAxis
+                : _visualizerPreset.Simple.FillAxis;
+        }
+
+        WorldSliderAreaOriginSide ResolveCurrentOriginSide()
+        {
+            return _visualizerPreset.Mode == WorldSliderVisualizerMode.Segmented
+                ? _visualizerPreset.Segmented.OriginSide
+                : _visualizerPreset.Simple.OriginSide;
         }
 
         static void ReleaseRuntimeInstances(List<WorldSliderSpawnedRuntimeInstance> instances)

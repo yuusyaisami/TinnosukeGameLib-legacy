@@ -14,6 +14,7 @@ namespace Game.Channel
         Override = 10,
         Add = 20,
         Multiply = 30,
+        Overlay = 40,
     }
 
     public enum MeshTrackRelaxationPolicy
@@ -27,6 +28,18 @@ namespace Game.Channel
     {
         World = 10,
         NormalizedLength = 20,
+    }
+
+    public enum MeshLineDashPatternKind
+    {
+        Visible = 10,
+        Gap = 20,
+    }
+
+    public enum MeshEdgeAlphaMode
+    {
+        FadeInterior = 10,
+        FadeContour = 20,
     }
 
     public interface IMeshChannelHubService
@@ -134,7 +147,7 @@ namespace Game.Channel
 
         [BoxGroup("Visual")]
         [LabelText("Default Shader")]
-        [Tooltip("Track material に個別 Material が未指定の場合に使う標準 Shader です。runtime で fallback Material を生成します。")]
+        [Tooltip("Track material に個別 Material が未指定の場合に使う標準 Shader です。MeshChannel の material 効果を使うには _MeshBaseColor などの MeshChannel property を持つ Shader が必要です。未対応 Shader の場合、runtime では互換 fallback として Game/Mesh/MeshChannelSurface を優先します。")]
         public Shader? DefaultShader;
 
         [BoxGroup("Visual")]
@@ -329,21 +342,30 @@ namespace Game.Channel
     public sealed class MeshContourGradientMaterialPreset
     {
         [LabelText("Enabled")]
+        [Tooltip("輪郭に近い領域へ追加色を乗せます。輪郭サンプルとの距離を基準に、境界側だけを発光・縁取りのように強調したい時に使います。")]
         public bool Enabled = true;
 
         [LabelText("Color")]
+        [Tooltip("輪郭付近へ加算的に混ぜる色です。Base Tint の上から足されるため、明るい色ほど縁取り感が強く出ます。")]
         public Color Color = new(1f, 0.35f, 0.35f, 1f);
+
+        [LabelText("Blend Mode")]
+        [Tooltip("輪郭色の合成方法です。Multiply は下地色を保ちながら色味を乗せ、Add は発光寄り、Override は指定色へ寄せ、Overlay は中間調を保ちながらコントラストを付けます。")]
+        public MeshMaterialBlendMode BlendMode = MeshMaterialBlendMode.Multiply;
 
         [LabelText("Strength")]
         [MinValue(0f)]
+        [Tooltip("輪郭付近へどれだけ強く色を乗せるかです。0 で無効相当、値を上げるほど境界の色づきが強くなります。")]
         public float Strength = 0.2f;
 
         [LabelText("Range")]
         [MinValue(0.001f)]
+        [Tooltip("輪郭から何距離まで色づきを広げるかです。大きいほど境界色が内側まで広がり、小さいほど細い縁取りになります。")]
         public float Range = 0.5f;
 
         [LabelText("Falloff")]
         [MinValue(0.001f)]
+        [Tooltip("輪郭から内側へ入るほどどの速さで色を落とすかです。大きいほど輪郭付近に集中し、小さいほど広めに残ります。")]
         public float Falloff = 1.5f;
 
         internal MeshContourGradientMaterialPreset CreateRuntimeCopy()
@@ -352,6 +374,7 @@ namespace Game.Channel
             {
                 Enabled = Enabled,
                 Color = Color,
+                BlendMode = BlendMode,
                 Strength = Strength,
                 Range = Range,
                 Falloff = Falloff,
@@ -363,18 +386,26 @@ namespace Game.Channel
     public sealed class MeshEdgeAlphaMaterialPreset
     {
         [LabelText("Enabled")]
+        [Tooltip("輪郭側を相対的に濃く見せるため、内側の Alpha を落として境界を立てる効果です。背景との重なりで縁を見せたい時に使います。")]
         public bool Enabled = true;
+
+        [LabelText("Mode")]
+        [Tooltip("Fade Interior は内側を薄くして輪郭を立てます。Fade Contour は輪郭側を薄くして、中心を残すマスク表現にします。")]
+        public MeshEdgeAlphaMode Mode = MeshEdgeAlphaMode.FadeInterior;
 
         [LabelText("Gain")]
         [MinValue(0f)]
+        [Tooltip("選んだモード側をどれだけ薄くするかです。0 で変化なし、1 に近いほど対象側の Alpha が大きく減ります。")]
         public float Gain = 0.35f;
 
         [LabelText("Range")]
         [MinValue(0.001f)]
+        [Tooltip("輪郭から何距離まで境界 Alpha 効果を広げるかです。大きいほど内側まで影響し、小さいほど輪郭近くだけに限定されます。")]
         public float Range = 0.2f;
 
         [LabelText("Softness")]
         [Range(0f, 1f)]
+        [Tooltip("輪郭と内側の Alpha 切り替えの滑らかさです。0 に近いほど輪郭がシャープ、1 に近いほどなだらかに遷移します。")]
         public float Softness = 0.65f;
 
         internal MeshEdgeAlphaMaterialPreset CreateRuntimeCopy()
@@ -382,6 +413,7 @@ namespace Game.Channel
             return new MeshEdgeAlphaMaterialPreset
             {
                 Enabled = Enabled,
+                Mode = Mode,
                 Gain = Gain,
                 Range = Range,
                 Softness = Softness,
@@ -393,21 +425,30 @@ namespace Game.Channel
     public sealed class MeshBandMaterialPreset
     {
         [LabelText("Enabled")]
+        [Tooltip("輪郭距離を段階化して帯模様を入れます。エネルギーラインや等高線のような見た目を作る用途です。")]
         public bool Enabled = false;
 
         [LabelText("Count")]
         [MinValue(1)]
+        [Tooltip("帯の本数です。多いほど細かいストライプになります。")]
         public int Count = 4;
 
         [LabelText("Contrast")]
         [MinValue(0f)]
+        [Tooltip("帯の境界の強さです。大きいほど帯の切り替わりがはっきりし、小さいほど馴染みます。")]
         public float Contrast = 0.65f;
 
         [LabelText("Color")]
+        [Tooltip("帯へ混ぜる色です。Base Tint の上にこの色を補間します。")]
         public Color Color = new(0.95f, 0.95f, 1f, 1f);
+
+        [LabelText("Blend Mode")]
+        [Tooltip("帯色の合成方法です。Multiply は下地に馴染みやすく、Add は明るく強く、Override は色替え、Overlay はコントラストを保った着色です。")]
+        public MeshMaterialBlendMode BlendMode = MeshMaterialBlendMode.Multiply;
 
         [LabelText("Intensity")]
         [MinValue(0f)]
+        [Tooltip("帯色をどれだけ強く混ぜるかです。0 で実質無効、上げるほど帯模様が目立ちます。")]
         public float Intensity = 0.25f;
 
         internal MeshBandMaterialPreset CreateRuntimeCopy()
@@ -418,6 +459,7 @@ namespace Game.Channel
                 Count = Count,
                 Contrast = Contrast,
                 Color = Color,
+                BlendMode = BlendMode,
                 Intensity = Intensity,
             };
         }
@@ -427,20 +469,29 @@ namespace Game.Channel
     public sealed class MeshEdgeFlowMaterialPreset
     {
         [LabelText("Enabled")]
+        [Tooltip("輪郭沿いに流れるハイライトを表示します。境界に沿って光が走るような演出用です。")]
         public bool Enabled = false;
 
         [LabelText("Color")]
+        [Tooltip("流れるハイライトの色です。")]
         public Color Color = new(1f, 1f, 1f, 1f);
+
+        [LabelText("Blend Mode")]
+        [Tooltip("流れ色の合成方法です。Multiply は下地へ馴染み、Add は光の走り、Override は色置換寄り、Overlay は色差を活かした強調になります。")]
+        public MeshMaterialBlendMode BlendMode = MeshMaterialBlendMode.Multiply;
 
         [LabelText("Width")]
         [MinValue(0.001f)]
+        [Tooltip("輪郭から内側へどれだけの幅で流れ表現を出すかです。大きいほど太い帯になります。")]
         public float Width = 0.12f;
 
         [LabelText("Speed")]
+        [Tooltip("流れアニメーションの速度です。正値で一方向、負値で逆方向へ流れます。")]
         public float Speed = 1.2f;
 
         [LabelText("Intensity")]
         [MinValue(0f)]
+        [Tooltip("ハイライトの明るさです。大きいほど流れが強く見えます。")]
         public float Intensity = 0.45f;
 
         internal MeshEdgeFlowMaterialPreset CreateRuntimeCopy()
@@ -449,6 +500,7 @@ namespace Game.Channel
             {
                 Enabled = Enabled,
                 Color = Color,
+                BlendMode = BlendMode,
                 Width = Width,
                 Speed = Speed,
                 Intensity = Intensity,
@@ -460,17 +512,21 @@ namespace Game.Channel
     public sealed class MeshInteriorNoiseMaterialPreset
     {
         [LabelText("Enabled")]
+        [Tooltip("内部にノイズを混ぜて、面の均一さを崩します。揺らぎやざらつきの演出用です。")]
         public bool Enabled = false;
 
         [LabelText("Scale")]
         [MinValue(0.001f)]
+        [Tooltip("ノイズの細かさです。大きいほど細かい粒になり、小さいほど大きなムラになります。")]
         public float Scale = 8f;
 
         [LabelText("Speed")]
+        [Tooltip("ノイズの時間変化速度です。0 なら静止、値を上げるほど模様が流れます。")]
         public float Speed = 0.5f;
 
         [LabelText("Strength")]
         [MinValue(0f)]
+        [Tooltip("ノイズでどれだけ色を揺らすかです。大きいほど面のムラが強く出ます。")]
         public float Strength = 0.08f;
 
         internal MeshInteriorNoiseMaterialPreset CreateRuntimeCopy()
@@ -496,17 +552,19 @@ namespace Game.Channel
         [BoxGroup("Base")]
         [LabelText("Material")]
         [ShowIf(nameof(Enabled))]
-        [Tooltip("個別に Material を差し替えたい場合だけ指定します。未指定時は RenderPipeline の Default Shader から fallback Material を生成して使います。")]
+        [Tooltip("個別に Material を差し替えたい場合だけ指定します。未指定時は互換 fallback Material を生成して使います。MeshChannel 効果を反映したい場合は、_MeshBaseColor などの MeshChannel property を持つ Material/Shader を使ってください。")]
         public Material? Material;
 
         [BoxGroup("Base")]
         [LabelText("Base Tint")]
         [ShowIf(nameof(Enabled))]
+        [Tooltip("最終色の基礎色です。各 material 効果はこの色を土台に乗ります。まず見た目の全体色を決める項目です。")]
         public Color BaseTint = Color.white;
 
         [BoxGroup("Base")]
         [LabelText("Sorting Order Offset")]
         [ShowIf(nameof(Enabled))]
+        [Tooltip("RenderPipeline の Sorting Order に加算する値です。同じ MeshChannel 内で前後関係を微調整したい時に使います。")]
         public int SortingOrderOffset = 0;
 
         [BoxGroup("Contour Input")]
@@ -579,6 +637,15 @@ namespace Game.Channel
     public abstract class MeshTrackColliderPresetBase : IDynamicManagedRefValue
     {
         internal abstract MeshTrackColliderPresetBase CreateRuntimeCopy();
+    }
+
+    [Serializable]
+    public sealed class MeshNoColliderTrackColliderPreset : MeshTrackColliderPresetBase
+    {
+        internal override MeshTrackColliderPresetBase CreateRuntimeCopy()
+        {
+            return new MeshNoColliderTrackColliderPreset();
+        }
     }
 
     [Serializable]
@@ -707,8 +774,23 @@ namespace Game.Channel
     }
 
     [Serializable]
+    public struct MeshLineDashPatternElement
+    {
+        [HorizontalGroup("Pattern", Width = 120f)]
+        [LabelText("Kind")]
+        public MeshLineDashPatternKind Kind;
+
+        [HorizontalGroup("Pattern")]
+        [LabelText("Length")]
+        [MinValue(0.001f)]
+        public float Length;
+    }
+
+    [Serializable]
     public sealed class MeshLineTrackVisualizerPreset : MeshTrackVisualizerPresetBase
     {
+        bool ShowWaveSettings => WaveEnabled;
+
         [BoxGroup("Shape")]
         [LabelText("Base Width")]
         [MinValue(0.001f)]
@@ -728,27 +810,79 @@ namespace Game.Channel
         public float TailTaperNormalized = 0.1f;
 
         [BoxGroup("Wave")]
+        [LabelText("Wave Enabled")]
+        [Tooltip("有効時は center line を法線方向に波打たせます。")]
+        public bool WaveEnabled = true;
+
+        [BoxGroup("Wave")]
+        [ShowIf(nameof(ShowWaveSettings))]
         [LabelText("Wave Space")]
         [Tooltip("波長の基準空間です。World はワールド距離、NormalizedLength は線全長 0-1 を基準にします。")]
         public MeshWaveSpace WaveSpace = MeshWaveSpace.NormalizedLength;
 
         [BoxGroup("Wave")]
+        [ShowIf(nameof(ShowWaveSettings))]
         [LabelText("Wave Amplitude")]
         [MinValue(0f)]
         public float WaveAmplitude = 0f;
 
         [BoxGroup("Wave")]
+        [ShowIf(nameof(ShowWaveSettings))]
         [LabelText("Wave Length")]
         [MinValue(0.001f)]
         public float WaveLength = 0.5f;
 
         [BoxGroup("Wave")]
+        [ShowIf(nameof(ShowWaveSettings))]
         [LabelText("Wave Phase")]
         public float WavePhase = 0f;
 
         [BoxGroup("Wave")]
+        [ShowIf(nameof(ShowWaveSettings))]
         [LabelText("Wave Scroll Speed")]
         public float WaveScrollSpeed = 0f;
+
+        [BoxGroup("Dash")]
+        [LabelText("Dash Enabled")]
+        [Tooltip("有効時は pattern に従って line を visible / gap に分割します。gap は見た目だけでなく collider/hit capture にも反映されます。")]
+        public bool DashEnabled = false;
+
+        [BoxGroup("Dash")]
+        [ShowIf(nameof(DashEnabled))]
+        [LabelText("Dash Space")]
+        [Tooltip("pattern 長さの基準空間です。World はワールド距離、NormalizedLength は線全長 0-1 を基準にします。")]
+        public MeshWaveSpace DashSpace = MeshWaveSpace.World;
+
+        [BoxGroup("Dash")]
+        [ShowIf(nameof(DashEnabled))]
+        [LabelText("Dash Scroll Speed")]
+        [Tooltip("pattern の開始位置を時間で流す速度です。Wave Scroll とは独立して動きます。")]
+        public float DashScrollSpeed = 0f;
+
+        [BoxGroup("Dash")]
+        [ShowIf(nameof(DashEnabled))]
+        [LabelText("Dash Scroll Offset")]
+        [Tooltip("pattern の開始位置を固定オフセットします。")]
+        public float DashScrollOffset = 0f;
+
+        [BoxGroup("Dash")]
+        [ShowIf(nameof(DashEnabled))]
+        [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, DefaultExpandedState = true)]
+        [LabelText("Pattern")]
+        [Tooltip("Visible / Gap と長さの繰り返し配列です。点線・破線・一点鎖線をこの組み合わせで表現します。")]
+        public List<MeshLineDashPatternElement> Pattern = new()
+        {
+            new MeshLineDashPatternElement
+            {
+                Kind = MeshLineDashPatternKind.Visible,
+                Length = 0.5f,
+            },
+            new MeshLineDashPatternElement
+            {
+                Kind = MeshLineDashPatternKind.Gap,
+                Length = 0.25f,
+            },
+        };
 
         [BoxGroup("Sampling")]
         [LabelText("Min Segment Length")]
@@ -769,11 +903,19 @@ namespace Game.Channel
                 BaseWidth = BaseWidth,
                 HeadTaperNormalized = HeadTaperNormalized,
                 TailTaperNormalized = TailTaperNormalized,
+                WaveEnabled = WaveEnabled,
                 WaveSpace = WaveSpace,
                 WaveAmplitude = WaveAmplitude,
                 WaveLength = WaveLength,
                 WavePhase = WavePhase,
                 WaveScrollSpeed = WaveScrollSpeed,
+                DashEnabled = DashEnabled,
+                DashSpace = DashSpace,
+                DashScrollSpeed = DashScrollSpeed,
+                DashScrollOffset = DashScrollOffset,
+                Pattern = Pattern != null
+                    ? new List<MeshLineDashPatternElement>(Pattern)
+                    : new List<MeshLineDashPatternElement>(),
                 MinSegmentLength = MinSegmentLength,
                 MaxPointCount = MaxPointCount,
             };
@@ -1023,6 +1165,8 @@ namespace Game.Channel
     [Serializable]
     public sealed class MeshTrackVisualizerRuntimeMutation
     {
+        bool ShowWaveMutationValues => ApplyWave && WaveEnabled;
+
         [LabelText("Replace Preset")]
         [Tooltip("Visualizer preset 全体を差し替えます。下の Apply 系指定より優先して新 preset が基準になります。")]
         public bool ReplacePreset = false;
@@ -1057,22 +1201,57 @@ namespace Game.Channel
         public bool ApplyWave = false;
 
         [ShowIf(nameof(ApplyWave))]
+        public bool WaveEnabled = true;
+
+        [ShowIf(nameof(ShowWaveMutationValues))]
         [MinValue(0f)]
         public float WaveAmplitude = 0f;
 
-        [ShowIf(nameof(ApplyWave))]
+        [ShowIf(nameof(ShowWaveMutationValues))]
         [MinValue(0.001f)]
         public float WaveLength = 0.5f;
 
-        [ShowIf(nameof(ApplyWave))]
+        [ShowIf(nameof(ShowWaveMutationValues))]
         public float WavePhase = 0f;
 
-        [ShowIf(nameof(ApplyWave))]
+        [ShowIf(nameof(ShowWaveMutationValues))]
         public float WaveScrollSpeed = 0f;
+
+        [LabelText("Apply Dash")]
+        [Tooltip("破線パラメータを上書きします。Pattern / Space / Scroll をまとめて反映します。")]
+        public bool ApplyDash = false;
+
+        [ShowIf(nameof(ApplyDash))]
+        public bool DashEnabled = false;
+
+        [ShowIf(nameof(ApplyDash))]
+        public MeshWaveSpace DashSpace = MeshWaveSpace.World;
+
+        [ShowIf(nameof(ApplyDash))]
+        public float DashScrollSpeed = 0f;
+
+        [ShowIf(nameof(ApplyDash))]
+        public float DashScrollOffset = 0f;
+
+        [ShowIf(nameof(ApplyDash))]
+        [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, DefaultExpandedState = true)]
+        public List<MeshLineDashPatternElement> Pattern = new()
+        {
+            new MeshLineDashPatternElement
+            {
+                Kind = MeshLineDashPatternKind.Visible,
+                Length = 0.5f,
+            },
+            new MeshLineDashPatternElement
+            {
+                Kind = MeshLineDashPatternKind.Gap,
+                Length = 0.25f,
+            },
+        };
 
         public bool HasAnyMutation()
         {
-            return ReplacePreset || ApplyWidth || ApplyTaper || ApplyWave;
+            return ReplacePreset || ApplyWidth || ApplyTaper || ApplyWave || ApplyDash;
         }
     }
 
@@ -1353,11 +1532,7 @@ namespace Game.Channel
 
         public MeshTrackColliderPresetBase? Preset
         {
-            get
-            {
-                _preset ??= new MeshPolygonTrackColliderPreset();
-                return _preset;
-            }
+            get => _preset;
         }
     }
 
