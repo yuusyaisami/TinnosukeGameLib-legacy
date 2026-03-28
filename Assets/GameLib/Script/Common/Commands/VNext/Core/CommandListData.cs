@@ -212,6 +212,17 @@ namespace Game.Commands.VNext
             _runtimeAppendedCommands = null;
         }
 
+        public CommandListData CreateRuntimeCopy()
+        {
+            var copy = new CommandListData();
+            copy.SetCommands(this);
+            copy._debugOwner = _debugOwner;
+            copy._debugFieldPath = _debugFieldPath;
+            copy._debugAssetPath = _debugAssetPath;
+            copy._functionName = _functionName;
+            return copy;
+        }
+
         public bool ApplyRuntimeMutation(CommandListMutationStep? step, ICommandListRuntimeMutationService? mutationService = null)
         {
             if (step == null)

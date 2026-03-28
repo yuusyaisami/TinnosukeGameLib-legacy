@@ -51,6 +51,12 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _TextOutlineColor("Text Outline Color", Color) = (0,0,0,1)
         _TextOutlineThickness("Text Outline Thickness (px)", Float) = 1
         _TextOutlineSoftness("Text Outline Softness", Range(0,1)) = 0.1
+        _TextOutlineDirectionMask("Text Outline Direction Mask", Float) = 15
+        _TextOutlineAutoColorEnabled("Text Outline Auto Color Enabled", Float) = 0
+        _TextOutlineAutoColorMode("Text Outline Auto Color Mode", Float) = 0
+        _TextOutlineAutoHue("Text Outline Auto Hue", Float) = 0
+        _TextOutlineAutoSaturation("Text Outline Auto Saturation", Float) = 0
+        _TextOutlineAutoLightness("Text Outline Auto Lightness", Float) = 0
 
         _TextShadowEnabled("Text Shadow Enabled", Float) = 0
         _TextShadowColor("Text Shadow Color", Color) = (0,0,0,0.5)
@@ -66,6 +72,12 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _OutlineEnabled("Outline Enabled", Float) = 0
         _OutlineMode("Outline Mode (10:Outside 20:Inside)", Float) = 10
         _OutlineColor("Outline Color", Color) = (1,1,1,1)
+        _OutlineDirectionMask("Outline Direction Mask", Float) = 15
+        _OutlineAutoColorEnabled("Outline Auto Color Enabled", Float) = 0
+        _OutlineAutoColorMode("Outline Auto Color Mode", Float) = 0
+        _OutlineAutoHue("Outline Auto Hue", Float) = 0
+        _OutlineAutoSaturation("Outline Auto Saturation", Float) = 0
+        _OutlineAutoLightness("Outline Auto Lightness", Float) = 0
         _OutlineWidth("Outline Width", Float) = 1
         _OutlineOpacity("Outline Opacity", Range(0,1)) = 1
         _OutlineSoftness("Outline Softness", Range(0,1)) = 0

@@ -118,6 +118,7 @@ namespace Game.SelectRuntime
 
         void RegisterTarget(WorldPointerTargetMB target);
         void UnregisterTarget(WorldPointerTargetMB target);
+        bool TryGetCurrentHover(out WorldPointerEventData eventData);
     }
 
     public interface ISelectRuntimeManagerService : ISelectRuntimeManagerStateProvider

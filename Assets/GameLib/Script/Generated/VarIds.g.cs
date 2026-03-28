@@ -3059,150 +3059,150 @@ namespace Game.Vars.Generated
                 }
             }
 
-            public static partial class WorldSlider
+            public static partial class Slider
             {
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/crossingDirection
-                /// StableKey: GameLib.WorldSlider.crossingDirection
+                /// Path: GameLib/Slider/crossingDirection
+                /// StableKey: GameLib.Slider.crossingDirection
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/crossingDirection
-                /// StableKey: GameLib.WorldSlider.crossingDirection
+                /// Path: GameLib/Slider/crossingDirection
+                /// StableKey: GameLib.Slider.crossingDirection
                 /// </remarks>
                 public const int crossingDirection = 101065;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/deltaNormalized
-                /// StableKey: GameLib.WorldSlider.deltaNormalized
+                /// Path: GameLib/Slider/deltaNormalized
+                /// StableKey: GameLib.Slider.deltaNormalized
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/deltaNormalized
-                /// StableKey: GameLib.WorldSlider.deltaNormalized
+                /// Path: GameLib/Slider/deltaNormalized
+                /// StableKey: GameLib.Slider.deltaNormalized
                 /// </remarks>
                 public const int deltaNormalized = 101064;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/deltaRaw
-                /// StableKey: GameLib.WorldSlider.deltaRaw
+                /// Path: GameLib/Slider/deltaRaw
+                /// StableKey: GameLib.Slider.deltaRaw
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/deltaRaw
-                /// StableKey: GameLib.WorldSlider.deltaRaw
+                /// Path: GameLib/Slider/deltaRaw
+                /// StableKey: GameLib.Slider.deltaRaw
                 /// </remarks>
                 public const int deltaRaw = 101063;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/displayedNormalized
-                /// StableKey: GameLib.WorldSlider.displayedNormalized
+                /// Path: GameLib/Slider/displayedNormalized
+                /// StableKey: GameLib.Slider.displayedNormalized
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/displayedNormalized
-                /// StableKey: GameLib.WorldSlider.displayedNormalized
+                /// Path: GameLib/Slider/displayedNormalized
+                /// StableKey: GameLib.Slider.displayedNormalized
                 /// </remarks>
                 public const int displayedNormalized = 101062;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/displayedRaw
-                /// StableKey: GameLib.WorldSlider.displayedRaw
+                /// Path: GameLib/Slider/displayedRaw
+                /// StableKey: GameLib.Slider.displayedRaw
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/displayedRaw
-                /// StableKey: GameLib.WorldSlider.displayedRaw
+                /// Path: GameLib/Slider/displayedRaw
+                /// StableKey: GameLib.Slider.displayedRaw
                 /// </remarks>
                 public const int displayedRaw = 101061;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/entryIndex
-                /// StableKey: GameLib.WorldSlider.entryIndex
+                /// Path: GameLib/Slider/entryIndex
+                /// StableKey: GameLib.Slider.entryIndex
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/entryIndex
-                /// StableKey: GameLib.WorldSlider.entryIndex
+                /// Path: GameLib/Slider/entryIndex
+                /// StableKey: GameLib.Slider.entryIndex
                 /// </remarks>
                 public const int entryIndex = 101066;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/entryNormalized
-                /// StableKey: GameLib.WorldSlider.entryNormalized
+                /// Path: GameLib/Slider/entryNormalized
+                /// StableKey: GameLib.Slider.entryNormalized
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/entryNormalized
-                /// StableKey: GameLib.WorldSlider.entryNormalized
+                /// Path: GameLib/Slider/entryNormalized
+                /// StableKey: GameLib.Slider.entryNormalized
                 /// </remarks>
                 public const int entryNormalized = 101068;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/entryValue
-                /// StableKey: GameLib.WorldSlider.entryValue
+                /// Path: GameLib/Slider/entryValue
+                /// StableKey: GameLib.Slider.entryValue
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/entryValue
-                /// StableKey: GameLib.WorldSlider.entryValue
+                /// Path: GameLib/Slider/entryValue
+                /// StableKey: GameLib.Slider.entryValue
                 /// </remarks>
                 public const int entryValue = 101067;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentEndNormalized
-                /// StableKey: GameLib.WorldSlider.segmentEndNormalized
+                /// Path: GameLib/Slider/segmentEndNormalized
+                /// StableKey: GameLib.Slider.segmentEndNormalized
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentEndNormalized
-                /// StableKey: GameLib.WorldSlider.segmentEndNormalized
+                /// Path: GameLib/Slider/segmentEndNormalized
+                /// StableKey: GameLib.Slider.segmentEndNormalized
                 /// </remarks>
                 public const int segmentEndNormalized = 101074;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentEndRaw
-                /// StableKey: GameLib.WorldSlider.segmentEndRaw
+                /// Path: GameLib/Slider/segmentEndRaw
+                /// StableKey: GameLib.Slider.segmentEndRaw
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentEndRaw
-                /// StableKey: GameLib.WorldSlider.segmentEndRaw
+                /// Path: GameLib/Slider/segmentEndRaw
+                /// StableKey: GameLib.Slider.segmentEndRaw
                 /// </remarks>
                 public const int segmentEndRaw = 101072;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentStartNormalized
-                /// StableKey: GameLib.WorldSlider.segmentStartNormalized
+                /// Path: GameLib/Slider/segmentStartNormalized
+                /// StableKey: GameLib.Slider.segmentStartNormalized
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentStartNormalized
-                /// StableKey: GameLib.WorldSlider.segmentStartNormalized
+                /// Path: GameLib/Slider/segmentStartNormalized
+                /// StableKey: GameLib.Slider.segmentStartNormalized
                 /// </remarks>
                 public const int segmentStartNormalized = 101073;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentStartRaw
-                /// StableKey: GameLib.WorldSlider.segmentStartRaw
+                /// Path: GameLib/Slider/segmentStartRaw
+                /// StableKey: GameLib.Slider.segmentStartRaw
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/segmentStartRaw
-                /// StableKey: GameLib.WorldSlider.segmentStartRaw
+                /// Path: GameLib/Slider/segmentStartRaw
+                /// StableKey: GameLib.Slider.segmentStartRaw
                 /// </remarks>
                 public const int segmentStartRaw = 101071;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/targetNormalized
-                /// StableKey: GameLib.WorldSlider.targetNormalized
+                /// Path: GameLib/Slider/targetNormalized
+                /// StableKey: GameLib.Slider.targetNormalized
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/targetNormalized
-                /// StableKey: GameLib.WorldSlider.targetNormalized
+                /// Path: GameLib/Slider/targetNormalized
+                /// StableKey: GameLib.Slider.targetNormalized
                 /// </remarks>
                 public const int targetNormalized = 101060;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/targetRaw
-                /// StableKey: GameLib.WorldSlider.targetRaw
+                /// Path: GameLib/Slider/targetRaw
+                /// StableKey: GameLib.Slider.targetRaw
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/targetRaw
-                /// StableKey: GameLib.WorldSlider.targetRaw
+                /// Path: GameLib/Slider/targetRaw
+                /// StableKey: GameLib.Slider.targetRaw
                 /// </remarks>
                 public const int targetRaw = 101059;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/unitIndex
-                /// StableKey: GameLib.WorldSlider.unitIndex
+                /// Path: GameLib/Slider/unitIndex
+                /// StableKey: GameLib.Slider.unitIndex
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/unitIndex
-                /// StableKey: GameLib.WorldSlider.unitIndex
+                /// Path: GameLib/Slider/unitIndex
+                /// StableKey: GameLib.Slider.unitIndex
                 /// </remarks>
                 public const int unitIndex = 101070;
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/unitKind
-                /// StableKey: GameLib.WorldSlider.unitKind
+                /// Path: GameLib/Slider/unitKind
+                /// StableKey: GameLib.Slider.unitKind
                 /// </remarks>
                 /// <remarks>
-                /// Path: GameLib/WorldSlider/unitKind
-                /// StableKey: GameLib.WorldSlider.unitKind
+                /// Path: GameLib/Slider/unitKind
+                /// StableKey: GameLib.Slider.unitKind
                 /// </remarks>
                 public const int unitKind = 101069;
             }
@@ -3628,22 +3628,22 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitIndex,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceId,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
-            VarIds.GameLib.WorldSlider.crossingDirection,
-            VarIds.GameLib.WorldSlider.deltaNormalized,
-            VarIds.GameLib.WorldSlider.deltaRaw,
-            VarIds.GameLib.WorldSlider.displayedNormalized,
-            VarIds.GameLib.WorldSlider.displayedRaw,
-            VarIds.GameLib.WorldSlider.entryIndex,
-            VarIds.GameLib.WorldSlider.entryNormalized,
-            VarIds.GameLib.WorldSlider.entryValue,
-            VarIds.GameLib.WorldSlider.segmentEndNormalized,
-            VarIds.GameLib.WorldSlider.segmentEndRaw,
-            VarIds.GameLib.WorldSlider.segmentStartNormalized,
-            VarIds.GameLib.WorldSlider.segmentStartRaw,
-            VarIds.GameLib.WorldSlider.targetNormalized,
-            VarIds.GameLib.WorldSlider.targetRaw,
-            VarIds.GameLib.WorldSlider.unitIndex,
-            VarIds.GameLib.WorldSlider.unitKind,
+            VarIds.GameLib.Slider.crossingDirection,
+            VarIds.GameLib.Slider.deltaNormalized,
+            VarIds.GameLib.Slider.deltaRaw,
+            VarIds.GameLib.Slider.displayedNormalized,
+            VarIds.GameLib.Slider.displayedRaw,
+            VarIds.GameLib.Slider.entryIndex,
+            VarIds.GameLib.Slider.entryNormalized,
+            VarIds.GameLib.Slider.entryValue,
+            VarIds.GameLib.Slider.segmentEndNormalized,
+            VarIds.GameLib.Slider.segmentEndRaw,
+            VarIds.GameLib.Slider.segmentStartNormalized,
+            VarIds.GameLib.Slider.segmentStartRaw,
+            VarIds.GameLib.Slider.targetNormalized,
+            VarIds.GameLib.Slider.targetRaw,
+            VarIds.GameLib.Slider.unitIndex,
+            VarIds.GameLib.Slider.unitKind,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
             VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,

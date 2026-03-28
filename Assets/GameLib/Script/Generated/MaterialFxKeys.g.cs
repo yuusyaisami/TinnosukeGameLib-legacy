@@ -1325,6 +1325,41 @@ namespace Game.MaterialFx.Generated
             {
                 /// <remarks>
                 /// Sender: BaseShader
+                /// ValueType: Bool
+                /// ShaderPropertyName: _OutlineAutoColorEnabled
+                /// Path: BaseShader/Outline/AutoColorEnabled
+                /// </remarks>
+                public const string AutoColorEnabled = "BaseShader/Outline/AutoColorEnabled";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Int
+                /// ShaderPropertyName: _OutlineAutoColorMode
+                /// Path: BaseShader/Outline/AutoColorMode
+                /// </remarks>
+                public const string AutoColorMode = "BaseShader/Outline/AutoColorMode";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float
+                /// ShaderPropertyName: _OutlineAutoHue
+                /// Path: BaseShader/Outline/AutoHue
+                /// </remarks>
+                public const string AutoHue = "BaseShader/Outline/AutoHue";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float
+                /// ShaderPropertyName: _OutlineAutoLightness
+                /// Path: BaseShader/Outline/AutoLightness
+                /// </remarks>
+                public const string AutoLightness = "BaseShader/Outline/AutoLightness";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Float
+                /// ShaderPropertyName: _OutlineAutoSaturation
+                /// Path: BaseShader/Outline/AutoSaturation
+                /// </remarks>
+                public const string AutoSaturation = "BaseShader/Outline/AutoSaturation";
+                /// <remarks>
+                /// Sender: BaseShader
                 /// ValueType: Int
                 /// ShaderPropertyName: _OutlineBlendMode
                 /// Path: BaseShader/Outline/BlendMode
@@ -1337,6 +1372,13 @@ namespace Game.MaterialFx.Generated
                 /// Path: BaseShader/Outline/Color
                 /// </remarks>
                 public const string Color = "BaseShader/Outline/Color";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Int
+                /// ShaderPropertyName: _OutlineDirectionMask
+                /// Path: BaseShader/Outline/DirectionMask
+                /// </remarks>
+                public const string DirectionMask = "BaseShader/Outline/DirectionMask";
                 /// <remarks>
                 /// Sender: BaseShader
                 /// ValueType: Bool
@@ -1365,6 +1407,13 @@ namespace Game.MaterialFx.Generated
                 /// Path: BaseShader/Outline/Opacity
                 /// </remarks>
                 public const string Opacity = "BaseShader/Outline/Opacity";
+                /// <remarks>
+                /// Sender: BaseShader
+                /// ValueType: Bool
+                /// ShaderPropertyName: _OutlinePixelPerfect
+                /// Path: BaseShader/Outline/PixelPerfect
+                /// </remarks>
+                public const string PixelPerfect = "BaseShader/Outline/PixelPerfect";
                 /// <remarks>
                 /// Sender: BaseShader
                 /// ValueType: Float
@@ -1628,11 +1677,53 @@ namespace Game.MaterialFx.Generated
                 {
                     /// <remarks>
                     /// Sender: BaseShader
+                    /// ValueType: Bool
+                    /// ShaderPropertyName: _TextOutlineAutoColorEnabled
+                    /// Path: BaseShader/TextFx/Outline/AutoColorEnabled
+                    /// </remarks>
+                    public const string AutoColorEnabled = "BaseShader/TextFx/Outline/AutoColorEnabled";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Int
+                    /// ShaderPropertyName: _TextOutlineAutoColorMode
+                    /// Path: BaseShader/TextFx/Outline/AutoColorMode
+                    /// </remarks>
+                    public const string AutoColorMode = "BaseShader/TextFx/Outline/AutoColorMode";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _TextOutlineAutoHue
+                    /// Path: BaseShader/TextFx/Outline/AutoHue
+                    /// </remarks>
+                    public const string AutoHue = "BaseShader/TextFx/Outline/AutoHue";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _TextOutlineAutoLightness
+                    /// Path: BaseShader/TextFx/Outline/AutoLightness
+                    /// </remarks>
+                    public const string AutoLightness = "BaseShader/TextFx/Outline/AutoLightness";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _TextOutlineAutoSaturation
+                    /// Path: BaseShader/TextFx/Outline/AutoSaturation
+                    /// </remarks>
+                    public const string AutoSaturation = "BaseShader/TextFx/Outline/AutoSaturation";
+                    /// <remarks>
+                    /// Sender: BaseShader
                     /// ValueType: Color
                     /// ShaderPropertyName: _TextOutlineColor
                     /// Path: BaseShader/TextFx/Outline/Color
                     /// </remarks>
                     public const string Color = "BaseShader/TextFx/Outline/Color";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Int
+                    /// ShaderPropertyName: _TextOutlineDirectionMask
+                    /// Path: BaseShader/TextFx/Outline/DirectionMask
+                    /// </remarks>
+                    public const string DirectionMask = "BaseShader/TextFx/Outline/DirectionMask";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Bool
@@ -1897,12 +1988,19 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.Mask.Source.SlotType,
             MaterialFxKeys.BaseShader.Mask.Source.TilingOffset,
             MaterialFxKeys.BaseShader.Mask.Source.UVSpace,
+            MaterialFxKeys.BaseShader.Outline.AutoColorEnabled,
+            MaterialFxKeys.BaseShader.Outline.AutoColorMode,
+            MaterialFxKeys.BaseShader.Outline.AutoHue,
+            MaterialFxKeys.BaseShader.Outline.AutoLightness,
+            MaterialFxKeys.BaseShader.Outline.AutoSaturation,
             MaterialFxKeys.BaseShader.Outline.BlendMode,
             MaterialFxKeys.BaseShader.Outline.Color,
+            MaterialFxKeys.BaseShader.Outline.DirectionMask,
             MaterialFxKeys.BaseShader.Outline.Enabled,
             MaterialFxKeys.BaseShader.Outline.MaskRespect,
             MaterialFxKeys.BaseShader.Outline.Mode,
             MaterialFxKeys.BaseShader.Outline.Opacity,
+            MaterialFxKeys.BaseShader.Outline.PixelPerfect,
             MaterialFxKeys.BaseShader.Outline.PixelStep,
             MaterialFxKeys.BaseShader.Outline.SamplePattern,
             MaterialFxKeys.BaseShader.Outline.Softness,
@@ -1937,7 +2035,13 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.TextFx.Glow.Enabled,
             MaterialFxKeys.BaseShader.TextFx.Glow.Softness,
             MaterialFxKeys.BaseShader.TextFx.Glow.Thickness,
+            MaterialFxKeys.BaseShader.TextFx.Outline.AutoColorEnabled,
+            MaterialFxKeys.BaseShader.TextFx.Outline.AutoColorMode,
+            MaterialFxKeys.BaseShader.TextFx.Outline.AutoHue,
+            MaterialFxKeys.BaseShader.TextFx.Outline.AutoLightness,
+            MaterialFxKeys.BaseShader.TextFx.Outline.AutoSaturation,
             MaterialFxKeys.BaseShader.TextFx.Outline.Color,
+            MaterialFxKeys.BaseShader.TextFx.Outline.DirectionMask,
             MaterialFxKeys.BaseShader.TextFx.Outline.Enabled,
             MaterialFxKeys.BaseShader.TextFx.Outline.Softness,
             MaterialFxKeys.BaseShader.TextFx.Outline.Thickness,

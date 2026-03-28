@@ -24,7 +24,12 @@ namespace Game.Common
 
         public static bool TryConvertToVariant(in VarStorePayload.Entry entry, out DynamicVariant value)
         {
-            var evaluated = entry.Value.Evaluate(EmptyDynamicContext.Instance);
+            return TryConvertToVariant(in entry, EmptyDynamicContext.Instance, out value);
+        }
+
+        public static bool TryConvertToVariant(in VarStorePayload.Entry entry, IDynamicContext? context, out DynamicVariant value)
+        {
+            var evaluated = entry.Value.Evaluate(context ?? EmptyDynamicContext.Instance);
             if (entry.Kind == VarStorePayload.EntryValueKind.Auto)
             {
                 value = evaluated;

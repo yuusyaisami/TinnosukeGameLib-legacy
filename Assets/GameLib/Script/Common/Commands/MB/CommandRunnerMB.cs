@@ -86,6 +86,15 @@ namespace Game.Commands
                 builder.Register<VNext.CommandChannelControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
+                builder.Register<VNext.CommandListChannelHubControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
+                builder.Register<VNext.CommandListChannelExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
+                builder.Register<VNext.CommandListChannelPlayerControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
                 builder.Register<VNext.SetContextSlotExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
@@ -193,7 +202,7 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ButtonChannelPlayerControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.WorldSliderControlExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SliderControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.WorldPointerTargetControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -213,6 +222,10 @@ namespace Game.Commands
                 builder.Register<VNext.VelocityDrivenRotationExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.AnimationSpriteChannelExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.Light2DChannelHubControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.Light2DChannelPlayerControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.MeshChannelControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();

@@ -172,69 +172,69 @@ namespace Game.Commands.VNext
         [SerializeField]
         public DynamicValue<int> StaleFrameThreshold = DynamicValueExtensions.FromLiteral(2);
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [LabelText("Apply Include Static Kinds")]
         [SerializeField]
         public bool ApplyIncludeStaticKinds;
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [ShowIf(nameof(ApplyIncludeStaticKinds))]
         [LabelText("Use Include Static Kinds")]
         [SerializeField]
         public bool UseIncludeStaticKinds;
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [ShowIf("@ApplyIncludeStaticKinds && UseIncludeStaticKinds")]
         [LabelText("Include Static Kinds")]
         [SerializeField]
         public StaticColliderKindRef[] IncludeStaticKinds = Array.Empty<StaticColliderKindRef>();
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [LabelText("Apply Include Dynamic Sets")]
         [SerializeField]
         public bool ApplyIncludeDynamicSets;
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [ShowIf(nameof(ApplyIncludeDynamicSets))]
         [LabelText("Use Include Dynamic Sets")]
         [SerializeField]
         public bool UseIncludeDynamicSets;
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [ShowIf("@ApplyIncludeDynamicSets && UseIncludeDynamicSets")]
         [LabelText("Include Dynamic Sets")]
         [SerializeField]
         public DynamicColliderSetRef[] IncludeDynamicSets = Array.Empty<DynamicColliderSetRef>();
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [LabelText("Apply Exclude Static Kinds")]
         [SerializeField]
         public bool ApplyExcludeStaticKinds;
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [ShowIf(nameof(ApplyExcludeStaticKinds))]
         [LabelText("Use Exclude Static Kinds")]
         [SerializeField]
         public bool UseExcludeStaticKinds;
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [ShowIf("@ApplyExcludeStaticKinds && UseExcludeStaticKinds")]
         [LabelText("Exclude Static Kinds")]
         [SerializeField]
         public StaticColliderKindRef[] ExcludeStaticKinds = Array.Empty<StaticColliderKindRef>();
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [LabelText("Apply Exclude Dynamic Sets")]
         [SerializeField]
         public bool ApplyExcludeDynamicSets;
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [ShowIf(nameof(ApplyExcludeDynamicSets))]
         [LabelText("Use Exclude Dynamic Sets")]
         [SerializeField]
         public bool UseExcludeDynamicSets;
 
-        [BoxGroup("Include/Exclude")]
+        [BoxGroup("Include Exclude")]
         [ShowIf("@ApplyExcludeDynamicSets && UseExcludeDynamicSets")]
         [LabelText("Exclude Dynamic Sets")]
         [SerializeField]

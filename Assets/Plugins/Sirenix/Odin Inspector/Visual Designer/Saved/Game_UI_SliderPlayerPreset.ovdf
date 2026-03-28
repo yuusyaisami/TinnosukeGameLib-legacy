@@ -1,0 +1,8 @@
+OVDF v1.1
+Game.UI.SliderPlayerPreset, Assembly-CSharp
+
+# _userInput
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 76.08
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 150

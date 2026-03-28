@@ -23,6 +23,68 @@ inline half3 HSVtoRGB(half3 hsv)
     return hsv.z * lerp(K.xxx, saturate(p - K.xxx), hsv.y);
 }
 
+inline half3 RGBtoHSL(half3 rgb)
+{
+    half maxC = max(max(rgb.r, rgb.g), rgb.b);
+    half minC = min(min(rgb.r, rgb.g), rgb.b);
+    half delta = maxC - minC;
+    half lightness = (maxC + minC) * 0.5h;
+    half hue = 0.0h;
+    half saturation = 0.0h;
+
+    if (delta > 1.0e-5h)
+    {
+        saturation = delta / max(1.0e-5h, 1.0h - abs(2.0h * lightness - 1.0h));
+
+        if (rgb.r >= rgb.g && rgb.r >= rgb.b)
+            hue = frac((rgb.g - rgb.b) / (6.0h * delta));
+        else if (rgb.g >= rgb.b)
+            hue = ((rgb.b - rgb.r) / delta + 2.0h) / 6.0h;
+        else
+            hue = ((rgb.r - rgb.g) / delta + 4.0h) / 6.0h;
+
+        if (hue < 0.0h)
+            hue += 1.0h;
+    }
+
+    return half3(hue, saturation, lightness);
+}
+
+inline half HSLHueToRGB(half p, half q, half t)
+{
+    if (t < 0.0h) t += 1.0h;
+    if (t > 1.0h) t -= 1.0h;
+    if (t < 1.0h / 6.0h) return p + (q - p) * 6.0h * t;
+    if (t < 0.5h) return q;
+    if (t < 2.0h / 3.0h) return p + (q - p) * (2.0h / 3.0h - t) * 6.0h;
+    return p;
+}
+
+inline half3 HSLtoRGB(half3 hsl)
+{
+    if (hsl.y <= 1.0e-5h)
+        return hsl.zzz;
+
+    half q = hsl.z < 0.5h
+        ? hsl.z * (1.0h + hsl.y)
+        : hsl.z + hsl.y - hsl.z * hsl.y;
+    half p = 2.0h * hsl.z - q;
+
+    return half3(
+        HSLHueToRGB(p, q, hsl.x + 1.0h / 3.0h),
+        HSLHueToRGB(p, q, hsl.x),
+        HSLHueToRGB(p, q, hsl.x - 1.0h / 3.0h));
+}
+
+inline half ApplySignedHeadroomAdjust(half current, half amount)
+{
+    if (amount > 0.0h)
+        return lerp(current, 1.0h, saturate(amount));
+    if (amount < 0.0h)
+        return lerp(current, 0.0h, saturate(-amount));
+    return current;
+}
+
 // Set Lum/Sat according to Photoshop/W3C specs for advanced blend modes
 inline half GetLuminosity(half3 c)
 {

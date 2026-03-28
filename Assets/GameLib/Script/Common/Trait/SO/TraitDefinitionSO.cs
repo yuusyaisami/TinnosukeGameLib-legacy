@@ -136,12 +136,12 @@ namespace Game.Trait
         [SerializeField]
         VarStorePayload _commonVars = new();
 
-        [BoxGroup("VarStore/Grid")]
+        [BoxGroup("VarStore Grid")]
         [LabelText("Apply Common Grid Table")]
         [SerializeField]
         bool _applyCommonGridTable;
 
-        [BoxGroup("VarStore/Grid")]
+        [BoxGroup("VarStore Grid")]
         [ShowIf(nameof(_applyCommonGridTable))]
         [LabelText("Grid Table Key")]
         [Tooltip("Grid row/column count の参照キーとして各セルに書き込む VarId です。0 の場合は既存のセル VarId のみを書き込みます。")]
@@ -149,7 +149,7 @@ namespace Game.Trait
         [SerializeField]
         int _commonGridTableKeyVarId;
 
-        [BoxGroup("VarStore/Grid")]
+        [BoxGroup("VarStore Grid")]
         [ShowIf(nameof(_applyCommonGridTable))]
         [LabelText("Common Grid Table")]
         [InlineProperty]

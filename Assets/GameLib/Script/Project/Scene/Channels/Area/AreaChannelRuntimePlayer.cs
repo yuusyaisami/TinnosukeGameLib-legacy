@@ -115,6 +115,73 @@ namespace Game.Channel
             return worldPaths.Count > 0;
         }
 
+        public bool TryGetRectSnapshot(Vector3 basePosition, out AreaRectSnapshot snapshot)
+        {
+            snapshot = default;
+
+            if (_definition.Shape is not RectAreaShape rectShape)
+                return false;
+
+            snapshot = new AreaRectSnapshot(
+                basePosition,
+                new Vector2(Mathf.Max(0f, rectShape.Size.x), Mathf.Max(0f, rectShape.Size.y)),
+                _definition.Plane);
+            return true;
+        }
+
+        public bool TryGetCanvasRectSnapshot(Vector3 basePosition, Canvas canvas, out AreaCanvasRectSnapshot snapshot)
+        {
+            snapshot = default;
+
+            if (canvas == null)
+                return false;
+
+            if (canvas.renderMode == RenderMode.WorldSpace)
+                return false;
+
+            if (!TryGetRectSnapshot(basePosition, out var rectSnapshot))
+                return false;
+
+            if (canvas.transform is not RectTransform canvasRect)
+                return false;
+
+            if (!TryResolveProjectionCamera(canvas, out var projectionCamera) || projectionCamera == null)
+                return false;
+
+            var uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : projectionCamera;
+            var halfSize = rectSnapshot.Size * 0.5f;
+            var corners = new Vector3[4];
+            corners[0] = rectSnapshot.Center + ToPlane(new Vector2(-halfSize.x, -halfSize.y), rectSnapshot.Plane);
+            corners[1] = rectSnapshot.Center + ToPlane(new Vector2(halfSize.x, -halfSize.y), rectSnapshot.Plane);
+            corners[2] = rectSnapshot.Center + ToPlane(new Vector2(halfSize.x, halfSize.y), rectSnapshot.Plane);
+            corners[3] = rectSnapshot.Center + ToPlane(new Vector2(-halfSize.x, halfSize.y), rectSnapshot.Plane);
+
+            var min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            for (var i = 0; i < 4; i++)
+            {
+                var screenPoint3 = projectionCamera.WorldToScreenPoint(corners[i]);
+                if (float.IsNaN(screenPoint3.x) || float.IsNaN(screenPoint3.y) ||
+                    float.IsInfinity(screenPoint3.x) || float.IsInfinity(screenPoint3.y))
+                    return false;
+
+                if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                        canvasRect,
+                        new Vector2(screenPoint3.x, screenPoint3.y),
+                        uiCamera,
+                        out var localPoint))
+                {
+                    return false;
+                }
+
+                min = Vector2.Min(min, localPoint);
+                max = Vector2.Max(max, localPoint);
+            }
+
+            snapshot = new AreaCanvasRectSnapshot(canvasRect, Rect.MinMaxRect(min.x, min.y, max.x, max.y), uiCamera);
+            return true;
+        }
+
         public bool IsFarEnough(Vector3 candidate)
         {
             var minDistance = Mathf.Max(0f, _definition.Sample.MinDistance);
@@ -170,6 +237,22 @@ namespace Game.Channel
             return plane == AreaPlane.XZ
                 ? new Vector3(offset.x, 0f, offset.y)
                 : new Vector3(offset.x, offset.y, 0f);
+        }
+
+        static bool TryResolveProjectionCamera(Canvas canvas, out Camera? camera)
+        {
+            camera = null;
+            if (canvas == null)
+                return false;
+
+            if (canvas.worldCamera != null)
+            {
+                camera = canvas.worldCamera;
+                return true;
+            }
+
+            camera = Camera.main;
+            return camera != null;
         }
 
         static Vector2 ToLocal(Vector3 offset, AreaPlane plane)

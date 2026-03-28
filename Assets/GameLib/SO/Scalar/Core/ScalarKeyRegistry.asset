@@ -1021,4 +1021,60 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: f52a0f91e77b4b808e26cbca56b2843c
+    parentId: 550c8f224cfd4a189fe337f7c3127a11
+    name: GateProfile
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 2221b80eeb6b4207a9d71b477246eabe
+    parentId: f52a0f91e77b4b808e26cbca56b2843c
+    name: LeftGate
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: f6167298f9994514a8479c209fbffffc
+    parentId: f52a0f91e77b4b808e26cbca56b2843c
+    name: RightGate
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 17c1cc6671c24472b5204c2f58a6645f
+    parentId: 2221b80eeb6b4207a9d71b477246eabe
+    name: OpenTime
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 2c9a664eee094c1a8943ea23cc92c9e4
+    parentId: 2221b80eeb6b4207a9d71b477246eabe
+    name: CloseTime
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: bc6afc6c2aab4577a576331aacbf6572
+    parentId: f6167298f9994514a8479c209fbffffc
+    name: OpenTime
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: b1319bb9518b4dfa92c63bedc5ba72ca
+    parentId: f6167298f9994514a8479c209fbffffc
+    name: CloseTime
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   csvFile: {fileID: 4900000, guid: 0f8f0a1f52c24534fa42d23481dae4e3, type: 3}

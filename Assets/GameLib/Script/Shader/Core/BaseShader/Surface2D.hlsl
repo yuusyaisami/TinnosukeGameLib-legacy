@@ -75,6 +75,12 @@ CBUFFER_START(UnityPerMaterial)
     float4 _TextOutlineColor;
     float  _TextOutlineThickness;
     float  _TextOutlineSoftness;
+    float  _TextOutlineDirectionMask;
+    float  _TextOutlineAutoColorEnabled;
+    float  _TextOutlineAutoColorMode;
+    float  _TextOutlineAutoHue;
+    float  _TextOutlineAutoSaturation;
+    float  _TextOutlineAutoLightness;
     float  _TextShadowEnabled;
     float4 _TextShadowColor;
     float4 _TextShadowOffset; // xy
@@ -91,6 +97,12 @@ CBUFFER_START(UnityPerMaterial)
     float  _OutlineEnabled;
     float  _OutlineMode;
     float4 _OutlineColor;
+    float  _OutlineDirectionMask;
+    float  _OutlineAutoColorEnabled;
+    float  _OutlineAutoColorMode;
+    float  _OutlineAutoHue;
+    float  _OutlineAutoSaturation;
+    float  _OutlineAutoLightness;
     float  _OutlineWidth;
     float  _OutlineOpacity;
     float  _OutlineSoftness;
@@ -619,6 +631,12 @@ inline Surface2DContext MakeSurface2DContext()
         _TextOutlineColor,
         _TextOutlineThickness,
         _TextOutlineSoftness,
+        _TextOutlineDirectionMask,
+        _TextOutlineAutoColorEnabled,
+        _TextOutlineAutoColorMode,
+        _TextOutlineAutoHue,
+        _TextOutlineAutoSaturation,
+        _TextOutlineAutoLightness,
         _TextShadowEnabled,
         _TextShadowColor,
         _TextShadowOffset.xy,
@@ -633,6 +651,12 @@ inline Surface2DContext MakeSurface2DContext()
         _OutlineEnabled,
         _OutlineMode,
         _OutlineColor,
+        _OutlineDirectionMask,
+        _OutlineAutoColorEnabled,
+        _OutlineAutoColorMode,
+        _OutlineAutoHue,
+        _OutlineAutoSaturation,
+        _OutlineAutoLightness,
         _OutlineWidth,
         _OutlineOpacity,
         _OutlineSoftness,
@@ -701,7 +725,7 @@ inline Surface2D MakeSurface2D(
     float2 fadeUV,
     float  vertexAlpha)
 {
-    Surface2D s;
+    Surface2D s = (Surface2D)0;
     s.color        = color;
     s.alpha        = alpha;
     s.baseAlphaRaw = baseAlphaRaw;
@@ -856,9 +880,11 @@ inline float3 Surface2D_Vertex_ApplyPositionOS(float3 posOS, float2 uv, Surface2
 //   Phase 1: UV Modification (FlowWarp, Refraction, Ripple歪み)
 //   Phase 2: Color Composition (ColorOverlay, ColorRamp, Caustics, HueShift)
 //   Phase 3: Alpha/Visibility (Mask, Dissolve)
-//   Phase 3.5: Transition (CrossFade, Dissolve, Wipe - 外部テクスチャとのブレンド)
-//   Phase 4: Additive Effects (Emission, Ripple色, Flash)
-//   Phase 5: Normal Output (NormalMap - 2D Lit用)
+//   Phase 3.5: Text Shadow/Glow
+//   Phase 4: Transition (CrossFade, Dissolve, Wipe - 外部テクスチャとのブレンド)
+//   Phase 5: Additive Effects (Emission, Ripple色, Flash)
+//   Phase 6: Pixelation
+//   Phase 7: Final Text Outline
 // ═══════════════════════════════════════════════════════════════════════════
 #ifndef SURFACE2D_PIPELINE
 #define SURFACE2D_PIPELINE(surface, ctx)                                       \
@@ -877,13 +903,10 @@ inline float3 Surface2D_Vertex_ApplyPositionOS(float3 posOS, float2 uv, Surface2
         surface = Surface2D_ApplyDissolve(surface, (ctx).dissolve);            \
         surface = Surface2D_ApplyAdvancedFade(surface, (ctx).advancedFade, _Time.y); \
                                                                                  \
-        /* Phase 3.2: Generic Outline */                                       \
-        surface = Surface2D_ApplyOutline(surface, (ctx).outline);              \
+        /* Phase 3.2: Text Shadow / Glow */                                    \
+        surface = Surface2D_ApplyTextFxPrepass(surface, (ctx).textFx);         \
                                                                                  \
-        /* Phase 3.3: Text Effects (Outline/Shadow/Glow) */                    \
-        surface = Surface2D_ApplyTextFx(surface, (ctx).textFx);                \
-                                                                                 \
-        /* Phase 3.4: Transition (v1.0) */                                     \
+        /* Phase 3.3: Transition (v1.0) */                                     \
         surface = Surface2D_ApplyTransition(surface, (ctx).transition);        \
                                                                                  \
         /* Phase 4: Additive Effects (v2.0 + v3.0) */                          \
@@ -891,8 +914,12 @@ inline float3 Surface2D_Vertex_ApplyPositionOS(float3 posOS, float2 uv, Surface2
         surface = Surface2D_ApplyRipple(surface, (ctx).ripple);                \
         surface = Surface2D_ApplyFlash(surface, (ctx).flash);                  \
                                                                                  \
-        /* Phase 1: Pixelation (v2.0) */                                       \
+        /* Phase 5: Pixelation (v2.0) */                                       \
         surface = Surface2D_ApplyPixelation(surface, (ctx).pixel);             \
+                                                                                 \
+        /* Phase 6: Final Outlines */                                          \
+        surface = Surface2D_ApplyOutline(surface, (ctx).outline);              \
+        surface = Surface2D_ApplyTextOutlineFx(surface, (ctx).textFx);         \
     }
 #endif
 

@@ -864,6 +864,12 @@ MonoBehaviour:
         textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
         textOutlineThickness: 1
         textOutlineSoftness: 0.1
+        textOutlineDirectionMask: 15
+        textOutlineAutoColorEnabled: 0
+        textOutlineAutoColorMode: 0
+        textOutlineAutoHue: 0
+        textOutlineAutoSaturation: 0
+        textOutlineAutoLightness: 0
         textShadowEnabled: 0
         textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
         textShadowOffset: {x: 1, y: -1}
@@ -1448,7 +1454,7 @@ GameObject:
   - component: {fileID: -8396119555740216956}
   - component: {fileID: 5466374205534849353}
   - component: {fileID: -6112238922162089892}
-  - component: {fileID: 3473430741973993631}
+  - component: {fileID: 338628280259829478}
   m_Layer: 0
   m_Name: BaseNail
   m_TagString: Untagged
@@ -1732,7 +1738,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 149
+  _debugLastEnabledChangeFrame: 68818
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -3852,6 +3858,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         DebugMode: 0
         Debug:
           LogLevel: 10
@@ -3948,6 +3955,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         DebugMode: 1
         Debug:
           LogLevel: 10
@@ -5713,7 +5721,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         FallbackToFirstIfFilterMiss: 1
---- !u!114 &3473430741973993631
+--- !u!114 &338628280259829478
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5722,40 +5730,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 9144259269532508853}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c840379b1341c1546ae52b01fcb4416a, type: 3}
+  m_Script: {fileID: 11500000, guid: 1de6a2ef92dcf794ab8da5632207cfff, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.WorldSliderChannelHubMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.SliderChannelHubMB
   _channels:
-  - _channelTag: default
+  - _channelTag: count
     _visualizerPreset:
       _source:
-        rid: 5619052575314674319
+        rid: 5619052592248914503
       _defaultValue:
-        _mode: 10
-        _simple:
-          _fillAxis: 10
-          _originSide: 10
-          _renderBackend: 10
-          _runtimeBarTemplatePreset:
-            _source:
-              rid: -2
-            _defaultValue:
-              prefab: {fileID: 0}
-              usePooling: 1
-              category: Runtime
-              templateId: 
-          _runtimeBarAnimationChannelTag: default
-          _runtimeBarSpanScale:
-            _source:
-              rid: 5619052575314674320
-            _defaultValue: 0
-          _allowPooling: 1
-          _onBarSpawnCommands:
-            _debugOwner: {fileID: 0}
-            _debugFieldPath: 
-            _debugAssetPath: 
-            _functionName: 
-            _commands: []
         _background:
           _enabled: 0
           _templatePreset:
@@ -5781,11 +5764,11 @@ MonoBehaviour:
           _placementMode: 20
           _intervalStep:
             _source:
-              rid: 5619052575314674321
+              rid: 5619052592248914504
             _defaultValue: 0
           _barSpanScale:
             _source:
-              rid: 5619052575314674322
+              rid: 5619052592248914505
             _defaultValue: 0
           _spawnSegmentBars: 1
           _segmentBarTemplatePreset:
@@ -5820,14 +5803,32 @@ MonoBehaviour:
             _functionName: 
             _commands: []
           _entries: []
+        _handle:
+          _enabled: 0
+          _templatePreset:
+            _source:
+              rid: -2
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _animationChannelTag: default
+          _allowPooling: 1
+          _onSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
     _playerPreset:
       _source:
-        rid: 5619052575314674323
+        rid: 5619052592248914506
       _defaultValue:
         _bindingEntries:
         - _condition:
             _source:
-              rid: 5619052575314674324
+              rid: 5619052592248914507
             _defaultValue: 0
           _order: 0
           _useScalarBinding: 1
@@ -5869,15 +5870,15 @@ MonoBehaviour:
           _bindingPriority: 10
         _minValue:
           _source:
-            rid: 5619052575314674325
+            rid: 5619052592248914508
           _defaultValue: 0
         _maxValue:
           _source:
-            rid: 5619052575314674326
+            rid: 5619052592248914509
           _defaultValue: 0
         _initialValue:
           _source:
-            rid: 5619052575314674327
+            rid: 5619052592248914510
           _defaultValue: 0
         _increaseTransition:
           _delaySeconds: 0
@@ -5888,13 +5889,23 @@ MonoBehaviour:
           _durationSeconds: 0.15
           _ease: 1
         _segmentDisplayMode: 10
+        _userInput:
+          _enabled: 0
+          _uiInputMode: 20
+          _worldTriggerButton: 10
+          _navigateRepeatDelay: 0.25
+          _navigateRepeatInterval: 0.08
+          _scrollRepeatDelay: 0.1
+          _scrollRepeatInterval: 0.05
+          _paddingStart: 0
+          _paddingEnd: 0
         _onTargetValueChangedCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
           _debugAssetPath: 
           _functionName: 
           _commands: []
-    _simpleBarRenderer: {fileID: 0}
+    _rangeSourceMode: 10
     _areaActorSource:
       Kind: 0
       Identity:
@@ -5910,140 +5921,19 @@ MonoBehaviour:
       TargetChannel:
         rid: -2
     _areaChannelTag: default
+    _rangeRectTransform: {fileID: 0}
     _segmentBarsRoot: {fileID: 6599645048384671001}
     _segmentMarkersRoot: {fileID: 6599645048384671001}
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 5619052575314674319
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.WorldSliderVisualizerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052575314674328
-    - rid: 5619052575314674320
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052575314674321
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 10
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052575314674322
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052575314674323
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.WorldSliderPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052575314674329
-    - rid: 5619052575314674324
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 2
-        intValue: 0
-        floatValue: 0
-        boolValue: 1
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052575314674325
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052575314674326
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052575314674327
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052575314674328
-      type: {class: WorldSliderVisualizerPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _mode: 20
-        _simple:
-          _fillAxis: 10
-          _originSide: 10
-          _renderBackend: 10
-          _runtimeBarTemplatePreset:
-            _source:
-              rid: 5619052575314674341
-            _defaultValue:
-              prefab: {fileID: 0}
-              usePooling: 1
-              category: Runtime
-              templateId: 
-          _runtimeBarAnimationChannelTag: default
-          _runtimeBarSpanScale:
-            _source:
-              rid: 5619052575314674342
-            _defaultValue: 0
-          _allowPooling: 1
-          _onBarSpawnCommands:
-            _debugOwner: {fileID: 0}
-            _debugFieldPath: 
-            _debugAssetPath: 
-            _functionName: 
-            _commands: []
+  - _channelTag: use_duration
+    _visualizerPreset:
+      _source:
+        rid: 5619052617914908687
+      _defaultValue:
         _background:
-          _enabled: 1
+          _enabled: 0
           _templatePreset:
             _source:
-              rid: 5619052592022946246
+              rid: -2
             _defaultValue:
               prefab: {fileID: 0}
               usePooling: 1
@@ -6057,34 +5947,33 @@ MonoBehaviour:
             _debugFieldPath: 
             _debugAssetPath: 
             _functionName: 
-            _commands:
-            - rid: 5619052592022946336
+            _commands: []
         _segmented:
           _fillAxis: 10
           _originSide: 10
-          _placementMode: 10
+          _placementMode: 20
           _intervalStep:
             _source:
-              rid: 5619052575314674343
+              rid: 5619052617914908688
             _defaultValue: 0
           _barSpanScale:
             _source:
-              rid: 5619052575314674344
+              rid: 5619052617914908689
             _defaultValue: 0
           _spawnSegmentBars: 1
           _segmentBarTemplatePreset:
             _source:
-              rid: 5619052575314674345
+              rid: -2
             _defaultValue:
               prefab: {fileID: 0}
               usePooling: 1
               category: Runtime
               templateId: 
           _segmentBarAnimationChannelTag: default
-          _spawnMarkers: 0
+          _spawnMarkers: 1
           _markerTemplatePreset:
             _source:
-              rid: 5619052575314674346
+              rid: -2
             _defaultValue:
               prefab: {fileID: 0}
               usePooling: 1
@@ -6104,13 +5993,632 @@ MonoBehaviour:
             _functionName: 
             _commands: []
           _entries: []
-    - rid: 5619052575314674329
-      type: {class: WorldSliderPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+        _handle:
+          _enabled: 0
+          _templatePreset:
+            _source:
+              rid: -2
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _animationChannelTag: default
+          _allowPooling: 1
+          _onSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    _playerPreset:
+      _source:
+        rid: 5619052617914908690
+      _defaultValue:
+        _bindingEntries:
+        - _condition:
+            _source:
+              rid: 5619052617914908691
+            _defaultValue: 0
+          _order: 0
+          _useScalarBinding: 1
+          _scalarBindingSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          _scalarKey:
+            Id: 0
+            Name: 
+          _useBlackboardBinding: 0
+          _blackboardBindingSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          _blackboardKey:
+            stableKey: 
+            varId: 0
+          _bindingPriority: 10
+        _minValue:
+          _source:
+            rid: 5619052617914908692
+          _defaultValue: 0
+        _maxValue:
+          _source:
+            rid: 5619052617914908693
+          _defaultValue: 0
+        _initialValue:
+          _source:
+            rid: 5619052617914908694
+          _defaultValue: 0
+        _increaseTransition:
+          _delaySeconds: 0
+          _durationSeconds: 0.15
+          _ease: 1
+        _decreaseTransition:
+          _delaySeconds: 0
+          _durationSeconds: 0.15
+          _ease: 1
+        _segmentDisplayMode: 10
+        _userInput:
+          _enabled: 0
+          _uiInputMode: 20
+          _worldTriggerButton: 10
+          _navigateRepeatDelay: 0.25
+          _navigateRepeatInterval: 0.08
+          _scrollRepeatDelay: 0.1
+          _scrollRepeatInterval: 0.05
+          _paddingStart: 0
+          _paddingEnd: 0
+        _onTargetValueChangedCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    _rangeSourceMode: 10
+    _areaActorSource:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      Shared:
+        rid: -2
+      ContextSlot: 0
+      TargetChannel:
+        rid: -2
+    _areaChannelTag: default
+    _rangeRectTransform: {fileID: 0}
+    _segmentBarsRoot: {fileID: 6599645048384671001}
+    _segmentMarkersRoot: {fileID: 6599645048384671001}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052592248914503
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.SliderVisualizerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914511
+    - rid: 5619052592248914504
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 10
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914505
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914506
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.SliderPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914512
+    - rid: 5619052592248914507
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914508
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914509
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914510
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052592248914511
+      type: {class: SliderVisualizerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _background:
+          _enabled: 1
+          _templatePreset:
+            _source:
+              rid: 5619052592248914523
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _animationChannelTag: default
+          _allowPooling: 1
+          _depthOffset: 0.01
+          _onSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+        _segmented:
+          _fillAxis: 10
+          _originSide: 10
+          _placementMode: 10
+          _intervalStep:
+            _source:
+              rid: 5619052592248914524
+            _defaultValue: 0
+          _barSpanScale:
+            _source:
+              rid: 5619052592248914525
+            _defaultValue: 0
+          _spawnSegmentBars: 1
+          _segmentBarTemplatePreset:
+            _source:
+              rid: 5619052592248914526
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _segmentBarAnimationChannelTag: default
+          _spawnMarkers: 0
+          _markerTemplatePreset:
+            _source:
+              rid: 5619052592248914527
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _allowPooling: 1
+          _onSegmentBarSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          _onMarkerSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          _entries: []
+        _handle:
+          _enabled: 0
+          _templatePreset:
+            _source:
+              rid: 5619052592248914528
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _animationChannelTag: default
+          _allowPooling: 1
+          _onSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    - rid: 5619052592248914512
+      type: {class: SliderPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
         _bindingEntries:
         - _condition:
             _source:
-              rid: 5619052575314674551
+              rid: 5619052592248914776
+            _defaultValue: 0
+          _order: 0
+          _useScalarBinding: 0
+          _scalarBindingSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          _scalarKey:
+            Id: 0
+            Name: 
+          _useBlackboardBinding: 1
+          _blackboardBindingSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          _blackboardKey:
+            stableKey: GameLib.Base.StatusEffect.Runtime.Global.currentCount
+            varId: 101051
+          _bindingPriority: 10
+        _minValue:
+          _source:
+            rid: 5619052592248914712
+          _defaultValue: 0
+        _maxValue:
+          _source:
+            rid: 5619052592248914838
+          _defaultValue: 0
+        _initialValue:
+          _source:
+            rid: 5619052592248914714
+          _defaultValue: 0
+        _increaseTransition:
+          _delaySeconds: 0
+          _durationSeconds: 0.15
+          _ease: 6
+        _decreaseTransition:
+          _delaySeconds: 0
+          _durationSeconds: 0.15
+          _ease: 6
+        _segmentDisplayMode: 20
+        _userInput:
+          _enabled: 0
+          _uiInputMode: 20
+          _worldTriggerButton: 10
+          _navigateRepeatDelay: 0.25
+          _navigateRepeatInterval: 0.08
+          _scrollRepeatDelay: 0.1
+          _scrollRepeatInterval: 0.05
+          _paddingStart: 0
+          _paddingEnd: 0
+        _onTargetValueChangedCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052592248914523
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: -2
+    - rid: 5619052592248914524
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052592248914525
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.8
+    - rid: 5619052592248914526
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914569
+    - rid: 5619052592248914527
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: -2
+    - rid: 5619052592248914528
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: -2
+    - rid: 5619052592248914569
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 8922887192831993300, guid: 40c2f23a7b16a764eb311e297c2cee37, type: 3}
+        usePooling: 1
+        category: Runtime
+        templateId: 
+    - rid: 5619052592248914712
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052592248914714
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052592248914776
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052592248914817
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: maxCount
+          _expectedType: 255
+        _expression: maxCount != -1
+    - rid: 5619052592248914817
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101052
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5619052592248914838
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101052
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5619052617914908687
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.SliderVisualizerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052617914908695
+    - rid: 5619052617914908688
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 10
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052617914908689
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052617914908690
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.SliderPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052617914908696
+    - rid: 5619052617914908691
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052617914908692
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052617914908693
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052617914908694
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052617914908695
+      type: {class: SliderVisualizerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _background:
+          _enabled: 1
+          _templatePreset:
+            _source:
+              rid: 5619052617914908783
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _animationChannelTag: default
+          _allowPooling: 1
+          _depthOffset: 0.01
+          _onSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands:
+            - rid: 5619052617914908931
+        _segmented:
+          _fillAxis: 10
+          _originSide: 10
+          _placementMode: 20
+          _intervalStep:
+            _source:
+              rid: 5619052617914908784
+            _defaultValue: 0
+          _barSpanScale:
+            _source:
+              rid: 5619052617914908785
+            _defaultValue: 0
+          _spawnSegmentBars: 1
+          _segmentBarTemplatePreset:
+            _source:
+              rid: 5619052617914908786
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _segmentBarAnimationChannelTag: default
+          _spawnMarkers: 0
+          _markerTemplatePreset:
+            _source:
+              rid: 5619052617914908787
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _allowPooling: 1
+          _onSegmentBarSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands:
+            - rid: 5619052617914909541
+          _onMarkerSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          _entries: []
+        _handle:
+          _enabled: 0
+          _templatePreset:
+            _source:
+              rid: 5619052617914908788
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _animationChannelTag: default
+          _allowPooling: 1
+          _onSpawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    - rid: 5619052617914908696
+      type: {class: SliderPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _bindingEntries:
+        - _condition:
+            _source:
+              rid: 5619052617914909478
             _defaultValue: 0
           _order: 0
           _useScalarBinding: 0
@@ -6152,130 +6660,90 @@ MonoBehaviour:
           _bindingPriority: 10
         _minValue:
           _source:
-            rid: 5619052575314674526
+            rid: 5619052617914909455
           _defaultValue: 0
         _maxValue:
           _source:
-            rid: 5619052575314674619
+            rid: 5619052617993552220
           _defaultValue: 0
         _initialValue:
           _source:
-            rid: 5619052575314674528
+            rid: 5619052617914909457
           _defaultValue: 0
         _increaseTransition:
           _delaySeconds: 0
           _durationSeconds: 0.15
-          _ease: 6
+          _ease: 1
         _decreaseTransition:
           _delaySeconds: 0
           _durationSeconds: 0.15
-          _ease: 6
-        _segmentDisplayMode: 20
+          _ease: 1
+        _segmentDisplayMode: 10
+        _userInput:
+          _enabled: 0
+          _uiInputMode: 20
+          _worldTriggerButton: 10
+          _navigateRepeatDelay: 0.25
+          _navigateRepeatInterval: 0.08
+          _scrollRepeatDelay: 0.1
+          _scrollRepeatInterval: 0.05
+          _paddingStart: 0
+          _paddingEnd: 0
         _onTargetValueChangedCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
           _debugAssetPath: 
           _functionName: 
           _commands: []
-    - rid: 5619052575314674341
+    - rid: 5619052617914908783
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052617914908890
+    - rid: 5619052617914908784
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 10
+    - rid: 5619052617914908785
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052617914908786
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052617914908809
+    - rid: 5619052617914908787
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value:
           rid: -2
-    - rid: 5619052575314674342
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
-    - rid: 5619052575314674343
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
-    - rid: 5619052575314674344
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0.9
-    - rid: 5619052575314674345
+    - rid: 5619052617914908788
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value:
-          rid: 5619052575314674435
-    - rid: 5619052575314674346
-      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052575314674480
-    - rid: 5619052575314674435
+          rid: -2
+    - rid: 5619052617914908809
       type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
       data:
         prefab: {fileID: 8922887192831993300, guid: 40c2f23a7b16a764eb311e297c2cee37, type: 3}
         usePooling: 1
         category: Runtime
         templateId: 
-    - rid: 5619052575314674480
+    - rid: 5619052617914908890
       type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
       data:
         prefab: {fileID: 8922887192831993300, guid: 40c2f23a7b16a764eb311e297c2cee37, type: 3}
         usePooling: 1
         category: Runtime
         templateId: 
-    - rid: 5619052575314674526
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052575314674528
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052575314674551
-      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        _allowImplicitVariablesFromContext: 1
-        _variables:
-        - _value:
-            _source:
-              rid: 5619052575314674596
-          _useScalarLeafKey: 0
-          _useCustomKey: 1
-          _customKey: cooldownMax
-          _expectedType: 255
-        _expression: cooldownMax != -1
-    - rid: 5619052575314674596
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101080
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
-    - rid: 5619052575314674619
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101080
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
-    - rid: 5619052592022946246
-      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052592022946291
-    - rid: 5619052592022946291
-      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
-      data:
-        prefab: {fileID: 8922887192831993300, guid: 40c2f23a7b16a764eb311e297c2cee37, type: 3}
-        usePooling: 1
-        category: Runtime
-        templateId: 
-    - rid: 5619052592022946336
+    - rid: 5619052617914908931
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         enabled: 1
         data:
-          rid: 5619052592022946359
-    - rid: 5619052592022946359
+          rid: 5619052617914908952
+    - rid: 5619052617914908952
       type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         ChannelTag: default
@@ -6284,7 +6752,7 @@ MonoBehaviour:
         WaitForOnceCompletion: 1
         PresetSource:
           _source:
-            rid: 5619052592022946385
+            rid: 5619052617914908976
           _defaultValue:
             animationA:
               kind: 0
@@ -6357,7 +6825,7 @@ MonoBehaviour:
         ApplyMaterialFx: 1
         MaterialFxSource:
           _source:
-            rid: 5619052592022946386
+            rid: 5619052617914908977
           _defaultValue:
             ContextTag: default
             ClearContextFirst: 0
@@ -6366,20 +6834,20 @@ MonoBehaviour:
         ApplyPlaybackSpeed: 0
         PlaybackSpeedSource:
           _source:
-            rid: 5619052592022946387
+            rid: 5619052617914908978
           _defaultValue: 0
         ApplyFlipX: 0
         FlipXMode: 0
         FlipXAngleSource:
           _source:
-            rid: 5619052592022946388
+            rid: 5619052617914908979
           _defaultValue: 0
         ApplySortingOrder: 0
         SortingOrderSource:
           _source:
-            rid: 5619052592022946389
+            rid: 5619052617914908980
           _defaultValue: 0
-    - rid: 5619052592022946385
+    - rid: 5619052617914908976
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value:
@@ -6459,7 +6927,7 @@ MonoBehaviour:
           usePlaybackSpeedMultiplier: 1
           crossFadeProfile:
             rid: -2
-    - rid: 5619052592022946386
+    - rid: 5619052617914908977
       type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value:
@@ -6472,7 +6940,7 @@ MonoBehaviour:
               Type: 5
               Float:
                 _source:
-                  rid: 5619052592022946544
+                  rid: 5619052617914909121
                 _defaultValue: 0
               Int: 1
               Float2: {x: 0, y: 0}
@@ -6485,11 +6953,11 @@ MonoBehaviour:
             ApplyWeightFade: 0
             TargetWeight:
               _source:
-                rid: 5619052592022946545
+                rid: 5619052617914909122
               _defaultValue: 0
             FadeDuration:
               _source:
-                rid: 5619052592022946546
+                rid: 5619052617914909123
               _defaultValue: 0
             FadeEase: 0
           - Key: BaseShader/BlendColor2D/BlendMode
@@ -6497,7 +6965,7 @@ MonoBehaviour:
               Type: 0
               Float:
                 _source:
-                  rid: 5619052592022946657
+                  rid: 5619052617914909267
                 _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
@@ -6510,11 +6978,36 @@ MonoBehaviour:
             ApplyWeightFade: 0
             TargetWeight:
               _source:
-                rid: 5619052592022946658
+                rid: 5619052617914909225
               _defaultValue: 0
             FadeDuration:
               _source:
-                rid: 5619052592022946659
+                rid: 5619052617914909226
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/BlendColor2D/BlendIntensity
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5619052617914909308
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052617914909309
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052617914909310
               _defaultValue: 0
             FadeEase: 0
           - Key: BaseShader/BlendColor2D/Color
@@ -6522,7 +7015,7 @@ MonoBehaviour:
               Type: 6
               Float:
                 _source:
-                  rid: 5619052592022946726
+                  rid: 5619052617914909371
                 _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
@@ -6535,11 +7028,324 @@ MonoBehaviour:
             ApplyWeightFade: 0
             TargetWeight:
               _source:
-                rid: 5619052592022946727
+                rid: 5619052617914909372
               _defaultValue: 0
             FadeDuration:
               _source:
-                rid: 5619052592022946728
+                rid: 5619052617914909373
+              _defaultValue: 0
+            FadeEase: 0
+    - rid: 5619052617914908978
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052617914908979
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052617914908980
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909121
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909122
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909123
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909225
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909226
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909267
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052617914909308
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052617914909309
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909310
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909371
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909372
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909373
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909455
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909457
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617914909478
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052617914909520
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: cooldownMax
+          _expectedType: 255
+        _expression: cooldownMax != -1
+    - rid: 5619052617914909520
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101080
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5619052617914909541
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052617914909562
+    - rid: 5619052617914909562
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        ApplyAnimation: 0
+        AwaitMode: 0
+        WaitForOnceCompletion: 1
+        PresetSource:
+          _source:
+            rid: 5619052617914909586
+          _defaultValue:
+            animationA:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            animationB:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            playMode: 0
+            flipX: 0
+            useClipSwitchFlip: 0
+            switchFlipDuration: 0.2
+            switchFlipFullRotation: 0
+            usePlaybackSpeedMultiplier: 1
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 1
+        MaterialFxSource:
+          _source:
+            rid: 5619052617914909587
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyPlaybackSpeed: 0
+        PlaybackSpeedSource:
+          _source:
+            rid: 5619052617914909588
+          _defaultValue: 0
+        ApplyFlipX: 0
+        FlipXMode: 0
+        FlipXAngleSource:
+          _source:
+            rid: 5619052617914909589
+          _defaultValue: 0
+        ApplySortingOrder: 0
+        SortingOrderSource:
+          _source:
+            rid: 5619052617914909590
+          _defaultValue: 0
+    - rid: 5619052617914909586
+      type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          animationA:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          animationB:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          playMode: 0
+          flipX: 0
+          useClipSwitchFlip: 0
+          switchFlipDuration: 0.2
+          switchFlipFullRotation: 0
+          usePlaybackSpeedMultiplier: 1
+          crossFadeProfile:
+            rid: -2
+    - rid: 5619052617914909587
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries:
+          - Key: BaseShader/BlendColor2D/Enabled
+            Value:
+              Type: 5
+              Float:
+                _source:
+                  rid: 5619052617914909671
+                _defaultValue: 0
+              Int: 1
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052617914909672
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052617914909673
               _defaultValue: 0
             FadeEase: 0
           - Key: BaseShader/BlendColor2D/BlendIntensity
@@ -6547,7 +7353,7 @@ MonoBehaviour:
               Type: 0
               Float:
                 _source:
-                  rid: 5619052592248913943
+                  rid: 5619052617993551950
                 _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
@@ -6560,70 +7366,137 @@ MonoBehaviour:
             ApplyWeightFade: 0
             TargetWeight:
               _source:
-                rid: 5619052592248913944
+                rid: 5619052617993551951
               _defaultValue: 0
             FadeDuration:
               _source:
-                rid: 5619052592248913945
+                rid: 5619052617993551952
               _defaultValue: 0
             FadeEase: 0
-    - rid: 5619052592022946387
+          - Key: BaseShader/BlendColor2D/BlendMode
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5619052617993552056
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052617993552014
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052617993552015
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/BlendColor2D/Color
+            Value:
+              Type: 6
+              Float:
+                _source:
+                  rid: 5619052617993552097
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0.45218158, g: 1, b: 0.43529412, a: 1}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5619052617993552098
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5619052617993552099
+              _defaultValue: 0
+            FadeEase: 0
+    - rid: 5619052617914909588
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
-    - rid: 5619052592022946388
+    - rid: 5619052617914909589
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 180
-    - rid: 5619052592022946389
+    - rid: 5619052617914909590
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052592022946544
+    - rid: 5619052617914909671
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052592022946545
+    - rid: 5619052617914909672
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052592022946546
+    - rid: 5619052617914909673
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052592022946657
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052592022946658
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052592022946659
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052592022946726
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052592022946727
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052592022946728
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052592248913943
+    - rid: 5619052617993551950
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
-    - rid: 5619052592248913944
+    - rid: 5619052617993551951
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052592248913945
+    - rid: 5619052617993551952
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
+    - rid: 5619052617993552014
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617993552015
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617993552056
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052617993552097
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617993552098
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617993552099
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052617993552220
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101080
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2

@@ -62,12 +62,12 @@ namespace Game.TransformSystem
         [ShowIf("@outputTarget == TransformOutputTarget.Rigidbody2D")]
         [SerializeField] Rigidbody2DVelocityApplyMode rigidbody2DVelocityMode = Rigidbody2DVelocityApplyMode.Override;
 
-        [BoxGroup("Output/Additive Control")]
+        [BoxGroup("Output Additive Control")]
         [ShowIf("@outputTarget == TransformOutputTarget.Rigidbody2D && rigidbody2DVelocityMode == Rigidbody2DVelocityApplyMode.Additive")]
         [SerializeField, InlineProperty]
         Rigidbody2DAdditiveControlSettings rigidbody2DAdditiveControl = Rigidbody2DAdditiveControlSettings.Default;
 
-        [BoxGroup("Output/Gravity Clamp")]
+        [BoxGroup("Output Gravity Clamp")]
         [ShowIf("@outputTarget == TransformOutputTarget.Rigidbody2D")]
         [SerializeField, InlineProperty]
         Rigidbody2DGravityClampSettings rigidbody2DGravityClamp = Rigidbody2DGravityClampSettings.Default;

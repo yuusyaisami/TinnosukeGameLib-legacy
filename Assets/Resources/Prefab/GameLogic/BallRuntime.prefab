@@ -1,5 +1,89 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &89819870345867629
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5667500343870240036}
+  - component: {fileID: 5419766752959927961}
+  m_Layer: 0
+  m_Name: Light2D
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5667500343870240036
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89819870345867629}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2062545303307610549}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5419766752959927961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89819870345867629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+  m_ComponentVersion: 2
+  m_LightType: 3
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 0.5
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 00000000
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0
+  m_PointLightOuterRadius: 1
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: 0.5, z: 0}
+  - {x: -0.5, y: 0.5, z: 0}
 --- !u!1 &162817626490682077
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,11 +351,19 @@ MonoBehaviour:
       requireActive: 0
       searchScope: 0
     UnityObject: {fileID: 0}
-    SharedTag: 
+    Shared:
+      rid: -2
     ContextSlot: 0
+    TargetChannel:
+      rid: -2
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1512005073036632190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -467,8 +559,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
         searchIncludeGlobal: 0
@@ -555,8 +650,11 @@ MonoBehaviour:
         requireActive: 0
         searchScope: 0
       UnityObject: {fileID: 0}
-      SharedTag: 
+      Shared:
+        rid: -2
       ContextSlot: 0
+      TargetChannel:
+        rid: -2
     Condition:
       _source:
         rid: 5619052366731149476
@@ -574,8 +672,11 @@ MonoBehaviour:
           requireActive: 0
           searchScope: 0
         UnityObject: {fileID: 0}
-        SharedTag: 
+        Shared:
+          rid: -2
         ContextSlot: 0
+        TargetChannel:
+          rid: -2
       ValueChangeMode: 0
       VarStoreVarId: 0
       BlackboardVarId: 0
@@ -595,8 +696,11 @@ MonoBehaviour:
           requireActive: 0
           searchScope: 0
         UnityObject: {fileID: 0}
-        SharedTag: 
+        Shared:
+          rid: -2
         ContextSlot: 0
+        TargetChannel:
+          rid: -2
       ValueChangeMode: 0
       VarStoreVarId: 0
       BlackboardVarId: 0
@@ -615,8 +719,11 @@ MonoBehaviour:
           requireActive: 0
           searchScope: 0
         UnityObject: {fileID: 0}
-        SharedTag: 
+        Shared:
+          rid: -2
         ContextSlot: 0
+        TargetChannel:
+          rid: -2
       ValueChangeMode: 0
       VarStoreVarId: 0
       BlackboardVarId: 0
@@ -741,6 +848,11 @@ MonoBehaviour:
     _commands: []
   despawnDelaySeconds: 0
   cancelSpawnOnDespawn: 1
+  autoDespawnWhenConditionFalse: 0
+  autoDespawnCondition:
+    _source:
+      rid: 5619052592248914430
+    _defaultValue: 0
   references:
     version: 2
     RefIds:
@@ -763,6 +875,18 @@ MonoBehaviour:
       type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {fileID: 11400000, guid: 4103debb1e1828947957fc8fbe1b3f2a, type: 2}
+    - rid: 5619052592248914430
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &5916766032561930864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -799,7 +923,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 274
+  _debugLastEnabledChangeFrame: 65416
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &7495427074702374831
@@ -923,6 +1047,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2062545303307610549}
   - component: {fileID: 3221224711489189445}
+  - component: {fileID: 3078748426068766049}
   m_Layer: 0
   m_Name: Channel
   m_TagString: Untagged
@@ -946,6 +1071,7 @@ Transform:
   - {fileID: 7785403930216577978}
   - {fileID: 1135544997476807917}
   - {fileID: 3409868744939714113}
+  - {fileID: 5667500343870240036}
   m_Father: {fileID: 5609855925114514961}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3221224711489189445
@@ -1139,6 +1265,12 @@ MonoBehaviour:
         textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
         textOutlineThickness: 1
         textOutlineSoftness: 0.1
+        textOutlineDirectionMask: 15
+        textOutlineAutoColorEnabled: 0
+        textOutlineAutoColorMode: 0
+        textOutlineAutoHue: 0
+        textOutlineAutoSaturation: 0
+        textOutlineAutoLightness: 0
         textShadowEnabled: 0
         textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
         textShadowOffset: {x: 1, y: -1}
@@ -1175,3 +1307,107 @@ MonoBehaviour:
         renderStateCull: 0
         renderStateQueueOffset: 0
         renderStateBlendIntensity: 1
+--- !u!114 &3078748426068766049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8487652318211464731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843fdc7f8b1db3e41aaa3c98045914aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.Light2DChannelHubMB
+  _channels:
+  - tag: default
+    _targetLight: {fileID: 5419766752959927961}
+    _sourcePreset:
+      _source:
+        rid: 5619052592248914492
+      _defaultValue:
+        _playerPreset:
+          _localState:
+            Enabled: 1
+            LightType: 3
+            Color: {r: 1, g: 1, b: 1, a: 1}
+            Intensity: 1
+            BlendStyleIndex: 0
+            FalloffIntensity: 0.5
+            OverlapOperation: 0
+            LightOrder: 0
+            VolumeIntensity: 0
+            VolumetricEnabled: 0
+            ShadowsEnabled: 0
+            ShadowIntensity: 1
+            ShadowSoftness: 0
+            ShadowSoftnessFalloffIntensity: 1
+            ShadowVolumeIntensity: 0
+            VolumetricShadowsEnabled: 0
+            TargetSortingLayers: 
+            CookieSprite: {fileID: 0}
+            PointLightInnerAngle: 0
+            PointLightOuterAngle: 360
+            PointLightInnerRadius: 0
+            PointLightOuterRadius: 1
+            ShapeLightFalloffSize: 0.5
+            ShapePath: []
+          _globalIntensity: 1
+        _defaultEffects: []
+    _globalLinkKey: 
+    _applyOnAcquire: 1
+    _restoreOnRelease: 1
+    _allowRuntimeLightTypeChange: 0
+    _debugLog: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5619052592248914492
+      type: {class: 'ManagedRefLiteralSource`1[[Game.Channel.Light2DPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052592248914493
+    - rid: 5619052592248914493
+      type: {class: Light2DPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        _playerPreset:
+          _localState:
+            Enabled: 1
+            LightType: 2
+            Color: {r: 1, g: 1, b: 1, a: 1}
+            Intensity: 1
+            BlendStyleIndex: 0
+            FalloffIntensity: 0.5
+            OverlapOperation: 0
+            LightOrder: 0
+            VolumeIntensity: 0
+            VolumetricEnabled: 0
+            ShadowsEnabled: 0
+            ShadowIntensity: 1
+            ShadowSoftness: 0
+            ShadowSoftnessFalloffIntensity: 1
+            ShadowVolumeIntensity: 0
+            VolumetricShadowsEnabled: 0
+            TargetSortingLayers: 
+            CookieSprite: {fileID: 0}
+            PointLightInnerAngle: 0
+            PointLightOuterAngle: 360
+            PointLightInnerRadius: 0
+            PointLightOuterRadius: 1
+            ShapeLightFalloffSize: 0.5
+            ShapePath: []
+          _globalIntensity: 1
+        _defaultEffects:
+        - _effectId: default
+          _enabled: 1
+          _priority: 0
+          _blendMode: 10
+          _preset:
+            rid: 5619052592248914497
+    - rid: 5619052592248914497
+      type: {class: Light2DIntensityFlickerEffectPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        _baseMultiplier: 1
+        _amplitude: 0.1
+        _frequency: 6
+        _noiseSeed: 17

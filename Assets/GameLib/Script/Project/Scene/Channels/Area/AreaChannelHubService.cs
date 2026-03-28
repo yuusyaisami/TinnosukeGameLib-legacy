@@ -122,6 +122,35 @@ namespace Game.Channel
             return player.TryGetContour(basePosition, out contour);
         }
 
+        public bool TryGetRectSnapshot(string tag, out AreaRectSnapshot snapshot)
+        {
+            snapshot = default;
+
+            if (!TryGetPlayer(tag, out var player) || player == null)
+                return false;
+
+            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+                return false;
+
+            return player.TryGetRectSnapshot(basePosition, out snapshot);
+        }
+
+        public bool TryGetCanvasRectSnapshot(string tag, Canvas canvas, out AreaCanvasRectSnapshot snapshot)
+        {
+            snapshot = default;
+
+            if (canvas == null)
+                return false;
+
+            if (!TryGetPlayer(tag, out var player) || player == null)
+                return false;
+
+            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+                return false;
+
+            return player.TryGetCanvasRectSnapshot(basePosition, canvas, out snapshot);
+        }
+
         public bool TryGetChannelDef(string tag, out ChannelDefBase def)
         {
             if (string.IsNullOrWhiteSpace(tag))
