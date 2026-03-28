@@ -32,12 +32,12 @@ namespace Game.Entity
         [SerializeField]
         private Vector2 rootFoot = Vector2.zero;
 
-        [BoxGroup("Foot/Debug")]
+        [BoxGroup("Foot Debug")]
         [LabelText("Show Foot Gizmo")]
         [SerializeField]
         private bool showFootGizmo = true;
 
-        [BoxGroup("Foot/Debug")]
+        [BoxGroup("Foot Debug")]
         [LabelText("Foot World Pos")]
         [ShowInInspector]
         [ReadOnly]

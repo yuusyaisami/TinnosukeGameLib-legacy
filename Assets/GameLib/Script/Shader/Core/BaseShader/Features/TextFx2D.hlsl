@@ -5,12 +5,25 @@
 // TextFx2D.hlsl - Text outline / shadow effects (BaseShader extension)
 // ============================================================================
 
+#include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/ColorSpaceUtils.hlsl"
+
+#define TEXTFX_OUTLINE_DIRECTION_LEFT   1.0
+#define TEXTFX_OUTLINE_DIRECTION_RIGHT  2.0
+#define TEXTFX_OUTLINE_DIRECTION_UP     4.0
+#define TEXTFX_OUTLINE_DIRECTION_DOWN   8.0
+
 struct TextFx2DParams
 {
     float  outlineEnabled;
     float4 outlineColor;
     float  outlineThickness;
     float  outlineSoftness;
+    float  outlineDirectionMask;
+    float  outlineAutoColorEnabled;
+    float  outlineAutoColorMode;
+    float  outlineAutoHue;
+    float  outlineAutoSaturation;
+    float  outlineAutoLightness;
 
     float  shadowEnabled;
     float4 shadowColor;
@@ -28,6 +41,12 @@ inline TextFx2DParams MakeTextFx2DParams(
     float4 outlineColor,
     float outlineThickness,
     float outlineSoftness,
+    float outlineDirectionMask,
+    float outlineAutoColorEnabled,
+    float outlineAutoColorMode,
+    float outlineAutoHue,
+    float outlineAutoSaturation,
+    float outlineAutoLightness,
     float shadowEnabled,
     float4 shadowColor,
     float2 shadowOffset,
@@ -42,6 +61,12 @@ inline TextFx2DParams MakeTextFx2DParams(
     p.outlineColor = outlineColor;
     p.outlineThickness = outlineThickness;
     p.outlineSoftness = outlineSoftness;
+    p.outlineDirectionMask = outlineDirectionMask;
+    p.outlineAutoColorEnabled = outlineAutoColorEnabled;
+    p.outlineAutoColorMode = outlineAutoColorMode;
+    p.outlineAutoHue = outlineAutoHue;
+    p.outlineAutoSaturation = outlineAutoSaturation;
+    p.outlineAutoLightness = outlineAutoLightness;
     p.shadowEnabled = shadowEnabled;
     p.shadowColor = shadowColor;
     p.shadowOffset = shadowOffset;
@@ -60,6 +85,12 @@ inline TextFx2DParams MakeDefaultTextFx2DParams()
     p.outlineColor = float4(0, 0, 0, 1);
     p.outlineThickness = 0;
     p.outlineSoftness = 0;
+    p.outlineDirectionMask = 15;
+    p.outlineAutoColorEnabled = 0;
+    p.outlineAutoColorMode = 0;
+    p.outlineAutoHue = 0;
+    p.outlineAutoSaturation = 0;
+    p.outlineAutoLightness = 0;
     p.shadowEnabled = 0;
     p.shadowColor = float4(0, 0, 0, 0.5);
     p.shadowOffset = float2(0, 0);
@@ -71,7 +102,7 @@ inline TextFx2DParams MakeDefaultTextFx2DParams()
     return p;
 }
 
-inline float SampleMainAlpha(float2 uv)
+inline float SampleMainTextureAlphaRaw(float2 uv)
 {
     float a = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).a;
 #if defined(ETC1_EXTERNAL_ALPHA)
@@ -83,20 +114,85 @@ inline float SampleMainAlpha(float2 uv)
     return a;
 }
 
+inline float SampleTextMaskAlpha(float2 uv)
+{
+    float4 texel = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+    float alpha = texel.a;
+#if defined(ETC1_EXTERNAL_ALPHA)
+    if (_EnableExternalAlpha > 0.5)
+    {
+        alpha = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv).r;
+    }
+#endif
+    if (_TextMode > 1.5)
+    {
+        alpha = max(alpha, max(texel.r, max(texel.g, texel.b)));
+    }
+    return alpha;
+}
+
 inline float ComputeOutlineAlphaAlphaTex(float2 uv, float baseAlpha, float thickness, float softness)
 {
     float2 texel = _MainTex_TexelSize.xy;
     float2 sampleOffset = texel * max(thickness, 0.0);
 
     float maxAlpha = baseAlpha;
-    maxAlpha = max(maxAlpha, SampleMainAlpha(uv + float2(sampleOffset.x, 0)));
-    maxAlpha = max(maxAlpha, SampleMainAlpha(uv + float2(-sampleOffset.x, 0)));
-    maxAlpha = max(maxAlpha, SampleMainAlpha(uv + float2(0, sampleOffset.y)));
-    maxAlpha = max(maxAlpha, SampleMainAlpha(uv + float2(0, -sampleOffset.y)));
-    maxAlpha = max(maxAlpha, SampleMainAlpha(uv + float2(sampleOffset.x, sampleOffset.y)));
-    maxAlpha = max(maxAlpha, SampleMainAlpha(uv + float2(sampleOffset.x, -sampleOffset.y)));
-    maxAlpha = max(maxAlpha, SampleMainAlpha(uv + float2(-sampleOffset.x, sampleOffset.y)));
-    maxAlpha = max(maxAlpha, SampleMainAlpha(uv + float2(-sampleOffset.x, -sampleOffset.y)));
+    maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(sampleOffset.x, 0)));
+    maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(-sampleOffset.x, 0)));
+    maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(0, sampleOffset.y)));
+    maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(0, -sampleOffset.y)));
+    maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(sampleOffset.x, sampleOffset.y)));
+    maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(sampleOffset.x, -sampleOffset.y)));
+    maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(-sampleOffset.x, sampleOffset.y)));
+    maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(-sampleOffset.x, -sampleOffset.y)));
+
+    float outline = saturate(maxAlpha - baseAlpha);
+    float edge = max(1e-4, softness);
+    return smoothstep(0.0, edge, outline);
+}
+
+inline bool TextFxDirectionMaskHasBit(float roundedDirectionMask, float bitValue)
+{
+    return fmod(floor(roundedDirectionMask / bitValue), 2.0) > 0.5;
+}
+
+inline float ComputeDirectionalOutlineAlphaAlphaTex(
+    float2 uv,
+    float baseAlpha,
+    float thickness,
+    float softness,
+    float directionMask)
+{
+    float roundedDirectionMask = max(0.0, floor(directionMask + 0.5));
+    if (roundedDirectionMask < 0.5)
+        return 0.0;
+
+    float2 texel = _MainTex_TexelSize.xy;
+    float2 sampleOffset = texel * max(thickness, 0.0);
+
+    bool hasLeft = TextFxDirectionMaskHasBit(roundedDirectionMask, TEXTFX_OUTLINE_DIRECTION_LEFT);
+    bool hasRight = TextFxDirectionMaskHasBit(roundedDirectionMask, TEXTFX_OUTLINE_DIRECTION_RIGHT);
+    bool hasUp = TextFxDirectionMaskHasBit(roundedDirectionMask, TEXTFX_OUTLINE_DIRECTION_UP);
+    bool hasDown = TextFxDirectionMaskHasBit(roundedDirectionMask, TEXTFX_OUTLINE_DIRECTION_DOWN);
+
+    float maxAlpha = baseAlpha;
+    if (hasRight)
+        maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(sampleOffset.x, 0.0)));
+    if (hasLeft)
+        maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(-sampleOffset.x, 0.0)));
+    if (hasUp)
+        maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(0.0, sampleOffset.y)));
+    if (hasDown)
+        maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(0.0, -sampleOffset.y)));
+
+    if (hasRight && hasUp)
+        maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(sampleOffset.x, sampleOffset.y)));
+    if (hasRight && hasDown)
+        maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(sampleOffset.x, -sampleOffset.y)));
+    if (hasLeft && hasUp)
+        maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(-sampleOffset.x, sampleOffset.y)));
+    if (hasLeft && hasDown)
+        maxAlpha = max(maxAlpha, SampleTextMaskAlpha(uv + float2(-sampleOffset.x, -sampleOffset.y)));
 
     float outline = saturate(maxAlpha - baseAlpha);
     float edge = max(1e-4, softness);
@@ -107,20 +203,61 @@ inline float ComputeShadowAlphaAlphaTex(float2 uv, float baseAlpha, float2 offse
 {
     float2 texel = _MainTex_TexelSize.xy;
     float2 sampleOffset = offset * texel;
-    float a = SampleMainAlpha(uv + sampleOffset);
+    float a = SampleTextMaskAlpha(uv + sampleOffset);
     float shadow = a * (1.0 - baseAlpha);
     float edge = max(1e-4, softness);
     return smoothstep(0.0, edge, shadow);
 }
 
-inline float ComputeOutlineAlphaSdf(float dist, float thickness, float softness)
+inline float ComputeTextSdfFaceAlpha(float distanceSample, float edgeWidth)
 {
-    float edge = 0.5;
-    float t = thickness * 0.02;
-    float s = softness * 0.02;
-    float outer = smoothstep(edge - t - s, edge - t + s, dist);
-    float inner = smoothstep(edge - s, edge + s, dist);
-    return saturate(outer - inner);
+    return smoothstep(0.5 - edgeWidth, 0.5 + edgeWidth, distanceSample);
+}
+
+inline float ComputeDirectionalOutlineAlphaSdf(
+    float2 uv,
+    float baseDistance,
+    float thickness,
+    float softness,
+    float directionMask)
+{
+    float roundedDirectionMask = max(0.0, floor(directionMask + 0.5));
+    if (roundedDirectionMask < 0.5)
+        return 0.0;
+
+    float2 texel = _MainTex_TexelSize.xy;
+    float2 sampleOffset = texel * max(thickness, 0.0);
+    float edgeWidth = max(fwidth(baseDistance), 1e-5);
+
+    bool hasLeft = TextFxDirectionMaskHasBit(roundedDirectionMask, TEXTFX_OUTLINE_DIRECTION_LEFT);
+    bool hasRight = TextFxDirectionMaskHasBit(roundedDirectionMask, TEXTFX_OUTLINE_DIRECTION_RIGHT);
+    bool hasUp = TextFxDirectionMaskHasBit(roundedDirectionMask, TEXTFX_OUTLINE_DIRECTION_UP);
+    bool hasDown = TextFxDirectionMaskHasBit(roundedDirectionMask, TEXTFX_OUTLINE_DIRECTION_DOWN);
+
+    float baseFace = ComputeTextSdfFaceAlpha(baseDistance, edgeWidth);
+    float maxFace = baseFace;
+
+    if (hasRight)
+        maxFace = max(maxFace, ComputeTextSdfFaceAlpha(SampleMainTextureAlphaRaw(uv + float2(sampleOffset.x, 0.0)), edgeWidth));
+    if (hasLeft)
+        maxFace = max(maxFace, ComputeTextSdfFaceAlpha(SampleMainTextureAlphaRaw(uv + float2(-sampleOffset.x, 0.0)), edgeWidth));
+    if (hasUp)
+        maxFace = max(maxFace, ComputeTextSdfFaceAlpha(SampleMainTextureAlphaRaw(uv + float2(0.0, sampleOffset.y)), edgeWidth));
+    if (hasDown)
+        maxFace = max(maxFace, ComputeTextSdfFaceAlpha(SampleMainTextureAlphaRaw(uv + float2(0.0, -sampleOffset.y)), edgeWidth));
+
+    if (hasRight && hasUp)
+        maxFace = max(maxFace, ComputeTextSdfFaceAlpha(SampleMainTextureAlphaRaw(uv + float2(sampleOffset.x, sampleOffset.y)), edgeWidth));
+    if (hasRight && hasDown)
+        maxFace = max(maxFace, ComputeTextSdfFaceAlpha(SampleMainTextureAlphaRaw(uv + float2(sampleOffset.x, -sampleOffset.y)), edgeWidth));
+    if (hasLeft && hasUp)
+        maxFace = max(maxFace, ComputeTextSdfFaceAlpha(SampleMainTextureAlphaRaw(uv + float2(-sampleOffset.x, sampleOffset.y)), edgeWidth));
+    if (hasLeft && hasDown)
+        maxFace = max(maxFace, ComputeTextSdfFaceAlpha(SampleMainTextureAlphaRaw(uv + float2(-sampleOffset.x, -sampleOffset.y)), edgeWidth));
+
+    float outline = saturate(maxFace - baseFace);
+    float edge = max(1e-4, softness);
+    return smoothstep(0.0, edge, outline);
 }
 
 inline float ComputeGlowAlphaSdf(float dist, float thickness, float softness)
@@ -148,132 +285,75 @@ inline float4 Over(float4 front, float4 back)
     return float4(c, a);
 }
 
-inline Surface2D Surface2D_ApplyTextFx(Surface2D s, TextFx2DParams p)
+inline float ComputeTextOutlineAlpha(Surface2D s, TextFx2DParams p)
 {
-#if defined(SURFACE2D_WEBGL_SAFE)
-    if (p.outlineEnabled < 0.5 && p.shadowEnabled < 0.5 && p.glowEnabled < 0.5)
-        return s;
-
-    float2 texelSize = _MainTex_TexelSize.xy;
-    float alphaScale = saturate(s.vertexAlpha * s.alphaFactor);
-    float2 uv = s.uvMain;
-    float baseAlpha = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).a;
-#if defined(ETC1_EXTERNAL_ALPHA)
-    if (_EnableExternalAlpha > 0.5)
-    {
-        baseAlpha = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv).r;
-    }
-#endif
-
-    float outlineAlpha = 0.0;
-    if (p.outlineEnabled > 0.5)
-    {
-        float2 outlineOffset = texelSize * max(p.outlineThickness, 0.0);
-        float alphaRight = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2( outlineOffset.x, 0.0)).a;
-        float alphaLeft  = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(-outlineOffset.x, 0.0)).a;
-        float alphaUp    = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(0.0,  outlineOffset.y)).a;
-        float alphaDown  = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(0.0, -outlineOffset.y)).a;
-#if defined(ETC1_EXTERNAL_ALPHA)
-        if (_EnableExternalAlpha > 0.5)
-        {
-            alphaRight = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2( outlineOffset.x, 0.0)).r;
-            alphaLeft  = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(-outlineOffset.x, 0.0)).r;
-            alphaUp    = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(0.0,  outlineOffset.y)).r;
-            alphaDown  = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(0.0, -outlineOffset.y)).r;
-        }
-#endif
-        float outlineNeighborMax = max(max(alphaRight, alphaLeft), max(alphaUp, alphaDown));
-        outlineAlpha = smoothstep(0.0, max(1e-4, p.outlineSoftness), saturate(outlineNeighborMax - baseAlpha));
-        outlineAlpha *= p.outlineColor.a * alphaScale;
-    }
-
-    float shadowAlpha = 0.0;
-    if (p.shadowEnabled > 0.5)
-    {
-        float2 shadowUV = uv + p.shadowOffset * texelSize;
-        float shadowBase = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, shadowUV).a;
-#if defined(ETC1_EXTERNAL_ALPHA)
-        if (_EnableExternalAlpha > 0.5)
-        {
-            shadowBase = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, shadowUV).r;
-        }
-#endif
-        shadowAlpha = smoothstep(0.0, max(1e-4, p.shadowSoftness), saturate(shadowBase - baseAlpha));
-        shadowAlpha *= p.shadowColor.a * alphaScale;
-    }
-
-    float glowAlpha = 0.0;
-    if (p.glowEnabled > 0.5)
-    {
-        float2 glowOffset = texelSize * max(p.glowThickness, 0.0);
-        float glowRight = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2( glowOffset.x, 0.0)).a;
-        float glowLeft  = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(-glowOffset.x, 0.0)).a;
-        float glowUp    = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(0.0,  glowOffset.y)).a;
-        float glowDown  = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(0.0, -glowOffset.y)).a;
-#if defined(ETC1_EXTERNAL_ALPHA)
-        if (_EnableExternalAlpha > 0.5)
-        {
-            glowRight = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2( glowOffset.x, 0.0)).r;
-            glowLeft  = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(-glowOffset.x, 0.0)).r;
-            glowUp    = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(0.0,  glowOffset.y)).r;
-            glowDown  = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(0.0, -glowOffset.y)).r;
-        }
-#endif
-        float glowNeighborMax = max(max(glowRight, glowLeft), max(glowUp, glowDown));
-        glowAlpha = smoothstep(0.0, max(1e-4, p.glowSoftness), glowNeighborMax);
-        glowAlpha *= p.glowColor.a * alphaScale;
-    }
-
-    float3 colorOut = s.color;
-    float alphaOut = s.alpha;
-
-    if (shadowAlpha > 1e-6)
-    {
-        colorOut = lerp(p.shadowColor.rgb, colorOut, alphaOut);
-        alphaOut = max(alphaOut, shadowAlpha);
-    }
-
-    if (glowAlpha > 1e-6)
-    {
-        colorOut = lerp(p.glowColor.rgb, colorOut, alphaOut);
-        alphaOut = max(alphaOut, glowAlpha);
-    }
-
-    if (outlineAlpha > 1e-6)
-    {
-        colorOut = lerp(p.outlineColor.rgb, colorOut, alphaOut);
-        alphaOut = max(alphaOut, outlineAlpha);
-    }
-
-    s.color = colorOut;
-    s.alpha = alphaOut;
-    return s;
-#else
-    if (p.outlineEnabled < 0.5 && p.shadowEnabled < 0.5 && p.glowEnabled < 0.5)
-        return s;
+    if (p.outlineEnabled < 0.5 || p.outlineDirectionMask < 0.5)
+        return 0.0;
 
     float alphaScale = saturate(s.vertexAlpha * s.alphaFactor);
-
     float outlineAlpha = 0.0;
-    if (p.outlineEnabled > 0.5)
+
+    if (_TextMode > 0.5 && _TextMode < 1.5)
     {
-        if (_TextMode > 0.5 && _TextMode < 1.5)
+        outlineAlpha = ComputeDirectionalOutlineAlphaSdf(
+            s.uvMain,
+            s.baseAlphaRaw,
+            p.outlineThickness,
+            p.outlineSoftness,
+            p.outlineDirectionMask);
+    }
+    else
+    {
+        outlineAlpha = ComputeDirectionalOutlineAlphaAlphaTex(
+            s.uvMain,
+            s.baseAlphaRaw,
+            p.outlineThickness,
+            p.outlineSoftness,
+            p.outlineDirectionMask);
+    }
+
+    outlineAlpha *= p.outlineColor.a * alphaScale;
+    return outlineAlpha;
+}
+
+inline float3 ResolveTextOutlineColor(Surface2D s, TextFx2DParams p)
+{
+    float3 outlineColor = p.outlineColor.rgb;
+    if (p.outlineAutoColorEnabled > 0.5)
+    {
+        half3 hsl = RGBtoHSL(saturate((half3)s.color));
+        hsl.x = frac(hsl.x + (half)p.outlineAutoHue);
+
+        if (p.outlineAutoColorMode > 0.5)
         {
-            outlineAlpha = ComputeOutlineAlphaSdf(s.baseAlphaRaw, p.outlineThickness, p.outlineSoftness);
+            hsl.y = ApplySignedHeadroomAdjust(hsl.y, (half)p.outlineAutoSaturation);
+            hsl.z = ApplySignedHeadroomAdjust(hsl.z, (half)p.outlineAutoLightness);
         }
         else
         {
-            outlineAlpha = ComputeOutlineAlphaAlphaTex(s.uvMain, s.baseAlphaRaw, p.outlineThickness, p.outlineSoftness);
+            hsl.y = saturate(hsl.y + (half)p.outlineAutoSaturation);
+            hsl.z = saturate(hsl.z + (half)p.outlineAutoLightness);
         }
-        outlineAlpha *= p.outlineColor.a * alphaScale;
+
+        outlineColor = HSLtoRGB(hsl) * outlineColor;
     }
+
+    return outlineColor;
+}
+
+inline Surface2D Surface2D_ApplyTextFxPrepass(Surface2D s, TextFx2DParams p)
+{
+    if (p.shadowEnabled < 0.5 && p.glowEnabled < 0.5)
+        return s;
+
+    float alphaScale = saturate(s.vertexAlpha * s.alphaFactor);
 
     float shadowAlpha = 0.0;
     if (p.shadowEnabled > 0.5)
     {
         if (_TextMode > 0.5 && _TextMode < 1.5)
         {
-            float distOffset = SampleMainAlpha(s.uvMain + (p.shadowOffset * _MainTex_TexelSize.xy));
+            float distOffset = SampleMainTextureAlphaRaw(s.uvMain + (p.shadowOffset * _MainTex_TexelSize.xy));
             shadowAlpha = ComputeShadowAlphaSdf(distOffset, s.baseAlphaRaw, p.shadowSoftness);
         }
         else
@@ -299,18 +379,39 @@ inline Surface2D Surface2D_ApplyTextFx(Surface2D s, TextFx2DParams p)
 
     float4 baseCol = float4(s.color, s.alpha);
     float4 shadowCol = float4(p.shadowColor.rgb, shadowAlpha);
-    float4 outlineCol = float4(p.outlineColor.rgb, outlineAlpha);
     float4 glowCol = float4(p.glowColor.rgb, glowAlpha);
 
     float4 comp = shadowCol;
     comp = Over(glowCol, comp);
-    comp = Over(outlineCol, comp);
     comp = Over(baseCol, comp);
 
     s.color = comp.rgb;
     s.alpha = comp.a;
     return s;
-#endif
+}
+
+inline Surface2D Surface2D_ApplyTextOutlineFx(Surface2D s, TextFx2DParams p)
+{
+    float outlineAlpha = ComputeTextOutlineAlpha(s, p);
+    if (outlineAlpha <= 1e-6)
+        return s;
+
+    float3 outlineColor = ResolveTextOutlineColor(s, p);
+    float4 baseCol = float4(s.color, s.alpha);
+    float4 outlineCol = float4(outlineColor, outlineAlpha);
+
+    float4 comp = outlineCol;
+    comp = Over(baseCol, comp);
+
+    s.color = comp.rgb;
+    s.alpha = comp.a;
+    return s;
+}
+
+inline Surface2D Surface2D_ApplyTextFx(Surface2D s, TextFx2DParams p)
+{
+    s = Surface2D_ApplyTextFxPrepass(s, p);
+    return Surface2D_ApplyTextOutlineFx(s, p);
 }
 
 #endif // GAME_TEXT_FX_2D_INCLUDED

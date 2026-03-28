@@ -3488,7 +3488,7 @@ MonoBehaviour:
     aliases: []
   - id: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
     parentId: 0b8d5de79c6b4fb5ae0ea1e655c44a96
-    name: WorldSlider
+    name: Slider
     isFolder: 1
     description: 
     varId: 0
@@ -3500,7 +3500,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101059
-    stableKey: GameLib.WorldSlider.targetRaw
+    stableKey: GameLib.Slider.targetRaw
     aliases: []
   - id: f6f55d3082d8443b8d0f3fda9dd7c202
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3508,7 +3508,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101060
-    stableKey: GameLib.WorldSlider.targetNormalized
+    stableKey: GameLib.Slider.targetNormalized
     aliases: []
   - id: 8922a6ea3ef5408b9fd4ae9cce7a2303
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3516,7 +3516,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101061
-    stableKey: GameLib.WorldSlider.displayedRaw
+    stableKey: GameLib.Slider.displayedRaw
     aliases: []
   - id: b1a4fc62091e4d1d8d4f8b9ce0ab2404
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3524,7 +3524,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101062
-    stableKey: GameLib.WorldSlider.displayedNormalized
+    stableKey: GameLib.Slider.displayedNormalized
     aliases: []
   - id: ce8333f21d4c4da0b7e2424627bb2505
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3532,7 +3532,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101063
-    stableKey: GameLib.WorldSlider.deltaRaw
+    stableKey: GameLib.Slider.deltaRaw
     aliases: []
   - id: d7420fb1fb10404e91a02c3e6c9d2606
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3540,7 +3540,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101064
-    stableKey: GameLib.WorldSlider.deltaNormalized
+    stableKey: GameLib.Slider.deltaNormalized
     aliases: []
   - id: e7ab1152ac064d5bb51f5142d2ec2707
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3548,7 +3548,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101065
-    stableKey: GameLib.WorldSlider.crossingDirection
+    stableKey: GameLib.Slider.crossingDirection
     aliases: []
   - id: ae92f4a83dfd42b087c9a0b8f55e2808
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3556,7 +3556,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101066
-    stableKey: GameLib.WorldSlider.entryIndex
+    stableKey: GameLib.Slider.entryIndex
     aliases: []
   - id: fd2be41f238b474bb217235f7d232909
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3564,7 +3564,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101067
-    stableKey: GameLib.WorldSlider.entryValue
+    stableKey: GameLib.Slider.entryValue
     aliases: []
   - id: 7da4c59f749f4319a73c2e3d46282a10
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3572,7 +3572,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101068
-    stableKey: GameLib.WorldSlider.entryNormalized
+    stableKey: GameLib.Slider.entryNormalized
     aliases: []
   - id: 88f207676e04474f9079aa376b22cf10
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3580,7 +3580,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101069
-    stableKey: GameLib.WorldSlider.unitKind
+    stableKey: GameLib.Slider.unitKind
     aliases: []
   - id: 79dd351ab1c14ad9a9ac3c6b070c3911
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3588,7 +3588,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101070
-    stableKey: GameLib.WorldSlider.unitIndex
+    stableKey: GameLib.Slider.unitIndex
     aliases: []
   - id: fdbaf91783fb48a497e7bfa2ad0c0b12
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3596,7 +3596,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101071
-    stableKey: GameLib.WorldSlider.segmentStartRaw
+    stableKey: GameLib.Slider.segmentStartRaw
     aliases: []
   - id: 14558a51578a43fd9122964d87755c13
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3604,7 +3604,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101072
-    stableKey: GameLib.WorldSlider.segmentEndRaw
+    stableKey: GameLib.Slider.segmentEndRaw
     aliases: []
   - id: 1490e8f1f6af438393f7c477432fd714
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3612,7 +3612,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101073
-    stableKey: GameLib.WorldSlider.segmentStartNormalized
+    stableKey: GameLib.Slider.segmentStartNormalized
     aliases: []
   - id: 9a9fa46064de45f3afb673b35e5b2f15
     parentId: 6f0f0c3f3d214c2f9bd5b8d14b6e1a31
@@ -3620,7 +3620,7 @@ MonoBehaviour:
     isFolder: 0
     description: 
     varId: 101074
-    stableKey: GameLib.WorldSlider.segmentEndNormalized
+    stableKey: GameLib.Slider.segmentEndNormalized
     aliases: []
   - id: 550c79e9f5644ddbbe60095b28fc9b2b
     parentId: bf9d10780ffd431f9d1fe6f54d629bf6

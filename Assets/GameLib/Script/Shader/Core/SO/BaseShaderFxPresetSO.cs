@@ -7,6 +7,40 @@ using UnityEngine;
 
 namespace Game.MaterialFx
 {
+    [Flags]
+    public enum OutlineDirectionMask
+    {
+        None = 0,
+        Left = 1,
+        Right = 2,
+        Up = 4,
+        Down = 8,
+        All = Left | Right | Up | Down,
+    }
+
+    public enum OutlineAutoColorMode
+    {
+        Hsl = 0,
+        HslPlus = 1,
+    }
+
+    [Flags]
+    public enum TextOutlineDirectionMask
+    {
+        None = 0,
+        Left = 1,
+        Right = 2,
+        Up = 4,
+        Down = 8,
+        All = Left | Right | Up | Down,
+    }
+
+    public enum TextOutlineAutoColorMode
+    {
+        Hsl = 0,
+        HslPlus = 1,
+    }
+
     /// <summary>
     /// BaseShader 専用の MaterialFx プリセット。
     /// Inspector で BaseShader の全プロパティを編集可能。
@@ -509,6 +543,145 @@ namespace Game.MaterialFx
         public int maskSourceUVSpace = 0;
 
         // ═══════════════════════════════════════════════════════════════════════════
+        // Outline 2D
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        [TitleGroup("Outline", "通常のアウトラインエフェクト")]
+        [ToggleLeft]
+        [Tooltip("通常アウトラインを有効にする")]
+        public bool outlineEnabled = false;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [LabelText("Mode")]
+        [ValueDropdown(nameof(GetOutlineModeOptions))]
+        [Tooltip("Outside は外側、Inside は内側へ描画します")]
+        public int outlineMode = 10;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [Tooltip("アウトライン色。Auto Color 有効時は最終アウトライン色への Tint として扱います")]
+        public Color outlineColor = Color.white;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [LabelText("Direction")]
+        [EnumToggleButtons]
+        [Tooltip("アウトラインを出す方向。複数選択可。上下左右をすべて選ぶと全方位になります")]
+        public OutlineDirectionMask outlineDirectionMask = OutlineDirectionMask.All;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [LabelText("Auto Color")]
+        [ToggleLeft]
+        [Tooltip("現在の最終色からアウトライン色を自動計算します。Outline Color は Tint として残ります")]
+        public bool outlineAutoColorEnabled = false;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAutoColorSettings))]
+        [LabelText("Mode")]
+        [EnumToggleButtons]
+        [Tooltip("HSL は通常の加算オフセット、HSL+ は現在値の残り幅へ押し込む調整です")]
+        public OutlineAutoColorMode outlineAutoColorMode = OutlineAutoColorMode.Hsl;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAutoColorSettings))]
+        [LabelText("H")]
+        [Range(-1f, 1f)]
+        [Tooltip("自動計算色に対する Hue オフセットです。0 がデフォルトで、1 または -1 で 1 周します")]
+        public float outlineAutoHue = 0f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAutoColorSettings))]
+        [LabelText("S")]
+        [Range(-1f, 1f)]
+        [Tooltip("自動計算色に対する Saturation 調整です。0 がデフォルトです")]
+        public float outlineAutoSaturation = 0f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAutoColorSettings))]
+        [LabelText("L")]
+        [Range(-1f, 1f)]
+        [Tooltip("自動計算色に対する Lightness 調整です。0 がデフォルトです")]
+        public float outlineAutoLightness = 0f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [Min(0f)]
+        [Tooltip("アウトラインの太さ")]
+        public float outlineWidth = 1f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [Range(0f, 1f)]
+        [Tooltip("アウトラインの不透明度")]
+        public float outlineOpacity = 1f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [Range(0f, 1f)]
+        [Tooltip("アウトラインのソフトネス")]
+        public float outlineSoftness = 0f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [LabelText("Blend Mode")]
+        [ValueDropdown(nameof(GetOutlineBlendModeOptions))]
+        [Tooltip("アウトラインの合成方法です")]
+        public int outlineBlendMode = 10;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [ToggleLeft]
+        [Tooltip("アウトライン幅をピクセルステップ単位に量子化します")]
+        public bool outlinePixelPerfect = true;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [LabelText("Width Unit")]
+        [ValueDropdown(nameof(GetOutlineWidthUnitOptions))]
+        [Tooltip("太さの単位です。Texel はテクスチャ基準、Screen Pixel は画面ピクセル基準です")]
+        public int outlineWidthUnit = 10;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [Min(0.0001f)]
+        [Tooltip("Pixel Perfect 有効時の量子化ステップです")]
+        public float outlinePixelStep = 1f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [LabelText("Sample Pattern")]
+        [ValueDropdown(nameof(GetOutlineSamplePatternOptions))]
+        [Tooltip("サンプリングパターンです。Direction と組み合わせた場合、選択方向だけで評価します")]
+        public int outlineSamplePattern = 10;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [ToggleLeft]
+        [Tooltip("マスクや alpha factor を尊重してアウトライン alpha を計算します")]
+        public bool outlineMaskRespect = true;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [ToggleLeft]
+        [Tooltip("Auto Color 無効時のみ、現在色をアウトライン色へ乗算します")]
+        public bool outlineUseVertexColor = false;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [ToggleLeft]
+        [Tooltip("サンプルUVを sprite rect 内へ clamp します")]
+        public bool outlineUvClampEnabled = true;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
+        [LabelText("ZTest Mode")]
+        [ValueDropdown(nameof(GetOutlineZTestModeOptions))]
+        [Tooltip("予約フィールドです。現在は描画条件の指定に使います")]
+        public int outlineZTestMode = 10;
+
+        // ═══════════════════════════════════════════════════════════════════════════
         // Text FX (Outline / Shadow)
         // ═══════════════════════════════════════════════════════════════════════════
 
@@ -520,7 +693,7 @@ namespace Game.MaterialFx
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(textOutlineEnabled))]
-        [Tooltip("アウトライン色")]
+        [Tooltip("アウトライン色。Auto Color 有効時は最終アウトライン色への Tint として扱います")]
         public Color textOutlineColor = Color.black;
 
         [TitleGroup("Text Fx/Outline")]
@@ -534,6 +707,48 @@ namespace Game.MaterialFx
         [Range(0f, 1f)]
         [Tooltip("アウトラインのソフトネス")]
         public float textOutlineSoftness = 0.1f;
+
+        [TitleGroup("Text Fx/Outline")]
+        [ShowIf(nameof(textOutlineEnabled))]
+        [LabelText("Direction")]
+        [EnumToggleButtons]
+        [Tooltip("アウトラインを出す方向。複数選択可。上下左右をすべて選ぶと全方位になります")]
+        public TextOutlineDirectionMask textOutlineDirectionMask = TextOutlineDirectionMask.All;
+
+        [TitleGroup("Text Fx/Outline")]
+        [ShowIf(nameof(textOutlineEnabled))]
+        [LabelText("Auto Color")]
+        [ToggleLeft]
+        [Tooltip("現在のテキスト最終色からアウトライン色を自動計算します。Outline Color は Tint として残ります")]
+        public bool textOutlineAutoColorEnabled = false;
+
+        [TitleGroup("Text Fx/Outline")]
+        [ShowIf(nameof(ShowTextOutlineAutoColorSettings))]
+        [LabelText("Mode")]
+        [EnumToggleButtons]
+        [Tooltip("HSL は通常の加算オフセット、HSL+ は現在値の残り幅へ押し込む調整です")]
+        public TextOutlineAutoColorMode textOutlineAutoColorMode = TextOutlineAutoColorMode.Hsl;
+
+        [TitleGroup("Text Fx/Outline")]
+        [ShowIf(nameof(ShowTextOutlineAutoColorSettings))]
+        [LabelText("H")]
+        [Range(-1f, 1f)]
+        [Tooltip("自動計算色に対する Hue オフセットです。0 がデフォルトで、1 または -1 で 1 周します")]
+        public float textOutlineAutoHue = 0f;
+
+        [TitleGroup("Text Fx/Outline")]
+        [ShowIf(nameof(ShowTextOutlineAutoColorSettings))]
+        [LabelText("S")]
+        [Range(-1f, 1f)]
+        [Tooltip("自動計算色に対する Saturation 調整です。0 がデフォルトです")]
+        public float textOutlineAutoSaturation = 0f;
+
+        [TitleGroup("Text Fx/Outline")]
+        [ShowIf(nameof(ShowTextOutlineAutoColorSettings))]
+        [LabelText("L")]
+        [Range(-1f, 1f)]
+        [Tooltip("自動計算色に対する Lightness 調整です。0 がデフォルトです")]
+        public float textOutlineAutoLightness = 0f;
 
         [TitleGroup("Text Fx/Shadow")]
         [ToggleLeft]
@@ -880,10 +1095,42 @@ namespace Game.MaterialFx
                 SetAutoEntry(MaterialFxKeys.BaseShader.Mask.Source.UVSpace, MakeInt(maskSourceUVSpace));
             }
 
+            // --- Outline ---
+            SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Enabled, MakeBool(outlineEnabled));
+            if (outlineEnabled)
+            {
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Mode, MakeInt(outlineMode));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Color, MakeColor(outlineColor));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.DirectionMask, MakeInt((int)outlineDirectionMask));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AutoColorEnabled, MakeBool(outlineAutoColorEnabled));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AutoColorMode, MakeInt((int)outlineAutoColorMode));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AutoHue, MakeFloat(outlineAutoHue));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AutoSaturation, MakeFloat(outlineAutoSaturation));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AutoLightness, MakeFloat(outlineAutoLightness));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Width, MakeFloat(outlineWidth));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Opacity, MakeFloat(outlineOpacity));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Softness, MakeFloat(outlineSoftness));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.BlendMode, MakeInt(outlineBlendMode));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.PixelPerfect, MakeBool(outlinePixelPerfect));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.WidthUnit, MakeInt(outlineWidthUnit));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.PixelStep, MakeFloat(outlinePixelStep));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.SamplePattern, MakeInt(outlineSamplePattern));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.MaskRespect, MakeBool(outlineMaskRespect));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.UseVertexColor, MakeBool(outlineUseVertexColor));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.UVClampEnabled, MakeBool(outlineUvClampEnabled));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.ZTestMode, MakeInt(outlineZTestMode));
+            }
+
             // --- Text Fx ---
             SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.Enabled, MakeBool(textOutlineEnabled));
             if (textOutlineEnabled)
             {
+                SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.DirectionMask, MakeInt((int)textOutlineDirectionMask));
+                SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.AutoColorEnabled, MakeBool(textOutlineAutoColorEnabled));
+                SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.AutoColorMode, MakeInt((int)textOutlineAutoColorMode));
+                SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.AutoHue, MakeFloat(textOutlineAutoHue));
+                SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.AutoSaturation, MakeFloat(textOutlineAutoSaturation));
+                SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.AutoLightness, MakeFloat(textOutlineAutoLightness));
                 SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.Color, MakeColor(textOutlineColor));
                 SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.Thickness, MakeFloat(textOutlineThickness));
                 SetAutoEntry(MaterialFxKeys.BaseShader.TextFx.Outline.Softness, MakeFloat(textOutlineSoftness));
@@ -1091,6 +1338,56 @@ namespace Game.MaterialFx
                 { "Difference", 10 },
             };
         }
+
+        static ValueDropdownList<int> GetOutlineModeOptions()
+        {
+            return new ValueDropdownList<int>
+            {
+                { "Outside", 10 },
+                { "Inside", 20 },
+            };
+        }
+
+        static ValueDropdownList<int> GetOutlineBlendModeOptions()
+        {
+            return new ValueDropdownList<int>
+            {
+                { "Alpha", 10 },
+                { "Add", 20 },
+                { "Screen", 30 },
+            };
+        }
+
+        static ValueDropdownList<int> GetOutlineWidthUnitOptions()
+        {
+            return new ValueDropdownList<int>
+            {
+                { "Texel", 10 },
+                { "Screen Pixel", 20 },
+            };
+        }
+
+        static ValueDropdownList<int> GetOutlineSamplePatternOptions()
+        {
+            return new ValueDropdownList<int>
+            {
+                { "Diamond4", 10 },
+                { "Box8", 20 },
+                { "Circle12", 30 },
+            };
+        }
+
+        static ValueDropdownList<int> GetOutlineZTestModeOptions()
+        {
+            return new ValueDropdownList<int>
+            {
+                { "LessEqual", 10 },
+                { "Always", 20 },
+            };
+        }
+
+        bool ShowOutlineAutoColorSettings => outlineEnabled && outlineAutoColorEnabled;
+        bool ShowTextOutlineAutoColorSettings => textOutlineEnabled && textOutlineAutoColorEnabled;
     }
 
     [CreateAssetMenu(fileName = "BaseShaderFxPreset", menuName = "Game/MaterialFx/BaseShaderFxPreset")]

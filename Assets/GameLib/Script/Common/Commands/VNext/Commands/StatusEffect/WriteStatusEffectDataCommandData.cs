@@ -26,24 +26,24 @@ namespace Game.Commands.VNext
         [LabelText("Source Mode")]
         public WriteStatusEffectDataSourceMode SourceMode = WriteStatusEffectDataSourceMode.Definition;
 
-        [BoxGroup("Source/Definition")]
+        [BoxGroup("Source Definition")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteStatusEffectDataSourceMode.Definition")]
         [LabelText("Definition")]
         [Tooltip("StatusEffectDefinitionSO などから解決した定義データを書き込みます。")]
         public DynamicValue<BaseStatusEffectDefinitionData> DefinitionSource;
 
-        [BoxGroup("Source/Runtime")]
+        [BoxGroup("Source Runtime")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteStatusEffectDataSourceMode.Runtime")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(ServiceActorSource)")]
         [Tooltip("IStatusEffectService を解決するスコープです。")]
         public ActorSource ServiceActorSource = new() { Kind = ActorSourceKind.Current };
 
-        [BoxGroup("Source/Runtime")]
+        [BoxGroup("Source Runtime")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteStatusEffectDataSourceMode.Runtime")]
         [LabelText("Filter")]
         public StatusEffectRuntimeFilter Filter = StatusEffectRuntimeFilter.All;
 
-        [BoxGroup("Source/StackPreset")]
+        [BoxGroup("Source StackPreset")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteStatusEffectDataSourceMode.StackPreset")]
         [LabelText("Stack Preset")]
         [Tooltip("StackPreset データを書き込みます。")]

@@ -2401,6 +2401,78 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
+  - id: 78c724a4d08d4b29b512a269a5515a01
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: DirectionMask
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/DirectionMask
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineDirectionMask
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a38eb725a11a4b32995efdb9e64b9c39
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: AutoColorEnabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AutoColorEnabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _OutlineAutoColorEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2368d42c7a2d4eb6bd8e098d1f6fd0a0
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: AutoColorMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AutoColorMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineAutoColorMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: d64db10b1fa44b90bbd0174c7557d651
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: AutoHue
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AutoHue
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAutoHue
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 165eb83062054bc5a5569f3043f68e8d
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: AutoSaturation
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AutoSaturation
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAutoSaturation
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 778058d6c3d2483c84d80db9fdcf9870
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: AutoLightness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AutoLightness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAutoLightness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
   - id: 602c3a1c73eec154b163afc4f51b9991
     parentId: bf43b41bf022d07f500473ae6ff2007c
     name: Enabled
@@ -2869,6 +2941,66 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
+  - id: c5e66b1e54a14400b1e245d9081e7c73
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: AutoColorEnabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/AutoColorEnabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _TextOutlineAutoColorEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 12f6a2b3995b4dd7b08477b9302a9af6
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: AutoColorMode
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/AutoColorMode
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _TextOutlineAutoColorMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 43c77946f7f54f24845a5c428d6b0f8a
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: AutoHue
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/AutoHue
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TextOutlineAutoHue
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b7d1f3e9c23b4b05a2a51d984f3f6f10
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: AutoLightness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/AutoLightness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TextOutlineAutoLightness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 56aa9f0d4eb24f4c92d866b9ab1dfd80
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: AutoSaturation
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/AutoSaturation
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _TextOutlineAutoSaturation
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
   - id: 751f1c593b79c47a4fa00fb161eff3b1
     parentId: 05bef027e75f09d9eb07e116b8f2e053
     name: Color
@@ -2878,6 +3010,18 @@ MonoBehaviour:
     sender: 0
     valueType: 6
     shaderPropertyName: _TextOutlineColor
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8d1ac7ecb6b14f3d87d9d2e33d9b8a48
+    parentId: 05bef027e75f09d9eb07e116b8f2e053
+    name: DirectionMask
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/TextFx/Outline/DirectionMask
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _TextOutlineDirectionMask
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}

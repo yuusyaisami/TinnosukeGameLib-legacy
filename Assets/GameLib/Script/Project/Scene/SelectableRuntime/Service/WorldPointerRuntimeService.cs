@@ -52,6 +52,7 @@ namespace Game.SelectRuntime
         readonly ButtonSession _rightSession = new();
 
         WorldPointerTargetMB? _hoveredTarget;
+        WorldPointerEventData _currentHoverData;
 
         public InputConsumerPriority Priority => InputConsumerPriority.Gameplay;
 
@@ -124,6 +125,18 @@ namespace Game.SelectRuntime
 
             if (ReferenceEquals(_rightSession.PressedTarget, target))
                 _rightSession.Reset();
+        }
+
+        public bool TryGetCurrentHover(out WorldPointerEventData eventData)
+        {
+            if (_hoveredTarget == null)
+            {
+                eventData = default;
+                return false;
+            }
+
+            eventData = _currentHoverData;
+            return true;
         }
 
         public void UpdateInput(ref InputFrame frame)
@@ -501,10 +514,14 @@ namespace Game.SelectRuntime
         void SetHovered(WorldPointerEventData hitData)
         {
             if (ReferenceEquals(_hoveredTarget, hitData.Target))
+            {
+                _currentHoverData = hitData;
                 return;
+            }
 
             var previous = _hoveredTarget;
             _hoveredTarget = hitData.Target;
+            _currentHoverData = hitData;
             OnHoveredChanged?.Invoke(new WorldPointerHoverChangedEventData(previous, _hoveredTarget, hitData));
         }
 
@@ -512,11 +529,13 @@ namespace Game.SelectRuntime
         {
             _leftSession.Reset();
             _rightSession.Reset();
+            _currentHoverData = default;
             if (_hoveredTarget == null)
                 return;
 
             var previous = _hoveredTarget;
             _hoveredTarget = null;
+            _currentHoverData = default;
             OnHoveredChanged?.Invoke(new WorldPointerHoverChangedEventData(previous, null, default));
         }
     }

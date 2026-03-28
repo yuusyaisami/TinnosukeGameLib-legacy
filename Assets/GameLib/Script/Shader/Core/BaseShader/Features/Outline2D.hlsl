@@ -5,11 +5,24 @@
 // Outline2D.hlsl - Generic sprite/UI outline effect
 // ============================================================================
 
+#include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/ColorSpaceUtils.hlsl"
+
+#define OUTLINE2D_DIRECTION_LEFT   1.0
+#define OUTLINE2D_DIRECTION_RIGHT  2.0
+#define OUTLINE2D_DIRECTION_UP     4.0
+#define OUTLINE2D_DIRECTION_DOWN   8.0
+
 struct Outline2DParams
 {
     float  enabled;
     float  mode;            // 10: Outside, 20: Inside
     float4 color;
+    float  directionMask;
+    float  autoColorEnabled;
+    float  autoColorMode;
+    float  autoHue;
+    float  autoSaturation;
+    float  autoLightness;
     float  width;
     float  opacity;
     float  softness;
@@ -30,6 +43,12 @@ inline Outline2DParams MakeOutline2DParams(
     float enabled,
     float mode,
     float4 color,
+    float directionMask,
+    float autoColorEnabled,
+    float autoColorMode,
+    float autoHue,
+    float autoSaturation,
+    float autoLightness,
     float width,
     float opacity,
     float softness,
@@ -47,6 +66,12 @@ inline Outline2DParams MakeOutline2DParams(
     p.enabled = enabled;
     p.mode = mode;
     p.color = color;
+    p.directionMask = directionMask;
+    p.autoColorEnabled = autoColorEnabled;
+    p.autoColorMode = autoColorMode;
+    p.autoHue = autoHue;
+    p.autoSaturation = autoSaturation;
+    p.autoLightness = autoLightness;
     p.width = width;
     p.opacity = opacity;
     p.softness = softness;
@@ -133,10 +158,65 @@ inline float Outline2D_SampleMainAlphaOffset(Surface2D s, Outline2DParams p, flo
     return Outline2D_SampleMainAlpha(sampleUV);
 }
 
+inline bool Outline2DDirectionMaskHasBit(float roundedDirectionMask, float bitValue)
+{
+    return fmod(floor(roundedDirectionMask / bitValue), 2.0) > 0.5;
+}
+
 inline void Outline2D_AccumulateMinMax(inout float minA, inout float maxA, float v)
 {
     minA = min(minA, v);
     maxA = max(maxA, v);
+}
+
+inline void Outline2D_AccumulateDirectionalSamples(
+    Surface2D s,
+    Outline2DParams p,
+    float roundedDirectionMask,
+    float2 stepUV,
+    bool includeDiagonals,
+    bool includeFarCardinals,
+    inout float minAlpha,
+    inout float maxAlpha)
+{
+    bool hasLeft = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_LEFT);
+    bool hasRight = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_RIGHT);
+    bool hasUp = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_UP);
+    bool hasDown = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_DOWN);
+
+    if (hasRight)
+        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(stepUV.x, 0.0)));
+    if (hasLeft)
+        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(-stepUV.x, 0.0)));
+    if (hasUp)
+        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(0.0, stepUV.y)));
+    if (hasDown)
+        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(0.0, -stepUV.y)));
+
+    if (includeDiagonals)
+    {
+        if (hasRight && hasUp)
+            Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(stepUV.x, stepUV.y)));
+        if (hasRight && hasDown)
+            Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(stepUV.x, -stepUV.y)));
+        if (hasLeft && hasUp)
+            Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(-stepUV.x, stepUV.y)));
+        if (hasLeft && hasDown)
+            Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(-stepUV.x, -stepUV.y)));
+    }
+
+    if (includeFarCardinals)
+    {
+        float2 farStep = stepUV * 2.0;
+        if (hasRight)
+            Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(farStep.x, 0.0)));
+        if (hasLeft)
+            Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(-farStep.x, 0.0)));
+        if (hasUp)
+            Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(0.0, farStep.y)));
+        if (hasDown)
+            Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(0.0, -farStep.y)));
+    }
 }
 
 inline float4 Outline2D_Over(float4 front, float4 back)
@@ -151,10 +231,39 @@ inline float3 Outline2D_Screen(float3 baseColor, float3 blendColor)
     return 1.0 - (1.0 - baseColor) * (1.0 - blendColor);
 }
 
+inline float3 ResolveOutline2DColor(Surface2D s, Outline2DParams p)
+{
+    float3 outlineColor = p.color.rgb;
+    if (p.autoColorEnabled > 0.5)
+    {
+        half3 hsl = RGBtoHSL(saturate((half3)s.color));
+        hsl.x = frac(hsl.x + (half)p.autoHue);
+
+        if (p.autoColorMode > 0.5)
+        {
+            hsl.y = ApplySignedHeadroomAdjust(hsl.y, (half)p.autoSaturation);
+            hsl.z = ApplySignedHeadroomAdjust(hsl.z, (half)p.autoLightness);
+        }
+        else
+        {
+            hsl.y = saturate(hsl.y + (half)p.autoSaturation);
+            hsl.z = saturate(hsl.z + (half)p.autoLightness);
+        }
+
+        outlineColor = HSLtoRGB(hsl) * outlineColor;
+    }
+    else if (p.useVertexColor > 0.5)
+    {
+        outlineColor *= saturate(s.color);
+    }
+
+    return outlineColor;
+}
+
 inline Surface2D Surface2D_ApplyOutline(Surface2D s, Outline2DParams p)
 {
 #if defined(SURFACE2D_WEBGL_SAFE)
-    if (p.enabled < 0.5)
+    if (p.enabled < 0.5 || p.directionMask < 0.5)
         return s;
 
     float2 texelSize = _MainTex_TexelSize.xy * max(p.width, 0.0);
@@ -178,21 +287,32 @@ inline Surface2D Surface2D_ApplyOutline(Surface2D s, Outline2DParams p)
     }
 #endif
 
-    float neighborMax = max(max(alphaRight, alphaLeft), max(alphaUp, alphaDown));
+    float roundedDirectionMask = max(0.0, floor(p.directionMask + 0.5));
+    bool hasLeft = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_LEFT);
+    bool hasRight = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_RIGHT);
+    bool hasUp = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_UP);
+    bool hasDown = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_DOWN);
+
+    float neighborMax = centerAlpha;
+    if (hasRight) neighborMax = max(neighborMax, alphaRight);
+    if (hasLeft) neighborMax = max(neighborMax, alphaLeft);
+    if (hasUp) neighborMax = max(neighborMax, alphaUp);
+    if (hasDown) neighborMax = max(neighborMax, alphaDown);
+
     float edge = saturate(neighborMax - centerAlpha);
     float outlineAlpha = smoothstep(0.0, max(1e-4, p.softness), edge);
     outlineAlpha *= saturate(p.opacity) * p.color.a;
     if (outlineAlpha <= 1e-6)
         return s;
 
-    float3 outlineColor = p.color.rgb;
+    float3 outlineColor = ResolveOutline2DColor(s, p);
     float3 colorOut = lerp(outlineColor, s.color, saturate(s.alpha));
     float alphaOut = max(s.alpha, outlineAlpha * saturate(s.vertexAlpha));
     s.color = colorOut;
     s.alpha = alphaOut;
     return s;
 #else
-    if (p.enabled < 0.5)
+    if (p.enabled < 0.5 || p.directionMask < 0.5)
         return s;
 
     float2 stepUV = Outline2D_ComputeStepUV(s, p);
@@ -202,33 +322,16 @@ inline Surface2D Surface2D_ApplyOutline(Surface2D s, Outline2DParams p)
     float centerAlpha = Outline2D_SampleMainAlphaOffset(s, p, float2(0.0, 0.0));
     float minAlpha = centerAlpha;
     float maxAlpha = centerAlpha;
-
-    // Diamond4
-    Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2( stepUV.x, 0.0)));
-    Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(-stepUV.x, 0.0)));
-    Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(0.0,  stepUV.y)));
-    Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(0.0, -stepUV.y)));
-
-#if !defined(SURFACE2D_WEBGL_SAFE)
-    if (p.samplePattern >= 15.0)
-    {
-        // Box8 (adds diagonals)
-        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2( stepUV.x,  stepUV.y)));
-        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2( stepUV.x, -stepUV.y)));
-        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(-stepUV.x,  stepUV.y)));
-        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(-stepUV.x, -stepUV.y)));
-    }
-
-    if (p.samplePattern >= 25.0)
-    {
-        // Circle12 (adds 4 far cardinal taps)
-        float2 farStep = stepUV * 2.0;
-        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2( farStep.x, 0.0)));
-        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(-farStep.x, 0.0)));
-        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(0.0,  farStep.y)));
-        Outline2D_AccumulateMinMax(minAlpha, maxAlpha, Outline2D_SampleMainAlphaOffset(s, p, float2(0.0, -farStep.y)));
-    }
-#endif
+    float roundedDirectionMask = max(0.0, floor(p.directionMask + 0.5));
+    Outline2D_AccumulateDirectionalSamples(
+        s,
+        p,
+        roundedDirectionMask,
+        stepUV,
+        p.samplePattern >= 15.0,
+        p.samplePattern >= 25.0,
+        minAlpha,
+        maxAlpha);
 
     bool insideMode = (p.mode >= 15.0);
     float edge = insideMode
@@ -245,11 +348,7 @@ inline Surface2D Surface2D_ApplyOutline(Surface2D s, Outline2DParams p)
     if (outlineAlpha <= 1e-6)
         return s;
 
-    float3 outlineColor = p.color.rgb;
-    if (p.useVertexColor > 0.5)
-    {
-        outlineColor *= saturate(s.color);
-    }
+    float3 outlineColor = ResolveOutline2DColor(s, p);
 
     float4 baseCol = float4(s.color, s.alpha);
     float4 outlineCol = float4(outlineColor, outlineAlpha);

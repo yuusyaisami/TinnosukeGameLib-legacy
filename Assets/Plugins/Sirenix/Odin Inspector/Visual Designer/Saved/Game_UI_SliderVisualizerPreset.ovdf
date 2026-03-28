@@ -1,0 +1,14 @@
+OVDF v1.1
+Game.UI.SliderVisualizerPreset, Assembly-CSharp
+
+# _background
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 81.53
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 145
+
+# _segmented
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 81.56
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 151

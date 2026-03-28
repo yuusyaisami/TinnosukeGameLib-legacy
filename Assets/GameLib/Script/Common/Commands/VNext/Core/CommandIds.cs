@@ -119,10 +119,12 @@ namespace Game.Commands.VNext
         public const int ClearProfile = 1973;
         public const int ProfileChange = 1974;
         public const int DeleteAllSaveData = 1975;
-        public const int WorldSliderControl = 1976;
         public const int TargetChannelControl = 1977;
         public const int ButtonChannelHubControl = 1978;
         public const int ButtonChannelPlayerControl = 1979;
+        public const int Light2DChannelHubControl = 1980;
+        public const int Light2DChannelPlayerControl = 1981;
+        public const int SliderControl = 1982;
 
         public const int WithActor = 2001;
         public const int WithActorDescendantRouter = 2002;
@@ -130,6 +132,9 @@ namespace Game.Commands.VNext
         public const int CommandChannelExecute = 2004;
         public const int SetContextSlot = 2005;
         public const int CommandChannelControl = 2006;
+        public const int CommandListChannelHubControl = 2007;
+        public const int CommandListChannelPlayerControl = 2008;
+        public const int CommandListChannel = 2009;
         public const int HostCall = 3001;
 
         public const int EquipTrait = 2200;

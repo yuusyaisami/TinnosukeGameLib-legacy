@@ -61,13 +61,13 @@ namespace Game.SelectRuntime
         [SerializeField]
         float _rotateDegreesPerScroll = 15f;
 
-        [BoxGroup("Rotate/Binding")]
+        [BoxGroup("Rotate Binding")]
         [LabelText("Rotate Binding")]
         [InlineProperty]
         [SerializeField]
         ExternalFloatBindingOptions _rotateBinding = new();
 
-        [BoxGroup("State/Binding")]
+        [BoxGroup("State Binding")]
         [LabelText("Editor Mode Binding")]
         [InlineProperty]
         [SerializeField]

@@ -109,6 +109,34 @@ namespace Game.Channel
         }
     }
 
+    public readonly struct AreaRectSnapshot
+    {
+        public readonly Vector3 Center;
+        public readonly Vector2 Size;
+        public readonly AreaPlane Plane;
+
+        public AreaRectSnapshot(Vector3 center, Vector2 size, AreaPlane plane)
+        {
+            Center = center;
+            Size = size;
+            Plane = plane;
+        }
+    }
+
+    public readonly struct AreaCanvasRectSnapshot
+    {
+        public readonly RectTransform CanvasRect;
+        public readonly Rect LocalRect;
+        public readonly Camera? UICamera;
+
+        public AreaCanvasRectSnapshot(RectTransform canvasRect, Rect localRect, Camera? uiCamera)
+        {
+            CanvasRect = canvasRect;
+            LocalRect = localRect;
+            UICamera = uiCamera;
+        }
+    }
+
     public interface IAreaShape
     {
         AreaShapeLayer Layer { get; }
@@ -402,6 +430,8 @@ namespace Game.Channel
         bool TrySamplePosition(IReadOnlyList<string> tags, AreaTagSelectionMode selectionMode, in AreaSampleRequest request, out Vector3 position, out string selectedTag);
         bool ContainsPosition(string tag, Vector3 worldPosition);
         bool TryGetContour(string tag, out AreaContourData contour);
+        bool TryGetRectSnapshot(string tag, out AreaRectSnapshot snapshot);
+        bool TryGetCanvasRectSnapshot(string tag, Canvas canvas, out AreaCanvasRectSnapshot snapshot);
     }
 
     public interface IAreaChannelPlayer
@@ -410,6 +440,8 @@ namespace Game.Channel
         bool TrySamplePosition(Vector3 basePosition, in AreaSampleRequest request, out Vector3 position);
         bool ContainsPosition(Vector3 basePosition, Vector3 worldPosition);
         bool TryGetContour(Vector3 basePosition, out AreaContourData contour);
+        bool TryGetRectSnapshot(Vector3 basePosition, out AreaRectSnapshot snapshot);
+        bool TryGetCanvasRectSnapshot(Vector3 basePosition, Canvas canvas, out AreaCanvasRectSnapshot snapshot);
     }
 
     static class AreaContourUtility

@@ -1,0 +1,6 @@
+OVDF v1.1
+Game.Commands.VNext.WithActorCommandData, Assembly-CSharp
+
+# DescendantFilter
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 36

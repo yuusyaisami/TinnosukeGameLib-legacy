@@ -422,6 +422,34 @@ namespace Game.Scalar.Generated
                 }
             }
 
+            public static partial class GateProfile
+            {
+
+                public static partial class LeftGate
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GateProfile/LeftGate/CloseTime
+                    /// </remarks>
+                    public const string CloseTime = "GameLogic.GateProfile.LeftGate.CloseTime";
+                    /// <remarks>
+                    /// Path: GameLogic/GateProfile/LeftGate/OpenTime
+                    /// </remarks>
+                    public const string OpenTime = "GameLogic.GateProfile.LeftGate.OpenTime";
+                }
+
+                public static partial class RightGate
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GateProfile/RightGate/CloseTime
+                    /// </remarks>
+                    public const string CloseTime = "GameLogic.GateProfile.RightGate.CloseTime";
+                    /// <remarks>
+                    /// Path: GameLogic/GateProfile/RightGate/OpenTime
+                    /// </remarks>
+                    public const string OpenTime = "GameLogic.GateProfile.RightGate.OpenTime";
+                }
+            }
+
             public static partial class NailProfile
             {
 
@@ -611,6 +639,10 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Base.ShopPriceMul,
             ScalarKeys.GameLogic.GameProfile.Base.TimeLimitValue,
             ScalarKeys.GameLogic.GameProfile.Base.TurnValue,
+            ScalarKeys.GameLogic.GateProfile.LeftGate.CloseTime,
+            ScalarKeys.GameLogic.GateProfile.LeftGate.OpenTime,
+            ScalarKeys.GameLogic.GateProfile.RightGate.CloseTime,
+            ScalarKeys.GameLogic.GateProfile.RightGate.OpenTime,
             ScalarKeys.GameLogic.NailProfile.Effect.Attract,
             ScalarKeys.GameLogic.NailProfile.Effect.Bounce,
             ScalarKeys.GameLogic.NailProfile.Effect.Chain,

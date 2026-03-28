@@ -14,6 +14,12 @@ namespace Game.MaterialFx.Generated
                 public const string OutlineColor = "BaseShader/TextFx/Outline/Color";
                 public const string OutlineThickness = "BaseShader/TextFx/Outline/Thickness";
                 public const string OutlineSoftness = "BaseShader/TextFx/Outline/Softness";
+                public const string OutlineDirectionMask = "BaseShader/TextFx/Outline/DirectionMask";
+                public const string OutlineAutoColorEnabled = "BaseShader/TextFx/Outline/AutoColorEnabled";
+                public const string OutlineAutoColorMode = "BaseShader/TextFx/Outline/AutoColorMode";
+                public const string OutlineAutoHue = "BaseShader/TextFx/Outline/AutoHue";
+                public const string OutlineAutoSaturation = "BaseShader/TextFx/Outline/AutoSaturation";
+                public const string OutlineAutoLightness = "BaseShader/TextFx/Outline/AutoLightness";
 
                 public const string ShadowEnabled = "BaseShader/TextFx/Shadow/Enabled";
                 public const string ShadowColor = "BaseShader/TextFx/Shadow/Color";

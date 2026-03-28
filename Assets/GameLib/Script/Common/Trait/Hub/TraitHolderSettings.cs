@@ -127,23 +127,23 @@ namespace Game.Trait
         int _commandsGroupAnchor = 0;
 #pragma warning restore CS0414
 
-        [BoxGroup("Commands/Equip")]
+        [BoxGroup("Commands Equip")]
         [LabelText("Run On Equip")]
         [SerializeField]
         bool _runOnEquipCommands;
 
-        [BoxGroup("Commands/Equip")]
+        [BoxGroup("Commands Equip")]
         [ShowIf(nameof(_runOnEquipCommands))]
         [LabelText("On Equip Commands")]
         [SerializeField]
         VNext.CommandListData _onEquipCommands = new();
 
-        [BoxGroup("Commands/Unequip")]
+        [BoxGroup("Commands Unequip")]
         [LabelText("Run On Unequip")]
         [SerializeField]
         bool _runOnUnequipCommands;
 
-        [BoxGroup("Commands/Unequip")]
+        [BoxGroup("Commands Unequip")]
         [ShowIf(nameof(_runOnUnequipCommands))]
         [LabelText("On Unequip Commands")]
         [SerializeField]
