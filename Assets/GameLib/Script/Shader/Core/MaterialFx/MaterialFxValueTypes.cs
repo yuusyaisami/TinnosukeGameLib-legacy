@@ -75,6 +75,24 @@ namespace Game.MaterialFx
         TopToBottom = 3,
         RadialIn = 4,
         RadialOut = 5,
+        Circle = 6,
+    }
+
+    public enum AnimatedNoisePatternType
+    {
+        SmoothValue = 10,
+        Perlin = 20,
+        Fbm = 30,
+        RidgedFbm = 40,
+        Cellular = 50,
+        HexCell = 60,
+        TurtleShell = 70,
+        Checker = 80,
+        Stripes = 90,
+        Diamond = 100,
+        Truchet = 110,
+        Interference = 120,
+        Swirl = 130,
     }
 
 

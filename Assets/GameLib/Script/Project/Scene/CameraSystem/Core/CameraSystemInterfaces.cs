@@ -8,6 +8,7 @@ namespace Game.CameraSystem
 {
     public interface ICameraSystemService
     {
+        Camera Camera { get; }
         ICameraZoomService Zoom { get; }
         ICameraPostProcessService PostProcess { get; }
         ICameraFxService Fx { get; }

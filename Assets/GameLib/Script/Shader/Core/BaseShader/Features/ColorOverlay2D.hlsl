@@ -49,7 +49,7 @@ inline ColorOverlay2DParams MakeColorOverlay2DParams(
     float blendMode,
     float opacity)
 {
-    ColorOverlay2DParams p = (ColorOverlay2DParams)0;
+    ColorOverlay2DParams p;
     p.enabled = enabled;
     p.source = MakeTextureSlotRef(
         sourceSlotType,
@@ -82,7 +82,7 @@ inline ColorOverlay2DParams MakeColorOverlay2DParamsSimple(
     float blendMode,
     float intensity)         // opacity として使用
 {
-    ColorOverlay2DParams p = (ColorOverlay2DParams)0;
+    ColorOverlay2DParams p;
     p.enabled = enabled;
     p.source = MakeTextureSlotRef(
         sourceSlotType,
@@ -104,7 +104,7 @@ inline ColorOverlay2DParams MakeColorOverlay2DParamsSimple(
 // デフォルト値で初期化（無効状態）
 inline ColorOverlay2DParams MakeDefaultColorOverlay2DParams()
 {
-    ColorOverlay2DParams p = (ColorOverlay2DParams)0;
+    ColorOverlay2DParams p;
     p.enabled = 0;
     p.source = MakeDefaultTextureSlotRef();
     p.colorA = half3(1, 1, 1);
@@ -122,87 +122,79 @@ inline ColorOverlay2DParams MakeDefaultColorOverlay2DParams()
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyColorOverlay(Surface2D s, ColorOverlay2DParams p)
 {
-    if (p.enabled < 0.5h)
-        return s;
-    if (p.source.slotType == TEXTURE_SLOT_NONE)
-        return s;
-    
-    // ソースからノイズ値を取得
-    half noise = SampleSlotScalar(s, p.source);
-    
-    // グラデーションカラー計算
-    // colorMix=0: colorA のみ
-    // colorMix=1: colorB のみ
-    // colorMix=0.5: noise に応じた補間
-    half gradientT = lerp(0.5h, noise, p.colorMix);
-    half3 overlayColor = lerp(p.colorA, p.colorB, gradientT);
-    half overlayAlpha = lerp(p.alphaA, p.alphaB, gradientT);
-    
-    // ブレンド
-    half finalOpacity = p.opacity * overlayAlpha;
-    half3 blended = s.color;
-    
-    [branch]
-    switch (p.blendMode)
+    Surface2D result = s;
+    if (p.enabled >= 0.5h && p.source.slotType != TEXTURE_SLOT_NONE)
     {
-        case BLEND_MODE_NORMAL:
-            blended = BlendNormal(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_MULTIPLY:
-            blended = BlendMultiply(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_ADD:
-            blended = BlendAdd(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_SCREEN:
-            blended = BlendScreen(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_OVERLAY:
-            blended = BlendOverlay(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_SOFTLIGHT:
-            blended = BlendSoftLight(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_HARDLIGHT:
-            blended = BlendHardLight(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_COLOR_BURN:
-            blended = BlendColorBurn(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_COLOR_DODGE:
-            blended = BlendColorDodge(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_DARKEN:
-            blended = BlendDarken(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_LIGHTEN:
-            blended = BlendLighten(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_DIFFERENCE:
-            blended = BlendDifference(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_EXCLUSION:
-            blended = BlendExclusion(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_HUE:
-            blended = BlendHue(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_SATURATION:
-            blended = BlendSaturation(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_COLOR:
-            blended = BlendColor(s.color, overlayColor, finalOpacity);
-            break;
-        case BLEND_MODE_LUMINOSITY:
-            blended = BlendLuminosity(s.color, overlayColor, finalOpacity);
-            break;
-        default:
-            blended = s.color;
-            break;
+        half noise = SampleSlotScalar(result, p.source);
+        half gradientT = lerp(0.5h, noise, p.colorMix);
+        half3 overlayColor = lerp(p.colorA, p.colorB, gradientT);
+        half overlayAlpha = lerp(p.alphaA, p.alphaB, gradientT);
+        half finalOpacity = p.opacity * overlayAlpha;
+        half3 blended = result.color;
+
+        [branch]
+        switch (p.blendMode)
+        {
+            case BLEND_MODE_NORMAL:
+                blended = BlendNormal(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_MULTIPLY:
+                blended = BlendMultiply(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_ADD:
+                blended = BlendAdd(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_SCREEN:
+                blended = BlendScreen(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_OVERLAY:
+                blended = BlendOverlay(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_SOFTLIGHT:
+                blended = BlendSoftLight(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_HARDLIGHT:
+                blended = BlendHardLight(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_COLOR_BURN:
+                blended = BlendColorBurn(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_COLOR_DODGE:
+                blended = BlendColorDodge(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_DARKEN:
+                blended = BlendDarken(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_LIGHTEN:
+                blended = BlendLighten(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_DIFFERENCE:
+                blended = BlendDifference(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_EXCLUSION:
+                blended = BlendExclusion(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_HUE:
+                blended = BlendHue(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_SATURATION:
+                blended = BlendSaturation(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_COLOR:
+                blended = BlendColor(result.color, overlayColor, finalOpacity);
+                break;
+            case BLEND_MODE_LUMINOSITY:
+                blended = BlendLuminosity(result.color, overlayColor, finalOpacity);
+                break;
+            default:
+                blended = result.color;
+                break;
+        }
+
+        result.color = blended;
     }
-    
-    s.color = blended;
-    return s;
+
+    return result;
 }
 
 #endif // GAME_COLOR_OVERLAY_2D_INCLUDED

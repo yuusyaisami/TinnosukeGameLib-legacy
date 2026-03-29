@@ -101,13 +101,8 @@ namespace Game.UI
                 return false;
 
             var elementState = _adapter?.ElementState;
-            if (elementState != null)
-            {
-                if (!elementState.IsEffectivelyActive)
-                    return false;
-                if (!elementState.IsVisible)
-                    return false;
-            }
+            if (elementState != null && !elementState.AcceptsInput)
+                return false;
 
             return true;
         }

@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Game;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.Vars.Generated;
@@ -86,6 +87,7 @@ namespace Game.UI
         ButtonPlayerPreset _basePlayerPreset = new();
         ButtonPlayerPreset _currentPlayerPreset = new();
         ButtonInputProcessorBase _processor = null!;
+        IScopeLifecycleService? _lifecycleService;
 
         bool _isEnabled = true;
         bool _isSelected;
@@ -122,6 +124,7 @@ namespace Game.UI
         {
             _ = isReset;
             _adapter = adapter;
+            scope.TryResolveInAncestors<IScopeLifecycleService>(out _lifecycleService);
             ResolveSourcePresets(scope);
             ResetCommandCts();
             RefreshState(forcePublish: true);
@@ -143,6 +146,7 @@ namespace Game.UI
             _isSelected = false;
             _isHovered = false;
             _isCommandExecuting = false;
+            _lifecycleService = null;
 
             _commandCts?.Cancel();
             _commandCts?.Dispose();
@@ -162,6 +166,9 @@ namespace Game.UI
                 return false;
 
             RefreshState(forcePublish: false);
+            if (!_isEnabled)
+                return false;
+
             if (!MatchesCurrentBinding(signal.Action))
                 return false;
 
@@ -403,9 +410,12 @@ namespace Game.UI
             if (_adapter == null || !_adapter.IsAvailable)
                 return false;
 
+            if (IsLifecycleInputBlocked())
+                return false;
+
             if (_adapter.ElementState != null)
             {
-                if (!_adapter.ElementState.IsVisible || !_adapter.ElementState.IsEffectivelyActive)
+                if (!_adapter.ElementState.AcceptsInput)
                     return false;
             }
 
@@ -418,8 +428,11 @@ namespace Game.UI
             if (_adapter == null || !_adapter.IsAvailable)
                 return true;
 
+            if (IsLifecycleInputBlocked())
+                return true;
+
             if (_adapter.ElementState != null &&
-                (!_adapter.ElementState.IsVisible || !_adapter.ElementState.IsEffectivelyActive))
+                !_adapter.ElementState.AcceptsInput)
             {
                 return true;
             }
@@ -639,6 +652,11 @@ namespace Game.UI
                 return;
 
             vars.TrySetVariant(varId, value);
+        }
+
+        bool IsLifecycleInputBlocked()
+        {
+            return _lifecycleService != null && _lifecycleService.IsDespawning;
         }
 
         static IVarStore ResolveVarStore(IScopeNode scope)

@@ -56,7 +56,7 @@ inline Transition2DParams MakeTransition2DParams(
     float4 params,
     float4 fromUVRect)
 {
-    Transition2DParams p = (Transition2DParams)0;
+    Transition2DParams p;
     p.enabled = enabled;
     p.blendMode = blendMode;
     p.progress = progress;
@@ -145,50 +145,49 @@ inline Surface2D Surface2D_ApplyTransition(
     float4 fromSample,
     Transition2DParams p)
 {
-    // 無効または完了済みなら何もしない
-    if (p.enabled <= 0.5 || p.progress >= 1.0)
-        return s;
-    
-    // Progress = 0 の場合は from を完全表示
-    if (p.progress <= 0.0)
+    Surface2D output = s;
+    if (p.enabled > 0.5 && p.progress < 1.0)
     {
-        s.color = fromSample.rgb;
-        s.alpha = fromSample.a;
-        return s;
+        if (p.progress <= 0.0)
+        {
+            output.color = fromSample.rgb;
+            output.alpha = fromSample.a;
+        }
+        else
+        {
+            float t = saturate(p.progress);
+            float4 current = float4(output.color, output.alpha);
+            float4 from = fromSample;
+            int mode = (int)p.blendMode;
+            float4 transitionResult = current;
+
+            if (mode == TRANSITION_MODE_CROSSFADE)
+            {
+                transitionResult = Transition_CrossFade(from, current, t);
+            }
+            else if (mode == TRANSITION_MODE_DISSOLVE)
+            {
+                transitionResult = Transition_Dissolve(from, current, output.uvLocal, t, p.edgeWidth, p.softness);
+            }
+            else if (mode == TRANSITION_MODE_WIPE_HORIZONTAL)
+            {
+                transitionResult = Transition_WipeHorizontal(from, current, output.uvLocal, t, p.softness, p.direction);
+            }
+            else if (mode == TRANSITION_MODE_WIPE_VERTICAL)
+            {
+                transitionResult = Transition_WipeVertical(from, current, output.uvLocal, t, p.softness, p.direction);
+            }
+            else
+            {
+                transitionResult = Transition_CrossFade(from, current, t);
+            }
+
+            output.color = transitionResult.rgb;
+            output.alpha = transitionResult.a;
+        }
     }
-    
-    float t = saturate(p.progress);
-    float4 current = float4(s.color, s.alpha);
-    float4 from = fromSample;
-    
-    int mode = (int)p.blendMode;
-    float4 result = current;
-    
-    if (mode == TRANSITION_MODE_CROSSFADE)
-    {
-        result = Transition_CrossFade(from, current, t);
-    }
-    else if (mode == TRANSITION_MODE_DISSOLVE)
-    {
-        result = Transition_Dissolve(from, current, s.uvLocal, t, p.edgeWidth, p.softness);
-    }
-    else if (mode == TRANSITION_MODE_WIPE_HORIZONTAL)
-    {
-        result = Transition_WipeHorizontal(from, current, s.uvLocal, t, p.softness, p.direction);
-    }
-    else if (mode == TRANSITION_MODE_WIPE_VERTICAL)
-    {
-        result = Transition_WipeVertical(from, current, s.uvLocal, t, p.softness, p.direction);
-    }
-    else
-    {
-        // 未知のモードはクロスフェードにフォールバック
-        result = Transition_CrossFade(from, current, t);
-    }
-    
-    s.color = result.rgb;
-    s.alpha = result.a;
-    return s;
+
+    return output;
 }
 
 // ============================================================================
@@ -226,15 +225,14 @@ inline float4 Transition_SampleFrom(float2 uvLocal, float4 fromUVRect)
 /// <param name="p">トランジションパラメータ（_TransitionFromSpriteUVRect を含む）</param>
 inline Surface2D Surface2D_ApplyTransition(Surface2D s, Transition2DParams p)
 {
-    // 無効なら早期リターン
-    if (p.enabled <= 0.5)
-        return s;
-    
-    // from をサンプル（p.fromUVRect を使用）
-    float4 fromSample = Transition_SampleFrom(s.uvLocal, p.fromUVRect);
-    
-    // 3引数版へ委譲
-    return Surface2D_ApplyTransition(s, fromSample, p);
+    Surface2D output = s;
+    if (p.enabled > 0.5)
+    {
+        float4 fromSample = Transition_SampleFrom(output.uvLocal, p.fromUVRect);
+        output = Surface2D_ApplyTransition(output, fromSample, p);
+    }
+
+    return output;
 }
 
 #endif // GAME_TRANSITION2D_INCLUDED

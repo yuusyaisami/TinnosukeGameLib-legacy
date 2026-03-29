@@ -60,6 +60,7 @@ namespace Game.Channel
         readonly VNext.ICommandRunner _commandRunner;
         readonly IMaterialFxServiceFactory? _materialFxFactory;
         readonly IMaterialFxPropertyRegistry? _materialFxRegistry;
+        readonly bool _replaceWithTransparentOnRelease;
 
         readonly IVisualSystem? _visualSystem;
         readonly string _hubTag;
@@ -106,11 +107,13 @@ namespace Game.Channel
             VNext.ICommandRunner commandRunner,
             IMaterialFxServiceFactory? materialFxFactory = null,
             IMaterialFxPropertyRegistry? materialFxRegistry = null,
+            bool replaceWithTransparentOnRelease = false,
             string hubTag = "default")
         {
             _ownerScope = ownerScope ?? throw new ArgumentNullException(nameof(ownerScope));
             _commandRunner = commandRunner;
             _materialFxFactory = materialFxFactory;
+            _replaceWithTransparentOnRelease = replaceWithTransparentOnRelease;
 
             _hubTag = string.IsNullOrWhiteSpace(hubTag) ? "default" : hubTag;
             var resolver = ownerScope.Resolver;
@@ -210,6 +213,9 @@ namespace Game.Channel
 
         void ResetPlayersToEmptyAnimation()
         {
+            if (!_replaceWithTransparentOnRelease)
+                return;
+
             var emptyClip = MaterialFxMB.EmptyAnimationData;
             if (emptyClip == null)
                 return;

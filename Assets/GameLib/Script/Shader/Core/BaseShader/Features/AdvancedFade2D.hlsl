@@ -13,6 +13,8 @@
 //
 // ═══════════════════════════════════════════════════════════════════════════
 
+#include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/AnimatedNoise2D.hlsl"
+
 // ---------------------------------------------------------------------------
 // フェード方向定義
 // ---------------------------------------------------------------------------
@@ -23,11 +25,14 @@
 #define FADE_DIR_TOP_TO_BOTTOM     3
 #define FADE_DIR_RADIAL_IN         4  // 外周→中心
 #define FADE_DIR_RADIAL_OUT        5  // 中心→外周
+#define FADE_DIR_CIRCLE            6  // 角度スイープ
 
 // グロー ブレンドモード
 #define GLOW_BLEND_ADD      0
 #define GLOW_BLEND_SCREEN   1
 #define GLOW_BLEND_OVERLAY  2
+
+#define FADE_TWO_PI 6.28318530718
 
 // ---------------------------------------------------------------------------
 // AdvancedFade2D パラメータ構造体
@@ -49,6 +54,8 @@ struct AdvancedFade2DParams
     // WaveParamsB: x=周波数B, y=振幅B, z=速度B, w=オフセットB
     float4 waveParamsA;
     float4 waveParamsB;
+    float circleStartAngleDeg;
+    float circleClockwise;
 
     // Burn (Noise Dissolve)
     float burnEnabled;
@@ -61,6 +68,25 @@ struct AdvancedFade2DParams
     float4 burnEdgeColor;
     int   burnBlendMode;
     float burnInvert;
+    float burnAnimatedNoiseEnabled;
+    int   burnAnimatedNoisePatternType;
+    float2 burnAnimatedNoiseDirection;
+    float burnAnimatedNoiseSpeed;
+    float2 burnAnimatedNoiseOffset;
+    float burnAnimatedNoiseRotationSpeed;
+    float burnAnimatedNoisePulseAmplitude;
+    float burnAnimatedNoisePulseSpeed;
+    int   burnAnimatedNoiseWarpPatternType;
+    float burnAnimatedNoiseWarpScale;
+    float burnAnimatedNoiseWarpStrength;
+    float2 burnAnimatedNoiseWarpDirection;
+    float burnAnimatedNoiseWarpSpeed;
+    float burnAnimatedNoiseLoopSeconds;
+    int   burnAnimatedNoiseOctaves;
+    float burnAnimatedNoiseLacunarity;
+    float burnAnimatedNoiseGain;
+    float burnAnimatedNoiseCellSharpness;
+    float burnAnimatedNoisePatternContrast;
 };
 
 // ---------------------------------------------------------------------------
@@ -76,6 +102,8 @@ inline AdvancedFade2DParams MakeAdvancedFade2DParams(
     float glowBlendMode,
     float4 waveParamsA,
     float4 waveParamsB,
+    float circleStartAngleDeg,
+    float circleClockwise,
     float burnEnabled,
     float burnProgress,
     float burnEdgeWidth,
@@ -85,7 +113,26 @@ inline AdvancedFade2DParams MakeAdvancedFade2DParams(
     float2 burnDirection,
     float4 burnEdgeColor,
     float burnBlendMode,
-    float burnInvert)
+    float burnInvert,
+    float burnAnimatedNoiseEnabled,
+    float burnAnimatedNoisePatternType,
+    float2 burnAnimatedNoiseDirection,
+    float burnAnimatedNoiseSpeed,
+    float2 burnAnimatedNoiseOffset,
+    float burnAnimatedNoiseRotationSpeed,
+    float burnAnimatedNoisePulseAmplitude,
+    float burnAnimatedNoisePulseSpeed,
+    float burnAnimatedNoiseWarpPatternType,
+    float burnAnimatedNoiseWarpScale,
+    float burnAnimatedNoiseWarpStrength,
+    float2 burnAnimatedNoiseWarpDirection,
+    float burnAnimatedNoiseWarpSpeed,
+    float burnAnimatedNoiseLoopSeconds,
+    float burnAnimatedNoiseOctaves,
+    float burnAnimatedNoiseLacunarity,
+    float burnAnimatedNoiseGain,
+    float burnAnimatedNoiseCellSharpness,
+    float burnAnimatedNoisePatternContrast)
 {
     AdvancedFade2DParams p = (AdvancedFade2DParams)0;
     p.enabled = enabled;
@@ -97,6 +144,8 @@ inline AdvancedFade2DParams MakeAdvancedFade2DParams(
     p.glowBlendMode = (int)round(glowBlendMode);
     p.waveParamsA = waveParamsA;
     p.waveParamsB = waveParamsB;
+    p.circleStartAngleDeg = circleStartAngleDeg;
+    p.circleClockwise = circleClockwise;
     p.burnEnabled = burnEnabled;
     p.burnProgress = saturate(burnProgress);
     p.burnEdgeWidth = max(0.0001, burnEdgeWidth);
@@ -107,6 +156,25 @@ inline AdvancedFade2DParams MakeAdvancedFade2DParams(
     p.burnEdgeColor = burnEdgeColor;
     p.burnBlendMode = (int)round(burnBlendMode);
     p.burnInvert = burnInvert;
+    p.burnAnimatedNoiseEnabled = burnAnimatedNoiseEnabled;
+    p.burnAnimatedNoisePatternType = (int)round(burnAnimatedNoisePatternType);
+    p.burnAnimatedNoiseDirection = burnAnimatedNoiseDirection;
+    p.burnAnimatedNoiseSpeed = burnAnimatedNoiseSpeed;
+    p.burnAnimatedNoiseOffset = burnAnimatedNoiseOffset;
+    p.burnAnimatedNoiseRotationSpeed = burnAnimatedNoiseRotationSpeed;
+    p.burnAnimatedNoisePulseAmplitude = max(0.0, burnAnimatedNoisePulseAmplitude);
+    p.burnAnimatedNoisePulseSpeed = burnAnimatedNoisePulseSpeed;
+    p.burnAnimatedNoiseWarpPatternType = (int)round(burnAnimatedNoiseWarpPatternType);
+    p.burnAnimatedNoiseWarpScale = max(0.0001, burnAnimatedNoiseWarpScale);
+    p.burnAnimatedNoiseWarpStrength = max(0.0, burnAnimatedNoiseWarpStrength);
+    p.burnAnimatedNoiseWarpDirection = burnAnimatedNoiseWarpDirection;
+    p.burnAnimatedNoiseWarpSpeed = burnAnimatedNoiseWarpSpeed;
+    p.burnAnimatedNoiseLoopSeconds = max(0.0, burnAnimatedNoiseLoopSeconds);
+    p.burnAnimatedNoiseOctaves = min(max((int)round(burnAnimatedNoiseOctaves), 1), 6);
+    p.burnAnimatedNoiseLacunarity = max(1.0, burnAnimatedNoiseLacunarity);
+    p.burnAnimatedNoiseGain = saturate(burnAnimatedNoiseGain);
+    p.burnAnimatedNoiseCellSharpness = max(0.01, burnAnimatedNoiseCellSharpness);
+    p.burnAnimatedNoisePatternContrast = max(0.0, burnAnimatedNoisePatternContrast);
     return p;
 }
 
@@ -123,6 +191,8 @@ inline AdvancedFade2DParams MakeDefaultAdvancedFade2DParams()
     p.glowBlendMode = GLOW_BLEND_ADD;
     p.waveParamsA = float4(0, 0, 0, 0);
     p.waveParamsB = float4(0, 0, 0, 0);
+    p.circleStartAngleDeg = 90;
+    p.circleClockwise = 1;
     p.burnEnabled = 0;
     p.burnProgress = 0;
     p.burnEdgeWidth = 0.1;
@@ -133,37 +203,26 @@ inline AdvancedFade2DParams MakeDefaultAdvancedFade2DParams()
     p.burnEdgeColor = float4(1, 0.5, 0.1, 1);
     p.burnBlendMode = GLOW_BLEND_ADD;
     p.burnInvert = 0;
+    p.burnAnimatedNoiseEnabled = 0;
+    p.burnAnimatedNoisePatternType = ANIMATED_NOISE_PATTERN_SMOOTH_VALUE;
+    p.burnAnimatedNoiseDirection = float2(1, 0);
+    p.burnAnimatedNoiseSpeed = 0.2;
+    p.burnAnimatedNoiseOffset = float2(0, 0);
+    p.burnAnimatedNoiseRotationSpeed = 0;
+    p.burnAnimatedNoisePulseAmplitude = 0;
+    p.burnAnimatedNoisePulseSpeed = 1;
+    p.burnAnimatedNoiseWarpPatternType = ANIMATED_NOISE_PATTERN_SMOOTH_VALUE;
+    p.burnAnimatedNoiseWarpScale = 2;
+    p.burnAnimatedNoiseWarpStrength = 0.2;
+    p.burnAnimatedNoiseWarpDirection = float2(0.71, 0.43);
+    p.burnAnimatedNoiseWarpSpeed = 0.35;
+    p.burnAnimatedNoiseLoopSeconds = 0;
+    p.burnAnimatedNoiseOctaves = 4;
+    p.burnAnimatedNoiseLacunarity = 2;
+    p.burnAnimatedNoiseGain = 0.5;
+    p.burnAnimatedNoiseCellSharpness = 1.5;
+    p.burnAnimatedNoisePatternContrast = 1;
     return p;
-}
-
-inline float Hash21(float2 p)
-{
-    p = frac(p * float2(123.34, 456.21));
-    p += dot(p, p + 45.32);
-    return frac(p.x * p.y);
-}
-
-inline float NoiseValueSmooth(float2 p)
-{
-    float2 i = floor(p);
-    float2 f = frac(p);
-    float2 u = f * f * (3.0 - 2.0 * f);
-    float a = Hash21(i);
-    float b = Hash21(i + float2(1, 0));
-    float c = Hash21(i + float2(0, 1));
-    float d = Hash21(i + float2(1, 1));
-    return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
-}
-
-inline float2 GetSpriteAspectScale()
-{
-    float2 uvSize = max(_SpriteUVRect.zw - _SpriteUVRect.xy, float2(1e-4, 1e-4));
-    float2 texWH = max(_MainTex_TexelSize.zw, float2(1.0, 1.0));
-    float2 pxSize = uvSize * texWH;
-    float aspect = pxSize.x / max(pxSize.y, 1e-4);
-    if (aspect >= 1.0)
-        return float2(aspect, 1.0);
-    return float2(1.0, 1.0 / max(aspect, 1e-4));
 }
 
 inline half3 ApplyBurnBlend(half3 base, half3 burnColor, half burnAmount, int blendMode)
@@ -180,7 +239,7 @@ inline half3 ApplyBurnBlend(half3 base, half3 burnColor, half burnAmount, int bl
             }
         case GLOW_BLEND_OVERLAY:
             {
-                half3 overlay;
+                half3 overlay = half3(0.0h, 0.0h, 0.0h);
                 overlay.r = base.r < 0.5h ? 2.0h * base.r * burnColor.r : 1.0h - 2.0h * (1.0h - base.r) * (1.0h - burnColor.r);
                 overlay.g = base.g < 0.5h ? 2.0h * base.g * burnColor.g : 1.0h - 2.0h * (1.0h - base.g) * (1.0h - burnColor.g);
                 overlay.b = base.b < 0.5h ? 2.0h * base.b * burnColor.b : 1.0h - 2.0h * (1.0h - base.b) * (1.0h - burnColor.b);
@@ -214,8 +273,8 @@ inline half ComputeTotalWaveOffset(float coord, float4 waveA, float4 waveB, floa
 // ---------------------------------------------------------------------------
 inline half ComputeFadeCoord(float2 uv, int direction, float4 waveA, float4 waveB, float time)
 {
-    half coord = 0;
-    half waveOffset = 0;
+    half coord = 0.0h;
+    half waveOffset = 0.0h;
     
     [branch]
     switch (direction)
@@ -257,13 +316,50 @@ inline half ComputeFadeCoord(float2 uv, int direction, float4 waveA, float4 wave
                 coord = saturate(length(centered) * 2.0h) + waveOffset;
             }
             break;
-            
+
         default:
             coord = uv.x;
             break;
     }
     
     return coord;
+}
+
+inline half ComputeCircleFadeCoord(float2 uv, AdvancedFade2DParams p, float time)
+{
+    float2 centered = (uv - 0.5) * AnimatedNoise2D_GetSpriteAspectScale();
+    half radius = saturate(length(centered) * 2.0h);
+    half waveOffset = ComputeTotalWaveOffset(radius, p.waveParamsA, p.waveParamsB, time);
+    float angle = atan2(centered.y, centered.x);
+    float angle01 = frac((angle / FADE_TWO_PI) + 1.0);
+    float startAngle01 = frac(p.circleStartAngleDeg / 360.0);
+    float sweep = (p.circleClockwise > 0.5)
+        ? frac(startAngle01 - angle01)
+        : frac(angle01 - startAngle01);
+    return frac(sweep + waveOffset);
+}
+
+inline half ComputeFadeAlphaFromCoord(half fadeCoord, half fadeAmount, half soft)
+{
+    half threshold = saturate(fadeAmount);
+    if (threshold <= 0.0001h)
+        return 1.0h;
+    if (threshold >= 0.9999h)
+        return 0.0h;
+
+    half halfSoft = saturate(soft) * 0.5h;
+    if (halfSoft <= 0.00001h)
+        return fadeCoord >= threshold ? 1.0h : 0.0h;
+
+    half front = lerp(-halfSoft, 1.0h + halfSoft, threshold);
+    return smoothstep(front - halfSoft, front + halfSoft, fadeCoord);
+}
+
+inline half ComputeFadeBoundaryDistance(half fadeCoord, half threshold, int direction)
+{
+    if (direction == FADE_DIR_CIRCLE)
+        return abs(frac((fadeCoord - threshold) + 0.5h) - 0.5h);
+    return abs(fadeCoord - threshold);
 }
 
 // ---------------------------------------------------------------------------
@@ -285,7 +381,7 @@ inline half3 ApplyGlowBlend(half3 base, half3 glowColor, half glowAmount, int bl
             
         case GLOW_BLEND_OVERLAY:
             {
-                half3 overlay;
+                half3 overlay = half3(0.0h, 0.0h, 0.0h);
                 overlay.r = base.r < 0.5h ? 2.0h * base.r * glowColor.r : 1.0h - 2.0h * (1.0h - base.r) * (1.0h - glowColor.r);
                 overlay.g = base.g < 0.5h ? 2.0h * base.g * glowColor.g : 1.0h - 2.0h * (1.0h - base.g) * (1.0h - glowColor.g);
                 overlay.b = base.b < 0.5h ? 2.0h * base.b * glowColor.b : 1.0h - 2.0h * (1.0h - base.b) * (1.0h - glowColor.b);
@@ -297,64 +393,87 @@ inline half3 ApplyGlowBlend(half3 base, half3 glowColor, half glowAmount, int bl
     }
 }
 
+inline AnimatedNoise2DMotionParams AdvancedFade2D_MakeBurnAnimatedNoiseParams(AdvancedFade2DParams p)
+{
+    if (p.burnAnimatedNoiseEnabled > 0.5)
+    {
+        return MakeAnimatedNoise2DMotionParamsFull(
+            p.burnAnimatedNoiseEnabled,
+            p.burnAnimatedNoisePatternType,
+            p.burnNoiseScale,
+            p.burnAnimatedNoiseDirection,
+            p.burnAnimatedNoiseSpeed,
+            p.burnAnimatedNoiseOffset,
+            p.burnAnimatedNoiseRotationSpeed,
+            p.burnAnimatedNoisePulseAmplitude,
+            p.burnAnimatedNoisePulseSpeed,
+            p.burnAnimatedNoiseWarpPatternType,
+            p.burnAnimatedNoiseWarpScale,
+            p.burnAnimatedNoiseWarpStrength,
+            p.burnAnimatedNoiseWarpDirection,
+            p.burnAnimatedNoiseWarpSpeed,
+            p.burnAnimatedNoiseLoopSeconds,
+            p.burnAnimatedNoiseOctaves,
+            p.burnAnimatedNoiseLacunarity,
+            p.burnAnimatedNoiseGain,
+            p.burnAnimatedNoiseCellSharpness,
+            p.burnAnimatedNoisePatternContrast);
+    }
+
+    return MakeAnimatedNoise2DMotionParamsFull(
+        1.0,
+        p.burnNoiseType,
+        p.burnNoiseScale,
+        float2(1.0, 0.0),
+        0.0,
+        float2(0.0, 0.0),
+        0.0,
+        0.0,
+        1.0,
+        ANIMATED_NOISE_PATTERN_SMOOTH_VALUE,
+        2.0,
+        0.0,
+        float2(1.0, 0.0),
+        0.0,
+        0.0,
+        4.0,
+        2.0,
+        0.5,
+        1.5,
+        1.0);
+}
+
 // ---------------------------------------------------------------------------
 // AdvancedFade2D 適用
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyAdvancedFade(Surface2D s, AdvancedFade2DParams p, float time)
 {
+    Surface2D result = s;
     half useFade = p.enabled >= 0.5h ? 1.0h : 0.0h;
     half useBurn = p.burnEnabled > 0.5h ? 1.0h : 0.0h;
-    if (useFade < 0.5h && useBurn < 0.5h)
-        return s;
-    
     if (useFade > 0.5h)
     {
         // フェード座標を計算（ウェーブ込み）
         if (p.fadeDirection == FADE_DIR_ALPHA_ONLY)
         {
             half fadeAlpha = 1.0h - saturate(p.fadeAmount);
-            s.alpha *= fadeAlpha;
-            s.alphaFactor *= fadeAlpha;
+            result.alpha *= fadeAlpha;
+            result.alphaFactor *= fadeAlpha;
         }
         else
         {
-            half fadeCoord = ComputeFadeCoord(s.uvLocal, p.fadeDirection, p.waveParamsA, p.waveParamsB, time);
+            half fadeCoord = ComputeFadeCoord(result.uvLocal, p.fadeDirection, p.waveParamsA, p.waveParamsB, time);
+            if (p.fadeDirection == FADE_DIR_CIRCLE)
+                fadeCoord = ComputeCircleFadeCoord(result.uvLocal, p, time);
             
-            // フェード閾値（fadeAmount=0 で完全表示、1 で完全フェード）
             half threshold = saturate(p.fadeAmount);
-            
-            // ソフトネスに基づいて smoothstep（端点で完全表示/非表示を保証する）
-            half halfSoft = saturate(p.soft) * 0.5h;
-            half edgeMin = max(0.0h, threshold - halfSoft);
-            half edgeMax = min(1.0h, threshold + halfSoft);
-
-            half fadeAlpha = 1.0h;
-            if (threshold <= 0.0001h)
-            {
-                // 完全表示
-                fadeAlpha = 1.0h;
-            }
-            else if (threshold >= 0.9999h)
-            {
-                // 完全フェード
-                fadeAlpha = 0.0h;
-            }
-            else if (edgeMax - edgeMin <= 0.00001h)
-            {
-                // soft==0 のときは step
-                fadeAlpha = fadeCoord >= threshold ? 1.0h : 0.0h;
-            }
-            else
-            {
-                // wave で値が範囲外になるため saturate しておく
-                fadeAlpha = smoothstep(edgeMin, edgeMax, saturate(fadeCoord));
-            }
+            half fadeAlpha = ComputeFadeAlphaFromCoord(fadeCoord, threshold, p.soft);
             
             // グロー計算（境界付近で発光）
             if (p.glowIntensity > 0.001h && p.glowRange > 0.0001h)
             {
                 // 境界からの距離
-                half distFromBoundary = abs(fadeCoord - threshold);
+                half distFromBoundary = ComputeFadeBoundaryDistance(fadeCoord, threshold, p.fadeDirection);
 
                 // 0 at boundary -> 1 at p.glowRange
                 half normalized = saturate(1.0h - (distFromBoundary / p.glowRange));
@@ -367,12 +486,12 @@ inline Surface2D Surface2D_ApplyAdvancedFade(Surface2D s, AdvancedFade2DParams p
                 half finalGlow = glowAmount * p.glowIntensity;
 
                 half3 glowColor = half3(1, 1, 1);
-                s.color = ApplyGlowBlend(s.color, glowColor, finalGlow, p.glowBlendMode);
+                result.color = ApplyGlowBlend(result.color, glowColor, finalGlow, p.glowBlendMode);
             }
             
             // アルファにフェードを適用（fadeAlpha=1:完全表示, 0:完全フェード）
-            s.alpha *= fadeAlpha;
-            s.alphaFactor *= fadeAlpha;
+            result.alpha *= fadeAlpha;
+            result.alphaFactor *= fadeAlpha;
         }
     }
 
@@ -383,9 +502,9 @@ inline Surface2D Surface2D_ApplyAdvancedFade(Surface2D s, AdvancedFade2DParams p
         float len = max(length(dir), 1e-4);
         dir /= len;
 
-        float coord = dot(s.uvLocal, dir);
-        float2 noiseUV = s.uvLocal * GetSpriteAspectScale() * p.burnNoiseScale;
-        float n = (p.burnNoiseType == 0) ? NoiseValueSmooth(noiseUV) : Hash21(noiseUV);
+        float coord = dot(result.uvLocal, dir);
+        AnimatedNoise2DMotionParams burnMotion = AdvancedFade2D_MakeBurnAnimatedNoiseParams(p);
+        float n = AnimatedNoise2D_Sample01(result.uvLocal, burnMotion, float2(0.0, 0.0), time);
         float edge = p.burnEdgeWidth;
         // 進行端(0/1)ではノイズを無効化してエッジ残りを防ぐ
         float noiseVis = saturate(p.burnProgress * (1.0 - p.burnProgress) * 4.0);
@@ -404,12 +523,12 @@ inline Surface2D Surface2D_ApplyAdvancedFade(Surface2D s, AdvancedFade2DParams p
         half edgeVis = saturate(burnAlpha * (1.0h - burnAlpha) * 4.0h);
         half edgeAmount = edgeMask * p.burnEdgeColor.a * edgeVis;
 
-        s.color = ApplyBurnBlend(s.color, p.burnEdgeColor.rgb, edgeAmount, p.burnBlendMode);
-        s.alpha *= burnAlpha;
-        s.alphaFactor *= burnAlpha;
+        result.color = ApplyBurnBlend(result.color, p.burnEdgeColor.rgb, edgeAmount, p.burnBlendMode);
+        result.alpha *= burnAlpha;
+        result.alphaFactor *= burnAlpha;
     }
     
-    return s;
+    return result;
 }
 
 // _Time.y を使用しない簡易版

@@ -72,28 +72,67 @@ Material:
     - _AdvFlipEulerDegZ: 0
     - _AdvFlipPerspective: 0
     - _AdvFlipPerspectiveSign: -1
+    - _AdvancedFade2DBurnAnimatedNoiseCellSharpness: 1.5
+    - _AdvancedFade2DBurnAnimatedNoiseEnabled: 1
+    - _AdvancedFade2DBurnAnimatedNoiseGain: 0.5
+    - _AdvancedFade2DBurnAnimatedNoiseLacunarity: 2
+    - _AdvancedFade2DBurnAnimatedNoiseLoopSeconds: 0
+    - _AdvancedFade2DBurnAnimatedNoiseOctaves: 4
+    - _AdvancedFade2DBurnAnimatedNoisePatternContrast: 1
+    - _AdvancedFade2DBurnAnimatedNoisePatternType: 0
+    - _AdvancedFade2DBurnAnimatedNoisePulseAmplitude: 0
+    - _AdvancedFade2DBurnAnimatedNoisePulseSpeed: 1
+    - _AdvancedFade2DBurnAnimatedNoiseRotationSpeed: 0
+    - _AdvancedFade2DBurnAnimatedNoiseSpeed: 0.2
+    - _AdvancedFade2DBurnAnimatedNoiseWarpPatternType: 10
+    - _AdvancedFade2DBurnAnimatedNoiseWarpScale: 2
+    - _AdvancedFade2DBurnAnimatedNoiseWarpSpeed: 0.35
+    - _AdvancedFade2DBurnAnimatedNoiseWarpStrength: 0.2
     - _AdvancedFade2DBurnBlendMode: 1
-    - _AdvancedFade2DBurnEdgeWidth: 0.192
-    - _AdvancedFade2DBurnEnabled: 1
+    - _AdvancedFade2DBurnEdgeWidth: 0.0503
+    - _AdvancedFade2DBurnEnabled: 0
     - _AdvancedFade2DBurnInvert: 0
     - _AdvancedFade2DBurnNoiseScale: 7.18
-    - _AdvancedFade2DBurnNoiseStrength: 1
+    - _AdvancedFade2DBurnNoiseStrength: 0.206
     - _AdvancedFade2DBurnNoiseType: 0
     - _AdvancedFade2DBurnProgress: 0
     - _AdvancedFade2DBurnSpeed: 1
+    - _AdvancedFade2DCircleClockwise: 1
+    - _AdvancedFade2DCircleStartAngleDeg: 90
     - _AdvancedFade2DEnabled: 1
     - _AdvancedFade2DFadeAmount: 0
     - _AdvancedFade2DFadeDirection: 3
     - _AdvancedFade2DGlowBlendMode: 2.84
     - _AdvancedFade2DGlowIntensity: 0.79
     - _AdvancedFade2DGlowRange: 3.1
-    - _AdvancedFade2DSoft: 1
+    - _AdvancedFade2DSoft: 0.655
+    - _BlendColor2DAnimatedGradientCellSharpness: 1.5
+    - _BlendColor2DAnimatedGradientEnabled: 0
+    - _BlendColor2DAnimatedGradientGain: 0.5
+    - _BlendColor2DAnimatedGradientHueAmplitude: 0.14
+    - _BlendColor2DAnimatedGradientLacunarity: 0.88
+    - _BlendColor2DAnimatedGradientLightnessAmplitude: 0.015
+    - _BlendColor2DAnimatedGradientLoopSeconds: 0
+    - _BlendColor2DAnimatedGradientMasterStrength: 1
+    - _BlendColor2DAnimatedGradientNoiseScale: 6
+    - _BlendColor2DAnimatedGradientNoiseSpeed: 0.2
+    - _BlendColor2DAnimatedGradientOctaves: 12.2
+    - _BlendColor2DAnimatedGradientPatternContrast: 1
+    - _BlendColor2DAnimatedGradientPatternType: 2
+    - _BlendColor2DAnimatedGradientPulseAmplitude: -0.74
+    - _BlendColor2DAnimatedGradientPulseSpeed: 1
+    - _BlendColor2DAnimatedGradientRotationSpeed: 0
+    - _BlendColor2DAnimatedGradientSaturationAmplitude: 0.45
+    - _BlendColor2DAnimatedGradientWarpPatternType: 10
+    - _BlendColor2DAnimatedGradientWarpScale: 2
+    - _BlendColor2DAnimatedGradientWarpSpeed: 0.35
+    - _BlendColor2DAnimatedGradientWarpStrength: 0.1
     - _BlendColor2DBlendGradDirection: 0
     - _BlendColor2DBlendGradationAmount: 1
     - _BlendColor2DBlendIntensity: 1
     - _BlendColor2DBlendMode: 4
     - _BlendColor2DBlendSoftness: 1
-    - _BlendColor2DEnabled: 0
+    - _BlendColor2DEnabled: 1
     - _CausticsEnabled: 0
     - _CausticsIntensity: 1
     - _CausticsSoftness: 0.1
@@ -180,7 +219,34 @@ Material:
     - _NormalMapSource_SlotType: 0
     - _NormalMapSource_UVSpace: 0
     - _NormalMapStrength: 1
+    - _OutlineAnimatedGradientCellSharpness: 1.5
+    - _OutlineAnimatedGradientEnabled: 0
+    - _OutlineAnimatedGradientGain: 0.5
+    - _OutlineAnimatedGradientHueAmplitude: 0.1
+    - _OutlineAnimatedGradientLacunarity: 2
+    - _OutlineAnimatedGradientLightnessAmplitude: 0.14
+    - _OutlineAnimatedGradientLoopSeconds: 0
+    - _OutlineAnimatedGradientMasterStrength: 1
+    - _OutlineAnimatedGradientNoiseScale: 0.28
+    - _OutlineAnimatedGradientNoiseSpeed: 0.2
+    - _OutlineAnimatedGradientOctaves: 4
+    - _OutlineAnimatedGradientPatternContrast: 1
+    - _OutlineAnimatedGradientPatternType: 5
+    - _OutlineAnimatedGradientPulseAmplitude: 0.01
+    - _OutlineAnimatedGradientPulseSpeed: 1
+    - _OutlineAnimatedGradientRotationSpeed: 0.05
+    - _OutlineAnimatedGradientSaturationAmplitude: 0.05
+    - _OutlineAnimatedGradientWarpPatternType: 10
+    - _OutlineAnimatedGradientWarpScale: 2
+    - _OutlineAnimatedGradientWarpSpeed: 1.23
+    - _OutlineAnimatedGradientWarpStrength: 0.1
+    - _OutlineAutoColorEnabled: 0
+    - _OutlineAutoColorMode: 0
+    - _OutlineAutoHue: 0.5
+    - _OutlineAutoLightness: 0.2
+    - _OutlineAutoSaturation: 1
     - _OutlineBlendMode: 10
+    - _OutlineDirectionMask: 15
     - _OutlineEnabled: 0
     - _OutlineMaskRespect: 1
     - _OutlineMode: 10
@@ -200,7 +266,7 @@ Material:
     - _PixelationEnabled: 1
     - _Rainbow2DBlendMode: 3
     - _Rainbow2DEnabled: 0
-    - _Rainbow2DIntensity: 0.802
+    - _Rainbow2DIntensity: 0.689
     - _Rainbow2DMode: 1
     - _Rainbow2DOffset: 0
     - _Rainbow2DPattern: 1
@@ -237,6 +303,14 @@ Material:
     - _TextGlowSoftness: 0
     - _TextGlowThickness: 2
     - _TextMode: 0
+    - _TextOutlineAutoColorEnabled: 0
+    - _TextOutlineAutoColorMode: 0
+    - _TextOutlineAutoHue: 0
+    - _TextOutlineAutoHueOffsetDeg: 0
+    - _TextOutlineAutoLightness: 0
+    - _TextOutlineAutoSaturation: 0
+    - _TextOutlineAutoValueOffset: -0.1
+    - _TextOutlineDirectionMask: 15
     - _TextOutlineEnabled: 0
     - _TextOutlineSoftness: 0.1
     - _TextOutlineThickness: 1
@@ -255,7 +329,10 @@ Material:
     - _AdvFlipScaleClamp: {r: 0.25, g: 2, b: 0, a: 0}
     - _AdvWarpBend: {r: 0, g: 0, b: 0, a: 0}
     - _AdvWarpShear: {r: 0, g: 0, b: 0, a: 0}
-    - _AdvancedFade2DBurnDirection: {r: 4.18, g: 0, b: 0, a: 0}
+    - _AdvancedFade2DBurnAnimatedNoiseDirection: {r: 1, g: 0, b: 0, a: 0}
+    - _AdvancedFade2DBurnAnimatedNoiseOffset: {r: 0, g: 0, b: 0, a: 0}
+    - _AdvancedFade2DBurnAnimatedNoiseWarpDirection: {r: 0.71, g: 0.43, b: 0, a: 0}
+    - _AdvancedFade2DBurnDirection: {r: 5.15, g: -0.02, b: 0, a: 0}
     - _AdvancedFade2DBurnEdgeColor: {r: 0, g: 1, b: 0.6560044, a: 1}
     - _AdvancedFade2DWaveParamsA: {r: 16.19, g: 0.02, b: 5.55, a: 111.4}
     - _AdvancedFade2DWaveParamsB: {r: 4.02, g: 0, b: 3.3, a: 43.4}
@@ -264,7 +341,10 @@ Material:
     - _AtlasSlot2: {r: -1, g: -1, b: 0, a: 0}
     - _AtlasSlot3: {r: -1, g: -1, b: 0, a: 0}
     - _AtlasSlot4: {r: -1, g: -1, b: 0, a: 0}
-    - _BlendColor2DColor: {r: 0, g: 0, b: 0, a: 1}
+    - _BlendColor2DAnimatedGradientNoiseDirection: {r: 1, g: 0, b: 0, a: 0}
+    - _BlendColor2DAnimatedGradientNoiseOffset: {r: 0, g: 0, b: 0, a: 0}
+    - _BlendColor2DAnimatedGradientWarpDirection: {r: 1.59, g: 2.07, b: 0, a: 0}
+    - _BlendColor2DColor: {r: 1, g: 1, b: 1, a: 1}
     - _CausticsColor: {r: 1, g: 1, b: 1, a: 1}
     - _CausticsScrollA: {r: 0.1, g: 0.05, b: 0, a: 0}
     - _CausticsScrollB: {r: -0.08, g: 0.06, b: 0, a: 0}
@@ -299,6 +379,9 @@ Material:
     - _NormalMapLightDir: {r: 0.5, g: 0.5, b: 1, a: 0}
     - _NormalMapSource_Remap: {r: 0.5, g: 0.5, b: 1, a: 0}
     - _NormalMapSource_TilingOffset: {r: 1, g: 1, b: 0, a: 0}
+    - _OutlineAnimatedGradientNoiseDirection: {r: 1, g: 0, b: 0, a: 0}
+    - _OutlineAnimatedGradientNoiseOffset: {r: 0, g: 0, b: 0, a: 0}
+    - _OutlineAnimatedGradientWarpDirection: {r: 0.71, g: 0.43, b: 0, a: 0}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _PixelBlockScreenSize: {r: 4, g: 4, b: 0, a: 0}
     - _Rainbow2DDirection: {r: 1, g: 0, b: 0, a: 0}

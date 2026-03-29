@@ -56,7 +56,7 @@ inline TextFx2DParams MakeTextFx2DParams(
     float glowThickness,
     float glowSoftness)
 {
-    TextFx2DParams p = (TextFx2DParams)0;
+    TextFx2DParams p;
     p.outlineEnabled = outlineEnabled;
     p.outlineColor = outlineColor;
     p.outlineThickness = outlineThickness;
@@ -80,7 +80,7 @@ inline TextFx2DParams MakeTextFx2DParams(
 
 inline TextFx2DParams MakeDefaultTextFx2DParams()
 {
-    TextFx2DParams p = (TextFx2DParams)0;
+    TextFx2DParams p;
     p.outlineEnabled = 0;
     p.outlineColor = float4(0, 0, 0, 1);
     p.outlineThickness = 0;
@@ -343,69 +343,69 @@ inline float3 ResolveTextOutlineColor(Surface2D s, TextFx2DParams p)
 
 inline Surface2D Surface2D_ApplyTextFxPrepass(Surface2D s, TextFx2DParams p)
 {
-    if (p.shadowEnabled < 0.5 && p.glowEnabled < 0.5)
-        return s;
-
-    float alphaScale = saturate(s.vertexAlpha * s.alphaFactor);
-
-    float shadowAlpha = 0.0;
-    if (p.shadowEnabled > 0.5)
+    Surface2D result = s;
+    if (p.shadowEnabled >= 0.5 || p.glowEnabled >= 0.5)
     {
-        if (_TextMode > 0.5 && _TextMode < 1.5)
+        float alphaScale = saturate(result.vertexAlpha * result.alphaFactor);
+        float shadowAlpha = 0.0;
+        if (p.shadowEnabled > 0.5)
         {
-            float distOffset = SampleMainTextureAlphaRaw(s.uvMain + (p.shadowOffset * _MainTex_TexelSize.xy));
-            shadowAlpha = ComputeShadowAlphaSdf(distOffset, s.baseAlphaRaw, p.shadowSoftness);
+            if (_TextMode > 0.5 && _TextMode < 1.5)
+            {
+                float distOffset = SampleMainTextureAlphaRaw(result.uvMain + (p.shadowOffset * _MainTex_TexelSize.xy));
+                shadowAlpha = ComputeShadowAlphaSdf(distOffset, result.baseAlphaRaw, p.shadowSoftness);
+            }
+            else
+            {
+                shadowAlpha = ComputeShadowAlphaAlphaTex(result.uvMain, result.baseAlphaRaw, p.shadowOffset, p.shadowSoftness);
+            }
+            shadowAlpha *= p.shadowColor.a * alphaScale;
         }
-        else
+
+        float glowAlpha = 0.0;
+        if (p.glowEnabled > 0.5)
         {
-            shadowAlpha = ComputeShadowAlphaAlphaTex(s.uvMain, s.baseAlphaRaw, p.shadowOffset, p.shadowSoftness);
+            if (_TextMode > 0.5 && _TextMode < 1.5)
+            {
+                glowAlpha = ComputeGlowAlphaSdf(result.baseAlphaRaw, p.glowThickness, p.glowSoftness);
+            }
+            else
+            {
+                glowAlpha = ComputeOutlineAlphaAlphaTex(result.uvMain, result.baseAlphaRaw, p.glowThickness, p.glowSoftness);
+            }
+            glowAlpha *= p.glowColor.a * alphaScale;
         }
-        shadowAlpha *= p.shadowColor.a * alphaScale;
+
+        float4 baseCol = float4(result.color, result.alpha);
+        float4 shadowCol = float4(p.shadowColor.rgb, shadowAlpha);
+        float4 glowCol = float4(p.glowColor.rgb, glowAlpha);
+        float4 comp = shadowCol;
+        comp = Over(glowCol, comp);
+        comp = Over(baseCol, comp);
+
+        result.color = comp.rgb;
+        result.alpha = comp.a;
     }
 
-    float glowAlpha = 0.0;
-    if (p.glowEnabled > 0.5)
-    {
-        if (_TextMode > 0.5 && _TextMode < 1.5)
-        {
-            glowAlpha = ComputeGlowAlphaSdf(s.baseAlphaRaw, p.glowThickness, p.glowSoftness);
-        }
-        else
-        {
-            glowAlpha = ComputeOutlineAlphaAlphaTex(s.uvMain, s.baseAlphaRaw, p.glowThickness, p.glowSoftness);
-        }
-        glowAlpha *= p.glowColor.a * alphaScale;
-    }
-
-    float4 baseCol = float4(s.color, s.alpha);
-    float4 shadowCol = float4(p.shadowColor.rgb, shadowAlpha);
-    float4 glowCol = float4(p.glowColor.rgb, glowAlpha);
-
-    float4 comp = shadowCol;
-    comp = Over(glowCol, comp);
-    comp = Over(baseCol, comp);
-
-    s.color = comp.rgb;
-    s.alpha = comp.a;
-    return s;
+    return result;
 }
 
 inline Surface2D Surface2D_ApplyTextOutlineFx(Surface2D s, TextFx2DParams p)
 {
-    float outlineAlpha = ComputeTextOutlineAlpha(s, p);
-    if (outlineAlpha <= 1e-6)
-        return s;
+    Surface2D result = s;
+    float outlineAlpha = ComputeTextOutlineAlpha(result, p);
+    if (outlineAlpha > 1e-6)
+    {
+        float3 outlineColor = ResolveTextOutlineColor(result, p);
+        float4 baseCol = float4(result.color, result.alpha);
+        float4 outlineCol = float4(outlineColor, outlineAlpha);
+        float4 comp = outlineCol;
+        comp = Over(baseCol, comp);
+        result.color = comp.rgb;
+        result.alpha = comp.a;
+    }
 
-    float3 outlineColor = ResolveTextOutlineColor(s, p);
-    float4 baseCol = float4(s.color, s.alpha);
-    float4 outlineCol = float4(outlineColor, outlineAlpha);
-
-    float4 comp = outlineCol;
-    comp = Over(baseCol, comp);
-
-    s.color = comp.rgb;
-    s.alpha = comp.a;
-    return s;
+    return result;
 }
 
 inline Surface2D Surface2D_ApplyTextFx(Surface2D s, TextFx2DParams p)

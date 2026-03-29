@@ -39,7 +39,7 @@ inline Emission2DParams MakeEmission2DParams(
     float4 sourceRemap,
     float4 emissionColor)
 {
-    Emission2DParams p = (Emission2DParams)0;
+    Emission2DParams p;
     p.enabled = enabled;
     p.source = MakeTextureSlotRef(
         sourceSlotType,
@@ -56,7 +56,7 @@ inline Emission2DParams MakeEmission2DParams(
 // デフォルト値で初期化（無効状態）
 inline Emission2DParams MakeDefaultEmission2DParams()
 {
-    Emission2DParams p = (Emission2DParams)0;
+    Emission2DParams p;
     p.enabled = 0;
     p.source = MakeDefaultTextureSlotRef();
     p.color = half3(1, 1, 1);
@@ -70,20 +70,19 @@ inline Emission2DParams MakeDefaultEmission2DParams()
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyEmission(Surface2D s, Emission2DParams p)
 {
-    if (p.enabled < 0.5)
-        return s;
-    
-    // ソースが指定されている場合はマスクとして使用
-    half emissionMask = 1.0;
-    if (p.source.slotType != TEXTURE_SLOT_NONE)
+    Surface2D result = s;
+    if (p.enabled >= 0.5)
     {
-        emissionMask = SampleSlotScalar(s, p.source);
+        half emissionMask = 1.0;
+        if (p.source.slotType != TEXTURE_SLOT_NONE)
+        {
+            emissionMask = SampleSlotScalar(result, p.source);
+        }
+
+        result.color += p.color * emissionMask * p.intensity;
     }
-    
-    // 発光を追加
-    s.color += p.color * emissionMask * p.intensity;
-    
-    return s;
+
+    return result;
 }
 
 // ---------------------------------------------------------------------------

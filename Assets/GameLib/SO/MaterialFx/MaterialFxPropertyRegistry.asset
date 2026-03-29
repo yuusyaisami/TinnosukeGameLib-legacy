@@ -584,9 +584,9 @@ MonoBehaviour:
     description: 
     stableKey: BaseShader/AdvancedFade2D/FadeDirection
     sender: 0
-    valueType: 0
+    valueType: 4
     shaderPropertyName: _AdvancedFade2DFadeDirection
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 2e1078e136fa63a4bbdb01718afdc8f6, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: c92c1683e9578980b7aa08fb25cb03b4
@@ -658,6 +658,42 @@ MonoBehaviour:
     sender: 0
     valueType: 0
     shaderPropertyName: _AdvancedFade2DWaveParamsB
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: be21d189f8980fd01d9565c8dfcf575b
+    parentId: a36de2bb311aebb744fbb81206e56e00
+    name: Circle
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9211d0df30c41b79e12a6aac1e89f679
+    parentId: be21d189f8980fd01d9565c8dfcf575b
+    name: Clockwise
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Circle/Clockwise
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _AdvancedFade2DCircleClockwise
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e6c047766aef6edcdbe0028ecd63acbf
+    parentId: be21d189f8980fd01d9565c8dfcf575b
+    name: StartAngleDeg
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Circle/StartAngleDeg
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DCircleStartAngleDeg
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
@@ -764,9 +800,9 @@ MonoBehaviour:
     description: 
     stableKey: BaseShader/AdvancedFade2D/Burn/NoiseType
     sender: 0
-    valueType: 0
+    valueType: 4
     shaderPropertyName: _AdvancedFade2DBurnNoiseType
-    enumDefinition: {fileID: 0}
+    enumDefinition: {fileID: 11400000, guid: 8d8e4a4f5c78443aa0e5c6d4c19b2741, type: 2}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: f595e98b741dedcda8ba8dd76d076023
@@ -778,6 +814,102 @@ MonoBehaviour:
     sender: 0
     valueType: 0
     shaderPropertyName: _AdvancedFade2DBurnProgress
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 0168d88dc13483f6f710a275cd117dc7
+    parentId: a09198647e8702ac625baf2b26f073a7
+    name: AnimatedNoise
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b2ecb78770e0dde5554a78a7e02aae1d
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: Direction
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Direction
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 20d196a64c098ff53f7d44f26b567e4b
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 4d4628bd84fe3420a9752f9b507dd094
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: LoopSeconds
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/LoopSeconds
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseLoopSeconds
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: af9834fed73c8f0a951258d21ad78a38
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: Offset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Offset
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 307b303bdbbe3f7c9307d6aeb9c6eb79
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: Speed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Speed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bf32187088ad59e50d8c1bdcac8fd8d8
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: WarpScale
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpScale
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpScale
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: fa6da6302345fbc11160e6a77beff549
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: WarpStrength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpStrength
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpStrength
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
@@ -1006,6 +1138,150 @@ MonoBehaviour:
     sender: 0
     valueType: 5
     shaderPropertyName: _BlendColor2DEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 3b568db708262fdcfbfd49dcadfd0dbc
+    parentId: 33836bf43d785afc40e0bcce31c5cdf0
+    name: AnimatedGradient
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 94370c80390781a0e996d3d1022f0f3c
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _BlendColor2DAnimatedGradientEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e1bb584d42687ae673106d75ed2c6ff6
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: HueAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/HueAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientHueAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 256da3572433a4d6acda2f6255e00438
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: LightnessAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/LightnessAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientLightnessAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 01110208017a2ba69278191f05263884
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: LoopSeconds
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/LoopSeconds
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientLoopSeconds
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 34522f1d268f8ff34127dca75e44d929
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: NoiseDirection
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/NoiseDirection
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _BlendColor2DAnimatedGradientNoiseDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: c06184f8847305ea8918699d986bc6cb
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: NoiseOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/NoiseOffset
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _BlendColor2DAnimatedGradientNoiseOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 28e3e432044b04ce4fa644298510365c
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: NoiseScale
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/NoiseScale
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientNoiseScale
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 5350854cada99ba42ba0a683a9a88959
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: NoiseSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/NoiseSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientNoiseSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8fe4fa96f6affd80515a80a62cb30431
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: SaturationAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/SaturationAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientSaturationAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e29272e9919c4e6a99bce63e388c3d19
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: WarpScale
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/WarpScale
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientWarpScale
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: caf2f90c8545e11188355f7ea13837ce
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: WarpStrength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/WarpStrength
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientWarpStrength
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
@@ -2522,7 +2798,7 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   - id: 7aa5343ecc2aab61f6e7d97c316f88bd
-    parentId: a36de2bb311aebb744fbb81206e56e00
+    parentId: bf43b41bf022d07f500473ae6ff2007c
     name: PixelPerfect
     isFolder: 0
     description: 
@@ -2626,6 +2902,150 @@ MonoBehaviour:
     sender: 0
     valueType: 4
     shaderPropertyName: _OutlineZTestMode
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ae6222f53d133fef5d6df56d5f685f42
+    parentId: bf43b41bf022d07f500473ae6ff2007c
+    name: AnimatedGradient
+    isFolder: 1
+    description: 
+    stableKey: 
+    sender: 0
+    valueType: 0
+    shaderPropertyName: 
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8af5851876593115b0f6b681064ba9b6
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: Enabled
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/Enabled
+    sender: 0
+    valueType: 5
+    shaderPropertyName: _OutlineAnimatedGradientEnabled
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 153bfb27ff8aa5bbaaead101bd2967f8
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: HueAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/HueAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientHueAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f5c4d9c3fed63de8b9cb8a05fa728d30
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: LightnessAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/LightnessAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientLightnessAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b2560deb40984e1697c0708026d91ab7
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: LoopSeconds
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/LoopSeconds
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientLoopSeconds
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 948a07012dac61eaa5431b094c7ea341
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: NoiseDirection
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/NoiseDirection
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _OutlineAnimatedGradientNoiseDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 707ffc36d8bd729b834eab46cda516d9
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: NoiseOffset
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/NoiseOffset
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _OutlineAnimatedGradientNoiseOffset
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 56681d1f616b803332c1f41ee5dfd61b
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: NoiseScale
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/NoiseScale
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientNoiseScale
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: fda0afaed4c6f8833bb8cf66001c3c47
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: NoiseSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/NoiseSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientNoiseSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: ba1cb4d39b3b92c36c650fa9a727f1fd
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: SaturationAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/SaturationAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientSaturationAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 386894a9ea2e1bd1cfb443708b8becd2
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: WarpScale
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/WarpScale
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientWarpScale
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 149b9af190287d6562e2a994bce9dbf1
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: WarpStrength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/WarpStrength
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientWarpStrength
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
@@ -3350,3 +3770,459 @@ MonoBehaviour:
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
   csvFile: {fileID: 0}
+  - id: 48af1293abff6fc9090d9084af7f2358
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: PatternType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/PatternType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _BlendColor2DAnimatedGradientPatternType
+    enumDefinition: {fileID: 11400000, guid: 8d8e4a4f5c78443aa0e5c6d4c19b2741, type: 2}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: b2d8742487440bc99e563070a2a1c0be
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: MasterStrength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/MasterStrength
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientMasterStrength
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: eebce939d04d312fc4ee8e091b8df0f1
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: RotationSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/RotationSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientRotationSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 3eaf04127cba64b0a3ad174b49dc3e6e
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: PulseAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/PulseAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientPulseAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 371519735e26b5dd12c791feb60b91d3
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: PulseSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/PulseSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientPulseSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 19668a74db53e2716c2f20800f1a54cb
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: WarpPatternType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/WarpPatternType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _BlendColor2DAnimatedGradientWarpPatternType
+    enumDefinition: {fileID: 11400000, guid: 8d8e4a4f5c78443aa0e5c6d4c19b2741, type: 2}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 95579d46a003da0cef75f737df6af789
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: WarpDirection
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/WarpDirection
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _BlendColor2DAnimatedGradientWarpDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a8c29ae329a9719483910b9eb5e02e14
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: WarpSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/WarpSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientWarpSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 21f1cb07392777c781bd182e9ae39dc0
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: Octaves
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/Octaves
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientOctaves
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 595bb64f02dc70b08d03c2366356a62d
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: Lacunarity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/Lacunarity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientLacunarity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 220c358db9e64ac98ab58c0e22bc8a36
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: Gain
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/Gain
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientGain
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 2114a91dc3f95364dfbc4e139462f2c8
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: CellSharpness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/CellSharpness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientCellSharpness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: be6dfb42b1dc90960214fe45ec57f06f
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: PatternContrast
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/PatternContrast
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientPatternContrast
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a922f8aa46e4affb75f1ea238b66b822
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: PatternType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/PatternType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineAnimatedGradientPatternType
+    enumDefinition: {fileID: 11400000, guid: 8d8e4a4f5c78443aa0e5c6d4c19b2741, type: 2}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: dca660af580c24d5303f279a717bf182
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: MasterStrength
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/MasterStrength
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientMasterStrength
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: bc151893d7185b15542f7755e20d3c74
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: RotationSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/RotationSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientRotationSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 9969e83a290ff63908167c339a5f3a46
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: PulseAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/PulseAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientPulseAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8e52664ddb38feb5077fd6f3adf10a65
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: PulseSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/PulseSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientPulseSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: aada16550bf5bbe77bb3484891a4a447
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: WarpPatternType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/WarpPatternType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _OutlineAnimatedGradientWarpPatternType
+    enumDefinition: {fileID: 11400000, guid: 8d8e4a4f5c78443aa0e5c6d4c19b2741, type: 2}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e9b9a0b069a87577174f1891a81f4a8a
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: WarpDirection
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/WarpDirection
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _OutlineAnimatedGradientWarpDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7c7492ec1a77402f2e8bf842603874e3
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: WarpSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/WarpSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientWarpSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: fc97a4802391d7a036e79afb45ad1fc5
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: Octaves
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/Octaves
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientOctaves
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 712edfa9987e5a6d55b81d942a9b5a9e
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: Lacunarity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/Lacunarity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientLacunarity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 7e78c65c72494c83e51df14b704b1ae4
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: Gain
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/Gain
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientGain
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e6670a7d4335bb7d6f5dc139f0dcfa3a
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: CellSharpness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/CellSharpness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientCellSharpness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 57f9983fd43dfa35c65487e2a267ac33
+    parentId: ae6222f53d133fef5d6df56d5f685f42
+    name: PatternContrast
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/Outline/AnimatedGradient/PatternContrast
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _OutlineAnimatedGradientPatternContrast
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: daf494ef3699d807da53c6efdf8386ac
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: PatternType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePatternType
+    enumDefinition: {fileID: 11400000, guid: 8d8e4a4f5c78443aa0e5c6d4c19b2741, type: 2}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 777f8b30ef017900ee7174cdda50e85f
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: RotationSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/RotationSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseRotationSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 59ce64738a42a2cb86561b4063205c3d
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: PulseAmplitude
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseAmplitude
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePulseAmplitude
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: f9b8c35f1e68887d8aad1295ba61a037
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: PulseSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePulseSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 99972c32a0fd15477b41673e3fda2145
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: WarpPatternType
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpPatternType
+    sender: 0
+    valueType: 4
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpPatternType
+    enumDefinition: {fileID: 11400000, guid: 8d8e4a4f5c78443aa0e5c6d4c19b2741, type: 2}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 231a3ef93d104139ff8bca488cf3f7ae
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: WarpDirection
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpDirection
+    sender: 0
+    valueType: 1
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpDirection
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 1f3ec499d388382b328cdb0a87a9549c
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: WarpSpeed
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpSpeed
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpSpeed
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: df38276ee640ed3df16eec940382f691
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: Octaves
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Octaves
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseOctaves
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: cab22a6e79c9be78cf2602d5b0faf596
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: Lacunarity
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Lacunarity
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseLacunarity
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: 8616adee95e2300a89421844f45f0a67
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: Gain
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Gain
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseGain
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: a49e4a227f24d286eb28ceddcbbb5b42
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: CellSharpness
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/CellSharpness
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseCellSharpness
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
+  - id: e297db288d39bdc89544ff1e10895437
+    parentId: 0168d88dc13483f6f710a275cd117dc7
+    name: PatternContrast
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternContrast
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePatternContrast
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}

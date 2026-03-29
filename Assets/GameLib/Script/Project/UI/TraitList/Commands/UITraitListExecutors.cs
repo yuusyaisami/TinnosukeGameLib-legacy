@@ -190,7 +190,7 @@ namespace Game.Commands.VNext
             if (data is not RemoveTraitFromHolderCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "RemoveTraitFromHolderCommandData is required.");
 
-            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderActorSource, typed.HolderKey, ctx, ct);
+            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.TargetHolder, typed.TargetHolderKey, ctx, ct);
             if (holder == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
 
@@ -304,8 +304,8 @@ namespace Game.Commands.VNext
 
         public static async UniTask<ITraitHolderService?> ResolveHolderAsync(
             bool useBoundHolder,
-            ActorSource holderActorSource,
-            string holderKey,
+            ActorSource targetHolder,
+            string targetHolderKey,
             CommandContext ctx,
             CancellationToken ct)
         {
@@ -317,7 +317,7 @@ namespace Game.Commands.VNext
                 return null;
             }
 
-            var holderScope = await ResolveHolderScopeAsync(holderActorSource, ctx, ct);
+            var holderScope = await ResolveHolderScopeAsync(targetHolder, ctx, ct);
             if (holderScope == null)
                 return null;
 
@@ -327,7 +327,7 @@ namespace Game.Commands.VNext
                 hub == null)
                 return null;
 
-            if (!hub.TryGetHolder(holderKey, out var holder) || holder == null)
+            if (!hub.TryGetHolder(targetHolderKey, out var holder) || holder == null)
                 return null;
 
             return holder;

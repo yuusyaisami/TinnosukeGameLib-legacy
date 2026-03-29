@@ -102,6 +102,7 @@ namespace Game.CameraSystem
                 .WithParameter(camTransform)
                 .WithParameter(camera)
                 .WithParameter(systemOptions)
+                .AsSelf()
                 .As<ICameraSystemService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();

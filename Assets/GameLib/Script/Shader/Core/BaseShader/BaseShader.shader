@@ -78,6 +78,30 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _OutlineAutoHue("Outline Auto Hue", Float) = 0
         _OutlineAutoSaturation("Outline Auto Saturation", Float) = 0
         _OutlineAutoLightness("Outline Auto Lightness", Float) = 0
+        _OutlineAnimatedGradientEnabled("Outline Animated Gradient Enabled", Float) = 0
+        _OutlineAnimatedGradientPatternType("Outline Animated Gradient Pattern Type", Float) = 10
+        _OutlineAnimatedGradientMasterStrength("Outline Animated Gradient Master Strength", Float) = 1
+        _OutlineAnimatedGradientNoiseScale("Outline Animated Gradient Noise Scale", Float) = 6
+        _OutlineAnimatedGradientNoiseDirection("Outline Animated Gradient Noise Direction (xy)", Vector) = (1,0,0,0)
+        _OutlineAnimatedGradientNoiseSpeed("Outline Animated Gradient Noise Speed", Float) = 0.2
+        _OutlineAnimatedGradientNoiseOffset("Outline Animated Gradient Noise Offset (xy)", Vector) = (0,0,0,0)
+        _OutlineAnimatedGradientRotationSpeed("Outline Animated Gradient Rotation Speed", Float) = 0
+        _OutlineAnimatedGradientPulseAmplitude("Outline Animated Gradient Pulse Amplitude", Float) = 0
+        _OutlineAnimatedGradientPulseSpeed("Outline Animated Gradient Pulse Speed", Float) = 1
+        _OutlineAnimatedGradientWarpPatternType("Outline Animated Gradient Warp Pattern Type", Float) = 10
+        _OutlineAnimatedGradientWarpScale("Outline Animated Gradient Warp Scale", Float) = 2
+        _OutlineAnimatedGradientWarpStrength("Outline Animated Gradient Warp Strength", Float) = 0.1
+        _OutlineAnimatedGradientWarpDirection("Outline Animated Gradient Warp Direction (xy)", Vector) = (0.71,0.43,0,0)
+        _OutlineAnimatedGradientWarpSpeed("Outline Animated Gradient Warp Speed", Float) = 0.35
+        _OutlineAnimatedGradientLoopSeconds("Outline Animated Gradient Loop Seconds", Float) = 0
+        _OutlineAnimatedGradientOctaves("Outline Animated Gradient Octaves", Float) = 4
+        _OutlineAnimatedGradientLacunarity("Outline Animated Gradient Lacunarity", Float) = 2
+        _OutlineAnimatedGradientGain("Outline Animated Gradient Gain", Float) = 0.5
+        _OutlineAnimatedGradientCellSharpness("Outline Animated Gradient Cell Sharpness", Float) = 1.5
+        _OutlineAnimatedGradientPatternContrast("Outline Animated Gradient Pattern Contrast", Float) = 1
+        _OutlineAnimatedGradientHueAmplitude("Outline Animated Gradient Hue Amplitude", Float) = 0.0025
+        _OutlineAnimatedGradientSaturationAmplitude("Outline Animated Gradient Saturation Amplitude", Float) = 0.008
+        _OutlineAnimatedGradientLightnessAmplitude("Outline Animated Gradient Lightness Amplitude", Float) = 0.015
         _OutlineWidth("Outline Width", Float) = 1
         _OutlineOpacity("Outline Opacity", Range(0,1)) = 1
         _OutlineSoftness("Outline Softness", Range(0,1)) = 0
@@ -133,6 +157,8 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _AdvancedFade2DGlowBlendMode("AdvancedFade2D Glow Blend Mode", Float) = 0
         _AdvancedFade2DWaveParamsA("AdvancedFade2D Wave Params A", Vector) = (0,0,0,0)
         _AdvancedFade2DWaveParamsB("AdvancedFade2D Wave Params B", Vector) = (0,0,0,0)
+        _AdvancedFade2DCircleStartAngleDeg("AdvancedFade2D Circle Start Angle Deg", Float) = 90
+        _AdvancedFade2DCircleClockwise("AdvancedFade2D Circle Clockwise", Float) = 1
 
         _AdvancedFade2DBurnEnabled("AdvancedFade2D Burn Enabled", Float) = 0
         _AdvancedFade2DBurnProgress("AdvancedFade2D Burn Progress", Range(0,1)) = 0
@@ -144,6 +170,25 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _AdvancedFade2DBurnEdgeColor("AdvancedFade2D Burn Edge Color", Color) = (1,0.5,0.1,1)
         _AdvancedFade2DBurnBlendMode("AdvancedFade2D Burn Blend Mode", Float) = 0
         _AdvancedFade2DBurnInvert("AdvancedFade2D Burn Invert", Float) = 0
+        _AdvancedFade2DBurnAnimatedNoiseEnabled("AdvancedFade2D Burn Animated Noise Enabled", Float) = 0
+        _AdvancedFade2DBurnAnimatedNoisePatternType("AdvancedFade2D Burn Animated Noise Pattern Type", Float) = 10
+        _AdvancedFade2DBurnAnimatedNoiseDirection("AdvancedFade2D Burn Animated Noise Direction (xy)", Vector) = (1,0,0,0)
+        _AdvancedFade2DBurnAnimatedNoiseSpeed("AdvancedFade2D Burn Animated Noise Speed", Float) = 0.2
+        _AdvancedFade2DBurnAnimatedNoiseOffset("AdvancedFade2D Burn Animated Noise Offset (xy)", Vector) = (0,0,0,0)
+        _AdvancedFade2DBurnAnimatedNoiseRotationSpeed("AdvancedFade2D Burn Animated Noise Rotation Speed", Float) = 0
+        _AdvancedFade2DBurnAnimatedNoisePulseAmplitude("AdvancedFade2D Burn Animated Noise Pulse Amplitude", Float) = 0
+        _AdvancedFade2DBurnAnimatedNoisePulseSpeed("AdvancedFade2D Burn Animated Noise Pulse Speed", Float) = 1
+        _AdvancedFade2DBurnAnimatedNoiseWarpPatternType("AdvancedFade2D Burn Animated Noise Warp Pattern Type", Float) = 10
+        _AdvancedFade2DBurnAnimatedNoiseWarpScale("AdvancedFade2D Burn Animated Noise Warp Scale", Float) = 2
+        _AdvancedFade2DBurnAnimatedNoiseWarpStrength("AdvancedFade2D Burn Animated Noise Warp Strength", Float) = 0.2
+        _AdvancedFade2DBurnAnimatedNoiseWarpDirection("AdvancedFade2D Burn Animated Noise Warp Direction (xy)", Vector) = (0.71,0.43,0,0)
+        _AdvancedFade2DBurnAnimatedNoiseWarpSpeed("AdvancedFade2D Burn Animated Noise Warp Speed", Float) = 0.35
+        _AdvancedFade2DBurnAnimatedNoiseLoopSeconds("AdvancedFade2D Burn Animated Noise Loop Seconds", Float) = 0
+        _AdvancedFade2DBurnAnimatedNoiseOctaves("AdvancedFade2D Burn Animated Noise Octaves", Float) = 4
+        _AdvancedFade2DBurnAnimatedNoiseLacunarity("AdvancedFade2D Burn Animated Noise Lacunarity", Float) = 2
+        _AdvancedFade2DBurnAnimatedNoiseGain("AdvancedFade2D Burn Animated Noise Gain", Float) = 0.5
+        _AdvancedFade2DBurnAnimatedNoiseCellSharpness("AdvancedFade2D Burn Animated Noise Cell Sharpness", Float) = 1.5
+        _AdvancedFade2DBurnAnimatedNoisePatternContrast("AdvancedFade2D Burn Animated Noise Pattern Contrast", Float) = 1
 
         _Rainbow2DEnabled("Rainbow2D Enabled", Float) = 0
         _Rainbow2DMode("Rainbow2D Mode (0:Gradient 1:Pixel)", Float) = 0
@@ -164,6 +209,30 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _BlendColor2DBlendGradationAmount("BlendColor2D Gradient Amount", Range(0,1)) = 0
         _BlendColor2DBlendSoftness("BlendColor2D Gradient Softness", Range(0,1)) = 1
         _BlendColor2DBlendMode("BlendColor2D Blend Mode", Float) = 0
+        _BlendColor2DAnimatedGradientEnabled("BlendColor2D Animated Gradient Enabled", Float) = 0
+        _BlendColor2DAnimatedGradientPatternType("BlendColor2D Animated Gradient Pattern Type", Float) = 10
+        _BlendColor2DAnimatedGradientMasterStrength("BlendColor2D Animated Gradient Master Strength", Float) = 1
+        _BlendColor2DAnimatedGradientNoiseScale("BlendColor2D Animated Gradient Noise Scale", Float) = 6
+        _BlendColor2DAnimatedGradientNoiseDirection("BlendColor2D Animated Gradient Noise Direction (xy)", Vector) = (1,0,0,0)
+        _BlendColor2DAnimatedGradientNoiseSpeed("BlendColor2D Animated Gradient Noise Speed", Float) = 0.2
+        _BlendColor2DAnimatedGradientNoiseOffset("BlendColor2D Animated Gradient Noise Offset (xy)", Vector) = (0,0,0,0)
+        _BlendColor2DAnimatedGradientRotationSpeed("BlendColor2D Animated Gradient Rotation Speed", Float) = 0
+        _BlendColor2DAnimatedGradientPulseAmplitude("BlendColor2D Animated Gradient Pulse Amplitude", Float) = 0
+        _BlendColor2DAnimatedGradientPulseSpeed("BlendColor2D Animated Gradient Pulse Speed", Float) = 1
+        _BlendColor2DAnimatedGradientWarpPatternType("BlendColor2D Animated Gradient Warp Pattern Type", Float) = 10
+        _BlendColor2DAnimatedGradientWarpScale("BlendColor2D Animated Gradient Warp Scale", Float) = 2
+        _BlendColor2DAnimatedGradientWarpStrength("BlendColor2D Animated Gradient Warp Strength", Float) = 0.1
+        _BlendColor2DAnimatedGradientWarpDirection("BlendColor2D Animated Gradient Warp Direction (xy)", Vector) = (0.71,0.43,0,0)
+        _BlendColor2DAnimatedGradientWarpSpeed("BlendColor2D Animated Gradient Warp Speed", Float) = 0.35
+        _BlendColor2DAnimatedGradientLoopSeconds("BlendColor2D Animated Gradient Loop Seconds", Float) = 0
+        _BlendColor2DAnimatedGradientOctaves("BlendColor2D Animated Gradient Octaves", Float) = 4
+        _BlendColor2DAnimatedGradientLacunarity("BlendColor2D Animated Gradient Lacunarity", Float) = 2
+        _BlendColor2DAnimatedGradientGain("BlendColor2D Animated Gradient Gain", Float) = 0.5
+        _BlendColor2DAnimatedGradientCellSharpness("BlendColor2D Animated Gradient Cell Sharpness", Float) = 1.5
+        _BlendColor2DAnimatedGradientPatternContrast("BlendColor2D Animated Gradient Pattern Contrast", Float) = 1
+        _BlendColor2DAnimatedGradientHueAmplitude("BlendColor2D Animated Gradient Hue Amplitude", Float) = 0.0025
+        _BlendColor2DAnimatedGradientSaturationAmplitude("BlendColor2D Animated Gradient Saturation Amplitude", Float) = 0.008
+        _BlendColor2DAnimatedGradientLightnessAmplitude("BlendColor2D Animated Gradient Lightness Amplitude", Float) = 0.015
 
         // ═══════════════════════════════════════════════════════════════════════════
         // Composite System (BaseShader-CompositeSystem-v2.0 準拠)

@@ -60,7 +60,7 @@ inline Caustics2DParams MakeCaustics2DParams(
     float depthFadeStart,
     float depthFadeEnd)
 {
-    Caustics2DParams p = (Caustics2DParams)0;
+    Caustics2DParams p;
     p.enabled = enabled;
     p.sourceA = MakeTextureSlotRef(slot1Type, CHANNEL_R, NOISE_UV_SPACE_SPRITE_LOCAL, 
                                     float4(scale1, scale1, 0, 0), float4(0.5, 0.5, 1, 0));
@@ -101,7 +101,7 @@ inline Caustics2DParams MakeCaustics2DParamsSimple(
     float2 scrollA,
     float2 scrollB)
 {
-    Caustics2DParams p = (Caustics2DParams)0;
+    Caustics2DParams p;
     p.enabled = enabled;
     p.sourceA = MakeTextureSlotRef(sourceASlotType, sourceAChannel, sourceAUVSpace, 
                                     sourceATilingOffset, sourceARemap);
@@ -120,7 +120,7 @@ inline Caustics2DParams MakeCaustics2DParamsSimple(
 // デフォルト値で初期化（無効状態）
 inline Caustics2DParams MakeDefaultCaustics2DParams()
 {
-    Caustics2DParams p = (Caustics2DParams)0;
+    Caustics2DParams p;
     p.enabled = 0;
     p.sourceA = MakeDefaultTextureSlotRef();
     p.sourceB = MakeDefaultTextureSlotRef();
@@ -163,16 +163,15 @@ inline half ComputeCaustics(Surface2D s, float time, Caustics2DParams p)
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyCaustics(Surface2D s, Caustics2DParams p, float time)
 {
-    if (p.enabled < 0.5h)
-        return s;
-    
-    half caustic = ComputeCaustics(s, time, p);
-    
-    // Add ブレンド（コースティクスの基本ブレンドモード）
-    half3 causticsColor = p.tintColor * caustic * p.intensity;
-    s.color = s.color + causticsColor * p.tintAlpha;
-    
-    return s;
+    Surface2D result = s;
+    if (p.enabled >= 0.5h)
+    {
+        half caustic = ComputeCaustics(result, time, p);
+        half3 causticsColor = p.tintColor * caustic * p.intensity;
+        result.color = result.color + causticsColor * p.tintAlpha;
+    }
+
+    return result;
 }
 
 #endif // GAME_CAUSTICS_2D_INCLUDED

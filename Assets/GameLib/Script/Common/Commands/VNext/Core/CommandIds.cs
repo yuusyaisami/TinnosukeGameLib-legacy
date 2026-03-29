@@ -125,6 +125,9 @@ namespace Game.Commands.VNext
         public const int Light2DChannelHubControl = 1980;
         public const int Light2DChannelPlayerControl = 1981;
         public const int SliderControl = 1982;
+        public const int TooltipChannelHubControl = 1983;
+        public const int TooltipChannel = 1984;
+        public const int TooltipChannelPlayerControl = 1985;
 
         public const int WithActor = 2001;
         public const int WithActorDescendantRouter = 2002;

@@ -25,6 +25,7 @@ namespace Game.CameraSystem
         bool _acquired;
         bool _disposed = false;
 
+        public Camera Camera => _camera;
         public ICameraZoomService Zoom => _zoomService;
         public ICameraPostProcessService PostProcess => _postProcessService;
         public ICameraFxService Fx => _fxService;

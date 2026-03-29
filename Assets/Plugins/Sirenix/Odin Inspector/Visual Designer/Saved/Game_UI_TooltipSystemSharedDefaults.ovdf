@@ -1,0 +1,14 @@
+OVDF v1.1
+Game.UI.TooltipSystemSharedDefaults, Assembly-CSharp
+
+# _runtimeDefaults
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 115
+
+# _inputDefaults
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 150
+
+# _placementDefaults
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 158

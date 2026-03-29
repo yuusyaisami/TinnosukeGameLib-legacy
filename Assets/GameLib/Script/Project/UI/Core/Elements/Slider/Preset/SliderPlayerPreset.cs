@@ -64,6 +64,18 @@ namespace Game.UI
         [SerializeField]
         int _order;
 
+        [BoxGroup("Commands")]
+        [LabelText("On True")]
+        [SerializeField]
+        [CommandListFunctionName("Slider.Player.Binding.OnTrue")]
+        CommandListData _onConditionBecameTrueCommands = new();
+
+        [BoxGroup("Commands")]
+        [LabelText("On False")]
+        [SerializeField]
+        [CommandListFunctionName("Slider.Player.Binding.OnFalse")]
+        CommandListData _onConditionBecameFalseCommands = new();
+
         [BoxGroup("Binding")]
         [LabelText("Use Scalar Binding")]
         [SerializeField]
@@ -105,6 +117,8 @@ namespace Game.UI
 
         public DynamicValue<bool> Condition => _condition;
         public int Order => _order;
+        public CommandListData OnConditionBecameTrueCommands => _onConditionBecameTrueCommands;
+        public CommandListData OnConditionBecameFalseCommands => _onConditionBecameFalseCommands;
         public bool UseScalarBinding => _useScalarBinding;
         public ActorSource ScalarBindingSource => _scalarBindingSource;
         public ScalarKey ScalarKey => _scalarKey;
@@ -127,6 +141,8 @@ namespace Game.UI
             {
                 _condition = _condition,
                 _order = _order,
+                _onConditionBecameTrueCommands = SliderPlayerPreset.CloneCommandList(_onConditionBecameTrueCommands),
+                _onConditionBecameFalseCommands = SliderPlayerPreset.CloneCommandList(_onConditionBecameFalseCommands),
                 _useScalarBinding = _useScalarBinding,
                 _scalarBindingSource = _scalarBindingSource,
                 _scalarKey = _scalarKey,
@@ -135,6 +151,12 @@ namespace Game.UI
                 _blackboardKey = _blackboardKey,
                 _bindingPriority = _bindingPriority,
             };
+        }
+
+        internal void BindDebugOwner(UnityEngine.Object owner, string prefix)
+        {
+            _onConditionBecameTrueCommands?.BindDebugOwner(owner, $"{prefix}.{nameof(_onConditionBecameTrueCommands)}");
+            _onConditionBecameFalseCommands?.BindDebugOwner(owner, $"{prefix}.{nameof(_onConditionBecameFalseCommands)}");
         }
     }
 
@@ -383,12 +405,22 @@ namespace Game.UI
             }
         }
 
-        static CommandListData CloneCommandList(CommandListData? source)
+        internal static CommandListData CloneCommandList(CommandListData? source)
         {
             var clone = new CommandListData();
             if (source != null)
                 clone.SetCommands(source);
             return clone;
+        }
+
+        internal void BindDebugOwner(UnityEngine.Object owner, string prefix)
+        {
+            _onTargetValueChangedCommands?.BindDebugOwner(owner, $"{prefix}.{nameof(_onTargetValueChangedCommands)}");
+            if (_bindingEntries == null)
+                return;
+
+            for (var i = 0; i < _bindingEntries.Count; i++)
+                _bindingEntries[i]?.BindDebugOwner(owner, $"{prefix}.{nameof(_bindingEntries)}[{i}]");
         }
     }
 
@@ -412,16 +444,23 @@ namespace Game.UI
         void OnEnable()
         {
             EnsurePreset();
+            BindDebugOwner();
         }
 
         void OnValidate()
         {
             EnsurePreset();
+            BindDebugOwner();
         }
 
         void EnsurePreset()
         {
             _preset ??= new SliderPlayerPreset();
+        }
+
+        void BindDebugOwner()
+        {
+            _preset?.BindDebugOwner(this, nameof(_preset));
         }
     }
 

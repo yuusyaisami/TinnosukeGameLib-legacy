@@ -12,6 +12,8 @@
 //
 // NOTE: BlendColor2D keeps its own Color property (_BlendColor2DColor) separate from ColorOverlay
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/BlendModes.hlsl"
+#include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/ColorSpaceUtils.hlsl"
+#include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/AnimatedNoise2D.hlsl"
 
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -35,6 +37,30 @@ struct BlendColor2DParams
     half  blendGradationAmount; // グラデーション量 (0=均一, 1=フル)
     half  blendGradSoftness;    // グラデーション境界のソフトさ (0=硬い, 1=従来どおり)
     int   blendMode;            // BLEND_MODE_* (追加)
+    float animatedGradientEnabled;
+    float animatedGradientPatternType;
+    float animatedGradientMasterStrength;
+    float animatedGradientNoiseScale;
+    float2 animatedGradientNoiseDirection;
+    float animatedGradientNoiseSpeed;
+    float2 animatedGradientNoiseOffset;
+    float animatedGradientRotationSpeed;
+    float animatedGradientPulseAmplitude;
+    float animatedGradientPulseSpeed;
+    float animatedGradientWarpPatternType;
+    float animatedGradientWarpScale;
+    float animatedGradientWarpStrength;
+    float2 animatedGradientWarpDirection;
+    float animatedGradientWarpSpeed;
+    float animatedGradientLoopSeconds;
+    float animatedGradientOctaves;
+    float animatedGradientLacunarity;
+    float animatedGradientGain;
+    float animatedGradientCellSharpness;
+    float animatedGradientPatternContrast;
+    float animatedGradientHueAmplitude;
+    float animatedGradientSaturationAmplitude;
+    float animatedGradientLightnessAmplitude;
 };
 
 // ---------------------------------------------------------------------------
@@ -47,7 +73,31 @@ inline BlendColor2DParams MakeBlendColor2DParams(
     float blendGradDirection,
     float blendGradationAmount,
     float blendGradSoftness,
-    float blendMode)
+    float blendMode,
+    float animatedGradientEnabled,
+    float animatedGradientPatternType,
+    float animatedGradientMasterStrength,
+    float animatedGradientNoiseScale,
+    float2 animatedGradientNoiseDirection,
+    float animatedGradientNoiseSpeed,
+    float2 animatedGradientNoiseOffset,
+    float animatedGradientRotationSpeed,
+    float animatedGradientPulseAmplitude,
+    float animatedGradientPulseSpeed,
+    float animatedGradientWarpPatternType,
+    float animatedGradientWarpScale,
+    float animatedGradientWarpStrength,
+    float2 animatedGradientWarpDirection,
+    float animatedGradientWarpSpeed,
+    float animatedGradientLoopSeconds,
+    float animatedGradientOctaves,
+    float animatedGradientLacunarity,
+    float animatedGradientGain,
+    float animatedGradientCellSharpness,
+    float animatedGradientPatternContrast,
+    float animatedGradientHueAmplitude,
+    float animatedGradientSaturationAmplitude,
+    float animatedGradientLightnessAmplitude)
 {
     BlendColor2DParams p = (BlendColor2DParams)0;
     p.enabled = enabled;
@@ -57,6 +107,30 @@ inline BlendColor2DParams MakeBlendColor2DParams(
     p.blendGradationAmount = saturate(blendGradationAmount);
     p.blendGradSoftness = saturate(blendGradSoftness);
     p.blendMode = (int)round(blendMode);
+    p.animatedGradientEnabled = animatedGradientEnabled;
+    p.animatedGradientPatternType = animatedGradientPatternType;
+    p.animatedGradientMasterStrength = max(animatedGradientMasterStrength, 0.0);
+    p.animatedGradientNoiseScale = animatedGradientNoiseScale;
+    p.animatedGradientNoiseDirection = animatedGradientNoiseDirection;
+    p.animatedGradientNoiseSpeed = animatedGradientNoiseSpeed;
+    p.animatedGradientNoiseOffset = animatedGradientNoiseOffset;
+    p.animatedGradientRotationSpeed = animatedGradientRotationSpeed;
+    p.animatedGradientPulseAmplitude = max(animatedGradientPulseAmplitude, 0.0);
+    p.animatedGradientPulseSpeed = animatedGradientPulseSpeed;
+    p.animatedGradientWarpPatternType = animatedGradientWarpPatternType;
+    p.animatedGradientWarpScale = animatedGradientWarpScale;
+    p.animatedGradientWarpStrength = animatedGradientWarpStrength;
+    p.animatedGradientWarpDirection = animatedGradientWarpDirection;
+    p.animatedGradientWarpSpeed = animatedGradientWarpSpeed;
+    p.animatedGradientLoopSeconds = animatedGradientLoopSeconds;
+    p.animatedGradientOctaves = animatedGradientOctaves;
+    p.animatedGradientLacunarity = animatedGradientLacunarity;
+    p.animatedGradientGain = animatedGradientGain;
+    p.animatedGradientCellSharpness = animatedGradientCellSharpness;
+    p.animatedGradientPatternContrast = animatedGradientPatternContrast;
+    p.animatedGradientHueAmplitude = animatedGradientHueAmplitude;
+    p.animatedGradientSaturationAmplitude = animatedGradientSaturationAmplitude;
+    p.animatedGradientLightnessAmplitude = animatedGradientLightnessAmplitude;
     return p;
 }
 
@@ -71,7 +145,77 @@ inline BlendColor2DParams MakeDefaultBlendColor2DParams()
     p.blendGradationAmount = 0;
     p.blendGradSoftness = 1;
     p.blendMode = BLEND_MODE_NORMAL;
+    p.animatedGradientEnabled = 0;
+    p.animatedGradientPatternType = ANIMATED_NOISE_PATTERN_SMOOTH_VALUE;
+    p.animatedGradientMasterStrength = 1;
+    p.animatedGradientNoiseScale = 6;
+    p.animatedGradientNoiseDirection = float2(1, 0);
+    p.animatedGradientNoiseSpeed = 0.2;
+    p.animatedGradientNoiseOffset = float2(0, 0);
+    p.animatedGradientRotationSpeed = 0;
+    p.animatedGradientPulseAmplitude = 0;
+    p.animatedGradientPulseSpeed = 1;
+    p.animatedGradientWarpPatternType = ANIMATED_NOISE_PATTERN_SMOOTH_VALUE;
+    p.animatedGradientWarpScale = 2;
+    p.animatedGradientWarpStrength = 0.1;
+    p.animatedGradientWarpDirection = float2(0.71, 0.43);
+    p.animatedGradientWarpSpeed = 0.35;
+    p.animatedGradientLoopSeconds = 0;
+    p.animatedGradientOctaves = 4;
+    p.animatedGradientLacunarity = 2;
+    p.animatedGradientGain = 0.5;
+    p.animatedGradientCellSharpness = 1.5;
+    p.animatedGradientPatternContrast = 1;
+    p.animatedGradientHueAmplitude = 0.0025;
+    p.animatedGradientSaturationAmplitude = 0.008;
+    p.animatedGradientLightnessAmplitude = 0.015;
     return p;
+}
+
+inline AnimatedNoise2DMotionParams BlendColor2D_MakeAnimatedGradientNoiseParams(BlendColor2DParams p)
+{
+    return MakeAnimatedNoise2DMotionParamsFull(
+        p.animatedGradientEnabled,
+        p.animatedGradientPatternType,
+        p.animatedGradientNoiseScale,
+        p.animatedGradientNoiseDirection,
+        p.animatedGradientNoiseSpeed,
+        p.animatedGradientNoiseOffset,
+        p.animatedGradientRotationSpeed,
+        p.animatedGradientPulseAmplitude,
+        p.animatedGradientPulseSpeed,
+        p.animatedGradientWarpPatternType,
+        p.animatedGradientWarpScale,
+        p.animatedGradientWarpStrength,
+        p.animatedGradientWarpDirection,
+        p.animatedGradientWarpSpeed,
+        p.animatedGradientLoopSeconds,
+        p.animatedGradientOctaves,
+        p.animatedGradientLacunarity,
+        p.animatedGradientGain,
+        p.animatedGradientCellSharpness,
+        p.animatedGradientPatternContrast);
+}
+
+inline half3 ResolveBlendColor2DAnimatedColor(Surface2D s, BlendColor2DParams p)
+{
+    half3 color = p.blendColor.rgb;
+    if (p.animatedGradientEnabled < 0.5 || p.animatedGradientMasterStrength <= 1e-5)
+        return color;
+
+    AnimatedNoise2DMotionParams motion = BlendColor2D_MakeAnimatedGradientNoiseParams(p);
+    float time = _Time.y;
+    half3 hsl = RGBtoHSL(saturate(color));
+    float hueWobble;
+    float satWobble;
+    float lightWobble;
+    AnimatedNoise2D_SampleSignedTriplet(s.uvLocal, motion, time, hueWobble, satWobble, lightWobble);
+    float master = p.animatedGradientMasterStrength;
+
+    hsl.x = frac(hsl.x + (half)(hueWobble * p.animatedGradientHueAmplitude * master));
+    hsl.y = saturate(hsl.y + (half)(satWobble * p.animatedGradientSaturationAmplitude * master));
+    hsl.z = saturate(hsl.z + (half)(lightWobble * p.animatedGradientLightnessAmplitude * master));
+    return HSLtoRGB(hsl);
 }
 
 // ---------------------------------------------------------------------------
@@ -133,79 +277,77 @@ inline half ComputeGradientFactor(float2 uv, int direction, half gradAmount, hal
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyBlendColor(Surface2D s, BlendColor2DParams p)
 {
-    if (p.enabled < 0.5h)
-        return s;
-    
-    // グラデーション係数を計算
-    half gradFactor = ComputeGradientFactor(s.uvLocal, p.blendGradDirection, p.blendGradationAmount, p.blendGradSoftness);
-    
-    // 最終的なブレンド強度
-    half finalIntensity = p.blendIntensity * gradFactor * p.blendColor.a;
-    
-    // ブレンド適用
-    half3 blended = s.color;
-    
-    [branch]
-    switch (p.blendMode)
+    Surface2D result = s;
+    if (p.enabled >= 0.5h)
     {
-        case BLEND_MODE_NORMAL:
-            blended = BlendNormal(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_MULTIPLY:
-            blended = BlendMultiply(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_ADD:
-            blended = BlendAdd(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_SCREEN:
-            blended = BlendScreen(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_OVERLAY:
-            blended = BlendOverlay(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_SOFTLIGHT:
-            blended = BlendSoftLight(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_HARDLIGHT:
-            blended = BlendHardLight(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_COLOR_BURN:
-            blended = BlendColorBurn(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_COLOR_DODGE:
-            blended = BlendColorDodge(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_DARKEN:
-            blended = BlendDarken(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_LIGHTEN:
-            blended = BlendLighten(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_DIFFERENCE:
-            blended = BlendDifference(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_EXCLUSION:
-            blended = BlendExclusion(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_HUE:
-            blended = BlendHue(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_SATURATION:
-            blended = BlendSaturation(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_COLOR:
-            blended = BlendColor(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        case BLEND_MODE_LUMINOSITY:
-            blended = BlendLuminosity(s.color, p.blendColor.rgb, finalIntensity);
-            break;
-        default:
-            blended = s.color;
-            break;
+        half gradFactor = ComputeGradientFactor(result.uvLocal, p.blendGradDirection, p.blendGradationAmount, p.blendGradSoftness);
+        half finalIntensity = p.blendIntensity * gradFactor * p.blendColor.a;
+        half3 animatedBlendColor = ResolveBlendColor2DAnimatedColor(result, p);
+        half3 blended = result.color;
+
+        [branch]
+        switch (p.blendMode)
+        {
+            case BLEND_MODE_NORMAL:
+                blended = BlendNormal(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_MULTIPLY:
+                blended = BlendMultiply(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_ADD:
+                blended = BlendAdd(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_SCREEN:
+                blended = BlendScreen(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_OVERLAY:
+                blended = BlendOverlay(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_SOFTLIGHT:
+                blended = BlendSoftLight(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_HARDLIGHT:
+                blended = BlendHardLight(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_COLOR_BURN:
+                blended = BlendColorBurn(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_COLOR_DODGE:
+                blended = BlendColorDodge(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_DARKEN:
+                blended = BlendDarken(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_LIGHTEN:
+                blended = BlendLighten(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_DIFFERENCE:
+                blended = BlendDifference(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_EXCLUSION:
+                blended = BlendExclusion(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_HUE:
+                blended = BlendHue(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_SATURATION:
+                blended = BlendSaturation(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_COLOR:
+                blended = BlendColor(result.color, animatedBlendColor, finalIntensity);
+                break;
+            case BLEND_MODE_LUMINOSITY:
+                blended = BlendLuminosity(result.color, animatedBlendColor, finalIntensity);
+                break;
+            default:
+                blended = result.color;
+                break;
+        }
+
+        result.color = blended;
     }
-    
-    s.color = blended;
-    return s;
+
+    return result;
 }
 
 #endif // GAME_BLEND_COLOR_2D_INCLUDED

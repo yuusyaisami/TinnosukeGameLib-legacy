@@ -46,7 +46,7 @@ inline Rainbow2DParams MakeRainbow2DParams(
     float intensity,
     float blendMode)
 {
-    Rainbow2DParams p = (Rainbow2DParams)0;
+    Rainbow2DParams p;
     p.enabled = enabled;
     p.mode = (int)round(mode);
     p.pattern = (int)round(pattern);
@@ -101,30 +101,31 @@ inline float3 RainbowBlend(float3 baseColor, float3 fxColor, float amount, int b
 
 inline Surface2D Surface2D_ApplyRainbow(Surface2D s, Rainbow2DParams p, float time)
 {
-    if (p.enabled < 0.5)
-        return s;
-
-    float2 uv = s.uvLocal;
-
-    if (p.mode == RAINBOW_MODE_PIXEL)
+    Surface2D result = s;
+    if (p.enabled >= 0.5)
     {
-        float2 texel = max(_MainTex_TexelSize.xy, float2(1.0/256.0, 1.0/256.0));
-        float2 step = texel * p.pixelSize;
-        uv = floor(uv / step) * step;
+        float2 uv = result.uvLocal;
+
+        if (p.mode == RAINBOW_MODE_PIXEL)
+        {
+            float2 texel = max(_MainTex_TexelSize.xy, float2(1.0/256.0, 1.0/256.0));
+            float2 step = texel * p.pixelSize;
+            uv = floor(uv / step) * step;
+        }
+
+        float baseCoord = RainbowPatternCoord(uv, p.pattern);
+        float2 dir = p.direction;
+        float len = max(length(dir), 1e-4);
+        dir /= len;
+
+        float scroll = dot(uv, dir) * p.scale + p.offset + time * p.speed;
+        float hue = frac(baseCoord * p.scale + scroll);
+        float3 rainbow = HSVToRGB(float3(hue, 1.0, 1.0));
+
+        result.color = RainbowBlend(result.color, rainbow, p.intensity, p.blendMode);
     }
 
-    float baseCoord = RainbowPatternCoord(uv, p.pattern);
-
-    float2 dir = p.direction;
-    float len = max(length(dir), 1e-4);
-    dir /= len;
-
-    float scroll = dot(uv, dir) * p.scale + p.offset + time * p.speed;
-    float hue = frac(baseCoord * p.scale + scroll);
-    float3 rainbow = HSVToRGB(float3(hue, 1.0, 1.0));
-
-    s.color = RainbowBlend(s.color, rainbow, p.intensity, p.blendMode);
-    return s;
+    return result;
 }
 
 #endif // GAME_RAINBOW_2D_INCLUDED

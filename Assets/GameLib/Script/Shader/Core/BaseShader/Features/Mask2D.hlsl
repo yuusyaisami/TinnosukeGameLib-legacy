@@ -45,7 +45,7 @@ inline Mask2DParams MakeMask2DParams(
     float threshold,
     float softness)
 {
-    Mask2DParams p = (Mask2DParams)0;
+    Mask2DParams p;
     p.enabled = enabled;
     p.source = MakeTextureSlotRef(
         sourceSlotType,
@@ -62,7 +62,7 @@ inline Mask2DParams MakeMask2DParams(
 // デフォルト値で初期化（無効状態）
 inline Mask2DParams MakeDefaultMask2DParams()
 {
-    Mask2DParams p = (Mask2DParams)0;
+    Mask2DParams p;
     p.enabled = 0;
     p.source = MakeDefaultTextureSlotRef();
     p.threshold = 0.5;
@@ -77,31 +77,17 @@ inline Mask2DParams MakeDefaultMask2DParams()
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyMask(Surface2D s, Mask2DParams p)
 {
-    if (p.enabled < 0.5)
-        return s;
-    if (p.source.slotType == TEXTURE_SLOT_NONE)
-        return s;
-    
-    // ソースからマスク値を取得
-    half mask = SampleSlotScalar(s, p.source);
-    
-    // ★修正: ソフトマスク
-    // threshold: マスクの中心点（この値を境にフェード）
-    // softness: フェードの幅（0=ハード、1=フル範囲でソフト）
-    // 
-    // softness=0.1, threshold=0.5 の場合:
-    //   mask < 0.4: alpha = 0
-    //   mask = 0.5: alpha = 0.5
-    //   mask > 0.6: alpha = 1
-    //
-    // ノイズの Remap (bias/gain/gamma) は TextureSlotRef 経由で適用済み
-    // なので、ここでは 0-1 の全範囲でソフトエッジが効くようにする
-    half softHalf = p.softness * 0.5h;
-    half alpha = smoothstep(p.threshold - softHalf, p.threshold + softHalf, mask);
-    s.alpha *= alpha;
-    s.alphaFactor *= alpha;
-    
-    return s;
+    Surface2D result = s;
+    if (p.enabled >= 0.5 && p.source.slotType != TEXTURE_SLOT_NONE)
+    {
+        half mask = SampleSlotScalar(result, p.source);
+        half softHalf = p.softness * 0.5h;
+        half alpha = smoothstep(p.threshold - softHalf, p.threshold + softHalf, mask);
+        result.alpha *= alpha;
+        result.alphaFactor *= alpha;
+    }
+
+    return result;
 }
 
 // ---------------------------------------------------------------------------

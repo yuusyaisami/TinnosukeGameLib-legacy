@@ -1,0 +1,148 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ce6650671f5adf4ea000df34e93c19a, type: 3}
+  m_Name: HighLightEffectAnim
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Animation.AnimationData
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  animationName: 
+  defaultFrameDuration: 0.025
+  awaitFrameCommands: 0
+  onStart:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  onEnd:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  onCanceled:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  frames:
+  - sprite: {fileID: -7499011567609187477, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -8573012957952961410, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: 8087222565769783449, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -8565611123366213362, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -4604875946308074206, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: 1347945388854970832, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -3256200117296570532, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -5615101882035841331, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -7342020848501718392, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: 7672106385013737636, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -1322443620066158866, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  - sprite: {fileID: -6238337426925123068, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+    duration: 0
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
+  importSourceTexture: {fileID: 2800000, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
+  importDefaultDuration: 0
+  importAppend: 0
+  importSortGrid: 1
+  references:
+    version: 2
+    RefIds: []
