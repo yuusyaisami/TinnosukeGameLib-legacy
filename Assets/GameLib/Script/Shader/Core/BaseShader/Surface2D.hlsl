@@ -103,6 +103,30 @@ CBUFFER_START(UnityPerMaterial)
     float  _OutlineAutoHue;
     float  _OutlineAutoSaturation;
     float  _OutlineAutoLightness;
+    float  _OutlineAnimatedGradientEnabled;
+    float  _OutlineAnimatedGradientPatternType;
+    float  _OutlineAnimatedGradientMasterStrength;
+    float  _OutlineAnimatedGradientNoiseScale;
+    float4 _OutlineAnimatedGradientNoiseDirection;
+    float  _OutlineAnimatedGradientNoiseSpeed;
+    float4 _OutlineAnimatedGradientNoiseOffset;
+    float  _OutlineAnimatedGradientRotationSpeed;
+    float  _OutlineAnimatedGradientPulseAmplitude;
+    float  _OutlineAnimatedGradientPulseSpeed;
+    float  _OutlineAnimatedGradientWarpPatternType;
+    float  _OutlineAnimatedGradientWarpScale;
+    float  _OutlineAnimatedGradientWarpStrength;
+    float4 _OutlineAnimatedGradientWarpDirection;
+    float  _OutlineAnimatedGradientWarpSpeed;
+    float  _OutlineAnimatedGradientLoopSeconds;
+    float  _OutlineAnimatedGradientOctaves;
+    float  _OutlineAnimatedGradientLacunarity;
+    float  _OutlineAnimatedGradientGain;
+    float  _OutlineAnimatedGradientCellSharpness;
+    float  _OutlineAnimatedGradientPatternContrast;
+    float  _OutlineAnimatedGradientHueAmplitude;
+    float  _OutlineAnimatedGradientSaturationAmplitude;
+    float  _OutlineAnimatedGradientLightnessAmplitude;
     float  _OutlineWidth;
     float  _OutlineOpacity;
     float  _OutlineSoftness;
@@ -198,6 +222,30 @@ CBUFFER_START(UnityPerMaterial)
     float  _BlendColor2DBlendGradationAmount;        // float: grad amount 0-1
     float  _BlendColor2DBlendSoftness;               // float: grad softness (0=hard, 1=soft/current)
     float  _BlendColor2DBlendMode;                   // int: BLEND_MODE_* (追加)
+    float  _BlendColor2DAnimatedGradientEnabled;
+    float  _BlendColor2DAnimatedGradientPatternType;
+    float  _BlendColor2DAnimatedGradientMasterStrength;
+    float  _BlendColor2DAnimatedGradientNoiseScale;
+    float4 _BlendColor2DAnimatedGradientNoiseDirection;
+    float  _BlendColor2DAnimatedGradientNoiseSpeed;
+    float4 _BlendColor2DAnimatedGradientNoiseOffset;
+    float  _BlendColor2DAnimatedGradientRotationSpeed;
+    float  _BlendColor2DAnimatedGradientPulseAmplitude;
+    float  _BlendColor2DAnimatedGradientPulseSpeed;
+    float  _BlendColor2DAnimatedGradientWarpPatternType;
+    float  _BlendColor2DAnimatedGradientWarpScale;
+    float  _BlendColor2DAnimatedGradientWarpStrength;
+    float4 _BlendColor2DAnimatedGradientWarpDirection;
+    float  _BlendColor2DAnimatedGradientWarpSpeed;
+    float  _BlendColor2DAnimatedGradientLoopSeconds;
+    float  _BlendColor2DAnimatedGradientOctaves;
+    float  _BlendColor2DAnimatedGradientLacunarity;
+    float  _BlendColor2DAnimatedGradientGain;
+    float  _BlendColor2DAnimatedGradientCellSharpness;
+    float  _BlendColor2DAnimatedGradientPatternContrast;
+    float  _BlendColor2DAnimatedGradientHueAmplitude;
+    float  _BlendColor2DAnimatedGradientSaturationAmplitude;
+    float  _BlendColor2DAnimatedGradientLightnessAmplitude;
 
     // --- ColorRamp (v3.0) ---
     // ★ BaseShader.shader のプロパティ名と一致させる
@@ -313,6 +361,8 @@ CBUFFER_START(UnityPerMaterial)
     float  _AdvancedFade2DGlowBlendMode;              // int: GLOW_BLEND_*
     float4 _AdvancedFade2DWaveParamsA;                // float4: wave param A
     float4 _AdvancedFade2DWaveParamsB;                // float4: wave param B
+    float  _AdvancedFade2DCircleStartAngleDeg;
+    float  _AdvancedFade2DCircleClockwise;
     // --- AdvancedFade2D Burn ---
     float  _AdvancedFade2DBurnEnabled;                // int: enabled
     float  _AdvancedFade2DBurnProgress;               // float: 0-1
@@ -324,7 +374,25 @@ CBUFFER_START(UnityPerMaterial)
     float4 _AdvancedFade2DBurnEdgeColor;              // float4: rgba
     float  _AdvancedFade2DBurnBlendMode;              // int
     float  _AdvancedFade2DBurnInvert;                 // int
-    float2 _padding_AdvancedFade2DBurn;
+    float  _AdvancedFade2DBurnAnimatedNoiseEnabled;
+    float  _AdvancedFade2DBurnAnimatedNoisePatternType;
+    float4 _AdvancedFade2DBurnAnimatedNoiseDirection;
+    float  _AdvancedFade2DBurnAnimatedNoiseSpeed;
+    float4 _AdvancedFade2DBurnAnimatedNoiseOffset;
+    float  _AdvancedFade2DBurnAnimatedNoiseRotationSpeed;
+    float  _AdvancedFade2DBurnAnimatedNoisePulseAmplitude;
+    float  _AdvancedFade2DBurnAnimatedNoisePulseSpeed;
+    float  _AdvancedFade2DBurnAnimatedNoiseWarpPatternType;
+    float  _AdvancedFade2DBurnAnimatedNoiseWarpScale;
+    float  _AdvancedFade2DBurnAnimatedNoiseWarpStrength;
+    float4 _AdvancedFade2DBurnAnimatedNoiseWarpDirection;
+    float  _AdvancedFade2DBurnAnimatedNoiseWarpSpeed;
+    float  _AdvancedFade2DBurnAnimatedNoiseLoopSeconds;
+    float  _AdvancedFade2DBurnAnimatedNoiseOctaves;
+    float  _AdvancedFade2DBurnAnimatedNoiseLacunarity;
+    float  _AdvancedFade2DBurnAnimatedNoiseGain;
+    float  _AdvancedFade2DBurnAnimatedNoiseCellSharpness;
+    float  _AdvancedFade2DBurnAnimatedNoisePatternContrast;
 CBUFFER_END
 
 UNITY_INSTANCING_BUFFER_START(UnityPerDrawSpriteGame)
@@ -414,7 +482,7 @@ struct Surface2DContext
 // ----------------------------------------------------------------------------
 inline AdvancedFlip2DParams MakeAdvancedFlip2DParams()
 {
-    AdvancedFlip2DParams p = (AdvancedFlip2DParams)0;
+    AdvancedFlip2DParams p;
     p.enabled         = _AdvFlipEnabled;
     p.eulerDegX       = _AdvFlipEulerDegX;
     p.eulerDegY       = _AdvFlipEulerDegY;
@@ -433,7 +501,7 @@ inline AdvancedFlip2DParams MakeAdvancedFlip2DParams()
 
 inline Surface2DContext MakeSurface2DContext()
 {
-    Surface2DContext ctx = (Surface2DContext)0;
+    Surface2DContext ctx;
     ctx.pixel   = MakePixelation2DParams();
     ctx.flash   = MakeFlash2DParams();
     ctx.advFlip = MakeAdvancedFlip2DParams();
@@ -600,7 +668,31 @@ inline Surface2DContext MakeSurface2DContext()
         _BlendColor2DBlendGradDirection,
         _BlendColor2DBlendGradationAmount,
         _BlendColor2DBlendSoftness,
-        _BlendColor2DBlendMode
+        _BlendColor2DBlendMode,
+        _BlendColor2DAnimatedGradientEnabled,
+        _BlendColor2DAnimatedGradientPatternType,
+        _BlendColor2DAnimatedGradientMasterStrength,
+        _BlendColor2DAnimatedGradientNoiseScale,
+        _BlendColor2DAnimatedGradientNoiseDirection.xy,
+        _BlendColor2DAnimatedGradientNoiseSpeed,
+        _BlendColor2DAnimatedGradientNoiseOffset.xy,
+        _BlendColor2DAnimatedGradientRotationSpeed,
+        _BlendColor2DAnimatedGradientPulseAmplitude,
+        _BlendColor2DAnimatedGradientPulseSpeed,
+        _BlendColor2DAnimatedGradientWarpPatternType,
+        _BlendColor2DAnimatedGradientWarpScale,
+        _BlendColor2DAnimatedGradientWarpStrength,
+        _BlendColor2DAnimatedGradientWarpDirection.xy,
+        _BlendColor2DAnimatedGradientWarpSpeed,
+        _BlendColor2DAnimatedGradientLoopSeconds,
+        _BlendColor2DAnimatedGradientOctaves,
+        _BlendColor2DAnimatedGradientLacunarity,
+        _BlendColor2DAnimatedGradientGain,
+        _BlendColor2DAnimatedGradientCellSharpness,
+        _BlendColor2DAnimatedGradientPatternContrast,
+        _BlendColor2DAnimatedGradientHueAmplitude,
+        _BlendColor2DAnimatedGradientSaturationAmplitude,
+        _BlendColor2DAnimatedGradientLightnessAmplitude
     );
 
     // AdvancedFade2D パラメータ
@@ -614,6 +706,8 @@ inline Surface2DContext MakeSurface2DContext()
         _AdvancedFade2DGlowBlendMode,
         _AdvancedFade2DWaveParamsA,
         _AdvancedFade2DWaveParamsB,
+        _AdvancedFade2DCircleStartAngleDeg,
+        _AdvancedFade2DCircleClockwise,
         _AdvancedFade2DBurnEnabled,
         _AdvancedFade2DBurnProgress,
         _AdvancedFade2DBurnEdgeWidth,
@@ -623,7 +717,26 @@ inline Surface2DContext MakeSurface2DContext()
         _AdvancedFade2DBurnDirection.xy,
         _AdvancedFade2DBurnEdgeColor,
         _AdvancedFade2DBurnBlendMode,
-        _AdvancedFade2DBurnInvert
+        _AdvancedFade2DBurnInvert,
+        _AdvancedFade2DBurnAnimatedNoiseEnabled,
+        _AdvancedFade2DBurnAnimatedNoisePatternType,
+        _AdvancedFade2DBurnAnimatedNoiseDirection.xy,
+        _AdvancedFade2DBurnAnimatedNoiseSpeed,
+        _AdvancedFade2DBurnAnimatedNoiseOffset.xy,
+        _AdvancedFade2DBurnAnimatedNoiseRotationSpeed,
+        _AdvancedFade2DBurnAnimatedNoisePulseAmplitude,
+        _AdvancedFade2DBurnAnimatedNoisePulseSpeed,
+        _AdvancedFade2DBurnAnimatedNoiseWarpPatternType,
+        _AdvancedFade2DBurnAnimatedNoiseWarpScale,
+        _AdvancedFade2DBurnAnimatedNoiseWarpStrength,
+        _AdvancedFade2DBurnAnimatedNoiseWarpDirection.xy,
+        _AdvancedFade2DBurnAnimatedNoiseWarpSpeed,
+        _AdvancedFade2DBurnAnimatedNoiseLoopSeconds,
+        _AdvancedFade2DBurnAnimatedNoiseOctaves,
+        _AdvancedFade2DBurnAnimatedNoiseLacunarity,
+        _AdvancedFade2DBurnAnimatedNoiseGain,
+        _AdvancedFade2DBurnAnimatedNoiseCellSharpness,
+        _AdvancedFade2DBurnAnimatedNoisePatternContrast
     );
 
     ctx.textFx = MakeTextFx2DParams(
@@ -657,6 +770,30 @@ inline Surface2DContext MakeSurface2DContext()
         _OutlineAutoHue,
         _OutlineAutoSaturation,
         _OutlineAutoLightness,
+        _OutlineAnimatedGradientEnabled,
+        _OutlineAnimatedGradientPatternType,
+        _OutlineAnimatedGradientMasterStrength,
+        _OutlineAnimatedGradientNoiseScale,
+        _OutlineAnimatedGradientNoiseDirection.xy,
+        _OutlineAnimatedGradientNoiseSpeed,
+        _OutlineAnimatedGradientNoiseOffset.xy,
+        _OutlineAnimatedGradientRotationSpeed,
+        _OutlineAnimatedGradientPulseAmplitude,
+        _OutlineAnimatedGradientPulseSpeed,
+        _OutlineAnimatedGradientWarpPatternType,
+        _OutlineAnimatedGradientWarpScale,
+        _OutlineAnimatedGradientWarpStrength,
+        _OutlineAnimatedGradientWarpDirection.xy,
+        _OutlineAnimatedGradientWarpSpeed,
+        _OutlineAnimatedGradientLoopSeconds,
+        _OutlineAnimatedGradientOctaves,
+        _OutlineAnimatedGradientLacunarity,
+        _OutlineAnimatedGradientGain,
+        _OutlineAnimatedGradientCellSharpness,
+        _OutlineAnimatedGradientPatternContrast,
+        _OutlineAnimatedGradientHueAmplitude,
+        _OutlineAnimatedGradientSaturationAmplitude,
+        _OutlineAnimatedGradientLightnessAmplitude,
         _OutlineWidth,
         _OutlineOpacity,
         _OutlineSoftness,
@@ -725,7 +862,7 @@ inline Surface2D MakeSurface2D(
     float2 fadeUV,
     float  vertexAlpha)
 {
-    Surface2D s = (Surface2D)0;
+    Surface2D s;
     s.color        = color;
     s.alpha        = alpha;
     s.baseAlphaRaw = baseAlphaRaw;
@@ -897,26 +1034,26 @@ inline float3 Surface2D_Vertex_ApplyPositionOS(float3 posOS, float2 uv, Surface2
         surface = Surface2D_ApplyCaustics(surface, (ctx).caustics, _Time.y);   \
         surface = Surface2D_ApplyHueShift(surface, (ctx).hueShift, _Time.y);   \
         surface = Surface2D_ApplyRainbow(surface, (ctx).rainbow, _Time.y);     \
-                                                                                 \
+                                                                                \
         /* Phase 3: Alpha/Visibility (v2.0) */                                 \
         surface = Surface2D_ApplyMask(surface, (ctx).mask);                    \
         surface = Surface2D_ApplyDissolve(surface, (ctx).dissolve);            \
         surface = Surface2D_ApplyAdvancedFade(surface, (ctx).advancedFade, _Time.y); \
-                                                                                 \
+                                                                                \
         /* Phase 3.2: Text Shadow / Glow */                                    \
         surface = Surface2D_ApplyTextFxPrepass(surface, (ctx).textFx);         \
-                                                                                 \
+                                                                                \
         /* Phase 3.3: Transition (v1.0) */                                     \
         surface = Surface2D_ApplyTransition(surface, (ctx).transition);        \
-                                                                                 \
+                                                                                \
         /* Phase 4: Additive Effects (v2.0 + v3.0) */                          \
         surface = Surface2D_ApplyEmission(surface, (ctx).emission);            \
         surface = Surface2D_ApplyRipple(surface, (ctx).ripple);                \
         surface = Surface2D_ApplyFlash(surface, (ctx).flash);                  \
-                                                                                 \
+                                                                                \
         /* Phase 5: Pixelation (v2.0) */                                       \
         surface = Surface2D_ApplyPixelation(surface, (ctx).pixel);             \
-                                                                                 \
+                                                                                \
         /* Phase 6: Final Outlines */                                          \
         surface = Surface2D_ApplyOutline(surface, (ctx).outline);              \
         surface = Surface2D_ApplyTextOutlineFx(surface, (ctx).textFx);         \
@@ -935,7 +1072,7 @@ inline float2 Surface2D_BeforeSample_Apply(float2 uv, float2 screenUV, Surface2D
         else
             uv = Pixelation2D_ApplyUV_Texel_SpriteLocal(uv, pixelP.blockScreenSize);
     }
-    
+
     // スプライトローカル UV を事前計算（複数機能で使用）
     float2 uvLocal = AtlasUVToSpriteLocalUV(uv);
     
@@ -953,12 +1090,7 @@ inline float2 Surface2D_BeforeSample_Apply(float2 uv, float2 screenUV, Surface2D
     // 完全版は Refraction2D_SampleWithChromatic を使用
     if (ctx.refraction.enabled > 0.5f)
     {
-        // 簡易版: Surface2D を一時生成して勾配サンプル
-        Surface2D tempS;
-        tempS.uvMain = uv;
-        tempS.uvLocal = uvLocal;
-        tempS.screenUV = screenUV;
-        uv = Refraction2D_WarpUV(uv, tempS, ctx.refraction, _Time.y);
+        uv = Refraction2D_WarpUV(uv, uvLocal, screenUV, ctx.refraction, _Time.y);
     }
     
     // Ripple: 波紋による UV 歪み (v3.0)
@@ -967,7 +1099,7 @@ inline float2 Surface2D_BeforeSample_Apply(float2 uv, float2 screenUV, Surface2D
     {
         uv = Ripple2D_WarpUV(uv, uvLocal, ctx.ripple, _Time.y);
     }
-    
+
     return uv;
 }
 

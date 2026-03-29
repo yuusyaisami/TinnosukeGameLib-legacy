@@ -58,7 +58,7 @@ inline Ripple2DParams MakeRipple2DParams(
     float colorEnabled,
     float4 rippleColor)
 {
-    Ripple2DParams p = (Ripple2DParams)0;
+    Ripple2DParams p;
     p.enabled = enabled;
     p.center = center;
     p.frequency = 6.28318h / max(wavelength, 0.01h);
@@ -86,7 +86,7 @@ inline Ripple2DParams MakeRipple2DParamsSimple(
     float colorBlend,
     float4 rippleColor)
 {
-    Ripple2DParams p = (Ripple2DParams)0;
+    Ripple2DParams p;
     p.enabled = enabled;
     p.center = center;
     p.frequency = waveParams.x;
@@ -104,7 +104,7 @@ inline Ripple2DParams MakeRipple2DParamsSimple(
 // デフォルト値で初期化（無効状態）
 inline Ripple2DParams MakeDefaultRipple2DParams()
 {
-    Ripple2DParams p = (Ripple2DParams)0;
+    Ripple2DParams p;
     p.enabled = 0;
     p.center = half2(0.5, 0.5);
     p.frequency = 10.0h;
@@ -180,18 +180,15 @@ inline float2 Ripple2D_WarpUV(float2 uvMain, float2 uvLocal, Ripple2DParams p)
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyRipple(Surface2D s, Ripple2DParams p)
 {
-    if (p.enabled < 0.5h)
-        return s;
-    if (p.colorBlend < 0.001h)
-        return s;
-    
-    half ripple = ComputeRipple(s.uvLocal, p, _Time.y);
-    
-    // 色変調
-    half t = ripple * p.colorBlend * p.rippleAlpha;
-    s.color = lerp(s.color, p.rippleColor, t);
-    
-    return s;
+    Surface2D result = s;
+    if (p.enabled >= 0.5h && p.colorBlend >= 0.001h)
+    {
+        half ripple = ComputeRipple(result.uvLocal, p, _Time.y);
+        half t = ripple * p.colorBlend * p.rippleAlpha;
+        result.color = lerp(result.color, p.rippleColor, t);
+    }
+
+    return result;
 }
 
 // ---------------------------------------------------------------------------

@@ -2597,6 +2597,154 @@ namespace Game.Vars.Generated
                 public const int Progress = 73;
             }
 
+            public static partial class Slider
+            {
+                /// <remarks>
+                /// Path: GameLib/Slider/crossingDirection
+                /// StableKey: GameLib.Slider.crossingDirection
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/crossingDirection
+                /// StableKey: GameLib.Slider.crossingDirection
+                /// </remarks>
+                public const int crossingDirection = 101065;
+                /// <remarks>
+                /// Path: GameLib/Slider/deltaNormalized
+                /// StableKey: GameLib.Slider.deltaNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/deltaNormalized
+                /// StableKey: GameLib.Slider.deltaNormalized
+                /// </remarks>
+                public const int deltaNormalized = 101064;
+                /// <remarks>
+                /// Path: GameLib/Slider/deltaRaw
+                /// StableKey: GameLib.Slider.deltaRaw
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/deltaRaw
+                /// StableKey: GameLib.Slider.deltaRaw
+                /// </remarks>
+                public const int deltaRaw = 101063;
+                /// <remarks>
+                /// Path: GameLib/Slider/displayedNormalized
+                /// StableKey: GameLib.Slider.displayedNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/displayedNormalized
+                /// StableKey: GameLib.Slider.displayedNormalized
+                /// </remarks>
+                public const int displayedNormalized = 101062;
+                /// <remarks>
+                /// Path: GameLib/Slider/displayedRaw
+                /// StableKey: GameLib.Slider.displayedRaw
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/displayedRaw
+                /// StableKey: GameLib.Slider.displayedRaw
+                /// </remarks>
+                public const int displayedRaw = 101061;
+                /// <remarks>
+                /// Path: GameLib/Slider/entryIndex
+                /// StableKey: GameLib.Slider.entryIndex
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/entryIndex
+                /// StableKey: GameLib.Slider.entryIndex
+                /// </remarks>
+                public const int entryIndex = 101066;
+                /// <remarks>
+                /// Path: GameLib/Slider/entryNormalized
+                /// StableKey: GameLib.Slider.entryNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/entryNormalized
+                /// StableKey: GameLib.Slider.entryNormalized
+                /// </remarks>
+                public const int entryNormalized = 101068;
+                /// <remarks>
+                /// Path: GameLib/Slider/entryValue
+                /// StableKey: GameLib.Slider.entryValue
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/entryValue
+                /// StableKey: GameLib.Slider.entryValue
+                /// </remarks>
+                public const int entryValue = 101067;
+                /// <remarks>
+                /// Path: GameLib/Slider/segmentEndNormalized
+                /// StableKey: GameLib.Slider.segmentEndNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/segmentEndNormalized
+                /// StableKey: GameLib.Slider.segmentEndNormalized
+                /// </remarks>
+                public const int segmentEndNormalized = 101074;
+                /// <remarks>
+                /// Path: GameLib/Slider/segmentEndRaw
+                /// StableKey: GameLib.Slider.segmentEndRaw
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/segmentEndRaw
+                /// StableKey: GameLib.Slider.segmentEndRaw
+                /// </remarks>
+                public const int segmentEndRaw = 101072;
+                /// <remarks>
+                /// Path: GameLib/Slider/segmentStartNormalized
+                /// StableKey: GameLib.Slider.segmentStartNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/segmentStartNormalized
+                /// StableKey: GameLib.Slider.segmentStartNormalized
+                /// </remarks>
+                public const int segmentStartNormalized = 101073;
+                /// <remarks>
+                /// Path: GameLib/Slider/segmentStartRaw
+                /// StableKey: GameLib.Slider.segmentStartRaw
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/segmentStartRaw
+                /// StableKey: GameLib.Slider.segmentStartRaw
+                /// </remarks>
+                public const int segmentStartRaw = 101071;
+                /// <remarks>
+                /// Path: GameLib/Slider/targetNormalized
+                /// StableKey: GameLib.Slider.targetNormalized
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/targetNormalized
+                /// StableKey: GameLib.Slider.targetNormalized
+                /// </remarks>
+                public const int targetNormalized = 101060;
+                /// <remarks>
+                /// Path: GameLib/Slider/targetRaw
+                /// StableKey: GameLib.Slider.targetRaw
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/targetRaw
+                /// StableKey: GameLib.Slider.targetRaw
+                /// </remarks>
+                public const int targetRaw = 101059;
+                /// <remarks>
+                /// Path: GameLib/Slider/unitIndex
+                /// StableKey: GameLib.Slider.unitIndex
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/unitIndex
+                /// StableKey: GameLib.Slider.unitIndex
+                /// </remarks>
+                public const int unitIndex = 101070;
+                /// <remarks>
+                /// Path: GameLib/Slider/unitKind
+                /// StableKey: GameLib.Slider.unitKind
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLib/Slider/unitKind
+                /// StableKey: GameLib.Slider.unitKind
+                /// </remarks>
+                public const int unitKind = 101069;
+            }
+
             public static partial class SpawnPattern
             {
 
@@ -2951,6 +3099,140 @@ namespace Game.Vars.Generated
                     }
                 }
 
+                public static partial class ButtonChannel
+                {
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/ChannelTag
+                    /// StableKey: UIButtonChannel.ChannelTag
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/ChannelTag
+                    /// StableKey: UIButtonChannel.ChannelTag
+                    /// </remarks>
+                    public const int ChannelTag = 101091;
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/HoldProgress
+                    /// StableKey: UIButtonChannel.HoldProgress
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/HoldProgress
+                    /// StableKey: UIButtonChannel.HoldProgress
+                    /// </remarks>
+                    public const int HoldProgress = 101098;
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/HoldTime
+                    /// StableKey: UIButtonChannel.HoldTime
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/HoldTime
+                    /// StableKey: UIButtonChannel.HoldTime
+                    /// </remarks>
+                    public const int HoldTime = 101097;
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/IsEnabled
+                    /// StableKey: UIButtonChannel.IsEnabled
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/IsEnabled
+                    /// StableKey: UIButtonChannel.IsEnabled
+                    /// </remarks>
+                    public const int IsEnabled = 101092;
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/IsHovered
+                    /// StableKey: UIButtonChannel.IsHovered
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/IsHovered
+                    /// StableKey: UIButtonChannel.IsHovered
+                    /// </remarks>
+                    public const int IsHovered = 101094;
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/IsInteracting
+                    /// StableKey: UIButtonChannel.IsInteracting
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/IsInteracting
+                    /// StableKey: UIButtonChannel.IsInteracting
+                    /// </remarks>
+                    public const int IsInteracting = 101095;
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/IsSelected
+                    /// StableKey: UIButtonChannel.IsSelected
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/IsSelected
+                    /// StableKey: UIButtonChannel.IsSelected
+                    /// </remarks>
+                    public const int IsSelected = 101093;
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/Phase
+                    /// StableKey: UIButtonChannel.Phase
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLib/UI/ButtonChannel/Phase
+                    /// StableKey: UIButtonChannel.Phase
+                    /// </remarks>
+                    public const int Phase = 101096;
+
+                    public static partial class ShortLong
+                    {
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/IsLong
+                        /// StableKey: UIButtonChannel.ShortLong.IsLong
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/IsLong
+                        /// StableKey: UIButtonChannel.ShortLong.IsLong
+                        /// </remarks>
+                        public const int IsLong = 101102;
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/IsLongMax
+                        /// StableKey: UIButtonChannel.ShortLong.IsLongMax
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/IsLongMax
+                        /// StableKey: UIButtonChannel.ShortLong.IsLongMax
+                        /// </remarks>
+                        public const int IsLongMax = 101103;
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/LongMaxTime
+                        /// StableKey: UIButtonChannel.ShortLong.LongMaxTime
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/LongMaxTime
+                        /// StableKey: UIButtonChannel.ShortLong.LongMaxTime
+                        /// </remarks>
+                        public const int LongMaxTime = 101104;
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/LongProgress
+                        /// StableKey: UIButtonChannel.ShortLong.LongProgress
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/LongProgress
+                        /// StableKey: UIButtonChannel.ShortLong.LongProgress
+                        /// </remarks>
+                        public const int LongProgress = 101101;
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/ShortProgress
+                        /// StableKey: UIButtonChannel.ShortLong.ShortProgress
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/ShortProgress
+                        /// StableKey: UIButtonChannel.ShortLong.ShortProgress
+                        /// </remarks>
+                        public const int ShortProgress = 101100;
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/State
+                        /// StableKey: UIButtonChannel.ShortLong.State
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/ButtonChannel/ShortLong/State
+                        /// StableKey: UIButtonChannel.ShortLong.State
+                        /// </remarks>
+                        public const int State = 101099;
+                    }
+                }
+
                 public static partial class TraitList
                 {
 
@@ -3058,154 +3340,6 @@ namespace Game.Vars.Generated
                     }
                 }
             }
-
-            public static partial class Slider
-            {
-                /// <remarks>
-                /// Path: GameLib/Slider/crossingDirection
-                /// StableKey: GameLib.Slider.crossingDirection
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/crossingDirection
-                /// StableKey: GameLib.Slider.crossingDirection
-                /// </remarks>
-                public const int crossingDirection = 101065;
-                /// <remarks>
-                /// Path: GameLib/Slider/deltaNormalized
-                /// StableKey: GameLib.Slider.deltaNormalized
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/deltaNormalized
-                /// StableKey: GameLib.Slider.deltaNormalized
-                /// </remarks>
-                public const int deltaNormalized = 101064;
-                /// <remarks>
-                /// Path: GameLib/Slider/deltaRaw
-                /// StableKey: GameLib.Slider.deltaRaw
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/deltaRaw
-                /// StableKey: GameLib.Slider.deltaRaw
-                /// </remarks>
-                public const int deltaRaw = 101063;
-                /// <remarks>
-                /// Path: GameLib/Slider/displayedNormalized
-                /// StableKey: GameLib.Slider.displayedNormalized
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/displayedNormalized
-                /// StableKey: GameLib.Slider.displayedNormalized
-                /// </remarks>
-                public const int displayedNormalized = 101062;
-                /// <remarks>
-                /// Path: GameLib/Slider/displayedRaw
-                /// StableKey: GameLib.Slider.displayedRaw
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/displayedRaw
-                /// StableKey: GameLib.Slider.displayedRaw
-                /// </remarks>
-                public const int displayedRaw = 101061;
-                /// <remarks>
-                /// Path: GameLib/Slider/entryIndex
-                /// StableKey: GameLib.Slider.entryIndex
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/entryIndex
-                /// StableKey: GameLib.Slider.entryIndex
-                /// </remarks>
-                public const int entryIndex = 101066;
-                /// <remarks>
-                /// Path: GameLib/Slider/entryNormalized
-                /// StableKey: GameLib.Slider.entryNormalized
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/entryNormalized
-                /// StableKey: GameLib.Slider.entryNormalized
-                /// </remarks>
-                public const int entryNormalized = 101068;
-                /// <remarks>
-                /// Path: GameLib/Slider/entryValue
-                /// StableKey: GameLib.Slider.entryValue
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/entryValue
-                /// StableKey: GameLib.Slider.entryValue
-                /// </remarks>
-                public const int entryValue = 101067;
-                /// <remarks>
-                /// Path: GameLib/Slider/segmentEndNormalized
-                /// StableKey: GameLib.Slider.segmentEndNormalized
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/segmentEndNormalized
-                /// StableKey: GameLib.Slider.segmentEndNormalized
-                /// </remarks>
-                public const int segmentEndNormalized = 101074;
-                /// <remarks>
-                /// Path: GameLib/Slider/segmentEndRaw
-                /// StableKey: GameLib.Slider.segmentEndRaw
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/segmentEndRaw
-                /// StableKey: GameLib.Slider.segmentEndRaw
-                /// </remarks>
-                public const int segmentEndRaw = 101072;
-                /// <remarks>
-                /// Path: GameLib/Slider/segmentStartNormalized
-                /// StableKey: GameLib.Slider.segmentStartNormalized
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/segmentStartNormalized
-                /// StableKey: GameLib.Slider.segmentStartNormalized
-                /// </remarks>
-                public const int segmentStartNormalized = 101073;
-                /// <remarks>
-                /// Path: GameLib/Slider/segmentStartRaw
-                /// StableKey: GameLib.Slider.segmentStartRaw
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/segmentStartRaw
-                /// StableKey: GameLib.Slider.segmentStartRaw
-                /// </remarks>
-                public const int segmentStartRaw = 101071;
-                /// <remarks>
-                /// Path: GameLib/Slider/targetNormalized
-                /// StableKey: GameLib.Slider.targetNormalized
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/targetNormalized
-                /// StableKey: GameLib.Slider.targetNormalized
-                /// </remarks>
-                public const int targetNormalized = 101060;
-                /// <remarks>
-                /// Path: GameLib/Slider/targetRaw
-                /// StableKey: GameLib.Slider.targetRaw
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/targetRaw
-                /// StableKey: GameLib.Slider.targetRaw
-                /// </remarks>
-                public const int targetRaw = 101059;
-                /// <remarks>
-                /// Path: GameLib/Slider/unitIndex
-                /// StableKey: GameLib.Slider.unitIndex
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/unitIndex
-                /// StableKey: GameLib.Slider.unitIndex
-                /// </remarks>
-                public const int unitIndex = 101070;
-                /// <remarks>
-                /// Path: GameLib/Slider/unitKind
-                /// StableKey: GameLib.Slider.unitKind
-                /// </remarks>
-                /// <remarks>
-                /// Path: GameLib/Slider/unitKind
-                /// StableKey: GameLib.Slider.unitKind
-                /// </remarks>
-                public const int unitKind = 101069;
-            }
         }
 
         public static partial class GameLogic
@@ -3279,12 +3413,21 @@ namespace Game.Vars.Generated
                 /// </remarks>
                 public const int Price = 100121;
                 /// <remarks>
+                /// Path: GameLogic/NailProfile/Rarity
+                /// StableKey: Rarity
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/Rarity
+                /// StableKey: Rarity
+                /// </remarks>
+                public const int Rarity = 101105;
+                /// <remarks>
                 /// Path: GameLogic/NailProfile/StatusEffect
-                /// StableKey: StatusEffect
+                /// StableKey: GameLogic.NailProfile.StatusEffect
                 /// </remarks>
                 /// <remarks>
                 /// Path: GameLogic/NailProfile/StatusEffect
-                /// StableKey: StatusEffect
+                /// StableKey: GameLogic.NailProfile.StatusEffect
                 /// </remarks>
                 public const int StatusEffect = 101082;
                 /// <remarks>
@@ -3582,6 +3725,22 @@ namespace Game.Vars.Generated
             VarIds.GameLib.SceneManager.IsLoading,
             VarIds.GameLib.SceneManager.LoadingMessage,
             VarIds.GameLib.SceneManager.Progress,
+            VarIds.GameLib.Slider.crossingDirection,
+            VarIds.GameLib.Slider.deltaNormalized,
+            VarIds.GameLib.Slider.deltaRaw,
+            VarIds.GameLib.Slider.displayedNormalized,
+            VarIds.GameLib.Slider.displayedRaw,
+            VarIds.GameLib.Slider.entryIndex,
+            VarIds.GameLib.Slider.entryNormalized,
+            VarIds.GameLib.Slider.entryValue,
+            VarIds.GameLib.Slider.segmentEndNormalized,
+            VarIds.GameLib.Slider.segmentEndRaw,
+            VarIds.GameLib.Slider.segmentStartNormalized,
+            VarIds.GameLib.Slider.segmentStartRaw,
+            VarIds.GameLib.Slider.targetNormalized,
+            VarIds.GameLib.Slider.targetRaw,
+            VarIds.GameLib.Slider.unitIndex,
+            VarIds.GameLib.Slider.unitKind,
             VarIds.GameLib.SpawnPattern.Common.emitCount,
             VarIds.GameLib.SpawnPattern.Common.emitIndex,
             VarIds.GameLib.SpawnPattern.Common.emitterPosition,
@@ -3617,6 +3776,20 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.Button.ShortLong.LongProgress,
             VarIds.GameLib.UI.Button.ShortLong.ShortProgress,
             VarIds.GameLib.UI.Button.ShortLong.State,
+            VarIds.GameLib.UI.ButtonChannel.ChannelTag,
+            VarIds.GameLib.UI.ButtonChannel.HoldProgress,
+            VarIds.GameLib.UI.ButtonChannel.HoldTime,
+            VarIds.GameLib.UI.ButtonChannel.IsEnabled,
+            VarIds.GameLib.UI.ButtonChannel.IsHovered,
+            VarIds.GameLib.UI.ButtonChannel.IsInteracting,
+            VarIds.GameLib.UI.ButtonChannel.IsSelected,
+            VarIds.GameLib.UI.ButtonChannel.Phase,
+            VarIds.GameLib.UI.ButtonChannel.ShortLong.IsLong,
+            VarIds.GameLib.UI.ButtonChannel.ShortLong.IsLongMax,
+            VarIds.GameLib.UI.ButtonChannel.ShortLong.LongMaxTime,
+            VarIds.GameLib.UI.ButtonChannel.ShortLong.LongProgress,
+            VarIds.GameLib.UI.ButtonChannel.ShortLong.ShortProgress,
+            VarIds.GameLib.UI.ButtonChannel.ShortLong.State,
             VarIds.GameLib.UI.TraitList.Item.column,
             VarIds.GameLib.UI.TraitList.Item.holderKey,
             VarIds.GameLib.UI.TraitList.Item.listIndex,
@@ -3628,27 +3801,12 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitIndex,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceId,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
-            VarIds.GameLib.Slider.crossingDirection,
-            VarIds.GameLib.Slider.deltaNormalized,
-            VarIds.GameLib.Slider.deltaRaw,
-            VarIds.GameLib.Slider.displayedNormalized,
-            VarIds.GameLib.Slider.displayedRaw,
-            VarIds.GameLib.Slider.entryIndex,
-            VarIds.GameLib.Slider.entryNormalized,
-            VarIds.GameLib.Slider.entryValue,
-            VarIds.GameLib.Slider.segmentEndNormalized,
-            VarIds.GameLib.Slider.segmentEndRaw,
-            VarIds.GameLib.Slider.segmentStartNormalized,
-            VarIds.GameLib.Slider.segmentStartRaw,
-            VarIds.GameLib.Slider.targetNormalized,
-            VarIds.GameLib.Slider.targetRaw,
-            VarIds.GameLib.Slider.unitIndex,
-            VarIds.GameLib.Slider.unitKind,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
             VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
             VarIds.GameLogic.LuckProfile.Public.LuckValueMul,
             VarIds.GameLogic.NailProfile.Price,
+            VarIds.GameLogic.NailProfile.Rarity,
             VarIds.GameLogic.NailProfile.StatusEffect,
             VarIds.GameLogic.NailProfile.UpgradeTable,
             VarIds.GameLogic.NailProfile.UpgradePanel.Price,

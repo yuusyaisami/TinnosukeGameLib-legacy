@@ -134,23 +134,17 @@ inline float2 ComputeRefractionOffset(half2 gradient, Refraction2DParams p, floa
     return gradient * p.strength * p.strengthXY * timeMod;
 }
 
-// ---------------------------------------------------------------------------
-// Refraction UV 歪み適用
-// MainTex サンプリング前に UV を歪ませる
-// ---------------------------------------------------------------------------
-inline float2 Refraction2D_WarpUV(float2 uvMain, Surface2D s, Refraction2DParams p, float time)
+inline float2 Refraction2D_WarpUV(float2 uvMain, float2 uvLocal, float2 screenUV, Refraction2DParams p, float time)
 {
     if (p.enabled < 0.5h)
         return uvMain;
     if (p.source.slotType == TEXTURE_SLOT_NONE)
         return uvMain;
-    
-    // 勾配サンプル（GB チャンネルに格納されている想定）
-    // source.channelMask を CHANNEL_GB に設定することを推奨
-    half2 gradient = SampleSlotVector2(s, p.source);
-    
+
+    float2 slotUV = ComputeSlotUV(uvLocal, uvMain, screenUV, p.source.uvSpace, p.source.tilingOffset, p.source.slotType);
+    half4 raw = SampleSlotRaw(slotUV, p.source.slotType);
+    half2 gradient = ExtractVector2(raw, p.source.channelMask, p.source.remap);
     float2 offset = ComputeRefractionOffset(gradient, p, time);
-    
     return uvMain + offset;
 }
 

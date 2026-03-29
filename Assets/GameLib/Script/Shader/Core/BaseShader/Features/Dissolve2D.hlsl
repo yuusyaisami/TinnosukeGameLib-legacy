@@ -49,7 +49,7 @@ inline Dissolve2DParams MakeDissolve2DParams(
     float edgeWidth,
     float4 edgeColor)
 {
-    Dissolve2DParams p = (Dissolve2DParams)0;
+    Dissolve2DParams p;
     p.enabled = enabled;
     p.source = MakeTextureSlotRef(
         sourceSlotType,
@@ -68,7 +68,7 @@ inline Dissolve2DParams MakeDissolve2DParams(
 // デフォルト値で初期化（無効状態）
 inline Dissolve2DParams MakeDefaultDissolve2DParams()
 {
-    Dissolve2DParams p = (Dissolve2DParams)0;
+    Dissolve2DParams p;
     p.enabled = 0;
     p.source = MakeDefaultTextureSlotRef();
     p.threshold = 0;
@@ -91,49 +91,27 @@ inline Dissolve2DParams MakeDefaultDissolve2DParams()
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyDissolve(Surface2D s, Dissolve2DParams p)
 {
-    if (p.enabled < 0.5)
-        return s;
-    if (p.source.slotType == TEXTURE_SLOT_NONE)
-        return s;
-    
-    // ソースからマスク値を取得
-    half mask = SampleSlotScalar(s, p.source);
-    
-    // ★修正: thresholdを拡張して0で完全表示、1で完全透明を保証
-    // threshold=0 のとき、全ての mask 値 (0-1) が表示されるべき
-    // threshold=1 のとき、全ての mask 値 (0-1) が透明になるべき
-    // 
-    // 解決策: threshold を少し拡張して、0/1で確実に全範囲をカバー
-    // 内部threshold = threshold * (1 + edgeWidth) - edgeWidth/2
-    // これにより threshold=0 → 内部=-edgeWidth/2, threshold=1 → 内部=1+edgeWidth/2
-    
-    float halfWidth = p.edgeWidth * 0.5;
-    
-    // ★重要: スムーズステップの範囲を調整
-    // threshold=0: tMin=-halfWidth-eps, tMax=halfWidth-eps → mask>=0 で dissolve≒1
-    // threshold=1: tMin=1-halfWidth+eps, tMax=1+halfWidth+eps → mask<=1 で dissolve≒0
-    float adjustedThreshold = p.threshold * (1.0 + p.edgeWidth) - halfWidth;
-    float tMin = adjustedThreshold - halfWidth;
-    float tMax = adjustedThreshold + halfWidth;
-    
-    // dissolve: mask値がthresholdより大きい部分を表示（表示=1, 透明=0）
-    half dissolve = smoothstep(tMin, tMax, mask);
-    
-    // edge: エッジ部分のみを抽出（threshold付近でマスク値が境界にある部分）
-    // エッジは dissolve の傾斜部分のみで発光
-    half edgeIntensity = dissolve * (1.0h - dissolve) * 4.0h;  // 0-1-0 のベルカーブ
-    
-    // アルファを削る
-    s.alpha *= dissolve;
-    s.alphaFactor *= dissolve;
-    
-    // エッジに発光を乗せる（アルファが残っている部分のみ）
-    if (s.alpha > 0.001)
+    Surface2D result = s;
+    if (p.enabled >= 0.5 && p.source.slotType != TEXTURE_SLOT_NONE)
     {
-        s.color += p.edgeColor * edgeIntensity * p.edgeEmission;
+        half mask = SampleSlotScalar(result, p.source);
+        float halfWidth = p.edgeWidth * 0.5;
+        float adjustedThreshold = p.threshold * (1.0 + p.edgeWidth) - halfWidth;
+        float tMin = adjustedThreshold - halfWidth;
+        float tMax = adjustedThreshold + halfWidth;
+        half dissolve = smoothstep(tMin, tMax, mask);
+        half edgeIntensity = dissolve * (1.0h - dissolve) * 4.0h;
+
+        result.alpha *= dissolve;
+        result.alphaFactor *= dissolve;
+
+        if (result.alpha > 0.001)
+        {
+            result.color += p.edgeColor * edgeIntensity * p.edgeEmission;
+        }
     }
-    
-    return s;
+
+    return result;
 }
 
 // ---------------------------------------------------------------------------

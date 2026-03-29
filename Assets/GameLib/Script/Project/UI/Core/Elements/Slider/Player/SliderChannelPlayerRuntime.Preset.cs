@@ -1,4 +1,5 @@
 #nullable enable
+using System.Collections.Generic;
 using System.Threading;
 using Game.Common;
 using UnityEngine;
@@ -119,6 +120,7 @@ namespace Game.UI
             ResolveRange();
             _segmentLayout = SliderRuntimeHelpers.BuildSegmentLayout(_visualizerPreset, dynamicContext, _minValue, _maxValue);
             ResolveCommandRunner(scope);
+            RefreshBindingConditionStates(executeCommands: false);
             _targetRawValue = Mathf.Clamp(previousTargetRawValue, _minValue, _maxValue);
             _targetNormalizedValue = Normalize(_targetRawValue);
             _continuousDisplayedRawValue = Mathf.Clamp(previousContinuousDisplayedRawValue, _minValue, _maxValue);
@@ -147,6 +149,42 @@ namespace Game.UI
             }
 
             return NullVarStore.Instance;
+        }
+
+        void RefreshBindingConditionStates(bool executeCommands)
+        {
+            IReadOnlyList<SliderPlayerBindingEntry> entries = _playerPreset.BindingEntries;
+            var count = entries.Count;
+
+            if (count <= 0)
+            {
+                _bindingConditionStates.Clear();
+                _hasBindingConditionStateSnapshot = true;
+                return;
+            }
+
+            while (_bindingConditionStates.Count < count)
+                _bindingConditionStates.Add(false);
+
+            if (_bindingConditionStates.Count > count)
+                _bindingConditionStates.RemoveRange(count, _bindingConditionStates.Count - count);
+
+            for (var i = 0; i < count; i++)
+            {
+                var entry = entries[i];
+                var current = entry?.EvaluateCondition(_dynamicContext) ?? false;
+                var previous = _hasBindingConditionStateSnapshot && i < _bindingConditionStates.Count
+                    ? _bindingConditionStates[i]
+                    : current;
+
+                _bindingConditionStates[i] = current;
+                if (!executeCommands || !_hasBindingConditionStateSnapshot || current == previous)
+                    continue;
+
+                ExecuteConditionChangedCommands(entry, i, current).Forget();
+            }
+
+            _hasBindingConditionStateSnapshot = true;
         }
 
         void RefreshActiveBindingEntry(IScopeNode scope, bool forceRebind)

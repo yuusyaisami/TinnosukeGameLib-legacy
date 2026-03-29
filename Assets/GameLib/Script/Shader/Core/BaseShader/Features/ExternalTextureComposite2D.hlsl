@@ -34,7 +34,7 @@ inline ExternalTextureComposite2DParams MakeExternalTextureComposite2DParams(
     float disableWhenTextureMissing,
     float affectSurfaceAlpha)
 {
-    ExternalTextureComposite2DParams p = (ExternalTextureComposite2DParams)0;
+    ExternalTextureComposite2DParams p;
     p.enabled = enabled;
     p.source = MakeTextureSlotRef(
         sourceSlotType,
@@ -54,7 +54,7 @@ inline ExternalTextureComposite2DParams MakeExternalTextureComposite2DParams(
 
 inline ExternalTextureComposite2DParams MakeDefaultExternalTextureComposite2DParams()
 {
-    ExternalTextureComposite2DParams p = (ExternalTextureComposite2DParams)0;
+    ExternalTextureComposite2DParams p;
     p.enabled = 0.0;
     p.source = MakeDefaultTextureSlotRef();
     p.blendMode = EXTERNAL_TEXTURE_COMPOSITE_BLEND_REPLACE;
@@ -77,51 +77,50 @@ inline Surface2D Surface2D_ApplyExternalTextureComposite(
     Surface2D s,
     ExternalTextureComposite2DParams p)
 {
-    if (p.enabled < 0.5h)
-        return s;
-
-    if (!ExternalTextureComposite2D_IsSupportedSlot(p.source.slotType))
-        return s;
-
-    half4 source = SampleSlotRGBA(s, p.source) * p.tint;
-    half blendWeight = saturate(p.intensity * lerp(1.0h, source.a, p.useTextureAlpha));
-
-    if (blendWeight <= 0.0h && p.disableWhenTextureMissing > 0.5h)
-        return s;
-
-    half3 currentColor = s.color;
-    half currentAlpha = s.alpha;
-
-    [branch]
-    switch (p.blendMode)
+    Surface2D result = s;
+    bool isSupported = ExternalTextureComposite2D_IsSupportedSlot(p.source.slotType);
+    if (p.enabled >= 0.5h && isSupported)
     {
-        case EXTERNAL_TEXTURE_COMPOSITE_BLEND_REPLACE:
-            s.color = lerp(currentColor, source.rgb, blendWeight);
-            if (p.affectSurfaceAlpha > 0.5h)
-                s.alpha = lerp(currentAlpha, source.a, blendWeight);
-            break;
+        half4 source = SampleSlotRGBA(result, p.source) * p.tint;
+        half blendWeight = saturate(p.intensity * lerp(1.0h, source.a, p.useTextureAlpha));
 
-        case EXTERNAL_TEXTURE_COMPOSITE_BLEND_ADD:
-            s.color = currentColor + source.rgb * blendWeight;
-            if (p.affectSurfaceAlpha > 0.5h)
-                s.alpha = saturate(currentAlpha + source.a * blendWeight);
-            break;
+        if (!(blendWeight <= 0.0h && p.disableWhenTextureMissing > 0.5h))
+        {
+            half3 currentColor = result.color;
+            half currentAlpha = result.alpha;
 
-        case EXTERNAL_TEXTURE_COMPOSITE_BLEND_MULTIPLY:
-            s.color = lerp(currentColor, currentColor * source.rgb, blendWeight);
-            if (p.affectSurfaceAlpha > 0.5h)
-                s.alpha = lerp(currentAlpha, currentAlpha * source.a, blendWeight);
-            break;
+            [branch]
+            switch (p.blendMode)
+            {
+                case EXTERNAL_TEXTURE_COMPOSITE_BLEND_REPLACE:
+                    result.color = lerp(currentColor, source.rgb, blendWeight);
+                    if (p.affectSurfaceAlpha > 0.5h)
+                        result.alpha = lerp(currentAlpha, source.a, blendWeight);
+                    break;
 
-        case EXTERNAL_TEXTURE_COMPOSITE_BLEND_LERP:
-        default:
-            s.color = lerp(currentColor, source.rgb, blendWeight);
-            if (p.affectSurfaceAlpha > 0.5h)
-                s.alpha = lerp(currentAlpha, source.a, blendWeight);
-            break;
+                case EXTERNAL_TEXTURE_COMPOSITE_BLEND_ADD:
+                    result.color = currentColor + source.rgb * blendWeight;
+                    if (p.affectSurfaceAlpha > 0.5h)
+                        result.alpha = saturate(currentAlpha + source.a * blendWeight);
+                    break;
+
+                case EXTERNAL_TEXTURE_COMPOSITE_BLEND_MULTIPLY:
+                    result.color = lerp(currentColor, currentColor * source.rgb, blendWeight);
+                    if (p.affectSurfaceAlpha > 0.5h)
+                        result.alpha = lerp(currentAlpha, currentAlpha * source.a, blendWeight);
+                    break;
+
+                case EXTERNAL_TEXTURE_COMPOSITE_BLEND_LERP:
+                default:
+                    result.color = lerp(currentColor, source.rgb, blendWeight);
+                    if (p.affectSurfaceAlpha > 0.5h)
+                        result.alpha = lerp(currentAlpha, source.a, blendWeight);
+                    break;
+            }
+        }
     }
 
-    return s;
+    return result;
 }
 
 #endif // GAME_EXTERNAL_TEXTURE_COMPOSITE_2D_INCLUDED

@@ -278,6 +278,13 @@ namespace Game.UI
         /// </summary>
         bool IsEffectivelyActive { get; }
 
+        /// <summary>
+        /// 入力受付可能かどうか。
+        ///
+        /// Active/Visible に加えて、Lifecycle の despawn 演出中かも考慮する。
+        /// </summary>
+        bool AcceptsInput { get; }
+
         // ----------------------------------------------------------------
         // 当たり判定
         // ----------------------------------------------------------------
@@ -565,6 +572,9 @@ namespace Game.UI
         /// <summary>OwnerのActive状態キャッシュ</summary>
         bool _lastOwnerActive;
 
+        /// <summary>Lifecycle の despawn 状態参照</summary>
+        IScopeLifecycleService? _lifecycleService;
+
         // ----------------------------------------------------------------
         // プロパティ - Active/Visible
         // ----------------------------------------------------------------
@@ -577,6 +587,9 @@ namespace Game.UI
 
         /// <inheritdoc/>
         public IScopeNode? Owner => _owner;
+
+        /// <inheritdoc/>
+        public bool AcceptsInput => IsVisible && IsEffectivelyActive && !IsLifecycleDespawning();
 
         string IUIModalRoot.ModalId => _owner.Identity?.SelfTransform != null
             ? _owner.Identity.SelfTransform.name
@@ -720,6 +733,7 @@ namespace Game.UI
         {
             _effectiveActiveDirty = true;
             EnsureParentStateCache();
+            scope.TryResolveInAncestors<IScopeLifecycleService>(out _lifecycleService);
 
             // selectionState may not have been available at construction time; try resolve from scope's container
             if (_selectionState == null)
@@ -750,6 +764,7 @@ namespace Game.UI
             UnbindParentState();
             _parentStateCacheResolved = false;
             _effectiveActiveDirty = true;
+            _lifecycleService = null;
         }
 
 
@@ -922,6 +937,12 @@ namespace Game.UI
         /// <returns>ナビゲーション選択可能な場合true</returns>
         public bool EvaluateIsSelectable()
         {
+            if (IsLifecycleDespawning())
+            {
+                _isSelectableCached = false;
+                return false;
+            }
+
             var varStore = _owner.Resolver?.TryResolve<IVarStore>(out var resolved) == true ? resolved : new VarStore();
             var context = new Game.Common.SimpleDynamicContext(varStore, _owner);
             if (_isSelectableCondition.TryGet(context, out var selectable))
@@ -935,6 +956,12 @@ namespace Game.UI
 
         public bool EvaluateIsNavigationSelectable()
         {
+            if (IsLifecycleDespawning())
+            {
+                _isNavigationSelectableCached = false;
+                return false;
+            }
+
             var varStore = _owner.Resolver?.TryResolve<IVarStore>(out var resolved) == true ? resolved : new VarStore();
             var context = new Game.Common.SimpleDynamicContext(varStore, _owner);
             if (_isNavigationSelectableCondition.TryGet(context, out var selectable))
@@ -1060,6 +1087,11 @@ namespace Game.UI
         void HandleParentStateChanged(UIElementStateChangedArgs args)
         {
             _effectiveActiveDirty = true;
+        }
+
+        bool IsLifecycleDespawning()
+        {
+            return _lifecycleService != null && _lifecycleService.IsDespawning;
         }
     }
 }

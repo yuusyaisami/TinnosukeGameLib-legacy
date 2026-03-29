@@ -1,0 +1,9 @@
+OVDF v1.1
+Game.UI.TooltipSystemMB, Assembly-CSharp
+MetaGuid:0486971128f9d4a43b671127e7d0de07
+
+# sharedDefaults
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 60
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 64

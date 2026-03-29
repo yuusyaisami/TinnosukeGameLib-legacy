@@ -39,7 +39,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 62.3, y: -5.5}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2842734896834985967
@@ -69,8 +69,6 @@ MonoBehaviour:
   timeScaleBehavior: 0
   registerToDynamicRegistry: 1
   radius: 0
-  advanceOptions: 0
-  retryIntervalSeconds: 0.5
 --- !u!114 &1868327803171634473
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,6 +81,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a10913f1437c843b3c22bc4cf2127f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeTickHub
+  enableDistanceCulling: 0
+  distanceCullTarget:
+    Kind: 0
+    Identity:
+      kind: 0
+      id: 
+      category: 
+      requireActive: 0
+      searchScope: 0
+    UnityObject: {fileID: 0}
+    Shared:
+      rid: -2
+    ContextSlot: 0
+    TargetChannel:
+      rid: -2
+  distanceCullRange: 0
+  distanceCullUse2D: 1
+  distanceCheckIntervalFrames: 5
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &679350126330972818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,6 +121,13 @@ MonoBehaviour:
     queryKey: 
     queryVarId: 0
     writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &6492978099401191921
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,6 +298,7 @@ MonoBehaviour:
   - tag: default
     spriteRenderer: {fileID: 0}
     image: {fileID: 195421877258165412}
+    playOnSpawn: 0
     spritePreset:
       animationA:
         kind: 0
@@ -277,7 +306,7 @@ MonoBehaviour:
         inline:
           animationName: 
           defaultFrameDuration: 0.1
-          loop: 0
+          awaitFrameCommands: 0
           onStart:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
@@ -297,13 +326,17 @@ MonoBehaviour:
             _functionName: 
             _commands: []
           frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
       animationB:
         kind: 0
         asset: {fileID: 0}
         inline:
           animationName: 
           defaultFrameDuration: 0.1
-          loop: 0
+          awaitFrameCommands: 0
           onStart:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
@@ -323,23 +356,178 @@ MonoBehaviour:
             _functionName: 
             _commands: []
           frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
       playMode: 0
       flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
       usePlaybackSpeedMultiplier: 1
       crossFadeProfile:
         rid: -2
-    playOnSpawn: 0
     materialFxPresetEntries: []
-    baseShaderPreset: {fileID: 0}
-    kernelBindEnabled: 0
-    initialKernelTag: 
-    atlasSlotIndex: 0
+    baseShaderPreset:
+      sourceMode: 1
+      assetPreset: {fileID: 0}
+      inlinePreset:
+        rid: 5619052617993552533
   hubTag: default
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5619052617993552533
+      type: {class: BaseShaderFxPreset, ns: Game.MaterialFx, asm: Assembly-CSharp}
+      data:
+        CustomEntries: []
+        AutoEntries: []
+        dissolveEnabled: 0
+        dissolveThreshold: 0
+        dissolveEdgeWidth: 0.1
+        dissolveEdgeColor: {r: 1, g: 1, b: 1, a: 1}
+        dissolveSourceSlotType: 5
+        dissolveSourceChannel: 1
+        dissolveSourceUVSpace: 0
+        flowWarpEnabled: 0
+        flowWarpStrength: {x: 0.1, y: 0.1}
+        flowWarpSpeed: 1
+        flowWarpSourceSlotType: 5
+        flowWarpSourceChannel: 1
+        flowWarpSourceUVSpace: 0
+        colorOverlayEnabled: 0
+        colorOverlayColor: {r: 1, g: 1, b: 1, a: 1}
+        colorOverlayBlendMode: 0
+        colorOverlayIntensity: 1
+        colorOverlaySourceSlotType: 5
+        colorOverlaySourceChannel: 1
+        colorOverlaySourceUVSpace: 0
+        colorRampEnabled: 0
+        colorRampTexture: {fileID: 0}
+        colorRampIntensity: 1
+        colorRampPreserveAlpha: 1
+        colorRampSourceSlotType: 5
+        colorRampSourceChannel: 1
+        colorRampSourceUVSpace: 0
+        refractionEnabled: 0
+        refractionStrength: {x: 0.1, y: 0.1}
+        refractionChromaticAberration: 0
+        refractionSourceSlotType: 5
+        refractionSourceChannel: 1
+        refractionSourceUVSpace: 0
+        causticsEnabled: 0
+        causticsColor: {r: 1, g: 1, b: 1, a: 1}
+        causticsIntensity: 1
+        causticsThreshold: 0.5
+        causticsSoftness: 0.1
+        causticsScrollA: {x: 0.1, y: 0.1}
+        causticsScrollB: {x: -0.1, y: 0.05}
+        causticsSourceASlotType: 5
+        causticsSourceAChannel: 0
+        causticsSourceAUVSpace: 0
+        causticsSourceBSlotType: 6
+        causticsSourceBChannel: 0
+        causticsSourceBUVSpace: 0
+        rippleEnabled: 0
+        rippleCenter: {x: 0.5, y: 0.5}
+        rippleWaveParams: {x: 10, y: 0.05, z: 2, w: 5}
+        rippleAmplitude: 0.1
+        ripplePhase: 0
+        rippleDistortUV: 1
+        rippleColorBlend: 0
+        rippleColor: {r: 1, g: 1, b: 1, a: 1}
+        hueShiftEnabled: 0
+        hueShiftAmount: 0
+        hueSaturationMod: 0
+        hueValueMod: 0
+        hueShiftMaskSlotType: 0
+        hueShiftMaskChannel: 0
+        hueShiftMaskUVSpace: 0
+        normalMapEnabled: 0
+        normalMapStrength: 1
+        normalMapLightDir: {x: 0, y: 0, z: 1}
+        normalMapSourceSlotType: 5
+        normalMapSourceChannel: 1
+        normalMapSourceUVSpace: 0
+        emissionEnabled: 0
+        emissionColor: {r: 1, g: 1, b: 1, a: 1}
+        emissionIntensity: 1
+        maskEnabled: 0
+        maskThreshold: 0.5
+        maskSoftness: 0.1
+        maskSourceSlotType: 5
+        maskSourceChannel: 1
+        maskSourceUVSpace: 0
+        outlineEnabled: 0
+        outlineMode: 10
+        outlineColor: {r: 1, g: 1, b: 1, a: 1}
+        outlineDirectionMask: 15
+        outlineAutoColorEnabled: 0
+        outlineAutoColorMode: 0
+        outlineAutoHue: 0
+        outlineAutoSaturation: 0
+        outlineAutoLightness: 0
+        outlineWidth: 1
+        outlineOpacity: 1
+        outlineSoftness: 0
+        outlineBlendMode: 10
+        outlinePixelPerfect: 1
+        outlineWidthUnit: 10
+        outlinePixelStep: 1
+        outlineSamplePattern: 10
+        outlineMaskRespect: 1
+        outlineUseVertexColor: 0
+        outlineUvClampEnabled: 1
+        outlineZTestMode: 10
+        textOutlineEnabled: 0
+        textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+        textOutlineThickness: 1
+        textOutlineSoftness: 0.1
+        textOutlineDirectionMask: 15
+        textOutlineAutoColorEnabled: 0
+        textOutlineAutoColorMode: 0
+        textOutlineAutoHue: 0
+        textOutlineAutoSaturation: 0
+        textOutlineAutoLightness: 0
+        textShadowEnabled: 0
+        textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+        textShadowOffset: {x: 1, y: -1}
+        textShadowSoftness: 0.1
+        textGlowEnabled: 0
+        textGlowColor: {r: 1, g: 1, b: 1, a: 0.5}
+        textGlowThickness: 2
+        textGlowSoftness: 0.2
+        rainbowEnabled: 0
+        rainbowMode: 0
+        rainbowPattern: 0
+        rainbowDirection: {x: 1, y: 0}
+        rainbowScale: 1
+        rainbowOffset: 0
+        rainbowSpeed: 0.5
+        rainbowPixelSize: 2
+        rainbowIntensity: 0.5
+        rainbowBlendMode: 1
+        advancedFadeBurnEnabled: 0
+        advancedFadeBurnProgress: 0
+        advancedFadeBurnEdgeWidth: 0.1
+        advancedFadeBurnNoiseScale: 4
+        advancedFadeBurnNoiseStrength: 0.5
+        advancedFadeBurnNoiseType: 0
+        advancedFadeBurnDirection: {x: 0, y: 1}
+        advancedFadeBurnEdgeColor: {r: 1, g: 0.5, b: 0.1, a: 1}
+        advancedFadeBurnBlendMode: 0
+        advancedFadeBurnInvert: 0
+        renderStateBlendPreset: 0
+        renderStateUseCustomBlendFactors: 0
+        renderStateSrcBlend: 5
+        renderStateDstBlend: 10
+        renderStateZWrite: 0
+        renderStateCull: 0
+        renderStateQueueOffset: 0
+        renderStateBlendIntensity: 1
 --- !u!114 &6047445346904108376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -357,6 +545,7 @@ MonoBehaviour:
     target: {fileID: 0}
     rectTransform: {fileID: 2561798230306123067}
     playOnSpawnPreset: 0
+    playOnSpawnDelaySeconds: 0
     transformPreset:
       loop: 0
       loopCount: -1
@@ -381,6 +570,15 @@ MonoBehaviour:
       anchorMin: {x: 0.5, y: 0.5}
       applyAnchorMax: 0
       anchorMax: {x: 0.5, y: 0.5}
+  showCurveGizmo: 1
+  curveSelectedOnly: 1
+  curvePointRadius: 0.08
+  enableSceneHandles: 1
+  moveDestinationHandle: 1
+  moveCurveControlHandle: 1
+  enableDebugLog: 0
+  debugViewer:
+    autoRefreshEveryNFrames: 1
   references:
     version: 2
     RefIds: []

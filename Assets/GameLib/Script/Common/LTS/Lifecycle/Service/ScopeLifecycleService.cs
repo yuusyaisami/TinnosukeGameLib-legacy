@@ -20,6 +20,7 @@ namespace Game.Common
 
     public interface IScopeLifecycleService
     {
+        bool IsDespawning { get; }
         UniTask HandleSpawnAsync(CancellationToken ct);
         UniTask HandleDespawnAsync(CancellationToken ct);
     }
@@ -33,6 +34,7 @@ namespace Game.Common
         CancellationTokenSource _spawnCts;
         CancellationTokenSource _despawnCts;
         bool _spawnInProgress;
+        bool _despawnInProgress;
         bool _autoDespawnRequested;
 
         bool _hasConditionOverride;
@@ -52,6 +54,8 @@ namespace Game.Common
             _resolver = resolver;
         }
 
+        public bool IsDespawning => _despawnInProgress;
+
         public void SetConditionOverride(DynamicValue<bool> condition)
         {
             _conditionOverride = condition;
@@ -68,6 +72,7 @@ namespace Game.Common
         {
             ClearConditionOverride();
             _autoDespawnRequested = false;
+            _despawnInProgress = false;
         }
 
         public void Tick()
@@ -224,6 +229,7 @@ namespace Game.Common
 
         public async UniTask HandleDespawnAsync(CancellationToken ct)
         {
+            _despawnInProgress = true;
             // Mark despawn as matching one prior spawn (if any)
             if (_spawnBalance > 0)
                 _spawnBalance -= 1;
@@ -302,6 +308,7 @@ namespace Game.Common
             }
             finally
             {
+                _despawnInProgress = false;
                 // 最終的な Destroy や Registry などは OnDisable/OnDestroy で処理
                 if (_scope is Component c && c && c.gameObject)
                 {

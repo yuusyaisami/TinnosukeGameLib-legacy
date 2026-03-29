@@ -607,6 +607,145 @@ namespace Game.MaterialFx
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
+        [LabelText("Animated Gradient")]
+        [ToggleLeft]
+        [Tooltip("アウトライン色を最終色近傍で滑らかに揺らします")]
+        public bool outlineAnimatedGradientEnabled = false;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Pattern Type")]
+        [ValueDropdown(nameof(GetAnimatedNoisePatternOptions))]
+        public int outlineAnimatedGradientPatternType = 10;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Master Strength")]
+        [Min(0f)]
+        public float outlineAnimatedGradientMasterStrength = 1f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Noise Scale")]
+        [Min(0.0001f)]
+        public float outlineAnimatedGradientNoiseScale = 6f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Direction")]
+        public Vector2 outlineAnimatedGradientNoiseDirection = new Vector2(1f, 0f);
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Speed")]
+        public float outlineAnimatedGradientNoiseSpeed = 0.2f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Offset")]
+        public Vector2 outlineAnimatedGradientNoiseOffset = Vector2.zero;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Rotation Speed")]
+        public float outlineAnimatedGradientRotationSpeed = 0f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Pulse Amplitude")]
+        [Min(0f)]
+        public float outlineAnimatedGradientPulseAmplitude = 0f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Pulse Speed")]
+        public float outlineAnimatedGradientPulseSpeed = 1f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Warp Pattern")]
+        [ValueDropdown(nameof(GetAnimatedNoisePatternOptions))]
+        [HideInInspector]
+        public int outlineAnimatedGradientWarpPatternType = 10;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Warp Scale")]
+        [Min(0.0001f)]
+        public float outlineAnimatedGradientWarpScale = 2f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Warp Strength")]
+        [Min(0f)]
+        public float outlineAnimatedGradientWarpStrength = 0.1f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Warp Direction")]
+        public Vector2 outlineAnimatedGradientWarpDirection = new Vector2(0.71f, 0.43f);
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Warp Speed")]
+        public float outlineAnimatedGradientWarpSpeed = 0.35f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Loop Seconds")]
+        [Min(0f)]
+        public float outlineAnimatedGradientLoopSeconds = 0f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Octaves")]
+        [Min(1f)]
+        public float outlineAnimatedGradientOctaves = 4f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Lacunarity")]
+        [Min(1f)]
+        public float outlineAnimatedGradientLacunarity = 2f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Gain")]
+        [Range(0f, 1f)]
+        public float outlineAnimatedGradientGain = 0.5f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Cell Sharpness")]
+        [Min(0.01f)]
+        public float outlineAnimatedGradientCellSharpness = 1.5f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Pattern Contrast")]
+        [Min(0f)]
+        public float outlineAnimatedGradientPatternContrast = 1f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Hue Amp")]
+        [Min(0f)]
+        public float outlineAnimatedGradientHueAmplitude = 0.0025f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Sat Amp")]
+        [Min(0f)]
+        public float outlineAnimatedGradientSaturationAmplitude = 0.008f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(ShowOutlineAnimatedGradientSettings))]
+        [LabelText("Light Amp")]
+        [Min(0f)]
+        public float outlineAnimatedGradientLightnessAmplitude = 0.015f;
+
+        [TitleGroup("Outline")]
+        [ShowIf(nameof(outlineEnabled))]
         [Min(0f)]
         [Tooltip("アウトラインの太さ")]
         public float outlineWidth = 1f;
@@ -793,6 +932,249 @@ namespace Game.MaterialFx
         [Tooltip("グローのソフトネス")]
         public float textGlowSoftness = 0.2f;
 
+        // --- BlendColor2D ---
+        [TitleGroup("Blend Color", "方向グラデーション付きブレンドカラー")]
+        [ToggleLeft]
+        [Tooltip("BlendColor2D を有効にする")]
+        public bool blendColor2DEnabled = false;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(blendColor2DEnabled))]
+        [Tooltip("ブレンドに使う基準色。Animated Gradient 有効時はこの色近傍で揺れます")]
+        public Color blendColor2DColor = Color.white;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(blendColor2DEnabled))]
+        [Range(0f, 1f)]
+        [LabelText("Intensity")]
+        public float blendColor2DBlendIntensity = 0f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(blendColor2DEnabled))]
+        [LabelText("Gradient Direction")]
+        [ValueDropdown(nameof(GetBlendColorGradientDirectionOptions))]
+        public int blendColor2DBlendGradDirection = 0;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(blendColor2DEnabled))]
+        [Range(0f, 1f)]
+        [LabelText("Gradient Amount")]
+        public float blendColor2DBlendGradationAmount = 0f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(blendColor2DEnabled))]
+        [Range(0f, 1f)]
+        [LabelText("Softness")]
+        public float blendColor2DBlendSoftness = 1f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(blendColor2DEnabled))]
+        [LabelText("Blend Mode")]
+        [ValueDropdown(nameof(GetBlendModeOptions))]
+        public int blendColor2DBlendMode = 0;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(blendColor2DEnabled))]
+        [LabelText("Animated Gradient")]
+        [ToggleLeft]
+        [Tooltip("BlendColor の基準色を最終色近傍で滑らかに揺らします")]
+        public bool blendColor2DAnimatedGradientEnabled = false;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Pattern Type")]
+        [ValueDropdown(nameof(GetAnimatedNoisePatternOptions))]
+        public int blendColor2DAnimatedGradientPatternType = 10;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Master Strength")]
+        [Min(0f)]
+        public float blendColor2DAnimatedGradientMasterStrength = 1f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Noise Scale")]
+        [Min(0.0001f)]
+        public float blendColor2DAnimatedGradientNoiseScale = 6f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Direction")]
+        public Vector2 blendColor2DAnimatedGradientNoiseDirection = new Vector2(1f, 0f);
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Speed")]
+        public float blendColor2DAnimatedGradientNoiseSpeed = 0.2f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Offset")]
+        public Vector2 blendColor2DAnimatedGradientNoiseOffset = Vector2.zero;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Rotation Speed")]
+        public float blendColor2DAnimatedGradientRotationSpeed = 0f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Pulse Amplitude")]
+        [Min(0f)]
+        public float blendColor2DAnimatedGradientPulseAmplitude = 0f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Pulse Speed")]
+        public float blendColor2DAnimatedGradientPulseSpeed = 1f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Warp Pattern")]
+        [ValueDropdown(nameof(GetAnimatedNoisePatternOptions))]
+        [HideInInspector]
+        public int blendColor2DAnimatedGradientWarpPatternType = 10;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Warp Scale")]
+        [Min(0.0001f)]
+        public float blendColor2DAnimatedGradientWarpScale = 2f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Warp Strength")]
+        [Min(0f)]
+        public float blendColor2DAnimatedGradientWarpStrength = 0.1f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Warp Direction")]
+        public Vector2 blendColor2DAnimatedGradientWarpDirection = new Vector2(0.71f, 0.43f);
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Warp Speed")]
+        public float blendColor2DAnimatedGradientWarpSpeed = 0.35f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Loop Seconds")]
+        [Min(0f)]
+        public float blendColor2DAnimatedGradientLoopSeconds = 0f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Octaves")]
+        [Min(1f)]
+        public float blendColor2DAnimatedGradientOctaves = 4f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Lacunarity")]
+        [Min(1f)]
+        public float blendColor2DAnimatedGradientLacunarity = 2f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Gain")]
+        [Range(0f, 1f)]
+        public float blendColor2DAnimatedGradientGain = 0.5f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Cell Sharpness")]
+        [Min(0.01f)]
+        public float blendColor2DAnimatedGradientCellSharpness = 1.5f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Pattern Contrast")]
+        [Min(0f)]
+        public float blendColor2DAnimatedGradientPatternContrast = 1f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Hue Amp")]
+        [Min(0f)]
+        public float blendColor2DAnimatedGradientHueAmplitude = 0.0025f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Sat Amp")]
+        [Min(0f)]
+        public float blendColor2DAnimatedGradientSaturationAmplitude = 0.008f;
+
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Light Amp")]
+        [Min(0f)]
+        public float blendColor2DAnimatedGradientLightnessAmplitude = 0.015f;
+
+        // --- AdvancedFade2D ---
+        [TitleGroup("AdvancedFade", "ワイプ / 境界グロー / Burn")]
+        [ToggleLeft]
+        [Tooltip("AdvancedFade2D のフェード本体を有効にする")]
+        public bool advancedFadeEnabled = false;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(advancedFadeEnabled))]
+        [LabelText("Fade Direction")]
+        [ValueDropdown(nameof(GetAdvancedFadeDirectionOptions))]
+        public int advancedFadeFadeDirection = 0;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(advancedFadeEnabled))]
+        [Range(0f, 1f)]
+        [LabelText("Fade Amount")]
+        public float advancedFadeFadeAmount = 0f;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(advancedFadeEnabled))]
+        [Range(0f, 1f)]
+        [LabelText("Softness")]
+        public float advancedFadeSoft = 0.1f;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(advancedFadeEnabled))]
+        [Min(0f)]
+        [LabelText("Glow Intensity")]
+        public float advancedFadeGlowIntensity = 0f;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(advancedFadeEnabled))]
+        [Min(0f)]
+        [LabelText("Glow Range")]
+        public float advancedFadeGlowRange = 0.05f;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(advancedFadeEnabled))]
+        [LabelText("Glow Blend")]
+        [ValueDropdown(nameof(GetRainbowBlendModeOptions))]
+        public int advancedFadeGlowBlendMode = 0;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(advancedFadeEnabled))]
+        [LabelText("Wave Params A")]
+        public Vector4 advancedFadeWaveParamsA = Vector4.zero;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(advancedFadeEnabled))]
+        [LabelText("Wave Params B")]
+        public Vector4 advancedFadeWaveParamsB = Vector4.zero;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(ShowAdvancedFadeCircleSettings))]
+        [LabelText("Circle Start Angle")]
+        public float advancedFadeCircleStartAngleDeg = 90f;
+
+        [TitleGroup("AdvancedFade")]
+        [ShowIf(nameof(ShowAdvancedFadeCircleSettings))]
+        [LabelText("Circle Clockwise")]
+        [ToggleLeft]
+        public bool advancedFadeCircleClockwise = true;
+
         // --- Rainbow2D ---
         [TitleGroup("Rainbow", "虹色演出")]
         [ToggleLeft]
@@ -866,7 +1248,7 @@ namespace Game.MaterialFx
         [TitleGroup("AdvancedFade/Burn")]
         [ShowIf(nameof(advancedFadeBurnEnabled))]
         [ValueDropdown(nameof(GetBurnNoiseTypeOptions))]
-        public int advancedFadeBurnNoiseType = 0;
+        public int advancedFadeBurnNoiseType = 10;
 
         [TitleGroup("AdvancedFade/Burn")]
         [ShowIf(nameof(advancedFadeBurnEnabled))]
@@ -884,6 +1266,114 @@ namespace Game.MaterialFx
         [TitleGroup("AdvancedFade/Burn")]
         [ShowIf(nameof(advancedFadeBurnEnabled))]
         public bool advancedFadeBurnInvert = false;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(advancedFadeBurnEnabled))]
+        [LabelText("Animated Noise")]
+        [ToggleLeft]
+        public bool advancedFadeBurnAnimatedNoiseEnabled = false;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Pattern Type")]
+        [ValueDropdown(nameof(GetAnimatedNoisePatternOptions))]
+        public int advancedFadeBurnAnimatedNoisePatternType = 10;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Direction")]
+        public Vector2 advancedFadeBurnAnimatedNoiseDirection = new Vector2(1f, 0f);
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Speed")]
+        public float advancedFadeBurnAnimatedNoiseSpeed = 0.2f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Offset")]
+        public Vector2 advancedFadeBurnAnimatedNoiseOffset = Vector2.zero;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Rotation Speed")]
+        public float advancedFadeBurnAnimatedNoiseRotationSpeed = 0f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Pulse Amplitude")]
+        [Min(0f)]
+        public float advancedFadeBurnAnimatedNoisePulseAmplitude = 0f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Pulse Speed")]
+        public float advancedFadeBurnAnimatedNoisePulseSpeed = 1f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Warp Pattern")]
+        [ValueDropdown(nameof(GetAnimatedNoisePatternOptions))]
+        [HideInInspector]
+        public int advancedFadeBurnAnimatedNoiseWarpPatternType = 10;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Warp Scale")]
+        [Min(0.0001f)]
+        public float advancedFadeBurnAnimatedNoiseWarpScale = 2f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Warp Strength")]
+        [Min(0f)]
+        public float advancedFadeBurnAnimatedNoiseWarpStrength = 0.2f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Warp Direction")]
+        public Vector2 advancedFadeBurnAnimatedNoiseWarpDirection = new Vector2(0.71f, 0.43f);
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Warp Speed")]
+        public float advancedFadeBurnAnimatedNoiseWarpSpeed = 0.35f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Loop Seconds")]
+        [Min(0f)]
+        public float advancedFadeBurnAnimatedNoiseLoopSeconds = 0f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Octaves")]
+        [Min(1f)]
+        public float advancedFadeBurnAnimatedNoiseOctaves = 4f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Lacunarity")]
+        [Min(1f)]
+        public float advancedFadeBurnAnimatedNoiseLacunarity = 2f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Gain")]
+        [Range(0f, 1f)]
+        public float advancedFadeBurnAnimatedNoiseGain = 0.5f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Cell Sharpness")]
+        [Min(0.01f)]
+        public float advancedFadeBurnAnimatedNoiseCellSharpness = 1.5f;
+
+        [TitleGroup("AdvancedFade/Burn")]
+        [ShowIf(nameof(ShowAdvancedFadeBurnAnimatedNoiseSettings))]
+        [LabelText("Pattern Contrast")]
+        [Min(0f)]
+        public float advancedFadeBurnAnimatedNoisePatternContrast = 1f;
 
         // ═══════════════════════════════════════════════════════════════════════════
         // Render State (MeshRenderer/SpriteRenderer 共通)
@@ -1095,6 +1585,45 @@ namespace Game.MaterialFx
                 SetAutoEntry(MaterialFxKeys.BaseShader.Mask.Source.UVSpace, MakeInt(maskSourceUVSpace));
             }
 
+            // --- BlendColor2D ---
+            SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.Enabled, MakeBool(blendColor2DEnabled));
+            if (blendColor2DEnabled)
+            {
+                SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.Color, MakeColor(blendColor2DColor));
+                SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.BlendIntensity, MakeFloat(blendColor2DBlendIntensity));
+                SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.BlendGradDirection, MakeInt(blendColor2DBlendGradDirection));
+                SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.BlendGradationAmount, MakeFloat(blendColor2DBlendGradationAmount));
+                SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.BlendSoftness, MakeFloat(blendColor2DBlendSoftness));
+                SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.BlendMode, MakeInt(blendColor2DBlendMode));
+                SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.Enabled, MakeBool(blendColor2DAnimatedGradientEnabled));
+                if (blendColor2DAnimatedGradientEnabled)
+                {
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PatternType, MakeInt(blendColor2DAnimatedGradientPatternType));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.MasterStrength, MakeFloat(blendColor2DAnimatedGradientMasterStrength));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.NoiseScale, MakeFloat(blendColor2DAnimatedGradientNoiseScale));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.NoiseDirection, MakeFloat2(blendColor2DAnimatedGradientNoiseDirection));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.NoiseSpeed, MakeFloat(blendColor2DAnimatedGradientNoiseSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.NoiseOffset, MakeFloat2(blendColor2DAnimatedGradientNoiseOffset));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.RotationSpeed, MakeFloat(blendColor2DAnimatedGradientRotationSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PulseAmplitude, MakeFloat(blendColor2DAnimatedGradientPulseAmplitude));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PulseSpeed, MakeFloat(blendColor2DAnimatedGradientPulseSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpPatternType, MakeInt(0));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpScale, MakeFloat(blendColor2DAnimatedGradientWarpScale));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpStrength, MakeFloat(blendColor2DAnimatedGradientWarpStrength));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpDirection, MakeFloat2(blendColor2DAnimatedGradientWarpDirection));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpSpeed, MakeFloat(blendColor2DAnimatedGradientWarpSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.LoopSeconds, MakeFloat(blendColor2DAnimatedGradientLoopSeconds));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.Octaves, MakeFloat(blendColor2DAnimatedGradientOctaves));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.Lacunarity, MakeFloat(blendColor2DAnimatedGradientLacunarity));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.Gain, MakeFloat(blendColor2DAnimatedGradientGain));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.CellSharpness, MakeFloat(blendColor2DAnimatedGradientCellSharpness));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PatternContrast, MakeFloat(blendColor2DAnimatedGradientPatternContrast));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.HueAmplitude, MakeFloat(blendColor2DAnimatedGradientHueAmplitude));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.SaturationAmplitude, MakeFloat(blendColor2DAnimatedGradientSaturationAmplitude));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.LightnessAmplitude, MakeFloat(blendColor2DAnimatedGradientLightnessAmplitude));
+                }
+            }
+
             // --- Outline ---
             SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Enabled, MakeBool(outlineEnabled));
             if (outlineEnabled)
@@ -1107,6 +1636,33 @@ namespace Game.MaterialFx
                 SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AutoHue, MakeFloat(outlineAutoHue));
                 SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AutoSaturation, MakeFloat(outlineAutoSaturation));
                 SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AutoLightness, MakeFloat(outlineAutoLightness));
+                SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.Enabled, MakeBool(outlineAnimatedGradientEnabled));
+                if (outlineAnimatedGradientEnabled)
+                {
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.PatternType, MakeInt(outlineAnimatedGradientPatternType));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.MasterStrength, MakeFloat(outlineAnimatedGradientMasterStrength));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.NoiseScale, MakeFloat(outlineAnimatedGradientNoiseScale));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.NoiseDirection, MakeFloat2(outlineAnimatedGradientNoiseDirection));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.NoiseSpeed, MakeFloat(outlineAnimatedGradientNoiseSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.NoiseOffset, MakeFloat2(outlineAnimatedGradientNoiseOffset));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.RotationSpeed, MakeFloat(outlineAnimatedGradientRotationSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.PulseAmplitude, MakeFloat(outlineAnimatedGradientPulseAmplitude));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.PulseSpeed, MakeFloat(outlineAnimatedGradientPulseSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpPatternType, MakeInt(0));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpScale, MakeFloat(outlineAnimatedGradientWarpScale));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpStrength, MakeFloat(outlineAnimatedGradientWarpStrength));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpDirection, MakeFloat2(outlineAnimatedGradientWarpDirection));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpSpeed, MakeFloat(outlineAnimatedGradientWarpSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.LoopSeconds, MakeFloat(outlineAnimatedGradientLoopSeconds));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.Octaves, MakeFloat(outlineAnimatedGradientOctaves));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.Lacunarity, MakeFloat(outlineAnimatedGradientLacunarity));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.Gain, MakeFloat(outlineAnimatedGradientGain));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.CellSharpness, MakeFloat(outlineAnimatedGradientCellSharpness));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.PatternContrast, MakeFloat(outlineAnimatedGradientPatternContrast));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.HueAmplitude, MakeFloat(outlineAnimatedGradientHueAmplitude));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.SaturationAmplitude, MakeFloat(outlineAnimatedGradientSaturationAmplitude));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.Outline.AnimatedGradient.LightnessAmplitude, MakeFloat(outlineAnimatedGradientLightnessAmplitude));
+                }
                 SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Width, MakeFloat(outlineWidth));
                 SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Opacity, MakeFloat(outlineOpacity));
                 SetAutoEntry(MaterialFxKeys.BaseShader.Outline.Softness, MakeFloat(outlineSoftness));
@@ -1167,6 +1723,22 @@ namespace Game.MaterialFx
                 SetAutoEntry(MaterialFxKeys.BaseShader.Rainbow2D.BlendMode, MakeInt(rainbowBlendMode));
             }
 
+            // --- AdvancedFade2D ---
+            SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Enabled, MakeBool(advancedFadeEnabled));
+            if (advancedFadeEnabled)
+            {
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.FadeDirection, MakeInt(advancedFadeFadeDirection));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.FadeAmount, MakeFloat(advancedFadeFadeAmount));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Soft, MakeFloat(advancedFadeSoft));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.GlowIntensity, MakeFloat(advancedFadeGlowIntensity));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.GlowRange, MakeFloat(advancedFadeGlowRange));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.GlowBlendMode, MakeInt(advancedFadeGlowBlendMode));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.WaveParamsA, MakeFloat4(advancedFadeWaveParamsA));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.WaveParamsB, MakeFloat4(advancedFadeWaveParamsB));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Circle.StartAngleDeg, MakeFloat(advancedFadeCircleStartAngleDeg));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Circle.Clockwise, MakeBool(advancedFadeCircleClockwise));
+            }
+
             // --- AdvancedFade2D Burn ---
             SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.Enabled, MakeBool(advancedFadeBurnEnabled));
             if (advancedFadeBurnEnabled)
@@ -1180,6 +1752,28 @@ namespace Game.MaterialFx
                 SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.EdgeColor, MakeColor(advancedFadeBurnEdgeColor));
                 SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.BlendMode, MakeInt(advancedFadeBurnBlendMode));
                 SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.Invert, MakeBool(advancedFadeBurnInvert));
+                SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Enabled, MakeBool(advancedFadeBurnAnimatedNoiseEnabled));
+                if (advancedFadeBurnAnimatedNoiseEnabled)
+                {
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.PatternType, MakeInt(advancedFadeBurnAnimatedNoisePatternType));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Direction, MakeFloat2(advancedFadeBurnAnimatedNoiseDirection));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Speed, MakeFloat(advancedFadeBurnAnimatedNoiseSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Offset, MakeFloat2(advancedFadeBurnAnimatedNoiseOffset));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.RotationSpeed, MakeFloat(advancedFadeBurnAnimatedNoiseRotationSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.PulseAmplitude, MakeFloat(advancedFadeBurnAnimatedNoisePulseAmplitude));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.PulseSpeed, MakeFloat(advancedFadeBurnAnimatedNoisePulseSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpPatternType, MakeInt(0));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpScale, MakeFloat(advancedFadeBurnAnimatedNoiseWarpScale));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpStrength, MakeFloat(advancedFadeBurnAnimatedNoiseWarpStrength));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpDirection, MakeFloat2(advancedFadeBurnAnimatedNoiseWarpDirection));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpSpeed, MakeFloat(advancedFadeBurnAnimatedNoiseWarpSpeed));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.LoopSeconds, MakeFloat(advancedFadeBurnAnimatedNoiseLoopSeconds));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Octaves, MakeFloat(advancedFadeBurnAnimatedNoiseOctaves));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Lacunarity, MakeFloat(advancedFadeBurnAnimatedNoiseLacunarity));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Gain, MakeFloat(advancedFadeBurnAnimatedNoiseGain));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.CellSharpness, MakeFloat(advancedFadeBurnAnimatedNoiseCellSharpness));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.PatternContrast, MakeFloat(advancedFadeBurnAnimatedNoisePatternContrast));
+                }
             }
         }
 
@@ -1245,12 +1839,50 @@ namespace Game.MaterialFx
             };
         }
 
-        static ValueDropdownList<int> GetBurnNoiseTypeOptions()
+        static ValueDropdownList<int> GetAnimatedNoisePatternOptions()
         {
             return new ValueDropdownList<int>
             {
-                { "Smooth Value", 0 },
-                { "Hash (Rough)", 1 },
+                { "Smooth Value", 10 },
+                { "Perlin", 20 },
+                { "FBM", 30 },
+                { "Ridged FBM", 40 },
+                { "Cellular", 50 },
+                { "Hex Cell", 60 },
+                { "Turtle Shell", 70 },
+                { "Checker", 80 },
+                { "Stripes", 90 },
+                { "Diamond", 100 },
+                { "Truchet", 110 },
+                { "Interference", 120 },
+                { "Swirl", 130 },
+            };
+        }
+
+        static ValueDropdownList<int> GetBurnNoiseTypeOptions() => GetAnimatedNoisePatternOptions();
+
+        static ValueDropdownList<int> GetBlendColorGradientDirectionOptions()
+        {
+            return new ValueDropdownList<int>
+            {
+                { "None", 0 },
+                { "Horizontal", 1 },
+                { "Vertical", 2 },
+                { "Radial", 3 },
+            };
+        }
+
+        static ValueDropdownList<int> GetAdvancedFadeDirectionOptions()
+        {
+            return new ValueDropdownList<int>
+            {
+                { "Left To Right", 0 },
+                { "Right To Left", 1 },
+                { "Bottom To Top", 2 },
+                { "Top To Bottom", 3 },
+                { "Radial In", 4 },
+                { "Radial Out", 5 },
+                { "Circle", 6 },
             };
         }
 
@@ -1387,7 +2019,11 @@ namespace Game.MaterialFx
         }
 
         bool ShowOutlineAutoColorSettings => outlineEnabled && outlineAutoColorEnabled;
+        bool ShowOutlineAnimatedGradientSettings => outlineEnabled && outlineAnimatedGradientEnabled;
+        bool ShowBlendColorAnimatedGradientSettings => blendColor2DEnabled && blendColor2DAnimatedGradientEnabled;
         bool ShowTextOutlineAutoColorSettings => textOutlineEnabled && textOutlineAutoColorEnabled;
+        bool ShowAdvancedFadeCircleSettings => advancedFadeEnabled && advancedFadeFadeDirection == 6;
+        bool ShowAdvancedFadeBurnAnimatedNoiseSettings => advancedFadeBurnEnabled && advancedFadeBurnAnimatedNoiseEnabled;
     }
 
     [CreateAssetMenu(fileName = "BaseShaderFxPreset", menuName = "Game/MaterialFx/BaseShaderFxPreset")]

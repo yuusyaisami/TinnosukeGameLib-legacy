@@ -212,6 +212,12 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.HideTooltipExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TooltipChannelHubControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TooltipChannelExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TooltipChannelPlayerControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ShowToastExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 

@@ -1,7 +1,9 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using DG.Tweening;
+using Game;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.Scalar;
@@ -23,6 +25,7 @@ namespace Game.UI
 
         ISliderRuntimePresetProvider? _presetProvider;
         IScopeNode? _activeScope;
+        IScopeLifecycleService? _lifecycleService;
 
         IDynamicContext? _dynamicContext;
         SliderPlayerPreset _playerPreset = new();
@@ -38,6 +41,8 @@ namespace Game.UI
         ActorSourceResolveCache _blackboardBindingSourceCache;
         SliderPlayerBindingEntry? _activeBindingEntry;
         int _activeBindingEntryIndex = -1;
+        readonly List<bool> _bindingConditionStates = new();
+        bool _hasBindingConditionStateSnapshot;
 
         ICommandRunner? _commandRunner;
         CancellationTokenSource? _commandCts;
@@ -79,7 +84,7 @@ namespace Game.UI
         public float DisplayedRawValue => _displayedRawValue;
         public float DisplayedNormalizedValue => _displayedNormalizedValue;
         public bool IsInteracting => _isInteracting;
-        public bool IsUserInputEnabled => _isVisible && _activeBindingEntry != null && _playerPreset.UserInput.Enabled;
+        public bool IsUserInputEnabled => _isVisible && _activeBindingEntry != null && _playerPreset.UserInput.Enabled && !IsLifecycleInputBlocked();
         public SliderUIInputMode UIInputMode => _playerPreset.UserInput.UIInputMode;
         public SliderWorldTriggerButton WorldTriggerButton => _playerPreset.UserInput.WorldTriggerButton;
         public float NavigateRepeatDelay => _playerPreset.UserInput.NavigateRepeatDelay;
@@ -106,6 +111,7 @@ namespace Game.UI
             _ = isReset;
 
             _activeScope = scope;
+            scope.TryResolveInAncestors<IScopeLifecycleService>(out _lifecycleService);
             UnsubscribeExternal();
             UnsubscribePresetProvider();
             StopCommands();
@@ -128,6 +134,7 @@ namespace Game.UI
             _segmentLayout = SliderRuntimeHelpers.BuildSegmentLayout(_visualizerPreset, _dynamicContext ?? new SimpleDynamicContext(vars, scope), _minValue, _maxValue);
             ResolveCommandRunner(scope);
             SubscribePresetProvider();
+            RefreshBindingConditionStates(executeCommands: false);
             RefreshActiveBindingEntry(scope, forceRebind: true);
         }
 
@@ -137,6 +144,7 @@ namespace Game.UI
             _ = isReset;
 
             _activeScope = null;
+            _lifecycleService = null;
             UnsubscribeExternal();
             UnsubscribePresetProvider();
             StopCommands();
@@ -160,6 +168,8 @@ namespace Game.UI
             _blackboardBindingSourceCache = default;
             _activeBindingEntry = null;
             _activeBindingEntryIndex = -1;
+            _bindingConditionStates.Clear();
+            _hasBindingConditionStateSnapshot = false;
             _suppressRuntimeCommands = false;
             _pendingExternalResync = false;
             _suppressScalarEcho = false;
@@ -171,7 +181,10 @@ namespace Game.UI
         public void Tick()
         {
             if (_activeScope != null)
+            {
+                RefreshBindingConditionStates(executeCommands: true);
                 RefreshActiveBindingEntry(_activeScope, forceRebind: false);
+            }
 
             if (_isInteracting && !IsUserInputEnabled)
                 RequestEndInteraction(SliderInteractionEndReason.Disabled);
@@ -306,6 +319,11 @@ namespace Game.UI
         public float ResolveBoundaryRawValue(int index)
         {
             return TryResolveBoundaryRawValue(index, out var rawValue) ? rawValue : 0f;
+        }
+
+        bool IsLifecycleInputBlocked()
+        {
+            return _lifecycleService != null && _lifecycleService.IsDespawning;
         }
     }
 }

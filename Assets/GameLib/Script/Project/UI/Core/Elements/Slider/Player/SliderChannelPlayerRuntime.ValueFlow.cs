@@ -228,6 +228,40 @@ namespace Game.UI
             }
         }
 
+        async UniTaskVoid ExecuteConditionChangedCommands(
+            SliderPlayerBindingEntry? entry,
+            int entryIndex,
+            bool currentCondition)
+        {
+            if (_commandRunner == null || _commandCts == null || entry == null)
+                return;
+
+            var commands = currentCondition
+                ? entry.OnConditionBecameTrueCommands
+                : entry.OnConditionBecameFalseCommands;
+            if (commands == null || commands.Count == 0)
+                return;
+
+            var vars = new VarStore();
+            var snapshot = BuildSnapshot();
+            SliderRuntimeHelpers.WriteCommonCommandVars(vars, snapshot, 0f, 0f);
+            SliderRuntimeHelpers.WriteConditionCommandVars(vars, entryIndex);
+
+            var options = CommandRunOptions.Default;
+            var ctx = new CommandContext(_owner, vars, _commandRunner, _owner, options);
+            try
+            {
+                await _commandRunner.ExecuteListAsync(commands, ctx, _commandCts.Token, options);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[SliderPlayerService] Binding condition commands failed: {ex.Message}");
+            }
+        }
+
         async UniTaskVoid ExecuteCrossingCommandsAsync(
             List<SliderResolvedEntry> entries,
             SliderSegmentCrossingDirection direction,

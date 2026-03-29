@@ -62,6 +62,13 @@ namespace Game.UI
             entry.SourceEntry?.WritePayloadVars(vars, entry.Index, entry.RawValue, entry.NormalizedValue);
         }
 
+        public static void WriteConditionCommandVars(
+            IVarStore vars,
+            int entryIndex)
+        {
+            TrySetIntVar(vars, VarIds.GameLib.Slider.entryIndex, entryIndex);
+        }
+
         public static void WriteSpawnCommandVars(
             IVarStore vars,
             in SliderSpawnedRuntimeInstance instance)
@@ -551,5 +558,6 @@ namespace Game.UI
 
             vars.TrySetVariant(varId, DynamicVariant.FromInt(value));
         }
+
     }
 }

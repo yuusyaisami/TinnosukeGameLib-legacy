@@ -19,6 +19,7 @@ namespace Game.Common
 
         CancellationTokenSource? _spawnCts;
         CancellationTokenSource? _despawnCts;
+        bool _despawnInProgress;
         bool _autoDespawnRequested;
 
         bool _hasConditionOverride;
@@ -33,6 +34,8 @@ namespace Game.Common
             _config = config;
             _resolver = resolver;
         }
+
+        public bool IsDespawning => _despawnInProgress;
 
         public void SetConditionOverride(DynamicValue<bool> condition)
         {
@@ -50,6 +53,7 @@ namespace Game.Common
         {
             ClearConditionOverride();
             _autoDespawnRequested = false;
+            _despawnInProgress = false;
         }
 
         public void Tick()
@@ -195,6 +199,7 @@ namespace Game.Common
 
         public async UniTask HandleDespawnAsync(CancellationToken ct)
         {
+            _despawnInProgress = true;
             _spawnCts?.Cancel();
 
             _despawnCts?.Cancel();
@@ -245,6 +250,10 @@ namespace Game.Common
             }
             catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
+            }
+            finally
+            {
+                _despawnInProgress = false;
             }
         }
     }

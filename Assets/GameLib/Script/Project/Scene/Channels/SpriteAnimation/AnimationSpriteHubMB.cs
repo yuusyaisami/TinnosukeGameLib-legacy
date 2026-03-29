@@ -16,6 +16,10 @@ namespace Game.Channel
         AnimationSpriteChannelDef[] channels = Array.Empty<AnimationSpriteChannelDef>();
 
         [SerializeField]
+        [Tooltip("Release 時に各 AnimationSpriteChannel を透明アニメーションでクリアするか")]
+        bool replaceWithTransparentOnRelease = false;
+
+        [SerializeField]
         [Tooltip("VisualSystem selector 用の HubTag")]
         string hubTag = "default";
 
@@ -39,6 +43,7 @@ namespace Game.Channel
                     .AsSelf()
                     .WithParameter(channels)
                     .WithParameter(scope)
+                    .WithParameter(replaceWithTransparentOnRelease)
                     .WithParameter(hubTag);
 
         }

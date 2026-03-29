@@ -57,7 +57,7 @@ inline ColorRamp2DParams MakeColorRamp2DParams(
     float opacity,
     float alphaMode)
 {
-    ColorRamp2DParams p = (ColorRamp2DParams)0;
+    ColorRamp2DParams p;
     p.enabled = enabled;
     p.source = MakeTextureSlotRef(
         sourceSlotType,
@@ -85,7 +85,7 @@ inline ColorRamp2DParams MakeColorRamp2DParamsSimple(
     float intensity,         // opacity として使用
     float preserveAlpha)     // ALPHA_MODE_PRESERVE or ALPHA_MODE_FROM_RAMP
 {
-    ColorRamp2DParams p = (ColorRamp2DParams)0;
+    ColorRamp2DParams p;
     p.enabled = enabled;
     p.source = MakeTextureSlotRef(
         sourceSlotType,
@@ -103,7 +103,7 @@ inline ColorRamp2DParams MakeColorRamp2DParamsSimple(
 // デフォルト値で初期化（無効状態）
 inline ColorRamp2DParams MakeDefaultColorRamp2DParams()
 {
-    ColorRamp2DParams p = (ColorRamp2DParams)0;
+    ColorRamp2DParams p;
     p.enabled = 0;
     p.source = MakeDefaultTextureSlotRef();
     p.blendMode = BLEND_MODE_NORMAL;
@@ -117,98 +117,89 @@ inline ColorRamp2DParams MakeDefaultColorRamp2DParams()
 // ---------------------------------------------------------------------------
 inline Surface2D Surface2D_ApplyColorRamp(Surface2D s, ColorRamp2DParams p)
 {
-    if (p.enabled < 0.5h)
-        return s;
-    if (p.source.slotType == TEXTURE_SLOT_NONE)
-        return s;
-    
-    // ソースからノイズ値を取得 (0-1)
-    half noise = SampleSlotScalar(s, p.source);
-    
-    // ランプテクスチャをサンプリング (noise を U 座標として使用)
-    // ★ テクスチャ名を _ColorRampTex に変更
-    float2 rampUV = float2(saturate(noise), 0.5);
-    half4 rampColor = SAMPLE_TEXTURE2D(_ColorRampTex, sampler_ColorRampTex, rampUV);
-    
-    // ブレンド
-    half3 blended = s.color;
-    half finalOpacity = p.opacity;
-    
-    [branch]
-    switch (p.blendMode)
+    Surface2D result = s;
+    if (p.enabled >= 0.5h && p.source.slotType != TEXTURE_SLOT_NONE)
     {
-        case BLEND_MODE_NORMAL:
-            blended = BlendNormal(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_MULTIPLY:
-            blended = BlendMultiply(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_ADD:
-            blended = BlendAdd(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_SCREEN:
-            blended = BlendScreen(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_OVERLAY:
-            blended = BlendOverlay(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_SOFTLIGHT:
-            blended = BlendSoftLight(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_HARDLIGHT:
-            blended = BlendHardLight(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_COLOR_BURN:
-            blended = BlendColorBurn(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_COLOR_DODGE:
-            blended = BlendColorDodge(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_DARKEN:
-            blended = BlendDarken(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_LIGHTEN:
-            blended = BlendLighten(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_DIFFERENCE:
-            blended = BlendDifference(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_EXCLUSION:
-            blended = BlendExclusion(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_HUE:
-            blended = BlendHue(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_SATURATION:
-            blended = BlendSaturation(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_COLOR:
-            blended = BlendColor(s.color, rampColor.rgb, finalOpacity);
-            break;
-        case BLEND_MODE_LUMINOSITY:
-            blended = BlendLuminosity(s.color, rampColor.rgb, finalOpacity);
-            break;
-        default:
-            blended = s.color;
-            break;
+        half noise = SampleSlotScalar(result, p.source);
+        float2 rampUV = float2(saturate(noise), 0.5);
+        half4 rampColor = SAMPLE_TEXTURE2D(_ColorRampTex, sampler_ColorRampTex, rampUV);
+        half3 blended = result.color;
+        half finalOpacity = p.opacity;
+
+        [branch]
+        switch (p.blendMode)
+        {
+            case BLEND_MODE_NORMAL:
+                blended = BlendNormal(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_MULTIPLY:
+                blended = BlendMultiply(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_ADD:
+                blended = BlendAdd(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_SCREEN:
+                blended = BlendScreen(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_OVERLAY:
+                blended = BlendOverlay(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_SOFTLIGHT:
+                blended = BlendSoftLight(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_HARDLIGHT:
+                blended = BlendHardLight(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_COLOR_BURN:
+                blended = BlendColorBurn(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_COLOR_DODGE:
+                blended = BlendColorDodge(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_DARKEN:
+                blended = BlendDarken(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_LIGHTEN:
+                blended = BlendLighten(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_DIFFERENCE:
+                blended = BlendDifference(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_EXCLUSION:
+                blended = BlendExclusion(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_HUE:
+                blended = BlendHue(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_SATURATION:
+                blended = BlendSaturation(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_COLOR:
+                blended = BlendColor(result.color, rampColor.rgb, finalOpacity);
+                break;
+            case BLEND_MODE_LUMINOSITY:
+                blended = BlendLuminosity(result.color, rampColor.rgb, finalOpacity);
+                break;
+            default:
+                blended = result.color;
+                break;
+        }
+
+        result.color = blended;
+
+        [branch]
+        switch (p.alphaMode)
+        {
+            case ALPHA_MODE_FROM_RAMP:
+                result.alpha = lerp(result.alpha, rampColor.a, finalOpacity);
+                break;
+            case ALPHA_MODE_FROM_NOISE:
+                result.alpha = lerp(result.alpha, noise, finalOpacity);
+                break;
+        }
     }
-    
-    s.color = blended;
-    
-    // アルファモード処理
-    [branch]
-    switch (p.alphaMode)
-    {
-        case ALPHA_MODE_FROM_RAMP:
-            s.alpha = lerp(s.alpha, rampColor.a, finalOpacity);
-            break;
-        case ALPHA_MODE_FROM_NOISE:
-            s.alpha = lerp(s.alpha, noise, finalOpacity);
-            break;
-        // ALPHA_MODE_PRESERVE: 何もしない
-    }
-    
-    return s;
+
+    return result;
 }
 
 #endif // GAME_COLOR_RAMP_2D_INCLUDED

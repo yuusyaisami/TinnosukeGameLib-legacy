@@ -5,6 +5,7 @@ using Game.Trait;
 using Game.UI.TraitList;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game.Commands.VNext
 {
@@ -97,22 +98,24 @@ namespace Game.Commands.VNext
     public sealed class RemoveTraitFromHolderCommandData : ICommandData
     {
         public int CommandId => CommandIds.RemoveTraitFromHolder;
-        public string DebugData => $"Selector={Selector.DebugData} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
+        public string DebugData => $"Selector={Selector.DebugData} UseBound={UseBoundHolder} Holder={TargetHolder.Kind} Key={TargetHolderKey}";
 
         [InlineProperty]
-        [Tooltip("削除対象 Trait の選択条件。InstanceId / Definition / Index などで対象を 1 件解決します。")]
+        [Tooltip("削除対象 Trait の選択条件。DynamicValue の評価元はコマンド実行者側で、Target Holder には引っ張られません。")]
         public TraitElementSelector Selector;
-        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
+        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら TargetHolder/TargetHolderKey は無視されます。")]
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
-        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]
-        [Tooltip("TraitHolder を保有する対象 Actor。ここから TraitHolderHubService を解決して HolderKey を参照する。")]
-        public ActorSource HolderActorSource;
+        [FormerlySerializedAs("TargetHolderActorSource")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(TargetHolder)")]
+        [Tooltip("Trait を外す先の Target Holder を持つ Actor。Selector の DynamicValue はこの Actor ではなく、コマンド実行者側の文脈で評価されます。")]
+        public ActorSource TargetHolder;
 
         [ShowIf("@!UseBoundHolder")]
-        [Tooltip("UseBoundHolder が false のときに使う holder key。削除対象 holder をこの key で解決します。")]
-        public string HolderKey = string.Empty;
+        [FormerlySerializedAs("HolderKey")]
+        [Tooltip("UseBoundHolder が false のときに使う Target Holder key。実際に Trait を remove する holder をこの key で解決します。")]
+        public string TargetHolderKey = string.Empty;
     }
 
     [Serializable]

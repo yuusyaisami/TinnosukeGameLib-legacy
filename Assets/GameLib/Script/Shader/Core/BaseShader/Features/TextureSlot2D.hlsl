@@ -66,7 +66,7 @@ inline TextureSlotRef MakeTextureSlotRef(
     float4 tilingOffset,
     float4 remap)
 {
-    TextureSlotRef ref = (TextureSlotRef)0;
+    TextureSlotRef ref;
     ref.slotType = (int)round(slotType);
     ref.channelMask = (int)round(channelMask);
     ref.uvSpace = clamp((int)round(uvSpace), 0, 3);
@@ -77,7 +77,7 @@ inline TextureSlotRef MakeTextureSlotRef(
 
 inline TextureSlotRef MakeDefaultTextureSlotRef()
 {
-    TextureSlotRef ref = (TextureSlotRef)0;
+    TextureSlotRef ref;
     ref.slotType = TEXTURE_SLOT_NONE;
     ref.channelMask = CHANNEL_R;
     ref.uvSpace = NOISE_UV_SPACE_SPRITE_LOCAL;

@@ -122,6 +122,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -288,7 +301,7 @@ TextureImporter:
         width: 13
         height: 10
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -297,6 +310,28 @@ TextureImporter:
       bones: []
       spriteID: 91cc7c2998f37274585416738b6740c4
       internalID: -1344589891
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emoji_Icons_7
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 31
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8b623957e40b07448b926a32d0d5c3f2
+      internalID: 525087843
       vertices: []
       indices: 
       edges: []
@@ -323,6 +358,7 @@ TextureImporter:
       Emoji_Icons_4: 911090945
       Emoji_Icons_5: 1370250752
       Emoji_Icons_6: -1344589891
+      Emoji_Icons_7: 525087843
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

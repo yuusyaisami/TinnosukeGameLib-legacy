@@ -19,7 +19,7 @@ struct Pixelation2DParams
 
 inline Pixelation2DParams MakePixelation2DParams()
 {
-    Pixelation2DParams p = (Pixelation2DParams)0;
+    Pixelation2DParams p;
     p.enabled = _PixelationEnabled;
     p.mode = (int)round(_PixelateMode);
     p.colorSteps = _PixelColorSteps;
@@ -130,16 +130,17 @@ inline float Pixelation2D_QuantizeAlpha(float alpha, float pixelateLevels)
 
 inline Surface2D Surface2D_ApplyPixelation(Surface2D s, Pixelation2DParams p)
 {
-    if (p.enabled <= 0.5f || p.mode == 0)
-        return s;
+    Surface2D result = s;
+    if (p.enabled > 0.5f && p.mode != 0)
+    {
+        if (p.colorSteps > 1.0f)
+            result.color = Pixelation2D_QuantizeColor(result.color, p.colorSteps);
 
-    if (p.colorSteps > 1.0f)
-        s.color = Pixelation2D_QuantizeColor(s.color, p.colorSteps);
+        if (p.mode != 3 && p.alphaSteps > 1.0f)
+            result.alpha = Pixelation2D_QuantizeAlpha(result.alpha, p.alphaSteps);
+    }
 
-    if (p.mode != 3 && p.alphaSteps > 1.0f)
-        s.alpha = Pixelation2D_QuantizeAlpha(s.alpha, p.alphaSteps);
-
-    return s;
+    return result;
 }
 
 #endif // GAME_PIXELATION2D_INCLUDED

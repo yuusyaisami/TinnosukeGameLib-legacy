@@ -6,6 +6,7 @@
 // ============================================================================
 
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/ColorSpaceUtils.hlsl"
+#include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/AnimatedNoise2D.hlsl"
 
 #define OUTLINE2D_DIRECTION_LEFT   1.0
 #define OUTLINE2D_DIRECTION_RIGHT  2.0
@@ -23,6 +24,30 @@ struct Outline2DParams
     float  autoHue;
     float  autoSaturation;
     float  autoLightness;
+    float  animatedGradientEnabled;
+    float  animatedGradientPatternType;
+    float  animatedGradientMasterStrength;
+    float  animatedGradientNoiseScale;
+    float2 animatedGradientNoiseDirection;
+    float  animatedGradientNoiseSpeed;
+    float2 animatedGradientNoiseOffset;
+    float  animatedGradientRotationSpeed;
+    float  animatedGradientPulseAmplitude;
+    float  animatedGradientPulseSpeed;
+    float  animatedGradientWarpPatternType;
+    float  animatedGradientWarpScale;
+    float  animatedGradientWarpStrength;
+    float2 animatedGradientWarpDirection;
+    float  animatedGradientWarpSpeed;
+    float  animatedGradientLoopSeconds;
+    float  animatedGradientOctaves;
+    float  animatedGradientLacunarity;
+    float  animatedGradientGain;
+    float  animatedGradientCellSharpness;
+    float  animatedGradientPatternContrast;
+    float  animatedGradientHueAmplitude;
+    float  animatedGradientSaturationAmplitude;
+    float  animatedGradientLightnessAmplitude;
     float  width;
     float  opacity;
     float  softness;
@@ -49,6 +74,30 @@ inline Outline2DParams MakeOutline2DParams(
     float autoHue,
     float autoSaturation,
     float autoLightness,
+    float animatedGradientEnabled,
+    float animatedGradientPatternType,
+    float animatedGradientMasterStrength,
+    float animatedGradientNoiseScale,
+    float2 animatedGradientNoiseDirection,
+    float animatedGradientNoiseSpeed,
+    float2 animatedGradientNoiseOffset,
+    float animatedGradientRotationSpeed,
+    float animatedGradientPulseAmplitude,
+    float animatedGradientPulseSpeed,
+    float animatedGradientWarpPatternType,
+    float animatedGradientWarpScale,
+    float animatedGradientWarpStrength,
+    float2 animatedGradientWarpDirection,
+    float animatedGradientWarpSpeed,
+    float animatedGradientLoopSeconds,
+    float animatedGradientOctaves,
+    float animatedGradientLacunarity,
+    float animatedGradientGain,
+    float animatedGradientCellSharpness,
+    float animatedGradientPatternContrast,
+    float animatedGradientHueAmplitude,
+    float animatedGradientSaturationAmplitude,
+    float animatedGradientLightnessAmplitude,
     float width,
     float opacity,
     float softness,
@@ -62,7 +111,7 @@ inline Outline2DParams MakeOutline2DParams(
     float uvClampEnabled,
     float zTestMode)
 {
-    Outline2DParams p = (Outline2DParams)0;
+    Outline2DParams p;
     p.enabled = enabled;
     p.mode = mode;
     p.color = color;
@@ -72,6 +121,30 @@ inline Outline2DParams MakeOutline2DParams(
     p.autoHue = autoHue;
     p.autoSaturation = autoSaturation;
     p.autoLightness = autoLightness;
+    p.animatedGradientEnabled = animatedGradientEnabled;
+    p.animatedGradientPatternType = animatedGradientPatternType;
+    p.animatedGradientMasterStrength = max(animatedGradientMasterStrength, 0.0);
+    p.animatedGradientNoiseScale = animatedGradientNoiseScale;
+    p.animatedGradientNoiseDirection = animatedGradientNoiseDirection;
+    p.animatedGradientNoiseSpeed = animatedGradientNoiseSpeed;
+    p.animatedGradientNoiseOffset = animatedGradientNoiseOffset;
+    p.animatedGradientRotationSpeed = animatedGradientRotationSpeed;
+    p.animatedGradientPulseAmplitude = max(animatedGradientPulseAmplitude, 0.0);
+    p.animatedGradientPulseSpeed = animatedGradientPulseSpeed;
+    p.animatedGradientWarpPatternType = animatedGradientWarpPatternType;
+    p.animatedGradientWarpScale = animatedGradientWarpScale;
+    p.animatedGradientWarpStrength = animatedGradientWarpStrength;
+    p.animatedGradientWarpDirection = animatedGradientWarpDirection;
+    p.animatedGradientWarpSpeed = animatedGradientWarpSpeed;
+    p.animatedGradientLoopSeconds = animatedGradientLoopSeconds;
+    p.animatedGradientOctaves = animatedGradientOctaves;
+    p.animatedGradientLacunarity = animatedGradientLacunarity;
+    p.animatedGradientGain = animatedGradientGain;
+    p.animatedGradientCellSharpness = animatedGradientCellSharpness;
+    p.animatedGradientPatternContrast = animatedGradientPatternContrast;
+    p.animatedGradientHueAmplitude = animatedGradientHueAmplitude;
+    p.animatedGradientSaturationAmplitude = animatedGradientSaturationAmplitude;
+    p.animatedGradientLightnessAmplitude = animatedGradientLightnessAmplitude;
     p.width = width;
     p.opacity = opacity;
     p.softness = softness;
@@ -160,7 +233,9 @@ inline float Outline2D_SampleMainAlphaOffset(Surface2D s, Outline2DParams p, flo
 
 inline bool Outline2DDirectionMaskHasBit(float roundedDirectionMask, float bitValue)
 {
-    return fmod(floor(roundedDirectionMask / bitValue), 2.0) > 0.5;
+    int mask = (int)roundedDirectionMask;
+    int bit = (int)bitValue;
+    return (mask & bit) != 0;
 }
 
 inline void Outline2D_AccumulateMinMax(inout float minA, inout float maxA, float v)
@@ -231,6 +306,31 @@ inline float3 Outline2D_Screen(float3 baseColor, float3 blendColor)
     return 1.0 - (1.0 - baseColor) * (1.0 - blendColor);
 }
 
+inline AnimatedNoise2DMotionParams Outline2D_MakeAnimatedGradientNoiseParams(Outline2DParams p)
+{
+    return MakeAnimatedNoise2DMotionParamsFull(
+        p.animatedGradientEnabled,
+        p.animatedGradientPatternType,
+        p.animatedGradientNoiseScale,
+        p.animatedGradientNoiseDirection,
+        p.animatedGradientNoiseSpeed,
+        p.animatedGradientNoiseOffset,
+        p.animatedGradientRotationSpeed,
+        p.animatedGradientPulseAmplitude,
+        p.animatedGradientPulseSpeed,
+        p.animatedGradientWarpPatternType,
+        p.animatedGradientWarpScale,
+        p.animatedGradientWarpStrength,
+        p.animatedGradientWarpDirection,
+        p.animatedGradientWarpSpeed,
+        p.animatedGradientLoopSeconds,
+        p.animatedGradientOctaves,
+        p.animatedGradientLacunarity,
+        p.animatedGradientGain,
+        p.animatedGradientCellSharpness,
+        p.animatedGradientPatternContrast);
+}
+
 inline float3 ResolveOutline2DColor(Surface2D s, Outline2DParams p)
 {
     float3 outlineColor = p.color.rgb;
@@ -257,125 +357,142 @@ inline float3 ResolveOutline2DColor(Surface2D s, Outline2DParams p)
         outlineColor *= saturate(s.color);
     }
 
+    if (p.animatedGradientEnabled > 0.5 && p.animatedGradientMasterStrength > 1e-5)
+    {
+        AnimatedNoise2DMotionParams motion = Outline2D_MakeAnimatedGradientNoiseParams(p);
+        float time = _Time.y;
+        half3 hsl = RGBtoHSL(saturate((half3)outlineColor));
+        float hueWobble;
+        float satWobble;
+        float lightWobble;
+        AnimatedNoise2D_SampleSignedTriplet(s.uvLocal, motion, time, hueWobble, satWobble, lightWobble);
+        float master = p.animatedGradientMasterStrength;
+
+        hsl.x = frac(hsl.x + (half)(hueWobble * p.animatedGradientHueAmplitude * master));
+        hsl.y = saturate(hsl.y + (half)(satWobble * p.animatedGradientSaturationAmplitude * master));
+        hsl.z = saturate(hsl.z + (half)(lightWobble * p.animatedGradientLightnessAmplitude * master));
+        outlineColor = HSLtoRGB(hsl);
+    }
+
     return outlineColor;
 }
 
 inline Surface2D Surface2D_ApplyOutline(Surface2D s, Outline2DParams p)
 {
+    Surface2D result = s;
 #if defined(SURFACE2D_WEBGL_SAFE)
-    if (p.enabled < 0.5 || p.directionMask < 0.5)
-        return s;
-
-    float2 texelSize = _MainTex_TexelSize.xy * max(p.width, 0.0);
-    if (texelSize.x <= 1e-8 && texelSize.y <= 1e-8)
-        return s;
-
-    float2 uv = s.uvMain;
-    float centerAlpha = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).a;
-    float alphaRight = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2( texelSize.x, 0.0)).a;
-    float alphaLeft  = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(-texelSize.x, 0.0)).a;
-    float alphaUp    = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(0.0,  texelSize.y)).a;
-    float alphaDown  = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(0.0, -texelSize.y)).a;
+    if (p.enabled >= 0.5 && p.directionMask >= 0.5)
+    {
+        float2 texelSize = _MainTex_TexelSize.xy * max(p.width, 0.0);
+        if (texelSize.x > 1e-8 || texelSize.y > 1e-8)
+        {
+            float2 uv = result.uvMain;
+            float centerAlpha = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).a;
+            float alphaRight = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2( texelSize.x, 0.0)).a;
+            float alphaLeft  = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(-texelSize.x, 0.0)).a;
+            float alphaUp    = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(0.0,  texelSize.y)).a;
+            float alphaDown  = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + float2(0.0, -texelSize.y)).a;
 #if defined(ETC1_EXTERNAL_ALPHA)
-    if (_EnableExternalAlpha > 0.5)
-    {
-        centerAlpha = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv).r;
-        alphaRight = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2( texelSize.x, 0.0)).r;
-        alphaLeft  = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(-texelSize.x, 0.0)).r;
-        alphaUp    = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(0.0,  texelSize.y)).r;
-        alphaDown  = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(0.0, -texelSize.y)).r;
-    }
+            if (_EnableExternalAlpha > 0.5)
+            {
+                centerAlpha = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv).r;
+                alphaRight = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2( texelSize.x, 0.0)).r;
+                alphaLeft  = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(-texelSize.x, 0.0)).r;
+                alphaUp    = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(0.0,  texelSize.y)).r;
+                alphaDown  = SAMPLE_TEXTURE2D(_AlphaTex, sampler_AlphaTex, uv + float2(0.0, -texelSize.y)).r;
+            }
 #endif
 
-    float roundedDirectionMask = max(0.0, floor(p.directionMask + 0.5));
-    bool hasLeft = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_LEFT);
-    bool hasRight = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_RIGHT);
-    bool hasUp = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_UP);
-    bool hasDown = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_DOWN);
+            float roundedDirectionMask = max(0.0, floor(p.directionMask + 0.5));
+            bool hasLeft = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_LEFT);
+            bool hasRight = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_RIGHT);
+            bool hasUp = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_UP);
+            bool hasDown = Outline2DDirectionMaskHasBit(roundedDirectionMask, OUTLINE2D_DIRECTION_DOWN);
 
-    float neighborMax = centerAlpha;
-    if (hasRight) neighborMax = max(neighborMax, alphaRight);
-    if (hasLeft) neighborMax = max(neighborMax, alphaLeft);
-    if (hasUp) neighborMax = max(neighborMax, alphaUp);
-    if (hasDown) neighborMax = max(neighborMax, alphaDown);
+            float neighborMax = centerAlpha;
+            if (hasRight) neighborMax = max(neighborMax, alphaRight);
+            if (hasLeft) neighborMax = max(neighborMax, alphaLeft);
+            if (hasUp) neighborMax = max(neighborMax, alphaUp);
+            if (hasDown) neighborMax = max(neighborMax, alphaDown);
 
-    float edge = saturate(neighborMax - centerAlpha);
-    float outlineAlpha = smoothstep(0.0, max(1e-4, p.softness), edge);
-    outlineAlpha *= saturate(p.opacity) * p.color.a;
-    if (outlineAlpha <= 1e-6)
-        return s;
-
-    float3 outlineColor = ResolveOutline2DColor(s, p);
-    float3 colorOut = lerp(outlineColor, s.color, saturate(s.alpha));
-    float alphaOut = max(s.alpha, outlineAlpha * saturate(s.vertexAlpha));
-    s.color = colorOut;
-    s.alpha = alphaOut;
-    return s;
+            float edge = saturate(neighborMax - centerAlpha);
+            float outlineAlpha = smoothstep(0.0, max(1e-4, p.softness), edge);
+            outlineAlpha *= saturate(p.opacity) * p.color.a;
+            if (outlineAlpha > 1e-6)
+            {
+                float3 outlineColor = ResolveOutline2DColor(result, p);
+                float3 colorOut = lerp(outlineColor, result.color, saturate(result.alpha));
+                float alphaOut = max(result.alpha, outlineAlpha * saturate(result.vertexAlpha));
+                result.color = colorOut;
+                result.alpha = alphaOut;
+            }
+        }
+    }
 #else
-    if (p.enabled < 0.5 || p.directionMask < 0.5)
-        return s;
-
-    float2 stepUV = Outline2D_ComputeStepUV(s, p);
-    if (stepUV.x <= 1e-8 && stepUV.y <= 1e-8)
-        return s;
-
-    float centerAlpha = Outline2D_SampleMainAlphaOffset(s, p, float2(0.0, 0.0));
-    float minAlpha = centerAlpha;
-    float maxAlpha = centerAlpha;
-    float roundedDirectionMask = max(0.0, floor(p.directionMask + 0.5));
-    Outline2D_AccumulateDirectionalSamples(
-        s,
-        p,
-        roundedDirectionMask,
-        stepUV,
-        p.samplePattern >= 15.0,
-        p.samplePattern >= 25.0,
-        minAlpha,
-        maxAlpha);
-
-    bool insideMode = (p.mode >= 15.0);
-    float edge = insideMode
-        ? saturate(centerAlpha - minAlpha)
-        : saturate(maxAlpha - centerAlpha);
-
-    float edgeSoft = max(p.softness, 1e-4);
-    float edgeAlpha = (p.softness > 0.0) ? smoothstep(0.0, edgeSoft, edge) : step(1e-4, edge);
-
-    float alphaScale = (p.maskRespect > 0.5)
-        ? saturate(s.vertexAlpha * s.alphaFactor)
-        : saturate(s.vertexAlpha);
-    float outlineAlpha = edgeAlpha * saturate(p.opacity) * p.color.a * alphaScale;
-    if (outlineAlpha <= 1e-6)
-        return s;
-
-    float3 outlineColor = ResolveOutline2DColor(s, p);
-
-    float4 baseCol = float4(s.color, s.alpha);
-    float4 outlineCol = float4(outlineColor, outlineAlpha);
-    float4 composed = baseCol;
-
-    if (p.blendMode >= 25.0)
+    if (p.enabled >= 0.5 && p.directionMask >= 0.5)
     {
-        float3 screened = Outline2D_Screen(baseCol.rgb, outlineCol.rgb);
-        composed.rgb = lerp(baseCol.rgb, screened, outlineCol.a);
-        composed.a = max(baseCol.a, outlineCol.a);
-    }
-    else if (p.blendMode >= 15.0)
-    {
-        composed.rgb = baseCol.rgb + outlineCol.rgb * outlineCol.a;
-        composed.a = max(baseCol.a, outlineCol.a);
-    }
-    else
-    {
-        composed = insideMode
-            ? Outline2D_Over(outlineCol, baseCol)
-            : Outline2D_Over(baseCol, outlineCol);
-    }
+        float2 stepUV = Outline2D_ComputeStepUV(result, p);
+        if (stepUV.x > 1e-8 || stepUV.y > 1e-8)
+        {
+            float centerAlpha = Outline2D_SampleMainAlphaOffset(result, p, float2(0.0, 0.0));
+            float minAlpha = centerAlpha;
+            float maxAlpha = centerAlpha;
+            float roundedDirectionMask = max(0.0, floor(p.directionMask + 0.5));
+            Outline2D_AccumulateDirectionalSamples(
+                result,
+                p,
+                roundedDirectionMask,
+                stepUV,
+                p.samplePattern >= 15.0,
+                p.samplePattern >= 25.0,
+                minAlpha,
+                maxAlpha);
 
-    s.color = composed.rgb;
-    s.alpha = composed.a;
-    return s;
+            bool insideMode = (p.mode >= 15.0);
+            float edge = insideMode
+                ? saturate(centerAlpha - minAlpha)
+                : saturate(maxAlpha - centerAlpha);
+
+            float edgeSoft = max(p.softness, 1e-4);
+            float edgeAlpha = (p.softness > 0.0) ? smoothstep(0.0, edgeSoft, edge) : step(1e-4, edge);
+
+            float alphaScale = (p.maskRespect > 0.5)
+                ? saturate(result.vertexAlpha * result.alphaFactor)
+                : saturate(result.vertexAlpha);
+            float outlineAlpha = edgeAlpha * saturate(p.opacity) * p.color.a * alphaScale;
+            if (outlineAlpha > 1e-6)
+            {
+                float3 outlineColor = ResolveOutline2DColor(result, p);
+                float4 baseCol = float4(result.color, result.alpha);
+                float4 outlineCol = float4(outlineColor, outlineAlpha);
+                float4 composed = baseCol;
+
+                if (p.blendMode >= 25.0)
+                {
+                    float3 screened = Outline2D_Screen(baseCol.rgb, outlineCol.rgb);
+                    composed.rgb = lerp(baseCol.rgb, screened, outlineCol.a);
+                    composed.a = max(baseCol.a, outlineCol.a);
+                }
+                else if (p.blendMode >= 15.0)
+                {
+                    composed.rgb = baseCol.rgb + outlineCol.rgb * outlineCol.a;
+                    composed.a = max(baseCol.a, outlineCol.a);
+                }
+                else
+                {
+                    composed = insideMode
+                        ? Outline2D_Over(outlineCol, baseCol)
+                        : Outline2D_Over(baseCol, outlineCol);
+                }
+
+                result.color = composed.rgb;
+                result.alpha = composed.a;
+            }
+        }
+    }
 #endif
+
+    return result;
 }
 
 #endif // GAME_OUTLINE_2D_INCLUDED

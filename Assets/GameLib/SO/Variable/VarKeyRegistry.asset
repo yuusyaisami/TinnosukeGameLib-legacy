@@ -3663,6 +3663,14 @@ MonoBehaviour:
     varId: 100123
     stableKey: UpgradeTable
     aliases: []
+  - id: 39d1a4b4b1994adc963e571dc6a3efe7
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Rarity
+    isFolder: 0
+    description: 
+    varId: 101105
+    stableKey: Rarity
+    aliases: []
   - id: b08882a0c8e24de48a4f005e0b281469
     parentId: 550c79e9f5644ddbbe60095b28fc9b2b
     name: UpgradePanel
@@ -3671,7 +3679,7 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
-  nextVarId: 101105
+  nextVarId: 101106
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

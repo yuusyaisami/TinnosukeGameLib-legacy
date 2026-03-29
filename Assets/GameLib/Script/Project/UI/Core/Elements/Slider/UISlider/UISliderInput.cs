@@ -1,9 +1,11 @@
 #nullable enable
 using System;
-using UnityEngine;
+using Game;
 using Game.Input;
-using VContainer;
+using Game.Common;
+using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 
 namespace Game.UI
 {
@@ -27,6 +29,7 @@ namespace Game.UI
         readonly IUISelectionBlockService? _selectionBlockService;
         readonly IUISliderTelemetry? _telemetry;
 
+        IScopeLifecycleService? _lifecycleService;
         IDisposable? _selectionBlock;
 
         bool _pointerCaptureRequested;
@@ -69,6 +72,8 @@ namespace Game.UI
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            _ = isReset;
+            scope.TryResolveInAncestors<IScopeLifecycleService>(out _lifecycleService);
             _consumerHub?.Register(this);
             SubscribeSelection();
             SubscribeOutput();
@@ -76,10 +81,13 @@ namespace Game.UI
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            _ = scope;
+            _ = isReset;
             _consumerHub?.Unregister(this);
             UnsubscribeSelection();
             UnsubscribeOutput();
             _pointerCaptureRequested = false;
+            _lifecycleService = null;
             ReleaseSelectionBlock();
         }
 
@@ -121,10 +129,12 @@ namespace Game.UI
             if (!_valueOptions.IsEditable)
                 return false;
 
+            if (_lifecycleService != null && _lifecycleService.IsDespawning)
+                return false;
+
             if (_elementState != null)
             {
-                if (!_elementState.IsEffectivelyActive) return false;
-                if (!_elementState.IsVisible) return false;
+                if (!_elementState.AcceptsInput) return false;
             }
 
             return true;
