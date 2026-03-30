@@ -79,7 +79,7 @@ namespace Game.Channel
         public string Tag { get; }
         public TMP_Text Target => _backend.Target;
 
-        public IMaterialFxService? MaterialFx => _materialFxService;
+        public IMaterialFxService? MaterialFx => EnsureMaterialFxService();
 
         public bool SupportsRichAnimation => _backend.SupportsRichAnimation;
         public bool SupportsTypewriter => _backend.SupportsTypewriter;
@@ -88,7 +88,12 @@ namespace Game.Channel
         readonly ITextBackend _backend;
         readonly bool _defaultUseTypewriter;
         readonly bool _defaultUseCounter;
-        readonly IMaterialFxService? _materialFxService;
+        IMaterialFxService? _materialFxService;
+        readonly IMaterialFxServiceFactory? _materialFxFactory;
+        readonly IReadOnlyList<MaterialFxPresetEntry>? _materialFxPresetEntries;
+        CancellationTokenSource? _materialFxWarmupCts;
+        bool _materialFxPresetApplied;
+        bool _disposed;
         readonly IScopeNode _scope;
         TextStyleState _defaultStyle;
         TextStyleState _activeStyle;
@@ -140,15 +145,100 @@ namespace Game.Channel
 
             _defaultStyle = CaptureStyleState();
             _activeStyle = _defaultStyle;
+            _materialFxFactory = materialFxFactory;
+            _materialFxPresetEntries = materialFxPresetEntries;
 
-            // MaterialFx 初期化
-            if (materialFxFactory != null)
+            if (_materialFxFactory != null)
             {
-                _materialFxService = materialFxFactory.CreateForTmpText(target);
-                if (materialFxPresetEntries != null && materialFxPresetEntries.Count > 0)
-                {
-                    _materialFxService.ApplyPreset("default", ResolveMaterialFxEntries(materialFxPresetEntries));
-                }
+                _materialFxService = _materialFxFactory.CreateForTmpText(Target);
+                if (HasMaterialFxPresetEntries)
+                    ScheduleMaterialFxWarmup();
+            }
+
+            // MaterialFx の初期化は行うが、preset の material clone は 1 フレーム遅延させる。
+        }
+
+        IMaterialFxService? EnsureMaterialFxService()
+        {
+            if (_materialFxService != null)
+            {
+                EnsureMaterialFxPresetApplied();
+                return _materialFxService;
+            }
+
+            if (_materialFxFactory == null)
+                return null;
+
+            _materialFxService = _materialFxFactory.CreateForTmpText(Target);
+            EnsureMaterialFxPresetApplied();
+
+            return _materialFxService;
+        }
+
+        bool HasMaterialFxPresetEntries => _materialFxPresetEntries != null && _materialFxPresetEntries.Count > 0;
+
+        void EnsureMaterialFxPresetApplied()
+        {
+            if (_materialFxPresetApplied)
+                return;
+
+            if (_materialFxService == null)
+                return;
+
+            if (!HasMaterialFxPresetEntries)
+            {
+                _materialFxPresetApplied = true;
+                return;
+            }
+
+            try
+            {
+                _materialFxService.ApplyPreset("default", ResolveMaterialFxEntries(_materialFxPresetEntries!));
+                _materialFxPresetApplied = true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[TextChannelPlayer] Failed to apply MaterialFx preset for tag='{Tag}': {ex}", _backend.Target);
+            }
+        }
+
+        void ScheduleMaterialFxWarmup()
+        {
+            if (_materialFxWarmupCts != null)
+                return;
+
+            if (_materialFxService == null || !HasMaterialFxPresetEntries)
+                return;
+
+            var warmupCts = new CancellationTokenSource();
+            _materialFxWarmupCts = warmupCts;
+            WarmupMaterialFxAsync(warmupCts).Forget();
+        }
+
+        async UniTask WarmupMaterialFxAsync(CancellationTokenSource warmupCts)
+        {
+            try
+            {
+                await UniTask.Yield(PlayerLoopTiming.Update, warmupCts.Token);
+                if (warmupCts.IsCancellationRequested || _disposed)
+                    return;
+
+                EnsureMaterialFxPresetApplied();
+            }
+            catch (OperationCanceledException)
+            {
+                // expected
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[TextChannelPlayer] MaterialFx warmup failed for tag='{Tag}': {ex}", _backend.Target);
+            }
+            finally
+            {
+                if (ReferenceEquals(_materialFxWarmupCts, warmupCts))
+                    _materialFxWarmupCts = null;
+
+                warmupCts.Dispose();
             }
         }
 
@@ -679,6 +769,15 @@ namespace Game.Channel
         {
             ClearTypewriterEventCommands();
             StopPreset();
+            if (_materialFxWarmupCts != null)
+            {
+                try { _materialFxWarmupCts.Cancel(); }
+                catch { }
+
+                _materialFxWarmupCts = null;
+            }
+
+            _disposed = true;
             if (_backend is IDisposable d)
                 d.Dispose();
 

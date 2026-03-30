@@ -139,6 +139,14 @@ MonoBehaviour:
       _debugAssetPath: 
       _functionName: 
       _commands: []
+  - sprite: {fileID: -4698600402995417950, guid: c4ce9e579dd9eac4caec44774da7f3c1, type: 3}
+    duration: 0.1
+    commands:
+      _debugOwner: {fileID: 0}
+      _debugFieldPath: 
+      _debugAssetPath: 
+      _functionName: 
+      _commands: []
   importSourceTexture: {fileID: 2800000, guid: bd0b81dac32f0844d8e4af86434c5e0f, type: 3}
   importDefaultDuration: 0
   importAppend: 0

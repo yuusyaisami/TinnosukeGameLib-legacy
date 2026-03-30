@@ -26,12 +26,20 @@ namespace Game.Commands
         // ================================================================
 
         const int InitialRunningCapacity = 2;
+        const float ValueTargetScopeRefreshIntervalSeconds = 0.25f;
 
         sealed class ValueChangedWatchState
         {
             public readonly MonitorValueChangedTarget Target;
             public bool HasLastValue;
             public DynamicVariant LastValue;
+            public bool HasCachedTargetScope;
+            public float NextTargetScopeRefreshAt;
+            public IScopeNode? CachedTargetScope;
+            public IMonitorChannelHub? CachedMonitorHub;
+            public IVarStore? CachedDirectVarStore;
+            public IBlackboardService? CachedBlackboardService;
+            public IBaseScalarService? CachedScalarService;
             public IDisposable? ScalarSubscription;
             public Action<int>? VarChangedHandler;
             public IVarStore? ObservedVarStore;
@@ -101,6 +109,8 @@ namespace Game.Commands
         int _telemetryVersion;
         IDisposable? _eventSubscription;
         IScopeNode? _subscribedScope;
+        IBaseLifetimeScopeRegistry? _scopeRegistryCache;
+        bool _scopeRegistryCacheResolved;
 
         // ================================================================
         // プロパティ
@@ -342,7 +352,7 @@ namespace Game.Commands
                     return VNext.ActorSourceFastResolver.Resolve(_scope, source);
                 case VNext.ActorSourceKind.ByIdentity:
                     {
-                        if (!TryResolveScopeRegistry(_scope, out var registry) || registry == null)
+                        if (!TryGetScopeRegistryCached(out var registry) || registry == null)
                             return null;
                         return registry.Resolve(source.Identity, _scope);
                     }
@@ -407,6 +417,27 @@ namespace Game.Commands
                 }
                 current = current.Parent;
             }
+            registry = null;
+            return false;
+        }
+
+        bool TryGetScopeRegistryCached(out IBaseLifetimeScopeRegistry? registry)
+        {
+            if (_scopeRegistryCacheResolved)
+            {
+                registry = _scopeRegistryCache;
+                return registry != null;
+            }
+
+            _scopeRegistryCacheResolved = true;
+            if (TryResolveScopeRegistry(_scope, out var resolved) && resolved != null)
+            {
+                _scopeRegistryCache = resolved;
+                registry = resolved;
+                return true;
+            }
+
+            _scopeRegistryCache = null;
             registry = null;
             return false;
         }
@@ -517,6 +548,43 @@ namespace Game.Commands
             {
                 _valueChangedTriggeredThisFrame = false;
             }
+        }
+
+        public bool RequiresTick(MonitorEvaluationMode mode)
+        {
+            if (_disposed)
+                return false;
+
+            if (_runningEntries.Count > 0)
+                return true;
+
+            if (_eventFiredThisFrame)
+                return true;
+
+            return _rule.RuleKind switch
+            {
+                MonitorRuleKind.ConditionOnly => RequiresConditionTick(mode),
+                MonitorRuleKind.ValueChanged => _valueChangedTriggeredThisFrame || ShouldPollValueChanged(mode),
+                MonitorRuleKind.EventOnly => false,
+                MonitorRuleKind.EventAndCondition => false,
+                _ => false,
+            };
+        }
+
+        bool RequiresConditionTick(MonitorEvaluationMode mode)
+        {
+            return mode switch
+            {
+                MonitorEvaluationMode.Polling => true,
+                MonitorEvaluationMode.EventDriven => !HasConditionDependencies() || _dependentKeyChanged || !_conditionEvaluatedOnce,
+                MonitorEvaluationMode.Manual => false,
+                _ => false,
+            };
+        }
+
+        bool HasConditionDependencies()
+        {
+            return _cachedDependentVarIds != null && _cachedDependentVarIds.Length > 0;
         }
 
         bool ShouldPollValueChanged(MonitorEvaluationMode mode)
@@ -703,9 +771,8 @@ namespace Game.Commands
                     }
                 case MonitorValueSourceKind.Blackboard:
                     {
-                        var targetScope = ResolveValueTargetScope(target);
-                        if (targetScope?.Resolver == null) return false;
-                        if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null) return false;
+                        if (!TryResolveTargetBlackboard(state, out var bb) || bb == null)
+                            return false;
                         var varId = target.BlackboardVarId;
                         if (varId == 0) return false;
 
@@ -716,9 +783,8 @@ namespace Game.Commands
                     }
                 case MonitorValueSourceKind.Scalar:
                     {
-                        var targetScope = ResolveValueTargetScope(target);
-                        if (targetScope?.Resolver == null) return false;
-                        if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc) || svc == null) return false;
+                        if (!TryResolveTargetScalar(state, out var svc) || svc == null)
+                            return false;
                         var key = target.ScalarKey;
                         if (key.Id == 0 && string.IsNullOrEmpty(key.Name)) return false;
 
@@ -837,7 +903,7 @@ namespace Game.Commands
                 if (state.BlackboardVarChangedHandler != null)
                     return;
 
-                if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
+                if (!TryResolveTargetBlackboard(state, out var bb) || bb == null)
                     return;
 
                 state.ObservedBlackboardVars = bb.LocalVars;
@@ -851,7 +917,7 @@ namespace Game.Commands
                 if (state.ScalarSubscription != null)
                     return;
 
-                if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc) || svc == null)
+                if (!TryResolveTargetScalar(state, out var svc) || svc == null)
                     return;
 
                 var key = state.Target.ScalarKey;
@@ -895,6 +961,13 @@ namespace Game.Commands
 
                 try { state.ScalarSubscription?.Dispose(); } catch { }
                 state.ScalarSubscription = null;
+                state.CachedTargetScope = null;
+                state.HasCachedTargetScope = false;
+                state.NextTargetScopeRefreshAt = 0f;
+                state.CachedMonitorHub = null;
+                state.CachedDirectVarStore = null;
+                state.CachedBlackboardService = null;
+                state.CachedScalarService = null;
                 state.PendingFire = false;
                 state.PendingRefresh = false;
             }
@@ -945,23 +1018,90 @@ namespace Game.Commands
         {
             vars = null;
 
-            var targetScope = ResolveValueTargetScope(state.Target);
-            if (targetScope?.Resolver == null)
+            if (!TryResolveTargetScope(state, out var targetScope) || targetScope?.Resolver == null)
                 return false;
 
-            if (targetScope.Resolver.TryResolve<IMonitorChannelHub>(out var hub) && hub?.CurrentVarStore != null)
+            if (state.CachedMonitorHub == null)
             {
-                vars = hub.CurrentVarStore;
+                targetScope.Resolver.TryResolve<IMonitorChannelHub>(out var hub);
+                state.CachedMonitorHub = hub;
+            }
+
+            if (state.CachedMonitorHub?.CurrentVarStore != null)
+            {
+                vars = state.CachedMonitorHub.CurrentVarStore;
                 return true;
             }
 
-            if (targetScope.Resolver.TryResolve<IVarStore>(out var resolvedVars) && resolvedVars != null)
+            if (state.CachedDirectVarStore == null)
             {
-                vars = resolvedVars;
+                if (targetScope.Resolver.TryResolve<IVarStore>(out var resolvedVars) && resolvedVars != null)
+                    state.CachedDirectVarStore = resolvedVars;
+            }
+
+            if (state.CachedDirectVarStore != null)
+            {
+                vars = state.CachedDirectVarStore;
                 return true;
             }
 
             return false;
+        }
+
+        bool TryResolveTargetScope(ValueChangedWatchState state, out IScopeNode? scope)
+        {
+            var now = Time.unscaledTime;
+            if (state.HasCachedTargetScope && now < state.NextTargetScopeRefreshAt)
+            {
+                scope = state.CachedTargetScope;
+                return scope?.Resolver != null;
+            }
+
+            scope = ResolveValueTargetScope(state.Target);
+            state.HasCachedTargetScope = true;
+            state.NextTargetScopeRefreshAt = now + ValueTargetScopeRefreshIntervalSeconds;
+            if (!ReferenceEquals(state.CachedTargetScope, scope))
+            {
+                state.CachedTargetScope = scope;
+                state.CachedMonitorHub = null;
+                state.CachedDirectVarStore = null;
+                state.CachedBlackboardService = null;
+                state.CachedScalarService = null;
+            }
+
+            return scope?.Resolver != null;
+        }
+
+        bool TryResolveTargetBlackboard(ValueChangedWatchState state, out IBlackboardService? blackboard)
+        {
+            blackboard = null;
+            if (!TryResolveTargetScope(state, out var targetScope) || targetScope?.Resolver == null)
+                return false;
+
+            if (state.CachedBlackboardService == null)
+            {
+                if (targetScope.Resolver.TryResolve<IBlackboardService>(out var resolved) && resolved != null)
+                    state.CachedBlackboardService = resolved;
+            }
+
+            blackboard = state.CachedBlackboardService;
+            return blackboard != null;
+        }
+
+        bool TryResolveTargetScalar(ValueChangedWatchState state, out IBaseScalarService? scalar)
+        {
+            scalar = null;
+            if (!TryResolveTargetScope(state, out var targetScope) || targetScope?.Resolver == null)
+                return false;
+
+            if (state.CachedScalarService == null)
+            {
+                if (targetScope.Resolver.TryResolve<IBaseScalarService>(out var resolved) && resolved != null)
+                    state.CachedScalarService = resolved;
+            }
+
+            scalar = state.CachedScalarService;
+            return scalar != null;
         }
 
         void TryInitializeLastWatchedValue()

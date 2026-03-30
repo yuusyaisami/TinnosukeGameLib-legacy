@@ -23,7 +23,7 @@ namespace Game.Commands.VNext
         }
 
         public string DebugName => BuildDebugName();
-        public bool IsExecutionEnabled => enabled;
+        public bool IsExecutionEnabled => enabled && data != null;
 
         public void SetExecutionEnabled(bool value)
         {

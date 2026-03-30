@@ -390,6 +390,39 @@ namespace Game.SelectRuntime
             Unbind();
         }
 
+        public bool TryEnterEditorMode()
+        {
+            if (_owner == null)
+                return false;
+
+            if (_service == null)
+                Rebind();
+
+            return _service != null && _service.TryEnterEditorMode(_owner);
+        }
+
+        public bool IsEditing()
+        {
+            if (_owner == null)
+                return false;
+
+            if (_service == null)
+                Rebind();
+
+            return _service != null && _service.IsEditing(_owner);
+        }
+
+        public bool TryExitEditorMode(bool runExitCommands)
+        {
+            if (_owner == null)
+                return false;
+
+            if (_service == null)
+                Rebind();
+
+            return _service != null && _service.TryExitEditorMode(_owner, runExitCommands);
+        }
+
         public void Tick()
         {
             if (_owner == null)

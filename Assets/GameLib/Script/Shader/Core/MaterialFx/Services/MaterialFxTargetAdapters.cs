@@ -85,6 +85,9 @@ namespace Game.MaterialFx
         /// <summary>ターゲットが有効か</summary>
         bool IsValid { get; }
 
+        /// <summary>Apply が必要な保留変更を持っているか</summary>
+        bool HasPendingApply { get; }
+
         /// <summary>Material を確保（必要なら）してプロパティを読み取る</summary>
         bool TryReadPropertyValue(int propertyId, ValueKind type, out MaterialFxTypedValue value);
 
@@ -123,8 +126,15 @@ namespace Game.MaterialFx
         bool _lastFlipX;
         bool _lastFlipY;
         float _lastInvPpu = float.NaN;
+        bool _hasPendingApply;
 
         public bool IsValid => _renderer != null;
+        public bool HasPendingApply =>
+            _hasPendingApply ||
+            _queueOffsetDirty ||
+            !ReferenceEquals(_renderer.sprite, _lastSprite) ||
+            _renderer.flipX != _lastFlipX ||
+            _renderer.flipY != _lastFlipY;
 
         public SpriteRendererAdapter(SpriteRenderer renderer, IMaterialFxPropertyRegistry registry)
         {
@@ -176,6 +186,7 @@ namespace Game.MaterialFx
             }
 
             WriteToMpb(_mpb, propertyId, value);
+            _hasPendingApply = true;
         }
 
         public void Apply()
@@ -183,8 +194,14 @@ namespace Game.MaterialFx
             if (_renderer == null)
                 return;
 
-            // 毎フレーム SetPropertyBlock を行い、値が戻る（0/1化する）現象を抑止する。
-            _renderer.SetPropertyBlock(_mpb);
+            NotifySpriteChanged(_renderer.sprite);
+            NotifyFlipChanged(_renderer.flipX, _renderer.flipY);
+
+            if (_hasPendingApply)
+            {
+                _renderer.SetPropertyBlock(_mpb);
+                _hasPendingApply = false;
+            }
 
             if (_queueOffsetDirty)
                 ApplyQueueOffset();
@@ -272,6 +289,7 @@ namespace Game.MaterialFx
 
             _mpb.SetVector(_spriteUVRectId, uvRect);
             _lastSprite = sprite;
+            _hasPendingApply = true;
         }
 
         public void NotifyFlipChanged(bool flipX, bool flipY)
@@ -285,6 +303,7 @@ namespace Game.MaterialFx
 
             _lastFlipX = flipX;
             _lastFlipY = flipY;
+            _hasPendingApply = true;
         }
 
         static int ResolveShaderPropertyId(IMaterialFxPropertyRegistry registry, string stableKey)
@@ -402,6 +421,7 @@ namespace Game.MaterialFx
         bool _mpbFetched;
 
         public bool IsValid => _renderer != null;
+        public bool HasPendingApply => _mpbFetched || _queueOffsetDirty;
 
         public RendererAdapter(Renderer renderer)
         {
@@ -617,6 +637,7 @@ namespace Game.MaterialFx
         bool _disposed;
 
         public bool IsValid => _material != null && !_disposed;
+        public bool HasPendingApply => false;
 
         /// <summary>
         /// 既存の Material インスタンスを使用。
@@ -716,11 +737,16 @@ namespace Game.MaterialFx
         readonly Graphic _graphic;
         MaterialFxGraphicModifier? _modifier;
         bool _disposed;
+        bool _hasPendingApply;
+        Sprite? _lastSprite;
+        float _lastInvPpu = float.NaN;
 
         readonly int _spriteUVRectId;
         readonly int _spriteTexelSizeLocalId;
 
         public bool IsValid => _graphic != null && !_disposed;
+        public bool HasPendingApply =>
+            _hasPendingApply || (_modifier != null && HasGraphicSpriteMetadataChanged());
 
         public GraphicAdapter(Graphic graphic, IMaterialFxPropertyRegistry registry)
         {
@@ -729,8 +755,6 @@ namespace Game.MaterialFx
             if (registry == null) throw new ArgumentNullException(nameof(registry));
             _spriteUVRectId = ResolveShaderPropertyId(registry, MaterialFxKeys.BaseShader.Common.SpriteUVRect);
             _spriteTexelSizeLocalId = ResolveShaderPropertyId(registry, MaterialFxKeys.BaseShader.Common.SpriteTexelSizeLocal);
-
-            EnsureModifier();
         }
 
         void EnsureModifier()
@@ -744,9 +768,6 @@ namespace Game.MaterialFx
             {
                 _modifier = _graphic.gameObject.AddComponent<MaterialFxGraphicModifier>();
             }
-
-            // 初回は SetMaterialDirty を呼んでマテリアルインスタンスを生成させる
-            _modifier.SetMaterialDirty();
         }
 
         Material? GetMaterialInstance()
@@ -776,43 +797,62 @@ namespace Game.MaterialFx
             var mat = GetMaterialInstance();
             if (mat == null) return;
             WriteToMaterial(mat, propertyId, value);
+            _hasPendingApply = true;
         }
 
         public void Apply()
         {
-            if (_graphic == null)
+            if (_graphic == null || _modifier == null)
                 return;
 
             var mat = GetMaterialInstance();
             if (mat != null)
             {
-                // uGUI Image の sprite は atlasUV を持つため、Shader 側で uvLocal を作れるように
-                // _SpriteUVRect を毎フレーム同期する。
-                if (_graphic is Image img && img.sprite != null && img.sprite.texture != null)
-                {
-                    var sprite = img.sprite;
-                    if (SpriteMetaUtils.TryComputeForGraphic(sprite, out var uvRect, out var invPpu))
-                    {
-                        if (mat.HasProperty(_spriteUVRectId))
-                            mat.SetVector(_spriteUVRectId, uvRect);
-
-                        if (mat.HasProperty(_spriteTexelSizeLocalId))
-                        {
-                            mat.SetVector(_spriteTexelSizeLocalId, new Vector4(invPpu, invPpu, 0f, 0f));
-                        }
-                    }
-                }
+                SyncGraphicSpriteMetadata(mat);
             }
 
-            // Material への直接書き込みは即時反映される。
-            // MaterialPropertyBlock と異なり、Material への SetFloat/SetVector は
-            // Canvas の再構築なしで GPU 側に反映されるため、Dirty フラグは不要。
+            _hasPendingApply = false;
         }
 
         public void Dispose()
         {
             _disposed = true;
             // MaterialFxGraphicModifier は Graphic と共に破棄されるため、ここでは何もしない
+        }
+
+        bool HasGraphicSpriteMetadataChanged()
+        {
+            if (_modifier == null || _graphic is not Image img)
+                return false;
+
+            return !ReferenceEquals(img.sprite, _lastSprite);
+        }
+
+        void SyncGraphicSpriteMetadata(Material mat)
+        {
+            if (_graphic is not Image img)
+                return;
+
+            var sprite = img.sprite;
+            if (ReferenceEquals(sprite, _lastSprite))
+                return;
+
+            var uvRect = new Vector4(0f, 0f, 1f, 1f);
+            var invPpu = 0f;
+            if (sprite != null && SpriteMetaUtils.TryComputeForGraphic(sprite, out var computedUvRect, out var computedInvPpu))
+            {
+                uvRect = computedUvRect;
+                invPpu = computedInvPpu;
+            }
+
+            if (mat.HasProperty(_spriteUVRectId))
+                mat.SetVector(_spriteUVRectId, uvRect);
+
+            if (mat.HasProperty(_spriteTexelSizeLocalId) && !Mathf.Approximately(invPpu, _lastInvPpu))
+                mat.SetVector(_spriteTexelSizeLocalId, new Vector4(invPpu, invPpu, 0f, 0f));
+
+            _lastSprite = sprite;
+            _lastInvPpu = invPpu;
         }
 
         static int ResolveShaderPropertyId(IMaterialFxPropertyRegistry registry, string stableKey)
@@ -887,11 +927,11 @@ namespace Game.MaterialFx
         const float TmpAlphaTextMode = 2f;
 
         public bool IsValid => _tmpText != null && !_disposed;
+        public bool HasPendingApply => false;
 
         public TmpTextAdapter(TMP_Text tmpText)
         {
             _tmpText = tmpText ?? throw new ArgumentNullException(nameof(tmpText));
-            EnsureMaterialInstance();
         }
 
         void EnsureMaterialInstance()
@@ -938,7 +978,7 @@ namespace Game.MaterialFx
         public void Apply()
         {
             // TMP は fontMaterial 変更後に SetMaterialDirty を呼ぶ
-            if (_tmpText != null)
+            if (_tmpText != null && _materialInstance != null)
             {
                 _tmpText.SetMaterialDirty();
             }

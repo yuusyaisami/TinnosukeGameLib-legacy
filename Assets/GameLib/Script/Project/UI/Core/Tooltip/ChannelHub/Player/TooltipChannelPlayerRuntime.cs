@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Commands.VNext;
@@ -34,6 +35,20 @@ namespace Game.UI
         readonly TooltipChannelOptions _options;
         readonly Vector3[] _rectCorners8 = new Vector3[8];
         ActorSourceResolveCache _anchorActorCache;
+        readonly List<ResolvedHitTestTarget> _resolvedHitTestTargets = new();
+        TooltipHitTestPreset? _resolvedHitTestPresetSource;
+
+        readonly struct ResolvedHitTestTarget
+        {
+            public readonly RectTransform? RectTransform;
+            public readonly SpriteRenderer? SpriteRenderer;
+
+            public ResolvedHitTestTarget(RectTransform? rectTransform, SpriteRenderer? spriteRenderer)
+            {
+                RectTransform = rectTransform;
+                SpriteRenderer = spriteRenderer;
+            }
+        }
 
         TooltipPlayerPreset _basePlayerPreset = new();
         TooltipPlayerPreset _currentPlayerPreset = new();
@@ -85,6 +100,24 @@ namespace Game.UI
         Vector3 _followPointerStartWorld;
         Vector3 _followPointerBaseWorld;
         bool _hasFollowPointerWorld;
+        Rect _cachedUiLocalRect;
+        Vector2 _cachedUiScreenSize;
+        Vector3 _cachedUiWorldPosition;
+        Quaternion _cachedUiWorldRotation;
+        Vector3 _cachedUiLossyScale;
+        Camera? _cachedUiCamera;
+        int _cachedUiScreenWidth;
+        int _cachedUiScreenHeight;
+        bool _hasCachedUiScreenSize;
+        Bounds _cachedWorldBounds;
+        Vector2 _cachedWorldScreenSize;
+        Vector3 _cachedWorldPosition;
+        Quaternion _cachedWorldRotation;
+        Vector3 _cachedWorldLossyScale;
+        Camera? _cachedWorldCamera;
+        int _cachedWorldScreenWidth;
+        int _cachedWorldScreenHeight;
+        bool _hasCachedWorldScreenSize;
 
         public TooltipChannelPlayerRuntime(
             TooltipChannelHubService hub,
@@ -129,6 +162,9 @@ namespace Game.UI
             _hasFollowPointerUi = false;
             _hasFollowPointerWorld = false;
             _anchorActorCache = default;
+            _resolvedHitTestPresetSource = null;
+            _resolvedHitTestTargets.Clear();
+            ResetPlacementCaches();
 
             ResolveSourcePresets();
         }
@@ -171,6 +207,9 @@ namespace Game.UI
             _hasFollowPointerWorld = false;
             _hasLastPointerPos = false;
             _anchorActorCache = default;
+            _resolvedHitTestPresetSource = null;
+            _resolvedHitTestTargets.Clear();
+            ResetPlacementCaches();
         }
 
         public void Tick(TooltipChannelInputMode inputMode, Vector2 pointerScreen, Camera? camera)
@@ -369,6 +408,27 @@ namespace Game.UI
                 return false;
             }
 
+            // Fast path: while already visible via pointer trigger and pointer is stable,
+            // avoid repeating full hit-test scans every frame.
+            if (_visibilityState == TooltipChannelVisibilityState.Active && _autoTriggered)
+            {
+                switch (inputMode)
+                {
+                    case TooltipChannelInputMode.Pointer:
+                        {
+                            if (_effectiveEnablePointerHover && !HasPointerMoved(pointerScreen, _effectivePointerMoveThreshold))
+                                return true;
+                            break;
+                        }
+                    case TooltipChannelInputMode.PointerNavigation:
+                        {
+                            if (_effectiveEnablePointerHover && IsSelectionMatch() && !HasPointerMoved(pointerScreen, _effectivePointerMoveThreshold))
+                                return true;
+                            break;
+                        }
+                }
+            }
+
             var trigger = ResolveEligibleTrigger(inputMode, pointerScreen, camera);
             if (trigger == TooltipAutoTriggerKind.None)
             {
@@ -480,15 +540,13 @@ namespace Game.UI
             if (!hitTest.HasAnyTarget)
                 return false;
 
+            ResolveHitTestTargets();
+
             if (_hub.CurrentSpaceKind == TooltipChannelSpaceKind.UIScreen)
             {
-                for (var i = 0; i < hitTest.Targets.Count; i++)
+                for (var i = 0; i < _resolvedHitTestTargets.Count; i++)
                 {
-                    var target = hitTest.Targets[i];
-                    if (target == null)
-                        continue;
-
-                    var rect = ResolveRectTransform(target);
+                    var rect = _resolvedHitTestTargets[i].RectTransform;
                     if (rect != null && RectTransformUtility.RectangleContainsScreenPoint(rect, pointerScreen, camera))
                         return true;
                 }
@@ -502,13 +560,9 @@ namespace Game.UI
             var z = ResolveWorldPlaneZ();
             var world2 = _hub.PointerService.PointerWorld(camera, z);
             var world = new Vector3(world2.x, world2.y, z);
-            for (var i = 0; i < hitTest.Targets.Count; i++)
+            for (var i = 0; i < _resolvedHitTestTargets.Count; i++)
             {
-                var target = hitTest.Targets[i];
-                if (target == null)
-                    continue;
-
-                var sprite = ResolveSpriteRenderer(target);
+                var sprite = _resolvedHitTestTargets[i].SpriteRenderer;
                 if (sprite != null && sprite.bounds.Contains(world))
                     return true;
             }
@@ -616,13 +670,52 @@ namespace Game.UI
                 _currentCommandsPreset = new TooltipCommandsPreset();
                 _baseHitTestPreset = new TooltipHitTestPreset();
                 _currentHitTestPreset = new TooltipHitTestPreset();
-                return;
+            }
+            else
+            {
+                _baseCommandsPreset = ResolveCommandsPreset(_currentPlayerPreset.CommandsPresetValue, _dynamicContext);
+                _currentCommandsPreset = _baseCommandsPreset.CreateRuntimeCopy();
+                _baseHitTestPreset = TooltipChannelHubService.ResolveHitTestPreset(_currentPlayerPreset.HitTestValue, _dynamicContext, new TooltipHitTestPreset());
+                _currentHitTestPreset = _baseHitTestPreset.CreateRuntimeCopy();
             }
 
-            _baseCommandsPreset = ResolveCommandsPreset(_currentPlayerPreset.CommandsPresetValue, _dynamicContext);
-            _currentCommandsPreset = _baseCommandsPreset.CreateRuntimeCopy();
-            _baseHitTestPreset = TooltipChannelHubService.ResolveHitTestPreset(_currentPlayerPreset.HitTestValue, _dynamicContext, new TooltipHitTestPreset());
-            _currentHitTestPreset = _baseHitTestPreset.CreateRuntimeCopy();
+            ResolveHitTestTargets();
+        }
+
+        void ResolveHitTestTargets()
+        {
+            var sourcePreset = _currentHitTestPreset.HasAnyTarget ? _currentHitTestPreset : _hub.CurrentDefaultHitTest;
+            if (ReferenceEquals(_resolvedHitTestPresetSource, sourcePreset))
+                return;
+
+            _resolvedHitTestPresetSource = sourcePreset;
+            _resolvedHitTestTargets.Clear();
+
+            if (sourcePreset == null || !sourcePreset.HasAnyTarget)
+                return;
+
+            for (var i = 0; i < sourcePreset.Targets.Count; i++)
+            {
+                var target = sourcePreset.Targets[i];
+                if (target == null)
+                    continue;
+
+                switch (target.Kind)
+                {
+                    case TooltipHitTestTargetKind.OwnerRectTransform:
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(ResolveOwnerRectTransform(), null));
+                        break;
+                    case TooltipHitTestTargetKind.OwnerSpriteRenderer:
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(null, ResolveOwnerSpriteRenderer()));
+                        break;
+                    case TooltipHitTestTargetKind.ActorRectTransform:
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(ResolveActorRectTransform(target.ActorSource), null));
+                        break;
+                    case TooltipHitTestTargetKind.ActorSpriteRenderer:
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(null, ResolveActorSpriteRenderer(target.ActorSource)));
+                        break;
+                }
+            }
         }
 
         void ResolveEffectiveSettings()
@@ -715,6 +808,7 @@ namespace Game.UI
             ResetCandidate();
             _hasFollowPointerUi = false;
             _hasFollowPointerWorld = false;
+            ResetPlacementCaches();
 
             if (_visibilityState == TooltipChannelVisibilityState.Active || _visibilityState == TooltipChannelVisibilityState.Spawning)
                 BeginClose(runHideCommands: true);
@@ -825,6 +919,7 @@ namespace Game.UI
                 _spawnedScope = spawnedScope;
                 _activeTransform = transform;
                 _activeRectTransform = transform as RectTransform;
+                ResetPlacementCaches();
                 ResolveBoundsService(spawnedScope);
                 CaptureFollowPointerReference(pointerScreen, camera);
                 MoveOffscreen();
@@ -832,7 +927,7 @@ namespace Game.UI
                 await ExecuteCommandsAsync(spawnedScope, _currentCommandsPreset.ShowCommands, ct);
                 await WaitSpawnWarmupFrames(ct);
 
-                RefreshBounds();
+                RefreshBounds(force: true);
                 if (!IsCurrentVersion(version))
                 {
                     TooltipChannelHubService.ReleaseSpawnedRuntime(spawnedScope);
@@ -859,6 +954,7 @@ namespace Game.UI
                     _activeRectTransform = null;
                     _boundsService = null;
                     _boundsOutput = null;
+                    ResetPlacementCaches();
                     _visibilityState = TooltipChannelVisibilityState.Hidden;
                 }
             }
@@ -894,6 +990,7 @@ namespace Game.UI
                     _activeRectTransform = null;
                     _boundsService = null;
                     _boundsOutput = null;
+                    ResetPlacementCaches();
                     _hasFollowPointerUi = false;
                     _hasFollowPointerWorld = false;
                     _visibilityState = TooltipChannelVisibilityState.Hidden;
@@ -921,6 +1018,7 @@ namespace Game.UI
         {
             _boundsService = null;
             _boundsOutput = null;
+            ResetPlacementCaches();
             var resolver = scope.Resolver;
             if (resolver == null)
                 return;
@@ -939,7 +1037,7 @@ namespace Game.UI
             {
                 ct.ThrowIfCancellationRequested();
                 await UniTask.NextFrame(ct);
-                RefreshBounds();
+                RefreshBounds(force: true);
                 MoveOffscreen();
             }
         }
@@ -982,9 +1080,27 @@ namespace Game.UI
             var vars = TooltipChannelHubService.ResolveVars(scope);
             var options = CommandRunOptions.Default;
             var context = new CommandContext(scope, vars, runner, scope, options);
+            ApplyPresetContextSlots(context, _owner, _currentCommandsPreset);
             var result = await runner.ExecuteListAsync(commands, context, ct, options);
             if (result.Status == CommandRunStatus.Error && !string.IsNullOrEmpty(result.Message))
                 Debug.LogError($"[TooltipChannel] Command execution failed. Tag={_tag} Message={result.Message}");
+        }
+
+        void ApplyPresetContextSlots(CommandContext context, IScopeNode tooltipOwner, TooltipCommandsPreset commandsPreset)
+        {
+            if (commandsPreset.WriteTooltipOwnerToContext)
+                TrySetContextSlot(context, commandsPreset.TooltipOwnerContextSlot, tooltipOwner, "tooltip owner");
+        }
+
+        void TrySetContextSlot(CommandContext context, CommandLtsSlot slot, IScopeNode value, string label)
+        {
+            if (!CommandLtsSlotUtility.IsContextSlot(slot))
+            {
+                Debug.LogError($"[TooltipChannel] {label} context slot must be ContextA-D. Tag={_tag} Slot={slot}");
+                return;
+            }
+
+            context.SetScope(slot, value);
         }
 
         void CaptureFollowPointerReference(Vector2 pointerScreen, Camera? camera)
@@ -1081,9 +1197,14 @@ namespace Game.UI
             if (_activeRectTransform == null)
                 return false;
 
-            RefreshBounds();
+            RefreshBounds(force: false);
+            localRect = ResolveLocalRect();
+            if (TryGetCachedUiScreenSize(localRect, camera, out screenSize))
+                return screenSize.x > 0f && screenSize.y > 0f;
+
             var screenRect = ComputeScreenRectFromLocal(localRect, _activeRectTransform, camera);
             screenSize = SanitizeSize(screenRect.size);
+            CacheUiScreenSize(localRect, screenSize, camera);
             return screenSize.x > 0f && screenSize.y > 0f;
         }
 
@@ -1093,10 +1214,14 @@ namespace Game.UI
             if (_activeTransform == null)
                 return false;
 
-            RefreshBounds();
+            RefreshBounds(force: false);
             var bounds = ResolveWorldBounds(_activeTransform.position);
+            if (TryGetCachedWorldScreenSize(bounds, camera, out screenSize))
+                return screenSize.x > 0f && screenSize.y > 0f;
+
             var screenRect = ComputeScreenRectFromWorld(bounds, camera);
             screenSize = SanitizeSize(screenRect.size);
+            CacheWorldScreenSize(bounds, screenSize, camera);
             return screenSize.x > 0f && screenSize.y > 0f;
         }
 
@@ -1128,13 +1253,117 @@ namespace Game.UI
             return new Bounds(center, Vector3.one);
         }
 
-        void RefreshBounds()
+        void RefreshBounds(bool force)
         {
             if (_boundsService == null)
                 return;
 
-            _boundsService.RebuildNow();
-            _boundsOutput = _boundsService as IVisualBoundsOutput;
+            if (!force && _boundsOutput != null && _boundsOutput.HasBounds)
+                return;
+
+            if (_boundsService.TryGetLastOutput(out var output) && output.HasBounds)
+            {
+                _boundsOutput = _boundsService as IVisualBoundsOutput;
+                ResetPlacementCaches();
+            }
+        }
+
+        void ResetPlacementCaches()
+        {
+            _cachedUiLocalRect = default;
+            _cachedUiScreenSize = default;
+            _cachedUiWorldPosition = default;
+            _cachedUiWorldRotation = default;
+            _cachedUiLossyScale = default;
+            _cachedUiCamera = null;
+            _cachedUiScreenWidth = 0;
+            _cachedUiScreenHeight = 0;
+            _hasCachedUiScreenSize = false;
+
+            _cachedWorldBounds = default;
+            _cachedWorldScreenSize = default;
+            _cachedWorldPosition = default;
+            _cachedWorldRotation = default;
+            _cachedWorldLossyScale = default;
+            _cachedWorldCamera = null;
+            _cachedWorldScreenWidth = 0;
+            _cachedWorldScreenHeight = 0;
+            _hasCachedWorldScreenSize = false;
+        }
+
+        bool TryGetCachedUiScreenSize(Rect localRect, Camera? camera, out Vector2 screenSize)
+        {
+            screenSize = default;
+            if (!_hasCachedUiScreenSize || _activeRectTransform == null)
+                return false;
+
+            if (!ReferenceEquals(_cachedUiCamera, camera) ||
+                _cachedUiScreenWidth != Screen.width ||
+                _cachedUiScreenHeight != Screen.height ||
+                _cachedUiLocalRect != localRect ||
+                _cachedUiWorldPosition != _activeRectTransform.position ||
+                _cachedUiWorldRotation != _activeRectTransform.rotation ||
+                _cachedUiLossyScale != _activeRectTransform.lossyScale)
+            {
+                return false;
+            }
+
+            screenSize = _cachedUiScreenSize;
+            return true;
+        }
+
+        void CacheUiScreenSize(Rect localRect, Vector2 screenSize, Camera? camera)
+        {
+            if (_activeRectTransform == null)
+                return;
+
+            _cachedUiLocalRect = localRect;
+            _cachedUiScreenSize = screenSize;
+            _cachedUiWorldPosition = _activeRectTransform.position;
+            _cachedUiWorldRotation = _activeRectTransform.rotation;
+            _cachedUiLossyScale = _activeRectTransform.lossyScale;
+            _cachedUiCamera = camera;
+            _cachedUiScreenWidth = Screen.width;
+            _cachedUiScreenHeight = Screen.height;
+            _hasCachedUiScreenSize = true;
+        }
+
+        bool TryGetCachedWorldScreenSize(Bounds bounds, Camera camera, out Vector2 screenSize)
+        {
+            screenSize = default;
+            if (!_hasCachedWorldScreenSize || _activeTransform == null)
+                return false;
+
+            if (!ReferenceEquals(_cachedWorldCamera, camera) ||
+                _cachedWorldScreenWidth != Screen.width ||
+                _cachedWorldScreenHeight != Screen.height ||
+                _cachedWorldBounds.center != bounds.center ||
+                _cachedWorldBounds.size != bounds.size ||
+                _cachedWorldPosition != _activeTransform.position ||
+                _cachedWorldRotation != _activeTransform.rotation ||
+                _cachedWorldLossyScale != _activeTransform.lossyScale)
+            {
+                return false;
+            }
+
+            screenSize = _cachedWorldScreenSize;
+            return true;
+        }
+
+        void CacheWorldScreenSize(Bounds bounds, Vector2 screenSize, Camera camera)
+        {
+            if (_activeTransform == null)
+                return;
+
+            _cachedWorldBounds = bounds;
+            _cachedWorldScreenSize = screenSize;
+            _cachedWorldPosition = _activeTransform.position;
+            _cachedWorldRotation = _activeTransform.rotation;
+            _cachedWorldLossyScale = _activeTransform.lossyScale;
+            _cachedWorldCamera = camera;
+            _cachedWorldScreenWidth = Screen.width;
+            _cachedWorldScreenHeight = Screen.height;
+            _hasCachedWorldScreenSize = true;
         }
 
         static Vector2 SanitizeSize(Vector2 raw)

@@ -238,7 +238,7 @@ MonoBehaviour:
         ApplyMaterialFx: 0
         MaterialFxSource:
           _source:
-            rid: -2
+            rid: 5619052642728412135
           _defaultValue:
             ContextTag: default
             ClearContextFirst: 0
@@ -247,55 +247,19 @@ MonoBehaviour:
         ApplyPlaybackSpeed: 0
         PlaybackSpeedSource:
           _source:
-            rid: 5619052637487629044
+            rid: 5619052642728412136
           _defaultValue: 0
         ApplyFlipX: 0
         FlipXMode: 0
         FlipXAngleSource:
           _source:
-            rid: 5619052637487629045
+            rid: 5619052642728412137
           _defaultValue: 0
         ApplySortingOrder: 0
         SortingOrderSource:
           _source:
-            rid: 5619052637487629046
+            rid: 5619052642728412138
           _defaultValue: 0
-    - rid: 5619052637487629044
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052637487629045
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 180
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052637487629046
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 0
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5619052637487629047
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1239,6 +1203,26 @@ MonoBehaviour:
       data:
         value: 180
     - rid: 5619052637487629088
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052642728412135
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5619052642728412136
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052642728412137
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5619052642728412138
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0

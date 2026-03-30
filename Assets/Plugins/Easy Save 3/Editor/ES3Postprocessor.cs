@@ -23,6 +23,7 @@ using System.Linq;
 public class ES3Postprocessor : UnityEditor.AssetModificationProcessor
 {
     public static GameObject lastSelected = null;
+    static bool _deferredAssemblyUpdateScheduled;
 
 
     // This constructor is also called once when playmode is activated and whenever recompilation happens
@@ -194,6 +195,28 @@ public class ES3Postprocessor : UnityEditor.AssetModificationProcessor
     [DidReloadScripts]
     public static void DidReloadScripts()
     {
+        ScheduleAssembliesContainingES3TypesUpdate();
+    }
+
+    static void ScheduleAssembliesContainingES3TypesUpdate()
+    {
+        if (_deferredAssemblyUpdateScheduled)
+            return;
+
+        _deferredAssemblyUpdateScheduled = true;
+        EditorApplication.delayCall += TryUpdateAssembliesContainingES3TypesDeferred;
+    }
+
+    static void TryUpdateAssembliesContainingES3TypesDeferred()
+    {
+        _deferredAssemblyUpdateScheduled = false;
+
+        if (EditorApplication.isUpdating || EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            ScheduleAssembliesContainingES3TypesUpdate();
+            return;
+        }
+
         UpdateAssembliesContainingES3Types();
     }
 

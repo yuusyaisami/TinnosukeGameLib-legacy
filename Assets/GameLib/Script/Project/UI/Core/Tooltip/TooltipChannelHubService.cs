@@ -52,6 +52,13 @@ namespace Game.UI
         RectTransform? _uiRoot;
         Transform? _worldRoot;
         RectTransform? _clampArea;
+        Canvas? _uiRootCanvas;
+        Camera? _fallbackCameraCache;
+        Rect _cachedClampRect;
+        Camera? _cachedClampCamera;
+        int _cachedClampScreenWidth;
+        int _cachedClampScreenHeight;
+        bool _hasCachedClampRect;
         TooltipChannelSpaceKind _spaceKind = TooltipChannelSpaceKind.Unknown;
         int _nextDynamicOrder;
         bool _isAcquired;
@@ -124,6 +131,13 @@ namespace Game.UI
             _uiRoot = null;
             _worldRoot = null;
             _clampArea = null;
+            _uiRootCanvas = null;
+            _fallbackCameraCache = null;
+            _cachedClampRect = default;
+            _cachedClampCamera = null;
+            _cachedClampScreenWidth = 0;
+            _cachedClampScreenHeight = 0;
+            _hasCachedClampRect = false;
             _baseHubPreset = new TooltipHubPreset();
             _currentHubPreset = new TooltipHubPreset();
             _baseDefaultHitTest = TooltipHitTestPreset.CreateOwnerDefault();
@@ -156,13 +170,16 @@ namespace Game.UI
             if (_requests.Count <= 0)
                 return;
 
-            _requests.Sort(static (a, b) =>
+            if (_requests.Count > 1)
             {
-                var priorityCompare = b.Priority.CompareTo(a.Priority);
-                if (priorityCompare != 0)
-                    return priorityCompare;
-                return a.Order.CompareTo(b.Order);
-            });
+                _requests.Sort(static (a, b) =>
+                {
+                    var priorityCompare = b.Priority.CompareTo(a.Priority);
+                    if (priorityCompare != 0)
+                        return priorityCompare;
+                    return a.Order.CompareTo(b.Order);
+                });
+            }
 
             var screenRect = ResolveClampScreenRect(camera);
             for (var i = 0; i < _requests.Count; i++)
@@ -321,6 +338,9 @@ namespace Game.UI
                 : defaultUiRoot;
             _worldRoot = _tooltipSystemService.WorldRoot;
             _clampArea = _tooltipSystemService.ClampArea;
+            _uiRootCanvas = _uiRoot != null ? _uiRoot.GetComponentInParent<Canvas>() : null;
+            _fallbackCameraCache = null;
+            _hasCachedClampRect = false;
         }
 
         void ResolveHubPreset(IScopeNode scope)
@@ -397,20 +417,25 @@ namespace Game.UI
                 return resolvedCamera;
             }
 
-            if (_spaceKind == TooltipChannelSpaceKind.UIScreen && _uiRoot != null)
+            if (_spaceKind == TooltipChannelSpaceKind.UIScreen && _uiRootCanvas != null)
             {
-                var canvas = _uiRoot.GetComponentInParent<Canvas>();
-                if (canvas != null)
-                {
-                    if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-                        return null;
+                if (_uiRootCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+                    return null;
 
-                    if (canvas.worldCamera != null)
-                        return canvas.worldCamera;
-                }
+                if (_uiRootCanvas.worldCamera != null)
+                    return _uiRootCanvas.worldCamera;
             }
 
-            return Camera.main;
+            if (_fallbackCameraCache != null)
+            {
+                if (_fallbackCameraCache.isActiveAndEnabled)
+                    return _fallbackCameraCache;
+
+                _fallbackCameraCache = null;
+            }
+
+            _fallbackCameraCache = Camera.main;
+            return _fallbackCameraCache;
         }
 
         TooltipChannelInputMode ResolveInputMode()
@@ -439,6 +464,15 @@ namespace Game.UI
             if (_clampArea == null)
                 return new Rect(0f, 0f, Screen.width, Screen.height);
 
+            if (_hasCachedClampRect &&
+                ReferenceEquals(_cachedClampCamera, camera) &&
+                _cachedClampScreenWidth == Screen.width &&
+                _cachedClampScreenHeight == Screen.height &&
+                !_clampArea.hasChanged)
+            {
+                return _cachedClampRect;
+            }
+
             _clampArea.GetWorldCorners(_rectCorners);
             var min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
             var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
@@ -449,7 +483,13 @@ namespace Game.UI
                 max = Vector2.Max(max, screen);
             }
 
-            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+            _cachedClampRect = Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+            _cachedClampCamera = camera;
+            _cachedClampScreenWidth = Screen.width;
+            _cachedClampScreenHeight = Screen.height;
+            _hasCachedClampRect = true;
+            _clampArea.hasChanged = false;
+            return _cachedClampRect;
         }
 
         internal static TooltipHubPreset ResolveHubPreset(DynamicValue<TooltipHubPreset> value, IDynamicContext context)

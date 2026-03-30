@@ -40,6 +40,7 @@ namespace Game.Scalar
         bool _touched;
         internal bool HasLocalData => _hasBaselineFromConfig || _touched;
         internal bool HasLocalOverride => _touched;
+        internal bool HasTimedEntries => _timedIndices.Count > 0;
 
         public ScalarKeyRuntime(ScalarKey key, ScalarRuntimeConfig config, System.Action invalidateCache)
         {

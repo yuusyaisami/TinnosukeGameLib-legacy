@@ -184,31 +184,35 @@ namespace Game.Channel
         {
             TryResolveTargetRegistry();
 
-            if (_director != null)
-                return _director;
-
             var target = TargetTransform;
             if (target == null)
                 return null;
 
             if (_targetRegistry != null)
             {
-                _director = _targetRegistry.GetOrCreateDirector(target);
-            }
-            else
-            {
-                // fallback: registry を使えない場合は player 自身が director を tick する
-                ITransformAnimationOutputRegistry? outputRegistry = null;
-                _scope.Resolver?.TryResolve(out outputRegistry);
-                TransformAnimationOutput? output = null;
-                if (outputRegistry != null && outputRegistry.TryGetSink(target, out var sink))
-                    output = sink.AnimationOutput;
-                output ??= new TransformAnimationOutput();
-                var director = new TransformTargetDirector(target, output, applyDirectly: outputRegistry == null);
-                _director = director;
+                var resolvedDirector = _targetRegistry.GetOrCreateDirector(target);
+                _director = resolvedDirector;
+                return resolvedDirector;
             }
 
+            if (_director != null)
+                return _director;
+
+            // fallback: registry を使えない場合は player 自身が director を tick する
+            ITransformAnimationOutputRegistry? outputRegistry = null;
+            _scope.Resolver?.TryResolve(out outputRegistry);
+            TransformAnimationOutput? output = null;
+            if (outputRegistry != null && outputRegistry.TryGetSink(target, out var sink))
+                output = sink.AnimationOutput;
+            output ??= new TransformAnimationOutput();
+            var director = new TransformTargetDirector(target, output, applyDirectly: outputRegistry == null);
+            _director = director;
             return _director;
+        }
+
+        void ResetCachedDirector()
+        {
+            _director = null;
         }
 
         // ===== Preset =====
@@ -221,7 +225,7 @@ namespace Game.Channel
         {
             PruneDeadPresetTracks();
             if (policy != TransformPresetExecutionPolicy.Parallel)
-                StopPreset();
+                Stop();
 
             if (preset == null) return;
             var steps = preset.Steps;
@@ -301,7 +305,7 @@ namespace Game.Channel
 
         public async UniTask PlayStepAsync(Vector3 to, ITransformAnimationStep step)
         {
-            StopPreset();
+            Stop();
             if (step == null) return;
             var t = TargetTransform;
             if (!t) return;
@@ -461,6 +465,8 @@ namespace Game.Channel
         {
             Stop();
             StopShake();
+            ResetCachedDirector();
+            _targetRegistry = null;
         }
 
         async UniTaskVoid RunPlayOnSpawnAfterDelayAsync(

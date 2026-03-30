@@ -398,25 +398,47 @@ inline float2 AnimatedNoise2D_ApplyWarp(float2 uv, AnimatedNoise2DMotionParams p
 
 inline float2 AnimatedNoise2D_BuildAnimatedUV(float2 uvLocal, AnimatedNoise2DMotionParams p, float2 extraOffset, float time)
 {
-    float t = AnimatedNoise2D_GetMotionTime(p, time);
-    float2 dir = AnimatedNoise2D_NormalizeDirection(p.direction);
-    float pulsePhase = t * p.pulseSpeed;
-    float pulseMain = sin(pulsePhase);
-    float pulseCross = cos(pulsePhase * 0.73 + 1.17);
-    float pulse = 1.0 + pulseMain * p.pulseAmplitude;
-    float2 pulseScale = float2(
-        pulse + pulseCross * p.pulseAmplitude * 0.35,
-        pulse - pulseCross * p.pulseAmplitude * 0.35);
-    float2 orbit = float2(
-        cos(pulsePhase * 0.91 + 0.43),
-        sin(pulsePhase * 1.13 + 1.07)) * (p.pulseAmplitude * 0.25);
     float2 uv = AnimatedNoise2D_GetAspectCorrectedCenteredUV(uvLocal);
-    uv += orbit;
     uv *= p.scale;
-    uv *= pulseScale;
-    uv = AnimatedNoise2D_Rotate(uv, t * p.rotationSpeed);
-    uv += p.offset + extraOffset + dir * (t * p.speed);
-    uv = AnimatedNoise2D_ApplyWarp(uv, p, t);
+
+    bool hasTranslation = abs(p.speed) > 0.0001;
+    bool hasRotation = abs(p.rotationSpeed) > 0.0001;
+    bool hasPulse = p.pulseAmplitude > 0.0001 && abs(p.pulseSpeed) > 0.0001;
+    bool hasWarp = p.warpStrength > 0.0001;
+
+    if (!hasTranslation && !hasRotation && !hasPulse && !hasWarp)
+        return uv + p.offset + extraOffset;
+
+    float t = AnimatedNoise2D_GetMotionTime(p, time);
+    if (hasPulse)
+    {
+        float pulsePhase = t * p.pulseSpeed;
+        float pulseMain = sin(pulsePhase);
+        float pulseCross = cos(pulsePhase * 0.73 + 1.17);
+        float pulse = 1.0 + pulseMain * p.pulseAmplitude;
+        float2 pulseScale = float2(
+            pulse + pulseCross * p.pulseAmplitude * 0.35,
+            pulse - pulseCross * p.pulseAmplitude * 0.35);
+        float2 orbit = float2(
+            cos(pulsePhase * 0.91 + 0.43),
+            sin(pulsePhase * 1.13 + 1.07)) * (p.pulseAmplitude * 0.25);
+        uv += orbit;
+        uv *= pulseScale;
+    }
+
+    if (hasRotation)
+        uv = AnimatedNoise2D_Rotate(uv, t * p.rotationSpeed);
+
+    uv += p.offset + extraOffset;
+    if (hasTranslation)
+    {
+        float2 dir = AnimatedNoise2D_NormalizeDirection(p.direction);
+        uv += dir * (t * p.speed);
+    }
+
+    if (hasWarp)
+        uv = AnimatedNoise2D_ApplyWarp(uv, p, t);
+
     return uv;
 }
 

@@ -48,6 +48,7 @@ namespace Game.UI
         bool _acquired;
         bool _dirty = true;
         float _nextAutoRebuildTime;
+        int _lastRebuildFrame = -1;
 
         bool _hasBounds;
         Rect _localRect;
@@ -256,10 +257,15 @@ namespace Game.UI
             if (_config == null || _config.Root == null)
                 return;
 
+            var frame = Time.frameCount;
+            if (force && !_dirty && _lastRebuildFrame == frame)
+                return;
+
             if (!force && !_dirty)
                 return;
 
             _dirty = false;
+            _lastRebuildFrame = frame;
             _hasBounds = false;
             _worldBounds = default;
             _localRect = Rect.zero;
@@ -547,7 +553,17 @@ namespace Game.UI
             if (text == null)
                 return false;
 
-            text.ForceMeshUpdate();
+            var shouldRefreshMesh =
+                text.havePropertiesChanged ||
+                text.textInfo == null ||
+                (text.textInfo.characterCount <= 0 && !string.IsNullOrEmpty(text.text));
+
+            if (shouldRefreshMesh)
+            {
+                text.ForceMeshUpdate();
+                text.havePropertiesChanged = false;
+            }
+
             var localBounds = text.textBounds;
             var hasVisibleCharacters = text.textInfo != null && text.textInfo.characterCount > 0;
             var allowSilentFallback = !hasVisibleCharacters;

@@ -144,6 +144,8 @@ namespace Game.SelectRuntime
         bool IsEditing(UserMoveRotateRuntimeMB editor);
         void RegisterEditor(UserMoveRotateRuntimeMB editor);
         void UnregisterEditor(UserMoveRotateRuntimeMB editor);
+        bool TryEnterEditorMode(UserMoveRotateRuntimeMB editor);
+        bool TryExitEditorMode(UserMoveRotateRuntimeMB editor, bool runExitCommands);
     }
 
     static class SelectRuntimeVarKeys

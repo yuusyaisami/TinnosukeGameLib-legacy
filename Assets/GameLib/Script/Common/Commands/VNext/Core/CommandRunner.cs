@@ -214,7 +214,11 @@ namespace Game.Commands.VNext
                 {
                     var listInfo = BuildListInfo(i, listLabel, listFunctionName);
                     _logger.LogResolveFailed(source, $"Command source failed to resolve. | {listInfo}");
-                    var fail = HandleFailure(CommandRunFailureKind.ResolveFailed, i, "Command source failed to resolve.");
+                    var sourceName = source?.DebugName ?? "<null>";
+                    var fail = HandleFailure(
+                        CommandRunFailureKind.ResolveFailed,
+                        i,
+                        $"Command source failed to resolve. Source={sourceName} {listInfo}");
                     if (fail.IsTerminated)
                         return fail.Result;
                     continue;

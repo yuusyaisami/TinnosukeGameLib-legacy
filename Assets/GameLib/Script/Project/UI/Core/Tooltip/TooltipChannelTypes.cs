@@ -224,6 +224,19 @@ namespace Game.UI
     [Serializable]
     public sealed class TooltipCommandsPreset : IDynamicManagedRefValue
     {
+        [BoxGroup("Context")]
+        [LabelText("Write Tooltip Owner To Context")]
+        [Tooltip("true のとき、tooltip を生成した owner scope を command context slot へ書き込みます。")]
+        [SerializeField]
+        bool _writeTooltipOwnerToContext = true;
+
+        [BoxGroup("Context")]
+        [ShowIf(nameof(_writeTooltipOwnerToContext))]
+        [LabelText("Tooltip Owner Context Slot")]
+        [Tooltip("tooltip 生成者 owner を書き込む ContextA-D slot です。")]
+        [SerializeField]
+        CommandLtsSlot _tooltipOwnerContextSlot = CommandLtsSlot.ContextA;
+
         [BoxGroup("Commands")]
         [LabelText("Show Commands")]
         [Tooltip("spawn 完了直後に tooltip runtime 側で実行する commands です。")]
@@ -246,6 +259,8 @@ namespace Game.UI
         [SerializeField]
         SelfDespawnCommandData _selfDespawn = new();
 
+        public bool WriteTooltipOwnerToContext => _writeTooltipOwnerToContext;
+        public CommandLtsSlot TooltipOwnerContextSlot => _tooltipOwnerContextSlot;
         public CommandListData ShowCommands => _showCommands;
         public CommandListData HideCommands => _hideCommands;
         public SelfDespawnCommandData SelfDespawn => _selfDespawn;
@@ -254,6 +269,8 @@ namespace Game.UI
         {
             return new TooltipCommandsPreset
             {
+                _writeTooltipOwnerToContext = _writeTooltipOwnerToContext,
+                _tooltipOwnerContextSlot = _tooltipOwnerContextSlot,
                 _showCommands = CloneCommandList(_showCommands),
                 _hideCommands = CloneCommandList(_hideCommands),
                 _selfDespawn = CloneSelfDespawn(_selfDespawn),

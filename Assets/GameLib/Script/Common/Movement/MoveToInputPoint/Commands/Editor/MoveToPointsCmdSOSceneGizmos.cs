@@ -11,6 +11,8 @@ namespace Game.Movement.Editor
     [InitializeOnLoad]
     public static class MoveToPointsCmdSOSceneGizmos
     {
+        static readonly System.Collections.Generic.Dictionary<int, string[]> CachedSourcePathsByTargetId = new();
+
         static MoveToPointsCmdSOSceneGizmos()
         {
             SceneView.duringSceneGui += OnSceneGUI;
@@ -18,6 +20,15 @@ namespace Game.Movement.Editor
 
         static void OnSceneGUI(SceneView view)
         {
+            var eventType = Event.current.type;
+            if (eventType != EventType.Layout &&
+                eventType != EventType.Repaint &&
+                eventType != EventType.MouseDown &&
+                eventType != EventType.MouseDrag &&
+                eventType != EventType.MouseUp &&
+                eventType != EventType.MouseMove)
+                return;
+
             var target = Selection.activeObject;
             if (target == null)
                 return;
@@ -38,8 +49,39 @@ namespace Game.Movement.Editor
 
         static bool TryDrawInlineMoveToPoints(SerializedObject serialized, UnityEngine.Object target)
         {
-            var iterator = serialized.GetIterator();
+            var targetId = target.GetInstanceID();
+            if (!CachedSourcePathsByTargetId.TryGetValue(targetId, out var sourcePaths) || sourcePaths == null)
+            {
+                sourcePaths = BuildSourcePaths(serialized);
+                CachedSourcePathsByTargetId[targetId] = sourcePaths;
+            }
+
             var hasAny = false;
+            var needsRescan = false;
+
+            for (int i = 0; i < sourcePaths.Length; i++)
+            {
+                var sourceProp = serialized.FindProperty(sourcePaths[i]);
+                if (sourceProp == null)
+                {
+                    needsRescan = true;
+                    continue;
+                }
+
+                if (DrawInlineMoveToPoints(serialized, target, sourceProp))
+                    hasAny = true;
+            }
+
+            if (needsRescan)
+                CachedSourcePathsByTargetId[targetId] = BuildSourcePaths(serialized);
+
+            return hasAny;
+        }
+
+        static string[] BuildSourcePaths(SerializedObject serialized)
+        {
+            var paths = new System.Collections.Generic.List<string>();
+            var iterator = serialized.GetIterator();
             var enterChildren = true;
 
             while (iterator.NextVisible(enterChildren))
@@ -59,87 +101,104 @@ namespace Game.Movement.Editor
                 if (!IsManagedRefType(dataProp, "MoveToPointsCommandData"))
                     continue;
 
-                var pointsProp = dataProp.FindPropertyRelative("Points");
-                var originProp = dataProp.FindPropertyRelative("PreviewOrigin");
-                if (originProp == null || pointsProp == null || !pointsProp.isArray || pointsProp.arraySize == 0)
-                    continue;
+                paths.Add(iterator.propertyPath);
+            }
 
-                if (!IsExpanded(iterator, dataProp, pointsProp))
-                    continue;
+            return paths.ToArray();
+        }
 
-                hasAny = true;
-                Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+        static bool DrawInlineMoveToPoints(SerializedObject serialized, UnityEngine.Object target, SerializedProperty sourceProp)
+        {
+            if (!sourceProp.isExpanded)
+                return false;
 
-                var origin2 = originProp.vector2Value;
-                var origin = new Vector3(origin2.x, origin2.y, 0f);
+            var dataProp = sourceProp.FindPropertyRelative("data");
+            if (dataProp == null || dataProp.propertyType != SerializedPropertyType.ManagedReference)
+                return false;
+
+            if (!IsManagedRefType(dataProp, "MoveToPointsCommandData"))
+                return false;
+
+            var pointsProp = dataProp.FindPropertyRelative("Points");
+            var originProp = dataProp.FindPropertyRelative("PreviewOrigin");
+            if (originProp == null || pointsProp == null || !pointsProp.isArray || pointsProp.arraySize == 0)
+                return false;
+
+            if (!IsExpanded(sourceProp, dataProp, pointsProp))
+                return false;
+
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+
+            var origin2 = originProp.vector2Value;
+            var origin = new Vector3(origin2.x, origin2.y, 0f);
+
+            EditorGUI.BeginChangeCheck();
+            var newOrigin = Handles.PositionHandle(origin, Quaternion.identity);
+            newOrigin.z = 0f;
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(target, "MoveTo Preview Origin");
+                originProp.vector2Value = new Vector2(newOrigin.x, newOrigin.y);
+                serialized.ApplyModifiedProperties();
+                EditorUtility.SetDirty(target);
+                serialized.Update();
+                origin = newOrigin;
+            }
+
+            var hasAny = true;
+            var prevWorld = origin;
+            var distAcc = 0f;
+
+            for (int i = 0; i < pointsProp.arraySize; i++)
+            {
+                var entryProp = pointsProp.GetArrayElementAtIndex(i);
+                if (entryProp == null)
+                    break;
+
+                var spaceProp = entryProp.FindPropertyRelative("Space");
+                var pointProp = entryProp.FindPropertyRelative("Point");
+                if (spaceProp == null || pointProp == null)
+                    break;
+
+                if (!TryGetLiteralVector2(pointProp, out var literalProp, out var literalValue))
+                    break;
+
+                var space = (VNext.MoveToPointSpace)spaceProp.enumValueIndex;
+                var world = space == VNext.MoveToPointSpace.World
+                    ? new Vector3(literalValue.x, literalValue.y, 0f)
+                    : prevWorld + new Vector3(literalValue.x, literalValue.y, 0f);
+
+                var segLen = Vector3.Distance(prevWorld, world);
+                var midDist = distAcc + segLen * 0.5f;
+                Handles.color = HueByDistance(midDist, 0.85f);
+                Handles.DrawAAPolyLine(3f, prevWorld, world);
+
+                distAcc += segLen;
+
+                Handles.color = HueByDistance(distAcc, 0.9f);
+                Handles.DrawSolidDisc(world, Vector3.forward, HandleUtility.GetHandleSize(world) * 0.05f);
+                Handles.Label(world + Vector3.up * HandleUtility.GetHandleSize(world) * 0.1f, $"P{i + 1}");
 
                 EditorGUI.BeginChangeCheck();
-                var newOrigin = Handles.PositionHandle(origin, Quaternion.identity);
-                newOrigin.z = 0f;
+                var newWorld = Handles.PositionHandle(world, Quaternion.identity);
+                newWorld.z = 0f;
                 if (EditorGUI.EndChangeCheck())
                 {
-                    Undo.RecordObject(target, "MoveTo Preview Origin");
-                    originProp.vector2Value = new Vector2(newOrigin.x, newOrigin.y);
+                    Undo.RecordObject(target, "MoveTo Point");
+
+                    var v2 = space == VNext.MoveToPointSpace.World
+                        ? new Vector2(newWorld.x, newWorld.y)
+                        : new Vector2(newWorld.x - prevWorld.x, newWorld.y - prevWorld.y);
+
+                    literalProp.vector2Value = v2;
                     serialized.ApplyModifiedProperties();
                     EditorUtility.SetDirty(target);
                     serialized.Update();
-                    origin = newOrigin;
+
+                    world = newWorld;
                 }
 
-                var prevWorld = origin;
-                var distAcc = 0f;
-
-                for (int i = 0; i < pointsProp.arraySize; i++)
-                {
-                    var entryProp = pointsProp.GetArrayElementAtIndex(i);
-                    if (entryProp == null)
-                        break;
-
-                    var spaceProp = entryProp.FindPropertyRelative("Space");
-                    var pointProp = entryProp.FindPropertyRelative("Point");
-                    if (spaceProp == null || pointProp == null)
-                        break;
-
-                    if (!TryGetLiteralVector2(pointProp, out var literalProp, out var literalValue))
-                        break;
-
-                    var space = (VNext.MoveToPointSpace)spaceProp.enumValueIndex;
-                    var world = space == VNext.MoveToPointSpace.World
-                        ? new Vector3(literalValue.x, literalValue.y, 0f)
-                        : prevWorld + new Vector3(literalValue.x, literalValue.y, 0f);
-
-                    var segLen = Vector3.Distance(prevWorld, world);
-                    var midDist = distAcc + segLen * 0.5f;
-                    Handles.color = HueByDistance(midDist, 0.85f);
-                    Handles.DrawAAPolyLine(3f, prevWorld, world);
-
-                    distAcc += segLen;
-
-                    Handles.color = HueByDistance(distAcc, 0.9f);
-                    Handles.DrawSolidDisc(world, Vector3.forward, HandleUtility.GetHandleSize(world) * 0.05f);
-                    Handles.Label(world + Vector3.up * HandleUtility.GetHandleSize(world) * 0.1f, $"P{i + 1}");
-
-                    EditorGUI.BeginChangeCheck();
-                    var newWorld = Handles.PositionHandle(world, Quaternion.identity);
-                    newWorld.z = 0f;
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        Undo.RecordObject(target, "MoveTo Point");
-
-                        var v2 = space == VNext.MoveToPointSpace.World
-                            ? new Vector2(newWorld.x, newWorld.y)
-                            : new Vector2(newWorld.x - prevWorld.x, newWorld.y - prevWorld.y);
-
-                        literalProp.vector2Value = v2;
-                        serialized.ApplyModifiedProperties();
-                        EditorUtility.SetDirty(target);
-                        serialized.Update();
-
-                        world = newWorld;
-                    }
-
-                    prevWorld = world;
-                }
+                prevWorld = world;
             }
 
             return hasAny;

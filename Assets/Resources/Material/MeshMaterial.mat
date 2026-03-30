@@ -74,7 +74,7 @@ Material:
     - _AdvFlipPerspectiveSign: -1
     - _AdvancedFade2DBurnBlendMode: 1
     - _AdvancedFade2DBurnEdgeWidth: 0.192
-    - _AdvancedFade2DBurnEnabled: 1
+    - _AdvancedFade2DBurnEnabled: 0
     - _AdvancedFade2DBurnInvert: 0
     - _AdvancedFade2DBurnNoiseScale: 7.18
     - _AdvancedFade2DBurnNoiseStrength: 1

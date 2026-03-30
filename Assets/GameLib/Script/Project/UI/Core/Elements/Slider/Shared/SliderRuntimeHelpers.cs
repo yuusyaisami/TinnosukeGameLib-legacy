@@ -141,6 +141,96 @@ namespace Game.UI
             return layout;
         }
 
+        public static int ResolveVisualSegmentBarCount(
+            SliderSegmentedVisualizerSettings segmented,
+            int boundaryCount)
+        {
+            if (segmented == null || boundaryCount <= 1)
+                return 0;
+
+            return segmented.SplitBarsByLayout
+                ? Mathf.Max(0, boundaryCount - 1)
+                : 1;
+        }
+
+        public static void ResolveVisualSegmentBarRange(
+            SliderSegmentedVisualizerSettings segmented,
+            ISliderPlayerRuntime output,
+            int barIndex,
+            out float startRawValue,
+            out float endRawValue,
+            out float startNormalizedValue,
+            out float endNormalizedValue)
+        {
+            startRawValue = 0f;
+            endRawValue = 0f;
+            startNormalizedValue = 0f;
+            endNormalizedValue = 0f;
+
+            if (segmented == null || output == null || output.BoundaryCount <= 1)
+                return;
+
+            if (!segmented.SplitBarsByLayout)
+            {
+                var lastIndex = output.BoundaryCount - 1;
+                startRawValue = output.ResolveBoundaryRawValue(0);
+                endRawValue = output.ResolveBoundaryRawValue(lastIndex);
+                startNormalizedValue = output.ResolveBoundaryNormalizedValue(0);
+                endNormalizedValue = output.ResolveBoundaryNormalizedValue(lastIndex);
+                return;
+            }
+
+            var clampedIndex = Mathf.Clamp(barIndex, 0, output.BoundaryCount - 2);
+            startRawValue = output.ResolveBoundaryRawValue(clampedIndex);
+            endRawValue = output.ResolveBoundaryRawValue(clampedIndex + 1);
+            startNormalizedValue = output.ResolveBoundaryNormalizedValue(clampedIndex);
+            endNormalizedValue = output.ResolveBoundaryNormalizedValue(clampedIndex + 1);
+        }
+
+        public static void ResolveDisplayedSegmentBarInterval(
+            SliderSegmentDisplayMode displayMode,
+            bool splitBarsByLayout,
+            float displayedNormalizedValue,
+            float startNormalizedValue,
+            float endNormalizedValue,
+            out float visibleStartNormalizedValue,
+            out float visibleEndNormalizedValue,
+            out bool isVisible)
+        {
+            var clampedDisplayed = Mathf.Clamp01(displayedNormalizedValue);
+            if (!splitBarsByLayout)
+            {
+                visibleStartNormalizedValue = 0f;
+                visibleEndNormalizedValue = clampedDisplayed;
+                isVisible = visibleEndNormalizedValue - visibleStartNormalizedValue > 0.0001f;
+                return;
+            }
+
+            visibleStartNormalizedValue = startNormalizedValue;
+            if (displayMode == SliderSegmentDisplayMode.ReachedStageFloor)
+            {
+                visibleEndNormalizedValue = endNormalizedValue;
+                isVisible = clampedDisplayed >= endNormalizedValue - 0.0001f;
+                return;
+            }
+
+            visibleEndNormalizedValue = Mathf.Clamp(clampedDisplayed, startNormalizedValue, endNormalizedValue);
+            isVisible = visibleEndNormalizedValue - visibleStartNormalizedValue > 0.0001f;
+        }
+
+        public static bool ShouldShowBackground(
+            SliderBackgroundVisualizerSettings background,
+            in SliderOutputSnapshot snapshot)
+        {
+            if (background == null)
+                return true;
+
+            if (!background.HideWhenFillIsMin)
+                return true;
+
+            return snapshot.DisplayedNormalizedValue > 0.0001f;
+        }
+
         public static SliderRangeResolveStatus TryResolveWorldRangeSnapshot(
             IScopeNode scope,
             ISliderOptions options,

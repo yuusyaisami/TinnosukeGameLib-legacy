@@ -79,7 +79,9 @@ namespace Game.TransformSystem
             if (!t)
                 return;
 
-            var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var linkedCts = ct.CanBeCanceled
+                ? CancellationTokenSource.CreateLinkedTokenSource(ct)
+                : new CancellationTokenSource();
             _cts = linkedCts;
             var token = linkedCts.Token;
             _playing = true;
@@ -483,13 +485,8 @@ namespace Game.TransformSystem
 
             if (tween == null)
             {
-                if (!step.FireAndForget)
-                {
-                    if (duration > 0f)
-                        await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: ct);
-                    else
-                        await UniTask.Yield(PlayerLoopTiming.Update, ct);
-                }
+                if (!step.FireAndForget && duration > 0f)
+                    await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: ct);
                 return;
             }
 
@@ -504,11 +501,8 @@ namespace Game.TransformSystem
 
             tween.Play();
 
-            if (duration <= 0f)
-            {
-                await UniTask.Yield(PlayerLoopTiming.Update, ct);
+            if (duration <= 0f || !tween.active || tween.IsComplete())
                 return;
-            }
 
             // DOTween 完了待機
             CancellationTokenRegistration ctr = default;

@@ -16,22 +16,33 @@ namespace Game.SelectRuntime
         IScopeAcquireHandler,
         IScopeReleaseHandler
     {
+        enum UserMoveRotateEnterSource
+        {
+            SelectableLongPress = 10,
+            PointerLongPress = 20,
+            Command = 30,
+        }
+
         sealed class EditSession
         {
             public UserMoveRotateRuntimeMB? Editor;
             public RuntimeLifetimeScope? RuntimeScope;
             public Transform? RootTransform;
+            public Transform? MoveTransform;
+            public Transform? RotateTransform;
             public int StartedFrame;
             public Vector3 LastValidPosition;
             public Quaternion LastValidRotation = Quaternion.identity;
 
-            public bool IsActive => Editor != null && RuntimeScope != null && RootTransform != null;
+            public bool IsActive => Editor != null && RuntimeScope != null && RootTransform != null && MoveTransform != null && RotateTransform != null;
 
             public void Clear()
             {
                 Editor = null;
                 RuntimeScope = null;
                 RootTransform = null;
+                MoveTransform = null;
+                RotateTransform = null;
                 StartedFrame = 0;
                 LastValidPosition = Vector3.zero;
                 LastValidRotation = Quaternion.identity;
@@ -44,6 +55,7 @@ namespace Game.SelectRuntime
             public WorldPointerTargetMB? Target;
             public float PressedTime;
             public WorldPointerEventData PressedData;
+            public bool EntryCommandsExecuted;
 
             public bool IsActive => Editor != null && Target != null;
 
@@ -53,6 +65,7 @@ namespace Game.SelectRuntime
                 Target = null;
                 PressedTime = 0f;
                 PressedData = default;
+                EntryCommandsExecuted = false;
             }
         }
 
@@ -123,6 +136,25 @@ namespace Game.SelectRuntime
             return editor != null && ReferenceEquals(_session.Editor, editor);
         }
 
+        public bool TryEnterEditorMode(UserMoveRotateRuntimeMB editor)
+        {
+            return TryEnterEditorMode(
+                editor,
+                runtimeScopeOverride: null,
+                enterSource: UserMoveRotateEnterSource.Command,
+                eventData: default,
+                ignoreEntrySource: true);
+        }
+
+        public bool TryExitEditorMode(UserMoveRotateRuntimeMB editor, bool runExitCommands)
+        {
+            if (editor == null || !_session.IsActive || !ReferenceEquals(_session.Editor, editor))
+                return false;
+
+            EndSession(runExitCommands);
+            return true;
+        }
+
         public void RegisterEditor(UserMoveRotateRuntimeMB editor)
         {
             if (editor == null || !_editors.Add(editor))
@@ -164,7 +196,22 @@ namespace Game.SelectRuntime
                 return;
             }
 
-            TryEnterEditorMode(editor, runtimeScopeOverride: null, fromSelectableLongPress: true, _hoveredData);
+            if (_session.IsActive && ReferenceEquals(_session.Editor, editor))
+                return;
+
+            if (_entryPress.IsActive && ReferenceEquals(_entryPress.Editor, editor) && editor.EditorEntrySource == UserMoveRotateEditorEntrySource.Both)
+            {
+                // Pointer long-press path has progress updates; in Both mode prefer it to keep Entry timing deterministic.
+                return;
+            }
+
+            ExecuteLongPressEntryCommands(editor);
+            TryEnterEditorMode(
+                editor,
+                runtimeScopeOverride: null,
+                enterSource: UserMoveRotateEnterSource.SelectableLongPress,
+                eventData: _hoveredData,
+                ignoreEntrySource: false);
         }
 
         void HandleSelectionChanged(SelectRuntimeSelectionChangedEvent eventData)
@@ -184,6 +231,9 @@ namespace Game.SelectRuntime
 
         void HandleEnabledChanged(bool enabled)
         {
+            if (!enabled && _entryPress.IsActive)
+                CancelEntryPress(_entryPress.Editor, "Pointer long press canceled: select runtime disabled.", runCancelCommands: true);
+
             if (!enabled)
                 EndSession(runExitCommands: true);
         }
@@ -194,7 +244,7 @@ namespace Game.SelectRuntime
             _hoveredData = eventData.EventData;
 
             if (_entryPress.IsActive && !ReferenceEquals(_entryPress.Target, _hoveredTarget))
-                _entryPress.Clear();
+                CancelEntryPress(_entryPress.Editor, "Pointer long press canceled: hover target left.", runCancelCommands: true);
         }
 
         void HandleLeftClicked(WorldPointerEventData eventData)
@@ -226,7 +276,7 @@ namespace Game.SelectRuntime
 
         void HandleEditingFrame(InputFrame frame)
         {
-            if (!_session.IsActive || _session.Editor == null || _session.RuntimeScope == null || _session.RootTransform == null)
+            if (!_session.IsActive || _session.Editor == null || _session.RuntimeScope == null || _session.RootTransform == null || _session.MoveTransform == null || _session.RotateTransform == null)
                 return;
 
             if (!_managerService.EvaluateIsEnabled())
@@ -235,9 +285,15 @@ namespace Game.SelectRuntime
                 return;
             }
 
+            if (!EvaluateEditorCondition(_session.Editor, _session.RuntimeScope))
+            {
+                EndSession(runExitCommands: true);
+                return;
+            }
+
             var request = UserMoveRotateValidationRequest.Create(_session.Editor, _session.RuntimeScope);
-            var currentPosition = _session.RootTransform.position;
-            var currentRotation = _session.RootTransform.rotation;
+            var currentPosition = _session.MoveTransform!.position;
+            var currentRotation = _session.RotateTransform!.rotation;
             var candidatePosition = currentPosition;
             var candidateRotation = currentRotation;
 
@@ -252,7 +308,7 @@ namespace Game.SelectRuntime
             if (!UserMoveRotateValidationUtility.IsValidPose(request, candidatePosition, candidateRotation))
                 return;
 
-            _session.RootTransform.SetPositionAndRotation(candidatePosition, candidateRotation);
+            ApplySessionPose(candidatePosition, candidateRotation);
             _session.LastValidPosition = candidatePosition;
             _session.LastValidRotation = candidateRotation;
             SyncRotateBinding(request, candidateRotation);
@@ -260,6 +316,13 @@ namespace Game.SelectRuntime
 
         void HandleEditorEntryFrame(InputFrame frame)
         {
+            if (!_managerService.EvaluateIsEnabled())
+            {
+                if (_entryPress.IsActive)
+                    CancelEntryPress(_entryPress.Editor, "Pointer long press canceled: manager is disabled.", runCancelCommands: true);
+                return;
+            }
+
             if (frame.PointerLeft.Down)
             {
                 TryBeginPointerEntry();
@@ -273,7 +336,7 @@ namespace Game.SelectRuntime
             {
                 if (editor != null)
                     LogEditorEntryFailure(editor, $"Pointer long press ignored: entry source is {editor.EditorEntrySource}.");
-                _entryPress.Clear();
+                CancelEntryPress(editor, "Pointer long press canceled: entry source mismatch.", runCancelCommands: true);
                 return;
             }
 
@@ -281,21 +344,49 @@ namespace Game.SelectRuntime
             {
                 if (frame.PointerLeft.Up)
                     _entryPress.Clear();
+                else
+                    CancelEntryPress(editor, "Pointer long press canceled: hold interrupted.", runCancelCommands: true);
+                return;
+            }
+
+            if (!TryResolveRuntimeScope(editor, runtimeScopeOverride: null, out var conditionScope) || !EvaluateEditorCondition(editor, conditionScope))
+            {
+                CancelEntryPress(editor, "Pointer long press canceled: editor condition is false.", runCancelCommands: true);
                 return;
             }
 
             if (!ReferenceEquals(_entryPress.Target, _hoveredTarget))
             {
-                LogEditorEntryFailure(editor, "Pointer long press canceled: target changed before threshold.");
-                _entryPress.Clear();
+                CancelEntryPress(editor, "Pointer long press canceled: target changed before threshold.", runCancelCommands: true);
                 return;
             }
 
-            if (Time.unscaledTime - _entryPress.PressedTime < editor.EditorLongPressSeconds)
+            var elapsed = Time.unscaledTime - _entryPress.PressedTime;
+            var progress = editor.EditorLongPressSeconds > 0f
+                ? Mathf.Clamp01(elapsed / editor.EditorLongPressSeconds)
+                : 1f;
+            if (!_entryPress.EntryCommandsExecuted && progress >= editor.LongPressEntryProgress)
+            {
+                ExecuteLongPressEntryCommands(editor);
+                _entryPress.EntryCommandsExecuted = true;
+            }
+
+            if (elapsed < editor.EditorLongPressSeconds)
                 return;
 
-            if (!TryEnterEditorMode(editor, runtimeScopeOverride: null, fromSelectableLongPress: false, _entryPress.PressedData))
+            var entered = TryEnterEditorMode(
+                editor,
+                runtimeScopeOverride: null,
+                enterSource: UserMoveRotateEnterSource.PointerLongPress,
+                eventData: _entryPress.PressedData,
+                ignoreEntrySource: false);
+            if (!entered)
+            {
                 LogEditorEntryFailure(editor, "Pointer long press reached threshold but editor mode entry failed.");
+                CancelEntryPress(editor, "Pointer long press canceled: enter failed at threshold.", runCancelCommands: true);
+                return;
+            }
+
             _entryPress.Clear();
         }
 
@@ -317,57 +408,71 @@ namespace Game.SelectRuntime
                 return;
             }
 
+            if (!TryResolveRuntimeScope(editor, runtimeScopeOverride: null, out var runtimeScope) || !EvaluateEditorCondition(editor, runtimeScope))
+            {
+                LogEditorEntryFailure(editor, "Pointer down ignored: editor condition is false.");
+                return;
+            }
+
             _entryPress.Editor = editor;
             _entryPress.Target = _hoveredTarget;
             _entryPress.PressedTime = Time.unscaledTime;
             _entryPress.PressedData = _hoveredData.Target != null ? _hoveredData : new WorldPointerEventData(_hoveredTarget, _hoveredData.ScreenPosition, _hoveredData.WorldPosition, _hoveredData.HitNormal, _hoveredData.HitCollider);
+            _entryPress.EntryCommandsExecuted = false;
 
         }
 
         bool TryEnterEditorMode(
             UserMoveRotateRuntimeMB editor,
             RuntimeLifetimeScope? runtimeScopeOverride,
-            bool fromSelectableLongPress,
-            WorldPointerEventData eventData)
+            UserMoveRotateEnterSource enterSource,
+            WorldPointerEventData eventData,
+            bool ignoreEntrySource)
         {
             if (editor == null)
                 return false;
 
+            _ = eventData;
+
             if (ReferenceEquals(_session.Editor, editor))
                 return true;
 
-            if (fromSelectableLongPress && !CanEnterFromSelectable(editor))
+            if (!ignoreEntrySource &&
+                ((enterSource == UserMoveRotateEnterSource.SelectableLongPress && !CanEnterFromSelectable(editor)) ||
+                 (enterSource == UserMoveRotateEnterSource.PointerLongPress && !CanEnterFromPointer(editor))))
             {
-                LogEditorEntryFailure(editor, $"Selectable entry blocked by source {editor.EditorEntrySource}.");
+                LogEditorEntryFailure(editor, $"Editor entry blocked by source {editor.EditorEntrySource}.");
                 return false;
             }
 
-            if (!fromSelectableLongPress && !CanEnterFromPointer(editor))
+            if (!TryResolveRuntimeScope(editor, runtimeScopeOverride, out var runtimeScope))
+                return false;
+
+            if (!EvaluateEditorCondition(editor, runtimeScope))
             {
-                LogEditorEntryFailure(editor, $"Pointer entry blocked by source {editor.EditorEntrySource}.");
+                LogEditorEntryFailure(editor, "Editor entry blocked by condition=false.");
                 return false;
             }
-
-            if (!editor.TryResolveActorScope(out var scope) || scope is not RuntimeLifetimeScope runtimeScope)
-            {
-                LogEditorEntryFailure(editor, "Could not resolve RuntimeLifetimeScope from editor actor scope.");
-                return false;
-            }
-
-            if (runtimeScopeOverride != null && !ReferenceEquals(runtimeScope, runtimeScopeOverride))
-                runtimeScope = runtimeScopeOverride;
 
             EndSession(runExitCommands: true);
 
             var rootTransform = runtimeScope.Identity?.SelfTransform != null
                 ? runtimeScope.Identity.SelfTransform
                 : runtimeScope.transform;
+            var moveTransform = editor.ApplyOverrideTargetTransform && editor.MoveTargetTransform != null
+                ? editor.MoveTargetTransform
+                : rootTransform;
+            var rotateTransform = editor.ApplyOverrideTargetTransform && editor.RotateTargetTransform != null
+                ? editor.RotateTargetTransform
+                : rootTransform;
             _session.Editor = editor;
             _session.RuntimeScope = runtimeScope;
             _session.RootTransform = rootTransform;
+            _session.MoveTransform = moveTransform;
+            _session.RotateTransform = rotateTransform;
             _session.StartedFrame = Time.frameCount;
-            _session.LastValidPosition = rootTransform.position;
-            _session.LastValidRotation = rootTransform.rotation;
+            _session.LastValidPosition = moveTransform.position;
+            _session.LastValidRotation = rotateTransform.rotation;
 
             BindRotateExternal(editor, runtimeScope);
             BindIsEditorModeExternal(editor, runtimeScope);
@@ -392,6 +497,50 @@ namespace Game.SelectRuntime
         {
             _ = subject;
             _ = message;
+        }
+
+        bool TryResolveRuntimeScope(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope? runtimeScopeOverride, out RuntimeLifetimeScope runtimeScope)
+        {
+            runtimeScope = null!;
+            if (!editor.TryResolveActorScope(out var scope) || scope is not RuntimeLifetimeScope resolved)
+            {
+                LogEditorEntryFailure(editor, "Could not resolve RuntimeLifetimeScope from editor actor scope.");
+                return false;
+            }
+
+            runtimeScope = runtimeScopeOverride != null ? runtimeScopeOverride : resolved;
+            return true;
+        }
+
+        bool EvaluateEditorCondition(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
+        {
+            var vars = new VarStore();
+            if (runtimeScope.Resolver != null && runtimeScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null)
+                blackboard.MergeInto(vars, overwrite: true);
+
+            var dynamicContext = new SimpleDynamicContext(vars, runtimeScope);
+            return editor.EditorCondition.TryGet(dynamicContext, out var allowed) && allowed;
+        }
+
+        void ExecuteLongPressEntryCommands(UserMoveRotateRuntimeMB editor)
+        {
+            ExecuteEditorCommands(editor, editor.OnLongPressEntryCommands, selected: false, hovered: true, editing: false);
+        }
+
+        void ExecuteLongPressCancelCommands(UserMoveRotateRuntimeMB editor)
+        {
+            ExecuteEditorCommands(editor, editor.OnLongPressCancelCommands, selected: false, hovered: false, editing: false);
+        }
+
+        void CancelEntryPress(UserMoveRotateRuntimeMB? editor, string reason, bool runCancelCommands)
+        {
+            if (editor != null)
+                LogEditorEntryFailure(editor, reason);
+
+            if (runCancelCommands && editor != null)
+                ExecuteLongPressCancelCommands(editor);
+
+            _entryPress.Clear();
         }
 
         static string DescribeEditor(UserMoveRotateRuntimeMB editor)
@@ -602,7 +751,7 @@ namespace Game.SelectRuntime
                     return;
             }
 
-            SyncRotateBinding(request, request.RootTransform.rotation);
+            SyncRotateBinding(request, _session.RotateTransform != null ? _session.RotateTransform.rotation : request.RootTransform.rotation);
         }
 
         void BindIsEditorModeExternal(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
@@ -629,11 +778,11 @@ namespace Game.SelectRuntime
 
         bool TryApplyExternalRotation(UserMoveRotateValidationRequest request, float absoluteDegrees)
         {
-            if (!_session.IsActive || _session.RootTransform == null)
+            if (!_session.IsActive || _session.MoveTransform == null || _session.RotateTransform == null)
                 return false;
 
-            var currentPosition = _session.RootTransform.position;
-            var currentRotation = _session.RootTransform.rotation;
+            var currentPosition = _session.MoveTransform.position;
+            var currentRotation = _session.RotateTransform.rotation;
             var candidateRotation = ApplyRotationDegrees(request, currentPosition, currentRotation, absoluteDegrees);
             if (Quaternion.Angle(currentRotation, candidateRotation) <= 0.0001f)
                 return true;
@@ -641,7 +790,7 @@ namespace Game.SelectRuntime
             if (!UserMoveRotateValidationUtility.IsValidPose(request, currentPosition, candidateRotation))
                 return false;
 
-            _session.RootTransform.SetPositionAndRotation(currentPosition, candidateRotation);
+            ApplySessionPose(currentPosition, candidateRotation);
             _session.LastValidPosition = currentPosition;
             _session.LastValidRotation = candidateRotation;
             return true;
@@ -652,8 +801,23 @@ namespace Game.SelectRuntime
             if (!_rotateBinding.HasBinding)
                 return;
 
-            var degrees = ExtractRotationDegrees(request, request.RootTransform.position, rotation);
+            var degrees = ExtractRotationDegrees(request, _session.MoveTransform != null ? _session.MoveTransform.position : request.RootTransform.position, rotation);
             _rotateBinding.Write(degrees);
+        }
+
+        void ApplySessionPose(Vector3 position, Quaternion rotation)
+        {
+            if (_session.MoveTransform == null || _session.RotateTransform == null)
+                return;
+
+            if (ReferenceEquals(_session.MoveTransform, _session.RotateTransform))
+            {
+                _session.MoveTransform.SetPositionAndRotation(position, rotation);
+                return;
+            }
+
+            _session.MoveTransform.position = position;
+            _session.RotateTransform.rotation = rotation;
         }
 
         static float ExtractRotationDegrees(UserMoveRotateValidationRequest request, Vector3 currentPosition, Quaternion rotation)

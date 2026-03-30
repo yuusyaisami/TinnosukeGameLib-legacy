@@ -76,6 +76,9 @@ namespace Game.Scalar
         // Value cache for change detection
         readonly Dictionary<int, float> _lastValues = new();
 
+        BaseScalarService _nearestAncestorScalarServiceCache;
+        bool _hasNearestAncestorScalarServiceCache;
+
         public BaseScalarService(
             IScopeNode scope,
             IScalarRuntimeConfigProvider configProvider)
@@ -90,6 +93,8 @@ namespace Game.Scalar
         {
             if (!isReset)
                 return;
+
+            InvalidateAncestorScalarCache();
 
             // Runtime scope は pool 再利用される前提なので、Acquire 時の reset では
             // まず scalar の local runtime を完全に破棄する。
@@ -109,6 +114,7 @@ namespace Game.Scalar
             if (!isReset)
                 return;
 
+            InvalidateAncestorScalarCache();
             ResetForScopeReuse();
         }
 
@@ -191,12 +197,23 @@ namespace Game.Scalar
 
         BaseScalarService ResolveNearestAncestorScalarService()
         {
+            if (_hasNearestAncestorScalarServiceCache)
+                return _nearestAncestorScalarServiceCache;
+
             if (_scope == null)
+            {
+                _nearestAncestorScalarServiceCache = null;
+                _hasNearestAncestorScalarServiceCache = true;
                 return null;
+            }
 
             var path = _scope.GetPathFromRoot();
             if (path == null || path.Count <= 1)
+            {
+                _nearestAncestorScalarServiceCache = null;
+                _hasNearestAncestorScalarServiceCache = true;
                 return null;
+            }
 
             for (int i = path.Count - 2; i >= 0; --i)
             {
@@ -205,10 +222,22 @@ namespace Game.Scalar
                     continue;
 
                 if (ancestor.Resolver.TryResolve<IBaseScalarService>(out var svc) && svc is BaseScalarService baseSvc)
+                {
+                    _nearestAncestorScalarServiceCache = baseSvc;
+                    _hasNearestAncestorScalarServiceCache = true;
                     return baseSvc;
+                }
             }
 
+            _nearestAncestorScalarServiceCache = null;
+            _hasNearestAncestorScalarServiceCache = true;
             return null;
+        }
+
+        void InvalidateAncestorScalarCache()
+        {
+            _nearestAncestorScalarServiceCache = null;
+            _hasNearestAncestorScalarServiceCache = false;
         }
 
         BaseScalarService ResolveServiceForGlobalKey(ScalarKey key, bool includeAllLayers, string layer)
@@ -409,6 +438,25 @@ namespace Game.Scalar
                 return;
 
             float dt = Time.deltaTime;
+
+            if (_subscriptions.Count == 0)
+            {
+                bool hasTimedEntries = false;
+                foreach (var rt in _runtimes.Values)
+                {
+                    if (!rt.HasTimedEntries)
+                        continue;
+
+                    hasTimedEntries = true;
+                    rt.Tick(dt);
+                }
+
+                if (!hasTimedEntries)
+                    return;
+
+                return;
+            }
+
             foreach (var rt in _runtimes.Values)
             {
                 rt.Tick(dt);
@@ -482,6 +530,7 @@ namespace Game.Scalar
 
         void ResetForScopeReuse()
         {
+            InvalidateAncestorScalarCache();
             ClearAll();
             _subscriptions.Clear();
             _keySubscriptions.Clear();

@@ -261,6 +261,9 @@ namespace Game.UI
             if (!enableDebugGui || _output == null || !_output.HasBounds)
                 return;
 
+            if (Event.current == null || Event.current.type != EventType.Repaint)
+                return;
+
             if (rebuildEveryGui)
                 _service?.RebuildNow();
 

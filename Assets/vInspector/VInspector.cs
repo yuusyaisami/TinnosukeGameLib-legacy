@@ -916,7 +916,8 @@ namespace VInspector
 
         public static void SetComponentExpanded_withAnimation(EditorWindow inspectorWindow, Component component, bool newExpandedState, bool queueAnimation)
         {
-            if (activeExpandAnimations_byComponent.TryGetValue(component, out var activeAnimation)) { activeAnimation.targetExpandedState = newExpandedState; return; };
+            if (activeExpandAnimations_byComponent.TryGetValue(component, out var activeAnimation)) { activeAnimation.targetExpandedState = newExpandedState; return; }
+            ;
 
 
             var tracker = inspectorWindow.GetMemberValue<ActiveEditorTracker>("m_Tracker");

@@ -314,13 +314,18 @@ namespace Game.UI
                     var template = SliderRuntimeHelpers.ResolveRuntimeTemplate(_visualizerPreset.Segmented.SegmentBarTemplatePreset, _dynamicContext);
                     if (template != null)
                     {
-                        for (var i = 0; i < Mathf.Max(0, _output.BoundaryCount - 1); i++)
+                        var segmentBarCount = SliderRuntimeHelpers.ResolveVisualSegmentBarCount(_visualizerPreset.Segmented, _output.BoundaryCount);
+                        for (var i = 0; i < segmentBarCount; i++)
                         {
                             ct.ThrowIfCancellationRequested();
-                            var startRaw = _output.ResolveBoundaryRawValue(i);
-                            var endRaw = _output.ResolveBoundaryRawValue(i + 1);
-                            var startNormalized = _output.ResolveBoundaryNormalizedValue(i);
-                            var endNormalized = _output.ResolveBoundaryNormalizedValue(i + 1);
+                            SliderRuntimeHelpers.ResolveVisualSegmentBarRange(
+                                _visualizerPreset.Segmented,
+                                _output,
+                                i,
+                                out var startRaw,
+                                out var endRaw,
+                                out var startNormalized,
+                                out var endNormalized);
                             var instance = await SpawnSizedInstanceAsync(
                                 spawner,
                                 template,
@@ -429,13 +434,21 @@ namespace Game.UI
             SetRuntimeActive(true);
 
             if (_backgroundRuntime != null)
-                ApplyBackgroundSnapshot(_backgroundRuntime, rangeSnapshot);
+                ApplyBackgroundSnapshot(_backgroundRuntime, snapshot, rangeSnapshot);
 
-            var segmentCount = Mathf.Min(_segmentBars.Count, Mathf.Max(0, _output.BoundaryCount - 1));
+            var segmentCount = Mathf.Min(
+                _segmentBars.Count,
+                SliderRuntimeHelpers.ResolveVisualSegmentBarCount(_visualizerPreset.Segmented, _output.BoundaryCount));
             for (var i = 0; i < segmentCount; i++)
             {
-                var startNormalized = _output.ResolveBoundaryNormalizedValue(i);
-                var endNormalized = _output.ResolveBoundaryNormalizedValue(i + 1);
+                SliderRuntimeHelpers.ResolveVisualSegmentBarRange(
+                    _visualizerPreset.Segmented,
+                    _output,
+                    i,
+                    out _,
+                    out _,
+                    out var startNormalized,
+                    out var endNormalized);
                 ApplySegmentBarSnapshot(_segmentBars[i], snapshot, rangeSnapshot, startNormalized, endNormalized);
             }
 
@@ -450,8 +463,17 @@ namespace Game.UI
                 ApplyHandleSnapshot(_handleRuntime, snapshot, rangeSnapshot);
         }
 
-        void ApplyBackgroundSnapshot(SliderSpawnedRuntimeInstance instance, in AreaRectSnapshot rangeSnapshot)
+        void ApplyBackgroundSnapshot(
+            SliderSpawnedRuntimeInstance instance,
+            in SliderOutputSnapshot snapshot,
+            in AreaRectSnapshot rangeSnapshot)
         {
+            if (!SliderRuntimeHelpers.ShouldShowBackground(_visualizerPreset.Background, snapshot))
+            {
+                instance.Root.gameObject.SetActive(false);
+                return;
+            }
+
             SliderRuntimeHelpers.ResolveIntervalBarGeometry(
                 rangeSnapshot,
                 _visualizerPreset.Segmented.FillAxis,
@@ -492,34 +514,28 @@ namespace Game.UI
         {
             Vector3 worldCenter;
             float majorLength;
-            bool isVisible;
-            if (_playerPreset.SegmentDisplayMode == SliderSegmentDisplayMode.ReachedStageFloor)
-            {
-                SliderRuntimeHelpers.ResolveIntervalBarGeometry(
-                    rangeSnapshot,
-                    _visualizerPreset.Segmented.FillAxis,
-                    _visualizerPreset.Segmented.OriginSide,
-                    startNormalized,
-                    endNormalized,
-                    out worldCenter,
-                    out majorLength);
-                isVisible = snapshot.DisplayedNormalizedValue >= endNormalized - 0.0001f;
-            }
-            else
-            {
-                var filledEnd = Mathf.Clamp(snapshot.DisplayedNormalizedValue, startNormalized, endNormalized);
-                SliderRuntimeHelpers.ResolveIntervalBarGeometry(
-                    rangeSnapshot,
-                    _visualizerPreset.Segmented.FillAxis,
-                    _visualizerPreset.Segmented.OriginSide,
-                    startNormalized,
-                    filledEnd,
-                    out worldCenter,
-                    out majorLength);
-                isVisible = majorLength > 0.0001f;
-            }
+            SliderRuntimeHelpers.ResolveDisplayedSegmentBarInterval(
+                _playerPreset.SegmentDisplayMode,
+                _visualizerPreset.Segmented.SplitBarsByLayout,
+                snapshot.DisplayedNormalizedValue,
+                startNormalized,
+                endNormalized,
+                out var visibleStartNormalized,
+                out var visibleEndNormalized,
+                out var isVisible);
 
-            majorLength *= ResolveBarSpanScale();
+            SliderRuntimeHelpers.ResolveIntervalBarGeometry(
+                rangeSnapshot,
+                _visualizerPreset.Segmented.FillAxis,
+                _visualizerPreset.Segmented.OriginSide,
+                visibleStartNormalized,
+                visibleEndNormalized,
+                out worldCenter,
+                out majorLength);
+
+            if (_visualizerPreset.Segmented.SplitBarsByLayout)
+                majorLength *= ResolveBarSpanScale();
+
             var minorLength = SliderRuntimeHelpers.ResolveAreaCrossLength(rangeSnapshot, _visualizerPreset.Segmented.FillAxis);
             var usedScaleFallback = SliderRuntimeHelpers.ApplySpawnedBarGeometry(
                 instance,

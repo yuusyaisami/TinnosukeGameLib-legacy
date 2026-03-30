@@ -140,7 +140,7 @@ namespace Game.Commands
         [LabelText("Playback Mode")]
         [Tooltip("再生方式です。OneShot は末尾で停止、Loop は先頭へ戻り、PingPong は端で折り返します。")]
         [SerializeField]
-        CommandListPlaybackMode _playbackMode = CommandListPlaybackMode.Loop;
+        CommandListPlaybackMode _playbackMode = CommandListPlaybackMode.OneShot;
 
         [BoxGroup("Playback")]
         [LabelText("Interval Seconds")]
