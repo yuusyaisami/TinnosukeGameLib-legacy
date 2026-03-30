@@ -27,7 +27,7 @@ namespace VFolders
         public static bool collapseEverythingElseEnabled { get => EditorPrefsCached.GetBool("vFolders-collapseEverythingElseEnabled", true); set => EditorPrefsCached.SetBool("vFolders-collapseEverythingElseEnabled", value); }
         public static bool collapseEverythingEnabled { get => EditorPrefsCached.GetBool("vFolders-collapseEverythingEnabled", true); set => EditorPrefsCached.SetBool("vFolders-collapseEverythingEnabled", value); }
 
-        public static bool pluginDisabled { get => EditorPrefsCached.GetBool("vFolders-pluginDisabled", false); set => EditorPrefsCached.SetBool("vFolders-pluginDisabled", value); }
+        public static bool pluginDisabled { get => EditorPrefsCached.GetBool("vFolders-pluginDisabled", true); set => EditorPrefsCached.SetBool("vFolders-pluginDisabled", value); }
 
 
 

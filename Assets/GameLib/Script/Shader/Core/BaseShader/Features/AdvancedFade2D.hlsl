@@ -498,6 +498,22 @@ inline Surface2D Surface2D_ApplyAdvancedFade(Surface2D s, AdvancedFade2DParams p
     // Burn dissolve (AdvancedFade2D.Enabled に依存させず単体で動作)
     if (useBurn > 0.5h)
     {
+        float burnProgress = saturate(p.burnProgress);
+        bool burnFullyVisible = (p.burnInvert <= 0.5 && burnProgress <= 0.0001);
+        bool burnFullyHidden = (p.burnInvert <= 0.5 && burnProgress >= 0.9999);
+        bool burnInvertFullyVisible = (p.burnInvert > 0.5 && burnProgress >= 0.9999);
+        bool burnInvertFullyHidden = (p.burnInvert > 0.5 && burnProgress <= 0.0001);
+
+        if (burnFullyVisible || burnInvertFullyVisible)
+            return result;
+
+        if (burnFullyHidden || burnInvertFullyHidden)
+        {
+            result.alpha = 0.0h;
+            result.alphaFactor = 0.0h;
+            return result;
+        }
+
         float2 dir = p.burnDirection;
         float len = max(length(dir), 1e-4);
         dir /= len;
@@ -507,12 +523,12 @@ inline Surface2D Surface2D_ApplyAdvancedFade(Surface2D s, AdvancedFade2DParams p
         float n = AnimatedNoise2D_Sample01(result.uvLocal, burnMotion, float2(0.0, 0.0), time);
         float edge = p.burnEdgeWidth;
         // 進行端(0/1)ではノイズを無効化してエッジ残りを防ぐ
-        float noiseVis = saturate(p.burnProgress * (1.0 - p.burnProgress) * 4.0);
+        float noiseVis = saturate(burnProgress * (1.0 - burnProgress) * 4.0);
         float v = coord + (n - 0.5) * p.burnNoiseStrength * noiseVis;
 
         // progress を edge を含む 0..1 区間で正規化（0=完全表示, 1=完全消失）
         float span = 1.0 + edge * 2.0;
-        float threshold = -edge + p.burnProgress * span;
+        float threshold = -edge + burnProgress * span;
 
         half burnAlpha = smoothstep(threshold - edge, threshold + edge, v);
         if (p.burnInvert > 0.5h)

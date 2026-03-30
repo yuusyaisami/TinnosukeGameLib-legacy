@@ -9,6 +9,8 @@ using VNext = Game.Commands.VNext;
 using VContainer;
 using Sirenix.OdinInspector;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -68,6 +70,54 @@ public class FPSDisplay : MonoBehaviour
     [SerializeField] float updateInterval = 0.25f;
     [SerializeField] bool visibleOnStart = false;
     [SerializeField] float deleteSaveHoldSeconds = 2f;
+    [BoxGroup("Performance")]
+    [LabelText("Apply Frame Pacing On Awake")]
+    [SerializeField] bool applyFramePacingOnAwake = true;
+    [BoxGroup("Performance")]
+    [LabelText("Disable VSync")]
+    [SerializeField] bool disableVSync = true;
+    [BoxGroup("Performance")]
+    [LabelText("Target FPS (-1: Unlimited)")]
+    [SerializeField] int targetFps = -1;
+    [BoxGroup("Performance")]
+    [LabelText("Force Exclusive Fullscreen (Windows)")]
+    [SerializeField] bool forceExclusiveFullscreenOnWindows;
+    [BoxGroup("Performance/Adaptive RenderScale")]
+    [LabelText("Enable Adaptive RenderScale")]
+    [SerializeField] bool enableAdaptiveRenderScale;
+    [BoxGroup("Performance/Adaptive RenderScale")]
+    [ShowIf(nameof(enableAdaptiveRenderScale))]
+    [LabelText("Min RenderScale")]
+    [MinValue(0.4f)]
+    [MaxValue(1.0f)]
+    [SerializeField] float adaptiveMinRenderScale = 0.55f;
+    [BoxGroup("Performance/Adaptive RenderScale")]
+    [ShowIf(nameof(enableAdaptiveRenderScale))]
+    [LabelText("Max RenderScale")]
+    [MinValue(0.4f)]
+    [MaxValue(1.0f)]
+    [SerializeField] float adaptiveMaxRenderScale = 0.85f;
+    [BoxGroup("Performance/Adaptive RenderScale")]
+    [ShowIf(nameof(enableAdaptiveRenderScale))]
+    [LabelText("GPU High Threshold (ms)")]
+    [MinValue(1f)]
+    [SerializeField] float adaptiveGpuHighMs = 16.7f;
+    [BoxGroup("Performance/Adaptive RenderScale")]
+    [ShowIf(nameof(enableAdaptiveRenderScale))]
+    [LabelText("GPU Low Threshold (ms)")]
+    [MinValue(1f)]
+    [SerializeField] float adaptiveGpuLowMs = 13.5f;
+    [BoxGroup("Performance/Adaptive RenderScale")]
+    [ShowIf(nameof(enableAdaptiveRenderScale))]
+    [LabelText("Scale Step")]
+    [MinValue(0.01f)]
+    [MaxValue(0.2f)]
+    [SerializeField] float adaptiveScaleStep = 0.05f;
+    [BoxGroup("Performance/Adaptive RenderScale")]
+    [ShowIf(nameof(enableAdaptiveRenderScale))]
+    [LabelText("Change Cooldown Seconds")]
+    [MinValue(0.05f)]
+    [SerializeField] float adaptiveChangeCooldownSeconds = 0.4f;
     [BoxGroup("Custom Debug Buttons")]
     [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
     [SerializeField] CustomDebugButtonEntry[] customDebugButtons = Array.Empty<CustomDebugButtonEntry>();
@@ -94,23 +144,38 @@ public class FPSDisplay : MonoBehaviour
     string saveDeleteStatus = "Ready";
     ISaveManager cachedSaveManager;
     VNext.ICommandRunner cachedCommandRunner;
+    UniversalRenderPipelineAsset cachedUrpAsset;
+    float adaptiveGpuEmaMs;
+    float adaptiveCooldownTimer;
+    float adaptiveCurrentRenderScale;
+    bool hasAdaptiveGpuEma;
 
     void Awake()
     {
-        QualitySettings.vSyncCount = 0;      // VSync OFF
-        Application.targetFrameRate = -1;    // プラットフォーム既定（上限なし寄り）
-        // 例: 明確に上限を置くなら 240 とか
-        // Application.targetFrameRate = 240;
+        if (!applyFramePacingOnAwake)
+            return;
+
+        QualitySettings.vSyncCount = disableVSync ? 0 : Mathf.Max(0, QualitySettings.vSyncCount);
+        Application.targetFrameRate = targetFps > 0 ? targetFps : (disableVSync ? 60 : Application.targetFrameRate);
     }
     void Start()
     {
 #if UNITY_STANDALONE_WIN
-        Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
-        Screen.fullScreen = true;
+        if (forceExclusiveFullscreenOnWindows)
+        {
+            Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
+            Screen.fullScreen = true;
+        }
 #endif
         isVisible = visibleOnStart;
         cpuName = string.IsNullOrWhiteSpace(SystemInfo.processorType) ? "Unknown" : SystemInfo.processorType;
         gpuName = string.IsNullOrWhiteSpace(SystemInfo.graphicsDeviceName) ? "Unknown" : SystemInfo.graphicsDeviceName;
+        cachedUrpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+        if (cachedUrpAsset == null)
+            cachedUrpAsset = QualitySettings.renderPipeline as UniversalRenderPipelineAsset;
+
+        if (cachedUrpAsset != null)
+            adaptiveCurrentRenderScale = cachedUrpAsset.renderScale;
     }
 
     void OnEnable()
@@ -157,26 +222,34 @@ public class FPSDisplay : MonoBehaviour
             intervalBestFrameMs = frameMsNow;
         }
 
-        FrameTimingManager.CaptureFrameTimings();
-        if (FrameTimingManager.GetLatestTimings(1, timings) > 0)
+        if (isVisible || enableAdaptiveRenderScale)
         {
-            // 単位は ms
-            var cpu = (float)timings[0].cpuFrameTime;
-            var gpu = (float)timings[0].gpuFrameTime;
+            FrameTimingManager.CaptureFrameTimings();
+            if (FrameTimingManager.GetLatestTimings(1, timings) > 0)
+            {
+                // 単位は ms
+                var cpu = (float)timings[0].cpuFrameTime;
+                var gpu = (float)timings[0].gpuFrameTime;
 
-            hasCpuTiming = cpu > 0.0001f;
-            hasGpuTiming = gpu > 0.0001f;
+                hasCpuTiming = cpu > 0.0001f;
+                hasGpuTiming = gpu > 0.0001f;
 
-            if (hasCpuTiming)
-                cpuMs = cpu;
-            if (hasGpuTiming)
-                gpuMs = gpu;
+                if (hasCpuTiming)
+                    cpuMs = cpu;
+                if (hasGpuTiming)
+                    gpuMs = gpu;
+            }
         }
+
+        UpdateAdaptiveRenderScale(dt);
     }
 
     void OnGUI()
     {
         if (!isVisible)
+            return;
+
+        if (Event.current == null || Event.current.type != EventType.Repaint)
             return;
 
         GUI.color = Color.white;
@@ -212,6 +285,11 @@ public class FPSDisplay : MonoBehaviour
         y += 20f;
         GUI.Label(new Rect(x, y, w, h), $"Quality: {QualitySettings.names[QualitySettings.GetQualityLevel()]} | vSync: {QualitySettings.vSyncCount} | targetFPS: {Application.targetFrameRate}");
         y += 20f;
+        if (cachedUrpAsset != null)
+        {
+            GUI.Label(new Rect(x, y, w, h), $"URP RenderScale: {cachedUrpAsset.renderScale:F2} | Adaptive: {(enableAdaptiveRenderScale ? "On" : "Off")} | GPU EMA: {(hasAdaptiveGpuEma ? adaptiveGpuEmaMs.ToString("F2") : "N/A")} ms");
+            y += 20f;
+        }
 
         GUI.Label(new Rect(x, y, w, h), $"FPS: {fps:F1}");
         y += 20f;
@@ -250,6 +328,61 @@ public class FPSDisplay : MonoBehaviour
         y += 20f;
         GUI.Label(new Rect(x, y, w, h),
             $"GC Count(Delta): Gen0 {gc0Now - gc0Count} | Gen1 {gc1Now - gc1Count} | Gen2 {gc2Now - gc2Count}");
+    }
+
+    void UpdateAdaptiveRenderScale(float dt)
+    {
+        if (!enableAdaptiveRenderScale)
+            return;
+#if UNITY_EDITOR
+        if (Application.isEditor)
+            return;
+#endif
+        if (cachedUrpAsset == null)
+            return;
+        if (!hasGpuTiming)
+            return;
+
+        var minScale = Mathf.Clamp(adaptiveMinRenderScale, 0.4f, 1.0f);
+        var maxScale = Mathf.Clamp(adaptiveMaxRenderScale, minScale, 1.0f);
+        var step = Mathf.Clamp(adaptiveScaleStep, 0.01f, 0.2f);
+        var highMs = Mathf.Max(1f, adaptiveGpuHighMs);
+        var lowMs = Mathf.Clamp(adaptiveGpuLowMs, 1f, highMs - 0.1f);
+
+        if (!hasAdaptiveGpuEma)
+        {
+            adaptiveGpuEmaMs = gpuMs;
+            hasAdaptiveGpuEma = true;
+        }
+        else
+        {
+            var lerpT = 1f - Mathf.Exp(-Mathf.Max(0.001f, dt) * 4f);
+            adaptiveGpuEmaMs = Mathf.Lerp(adaptiveGpuEmaMs, gpuMs, lerpT);
+        }
+
+        if (adaptiveCooldownTimer > 0f)
+        {
+            adaptiveCooldownTimer -= dt;
+            return;
+        }
+
+        adaptiveCurrentRenderScale = Mathf.Clamp(cachedUrpAsset.renderScale, minScale, maxScale);
+        var nextScale = adaptiveCurrentRenderScale;
+
+        if (adaptiveGpuEmaMs > highMs)
+            nextScale -= step;
+        else if (adaptiveGpuEmaMs < lowMs)
+            nextScale += step;
+        else
+            return;
+
+        nextScale = Mathf.Clamp(nextScale, minScale, maxScale);
+        if (Mathf.Abs(nextScale - adaptiveCurrentRenderScale) < 0.001f)
+            return;
+
+        cachedUrpAsset.renderScale = nextScale;
+        adaptiveCurrentRenderScale = nextScale;
+        adaptiveCooldownTimer = Mathf.Max(0.05f, adaptiveChangeCooldownSeconds);
     }
 
     void UpdateDeleteAllSaveInput()

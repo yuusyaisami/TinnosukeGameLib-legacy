@@ -17,14 +17,13 @@ MonoBehaviour:
     Template: "\u795E\u5A01"
     Variables: []
   _description:
-    Template: "\u5668\u3092\u30C6\u30EC\u30DD\u30FC\u30C8\u3055\u305B\u308B\u3002
-      -\u305D\u306E\u6280\u306F\u4FFA\u306B\u52B9\u304F-"
+    Template: "\u5668\u3092\u4ED6\u306EKugi\u306B\u30C6\u30EC\u30DD\u30FC\u30C8\u3055\u305B\u308B\u3002 "
     Variables: []
   _weight: 1
   _visualSettings:
     DefaultAnim:
       animationA:
-        kind: 0
+        kind: 1
         asset: {fileID: 0}
         inline:
           animationName: 
@@ -48,7 +47,15 @@ MonoBehaviour:
             _debugAssetPath: 
             _functionName: 
             _commands: []
-          frames: []
+          frames:
+          - sprite: {fileID: -9090746076636340146, guid: f9ed9123242189f4c86bf0fc551304ce, type: 3}
+            duration: 0.1
+            commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
         randomAsset:
           entries: []
         randomInline:

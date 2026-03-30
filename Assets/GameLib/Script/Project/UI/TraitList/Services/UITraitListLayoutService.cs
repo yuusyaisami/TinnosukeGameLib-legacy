@@ -162,8 +162,9 @@ namespace Game.UI.TraitList
         {
             if (order == UITraitListOrder.ColumnMajor)
             {
-                var row = listIndex % rows;
-                var column = listIndex / rows;
+                var safeColumns = Mathf.Max(1, columns);
+                var row = listIndex / safeColumns;
+                var column = listIndex % safeColumns;
                 return (row, column);
             }
 

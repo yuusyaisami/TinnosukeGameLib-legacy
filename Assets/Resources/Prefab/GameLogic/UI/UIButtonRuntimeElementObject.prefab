@@ -46,8 +46,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -45.364014, y: -1.7922}
-  m_SizeDelta: {x: 69.272, y: 36.4156}
+  m_AnchoredPosition: {x: -46.5282, y: -0.093}
+  m_SizeDelta: {x: 66.9436, y: 38.3552}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2842734896834985967
 CanvasRenderer:
@@ -1260,7 +1260,7 @@ MonoBehaviour:
             loopCount: -1
             steps: []
         PresetExecutionPolicy: 10
-        WaitForCompletion: 1
+        WaitForCompletion: 0
         FollowAction: 0
         FollowAwaitMode: 1
         FollowTargetKind: 0
@@ -1977,14 +1977,15 @@ MonoBehaviour:
           _commands:
           - rid: 5619052637487629260
           - rid: 5619052617993552558
-          - rid: 5619052617993552595
           - rid: 5619052617993552618
+          - rid: 5619052617993552595
+          - rid: 5619052642455781695
           - rid: 5619052637364159369
     - rid: 5619052617993552557
       type: {class: CommandListPlayerPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
         _playbackMode: 10
-        _intervalSeconds: 1
+        _intervalSeconds: 0
         _autoPlay: 0
         _variables:
           entries: []
@@ -2185,7 +2186,7 @@ MonoBehaviour:
             rid: -2
         Operation: 0
         Rule:
-          RuleName: 
+          RuleName: Price
           RuleKind: 3
           EventName: 
           EventTarget:
@@ -2302,7 +2303,7 @@ MonoBehaviour:
               Id: 1799240082
               Name: GameLogic.GameProfile.Base.ShopPriceMul
             ChangeEpsilon: 0
-          ExecuteInitialValueChangedEnter: 0
+          ExecuteInitialValueChangedEnter: 1
           InitialValueChangedEnterDelaySeconds: 0
           OnEnterCommands:
             _debugOwner: {fileID: 0}
@@ -2516,8 +2517,8 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _template: ${ShopPriceMul * Value|effect=color_if|cond=MoneyValue >=ShopPriceMul
-          * Value|trueColor="#61FF59"|falseColor="#FF292B"}
+        _template: <sprite=8>{ShopPriceMul * Value|effect=color_if|cond=MoneyValue
+          >=ShopPriceMul * Value|trueColor="#61FF59"|falseColor="#FF292B"}
     - rid: 5619052617993552610
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2604,7 +2605,7 @@ MonoBehaviour:
       data:
         ChannelTag: icon
         ApplyAnimation: 1
-        AwaitMode: 0
+        AwaitMode: 1
         WaitForOnceCompletion: 1
         PresetSource:
           _source:
@@ -2808,69 +2809,9 @@ MonoBehaviour:
             _commandsPresetValue:
               _source:
                 rid: 5619052637364159442
-              _defaultValue:
-                _showCommands:
-                  _debugOwner: {fileID: 0}
-                  _debugFieldPath: 
-                  _debugAssetPath: 
-                  _functionName: 
-                  _commands: []
-                _hideCommands:
-                  _debugOwner: {fileID: 0}
-                  _debugFieldPath: 
-                  _debugAssetPath: 
-                  _functionName: 
-                  _commands: []
-                _selfDespawn:
-                  DelaySeconds:
-                    _source:
-                      rid: -2
-                    _defaultValue: 0
-                  BeforeDespawnCommands:
-                    _debugOwner: {fileID: 0}
-                    _debugFieldPath: 
-                    _debugAssetPath: 
-                    _functionName: 
-                    _commands: []
-                  OnReacquireCommands:
-                    _debugOwner: {fileID: 0}
-                    _debugFieldPath: 
-                    _debugAssetPath: 
-                    _functionName: 
-                    _commands: []
         CommandsPreset:
           _source:
             rid: 5619052637364159443
-          _defaultValue:
-            _showCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _hideCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _selfDespawn:
-              DelaySeconds:
-                _source:
-                  rid: -2
-                _defaultValue: 0
-              BeforeDespawnCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
-              OnReacquireCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
         ResetPlayer: 1
         ResetCommands: 1
         ResetForceOverride: 1
@@ -2959,36 +2900,6 @@ MonoBehaviour:
         _commandsPresetValue:
           _source:
             rid: 5619052637364159450
-          _defaultValue:
-            _showCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _hideCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _selfDespawn:
-              DelaySeconds:
-                _source:
-                  rid: -2
-                _defaultValue: 0
-              BeforeDespawnCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
-              OnReacquireCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
     - rid: 5619052637364159445
       type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
@@ -2996,6 +2907,8 @@ MonoBehaviour:
     - rid: 5619052637364159446
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -3028,6 +2941,8 @@ MonoBehaviour:
     - rid: 5619052637364159447
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -3075,6 +2990,8 @@ MonoBehaviour:
     - rid: 5619052637364159452
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -3291,18 +3208,12 @@ MonoBehaviour:
         _variables:
         - _value:
             _source:
-              rid: 5619052637487628455
+              rid: 5619052643318760365
           _useScalarLeafKey: 0
           _useCustomKey: 1
           _customKey: description
           _expectedType: 255
         _template: '{description}'
-    - rid: 5619052637487628455
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: descriptionTemplate
-          varId: 239
     - rid: 5619052637487628504
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -3383,6 +3294,7 @@ MonoBehaviour:
           - rid: 5619052637487629132
           - rid: 5619052637487628857
           - rid: 5619052637487628858
+          - rid: 5619052642455781832
           - rid: 5619052637487628859
           - rid: 5619052637487628860
           - rid: 5619052638080860194
@@ -3390,8 +3302,8 @@ MonoBehaviour:
     - rid: 5619052637487628730
       type: {class: CommandListPlayerPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
-        _playbackMode: 20
-        _intervalSeconds: 1
+        _playbackMode: 10
+        _intervalSeconds: 0
         _autoPlay: 0
         _variables:
           entries: []
@@ -3576,7 +3488,7 @@ MonoBehaviour:
             rid: -2
         Operation: 0
         Rule:
-          RuleName: 
+          RuleName: Price
           RuleKind: 3
           EventName: 
           EventTarget:
@@ -3905,69 +3817,9 @@ MonoBehaviour:
             _commandsPresetValue:
               _source:
                 rid: 5619052637487628880
-              _defaultValue:
-                _showCommands:
-                  _debugOwner: {fileID: 0}
-                  _debugFieldPath: 
-                  _debugAssetPath: 
-                  _functionName: 
-                  _commands: []
-                _hideCommands:
-                  _debugOwner: {fileID: 0}
-                  _debugFieldPath: 
-                  _debugAssetPath: 
-                  _functionName: 
-                  _commands: []
-                _selfDespawn:
-                  DelaySeconds:
-                    _source:
-                      rid: -2
-                    _defaultValue: 0
-                  BeforeDespawnCommands:
-                    _debugOwner: {fileID: 0}
-                    _debugFieldPath: 
-                    _debugAssetPath: 
-                    _functionName: 
-                    _commands: []
-                  OnReacquireCommands:
-                    _debugOwner: {fileID: 0}
-                    _debugFieldPath: 
-                    _debugAssetPath: 
-                    _functionName: 
-                    _commands: []
         CommandsPreset:
           _source:
             rid: 5619052637487628881
-          _defaultValue:
-            _showCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _hideCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _selfDespawn:
-              DelaySeconds:
-                _source:
-                  rid: -2
-                _defaultValue: 0
-              BeforeDespawnCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
-              OnReacquireCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
         ResetPlayer: 1
         ResetCommands: 1
         ResetForceOverride: 1
@@ -4258,36 +4110,6 @@ MonoBehaviour:
         _commandsPresetValue:
           _source:
             rid: 5619052637487628895
-          _defaultValue:
-            _showCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _hideCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _selfDespawn:
-              DelaySeconds:
-                _source:
-                  rid: -2
-                _defaultValue: 0
-              BeforeDespawnCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
-              OnReacquireCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
     - rid: 5619052637487628884
       type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
@@ -4295,6 +4117,8 @@ MonoBehaviour:
     - rid: 5619052637487628885
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -4327,6 +4151,8 @@ MonoBehaviour:
     - rid: 5619052637487628886
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -4388,8 +4214,8 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _template: ${ShopPriceMul * Value|effect=color_if|cond=MoneyValue >=ShopPriceMul
-          * Value|trueColor="#61FF59"|falseColor="#FF292B"}
+        _template: <sprite=8>{ShopPriceMul * Value|effect=color_if|cond=MoneyValue
+          >=ShopPriceMul * Value|trueColor="#61FF59"|falseColor="#FF292B"}
     - rid: 5619052637487628888
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4501,6 +4327,8 @@ MonoBehaviour:
     - rid: 5619052637487628902
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -4680,7 +4508,7 @@ MonoBehaviour:
         _variables:
         - _value:
             _source:
-              rid: 5619052637487628909
+              rid: 5619052643318760408
           _useScalarLeafKey: 0
           _useCustomKey: 1
           _customKey: description
@@ -4708,12 +4536,6 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052637487628909
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: descriptionTemplate
-          varId: 239
     - rid: 5619052637487629132
       type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -4831,36 +4653,6 @@ MonoBehaviour:
             _commandsPresetValue:
               _source:
                 rid: 5619052638080860241
-              _defaultValue:
-                _showCommands:
-                  _debugOwner: {fileID: 0}
-                  _debugFieldPath: 
-                  _debugAssetPath: 
-                  _functionName: 
-                  _commands: []
-                _hideCommands:
-                  _debugOwner: {fileID: 0}
-                  _debugFieldPath: 
-                  _debugAssetPath: 
-                  _functionName: 
-                  _commands: []
-                _selfDespawn:
-                  DelaySeconds:
-                    _source:
-                      rid: -2
-                    _defaultValue: 0
-                  BeforeDespawnCommands:
-                    _debugOwner: {fileID: 0}
-                    _debugFieldPath: 
-                    _debugAssetPath: 
-                    _functionName: 
-                    _commands: []
-                  OnReacquireCommands:
-                    _debugOwner: {fileID: 0}
-                    _debugFieldPath: 
-                    _debugAssetPath: 
-                    _functionName: 
-                    _commands: []
         HubPreset:
           _source:
             rid: 5619052638080860242
@@ -4968,36 +4760,6 @@ MonoBehaviour:
         _commandsPresetValue:
           _source:
             rid: 5619052638080860251
-          _defaultValue:
-            _showCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _hideCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _selfDespawn:
-              DelaySeconds:
-                _source:
-                  rid: -2
-                _defaultValue: 0
-              BeforeDespawnCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
-              OnReacquireCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
     - rid: 5619052638080860245
       type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
@@ -5005,6 +4767,8 @@ MonoBehaviour:
     - rid: 5619052638080860246
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -5106,6 +4870,8 @@ MonoBehaviour:
     - rid: 5619052638080860254
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -6403,6 +6169,556 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0.15
+    - rid: 5619052642455781695
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052642455781696
+    - rid: 5619052642455781696
+      type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: price
+        Mode: 0
+        AwaitMode: 0
+        Action: 0
+        ApplyText: 1
+        Text:
+          _source:
+            rid: 5619052642455781697
+          _defaultValue: 
+        PlayMode: 0
+        StyleCommand:
+          Enabled: 0
+          Mode: 0
+          Override:
+            ApplyFontStyle: 0
+            FontStyle: 0
+            ApplyFontSize: 0
+            FontSize: 36
+            ApplyVertexColor: 0
+            VertexColor: {r: 1, g: 1, b: 1, a: 1}
+            ApplyColorGradient: 0
+            EnableColorGradient: 0
+            ColorGradientPreset: {fileID: 0}
+            ApplyCharacterSpacing: 0
+            CharacterSpacing: 0
+            ApplyWordSpacing: 0
+            WordSpacing: 0
+            ApplyLineSpacing: 0
+            LineSpacing: 0
+            ApplyParagraphSpacing: 0
+            ParagraphSpacing: 0
+            ApplyAlignment: 0
+            Alignment: 257
+            ApplyWordWrapping: 0
+            EnableWordWrapping: 1
+            ApplyOverflow: 0
+            Overflow: 0
+        WaitForTypewriterComplete: 0
+        ApplyTypewriterEventCommands: 0
+        TypewriterEventCommands:
+          OnTypewriterStart:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextShowed:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextDisappeared:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterVisible:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitStarted:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitFinished:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnMessage:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        TextSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
+        OverrideCountStartValue: 0
+        CountStartValue:
+          _source:
+            rid: 5619052642455781698
+          _defaultValue: 0
+        Visible: 1
+        AnimationPreset:
+          rid: 5619052642455781699
+        ApplyMaterialFx: 0
+        MaterialFxSource:
+          _source:
+            rid: 5619052642455781700
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyFontSize: 0
+        FontSize:
+          _source:
+            rid: 5619052642455781701
+          _defaultValue: 0
+    - rid: 5619052642455781697
+      type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _sourceMode: 0
+        _refKey:
+          _source:
+            rid: -2
+          _defaultValue: 
+        _allowImplicitKeys: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052642455781702
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052642455781703
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: Value
+          _expectedType: 3
+        - _value:
+            _source:
+              rid: 5619052642455781704
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _template: <sprite=8>{ShopPriceMul * Value|effect=color_if|cond=MoneyValue
+          >=ShopPriceMul * Value|trueColor="#61FF59"|falseColor="#FF292B"}
+    - rid: 5619052642455781698
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052642455781699
+      type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        loop: 0
+        loopCount: -1
+        steps: []
+    - rid: 5619052642455781700
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5619052642455781701
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052642455781702
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1799240082
+          Name: GameLogic.GameProfile.Base.ShopPriceMul
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052642455781703
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 100121
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5619052642455781704
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 160700043
+          Name: GameLogic.GameProfile.Base.MoneyValue
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052642455781832
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052642455781833
+    - rid: 5619052642455781833
+      type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: price
+        Mode: 0
+        AwaitMode: 0
+        Action: 0
+        ApplyText: 1
+        Text:
+          _source:
+            rid: 5619052642455781834
+          _defaultValue: 
+        PlayMode: 0
+        StyleCommand:
+          Enabled: 0
+          Mode: 0
+          Override:
+            ApplyFontStyle: 0
+            FontStyle: 0
+            ApplyFontSize: 0
+            FontSize: 36
+            ApplyVertexColor: 0
+            VertexColor: {r: 1, g: 1, b: 1, a: 1}
+            ApplyColorGradient: 0
+            EnableColorGradient: 0
+            ColorGradientPreset: {fileID: 0}
+            ApplyCharacterSpacing: 0
+            CharacterSpacing: 0
+            ApplyWordSpacing: 0
+            WordSpacing: 0
+            ApplyLineSpacing: 0
+            LineSpacing: 0
+            ApplyParagraphSpacing: 0
+            ParagraphSpacing: 0
+            ApplyAlignment: 0
+            Alignment: 257
+            ApplyWordWrapping: 0
+            EnableWordWrapping: 1
+            ApplyOverflow: 0
+            Overflow: 0
+        WaitForTypewriterComplete: 0
+        ApplyTypewriterEventCommands: 0
+        TypewriterEventCommands:
+          OnTypewriterStart:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextShowed:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextDisappeared:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterVisible:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitStarted:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitFinished:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnMessage:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        TextSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
+        OverrideCountStartValue: 0
+        CountStartValue:
+          _source:
+            rid: 5619052642455781835
+          _defaultValue: 0
+        Visible: 1
+        AnimationPreset:
+          rid: 5619052642455781836
+        ApplyMaterialFx: 0
+        MaterialFxSource:
+          _source:
+            rid: 5619052642455781837
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyFontSize: 0
+        FontSize:
+          _source:
+            rid: 5619052642455781838
+          _defaultValue: 0
+    - rid: 5619052642455781834
+      type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _sourceMode: 0
+        _refKey:
+          _source:
+            rid: -2
+          _defaultValue: 
+        _allowImplicitKeys: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052642455781839
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5619052642455781840
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: Value
+          _expectedType: 3
+        - _value:
+            _source:
+              rid: 5619052642455781841
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _template: <sprite=8>{ShopPriceMul * Value|effect=color_if|cond=MoneyValue
+          >=ShopPriceMul * Value|trueColor="#61FF59"|falseColor="#FF292B"}
+    - rid: 5619052642455781835
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052642455781836
+      type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        loop: 0
+        loopCount: -1
+        steps: []
+    - rid: 5619052642455781837
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5619052642455781838
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052642455781839
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1799240082
+          Name: GameLogic.GameProfile.Base.ShopPriceMul
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052642455781840
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 100121
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5619052642455781841
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 160700043
+          Name: GameLogic.GameProfile.Base.MoneyValue
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5619052643318760365
+      type: {class: OtherBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 239
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+        targetActor:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+    - rid: 5619052643318760408
+      type: {class: OtherBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 239
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+        targetActor:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
 --- !u!114 &422314101747317390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6439,11 +6755,11 @@ MonoBehaviour:
   - _channelTag: default
     _presetValue:
       _source:
-        rid: 5619052637487628531
+        rid: 5619052642455781510
       _defaultValue:
         _condition:
           _source:
-            rid: 5619052637487628532
+            rid: 5619052642455781511
           _defaultValue: 0
         _priority: 0
         _applyPlacementOverride: 0
@@ -6485,42 +6801,12 @@ MonoBehaviour:
         _anchorY: 10
         _hitTestValue:
           _source:
-            rid: 5619052637487628533
+            rid: 5619052642455781512
           _defaultValue:
             _targets: []
         _commandsPresetValue:
           _source:
-            rid: 5619052637487628534
-          _defaultValue:
-            _showCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _hideCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _selfDespawn:
-              DelaySeconds:
-                _source:
-                  rid: -2
-                _defaultValue: 0
-              BeforeDespawnCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
-              OnReacquireCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
+            rid: 5619052642455781513
   references:
     version: 2
     RefIds:
@@ -6536,33 +6822,6 @@ MonoBehaviour:
       data:
         value:
           rid: 5619052637487628536
-    - rid: 5619052637487628531
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052637487628537
-    - rid: 5619052637487628532
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 2
-        intValue: 0
-        floatValue: 0
-        boolValue: 1
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052637487628533
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHitTestPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052637487628538
-    - rid: 5619052637487628534
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipCommandsPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052637487628539
     - rid: 5619052637487628535
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
@@ -6613,140 +6872,11 @@ MonoBehaviour:
             ContextSlot: 0
             TargetChannel:
               rid: -2
-    - rid: 5619052637487628537
-      type: {class: TooltipPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _condition:
-          _source:
-            rid: 5619052638080860475
-          _defaultValue: 0
-        _priority: 0
-        _applyPlacementOverride: 0
-        _anchorActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        _applyRuntimeOverride: 0
-        _runtimeTemplatePreset:
-          _source:
-            rid: 5619052638080860476
-          _defaultValue:
-            prefab: {fileID: 0}
-            usePooling: 1
-            category: Runtime
-            templateId: 
-        _spawnerTag: 
-        _applyInputOverride: 0
-        _enablePointerHover: 1
-        _enableSelectionHover: 1
-        _hoverDelaySeconds: 0.4
-        _selectionDelaySeconds: 0.3
-        _pointerMoveThreshold: 2
-        _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
-        _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
-        _anchorX: 30
-        _anchorY: 10
-        _hitTestValue:
-          _source:
-            rid: 5619052637487628542
-          _defaultValue:
-            _targets: []
-        _commandsPresetValue:
-          _source:
-            rid: 5619052637487628543
-          _defaultValue:
-            _showCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _hideCommands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-            _selfDespawn:
-              DelaySeconds:
-                _source:
-                  rid: -2
-                _defaultValue: 0
-              BeforeDespawnCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
-              OnReacquireCommands:
-                _debugOwner: {fileID: 0}
-                _debugFieldPath: 
-                _debugAssetPath: 
-                _functionName: 
-                _commands: []
-    - rid: 5619052637487628538
-      type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _targets: []
-    - rid: 5619052637487628539
-      type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _showCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        _hideCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        _selfDespawn:
-          DelaySeconds:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          BeforeDespawnCommands:
-            _debugOwner: {fileID: 0}
-            _debugFieldPath: 
-            _debugAssetPath: 
-            _functionName: 
-            _commands: []
-          OnReacquireCommands:
-            _debugOwner: {fileID: 0}
-            _debugFieldPath: 
-            _debugAssetPath: 
-            _functionName: 
-            _commands: []
     - rid: 5619052637487628540
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHitTestPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
         value:
           rid: 5619052637487628544
-    - rid: 5619052637487628542
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHitTestPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052637487628545
-    - rid: 5619052637487628543
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipCommandsPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052637487628546
     - rid: 5619052637487628544
       type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
@@ -6781,13 +6911,95 @@ MonoBehaviour:
             ContextSlot: 0
             TargetChannel:
               rid: -2
-    - rid: 5619052637487628545
+    - rid: 5619052642455781510
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052642455781514
+    - rid: 5619052642455781511
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5619052642455781512
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHitTestPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052642455781515
+    - rid: 5619052642455781513
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipCommandsPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052642455781516
+    - rid: 5619052642455781514
+      type: {class: TooltipPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _condition:
+          _source:
+            rid: 5619052642455781522
+          _defaultValue: 0
+        _priority: 0
+        _applyPlacementOverride: 0
+        _anchorActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        _applyRuntimeOverride: 0
+        _runtimeTemplatePreset:
+          _source:
+            rid: 5619052642728412139
+          _defaultValue:
+            prefab: {fileID: 0}
+            usePooling: 1
+            category: Runtime
+            templateId: 
+        _spawnerTag: 
+        _applyInputOverride: 0
+        _enablePointerHover: 1
+        _enableSelectionHover: 1
+        _hoverDelaySeconds: 0.4
+        _selectionDelaySeconds: 0.3
+        _pointerMoveThreshold: 2
+        _spawnMode: 10
+        _followPointerOffset: {x: 0, y: 0}
+        _followPointerMoveScale: {x: 1, y: 1}
+        _fixedOffset: {x: 0, y: 0}
+        _anchorX: 30
+        _anchorY: 10
+        _hitTestValue:
+          _source:
+            rid: 5619052642455781518
+          _defaultValue:
+            _targets: []
+        _commandsPresetValue:
+          _source:
+            rid: 5619052642455781519
+    - rid: 5619052642455781515
       type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
         _targets: []
-    - rid: 5619052637487628546
+    - rid: 5619052642455781516
       type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
         _showCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -6817,15 +7029,234 @@ MonoBehaviour:
             _debugAssetPath: 
             _functionName: 
             _commands: []
-    - rid: 5619052638080860475
+    - rid: 5619052642455781518
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHitTestPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052642455781520
+    - rid: 5619052642455781519
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipCommandsPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052642455781521
+    - rid: 5619052642455781520
+      type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _targets: []
+    - rid: 5619052642455781521
+      type: {class: TooltipCommandsPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _writeTooltipOwnerToContext: 1
+        _tooltipOwnerContextSlot: 100
+        _showCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052643318759979
+        _hideCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _selfDespawn:
+          DelaySeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          BeforeDespawnCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnReacquireCommands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    - rid: 5619052642455781522
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
-    - rid: 5619052638080860476
+    - rid: 5619052642728412139
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value:
           rid: -2
+    - rid: 5619052643318759979
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052643318760022
+    - rid: 5619052643318760022
+      type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        Mode: 0
+        AwaitMode: 0
+        Action: 0
+        ApplyText: 1
+        Text:
+          _source:
+            rid: 5619052643318760066
+          _defaultValue: 
+        PlayMode: 0
+        StyleCommand:
+          Enabled: 0
+          Mode: 0
+          Override:
+            ApplyFontStyle: 0
+            FontStyle: 0
+            ApplyFontSize: 0
+            FontSize: 36
+            ApplyVertexColor: 0
+            VertexColor: {r: 1, g: 1, b: 1, a: 1}
+            ApplyColorGradient: 0
+            EnableColorGradient: 0
+            ColorGradientPreset: {fileID: 0}
+            ApplyCharacterSpacing: 0
+            CharacterSpacing: 0
+            ApplyWordSpacing: 0
+            WordSpacing: 0
+            ApplyLineSpacing: 0
+            LineSpacing: 0
+            ApplyParagraphSpacing: 0
+            ParagraphSpacing: 0
+            ApplyAlignment: 0
+            Alignment: 257
+            ApplyWordWrapping: 0
+            EnableWordWrapping: 1
+            ApplyOverflow: 0
+            Overflow: 0
+        WaitForTypewriterComplete: 0
+        ApplyTypewriterEventCommands: 0
+        TypewriterEventCommands:
+          OnTypewriterStart:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextShowed:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextDisappeared:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterVisible:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitStarted:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitFinished:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnMessage:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        TextSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
+        OverrideCountStartValue: 0
+        CountStartValue:
+          _source:
+            rid: 5619052643318760067
+          _defaultValue: 0
+        Visible: 1
+        AnimationPreset:
+          rid: 5619052643318760023
+        ApplyMaterialFx: 0
+        MaterialFxSource:
+          _source:
+            rid: 5619052643318760068
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyFontSize: 0
+        FontSize:
+          _source:
+            rid: 5619052643318760069
+          _defaultValue: 0
+    - rid: 5619052643318760023
+      type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        loop: 0
+        loopCount: -1
+        steps: []
+    - rid: 5619052643318760066
+      type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: "\u3053\u3093\u306B\u3061\u306F"
+    - rid: 5619052643318760067
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052643318760068
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5619052643318760069
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
 --- !u!1 &2264479253822188057
 GameObject:
   m_ObjectHideFlags: 0
@@ -6860,8 +7291,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.00051308, y: -0.0000025108}
-  m_SizeDelta: {x: 70.515, y: 36.86}
+  m_AnchoredPosition: {x: 0.000051856, y: -0.00012457}
+  m_SizeDelta: {x: 66.944, y: 38.355}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1789727890341004777
 CanvasRenderer:
@@ -6912,6 +7343,7 @@ GameObject:
   - component: {fileID: 3337396442290198067}
   - component: {fileID: 7898500161567302830}
   - component: {fileID: 4698083592635169179}
+  - component: {fileID: 8150174859542859064}
   m_Layer: 0
   m_Name: Mask
   m_TagString: Untagged
@@ -6977,6 +7409,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8150174859542859064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3467926310371454005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
+  m_ShowMaskGraphic: 0
 --- !u!1 &4530810119965482947
 GameObject:
   m_ObjectHideFlags: 0
@@ -7011,8 +7456,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -19.011, y: 4.821}
-  m_SizeDelta: {x: 16.878, y: 16.408}
+  m_AnchoredPosition: {x: -17.303217, y: 4.65}
+  m_SizeDelta: {x: 15.5671, y: 15.5893}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8879506965953279913
 CanvasRenderer:
@@ -7086,7 +7531,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 14.9, y: 5.84}
+  m_AnchoredPosition: {x: 15.44, y: 5.37}
   m_SizeDelta: {x: 34.03, y: 21.57}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7227822973463176406
@@ -7119,8 +7564,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Value up Nail
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 995ef0ef51d55e34ead78264982d3ffd, type: 2}
-  m_sharedMaterial: {fileID: -4022425490014512393, guid: 995ef0ef51d55e34ead78264982d3ffd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f3f47534e4c6e4b41a88782e897f0651, type: 2}
+  m_sharedMaterial: {fileID: -441275764545626051, guid: f3f47534e4c6e4b41a88782e897f0651, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7144,8 +7589,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 6.33
+  m_fontSizeBase: 6.33
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -7157,7 +7602,7 @@ MonoBehaviour:
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
-  m_lineSpacing: -30.34
+  m_lineSpacing: -46.52
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -8796,7 +9241,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 15.17, y: -3.8}
+  m_AnchoredPosition: {x: 15.17, y: -6.1}
   m_SizeDelta: {x: 34.57, y: 13.84}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7290299701361702842

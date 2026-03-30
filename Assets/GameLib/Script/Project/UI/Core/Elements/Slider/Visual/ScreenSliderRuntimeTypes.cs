@@ -3,6 +3,18 @@ using UnityEngine;
 
 namespace Game.UI
 {
+    internal readonly struct SliderScreenVisualGeometry
+    {
+        public readonly Vector2 LocalCenter;
+        public readonly Vector2 LocalSize;
+
+        public SliderScreenVisualGeometry(Vector2 localCenter, Vector2 localSize)
+        {
+            LocalCenter = localCenter;
+            LocalSize = localSize;
+        }
+    }
+
     internal readonly struct SliderRectTransformState
     {
         public readonly Vector3 AnchoredPosition3D;
@@ -43,5 +55,6 @@ namespace Game.UI
         public SliderRectTransformState RootState;
         public RectTransform SizeRect = null!;
         public SliderRectTransformState SizeState;
+        public SliderScreenVisualGeometry VisualGeometry;
     }
 }

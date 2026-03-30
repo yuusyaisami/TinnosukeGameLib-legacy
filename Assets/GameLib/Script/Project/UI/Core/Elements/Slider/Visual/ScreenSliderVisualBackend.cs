@@ -313,13 +313,18 @@ namespace Game.UI
                     var template = SliderRuntimeHelpers.ResolveRuntimeTemplate(_visualizerPreset.Segmented.SegmentBarTemplatePreset, _dynamicContext);
                     if (template != null)
                     {
-                        for (var i = 0; i < Mathf.Max(0, _output.BoundaryCount - 1); i++)
+                        var segmentBarCount = SliderRuntimeHelpers.ResolveVisualSegmentBarCount(_visualizerPreset.Segmented, _output.BoundaryCount);
+                        for (var i = 0; i < segmentBarCount; i++)
                         {
                             ct.ThrowIfCancellationRequested();
-                            var startRaw = _output.ResolveBoundaryRawValue(i);
-                            var endRaw = _output.ResolveBoundaryRawValue(i + 1);
-                            var startNormalized = _output.ResolveBoundaryNormalizedValue(i);
-                            var endNormalized = _output.ResolveBoundaryNormalizedValue(i + 1);
+                            SliderRuntimeHelpers.ResolveVisualSegmentBarRange(
+                                _visualizerPreset.Segmented,
+                                _output,
+                                i,
+                                out var startRaw,
+                                out var endRaw,
+                                out var startNormalized,
+                                out var endNormalized);
                             var instance = await SpawnSizedInstanceAsync(
                                 spawner,
                                 template,
@@ -428,13 +433,21 @@ namespace Game.UI
             SetRuntimeActive(true);
 
             if (_backgroundRuntime != null)
-                ApplyBackgroundSnapshot(_backgroundRuntime, rangeSnapshot);
+                ApplyBackgroundSnapshot(_backgroundRuntime, snapshot, rangeSnapshot);
 
-            var segmentCount = Mathf.Min(_segmentBars.Count, Mathf.Max(0, _output.BoundaryCount - 1));
+            var segmentCount = Mathf.Min(
+                _segmentBars.Count,
+                SliderRuntimeHelpers.ResolveVisualSegmentBarCount(_visualizerPreset.Segmented, _output.BoundaryCount));
             for (var i = 0; i < segmentCount; i++)
             {
-                var startNormalized = _output.ResolveBoundaryNormalizedValue(i);
-                var endNormalized = _output.ResolveBoundaryNormalizedValue(i + 1);
+                SliderRuntimeHelpers.ResolveVisualSegmentBarRange(
+                    _visualizerPreset.Segmented,
+                    _output,
+                    i,
+                    out _,
+                    out _,
+                    out var startNormalized,
+                    out var endNormalized);
                 ApplySegmentBarSnapshot(_segmentBars[i], snapshot, rangeSnapshot, startNormalized, endNormalized);
             }
 
@@ -449,8 +462,17 @@ namespace Game.UI
                 ApplyHandleSnapshot(_handleRuntime, snapshot, rangeSnapshot);
         }
 
-        void ApplyBackgroundSnapshot(SliderScreenRuntimeInstance instance, in SliderScreenRangeSnapshot rangeSnapshot)
+        void ApplyBackgroundSnapshot(
+            SliderScreenRuntimeInstance instance,
+            in SliderOutputSnapshot snapshot,
+            in SliderScreenRangeSnapshot rangeSnapshot)
         {
+            if (!SliderRuntimeHelpers.ShouldShowBackground(_visualizerPreset.Background, snapshot))
+            {
+                instance.RootRect.gameObject.SetActive(false);
+                return;
+            }
+
             SliderRuntimeHelpers.ResolveRectIntervalGeometry(
                 rangeSnapshot.LocalRect,
                 _visualizerPreset.Segmented.FillAxis,
@@ -459,7 +481,7 @@ namespace Game.UI
                 1f,
                 out var center,
                 out var size);
-            ApplySizedRect(instance, center, size, isVisible: true);
+            ApplySizedRect(instance, rangeSnapshot, center, size, isVisible: true);
         }
 
         void ApplySegmentBarSnapshot(
@@ -471,39 +493,34 @@ namespace Game.UI
         {
             Vector2 center;
             Vector2 size;
-            bool isVisible;
-            if (_playerPreset.SegmentDisplayMode == SliderSegmentDisplayMode.ReachedStageFloor)
+            SliderRuntimeHelpers.ResolveDisplayedSegmentBarInterval(
+                _playerPreset.SegmentDisplayMode,
+                _visualizerPreset.Segmented.SplitBarsByLayout,
+                snapshot.DisplayedNormalizedValue,
+                startNormalized,
+                endNormalized,
+                out var visibleStartNormalized,
+                out var visibleEndNormalized,
+                out var isVisible);
+
+            SliderRuntimeHelpers.ResolveRectIntervalGeometry(
+                rangeSnapshot.LocalRect,
+                _visualizerPreset.Segmented.FillAxis,
+                _visualizerPreset.Segmented.OriginSide,
+                visibleStartNormalized,
+                visibleEndNormalized,
+                out center,
+                out size);
+
+            if (_visualizerPreset.Segmented.SplitBarsByLayout)
             {
-                SliderRuntimeHelpers.ResolveRectIntervalGeometry(
-                    rangeSnapshot.LocalRect,
-                    _visualizerPreset.Segmented.FillAxis,
-                    _visualizerPreset.Segmented.OriginSide,
-                    startNormalized,
-                    endNormalized,
-                    out center,
-                    out size);
-                isVisible = snapshot.DisplayedNormalizedValue >= endNormalized - 0.0001f;
-            }
-            else
-            {
-                var filledEnd = Mathf.Clamp(snapshot.DisplayedNormalizedValue, startNormalized, endNormalized);
-                SliderRuntimeHelpers.ResolveRectIntervalGeometry(
-                    rangeSnapshot.LocalRect,
-                    _visualizerPreset.Segmented.FillAxis,
-                    _visualizerPreset.Segmented.OriginSide,
-                    startNormalized,
-                    filledEnd,
-                    out center,
-                    out size);
-                isVisible = (_visualizerPreset.Segmented.FillAxis == SliderAreaFillAxis.SizeX ? size.x : size.y) > 0.0001f;
+                if (_visualizerPreset.Segmented.FillAxis == SliderAreaFillAxis.SizeX)
+                    size.x *= ResolveBarSpanScale();
+                else
+                    size.y *= ResolveBarSpanScale();
             }
 
-            if (_visualizerPreset.Segmented.FillAxis == SliderAreaFillAxis.SizeX)
-                size.x *= ResolveBarSpanScale();
-            else
-                size.y *= ResolveBarSpanScale();
-
-            ApplySizedRect(instance, center, size, isVisible);
+            ApplySizedRect(instance, rangeSnapshot, center, size, isVisible);
         }
 
         void ApplyMarkerSnapshot(
@@ -516,7 +533,8 @@ namespace Game.UI
                 _visualizerPreset.Segmented.FillAxis,
                 _visualizerPreset.Segmented.OriginSide,
                 normalizedValue);
-            SetRootCenter(instance, center);
+            PrepareRootTransform(instance, instance.RootState.LocalScale);
+            SetRootCenter(instance, rangeSnapshot, center);
             instance.RootRect.gameObject.SetActive(true);
         }
 
@@ -535,45 +553,56 @@ namespace Game.UI
                 _visualizerPreset.Segmented.FillAxis,
                 _visualizerPreset.Segmented.OriginSide,
                 normalizedValue);
-            SetRootCenter(instance, center);
+            PrepareRootTransform(instance, instance.RootState.LocalScale);
+            SetRootCenter(instance, rangeSnapshot, center);
             instance.RootRect.gameObject.SetActive(true);
         }
 
-        void ApplySizedRect(SliderScreenRuntimeInstance instance, Vector2 center, Vector2 size, bool isVisible)
+        void ApplySizedRect(
+            SliderScreenRuntimeInstance instance,
+            in SliderScreenRangeSnapshot rangeSnapshot,
+            Vector2 center,
+            Vector2 size,
+            bool isVisible)
         {
-            SetRootCenter(instance, center);
-            SetSize(instance, size);
+            SetSize(instance, rangeSnapshot, size);
+            SetRootCenter(instance, rangeSnapshot, center);
             instance.RootRect.gameObject.SetActive(isVisible);
         }
 
-        void SetRootCenter(SliderScreenRuntimeInstance instance, Vector2 center)
+        void SetRootCenter(SliderScreenRuntimeInstance instance, in SliderScreenRangeSnapshot rangeSnapshot, Vector2 center)
         {
             var rect = instance.RootRect;
-            rect.anchorMin = instance.RootState.AnchorMin;
-            rect.anchorMax = instance.RootState.AnchorMax;
-            rect.pivot = instance.RootState.Pivot;
+            var parentLocalCenter = ResolveCanvasLocalToParentLocalPosition(
+                rangeSnapshot.CanvasRect,
+                rect.parent,
+                center,
+                instance.Runtime.BasePose.LocalPosition.z);
 
-            var anchoredPosition = instance.RootState.AnchoredPosition3D;
-            anchoredPosition.x = center.x;
-            anchoredPosition.y = center.y;
-            rect.anchoredPosition3D = anchoredPosition;
-            rect.localRotation = instance.RootState.LocalRotation;
-            rect.localScale = instance.RootState.LocalScale;
+            PrepareRootTransform(instance, rect.localScale);
+            rect.localPosition = ResolveRootLocalPositionForVisualCenter(
+                parentLocalCenter,
+                rect.localRotation,
+                rect.localScale,
+                instance.VisualGeometry,
+                instance.Runtime.BasePose.LocalPosition.z);
         }
 
-        void SetSize(SliderScreenRuntimeInstance instance, Vector2 size)
+        void SetSize(SliderScreenRuntimeInstance instance, in SliderScreenRangeSnapshot rangeSnapshot, Vector2 size)
         {
             var rect = instance.SizeRect;
             rect.anchorMin = instance.SizeState.AnchorMin;
             rect.anchorMax = instance.SizeState.AnchorMax;
             rect.pivot = instance.SizeState.Pivot;
-
-            var sizeDelta = instance.SizeState.SizeDelta;
-            sizeDelta.x = Mathf.Max(0f, size.x);
-            sizeDelta.y = Mathf.Max(0f, size.y);
-            rect.sizeDelta = sizeDelta;
             rect.localRotation = instance.SizeState.LocalRotation;
             rect.localScale = instance.SizeState.LocalScale;
+            rect.sizeDelta = instance.SizeState.SizeDelta;
+
+            var rootLocalScale = ResolveRootScaleForVisualSize(
+                instance,
+                rangeSnapshot.CanvasRect,
+                size);
+            PrepareRootTransform(instance, rootLocalScale);
         }
 
         float ResolveBarSpanScale()
@@ -595,18 +624,134 @@ namespace Game.UI
 
             var resolvedSpawner = SceneSpawnerResolver.TryResolveAsyncSpawner(
                 _spawnerRegistry,
-                SpawnerKind.RuntimeEntity,
+                SpawnerKind.RuntimeUIElement,
                 string.Empty,
                 allowTagFallback: true,
-                allowRuntimeUiFallback: false);
+                allowRuntimeUiFallback: true);
             if (!resolvedSpawner.HasValue || resolvedSpawner.Spawner == null)
             {
-                Debug.LogWarning("[SliderVisualizerService] RuntimeEntity spawner was not found.");
+                Debug.LogWarning("[SliderVisualizerService] RuntimeUIElement spawner was not found.");
                 return false;
             }
 
             spawner = resolvedSpawner.Spawner;
             return true;
+        }
+
+        static Vector3 ResolveCanvasLocalToParentLocalPosition(
+            RectTransform canvasRect,
+            Transform? parent,
+            Vector2 canvasLocalPosition,
+            float localZ)
+        {
+            var world = canvasRect.TransformPoint(new Vector3(canvasLocalPosition.x, canvasLocalPosition.y, 0f));
+            if (parent == null)
+                return new Vector3(world.x, world.y, localZ);
+
+            var local = parent.InverseTransformPoint(world);
+            local.z = localZ;
+            return local;
+        }
+
+        static Vector2 ResolveCanvasLocalSizeInParentLocal(
+            RectTransform canvasRect,
+            Transform? parent,
+            Vector2 canvasLocalSize)
+        {
+            var widthWorld = canvasRect.TransformVector(new Vector3(canvasLocalSize.x, 0f, 0f));
+            var heightWorld = canvasRect.TransformVector(new Vector3(0f, canvasLocalSize.y, 0f));
+            if (parent == null)
+                return new Vector2(Mathf.Abs(widthWorld.x), Mathf.Abs(heightWorld.y));
+
+            var localWidth = parent.InverseTransformVector(widthWorld);
+            var localHeight = parent.InverseTransformVector(heightWorld);
+            return new Vector2(Mathf.Abs(localWidth.x), Mathf.Abs(localHeight.y));
+        }
+
+        static void PrepareRootTransform(SliderScreenRuntimeInstance instance, Vector3 localScale)
+        {
+            var rect = instance.RootRect;
+            rect.anchorMin = instance.RootState.AnchorMin;
+            rect.anchorMax = instance.RootState.AnchorMax;
+            rect.pivot = instance.RootState.Pivot;
+            rect.localRotation = instance.RootState.LocalRotation;
+            rect.localScale = localScale;
+        }
+
+        static Vector3 ResolveRootScaleForVisualSize(
+            SliderScreenRuntimeInstance instance,
+            RectTransform canvasRect,
+            Vector2 canvasLocalSize)
+        {
+            var desiredParentLocalSize = ResolveCanvasLocalSizeInParentLocal(canvasRect, instance.RootRect.parent, canvasLocalSize);
+            var baseLocalSize = instance.VisualGeometry.LocalSize;
+            var baseRootScale = instance.RootState.LocalScale;
+            return new Vector3(
+                ResolveScaledAxis(baseRootScale.x, baseLocalSize.x, desiredParentLocalSize.x),
+                ResolveScaledAxis(baseRootScale.y, baseLocalSize.y, desiredParentLocalSize.y),
+                baseRootScale.z);
+        }
+
+        static Vector3 ResolveRootLocalPositionForVisualCenter(
+            Vector3 desiredCenterParentLocal,
+            Quaternion localRotation,
+            Vector3 localScale,
+            in SliderScreenVisualGeometry visualGeometry,
+            float localZ)
+        {
+            var scaledOffset = Vector3.Scale(
+                new Vector3(visualGeometry.LocalCenter.x, visualGeometry.LocalCenter.y, 0f),
+                localScale);
+            var rotatedOffset = localRotation * scaledOffset;
+            var rootLocalPosition = desiredCenterParentLocal - rotatedOffset;
+            rootLocalPosition.z = localZ;
+            return rootLocalPosition;
+        }
+
+        static float ResolveScaledAxis(float baseRootScaleAxis, float baseVisualSizeAxis, float desiredSizeAxis)
+        {
+            var sign = baseRootScaleAxis < 0f ? -1f : 1f;
+            if (baseVisualSizeAxis <= 0.0001f)
+                return baseRootScaleAxis;
+
+            return sign * (Mathf.Max(0f, desiredSizeAxis) / baseVisualSizeAxis);
+        }
+
+        static bool TryCaptureVisualGeometry(Transform root, RectTransform visualRect, out SliderScreenVisualGeometry geometry)
+        {
+            geometry = default;
+            if (root == null || visualRect == null)
+                return false;
+
+            var corners = new Vector3[4];
+            visualRect.GetWorldCorners(corners);
+
+            var min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            for (var i = 0; i < corners.Length; i++)
+            {
+                var local = (Vector2)root.InverseTransformPoint(corners[i]);
+                if (!IsFinite(local))
+                    return false;
+
+                min = Vector2.Min(min, local);
+                max = Vector2.Max(max, local);
+            }
+
+            var size = max - min;
+            if (!IsFinite(size))
+                return false;
+
+            geometry = new SliderScreenVisualGeometry((min + max) * 0.5f, size);
+            return true;
+        }
+
+        static bool IsFinite(Vector2 value)
+        {
+            return !float.IsNaN(value.x) &&
+                   !float.IsNaN(value.y) &&
+                   !float.IsInfinity(value.x) &&
+                   !float.IsInfinity(value.y);
         }
 
         Transform ResolveBackgroundRoot()
@@ -680,6 +825,12 @@ namespace Game.UI
                 return null;
             }
 
+            if (!TryCaptureVisualGeometry(root, sizeRect, out var visualGeometry))
+            {
+                SliderRuntimeHelpers.ReleaseSpawnedRuntime(resolver);
+                return null;
+            }
+
             return new SliderScreenRuntimeInstance
             {
                 Runtime = new SliderSpawnedRuntimeInstance
@@ -704,6 +855,7 @@ namespace Game.UI
                 RootState = new SliderRectTransformState(rootRect),
                 SizeRect = sizeRect,
                 SizeState = new SliderRectTransformState(sizeRect),
+                VisualGeometry = visualGeometry,
             };
         }
 
@@ -729,6 +881,28 @@ namespace Game.UI
                 return null;
             }
 
+            RectTransform visualRect = rootRect;
+            if (SliderRuntimeHelpers.TryResolveRuntimeVisualTarget(
+                    resolver,
+                    root,
+                    string.Empty,
+                    out var visualTargetKind,
+                    out var visualTransform,
+                    out _,
+                    out var image) &&
+                visualTargetKind == SliderRuntimeVisualTargetKind.Image &&
+                image?.rectTransform != null &&
+                visualTransform is RectTransform resolvedVisualRect)
+            {
+                visualRect = resolvedVisualRect;
+            }
+
+            if (!TryCaptureVisualGeometry(root, visualRect, out var visualGeometry))
+            {
+                SliderRuntimeHelpers.ReleaseSpawnedRuntime(resolver);
+                return null;
+            }
+
             return new SliderScreenRuntimeInstance
             {
                 Runtime = new SliderSpawnedRuntimeInstance
@@ -747,6 +921,7 @@ namespace Game.UI
                 RootState = new SliderRectTransformState(rootRect),
                 SizeRect = rootRect,
                 SizeState = new SliderRectTransformState(rootRect),
+                VisualGeometry = visualGeometry,
             };
         }
 

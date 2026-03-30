@@ -302,7 +302,7 @@ namespace Game
         {
             // シーンに配置されたRuntimeLifetimeScopeは自動的にAcquireを行う
             // Spawnerから生成された場合はAcquireAsyncが外部から呼ばれるため、ここでは何もしない
-            if (!_built && !_acquired)
+            if (!_acquired)
             {
                 UniTask.Void(async () =>
                 {
@@ -312,7 +312,7 @@ namespace Game
                     // 親スコープのビルドを待つために1フレーム待機
                     await UniTask.Yield(PlayerLoopTiming.Update);
 
-                    if (_destroyed || _built)
+                    if (_destroyed || _acquired)
                         return;
 
                     // 親が後から確定するケースの再登録
@@ -586,8 +586,9 @@ namespace Game
                     if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(component, includeInactiveFeatureInstallers, out var owner) ||
                         owner == null ||
                         !ReferenceEquals(owner, this))
+                    {
                         continue;
-
+                    }
                     installer.InstallFeature(builder, this);
                 }
             }

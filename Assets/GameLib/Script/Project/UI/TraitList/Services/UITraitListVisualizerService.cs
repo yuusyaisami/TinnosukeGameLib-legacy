@@ -267,6 +267,13 @@ namespace Game.UI.TraitList
                 return;
             }
 
+            var playerTarget = player.TargetTransform;
+            if (playerTarget == null || (!ReferenceEquals(playerTarget, instance.Root) && !ReferenceEquals(playerTarget, rect)))
+            {
+                SetPosition(instance, targetPosition);
+                return;
+            }
+
             var step = FindAnchoredStep(movePreset);
             if (step == null)
             {
@@ -702,7 +709,6 @@ namespace Game.UI.TraitList
             if (!instance.Resolver.TryResolve<IVisualBoundsService>(out var boundsService) || boundsService == null)
                 return false;
 
-            boundsService.RebuildNow();
             return boundsService.TryGetLastOutput(out output) && output.HasBounds;
         }
 

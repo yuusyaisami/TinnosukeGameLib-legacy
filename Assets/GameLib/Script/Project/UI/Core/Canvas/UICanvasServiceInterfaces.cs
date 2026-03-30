@@ -299,6 +299,11 @@ namespace Game.UI
         readonly Dictionary<Game.IScopeNode, PointerSortKey> _pointerSortKeyCache = new();
         readonly Dictionary<Game.IScopeNode, int> _pointerFrontIndexCache =
             new(Game.ReferenceEqualityComparer<Game.IScopeNode>.Instance);
+        readonly Dictionary<Game.IScopeNode, RenderKey> _pointerFrontRenderKeyCache =
+            new(Game.ReferenceEqualityComparer<Game.IScopeNode>.Instance);
+        readonly List<Game.IScopeNode> _pointerFrontOwnersOrdered = new();
+        readonly HashSet<Game.IScopeNode> _pointerFrontOwnersSet =
+            new(Game.ReferenceEqualityComparer<Game.IScopeNode>.Instance);
         readonly Dictionary<Game.IScopeNode, int> _navigationSelectionOrderCache =
             new(Game.ReferenceEqualityComparer<Game.IScopeNode>.Instance);
 
@@ -312,6 +317,11 @@ namespace Game.UI
 
         /// <summary>ナビゲーションソート用の Comparer（GC対策でキャッシュ）</summary>
         readonly NavigationCandidateComparer _navigationComparer;
+
+        int _lastPointerQueryFrame = -1;
+        Vector2 _lastPointerQueryScreenPosition;
+        Game.IScopeNode? _lastPointerQueryRootScope;
+        readonly List<SelectCandidate> _lastPointerQueryResults = new();
 
         readonly struct PointerSortKey
         {
@@ -515,8 +525,22 @@ namespace Game.UI
         {
             results.Clear();
 
+            // Some input paths ask for pointer candidates multiple times in the same frame
+            // with identical inputs. Reuse the previous result to avoid repeated hierarchy scans.
+            if (_lastPointerQueryFrame == Time.frameCount &&
+                ReferenceEquals(_lastPointerQueryRootScope, rootScope) &&
+                (_lastPointerQueryScreenPosition - screenPosition).sqrMagnitude <= 0.0001f)
+            {
+                for (int i = 0; i < _lastPointerQueryResults.Count; i++)
+                    results.Add(_lastPointerQueryResults[i]);
+                return;
+            }
+
             _pointerSortKeyCache.Clear();
             _pointerFrontIndexCache.Clear();
+            _pointerFrontRenderKeyCache.Clear();
+            _pointerFrontOwnersOrdered.Clear();
+            _pointerFrontOwnersSet.Clear();
             _pointerFrontGraphicHits.Clear();
             _elementStateCache.Clear();
 
@@ -527,9 +551,30 @@ namespace Game.UI
             var camera = GetCamera();
             PopulatePointerFrontGraphicCache(screenPosition, rootScope, camera);
 
+            for (int i = 0; i < _pointerFrontOwnersOrdered.Count; i++)
+            {
+                var candidate = _pointerFrontOwnersOrdered[i];
+                TryGetElementState(candidate, out var st);
+
+                if (st != null && !st.IsEffectivelyActive) continue;
+                if (st != null && !st.IsVisible) continue;
+                if (st != null && !st.EvaluateIsSelectable()) continue;
+
+                if (!TestPointAgainstParentMasks(screenPosition, candidate, rootScope, camera))
+                {
+                    continue;
+                }
+
+                results.Add(new SelectCandidate(candidate, 0f));
+                _pointerSortKeyCache[candidate] = BuildPointerSortKey(candidate, st, rootScope, screenPosition, camera);
+            }
+
             // 各候補でヒットテスト
             foreach (var candidate in _allCandidatesBuffer)
             {
+                if (_pointerFrontOwnersSet.Contains(candidate))
+                    continue;
+
                 TryGetElementState(candidate, out var st);
 
                 // Active/Visible をここで先に落とす
@@ -538,7 +583,7 @@ namespace Game.UI
                 if (st != null && !st.EvaluateIsSelectable()) continue;
 
                 // ヒットテスト
-                if (!HitTestElement(candidate, screenPosition, st)) continue;
+                if (!HitTestElement(candidate, screenPosition, st, includeOwnedGraphicsFallback: false)) continue;
 
                 // Mask 判定: 親階層の全ての Mask でポイントをチェック
                 if (!TestPointAgainstParentMasks(screenPosition, candidate, rootScope, camera))
@@ -557,6 +602,13 @@ namespace Game.UI
             // ソート: 描画順で前面優先に並べる。
             // GCアロケーション回避のため、キャッシュされた Comparer を使用
             results.Sort(_pointerComparer);
+
+            _lastPointerQueryFrame = Time.frameCount;
+            _lastPointerQueryScreenPosition = screenPosition;
+            _lastPointerQueryRootScope = rootScope;
+            _lastPointerQueryResults.Clear();
+            for (int i = 0; i < results.Count; i++)
+                _lastPointerQueryResults.Add(results[i]);
         }
 
         // ----------------------------------------------------------------
@@ -810,10 +862,14 @@ namespace Game.UI
         /// </summary>
         bool HitTestElement(Game.IScopeNode element, Vector2 screenPosition)
         {
-            return HitTestElement(element, screenPosition, null);
+            return HitTestElement(element, screenPosition, null, includeOwnedGraphicsFallback: true);
         }
 
-        bool HitTestElement(Game.IScopeNode element, Vector2 screenPosition, IUIElementState? cachedState)
+        bool HitTestElement(
+            Game.IScopeNode element,
+            Vector2 screenPosition,
+            IUIElementState? cachedState,
+            bool includeOwnedGraphicsFallback = true)
         {
             var state = cachedState;
             if (state == null)
@@ -829,7 +885,7 @@ namespace Game.UI
                 if (selfRect != null && _canvasService.RectContainsScreenPoint(selfRect, screenPosition))
                     return true;
 
-                return HitTestOwnedGraphics(element, screenPosition, camera);
+                return includeOwnedGraphicsFallback && HitTestOwnedGraphics(element, screenPosition, camera);
             }
 
             var hitTestRects = state.HitTestRects;
@@ -839,7 +895,7 @@ namespace Game.UI
                 if (selfRect != null && _canvasService.RectContainsScreenPoint(selfRect, screenPosition))
                     return true;
 
-                return HitTestOwnedGraphics(element, screenPosition, camera);
+                return includeOwnedGraphicsFallback && HitTestOwnedGraphics(element, screenPosition, camera);
             }
 
             // いずれかのRectTransformに含まれていればヒット
@@ -853,7 +909,7 @@ namespace Game.UI
 
             // LTS 本体 Rect と Channel 配下の実表示がズレる構成があるため、
             // Rect が外れても所有 Graphic 上に見えている場合はヒット扱いにする。
-            return HitTestOwnedGraphics(element, screenPosition, camera);
+            return includeOwnedGraphicsFallback && HitTestOwnedGraphics(element, screenPosition, camera);
         }
 
         bool HitTestOwnedGraphics(Game.IScopeNode element, Vector2 screenPosition, Camera? camera)
@@ -1176,11 +1232,22 @@ namespace Game.UI
             _pointerFrontGraphicHits.Sort(_pointerFrontHitComparer);
             for (int i = 0; i < _pointerFrontGraphicHits.Count; i++)
             {
-                var owner = _pointerFrontGraphicHits[i].Owner;
+                var hit = _pointerFrontGraphicHits[i];
+                var owner = hit.Owner;
                 if (_pointerFrontIndexCache.ContainsKey(owner))
                     continue;
 
                 _pointerFrontIndexCache.Add(owner, i);
+                _pointerFrontOwnersOrdered.Add(owner);
+                _pointerFrontOwnersSet.Add(owner);
+                _pointerFrontRenderKeyCache.Add(owner, new RenderKey
+                {
+                    SortingLayerValue = hit.SortingLayerValue,
+                    SortingOrder = hit.SortingOrder,
+                    RenderOrder = hit.RenderOrder,
+                    AbsoluteDepth = hit.AbsoluteDepth,
+                    SiblingIndex = hit.SiblingIndex
+                });
             }
         }
 
@@ -1235,7 +1302,9 @@ namespace Game.UI
                 return default;
             }
 
-            var renderKey = GetPointerRenderKeyAtPoint(elementTransform, screenPos, cam);
+            var renderKey = _pointerFrontRenderKeyCache.TryGetValue(e, out var cachedRenderKey)
+                ? cachedRenderKey
+                : GetPointerRenderKeyAtPoint(elementTransform, screenPos, cam);
             var hasFrontGraphicHit = _pointerFrontIndexCache.TryGetValue(e, out var frontGraphicIndex);
             if (!hasFrontGraphicHit)
                 frontGraphicIndex = int.MaxValue;

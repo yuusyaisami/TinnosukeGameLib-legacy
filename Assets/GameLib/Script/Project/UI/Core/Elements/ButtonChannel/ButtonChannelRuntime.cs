@@ -88,6 +88,9 @@ namespace Game.UI
         ButtonPlayerPreset _currentPlayerPreset = new();
         ButtonInputProcessorBase _processor = null!;
         IScopeLifecycleService? _lifecycleService;
+        IVarStore? _resolvedVarStore;
+        ICommandRunner? _resolvedCommandRunner;
+        SimpleDynamicContext? _stateDynamicContext;
 
         bool _isEnabled = true;
         bool _isSelected;
@@ -125,6 +128,9 @@ namespace Game.UI
             _ = isReset;
             _adapter = adapter;
             scope.TryResolveInAncestors<IScopeLifecycleService>(out _lifecycleService);
+            _resolvedVarStore = ResolveVarStore(scope);
+            _resolvedCommandRunner = ResolveCommandRunner(scope);
+            _stateDynamicContext = new SimpleDynamicContext(_resolvedVarStore, scope);
             ResolveSourcePresets(scope);
             ResetCommandCts();
             RefreshState(forcePublish: true);
@@ -147,6 +153,9 @@ namespace Game.UI
             _isHovered = false;
             _isCommandExecuting = false;
             _lifecycleService = null;
+            _resolvedVarStore = null;
+            _resolvedCommandRunner = null;
+            _stateDynamicContext = null;
 
             _commandCts?.Cancel();
             _commandCts?.Dispose();
@@ -300,14 +309,16 @@ namespace Game.UI
 
         internal void BindAdapter(IButtonChannelInteractionAdapter? adapter)
         {
+            if (ReferenceEquals(_adapter, adapter))
+                return;
+
             _adapter = adapter;
             RefreshState(forcePublish: true);
         }
 
         void ResolveSourcePresets(IScopeNode scope)
         {
-            var vars = ResolveVarStore(scope);
-            var context = new SimpleDynamicContext(vars, scope);
+            var context = _stateDynamicContext ?? new SimpleDynamicContext(ResolveVarStore(scope), scope);
             var sourcePreset = ResolvePreset(_options.PresetValue, context);
             _baseInputPreset = ResolveInputPreset(sourcePreset, context);
             _basePlayerPreset = ResolvePlayerPreset(sourcePreset, context);
@@ -419,7 +430,14 @@ namespace Game.UI
                     return false;
             }
 
-            var context = new SimpleDynamicContext(ResolveVarStore(_owner), _owner);
+            var context = _stateDynamicContext;
+            if (context == null)
+            {
+                var vars = _resolvedVarStore ?? ResolveVarStore(_owner);
+                _resolvedVarStore = vars;
+                context = new SimpleDynamicContext(vars, _owner);
+                _stateDynamicContext = context;
+            }
             return _currentPlayerPreset.EnabledCondition.GetOrDefault(context, true);
         }
 
@@ -468,7 +486,8 @@ namespace Game.UI
 
         void WriteStateVars(ButtonChannelOutputSnapshot snapshot)
         {
-            var vars = ResolveVarStore(_owner);
+            var vars = _resolvedVarStore ?? ResolveVarStore(_owner);
+            _resolvedVarStore = vars;
             TrySet(vars, ButtonChannelVarKeys.ResolveChannelTagId(), DynamicVariant.FromString(snapshot.Tag));
             TrySet(vars, ButtonChannelVarKeys.ResolveIsEnabledId(), DynamicVariant.FromBool(snapshot.IsEnabled));
             TrySet(vars, ButtonChannelVarKeys.ResolveIsSelectedId(), DynamicVariant.FromBool(snapshot.IsSelected));
@@ -568,7 +587,8 @@ namespace Game.UI
 
         async UniTask ExecuteCommandsAsync(CommandListData primary, ButtonChannelPhase phase, CommandListData? secondary)
         {
-            var runner = ResolveCommandRunner(_owner);
+            var runner = _resolvedCommandRunner ?? ResolveCommandRunner(_owner);
+            _resolvedCommandRunner = runner;
             if (runner == null)
                 return;
 

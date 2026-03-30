@@ -97,10 +97,18 @@ namespace Game.Commands
     }
     sealed class MonitorRuleService : IScopeAcquireHandler, IScopeReleaseHandler
     {
+        sealed class BlackboardBridgeBinding
+        {
+            public IBlackboardService Blackboard = null!;
+            public Action<int> Handler = null!;
+        }
+
         readonly MonitorRule[] _rules;
         readonly IReadOnlyList<ExpressionVariable> _sharedExpressionVariables;
         readonly MonitorRuleMB _owner;
         readonly string[] _effectiveRuleNames;
+        readonly HashSet<int> _blackboardBridgeVarIds = new();
+        readonly List<BlackboardBridgeBinding> _blackboardBridgeBindings = new();
         VarStore? _vars;
         bool _ownsVarStore;
         IMonitorChannelHub? _hub;
@@ -236,6 +244,8 @@ namespace Game.Commands
                         Debug.LogException(ex);
                     }
                 }
+
+                TrySetupBlackboardBridge(_effectiveScope, hub);
             }
             catch (Exception ex)
             {
@@ -265,6 +275,7 @@ namespace Game.Commands
                 {
                     hub.DetachFromVars(_vars);
                 }
+                UnsubscribeBlackboardBridge();
                 _vars = null;
                 _ownsVarStore = false;
 
@@ -290,6 +301,114 @@ namespace Game.Commands
             {
                 Debug.LogException(ex);
             }
+        }
+
+        void TrySetupBlackboardBridge(IScopeNode? scope, IMonitorChannelHub hub)
+        {
+            _blackboardBridgeVarIds.Clear();
+            UnsubscribeBlackboardBridge();
+            if (scope == null || hub == null)
+                return;
+
+            CollectBlackboardBridgeVarIds();
+            if (_blackboardBridgeVarIds.Count == 0)
+                return;
+
+            for (IScopeNode? node = scope; node != null; node = node.Parent)
+            {
+                var resolver = node.Resolver;
+                if (resolver == null || !resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                    continue;
+
+                var localVars = blackboard.LocalVars;
+                if (localVars == null)
+                    continue;
+
+                var binding = new BlackboardBridgeBinding
+                {
+                    Blackboard = blackboard,
+                    Handler = varId => OnBlackboardVarChanged(blackboard, varId),
+                };
+
+                localVars.OnVarChanged += binding.Handler;
+                _blackboardBridgeBindings.Add(binding);
+                SyncBlackboardBridge(localVars, hub.CurrentVarStore);
+            }
+        }
+
+        void CollectBlackboardBridgeVarIds()
+        {
+            for (int i = 0; i < _rules.Length; i++)
+            {
+                var rule = _rules[i];
+                if (!rule.Condition.HasSource)
+                    continue;
+
+                var keys = rule.Condition.GetDependentKeys();
+                if (keys == null || keys.Count == 0)
+                    continue;
+
+                for (int k = 0; k < keys.Count; k++)
+                {
+                    var key = keys[k];
+                    if (string.IsNullOrEmpty(key))
+                        continue;
+
+                    if (!VarIdResolver.TryResolve(key, out var varId) || varId == 0)
+                        continue;
+
+                    _blackboardBridgeVarIds.Add(varId);
+                }
+            }
+        }
+
+        void SyncBlackboardBridge(IVarStore? source, IVarStore? destination)
+        {
+            if (source == null || destination == null || _blackboardBridgeVarIds.Count == 0)
+                return;
+
+            var ids = source.EnumerateVarIds();
+            foreach (var varId in ids)
+            {
+                if (!_blackboardBridgeVarIds.Contains(varId))
+                    continue;
+
+                if (source.TryGetVariant(varId, out var value))
+                    destination.TrySetVariant(varId, value);
+            }
+        }
+
+        void OnBlackboardVarChanged(IBlackboardService blackboard, int varId)
+        {
+            if (varId == 0 || !_blackboardBridgeVarIds.Contains(varId))
+                return;
+
+            var monitorVars = _vars ?? _hub?.CurrentVarStore;
+            if (blackboard == null || monitorVars == null)
+                return;
+
+            if (blackboard.LocalVars.TryGetVariant(varId, out var value))
+                monitorVars.TrySetVariant(varId, value);
+        }
+
+        void UnsubscribeBlackboardBridge()
+        {
+            for (int i = _blackboardBridgeBindings.Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    var binding = _blackboardBridgeBindings[i];
+                    var blackboard = binding.Blackboard;
+                    if (blackboard != null && blackboard.LocalVars != null)
+                        blackboard.LocalVars.OnVarChanged -= binding.Handler;
+                }
+                catch
+                {
+                }
+            }
+
+            _blackboardBridgeBindings.Clear();
+            _blackboardBridgeVarIds.Clear();
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

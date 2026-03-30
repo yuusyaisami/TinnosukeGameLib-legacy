@@ -72,7 +72,6 @@ namespace Game.MaterialFx
         readonly IMaterialFxTargetAdapter _adapter;
         readonly IMaterialFxPropertyRegistry _registry;
         readonly IMaterialFxSystemService? _system;
-        readonly bool _needsAlwaysApply;
 
         bool _disposed;
 
@@ -99,7 +98,6 @@ namespace Game.MaterialFx
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
             _system = system;
             UseUnscaledTime = useUnscaledTime;
-            _needsAlwaysApply = adapter is SpriteRendererAdapter || adapter is GraphicAdapter;
 
             _system?.Register(this);
         }
@@ -228,8 +226,7 @@ namespace Game.MaterialFx
             var dirtyKeys = _layer.GetDirtyKeys();
             if (dirtyKeys.Count == 0)
             {
-                // SpriteRenderer/Graphic は外部要因で MPB が戻るケースがあるため、Dirty が無くても毎フレーム Apply する。
-                if (_needsAlwaysApply)
+                if (_adapter.HasPendingApply)
                     _dispatch.Apply();
                 return;
             }

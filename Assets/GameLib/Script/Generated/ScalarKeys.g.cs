@@ -339,9 +339,25 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string BuffBallChance = "GameLogic.GameProfile.Base.BuffBallChance";
                     /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/BuffBallMaxValue
+                    /// </remarks>
+                    public const string BuffBallMaxValue = "GameLogic.GameProfile.Base.BuffBallMaxValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/BuffBallValue
+                    /// </remarks>
+                    public const string BuffBallValue = "GameLogic.GameProfile.Base.BuffBallValue";
+                    /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/DebuffBallChance
                     /// </remarks>
                     public const string DebuffBallChance = "GameLogic.GameProfile.Base.DebuffBallChance";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/DebuffBallMinValue
+                    /// </remarks>
+                    public const string DebuffBallMinValue = "GameLogic.GameProfile.Base.DebuffBallMinValue";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/DebuffBallValue
+                    /// </remarks>
+                    public const string DebuffBallValue = "GameLogic.GameProfile.Base.DebuffBallValue";
                     /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/GameStage
                     /// </remarks>
@@ -619,7 +635,11 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.BallProfile.Value,
             ScalarKeys.GameLogic.GameProfile.Base.BallCount,
             ScalarKeys.GameLogic.GameProfile.Base.BuffBallChance,
+            ScalarKeys.GameLogic.GameProfile.Base.BuffBallMaxValue,
+            ScalarKeys.GameLogic.GameProfile.Base.BuffBallValue,
             ScalarKeys.GameLogic.GameProfile.Base.DebuffBallChance,
+            ScalarKeys.GameLogic.GameProfile.Base.DebuffBallMinValue,
+            ScalarKeys.GameLogic.GameProfile.Base.DebuffBallValue,
             ScalarKeys.GameLogic.GameProfile.Base.GameStage,
             ScalarKeys.GameLogic.GameProfile.Base.InstanceMoneyValue,
             ScalarKeys.GameLogic.GameProfile.Base.LuckUniqueValueMulAdd,

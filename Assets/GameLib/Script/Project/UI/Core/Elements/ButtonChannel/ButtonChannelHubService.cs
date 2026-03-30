@@ -28,6 +28,7 @@ namespace Game.UI
 
         IButtonChannelInteractionAdapter? _adapter;
         IScopeNode? _acquiredScope;
+        UISelectionBlockMask _lastBlockMask;
         bool _isAcquired;
 
         public int ChannelCount => _orderedChannels.Count;
@@ -42,6 +43,7 @@ namespace Game.UI
         {
             _acquiredScope = scope;
             _isAcquired = true;
+            _lastBlockMask = UISelectionBlockMask.None;
             RebuildAdapter(scope, isReset);
             RebuildChannels(scope, isReset);
         }
@@ -51,6 +53,7 @@ namespace Game.UI
             ReleaseChannels(scope, isReset);
             ReleaseAdapter(scope, isReset);
             _acquiredScope = null;
+            _lastBlockMask = UISelectionBlockMask.None;
             _isAcquired = false;
         }
 
@@ -70,6 +73,10 @@ namespace Game.UI
                 blockMask |= runtime.DesiredSelectionBlockMask;
             }
 
+            if (_lastBlockMask == blockMask)
+                return;
+
+            _lastBlockMask = blockMask;
             _adapter?.SetBlockMask(blockMask);
         }
 

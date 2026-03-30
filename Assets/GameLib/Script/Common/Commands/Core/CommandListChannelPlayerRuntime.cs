@@ -41,6 +41,7 @@ namespace Game.Commands
         int _currentStepIndex;
         int _executionVersion;
         float _remainingIntervalSeconds;
+        int _autoPlayRequestVersion;
         bool _isExecuting;
         bool _pausePending;
 
@@ -67,7 +68,7 @@ namespace Game.Commands
             RematerializeBaseVars(scope);
 
             if (_presetRuntime.CurrentPlayerPreset.AutoPlay)
-                Play(NullVarStore.Instance);
+                ScheduleAutoPlay();
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -81,6 +82,7 @@ namespace Game.Commands
             _baseVars.Clear();
             _runtimeVars.Clear();
             _playbackCallerVars.Clear();
+            InvalidateAutoPlay();
             ResetPlaybackState(clearCallerVars: false);
         }
 
@@ -100,6 +102,7 @@ namespace Game.Commands
 
         public bool Play(IVarStore? callerVars)
         {
+            InvalidateAutoPlay();
             if (_state == CommandListPlayerState.Playing || _state == CommandListPlayerState.Paused)
                 return false;
 
@@ -153,6 +156,7 @@ namespace Game.Commands
 
         public bool Stop()
         {
+            InvalidateAutoPlay();
             _state = CommandListPlayerState.Stopped;
             _pausePending = false;
             CancelActiveExecution();
@@ -162,6 +166,7 @@ namespace Game.Commands
 
         public bool ExecuteNow(IVarStore? callerVars)
         {
+            InvalidateAutoPlay();
             if (_isExecuting)
                 return false;
 
@@ -181,6 +186,7 @@ namespace Game.Commands
 
         public bool SwapCommandListPreset(CommandListPreset? preset)
         {
+            InvalidateAutoPlay();
             if (!_presetRuntime.SwapCommandListPreset(preset))
                 return false;
 
@@ -194,6 +200,7 @@ namespace Game.Commands
 
         public bool SwapPlayerPreset(CommandListPlayerPreset? preset)
         {
+            InvalidateAutoPlay();
             if (!_presetRuntime.SwapPlayerPreset(preset))
                 return false;
 
@@ -236,6 +243,8 @@ namespace Game.Commands
         {
             if (!resetCommands && !resetPlayer && !resetRuntimeVars && !resetPlaybackState)
                 return false;
+
+            InvalidateAutoPlay();
 
             var preservedState = _state;
             var shouldCancelExecution = resetCommands || resetPlayer || resetPlaybackState;
@@ -517,6 +526,40 @@ namespace Game.Commands
 
             cts.Dispose();
             completionSource?.TrySetResult();
+        }
+
+        void ScheduleAutoPlay()
+        {
+            var requestVersion = ++_autoPlayRequestVersion;
+            RunAutoPlayNextFrameAsync(requestVersion).Forget();
+        }
+
+        void InvalidateAutoPlay()
+        {
+            _autoPlayRequestVersion++;
+        }
+
+        async UniTaskVoid RunAutoPlayNextFrameAsync(int requestVersion)
+        {
+            try
+            {
+                await UniTask.NextFrame();
+
+                if (requestVersion != _autoPlayRequestVersion)
+                    return;
+
+                if (_activeScope == null)
+                    return;
+
+                if (_state != CommandListPlayerState.Stopped)
+                    return;
+
+                Play(NullVarStore.Instance);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[CommandListChannel] AutoPlay scheduling failed. Tag={_tag} Message={ex.Message}");
+            }
         }
 
         void CapturePlaybackCallerVars(IVarStore? callerVars)

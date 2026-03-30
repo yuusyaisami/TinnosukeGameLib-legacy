@@ -66,14 +66,14 @@ Material:
     m_Ints: []
     m_Floats:
     - _AdvFlipDepthScale: 0
-    - _AdvFlipEnabled: 1
+    - _AdvFlipEnabled: 0
     - _AdvFlipEulerDegX: 0
     - _AdvFlipEulerDegY: 0.03
     - _AdvFlipEulerDegZ: 0
     - _AdvFlipPerspective: 0
     - _AdvFlipPerspectiveSign: -1
     - _AdvancedFade2DBurnAnimatedNoiseCellSharpness: 1.5
-    - _AdvancedFade2DBurnAnimatedNoiseEnabled: 1
+    - _AdvancedFade2DBurnAnimatedNoiseEnabled: 0
     - _AdvancedFade2DBurnAnimatedNoiseGain: 0.5
     - _AdvancedFade2DBurnAnimatedNoiseLacunarity: 2
     - _AdvancedFade2DBurnAnimatedNoiseLoopSeconds: 0
@@ -97,15 +97,15 @@ Material:
     - _AdvancedFade2DBurnNoiseType: 0
     - _AdvancedFade2DBurnProgress: 0
     - _AdvancedFade2DBurnSpeed: 1
-    - _AdvancedFade2DCircleClockwise: 1
+    - _AdvancedFade2DCircleClockwise: 0
     - _AdvancedFade2DCircleStartAngleDeg: 90
-    - _AdvancedFade2DEnabled: 1
+    - _AdvancedFade2DEnabled: 0
     - _AdvancedFade2DFadeAmount: 0
     - _AdvancedFade2DFadeDirection: 3
     - _AdvancedFade2DGlowBlendMode: 2.84
     - _AdvancedFade2DGlowIntensity: 0.79
     - _AdvancedFade2DGlowRange: 3.1
-    - _AdvancedFade2DSoft: 0.655
+    - _AdvancedFade2DSoft: 0.5
     - _BlendColor2DAnimatedGradientCellSharpness: 1.5
     - _BlendColor2DAnimatedGradientEnabled: 0
     - _BlendColor2DAnimatedGradientGain: 0.5
@@ -132,7 +132,7 @@ Material:
     - _BlendColor2DBlendIntensity: 1
     - _BlendColor2DBlendMode: 4
     - _BlendColor2DBlendSoftness: 1
-    - _BlendColor2DEnabled: 1
+    - _BlendColor2DEnabled: 0
     - _CausticsEnabled: 0
     - _CausticsIntensity: 1
     - _CausticsSoftness: 0.1
@@ -182,7 +182,7 @@ Material:
     - _FlashBlinkEnabled: 0
     - _FlashBlinkPhaseOffset: 0
     - _FlashBlinkSpeed: 20
-    - _FlashEnabled: 1
+    - _FlashEnabled: 0
     - _FlashMode: 0
     - _FlowWarpEnabled: 0
     - _FlowWarpSource_Channel: 3
@@ -203,7 +203,7 @@ Material:
     - _HueShiftMaskSource_SlotType: 255
     - _HueShiftMaskSource_UVSpace: 0
     - _HueValueMod: 0
-    - _MaskEnabled: 1
+    - _MaskEnabled: 0
     - _MaskSoftness: 0
     - _MaskSource_Channel: 1
     - _MaskSource_SlotType: 2

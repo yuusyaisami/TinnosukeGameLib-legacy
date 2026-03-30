@@ -54,6 +54,21 @@ namespace Game.UI
         [SerializeField]
         float _blockDurationAfterModalActiveRootsChanged = 0.1f;
 
+        [Header("Pointer Move Optimization")]
+        [Tooltip("ポインター移動イベントを発火する最小移動量（ピクセル）")]
+        [Min(0f)]
+        [SerializeField]
+        float _pointerMovePixelThreshold = 1.0f;
+
+        [Tooltip("ポインター移動イベントの最小発火間隔（秒）。0で毎フレーム")]
+        [Min(0f)]
+        [SerializeField]
+        float _pointerMoveSampleInterval = 0.02f;
+
+        [Tooltip("ポインターボタン押下時は移動量/間隔を無視して同期する")]
+        [SerializeField]
+        bool _forcePointerSyncOnPress = true;
+
         // ----------------------------------------------------------------
         // IFeatureInstaller実装
         // ----------------------------------------------------------------
@@ -82,7 +97,10 @@ namespace Game.UI
             {
                 EnableInputLogging = _enableInputLogging,
                 BlockInputAfterModalActiveRootsChanged = _blockInputAfterModalActiveRootsChanged,
-                BlockDurationAfterModalActiveRootsChanged = Mathf.Max(0f, _blockDurationAfterModalActiveRootsChanged)
+                BlockDurationAfterModalActiveRootsChanged = Mathf.Max(0f, _blockDurationAfterModalActiveRootsChanged),
+                PointerMovePixelThreshold = Mathf.Max(0f, _pointerMovePixelThreshold),
+                PointerMoveSampleInterval = Mathf.Max(0f, _pointerMoveSampleInterval),
+                ForcePointerSyncOnPress = _forcePointerSyncOnPress
             });
         }
     }
@@ -105,5 +123,14 @@ namespace Game.UI
 
         /// <summary>ActiveRoots 変更後に入力をブロックする秒数</summary>
         public float BlockDurationAfterModalActiveRootsChanged { get; set; } = 0.1f;
+
+        /// <summary>ポインター移動イベントを発火する最小移動量（ピクセル）</summary>
+        public float PointerMovePixelThreshold { get; set; } = 1.0f;
+
+        /// <summary>ポインター移動イベントの最小発火間隔（秒）。0で毎フレーム</summary>
+        public float PointerMoveSampleInterval { get; set; } = 0.02f;
+
+        /// <summary>ポインターボタン押下時は移動量/間隔を無視して同期する</summary>
+        public bool ForcePointerSyncOnPress { get; set; } = true;
     }
 }

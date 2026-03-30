@@ -39,6 +39,21 @@ namespace Game.SelectRuntime
         [SerializeField]
         float _editorLongPressSeconds = 0.35f;
 
+        [BoxGroup("Input")]
+        [LabelText("Editor Condition")]
+        [Tooltip("true のときのみ Editor モードへ入る/維持する。LongPress 中に false になった場合は cancel になります。")]
+        [SerializeField]
+        DynamicValue<bool> _editorCondition = DynamicValueExtensions.FromLiteral(true);
+
+        [BoxGroup("Input")]
+        [ShowIf("@_editorEntrySource != Game.SelectRuntime.UserMoveRotateEditorEntrySource.SelectableLongPress")]
+        [LabelText("Long Press Entry Progress")]
+        [Tooltip("LongPress 進捗がこの値以上になったとき On LongPress Entry コマンドを実行します。0-1 範囲。")]
+        [MinValue(0f)]
+        [MaxValue(1f)]
+        [SerializeField]
+        float _longPressEntryProgress = 1f;
+
         [BoxGroup("Move")]
         [LabelText("Move Source Mode")]
         [EnumToggleButtons]
@@ -60,6 +75,26 @@ namespace Game.SelectRuntime
         [LabelText("Rotate Degrees Per Scroll")]
         [SerializeField]
         float _rotateDegreesPerScroll = 15f;
+
+        [BoxGroup("Override")]
+        [LabelText("Apply Override Target Transform")]
+        [Tooltip("true の場合、Move と Rotate で実際に触る Transform を個別に指定します。false の場合は Runtime Scope の SelfTransform を使います。")]
+        [SerializeField]
+        bool _applyOverrideTargetTransform;
+
+        [BoxGroup("Override")]
+        [ShowIf(nameof(_applyOverrideTargetTransform))]
+        [LabelText("Move Target Transform")]
+        [Tooltip("Move が実際に position を変更する Transform。未指定なら Runtime Scope の SelfTransform を使います。")]
+        [SerializeField]
+        Transform? _moveTargetTransform;
+
+        [BoxGroup("Override")]
+        [ShowIf(nameof(_applyOverrideTargetTransform))]
+        [LabelText("Rotate Target Transform")]
+        [Tooltip("Rotate が実際に rotation を変更する Transform。未指定なら Runtime Scope の SelfTransform を使います。")]
+        [SerializeField]
+        Transform? _rotateTargetTransform;
 
         [BoxGroup("Rotate Binding")]
         [LabelText("Rotate Binding")]
@@ -111,6 +146,16 @@ namespace Game.SelectRuntime
         CommandListData _onEditorEnterCommands = new();
 
         [BoxGroup("Commands")]
+        [LabelText("On LongPress Entry")]
+        [SerializeField]
+        CommandListData _onLongPressEntryCommands = new();
+
+        [BoxGroup("Commands")]
+        [LabelText("On LongPress Cancel")]
+        [SerializeField]
+        CommandListData _onLongPressCancelCommands = new();
+
+        [BoxGroup("Commands")]
         [LabelText("On Editor Exit")]
         [SerializeField]
         CommandListData _onEditorExitCommands = new();
@@ -125,10 +170,15 @@ namespace Game.SelectRuntime
         public WorldPointerTargetMB? Target => ResolveTarget();
         public UserMoveRotateEditorEntrySource EditorEntrySource => _editorEntrySource;
         public float EditorLongPressSeconds => Mathf.Max(0.05f, _editorLongPressSeconds);
+        public DynamicValue<bool> EditorCondition => _editorCondition;
+        public float LongPressEntryProgress => Mathf.Clamp01(_longPressEntryProgress);
         public UserMoveSourceMode MoveSourceMode => _moveSourceMode;
         public float InputMoveSpeed => Mathf.Max(0f, _inputMoveSpeed);
         public AreaPlane FallbackPlane => _fallbackPlane;
         public float RotateDegreesPerScroll => _rotateDegreesPerScroll;
+        public bool ApplyOverrideTargetTransform => _applyOverrideTargetTransform;
+        public Transform? MoveTargetTransform => _moveTargetTransform;
+        public Transform? RotateTargetTransform => _rotateTargetTransform;
         public IExternalFloatBindingOptions RotateBinding => _rotateBinding;
         public IExternalBoolBindingOptions IsEditorModeBinding => _isEditorModeBinding;
         public ActorSource AreaActorSource => _areaActorSource;
@@ -136,6 +186,8 @@ namespace Game.SelectRuntime
         public float MinDistanceToOtherSelectable => Mathf.Max(0f, _minDistanceToOtherSelectable);
         public LayerMask BlockLayerMask => _blockLayerMask;
         public CommandListData OnEditorEnterCommands => _onEditorEnterCommands;
+        public CommandListData OnLongPressEntryCommands => _onLongPressEntryCommands;
+        public CommandListData OnLongPressCancelCommands => _onLongPressCancelCommands;
         public CommandListData OnEditorExitCommands => _onEditorExitCommands;
         public bool EnableDebugLog => _enableDebugLog;
 

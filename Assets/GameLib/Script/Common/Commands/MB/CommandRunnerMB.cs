@@ -206,6 +206,8 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.WorldPointerTargetControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.UserMoveRotateRuntimeControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.TargetChannelControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ShowTooltipExecutor>(Lifetime.Singleton)

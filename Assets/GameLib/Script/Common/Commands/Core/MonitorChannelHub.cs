@@ -483,15 +483,28 @@ namespace Game.Commands
 
         /// <summary>内部 CTS</summary>
         CancellationTokenSource? _cts;
+        readonly Dictionary<string, ScalarBridgeCacheEntry> _scalarBridgeCache = new(StringComparer.Ordinal);
 
         bool _debugTickLogged;
         bool _isTicking;
         bool _isApplyingPending;
 
-        MonitorEvaluationMode _evaluationMode = MonitorEvaluationMode.Polling;
+        MonitorEvaluationMode _evaluationMode = MonitorEvaluationMode.EventDriven;
         ExecutionBehavior _defaultExecutionBehavior = ExecutionBehavior.SkipIfRunning;
         int _telemetryVersion;
         bool _disposed;
+
+        readonly struct ScalarBridgeCacheEntry
+        {
+            public readonly int FullVarId;
+            public readonly int LeafVarId;
+
+            public ScalarBridgeCacheEntry(int fullVarId, int leafVarId)
+            {
+                FullVarId = fullVarId;
+                LeafVarId = leafVarId;
+            }
+        }
 
         // ================================================================
         // プロパティ
@@ -574,6 +587,9 @@ namespace Game.Commands
                 // 全 Runtime の Tick
                 for (int i = 0; i < _runtimes.Count; i++)
                 {
+                    if (!_runtimes[i].RequiresTick(_evaluationMode))
+                        continue;
+
                     _runtimes[i].Tick(_evaluationMode, ct);
                 }
             }
@@ -827,6 +843,7 @@ namespace Game.Commands
                 try { _scalarBridgeSubscriptions[i]?.Dispose(); } catch { }
             }
             _scalarBridgeSubscriptions.Clear();
+            _scalarBridgeCache.Clear();
         }
 
         void OnAnyScalarChanged(ScalarValueChangedArgs args)
@@ -842,32 +859,43 @@ namespace Game.Commands
             if (string.IsNullOrEmpty(name))
                 return;
 
-            // Full key
-            if (VarIdResolver.TryResolve(name, out var fullVarId) && fullVarId != 0)
+            if (!_scalarBridgeCache.TryGetValue(name, out var cache))
             {
-                vars.TrySetVariant(fullVarId, DynamicVariant.FromFloat(args.NewValue));
-            }
+                var fullVarId = 0;
+                if (VarIdResolver.TryResolve(name, out var resolvedFullVarId) && resolvedFullVarId != 0)
+                    fullVarId = resolvedFullVarId;
 
-            // Leaf key (best-effort convenience for expressions using short identifiers)
-            var leaf = name;
-            for (int i = name.Length - 1; i >= 0; i--)
-            {
-                var c = name[i];
-                if (c == '.' || c == '/' || c == '\\')
+                var leafVarId = 0;
+                for (int i = name.Length - 1; i >= 0; i--)
                 {
+                    var c = name[i];
+                    if (c != '.' && c != '/' && c != '\\')
+                        continue;
+
                     if (i + 1 < name.Length)
-                        leaf = name.Substring(i + 1);
+                    {
+                        var leaf = name.Substring(i + 1);
+                        if (!string.IsNullOrEmpty(leaf) &&
+                            !string.Equals(leaf, name, StringComparison.Ordinal) &&
+                            VarIdResolver.TryResolve(leaf, out var resolvedLeafVarId) &&
+                            resolvedLeafVarId != 0)
+                        {
+                            leafVarId = resolvedLeafVarId;
+                        }
+                    }
+
                     break;
                 }
+
+                cache = new ScalarBridgeCacheEntry(fullVarId, leafVarId);
+                _scalarBridgeCache[name] = cache;
             }
 
-            if (!string.IsNullOrEmpty(leaf) && !string.Equals(leaf, name, StringComparison.Ordinal))
-            {
-                if (VarIdResolver.TryResolve(leaf, out var leafVarId) && leafVarId != 0)
-                {
-                    vars.TrySetVariant(leafVarId, DynamicVariant.FromFloat(args.NewValue));
-                }
-            }
+            var value = DynamicVariant.FromFloat(args.NewValue);
+            if (cache.FullVarId != 0)
+                vars.TrySetVariant(cache.FullVarId, value);
+            if (cache.LeafVarId != 0 && cache.LeafVarId != cache.FullVarId)
+                vars.TrySetVariant(cache.LeafVarId, value);
         }
 
         // ================================================================

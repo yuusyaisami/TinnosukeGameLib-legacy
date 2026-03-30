@@ -437,6 +437,12 @@ namespace Game.UI
         /// <summary>前フレームのポインタ位置（マウス移動検出用）</summary>
         Vector2 _lastPointerPosition;
 
+        /// <summary>前フレームのポインタ位置が有効か</summary>
+        bool _hasLastPointerPosition;
+
+        /// <summary>ポインター移動イベントのサンプリング用経過時間</summary>
+        float _pointerMoveSampleElapsed;
+
         /// <summary>この時刻までUI入力をブロックする（unscaledTime）</summary>
         float _blockInputUntilUnscaledTime;
 
@@ -586,6 +592,7 @@ namespace Game.UI
             {
                 ConsumeAllInput(ref frame);
                 _lastPointerPosition = pointerPos;
+                _hasLastPointerPosition = true;
                 return;
             }
 
@@ -593,17 +600,28 @@ namespace Game.UI
 
             // ポインターモードの判定は基本的にControlSchemeServiceに依るが、
             // キーボード運用時はマウス移動があればそのフレームのみPointerとして扱う。
-            var mouseMoved = (pointerPos - _lastPointerPosition).sqrMagnitude > 0.000001f;
+            var moveThreshold = Mathf.Max(0f, _options.PointerMovePixelThreshold);
+            var moveThresholdSqr = moveThreshold * moveThreshold;
+            var pointerDelta = pointerPos - _lastPointerPosition;
+            var mouseMovedEnough = !_hasLastPointerPosition || pointerDelta.sqrMagnitude >= moveThresholdSqr;
             var pointerModeThisFrame = _controlSchemeService.CurrentUsageMode == InputUsageMode.Pointer
-                || (mouseMoved && _controlSchemeService.CurrentUsageMode == InputUsageMode.Keyboard);
+                || (mouseMovedEnough && _controlSchemeService.CurrentUsageMode == InputUsageMode.Keyboard);
+
+            _pointerMoveSampleElapsed += Mathf.Max(0f, dt);
+            var sampleInterval = Mathf.Max(0f, _options.PointerMoveSampleInterval);
+            var hasReachedPointerSampleInterval = sampleInterval <= 0f || _pointerMoveSampleElapsed >= sampleInterval;
+
+            var pointerPressedThisFrame = frame.Click.Down || frame.PointerLeft.Down || frame.PointerRight.Down;
+            var shouldForcePointerSync = _options.ForcePointerSyncOnPress && pointerPressedThisFrame;
 
             // Read current scheme/usage once per frame
             var currentScheme = _controlSchemeService.CurrentScheme;
             var currentUsage = _controlSchemeService.CurrentUsageMode;
 
-            if (pointerModeThisFrame)
+            if (pointerModeThisFrame && (shouldForcePointerSync || (mouseMovedEnough && hasReachedPointerSampleInterval)))
             {
                 ProcessPointerInput(ref frame, pointerPos, dt, currentScheme, InputUsageMode.Pointer);
+                _pointerMoveSampleElapsed = 0f;
             }
 
             // ナビゲーションモードの場合（キーボード/ゲームパッド）
@@ -620,6 +638,7 @@ namespace Game.UI
 
             // 更新: 次フレーム比較用にポインタ位置を保存
             _lastPointerPosition = pointerPos;
+            _hasLastPointerPosition = true;
         }
 
         bool IsInputBlocked()

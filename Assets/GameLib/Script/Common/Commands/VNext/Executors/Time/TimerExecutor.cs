@@ -45,6 +45,8 @@ namespace Game.Commands.VNext
                     break;
                 case TimerCommandMode.Reset:
                     runtime.Reset();
+                    if (typed.RestartAfterReset)
+                        runtime.Start();
                     break;
                 case TimerCommandMode.SetTime:
                     runtime.SetTime(typed.Time.GetOrDefault(ctx, runtime.CurrentTime));

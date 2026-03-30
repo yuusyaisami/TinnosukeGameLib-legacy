@@ -14,6 +14,7 @@ namespace Game.Common.Editor
     public sealed class VarIdDropdownDrawer : PropertyDrawer
     {
         static readonly IReadOnlyList<VarIdDropdownEntry> Entries = VarIdDropdownLookup.Entries;
+        static readonly IReadOnlyDictionary<int, string> PathByVarId = VarIdDropdownLookup.PathByVarId;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -81,12 +82,7 @@ namespace Game.Common.Editor
 
         static string? GetPathForValue(int varId)
         {
-            foreach (var entry in Entries)
-            {
-                if (entry.VarId == varId)
-                    return entry.MenuPath;
-            }
-            return null;
+            return PathByVarId.TryGetValue(varId, out var path) ? path : null;
         }
 
         static string NormalizeFilter(string filter)
@@ -127,8 +123,10 @@ namespace Game.Common.Editor
     static class VarIdDropdownLookup
     {
         static readonly List<VarIdDropdownEntry> s_entries = BuildEntries();
+        static readonly Dictionary<int, string> s_pathByVarId = BuildPathLookup();
 
         public static IReadOnlyList<VarIdDropdownEntry> Entries => s_entries;
+        public static IReadOnlyDictionary<int, string> PathByVarId => s_pathByVarId;
 
         static List<VarIdDropdownEntry> BuildEntries()
         {
@@ -141,6 +139,18 @@ namespace Game.Common.Editor
 
             entries.Sort((a, b) => string.CompareOrdinal(a.MenuPath, b.MenuPath));
             return entries;
+        }
+
+        static Dictionary<int, string> BuildPathLookup()
+        {
+            var lookup = new Dictionary<int, string>();
+            for (int i = 0; i < s_entries.Count; i++)
+            {
+                var entry = s_entries[i];
+                lookup[entry.VarId] = entry.MenuPath;
+            }
+
+            return lookup;
         }
 
         static void AddType(Type type, string path, List<VarIdDropdownEntry> entries)

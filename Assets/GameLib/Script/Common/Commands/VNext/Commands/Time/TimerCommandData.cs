@@ -52,6 +52,12 @@ namespace Game.Commands.VNext
         [LabelText("Time Scale")]
         public DynamicValue<float> TimeScale;
 
+        [BoxGroup("Reset")]
+        [ShowIf(nameof(ShowResetRestart))]
+        [LabelText("Restart After Reset")]
+        [Tooltip("Reset で初期時刻に戻した後、そのまま再スタートするかどうか。true の場合は Reset 後に Start を呼びます。")]
+        public bool RestartAfterReset;
+
         [BoxGroup("Get Time")]
         [ShowIf(nameof(ShowGetTime))]
         [LabelText("Output Target")]
@@ -65,6 +71,7 @@ namespace Game.Commands.VNext
 
         bool ShowSetTime() => Mode == TimerCommandMode.SetTime;
         bool ShowSetTimeScale() => Mode == TimerCommandMode.SetTimeScale;
+        bool ShowResetRestart() => Mode == TimerCommandMode.Reset;
         bool ShowGetTime() => Mode == TimerCommandMode.GetTime;
     }
 }

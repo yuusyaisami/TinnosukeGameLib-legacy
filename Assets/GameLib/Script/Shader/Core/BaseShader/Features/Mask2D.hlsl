@@ -32,6 +32,13 @@ struct Mask2DParams
     float          softness;
 };
 
+inline bool Mask2D_IsSupportedSlot(int slotType)
+{
+    return slotType == TEXTURE_SLOT_EXTERNAL_A
+        || slotType == TEXTURE_SLOT_EXTERNAL_B
+        || slotType == TEXTURE_SLOT_CUSTOM_RT;
+}
+
 // ---------------------------------------------------------------------------
 // CBUFFER から Mask2DParams を生成
 // ---------------------------------------------------------------------------
@@ -78,7 +85,9 @@ inline Mask2DParams MakeDefaultMask2DParams()
 inline Surface2D Surface2D_ApplyMask(Surface2D s, Mask2DParams p)
 {
     Surface2D result = s;
-    if (p.enabled >= 0.5 && p.source.slotType != TEXTURE_SLOT_NONE)
+    if (p.enabled >= 0.5
+        && p.source.slotType != TEXTURE_SLOT_NONE
+        && Mask2D_IsSupportedSlot(p.source.slotType))
     {
         half mask = SampleSlotScalar(result, p.source);
         half softHalf = p.softness * 0.5h;
@@ -99,6 +108,8 @@ inline Surface2D Surface2D_ApplyInverseMask(Surface2D s, Mask2DParams p)
     if (p.enabled < 0.5)
         return s;
     if (p.source.slotType == TEXTURE_SLOT_NONE)
+        return s;
+    if (!Mask2D_IsSupportedSlot(p.source.slotType))
         return s;
     
     // ソースからマスク値を取得

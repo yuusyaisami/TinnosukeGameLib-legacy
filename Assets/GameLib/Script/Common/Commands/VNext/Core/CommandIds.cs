@@ -119,6 +119,7 @@ namespace Game.Commands.VNext
         public const int ClearProfile = 1973;
         public const int ProfileChange = 1974;
         public const int DeleteAllSaveData = 1975;
+        public const int UserMoveRotateRuntimeControl = 1976;
         public const int TargetChannelControl = 1977;
         public const int ButtonChannelHubControl = 1978;
         public const int ButtonChannelPlayerControl = 1979;

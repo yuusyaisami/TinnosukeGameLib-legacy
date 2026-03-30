@@ -42,12 +42,18 @@ namespace Game.UI
         [CommandListFunctionName("Slider.Background.OnSpawn")]
         CommandListData _onSpawnCommands = new();
 
+        [ShowIf(nameof(_enabled))]
+        [LabelText("Hide When Fill Is Min")]
+        [SerializeField]
+        bool _hideWhenFillIsMin;
+
         public bool Enabled => _enabled;
         public DynamicValue<BaseRuntimeTemplatePreset> TemplatePreset => _templatePreset;
         public string AnimationChannelTag => string.IsNullOrWhiteSpace(_animationChannelTag) ? "default" : _animationChannelTag.Trim();
         public bool AllowPooling => _allowPooling;
         public float DepthOffset => Mathf.Max(0f, _depthOffset);
         public CommandListData OnSpawnCommands => _onSpawnCommands;
+        public bool HideWhenFillIsMin => _hideWhenFillIsMin;
 
         internal SliderBackgroundVisualizerSettings CreateRuntimeCopy()
         {
@@ -59,6 +65,7 @@ namespace Game.UI
                 _allowPooling = _allowPooling,
                 _depthOffset = _depthOffset,
                 _onSpawnCommands = CloneCommandList(_onSpawnCommands),
+                _hideWhenFillIsMin = _hideWhenFillIsMin,
             };
         }
 
@@ -76,6 +83,7 @@ namespace Game.UI
                 _animationChannelTag = mutation.BackgroundAnimationChannelTag;
                 _allowPooling = mutation.BackgroundAllowPooling;
                 _depthOffset = mutation.BackgroundDepthOffset;
+                _hideWhenFillIsMin = mutation.BackgroundHideWhenFillIsMin;
             }
 
             if (mutation.ApplyBackgroundSpawnCommands)
@@ -201,6 +209,12 @@ namespace Game.UI
         DynamicValue<float> _intervalStep = DynamicValueExtensions.FromLiteral(10f);
 
         [BoxGroup("Layout")]
+        [LabelText("Split Bars By Layout")]
+        [SerializeField]
+        bool _splitBarsByLayout = true;
+
+        [BoxGroup("Layout")]
+        [ShowIf(nameof(ShouldShowBarSpanScale))]
         [LabelText("Bar Span Scale")]
         [MinValue(0f)]
         [SerializeField]
@@ -261,6 +275,7 @@ namespace Game.UI
         public SliderAreaOriginSide OriginSide => _originSide;
         public SliderSegmentPlacementMode PlacementMode => _placementMode;
         public DynamicValue<float> IntervalStep => _intervalStep;
+        public bool SplitBarsByLayout => _splitBarsByLayout;
         public DynamicValue<float> BarSpanScale => _barSpanScale;
         public bool SpawnSegmentBars => _spawnSegmentBars;
         public DynamicValue<BaseRuntimeTemplatePreset> SegmentBarTemplatePreset => _segmentBarTemplatePreset;
@@ -274,6 +289,7 @@ namespace Game.UI
 
         bool IsEqualInterval() => _placementMode == SliderSegmentPlacementMode.EqualInterval;
         bool IsCustomEntries() => _placementMode == SliderSegmentPlacementMode.CustomEntries;
+        bool ShouldShowBarSpanScale() => _splitBarsByLayout;
 
         internal SliderSegmentedVisualizerSettings CreateRuntimeCopy()
         {
@@ -283,6 +299,7 @@ namespace Game.UI
                 _originSide = _originSide,
                 _placementMode = _placementMode,
                 _intervalStep = _intervalStep,
+                _splitBarsByLayout = _splitBarsByLayout,
                 _barSpanScale = _barSpanScale,
                 _spawnSegmentBars = _spawnSegmentBars,
                 _segmentBarTemplatePreset = _segmentBarTemplatePreset,
@@ -321,6 +338,7 @@ namespace Game.UI
                 _originSide = mutation.SegmentedOriginSide;
                 _placementMode = mutation.SegmentedPlacementMode;
                 _intervalStep = mutation.SegmentedIntervalStep;
+                _splitBarsByLayout = mutation.SegmentedSplitBarsByLayout;
                 _barSpanScale = mutation.SegmentedBarSpanScale;
             }
 
@@ -549,6 +567,11 @@ namespace Game.UI
         public float BackgroundDepthOffset = 0.01f;
 
         [BoxGroup("Background")]
+        [ShowIf(nameof(ApplyBackground))]
+        [LabelText("Hide When Fill Is Min")]
+        public bool BackgroundHideWhenFillIsMin;
+
+        [BoxGroup("Background")]
         [ToggleLeft]
         [LabelText("Apply Background Spawn Commands")]
         public bool ApplyBackgroundSpawnCommands;
@@ -589,6 +612,11 @@ namespace Game.UI
 
         [BoxGroup("Segmented Layout")]
         [ShowIf(nameof(ApplySegmentedLayout))]
+        [LabelText("Split Bars By Layout")]
+        public bool SegmentedSplitBarsByLayout = true;
+
+        [BoxGroup("Segmented Layout")]
+        [ShowIf(nameof(ShouldShowSegmentedBarSpanScale))]
         [MinValue(0f)]
         [LabelText("Bar Span Scale")]
         public DynamicValue<float> SegmentedBarSpanScale = DynamicValueExtensions.FromLiteral(1f);
@@ -705,6 +733,11 @@ namespace Game.UI
                    ApplyMarkerSpawnCommands ||
                    ApplyHandle ||
                    ApplyHandleSpawnCommands;
+        }
+
+        bool ShouldShowSegmentedBarSpanScale()
+        {
+            return ApplySegmentedLayout && SegmentedSplitBarsByLayout;
         }
     }
 }

@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
   _definitionId: TestTraitDefinition
   _name:
-    Template: Inyou
+    Template: "\u9670\u967D\u7389"
     Variables: []
   _description:
-    Template: Increase value
+    Template: "\u6708\u3068\u592A\u967D\u3001\u9670\u967D\u7389\u3001\n\u30D2\u30C3\u30C8\u3059\u308B\u3068\u4FA1\u5024\u3092\u4E0A\u3052\u307E\u3059\u3002"
     Variables: []
   _weight: 2
   _visualSettings:

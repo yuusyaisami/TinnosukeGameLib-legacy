@@ -29,7 +29,7 @@ namespace VHierarchy
         public static bool collapseEverythingEnabled { get => EditorPrefsCached.GetBool("vHierarchy-collapseEverythingEnabled", true); set => EditorPrefsCached.SetBool("vHierarchy-collapseEverythingEnabled", value); }
         public static bool setDefaultParentEnabled { get => EditorPrefsCached.GetBool("vHierarchy-setDefaultParentEnabled", true); set => EditorPrefsCached.SetBool("vHierarchy-setDefaultParentEnabled", value); }
 
-        public static bool pluginDisabled { get => EditorPrefsCached.GetBool("vHierarchy-pluginDisabled", false); set => EditorPrefsCached.SetBool("vHierarchy-pluginDisabled", value); }
+        public static bool pluginDisabled { get => EditorPrefsCached.GetBool("vHierarchy-pluginDisabled", true); set => EditorPrefsCached.SetBool("vHierarchy-pluginDisabled", value); }
 
 
 
