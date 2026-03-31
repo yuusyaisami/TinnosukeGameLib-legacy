@@ -3679,7 +3679,71 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
-  nextVarId: 101106
+  - id: da35a1b429744fc8a2c01c9a54c8d1f5
+    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
+    name: GameProfile
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 084fafb6c8a54fef996e2f458d1ce038
+    parentId: da35a1b429744fc8a2c01c9a54c8d1f5
+    name: BallTable
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: e1e699bb651249fa862cece43f642866
+    parentId: 084fafb6c8a54fef996e2f458d1ce038
+    name: TableId
+    isFolder: 0
+    description: 
+    varId: 101106
+    stableKey: TableId
+    aliases: []
+  - id: 0ab24bab42da4d9e993665bdc665acc4
+    parentId: 084fafb6c8a54fef996e2f458d1ce038
+    name: Elements
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 7bf5af2fa89344d09c349b9fa2b97970
+    parentId: 0ab24bab42da4d9e993665bdc665acc4
+    name: BallValue
+    isFolder: 0
+    description: 
+    varId: 101107
+    stableKey: BallValue
+    aliases: []
+  - id: 6c6feacc4324461cb4867c44805c588a
+    parentId: 0ab24bab42da4d9e993665bdc665acc4
+    name: BallMaxValue
+    isFolder: 0
+    description: 
+    varId: 101108
+    stableKey: BallMaxValue
+    aliases: []
+  - id: aa09344ca04b4a789e14021131013cc7
+    parentId: 0ab24bab42da4d9e993665bdc665acc4
+    name: BallTotalValue
+    isFolder: 0
+    description: 
+    varId: 101110
+    stableKey: BallTotalValue
+    aliases: []
+  - id: 683a4175b68f4c8f8d52d9ab17b5868b
+    parentId: 0ab24bab42da4d9e993665bdc665acc4
+    name: SlotMul
+    isFolder: 0
+    description: 
+    varId: 101109
+    stableKey: SlotMul
+    aliases: []
+  nextVarId: 101111
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

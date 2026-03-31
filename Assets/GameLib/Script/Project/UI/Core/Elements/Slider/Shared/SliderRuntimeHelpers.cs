@@ -14,6 +14,8 @@ namespace Game.UI
 {
     internal static partial class SliderRuntimeHelpers
     {
+        public const float SliderVisibilityEpsilon = 0.0001f;
+
         public const string VarKeyTargetRaw = "GameLib.Slider.targetRaw";
         public const string VarKeyTargetNormalized = "GameLib.Slider.targetNormalized";
         public const string VarKeyDisplayedRaw = "GameLib.Slider.displayedRaw";
@@ -197,12 +199,12 @@ namespace Game.UI
             out float visibleEndNormalizedValue,
             out bool isVisible)
         {
-            var clampedDisplayed = Mathf.Clamp01(displayedNormalizedValue);
+            var clampedDisplayed = SnapNormalizedToEdge(displayedNormalizedValue);
             if (!splitBarsByLayout)
             {
                 visibleStartNormalizedValue = 0f;
                 visibleEndNormalizedValue = clampedDisplayed;
-                isVisible = visibleEndNormalizedValue - visibleStartNormalizedValue > 0.0001f;
+                isVisible = visibleEndNormalizedValue - visibleStartNormalizedValue > SliderVisibilityEpsilon;
                 return;
             }
 
@@ -210,12 +212,12 @@ namespace Game.UI
             if (displayMode == SliderSegmentDisplayMode.ReachedStageFloor)
             {
                 visibleEndNormalizedValue = endNormalizedValue;
-                isVisible = clampedDisplayed >= endNormalizedValue - 0.0001f;
+                isVisible = clampedDisplayed >= endNormalizedValue - SliderVisibilityEpsilon;
                 return;
             }
 
             visibleEndNormalizedValue = Mathf.Clamp(clampedDisplayed, startNormalizedValue, endNormalizedValue);
-            isVisible = visibleEndNormalizedValue - visibleStartNormalizedValue > 0.0001f;
+            isVisible = visibleEndNormalizedValue - visibleStartNormalizedValue > SliderVisibilityEpsilon;
         }
 
         public static bool ShouldShowBackground(
@@ -228,7 +230,19 @@ namespace Game.UI
             if (!background.HideWhenFillIsMin)
                 return true;
 
-            return snapshot.DisplayedNormalizedValue > 0.0001f;
+            return SnapNormalizedToEdge(snapshot.DisplayedNormalizedValue) > 0f;
+        }
+
+        public static float SnapNormalizedToEdge(float value)
+        {
+            var normalized = Mathf.Clamp01(value);
+            if (normalized <= SliderVisibilityEpsilon)
+                return 0f;
+
+            if (normalized >= 1f - SliderVisibilityEpsilon)
+                return 1f;
+
+            return normalized;
         }
 
         public static SliderRangeResolveStatus TryResolveWorldRangeSnapshot(

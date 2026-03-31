@@ -211,7 +211,7 @@ namespace Game.UI
             if (_transitionDuration <= 0f)
             {
                 _transitionActive = false;
-                UpdateContinuousDisplayedValue(_transitionToRawValue, allowCrossingCommands: !_suppressRuntimeCommands);
+                UpdateContinuousDisplayedValue(_transitionToRawValue, allowCrossingCommands: !_suppressRuntimeCommands, force: true);
                 _suppressRuntimeCommands = false;
                 return;
             }
@@ -225,7 +225,7 @@ namespace Game.UI
             if (progress >= 1f)
             {
                 _transitionActive = false;
-                UpdateContinuousDisplayedValue(_transitionToRawValue, allowCrossingCommands: !_suppressRuntimeCommands);
+                UpdateContinuousDisplayedValue(_transitionToRawValue, allowCrossingCommands: !_suppressRuntimeCommands, force: true);
                 _suppressRuntimeCommands = false;
             }
         }

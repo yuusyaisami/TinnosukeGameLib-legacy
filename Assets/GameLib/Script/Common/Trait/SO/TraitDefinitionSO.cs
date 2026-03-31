@@ -241,10 +241,7 @@ namespace Game.Trait
 
                     if (hasTableKey)
                     {
-                        if (overwrite)
-                            grid.SetOrExpandVariant(tableKeyVarId, row, column, in tableKeyValue);
-                        else if (!grid.TryGetVariant(tableKeyVarId, row, column, out var _))
-                            grid.SetOrExpandVariant(tableKeyVarId, row, column, in tableKeyValue);
+                        GridBlackboardWriteUtility.TryWriteCellValue(grid, row, column, tableKeyVarId, in tableKeyValue, overwrite, upsert: true);
                     }
 
                     for (int varIndex = 0; varIndex < vars.Count; varIndex++)
@@ -268,7 +265,7 @@ namespace Game.Trait
                         if (!overwrite && grid.TryGetVariant(varPayload.VarId, row, column, out var _))
                             continue;
 
-                        if (!grid.SetOrExpandVariant(varPayload.VarId, row, column, in value))
+                        if (!GridBlackboardWriteUtility.TryWriteCellValue(grid, row, column, varPayload.VarId, in value, overwrite, upsert: true))
                         {
                             Debug.LogError($"[TraitDefinitionSO] CommonGridTable write failed. definition={_definitionId} row={row} col={column} varId={varPayload.VarId} kind={value.Kind}");
                         }

@@ -17,11 +17,15 @@ namespace Game.UI
             ResolveRange();
             var clamped = Mathf.Clamp(rawValue, _minValue, _maxValue);
             _targetRawValue = clamped;
-            _targetNormalizedValue = Normalize(clamped);
+            _targetNormalizedValue = SliderRuntimeHelpers.SnapNormalizedToEdge(Normalize(clamped));
             _continuousDisplayedRawValue = clamped;
             _continuousDisplayedNormalizedValue = _targetNormalizedValue;
             _displayedRawValue = ResolveDisplayedRawValue(clamped);
-            _displayedNormalizedValue = Normalize(_displayedRawValue);
+            _displayedNormalizedValue = SliderRuntimeHelpers.SnapNormalizedToEdge(Normalize(_displayedRawValue));
+            if (_displayedNormalizedValue <= 0f)
+                _displayedRawValue = _minValue;
+            else if (_displayedNormalizedValue >= 1f)
+                _displayedRawValue = _maxValue;
             _hasInitialized = true;
             EmitUpdated();
         }
@@ -41,7 +45,11 @@ namespace Game.UI
         {
             ResolveRange();
             var clamped = Mathf.Clamp(rawValue, _minValue, _maxValue);
-            var normalized = Normalize(clamped);
+            var normalized = SliderRuntimeHelpers.SnapNormalizedToEdge(Normalize(clamped));
+            if (normalized <= 0f)
+                clamped = _minValue;
+            else if (normalized >= 1f)
+                clamped = _maxValue;
 
             if (!_hasInitialized)
             {
@@ -82,7 +90,7 @@ namespace Game.UI
             if (Mathf.Abs(delta) <= 0.0001f)
             {
                 ResetTransition();
-                UpdateContinuousDisplayedValue(_targetRawValue, allowCrossingCommands: !_suppressRuntimeCommands);
+                UpdateContinuousDisplayedValue(_targetRawValue, allowCrossingCommands: !_suppressRuntimeCommands, force: true);
                 _suppressRuntimeCommands = false;
                 return;
             }
@@ -90,7 +98,7 @@ namespace Game.UI
             if (transition.DelaySeconds <= 0f && transition.DurationSeconds <= 0f)
             {
                 ResetTransition();
-                UpdateContinuousDisplayedValue(_targetRawValue, allowCrossingCommands: !_suppressRuntimeCommands);
+                UpdateContinuousDisplayedValue(_targetRawValue, allowCrossingCommands: !_suppressRuntimeCommands, force: true);
                 _suppressRuntimeCommands = false;
                 return;
             }
@@ -104,30 +112,40 @@ namespace Game.UI
             _transitionEase = transition.Ease;
         }
 
-        void UpdateContinuousDisplayedValue(float rawValue, bool allowCrossingCommands)
+        void UpdateContinuousDisplayedValue(float rawValue, bool allowCrossingCommands, bool force = false)
         {
             ResolveRange();
 
             var clamped = Mathf.Clamp(rawValue, _minValue, _maxValue);
-            var normalized = Normalize(clamped);
+            var normalized = SliderRuntimeHelpers.SnapNormalizedToEdge(Normalize(clamped));
+            if (normalized <= 0f)
+                clamped = _minValue;
+            else if (normalized >= 1f)
+                clamped = _maxValue;
 
-            if (Mathf.Abs(clamped - _continuousDisplayedRawValue) <= 0.0001f &&
+            if (!force &&
+                Mathf.Abs(clamped - _continuousDisplayedRawValue) <= 0.0001f &&
                 Mathf.Abs(normalized - _continuousDisplayedNormalizedValue) <= 0.0001f)
                 return;
 
             _continuousDisplayedRawValue = clamped;
             _continuousDisplayedNormalizedValue = normalized;
-            ApplyPublicDisplayedValue(clamped, allowCrossingCommands);
+            ApplyPublicDisplayedValue(clamped, allowCrossingCommands, force);
         }
 
-        void ApplyPublicDisplayedValue(float continuousRawValue, bool allowCrossingCommands)
+        void ApplyPublicDisplayedValue(float continuousRawValue, bool allowCrossingCommands, bool force = false)
         {
             var previousRawValue = _displayedRawValue;
             var previousNormalizedValue = _displayedNormalizedValue;
             var displayedRawValue = ResolveDisplayedRawValue(continuousRawValue);
-            var displayedNormalizedValue = Normalize(displayedRawValue);
+            var displayedNormalizedValue = SliderRuntimeHelpers.SnapNormalizedToEdge(Normalize(displayedRawValue));
+            if (displayedNormalizedValue <= 0f)
+                displayedRawValue = _minValue;
+            else if (displayedNormalizedValue >= 1f)
+                displayedRawValue = _maxValue;
 
-            if (Mathf.Abs(displayedRawValue - previousRawValue) <= 0.0001f &&
+            if (!force &&
+                Mathf.Abs(displayedRawValue - previousRawValue) <= 0.0001f &&
                 Mathf.Abs(displayedNormalizedValue - previousNormalizedValue) <= 0.0001f)
                 return;
 

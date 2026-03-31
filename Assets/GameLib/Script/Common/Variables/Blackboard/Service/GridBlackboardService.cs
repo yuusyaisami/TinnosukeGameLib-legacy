@@ -42,6 +42,23 @@ namespace Game.Common
         bool TryGetRowCount(int varId, out int rowCount);
         bool TryGetColumnCount(int varId, int row, out int columnCount);
 
+        bool EnsureRow(int row);
+        bool InsertRow(int row);
+        bool AppendRow(out int appendedRow);
+        bool RemoveRow(int row);
+        bool ClearRow(int row);
+
+        bool EnsureColumn(int row, int column);
+        bool InsertColumn(int row, int column);
+        bool AppendColumn(int row, out int appendedColumn);
+        bool RemoveColumn(int row, int column);
+        bool ClearColumn(int row, int column);
+
+        bool TryUnsetVariant(int varId, int row, int column);
+
+        bool TryCollectRow(int row, List<GridBlackboardCellSnapshot> destination);
+        bool TryCollectCell(int row, int column, List<GridBlackboardCellSnapshot> destination);
+
         bool TryCollectAllCells(List<GridBlackboardCellSnapshot> destination);
         bool TryCollectCells(int varId, List<GridBlackboardCellSnapshot> destination);
         void ClearVar(int varId);
@@ -214,6 +231,205 @@ namespace Game.Common
 
             columnCount = maxColumn + 1;
             return columnCount > 0;
+        }
+
+        public bool EnsureRow(int row)
+        {
+            if (row < 0)
+                return false;
+
+            while (row >= _rows.Count)
+                _rows.Add(new List<List<CellVarEntry>>());
+
+            if (_rows[row] == null)
+                _rows[row] = new List<List<CellVarEntry>>();
+
+            return true;
+        }
+
+        public bool InsertRow(int row)
+        {
+            if (row < 0 || row > _rows.Count)
+                return false;
+
+            _rows.Insert(row, new List<List<CellVarEntry>>());
+            return true;
+        }
+
+        public bool AppendRow(out int appendedRow)
+        {
+            appendedRow = _rows.Count;
+            _rows.Add(new List<List<CellVarEntry>>());
+            return true;
+        }
+
+        public bool RemoveRow(int row)
+        {
+            if (row < 0 || row >= _rows.Count)
+                return false;
+
+            _rows.RemoveAt(row);
+            return true;
+        }
+
+        public bool ClearRow(int row)
+        {
+            if (row < 0 || row >= _rows.Count)
+                return false;
+
+            var columns = _rows[row];
+            if (columns == null)
+                return false;
+
+            for (int column = 0; column < columns.Count; column++)
+            {
+                var vars = columns[column];
+                vars?.Clear();
+            }
+
+            return true;
+        }
+
+        public bool EnsureColumn(int row, int column)
+        {
+            if (row < 0 || column < 0)
+                return false;
+
+            if (!EnsureRow(row))
+                return false;
+
+            var columns = _rows[row];
+            if (columns == null)
+            {
+                columns = new List<List<CellVarEntry>>();
+                _rows[row] = columns;
+            }
+
+            while (column >= columns.Count)
+                columns.Add(new List<CellVarEntry>());
+
+            if (columns[column] == null)
+                columns[column] = new List<CellVarEntry>();
+
+            return true;
+        }
+
+        public bool InsertColumn(int row, int column)
+        {
+            if (row < 0 || column < 0)
+                return false;
+
+            if (!EnsureRow(row))
+                return false;
+
+            var columns = _rows[row];
+            if (columns == null)
+            {
+                columns = new List<List<CellVarEntry>>();
+                _rows[row] = columns;
+            }
+
+            if (column > columns.Count)
+                return false;
+
+            columns.Insert(column, new List<CellVarEntry>());
+            return true;
+        }
+
+        public bool AppendColumn(int row, out int appendedColumn)
+        {
+            appendedColumn = -1;
+            if (row < 0)
+                return false;
+
+            if (!EnsureRow(row))
+                return false;
+
+            var columns = _rows[row];
+            if (columns == null)
+            {
+                columns = new List<List<CellVarEntry>>();
+                _rows[row] = columns;
+            }
+
+            columns.Add(new List<CellVarEntry>());
+            appendedColumn = columns.Count - 1;
+            return true;
+        }
+
+        public bool RemoveColumn(int row, int column)
+        {
+            if (row < 0 || column < 0 || row >= _rows.Count)
+                return false;
+
+            var columns = _rows[row];
+            if (columns == null || column >= columns.Count)
+                return false;
+
+            columns.RemoveAt(column);
+            return true;
+        }
+
+        public bool ClearColumn(int row, int column)
+        {
+            if (!TryGetCell(row, column, out var vars) || vars == null)
+                return false;
+
+            vars.Clear();
+            return true;
+        }
+
+        public bool TryUnsetVariant(int varId, int row, int column)
+        {
+            if (varId == 0 || !TryGetCell(row, column, out var vars) || vars == null)
+                return false;
+
+            var removed = false;
+            for (int i = vars.Count - 1; i >= 0; i--)
+            {
+                if (vars[i].VarId != varId)
+                    continue;
+
+                vars.RemoveAt(i);
+                removed = true;
+            }
+
+            return removed;
+        }
+
+        public bool TryCollectRow(int row, List<GridBlackboardCellSnapshot> destination)
+        {
+            if (destination == null || row < 0 || row >= _rows.Count)
+                return false;
+
+            var columns = _rows[row];
+            if (columns == null)
+                return false;
+
+            var originalCount = destination.Count;
+            for (int column = 0; column < columns.Count; column++)
+            {
+                var vars = columns[column];
+                if (vars == null)
+                    continue;
+
+                for (int i = 0; i < vars.Count; i++)
+                    destination.Add(new GridBlackboardCellSnapshot(row, column, vars[i].VarId, vars[i].Value));
+            }
+
+            return destination.Count > originalCount;
+        }
+
+        public bool TryCollectCell(int row, int column, List<GridBlackboardCellSnapshot> destination)
+        {
+            if (destination == null || !TryGetCell(row, column, out var vars) || vars == null)
+                return false;
+
+            var originalCount = destination.Count;
+            for (int i = 0; i < vars.Count; i++)
+                destination.Add(new GridBlackboardCellSnapshot(row, column, vars[i].VarId, vars[i].Value));
+
+            return destination.Count > originalCount;
         }
 
         public bool TryCollectAllCells(List<GridBlackboardCellSnapshot> destination)

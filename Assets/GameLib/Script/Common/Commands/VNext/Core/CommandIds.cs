@@ -56,6 +56,7 @@ namespace Game.Commands.VNext
         public const int ParallaxChannel = 1839;
         public const int UIDialogChannel = 1840;
         public const int WriteData = 1850;
+        public const int WriteGridData = 1851;
 
         public const int BuildRoomMap = 1860;
         public const int ClearRoomMap = 1861;

@@ -3345,6 +3345,63 @@ namespace Game.Vars.Generated
         public static partial class GameLogic
         {
 
+            public static partial class GameProfile
+            {
+
+                public static partial class BallTable
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/BallTable/TableId
+                    /// StableKey: TableId
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/BallTable/TableId
+                    /// StableKey: TableId
+                    /// </remarks>
+                    public const int TableId = 101106;
+
+                    public static partial class Elements
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/BallTable/Elements/BallMaxValue
+                        /// StableKey: BallMaxValue
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/BallTable/Elements/BallMaxValue
+                        /// StableKey: BallMaxValue
+                        /// </remarks>
+                        public const int BallMaxValue = 101108;
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/BallTable/Elements/BallTotalValue
+                        /// StableKey: BallTotalValue
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/BallTable/Elements/BallTotalValue
+                        /// StableKey: BallTotalValue
+                        /// </remarks>
+                        public const int BallTotalValue = 101110;
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/BallTable/Elements/BallValue
+                        /// StableKey: BallValue
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/BallTable/Elements/BallValue
+                        /// StableKey: BallValue
+                        /// </remarks>
+                        public const int BallValue = 101107;
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/BallTable/Elements/SlotMul
+                        /// StableKey: SlotMul
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/BallTable/Elements/SlotMul
+                        /// StableKey: SlotMul
+                        /// </remarks>
+                        public const int SlotMul = 101109;
+                    }
+                }
+            }
+
             public static partial class LuckProfile
             {
 
@@ -3801,6 +3858,11 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitIndex,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceId,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
+            VarIds.GameLogic.GameProfile.BallTable.TableId,
+            VarIds.GameLogic.GameProfile.BallTable.Elements.BallMaxValue,
+            VarIds.GameLogic.GameProfile.BallTable.Elements.BallTotalValue,
+            VarIds.GameLogic.GameProfile.BallTable.Elements.BallValue,
+            VarIds.GameLogic.GameProfile.BallTable.Elements.SlotMul,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
             VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
