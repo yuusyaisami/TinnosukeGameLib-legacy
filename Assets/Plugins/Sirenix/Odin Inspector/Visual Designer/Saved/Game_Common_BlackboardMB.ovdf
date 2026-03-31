@@ -1,0 +1,7 @@
+OVDF v1.1
+Game.Common.BlackboardMB, Assembly-CSharp
+MetaGuid:7201a20823b9f354c9ce6610212f9e9b
+
+# localGridBlackboardInit
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 91.03

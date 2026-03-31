@@ -1,3 +1,5 @@
+#nullable enable
+
 // Game.Common.BlackboardInstallerMB.cs
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -20,6 +22,71 @@ namespace Game.Common
             [HideLabel]
             [InlineProperty]
             public DynamicValue Value;
+        }
+
+        [System.Serializable]
+        public sealed class LocalGridBlackboardInit
+        {
+            [LabelText("Grid Id")]
+            [Tooltip("各セルへ書き込む識別 VarId です。0 の場合は Grid Id を書き込みません。")]
+            [VarIdDropdown]
+            [SerializeField] int gridId;
+
+            [LabelText("Rows")]
+            [ListDrawerSettings(ShowPaging = false, DraggableItems = false, ShowFoldout = true, DefaultExpandedState = true)]
+            [SerializeField] List<RowInit> rows = new();
+
+            public int GridId => gridId;
+            public bool HasGridId => gridId != 0;
+            public IReadOnlyList<RowInit> Rows => rows;
+
+            public bool HasTable
+            {
+                get
+                {
+                    if (rows == null || rows.Count == 0)
+                        return false;
+
+                    for (int row = 0; row < rows.Count; row++)
+                    {
+                        var columns = rows[row]?.Columns;
+                        if (columns == null)
+                            continue;
+
+                        if (HasGridId && columns.Count > 0)
+                            return true;
+
+                        for (int column = 0; column < columns.Count; column++)
+                        {
+                            var vars = columns[column]?.Vars;
+                            if (vars?.Entries != null && vars.Entries.Count > 0)
+                                return true;
+                        }
+                    }
+
+                    return false;
+                }
+            }
+
+            [System.Serializable]
+            public sealed class RowInit
+            {
+                [LabelText("Columns")]
+                [ListDrawerSettings(ShowPaging = false, DraggableItems = false, ShowFoldout = true, DefaultExpandedState = true)]
+                [SerializeField] List<ColumnInit> columns = new();
+
+                public IReadOnlyList<ColumnInit> Columns => columns;
+            }
+
+            [System.Serializable]
+            public sealed class ColumnInit
+            {
+                [LabelText("Vars")]
+                [InlineProperty]
+                [SerializeField] VarStorePayload vars = new();
+
+                public VarStorePayload Vars => vars;
+            }
         }
 
         [FoldoutGroup("Debug")]
@@ -50,17 +117,29 @@ namespace Game.Common
         [ListDrawerSettings(ShowPaging = false, DraggableItems = false, ShowFoldout = true, DefaultExpandedState = true)]
         [SerializeField] LocalBlackboardInitEntry[] localBlackboardInitEntries = System.Array.Empty<LocalBlackboardInitEntry>();
 
+        [BoxGroup("Local Grid Blackboard Init")]
+        [LabelText("Initialize Local Grid Blackboard")]
+        [SerializeField] bool initializeLocalGridBlackboard = false;
+
+        [BoxGroup("Local Grid Blackboard Init")]
+        [LabelText("Reinitialize On Acquire")]
+        [Tooltip("有効化（Acquire）時に Local Grid Blackboard Init を再適用して既定値へ戻します")]
+        [ShowIf(nameof(initializeLocalGridBlackboard))]
+        [SerializeField] bool reinitializeLocalGridBlackboardOnAcquire = true;
+
+        [BoxGroup("Local Grid Blackboard Init")]
+        [LabelText("Grid Definition")]
+        [Tooltip("Row -> Column -> VarStore の順で初期値を定義します。Column は複数の Var を持てます。")]
+        [ShowIf(nameof(initializeLocalGridBlackboard))]
+        [InlineProperty]
+        [SerializeField] LocalGridBlackboardInit localGridBlackboardInit = new();
+
         IScopeNode _owner;
         bool _debugInitialized;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
             _owner = scope;
-            builder.RegisterComponent(this)
-                .AsSelf()
-                .As<IScopeAcquireHandler>()
-                .As<IScopeReleaseHandler>();
-
             LifetimeScopeKind kind = scope.Kind;
             RegistrationBuilder blackboard = builder.Register<IBlackboardService, BlackboardService>(Lifetime.Singleton).WithParameter(scope);
             switch (kind)
@@ -102,6 +181,12 @@ namespace Game.Common
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
 
+            // Register this component after the grid service so grid reset happens before local reinitialization.
+            builder.RegisterComponent(this)
+                .AsSelf()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
+
             // Save registration is handled by ScopeBindingRegistry. BlackboardMB only owns local blackboard initialization.
 
             if (autoWriteTransformVars)
@@ -115,10 +200,11 @@ namespace Game.Common
         }
 
         [Inject]
-        void Construct(IBlackboardService blackboard)
+        void Construct(IBlackboardService blackboard, IGridBlackboardService gridBlackboard)
         {
-            TryInitializeDebugView(blackboard);
             TryInitializeLocalBlackboard(blackboard, overwrite: false);
+            TryInitializeLocalGridBlackboard(blackboard, gridBlackboard, overwrite: false);
+            TryInitializeDebugView(blackboard, gridBlackboard);
         }
 
         void OnDisable()
@@ -138,8 +224,16 @@ namespace Game.Common
 
             if (resolver.TryResolve<IBlackboardService>(out var blackboard))
             {
-                TryInitializeDebugView(blackboard);
                 TryInitializeLocalBlackboard(blackboard, overwrite: false);
+
+                IGridBlackboardService? gridBlackboard = null;
+                if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard))
+                {
+                    gridBlackboard = resolvedGridBlackboard;
+                    TryInitializeLocalGridBlackboard(blackboard, resolvedGridBlackboard, overwrite: false);
+                }
+
+                TryInitializeDebugView(blackboard, gridBlackboard);
             }
         }
 
@@ -154,8 +248,16 @@ namespace Game.Common
             if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
                 return;
 
-            TryInitializeDebugView(blackboard);
             TryInitializeLocalBlackboard(blackboard, overwrite: reinitializeLocalBlackboardOnAcquire);
+
+            IGridBlackboardService? gridBlackboard = null;
+            if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard) && resolvedGridBlackboard != null)
+            {
+                gridBlackboard = resolvedGridBlackboard;
+                TryInitializeLocalGridBlackboard(blackboard, resolvedGridBlackboard, overwrite: reinitializeLocalGridBlackboardOnAcquire);
+            }
+
+            TryInitializeDebugView(blackboard, gridBlackboard);
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -164,13 +266,82 @@ namespace Game.Common
             _ = isReset;
         }
 
-        void TryInitializeDebugView(IBlackboardService blackboard)
+        void TryInitializeDebugView(IBlackboardService blackboard, IGridBlackboardService? gridBlackboard)
         {
             if (!enableDebugView || _debugInitialized || blackboard == null)
                 return;
 
-            _debugView.Initialize(blackboard, this);
+            _debugView.Initialize(blackboard, gridBlackboard, this);
             _debugInitialized = true;
+        }
+
+        void TryInitializeLocalGridBlackboard(IBlackboardService blackboard, IGridBlackboardService gridBlackboard, bool overwrite)
+        {
+            if (!initializeLocalGridBlackboard || blackboard == null || gridBlackboard == null)
+                return;
+
+            if (localGridBlackboardInit == null || !localGridBlackboardInit.HasTable)
+                return;
+
+            var vars = blackboard.LocalVars;
+            if (vars == null)
+                return;
+
+            var ctx = new SimpleDynamicContext(vars, _owner);
+            var rows = localGridBlackboardInit.Rows;
+            if (rows == null || rows.Count == 0)
+                return;
+
+            var gridId = localGridBlackboardInit.GridId;
+            var hasGridId = gridId != 0;
+
+            for (int row = 0; row < rows.Count; row++)
+            {
+                var rowInit = rows[row];
+                if (rowInit == null)
+                    continue;
+
+                var columns = rowInit.Columns;
+                if (columns == null || columns.Count == 0)
+                    continue;
+
+                for (int column = 0; column < columns.Count; column++)
+                {
+                    var columnInit = columns[column];
+                    if (columnInit == null)
+                        continue;
+
+                    var payload = columnInit.Vars;
+                    var entries = payload?.Entries;
+                    if (entries == null || entries.Count == 0)
+                    {
+                        if (hasGridId)
+                        {
+                            GridBlackboardWriteUtility.ApplyCellValues(gridBlackboard, row, column, null, ctx, overwrite, upsert: true, gridIdVarId: gridId);
+                        }
+
+                        continue;
+                    }
+
+                    var seenVarIds = new HashSet<int>();
+                    for (int entryIndex = 0; entryIndex < entries.Count; entryIndex++)
+                    {
+                        var entry = entries[entryIndex];
+                        var varId = entry.VarId;
+                        if (varId == 0)
+                            continue;
+
+                        if (!seenVarIds.Add(varId))
+                        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                            Debug.LogWarning($"[BlackboardMB] LocalGridBlackboardInit has duplicate varId={varId} at row={row} column={column} index={entryIndex}. Later entries may override earlier values.", this);
+#endif
+                        }
+                    }
+
+                    GridBlackboardWriteUtility.ApplyCellValues(gridBlackboard, row, column, payload, ctx, overwrite, upsert: true, gridIdVarId: gridId);
+                }
+            }
         }
 
         void TryInitializeLocalBlackboard(IBlackboardService blackboard, bool overwrite)
@@ -246,5 +417,6 @@ namespace Game.Common
 
             return vars.TrySetVariant(varId, value);
         }
+
     }
 }

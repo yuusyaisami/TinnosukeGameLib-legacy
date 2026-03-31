@@ -1,0 +1,8 @@
+OVDF v1.1
+Game.Commands.VNext.WriteGridDataCommandData, Assembly-CSharp
+
+# ElementValues
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 60
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 186

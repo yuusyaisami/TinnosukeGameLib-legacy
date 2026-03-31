@@ -2554,7 +2554,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 743
+  _debugLastEnabledChangeFrame: 624
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -8950,7 +8950,7 @@ MonoBehaviour:
       data:
         Enabled: 1
         Material: {fileID: 0}
-        BaseTint: {r: 0.47037137, g: 0.16718076, b: 0.67295593, a: 0.93333334}
+        BaseTint: {r: 0.7108165, g: 0.44092396, b: 0.8930817, a: 0.93333334}
         SortingOrderOffset: 0
         ContourSampling:
           MaxSamples: 48
@@ -9000,7 +9000,7 @@ MonoBehaviour:
         TailTaperNormalized: 0.306
         WaveEnabled: 1
         WaveSpace: 20
-        WaveAmplitude: 0.1
+        WaveAmplitude: 0.025
         WaveLength: 0.5
         WavePhase: 0
         WaveScrollSpeed: -1
