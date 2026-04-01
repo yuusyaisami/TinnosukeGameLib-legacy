@@ -14,6 +14,21 @@ namespace Game.Commands.VNext
         Follow = 1,
         Stop = 2,
         Shake = 3,
+        Rotate = 4,
+    }
+
+    public enum TransformAnimationRotateAction
+    {
+        Speed = 0,
+        Angle = 1,
+        StopSpeed = 2,
+        StopAngle = 3,
+    }
+
+    public enum TransformAnimationRotateSpeedMode
+    {
+        Override = 0,
+        Add = 1,
     }
 
     public enum TransformAnimationShakeAction
@@ -48,9 +63,26 @@ namespace Game.Commands.VNext
                     TransformAnimationCommandMode.Follow => $"Tag={tag} Mode=Follow Action={FollowAction}",
                     TransformAnimationCommandMode.Stop => $"Tag={tag} Mode=Stop",
                     TransformAnimationCommandMode.Shake => $"Tag={tag} Mode=Shake Action={ShakeAction}",
+                    TransformAnimationCommandMode.Rotate => BuildRotateDebugData(tag),
                     _ => $"Tag={tag} Wait={WaitForCompletion}",
                 };
             }
+        }
+
+        string BuildRotateDebugData(string tag)
+        {
+            return RotateAction switch
+            {
+                TransformAnimationRotateAction.Speed =>
+                    $"Tag={tag} Mode=Rotate Action=Speed WriteMode={RotateSpeedMode} Speed={RotateSpeed.GetOrDefaultWithoutContext(Vector3.zero)} Fade={RotateSpeedFadeSeconds.GetOrDefaultWithoutContext(0f)} Damping={RotateSpeedDampingRate.GetOrDefaultWithoutContext(1f)}",
+                TransformAnimationRotateAction.Angle =>
+                    $"Tag={tag} Mode=Rotate Action=Angle Target={RotateAngleTarget.GetOrDefaultWithoutContext(Vector3.zero)} SmoothTime={RotateAngleSmoothTime.GetOrDefaultWithoutContext(0f)} MaxSpeed={RotateAngleMaxSpeed.GetOrDefaultWithoutContext(0f)}",
+                TransformAnimationRotateAction.StopSpeed =>
+                    $"Tag={tag} Mode=Rotate Action=StopSpeed Immediate={RotateStopImmediate} Fade={RotateStopFadeSeconds.GetOrDefaultWithoutContext(0f)}",
+                TransformAnimationRotateAction.StopAngle =>
+                    $"Tag={tag} Mode=Rotate Action=StopAngle Immediate={RotateStopImmediate} Fade={RotateStopFadeSeconds.GetOrDefaultWithoutContext(0f)}",
+                _ => $"Tag={tag} Mode=Rotate Action={RotateAction}",
+            };
         }
 
         [BoxGroup("Target")]
@@ -129,5 +161,58 @@ namespace Game.Commands.VNext
             LimitTurnRate = false,
             TurnRate = 360f,
         };
+
+        [BoxGroup("Rotate")]
+        [LabelText("Action")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate")]
+        public TransformAnimationRotateAction RotateAction = TransformAnimationRotateAction.Speed;
+
+        [BoxGroup("Rotate Speed")]
+        [LabelText("Speed Write Mode")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Speed")]
+        public TransformAnimationRotateSpeedMode RotateSpeedMode = TransformAnimationRotateSpeedMode.Override;
+
+        [BoxGroup("Rotate Speed")]
+        [LabelText("Speed")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Speed")]
+        public DynamicValue<Vector3> RotateSpeed;
+
+        [BoxGroup("Rotate Speed")]
+        [LabelText("Fade Seconds")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Speed")]
+        public DynamicValue<float> RotateSpeedFadeSeconds = DynamicValue<float>.FromSource(new LiteralFloatSource(0f));
+
+        [BoxGroup("Rotate Speed")]
+        [LabelText("Damping Rate")]
+        [Tooltip("1 未満で減速、1 より大きい場合は加速します。")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Speed")]
+        public DynamicValue<float> RotateSpeedDampingRate = DynamicValue<float>.FromSource(new LiteralFloatSource(1f));
+
+        [BoxGroup("Rotate Angle")]
+        [LabelText("Target Euler")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Angle")]
+        public DynamicValue<Vector3> RotateAngleTarget;
+
+        [BoxGroup("Rotate Angle")]
+        [LabelText("Smooth Time")]
+        [Tooltip("0 で即時収束します。")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Angle")]
+        public DynamicValue<float> RotateAngleSmoothTime = DynamicValue<float>.FromSource(new LiteralFloatSource(0.12f));
+
+        [BoxGroup("Rotate Angle")]
+        [LabelText("Max Speed")]
+        [Tooltip("0 で上限なし。")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Angle")]
+        public DynamicValue<float> RotateAngleMaxSpeed = DynamicValue<float>.FromSource(new LiteralFloatSource(0f));
+
+        [BoxGroup("Rotate Stop")]
+        [LabelText("Stop Immediate")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && (RotateAction == TransformAnimationRotateAction.StopSpeed || RotateAction == TransformAnimationRotateAction.StopAngle)")]
+        public bool RotateStopImmediate = true;
+
+        [BoxGroup("Rotate Stop")]
+        [LabelText("Stop Fade Seconds")]
+        [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && (RotateAction == TransformAnimationRotateAction.StopSpeed || RotateAction == TransformAnimationRotateAction.StopAngle)")]
+        public DynamicValue<float> RotateStopFadeSeconds = DynamicValue<float>.FromSource(new LiteralFloatSource(0f));
     }
 }

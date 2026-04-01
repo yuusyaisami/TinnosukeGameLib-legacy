@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Game.Common
 {
@@ -182,10 +183,10 @@ namespace Game.Common
 
             return _op switch
             {
-                ExprTokenKind.Plus => DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) + ExpressionHelper.AsNumber(b)),
-                ExprTokenKind.Minus => DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) - ExpressionHelper.AsNumber(b)),
-                ExprTokenKind.Star => DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) * ExpressionHelper.AsNumber(b)),
-                ExprTokenKind.Slash => DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) / ExpressionHelper.AsNumber(b)),
+                ExprTokenKind.Plus => EvaluateAdd(a, b),
+                ExprTokenKind.Minus => EvaluateSub(a, b),
+                ExprTokenKind.Star => EvaluateMul(a, b),
+                ExprTokenKind.Slash => EvaluateDiv(a, b),
                 ExprTokenKind.Percent => DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) % ExpressionHelper.AsNumber(b)),
 
                 ExprTokenKind.Equal => DynamicVariant.FromBool(ExpressionHelper.Compare(a, b) == 0),
@@ -200,6 +201,38 @@ namespace Game.Common
                 _ => DynamicVariant.Null
             };
         }
+
+        static DynamicVariant EvaluateAdd(in DynamicVariant a, in DynamicVariant b)
+        {
+            if (ExpressionHelper.TryEvaluateVectorBinary(ExprTokenKind.Plus, a, b, out var vec))
+                return DynamicVariant.FromVector2(vec);
+
+            return DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) + ExpressionHelper.AsNumber(b));
+        }
+
+        static DynamicVariant EvaluateSub(in DynamicVariant a, in DynamicVariant b)
+        {
+            if (ExpressionHelper.TryEvaluateVectorBinary(ExprTokenKind.Minus, a, b, out var vec))
+                return DynamicVariant.FromVector2(vec);
+
+            return DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) - ExpressionHelper.AsNumber(b));
+        }
+
+        static DynamicVariant EvaluateMul(in DynamicVariant a, in DynamicVariant b)
+        {
+            if (ExpressionHelper.TryEvaluateVectorBinary(ExprTokenKind.Star, a, b, out var vec))
+                return DynamicVariant.FromVector2(vec);
+
+            return DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) * ExpressionHelper.AsNumber(b));
+        }
+
+        static DynamicVariant EvaluateDiv(in DynamicVariant a, in DynamicVariant b)
+        {
+            if (ExpressionHelper.TryEvaluateVectorBinary(ExprTokenKind.Slash, a, b, out var vec))
+                return DynamicVariant.FromVector2(vec);
+
+            return DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) / ExpressionHelper.AsNumber(b));
+        }
     }
 
     /// <summary>
@@ -207,6 +240,8 @@ namespace Game.Common
     /// </summary>
     public static class ExpressionHelper
     {
+        const float Epsilon = 0.000001f;
+
         public static float AsNumber(DynamicVariant v)
         {
             return v.Kind switch
@@ -216,6 +251,105 @@ namespace Game.Common
                 ValueKind.Float => v.AsFloat,
                 _ => 0f
             };
+        }
+
+        public static bool TryAsVector2(DynamicVariant v, out Vector2 value)
+        {
+            switch (v.Kind)
+            {
+                case ValueKind.Vector2:
+                    value = v.AsVector2;
+                    return true;
+                case ValueKind.Vector3:
+                    value = new Vector2(v.AsVector3.x, v.AsVector3.y);
+                    return true;
+                case ValueKind.Vector4:
+                    value = new Vector2(v.AsVector4.x, v.AsVector4.y);
+                    return true;
+                case ValueKind.Color:
+                    value = new Vector2(v.AsColor.r, v.AsColor.g);
+                    return true;
+                default:
+                    value = Vector2.zero;
+                    return false;
+            }
+        }
+
+        public static bool TryEvaluateVectorBinary(ExprTokenKind op, in DynamicVariant a, in DynamicVariant b, out Vector2 result)
+        {
+            result = Vector2.zero;
+
+            var leftIsVector = TryAsVector2(a, out var left);
+            var rightIsVector = TryAsVector2(b, out var right);
+            if (!leftIsVector && !rightIsVector)
+                return false;
+
+            switch (op)
+            {
+                case ExprTokenKind.Plus:
+                    if (leftIsVector && rightIsVector)
+                    {
+                        result = left + right;
+                        return true;
+                    }
+
+                    return false;
+
+                case ExprTokenKind.Minus:
+                    if (leftIsVector && rightIsVector)
+                    {
+                        result = left - right;
+                        return true;
+                    }
+
+                    return false;
+
+                case ExprTokenKind.Star:
+                    if (leftIsVector && rightIsVector)
+                    {
+                        result = new Vector2(left.x * right.x, left.y * right.y);
+                        return true;
+                    }
+
+                    if (leftIsVector && IsNumericKind(b.Kind))
+                    {
+                        result = left * AsNumber(b);
+                        return true;
+                    }
+
+                    if (IsNumericKind(a.Kind) && rightIsVector)
+                    {
+                        result = right * AsNumber(a);
+                        return true;
+                    }
+
+                    return false;
+
+                case ExprTokenKind.Slash:
+                    if (leftIsVector && rightIsVector)
+                    {
+                        result = new Vector2(SafeDiv(left.x, right.x), SafeDiv(left.y, right.y));
+                        return true;
+                    }
+
+                    if (leftIsVector && IsNumericKind(b.Kind))
+                    {
+                        var divisor = AsNumber(b);
+                        if (Mathf.Abs(divisor) <= Epsilon)
+                        {
+                            result = Vector2.zero;
+                            return true;
+                        }
+
+                        result = left / divisor;
+                        return true;
+                    }
+
+                    return false;
+
+                default:
+                    return false;
+            }
         }
 
         public static bool AsBool(DynamicVariant v)
@@ -239,6 +373,16 @@ namespace Game.Common
             }
 
             return AsNumber(a).CompareTo(AsNumber(b));
+        }
+
+        static bool IsNumericKind(ValueKind kind)
+        {
+            return kind == ValueKind.Bool || kind == ValueKind.Int || kind == ValueKind.Float;
+        }
+
+        static float SafeDiv(float a, float b)
+        {
+            return Mathf.Abs(b) <= Epsilon ? 0f : a / b;
         }
     }
 

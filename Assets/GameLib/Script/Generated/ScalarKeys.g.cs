@@ -328,8 +328,28 @@ namespace Game.Scalar.Generated
             public static partial class GameProfile
             {
 
+                public static partial class Ball
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Ball/BallGravityScale
+                    /// </remarks>
+                    public const string BallGravityScale = "GameLogic.GameProfile.Ball.BallGravityScale";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Ball/BallValueAdd
+                    /// </remarks>
+                    public const string BallValueAdd = "GameLogic.GameProfile.Ball.BallValueAdd";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Ball/BallValueMul
+                    /// </remarks>
+                    public const string BallValueMul = "GameLogic.GameProfile.Ball.BallValueMul";
+                }
+
                 public static partial class Base
                 {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/AllSlotMul
+                    /// </remarks>
+                    public const string AllSlotMul = "GameLogic.GameProfile.Base.AllSlotMul";
                     /// <remarks>
                     /// Path: GameLogic/GameProfile/Base/BallCount
                     /// </remarks>
@@ -435,6 +455,14 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/GameProfile/Base/TurnValue
                     /// </remarks>
                     public const string TurnValue = "GameLogic.GameProfile.Base.TurnValue";
+                }
+
+                public static partial class Events
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Events/GlobalGravityScale
+                    /// </remarks>
+                    public const string GlobalGravityScale = "GameLogic.GameProfile.Events.GlobalGravityScale";
                 }
             }
 
@@ -633,6 +661,10 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLib.StatusEffect.SpeedMod.Multiplier,
             ScalarKeys.GameLogic.BallProfile.MaxValue,
             ScalarKeys.GameLogic.BallProfile.Value,
+            ScalarKeys.GameLogic.GameProfile.Ball.BallGravityScale,
+            ScalarKeys.GameLogic.GameProfile.Ball.BallValueAdd,
+            ScalarKeys.GameLogic.GameProfile.Ball.BallValueMul,
+            ScalarKeys.GameLogic.GameProfile.Base.AllSlotMul,
             ScalarKeys.GameLogic.GameProfile.Base.BallCount,
             ScalarKeys.GameLogic.GameProfile.Base.BuffBallChance,
             ScalarKeys.GameLogic.GameProfile.Base.BuffBallMaxValue,
@@ -659,6 +691,7 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Base.ShopPriceMul,
             ScalarKeys.GameLogic.GameProfile.Base.TimeLimitValue,
             ScalarKeys.GameLogic.GameProfile.Base.TurnValue,
+            ScalarKeys.GameLogic.GameProfile.Events.GlobalGravityScale,
             ScalarKeys.GameLogic.GateProfile.LeftGate.CloseTime,
             ScalarKeys.GameLogic.GateProfile.LeftGate.OpenTime,
             ScalarKeys.GameLogic.GateProfile.RightGate.CloseTime,

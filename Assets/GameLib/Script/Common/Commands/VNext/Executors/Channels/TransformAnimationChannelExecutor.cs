@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Game.Channel;
 using Game.Common;
 using Game.TransformSystem;
+using UnityEngine;
 using VContainer;
 namespace Game.Commands.VNext
 {
@@ -55,6 +56,56 @@ namespace Game.Commands.VNext
                     player.PlayShake(typed.ShakeSettings);
                 else
                     player.StopShake();
+
+                return UniTask.CompletedTask;
+            }
+
+            if (typed.Mode == TransformAnimationCommandMode.Rotate)
+            {
+                LogDebug($"Mode=Rotate. Action={typed.RotateAction}, Tag={typed.ChannelTag}");
+
+                if (typed.RotateAction == TransformAnimationRotateAction.Speed || typed.RotateAction == TransformAnimationRotateAction.Angle)
+                    StopConflictingPlayers(hub, player, LogDebug);
+
+                switch (typed.RotateAction)
+                {
+                    case TransformAnimationRotateAction.Speed:
+                        {
+                            var speed = typed.RotateSpeed.GetOrDefaultWithoutContext(Vector3.zero);
+                            var fadeSeconds = typed.RotateSpeedFadeSeconds.GetOrDefaultWithoutContext(0f);
+                            var dampingRate = typed.RotateSpeedDampingRate.GetOrDefaultWithoutContext(1f);
+                            var add = typed.RotateSpeedMode == TransformAnimationRotateSpeedMode.Add;
+                            LogDebug($"Rotate speed apply. Add={add}, Speed={speed}, FadeSeconds={fadeSeconds}, DampingRate={dampingRate}");
+                            player.ApplyRotateSpeed(speed, add, fadeSeconds, dampingRate);
+                            break;
+                        }
+
+                    case TransformAnimationRotateAction.Angle:
+                        {
+                            var targetEulerAngles = typed.RotateAngleTarget.GetOrDefaultWithoutContext(Vector3.zero);
+                            var smoothTime = typed.RotateAngleSmoothTime.GetOrDefaultWithoutContext(0f);
+                            var maxSpeed = typed.RotateAngleMaxSpeed.GetOrDefaultWithoutContext(0f);
+                            LogDebug($"Rotate angle apply. Target={targetEulerAngles}, SmoothTime={smoothTime}, MaxSpeed={maxSpeed}");
+                            player.ApplyRotateAngle(targetEulerAngles, smoothTime, maxSpeed);
+                            break;
+                        }
+
+                    case TransformAnimationRotateAction.StopSpeed:
+                        {
+                            var fadeSeconds = typed.RotateStopFadeSeconds.GetOrDefaultWithoutContext(0f);
+                            LogDebug($"Rotate speed stop. Immediate={typed.RotateStopImmediate}, FadeSeconds={fadeSeconds}");
+                            player.StopRotateSpeed(typed.RotateStopImmediate, fadeSeconds);
+                            break;
+                        }
+
+                    case TransformAnimationRotateAction.StopAngle:
+                        {
+                            var fadeSeconds = typed.RotateStopFadeSeconds.GetOrDefaultWithoutContext(0f);
+                            LogDebug($"Rotate angle stop. Immediate={typed.RotateStopImmediate}, FadeSeconds={fadeSeconds}");
+                            player.StopRotateAngle(typed.RotateStopImmediate, fadeSeconds);
+                            break;
+                        }
+                }
 
                 return UniTask.CompletedTask;
             }
@@ -198,7 +249,7 @@ namespace Game.Commands.VNext
             });
             LogDebug("Preset started in background");
             return UniTask.CompletedTask;
-    }
+        }
 
         static bool TryResolveHub(CommandContext ctx, string channelTag, out ITransformAnimationHubService? hub)
         {

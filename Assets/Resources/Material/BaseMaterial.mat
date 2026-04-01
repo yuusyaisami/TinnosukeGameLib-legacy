@@ -105,7 +105,7 @@ Material:
     - _AdvancedFade2DGlowBlendMode: 2.84
     - _AdvancedFade2DGlowIntensity: 0.79
     - _AdvancedFade2DGlowRange: 3.1
-    - _AdvancedFade2DSoft: 0.5
+    - _AdvancedFade2DSoft: 0.047
     - _BlendColor2DAnimatedGradientCellSharpness: 1.5
     - _BlendColor2DAnimatedGradientEnabled: 0
     - _BlendColor2DAnimatedGradientGain: 0.5
@@ -334,8 +334,8 @@ Material:
     - _AdvancedFade2DBurnAnimatedNoiseWarpDirection: {r: 0.71, g: 0.43, b: 0, a: 0}
     - _AdvancedFade2DBurnDirection: {r: 5.15, g: -0.02, b: 0, a: 0}
     - _AdvancedFade2DBurnEdgeColor: {r: 0, g: 1, b: 0.6560044, a: 1}
-    - _AdvancedFade2DWaveParamsA: {r: 16.19, g: 0.02, b: 5.55, a: 111.4}
-    - _AdvancedFade2DWaveParamsB: {r: 4.02, g: 0, b: 3.3, a: 43.4}
+    - _AdvancedFade2DWaveParamsA: {r: 10.86, g: 0.01, b: 5.55, a: 111.4}
+    - _AdvancedFade2DWaveParamsB: {r: 1.7, g: 0, b: 3.3, a: 43.4}
     - _AtlasSlot0: {r: -1, g: -1, b: 0, a: 0}
     - _AtlasSlot1: {r: -1, g: -1, b: 0, a: 0}
     - _AtlasSlot2: {r: -1, g: -1, b: 0, a: 0}

@@ -246,6 +246,125 @@ namespace Game.Common
                 var b = ExpressionHelper.AsNumber(args[1]);
                 return DynamicVariant.FromBool(Mathf.Approximately(a, b));
             });
+
+            Register("Vec2", 2, 2, args =>
+            {
+                var x = ExpressionHelper.AsNumber(args[0]);
+                var y = ExpressionHelper.AsNumber(args[1]);
+                return DynamicVariant.FromVector2(new Vector2(x, y));
+            });
+
+            Register("Dot", 2, 2, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var a) || !ExpressionHelper.TryAsVector2(args[1], out var b))
+                    return DynamicVariant.FromFloat(0f);
+
+                return DynamicVariant.FromFloat(Vector2.Dot(a, b));
+            });
+
+            Register("Cross", 2, 2, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var a) || !ExpressionHelper.TryAsVector2(args[1], out var b))
+                    return DynamicVariant.FromFloat(0f);
+
+                return DynamicVariant.FromFloat(a.x * b.y - a.y * b.x);
+            });
+
+            Register("Magnitude2", 1, 1, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var value))
+                    return DynamicVariant.FromFloat(0f);
+
+                return DynamicVariant.FromFloat(value.magnitude);
+            });
+
+            Register("SqrMagnitude2", 1, 1, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var value))
+                    return DynamicVariant.FromFloat(0f);
+
+                return DynamicVariant.FromFloat(value.sqrMagnitude);
+            });
+
+            Register("Normalize2", 1, 1, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var value))
+                    return DynamicVariant.FromVector2(Vector2.zero);
+
+                return DynamicVariant.FromVector2(value.sqrMagnitude <= 0.000001f ? Vector2.zero : value.normalized);
+            });
+
+            Register("Perp", 1, 1, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var value))
+                    return DynamicVariant.FromVector2(Vector2.zero);
+
+                return DynamicVariant.FromVector2(new Vector2(-value.y, value.x));
+            });
+
+            Register("Project2", 2, 2, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var vector) || !ExpressionHelper.TryAsVector2(args[1], out var onto))
+                    return DynamicVariant.FromVector2(Vector2.zero);
+
+                var denom = onto.sqrMagnitude;
+                if (denom <= 0.000001f)
+                    return DynamicVariant.FromVector2(Vector2.zero);
+
+                var scalar = Vector2.Dot(vector, onto) / denom;
+                return DynamicVariant.FromVector2(onto * scalar);
+            });
+
+            Register("Reflect2", 2, 2, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var direction) || !ExpressionHelper.TryAsVector2(args[1], out var normal))
+                    return DynamicVariant.FromVector2(Vector2.zero);
+
+                return DynamicVariant.FromVector2(Vector2.Reflect(direction, normal));
+            });
+
+            Register("ClampMagnitude2", 2, 2, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var value))
+                    return DynamicVariant.FromVector2(Vector2.zero);
+
+                var maxLength = Mathf.Max(0f, ExpressionHelper.AsNumber(args[1]));
+                return DynamicVariant.FromVector2(Vector2.ClampMagnitude(value, maxLength));
+            });
+
+            Register("Lerp2", 3, 3, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var a) || !ExpressionHelper.TryAsVector2(args[1], out var b))
+                    return DynamicVariant.FromVector2(Vector2.zero);
+
+                var t = ExpressionHelper.AsNumber(args[2]);
+                return DynamicVariant.FromVector2(Vector2.Lerp(a, b, t));
+            });
+
+            Register("MoveTowards2", 3, 3, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var current) || !ExpressionHelper.TryAsVector2(args[1], out var target))
+                    return DynamicVariant.FromVector2(Vector2.zero);
+
+                var maxDelta = Mathf.Max(0f, ExpressionHelper.AsNumber(args[2]));
+                return DynamicVariant.FromVector2(Vector2.MoveTowards(current, target, maxDelta));
+            });
+
+            Register("Angle2", 2, 2, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var from) || !ExpressionHelper.TryAsVector2(args[1], out var to))
+                    return DynamicVariant.FromFloat(0f);
+
+                return DynamicVariant.FromFloat(Vector2.Angle(from, to));
+            });
+
+            Register("SignedAngle2", 2, 2, args =>
+            {
+                if (!ExpressionHelper.TryAsVector2(args[0], out var from) || !ExpressionHelper.TryAsVector2(args[1], out var to))
+                    return DynamicVariant.FromFloat(0f);
+
+                return DynamicVariant.FromFloat(Vector2.SignedAngle(from, to));
+            });
         }
 
         public static void Register(string name, int minArgs, int maxArgs, Func<DynamicVariant[], DynamicVariant> impl)

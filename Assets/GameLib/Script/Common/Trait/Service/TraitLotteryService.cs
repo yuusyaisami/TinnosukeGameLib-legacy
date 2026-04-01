@@ -25,19 +25,25 @@ namespace Game.Trait
         public readonly bool AllowDuplicates;
         public readonly bool ExcludeExistingHolderTraits;
         public readonly TraitLotteryShortageMode ShortageMode;
+        public readonly ITraitHolderService? DuplicateCheckHolder;
+        public readonly IReadOnlyList<TraitDefinitionSO>? DuplicateAllowedTraits;
 
         public TraitLotteryRequest(
             IReadOnlyList<TraitDefinitionSO>? candidates,
             int count,
             bool allowDuplicates,
             bool excludeExistingHolderTraits,
-            TraitLotteryShortageMode shortageMode)
+            TraitLotteryShortageMode shortageMode,
+            ITraitHolderService? duplicateCheckHolder,
+            IReadOnlyList<TraitDefinitionSO>? duplicateAllowedTraits)
         {
             Candidates = candidates;
             Count = count;
             AllowDuplicates = allowDuplicates;
             ExcludeExistingHolderTraits = excludeExistingHolderTraits;
             ShortageMode = shortageMode;
+            DuplicateCheckHolder = duplicateCheckHolder;
+            DuplicateAllowedTraits = duplicateAllowedTraits;
         }
     }
 
@@ -76,8 +82,9 @@ namespace Game.Trait
             if (allCandidates.Count == 0)
                 return TraitLotteryResult.None;
 
+            var duplicateCheckHolder = request.DuplicateCheckHolder ?? holder;
             var filteredCandidates = request.ExcludeExistingHolderTraits && !request.AllowDuplicates
-                ? FilterExistingHolderTraits(allCandidates, holder)
+                ? FilterExistingHolderTraits(allCandidates, duplicateCheckHolder, request.DuplicateAllowedTraits)
                 : allCandidates;
 
             if (filteredCandidates.Count == 0 && (!request.AllowDuplicates || allCandidates.Count == 0))
@@ -155,8 +162,15 @@ namespace Game.Trait
             return results;
         }
 
-        static List<TraitDefinitionSO> FilterExistingHolderTraits(List<TraitDefinitionSO> source, ITraitHolderService? holder)
+        static List<TraitDefinitionSO> FilterExistingHolderTraits(
+            List<TraitDefinitionSO> source,
+            ITraitHolderService? holder,
+            IReadOnlyList<TraitDefinitionSO>? duplicateAllowedTraits)
         {
+            var allowedRefs = new HashSet<TraitDefinitionSO>();
+            var allowedIds = new HashSet<string>(StringComparer.Ordinal);
+            BuildDuplicateAllowedSets(duplicateAllowedTraits, allowedRefs, allowedIds);
+
             if (holder == null || holder.Traits.Count == 0)
                 return new List<TraitDefinitionSO>(source);
 
@@ -181,10 +195,22 @@ namespace Game.Trait
                 if (definition == null)
                     continue;
 
+                if (allowedRefs.Contains(definition))
+                {
+                    filtered.Add(definition);
+                    continue;
+                }
+
+                var definitionId = definition.DefinitionId;
+                if (!string.IsNullOrEmpty(definitionId) && allowedIds.Contains(definitionId))
+                {
+                    filtered.Add(definition);
+                    continue;
+                }
+
                 if (existingRefs.Contains(definition))
                     continue;
 
-                var definitionId = definition.DefinitionId;
                 if (!string.IsNullOrEmpty(definitionId) && existingIds.Contains(definitionId))
                     continue;
 
@@ -192,6 +218,26 @@ namespace Game.Trait
             }
 
             return filtered;
+        }
+
+        static void BuildDuplicateAllowedSets(
+            IReadOnlyList<TraitDefinitionSO>? duplicateAllowedTraits,
+            HashSet<TraitDefinitionSO> allowedRefs,
+            HashSet<string> allowedIds)
+        {
+            if (duplicateAllowedTraits == null || duplicateAllowedTraits.Count == 0)
+                return;
+
+            for (var i = 0; i < duplicateAllowedTraits.Count; i++)
+            {
+                var definition = duplicateAllowedTraits[i];
+                if (definition == null)
+                    continue;
+
+                allowedRefs.Add(definition);
+                if (!string.IsNullOrEmpty(definition.DefinitionId))
+                    allowedIds.Add(definition.DefinitionId);
+            }
         }
 
         static void DrawUnique(List<TraitDefinitionSO> candidates, int count, List<TraitDefinitionSO> selected)

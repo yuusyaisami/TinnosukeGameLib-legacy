@@ -25,11 +25,30 @@ namespace Game.Commands.VNext
             if (data is not TraitLotteryCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "TraitLotteryCommandData is required.");
 
-            var holderResolveResult = await ResolveHolderAsync(typed, ctx, ct);
+            var holderResolveResult = await ResolveHolderAsync(
+                typed.HolderHubSource,
+                typed.HolderKey,
+                ctx,
+                ct,
+                "apply");
             if (holderResolveResult.Holder == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, holderResolveResult.ErrorMessage);
 
             var holder = holderResolveResult.Holder;
+            ITraitHolderService? duplicateCheckHolder = null;
+            if (!typed.AllowDuplicates && typed.ExcludeExistingHolderTraits && typed.UseDuplicateCheckHolder)
+            {
+                var duplicateCheckResolveResult = await ResolveHolderAsync(
+                    typed.DuplicateCheckHolderHubSource,
+                    typed.DuplicateCheckHolderKey,
+                    ctx,
+                    ct,
+                    "duplicate-check");
+                if (duplicateCheckResolveResult.Holder == null)
+                    throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, duplicateCheckResolveResult.ErrorMessage);
+
+                duplicateCheckHolder = duplicateCheckResolveResult.Holder;
+            }
 
             var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
             var resolvedCandidates = ResolveCandidates(typed, dynCtx);
@@ -45,7 +64,9 @@ namespace Game.Commands.VNext
                 drawCount,
                 typed.AllowDuplicates,
                 typed.ExcludeExistingHolderTraits,
-                typed.ShortageMode);
+                typed.ShortageMode,
+                duplicateCheckHolder,
+                typed.DuplicateAllowedTraits);
 
             var result = _traitLotteryService.Draw(request, holder);
             if (result.Count <= 0)
@@ -55,16 +76,20 @@ namespace Game.Commands.VNext
         }
 
         static async UniTask<HolderResolveResult> ResolveHolderAsync(
-            TraitLotteryCommandData data,
+            ActorSource holderHubSource,
+            string holderKey,
             CommandContext ctx,
-            CancellationToken ct)
+            CancellationToken ct,
+            string resolveRole)
         {
-            var requestedKey = NormalizeKey(data.HolderKey);
-            var (hubScope, error) = await ActorScopeResolver.ResolveAsync(data.HolderHubSource, ctx, ct);
+            var requestedKey = NormalizeKey(holderKey);
+            var role = string.IsNullOrWhiteSpace(resolveRole) ? "holder" : resolveRole.Trim();
+
+            var (hubScope, error) = await ActorScopeResolver.ResolveAsync(holderHubSource, ctx, ct);
             if (hubScope == null)
             {
                 return HolderResolveResult.Failed(
-                    $"TraitHolderHub actor could not be resolved. RequestedKey='{requestedKey}'. Detail={error ?? "Unknown"}");
+                    $"TraitHolderHub actor for {role} could not be resolved. RequestedKey='{requestedKey}'. Detail={error ?? "Unknown"}");
             }
 
             EnsureScopeBuiltIfNeeded(hubScope);
@@ -72,20 +97,20 @@ namespace Game.Commands.VNext
             if (resolver == null)
             {
                 return HolderResolveResult.Failed(
-                    $"Resolved holder actor '{GetScopeLabel(hubScope)}' has no resolver. RequestedKey='{requestedKey}'.");
+                    $"Resolved holder actor '{GetScopeLabel(hubScope)}' for {role} has no resolver. RequestedKey='{requestedKey}'.");
             }
 
             if (!resolver.TryResolve<ITraitHolderHubService>(out var hub) || hub == null)
             {
                 return HolderResolveResult.Failed(
-                    $"TraitHolderHubService was not found on actor '{GetScopeLabel(hubScope)}'. RequestedKey='{requestedKey}'.");
+                    $"TraitHolderHubService was not found on actor '{GetScopeLabel(hubScope)}' for {role}. RequestedKey='{requestedKey}'.");
             }
 
             var availableKeys = FormatAvailableKeys(hub.Keys);
-            if (!hub.TryGetHolder(data.HolderKey, out var holder) || holder == null)
+            if (!hub.TryGetHolder(holderKey, out var holder) || holder == null)
             {
                 return HolderResolveResult.Failed(
-                    $"TraitHolder was not found on actor '{GetScopeLabel(hubScope)}'. RequestedKey='{requestedKey}'. AvailableKeys={availableKeys}");
+                    $"TraitHolder for {role} was not found on actor '{GetScopeLabel(hubScope)}'. RequestedKey='{requestedKey}'. AvailableKeys={availableKeys}");
             }
 
             return HolderResolveResult.Succeeded(holder);
