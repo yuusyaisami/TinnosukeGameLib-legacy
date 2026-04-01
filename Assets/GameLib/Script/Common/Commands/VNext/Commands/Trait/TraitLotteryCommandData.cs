@@ -12,7 +12,8 @@ namespace Game.Commands.VNext
     public sealed class TraitLotteryCommandData : ICommandData
     {
         public int CommandId => CommandIds.TraitLottery;
-        public string DebugData => $"Key={HolderKey} Count={DrawCount.GetOrDefaultWithoutContext(1)} Pool={Candidates.Count}+{ConditionalCandidates.Count} Apply={ApplyMode}";
+        public string DebugData =>
+            $"Key={HolderKey} Count={DrawCount.GetOrDefaultWithoutContext(1)} Pool={Candidates.Count}+{ConditionalCandidates.Count} Apply={ApplyMode} ExcludeHolder={ExcludeExistingHolderTraits} DupCheckOverride={UseDuplicateCheckHolder} DupExceptions={DuplicateAllowedTraits.Count}";
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderHubSource)")]
@@ -51,6 +52,31 @@ namespace Game.Commands.VNext
         [LabelText("Exclude Holder Traits")]
         [Tooltip("重複禁止時のみ有効。すでに対象 TraitHolder に入っている TraitDefinition とも重複しないように除外する。")]
         public bool ExcludeExistingHolderTraits;
+
+        [BoxGroup("Draw")]
+        [ShowIf("@!AllowDuplicates && ExcludeExistingHolderTraits")]
+        [LabelText("Use Duplicate Check Holder")]
+        [Tooltip("重複チェック対象の Holder を適用先と別にする場合に有効化します。無効時は適用先 Holder を使います。")]
+        public bool UseDuplicateCheckHolder;
+
+        [BoxGroup("Draw")]
+        [ShowIf("@!AllowDuplicates && ExcludeExistingHolderTraits && UseDuplicateCheckHolder")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(DuplicateCheckHolderHubSource)")]
+        [Tooltip("重複チェック用 HolderHub を持つ対象 LTS。")]
+        public ActorSource DuplicateCheckHolderHubSource = new() { Kind = ActorSourceKind.Current };
+
+        [BoxGroup("Draw")]
+        [ShowIf("@!AllowDuplicates && ExcludeExistingHolderTraits && UseDuplicateCheckHolder")]
+        [LabelText("Duplicate Check Holder Key")]
+        [Tooltip("重複チェック対象にする TraitHolder のキー。")]
+        public string DuplicateCheckHolderKey = string.Empty;
+
+        [BoxGroup("Draw")]
+        [ShowIf("@!AllowDuplicates && ExcludeExistingHolderTraits")]
+        [LabelText("Duplicate Exception Traits")]
+        [Tooltip("重複チェック対象 Holder に存在していても、抽選対象として残す TraitDefinition 一覧。")]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false, ShowIndexLabels = true)]
+        public List<TraitDefinitionSO> DuplicateAllowedTraits = new();
 
         [BoxGroup("Draw")]
         [ShowIf("@!AllowDuplicates")]

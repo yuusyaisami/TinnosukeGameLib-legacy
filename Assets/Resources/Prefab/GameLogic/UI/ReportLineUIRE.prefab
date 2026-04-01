@@ -264,6 +264,11 @@ MonoBehaviour:
   initializeLocalBlackboard: 0
   reinitializeLocalBlackboardOnAcquire: 1
   localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
   references:
     version: 2
     RefIds: []
@@ -564,6 +569,7 @@ GameObject:
   - component: {fileID: 4363307009504329139}
   - component: {fileID: 1289431269009287111}
   - component: {fileID: 6047445346904108376}
+  - component: {fileID: 3366240851479741962}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -1282,7 +1288,7 @@ MonoBehaviour:
       applyAnchorMax: 0
       anchorMax: {x: 0.5, y: 0.5}
   - tag: value
-    target: {fileID: 0}
+    target: {fileID: 4105004603677123091}
     rectTransform: {fileID: 0}
     playOnSpawnPreset: 0
     playOnSpawnDelaySeconds: 0
@@ -1311,7 +1317,7 @@ MonoBehaviour:
       applyAnchorMax: 0
       anchorMax: {x: 0.5, y: 0.5}
   - tag: slotMul
-    target: {fileID: 0}
+    target: {fileID: 120909491777970168}
     rectTransform: {fileID: 0}
     playOnSpawnPreset: 0
     playOnSpawnDelaySeconds: 0
@@ -1340,7 +1346,7 @@ MonoBehaviour:
       applyAnchorMax: 0
       anchorMax: {x: 0.5, y: 0.5}
   - tag: totalValue
-    target: {fileID: 0}
+    target: {fileID: 5102463152261306364}
     rectTransform: {fileID: 0}
     playOnSpawnPreset: 0
     playOnSpawnDelaySeconds: 0
@@ -1377,6 +1383,181 @@ MonoBehaviour:
   enableDebugLog: 0
   debugViewer:
     autoRefreshEveryNFrames: 1
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &3366240851479741962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5265970239230943650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43afddf95ff55e847a1d17a9f691fa88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.TextChannelHubMB
+  _channelDefs:
+  - tag: value
+    text: {fileID: 5036605768670324951}
+    materialFxPresetEntries: []
+    useRichTextAnimator: 1
+    useTypewriter: 0
+    typewriterEventCommands:
+      Apply: 0
+      OnTypewriterStart:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextShowed:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextDisappeared:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterVisible:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitStarted:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitFinished:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnMessage:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+    useCounter: 0
+    counterEase: 6
+    counterDurationSeconds: 0.5
+    counterUseUnscaledTime: 0
+  - tag: slotMul
+    text: {fileID: 2240774718074032511}
+    materialFxPresetEntries: []
+    useRichTextAnimator: 1
+    useTypewriter: 0
+    typewriterEventCommands:
+      Apply: 0
+      OnTypewriterStart:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextShowed:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextDisappeared:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterVisible:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitStarted:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitFinished:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnMessage:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+    useCounter: 0
+    counterEase: 6
+    counterDurationSeconds: 0.5
+    counterUseUnscaledTime: 0
+  - tag: totalValue
+    text: {fileID: 8234636327789794911}
+    materialFxPresetEntries: []
+    useRichTextAnimator: 1
+    useTypewriter: 0
+    typewriterEventCommands:
+      Apply: 0
+      OnTypewriterStart:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextShowed:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextDisappeared:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterVisible:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitStarted:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitFinished:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnMessage:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+    useCounter: 0
+    counterEase: 6
+    counterDurationSeconds: 0.5
+    counterUseUnscaledTime: 0
   references:
     version: 2
     RefIds: []

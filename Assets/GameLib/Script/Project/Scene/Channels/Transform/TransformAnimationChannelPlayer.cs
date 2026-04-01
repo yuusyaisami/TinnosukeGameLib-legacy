@@ -18,6 +18,8 @@ namespace Game.Channel
         SingleStep = 2,
         FollowTransform = 3,
         FollowPosition = 4,
+        RotateSpeed = 5,
+        RotateAngle = 6,
     }
 
     public readonly struct TransformAnimationChannelTelemetrySnapshot
@@ -125,6 +127,12 @@ namespace Game.Channel
         void PlayShake(in TransformShakeSettings settings);
         void StopShake();
 
+        void ApplyRotateSpeed(Vector3 speed, bool add, float fadeSeconds, float dampingRate);
+        void StopRotateSpeed(bool immediate, float fadeSeconds);
+
+        void ApplyRotateAngle(Vector3 targetEulerAngles, float smoothTime, float maxSpeed);
+        void StopRotateAngle(bool immediate, float fadeSeconds);
+
         UniTask PlayStepAsync(Vector3 to, ITransformAnimationStep step);
         bool TrySnapToCurrentFollowTarget();
 
@@ -156,6 +164,8 @@ namespace Game.Channel
         readonly List<TransformPresetTrack> _presetTracks = new();
         TransformFollowTrack? _followTrack;
         TransformShakeTrack? _shakeTrack;
+        TransformRotateTrack? _rotateSpeedTrack;
+        TransformAngleConvergeTrack? _rotateAngleTrack;
 
         readonly List<CancellationTokenSource> _presetCtsList = new();
         CancellationTokenSource? _followCts;
@@ -429,6 +439,64 @@ namespace Game.Channel
             director.AddTrack(track);
         }
 
+        public void ApplyRotateSpeed(Vector3 speed, bool add, float fadeSeconds, float dampingRate)
+        {
+            var t = TargetTransform;
+            if (!t)
+                return;
+
+            var director = ResolveDirector();
+            if (director == null)
+                return;
+
+            StopRotateAngle(immediate: true, fadeSeconds: 0f);
+
+            var track = _rotateSpeedTrack ??= new TransformRotateTrack(t);
+            director.AddTrack(track);
+            track.SetSpeed(speed, add, fadeSeconds, dampingRate);
+            _debugRunMode = TransformAnimationRunMode.RotateSpeed;
+        }
+
+        public void StopRotateSpeed(bool immediate, float fadeSeconds)
+        {
+            var track = _rotateSpeedTrack;
+            if (track == null)
+                return;
+
+            track.Stop(immediate, fadeSeconds);
+            if (immediate && _director != null)
+                _director.RemoveTrack(track);
+        }
+
+        public void ApplyRotateAngle(Vector3 targetEulerAngles, float smoothTime, float maxSpeed)
+        {
+            var t = TargetTransform;
+            if (!t)
+                return;
+
+            var director = ResolveDirector();
+            if (director == null)
+                return;
+
+            StopRotateSpeed(immediate: true, fadeSeconds: 0f);
+
+            var track = _rotateAngleTrack ??= new TransformAngleConvergeTrack(t);
+            director.AddTrack(track);
+            track.SetTarget(targetEulerAngles, smoothTime, maxSpeed);
+            _debugRunMode = TransformAnimationRunMode.RotateAngle;
+        }
+
+        public void StopRotateAngle(bool immediate, float fadeSeconds)
+        {
+            var track = _rotateAngleTrack;
+            if (track == null)
+                return;
+
+            track.Stop(immediate, fadeSeconds);
+            if (immediate && _director != null)
+                _director.RemoveTrack(track);
+        }
+
         public void StopShake()
         {
             var track = _shakeTrack;
@@ -509,6 +577,7 @@ namespace Game.Channel
             StopPreset();
             StopFollow();
             StopShake();
+            StopRotateTracks(immediate: true, fadeSeconds: 0f);
             SetDebugIdle();
         }
 
@@ -546,6 +615,7 @@ namespace Game.Channel
             // track は state を更新するだけで、最終反映は director がまとめて行う。
             // ここで毎フレーム Tick しておかないと、最後の確定値しか出力されない。
             director.Tick(deltaTime);
+            PruneDeadRotateTracks();
         }
 
         // ===== Telemetry =====
@@ -620,6 +690,26 @@ namespace Game.Channel
             _debugStepCount = 0;
             _debugLoopIndex = -1;
             _debugLoopCount = 0;
+        }
+
+        void StopRotateTracks(bool immediate, float fadeSeconds)
+        {
+            StopRotateSpeed(immediate, fadeSeconds);
+            StopRotateAngle(immediate, fadeSeconds);
+        }
+
+        void PruneDeadRotateTracks()
+        {
+            if (_director == null)
+                return;
+
+            var speedTrack = _rotateSpeedTrack;
+            if (speedTrack != null && !speedTrack.IsAlive)
+                _director.RemoveTrack(speedTrack);
+
+            var angleTrack = _rotateAngleTrack;
+            if (angleTrack != null && !angleTrack.IsAlive)
+                _director.RemoveTrack(angleTrack);
         }
 
         // ===== Static path utilities (shared with TransformPresetTrack) =====

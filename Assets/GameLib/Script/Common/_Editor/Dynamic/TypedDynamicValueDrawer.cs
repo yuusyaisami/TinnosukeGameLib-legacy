@@ -119,7 +119,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(VisualBoundsValue3Source));
             }
 
-            // 2. Expression Sources (bool / float のみ)
+            // 2. Expression sources
             if (targetType == typeof(bool))
             {
                 allowedList.Add(typeof(BoolExpressionSource));
@@ -141,6 +141,11 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(TimerValueSource));
                 allowedList.Add(typeof(ActorWorldPositionXSource));
                 allowedList.Add(typeof(ActorWorldPositionYSource));
+            }
+            else if (targetType == typeof(Vector2))
+            {
+                allowedList.Add(typeof(Vector2ExpressionSource));
+                allowedList.Add(typeof(Vector2XYExpressionSource));
             }
 
             // 2.5 Random sources
