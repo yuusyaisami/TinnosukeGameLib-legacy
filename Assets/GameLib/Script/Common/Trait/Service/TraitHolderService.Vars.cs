@@ -10,6 +10,7 @@ namespace Game.Trait
         string _holderKey = string.Empty;
 
         internal string HolderKey => _holderKey;
+        internal int HeldCount => _held.Count;
 
         void WriteHolderVarsToBlackboard()
         {

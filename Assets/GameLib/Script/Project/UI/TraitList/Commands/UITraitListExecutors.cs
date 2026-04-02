@@ -237,6 +237,23 @@ namespace Game.Commands.VNext
         }
     }
 
+    public sealed class ClearTraitFromHolderExecutor : ICommandExecutor
+    {
+        public int CommandId => CommandIds.ClearTraitFromHolder;
+
+        public async UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
+        {
+            if (data is not ClearTraitFromHolderCommandData typed)
+                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "ClearTraitFromHolderCommandData is required.");
+
+            var holder = await UITraitListCommandExecutorUtility.ResolveHolderAsync(typed.UseBoundHolder, typed.HolderActorSource, typed.HolderKey, ctx, ct);
+            if (holder == null)
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
+
+            holder.Clear();
+        }
+    }
+
     static class UITraitListCommandExecutorUtility
     {
         public static IUITraitListPlayerService ResolvePlayerServiceOrThrow(

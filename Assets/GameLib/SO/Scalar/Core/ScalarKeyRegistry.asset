@@ -1165,4 +1165,28 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: 2e8ab9eb37b9488bad206d475b53cca2
+    parentId: 9a22d061de77456ebfda7fac59070350
+    name: Quota
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: df1c39bdad254ff2b538ff2df41904ed
+    parentId: 2e8ab9eb37b9488bad206d475b53cca2
+    name: QuotaIncrementMul
+    isFolder: 0
+    description: "\u30CE\u30EB\u30DE\u306B\u3061\u3087\u3063\u3068\u3060\u3051"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: d864122a7c3046058dc94768088f8289
+    parentId: 2e8ab9eb37b9488bad206d475b53cca2
+    name: QuotaDecrementMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   csvFile: {fileID: 4900000, guid: 0f8f0a1f52c24534fa42d23481dae4e3, type: 3}

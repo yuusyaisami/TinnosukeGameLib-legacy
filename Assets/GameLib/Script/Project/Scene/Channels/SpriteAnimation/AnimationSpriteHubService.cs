@@ -58,8 +58,8 @@ namespace Game.Channel
 
         readonly IScopeNode _ownerScope;
         readonly VNext.ICommandRunner _commandRunner;
-        readonly IMaterialFxServiceFactory? _materialFxFactory;
-        readonly IMaterialFxPropertyRegistry? _materialFxRegistry;
+        IMaterialFxServiceFactory? _materialFxFactory;
+        IMaterialFxPropertyRegistry? _materialFxRegistry;
         readonly bool _replaceWithTransparentOnRelease;
 
         readonly IVisualSystem? _visualSystem;
@@ -112,13 +112,16 @@ namespace Game.Channel
         {
             _ownerScope = ownerScope ?? throw new ArgumentNullException(nameof(ownerScope));
             _commandRunner = commandRunner;
-            _materialFxFactory = materialFxFactory;
             _replaceWithTransparentOnRelease = replaceWithTransparentOnRelease;
 
             _hubTag = string.IsNullOrWhiteSpace(hubTag) ? "default" : hubTag;
             var resolver = ownerScope.Resolver;
             if (resolver != null && resolver.TryResolve<IVisualSystem>(out var vs) && vs != null)
                 _visualSystem = vs;
+
+            if (materialFxFactory == null && resolver != null)
+                resolver.TryResolve(out materialFxFactory);
+            _materialFxFactory = materialFxFactory;
 
             // Fallback: VContainer の optional parameter injection が親スコープから
             // IMaterialFxPropertyRegistry を解決できない場合、scope resolver で再試行する
@@ -342,7 +345,8 @@ namespace Game.Channel
             bool clearMissingKeys = true,
             int basePriority = 0)
         {
-            if (_materialFxRegistry == null)
+            var materialFxRegistry = ResolveMaterialFxRegistry();
+            if (materialFxRegistry == null)
             {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                 Debug.LogWarning($"[AnimationSpriteHub] SetHubState skipped: _materialFxRegistry is null. " +
@@ -378,7 +382,7 @@ namespace Game.Channel
                         continue;
                     }
 
-                    if (!_materialFxRegistry.TryGetValueType(key, out var valueType))
+                    if (!materialFxRegistry.TryGetValueType(key, out var valueType))
                     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                         if (_warnedUnknownKeys.Add(key))
@@ -510,7 +514,8 @@ namespace Game.Channel
             IReadOnlyList<MaterialFxPresetEntry> entries,
             int basePriority = 0)
         {
-            if (_materialFxRegistry == null)
+            var materialFxRegistry = ResolveMaterialFxRegistry();
+            if (materialFxRegistry == null)
             {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                 Debug.LogWarning($"[AnimationSpriteHub] BroadcastMaterialFx skipped: _materialFxRegistry is null. HubTag='{_hubTag}'");
@@ -538,7 +543,7 @@ namespace Game.Channel
                     if (string.IsNullOrWhiteSpace(key))
                         continue;
 
-                    if (!_materialFxRegistry.TryGetValueType(key, out var valueType))
+                    if (!materialFxRegistry.TryGetValueType(key, out var valueType))
                     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                         if (_warnedUnknownKeys.Add(key))
@@ -565,6 +570,30 @@ namespace Game.Channel
         }
 
         // =========  内部共通ロジック  =========
+
+        IMaterialFxServiceFactory? ResolveMaterialFxFactory()
+        {
+            if (_materialFxFactory != null)
+                return _materialFxFactory;
+
+            var resolver = _ownerScope.Resolver;
+            if (resolver != null && resolver.TryResolve<IMaterialFxServiceFactory>(out var factory) && factory != null)
+                _materialFxFactory = factory;
+
+            return _materialFxFactory;
+        }
+
+        IMaterialFxPropertyRegistry? ResolveMaterialFxRegistry()
+        {
+            if (_materialFxRegistry != null)
+                return _materialFxRegistry;
+
+            var resolver = _ownerScope.Resolver;
+            if (resolver != null && resolver.TryResolve<IMaterialFxPropertyRegistry>(out var registry) && registry != null)
+                _materialFxRegistry = registry;
+
+            return _materialFxRegistry;
+        }
 
         bool RegisterChannelInternal(AnimationSpriteChannelDef def, bool overwrite)
         {
@@ -597,7 +626,7 @@ namespace Game.Channel
                 def,
                 _ownerScope,
                 _commandRunner,
-                _materialFxFactory);
+                ResolveMaterialFxFactory());
 
             _players[tag] = player;
             _playerList.Add(player);

@@ -309,6 +309,16 @@ namespace Game.Commands
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.UseTraitFromHolderExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.ClearTraitFromHolderExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.BindTraitListChannelExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.RefreshTraitListChannelExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.SetTraitListChannelRangeExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.ClearTraitListChannelExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
 
                 builder.Register<global::Game.Commands.VNext.EquipTraitExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();

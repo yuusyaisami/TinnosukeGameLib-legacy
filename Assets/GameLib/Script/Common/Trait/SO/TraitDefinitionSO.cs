@@ -29,6 +29,7 @@ namespace Game.Trait
         ITraitDefinition Definition { get; }
         TraitInstanceContext Context { get; }
         void OnLtsInstantiated(IScopeNode scope);
+        void OnAdded();
         void OnHold();
         void OnUse();
         void OnRemove();
@@ -82,6 +83,18 @@ namespace Game.Trait
         [Tooltip("UITraitList の RelayoutAnimation で使う移動プリセット。各 Trait 側で決める。")]
         [SerializeField]
         TransformAnimationPreset? _traitListMovePreset;
+
+        [BoxGroup("Commands")]
+        [LabelText("Run On Added")]
+        [SerializeField]
+        bool _runOnAddedCommands;
+
+        [BoxGroup("Commands")]
+        [ShowIf(nameof(_runOnAddedCommands))]
+        [LabelText("On Added Commands")]
+        [Tooltip("TraitDefinitionSO が Trait を Holder に追加した時に実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
+        [SerializeField]
+        VNext.CommandListData _onAddedCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("Run On Equip")]
@@ -280,6 +293,12 @@ namespace Game.Trait
                 ExecuteCommands(instance.Context, _onHoldCommands);
         }
 
+        protected virtual void OnAdded(ITraitInstance instance)
+        {
+            if (_runOnAddedCommands)
+                ExecuteCommands(instance.Context, _onAddedCommands);
+        }
+
         protected virtual void OnUse(ITraitInstance instance)
         {
             if (_runOnUseCommands)
@@ -374,6 +393,11 @@ namespace Game.Trait
             public void OnLtsInstantiated(IScopeNode scope)
             {
                 _definition.OnLtsInstantiated(this, scope);
+            }
+
+            public void OnAdded()
+            {
+                _definition.OnAdded(this);
             }
 
 

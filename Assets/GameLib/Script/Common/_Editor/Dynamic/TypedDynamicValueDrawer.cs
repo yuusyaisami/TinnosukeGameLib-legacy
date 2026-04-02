@@ -74,7 +74,10 @@ namespace Game.Common.Editor
             if (targetType == typeof(MotionPreset))
                 allowedList.Add(typeof(AssetMotionPresetSource));
             if (targetType == typeof(TraitDefinitionSO))
+            {
                 allowedList.Add(typeof(AssetTraitDefinitionSource));
+                allowedList.Add(typeof(HolderTraitDefinitionSource));
+            }
             if (targetType == typeof(BaseRuntimeTemplatePreset))
             {
                 allowedList.Add(typeof(AssetRuntimeTemplatePresetSource));

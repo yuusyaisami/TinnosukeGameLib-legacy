@@ -64,7 +64,10 @@ namespace Game.Common
                 if (!TryCompile(out _validationMessage))
                 {
                     _validationIsError = true;
-                    Debug.LogError($"[IntExpressionSource] Compile failed at runtime: {_validationMessage} (Expr: {_expression})");
+                    ExpressionRuntimeLogger.Error(
+                        "EXI-COMPILE-FAILED",
+                        "Compile failed at runtime.",
+                        BuildRuntimeLogContext(context, "Compile", _validationMessage));
                     return DynamicVariant.FromInt(0);
                 }
             }
@@ -90,7 +93,10 @@ namespace Game.Common
             {
                 _validationMessage = $"Runtime error: {ex.Message}";
                 _validationIsError = true;
-                Debug.LogError($"[IntExpressionSource] {_validationMessage} (Expr: {_expression})");
+                ExpressionRuntimeLogger.Error(
+                    "EXI-EVAL-EXCEPTION",
+                    _validationMessage,
+                    BuildRuntimeLogContext(context, "Evaluate", ex.Message));
                 return DynamicVariant.FromInt(0);
             }
         }
@@ -307,6 +313,55 @@ namespace Game.Common
                 }
             }
             return true;
+        }
+
+        ExpressionRuntimeLogContext BuildRuntimeLogContext(IDynamicContext context, string phase, string detail)
+        {
+            return new ExpressionRuntimeLogContext
+            {
+                SourceType = SourceTypeName,
+                Phase = phase,
+                Expression = _expression,
+                Variables = BuildVariableSummary(),
+                Detail = detail,
+                AllowImplicitKeys = _allowImplicitVariablesFromContext,
+                DynamicContext = context,
+            };
+        }
+
+        string BuildVariableSummary()
+        {
+            var local = _variables;
+            var external = _externalVariables;
+
+            var localCount = local?.Count ?? 0;
+            var externalCount = external?.Count ?? 0;
+            if (localCount == 0 && externalCount == 0)
+                return "(none)";
+
+            var texts = new List<string>(localCount + externalCount);
+
+            if (externalCount > 0)
+            {
+                foreach (var v in external)
+                {
+                    if (v == null)
+                        continue;
+                    texts.Add(v.ExpressionKey);
+                }
+            }
+
+            if (localCount > 0 && (_includeLocalVariablesWithExternal || externalCount == 0))
+            {
+                foreach (var v in local)
+                {
+                    if (v == null)
+                        continue;
+                    texts.Add(v.ExpressionKey);
+                }
+            }
+
+            return texts.Count == 0 ? "(none)" : string.Join(", ", texts);
         }
 
         void MarkDirty()

@@ -107,6 +107,14 @@ namespace Game.Commands.VNext
 
             var frame = new CommandRunFrame(0, data.CommandId, "Direct", data.GetType().Name, data.DebugData);
             trace.Push(frame);
+            using var runtimeTrace = CommandExecutionTrace.Push(
+                BuildExecutionTraceSnapshot(
+                    effectiveCtx,
+                    data,
+                    source: null,
+                    commandIndex: 0,
+                    listLabel: "Direct",
+                    listFunctionName: null));
             var outcome = await ExecuteDataAsync(executor, data, effectiveCtx, ct, normalized);
 
             if (outcome.Canceled)
@@ -254,6 +262,14 @@ namespace Game.Commands.VNext
 
                 var frame = new CommandRunFrame(i, data.CommandId, source?.DebugName ?? "<null>", GetCommandDisplayName(data), data.DebugData);
                 trace.Push(frame);
+                using var runtimeTrace = CommandExecutionTrace.Push(
+                    BuildExecutionTraceSnapshot(
+                        effectiveCtx,
+                        data,
+                        source,
+                        commandIndex: i,
+                        listLabel,
+                        listFunctionName));
 
                 // 各コマンドごとに独立したリンク付きトークンを作成し、連鎖的なキャンセルを防止する
                 // これにより、リスト内の1つのコマンドのキャンセルが他のコマンドに影響を与えないようにする
@@ -429,25 +445,8 @@ namespace Game.Commands.VNext
 
         static string BuildExecutionContextDescription(CommandContext ctx, ICommandData data, ICommandSource? source)
         {
-            string DescribeScope(IScopeNode? node)
-            {
-                if (node == null)
-                    return "<null>";
-
-                if (node is UnityEngine.Object unityObj && !unityObj)
-                    return "<destroyed>";
-
-                if (node is Component component && component.gameObject != null)
-                    return component.gameObject.name + " (" + component.GetType().Name + ")";
-
-                if (node.Identity != null)
-                    return node.Identity.Id + " (" + node.Identity.Kind + ")";
-
-                return node.GetType().Name;
-            }
-
-            var actor = DescribeScope(ctx.Actor);
-            var scope = DescribeScope(ctx.Scope);
+            var actor = CommandExecutionTrace.DescribeScope(ctx.Actor);
+            var scope = CommandExecutionTrace.DescribeScope(ctx.Scope);
             var sourceName = source?.DebugName ?? "<null>";
             var commandName = GetCommandDisplayName(data);
             var commandId = data?.CommandId ?? -1;
@@ -458,7 +457,31 @@ namespace Game.Commands.VNext
             return $"Actor={actor} Scope={scope} Source={sourceName} Cmd={commandName}(Id={commandId}) CmdData={debugData}";
         }
 
-        static string GetCommandDisplayName(ICommandData data)
+        static CommandExecutionTraceSnapshot BuildExecutionTraceSnapshot(
+            CommandContext ctx,
+            ICommandData data,
+            ICommandSource? source,
+            int commandIndex,
+            string? listLabel,
+            string? listFunctionName)
+        {
+            return new CommandExecutionTraceSnapshot(
+                commandIndex,
+                data?.CommandId ?? -1,
+                source?.DebugName ?? "<null>",
+                GetCommandDisplayName(data),
+                data?.GetType().Name ?? "<null>",
+                data?.DebugData ?? string.Empty,
+                listLabel ?? string.Empty,
+                listFunctionName ?? string.Empty,
+                ctx.Scope,
+                ctx.Actor,
+                ctx.CommandRootScope,
+                ctx.RootActor,
+                ctx.CallerActor);
+        }
+
+        static string GetCommandDisplayName(ICommandData? data)
         {
             if (data == null)
                 return "<null>";

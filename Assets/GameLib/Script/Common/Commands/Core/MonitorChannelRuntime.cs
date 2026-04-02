@@ -1294,30 +1294,32 @@ namespace Game.Commands
                 BumpTelemetry();
                 if (_rule.CancelRunningOnConditionChange)
                     CancelRunningEntriesOnConditionChange();
+                ResetWhileTimers();
+
+                // 状態遷移フレームでは Enter / Exit のみを処理し、その評価サイクル中に
+                // WhileTrue / WhileFalse を新規起動しないことを明示する。
+                if (!prev && current)
+                {
+                    TryExecuteCommands("Enter", _rule.OnEnterCommands, ct);
+                    return;
+                }
+
+                if (prev && !current)
+                {
+                    TryExecuteCommands("Exit", _rule.OnExitCommands, ct);
+                    return;
+                }
             }
 
-            // Enter: false -> true
-            if (!prev && current)
-            {
-                ResetWhileTimers();
-                TryExecuteCommands("Enter", _rule.OnEnterCommands, ct);
-            }
-            // Exit: true -> false
-            else if (prev && !current)
-            {
-                ResetWhileTimers();
-                TryExecuteCommands("Exit", _rule.OnExitCommands, ct);
-            }
             // WhileTrue: true 維持中
-            else if (prev && current)
+            if (current)
             {
                 TryExecuteWhileCommands("WhileTrue", _rule.WhileTrueCommands, ref _lastWhileTrueExecution, ct);
+                return;
             }
+
             // WhileFalse: false 維持中
-            else
-            {
-                TryExecuteWhileCommands("WhileFalse", _rule.WhileFalseCommands, ref _lastWhileFalseExecution, ct);
-            }
+            TryExecuteWhileCommands("WhileFalse", _rule.WhileFalseCommands, ref _lastWhileFalseExecution, ct);
         }
 
         VNext.CommandContext? CreateContext()

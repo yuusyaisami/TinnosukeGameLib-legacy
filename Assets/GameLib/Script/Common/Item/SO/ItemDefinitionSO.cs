@@ -71,6 +71,11 @@ namespace Game.Item
                 _definition.OnLtsInstantiated(this, scope);
             }
 
+            public void OnAdded()
+            {
+                _definition.OnAdded(this);
+            }
+
             public void OnUse()
             {
                 _definition.OnUse(this);

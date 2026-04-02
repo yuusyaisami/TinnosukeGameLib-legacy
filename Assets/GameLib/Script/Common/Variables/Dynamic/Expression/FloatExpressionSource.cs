@@ -107,7 +107,10 @@ namespace Game.Common
                 if (!TryCompile(out _validationMessage))
                 {
                     _validationIsError = true;
-                    Debug.LogError($"[FloatExpressionSource] Compile failed at runtime: {_validationMessage} (Expr: {_expression})");
+                    ExpressionRuntimeLogger.Error(
+                        "EXF-COMPILE-FAILED",
+                        "Compile failed at runtime.",
+                        BuildRuntimeLogContext(context, "Compile", _validationMessage));
                     return DynamicVariant.FromFloat(0f);
                 }
             }
@@ -134,7 +137,10 @@ namespace Game.Common
             {
                 _validationMessage = $"Runtime error: {ex.Message}";
                 _validationIsError = true;
-                Debug.LogError($"[FloatExpressionSource] {_validationMessage} (Expr: {_expression})");
+                ExpressionRuntimeLogger.Error(
+                    "EXF-EVAL-EXCEPTION",
+                    _validationMessage,
+                    BuildRuntimeLogContext(context, "Evaluate", ex.Message));
                 return DynamicVariant.FromFloat(0f);
             }
         }
@@ -359,6 +365,20 @@ namespace Game.Common
                 }
             }
             return true;
+        }
+
+        ExpressionRuntimeLogContext BuildRuntimeLogContext(IDynamicContext context, string phase, string detail)
+        {
+            return new ExpressionRuntimeLogContext
+            {
+                SourceType = SourceTypeName,
+                Phase = phase,
+                Expression = _expression,
+                Variables = GetExpressionVariablesDebugData(),
+                Detail = detail,
+                AllowImplicitKeys = _allowImplicitVariablesFromContext,
+                DynamicContext = context,
+            };
         }
 
         // ================================================================

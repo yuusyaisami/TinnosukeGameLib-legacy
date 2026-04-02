@@ -11,10 +11,10 @@ namespace Game.Common
     public sealed class RandomIntRangeSource : IDynamicSource
     {
         [SerializeField]
-        int minInclusive = 0;
+        DynamicValue<int> minInclusive = DynamicValueExtensions.FromLiteral(0);
 
         [SerializeField]
-        int maxExclusive = 1;
+        DynamicValue<int> maxExclusive = DynamicValueExtensions.FromLiteral(1);
 
         [BoxGroup("Variance")]
         [SerializeField, LabelText("Use Variance Controller")]
@@ -29,12 +29,12 @@ namespace Game.Common
         VarianceSettings varianceSettings = VarianceSettings.Default;
 
         public string SourceTypeName => "Random";
-        public string GetDebugData => $"int [{minInclusive}, {maxExclusive})";
+        public string GetDebugData => $"int [{minInclusive.SourceDebugData}, {maxExclusive.SourceDebugData})";
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            var min = minInclusive;
-            var max = maxExclusive;
+            var min = minInclusive.GetOrDefault(context, 0);
+            var max = maxExclusive.GetOrDefault(context, 1);
             if (max < min)
                 (min, max) = (max, min);
 
@@ -61,10 +61,10 @@ namespace Game.Common
     public sealed class RandomFloatRangeSource : IDynamicSource
     {
         [SerializeField]
-        float min = 0f;
+        DynamicValue<float> min = DynamicValueExtensions.FromLiteral(0f);
 
         [SerializeField]
-        float max = 1f;
+        DynamicValue<float> max = DynamicValueExtensions.FromLiteral(1f);
 
         [BoxGroup("Variance")]
         [SerializeField, LabelText("Use Variance Controller")]
@@ -79,12 +79,12 @@ namespace Game.Common
         VarianceSettings varianceSettings = VarianceSettings.Default;
 
         public string SourceTypeName => "Random";
-        public string GetDebugData => $"float [{min}, {max}]";
+        public string GetDebugData => $"float [{min.SourceDebugData}, {max.SourceDebugData}]";
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            var a = min;
-            var b = max;
+            var a = min.GetOrDefault(context, 0f);
+            var b = max.GetOrDefault(context, 1f);
             if (b < a)
                 (a, b) = (b, a);
 
@@ -108,14 +108,14 @@ namespace Game.Common
     public sealed class RandomBoolSource : IDynamicSource
     {
         [SerializeField, Range(0f, 1f)]
-        float trueProbability = 0.5f;
+        DynamicValue<float> trueProbability = DynamicValueExtensions.FromLiteral(0.5f);
 
         public string SourceTypeName => "Random";
-        public string GetDebugData => $"bool p={trueProbability:0.###}";
+        public string GetDebugData => $"bool p={trueProbability.SourceDebugData}";
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            var p = Mathf.Clamp01(trueProbability);
+            var p = Mathf.Clamp01(trueProbability.GetOrDefault(context, 0.5f));
             return DynamicVariant.FromBool(UnityEngine.Random.value < p);
         }
     }
@@ -133,22 +133,22 @@ namespace Game.Common
         public sealed class ConeLayer
         {
             [LabelText("Enabled")]
-            public bool enabled = true;
+            public DynamicValue<bool> enabled = DynamicValueExtensions.FromLiteral(true);
 
             [LabelText("Weight"), MinValue(0f)]
-            public float weight = 1f;
+            public DynamicValue<float> weight = DynamicValueExtensions.FromLiteral(1f);
 
             [LabelText("Direction")]
-            public Vector2 direction = Vector2.up;
+            public DynamicValue<Vector2> direction = DynamicValueExtensions.FromLiteral(Vector2.up);
 
             [LabelText("Cone Half Angle (deg)"), Range(0f, 180f)]
-            public float halfAngleDeg = 30f;
+            public DynamicValue<float> halfAngleDeg = DynamicValueExtensions.FromLiteral(30f);
 
             [LabelText("Distance Min")]
-            public float minDistance = 0f;
+            public DynamicValue<float> minDistance = DynamicValueExtensions.FromLiteral(0f);
 
             [LabelText("Distance Max")]
-            public float maxDistance = 1f;
+            public DynamicValue<float> maxDistance = DynamicValueExtensions.FromLiteral(1f);
         }
 
         [SerializeField, LabelText("Mode")]
@@ -156,11 +156,11 @@ namespace Game.Common
 
         [SerializeField]
         [ShowIf(nameof(IsSimpleMode))]
-        Vector2 min = Vector2.zero;
+        DynamicValue<Vector2> min = DynamicValueExtensions.FromLiteral(Vector2.zero);
 
         [SerializeField]
         [ShowIf(nameof(IsSimpleMode))]
-        Vector2 max = Vector2.one;
+        DynamicValue<Vector2> max = DynamicValueExtensions.FromLiteral(Vector2.one);
 
         [SerializeField]
         [ShowIf(nameof(IsConeMode))]
@@ -181,7 +181,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => mode == Vector2RandomMode.Simple
-            ? $"Vector2[{mode}] [{min}..{max}]"
+            ? $"Vector2[{mode}] [{min.SourceDebugData}..{max.SourceDebugData}]"
             : $"Vector2[{mode}] Layers={coneLayers?.Count ?? 0}";
 
         bool IsSimpleMode => mode == Vector2RandomMode.Simple;
@@ -199,10 +199,12 @@ namespace Game.Common
 
         Vector2 EvaluateSimple(IDynamicContext context)
         {
-            var xMin = Mathf.Min(min.x, max.x);
-            var xMax = Mathf.Max(min.x, max.x);
-            var yMin = Mathf.Min(min.y, max.y);
-            var yMax = Mathf.Max(min.y, max.y);
+            var minValueRaw = min.GetOrDefault(context, Vector2.zero);
+            var maxValueRaw = max.GetOrDefault(context, Vector2.one);
+            var xMin = Mathf.Min(minValueRaw.x, maxValueRaw.x);
+            var xMax = Mathf.Max(minValueRaw.x, maxValueRaw.x);
+            var yMin = Mathf.Min(minValueRaw.y, maxValueRaw.y);
+            var yMax = Mathf.Max(minValueRaw.y, maxValueRaw.y);
 
             if (!TryGetController(context, out var controller))
             {
@@ -232,9 +234,14 @@ namespace Game.Common
             for (int i = 0; i < layers.Count; i++)
             {
                 var layer = layers[i];
-                if (layer == null || !layer.enabled || layer.weight <= 0f)
+                if (layer == null)
                     continue;
-                totalWeight += layer.weight;
+
+                var enabled = layer.enabled.GetOrDefault(context, true);
+                var weight = layer.weight.GetOrDefault(context, 1f);
+                if (!enabled || weight <= 0f)
+                    continue;
+                totalWeight += weight;
             }
 
             if (totalWeight <= 0f)
@@ -247,10 +254,15 @@ namespace Game.Common
             for (int i = 0; i < layers.Count; i++)
             {
                 var layer = layers[i];
-                if (layer == null || !layer.enabled || layer.weight <= 0f)
+                if (layer == null)
                     continue;
 
-                accum += layer.weight;
+                var enabled = layer.enabled.GetOrDefault(context, true);
+                var weight = layer.weight.GetOrDefault(context, 1f);
+                if (!enabled || weight <= 0f)
+                    continue;
+
+                accum += weight;
                 if (layerPick <= accum)
                 {
                     selected = layer;
@@ -264,7 +276,9 @@ namespace Game.Common
                 for (int i = 0; i < layers.Count; i++)
                 {
                     var layer = layers[i];
-                    if (layer != null && layer.enabled && layer.weight > 0f)
+                    if (layer != null &&
+                        layer.enabled.GetOrDefault(context, true) &&
+                        layer.weight.GetOrDefault(context, 1f) > 0f)
                     {
                         selected = layer;
                         selectedIndex = i;
@@ -276,17 +290,20 @@ namespace Game.Common
             if (selected == null)
                 return Vector2.zero;
 
-            var dir = selected.direction.sqrMagnitude > 0.0001f
-                ? selected.direction.normalized
+            var selectedDirection = selected.direction.GetOrDefault(context, Vector2.up);
+            var dir = selectedDirection.sqrMagnitude > 0.0001f
+                ? selectedDirection.normalized
                 : Vector2.up;
 
             var baseAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            var spread = Mathf.Abs(selected.halfAngleDeg);
+            var spread = Mathf.Abs(selected.halfAngleDeg.GetOrDefault(context, 30f));
             var angleOffset = GetRandomFloat(context, $"cone:angle:{selectedIndex}", -spread, spread);
             var angleRad = (baseAngle + angleOffset) * Mathf.Deg2Rad;
 
-            var distMin = Mathf.Min(selected.minDistance, selected.maxDistance);
-            var distMax = Mathf.Max(selected.minDistance, selected.maxDistance);
+            var minDistance = selected.minDistance.GetOrDefault(context, 0f);
+            var maxDistance = selected.maxDistance.GetOrDefault(context, 1f);
+            var distMin = Mathf.Min(minDistance, maxDistance);
+            var distMax = Mathf.Max(minDistance, maxDistance);
             var distance = GetRandomFloat(context, $"cone:distance:{selectedIndex}", distMin, distMax);
 
             return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad)) * distance;
@@ -322,10 +339,10 @@ namespace Game.Common
     public sealed class RandomVector3RangeSource : IDynamicSource
     {
         [SerializeField]
-        Vector3 min = Vector3.zero;
+        DynamicValue<Vector3> min = DynamicValueExtensions.FromLiteral(Vector3.zero);
 
         [SerializeField]
-        Vector3 max = Vector3.one;
+        DynamicValue<Vector3> max = DynamicValueExtensions.FromLiteral(Vector3.one);
 
         [BoxGroup("Variance")]
         [SerializeField, LabelText("Use Variance Controller")]
@@ -340,12 +357,12 @@ namespace Game.Common
         VarianceSettings varianceSettings = VarianceSettings.Default;
 
         public string SourceTypeName => "Random";
-        public string GetDebugData => $"Vector3 [{min}..{max}]";
+        public string GetDebugData => $"Vector3 [{min.SourceDebugData}..{max.SourceDebugData}]";
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            var a = min;
-            var b = max;
+            var a = min.GetOrDefault(context, Vector3.zero);
+            var b = max.GetOrDefault(context, Vector3.one);
             var xMin = Mathf.Min(a.x, b.x);
             var xMax = Mathf.Max(a.x, b.x);
             var yMin = Mathf.Min(a.y, b.y);
@@ -385,10 +402,10 @@ namespace Game.Common
     public sealed class RandomVector4RangeSource : IDynamicSource
     {
         [SerializeField]
-        Vector4 min = Vector4.zero;
+        DynamicValue<Vector4> min = DynamicValue<Vector4>.FromSource(new LiteralVector4Source(Vector4.zero));
 
         [SerializeField]
-        Vector4 max = Vector4.one;
+        DynamicValue<Vector4> max = DynamicValue<Vector4>.FromSource(new LiteralVector4Source(Vector4.one));
 
         [BoxGroup("Variance")]
         [SerializeField, LabelText("Use Variance Controller")]
@@ -403,12 +420,12 @@ namespace Game.Common
         VarianceSettings varianceSettings = VarianceSettings.Default;
 
         public string SourceTypeName => "Random";
-        public string GetDebugData => $"Vector4 [{min}..{max}]";
+        public string GetDebugData => $"Vector4 [{min.SourceDebugData}..{max.SourceDebugData}]";
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            var a = min;
-            var b = max;
+            var a = min.GetOrDefault(context, Vector4.zero);
+            var b = max.GetOrDefault(context, Vector4.one);
             var xMin = Mathf.Min(a.x, b.x);
             var xMax = Mathf.Max(a.x, b.x);
             var yMin = Mathf.Min(a.y, b.y);

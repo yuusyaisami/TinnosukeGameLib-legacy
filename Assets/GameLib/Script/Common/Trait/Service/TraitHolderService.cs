@@ -64,6 +64,7 @@ namespace Game.Trait
                 return false;
 
             _traits.Add(instance);
+            instance.OnAdded();
             if (_isActive)
                 ApplyHold(instance);
 
