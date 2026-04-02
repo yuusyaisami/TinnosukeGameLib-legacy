@@ -151,10 +151,12 @@ namespace Game.Commands
     {
         [LabelText("Commands"), LabelWidth(120)]
         [VNext.CommandListFunctionName("MonitorRule.While")]
+        [Tooltip("条件が維持されている間に interval ごとに実行するコマンド群です。")]
         public VNext.CommandListData Commands;
 
         [LabelText("Interval (sec)"), LabelWidth(120)]
         [MinValue(0f)]
+        [Tooltip("While コマンドを再実行する最小間隔です。0 の場合は評価タイミングごとに実行します。")]
         public float IntervalSeconds;
     }
 
@@ -167,27 +169,32 @@ namespace Game.Commands
     {
         [PropertyOrder(0)]
         [LabelText("Rule Key")]
+        [Tooltip("MonitorChannelHub 内でこの rule を識別するキーです。空欄時は実行時に自動生成されます。")]
         public string RuleName;
 
         [PropertyOrder(10)]
         [LabelText("Rule Kind")]
         [EnumToggleButtons]
+        [Tooltip("イベント監視、条件監視、値変化監視のどれで動かすかを選びます。")]
         public MonitorRuleKind RuleKind;
 
         [PropertyOrder(20)]
         [ShowIf("@RuleKind == MonitorRuleKind.EventOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [EventKeyDropdown]
         [LabelText("Event Name")]
+        [Tooltip("EventOnly / EventAndCondition で監視する event key です。")]
         public string EventName;
 
         [PropertyOrder(21)]
         [ShowIf("@RuleKind == MonitorRuleKind.EventOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Event Target\", EventTarget)")]
+        [Tooltip("event を購読する対象スコープです。未設定時は current 相当のスコープで解決されます。")]
         public VNext.ActorSource EventTarget;
 
         [PropertyOrder(30)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("Condition")]
+        [Tooltip("true / false を判定する DynamicValue<bool> 条件です。")]
         public DynamicValue<bool> Condition;
 
         [PropertyOrder(40)]
@@ -200,6 +207,7 @@ namespace Game.Commands
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
         [LabelText("Value Changed Mode")]
         [EnumToggleButtons]
+        [Tooltip("単一 target を見るか、複数 target のどれかの変化を拾うかを選びます。")]
         public MonitorValueChangedMode ValueChangedMode;
 
         [PropertyOrder(41)]
@@ -208,12 +216,14 @@ namespace Game.Commands
         [HideLabel]
         [LabelText("Simple Target")]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueChangedMode == MonitorValueChangedMode.Simple")]
+        [Tooltip("ValueChangedMode=Simple のときに監視する単一 target です。")]
         public MonitorValueChangedTarget SimpleValueChangedTarget;
 
         [PropertyOrder(42)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueChangedMode == MonitorValueChangedMode.AnyTarget")]
         [LabelText("Value Targets")]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = false, DefaultExpandedState = true)]
+        [Tooltip("ValueChangedMode=AnyTarget のときに監視する target 一覧です。どれか 1 つでも変化すると発火します。")]
         public List<MonitorValueChangedTarget> ValueChangedTargets;
 
         [PropertyOrder(48)]
@@ -231,29 +241,34 @@ namespace Game.Commands
         [PropertyOrder(100)]
         [LabelText("On Enter Commands")]
         [VNext.CommandListFunctionName("MonitorRule.OnEnter")]
+        [Tooltip("条件が false から true に遷移したとき、または event 条件を満たしたときに実行するコマンド群です。")]
         public VNext.CommandListData OnEnterCommands;
 
         [PropertyOrder(110)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("On Exit Commands")]
         [VNext.CommandListFunctionName("MonitorRule.OnExit")]
+        [Tooltip("条件が true から false に遷移したときに実行するコマンド群です。")]
         public VNext.CommandListData OnExitCommands;
 
         [PropertyOrder(120)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("While True Commands")]
         [InlineProperty]
+        [Tooltip("条件が true のまま維持されている間、interval ごとに実行するコマンド群です。")]
         public MonitorRuleWhileCommandSet WhileTrueCommands;
 
         [PropertyOrder(130)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("While False Commands")]
         [InlineProperty]
+        [Tooltip("条件が false のまま維持されている間、interval ごとに実行するコマンド群です。")]
         public MonitorRuleWhileCommandSet WhileFalseCommands;
 
         [PropertyOrder(135)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("Cancel Running On Change")]
+        [Tooltip("条件変化時に実行中の Enter/Exit/While コマンドをキャンセルしてから新しい phase を開始します。")]
         public bool CancelRunningOnConditionChange;
 
         [HideInInspector]
@@ -261,6 +276,7 @@ namespace Game.Commands
 
         [PropertyOrder(140)]
         [LabelText("Execution Behavior")]
+        [Tooltip("同じ phase のコマンドが重なったときの扱いです。SkipIfRunning は無視、CancelAndRun は旧実行を止めて再実行します。")]
         public ExecutionBehavior Behavior;
 
         public void EnsureDefaults()

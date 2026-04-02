@@ -123,13 +123,22 @@ namespace Game.Common
                 return EvaluateRefService(context);
             }
 
+            var ctx = context ?? DummyDynamicContext.Instance;
+
             if (_dirty || _compiledNodes == null)
             {
                 if (!TryCompile(out _validationMessage))
                 {
                     _validationIsError = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    RichTextRuntimeLogger.Log($"RichText compile failed: {_validationMessage} template='{_template}'");
+                    RichTextRuntimeLogger.Error(
+                        "RTS-COMPILE-FAILED",
+                        "Template compilation failed.",
+                        BuildRuntimeLogContext(
+                            ctx,
+                            "Compile",
+                            detail: _validationMessage,
+                            variables: BuildVariableDefinitionSummary()));
 #endif
                     return DynamicVariant.FromString(string.Empty);
                 }
@@ -139,12 +148,20 @@ namespace Game.Common
             {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                 if (!string.IsNullOrEmpty(_template))
-                    RichTextRuntimeLogger.Log($"RichText has no compiled nodes. template='{_template}'");
+                {
+                    RichTextRuntimeLogger.Warn(
+                        "RTS-COMPILED-NODES-EMPTY",
+                        "Compiled node list is empty.",
+                        BuildRuntimeLogContext(
+                            ctx,
+                            "Evaluate",
+                            detail: "Template resolved to zero nodes.",
+                            variables: BuildVariableDefinitionSummary()));
+                }
 #endif
                 return DynamicVariant.FromString(string.Empty);
             }
 
-            var ctx = context ?? DummyDynamicContext.Instance;
             if (_evalScope == null)
                 _evalScope = new RichTextEvalScope(ctx, _scopeMap, _valueProxy);
             else
@@ -163,8 +180,14 @@ namespace Game.Common
             if (!string.IsNullOrEmpty(_template) && string.IsNullOrEmpty(result) && _lastEmptyWarnFrame != Time.frameCount)
             {
                 _lastEmptyWarnFrame = Time.frameCount;
-                RichTextRuntimeLogger.Log(
-                    $"RichText evaluated empty. template='{_template}' nodes={_compiledNodes.Count} vars=[{BuildVariableEvaluationDebug(ctx)}]");
+                RichTextRuntimeLogger.Warn(
+                    "RTS-EVALUATED-EMPTY",
+                    "Template evaluated to an empty string.",
+                    BuildRuntimeLogContext(
+                        ctx,
+                        "Evaluate",
+                        detail: $"nodes={_compiledNodes.Count}",
+                        variables: BuildVariableEvaluationDebug(ctx)));
             }
 #endif
             return DynamicVariant.FromString(result);
@@ -195,17 +218,65 @@ namespace Game.Common
         DynamicVariant EvaluateRefService(IDynamicContext context)
         {
             if (context == null)
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                RichTextRuntimeLogger.Warn(
+                    "RTS-REF-CONTEXT-NULL",
+                    "RefService mode requires a non-null dynamic context.",
+                    BuildRuntimeLogContext(
+                        null,
+                        "RefService",
+                        detail: "Context is null.",
+                        refKey: TryResolveRefKeyPreview(null)));
+#endif
                 return DynamicVariant.FromString(string.Empty);
+            }
 
             if (!TryResolveRefKey(context, out var key))
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                RichTextRuntimeLogger.Warn(
+                    "RTS-REF-KEY-MISSING",
+                    "RefService key could not be resolved.",
+                    BuildRuntimeLogContext(
+                        context,
+                        "RefService",
+                        detail: "Ref key is missing or empty.",
+                        refKey: TryResolveRefKeyPreview(context)));
+#endif
                 return DynamicVariant.FromString(string.Empty);
+            }
 
             var resolver = context.Scope?.Resolver;
             if (resolver == null || !resolver.TryResolve<IRichTextRefService>(out var refService) || refService == null)
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                RichTextRuntimeLogger.Warn(
+                    "RTS-REF-SERVICE-MISSING",
+                    "IRichTextRefService is not available in scope.",
+                    BuildRuntimeLogContext(
+                        context,
+                        "RefService",
+                        detail: "Resolver missing or service not registered.",
+                        refKey: key));
+#endif
                 return DynamicVariant.FromString(string.Empty);
+            }
 
             if (!refService.TryEvaluate(key, context, out var text))
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                RichTextRuntimeLogger.Warn(
+                    "RTS-REF-EVALUATE-FAILED",
+                    "IRichTextRefService evaluation returned false.",
+                    BuildRuntimeLogContext(
+                        context,
+                        "RefService",
+                        detail: "TryEvaluate returned false.",
+                        refKey: key));
+#endif
                 return DynamicVariant.FromString(string.Empty);
+            }
 
             return DynamicVariant.FromString(text ?? string.Empty);
         }
@@ -437,6 +508,97 @@ namespace Game.Common
                 return "(none)";
 
             return sb.ToString();
+        }
+
+        RichTextRuntimeLogContext BuildRuntimeLogContext(
+            IDynamicContext context,
+            string phase,
+            string detail = null,
+            string variables = null,
+            string refKey = null)
+        {
+            return new RichTextRuntimeLogContext
+            {
+                Phase = phase,
+                Template = _sourceMode == RichTextSourceMode.Template ? _template : null,
+                RefKey = refKey,
+                Detail = detail,
+                Variables = variables,
+                Settings = BuildSourceSettingsSummary(),
+                AllowImplicitKeys = _sourceMode == RichTextSourceMode.Template ? _allowImplicitKeys : null,
+                DynamicContext = context,
+            };
+        }
+
+        string BuildSourceSettingsSummary()
+        {
+            var localCount = _variables?.Count ?? 0;
+            var externalCount = _externalVariables?.Count ?? 0;
+            return
+                $"sourceMode={_sourceMode}, allowImplicitKeys={_allowImplicitKeys}, " +
+                $"localVariables={localCount}, externalVariables={externalCount}, includeLocalWithExternal={_includeLocalVariablesWithExternal}";
+        }
+
+        string BuildVariableDefinitionSummary()
+        {
+            var sb = new StringBuilder(128);
+            var count = 0;
+
+            void AppendVariables(IReadOnlyList<ExpressionVariable> vars, string label)
+            {
+                if (vars == null)
+                    return;
+
+                for (var i = 0; i < vars.Count; i++)
+                {
+                    var entry = vars[i];
+                    if (entry == null)
+                        continue;
+
+                    if (count > 0)
+                        sb.Append(", ");
+                    if (count >= 10)
+                    {
+                        sb.Append("...");
+                        return;
+                    }
+
+                    sb.Append(label);
+                    sb.Append(':');
+                    sb.Append(entry.ExpressionKey);
+                    sb.Append('(');
+                    sb.Append(entry.ExpectedKind);
+                    sb.Append(')');
+                    count++;
+                }
+            }
+
+            if (_externalVariables != null)
+                AppendVariables(_externalVariables, "external");
+
+            if (_variables != null && (_includeLocalVariablesWithExternal || _externalVariables == null))
+                AppendVariables(_variables, "local");
+
+            if (count == 0)
+                return "(none)";
+
+            return sb.ToString();
+        }
+
+        string TryResolveRefKeyPreview(IDynamicContext context)
+        {
+            if (!_refKey.HasSource)
+                return string.Empty;
+
+            try
+            {
+                var variant = _refKey.Evaluate(context ?? DummyDynamicContext.Instance);
+                return variant.Kind == ValueKind.Null ? "<null>" : (variant.AsString ?? string.Empty);
+            }
+            catch (Exception ex)
+            {
+                return $"<error:{ex.Message}>";
+            }
         }
 
         void MarkDirty()

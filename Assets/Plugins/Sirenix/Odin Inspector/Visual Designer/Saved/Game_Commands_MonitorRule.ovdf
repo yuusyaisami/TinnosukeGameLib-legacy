@@ -6,3 +6,7 @@ Game.Commands.MonitorRule, Assembly-CSharp
 	LabelWidth = 126
 + [Sirenix.OdinInspector.LabelWidthAttribute]
 	Width = 3.21
+
+# WhileTrueCommands
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 142.13

@@ -1,0 +1,6 @@
+OVDF v1.1
+Game.UI.TraitListChannelDefinition, Assembly-CSharp
+
+# _defaultBinding
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90.15

@@ -36,7 +36,7 @@ MonoBehaviour:
     note: 
   - id: 489cba5135464264b563667a4781209c
     parentId: 521bf67960b54cdbab6edcb48552acff
-    name: SelectUpgrade
+    name: Reward
     isFolder: 0
     description: 
     stateId: 13
@@ -83,4 +83,11 @@ MonoBehaviour:
     description: 
     stateId: 18
     note: 
-  nextStateId: 19
+  - id: f2d4115d4491470881479dee283a8882
+    parentId: 521bf67960b54cdbab6edcb48552acff
+    name: TalkEvent
+    isFolder: 0
+    description: 
+    stateId: 19
+    note: 
+  nextStateId: 20

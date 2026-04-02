@@ -1,0 +1,206 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b53cb4e9d365442ab02a53a829a9dc, type: 3}
+  m_Name: QuotaBaseFuction
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.VNext.CommandFunctionSO
+  preset:
+    rid: 5619052451121070210
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842374860145347
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 15
+    - rid: 5399842402410693125
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842402410693126
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842402410693127
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: Add
+          _expectedType: 3
+        _expression: GameStage + Add
+    - rid: 5399842402410693126
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -478819391
+          Name: GameLogic.GameProfile.Base.GameStage
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842402410693127
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: A
+          varId: 226
+    - rid: 5619052451121070210
+      type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Commands:
+          _debugOwner: {fileID: 11400000}
+          _debugFieldPath: preset.Commands
+          _debugAssetPath: Assets/Game/ScriptableObjects/Game/QuotaBaseFuction.asset
+          _functionName: Command.Function.Body
+          _commands:
+          - rid: 5619052451121070211
+    - rid: 5619052451121070211
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052451121070212
+    - rid: 5619052451121070212
+      type: {class: SwitchCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        SwitchValue:
+          _source:
+            rid: 5399842402410693125
+        EvaluateOrder: 10
+        Cases:
+        - MatchMode: 10
+          CaseValue:
+            _source:
+              rid: 5619052451121070214
+          CompareOp: 60
+          CompareTarget:
+            _source:
+              rid: -2
+          Condition:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands:
+            - rid: 5619052451121070215
+        DefaultCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5619052451121070214
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5619052451121070215
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5619052451121070216
+    - rid: 5619052451121070216
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarOps:
+        - Target: 0
+          Key:
+            stableKey: RequestBaseQuota
+            varId: 101124
+          Op: 0
+          Value:
+            _source:
+              rid: 5399842374860145347
+        ScalarOps: []
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1

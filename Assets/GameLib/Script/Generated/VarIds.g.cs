@@ -3339,6 +3339,122 @@ namespace Game.Vars.Generated
                         public const int traitInstanceRef = 113;
                     }
                 }
+
+                public static partial class TraitListChannel
+                {
+
+                    public static partial class Item
+                    {
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/channelTag
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.channelTag
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/channelTag
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.channelTag
+                        /// </remarks>
+                        public const int channelTag = 101111;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/column
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.column
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/column
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.column
+                        /// </remarks>
+                        public const int column = 101112;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/holderKey
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.holderKey
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/holderKey
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.holderKey
+                        /// </remarks>
+                        public const int holderKey = 101113;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/listIndex
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.listIndex
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/listIndex
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.listIndex
+                        /// </remarks>
+                        public const int listIndex = 101114;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/rangeCount
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.rangeCount
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/rangeCount
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.rangeCount
+                        /// </remarks>
+                        public const int rangeCount = 101115;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/rangeStart
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.rangeStart
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/rangeStart
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.rangeStart
+                        /// </remarks>
+                        public const int rangeStart = 101116;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/row
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.row
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/row
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.row
+                        /// </remarks>
+                        public const int row = 101117;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitDefinitionId
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitDefinitionId
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitDefinitionId
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitDefinitionId
+                        /// </remarks>
+                        public const int traitDefinitionId = 101118;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitDefinitionRef
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitDefinitionRef
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitDefinitionRef
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitDefinitionRef
+                        /// </remarks>
+                        public const int traitDefinitionRef = 101119;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitIndex
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitIndex
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitIndex
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitIndex
+                        /// </remarks>
+                        public const int traitIndex = 101120;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitInstanceId
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitInstanceId
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitInstanceId
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitInstanceId
+                        /// </remarks>
+                        public const int traitInstanceId = 101121;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitInstanceRef
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitInstanceRef
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/traitInstanceRef
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.traitInstanceRef
+                        /// </remarks>
+                        public const int traitInstanceRef = 101122;
+                    }
+                }
             }
         }
 
@@ -3399,6 +3515,28 @@ namespace Game.Vars.Generated
                         /// </remarks>
                         public const int SlotMul = 101109;
                     }
+                }
+
+                public static partial class Base
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/QuotaMul
+                    /// StableKey: QuotaMul
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/QuotaMul
+                    /// StableKey: QuotaMul
+                    /// </remarks>
+                    public const int QuotaMul = 101126;
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/RequestBaseQuota
+                    /// StableKey: RequestBaseQuota
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Base/RequestBaseQuota
+                    /// StableKey: RequestBaseQuota
+                    /// </remarks>
+                    public const int RequestBaseQuota = 101124;
                 }
             }
 
@@ -3526,6 +3664,58 @@ namespace Game.Vars.Generated
                     /// StableKey: StatusEffect
                     /// </remarks>
                     public const int StatusEffect = 100124;
+                }
+            }
+
+            public static partial class RewardCardProfile
+            {
+
+                public static partial class Element
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/RewardCardProfile/Element/Rarity
+                    /// StableKey: GameLogic.RewardCardProfile.Element.Rarity
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/RewardCardProfile/Element/Rarity
+                    /// StableKey: GameLogic.RewardCardProfile.Element.Rarity
+                    /// </remarks>
+                    public const int Rarity = 101123;
+                }
+            }
+
+            public static partial class RewardEventProfile
+            {
+                /// <remarks>
+                /// Path: GameLogic/RewardEventProfile/RerollCurrentCount
+                /// StableKey: RerollCurrentCount
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLogic/RewardEventProfile/RerollCurrentCount
+                /// StableKey: RerollCurrentCount
+                /// </remarks>
+                public const int RerollCurrentCount = 101128;
+                /// <remarks>
+                /// Path: GameLogic/RewardEventProfile/RerollMaxCount
+                /// StableKey: RerollMaxCount
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLogic/RewardEventProfile/RerollMaxCount
+                /// StableKey: RerollMaxCount
+                /// </remarks>
+                public const int RerollMaxCount = 101129;
+
+                public static partial class Element
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/RewardEventProfile/Element/Rarity
+                    /// StableKey: GameLogic.RewardEventProfile.Element.Rarity
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/RewardEventProfile/Element/Rarity
+                    /// StableKey: GameLogic.RewardEventProfile.Element.Rarity
+                    /// </remarks>
+                    public const int Rarity = 101127;
                 }
             }
         }
@@ -3858,11 +4048,25 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitIndex,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceId,
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
+            VarIds.GameLib.UI.TraitListChannel.Item.channelTag,
+            VarIds.GameLib.UI.TraitListChannel.Item.column,
+            VarIds.GameLib.UI.TraitListChannel.Item.holderKey,
+            VarIds.GameLib.UI.TraitListChannel.Item.listIndex,
+            VarIds.GameLib.UI.TraitListChannel.Item.rangeCount,
+            VarIds.GameLib.UI.TraitListChannel.Item.rangeStart,
+            VarIds.GameLib.UI.TraitListChannel.Item.row,
+            VarIds.GameLib.UI.TraitListChannel.Item.traitDefinitionId,
+            VarIds.GameLib.UI.TraitListChannel.Item.traitDefinitionRef,
+            VarIds.GameLib.UI.TraitListChannel.Item.traitIndex,
+            VarIds.GameLib.UI.TraitListChannel.Item.traitInstanceId,
+            VarIds.GameLib.UI.TraitListChannel.Item.traitInstanceRef,
             VarIds.GameLogic.GameProfile.BallTable.TableId,
             VarIds.GameLogic.GameProfile.BallTable.Elements.BallMaxValue,
             VarIds.GameLogic.GameProfile.BallTable.Elements.BallTotalValue,
             VarIds.GameLogic.GameProfile.BallTable.Elements.BallValue,
             VarIds.GameLogic.GameProfile.BallTable.Elements.SlotMul,
+            VarIds.GameLogic.GameProfile.Base.QuotaMul,
+            VarIds.GameLogic.GameProfile.Base.RequestBaseQuota,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
             VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
@@ -3874,6 +4078,10 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.NailProfile.UpgradePanel.Price,
             VarIds.GameLogic.NailProfile.UpgradePanel.StackPreset,
             VarIds.GameLogic.NailProfile.UpgradePanel.StatusEffect,
+            VarIds.GameLogic.RewardCardProfile.Element.Rarity,
+            VarIds.GameLogic.RewardEventProfile.RerollCurrentCount,
+            VarIds.GameLogic.RewardEventProfile.RerollMaxCount,
+            VarIds.GameLogic.RewardEventProfile.Element.Rarity,
         };
     }
 }

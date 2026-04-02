@@ -755,12 +755,33 @@ namespace Game.MaterialFx
             if (registry == null) throw new ArgumentNullException(nameof(registry));
             _spriteUVRectId = ResolveShaderPropertyId(registry, MaterialFxKeys.BaseShader.Common.SpriteUVRect);
             _spriteTexelSizeLocalId = ResolveShaderPropertyId(registry, MaterialFxKeys.BaseShader.Common.SpriteTexelSizeLocal);
+
+            EnsureBaseMaterialShader();
+        }
+
+        void EnsureBaseMaterialShader()
+        {
+            if (_graphic == null)
+                return;
+
+            var baseMaterial = MaterialFxService.BaseMaterial;
+            if (baseMaterial == null)
+                return;
+
+            var current = _graphic.material;
+            if (current == null || current.shader != baseMaterial.shader)
+            {
+                _graphic.material = baseMaterial;
+                _graphic.SetMaterialDirty();
+            }
         }
 
         void EnsureModifier()
         {
             if (_modifier != null) return;
             if (_graphic == null) return;
+
+            EnsureBaseMaterialShader();
 
             // MaterialFxGraphicModifier を追加または取得
             _modifier = _graphic.GetComponent<MaterialFxGraphicModifier>();
@@ -805,10 +826,16 @@ namespace Game.MaterialFx
             if (_graphic == null || _modifier == null)
                 return;
 
+            var wroteMaterial = _hasPendingApply;
             var mat = GetMaterialInstance();
             if (mat != null)
             {
-                SyncGraphicSpriteMetadata(mat);
+                wroteMaterial |= SyncGraphicSpriteMetadata(mat);
+            }
+
+            if (wroteMaterial)
+            {
+                _modifier.SetMaterialDirty();
             }
 
             _hasPendingApply = false;
@@ -828,14 +855,14 @@ namespace Game.MaterialFx
             return !ReferenceEquals(img.sprite, _lastSprite);
         }
 
-        void SyncGraphicSpriteMetadata(Material mat)
+        bool SyncGraphicSpriteMetadata(Material mat)
         {
             if (_graphic is not Image img)
-                return;
+                return false;
 
             var sprite = img.sprite;
             if (ReferenceEquals(sprite, _lastSprite))
-                return;
+                return false;
 
             var uvRect = new Vector4(0f, 0f, 1f, 1f);
             var invPpu = 0f;
@@ -853,6 +880,7 @@ namespace Game.MaterialFx
 
             _lastSprite = sprite;
             _lastInvPpu = invPpu;
+            return true;
         }
 
         static int ResolveShaderPropertyId(IMaterialFxPropertyRegistry registry, string stableKey)

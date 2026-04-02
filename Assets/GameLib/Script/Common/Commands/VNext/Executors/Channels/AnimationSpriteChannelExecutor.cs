@@ -219,7 +219,11 @@ namespace Game.Commands.VNext
 
             var entries = payload.Entries;
             if (entries == null || entries.Count == 0)
+            {
+                // Ensure clear-only commands are reflected immediately even when global MaterialFx tick is unavailable.
+                fx.Tick(0f);
                 return;
+            }
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -249,6 +253,9 @@ namespace Game.Commands.VNext
 
                 fx.SetLayer(key, context, value, e.BlendMode, payload.Priority, lifetime);
             }
+
+            // Command-driven MaterialFx should be visible immediately without waiting for the next system LateTick.
+            fx.Tick(0f);
         }
     }
 }

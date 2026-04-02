@@ -1,0 +1,14 @@
+OVDF v1.1
+Game.UI.TraitListChannelLayoutPreset, Assembly-CSharp
+
+# _spawnMotion
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 200
+
+# _relayoutMotion
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 200

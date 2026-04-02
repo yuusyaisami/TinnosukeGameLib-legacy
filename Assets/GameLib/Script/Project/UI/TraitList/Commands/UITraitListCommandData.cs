@@ -140,6 +140,25 @@ namespace Game.Commands.VNext
         public string HolderKey = string.Empty;
     }
 
+    [Serializable]
+    public sealed class ClearTraitFromHolderCommandData : ICommandData
+    {
+        public int CommandId => CommandIds.ClearTraitFromHolder;
+        public string DebugData => $"UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
+
+        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
+        public bool UseBoundHolder = true;
+
+        [ShowIf("@!UseBoundHolder")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]
+        [Tooltip("TraitHolder を保有する対象 Actor。ここから TraitHolderHubService を解決して HolderKey を参照します。")]
+        public ActorSource HolderActorSource;
+
+        [ShowIf("@!UseBoundHolder")]
+        [Tooltip("UseBoundHolder が false のときに使う holder key。clear 対象 holder をこの key で解決します。")]
+        public string HolderKey = string.Empty;
+    }
+
     public enum UITraitTargetKind
     {
         ByDefinition = 0,

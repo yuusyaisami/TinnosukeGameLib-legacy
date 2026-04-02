@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b53cb4e9d365442ab02a53a829a9dc, type: 3}
+  m_Name: RebuildEventHolderFunction
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.VNext.CommandFunctionSO
+  preset:
+    rid: 5399842374860144985
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842374860144985
+      type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Commands:
+          _debugOwner: {fileID: 11400000}
+          _debugFieldPath: preset.Commands
+          _debugAssetPath: Assets/Game/ScriptableObjects/Inventry/Reward/Event/RebuildEventHolderFunction.asset
+          _functionName: Command.Function.Body
+          _commands:
+          - rid: 5399842374860145241
+    - rid: 5399842374860145241
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842374860145242
+    - rid: 5399842374860145242
+      type: {class: TraitLotteryCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        HolderHubSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        HolderKey: EventShop
+        Candidates:
+        - {fileID: 11400000, guid: 5df5cd471e44c104b9c6ce80321b6b0e, type: 2}
+        ConditionalCandidates: []
+        DrawCount:
+          _source:
+            rid: 5399842374860145243
+          _defaultValue: 0
+        AllowDuplicates: 0
+        ExcludeExistingHolderTraits: 0
+        UseDuplicateCheckHolder: 0
+        DuplicateCheckHolderHubSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        DuplicateCheckHolderKey: 
+        DuplicateAllowedTraits: []
+        ShortageMode: 0
+        ApplyMode: 10
+    - rid: 5399842374860145243
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1

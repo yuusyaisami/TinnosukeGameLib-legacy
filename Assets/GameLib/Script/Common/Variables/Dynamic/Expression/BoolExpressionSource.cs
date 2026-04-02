@@ -107,7 +107,10 @@ namespace Game.Common
                 if (!TryCompile(out _validationMessage))
                 {
                     _validationIsError = true;
-                    Debug.LogError($"[BoolExpressionSource] Compile failed at runtime: {_validationMessage}\n{BuildRuntimeDebugDetails()}");
+                    ExpressionRuntimeLogger.Error(
+                        "EXB-COMPILE-FAILED",
+                        "Compile failed at runtime.",
+                        BuildRuntimeLogContext(context, "Compile", _validationMessage));
                     return DynamicVariant.FromBool(false);
                 }
             }
@@ -132,7 +135,10 @@ namespace Game.Common
             {
                 _validationMessage = $"Runtime error: {ex.Message}";
                 _validationIsError = true;
-                Debug.LogError($"[BoolExpressionSource] {_validationMessage}\n{BuildRuntimeDebugDetails()}");
+                ExpressionRuntimeLogger.Error(
+                    "EXB-EVAL-EXCEPTION",
+                    _validationMessage,
+                    BuildRuntimeLogContext(context, "Evaluate", ex.Message));
                 return DynamicVariant.FromBool(false);
             }
         }
@@ -357,6 +363,24 @@ namespace Game.Common
                 }
             }
             return true;
+        }
+
+        ExpressionRuntimeLogContext BuildRuntimeLogContext(IDynamicContext context, string phase, string detail)
+        {
+            var detailText = string.IsNullOrEmpty(detail)
+                ? BuildRuntimeDebugDetails()
+                : detail + " | " + BuildRuntimeDebugDetails();
+
+            return new ExpressionRuntimeLogContext
+            {
+                SourceType = SourceTypeName,
+                Phase = phase,
+                Expression = _expression,
+                Variables = GetExpressionVariablesDebugData(),
+                Detail = detailText,
+                AllowImplicitKeys = _allowImplicitVariablesFromContext,
+                DynamicContext = context,
+            };
         }
 
         string BuildRuntimeDebugDetails()

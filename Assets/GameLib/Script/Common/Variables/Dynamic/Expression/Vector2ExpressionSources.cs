@@ -100,7 +100,10 @@ namespace Game.Common
                 if (!TryCompile(out _validationMessage))
                 {
                     _validationIsError = true;
-                    Debug.LogError($"[Vector2ExpressionSource] Compile failed at runtime: {_validationMessage} (Expr: {_expression})");
+                    ExpressionRuntimeLogger.Error(
+                        "EXV2-COMPILE-FAILED",
+                        "Compile failed at runtime.",
+                        BuildRuntimeLogContext(context, "Compile", _validationMessage));
                     return DynamicVariant.FromVector2(Vector2.zero);
                 }
             }
@@ -128,7 +131,10 @@ namespace Game.Common
             {
                 _validationMessage = $"Runtime error: {ex.Message}";
                 _validationIsError = true;
-                Debug.LogError($"[Vector2ExpressionSource] {_validationMessage} (Expr: {_expression})");
+                ExpressionRuntimeLogger.Error(
+                    "EXV2-EVAL-EXCEPTION",
+                    _validationMessage,
+                    BuildRuntimeLogContext(context, "Evaluate", ex.Message));
                 return DynamicVariant.FromVector2(Vector2.zero);
             }
         }
@@ -348,6 +354,20 @@ namespace Game.Common
             return true;
         }
 
+        ExpressionRuntimeLogContext BuildRuntimeLogContext(IDynamicContext context, string phase, string detail)
+        {
+            return new ExpressionRuntimeLogContext
+            {
+                SourceType = SourceTypeName,
+                Phase = phase,
+                Expression = _expression,
+                Variables = GetExpressionVariablesDebugData(),
+                Detail = detail,
+                AllowImplicitKeys = _allowImplicitVariablesFromContext,
+                DynamicContext = context,
+            };
+        }
+
         void MarkDirty()
         {
             _dirty = true;
@@ -483,7 +503,10 @@ namespace Game.Common
                 if (!TryCompile(out _validationMessage))
                 {
                     _validationIsError = true;
-                    Debug.LogError($"[Vector2XYExpressionSource] Compile failed at runtime: {_validationMessage} (ExprX: {_expressionX}, ExprY: {_expressionY})");
+                    ExpressionRuntimeLogger.Error(
+                        "EXV2XY-COMPILE-FAILED",
+                        "Compile failed at runtime.",
+                        BuildRuntimeLogContext(context, "Compile", _validationMessage));
                     return DynamicVariant.FromVector2(Vector2.zero);
                 }
             }
@@ -511,7 +534,10 @@ namespace Game.Common
             {
                 _validationMessage = $"Runtime error: {ex.Message}";
                 _validationIsError = true;
-                Debug.LogError($"[Vector2XYExpressionSource] {_validationMessage} (ExprX: {_expressionX}, ExprY: {_expressionY})");
+                ExpressionRuntimeLogger.Error(
+                    "EXV2XY-EVAL-EXCEPTION",
+                    _validationMessage,
+                    BuildRuntimeLogContext(context, "Evaluate", ex.Message));
                 return DynamicVariant.FromVector2(Vector2.zero);
             }
         }
@@ -751,6 +777,20 @@ namespace Game.Common
             }
 
             return true;
+        }
+
+        ExpressionRuntimeLogContext BuildRuntimeLogContext(IDynamicContext context, string phase, string detail)
+        {
+            return new ExpressionRuntimeLogContext
+            {
+                SourceType = SourceTypeName,
+                Phase = phase,
+                Expression = $"x={_expressionX}; y={_expressionY}",
+                Variables = GetExpressionVariablesDebugData(),
+                Detail = detail,
+                AllowImplicitKeys = _allowImplicitVariablesFromContext,
+                DynamicContext = context,
+            };
         }
 
         void MarkDirty()

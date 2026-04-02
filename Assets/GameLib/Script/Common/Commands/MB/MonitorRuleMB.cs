@@ -16,11 +16,13 @@ namespace Game.Commands
     {
         [BoxGroup("Monitor Rules")]
         [LabelText("Monitor Rules")]
+        [Tooltip("この scope に登録する monitor rule 一覧です。")]
         [SerializeField]
         MonitorRule[] _monitorRules = Array.Empty<MonitorRule>();
 
         [BoxGroup("Monitor Rules")]
         [LabelText("Shared Expression Variables")]
+        [Tooltip("各 rule の式 source から共通参照できる expression 変数一覧です。")]
         [SerializeField]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = false)]
         List<ExpressionVariable> _sharedExpressionVariables = new();

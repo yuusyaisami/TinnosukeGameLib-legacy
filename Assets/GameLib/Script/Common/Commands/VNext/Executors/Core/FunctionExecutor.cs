@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Common;
@@ -28,6 +29,10 @@ namespace Game.Commands.VNext
             (ctx.Vars ?? NullVarStore.Instance).MergeInto(mergedVars, overwrite: true);
             ApplyInitialVars(typed.InitialVars, ctx, mergedVars);
 
+            // Keep a baseline after initial-arg injection so untouched args don't leak back.
+            var baselineVars = new VarStore();
+            mergedVars.MergeInto(baselineVars, overwrite: true);
+
             var runCtx = new CommandContext(
                 ctx.Scope,
                 mergedVars,
@@ -44,6 +49,93 @@ namespace Game.Commands.VNext
                 throw new OperationCanceledException();
             if (result.Status == CommandRunStatus.Error)
                 throw new CommandExecutionException(result.FailureKind, result.Message);
+
+            ApplyFunctionOutputsToCaller(ctx.Vars, baselineVars, mergedVars);
+        }
+
+        static void ApplyFunctionOutputsToCaller(IVarStore? callerVars, IVarStore before, IVarStore after)
+        {
+            if (callerVars == null || callerVars is NullVarStore)
+                return;
+
+            var handled = new HashSet<int>();
+            ApplyChangedIds(before, after, callerVars, handled);
+            ApplyChangedIds(after, before, callerVars, handled);
+        }
+
+        static void ApplyChangedIds(IVarStore sourceIds, IVarStore compareTo, IVarStore destination, HashSet<int> handled)
+        {
+            foreach (var varId in sourceIds.EnumerateVarIds())
+            {
+                if (varId == 0 || !handled.Add(varId))
+                    continue;
+
+                if (AreSameValue(sourceIds, compareTo, varId))
+                    continue;
+
+                ApplyVarValue(destination, sourceIds, varId);
+            }
+        }
+
+        static bool AreSameValue(IVarStore left, IVarStore right, int varId)
+        {
+            var leftKind = left.GetVarKind(varId);
+            var rightKind = right.GetVarKind(varId);
+            if (leftKind != rightKind)
+                return false;
+
+            if (leftKind == ValueKind.Null)
+                return true;
+
+            if (leftKind == ValueKind.ManagedRef)
+            {
+                var leftHasRef = left.TryGetManagedRef(varId, out var leftRef);
+                var rightHasRef = right.TryGetManagedRef(varId, out var rightRef);
+                if (leftHasRef != rightHasRef)
+                    return false;
+                if (!leftHasRef)
+                    return true;
+                return ReferenceEquals(leftRef, rightRef);
+            }
+
+            var leftHasValue = left.TryGetVariant(varId, out var leftValue);
+            var rightHasValue = right.TryGetVariant(varId, out var rightValue);
+            if (leftHasValue != rightHasValue)
+                return false;
+            if (!leftHasValue)
+                return true;
+
+            return leftValue.Equals(rightValue);
+        }
+
+        static void ApplyVarValue(IVarStore destination, IVarStore source, int varId)
+        {
+            var sourceKind = source.GetVarKind(varId);
+            if (sourceKind == ValueKind.Null)
+            {
+                destination.TryUnset(varId);
+                return;
+            }
+
+            if (sourceKind == ValueKind.ManagedRef)
+            {
+                if (source.TryGetManagedRef(varId, out var managedRef) && managedRef != null)
+                    destination.TrySetManagedRef(varId, managedRef);
+                else
+                    destination.TryUnset(varId);
+                return;
+            }
+
+            if (source.TryGetVariant(varId, out var variant))
+            {
+                if (variant.Kind == ValueKind.Null)
+                    destination.TryUnset(varId);
+                else
+                    destination.TrySetVariant(varId, variant);
+                return;
+            }
+
+            destination.TryUnset(varId);
         }
 
         static void ApplyInitialVars(

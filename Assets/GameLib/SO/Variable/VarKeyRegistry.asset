@@ -1041,6 +1041,118 @@ MonoBehaviour:
     varId: 113
     stableKey: traitInstanceRef
     aliases: []
+  - id: 4a777b647bf84b03afb2ce8fa7f7d701
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: TraitListChannel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    parentId: 4a777b647bf84b03afb2ce8fa7f7d701
+    name: Item
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 1b2fd3645c654d2f9bf311dcf8d66412
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: channelTag
+    isFolder: 0
+    description: 
+    varId: 101111
+    stableKey: GameLib.UI.TraitListChannel.Item.channelTag
+    aliases: []
+  - id: 8cf9666373ad48a9937badc9256c3b50
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: column
+    isFolder: 0
+    description: 
+    varId: 101112
+    stableKey: GameLib.UI.TraitListChannel.Item.column
+    aliases: []
+  - id: 3dbecb2c3db34dceb9be52055d690a2f
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: holderKey
+    isFolder: 0
+    description: 
+    varId: 101113
+    stableKey: GameLib.UI.TraitListChannel.Item.holderKey
+    aliases: []
+  - id: f2d1c7d272744db7999ba6f1f3706a0e
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: listIndex
+    isFolder: 0
+    description: 
+    varId: 101114
+    stableKey: GameLib.UI.TraitListChannel.Item.listIndex
+    aliases: []
+  - id: 7476c8d8b2f444a897f7a3d01859a6d5
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: rangeCount
+    isFolder: 0
+    description: 
+    varId: 101115
+    stableKey: GameLib.UI.TraitListChannel.Item.rangeCount
+    aliases: []
+  - id: 6df27a72a14544cb9bc9d3d3bc42d9e0
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: rangeStart
+    isFolder: 0
+    description: 
+    varId: 101116
+    stableKey: GameLib.UI.TraitListChannel.Item.rangeStart
+    aliases: []
+  - id: 4397797a70364f0b8141d25f42d22d17
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: row
+    isFolder: 0
+    description: 
+    varId: 101117
+    stableKey: GameLib.UI.TraitListChannel.Item.row
+    aliases: []
+  - id: 2d1f3af1db7f4ac6a26fbacdd8b61a33
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: traitDefinitionId
+    isFolder: 0
+    description: 
+    varId: 101118
+    stableKey: GameLib.UI.TraitListChannel.Item.traitDefinitionId
+    aliases: []
+  - id: c9477aa13a2442728b4da3e3f14d6e40
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: traitDefinitionRef
+    isFolder: 0
+    description: 
+    varId: 101119
+    stableKey: GameLib.UI.TraitListChannel.Item.traitDefinitionRef
+    aliases: []
+  - id: 00586cc2bc7145a993c07bb8d8d3d21a
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: traitIndex
+    isFolder: 0
+    description: 
+    varId: 101120
+    stableKey: GameLib.UI.TraitListChannel.Item.traitIndex
+    aliases: []
+  - id: 6a3eb31565584506a9407fd4d8c5ef4d
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: traitInstanceId
+    isFolder: 0
+    description: 
+    varId: 101121
+    stableKey: GameLib.UI.TraitListChannel.Item.traitInstanceId
+    aliases: []
+  - id: 613f0c27472d444c9575a4d08df3b17a
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: traitInstanceRef
+    isFolder: 0
+    description: 
+    varId: 101122
+    stableKey: GameLib.UI.TraitListChannel.Item.traitInstanceRef
+    aliases: []
   - id: ea23671d6ebf4e7e8404197464a7aa6e
     parentId: bd7d3c55e3b240329ee6d3a19d9deef8
     name: Button
@@ -3743,7 +3855,97 @@ MonoBehaviour:
     varId: 101109
     stableKey: SlotMul
     aliases: []
-  nextVarId: 101111
+  - id: 88a4ad9f563e4296b77b0717974d767b
+    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
+    name: RewardCardProfile
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: bed6624683954e1589e3c92cb9fe44c8
+    parentId: 88a4ad9f563e4296b77b0717974d767b
+    name: Element
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: f8bb89caef8546d68e523a6a45c4fb8a
+    parentId: bed6624683954e1589e3c92cb9fe44c8
+    name: Rarity
+    isFolder: 0
+    description: 
+    varId: 101123
+    stableKey: GameLogic.RewardCardProfile.Element.Rarity
+    aliases:
+    - Rarity
+  - id: f1c4b5286b934bd0b52b416c8464c2b8
+    parentId: da35a1b429744fc8a2c01c9a54c8d1f5
+    name: Base
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: cb00ed6bba794d43951e3b2a4ca1aee2
+    parentId: f1c4b5286b934bd0b52b416c8464c2b8
+    name: RequestBaseQuota
+    isFolder: 0
+    description: 
+    varId: 101124
+    stableKey: RequestBaseQuota
+    aliases: []
+  - id: 7c14e1140f3640f8876346ce8c3ae075
+    parentId: f1c4b5286b934bd0b52b416c8464c2b8
+    name: QuotaMul
+    isFolder: 0
+    description: 
+    varId: 101126
+    stableKey: QuotaMul
+    aliases: []
+  - id: 44a749d2134343ce8e84e5a2ee76f521
+    parentId: bf9d10780ffd431f9d1fe6f54d629bf6
+    name: RewardEventProfile
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 5a528483394944b0940148ac816c4f15
+    parentId: 44a749d2134343ce8e84e5a2ee76f521
+    name: Element
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: ba0915a34e174c62b0b0b11111eb77f4
+    parentId: 5a528483394944b0940148ac816c4f15
+    name: Rarity
+    isFolder: 0
+    description: 
+    varId: 101127
+    stableKey: GameLogic.RewardEventProfile.Element.Rarity
+    aliases:
+    - Rarity
+  - id: 020283f3407a49c08121e4eaec31cca4
+    parentId: 44a749d2134343ce8e84e5a2ee76f521
+    name: RerollCurrentCount
+    isFolder: 0
+    description: 
+    varId: 101128
+    stableKey: RerollCurrentCount
+    aliases: []
+  - id: 39487c56c41a460a9bb94657081efd35
+    parentId: 44a749d2134343ce8e84e5a2ee76f521
+    name: RerollMaxCount
+    isFolder: 0
+    description: 
+    varId: 101129
+    stableKey: RerollMaxCount
+    aliases: []
+  nextVarId: 101130
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount
@@ -3935,5 +4137,8 @@ MonoBehaviour:
     aliases: []
   - varId: 101058
     stableKey: LuckPoint
+    aliases: []
+  - varId: 101125
+    stableKey: OnlyVar
     aliases: []
   csvFile: {fileID: 0}

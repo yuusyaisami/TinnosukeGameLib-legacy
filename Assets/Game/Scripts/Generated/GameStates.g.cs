@@ -12,9 +12,9 @@ namespace Game.Actions
         /// </remarks>
         GameScene_Game_Start = 12,
         /// <remarks>
-        /// Path: GameScene/Game/SelectUpgrade
+        /// Path: GameScene/Game/Reward
         /// </remarks>
-        GameScene_Game_SelectUpgrade = 13,
+        GameScene_Game_Reward = 13,
         /// <remarks>
         /// Path: GameScene/Game/GameEditor
         /// </remarks>
@@ -35,5 +35,9 @@ namespace Game.Actions
         /// Path: GameScene/Game/GameOver
         /// </remarks>
         GameScene_Game_GameOver = 18,
+        /// <remarks>
+        /// Path: GameScene/Game/TalkEvent
+        /// </remarks>
+        GameScene_Game_TalkEvent = 19,
     }
 }

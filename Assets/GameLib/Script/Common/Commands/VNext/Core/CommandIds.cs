@@ -79,6 +79,7 @@ namespace Game.Commands.VNext
         public const int AddTraitToHolder = 1876;
         public const int RemoveTraitFromHolder = 1877;
         public const int UseTraitFromHolder = 1878;
+        public const int ClearTraitFromHolder = 1879;
 
         public const int StageToggleWorld = 1880;
         public const int StagePeekOppositeWorld = 1881;
@@ -130,6 +131,10 @@ namespace Game.Commands.VNext
         public const int TooltipChannelHubControl = 1983;
         public const int TooltipChannel = 1984;
         public const int TooltipChannelPlayerControl = 1985;
+        public const int BindTraitListChannel = 1986;
+        public const int RefreshTraitListChannel = 1987;
+        public const int SetTraitListChannelRange = 1988;
+        public const int ClearTraitListChannel = 1989;
 
         public const int WithActor = 2001;
         public const int WithActorDescendantRouter = 2002;

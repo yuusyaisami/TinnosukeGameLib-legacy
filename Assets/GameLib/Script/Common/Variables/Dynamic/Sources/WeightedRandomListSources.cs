@@ -64,10 +64,10 @@ namespace Game.Common
         public struct Entry
         {
             [HorizontalGroup("Row"), HideLabel]
-            public string Value;
+            public DynamicValue<string> Value;
 
             [HorizontalGroup("Row"), Min(0f)]
-            public float Weight;
+            public DynamicValue<float> Weight;
         }
 
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowIndexLabels = true)]
@@ -78,10 +78,10 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            if (!WeightedRandomPicker.TryPickIndex(entries, static e => e.Weight, out var i))
+            if (!WeightedRandomPicker.TryPickIndex(entries, e => Mathf.Max(0f, e.Weight.GetOrDefault(context, 0f)), out var i))
                 return DynamicVariant.Null;
 
-            return DynamicVariant.FromString(entries[i].Value ?? string.Empty);
+            return DynamicVariant.FromString(entries[i].Value.GetOrDefault(context, string.Empty) ?? string.Empty);
         }
     }
 
@@ -92,10 +92,10 @@ namespace Game.Common
         public struct Entry
         {
             [HorizontalGroup("Row", Width = 0.8f), HideLabel]
-            public int Value;
+            public DynamicValue<int> Value;
 
             [HorizontalGroup("Row"), Min(0f), LabelWidth(54)]
-            public float Weight;
+            public DynamicValue<float> Weight;
         }
 
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowIndexLabels = true)]
@@ -106,10 +106,10 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            if (!WeightedRandomPicker.TryPickIndex(entries, static e => e.Weight, out var i))
+            if (!WeightedRandomPicker.TryPickIndex(entries, e => Mathf.Max(0f, e.Weight.GetOrDefault(context, 0f)), out var i))
                 return DynamicVariant.Null;
 
-            return DynamicVariant.FromInt(entries[i].Value);
+            return DynamicVariant.FromInt(entries[i].Value.GetOrDefault(context, 0));
         }
     }
 
@@ -120,10 +120,10 @@ namespace Game.Common
         public struct Entry
         {
             [HorizontalGroup("Row", Width = 0.8f), HideLabel]
-            public float Value;
+            public DynamicValue<float> Value;
 
             [HorizontalGroup("Row"), Min(0f), LabelWidth(54)]
-            public float Weight;
+            public DynamicValue<float> Weight;
         }
 
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowIndexLabels = true)]
@@ -134,10 +134,10 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            if (!WeightedRandomPicker.TryPickIndex(entries, static e => e.Weight, out var i))
+            if (!WeightedRandomPicker.TryPickIndex(entries, e => Mathf.Max(0f, e.Weight.GetOrDefault(context, 0f)), out var i))
                 return DynamicVariant.Null;
 
-            return DynamicVariant.FromFloat(entries[i].Value);
+            return DynamicVariant.FromFloat(entries[i].Value.GetOrDefault(context, 0f));
         }
     }
 
@@ -148,10 +148,10 @@ namespace Game.Common
         public struct Entry
         {
             [HorizontalGroup("Row", Width = 0.8f), HideLabel]
-            public Color Value;
+            public DynamicValue<Color> Value;
 
             [HorizontalGroup("Row"), Min(0f), LabelWidth(54)]
-            public float Weight;
+            public DynamicValue<float> Weight;
         }
 
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowIndexLabels = true)]
@@ -162,10 +162,10 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            if (!WeightedRandomPicker.TryPickIndex(entries, static e => e.Weight, out var i))
+            if (!WeightedRandomPicker.TryPickIndex(entries, e => Mathf.Max(0f, e.Weight.GetOrDefault(context, 0f)), out var i))
                 return DynamicVariant.Null;
 
-            return DynamicVariant.FromColor(entries[i].Value);
+            return DynamicVariant.FromColor(entries[i].Value.GetOrDefault(context, Color.white));
         }
     }
 
@@ -181,10 +181,10 @@ namespace Game.Common
         public struct Entry
         {
             [HorizontalGroup("Row", Width = 0.8f), HideLabel]
-            public BaseRuntimeTemplateSO? Value;
+            public DynamicValue<BaseRuntimeTemplateSO> Value;
 
             [HorizontalGroup("Row"), Min(0f), LabelWidth(54)]
-            public float Weight;
+            public DynamicValue<float> Weight;
         }
 
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowIndexLabels = true)]
@@ -195,10 +195,12 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            if (!WeightedRandomPicker.TryPickIndex(entries, static e => e.Weight, out var i))
+            if (!WeightedRandomPicker.TryPickIndex(entries, e => Mathf.Max(0f, e.Weight.GetOrDefault(context, 0f)), out var i))
                 return DynamicVariant.Null;
 
-            return DynamicVariant.FromUnityObject(entries[i].Value);
+            return entries[i].Value.TryGet(context, out BaseRuntimeTemplateSO? template) && template != null
+                ? DynamicVariant.FromUnityObject(template)
+                : DynamicVariant.Null;
         }
     }
 
@@ -214,10 +216,10 @@ namespace Game.Common
         public struct Entry
         {
             [HorizontalGroup("Row", Width = 0.8f), HideLabel]
-            public BaseRuntimeTemplatePreset? Value;
+            public DynamicValue<BaseRuntimeTemplatePreset> Value;
 
             [HorizontalGroup("Row"), Min(0f), LabelWidth(54)]
-            public float Weight;
+            public DynamicValue<float> Weight;
         }
 
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowIndexLabels = true)]
@@ -228,12 +230,10 @@ namespace Game.Common
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
-            _ = context;
-
-            if (!WeightedRandomPicker.TryPickIndex(entries, static e => e.Weight, out var i))
+            if (!WeightedRandomPicker.TryPickIndex(entries, e => Mathf.Max(0f, e.Weight.GetOrDefault(context, 0f)), out var i))
                 return DynamicVariant.Null;
 
-            var preset = entries[i].Value;
+            var preset = entries[i].Value.TryGet(context, out BaseRuntimeTemplatePreset? resolved) ? resolved : null;
             return preset != null ? DynamicVariant.FromManagedRef(preset) : DynamicVariant.Null;
         }
     }

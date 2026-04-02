@@ -464,6 +464,19 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string GlobalGravityScale = "GameLogic.GameProfile.Events.GlobalGravityScale";
                 }
+
+                public static partial class Quota
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Quota/QuotaDecrementMul
+                    /// </remarks>
+                    public const string QuotaDecrementMul = "GameLogic.GameProfile.Quota.QuotaDecrementMul";
+                    /// <summary>ノルマにちょっとだけ</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Quota/QuotaIncrementMul
+                    /// </remarks>
+                    public const string QuotaIncrementMul = "GameLogic.GameProfile.Quota.QuotaIncrementMul";
+                }
             }
 
             public static partial class GateProfile
@@ -692,6 +705,8 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Base.TimeLimitValue,
             ScalarKeys.GameLogic.GameProfile.Base.TurnValue,
             ScalarKeys.GameLogic.GameProfile.Events.GlobalGravityScale,
+            ScalarKeys.GameLogic.GameProfile.Quota.QuotaDecrementMul,
+            ScalarKeys.GameLogic.GameProfile.Quota.QuotaIncrementMul,
             ScalarKeys.GameLogic.GateProfile.LeftGate.CloseTime,
             ScalarKeys.GameLogic.GateProfile.LeftGate.OpenTime,
             ScalarKeys.GameLogic.GateProfile.RightGate.CloseTime,
