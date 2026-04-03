@@ -14,16 +14,19 @@ namespace Game.Channel
     {
         [BoxGroup("Channel")]
         [LabelText("Channel Tag")]
+        [Tooltip("hub 内でこの channel を識別する tag です。command からもこの値で指定します。")]
         [SerializeField]
         string _channelTag = "default";
 
         [BoxGroup("Channel")]
         [LabelText("Auto Build")]
+        [Tooltip("scope acquire 時に自動で bind + full rebuild を行います。")]
         [SerializeField]
         bool _autoBuild;
 
         [BoxGroup("Preset")]
         [LabelText("Player Preset")]
+        [Tooltip("item 群をどう生成するかを決める player preset です。")]
         [SerializeField]
         DynamicValue<GridObjectChannelPlayerPresetBase> _playerPreset =
             DynamicValue<GridObjectChannelPlayerPresetBase>.FromSource(
@@ -31,6 +34,7 @@ namespace Game.Channel
 
         [BoxGroup("Preset")]
         [LabelText("Layout Preset")]
+        [Tooltip("item の row/column と target 座標をどう計算するかを決める layout preset です。")]
         [SerializeField]
         DynamicValue<GridObjectChannelLayoutPreset> _layoutPreset =
             DynamicValue<GridObjectChannelLayoutPreset>.FromSource(
@@ -38,6 +42,7 @@ namespace Game.Channel
 
         [BoxGroup("Preset")]
         [LabelText("Visualizer Preset")]
+        [Tooltip("spawn 対象 runtime template や command 実行方法を決める visualizer preset です。")]
         [SerializeField]
         DynamicValue<GridObjectChannelVisualizerPreset> _visualizerPreset =
             DynamicValue<GridObjectChannelVisualizerPreset>.FromSource(
@@ -45,11 +50,13 @@ namespace Game.Channel
 
         [BoxGroup("Scene")]
         [LabelText("List Root")]
+        [Tooltip("spawn した item の親 Transform です。未設定時は Hub 自身を使います。")]
         [SerializeField]
         Transform? _listRoot;
 
         [BoxGroup("Scene")]
         [LabelText("Layout Rect")]
+        [Tooltip("UI 座標計算に使う RectTransform です。未設定時は List Root を RectTransform として扱います。")]
         [SerializeField]
         RectTransform? _layoutRectTransform;
 
@@ -68,6 +75,7 @@ namespace Game.Channel
         [BoxGroup("Channels")]
         [LabelText("Channels")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
+        [Tooltip("この hub が管理する GridObjectChannel 定義一覧です。")]
         [SerializeField]
         List<GridObjectChannelDefinition> _channels = new() { new GridObjectChannelDefinition() };
 

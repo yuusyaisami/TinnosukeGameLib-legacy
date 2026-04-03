@@ -980,7 +980,11 @@ namespace Game
             {
                 try
                 {
-                    _acquireHandlers[i]?.OnAcquire(scope, isReset);
+                    var handler = _acquireHandlers[i];
+                    if (!ScopeHandlerOwnershipUtility.ShouldInvokeHandler(scope, handler))
+                        continue;
+
+                    handler?.OnAcquire(scope, isReset);
                 }
                 catch (Exception ex)
                 {
@@ -995,7 +999,11 @@ namespace Game
             {
                 try
                 {
-                    _releaseHandlers[i]?.OnRelease(scope, isReset);
+                    var handler = _releaseHandlers[i];
+                    if (!ScopeHandlerOwnershipUtility.ShouldInvokeHandler(scope, handler))
+                        continue;
+
+                    handler?.OnRelease(scope, isReset);
                 }
                 catch (Exception ex)
                 {

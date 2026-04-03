@@ -337,6 +337,9 @@ namespace Game.UI.TraitList
             if (!instance.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
                 return;
 
+            var traitVars = slot.Trait?.Context?.Vars;
+            traitVars?.MergeInto(blackboard.LocalVars, overwrite: true);
+
             ApplyItemVars(blackboard.LocalVars, slot);
             ApplyRichTextKeys(blackboard.LocalVars, slot, instance, hub, logRichTextFailures);
         }
@@ -505,11 +508,16 @@ namespace Game.UI.TraitList
                 }
                 vars.TryUnset(VarIds.GameLib.Base.RichText.descriptionKey);
                 vars.TryUnset(VarIds.GameLib.Base.RichText.nameKey);
+                vars.TryUnset(VarIds.GameLib.Base.Trait.Element.descriptionKey);
+                vars.TryUnset(VarIds.GameLib.Base.Trait.Element.nameKey);
                 return;
             }
 
             if (!string.IsNullOrEmpty(descriptionKey))
+            {
                 vars.TrySetVariant(VarIds.GameLib.Base.RichText.descriptionKey, DynamicVariant.FromString(descriptionKey));
+                vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.descriptionKey, DynamicVariant.FromString(descriptionKey));
+            }
             else
             {
                 if (logFailures)
@@ -519,10 +527,14 @@ namespace Game.UI.TraitList
                         $"{FormatRichTextFailureDetail(slot, instance, concreteHolder, diagnostic)}");
                 }
                 vars.TryUnset(VarIds.GameLib.Base.RichText.descriptionKey);
+                vars.TryUnset(VarIds.GameLib.Base.Trait.Element.descriptionKey);
             }
 
             if (!string.IsNullOrEmpty(nameKey))
+            {
                 vars.TrySetVariant(VarIds.GameLib.Base.RichText.nameKey, DynamicVariant.FromString(nameKey));
+                vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.nameKey, DynamicVariant.FromString(nameKey));
+            }
             else
             {
                 if (logFailures)
@@ -532,6 +544,7 @@ namespace Game.UI.TraitList
                         $"{FormatRichTextFailureDetail(slot, instance, concreteHolder, diagnostic)}");
                 }
                 vars.TryUnset(VarIds.GameLib.Base.RichText.nameKey);
+                vars.TryUnset(VarIds.GameLib.Base.Trait.Element.nameKey);
             }
         }
 

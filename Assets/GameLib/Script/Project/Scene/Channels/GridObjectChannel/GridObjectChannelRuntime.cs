@@ -23,6 +23,7 @@ namespace Game.Channel
             bool PreserveSourceCoordinates { get; }
             int RowOffset { get; }
             int ColumnOffset { get; }
+            void ResolveSourceLayoutCoordinates(int sourceRow, int sourceColumn, out int row, out int column);
             bool Resolve(IDynamicContext dynamicContext, IScopeNode activeScope, Action<GridObjectChannelRefreshMode> queueRefresh, out string? error);
             bool TryCollectItems(IDynamicContext dynamicContext, List<GridObjectChannelResolvedItem> items, out string? error);
         }
@@ -40,6 +41,12 @@ namespace Game.Channel
             public bool PreserveSourceCoordinates => false;
             public int RowOffset => 0;
             public int ColumnOffset => 0;
+
+            public void ResolveSourceLayoutCoordinates(int sourceRow, int sourceColumn, out int row, out int column)
+            {
+                row = sourceRow;
+                column = sourceColumn;
+            }
 
             public bool Resolve(IDynamicContext dynamicContext, IScopeNode activeScope, Action<GridObjectChannelRefreshMode> queueRefresh, out string? error)
             {
@@ -95,6 +102,19 @@ namespace Game.Channel
             public bool PreserveSourceCoordinates => _preset.SparseLayoutMode == GridObjectChannelSparseLayoutMode.PreserveSparseCoordinates;
             public int RowOffset => _rowOffset;
             public int ColumnOffset => _columnOffset;
+
+            public void ResolveSourceLayoutCoordinates(int sourceRow, int sourceColumn, out int row, out int column)
+            {
+                if (_preset.SwapRowAndColumn)
+                {
+                    row = sourceColumn;
+                    column = sourceRow;
+                    return;
+                }
+
+                row = sourceRow;
+                column = sourceColumn;
+            }
 
             public bool Resolve(IDynamicContext dynamicContext, IScopeNode activeScope, Action<GridObjectChannelRefreshMode> queueRefresh, out string? error)
             {
@@ -193,8 +213,9 @@ namespace Game.Channel
                 };
                 if (PreserveSourceCoordinates)
                 {
-                    item.Row = Mathf.Max(0, sourceRow + _rowOffset);
-                    item.Column = Mathf.Max(0, sourceColumn + _columnOffset);
+                    ResolveSourceLayoutCoordinates(sourceRow, sourceColumn, out var layoutRow, out var layoutColumn);
+                    item.Row = Mathf.Max(0, layoutRow + _rowOffset);
+                    item.Column = Mathf.Max(0, layoutColumn + _columnOffset);
                 }
 
                 item.SetCellValues(_cellBuffer);
@@ -631,6 +652,8 @@ namespace Game.Channel
                     }
                 }
 
+                RecalculateItemPositions(items);
+
                 for (var i = 0; i < items.Count; i++)
                 {
                     ct.ThrowIfCancellationRequested();
@@ -638,7 +661,7 @@ namespace Game.Channel
                     if (_lookup.ContainsKey(item.Key))
                         continue;
 
-                    var spawned = await SpawnRawAsync(ct);
+                    var spawned = await SpawnRawAsync(item, ct);
                     if (spawned == null)
                         continue;
 
@@ -649,7 +672,9 @@ namespace Game.Channel
                 }
             }
 
-            RecalculateItemPositions(items);
+            if (mode == GridObjectChannelRefreshMode.LayoutOnly)
+                RecalculateItemPositions(items);
+
             var initializedNewCount = 0;
             var totalNewCount = newlySpawnedKeys.Count;
             for (var i = 0; i < items.Count; i++)
@@ -680,20 +705,19 @@ namespace Game.Channel
             if (items.Count == 0)
                 return;
 
+            RecalculateItemPositions(items);
             for (var i = 0; i < items.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
-                var spawned = await SpawnRawAsync(ct);
+                var item = items[i];
+                var spawned = await SpawnRawAsync(item, ct);
                 if (spawned == null)
                     continue;
 
-                var item = items[i];
                 spawned.UpdateFromItem(item);
                 _instances.Add(spawned);
                 _lookup[item.Key] = spawned;
             }
-
-            RecalculateItemPositions(items);
             var initializedSpawnCount = 0;
             for (var i = 0; i < items.Count; i++)
             {
@@ -732,8 +756,9 @@ namespace Game.Channel
                 var item = items[i];
                 if (_playerRuntime.PreserveSourceCoordinates)
                 {
-                    item.Row = Mathf.Max(0, item.SourceRow + _playerRuntime.RowOffset);
-                    item.Column = Mathf.Max(0, item.SourceColumn + _playerRuntime.ColumnOffset);
+                    _playerRuntime.ResolveSourceLayoutCoordinates(item.SourceRow, item.SourceColumn, out var sourceLayoutRow, out var sourceLayoutColumn);
+                    item.Row = Mathf.Max(0, sourceLayoutRow + _playerRuntime.RowOffset);
+                    item.Column = Mathf.Max(0, sourceLayoutColumn + _playerRuntime.ColumnOffset);
                 }
                 else
                 {
@@ -753,7 +778,7 @@ namespace Game.Channel
             if (items.Count == 0)
                 return;
 
-            var itemSize = ResolveLayoutItemSize(_instances);
+            var itemSize = ResolvePlanningItemSize();
             var totalRows = ResolveTotalRows(items);
             var totalColumns = ResolveTotalColumns(items);
             var rect = _layoutRectTransform != null ? _layoutRectTransform.rect : new Rect(0f, 0f, 0f, 0f);
@@ -777,7 +802,7 @@ namespace Game.Channel
             }
         }
 
-        async UniTask<GridObjectChannelVisualInstance?> SpawnRawAsync(CancellationToken ct)
+        async UniTask<GridObjectChannelVisualInstance?> SpawnRawAsync(GridObjectChannelResolvedItem item, CancellationToken ct)
         {
             if (_activeScope == null || _listRoot == null || _resolvedRuntimeTemplate == null)
                 return null;
@@ -832,7 +857,9 @@ namespace Game.Channel
                 return null;
             }
 
-            return new GridObjectChannelVisualInstance(GridObjectChannelItemKey.Standalone(-1), root, scopeNode, resolver);
+            var instance = new GridObjectChannelVisualInstance(GridObjectChannelItemKey.Standalone(-1), root, scopeNode, resolver);
+            ApplyPreviewSpawnPosition(instance, item);
+            return instance;
         }
 
         async UniTask InitializeSpawnedInstanceAsync(
@@ -843,20 +870,25 @@ namespace Game.Channel
             instance.UpdateFromItem(item);
             var payload = BuildPayload(item);
             var commandVars = ApplyPayloadToBlackboard(instance, payload);
+
+            await ExecuteSpawnCommandsAsync(item, instance, commandVars, ct);
+            TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
+
             var startAnchor = ResolveSpawnAnchorLocalPosition(item);
             var startLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.RootRect,
                 startAnchor,
                 (int)_resolvedLayoutPreset.ItemHorizontalAlignment,
                 (int)_resolvedLayoutPreset.ItemVerticalAlignment);
             var targetLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.RootRect,
                 item.TargetLocalPosition,
                 (int)_resolvedLayoutPreset.ItemHorizontalAlignment,
                 (int)_resolvedLayoutPreset.ItemVerticalAlignment);
 
             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, startLocal, _environmentKind);
-            await ExecuteSpawnCommandsAsync(item, instance, commandVars, ct);
             await AnimateInstanceAsync(instance, targetLocal, _resolvedLayoutPreset.SpawnMotion, ct);
         }
 
@@ -867,8 +899,10 @@ namespace Game.Channel
         {
             instance.UpdateFromItem(item);
             ApplyPayloadToBlackboard(instance, BuildPayload(item));
+            TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
             var targetLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.RootRect,
                 item.TargetLocalPosition,
                 (int)_resolvedLayoutPreset.ItemHorizontalAlignment,
                 (int)_resolvedLayoutPreset.ItemVerticalAlignment);
@@ -1159,6 +1193,58 @@ namespace Game.Channel
             }
 
             return Vector2.zero;
+        }
+
+        Vector2 ResolvePlanningItemSize()
+        {
+            var current = ResolveLayoutItemSize(_instances);
+            if (current.x > 0f || current.y > 0f)
+                return current;
+
+            return ResolveTemplateLayoutItemSize();
+        }
+
+        Vector2 ResolveTemplateLayoutItemSize()
+        {
+            if (_resolvedVisualizerPreset.SizeSource == GridObjectChannelVisualizerSizeSource.Fixed)
+                return _resolvedVisualizerPreset.FixedSize;
+
+            var prefab = _resolvedRuntimeTemplate?.Prefab;
+            if (prefab == null)
+                return Vector2.zero;
+
+            return TryGetTemplateRectSize(prefab.transform, out var rectSize) ? rectSize : Vector2.zero;
+        }
+
+        void ApplyPreviewSpawnPosition(GridObjectChannelVisualInstance instance, GridObjectChannelResolvedItem item)
+        {
+            TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
+            var startAnchor = ResolveSpawnAnchorLocalPosition(item);
+            var previewLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
+                instance.Resolver,
+                instance.RootRect,
+                startAnchor,
+                (int)_resolvedLayoutPreset.ItemHorizontalAlignment,
+                (int)_resolvedLayoutPreset.ItemVerticalAlignment);
+            TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, previewLocal, _environmentKind);
+        }
+
+        static bool TryGetTemplateRectSize(Transform root, out Vector2 size)
+        {
+            size = Vector2.zero;
+            if (root == null)
+                return false;
+
+            var rect = root.GetComponentInChildren<RectTransform>(true);
+            if (rect == null)
+                return false;
+
+            var rectSize = rect.rect.size;
+            if (rectSize.x <= 0f && rectSize.y <= 0f)
+                return false;
+
+            size = rectSize;
+            return true;
         }
 
         async UniTask ClearSpawnedInstancesAsync(CancellationToken ct)

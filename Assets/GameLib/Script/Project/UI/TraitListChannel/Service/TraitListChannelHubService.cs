@@ -40,11 +40,17 @@ namespace Game.UI
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            //if (!ReferenceEquals(_owner, scope))
+            //    return;
+
             RebuildChannels(scope, isReset);
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            //if (!ReferenceEquals(_owner, scope))
+            //    return;
+
             ReleaseChannels(scope, isReset);
         }
 

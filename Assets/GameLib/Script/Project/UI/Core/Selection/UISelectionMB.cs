@@ -179,6 +179,9 @@ namespace Game.UI
                 .As<IUISelectionTelemetry>()
                 .As<IUISelectionBlockService>();
 
+            builder.Register<UIInputRoutingHub>(Lifetime.Singleton)
+                .As<IUIInputRoutingHub>();
+
             // Register debug view instance
             builder.RegisterInstance(_debugView);
 

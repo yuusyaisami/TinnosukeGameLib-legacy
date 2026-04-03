@@ -75,12 +75,14 @@ namespace Game.UI
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
             _acquired = true;
+            ResetOutput();
             MarkDirty();
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
             _acquired = false;
+            ResetOutput();
         }
 
         public void Tick()
@@ -118,6 +120,16 @@ namespace Game.UI
         public void SetClampResult(in ScreenClampResult clamp)
         {
             _lastClamp = clamp;
+        }
+
+        void ResetOutput()
+        {
+            _hasBounds = false;
+            _localRect = Rect.zero;
+            _worldBounds = default;
+            _lastClamp = default;
+            _lastRebuildFrame = -1;
+            _dirty = true;
         }
 
         void TickInternal()

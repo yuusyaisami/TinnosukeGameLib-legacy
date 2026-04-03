@@ -62,6 +62,7 @@ namespace Game.UI
         {
             return TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.RootRect,
                 targetLocalPosition,
                 (int)horizontalAlignment,
                 (int)verticalAlignment);
@@ -90,6 +91,9 @@ namespace Game.UI
                 return;
 
             await UniTask.SwitchToMainThread();
+            Debug.Log(
+                $"[TraitListChannel][ReleaseSpawnedInstance] root='{DescribeTransform(root)}' scope='{scope?.GetType().Name ?? "<null>"}' " +
+                $"resolver='{resolver.GetType().Name}'");
 
             try
             {
@@ -156,6 +160,22 @@ namespace Game.UI
             out ITransformAnimationChannelPlayer? player)
         {
             return TransformGridSharedUtility.TryResolveTransformAnimationPlayer(instance.Resolver, channelTag, out player);
+        }
+
+        static string DescribeTransform(Transform? target)
+        {
+            if (target == null)
+                return "<null>";
+
+            var current = target;
+            var path = current.name;
+            while (current.parent != null)
+            {
+                current = current.parent;
+                path = $"{current.name}/{path}";
+            }
+
+            return $"{target.name} path='{path}'";
         }
     }
 }

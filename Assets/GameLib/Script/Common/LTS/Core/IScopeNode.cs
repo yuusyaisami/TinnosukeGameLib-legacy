@@ -128,64 +128,9 @@ namespace Game
         // さらにサービス系(IScopeNode/Component以外)はスコープ帰属判定が
         // trueになりやすく、OnAcquireが複数回呼ばれていた。
         // 対策として、所有スコープが取得できる場合は一致時のみ実行。
-        static bool ShouldInvokeHandler(IScopeNode scope, object handler)
+        static bool ShouldInvokeHandler(IScopeNode scope, object? handler)
         {
-            if (handler == null)
-                return false;
-
-            if (handler is IScopeNode handlerScope)
-                return ReferenceEquals(handlerScope, scope);
-
-            if (handler is UnityEngine.Component component)
-            {
-                if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(component, includeInactive: true, out var owner) ||
-                    owner == null)
-                    return false;
-                return ReferenceEquals(owner, scope);
-            }
-
-            if (TryGetOwnerScopeFromHandler(handler, out var ownerScope) && ownerScope != null)
-            {
-                return ReferenceEquals(ownerScope, scope);
-            }
-
-            return true;
-        }
-
-        static bool TryGetOwnerScopeFromHandler(object handler, out IScopeNode? owner)
-        {
-            owner = null;
-            if (handler == null)
-                return false;
-
-            var type = handler.GetType();
-
-            // Property check (OwnerScope / Scope / Owner)
-            var prop = type.GetProperty("OwnerScope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
-                       ?? type.GetProperty("Scope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
-                       ?? type.GetProperty("Owner", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-
-            if (prop != null && typeof(IScopeNode).IsAssignableFrom(prop.PropertyType))
-            {
-                owner = prop.GetValue(handler) as IScopeNode;
-                if (owner != null)
-                    return true;
-            }
-
-            // Field check (_ownerScope / _scope / ownerScope / scope)
-            var field = type.GetField("_ownerScope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
-                        ?? type.GetField("_scope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
-                        ?? type.GetField("ownerScope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
-                        ?? type.GetField("scope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-
-            if (field != null && typeof(IScopeNode).IsAssignableFrom(field.FieldType))
-            {
-                owner = field.GetValue(handler) as IScopeNode;
-                if (owner != null)
-                    return true;
-            }
-
-            return false;
+            return ScopeHandlerOwnershipUtility.ShouldInvokeHandler(scope, handler);
         }
 
         // NOTE(原因/修正):
@@ -242,6 +187,103 @@ namespace Game
             }
 
             return Array.Empty<THandler>();
+        }
+    }
+
+    internal static class ScopeHandlerOwnershipUtility
+    {
+        // Compatibility-first phase:
+        // - If owner cannot be resolved, keep invoking handlers to avoid broad regressions.
+        // - Once all handlers expose owner scope explicitly, flip StrictUnknownOwnerHandlers to true.
+        static readonly bool StrictUnknownOwnerHandlers = false;
+        static readonly bool EmitUnknownOwnerWarnings = false;
+
+        static readonly HashSet<Type> MissingOwnerWarningTypes = new();
+        static readonly object MissingOwnerWarningGate = new();
+
+        public static bool ShouldInvokeHandler(IScopeNode scope, object? handler)
+        {
+            if (scope == null || handler == null)
+                return false;
+
+            if (handler is IScopeNode handlerScope)
+                return ReferenceEquals(handlerScope, scope);
+
+            if (handler is UnityEngine.Component component)
+            {
+                if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(component, includeInactive: true, out var owner) ||
+                    owner == null)
+                    return false;
+
+                return ReferenceEquals(owner, scope);
+            }
+
+            if (TryGetOwnerScopeFromHandler(handler, out var ownerScope))
+            {
+                if (ownerScope != null)
+                    return ReferenceEquals(ownerScope, scope);
+
+                return HandleUnknownOwner(scope, handler);
+            }
+
+            return HandleUnknownOwner(scope, handler);
+        }
+
+        public static bool TryGetOwnerScopeFromHandler(object? handler, out IScopeNode? owner)
+        {
+            owner = null;
+            if (handler == null)
+                return false;
+
+            var type = handler.GetType();
+
+            // Property check (OwnerScope / Scope / Owner)
+            var prop = type.GetProperty("OwnerScope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                       ?? type.GetProperty("Scope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                       ?? type.GetProperty("Owner", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+
+            if (prop != null && typeof(IScopeNode).IsAssignableFrom(prop.PropertyType))
+            {
+                owner = prop.GetValue(handler) as IScopeNode;
+                return true;
+            }
+
+            // Field check (_ownerScope / _owner / _scope / ownerScope / scope)
+            var field = type.GetField("_ownerScope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                        ?? type.GetField("_owner", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                        ?? type.GetField("_scope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                        ?? type.GetField("ownerScope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                        ?? type.GetField("scope", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+
+            if (field != null && typeof(IScopeNode).IsAssignableFrom(field.FieldType))
+            {
+                owner = field.GetValue(handler) as IScopeNode;
+                return true;
+            }
+
+            return false;
+        }
+
+        static void LogMissingOwnerOnce(IScopeNode scope, object handler)
+        {
+            if (!EmitUnknownOwnerWarnings)
+                return;
+
+            var type = handler.GetType();
+            lock (MissingOwnerWarningGate)
+            {
+                if (!MissingOwnerWarningTypes.Add(type))
+                    return;
+            }
+
+            UnityEngine.Debug.LogWarning(
+                $"[ScopeAcquireReleaseDispatcher] Skipped handler '{type.FullName}' because owner scope could not be resolved for scope '{scope.GetType().Name}'.");
+        }
+
+        static bool HandleUnknownOwner(IScopeNode scope, object handler)
+        {
+            LogMissingOwnerOnce(scope, handler);
+            return !StrictUnknownOwnerHandlers;
         }
     }
 }
