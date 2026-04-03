@@ -135,6 +135,9 @@ namespace Game.Commands.VNext
         public const int RefreshTraitListChannel = 1987;
         public const int SetTraitListChannelRange = 1988;
         public const int ClearTraitListChannel = 1989;
+        public const int BindGridObjectChannel = 1990;
+        public const int RefreshGridObjectChannel = 1991;
+        public const int ClearGridObjectChannel = 1992;
 
         public const int WithActor = 2001;
         public const int WithActorDescendantRouter = 2002;

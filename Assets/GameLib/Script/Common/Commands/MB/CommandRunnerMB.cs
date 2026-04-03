@@ -319,6 +319,12 @@ namespace Game.Commands
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.ClearTraitListChannelExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.BindGridObjectChannelExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.RefreshGridObjectChannelExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.ClearGridObjectChannelExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
 
                 builder.Register<global::Game.Commands.VNext.EquipTraitExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();

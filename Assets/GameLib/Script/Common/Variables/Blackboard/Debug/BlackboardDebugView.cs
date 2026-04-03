@@ -62,8 +62,8 @@ namespace Game.Common
         }
 
         [FoldoutGroup("Grid Store")]
-        [ShowInInspector]
-        [TableList(IsReadOnly = true, AlwaysExpanded = true)]
+        [ShowInInspector, ReadOnly]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = false)]
         [LabelText("Rows")]
         public List<GridBlackboardRow> GridRows
         {
@@ -74,11 +74,25 @@ namespace Game.Common
             }
         }
 
+        [FoldoutGroup("Grid Store")]
+        [ShowInInspector, ReadOnly]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false, DraggableItems = false)]
+        [LabelText("Cells")]
+        public List<GridBlackboardCellRow> GridCells
+        {
+            get
+            {
+                BuildGridRows();
+                return _gridCells;
+            }
+        }
+
         [NonSerialized]
         IBlackboardService? _blackboard;
         [NonSerialized]
         IGridBlackboardService? _gridBlackboard;
         readonly List<GridBlackboardRow> _gridRows = new();
+        readonly List<GridBlackboardCellRow> _gridCells = new();
         string _gridStatus = "(idle)";
 
 #if UNITY_EDITOR
@@ -106,6 +120,7 @@ namespace Game.Common
             _blackboard = blackboard;
             _gridBlackboard = gridBlackboard;
             _gridRows.Clear();
+            _gridCells.Clear();
             _gridStatus = "(idle)";
             LastQueryStatus = "(idle)";
             LastQueryValue = "(none)";
@@ -125,6 +140,7 @@ namespace Game.Common
             _blackboard = null;
             _gridBlackboard = null;
             _gridRows.Clear();
+            _gridCells.Clear();
             _gridStatus = "(idle)";
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.update -= OnEditorUpdate;
@@ -234,6 +250,7 @@ namespace Game.Common
         List<GridBlackboardRow> BuildGridRows()
         {
             _gridRows.Clear();
+            _gridCells.Clear();
 
             if (_gridBlackboard == null)
             {
@@ -257,6 +274,7 @@ namespace Game.Common
                 {
                     RowIndex = row,
                     ColumnCount = 0,
+                    VarCount = 0,
                 };
 
                 if (_gridBlackboard.TryGetColumnCount(row, out var columnCount) && columnCount > 0)
@@ -265,27 +283,26 @@ namespace Game.Common
 
                     for (int column = 0; column < columnCount; column++)
                     {
-                        var columnRow = new GridBlackboardColumn
-                        {
-                            ColumnIndex = column,
-                            VarCount = 0,
-                        };
-
                         cellBuffer.Clear();
                         if (_gridBlackboard.TryCollectCell(row, column, cellBuffer))
                         {
-                            columnRow.VarCount = cellBuffer.Count;
+                            rowRow.VarCount += cellBuffer.Count;
                             totalVars += cellBuffer.Count;
 
                             for (int i = 0; i < cellBuffer.Count; i++)
                             {
                                 var cell = cellBuffer[i];
                                 var keyName = VarIdResolver.TryGetIdToStable(cell.VarId) ?? $"varId={cell.VarId}";
-                                columnRow.Vars.Add(new GridBlackboardVarRow(cell.VarId, keyName, cell.Value.Kind.ToString(), cell.Value.ToString()));
+                                _gridCells.Add(new GridBlackboardCellRow(
+                                    row,
+                                    column,
+                                    cell.VarId,
+                                    keyName,
+                                    cell.Value.Kind.ToString(),
+                                    cell.Value.ToString()));
                             }
                         }
 
-                        rowRow.Columns.Add(columnRow);
                         totalColumns++;
                     }
                 }
@@ -447,33 +464,29 @@ namespace Game.Common
         [Serializable]
         public sealed class GridBlackboardRow
         {
-            [TableColumnWidth(60)] public int RowIndex;
-            [TableColumnWidth(80)] public int ColumnCount;
-
-            [TableList(IsReadOnly = true, AlwaysExpanded = true)]
-            public List<GridBlackboardColumn> Columns = new();
+            [LabelText("Row")] public int RowIndex;
+            [LabelText("Columns")] public int ColumnCount;
+            [LabelText("Vars")] public int VarCount;
         }
 
         [Serializable]
-        public sealed class GridBlackboardColumn
+        public sealed class GridBlackboardCellRow
         {
-            [TableColumnWidth(60)] public int ColumnIndex;
-            [TableColumnWidth(80)] public int VarCount;
+            [LabelText("Row")] public int RowIndex;
+            [LabelText("Column")] public int ColumnIndex;
+            [LabelText("Var Id")] public int VarId;
+            [LabelText("Key")]
+            [MultiLineProperty(2)]
+            public string KeyName = string.Empty;
+            [LabelText("Kind")] public string KindName = string.Empty;
+            [LabelText("Value")]
+            [MultiLineProperty(2)]
+            public string Value = string.Empty;
 
-            [TableList(IsReadOnly = true, AlwaysExpanded = true)]
-            public List<GridBlackboardVarRow> Vars = new();
-        }
-
-        [Serializable]
-        public sealed class GridBlackboardVarRow
-        {
-            [TableColumnWidth(80)] public int VarId;
-            [TableColumnWidth(160)] public string KeyName = string.Empty;
-            [TableColumnWidth(120)] public string KindName = string.Empty;
-            [TableColumnWidth(240)] public string Value = string.Empty;
-
-            public GridBlackboardVarRow(int varId, string keyName, string kindName, string value)
+            public GridBlackboardCellRow(int rowIndex, int columnIndex, int varId, string keyName, string kindName, string value)
             {
+                RowIndex = rowIndex;
+                ColumnIndex = columnIndex;
                 VarId = varId;
                 KeyName = keyName;
                 KindName = kindName;

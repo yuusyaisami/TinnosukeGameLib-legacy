@@ -27,7 +27,8 @@ namespace Game.Commands.VNext
             if (!TryResolveGridBlackboard(targetScope, out var targetGrid, out _) || targetGrid == null)
                 return UniTask.CompletedTask;
 
-            var dynCtx = new SimpleDynamicContext(ctx.Vars, ctx.Scope);
+            // Keep CommandContext so ContextSlot/CommandRoot actor sources can resolve during payload evaluation.
+            IDynamicContext dynCtx = ctx;
 
             switch (typed.TargetMode)
             {

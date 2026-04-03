@@ -1153,6 +1153,70 @@ MonoBehaviour:
     varId: 101122
     stableKey: GameLib.UI.TraitListChannel.Item.traitInstanceRef
     aliases: []
+  - id: 9f1b754cbda84a50b1bbcf5ca5d5db61
+    parentId: 5850fabdc6674f12bc9f31b917b8bb40
+    name: GridObjectChannel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: c257d784ffb84be8b5d2ea2981b57818
+    parentId: 9f1b754cbda84a50b1bbcf5ca5d5db61
+    name: Item
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: fd83713a0dc64d4d912ca066f619eb2c
+    parentId: c257d784ffb84be8b5d2ea2981b57818
+    name: channelTag
+    isFolder: 0
+    description: 
+    varId: 101123
+    stableKey: GameLib.Channel.GridObjectChannel.Item.channelTag
+    aliases: []
+  - id: c3beb494f9c54f14878928087c246cbd
+    parentId: c257d784ffb84be8b5d2ea2981b57818
+    name: listIndex
+    isFolder: 0
+    description: 
+    varId: 101124
+    stableKey: GameLib.Channel.GridObjectChannel.Item.listIndex
+    aliases: []
+  - id: 27bc8ddf32be4ab99b1d82e89b2fc113
+    parentId: c257d784ffb84be8b5d2ea2981b57818
+    name: row
+    isFolder: 0
+    description: 
+    varId: 101125
+    stableKey: GameLib.Channel.GridObjectChannel.Item.row
+    aliases: []
+  - id: cfb6fd7d06744249bfdbcb4e766971f3
+    parentId: c257d784ffb84be8b5d2ea2981b57818
+    name: column
+    isFolder: 0
+    description: 
+    varId: 101126
+    stableKey: GameLib.Channel.GridObjectChannel.Item.column
+    aliases: []
+  - id: 7d39e42098e94cb1b2f214f40233f7cf
+    parentId: c257d784ffb84be8b5d2ea2981b57818
+    name: sourceRow
+    isFolder: 0
+    description: 
+    varId: 101127
+    stableKey: GameLib.Channel.GridObjectChannel.Item.sourceRow
+    aliases: []
+  - id: 54bd0da85a7540ebb14a9c2991b70b56
+    parentId: c257d784ffb84be8b5d2ea2981b57818
+    name: sourceColumn
+    isFolder: 0
+    description: 
+    varId: 101128
+    stableKey: GameLib.Channel.GridObjectChannel.Item.sourceColumn
+    aliases: []
   - id: ea23671d6ebf4e7e8404197464a7aa6e
     parentId: bd7d3c55e3b240329ee6d3a19d9deef8
     name: Button

@@ -6,6 +6,121 @@ namespace Game.Common
 {
     internal static class DynamicRuntimeLogUtility
     {
+        const string ChannelColor = "#4FC1FF";
+        const string ErrorColor = "#F44747";
+        const string WarnColor = "#DCDCAA";
+        const string InfoColor = "#4EC9B0";
+        const string SectionColor = "#C586C0";
+        const string KeyColor = "#9CDCFE";
+
+        public static void AppendLogHeader(StringBuilder sb, string channel, string level, string code, string message)
+        {
+            var normalizedChannel = string.IsNullOrEmpty(channel) ? "Dynamic" : channel;
+            var normalizedLevel = string.IsNullOrEmpty(level) ? "INFO" : level;
+            var normalizedCode = string.IsNullOrEmpty(code) ? "UNKNOWN" : code;
+            var levelColor = GetLevelColor(normalizedLevel);
+
+            sb.Append(Colorize("[" + normalizedChannel + "]", ChannelColor));
+            sb.Append(Colorize("[" + normalizedLevel + "]", levelColor));
+            sb.Append(Colorize("[" + normalizedCode + "]", levelColor));
+            if (!string.IsNullOrEmpty(message))
+            {
+                sb.Append(' ');
+                sb.Append(message);
+            }
+        }
+
+        public static void AppendSection(StringBuilder sb, string title)
+        {
+            if (string.IsNullOrEmpty(title))
+                return;
+
+            if (sb.Length > 0)
+                sb.Append("\n\n");
+
+            sb.Append(Colorize("[" + title + "]", SectionColor));
+        }
+
+        public static void AppendFieldLine(StringBuilder sb, string key, string value, bool allowMultiline = false)
+        {
+            if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(value))
+                return;
+
+            var normalized = NormalizeLineBreak(value);
+            if (!allowMultiline || normalized.IndexOf('\n') < 0)
+            {
+                sb.Append('\n');
+                sb.Append("  ");
+                sb.Append(Colorize(key + ":", KeyColor));
+                sb.Append(' ');
+                sb.Append(ClampLength(normalized, 320));
+                return;
+            }
+
+            sb.Append('\n');
+            sb.Append("  ");
+            sb.Append(Colorize(key + ":", KeyColor));
+
+            var lines = normalized.Split('\n');
+            var printed = 0;
+            const int maxLines = 28;
+
+            for (var i = 0; i < lines.Length; i++)
+            {
+                if (printed >= maxLines)
+                {
+                    sb.Append('\n');
+                    sb.Append("    ...");
+                    break;
+                }
+
+                var line = ClampLength(lines[i], 320);
+                if (line.Length == 0)
+                    continue;
+
+                sb.Append('\n');
+                sb.Append("    ");
+                sb.Append(line);
+                printed++;
+            }
+        }
+
+        public static void AppendDynamicContextSection(StringBuilder sb, IDynamicContext dynamicContext)
+        {
+            AppendSection(sb, "Context");
+            AppendFieldLine(sb, "scope", DescribeScope(dynamicContext?.Scope));
+            AppendFieldLine(sb, "vars", dynamicContext?.Vars != null ? "available" : "null");
+
+            if (dynamicContext is CommandContext commandContext)
+            {
+                AppendFieldLine(sb, "actor", DescribeScope(commandContext.Actor));
+                AppendFieldLine(sb, "commandRoot", DescribeScope(commandContext.CommandRootScope));
+                AppendFieldLine(sb, "rootActor", DescribeScope(commandContext.RootActor));
+                AppendFieldLine(sb, "callerActor", DescribeScope(commandContext.CallerActor));
+            }
+        }
+
+        public static bool AppendCommandTraceSection(StringBuilder sb)
+        {
+            if (!CommandExecutionTrace.TryGetCurrent(out var trace))
+                return false;
+
+            AppendSection(sb, "Command Trace");
+            AppendFieldLine(sb, "index", trace.CommandIndex.ToString());
+            AppendFieldLine(sb, "command", BuildCommandLabel(trace.CommandName, trace.CommandId));
+            AppendFieldLine(sb, "source", trace.SourceName);
+            AppendFieldLine(sb, "type", trace.DataType);
+            AppendFieldLine(sb, "list", trace.ListLabel);
+            AppendFieldLine(sb, "function", trace.ListFunctionName);
+            AppendFieldLine(sb, "data", trace.DebugData, allowMultiline: true);
+            AppendFieldLine(sb, "scope", DescribeScope(trace.Scope));
+            AppendFieldLine(sb, "actor", DescribeScope(trace.Actor));
+            AppendFieldLine(sb, "commandRoot", DescribeScope(trace.CommandRootScope));
+            AppendFieldLine(sb, "rootActor", DescribeScope(trace.RootActor));
+            AppendFieldLine(sb, "callerActor", DescribeScope(trace.CallerActor));
+            return true;
+        }
+
         public static void AppendField(StringBuilder sb, string key, string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -21,6 +136,7 @@ namespace Game.Common
 
         public static void AppendDynamicContextFields(StringBuilder sb, IDynamicContext dynamicContext)
         {
+            // Legacy one-line format kept for backward compatibility.
             AppendField(sb, "scope", DescribeScope(dynamicContext?.Scope));
             AppendField(sb, "vars", dynamicContext?.Vars != null ? "available" : "null");
 
@@ -35,6 +151,7 @@ namespace Game.Common
 
         public static void AppendCommandTraceFields(StringBuilder sb)
         {
+            // Legacy one-line format kept for backward compatibility.
             if (!CommandExecutionTrace.TryGetCurrent(out var trace))
                 return;
 
@@ -55,6 +172,43 @@ namespace Game.Common
         public static string DescribeScope(IScopeNode scope)
         {
             return CommandExecutionTrace.DescribeScope(scope);
+        }
+
+        static string Colorize(string text, string color)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            if (string.IsNullOrEmpty(color))
+                return text;
+
+            return "<color=" + color + ">" + text + "</color>";
+        }
+
+        static string GetLevelColor(string level)
+        {
+            if (string.Equals(level, "ERROR", System.StringComparison.OrdinalIgnoreCase))
+                return ErrorColor;
+            if (string.Equals(level, "WARN", System.StringComparison.OrdinalIgnoreCase))
+                return WarnColor;
+
+            return InfoColor;
+        }
+
+        static string NormalizeLineBreak(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+
+            return value.Replace("\r\n", "\n").Replace('\r', '\n');
+        }
+
+        static string ClampLength(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value) || maxLength <= 0)
+                return string.Empty;
+
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
         }
 
         static string BuildCommandLabel(string commandName, int commandId)

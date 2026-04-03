@@ -14,15 +14,10 @@ namespace Game.UI
     {
         public static TraitListChannelEnvironmentKind ResolveEnvironment(Transform ownerTransform, out Canvas? canvas)
         {
-            canvas = ownerTransform != null ? ownerTransform.GetComponentInParent<Canvas>(true) : null;
-            if (canvas != null &&
-                (canvas.renderMode == RenderMode.ScreenSpaceOverlay || canvas.renderMode == RenderMode.ScreenSpaceCamera))
-            {
-                return TraitListChannelEnvironmentKind.ScreenUI;
-            }
-
-            canvas = null;
-            return TraitListChannelEnvironmentKind.World;
+            var environment = TransformGridSharedUtility.ResolveEnvironment(ownerTransform, out canvas);
+            return environment == TransformGridEnvironmentKind.ScreenUI
+                ? TraitListChannelEnvironmentKind.ScreenUI
+                : TraitListChannelEnvironmentKind.World;
         }
 
         public static string NormalizeTag(string? tag)
@@ -56,14 +51,7 @@ namespace Game.UI
 
         public static bool TryResolveVisualBounds(TraitListChannelVisualInstance instance, out VisualBoundsOutput output)
         {
-            output = default;
-            if (instance.Resolver == null)
-                return false;
-
-            if (!instance.Resolver.TryResolve<IVisualBoundsService>(out var boundsService) || boundsService == null)
-                return false;
-
-            return boundsService.TryGetLastOutput(out output) && output.HasBounds;
+            return TransformGridSharedUtility.TryResolveVisualBounds(instance.Resolver, out output);
         }
 
         public static Vector3 ResolvePlacementLocalPosition(
@@ -72,14 +60,11 @@ namespace Game.UI
             TraitListChannelHorizontalAlignment horizontalAlignment,
             TraitListChannelVerticalAlignment verticalAlignment)
         {
-            if (!TryResolveVisualBounds(instance, out var bounds))
-                return targetLocalPosition;
-
-            var anchor = new Vector3(
-                ResolveHorizontalAnchor(bounds.LocalRect, horizontalAlignment),
-                ResolveVerticalAnchor(bounds.LocalRect, verticalAlignment),
-                0f);
-            return targetLocalPosition - anchor;
+            return TransformGridSharedUtility.ResolvePlacementLocalPosition(
+                instance.Resolver,
+                targetLocalPosition,
+                (int)horizontalAlignment,
+                (int)verticalAlignment);
         }
 
         public static void SetLocalPosition(
@@ -87,26 +72,13 @@ namespace Game.UI
             Vector3 localPosition,
             TraitListChannelEnvironmentKind environmentKind)
         {
-            if (environmentKind == TraitListChannelEnvironmentKind.ScreenUI && instance.RootRect != null)
-            {
-                var parentRect = instance.RootRect.parent as RectTransform;
-                if (parentRect != null)
-                {
-                    var reference = ResolveAnchorReference(instance.RootRect, parentRect);
-                    instance.RootRect.anchoredPosition3D = new Vector3(
-                        localPosition.x - reference.x,
-                        localPosition.y - reference.y,
-                        localPosition.z);
-                }
-                else
-                {
-                    instance.RootRect.anchoredPosition3D = localPosition;
-                }
-
-                return;
-            }
-
-            instance.Root.localPosition = localPosition;
+            TransformGridSharedUtility.SetLocalPosition(
+                instance.Root,
+                instance.RootRect,
+                localPosition,
+                environmentKind == TraitListChannelEnvironmentKind.ScreenUI
+                    ? TransformGridEnvironmentKind.ScreenUI
+                    : TransformGridEnvironmentKind.World);
         }
 
         public static async UniTask ReleaseSpawnedInstanceAsync(
@@ -183,52 +155,7 @@ namespace Game.UI
             string channelTag,
             out ITransformAnimationChannelPlayer? player)
         {
-            player = null;
-            if (instance.Resolver == null)
-                return false;
-
-            if (!instance.Resolver.TryResolve<ITransformAnimationHubService>(out var hub) || hub == null)
-                return false;
-
-            return hub.TryGetPlayer(channelTag, out player) && player != null;
-        }
-
-        static float ResolveHorizontalAnchor(Rect localRect, TraitListChannelHorizontalAlignment alignment)
-        {
-            return alignment switch
-            {
-                TraitListChannelHorizontalAlignment.Left => localRect.xMin,
-                TraitListChannelHorizontalAlignment.Right => localRect.xMax,
-                TraitListChannelHorizontalAlignment.Center => localRect.center.x,
-                _ => localRect.xMin
-            };
-        }
-
-        static float ResolveVerticalAnchor(Rect localRect, TraitListChannelVerticalAlignment alignment)
-        {
-            return alignment switch
-            {
-                TraitListChannelVerticalAlignment.Top => localRect.yMax,
-                TraitListChannelVerticalAlignment.Bottom => localRect.yMin,
-                TraitListChannelVerticalAlignment.Center => localRect.center.y,
-                _ => localRect.yMax
-            };
-        }
-
-        static Vector2 ResolveAnchorReference(RectTransform rectTransform, RectTransform parent)
-        {
-            var parentSize = parent.rect.size;
-            var parentPivot = parent.pivot;
-            var anchorMin = rectTransform.anchorMin;
-            var anchorMax = rectTransform.anchorMax;
-            var pivot = rectTransform.pivot;
-            var normalized = new Vector2(
-                Mathf.Lerp(anchorMin.x, anchorMax.x, pivot.x),
-                Mathf.Lerp(anchorMin.y, anchorMax.y, pivot.y));
-
-            return new Vector2(
-                (normalized.x - parentPivot.x) * parentSize.x,
-                (normalized.y - parentPivot.y) * parentSize.y);
+            return TransformGridSharedUtility.TryResolveTransformAnimationPlayer(instance.Resolver, channelTag, out player);
         }
     }
 }

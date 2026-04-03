@@ -108,6 +108,22 @@ namespace Game.Commands.VNext
             }
             var gridSpawnedScopeVarId = typed.WriteSpawnedScopeRefToGrid ? ResolveVarId(typed.GridSpawnedScopeVar, 0) : 0;
             var gridLinkVarIds = ResolveGridLinkVarIds(typed.GridLinkVarKeys);
+            var explicitGridKeyVarId = typed.UseGridKeyFilter ? ResolveVarId(typed.GridKey, 0) : 0;
+            if (typed.UseGridKeyFilter && explicitGridKeyVarId <= 0)
+                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "Grid key filter is enabled but GridKey is not configured.");
+
+            var gridLinkBaseRow = 0;
+            var inferredGridKeyVarId = 0;
+            if (TryInferGridLinkHint(typed, dynCtxForGrid, out var inferredRow, out var inferredFilterVarId))
+            {
+                gridLinkBaseRow = Mathf.Max(0, inferredRow);
+                inferredGridKeyVarId = inferredFilterVarId;
+            }
+
+            var gridLinkFilterVarId = explicitGridKeyVarId > 0
+                ? explicitGridKeyVarId
+                : inferredGridKeyVarId;
+
             var linkedCellValues = new List<GridBlackboardCellSnapshot>(16);
 
             for (int i = 0; i < targetCount; i++)
@@ -150,7 +166,7 @@ namespace Game.Commands.VNext
                 {
                     var rowOffset = typed.GridLinkRowOffset.Resolve(dynCtx);
                     var columnOffset = typed.GridLinkColumnOffset.Resolve(dynCtx);
-                    var linkRow = Mathf.Max(0, grid.y + rowOffset);
+                    var linkRow = Mathf.Max(0, gridLinkBaseRow + grid.y + rowOffset);
                     var linkColumn = Mathf.Max(0, grid.x + columnOffset);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -167,7 +183,7 @@ namespace Game.Commands.VNext
                         spawnedScope,
                         gridLinkVarIds);
 
-                    CollectGridCellValues(gridLink, linkRow, linkColumn, linkedCellValues);
+                    CollectGridCellValues(gridLink, linkRow, linkColumn, gridLinkFilterVarId, linkedCellValues);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     //Debug.Log($"[SpawnRuntimeGridExecutor] CollectedCellValues spawnIndex={i} cell=({linkRow},{linkColumn}) count={linkedCellValues.Count}");
                     for (int v = 0; v < linkedCellValues.Count; v++)
@@ -515,6 +531,53 @@ namespace Game.Commands.VNext
             return result;
         }
 
+        static bool TryInferGridLinkHint(
+            SpawnRuntimeGridCommandData typed,
+            IDynamicContext context,
+            out int baseRow,
+            out int filterVarId)
+        {
+            baseRow = 0;
+            filterVarId = 0;
+
+            if (typed == null || context == null)
+                return false;
+
+            if (TryReadGridLinkHint(typed.Columns, context, out baseRow, out filterVarId))
+                return true;
+
+            if (TryReadGridLinkHint(typed.Count, context, out baseRow, out filterVarId))
+                return true;
+
+            return false;
+        }
+
+        static bool TryReadGridLinkHint(
+            DynamicValue<int> source,
+            IDynamicContext context,
+            out int baseRow,
+            out int filterVarId)
+        {
+            baseRow = 0;
+            filterVarId = 0;
+
+            if (source.TryGetSource<OtherGridBlackboardColumnCountSource>(out var other) &&
+                other != null &&
+                other.TryGetGridLinkHint(context, out baseRow, out filterVarId))
+            {
+                return true;
+            }
+
+            if (source.TryGetSource<SelfGridBlackboardColumnCountSource>(out var self) &&
+                self != null &&
+                self.TryGetGridLinkHint(context, out baseRow, out filterVarId))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         static void WriteGridLink(
             IGridBlackboardService grid,
             IVarStore vars,
@@ -640,22 +703,35 @@ namespace Game.Commands.VNext
             IGridBlackboardService grid,
             int row,
             int column,
+            int gridKeyVarId,
             List<GridBlackboardCellSnapshot> destination)
         {
             destination?.Clear();
             if (grid == null || destination == null)
                 return;
 
-            var all = new List<GridBlackboardCellSnapshot>(32);
-            if (!grid.TryCollectAllCells(all) || all.Count == 0)
+            if (!grid.TryCollectCell(row, column, destination) || destination.Count == 0)
                 return;
 
-            for (int i = 0; i < all.Count; i++)
+            if (gridKeyVarId <= 0)
+                return;
+
+            var hasGridKey = false;
+            for (int i = 0; i < destination.Count; i++)
             {
-                var cell = all[i];
-                if (cell.Row == row && cell.Column == column)
-                    destination.Add(cell);
+                var cell = destination[i];
+                if (cell.VarId != gridKeyVarId || cell.Value.Kind == ValueKind.Null)
+                    continue;
+
+                if (!cell.Value.TryGet<bool>(out var enabled) || enabled)
+                {
+                    hasGridKey = true;
+                    break;
+                }
             }
+
+            if (!hasGridKey)
+                destination.Clear();
         }
 
         static IVarStore MergeLinkedCellValuesIntoCommandVars(IVarStore baseVars, List<GridBlackboardCellSnapshot> linkedCellValues)

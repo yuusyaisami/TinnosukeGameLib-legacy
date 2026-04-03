@@ -107,7 +107,7 @@ namespace Game.Commands.VNext
             {
                 var actorLabel = ActorSourceOdinLabelHelper.GetLabel("Actor", ActorSource);
                 var bodyCount = Body?.Count ?? 0;
-                return $"{actorLabel} Scope={ExecutionScope} Body={bodyCount}";
+                return $"{actorLabel} Scope={ExecutionScope} Await={AwaitMode} Body={bodyCount}";
             }
         }
 
@@ -135,8 +135,11 @@ namespace Game.Commands.VNext
         [InlineProperty]
         public ActorSource DescendantFilter;
 
-        [LabelText("Vars Policy")]
-        public VarsPolicy VarsPolicy;
+        [HideInInspector]
+        public VarsPolicy VarsPolicy = VarsPolicy.Inherit;
+
+        [LabelText("Await Mode")]
+        public FlowRunAwaitMode AwaitMode = FlowRunAwaitMode.WaitForCompletion;
 
         [LabelText("Execution Scope")]
         [EnumToggleButtons]
