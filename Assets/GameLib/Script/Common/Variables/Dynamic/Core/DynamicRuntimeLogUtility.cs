@@ -1,6 +1,7 @@
 using System.Text;
 using Game;
 using Game.Commands.VNext;
+using VContainer;
 
 namespace Game.Common
 {
@@ -121,6 +122,65 @@ namespace Game.Common
             return true;
         }
 
+        public static bool AppendActorStoresSection(StringBuilder sb, IDynamicContext dynamicContext, int maxEntries)
+        {
+            var hasAny = false;
+
+            AppendSection(sb, "Actor Blackboard");
+
+            var actorScope = ResolveActorScope(dynamicContext);
+            AppendFieldLine(sb, "actor", DescribeScope(actorScope));
+
+            if (actorScope?.Resolver == null)
+            {
+                AppendFieldLine(sb, "status", "Actor scope or resolver is unavailable.");
+                return false;
+            }
+
+            if (!actorScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+            {
+                AppendFieldLine(sb, "status", "IBlackboardService is not available on actor scope.");
+                return false;
+            }
+
+            var localVars = blackboard.LocalVars;
+            if (localVars == null)
+            {
+                AppendFieldLine(sb, "status", "blackboard.LocalVars is null.");
+                return false;
+            }
+
+            var normalizedMaxEntries = maxEntries < 0 ? 0 : maxEntries;
+            var entries = BuildVarStoreEntries(localVars, normalizedMaxEntries, out var totalCount, out var printedCount, out var truncated);
+
+            AppendFieldLine(sb, "count", totalCount.ToString());
+            if (truncated)
+                AppendFieldLine(sb, "truncated", $"true (maxEntries={normalizedMaxEntries})");
+            AppendFieldLine(sb, "printed", printedCount.ToString());
+            AppendFieldLine(sb, "entries", entries, allowMultiline: true);
+            hasAny = true;
+
+            AppendSection(sb, "Actor VarStore");
+            if (dynamicContext?.Vars == null)
+            {
+                AppendFieldLine(sb, "status", "dynamicContext.Vars is null.");
+                return hasAny;
+            }
+
+            var varStoreEntries = BuildVarStoreEntries(dynamicContext.Vars, normalizedMaxEntries, out var varStoreTotal, out var varStorePrinted, out var varStoreTruncated);
+            AppendFieldLine(sb, "count", varStoreTotal.ToString());
+            if (varStoreTruncated)
+                AppendFieldLine(sb, "truncated", $"true (maxEntries={normalizedMaxEntries})");
+            AppendFieldLine(sb, "printed", varStorePrinted.ToString());
+            AppendFieldLine(sb, "entries", varStoreEntries, allowMultiline: true);
+            return true;
+        }
+
+        public static bool AppendActorBlackboardSection(StringBuilder sb, IDynamicContext dynamicContext, int maxEntries)
+        {
+            return AppendActorStoresSection(sb, dynamicContext, maxEntries);
+        }
+
         public static void AppendField(StringBuilder sb, string key, string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -172,6 +232,68 @@ namespace Game.Common
         public static string DescribeScope(IScopeNode scope)
         {
             return CommandExecutionTrace.DescribeScope(scope);
+        }
+
+        static IScopeNode ResolveActorScope(IDynamicContext dynamicContext)
+        {
+            if (dynamicContext is CommandContext commandContext)
+                return commandContext.Actor ?? commandContext.Scope;
+
+            return dynamicContext?.Scope;
+        }
+
+        static string BuildVarStoreEntries(IVarStore vars, int maxEntries, out int totalCount, out int printedCount, out bool truncated)
+        {
+            totalCount = 0;
+            printedCount = 0;
+            truncated = false;
+
+            var sb = new StringBuilder(256);
+            foreach (var varId in vars.EnumerateVarIds())
+            {
+                if (varId == 0)
+                    continue;
+
+                totalCount++;
+                if (maxEntries > 0 && printedCount >= maxEntries)
+                {
+                    truncated = true;
+                    continue;
+                }
+
+                if (sb.Length > 0)
+                    sb.Append('\n');
+
+                var kind = vars.GetVarKind(varId);
+                var key = VarIdResolver.TryGetIdToStable(varId) ?? $"varId={varId}";
+                var value = DescribeVarValue(vars, varId, kind);
+                sb.Append($"varId={varId} key={key} kind={kind} value={value}");
+                printedCount++;
+            }
+
+            if (totalCount == 0)
+                return "(none)";
+
+            if (sb.Length == 0)
+                return "(none)";
+
+            return sb.ToString();
+        }
+
+        static string DescribeVarValue(IVarStore vars, int varId, ValueKind kind)
+        {
+            if (kind == ValueKind.ManagedRef)
+            {
+                if (vars.TryGetManagedRef(varId, out var managed))
+                    return managed?.ToString() ?? "<null>";
+
+                return "<null>";
+            }
+
+            if (vars.TryGetVariant(varId, out var variant))
+                return variant.ToString();
+
+            return "<unavailable>";
         }
 
         static string Colorize(string text, string color)

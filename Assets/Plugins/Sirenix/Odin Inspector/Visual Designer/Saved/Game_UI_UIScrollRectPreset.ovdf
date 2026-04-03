@@ -1,0 +1,18 @@
+OVDF v1.1
+Game.UI.UIScrollRectPreset, Assembly-CSharp
+
+# _horizontal
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 100
+
+# _vertical
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 100
+
+# _interaction
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 100
+
+# _physics
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 100

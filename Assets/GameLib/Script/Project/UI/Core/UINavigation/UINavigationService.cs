@@ -100,6 +100,7 @@ namespace Game.UI
         readonly IUISelectionService _selectionService;
         readonly IControlSchemeService _controlSchemeService;
         readonly IUIInputNavigateService? _inputNavigate;
+        readonly IUIInputRoutingHub? _inputRoutingHub;
         readonly UINavigationOptions? _options;
 
         IScopeNode? _currentElement;
@@ -139,12 +140,14 @@ namespace Game.UI
             IUISelectionService selectionService,
             IControlSchemeService controlSchemeService,
             UINavigationOptions? options = null,
-            IUIInputNavigateService? inputNavigate = null)
+            IUIInputNavigateService? inputNavigate = null,
+            IUIInputRoutingHub? inputRoutingHub = null)
         {
             _selectionService = selectionService;
             _controlSchemeService = controlSchemeService;
             _options = options;
             _inputNavigate = inputNavigate;
+            _inputRoutingHub = inputRoutingHub;
 
             // SelectionServiceの変更を購読
             _selectionService.OnSelectionChanged += HandleSelectionChanged;
@@ -167,8 +170,13 @@ namespace Game.UI
 
         public bool ReceiveInputEvent(in UIInputEvent e)
         {
+            _inputRoutingHub?.NotifyPreview(_selectionService.CurrentElement, _selectionService.HoveredElement, in e);
+
             // まず現在のSelectに入力を流す
             var consumed = DispatchToCurrentTarget(in e);
+
+            if (!consumed && _inputRoutingHub != null)
+                consumed = _inputRoutingHub.DispatchBubble(_selectionService.CurrentElement, _selectionService.HoveredElement, in e);
 
             // Hover は UI 全体の状態なので、consume と独立して常に更新する
             if (e.Type == UIInputEventType.PointerMove)

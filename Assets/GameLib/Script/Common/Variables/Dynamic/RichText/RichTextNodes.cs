@@ -297,6 +297,7 @@ namespace Game.Common
         public string Identifier;
         public string Template;
         public string RefKey;
+        public string RefKeyDiagnostics;
         public string Detail;
         public string Variables;
         public string Settings;
@@ -304,6 +305,8 @@ namespace Game.Common
         public bool? AllowImplicitKeys;
         public ValueKind? ValueKind;
         public string ValuePreview;
+        public bool IncludeActorStores;
+        public int MaxActorStoreEntries;
         public IDynamicContext DynamicContext;
     }
 
@@ -337,6 +340,7 @@ namespace Game.Common
             DynamicRuntimeLogUtility.AppendFieldLine(sb, "phase", context.Phase);
             DynamicRuntimeLogUtility.AppendFieldLine(sb, "identifier", context.Identifier);
             DynamicRuntimeLogUtility.AppendFieldLine(sb, "refKey", context.RefKey);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "refKeyDiagnostics", context.RefKeyDiagnostics, allowMultiline: true);
             DynamicRuntimeLogUtility.AppendFieldLine(sb, "template", context.Template, allowMultiline: true);
             DynamicRuntimeLogUtility.AppendFieldLine(sb, "settings", context.Settings, allowMultiline: true);
             DynamicRuntimeLogUtility.AppendFieldLine(sb, "variables", context.Variables, allowMultiline: true);
@@ -351,6 +355,8 @@ namespace Game.Common
             DynamicRuntimeLogUtility.AppendFieldLine(sb, "detail", context.Detail, allowMultiline: true);
 
             DynamicRuntimeLogUtility.AppendDynamicContextSection(sb, context.DynamicContext);
+            if (context.IncludeActorStores)
+                DynamicRuntimeLogUtility.AppendActorStoresSection(sb, context.DynamicContext, context.MaxActorStoreEntries);
             DynamicRuntimeLogUtility.AppendCommandTraceSection(sb);
             return sb.ToString();
         }

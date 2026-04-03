@@ -92,12 +92,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
+  m_fontSize: 18
   m_fontSizeBase: 12
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 4.1
+  m_fontSizeMax: 18
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -269,6 +269,64 @@ MonoBehaviour:
   channels:
   - tag: default
     target: {fileID: 9102193629187882128}
+    rectTransform: {fileID: 0}
+    playOnSpawnPreset: 0
+    playOnSpawnDelaySeconds: 0
+    transformPreset:
+      loop: 0
+      loopCount: -1
+      steps: []
+    initialTransform:
+      applyOnAwake: 0
+      applyLocalPosition: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      applyLocalRotation: 0
+      localRotation: {x: 0, y: 0, z: 0}
+      applyLocalScale: 0
+      localScale: {x: 1, y: 1, z: 1}
+    initialRectTransform:
+      applyOnAwake: 0
+      applyAnchoredPosition: 0
+      anchoredPosition: {x: 0, y: 0}
+      applySizeDelta: 0
+      sizeDelta: {x: 0, y: 0}
+      applyPivot: 0
+      pivot: {x: 0.5, y: 0.5}
+      applyAnchorMin: 0
+      anchorMin: {x: 0.5, y: 0.5}
+      applyAnchorMax: 0
+      anchorMax: {x: 0.5, y: 0.5}
+  - tag: tilt.pointerOffset
+    target: {fileID: 3144918219578478126}
+    rectTransform: {fileID: 0}
+    playOnSpawnPreset: 0
+    playOnSpawnDelaySeconds: 0
+    transformPreset:
+      loop: 0
+      loopCount: -1
+      steps: []
+    initialTransform:
+      applyOnAwake: 0
+      applyLocalPosition: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      applyLocalRotation: 0
+      localRotation: {x: 0, y: 0, z: 0}
+      applyLocalScale: 0
+      localScale: {x: 1, y: 1, z: 1}
+    initialRectTransform:
+      applyOnAwake: 0
+      applyAnchoredPosition: 0
+      anchoredPosition: {x: 0, y: 0}
+      applySizeDelta: 0
+      sizeDelta: {x: 0, y: 0}
+      applyPivot: 0
+      pivot: {x: 0.5, y: 0.5}
+      applyAnchorMin: 0
+      anchorMin: {x: 0.5, y: 0.5}
+      applyAnchorMax: 0
+      anchorMax: {x: 0.5, y: 0.5}
+  - tag: tilt
+    target: {fileID: 3144918219578478126}
     rectTransform: {fileID: 0}
     playOnSpawnPreset: 0
     playOnSpawnDelaySeconds: 0
@@ -1092,6 +1150,7 @@ GameObject:
   - component: {fileID: 4873276702334529204}
   - component: {fileID: 260458423786819113}
   - component: {fileID: 8308891763432956945}
+  - component: {fileID: 9107073577128818849}
   m_Layer: 0
   m_Name: IdentityCardUIElementRuntime
   m_TagString: Untagged
@@ -2547,6 +2606,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         VarsPolicy: 0
+        AwaitMode: 0
         ExecutionScope: 0
         Body:
           _debugOwner: {fileID: 0}
@@ -3299,6 +3359,8 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145007
           _defaultValue: 
+        _logActorStoresOnWarn: 1
+        _maxActorStoreEntries: 122
         _allowImplicitKeys: 1
         _variables: []
         _template: 
@@ -3469,6 +3531,8 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145014
           _defaultValue: 
+        _logActorStoresOnWarn: 1
+        _maxActorStoreEntries: 122
         _allowImplicitKeys: 1
         _variables: []
         _template: 
@@ -4852,6 +4916,55 @@ MonoBehaviour:
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
+--- !u!114 &9107073577128818849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4610338051289506295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c751a01350651d419b01814a54fce2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.PointerTiltSwipeMB
+  _enabled: 1
+  _environmentMode: 10
+  _targetTransform: {fileID: 3144918219578478126}
+  _rotationChannelTag: tilt
+  _positionChannelTag: tilt.pointerOffset
+  _enableTilt: 1
+  _maxTiltAngleX: 10
+  _maxTiltAngleY: 10
+  _tiltLocalRangeX: 80
+  _tiltLocalRangeY: 80
+  _invertTiltX: 1
+  _invertTiltY: 0
+  _tiltApplySmoothTime: 0
+  _tiltReturnDuration: 0.12
+  _enableSwipe: 0
+  _swipeThresholdLocalDistance: 24
+  _preThresholdOffsetScaleX: 0.25
+  _preThresholdOffsetScaleY: 0.25
+  _preThresholdOffsetMaxX: 12
+  _preThresholdOffsetMaxY: 12
+  _positionReturnDuration: 0.12
+  _worldPointerTarget: {fileID: 0}
+  _onSwipeCandidateStartedCommands:
+    _debugOwner: {fileID: 9107073577128818849}
+    _debugFieldPath: _onSwipeCandidateStartedCommands
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  _onSwipeThresholdReachedCommands:
+    _debugOwner: {fileID: 9107073577128818849}
+    _debugFieldPath: _onSwipeThresholdReachedCommands
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &6542313115128094517
 GameObject:
   m_ObjectHideFlags: 0

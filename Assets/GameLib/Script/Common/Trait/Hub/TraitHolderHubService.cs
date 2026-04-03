@@ -18,6 +18,7 @@ namespace Game.Trait
         IScopeAcquireHandler,
         IScopeReleaseHandler
     {
+        readonly IScopeNode? _ownerScope;
         readonly Dictionary<string, TraitHolderService> _holders = new(System.StringComparer.Ordinal);
         readonly Dictionary<string, TraitHolderSettings> _settingsByKey = new(System.StringComparer.Ordinal);
         readonly List<TraitHolderService> _holderList = new();
@@ -26,6 +27,7 @@ namespace Game.Trait
 
         public TraitHolderHubService(IScopeNode? scope, IReadOnlyList<TraitHolderSettings>? settings)
         {
+            _ownerScope = scope;
             if (settings == null)
                 return;
 
@@ -87,6 +89,9 @@ namespace Game.Trait
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_ownerScope, scope))
+                return;
+
             if (scope.Resolver != null && scope.Resolver.TryResolve<IRichTextRefService>(out var service) && service != null)
             {
                 _richTextRefService = service;
@@ -101,6 +106,12 @@ namespace Game.Trait
                 for (int i = 0; i < _holderList.Count; i++)
                     _holderList[i].SetRichTextRefService(_richTextRefService);
             }
+            else
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[TraitHolderHubService][RichText] IRichTextRefService was not found on acquire. " +
+                    $"scope='{DescribeScope(scope)}' holderCount={_holderList.Count}");
+            }
 
             if (_holderList.Count == 0)
                 return;
@@ -111,6 +122,11 @@ namespace Game.Trait
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_ownerScope, scope))
+                return;
+
+            UnityEngine.Debug.Log(
+                $"[TraitHolderHubService][OnRelease] scope='{DescribeScope(scope)}' isReset={isReset} holderCount={_holderList.Count}");
             if (_holderList.Count == 0)
                 return;
 
@@ -136,6 +152,17 @@ namespace Game.Trait
             }
 
             return null;
+        }
+
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "<null>";
+
+            if (scope is UnityEngine.Component component && component != null)
+                return $"{scope.GetType().Name}:{component.name}";
+
+            return scope.GetType().Name;
         }
     }
 }

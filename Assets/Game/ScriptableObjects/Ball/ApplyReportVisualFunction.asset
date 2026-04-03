@@ -19,6 +19,224 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842409393160342
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 5
+    - rid: 5399842409393160343
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 5
+    - rid: 5399842409393160345
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842409393160346
+    - rid: 5399842409393160346
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        ApplyAnimation: 1
+        AwaitMode: 1
+        WaitForOnceCompletion: 1
+        PresetSource:
+          _source:
+            rid: 5399842409393160347
+          _defaultValue:
+            animationA:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            animationB:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            playMode: 0
+            flipX: 0
+            useClipSwitchFlip: 0
+            switchFlipDuration: 0.2
+            switchFlipFullRotation: 0
+            usePlaybackSpeedMultiplier: 1
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 0
+        MaterialFxSource:
+          _source:
+            rid: 5399842409393160348
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyPlaybackSpeed: 0
+        PlaybackSpeedSource:
+          _source:
+            rid: 5399842409393160349
+          _defaultValue: 0
+        ApplyFlipX: 0
+        FlipXMode: 0
+        FlipXAngleSource:
+          _source:
+            rid: 5399842409393160350
+          _defaultValue: 0
+        ApplySortingOrder: 0
+        SortingOrderSource:
+          _source:
+            rid: 5399842409393160351
+          _defaultValue: 0
+    - rid: 5399842409393160347
+      type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          animationA:
+            kind: 1
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames:
+              - sprite: {fileID: 1135750707803515970, guid: bf89cad4a4c43af4388e1ca6e9029bae, type: 3}
+                duration: 0.1
+                commands:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          animationB:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          playMode: 0
+          flipX: 0
+          useClipSwitchFlip: 0
+          switchFlipDuration: 0.2
+          switchFlipFullRotation: 0
+          usePlaybackSpeedMultiplier: 1
+          crossFadeProfile:
+            rid: -2
+    - rid: 5399842409393160348
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5399842409393160349
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842409393160350
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5399842409393160351
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052643689168918
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -62,6 +280,25 @@ MonoBehaviour:
             _functionName: 
             _commands:
             - rid: 5619052643689169373
+        - MatchMode: 20
+          CaseValue:
+            _source:
+              rid: 5399842409393160342
+          CompareOp: 40
+          CompareTarget:
+            _source:
+              rid: 5399842409393160343
+          Condition:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands:
+            - rid: 5399842409393160345
         - MatchMode: 20
           CaseValue:
             _source:

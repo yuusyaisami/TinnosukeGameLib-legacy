@@ -150,6 +150,12 @@ namespace Game.Trait
 
         public void Clear()
         {
+            if (ShouldLogLifecycle())
+            {
+                Debug.Log(
+                    $"[TraitHolderService][Clear] holder='{_holderKey}' traitCount={_traits.Count} heldCount={_held.Count} " +
+                    $"scope='{DescribeScope(_scope)}'");
+            }
             ClearRichTextRegistrations();
             if (_traits.Count == 0)
             {
@@ -177,6 +183,9 @@ namespace Game.Trait
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            if (_scope != null && !ReferenceEquals(_scope, scope))
+                return;
+
             _isActive = true;
             WriteHolderVarsToBlackboard();
             if (_traits.Count == 0)
@@ -188,6 +197,15 @@ namespace Game.Trait
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            if (_scope != null && !ReferenceEquals(_scope, scope))
+                return;
+
+            if (ShouldLogLifecycle())
+            {
+                Debug.Log(
+                    $"[TraitHolderService][OnRelease] holder='{_holderKey}' isReset={isReset} traitCount={_traits.Count} heldCount={_held.Count} " +
+                    $"scope='{DescribeScope(scope)}'");
+            }
             Clear();
             _isActive = false;
         }
@@ -281,7 +299,34 @@ namespace Game.Trait
         void NotifyTraitsChanged()
         {
             WriteHolderVarsToBlackboard();
+            if (ShouldLogEmptyTraitsChanged())
+            {
+                Debug.Log(
+                    $"[TraitHolderService][NotifyTraitsChanged] holder='{_holderKey}' traitCount={_traits.Count} heldCount={_held.Count} " +
+                    $"scope='{DescribeScope(_scope)}'");
+            }
             OnTraitsChanged?.Invoke(_traits);
+        }
+
+        bool ShouldLogLifecycle()
+        {
+            return !string.IsNullOrEmpty(_holderKey);
+        }
+
+        bool ShouldLogEmptyTraitsChanged()
+        {
+            return !string.IsNullOrEmpty(_holderKey) && _traits.Count == 0;
+        }
+
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "<null>";
+
+            if (scope is Component component && component != null)
+                return $"{scope.GetType().Name}:{component.name}";
+
+            return scope.GetType().Name;
         }
     }
 }

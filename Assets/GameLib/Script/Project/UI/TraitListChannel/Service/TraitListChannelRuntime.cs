@@ -108,6 +108,9 @@ namespace Game.UI
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_owner, scope))
+                return;
+
             _ = isReset;
             _activeScope = scope;
             _listRoot = _definition.ListRoot != null ? _definition.ListRoot : _mb.transform;
@@ -141,6 +144,9 @@ namespace Game.UI
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_owner, scope))
+                return;
+
             _ = scope;
             _ = isReset;
 
@@ -474,6 +480,9 @@ namespace Game.UI
 
                     if (instance.Trait == null || !slotLookup.ContainsKey(instance.Trait))
                     {
+                        Debug.Log(
+                            $"[TraitListChannel][RemoveMissing] tag='{Tag}' trait='{DescribeTrait(instance.Trait)}' root='{DescribeTransform(instance.Root)}' " +
+                            $"parent='{DescribeTransform(instance.Root.parent)}'");
                         await TraitListChannelRuntimeHelpers.ReleaseSpawnedInstanceAsync(instance.Root, instance.Scope, instance.Resolver);
                         _instances.RemoveAt(i);
                         if (instance.Trait != null)
@@ -626,7 +635,9 @@ namespace Game.UI
                 return null;
             }
 
-            return new TraitListChannelVisualInstance(slot.Trait, root, scopeNode, resolver);
+            var instance = new TraitListChannelVisualInstance(slot.Trait, root, scopeNode, resolver);
+            AttachDebugProbe(instance.Root, slot);
+            return instance;
         }
 
         async UniTask InitializeSpawnedInstanceAsync(
@@ -905,15 +916,76 @@ namespace Game.UI
                 return;
 
             if (_boundHolder is not TraitHolderService concreteHolder)
+            {
+                ClearRichTextKeys(vars);
+                Debug.LogWarning(
+                    $"[TraitListChannel] Rich text keys skipped because bound holder is not TraitHolderService. " +
+                    $"Tag='{Tag}' HolderType='{_boundHolder?.GetType().FullName ?? "<null>"}'");
                 return;
+            }
 
-            if (!concreteHolder.TryGetRichTextKeys(trait, out var descriptionKey, out var nameKey, out _))
+            if (!concreteHolder.TryGetRichTextKeys(trait, out var descriptionKey, out var nameKey, out var diagnostic))
+            {
+                ClearRichTextKeys(vars);
+                Debug.LogWarning(
+                    $"[TraitListChannel] Failed to resolve rich text keys. Tag='{Tag}' Holder='{concreteHolder.HolderId}' " +
+                    $"TraitDef='{trait.Definition?.DefinitionId ?? string.Empty}' InstanceId='{trait.InstanceId ?? string.Empty}' " +
+                    $"Reason='{diagnostic.FailureReason}' HasRegistration={diagnostic.HasRegistration} " +
+                    $"HasRefService={diagnostic.HasRichTextRefService}");
                 return;
+            }
 
             if (!string.IsNullOrEmpty(descriptionKey))
-                vars.TrySetVariant(VarIds.GameLib.Base.RichText.descriptionKey, DynamicVariant.FromString(descriptionKey));
+            {
+                var writeRichText = vars.TrySetVariant(VarIds.GameLib.Base.RichText.descriptionKey, DynamicVariant.FromString(descriptionKey));
+                var writeTraitElement = vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.descriptionKey, DynamicVariant.FromString(descriptionKey));
+                if (!writeRichText || !writeTraitElement)
+                {
+                    Debug.LogWarning(
+                        $"[TraitListChannel] Failed to write description rich text key to payload vars. " +
+                        $"Tag='{Tag}' Holder='{concreteHolder.HolderId}' Key='{descriptionKey}' " +
+                        $"WriteRichText={writeRichText} WriteTraitElement={writeTraitElement}");
+                }
+            }
+            else
+            {
+                vars.TryUnset(VarIds.GameLib.Base.RichText.descriptionKey);
+                vars.TryUnset(VarIds.GameLib.Base.Trait.Element.descriptionKey);
+                Debug.LogWarning(
+                    $"[TraitListChannel] Description rich text key is empty. Tag='{Tag}' Holder='{concreteHolder.HolderId}' " +
+                    $"TraitDef='{trait.Definition?.DefinitionId ?? string.Empty}' InstanceId='{trait.InstanceId ?? string.Empty}' " +
+                    $"Reason='{diagnostic.FailureReason}' HasRegistration={diagnostic.HasRegistration} HasRefService={diagnostic.HasRichTextRefService}");
+            }
+
             if (!string.IsNullOrEmpty(nameKey))
-                vars.TrySetVariant(VarIds.GameLib.Base.RichText.nameKey, DynamicVariant.FromString(nameKey));
+            {
+                var writeRichText = vars.TrySetVariant(VarIds.GameLib.Base.RichText.nameKey, DynamicVariant.FromString(nameKey));
+                var writeTraitElement = vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.nameKey, DynamicVariant.FromString(nameKey));
+                if (!writeRichText || !writeTraitElement)
+                {
+                    Debug.LogWarning(
+                        $"[TraitListChannel] Failed to write name rich text key to payload vars. " +
+                        $"Tag='{Tag}' Holder='{concreteHolder.HolderId}' Key='{nameKey}' " +
+                        $"WriteRichText={writeRichText} WriteTraitElement={writeTraitElement}");
+                }
+            }
+            else
+            {
+                vars.TryUnset(VarIds.GameLib.Base.RichText.nameKey);
+                vars.TryUnset(VarIds.GameLib.Base.Trait.Element.nameKey);
+                Debug.LogWarning(
+                    $"[TraitListChannel] Name rich text key is empty. Tag='{Tag}' Holder='{concreteHolder.HolderId}' " +
+                    $"TraitDef='{trait.Definition?.DefinitionId ?? string.Empty}' InstanceId='{trait.InstanceId ?? string.Empty}' " +
+                    $"Reason='{diagnostic.FailureReason}' HasRegistration={diagnostic.HasRegistration} HasRefService={diagnostic.HasRichTextRefService}");
+            }
+        }
+
+        static void ClearRichTextKeys(IVarStore vars)
+        {
+            vars.TryUnset(VarIds.GameLib.Base.RichText.descriptionKey);
+            vars.TryUnset(VarIds.GameLib.Base.RichText.nameKey);
+            vars.TryUnset(VarIds.GameLib.Base.Trait.Element.descriptionKey);
+            vars.TryUnset(VarIds.GameLib.Base.Trait.Element.nameKey);
         }
 
         void WriteTraitVisualSettings(IVarStore vars, ITraitInstance trait)
@@ -1026,6 +1098,9 @@ namespace Game.UI
                 var instance = _instances[i];
                 if (instance == null)
                     continue;
+                Debug.Log(
+                    $"[TraitListChannel][Clear] tag='{Tag}' trait='{DescribeTrait(instance.Trait)}' root='{DescribeTransform(instance.Root)}' " +
+                    $"parent='{DescribeTransform(instance.Root.parent)}'");
                 await TraitListChannelRuntimeHelpers.ReleaseSpawnedInstanceAsync(instance.Root, instance.Scope, instance.Resolver);
             }
 
@@ -1066,7 +1141,15 @@ namespace Game.UI
 
         void OnTraitsChanged(IReadOnlyList<ITraitInstance> traits)
         {
-            _ = traits;
+            if (traits == null || traits.Count > 0)
+            {
+                QueueRefresh(_resolvedPlayerPreset.RefreshMode);
+                return;
+            }
+
+            Debug.Log(
+                $"[TraitListChannel][OnTraitsChanged] tag='{Tag}' holder='{_resolvedBinding.NormalizedHolderKey}' traitCount={traits?.Count ?? 0} " +
+                $"refreshMode='{_resolvedPlayerPreset.RefreshMode}'");
             QueueRefresh(_resolvedPlayerPreset.RefreshMode);
         }
 
@@ -1077,7 +1160,6 @@ namespace Game.UI
 
             if (!string.Equals(_resolvedBinding.NormalizedHolderKey, change.HolderKey, StringComparison.Ordinal))
                 return;
-
             QueueRefresh(TraitListChannelRefreshMode.Incremental);
         }
 
@@ -1085,7 +1167,6 @@ namespace Game.UI
         {
             if (!_isActive || !_hasBinding)
                 return;
-
             _queuedRefreshMode = _refreshQueued ? CombineRefreshModes(_queuedRefreshMode, mode) : mode;
             _refreshQueued = true;
             if (_queueWorkerActive)
@@ -1248,6 +1329,53 @@ namespace Game.UI
                 TraitListChannelRefreshMode.LayoutOnly => 2,
                 _ => 3,
             };
+        }
+
+        void AttachDebugProbe(Transform root, TraitListChannelSlot slot)
+        {
+            if (root == null)
+                return;
+
+            if (!root.TryGetComponent<TraitListChannelRuntimeDebugProbeMB>(out var probe) || probe == null)
+                probe = root.gameObject.AddComponent<TraitListChannelRuntimeDebugProbeMB>();
+
+            probe.Configure(
+                Tag,
+                DescribeTrait(slot.Trait),
+                DescribeTransform(_listRoot),
+                DescribeTransform(root.parent));
+        }
+
+        static string DescribeTrait(ITraitInstance? trait)
+        {
+            if (trait == null)
+                return "<null>";
+
+            var definitionId = trait.Definition is TraitDefinitionSO definition
+                ? definition.DefinitionId
+                : trait.Definition?.GetType().Name ?? "<no-definition>";
+            return $"{definitionId}/{trait.InstanceId}";
+        }
+
+        static string DescribeTransform(Transform? target)
+        {
+            if (target == null)
+                return "<null>";
+
+            return $"{target.name} path='{BuildPath(target)}'";
+        }
+
+        static string BuildPath(Transform target)
+        {
+            var current = target;
+            var path = current.name;
+            while (current.parent != null)
+            {
+                current = current.parent;
+                path = $"{current.name}/{path}";
+            }
+
+            return path;
         }
 
         static void WriteVariant(IVarStore vars, int varId, DynamicVariant value)

@@ -1,5 +1,6 @@
 #nullable enable
 using Game.Channel;
+using Game.Layout;
 using UnityEngine;
 using VContainer;
 
@@ -54,8 +55,10 @@ namespace Game.UI
         {
             var safeRows = Mathf.Max(1, totalRows);
             var safeColumns = Mathf.Max(1, totalColumns);
-            var stepX = Mathf.Max(0f, itemSize.x) + Mathf.Max(0f, columnSpacing);
-            var stepY = Mathf.Max(0f, itemSize.y) + Mathf.Max(0f, rowSpacing);
+            var safeItemWidth = Mathf.Max(0f, itemSize.x);
+            var safeItemHeight = Mathf.Max(0f, itemSize.y);
+            var stepX = safeItemWidth + Mathf.Max(0f, columnSpacing);
+            var stepY = safeItemHeight + Mathf.Max(0f, rowSpacing);
 
             var baseX = ResolveHorizontalBase(rect, areaHorizontalAlignment, safeColumns, stepX);
             var baseY = ResolveVerticalBase(rect, areaVerticalAlignment, safeRows, stepY);
@@ -151,18 +154,32 @@ namespace Game.UI
 
         public static Vector3 ResolvePlacementLocalPosition(
             IObjectResolver? resolver,
+            RectTransform? rootRect,
             Vector3 targetLocalPosition,
             int horizontalAlignment,
             int verticalAlignment)
         {
-            if (!TryResolveVisualBounds(resolver, out var bounds))
+            if (TryResolveVisualBounds(resolver, out var bounds))
+            {
+                var anchor = new Vector3(
+                    ResolveHorizontalAnchor(bounds.LocalRect, horizontalAlignment),
+                    ResolveVerticalAnchor(bounds.LocalRect, verticalAlignment),
+                    0f);
+                return targetLocalPosition - anchor;
+            }
+
+            if (rootRect == null)
                 return targetLocalPosition;
 
-            var anchor = new Vector3(
-                ResolveHorizontalAnchor(bounds.LocalRect, horizontalAlignment),
-                ResolveVerticalAnchor(bounds.LocalRect, verticalAlignment),
+            var fallbackRect = rootRect.rect;
+            if (fallbackRect.width <= 0f && fallbackRect.height <= 0f)
+                return targetLocalPosition;
+
+            var fallbackAnchor = new Vector3(
+                ResolveHorizontalAnchor(fallbackRect, horizontalAlignment),
+                ResolveVerticalAnchor(fallbackRect, verticalAlignment),
                 0f);
-            return targetLocalPosition - anchor;
+            return targetLocalPosition - fallbackAnchor;
         }
 
         public static void SetLocalPosition(
@@ -236,6 +253,21 @@ namespace Game.UI
                 return false;
 
             return hub.TryGetPlayer(channelTag, out player) && player != null;
+        }
+
+        public static void RefreshLayoutAndBounds(IObjectResolver? resolver)
+        {
+            if (resolver == null)
+                return;
+
+            if (resolver.TryResolve<ILayoutSystemService>(out var layoutService) && layoutService != null)
+                layoutService.RebuildNow();
+
+            if (resolver.TryResolve<IVisualBoundsService>(out var boundsService) && boundsService != null)
+            {
+                boundsService.MarkDirty();
+                boundsService.RebuildNow();
+            }
         }
 
         static float ResolveHorizontalBase(Rect rect, int alignment, int totalColumns, float stepX)

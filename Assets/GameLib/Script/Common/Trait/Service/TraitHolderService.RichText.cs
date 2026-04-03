@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Game.Common;
 using Game.Vars.Generated;
+using VContainer;
 
 namespace Game.Trait
 {
@@ -134,7 +135,7 @@ namespace Game.Trait
 
         void TryRegisterRichText(ITraitInstance? instance)
         {
-            if (_richTextRefService == null || instance == null)
+            if (instance == null)
                 return;
 
             if (_richTextKeys.ContainsKey(instance))
@@ -158,17 +159,38 @@ namespace Game.Trait
             var descKey = baseKey;
             var nameKey = BuildRefKey(prefix, definitionId, instanceId, "name");
 
-            if (TryRegisterTemplate(descKey, describable.Description, out var registeredDescKey))
-                keys.DescriptionKey = registeredDescKey;
-
-            if (TryRegisterTemplate(nameKey, describable.Name, out var registeredNameKey))
-                keys.NameKey = registeredNameKey;
-
             var vars = instance.Context.Vars;
             if (!string.IsNullOrEmpty(nameKey))
                 vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.nameKey, DynamicVariant.FromString(nameKey));
             if (!string.IsNullOrEmpty(descKey))
                 vars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.descriptionKey, DynamicVariant.FromString(descKey));
+
+            var hasDescriptionTemplate = HasTemplate(describable.Description);
+            var hasNameTemplate = HasTemplate(describable.Name);
+
+            if (_richTextRefService == null)
+                _richTextRefService = ResolveRichTextRefService(instance.Context.Scope ?? _scope);
+
+            if (_richTextRefService == null)
+            {
+                if (_isActive && (hasDescriptionTemplate || hasNameTemplate))
+                {
+                    UnityEngine.Debug.LogWarning(
+                        $"[TraitHolderService][RichText] Register skipped because IRichTextRefService is null on an active holder. " +
+                        $"holder='{_holderKey}' holderId='{_holderId}' definitionId='{definitionId}' instanceId='{instanceId}'");
+                }
+                return;
+            }
+
+            if (TryRegisterTemplate(descKey, describable.Description, out var registeredDescKey))
+                keys.DescriptionKey = registeredDescKey;
+            else if (hasDescriptionTemplate)
+                WarnRichTextRegisterFailed("description", descKey, definitionId, instanceId);
+
+            if (TryRegisterTemplate(nameKey, describable.Name, out var registeredNameKey))
+                keys.NameKey = registeredNameKey;
+            else if (hasNameTemplate)
+                WarnRichTextRegisterFailed("name", nameKey, definitionId, instanceId);
 
             if (string.IsNullOrEmpty(keys.DescriptionKey) && string.IsNullOrEmpty(keys.NameKey))
                 return;
@@ -191,16 +213,29 @@ namespace Game.Trait
             nameKey = string.Empty;
             var keys = default(RichTextKeyPair);
             var hasRegistration = false;
+            var hasResolvedKeys = false;
             if (instance != null)
+            {
                 hasRegistration = _richTextKeys.TryGetValue(instance, out keys);
+            }
+
             if (hasRegistration)
             {
                 descriptionKey = keys.DescriptionKey ?? string.Empty;
                 nameKey = keys.NameKey ?? string.Empty;
+                hasResolvedKeys = !string.IsNullOrEmpty(descriptionKey) || !string.IsNullOrEmpty(nameKey);
+            }
+
+            if (!hasResolvedKeys && instance != null)
+            {
+                var contextVars = instance.Context.Vars;
+                TryReadKeyFromContextVars(contextVars, VarIds.GameLib.Base.Trait.Element.descriptionKey, out descriptionKey);
+                TryReadKeyFromContextVars(contextVars, VarIds.GameLib.Base.Trait.Element.nameKey, out nameKey);
+                hasResolvedKeys = !string.IsNullOrEmpty(descriptionKey) || !string.IsNullOrEmpty(nameKey);
             }
 
             diagnostic = BuildRichTextLookupDiagnostic(instance, hasRegistration, descriptionKey, nameKey);
-            return hasRegistration;
+            return hasResolvedKeys;
         }
 
         void TryUnregisterRichText(ITraitInstance? instance)
@@ -240,6 +275,51 @@ namespace Game.Trait
                 return false;
 
             registeredKey = refKey;
+            return true;
+        }
+
+        void WarnRichTextRegisterFailed(string keyKind, string refKey, string definitionId, string instanceId)
+        {
+            UnityEngine.Debug.LogWarning(
+                $"[TraitHolderService][RichText] Register failed. kind='{keyKind}' holder='{_holderKey}' holderId='{_holderId}' " +
+                $"definitionId='{definitionId}' instanceId='{instanceId}' refKey='{refKey}'");
+        }
+
+        static bool HasTemplate(RichTextTemplateData? data)
+        {
+            return data != null && !string.IsNullOrEmpty(data.Template);
+        }
+
+        static IRichTextRefService? ResolveRichTextRefService(IScopeNode? origin)
+        {
+            for (var node = origin; node != null; node = node.Parent)
+            {
+                var resolver = node.Resolver;
+                if (resolver != null && resolver.TryResolve<IRichTextRefService>(out var service) && service != null)
+                    return service;
+            }
+
+            return null;
+        }
+
+        static bool TryReadKeyFromContextVars(IVarStore? vars, int varId, out string key)
+        {
+            key = string.Empty;
+            if (vars == null || varId == 0)
+                return false;
+
+            if (!vars.TryGetVariant(varId, out var variant) || variant.Kind == ValueKind.Null)
+                return false;
+
+            key = variant.AsString ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(key))
+                return true;
+
+            var fallback = variant.ToString();
+            if (string.IsNullOrWhiteSpace(fallback))
+                return false;
+
+            key = fallback;
             return true;
         }
 

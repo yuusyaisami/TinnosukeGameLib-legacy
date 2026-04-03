@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Game.Commands.VNext;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VContainer;
 
 namespace Game.Common
@@ -25,6 +27,19 @@ namespace Game.Common
         [SerializeField]
         [ShowIf(nameof(IsRefServiceMode))]
         DynamicValue<string> _refKey;
+
+        [LabelText("Log Actor Stores On Warn")]
+        [SerializeField]
+        [ShowIf(nameof(IsRefServiceMode))]
+        [FormerlySerializedAs("_logActorBlackboardOnWarn")]
+        bool _logActorStoresOnWarn;
+
+        [LabelText("Max Actor Store Entries")]
+        [SerializeField]
+        [MinValue(0)]
+        [ShowIf(nameof(ShouldShowActorStoreEntryLimit))]
+        [FormerlySerializedAs("_maxActorBlackboardEntries")]
+        int _maxActorStoreEntries = 16;
 
         [LabelText("Allow Implicit Keys")]
         [SerializeField]
@@ -75,6 +90,7 @@ namespace Game.Common
 
         bool IsTemplateMode => _sourceMode == RichTextSourceMode.Template;
         bool IsRefServiceMode => _sourceMode == RichTextSourceMode.RefService;
+        bool ShouldShowActorStoreEntryLimit => IsRefServiceMode && _logActorStoresOnWarn;
         string ExpressionFunctionTooltip => ExpressionFunctionRegistry.GetInspectorFunctionTooltip();
 
         public string SourceTypeName => _sourceMode == RichTextSourceMode.RefService ? "RichTextRef" : "RichText";
@@ -247,38 +263,105 @@ namespace Game.Common
                 return DynamicVariant.FromString(string.Empty);
             }
 
-            var resolver = context.Scope?.Resolver;
-            if (resolver == null || !resolver.TryResolve<IRichTextRefService>(out var refService) || refService == null)
+            if (!TryEvaluateRefServiceAcrossScopes(context, key, out var text, out var foundService, out var serviceDetail))
             {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                RichTextRuntimeLogger.Warn(
-                    "RTS-REF-SERVICE-MISSING",
-                    "IRichTextRefService is not available in scope.",
-                    BuildRuntimeLogContext(
-                        context,
-                        "RefService",
-                        detail: "Resolver missing or service not registered.",
-                        refKey: key));
-#endif
-                return DynamicVariant.FromString(string.Empty);
-            }
-
-            if (!refService.TryEvaluate(key, context, out var text))
-            {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                RichTextRuntimeLogger.Warn(
-                    "RTS-REF-EVALUATE-FAILED",
-                    "IRichTextRefService evaluation returned false.",
-                    BuildRuntimeLogContext(
-                        context,
-                        "RefService",
-                        detail: "TryEvaluate returned false.",
-                        refKey: key));
+                if (!foundService)
+                {
+                    RichTextRuntimeLogger.Warn(
+                        "RTS-REF-SERVICE-MISSING",
+                        "IRichTextRefService is not available in scope chain.",
+                        BuildRuntimeLogContext(
+                            context,
+                            "RefService",
+                            detail: serviceDetail,
+                            refKey: key));
+                }
+                else
+                {
+                    RichTextRuntimeLogger.Warn(
+                        "RTS-REF-EVALUATE-FAILED",
+                        "IRichTextRefService evaluation returned false.",
+                        BuildRuntimeLogContext(
+                            context,
+                            "RefService",
+                            detail: serviceDetail,
+                            refKey: key));
+                }
 #endif
                 return DynamicVariant.FromString(string.Empty);
             }
 
             return DynamicVariant.FromString(text ?? string.Empty);
+        }
+
+        bool TryEvaluateRefServiceAcrossScopes(
+            IDynamicContext context,
+            string key,
+            out string text,
+            out bool foundService,
+            out string detail)
+        {
+            text = string.Empty;
+            foundService = false;
+            detail = string.Empty;
+
+            var visited = new HashSet<IScopeNode>();
+            var serviceScopes = new List<string>(4);
+            var scannedScopes = 0;
+
+            foreach (var root in EnumerateRefServiceRoots(context))
+            {
+                for (var node = root; node != null; node = node.Parent)
+                {
+                    if (!visited.Add(node))
+                        continue;
+
+                    scannedScopes++;
+                    var resolver = node.Resolver;
+                    if (resolver == null || !resolver.TryResolve<IRichTextRefService>(out var refService) || refService == null)
+                        continue;
+
+                    foundService = true;
+                    var label = DynamicRuntimeLogUtility.DescribeScope(node);
+                    if (refService.TryEvaluate(key, context, out text))
+                    {
+                        detail = $"Resolved refKey from scope='{label}' after scanning {scannedScopes} scopes.";
+                        return true;
+                    }
+
+                    if (serviceScopes.Count < 8)
+                        serviceScopes.Add(label);
+                }
+            }
+
+            if (!foundService)
+            {
+                detail = $"No IRichTextRefService was found while scanning {scannedScopes} scopes.";
+                return false;
+            }
+
+            detail = serviceScopes.Count == 0
+                ? $"TryEvaluate returned false while scanning {scannedScopes} scopes."
+                : $"TryEvaluate returned false. serviceScopes={string.Join(" -> ", serviceScopes)}";
+            return false;
+        }
+
+        static IEnumerable<IScopeNode> EnumerateRefServiceRoots(IDynamicContext context)
+        {
+            yield return context.Scope;
+
+            if (context is CommandContext commandContext)
+            {
+                if (commandContext.Actor != null)
+                    yield return commandContext.Actor;
+                if (commandContext.CommandRootScope != null)
+                    yield return commandContext.CommandRootScope;
+                if (commandContext.RootActor != null)
+                    yield return commandContext.RootActor;
+                if (commandContext.CallerActor != null)
+                    yield return commandContext.CallerActor;
+            }
         }
 
         bool TryResolveRefKey(IDynamicContext context, out string key)
@@ -522,10 +605,13 @@ namespace Game.Common
                 Phase = phase,
                 Template = _sourceMode == RichTextSourceMode.Template ? _template : null,
                 RefKey = refKey,
+                RefKeyDiagnostics = _sourceMode == RichTextSourceMode.RefService ? BuildRefKeyDiagnostics(context) : null,
                 Detail = detail,
                 Variables = variables,
                 Settings = BuildSourceSettingsSummary(),
                 AllowImplicitKeys = _sourceMode == RichTextSourceMode.Template ? _allowImplicitKeys : null,
+                IncludeActorStores = _sourceMode == RichTextSourceMode.RefService && _logActorStoresOnWarn,
+                MaxActorStoreEntries = _maxActorStoreEntries,
                 DynamicContext = context,
             };
         }
@@ -536,7 +622,37 @@ namespace Game.Common
             var externalCount = _externalVariables?.Count ?? 0;
             return
                 $"sourceMode={_sourceMode}, allowImplicitKeys={_allowImplicitKeys}, " +
-                $"localVariables={localCount}, externalVariables={externalCount}, includeLocalWithExternal={_includeLocalVariablesWithExternal}";
+                $"localVariables={localCount}, externalVariables={externalCount}, includeLocalWithExternal={_includeLocalVariablesWithExternal}, " +
+                $"logActorStoresOnWarn={_logActorStoresOnWarn}, maxActorStoreEntries={_maxActorStoreEntries}";
+        }
+
+        string BuildRefKeyDiagnostics(IDynamicContext context)
+        {
+            if (!_refKey.HasSource)
+                return "hasSource=false";
+
+            var sb = new StringBuilder(192);
+            sb.Append("hasSource=true");
+            sb.Append(", sourceType=");
+            sb.Append(_refKey.SourceTypeName);
+            sb.Append(", source=");
+            sb.Append(string.IsNullOrEmpty(_refKey.SourceDebugData) ? "(empty)" : _refKey.SourceDebugData);
+
+            try
+            {
+                var variant = _refKey.Evaluate(context ?? DummyDynamicContext.Instance);
+                sb.Append(", evaluatedKind=");
+                sb.Append(variant.Kind);
+                sb.Append(", evaluatedValue=");
+                sb.Append(variant.Kind == ValueKind.Null ? "<null>" : variant.ToString());
+            }
+            catch (Exception ex)
+            {
+                sb.Append(", evaluateError=");
+                sb.Append(ex.Message);
+            }
+
+            return sb.ToString();
         }
 
         string BuildVariableDefinitionSummary()
@@ -593,7 +709,11 @@ namespace Game.Common
             try
             {
                 var variant = _refKey.Evaluate(context ?? DummyDynamicContext.Instance);
-                return variant.Kind == ValueKind.Null ? "<null>" : (variant.AsString ?? string.Empty);
+                if (variant.Kind == ValueKind.Null)
+                    return "<null>";
+
+                var text = variant.AsString ?? variant.ToString();
+                return string.IsNullOrEmpty(text) ? "<empty>" : text;
             }
             catch (Exception ex)
             {
