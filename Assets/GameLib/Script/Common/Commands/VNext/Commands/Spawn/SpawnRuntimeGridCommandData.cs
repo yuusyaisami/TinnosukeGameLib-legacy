@@ -150,6 +150,16 @@ namespace Game.Commands.VNext
         [PropertyTooltip("生成された IScopeNode 参照を ManagedRef として GridBlackboard に書き込みます。")]
         public bool WriteSpawnedScopeRefToGrid;
 
+        [SerializeField, ShowIf(nameof(ShowGridBlackboardLinkFields))]
+        [LabelText("Use Grid Key Filter")]
+        [PropertyTooltip("有効時は指定 Grid Key を持つセルだけをリンク対象にします。未指定でも Count/Columns が GridBlackboardColumnCountSource の場合は Grid Key / Row を自動推論して利用します。")]
+        public bool UseGridKeyFilter = false;
+
+        [SerializeField, ShowIf(nameof(ShowGridKeyFilter))]
+        [LabelText("Grid Key")]
+        [PropertyTooltip("リンク対象グリッドを識別する VarKey です。WriteGridData の GridId と同じキーを指定します。")]
+        public VarKeyRef GridKey = new();
+
         [SerializeField, ShowIf(nameof(ShowGridSpawnedScopeVar))]
         [LabelText("Spawned Scope Var")]
         [PropertyTooltip("生成Scope参照を書き込む先の VarKey です。")]
@@ -245,6 +255,7 @@ namespace Game.Commands.VNext
         bool ShowSpawnCondition => RunCommandsOnSpawned && RunConditionalCommands;
         bool ShowGridBlackboardLinkFields => EnabledGridBlackboardLink;
         bool ShowGridSpawnedScopeVar => EnabledGridBlackboardLink && WriteSpawnedScopeRefToGrid;
+        bool ShowGridKeyFilter => EnabledGridBlackboardLink && UseGridKeyFilter;
 
         public SpawnRuntimeGridCommandData()
         {

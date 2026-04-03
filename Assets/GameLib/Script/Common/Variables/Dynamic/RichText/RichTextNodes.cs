@@ -330,30 +330,28 @@ namespace Game.Common
 
         static string BuildMessage(string level, string code, string message, RichTextRuntimeLogContext context)
         {
-            var sb = new StringBuilder(512);
-            sb.Append("[RichText]");
-            sb.Append('[').Append(level).Append(']');
-            sb.Append('[').Append(string.IsNullOrEmpty(code) ? "RT-UNKNOWN" : code).Append("] ");
-            sb.Append(message ?? string.Empty);
+            var sb = new StringBuilder(768);
+            DynamicRuntimeLogUtility.AppendLogHeader(sb, "RichText", level, string.IsNullOrEmpty(code) ? "RT-UNKNOWN" : code, message ?? string.Empty);
 
-            DynamicRuntimeLogUtility.AppendField(sb, "phase", context.Phase);
-            DynamicRuntimeLogUtility.AppendField(sb, "identifier", context.Identifier);
-            DynamicRuntimeLogUtility.AppendField(sb, "refKey", context.RefKey);
-            DynamicRuntimeLogUtility.AppendField(sb, "template", context.Template);
-            DynamicRuntimeLogUtility.AppendField(sb, "detail", context.Detail);
-            DynamicRuntimeLogUtility.AppendField(sb, "settings", context.Settings);
-            DynamicRuntimeLogUtility.AppendField(sb, "variables", context.Variables);
+            DynamicRuntimeLogUtility.AppendSection(sb, "RichText");
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "phase", context.Phase);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "identifier", context.Identifier);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "refKey", context.RefKey);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "template", context.Template, allowMultiline: true);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "settings", context.Settings, allowMultiline: true);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "variables", context.Variables, allowMultiline: true);
 
             if (context.VarId.HasValue)
-                DynamicRuntimeLogUtility.AppendField(sb, "varId", context.VarId.Value.ToString());
+                DynamicRuntimeLogUtility.AppendFieldLine(sb, "varId", context.VarId.Value.ToString());
             if (context.AllowImplicitKeys.HasValue)
-                DynamicRuntimeLogUtility.AppendField(sb, "allowImplicitKeys", context.AllowImplicitKeys.Value ? "true" : "false");
+                DynamicRuntimeLogUtility.AppendFieldLine(sb, "allowImplicitKeys", context.AllowImplicitKeys.Value ? "true" : "false");
             if (context.ValueKind.HasValue)
-                DynamicRuntimeLogUtility.AppendField(sb, "valueKind", context.ValueKind.Value.ToString());
-            DynamicRuntimeLogUtility.AppendField(sb, "value", context.ValuePreview);
+                DynamicRuntimeLogUtility.AppendFieldLine(sb, "valueKind", context.ValueKind.Value.ToString());
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "value", context.ValuePreview);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "detail", context.Detail, allowMultiline: true);
 
-            DynamicRuntimeLogUtility.AppendDynamicContextFields(sb, context.DynamicContext);
-            DynamicRuntimeLogUtility.AppendCommandTraceFields(sb);
+            DynamicRuntimeLogUtility.AppendDynamicContextSection(sb, context.DynamicContext);
+            DynamicRuntimeLogUtility.AppendCommandTraceSection(sb);
             return sb.ToString();
         }
     }

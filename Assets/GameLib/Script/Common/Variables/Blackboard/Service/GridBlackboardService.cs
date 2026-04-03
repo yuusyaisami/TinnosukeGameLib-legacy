@@ -30,6 +30,9 @@ namespace Game.Common
 
     public interface IGridBlackboardService
     {
+        int ChangeVersion { get; }
+        event Action<int>? OnChanged;
+
         bool TryGetVariant(int varId, int row, int column, out DynamicVariant value);
         bool TrySetVariant(int varId, int row, int column, in DynamicVariant value);
         bool SetOrExpandVariant(int varId, int row, int column, in DynamicVariant value);
@@ -68,6 +71,10 @@ namespace Game.Common
     public sealed class GridBlackboardService : IGridBlackboardService, IScopeAcquireHandler, IScopeReleaseHandler
     {
         readonly List<List<List<CellVarEntry>>> _rows = new();
+        int _changeVersion;
+
+        public int ChangeVersion => _changeVersion;
+        public event Action<int>? OnChanged;
 
         struct CellVarEntry
         {
@@ -97,10 +104,18 @@ namespace Game.Common
         }
 
         public bool TrySetVariant(int varId, int row, int column, in DynamicVariant value)
-            => TrySetVariantInternal(varId, row, column, value, allowExpandCell: false, allowInsertVar: false);
+        {
+            var success = TrySetVariantInternal(varId, row, column, value, allowExpandCell: false, allowInsertVar: false, out var changed);
+            NotifyChangedIfNeeded(changed);
+            return success;
+        }
 
         public bool SetOrExpandVariant(int varId, int row, int column, in DynamicVariant value)
-            => TrySetVariantInternal(varId, row, column, value, allowExpandCell: true, allowInsertVar: true);
+        {
+            var success = TrySetVariantInternal(varId, row, column, value, allowExpandCell: true, allowInsertVar: true, out var changed);
+            NotifyChangedIfNeeded(changed);
+            return success;
+        }
 
         public bool TryGetCellVariant(int row, int column, bool useVarFilter, int varIdFilter, out DynamicVariant value, out int resolvedVarId)
         {
@@ -238,11 +253,18 @@ namespace Game.Common
             if (row < 0)
                 return false;
 
+            var beforeCount = _rows.Count;
             while (row >= _rows.Count)
                 _rows.Add(new List<List<CellVarEntry>>());
 
+            var changed = _rows.Count != beforeCount;
             if (_rows[row] == null)
+            {
                 _rows[row] = new List<List<CellVarEntry>>();
+                changed = true;
+            }
+
+            NotifyChangedIfNeeded(changed);
 
             return true;
         }
@@ -253,6 +275,7 @@ namespace Game.Common
                 return false;
 
             _rows.Insert(row, new List<List<CellVarEntry>>());
+            NotifyChangedIfNeeded(true);
             return true;
         }
 
@@ -260,6 +283,7 @@ namespace Game.Common
         {
             appendedRow = _rows.Count;
             _rows.Add(new List<List<CellVarEntry>>());
+            NotifyChangedIfNeeded(true);
             return true;
         }
 
@@ -269,6 +293,7 @@ namespace Game.Common
                 return false;
 
             _rows.RemoveAt(row);
+            NotifyChangedIfNeeded(true);
             return true;
         }
 
@@ -281,12 +306,18 @@ namespace Game.Common
             if (columns == null)
                 return false;
 
+            var changed = false;
             for (int column = 0; column < columns.Count; column++)
             {
                 var vars = columns[column];
-                vars?.Clear();
+                if (vars == null || vars.Count == 0)
+                    continue;
+
+                vars.Clear();
+                changed = true;
             }
 
+            NotifyChangedIfNeeded(changed);
             return true;
         }
 
@@ -295,21 +326,31 @@ namespace Game.Common
             if (row < 0 || column < 0)
                 return false;
 
-            if (!EnsureRow(row))
-                return false;
+            var beforeRowCount = _rows.Count;
+            while (row >= _rows.Count)
+                _rows.Add(new List<List<CellVarEntry>>());
 
             var columns = _rows[row];
+            var changed = _rows.Count != beforeRowCount;
             if (columns == null)
             {
                 columns = new List<List<CellVarEntry>>();
                 _rows[row] = columns;
+                changed = true;
             }
 
+            var beforeColumnCount = columns.Count;
             while (column >= columns.Count)
                 columns.Add(new List<CellVarEntry>());
+            changed |= columns.Count != beforeColumnCount;
 
             if (columns[column] == null)
+            {
                 columns[column] = new List<CellVarEntry>();
+                changed = true;
+            }
+
+            NotifyChangedIfNeeded(changed);
 
             return true;
         }
@@ -319,8 +360,8 @@ namespace Game.Common
             if (row < 0 || column < 0)
                 return false;
 
-            if (!EnsureRow(row))
-                return false;
+            while (row >= _rows.Count)
+                _rows.Add(new List<List<CellVarEntry>>());
 
             var columns = _rows[row];
             if (columns == null)
@@ -333,6 +374,7 @@ namespace Game.Common
                 return false;
 
             columns.Insert(column, new List<CellVarEntry>());
+            NotifyChangedIfNeeded(true);
             return true;
         }
 
@@ -342,8 +384,8 @@ namespace Game.Common
             if (row < 0)
                 return false;
 
-            if (!EnsureRow(row))
-                return false;
+            while (row >= _rows.Count)
+                _rows.Add(new List<List<CellVarEntry>>());
 
             var columns = _rows[row];
             if (columns == null)
@@ -354,6 +396,7 @@ namespace Game.Common
 
             columns.Add(new List<CellVarEntry>());
             appendedColumn = columns.Count - 1;
+            NotifyChangedIfNeeded(true);
             return true;
         }
 
@@ -367,6 +410,7 @@ namespace Game.Common
                 return false;
 
             columns.RemoveAt(column);
+            NotifyChangedIfNeeded(true);
             return true;
         }
 
@@ -375,7 +419,11 @@ namespace Game.Common
             if (!TryGetCell(row, column, out var vars) || vars == null)
                 return false;
 
+            if (vars.Count == 0)
+                return true;
+
             vars.Clear();
+            NotifyChangedIfNeeded(true);
             return true;
         }
 
@@ -394,6 +442,7 @@ namespace Game.Common
                 removed = true;
             }
 
+            NotifyChangedIfNeeded(removed);
             return removed;
         }
 
@@ -498,6 +547,7 @@ namespace Game.Common
             if (varId == 0)
                 return;
 
+            var changed = false;
             for (int row = 0; row < _rows.Count; row++)
             {
                 var columns = _rows[row];
@@ -513,15 +563,24 @@ namespace Game.Common
                     for (int i = vars.Count - 1; i >= 0; i--)
                     {
                         if (vars[i].VarId == varId)
+                        {
                             vars.RemoveAt(i);
+                            changed = true;
+                        }
                     }
                 }
             }
+
+            NotifyChangedIfNeeded(changed);
         }
 
         public void ClearAll()
         {
+            if (_rows.Count == 0)
+                return;
+
             _rows.Clear();
+            NotifyChangedIfNeeded(true);
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
@@ -557,8 +616,16 @@ namespace Game.Common
             return true;
         }
 
-        bool TrySetVariantInternal(int varId, int row, int column, in DynamicVariant value, bool allowExpandCell, bool allowInsertVar)
+        bool TrySetVariantInternal(
+            int varId,
+            int row,
+            int column,
+            in DynamicVariant value,
+            bool allowExpandCell,
+            bool allowInsertVar,
+            out bool changed)
         {
+            changed = false;
             if (varId == 0 || row < 0 || column < 0)
                 return false;
 
@@ -599,7 +666,11 @@ namespace Game.Common
                 if (vars[i].VarId != varId)
                     continue;
 
+                if (vars[i].Value == value)
+                    return true;
+
                 vars[i] = new CellVarEntry { VarId = varId, Value = value };
+                changed = true;
                 return true;
             }
 
@@ -607,7 +678,17 @@ namespace Game.Common
                 return false;
 
             vars.Add(new CellVarEntry { VarId = varId, Value = value });
+            changed = true;
             return true;
+        }
+
+        void NotifyChangedIfNeeded(bool changed)
+        {
+            if (!changed)
+                return;
+
+            _changeVersion++;
+            OnChanged?.Invoke(_changeVersion);
         }
     }
 }

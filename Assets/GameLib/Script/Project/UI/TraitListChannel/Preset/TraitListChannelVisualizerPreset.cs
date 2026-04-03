@@ -5,6 +5,7 @@ using Game.Commands.VNext;
 using Game.Common;
 using Game.DI;
 using Game.Trait;
+using Game.Vars.Generated;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -73,6 +74,12 @@ namespace Game.UI
         [SerializeField]
         Vector2 _fixedSize = new(100f, 100f);
 
+        [BoxGroup("Visual")]
+        [LabelText("Delay Between Spawns")]
+        [Tooltip("新規 item の spawn 間で待機する秒数です。relayout のみでは使用しません。")]
+        [SerializeField]
+        DynamicValue<float> _delayBetweenSpawns = DynamicValueExtensions.FromLiteral(0f);
+
         [BoxGroup("Commands")]
         [LabelText("Spawn Commands")]
         [SerializeField]
@@ -87,14 +94,37 @@ namespace Game.UI
         [SerializeField]
         List<TraitListChannelDefinitionCommand> _byDefinition = new();
 
+        [BoxGroup("Commands")]
+        [LabelText("Counter Var")]
+        [Tooltip("spawn command 実行時に現在 item index を書き込む VarKey です。")]
+        [SerializeField]
+        VarKeyRef _counterVar = new(VarIds.GameLib.Base.CommandVar.i, "i");
+
+        [BoxGroup("Commands")]
+        [LabelText("Write Spawner To Context")]
+        [Tooltip("true のとき channel owner scope を Context slot へ積んでから spawn command を実行します。")]
+        [SerializeField]
+        bool _writeSpawnerToContext;
+
+        [BoxGroup("Commands")]
+        [ShowIf(nameof(_writeSpawnerToContext))]
+        [LabelText("Spawner Context Slot")]
+        [Tooltip("WriteSpawnerToContext が true のときに使う context slot です。")]
+        [SerializeField]
+        CommandLtsSlot _spawnerContextSlot = CommandLtsSlot.ContextA;
+
         bool UsesFixedSize() => _sizeSource == TraitListChannelVisualizerSizeSource.Fixed;
 
         public DynamicValue<BaseRuntimeTemplatePreset> RuntimeTemplatePreset => _runtimeTemplatePreset;
         public bool AllowPooling => _allowPooling;
         public TraitListChannelVisualizerSizeSource SizeSource => _sizeSource;
         public Vector2 FixedSize => new(Mathf.Max(0f, _fixedSize.x), Mathf.Max(0f, _fixedSize.y));
+        public DynamicValue<float> DelayBetweenSpawns => _delayBetweenSpawns;
         public CommandListData SpawnCommands => _spawnCommands;
         public IReadOnlyList<TraitListChannelDefinitionCommand> ByDefinition => _byDefinition;
+        public VarKeyRef CounterVar => _counterVar;
+        public bool WriteSpawnerToContext => _writeSpawnerToContext;
+        public CommandLtsSlot SpawnerContextSlot => _spawnerContextSlot;
 
         public bool TryResolveRuntimeTemplate(IDynamicContext context, out BaseRuntimeTemplateSO? runtimeTemplate)
         {
@@ -114,8 +144,12 @@ namespace Game.UI
                 _allowPooling = _allowPooling,
                 _sizeSource = _sizeSource,
                 _fixedSize = _fixedSize,
+                _delayBetweenSpawns = _delayBetweenSpawns,
                 _spawnCommands = CloneCommandList(_spawnCommands),
                 _byDefinition = new List<TraitListChannelDefinitionCommand>(_byDefinition.Count),
+                _counterVar = _counterVar,
+                _writeSpawnerToContext = _writeSpawnerToContext,
+                _spawnerContextSlot = _spawnerContextSlot,
             };
 
             for (var i = 0; i < _byDefinition.Count; i++)

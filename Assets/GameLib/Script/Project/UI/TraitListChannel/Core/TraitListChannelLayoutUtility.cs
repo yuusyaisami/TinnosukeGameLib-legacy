@@ -102,23 +102,25 @@ namespace Game.UI
             if (slots == null || slots.Count == 0 || preset == null)
                 return;
 
-            var rect = layoutRect != null ? layoutRect.rect : new Rect(0f, 0f, 0f, 0f);
             var rowsUsed = ResolveUsedRowCount(slots);
             var columnsUsed = ResolveUsedColumnCount(slots);
-            var stepX = Mathf.Max(0f, itemSize.x) + preset.ColumnSpacing;
-            var stepY = Mathf.Max(0f, itemSize.y) + preset.RowSpacing;
-
-            var baseX = ResolveHorizontalBase(rect, preset.AreaHorizontalAlignment, columnsUsed, stepX);
-            var baseY = ResolveVerticalBase(rect, preset.AreaVerticalAlignment, rowsUsed, stepY);
-            var horizontalDirection = preset.AreaHorizontalAlignment == TraitListChannelHorizontalAlignment.Right ? -1f : 1f;
-            var verticalDirection = preset.AreaVerticalAlignment == TraitListChannelVerticalAlignment.Bottom ? -1f : 1f;
+            var rect = layoutRect != null ? layoutRect.rect : new Rect(0f, 0f, 0f, 0f);
 
             for (var i = 0; i < slots.Count; i++)
             {
                 var slot = slots[i];
-                var x = baseX + preset.ItemOffset.x + (slot.Column * stepX * horizontalDirection);
-                var y = baseY + preset.ItemOffset.y - (slot.Row * stepY * verticalDirection);
-                slot.TargetLocalPosition = new Vector3(x, y, preset.ItemOffset.z);
+                slot.TargetLocalPosition = TransformGridSharedUtility.ResolveTargetLocalPosition(
+                    rect,
+                    slot.Row,
+                    slot.Column,
+                    rowsUsed,
+                    columnsUsed,
+                    itemSize,
+                    preset.RowSpacing,
+                    preset.ColumnSpacing,
+                    (int)preset.AreaHorizontalAlignment,
+                    (int)preset.AreaVerticalAlignment,
+                    preset.ItemOffset);
                 slots[i] = slot;
             }
         }
@@ -129,14 +131,7 @@ namespace Game.UI
             int rows,
             int columns)
         {
-            if (order == TraitListChannelOrder.ColumnMajor)
-            {
-                var safeColumns = Mathf.Max(1, columns);
-                return (listIndex / safeColumns, listIndex % safeColumns);
-            }
-
-            var safeRows = Mathf.Max(1, rows);
-            return (listIndex / Mathf.Max(1, columns), listIndex % Mathf.Max(1, columns));
+            return TransformGridSharedUtility.ResolveRowColumn((int)order, listIndex, rows, columns);
         }
 
         static int ResolveUsedRowCount(IReadOnlyList<TraitListChannelSlot> slots)
@@ -161,38 +156,6 @@ namespace Game.UI
             }
 
             return maxColumn + 1;
-        }
-
-        static float ResolveHorizontalBase(
-            Rect rect,
-            TraitListChannelHorizontalAlignment alignment,
-            int usedColumns,
-            float stepX)
-        {
-            var span = Mathf.Max(0, usedColumns - 1) * stepX;
-            return alignment switch
-            {
-                TraitListChannelHorizontalAlignment.Left => rect.xMin,
-                TraitListChannelHorizontalAlignment.Right => rect.xMax,
-                TraitListChannelHorizontalAlignment.Center => rect.center.x - (span * 0.5f),
-                _ => rect.xMin,
-            };
-        }
-
-        static float ResolveVerticalBase(
-            Rect rect,
-            TraitListChannelVerticalAlignment alignment,
-            int usedRows,
-            float stepY)
-        {
-            var span = Mathf.Max(0, usedRows - 1) * stepY;
-            return alignment switch
-            {
-                TraitListChannelVerticalAlignment.Top => rect.yMax,
-                TraitListChannelVerticalAlignment.Bottom => rect.yMin,
-                TraitListChannelVerticalAlignment.Center => rect.center.y + (span * 0.5f),
-                _ => rect.yMax,
-            };
         }
     }
 }

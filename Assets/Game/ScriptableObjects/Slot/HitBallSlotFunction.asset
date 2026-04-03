@@ -96,8 +96,8 @@ MonoBehaviour:
           _commands:
           - rid: 5619052672271777985
           - rid: 5619052672271777986
-          - rid: 5619052672271777987
           - rid: 5619052672271778066
+          - rid: 5619052672271777987
     - rid: 5619052672271777985
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -1727,7 +1727,7 @@ MonoBehaviour:
           Id: -1973269918
           Name: GameLogic.BallProfile.MaxValue
         targetActorSource:
-          Kind: 0
+          Kind: 10
           Identity:
             kind: 0
             id: 
@@ -1737,7 +1737,7 @@ MonoBehaviour:
           UnityObject: {fileID: 0}
           Shared:
             rid: -2
-          ContextSlot: 0
+          ContextSlot: 100
           TargetChannel:
             rid: -2
         createIfMissing: 0
@@ -1750,7 +1750,7 @@ MonoBehaviour:
           Id: -1391682985
           Name: GameLogic.BallProfile.Value
         targetActorSource:
-          Kind: 0
+          Kind: 10
           Identity:
             kind: 0
             id: 
@@ -1760,7 +1760,7 @@ MonoBehaviour:
           UnityObject: {fileID: 0}
           Shared:
             rid: -2
-          ContextSlot: 0
+          ContextSlot: 100
           TargetChannel:
             rid: -2
         createIfMissing: 0

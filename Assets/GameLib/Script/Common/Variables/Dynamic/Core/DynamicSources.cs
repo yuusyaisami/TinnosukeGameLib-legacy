@@ -1519,6 +1519,24 @@ namespace Game.Common
                 ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
                 : "(all vars)";
 
+        internal bool TryGetGridLinkHint(IDynamicContext context, out int rowIndex, out int filterVarId)
+        {
+            rowIndex = GridBlackboardSourceUtility.EvaluateIndex(context, targetRow);
+            filterVarId = 0;
+            if (rowIndex < 0)
+                return false;
+
+            if (useVarKeyFilter)
+            {
+                if (varIdFilter <= 0)
+                    return false;
+
+                filterVarId = varIdFilter;
+            }
+
+            return true;
+        }
+
         public DynamicVariant Evaluate(IDynamicContext context)
         {
             if (context?.Scope == null)
@@ -1587,6 +1605,24 @@ namespace Game.Common
             => useVarKeyFilter
                 ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
                 : "(all vars)";
+
+        internal bool TryGetGridLinkHint(IDynamicContext context, out int rowIndex, out int filterVarId)
+        {
+            rowIndex = GridBlackboardSourceUtility.EvaluateIndex(context, targetRow);
+            filterVarId = 0;
+            if (rowIndex < 0)
+                return false;
+
+            if (useVarKeyFilter)
+            {
+                if (varIdFilter <= 0)
+                    return false;
+
+                filterVarId = varIdFilter;
+            }
+
+            return true;
+        }
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {

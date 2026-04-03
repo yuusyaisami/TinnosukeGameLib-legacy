@@ -498,6 +498,8 @@ namespace Game.UI
                 }
             }
 
+            var totalNewlySpawned = newlySpawned.Count;
+            var initializedNewSpawned = 0;
             RecalculateSlotPositions(slots);
             for (var i = 0; i < slots.Count; i++)
             {
@@ -507,9 +509,15 @@ namespace Game.UI
                     continue;
 
                 if (newlySpawned.Contains(slot.Trait))
+                {
                     await InitializeSpawnedInstanceAsync(instance, slot, ct);
+                    initializedNewSpawned++;
+                    await DelayBetweenNewSpawnsIfNeededAsync(initializedNewSpawned, totalNewlySpawned, ct);
+                }
                 else
+                {
                     await RelayoutInstanceAsync(instance, slot, ct);
+                }
             }
 
             SortInstancesByListIndex();
@@ -537,6 +545,7 @@ namespace Game.UI
             }
 
             RecalculateSlotPositions(slots);
+            var initializedSpawned = 0;
             for (var i = 0; i < slots.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -545,6 +554,8 @@ namespace Game.UI
                     continue;
 
                 await InitializeSpawnedInstanceAsync(instance, slot, ct);
+                initializedSpawned++;
+                await DelayBetweenNewSpawnsIfNeededAsync(initializedSpawned, _instances.Count, ct);
             }
 
             SortInstancesByListIndex();
@@ -791,7 +802,17 @@ namespace Game.UI
             if (!TryResolveCommandRunner(instance, out var runner) || runner == null)
                 return;
 
+            var counterVarId = ResolveVarId(_resolvedVisualizerPreset.CounterVar, VarIds.GameLib.Base.CommandVar.i);
+            if (counterVarId > 0)
+                commandVars.TrySetVariant(counterVarId, DynamicVariant.FromInt(slot.ListIndex));
+
             var ctx = new CommandContext(instance.Scope, commandVars, runner, instance.Scope, CommandRunOptions.Default);
+            if (_resolvedVisualizerPreset.WriteSpawnerToContext)
+            {
+                var targetScope = _activeScope ?? _owner;
+                ctx.SetScope(ResolveContextSlotOrDefault(_resolvedVisualizerPreset.SpawnerContextSlot), targetScope);
+            }
+
             try
             {
                 if (_resolvedVisualizerPreset.SpawnCommands != null && _resolvedVisualizerPreset.SpawnCommands.Count > 0)
@@ -934,29 +955,30 @@ namespace Game.UI
             return anchorLocal + _resolvedLayoutPreset.SpawnOffset;
         }
 
+        async UniTask DelayBetweenNewSpawnsIfNeededAsync(int initializedCount, int totalSpawnCount, CancellationToken ct)
+        {
+            if (initializedCount >= totalSpawnCount || !_resolvedVisualizerPreset.DelayBetweenSpawns.HasSource || _activeScope == null)
+                return;
+
+            var delay = _resolvedVisualizerPreset.DelayBetweenSpawns.GetOrDefault(
+                new SimpleDynamicContext(TraitListChannelRuntimeHelpers.ResolveVars(_activeScope), _activeScope),
+                0f);
+            if (delay <= 0f)
+                return;
+
+            await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: ct);
+        }
+
         Vector3 ResolveLocalPointFromTransform(Transform anchor)
         {
-            if (_listRoot == null || anchor == null)
-                return Vector3.zero;
-
-            if (_environmentKind == TraitListChannelEnvironmentKind.ScreenUI &&
-                _layoutRectTransform != null)
-            {
-                var camera = _canvas != null && _canvas.renderMode == RenderMode.ScreenSpaceCamera
-                    ? _canvas.worldCamera
-                    : null;
-                var screenPoint = RectTransformUtility.WorldToScreenPoint(camera, anchor.position);
-                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                        _layoutRectTransform,
-                        screenPoint,
-                        camera,
-                        out var localPoint))
-                {
-                    return new Vector3(localPoint.x, localPoint.y, 0f);
-                }
-            }
-
-            return _listRoot.InverseTransformPoint(anchor.position);
+            return TransformGridSharedUtility.ResolveLocalPointFromTransform(
+                _listRoot,
+                _layoutRectTransform,
+                _canvas,
+                anchor,
+                _environmentKind == TraitListChannelEnvironmentKind.ScreenUI
+                    ? TransformGridEnvironmentKind.ScreenUI
+                    : TransformGridEnvironmentKind.World);
         }
 
         Vector2 ResolveLayoutItemSize(IReadOnlyList<TraitListChannelVisualInstance> instances)
@@ -982,56 +1004,18 @@ namespace Game.UI
 
         bool TryResolveLayoutElementSize(TraitListChannelVisualInstance instance, out Vector2 size)
         {
-            size = Vector2.zero;
             if (instance == null)
-                return false;
-
-            switch (_resolvedVisualizerPreset.SizeSource)
             {
-                case TraitListChannelVisualizerSizeSource.RectTransform:
-                    if (instance.RootRect != null)
-                    {
-                        var rectSize = instance.RootRect.rect.size;
-                        if (rectSize.x > 0f || rectSize.y > 0f)
-                        {
-                            size = rectSize;
-                            return true;
-                        }
-                    }
-
-                    if (TraitListChannelRuntimeHelpers.TryResolveVisualBounds(instance, out var rectFallbackBounds) &&
-                        (rectFallbackBounds.LocalSize.x > 0f || rectFallbackBounds.LocalSize.y > 0f))
-                    {
-                        size = rectFallbackBounds.LocalSize;
-                        return true;
-                    }
-                    break;
-
-                case TraitListChannelVisualizerSizeSource.VisualBounds:
-                    if (TraitListChannelRuntimeHelpers.TryResolveVisualBounds(instance, out var bounds) &&
-                        (bounds.LocalSize.x > 0f || bounds.LocalSize.y > 0f))
-                    {
-                        size = bounds.LocalSize;
-                        return true;
-                    }
-
-                    if (instance.RootRect != null)
-                    {
-                        var fallbackRect = instance.RootRect.rect.size;
-                        if (fallbackRect.x > 0f || fallbackRect.y > 0f)
-                        {
-                            size = fallbackRect;
-                            return true;
-                        }
-                    }
-                    break;
-
-                case TraitListChannelVisualizerSizeSource.Fixed:
-                    size = _resolvedVisualizerPreset.FixedSize;
-                    return size.x > 0f || size.y > 0f;
+                size = Vector2.zero;
+                return false;
             }
 
-            return false;
+            return TransformGridSharedUtility.TryResolveLayoutElementSize(
+                instance.Resolver,
+                instance.RootRect,
+                (int)_resolvedVisualizerPreset.SizeSource,
+                _resolvedVisualizerPreset.FixedSize,
+                out size);
         }
 
         async UniTask ClearSpawnedInstancesAsync(CancellationToken ct)
@@ -1278,6 +1262,22 @@ namespace Game.UI
             if (vars == null || varId == 0 || value == null)
                 return;
             vars.TrySetManagedRef(varId, value);
+        }
+
+        static int ResolveVarId(VarKeyRef key, int fallback)
+        {
+            if (!string.IsNullOrEmpty(key.StableKey) && VarIdResolver.TryResolve(key.StableKey, out var resolved) && resolved > 0)
+                return resolved;
+
+            return key.VarId > 0 ? key.VarId : fallback;
+        }
+
+        static CommandLtsSlot ResolveContextSlotOrDefault(CommandLtsSlot slot)
+        {
+            if (CommandLtsSlotUtility.IsContextSlot(slot))
+                return slot;
+
+            return CommandLtsSlot.ContextA;
         }
 
         CancellationTokenSource? CreateLinkedTokenSource(CancellationToken ct)

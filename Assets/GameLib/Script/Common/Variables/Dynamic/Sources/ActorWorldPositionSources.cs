@@ -103,6 +103,14 @@ namespace Game.Common
         public string SourceTypeName => "ActorPos";
         public string GetDebugData => $"{actorSource.Kind} (Vector3)";
 
+        public static ActorWorldPosition3Source FromActorSource(in ActorSource source)
+        {
+            return new ActorWorldPosition3Source
+            {
+                actorSource = source,
+            };
+        }
+
         public DynamicVariant Evaluate(IDynamicContext context)
         {
             var scope = ActorWorldPositionSourceHelper.ResolveScope(context, actorSource, ref _cache);

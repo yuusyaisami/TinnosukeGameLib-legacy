@@ -56,6 +56,12 @@ namespace Game.Commands.VNext
                 if (targetScope == null)
                     continue;
 
+                if (typed.AwaitMode == FlowRunAwaitMode.RunInBackground)
+                {
+                    RunInBackground(typed, ctx, targetScope, actorScope, ct, allowFallback);
+                    continue;
+                }
+
                 await ExecuteBodyOnScope(typed, ctx, targetScope, actorScope, ct, allowFallback);
             }
         }
@@ -103,7 +109,7 @@ namespace Game.Commands.VNext
             if (runner == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "No ICommandRunner available in actor or fallback scope.");
 
-            var vars = ResolveVars(typed.VarsPolicy, ctx, executionScope);
+            var vars = ResolveVars(ctx);
             var actorCtx = new CommandContext(
                 executionScope,
                 vars,
@@ -137,6 +143,30 @@ namespace Game.Commands.VNext
                 Debug.LogException(new Exception($"[WithActorExecutor] Exception executing actor commands. ActorScope={DescribeScope(executionScope)}; Runner={(runner == null ? "null" : runner.GetType().Name)}", ex));
                 throw;
             }
+        }
+
+        static void RunInBackground(
+            WithActorCommandData typed,
+            CommandContext ctx,
+            IScopeNode targetScope,
+            IScopeNode actorScope,
+            CancellationToken ct,
+            bool allowFallback)
+        {
+            UniTask.Void(async () =>
+            {
+                try
+                {
+                    await ExecuteBodyOnScope(typed, ctx, targetScope, actorScope, ct, allowFallback);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[WithActorExecutor] Background execution failed. Scope={DescribeScope(targetScope)} Error={ex.Message}");
+                }
+            });
         }
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
@@ -227,16 +257,8 @@ namespace Game.Commands.VNext
             return true;
         }
 
-        static IVarStore ResolveVars(VarsPolicy policy, CommandContext ctx, IScopeNode actorScope)
+        static IVarStore ResolveVars(CommandContext ctx)
         {
-            if (policy == VarsPolicy.UseActorScopeVars)
-            {
-                var resolver = actorScope?.Resolver;
-                if (resolver != null && resolver.TryResolve<IVarStore>(out var vars) && vars != null)
-                    return vars;
-                return NullVarStore.Instance;
-            }
-
             return ctx.Vars ?? NullVarStore.Instance;
         }
 

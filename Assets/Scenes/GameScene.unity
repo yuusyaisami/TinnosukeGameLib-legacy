@@ -6443,6 +6443,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160245
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -6450,6 +6454,11 @@ MonoBehaviour:
           _functionName: 
           _commands: []
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     _listRoot: {fileID: 1785960388}
     _layoutRectTransform: {fileID: 1785960388}
   references:
@@ -6535,6 +6544,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160246
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -6543,6 +6556,11 @@ MonoBehaviour:
           _commands:
           - rid: 5399842404696850988
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     - rid: 5399842404696850866
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -6581,6 +6599,30 @@ MonoBehaviour:
         ChannelTag: build
         Operation: 10
         AwaitMode: 0
+    - rid: 5399842409393160245
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160246
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &285872499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6751,6 +6793,10 @@ MonoBehaviour:
               _allowPooling: 1
               _sizeSource: 10
               _fixedSize: {x: 100, y: 100}
+              _delayBetweenSpawns:
+                _source:
+                  rid: 5399842409393160243
+                _defaultValue: 0
               _spawnCommands:
                 _debugOwner: {fileID: 0}
                 _debugFieldPath: 
@@ -6758,6 +6804,11 @@ MonoBehaviour:
                 _functionName: 
                 _commands: []
               _byDefinition: []
+              _counterVar:
+                stableKey: i
+                varId: 252
+              _writeSpawnerToContext: 0
+              _spawnerContextSlot: 100
     - rid: 5399842404696850995
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TraitListChannelPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -6836,6 +6887,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160244
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -6843,6 +6898,11 @@ MonoBehaviour:
           _functionName: 
           _commands: []
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     - rid: 5399842404696851002
       type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -7372,6 +7432,30 @@ MonoBehaviour:
         LogWatches: 1
         MaxWatchEntries: 16
         Watches: []
+    - rid: 5399842409393160243
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160244
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &301698062
 GameObject:
   m_ObjectHideFlags: 0
@@ -19353,7 +19437,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 4689694}
+  m_AnchoredPosition: {x: 0, y: 49.15085}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &645531780
@@ -24050,6 +24134,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160247
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -24057,6 +24145,11 @@ MonoBehaviour:
           _functionName: 
           _commands: []
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     _listRoot: {fileID: 584099609}
     _layoutRectTransform: {fileID: 584099609}
   references:
@@ -24142,6 +24235,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160248
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -24150,6 +24247,11 @@ MonoBehaviour:
           _commands:
           - rid: 5399842402410693260
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     - rid: 5399842402410693258
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -24188,6 +24290,30 @@ MonoBehaviour:
         ChannelTag: build
         Operation: 10
         AwaitMode: 0
+    - rid: 5399842409393160247
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160248
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &883118298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25265,6 +25391,23 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842409393160231
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842409393160232
+    - rid: 5399842409393160232
+      type: {class: WaitCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        WaitTime:
+          _source:
+            rid: 5399842409393160234
+          _defaultValue: 0
+    - rid: 5399842409393160234
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1.5
     - rid: 5619052416848364190
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -25696,6 +25839,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         VarsPolicy: 0
+        AwaitMode: 1
         ExecutionScope: 0
         Body:
           _debugOwner: {fileID: 0}
@@ -25703,9 +25847,10 @@ MonoBehaviour:
           _debugAssetPath: 
           _functionName: 
           _commands:
-          - rid: 5619052686853013935
           - rid: 5619052686853013946
           - rid: 5619052686853013956
+          - rid: 5399842409393160231
+          - rid: 5619052686853013935
     - rid: 5619052686853013935
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -25715,7 +25860,7 @@ MonoBehaviour:
     - rid: 5619052686853013936
       type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
-        ChannelTag: default
+        ChannelTag: close
         Mode: 0
         AwaitMode: 0
         Action: 0
@@ -28296,7 +28441,7 @@ RectTransform:
   m_GameObject: {fileID: 1026787981}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -5}
-  m_LocalScale: {x: 1, y: 0, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1781996881}
@@ -28590,6 +28735,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         VarsPolicy: 0
+        AwaitMode: 0
         ExecutionScope: 0
         Body:
           _debugOwner: {fileID: 0}
@@ -32553,6 +32699,35 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
+    - rid: 5399842404696851445
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 1
+        ScalarKeyValue:
+          Id: 2064459732
+          Name: GameLogic.GameProfile.Base.AllSlotMul
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
     - rid: 5619052366731149400
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -33508,6 +33683,7 @@ MonoBehaviour:
         - rid: 5619052686853014017
         - rid: 5619052686853014018
         - rid: 5619052686853014020
+        - rid: 5399842404696851445
     - rid: 5619052686853014017
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
@@ -39383,6 +39559,10 @@ MonoBehaviour:
               _allowPooling: 1
               _sizeSource: 10
               _fixedSize: {x: 100, y: 100}
+              _delayBetweenSpawns:
+                _source:
+                  rid: 5399842409393160235
+                _defaultValue: 0
               _spawnCommands:
                 _debugOwner: {fileID: 0}
                 _debugFieldPath: 
@@ -39390,6 +39570,11 @@ MonoBehaviour:
                 _functionName: 
                 _commands: []
               _byDefinition: []
+              _counterVar:
+                stableKey: i
+                varId: 252
+              _writeSpawnerToContext: 0
+              _spawnerContextSlot: 100
     - rid: 5399842374860145232
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TraitListChannelPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -39468,6 +39653,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160236
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -39475,6 +39664,11 @@ MonoBehaviour:
           _functionName: 
           _commands: []
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     - rid: 5399842374860145238
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -39556,6 +39750,30 @@ MonoBehaviour:
             _source:
               rid: -2
             _defaultValue: 0
+    - rid: 5399842409393160235
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160236
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &1196694518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39657,6 +39875,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160237
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -39664,6 +39886,11 @@ MonoBehaviour:
           _functionName: 
           _commands: []
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     _listRoot: {fileID: 1938283349}
     _layoutRectTransform: {fileID: 1938283349}
   references:
@@ -39749,6 +39976,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160238
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -39757,6 +39988,11 @@ MonoBehaviour:
           _commands:
           - rid: 5399842402410692825
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     - rid: 5399842402410692823
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -39795,6 +40031,30 @@ MonoBehaviour:
         ChannelTag: build
         Operation: 10
         AwaitMode: 0
+    - rid: 5399842409393160237
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160238
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1218426971
 GameObject:
   m_ObjectHideFlags: 0
@@ -43874,6 +44134,10 @@ MonoBehaviour:
               _allowPooling: 1
               _sizeSource: 10
               _fixedSize: {x: 100, y: 100}
+              _delayBetweenSpawns:
+                _source:
+                  rid: 5399842409393160241
+                _defaultValue: 0
               _spawnCommands:
                 _debugOwner: {fileID: 0}
                 _debugFieldPath: 
@@ -43881,6 +44145,11 @@ MonoBehaviour:
                 _functionName: 
                 _commands: []
               _byDefinition: []
+              _counterVar:
+                stableKey: i
+                varId: 252
+              _writeSpawnerToContext: 0
+              _spawnerContextSlot: 100
     - rid: 5399842374860144978
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TraitListChannelPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -43959,6 +44228,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160242
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -43966,6 +44239,11 @@ MonoBehaviour:
           _functionName: 
           _commands: []
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     - rid: 5399842374860145032
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -44175,6 +44453,30 @@ MonoBehaviour:
         key:
           stableKey: 
           varId: 0
+    - rid: 5399842409393160241
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160242
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &1317081145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44276,6 +44578,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160239
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -44283,6 +44589,11 @@ MonoBehaviour:
           _functionName: 
           _commands: []
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     _listRoot: {fileID: 1165198274}
     _layoutRectTransform: {fileID: 1165198274}
   references:
@@ -44325,6 +44636,10 @@ MonoBehaviour:
         _allowPooling: 1
         _sizeSource: 10
         _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842409393160240
+          _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -44333,6 +44648,11 @@ MonoBehaviour:
           _commands:
           - rid: 5399842374860145094
         _byDefinition: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
     - rid: 5399842374860144972
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -44414,6 +44734,30 @@ MonoBehaviour:
         ChannelTag: build
         Operation: 10
         AwaitMode: 0
+    - rid: 5399842409393160239
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160240
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1332165850
 GameObject:
   m_ObjectHideFlags: 0
@@ -44739,6 +45083,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         VarsPolicy: 0
+        AwaitMode: 0
         ExecutionScope: 2
         Body:
           _debugOwner: {fileID: 0}
@@ -44834,6 +45179,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         VarsPolicy: 0
+        AwaitMode: 0
         ExecutionScope: 2
         Body:
           _debugOwner: {fileID: 0}
@@ -46617,6 +46963,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         VarsPolicy: 0
+        AwaitMode: 0
         ExecutionScope: 2
         Body:
           _debugOwner: {fileID: 0}
@@ -46712,6 +47059,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         VarsPolicy: 0
+        AwaitMode: 0
         ExecutionScope: 2
         Body:
           _debugOwner: {fileID: 0}
@@ -51359,7 +51707,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 696
+  _debugLastEnabledChangeFrame: 1130
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1484563809
@@ -53850,7 +54198,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 696
+  _debugLastEnabledChangeFrame: 1130
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1505620737
@@ -57264,6 +57612,59 @@ MonoBehaviour:
     counterEase: 6
     counterDurationSeconds: 0.5
     counterUseUnscaledTime: 0
+  - tag: close
+    text: {fileID: 1262260209}
+    materialFxPresetEntries: []
+    useRichTextAnimator: 1
+    useTypewriter: 0
+    typewriterEventCommands:
+      Apply: 0
+      OnTypewriterStart:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextShowed:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextDisappeared:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterVisible:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitStarted:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitFinished:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnMessage:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+    useCounter: 0
+    counterEase: 6
+    counterDurationSeconds: 0.5
+    counterUseUnscaledTime: 0
   references:
     version: 2
     RefIds: []
@@ -60574,6 +60975,10 @@ MonoBehaviour:
             rid: 5619052672271777980
           _defaultValue: 0
         WriteSpawnedScopeRefToGrid: 0
+        UseGridKeyFilter: 1
+        GridKey:
+          stableKey: TableId
+          varId: 101106
         GridSpawnedScopeVar:
           stableKey: 
           varId: 0
@@ -62339,6 +62744,18 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842404696851441
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.1
+    - rid: 5399842404696851442
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842404696851443
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052416848364112
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -62617,7 +63034,7 @@ MonoBehaviour:
             FadeEase: 0
           - Key: BaseShader/AdvancedFade2D/FadeDirection
             Value:
-              Type: 0
+              Type: 4
               Float:
                 _source:
                   rid: 5619052416848364125
@@ -62638,6 +63055,31 @@ MonoBehaviour:
             FadeDuration:
               _source:
                 rid: 5619052416848364127
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/AdvancedFade2D/Soft
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842404696851441
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842404696851442
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842404696851443
               _defaultValue: 0
             FadeEase: 0
     - rid: 5619052416848364119
@@ -69209,7 +69651,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 696
+  _debugLastEnabledChangeFrame: 1130
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1979925667
@@ -72179,8 +72621,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1808438110}
   m_HandleRect: {fileID: 1808438109}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.58805335
+  m_Value: -0.000017695857
+  m_Size: 0.83616674
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

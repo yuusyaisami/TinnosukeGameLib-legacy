@@ -166,7 +166,7 @@ namespace Game.Targeting
                     CollectScopeHits();
                     break;
                 case TargetChannelSearchType.None:
-                    _hits.AddRange(_directHits);
+                    CollectDirectHits();
                     break;
             }
 
@@ -250,6 +250,28 @@ namespace Game.Targeting
                 return;
 
             AddScopeHit(scope, ResolveOwnerOrigin(), _currentPreset.ScopeRequireActive);
+        }
+
+        void CollectDirectHits()
+        {
+            if (_directHits.Count == 0)
+                return;
+
+            var origin = ResolveOwnerOrigin();
+            for (int i = 0; i < _directHits.Count; i++)
+            {
+                var direct = _directHits[i];
+                if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(direct))
+                    continue;
+
+                float2 pos;
+                if (!TryResolveScopePosition(direct.Scope, direct.Identity, out pos))
+                    pos = direct.Position;
+
+                var delta = pos - origin;
+                var distSq = math.dot(delta, delta);
+                _hits.Add(new DynamicSearchHit(direct.Scope, direct.Identity, distSq, pos));
+            }
         }
 
         void AddScopeHit(IScopeNode scope, float2 origin, bool requireActive)

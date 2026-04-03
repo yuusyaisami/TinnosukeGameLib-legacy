@@ -25,22 +25,20 @@ namespace Game.Common
 
         static string BuildMessage(string level, string code, string message, in ExpressionRuntimeLogContext context)
         {
-            var sb = new StringBuilder(512);
-            sb.Append("[Expression]");
-            sb.Append('[').Append(level).Append(']');
-            sb.Append('[').Append(string.IsNullOrEmpty(code) ? "EX-UNKNOWN" : code).Append("] ");
-            sb.Append(message ?? string.Empty);
+            var sb = new StringBuilder(768);
+            DynamicRuntimeLogUtility.AppendLogHeader(sb, "Expression", level, string.IsNullOrEmpty(code) ? "EX-UNKNOWN" : code, message ?? string.Empty);
 
-            DynamicRuntimeLogUtility.AppendField(sb, "source", context.SourceType);
-            DynamicRuntimeLogUtility.AppendField(sb, "phase", context.Phase);
-            DynamicRuntimeLogUtility.AppendField(sb, "expression", context.Expression);
-            DynamicRuntimeLogUtility.AppendField(sb, "detail", context.Detail);
-            DynamicRuntimeLogUtility.AppendField(sb, "variables", context.Variables);
+            DynamicRuntimeLogUtility.AppendSection(sb, "Expression");
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "source", context.SourceType);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "phase", context.Phase);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "expression", context.Expression);
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "variables", context.Variables);
             if (context.AllowImplicitKeys.HasValue)
-                DynamicRuntimeLogUtility.AppendField(sb, "allowImplicitKeys", context.AllowImplicitKeys.Value ? "true" : "false");
+                DynamicRuntimeLogUtility.AppendFieldLine(sb, "allowImplicitKeys", context.AllowImplicitKeys.Value ? "true" : "false");
+            DynamicRuntimeLogUtility.AppendFieldLine(sb, "detail", context.Detail, allowMultiline: true);
 
-            DynamicRuntimeLogUtility.AppendDynamicContextFields(sb, context.DynamicContext);
-            DynamicRuntimeLogUtility.AppendCommandTraceFields(sb);
+            DynamicRuntimeLogUtility.AppendDynamicContextSection(sb, context.DynamicContext);
+            DynamicRuntimeLogUtility.AppendCommandTraceSection(sb);
             return sb.ToString();
         }
     }

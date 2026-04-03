@@ -630,9 +630,7 @@ namespace Game.MapNode
             if (lineControlService == null || connection == null || fromInstance == null || toInstance == null)
                 return false;
 
-            var fromPosition = fromInstance.Root != null ? fromInstance.Root.position : fromInstance.WorldPos;
-            var toPosition = toInstance.Root != null ? toInstance.Root.position : toInstance.WorldPos;
-            var definition = BuildConnectionTrackDefinition(connection.TrackKey, fromPosition, toPosition, style);
+            var definition = BuildConnectionTrackDefinition(connection.TrackKey, fromInstance, toInstance, style);
             return lineControlService.SwapTrackDefinition(channelTag, connection.TrackKey, definition);
         }
 
@@ -670,16 +668,23 @@ namespace Game.MapNode
             return $"map.connection.{fromNodeId}.{toNodeId}";
         }
 
-        static MeshTrackDefinition BuildConnectionTrackDefinition(string trackKey, Vector3 fromPosition, Vector3 toPosition, MapNodeLineStyle? style)
+        static MeshTrackDefinition BuildConnectionTrackDefinition(
+            string trackKey,
+            MapNodeInstance fromInstance,
+            MapNodeInstance toInstance,
+            MapNodeLineStyle? style)
         {
             style ??= new MapNodeLineStyle();
+
+            var fromPosition = fromInstance.Root != null ? fromInstance.Root.position : fromInstance.WorldPos;
+            var toPosition = toInstance.Root != null ? toInstance.Root.position : toInstance.WorldPos;
 
             var linePlayer = new MeshLineTrackPlayerPreset
             {
                 Points = new List<DynamicValue<Vector3>>
                 {
-                    DynamicValueExtensions.FromLiteral(fromPosition),
-                    DynamicValueExtensions.FromLiteral(toPosition),
+                    BuildConnectionPoint(fromInstance, fromPosition),
+                    BuildConnectionPoint(toInstance, toPosition),
                 },
                 Closed = false,
                 SmoothPath = true,
@@ -713,6 +718,20 @@ namespace Game.MapNode
                 Collider = MeshChannelDynamicValueFactory.FromManaged<MeshTrackColliderPresetBase>(collider),
                 Material = MeshChannelDynamicValueFactory.FromManaged(material),
             };
+        }
+
+        static DynamicValue<Vector3> BuildConnectionPoint(MapNodeInstance instance, Vector3 fallback)
+        {
+            if (instance == null || instance.Root == null)
+                return DynamicValueExtensions.FromLiteral(fallback);
+
+            var source = new ActorSource
+            {
+                Kind = ActorSourceKind.FromUnityObject,
+                UnityObject = instance.Root,
+            };
+
+            return DynamicValue<Vector3>.FromSource(ActorWorldPosition3Source.FromActorSource(source));
         }
 
         static void TrySetVariant(IVarStore vars, int varId, DynamicVariant value)
