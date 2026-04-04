@@ -24,15 +24,23 @@ namespace Game.Commands.VNext
         {
             get
             {
+                var targetTag = string.IsNullOrWhiteSpace(TargetTag)
+                    ? "(auto)"
+                    : TargetTag.Trim();
                 var enabled = ApplyEnabled
                     ? CommandDebugDataHelper.GetDynamicDebugData(Enabled)
                     : "(keep)";
                 var trigger = ApplyIsTrigger
                     ? CommandDebugDataHelper.GetDynamicDebugData(IsTrigger)
                     : "(keep)";
-                return $"Mode={Mode} Enabled={enabled} Trigger={trigger}";
+                return $"TargetTag={targetTag} Mode={Mode} Enabled={enabled} Trigger={trigger}";
             }
         }
+
+        [BoxGroup("Target")]
+        [LabelText("Target Tag (empty=auto single)")]
+        [SerializeField]
+        public string TargetTag = string.Empty;
 
         [BoxGroup("Shape")]
         [LabelText("Mode")]

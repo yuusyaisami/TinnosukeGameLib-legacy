@@ -582,6 +582,96 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
+    /// <summary>StatusEffectGlobalLifetimeSettings 固定リテラル</summary>
+    [Serializable]
+    public sealed class LiteralStatusEffectGlobalLifetimeSettingsSource : IDynamicSource
+    {
+        [SerializeReference, InlineProperty, HideLabel]
+        StatusEffectGlobalLifetimeSettings? value;
+
+        public string SourceTypeName => "Literal";
+        public string GetDebugData => value != null ? "global-lifetime" : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
+    /// <summary>StatusEffectGlobalLifetimeSettings アセット参照</summary>
+    [Serializable]
+    public sealed class AssetStatusEffectGlobalLifetimeSettingsSource : IDynamicSource
+    {
+        [SerializeField, HideLabel]
+        StatusEffectGlobalLifetimeSettingsSO? value;
+
+        public string SourceTypeName => "Asset";
+        public string GetDebugData => value != null ? value.name : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null && value.Preset != null
+                ? DynamicVariant.FromManagedRef(value.Preset)
+                : DynamicVariant.Null;
+    }
+
+    /// <summary>StatusEffectGlobalUseCooldownSettings 固定リテラル</summary>
+    [Serializable]
+    public sealed class LiteralStatusEffectGlobalUseCooldownSettingsSource : IDynamicSource
+    {
+        [SerializeReference, InlineProperty, HideLabel]
+        StatusEffectGlobalUseCooldownSettings? value;
+
+        public string SourceTypeName => "Literal";
+        public string GetDebugData => value != null ? "global-use-cooldown" : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
+    /// <summary>StatusEffectGlobalUseCooldownSettings アセット参照</summary>
+    [Serializable]
+    public sealed class AssetStatusEffectGlobalUseCooldownSettingsSource : IDynamicSource
+    {
+        [SerializeField, HideLabel]
+        StatusEffectGlobalUseCooldownSettingsSO? value;
+
+        public string SourceTypeName => "Asset";
+        public string GetDebugData => value != null ? value.name : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null && value.Preset != null
+                ? DynamicVariant.FromManagedRef(value.Preset)
+                : DynamicVariant.Null;
+    }
+
+    /// <summary>StatusEffectGlobalCountSettings 固定リテラル</summary>
+    [Serializable]
+    public sealed class LiteralStatusEffectGlobalCountSettingsSource : IDynamicSource
+    {
+        [SerializeReference, InlineProperty, HideLabel]
+        StatusEffectGlobalCountSettings? value;
+
+        public string SourceTypeName => "Literal";
+        public string GetDebugData => value != null ? "global-count" : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
+    /// <summary>StatusEffectGlobalCountSettings アセット参照</summary>
+    [Serializable]
+    public sealed class AssetStatusEffectGlobalCountSettingsSource : IDynamicSource
+    {
+        [SerializeField, HideLabel]
+        StatusEffectGlobalCountSettingsSO? value;
+
+        public string SourceTypeName => "Asset";
+        public string GetDebugData => value != null ? value.name : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null && value.Preset != null
+                ? DynamicVariant.FromManagedRef(value.Preset)
+                : DynamicVariant.Null;
+    }
+
     /// <summary>BaseRuntimeTemplatePreset 固定リテラル</summary>
     [Serializable]
     public sealed class LiteralRuntimeTemplatePresetSource : IDynamicSource

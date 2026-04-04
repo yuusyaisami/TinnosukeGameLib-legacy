@@ -6,6 +6,17 @@ using Game.Common;
 
 namespace Game.StatusEffect
 {
+    public sealed class StatusEffectServiceSettingsOverrideRequest
+    {
+        public bool ApplyGlobalLifetimeSettings;
+        public StatusEffectGlobalLifetimeSettings? GlobalLifetimeSettings;
+        public bool ApplyGlobalUseCooldownSettings;
+        public StatusEffectGlobalUseCooldownSettings? GlobalUseCooldownSettings;
+        public bool ApplyGlobalCountSettings;
+        public StatusEffectGlobalCountSettings? GlobalCountSettings;
+        public bool ResetGlobalState = true;
+    }
+
     public interface IStatusEffectService
     {
         int ActiveEffectCount { get; }
@@ -17,6 +28,8 @@ namespace Game.StatusEffect
         int UseGlobal(IScopeNode? userScope = null, CommandContext? sourceContext = null);
         int Reset(StatusEffectRuntimeFilter filter);
         void ClearAll();
+        void RefreshServiceSettings(bool resetGlobalState = true);
+        void ConfigureServiceSettings(StatusEffectServiceSettingsOverrideRequest request, IDynamicContext? evaluationContext = null);
 
         bool HasEffect(string definitionId);
         bool TryGetRegisteredDefinition(StatusEffectRuntimeFilter filter, out BaseStatusEffectDefinitionData definition);

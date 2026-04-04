@@ -19,6 +19,961 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842414997799348
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842414997799349
+    - rid: 5399842414997799349
+      type: {class: BindGridObjectChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        ChannelTag: default
+        Rebuild: 1
+        Request:
+          _overridePlayerPreset: 0
+          _playerPresetValue:
+            _source:
+              rid: 5399842414997799350
+          _overrideLayoutPreset: 0
+          _layoutPresetValue:
+            _source:
+              rid: 5399842414997799351
+            _defaultValue:
+              _rangeSourceMode: 10
+              _areaActorSource:
+                Kind: 0
+                Identity:
+                  kind: 0
+                  id: 
+                  category: 
+                  requireActive: 0
+                  searchScope: 0
+                UnityObject: {fileID: 0}
+                Shared:
+                  rid: -2
+                ContextSlot: 0
+                TargetChannel:
+                  rid: -2
+              _areaChannelTag: default
+              _rows:
+                _source:
+                  rid: 5399842414997799352
+                _defaultValue: 0
+              _columns:
+                _source:
+                  rid: 5399842414997799353
+                _defaultValue: 0
+              _order: 10
+              _rowSpacing: 0
+              _columnSpacing: 0
+              _itemHorizontalAlignment: 10
+              _itemVerticalAlignment: 10
+              _areaHorizontalAlignment: 10
+              _areaVerticalAlignment: 10
+              _itemOffset: {x: 0, y: 0, z: 0}
+              _spawnAnchorMode: 10
+              _fixedAnchorTransform: {fileID: 0}
+              _useFixedAnchorActorSource: 0
+              _fixedAnchorActorSource:
+                Kind: 0
+                Identity:
+                  kind: 0
+                  id: 
+                  category: 
+                  requireActive: 0
+                  searchScope: 0
+                UnityObject: {fileID: 0}
+                Shared:
+                  rid: -2
+                ContextSlot: 0
+                TargetChannel:
+                  rid: -2
+              _spawnOffset: {x: 0, y: 0, z: 0}
+              _spawnMotion:
+                _durationSeconds: 0.2
+                _ease: 9
+                _useTransformAnimation: 0
+                _transformAnimationChannelTag: default
+                _waitForCompletion: 1
+              _relayoutMotion:
+                _durationSeconds: 0.2
+                _ease: 9
+                _useTransformAnimation: 0
+                _transformAnimationChannelTag: default
+                _waitForCompletion: 1
+          _overrideVisualizerPreset: 0
+          _visualizerPresetValue:
+            _source:
+              rid: 5399842414997799354
+            _defaultValue:
+              _runtimeTemplatePreset:
+                _source:
+                  rid: -2
+                _defaultValue:
+                  prefab: {fileID: 0}
+                  usePooling: 1
+                  category: Runtime
+                  templateId: 
+              _allowPooling: 1
+              _sizeSource: 10
+              _fixedSize: {x: 100, y: 100}
+              _delayBetweenSpawns:
+                _source:
+                  rid: 5399842414997799355
+                _defaultValue: 0
+              _spawnCommands:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              _counterVar:
+                stableKey: i
+                varId: 252
+              _writeSpawnerToContext: 0
+              _spawnerContextSlot: 100
+    - rid: 5399842414997799350
+      type: {class: 'ManagedRefLiteralSource`1[[Game.Channel.GridObjectChannelPlayerPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842414997799356
+    - rid: 5399842414997799351
+      type: {class: 'ManagedRefLiteralSource`1[[Game.Channel.GridObjectChannelLayoutPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842414997799357
+    - rid: 5399842414997799352
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414997799353
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414997799354
+      type: {class: 'ManagedRefLiteralSource`1[[Game.Channel.GridObjectChannelVisualizerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842414997799358
+    - rid: 5399842414997799355
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414997799356
+      type: {class: GridObjectChannelStandalonePlayerPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        _refreshMode: 20
+        _debounceFrames: 1
+        _count:
+          _source:
+            rid: 5399842414997799359
+          _defaultValue: 0
+    - rid: 5399842414997799357
+      type: {class: GridObjectChannelLayoutPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        _rangeSourceMode: 10
+        _areaActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        _areaChannelTag: default
+        _rows:
+          _source:
+            rid: 5399842414997799360
+          _defaultValue: 0
+        _columns:
+          _source:
+            rid: 5399842414997799361
+          _defaultValue: 0
+        _order: 10
+        _rowSpacing: 0
+        _columnSpacing: 0
+        _itemHorizontalAlignment: 10
+        _itemVerticalAlignment: 10
+        _areaHorizontalAlignment: 10
+        _areaVerticalAlignment: 10
+        _itemOffset: {x: 0, y: 0, z: 0}
+        _spawnAnchorMode: 10
+        _fixedAnchorTransform: {fileID: 0}
+        _useFixedAnchorActorSource: 0
+        _fixedAnchorActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        _spawnOffset: {x: 0, y: 0, z: 0}
+        _spawnMotion:
+          _durationSeconds: 0.2
+          _ease: 9
+          _useTransformAnimation: 0
+          _transformAnimationChannelTag: default
+          _waitForCompletion: 1
+        _relayoutMotion:
+          _durationSeconds: 0.2
+          _ease: 9
+          _useTransformAnimation: 0
+          _transformAnimationChannelTag: default
+          _waitForCompletion: 1
+    - rid: 5399842414997799358
+      type: {class: GridObjectChannelVisualizerPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        _runtimeTemplatePreset:
+          _source:
+            rid: -2
+          _defaultValue:
+            prefab: {fileID: 0}
+            usePooling: 1
+            category: Runtime
+            templateId: 
+        _allowPooling: 1
+        _sizeSource: 10
+        _fixedSize: {x: 100, y: 100}
+        _delayBetweenSpawns:
+          _source:
+            rid: 5399842414997799362
+          _defaultValue: 0
+        _spawnCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _counterVar:
+          stableKey: i
+          varId: 252
+        _writeSpawnerToContext: 0
+        _spawnerContextSlot: 100
+    - rid: 5399842414997799359
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414997799360
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414997799361
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414997799362
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414997799363
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842414997799364
+    - rid: 5399842414997799364
+      type: {class: ClearGridObjectChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        ChannelTag: default
+        KeepBinding: 0
+    - rid: 5399842436331864411
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864412
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864413
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864414
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864415
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864416
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864417
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864418
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864419
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864420
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864421
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864422
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864423
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864424
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864425
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864426
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864427
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864428
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864429
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864430
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864431
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864432
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864433
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864434
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864435
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864436
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864437
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864438
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864439
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864440
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864441
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864442
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864443
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864444
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864445
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864446
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864447
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864448
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864449
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864450
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864451
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864452
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842436331864736
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842436331864737
+    - rid: 5399842436331864737
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5399842436331864742
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5399842436331864744
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842436331864740
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 230
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5399842436331864741
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842436331864742
+      type: {class: DataExistsBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        storeType: 20
+        key:
+          stableKey: CustomCommandList
+          varId: 101183
+        blackboardReadScope: 0
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        scalarKey:
+          Id: 0
+          Name: 
+        searchIncludeGlobal: 0
+        expectedKind: 255
+    - rid: 5399842436331864744
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5399842436331864745
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5399842436331864745
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101183
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
     - rid: 5619052465085481040
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32,7 +987,7 @@ MonoBehaviour:
     - rid: 5619052465085481041
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
-        enabled: 1
+        enabled: 0
         data:
           rid: 5619052465085481045
     - rid: 5619052465085481045
@@ -114,6 +1069,10 @@ MonoBehaviour:
             rid: 5619052465085481172
           _defaultValue: 0
         WriteSpawnedScopeRefToGrid: 0
+        UseGridKeyFilter: 0
+        GridKey:
+          stableKey: 
+          varId: 0
         GridSpawnedScopeVar:
           stableKey: 
           varId: 0
@@ -342,27 +1301,113 @@ MonoBehaviour:
             rid: -2
           _defaultValue:
             IgnoreIfExisting: 0
-            ApplyIntensity: 0
-            Intensity:
+            ApplyIntensityA: 0
+            IntensityA:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
-                  rid: 5619052465085481688
+                  rid: 5399842436331864411
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
-                  rid: 5619052465085481689
+                  rid: 5399842436331864412
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityB: 0
+            IntensityB:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864413
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864414
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityC: 0
+            IntensityC:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864415
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864416
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityD: 0
+            IntensityD:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864417
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864418
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityE: 0
+            IntensityE:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864419
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864420
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityF: 0
+            IntensityF:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864421
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864422
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityG: 0
+            IntensityG:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864423
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864424
                 _defaultValue: 0
               IgnoreGlobalWhenMinusOne: 0
             ApplyDuration: 1
             Duration:
               Operation: 10
+              ApplyLocalValue: 1
               LocalValue:
                 _source:
                   rid: 5619052465085481690
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481691
@@ -371,11 +1416,12 @@ MonoBehaviour:
             ApplyCurrentCount: 0
             CurrentCount:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
                   rid: 5619052465085481692
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481693
@@ -384,16 +1430,22 @@ MonoBehaviour:
             ApplyMaxCount: 0
             MaxCount:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
                   rid: 5619052465085481694
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481695
                 _defaultValue: 0
               IgnoreGlobalWhenMinusOne: 0
+            ApplyStackDescriptionOverride: 0
+            StackDescriptionOverride:
+              _source:
+                rid: -2
+              _defaultValue: 
         TargetActorSource:
           Kind: 0
           Identity:
@@ -429,7 +1481,7 @@ MonoBehaviour:
           _debugAssetPath: 
           _functionName: 
           _commands:
-          - rid: 5619052465085481198
+          - rid: 5399842414997799363
         ElseCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -491,94 +1543,6 @@ MonoBehaviour:
             rid: -2
         searchDirection: 1
         searchRange: 0
-    - rid: 5619052465085481198
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052465085481200
-    - rid: 5619052465085481200
-      type: {class: WithActorDescendantRouterCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        ActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        VarsPolicy: 0
-        ExecutionScope: 2
-        FilterMode: 0
-        DescendantFilter:
-          Kind: 3
-          Identity:
-            kind: 9
-            id: UpgradeRuntime
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        Common:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        OnMatched:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands:
-          - rid: 5619052465085481201
-        OnUnmatched:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-    - rid: 5619052465085481201
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052465085481202
-    - rid: 5619052465085481202
-      type: {class: SelfDespawnCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        DelaySeconds:
-          _source:
-            rid: 5619052465085481203
-          _defaultValue: 0
-        BeforeDespawnCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        OnReacquireCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-    - rid: 5619052465085481203
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
     - rid: 5619052465085481205
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -599,6 +1563,7 @@ MonoBehaviour:
           _functionName: 
           _commands:
           - rid: 5619052465085481041
+          - rid: 5399842414997799348
         ElseCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -777,27 +1742,113 @@ MonoBehaviour:
             rid: 5619052465085481744
           _defaultValue:
             IgnoreIfExisting: 0
-            ApplyIntensity: 0
-            Intensity:
+            ApplyIntensityA: 0
+            IntensityA:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
-                  rid: 5619052465085481696
+                  rid: 5399842436331864439
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
-                  rid: 5619052465085481697
+                  rid: 5399842436331864440
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityB: 0
+            IntensityB:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864441
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864442
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityC: 0
+            IntensityC:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864443
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864444
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityD: 0
+            IntensityD:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864445
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864446
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityE: 0
+            IntensityE:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864447
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864448
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityF: 0
+            IntensityF:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864449
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864450
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityG: 0
+            IntensityG:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864451
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864452
                 _defaultValue: 0
               IgnoreGlobalWhenMinusOne: 0
             ApplyDuration: 1
             Duration:
               Operation: 10
+              ApplyLocalValue: 1
               LocalValue:
                 _source:
                   rid: 5619052465085481698
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481699
@@ -806,11 +1857,12 @@ MonoBehaviour:
             ApplyCurrentCount: 0
             CurrentCount:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
                   rid: 5619052465085481700
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481701
@@ -819,16 +1871,22 @@ MonoBehaviour:
             ApplyMaxCount: 0
             MaxCount:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
                   rid: 5619052465085481702
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481703
                 _defaultValue: 0
               IgnoreGlobalWhenMinusOne: 0
+            ApplyStackDescriptionOverride: 0
+            StackDescriptionOverride:
+              _source:
+                rid: -2
+              _defaultValue: 
         RuntimeTag: 
         HookMutations:
           OnApply:
@@ -889,6 +1947,37 @@ MonoBehaviour:
               _commands: []
         FilterMode: 10
         FilterValue: 
+        ApplyGlobalLifetimeSettings: 0
+        GlobalLifetimeSettings:
+          _source:
+            rid: -2
+          _defaultValue:
+            Enabled: 0
+            Duration:
+              _source:
+                rid: -2
+              _defaultValue: 0
+        ApplyGlobalUseCooldownSettings: 0
+        GlobalUseCooldownSettings:
+          _source:
+            rid: -2
+          _defaultValue:
+            Enabled: 0
+            Duration:
+              _source:
+                rid: -2
+              _defaultValue: 0
+        ApplyGlobalCountSettings: 0
+        GlobalCountSettings:
+          _source:
+            rid: -2
+          _defaultValue:
+            Enabled: 0
+            MaxCount:
+              _source:
+                rid: -2
+              _defaultValue: 0
+        ResetGlobalState: 1
     - rid: 5619052465085481261
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -911,6 +2000,7 @@ MonoBehaviour:
           - rid: 5619052465085481256
           - rid: 5619052465085481268
           - rid: 5619052465085481428
+          - rid: 5399842436331864736
           - rid: 5619052465085481294
         ElseCommands:
           _debugOwner: {fileID: 0}
@@ -950,7 +2040,14 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: MoneyValue >= (Price * NailUpgradePriceMul)
+        - _value:
+            _source:
+              rid: 5399842436331864740
+          _useScalarLeafKey: 0
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: MoneyValue >= (Price * NailUpgradePriceMul) && E
     - rid: 5619052465085481265
       type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1041,7 +2138,15 @@ MonoBehaviour:
           ContextSlot: 0
           TargetChannel:
             rid: -2
-        VarOps: []
+        VarOps:
+        - Target: 1
+          Key:
+            stableKey: E
+            varId: 230
+          Op: 0
+          Value:
+            _source:
+              rid: 5399842436331864741
         ScalarOps:
         - Op: 2
           Key:
@@ -1065,6 +2170,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         DebugMode: 0
         Debug:
           LogLevel: 10
@@ -1314,6 +2420,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         DebugMode: 0
         Debug:
           LogLevel: 10
@@ -1379,30 +2486,6 @@ MonoBehaviour:
           ContextSlot: 110
           TargetChannel:
             rid: -2
-    - rid: 5619052465085481688
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481689
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5619052465085481690
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1464,30 +2547,6 @@ MonoBehaviour:
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5619052465085481695
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481696
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481697
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         type: 1
@@ -1606,27 +2665,113 @@ MonoBehaviour:
             rid: 5619052465085481741
           _defaultValue:
             IgnoreIfExisting: 0
-            ApplyIntensity: 0
-            Intensity:
+            ApplyIntensityA: 0
+            IntensityA:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
-                  rid: 5619052465085481732
+                  rid: 5399842436331864425
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
-                  rid: 5619052465085481733
+                  rid: 5399842436331864426
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityB: 0
+            IntensityB:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864427
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864428
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityC: 0
+            IntensityC:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864429
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864430
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityD: 0
+            IntensityD:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864431
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864432
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityE: 0
+            IntensityE:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864433
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864434
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityF: 0
+            IntensityF:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864435
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864436
+                _defaultValue: 0
+              IgnoreGlobalWhenMinusOne: 0
+            ApplyIntensityG: 0
+            IntensityG:
+              Operation: 20
+              ApplyLocalValue: 0
+              LocalValue:
+                _source:
+                  rid: 5399842436331864437
+                _defaultValue: 0
+              ApplyGlobalValue: 0
+              GlobalValue:
+                _source:
+                  rid: 5399842436331864438
                 _defaultValue: 0
               IgnoreGlobalWhenMinusOne: 0
             ApplyDuration: 1
             Duration:
               Operation: 10
+              ApplyLocalValue: 1
               LocalValue:
                 _source:
                   rid: 5619052465085481734
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481735
@@ -1635,11 +2780,12 @@ MonoBehaviour:
             ApplyCurrentCount: 0
             CurrentCount:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
                   rid: 5619052465085481736
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481737
@@ -1648,16 +2794,22 @@ MonoBehaviour:
             ApplyMaxCount: 0
             MaxCount:
               Operation: 20
+              ApplyLocalValue: 0
               LocalValue:
                 _source:
                   rid: 5619052465085481738
                 _defaultValue: 0
-              UseGlobalValue: 0
+              ApplyGlobalValue: 0
               GlobalValue:
                 _source:
                   rid: 5619052465085481739
                 _defaultValue: 0
               IgnoreGlobalWhenMinusOne: 0
+            ApplyStackDescriptionOverride: 0
+            StackDescriptionOverride:
+              _source:
+                rid: -2
+              _defaultValue: 
         TargetActorSource:
           Kind: 0
           Identity:
@@ -1697,30 +2849,6 @@ MonoBehaviour:
           ContextSlot: 110
           TargetChannel:
             rid: -2
-    - rid: 5619052465085481732
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052465085481733
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5619052465085481734
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

@@ -218,6 +218,9 @@ namespace Game.Channel
             if (track.PlayerPreset is MeshLineTrackPlayerPreset conditionLine && mutation.ApplyCondition)
                 conditionLine.Condition = mutation.Condition;
 
+            if (track.PlayerPreset is MeshTargetLinkTrackPlayerPreset conditionTargetLink && mutation.ApplyCondition)
+                conditionTargetLink.Condition = mutation.Condition;
+
             if (track.PlayerPreset is MeshTrailTrackPlayerPreset trail && mutation.ApplyTrailConfig)
             {
                 trail.TargetPosition = mutation.TargetPosition;
@@ -229,6 +232,14 @@ namespace Game.Channel
 
             if (track.PlayerPreset is MeshAreaFillTrackPlayerPreset area && mutation.ApplyAreaTag)
                 area.AreaTag = mutation.AreaTag;
+
+            if (track.PlayerPreset is MeshTargetLinkTrackPlayerPreset targetLink && mutation.ApplyTargetLinkConfig)
+            {
+                targetLink.SelfActorSource = mutation.SelfActorSource;
+                targetLink.TargetChannelTag = mutation.TargetChannelTag;
+                targetLink.TopN = Mathf.Max(0, mutation.TopN);
+                targetLink.Topology = mutation.Topology;
+            }
 
             RefreshTrackEnabled(track, CreateDynamicContext());
             track.PlayerRuntime = MeshRuntimeStateFactory.CreatePlayerRuntime(track.PlayerPreset);

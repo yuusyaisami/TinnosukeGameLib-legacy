@@ -1,0 +1,957 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 770327120433404448f0aea8ad9b1311, type: 3}
+  m_Name: SpawnBallStatusEffect
+  m_EditorClassIdentifier: Assembly-CSharp::Game.StatusEffect.StatusEffectDefinitionSO
+  preset:
+    rid: 5619052366731149464
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842427028636417
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842427028636418
+    - rid: 5399842427028636418
+      type: {class: SpawnRuntimeTemplateCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Template:
+          _source:
+            rid: 5399842427028636419
+          _defaultValue:
+            prefab: {fileID: 0}
+            usePooling: 1
+            category: Runtime
+            templateId: 
+        SpawnerKind: 4
+        SpawnerTag: 
+        WorldSpace: 1
+        Position:
+          _source:
+            rid: 5399842427028636420
+          _defaultValue: {x: 0, y: 0, z: 0}
+        Offset:
+          _source:
+            rid: 5399842427028636421
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RotationEuler:
+          _source:
+            rid: 5399842427028636422
+          _defaultValue: {x: 0, y: 0, z: 0}
+        Scale:
+          _source:
+            rid: 5399842427028636423
+          _defaultValue: {x: 0, y: 0, z: 0}
+        Count:
+          _source:
+            rid: 5399842431600952227
+          _defaultValue: 0
+        DelayBetweenSpawns:
+          _source:
+            rid: 5399842427028636425
+          _defaultValue: 0
+        TransformParentPolicy: 2
+        TransformParent: {fileID: 0}
+        TransformParentActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        OverrideLifetimeScopeParent: 0
+        LifetimeScopeParent:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        AllowPooling: 1
+        WriteSpawnedScopeToContext: 0
+        SpawnedScopeSlot: 100
+        WriteSpawnerToContext: 1
+        SpawnerContextSlot: 110
+        RunCommandsOnSpawned: 1
+        VarsPolicy: 0
+        AwaitOnSpawnedCommands: 1
+        OnSpawnedCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: Cal Buff/Debuff
+          _commands:
+          - rid: 5399842427028636426
+          - rid: 5399842431600952228
+    - rid: 5399842427028636419
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842427028636427
+    - rid: 5399842427028636420
+      type: {class: AreaChannelPosition3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        areaActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        channelTag: outArea
+        sampleMode: 0
+        layerKey: 
+        failureBehavior: 20
+        fallback: {x: 0, y: 0, z: 0}
+    - rid: 5399842427028636421
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0, z: 0}
+    - rid: 5399842427028636422
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0, z: 0}
+    - rid: 5399842427028636423
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0.5, y: 0.5, z: 1}
+    - rid: 5399842427028636425
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.1
+    - rid: 5399842427028636426
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5399842427028636428
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5399842427028636427
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 1871564523398246338, guid: b8bd2f4fbe04cde4aae3cebc0310a837, type: 3}
+        usePooling: 1
+        category: Ball
+        templateId: 
+    - rid: 5399842427028636428
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 2721a4ead54f0d843be4752374e951cb, type: 2}
+    - rid: 5399842427028636433
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842427028636434
+    - rid: 5399842427028636434
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5399842427028636436
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5399842427028636417
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842427028636436
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842427028636437
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: 'Random(0, 1) < SpawnBall '
+    - rid: 5399842427028636437
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 816145772
+          Name: GameLogic.NailProfile.Effect.SpawnBall
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842431600952225
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 671998101
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842431600952226
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1331430205
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842431600952227
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1331430205
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842431600952228
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842431600952229
+    - rid: 5399842431600952229
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 110
+          TargetChannel:
+            rid: -2
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarOps: []
+        ScalarOps:
+        - Op: 0
+          Key:
+            Id: -1391682985
+            Name: GameLogic.BallProfile.Value
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5399842431600952231
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
+    - rid: 5399842431600952231
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 671998101
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842431600952232
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842431600952233
+    - rid: 5399842431600952233
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarOps: []
+        ScalarOps:
+        - Op: 0
+          Key:
+            Id: -1331430205
+            Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5399842431600952234
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
+        - Op: 0
+          Key:
+            Id: -2048929054
+            Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5399842431600952235
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
+        - Op: 0
+          Key:
+            Id: 671998101
+            Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5399842431600952236
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
+    - rid: 5399842431600952234
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842431600952235
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.2
+    - rid: 5399842431600952236
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842435756196006
+      type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        TargetKey:
+          Id: -1331430205
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount
+        ApplyMode: 10
+        MulPhase: 0
+        ValueMode: 20
+        RuntimeIntensitySlot: 20
+        Value:
+          _source:
+            rid: 5399842435756196007
+          _defaultValue: 0
+        TargetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Layer: 
+    - rid: 5399842435756196007
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842435756196008
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensity
+          _expectedType: 255
+        _expression: intensity
+    - rid: 5399842435756196008
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Element.intensity
+          varId: 100112
+    - rid: 5399842435756196010
+      type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        TargetKey:
+          Id: 671998101
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue
+        ApplyMode: 10
+        MulPhase: 0
+        ValueMode: 20
+        RuntimeIntensitySlot: 30
+        Value:
+          _source:
+            rid: 5399842435756196011
+          _defaultValue: 0
+        TargetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Layer: 
+    - rid: 5399842435756196011
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842435756196012
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensity
+          _expectedType: 255
+        _expression: intensity
+    - rid: 5399842435756196012
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Element.intensity
+          varId: 100112
+    - rid: 5399842435756196013
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 671998101
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842435756196014
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1331430205
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5619052366731149464
+      type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        definitionId: SpawnBall
+        defaultRuntimeTag: 
+        visualData:
+          DisplayName:
+            Template: "\u30B9\u30DD\u30FC\u30F3\u30DC\u30FC\u30EB"
+            Variables: []
+          IconAnimation: {fileID: 0}
+          Description:
+            Template: "\u751F\u6210 {SpawnBallChance|percent=1}% /\n-v {SpawnBallValue},
+              c {SpawnBallCount}-"
+            Variables:
+            - _value:
+                _source:
+                  rid: 5619052366731149468
+              _useScalarLeafKey: 1
+              _useCustomKey: 0
+              _customKey: 
+              _expectedType: 255
+            - _value:
+                _source:
+                  rid: 5399842435756196013
+              _useScalarLeafKey: 1
+              _useCustomKey: 0
+              _customKey: 
+              _expectedType: 255
+            - _value:
+                _source:
+                  rid: 5399842435756196014
+              _useScalarLeafKey: 1
+              _useCustomKey: 0
+              _customKey: 
+              _expectedType: 255
+          StackDescription:
+            Template: "\u751F\u6210 {intensity|percent=1}% /\n-v {SpawnBallValue},
+              c {SpawnBallCount}-"
+            Variables:
+            - _value:
+                _source:
+                  rid: 5619052465085481745
+              _useScalarLeafKey: 0
+              _useCustomKey: 1
+              _customKey: intensity
+              _expectedType: 255
+            - _value:
+                _source:
+                  rid: 5399842431600952225
+              _useScalarLeafKey: 1
+              _useCustomKey: 0
+              _customKey: 
+              _expectedType: 255
+            - _value:
+                _source:
+                  rid: 5399842431600952226
+              _useScalarLeafKey: 1
+              _useCustomKey: 0
+              _customKey: 
+              _expectedType: 255
+          EffectType: 10
+          SortOrder: 0
+          ApplyAnim: {fileID: 0}
+          RemoveAnim: {fileID: 0}
+        useDuration: 0
+        durationDefinition:
+          rid: 5619052465085481672
+        useUseCooldown: 0
+        useCooldownDefinition:
+          rid: 5619052506154533830
+        useCount: 0
+        countDefinition:
+          rid: 5619052465085481674
+        operations:
+        - rid: 5619052366731149466
+        - rid: 5399842435756196006
+        - rid: 5399842435756196010
+        defaultHooks:
+          OnApply:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands:
+            - rid: 5399842431600952232
+          OnRemove:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnEnable:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnDisable:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnUse:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands:
+            - rid: 5399842427028636433
+          OnStackIntensity:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnStackDuration:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    - rid: 5619052366731149466
+      type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        TargetKey:
+          Id: -2048929054
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance
+        ApplyMode: 10
+        MulPhase: 0
+        ValueMode: 20
+        RuntimeIntensitySlot: 10
+        Value:
+          _source:
+            rid: 5619052366731149676
+          _defaultValue: 0
+        TargetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Layer: 
+    - rid: 5619052366731149468
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -2048929054
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5619052366731149676
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731149677
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensity
+          _expectedType: 255
+        _expression: intensity
+    - rid: 5619052366731149677
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Element.intensity
+          varId: 100112
+    - rid: 5619052465085481672
+      type: {class: FixedDurationStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        SyncWithGlobalLifetime: 0
+        Duration:
+          _source:
+            rid: 5619052465085481673
+          _defaultValue: 0
+        EndAction: 0
+    - rid: 5619052465085481673
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052465085481674
+      type: {class: DynamicCountStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        SyncWithGlobalCount: 0
+        MaxCount:
+          _source:
+            rid: 5619052465085481675
+          _defaultValue: 0
+        ExhaustedAction: 20
+        ActivePolicy: 20
+    - rid: 5619052465085481675
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052465085481745
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Stack.intensity.local
+          varId: 101029
+    - rid: 5619052506154533830
+      type: {class: FixedUseCooldownStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        SyncWithGlobalUseCooldown: 1
+        Duration:
+          _source:
+            rid: 5619052506154533831
+          _defaultValue: 0
+    - rid: 5619052506154533831
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0

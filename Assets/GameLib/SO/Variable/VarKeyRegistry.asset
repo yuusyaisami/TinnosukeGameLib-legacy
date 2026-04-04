@@ -3081,6 +3081,62 @@ MonoBehaviour:
     varId: 100112
     stableKey: GameLib.Base.StatusEffect.Element.intensity
     aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d720
+    parentId: c5e2ad7f4c5642f6a8de2a7b9d7ef631
+    name: intensityA
+    isFolder: 0
+    description: 
+    varId: 101134
+    stableKey: GameLib.Base.StatusEffect.Element.intensityA
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d721
+    parentId: c5e2ad7f4c5642f6a8de2a7b9d7ef631
+    name: intensityB
+    isFolder: 0
+    description: 
+    varId: 101135
+    stableKey: GameLib.Base.StatusEffect.Element.intensityB
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d722
+    parentId: c5e2ad7f4c5642f6a8de2a7b9d7ef631
+    name: intensityC
+    isFolder: 0
+    description: 
+    varId: 101136
+    stableKey: GameLib.Base.StatusEffect.Element.intensityC
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d723
+    parentId: c5e2ad7f4c5642f6a8de2a7b9d7ef631
+    name: intensityD
+    isFolder: 0
+    description: 
+    varId: 101137
+    stableKey: GameLib.Base.StatusEffect.Element.intensityD
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d724
+    parentId: c5e2ad7f4c5642f6a8de2a7b9d7ef631
+    name: intensityE
+    isFolder: 0
+    description: 
+    varId: 101138
+    stableKey: GameLib.Base.StatusEffect.Element.intensityE
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d725
+    parentId: c5e2ad7f4c5642f6a8de2a7b9d7ef631
+    name: intensityF
+    isFolder: 0
+    description: 
+    varId: 101139
+    stableKey: GameLib.Base.StatusEffect.Element.intensityF
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d726
+    parentId: c5e2ad7f4c5642f6a8de2a7b9d7ef631
+    name: intensityG
+    isFolder: 0
+    description: 
+    varId: 101140
+    stableKey: GameLib.Base.StatusEffect.Element.intensityG
+    aliases: []
   - id: 6c4bc51767b44de5a1675003354dc68d
     parentId: c5e2ad7f4c5642f6a8de2a7b9d7ef631
     name: remainingDuration
@@ -3242,6 +3298,62 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d701
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: IntensityA
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d702
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: IntensityB
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d703
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: IntensityC
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d704
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: IntensityD
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d705
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: IntensityE
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d706
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: IntensityF
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d707
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: IntensityG
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
   - id: a0d2052dc3b34fcba23a8f5f2fb2a458
     parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
     name: Duration
@@ -3293,6 +3405,69 @@ MonoBehaviour:
     stableKey: GameLib.Base.StatusEffect.Stack.applyIntensity
     aliases:
     - applyIntensity
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d710
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: applyIntensityA
+    isFolder: 0
+    description: 
+    varId: 101141
+    stableKey: GameLib.Base.StatusEffect.Stack.applyIntensityA
+    aliases:
+    - applyIntensityA
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d711
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: applyIntensityB
+    isFolder: 0
+    description: 
+    varId: 101142
+    stableKey: GameLib.Base.StatusEffect.Stack.applyIntensityB
+    aliases:
+    - applyIntensityB
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d712
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: applyIntensityC
+    isFolder: 0
+    description: 
+    varId: 101143
+    stableKey: GameLib.Base.StatusEffect.Stack.applyIntensityC
+    aliases:
+    - applyIntensityC
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d713
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: applyIntensityD
+    isFolder: 0
+    description: 
+    varId: 101144
+    stableKey: GameLib.Base.StatusEffect.Stack.applyIntensityD
+    aliases:
+    - applyIntensityD
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d714
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: applyIntensityE
+    isFolder: 0
+    description: 
+    varId: 101145
+    stableKey: GameLib.Base.StatusEffect.Stack.applyIntensityE
+    aliases:
+    - applyIntensityE
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d715
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: applyIntensityF
+    isFolder: 0
+    description: 
+    varId: 101146
+    stableKey: GameLib.Base.StatusEffect.Stack.applyIntensityF
+    aliases:
+    - applyIntensityF
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d716
+    parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
+    name: applyIntensityG
+    isFolder: 0
+    description: 
+    varId: 101147
+    stableKey: GameLib.Base.StatusEffect.Stack.applyIntensityG
+    aliases:
+    - applyIntensityG
   - id: 49d11bb6af0242868b8e5027e89d5a18
     parentId: 5db38f79f36c4cbeb1f9d0646b2373a4
     name: applyDuration
@@ -3363,6 +3538,321 @@ MonoBehaviour:
     description: 
     varId: 101032
     stableKey: GameLib.Base.StatusEffect.Stack.intensity.ignoreGlobalWhenMinusOne
+    aliases:
+    - ignoreGlobalWhenMinusOne
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d801
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d701
+    name: operation
+    isFolder: 0
+    description: 
+    varId: 101148
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityA.operation
+    aliases:
+    - operation
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d802
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d701
+    name: local
+    isFolder: 0
+    description: 
+    varId: 101149
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityA.local
+    aliases:
+    - local
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d803
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d701
+    name: useGlobal
+    isFolder: 0
+    description: 
+    varId: 101150
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityA.useGlobal
+    aliases:
+    - useGlobal
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d804
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d701
+    name: global
+    isFolder: 0
+    description: 
+    varId: 101151
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityA.global
+    aliases:
+    - global
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d805
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d701
+    name: ignoreGlobalWhenMinusOne
+    isFolder: 0
+    description: 
+    varId: 101152
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityA.ignoreGlobalWhenMinusOne
+    aliases:
+    - ignoreGlobalWhenMinusOne
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d811
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d702
+    name: operation
+    isFolder: 0
+    description: 
+    varId: 101153
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityB.operation
+    aliases:
+    - operation
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d812
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d702
+    name: local
+    isFolder: 0
+    description: 
+    varId: 101154
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityB.local
+    aliases:
+    - local
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d813
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d702
+    name: useGlobal
+    isFolder: 0
+    description: 
+    varId: 101155
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityB.useGlobal
+    aliases:
+    - useGlobal
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d814
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d702
+    name: global
+    isFolder: 0
+    description: 
+    varId: 101156
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityB.global
+    aliases:
+    - global
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d815
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d702
+    name: ignoreGlobalWhenMinusOne
+    isFolder: 0
+    description: 
+    varId: 101157
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityB.ignoreGlobalWhenMinusOne
+    aliases:
+    - ignoreGlobalWhenMinusOne
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d821
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d703
+    name: operation
+    isFolder: 0
+    description: 
+    varId: 101158
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityC.operation
+    aliases:
+    - operation
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d822
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d703
+    name: local
+    isFolder: 0
+    description: 
+    varId: 101159
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityC.local
+    aliases:
+    - local
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d823
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d703
+    name: useGlobal
+    isFolder: 0
+    description: 
+    varId: 101160
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityC.useGlobal
+    aliases:
+    - useGlobal
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d824
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d703
+    name: global
+    isFolder: 0
+    description: 
+    varId: 101161
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityC.global
+    aliases:
+    - global
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d825
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d703
+    name: ignoreGlobalWhenMinusOne
+    isFolder: 0
+    description: 
+    varId: 101162
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityC.ignoreGlobalWhenMinusOne
+    aliases:
+    - ignoreGlobalWhenMinusOne
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d831
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d704
+    name: operation
+    isFolder: 0
+    description: 
+    varId: 101163
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityD.operation
+    aliases:
+    - operation
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d832
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d704
+    name: local
+    isFolder: 0
+    description: 
+    varId: 101164
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityD.local
+    aliases:
+    - local
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d833
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d704
+    name: useGlobal
+    isFolder: 0
+    description: 
+    varId: 101165
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityD.useGlobal
+    aliases:
+    - useGlobal
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d834
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d704
+    name: global
+    isFolder: 0
+    description: 
+    varId: 101166
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityD.global
+    aliases:
+    - global
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d835
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d704
+    name: ignoreGlobalWhenMinusOne
+    isFolder: 0
+    description: 
+    varId: 101167
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityD.ignoreGlobalWhenMinusOne
+    aliases:
+    - ignoreGlobalWhenMinusOne
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d841
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d705
+    name: operation
+    isFolder: 0
+    description: 
+    varId: 101168
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityE.operation
+    aliases:
+    - operation
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d842
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d705
+    name: local
+    isFolder: 0
+    description: 
+    varId: 101169
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityE.local
+    aliases:
+    - local
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d843
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d705
+    name: useGlobal
+    isFolder: 0
+    description: 
+    varId: 101170
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityE.useGlobal
+    aliases:
+    - useGlobal
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d844
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d705
+    name: global
+    isFolder: 0
+    description: 
+    varId: 101171
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityE.global
+    aliases:
+    - global
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d845
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d705
+    name: ignoreGlobalWhenMinusOne
+    isFolder: 0
+    description: 
+    varId: 101172
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityE.ignoreGlobalWhenMinusOne
+    aliases:
+    - ignoreGlobalWhenMinusOne
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d851
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d706
+    name: operation
+    isFolder: 0
+    description: 
+    varId: 101173
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityF.operation
+    aliases:
+    - operation
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d852
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d706
+    name: local
+    isFolder: 0
+    description: 
+    varId: 101174
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityF.local
+    aliases:
+    - local
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d853
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d706
+    name: useGlobal
+    isFolder: 0
+    description: 
+    varId: 101175
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityF.useGlobal
+    aliases:
+    - useGlobal
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d854
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d706
+    name: global
+    isFolder: 0
+    description: 
+    varId: 101176
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityF.global
+    aliases:
+    - global
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d855
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d706
+    name: ignoreGlobalWhenMinusOne
+    isFolder: 0
+    description: 
+    varId: 101177
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityF.ignoreGlobalWhenMinusOne
+    aliases:
+    - ignoreGlobalWhenMinusOne
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d861
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d707
+    name: operation
+    isFolder: 0
+    description: 
+    varId: 101178
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityG.operation
+    aliases:
+    - operation
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d862
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d707
+    name: local
+    isFolder: 0
+    description: 
+    varId: 101179
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityG.local
+    aliases:
+    - local
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d863
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d707
+    name: useGlobal
+    isFolder: 0
+    description: 
+    varId: 101180
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityG.useGlobal
+    aliases:
+    - useGlobal
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d864
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d707
+    name: global
+    isFolder: 0
+    description: 
+    varId: 101181
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityG.global
+    aliases:
+    - global
+  - id: 9f0a1b2c3d4e5f60718293a4b5c6d865
+    parentId: 9f0a1b2c3d4e5f60718293a4b5c6d707
+    name: ignoreGlobalWhenMinusOne
+    isFolder: 0
+    description: 
+    varId: 101182
+    stableKey: GameLib.Base.StatusEffect.Stack.intensityG.ignoreGlobalWhenMinusOne
     aliases:
     - ignoreGlobalWhenMinusOne
   - id: 4e2db77f8d5a4d4eb6e2328fff57c90c
@@ -3814,47 +4304,6 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
-  - id: ccfa7f9a86004733ae585511d3c058c5
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: StatusEffect
-    isFolder: 0
-    description: 
-    varId: 101082
-    stableKey: GameLogic.NailProfile.StatusEffect
-    aliases:
-    - StatusEffect
-  - id: be487a3998574868b0bd22f10839f504
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: Price
-    isFolder: 0
-    description: 
-    varId: 100121
-    stableKey: Value
-    aliases: []
-  - id: e84759ea46f247a4bff25064706c7bf8
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: UpgradeTable
-    isFolder: 0
-    description: 
-    varId: 100123
-    stableKey: UpgradeTable
-    aliases: []
-  - id: 39d1a4b4b1994adc963e571dc6a3efe7
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: Rarity
-    isFolder: 0
-    description: 
-    varId: 101105
-    stableKey: Rarity
-    aliases: []
-  - id: b08882a0c8e24de48a4f005e0b281469
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: UpgradePanel
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
   - id: da35a1b429744fc8a2c01c9a54c8d1f5
     parentId: bf9d10780ffd431f9d1fe6f54d629bf6
     name: GameProfile
@@ -4009,7 +4458,97 @@ MonoBehaviour:
     varId: 101129
     stableKey: RerollMaxCount
     aliases: []
-  nextVarId: 101130
+  - id: ccfa7f9a86004733ae585511d3c058c5
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: StatusEffect
+    isFolder: 0
+    description: 
+    varId: 101082
+    stableKey: GameLogic.NailProfile.StatusEffect
+    aliases:
+    - StatusEffect
+  - id: 4a54b61968e245f687f58959a1b07f7a
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: InitStack
+    isFolder: 0
+    description: 
+    varId: 101130
+    stableKey: InitStack
+    aliases: []
+  - id: be487a3998574868b0bd22f10839f504
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Price
+    isFolder: 0
+    description: 
+    varId: 100121
+    stableKey: Value
+    aliases: []
+  - id: e84759ea46f247a4bff25064706c7bf8
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: UpgradeTable
+    isFolder: 0
+    description: 
+    varId: 100123
+    stableKey: UpgradeTable
+    aliases: []
+  - id: 39d1a4b4b1994adc963e571dc6a3efe7
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Rarity
+    isFolder: 0
+    description: 
+    varId: 101105
+    stableKey: GameLogic.NailProfile.Rarity
+    aliases:
+    - Rarity
+  - id: b08882a0c8e24de48a4f005e0b281469
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: UpgradePanel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 4f4f067cc1974770b91b38703e80941e
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: StatusEffectSetting
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 319c494f4bcd4cda863f92e0da06ee07
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: CountSetting
+    isFolder: 0
+    description: 
+    varId: 101131
+    stableKey: ApplyCount
+    aliases: []
+  - id: cc809a3e277c4f2793a4be261c003785
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: LifetimeSetting
+    isFolder: 0
+    description: 
+    varId: 101132
+    stableKey: LifetimeSetting
+    aliases: []
+  - id: d4007715cdf54038a395b7da19af6e50
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: UseSetting
+    isFolder: 0
+    description: 
+    varId: 101133
+    stableKey: UseSetting
+    aliases: []
+  - id: 328b3cca9010454cb0b538212aaca253
+    parentId: b08882a0c8e24de48a4f005e0b281469
+    name: CustomCommandList
+    isFolder: 0
+    description: 
+    varId: 101183
+    stableKey: CustomCommandList
+    aliases: []
+  nextVarId: 101184
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

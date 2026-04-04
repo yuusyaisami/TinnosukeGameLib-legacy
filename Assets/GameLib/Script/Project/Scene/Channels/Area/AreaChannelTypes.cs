@@ -57,6 +57,17 @@ namespace Game.Channel
             if (MaxRetry < 1)
                 MaxRetry = 1;
         }
+
+        public AreaSampleSettings CreateRuntimeCopy()
+        {
+            return new AreaSampleSettings
+            {
+                SequenceSeed = SequenceSeed,
+                JitterRate = JitterRate,
+                MinDistance = MinDistance,
+                MaxRetry = MaxRetry,
+            };
+        }
     }
 
     public readonly struct AreaSampleRequest
@@ -423,9 +434,98 @@ namespace Game.Channel
         }
     }
 
+    [Serializable]
+    public sealed class AreaChannelRuntimeMutation
+    {
+        [BoxGroup("General")]
+        [ToggleLeft]
+        [LabelText("Apply Enabled")]
+        public bool ApplyEnabled;
+
+        [BoxGroup("General")]
+        [ShowIf(nameof(ApplyEnabled))]
+        [LabelText("Enabled")]
+        public bool Enabled = true;
+
+        [BoxGroup("Transform")]
+        [ToggleLeft]
+        [LabelText("Apply Center Offset")]
+        public bool ApplyCenterOffset;
+
+        [BoxGroup("Transform")]
+        [ShowIf(nameof(ApplyCenterOffset))]
+        [LabelText("Center Offset")]
+        public Vector3 CenterOffset = Vector3.zero;
+
+        [BoxGroup("Transform")]
+        [ToggleLeft]
+        [LabelText("Apply Plane")]
+        public bool ApplyPlane;
+
+        [BoxGroup("Transform")]
+        [ShowIf(nameof(ApplyPlane))]
+        [LabelText("Plane")]
+        public AreaPlane Plane = AreaPlane.XY;
+
+        [BoxGroup("Sample")]
+        [ToggleLeft]
+        [LabelText("Apply Sample")]
+        public bool ApplySample;
+
+        [BoxGroup("Sample")]
+        [ShowIf(nameof(ApplySample))]
+        [InlineProperty]
+        [HideLabel]
+        public AreaSampleSettings Sample = new();
+
+        [BoxGroup("Shape")]
+        [ToggleLeft]
+        [LabelText("Apply Shape")]
+        public bool ApplyShape;
+
+        [BoxGroup("Shape")]
+        [ShowIf(nameof(ApplyShape))]
+        [SerializeReference]
+        [InlineProperty]
+        [HideLabel]
+        public IAreaShape Shape = new CircleAreaShape();
+
+        public bool HasAnyMutation()
+        {
+            return ApplyEnabled || ApplyCenterOffset || ApplyPlane || ApplySample || ApplyShape;
+        }
+    }
+
+    static class AreaChannelMutationCloneUtility
+    {
+        public static IAreaShape CloneShape(IAreaShape? shape)
+        {
+            return shape switch
+            {
+                CircleAreaShape circle => new CircleAreaShape
+                {
+                    Radius = circle.Radius,
+                    InnerRadius = circle.InnerRadius,
+                },
+                DonutAreaShape donut => new DonutAreaShape
+                {
+                    OuterRadius = donut.OuterRadius,
+                    InnerRadius = donut.InnerRadius,
+                },
+                RectAreaShape rect => new RectAreaShape
+                {
+                    Size = rect.Size,
+                },
+                null => new CircleAreaShape(),
+                _ => shape,
+            };
+        }
+    }
+
     public interface IAreaChannelHubService : IChannelHubService
     {
         bool TryGetPlayer(string tag, out IAreaChannelPlayer player);
+        bool MutateChannel(string tag, AreaChannelRuntimeMutation mutation);
         bool TrySamplePosition(string tag, in AreaSampleRequest request, out Vector3 position);
         bool TrySamplePosition(IReadOnlyList<string> tags, AreaTagSelectionMode selectionMode, in AreaSampleRequest request, out Vector3 position, out string selectedTag);
         bool ContainsPosition(string tag, Vector3 worldPosition);

@@ -22,15 +22,15 @@ MonoBehaviour:
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
-        definitionId: ValueUp
+        definitionId: Teleport
         defaultRuntimeTag: 
         visualData:
           DisplayName:
-            Template: ValueUp
+            Template: "\u30C6\u30EC\u30DD\u30FC\u30C8"
             Variables: []
           IconAnimation: {fileID: 0}
           Description:
-            Template: Value {ValueUp}
+            Template: "\u63A5\u7D9A\u5148\u306B\u30C6\u30EC\u30DD\u30FC\u30C8"
             Variables:
             - _value:
                 _source:
@@ -40,7 +40,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: Value {intensity|sign=always}
+            Template: 
             Variables:
             - _value:
                 _source:
@@ -62,8 +62,7 @@ MonoBehaviour:
         useCount: 0
         countDefinition:
           rid: 5619052465085481674
-        operations:
-        - rid: 5619052366731149466
+        operations: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
@@ -109,34 +108,6 @@ MonoBehaviour:
             _debugAssetPath: 
             _functionName: 
             _commands: []
-    - rid: 5619052366731149466
-      type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
-      data:
-        TargetKey:
-          Id: -1907293505
-          Name: GameLogic.NailProfile.Effect.ValueUp
-        ApplyMode: 10
-        MulPhase: 0
-        ValueMode: 10
-        Value:
-          _source:
-            rid: 5619052366731149676
-          _defaultValue: 0
-        TargetActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        Layer: 
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -160,25 +131,6 @@ MonoBehaviour:
         createIfMissing: 0
         baselineValue: 0
         searchIncludeGlobal: 0
-    - rid: 5619052366731149676
-      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        _allowImplicitVariablesFromContext: 1
-        _variables:
-        - _value:
-            _source:
-              rid: 5619052366731149677
-          _useScalarLeafKey: 0
-          _useCustomKey: 1
-          _customKey: intensity
-          _expectedType: 255
-        _expression: intensity
-    - rid: 5619052366731149677
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: GameLib.Base.StatusEffect.Element.intensity
-          varId: 100112
     - rid: 5619052465085481672
       type: {class: FixedDurationStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:

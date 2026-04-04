@@ -60,6 +60,10 @@ namespace Game.Commands.VNext
                 case StatusEffectCommandOp.ClearAll:
                     service.ClearAll();
                     break;
+
+                case StatusEffectCommandOp.ConfigureServiceSettings:
+                    service.ConfigureServiceSettings(typed.BuildServiceSettingsRequest(ctx), ctx);
+                    break;
             }
 
             return UniTask.CompletedTask;

@@ -16,7 +16,13 @@ namespace Game.StatusEffect
         public readonly float RemainingTime;
         public readonly float TotalDuration;
         public readonly float RemainingUseCooldown;
-        public readonly float Intensity;
+        public readonly float IntensityA;
+        public readonly float IntensityB;
+        public readonly float IntensityC;
+        public readonly float IntensityD;
+        public readonly float IntensityE;
+        public readonly float IntensityF;
+        public readonly float IntensityG;
         public readonly int StackCount;
         public readonly bool IsEnabled;
         public readonly bool IsApplied;
@@ -38,7 +44,13 @@ namespace Game.StatusEffect
             float remainingTime,
             float totalDuration,
             float remainingUseCooldown,
-            float intensity,
+            float intensityA,
+            float intensityB,
+            float intensityC,
+            float intensityD,
+            float intensityE,
+            float intensityF,
+            float intensityG,
             int stackCount,
             bool isEnabled,
             bool isApplied,
@@ -59,7 +71,13 @@ namespace Game.StatusEffect
             RemainingTime = remainingTime;
             TotalDuration = totalDuration;
             RemainingUseCooldown = remainingUseCooldown;
-            Intensity = intensity;
+            IntensityA = intensityA;
+            IntensityB = intensityB;
+            IntensityC = intensityC;
+            IntensityD = intensityD;
+            IntensityE = intensityE;
+            IntensityF = intensityF;
+            IntensityG = intensityG;
             StackCount = stackCount;
             IsEnabled = isEnabled;
             IsApplied = isApplied;
@@ -80,7 +98,13 @@ namespace Game.StatusEffect
             EffectType type,
             float remainingTime,
             float totalDuration,
-            float intensity,
+            float intensityA,
+            float intensityB,
+            float intensityC,
+            float intensityD,
+            float intensityE,
+            float intensityF,
+            float intensityG,
             int stackCount,
             bool isEnabled,
             bool isApplied,
@@ -99,7 +123,13 @@ namespace Game.StatusEffect
                 remainingTime,
                 totalDuration,
                 0f,
-                intensity,
+                intensityA,
+                intensityB,
+                intensityC,
+                intensityD,
+                intensityE,
+                intensityF,
+                intensityG,
                 stackCount,
                 isEnabled,
                 isApplied,

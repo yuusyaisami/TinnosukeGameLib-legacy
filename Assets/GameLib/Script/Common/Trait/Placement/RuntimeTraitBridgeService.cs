@@ -7,6 +7,7 @@ using Game;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.SelectRuntime;
+using Game.Vars.Generated;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -188,6 +189,7 @@ namespace Game.Trait
             _linkData = currentLink;
             _registeredKey = currentKey;
             _hasRegisteredKey = true;
+            ExecuteDefinitionSpawnCommandsIfNeeded();
 
             UnsubscribePlacementService();
             if (TraitPlacementScopeResolver.TryResolvePlacementService(_linkData, out var placementService) && placementService != null)
@@ -198,6 +200,21 @@ namespace Game.Trait
                 if (_placementService.TryGetPresentationState(_linkData.HolderKey, _linkData.TraitKey, out var state))
                     ApplyPresentationState(state);
             }
+        }
+
+        void ExecuteDefinitionSpawnCommandsIfNeeded()
+        {
+            if (_owner == null)
+                return;
+
+            if (!TryResolveRuntimeScope(_owner, out var runtimeScope) || runtimeScope == null)
+                return;
+
+            var definition = ResolveTraitDefinition(runtimeScope);
+            if (definition == null || !definition.RunOnRuntimeSpawnCommands)
+                return;
+
+            ExecuteCommandList(runtimeScope, definition.OnRuntimeSpawnCommands, "DefinitionSpawn");
         }
 
         void Rebind()
@@ -286,6 +303,7 @@ namespace Game.Trait
                     runtimeScope.transform.rotation = _visibleRotation;
                     _isHidden = true;
                     ExecutePresentationCommands(runtimeScope, _owner.OnHiddenCommands, _hiddenCommandsMutation, "Hidden");
+                    ExecuteDefinitionPresentationCommands(runtimeScope, TraitRuntimePresentationState.Hidden);
                 }
 
                 runtimeScope.TrySetVisible(false);
@@ -304,10 +322,33 @@ namespace Game.Trait
                 runtimeScope.TrySetVisible(true);
                 _isHidden = false;
                 if (previousState != TraitRuntimePresentationState.Visible)
+                {
                     ExecutePresentationCommands(runtimeScope, _owner.OnVisibleCommands, _visibleCommandsMutation, "Visible");
+                    ExecuteDefinitionPresentationCommands(runtimeScope, TraitRuntimePresentationState.Visible);
+                }
 
                 _hasAppliedPresentationState = true;
                 _appliedPresentationState = TraitRuntimePresentationState.Visible;
+            }
+        }
+
+        void ExecuteDefinitionPresentationCommands(RuntimeLifetimeScope scope, TraitRuntimePresentationState state)
+        {
+            var definition = ResolveTraitDefinition(scope);
+            if (definition == null)
+                return;
+
+            switch (state)
+            {
+                case TraitRuntimePresentationState.Visible:
+                    if (definition.RunOnRuntimeVisibleCommands)
+                        ExecuteCommandList(scope, definition.OnRuntimeVisibleCommands, "DefinitionVisible");
+                    break;
+
+                case TraitRuntimePresentationState.Hidden:
+                    if (definition.RunOnRuntimeHiddenCommands)
+                        ExecuteCommandList(scope, definition.OnRuntimeHiddenCommands, "DefinitionHidden");
+                    break;
             }
         }
 
@@ -329,6 +370,21 @@ namespace Game.Trait
             if (!mutationSlot.TryBuild(commandSource, dynamicContext, out var commands) || commands == null || commands.Count == 0)
                 return;
 
+            ExecuteCommandList(scope, commands, eventName);
+        }
+
+        void ExecuteCommandList(
+            RuntimeLifetimeScope scope,
+            CommandListData commands,
+            string eventName)
+        {
+            if (scope == null || commands == null || commands.Count == 0)
+                return;
+
+            if (!TryResolveCommandRunner(scope, out var runner) || runner == null)
+                return;
+
+            var vars = CreateVars(scope);
             var context = new CommandContext(scope, vars, runner, actor: scope, CommandRunOptions.Default, scope, scope, scope);
             UniTask.Void(async () =>
             {
@@ -344,6 +400,24 @@ namespace Game.Trait
                     Debug.LogError($"[RuntimeTraitPresentationBridgeService] Command execution failed ({eventName}): {ex.Message}");
                 }
             });
+        }
+
+        static TraitDefinitionSO? ResolveTraitDefinition(RuntimeLifetimeScope scope)
+        {
+            var resolver = scope?.Resolver;
+            if (resolver == null)
+                return null;
+
+            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                return null;
+
+            if (!blackboard.LocalVars.TryGetManagedRef(VarIds.GameLib.Base.Trait.Element.definitionAsset, out var managed) ||
+                managed is not TraitDefinitionSO definition)
+            {
+                return null;
+            }
+
+            return definition;
         }
 
         void CaptureVisiblePose()

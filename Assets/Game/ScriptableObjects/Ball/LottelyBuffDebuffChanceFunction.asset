@@ -19,6 +19,167 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842414200356866
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414200356867
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842414997799583
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842414997799584
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842414997799585
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842414997799586
+    - rid: 5399842414997799586
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: BallChance
+        Message: BuffBall = B, DebuffBall = D
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
+    - rid: 5399842414997799588
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842414997799589
+    - rid: 5399842414997799589
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: FinalBallType
+        Message: BuffBall = B, DebuffBall = D
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
+    - rid: 5399842414997799591
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842414997799592
+    - rid: 5399842414997799592
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: ValuesChack
+        Message: BallProfile
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
     - rid: 5619052643689169242
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32,8 +193,11 @@ MonoBehaviour:
           - rid: 5619052643689169246
           - rid: 5619052643689169247
           - rid: 5619052643689169248
+          - rid: 5399842414997799585
           - rid: 5619052643689169249
+          - rid: 5399842414997799588
           - rid: 5619052643689169250
+          - rid: 5399842414997799591
     - rid: 5619052643689169245
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -362,8 +526,14 @@ MonoBehaviour:
     - rid: 5619052643689169259
       type: {class: RandomFloatRangeSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        min: 0
-        max: 1
+        min:
+          _source:
+            rid: 5399842414997799583
+          _defaultValue: 0
+        max:
+          _source:
+            rid: 5399842414997799584
+          _defaultValue: 0
         useVarianceController: 0
         varianceKey: 
         varianceSettings:
@@ -556,8 +726,8 @@ MonoBehaviour:
         VarOps:
         - Target: 1
           Key:
-            stableKey: B
-            varId: 227
+            stableKey: D
+            varId: 229
           Op: 0
           Value:
             _source:
@@ -655,8 +825,8 @@ MonoBehaviour:
         VarOps:
         - Target: 1
           Key:
-            stableKey: D
-            varId: 229
+            stableKey: B
+            varId: 227
           Op: 0
           Value:
             _source:
@@ -1002,8 +1172,14 @@ MonoBehaviour:
     - rid: 5619052643689169286
       type: {class: RandomFloatRangeSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        min: 0
-        max: 1
+        min:
+          _source:
+            rid: 5399842414200356866
+          _defaultValue: 0
+        max:
+          _source:
+            rid: 5399842414200356867
+          _defaultValue: 0
         useVarianceController: 0
         varianceKey: 
         varianceSettings:

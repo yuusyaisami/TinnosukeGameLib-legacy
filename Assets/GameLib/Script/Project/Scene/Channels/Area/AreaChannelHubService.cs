@@ -187,6 +187,33 @@ namespace Game.Channel
             return true;
         }
 
+        public bool MutateChannel(string tag, AreaChannelRuntimeMutation mutation)
+        {
+            if (mutation == null || !mutation.HasAnyMutation())
+                return false;
+
+            if (string.IsNullOrWhiteSpace(tag))
+                tag = "default";
+
+            if (!_defsByTag.TryGetValue(tag, out var def) || def == null)
+                return false;
+
+            if (!ApplyMutation(def, mutation))
+                return false;
+
+            if (_ownerScope is Component ownerComponent)
+                def.EnsureIntegrity(ownerComponent);
+            else
+                def.Sample?.EnsureIntegrity();
+
+            if (def.Shape == null)
+                def.Shape = new CircleAreaShape();
+
+            _runtimeByTag[tag] = new AreaChannelRuntimePlayer(def);
+            _defsDirty = true;
+            return true;
+        }
+
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
             _ownerScope = scope;
@@ -250,6 +277,43 @@ namespace Game.Channel
 
             basePosition = anchor.position + def.CenterOffset;
             return true;
+        }
+
+        static bool ApplyMutation(AreaChannelDefinition def, AreaChannelRuntimeMutation mutation)
+        {
+            var changed = false;
+
+            if (mutation.ApplyEnabled && def.Enabled != mutation.Enabled)
+            {
+                def.Enabled = mutation.Enabled;
+                changed = true;
+            }
+
+            if (mutation.ApplyCenterOffset && def.CenterOffset != mutation.CenterOffset)
+            {
+                def.CenterOffset = mutation.CenterOffset;
+                changed = true;
+            }
+
+            if (mutation.ApplyPlane && def.Plane != mutation.Plane)
+            {
+                def.Plane = mutation.Plane;
+                changed = true;
+            }
+
+            if (mutation.ApplySample)
+            {
+                def.Sample = mutation.Sample?.CreateRuntimeCopy() ?? new AreaSampleSettings();
+                changed = true;
+            }
+
+            if (mutation.ApplyShape)
+            {
+                def.Shape = AreaChannelMutationCloneUtility.CloneShape(mutation.Shape);
+                changed = true;
+            }
+
+            return changed;
         }
     }
 }

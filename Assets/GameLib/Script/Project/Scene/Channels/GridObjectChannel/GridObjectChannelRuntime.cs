@@ -321,8 +321,10 @@ namespace Game.Channel
         IGridObjectChannelPlayerRuntime? _playerRuntime;
         IScopeNode? _activeScope;
         Transform? _listRoot;
+        Transform? _layoutReferenceTransform;
         RectTransform? _layoutRectTransform;
         Canvas? _canvas;
+        ActorSourceResolveCache _layoutAreaSourceCache;
         ActorSourceResolveCache _fixedAnchorSourceCache;
         TransformGridEnvironmentKind _environmentKind;
         bool _hasBinding;
@@ -353,14 +355,16 @@ namespace Game.Channel
             _ = isReset;
             _activeScope = scope;
             _listRoot = _definition.ListRoot != null ? _definition.ListRoot : _mb.transform;
-            _layoutRectTransform = _definition.LayoutRectTransform != null
+            _layoutReferenceTransform = _definition.LayoutRectTransform != null
                 ? _definition.LayoutRectTransform
-                : _listRoot as RectTransform;
+                : _listRoot;
+            _layoutRectTransform = _layoutReferenceTransform as RectTransform;
             _environmentKind = TransformGridSharedUtility.ResolveEnvironment(_listRoot, out _canvas);
             _lifecycleCts = new CancellationTokenSource();
             _isActive = true;
             _isBuilt = false;
             _hasBinding = false;
+            _layoutAreaSourceCache = default;
             _fixedAnchorSourceCache = default;
 
             if (!_definition.AutoBuild)
@@ -423,6 +427,7 @@ namespace Game.Channel
 
             _activeScope = null;
             _listRoot = null;
+            _layoutReferenceTransform = null;
             _layoutRectTransform = null;
             _canvas = null;
             _hasBinding = false;
@@ -430,6 +435,7 @@ namespace Game.Channel
             _resolvedLayoutPreset = new GridObjectChannelLayoutPreset();
             _resolvedVisualizerPreset = new GridObjectChannelVisualizerPreset();
             _resolvedRuntimeTemplate = null;
+            _layoutAreaSourceCache = default;
             _fixedAnchorSourceCache = default;
         }
 
@@ -781,7 +787,17 @@ namespace Game.Channel
             var itemSize = ResolvePlanningItemSize();
             var totalRows = ResolveTotalRows(items);
             var totalColumns = ResolveTotalColumns(items);
-            var rect = _layoutRectTransform != null ? _layoutRectTransform.rect : new Rect(0f, 0f, 0f, 0f);
+            var rect = TransformGridSharedUtility.ResolveLayoutRect(
+                _listRoot,
+                _layoutReferenceTransform,
+                _layoutRectTransform,
+                _canvas,
+                _activeScope,
+                _environmentKind,
+                _resolvedLayoutPreset.RangeSourceMode,
+                _resolvedLayoutPreset.AreaActorSource,
+                ref _layoutAreaSourceCache,
+                _resolvedLayoutPreset.AreaChannelTag);
 
             for (var i = 0; i < items.Count; i++)
             {
@@ -859,6 +875,7 @@ namespace Game.Channel
 
             var instance = new GridObjectChannelVisualInstance(GridObjectChannelItemKey.Standalone(-1), root, scopeNode, resolver);
             ApplyPreviewSpawnPosition(instance, item);
+            TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, false);
             return instance;
         }
 
@@ -889,6 +906,7 @@ namespace Game.Channel
                 (int)_resolvedLayoutPreset.ItemVerticalAlignment);
 
             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, startLocal, _environmentKind);
+            TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, true);
             await AnimateInstanceAsync(instance, targetLocal, _resolvedLayoutPreset.SpawnMotion, ct);
         }
 
@@ -929,6 +947,10 @@ namespace Game.Channel
                 if (playerTarget != null &&
                     (ReferenceEquals(playerTarget, instance.Root) || ReferenceEquals(playerTarget, instance.RootRect)))
                 {
+                    var motionTarget = TransformGridSharedUtility.ResolveMotionTargetPosition(
+                        instance.RootRect,
+                        targetLocal,
+                        _environmentKind);
                     var step = new TransformAnimationPresetStep
                     {
                         operation = _environmentKind == TransformGridEnvironmentKind.ScreenUI && instance.RootRect != null
@@ -942,7 +964,7 @@ namespace Game.Channel
 
                     if (motion.WaitForCompletion)
                     {
-                        await player.PlayStepAsync(targetLocal, step);
+                        await player.PlayStepAsync(motionTarget, step);
                         TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, targetLocal, _environmentKind);
                         return;
                     }
@@ -951,7 +973,7 @@ namespace Game.Channel
                     {
                         try
                         {
-                            await player.PlayStepAsync(targetLocal, step);
+                            await player.PlayStepAsync(motionTarget, step);
                             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, targetLocal, _environmentKind);
                         }
                         catch (OperationCanceledException)
@@ -1128,6 +1150,7 @@ namespace Game.Channel
             {
                 anchorLocal = TransformGridSharedUtility.ResolveLocalPointFromTransform(
                     _listRoot,
+                    _layoutReferenceTransform,
                     _layoutRectTransform,
                     _canvas,
                     _resolvedLayoutPreset.FixedAnchorTransform,
@@ -1145,6 +1168,7 @@ namespace Game.Channel
                 {
                     anchorLocal = TransformGridSharedUtility.ResolveLocalPointFromTransform(
                         _listRoot,
+                        _layoutReferenceTransform,
                         _layoutRectTransform,
                         _canvas,
                         transform,

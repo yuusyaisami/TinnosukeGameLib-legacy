@@ -18,7 +18,7 @@ Use only these two groups under VarIds.GameLib.Base.StatusEffect:
 
 - Runtime.Element.*
   - Data created/updated after an effect is applied
-  - Example: instanceId, stackCount, intensity, remainingDuration, isActive
+  - Example: instanceId, stackCount, intensityA..intensityG, remainingDuration, isActive
 
 The same field names can exist in both groups (for example effectType, nameKey, descriptionKey),
 but their ownership is different:

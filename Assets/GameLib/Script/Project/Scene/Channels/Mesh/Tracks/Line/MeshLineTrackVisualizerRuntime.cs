@@ -21,7 +21,39 @@ namespace Game.Channel
         {
             outputPaths.Clear();
 
-            if (evaluation is not MeshCenterLineEvaluation centerLine || centerLine.Points.Count < 2)
+            if (evaluation is MeshCenterLineEvaluation centerLine)
+                return TryBuildSinglePath(centerLine, context.TimeSeconds, outputPaths);
+
+            if (evaluation is not MeshMultiCenterLineEvaluation multiCenterLine || multiCenterLine.Lines.Count == 0)
+                return false;
+
+            var linePaths = ListPool<MeshRuntimePath>.Get();
+            try
+            {
+                var builtAny = false;
+                for (var i = 0; i < multiCenterLine.Lines.Count; i++)
+                {
+                    var line = multiCenterLine.Lines[i];
+                    if (!TryBuildSinglePath(line, context.TimeSeconds, linePaths))
+                        continue;
+
+                    builtAny = true;
+                    outputPaths.AddRange(linePaths);
+                    linePaths.Clear();
+                }
+
+                return builtAny;
+            }
+            finally
+            {
+                ListPool<MeshRuntimePath>.Release(linePaths);
+            }
+        }
+
+        bool TryBuildSinglePath(MeshCenterLineEvaluation centerLine, float timeSeconds, List<MeshRuntimePath> outputPaths)
+        {
+            outputPaths.Clear();
+            if (centerLine == null || centerLine.Points.Count < 2)
                 return false;
 
             var smoothed = ListPool<Vector2>.Get();
@@ -47,7 +79,7 @@ namespace Game.Channel
                     distances,
                     centerLine.Closed,
                     _preset,
-                    context.TimeSeconds,
+                    timeSeconds,
                     outputPaths);
                 return outputPaths.Count > 0;
             }

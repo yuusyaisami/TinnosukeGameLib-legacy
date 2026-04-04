@@ -77,7 +77,9 @@ namespace Game.Targeting
             builder.Register<TargetChannelHubService>(resolver =>
             {
                 resolver.TryResolve<Game.Search.IDynamicSearchService>(out var search);
-                return new TargetChannelHubService(config, owner, search, config.InitialChannels.Count);
+                resolver.TryResolve<Game.Collision.IUnityCollisionManager>(out var collisionManager);
+                resolver.TryResolve<Game.Collision.IHitColliderScopeRegistry>(out var hitScopeRegistry);
+                return new TargetChannelHubService(config, owner, search, collisionManager, hitScopeRegistry, config.InitialChannels.Count);
             }, Lifetime.Singleton)
                 .As<ITargetChannelHub>()
                 .As<ITargetChannelHubTelemetry>()
@@ -305,6 +307,9 @@ namespace Game.Targeting
                     OriginSource = channel.OriginSource,
                     ForwardSource = channel.ForwardSource,
                     ScopeRequireActive = channel.ScopeRequireActive,
+                    CollisionRangeSource = channel.CollisionRangeSource,
+                    CollisionAreaTag = string.IsNullOrEmpty(channel.CollisionAreaTag) ? "(empty)" : channel.CollisionAreaTag,
+                    CollisionFilterSummary = string.IsNullOrEmpty(channel.CollisionFilterSummary) ? "(none)" : channel.CollisionFilterSummary,
                 });
             }
         }
@@ -327,6 +332,9 @@ namespace Game.Targeting
             [TableColumnWidth(100)] public TargetOriginSource OriginSource;
             [TableColumnWidth(105)] public TargetForwardSource ForwardSource;
             [TableColumnWidth(90)] public bool ScopeRequireActive;
+            [TableColumnWidth(100)] public TargetChannelCollisionRangeSource CollisionRangeSource;
+            [TableColumnWidth(120)] public string CollisionAreaTag = string.Empty;
+            [TableColumnWidth(150)] public string CollisionFilterSummary = string.Empty;
         }
     }
 }

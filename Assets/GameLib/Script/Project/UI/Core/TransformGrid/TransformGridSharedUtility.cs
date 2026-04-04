@@ -1,11 +1,19 @@
 #nullable enable
+using Game.Commands.VNext;
 using Game.Channel;
+using Game.Common;
 using Game.Layout;
 using UnityEngine;
 using VContainer;
 
 namespace Game.UI
 {
+    public enum TransformGridLayoutRangeSourceMode
+    {
+        RectTransform = 10,
+        AreaChannel = 20,
+    }
+
     internal enum TransformGridEnvironmentKind
     {
         ScreenUI = 10,
@@ -190,19 +198,7 @@ namespace Game.UI
         {
             if (environmentKind == TransformGridEnvironmentKind.ScreenUI && rootRect != null)
             {
-                var parentRect = rootRect.parent as RectTransform;
-                if (parentRect != null)
-                {
-                    var reference = ResolveAnchorReference(rootRect, parentRect);
-                    rootRect.anchoredPosition3D = new Vector3(
-                        localPosition.x - reference.x,
-                        localPosition.y - reference.y,
-                        localPosition.z);
-                }
-                else
-                {
-                    rootRect.anchoredPosition3D = localPosition;
-                }
+                rootRect.anchoredPosition3D = ResolveMotionTargetPosition(rootRect, localPosition, environmentKind);
 
                 return;
             }
@@ -210,8 +206,68 @@ namespace Game.UI
             root.localPosition = localPosition;
         }
 
+        public static Vector3 ResolveMotionTargetPosition(
+            RectTransform? rootRect,
+            Vector3 localPosition,
+            TransformGridEnvironmentKind environmentKind)
+        {
+            if (environmentKind != TransformGridEnvironmentKind.ScreenUI || rootRect == null)
+                return localPosition;
+
+            var parentRect = rootRect.parent as RectTransform;
+            if (parentRect == null)
+                return localPosition;
+
+            var reference = ResolveAnchorReference(rootRect, parentRect);
+            return new Vector3(
+                localPosition.x - reference.x,
+                localPosition.y - reference.y,
+                localPosition.z);
+        }
+
+        public static void SetUiElementVisible(IObjectResolver? resolver, bool visible)
+        {
+            if (resolver == null)
+                return;
+
+            if (resolver.TryResolve<IUIElementStateController>(out var stateController) && stateController != null)
+                stateController.SetVisible(visible);
+        }
+
+        public static Rect ResolveLayoutRect(
+            Transform? listRoot,
+            Transform? layoutReferenceTransform,
+            RectTransform? layoutRectTransform,
+            Canvas? canvas,
+            IScopeNode? activeScope,
+            TransformGridEnvironmentKind environmentKind,
+            TransformGridLayoutRangeSourceMode rangeSourceMode,
+            in ActorSource areaActorSource,
+            ref ActorSourceResolveCache areaActorSourceCache,
+            string? areaChannelTag)
+        {
+            if (rangeSourceMode == TransformGridLayoutRangeSourceMode.AreaChannel &&
+                TryResolveAreaChannelLayoutRect(
+                    listRoot,
+                    layoutReferenceTransform,
+                    layoutRectTransform,
+                    canvas,
+                    activeScope,
+                    environmentKind,
+                    areaActorSource,
+                    ref areaActorSourceCache,
+                    areaChannelTag,
+                    out var resolvedRect))
+            {
+                return resolvedRect;
+            }
+
+            return ResolveRectTransformLayoutRect(listRoot, layoutRectTransform);
+        }
+
         public static Vector3 ResolveLocalPointFromTransform(
             Transform? listRoot,
+            Transform? layoutReferenceTransform,
             RectTransform? layoutRectTransform,
             Canvas? canvas,
             Transform? anchor,
@@ -237,7 +293,11 @@ namespace Game.UI
                 }
             }
 
-            return listRoot.InverseTransformPoint(anchor.position);
+            var referenceTransform = layoutReferenceTransform ?? listRoot;
+            if (referenceTransform == null)
+                return Vector3.zero;
+
+            return referenceTransform.InverseTransformPoint(anchor.position);
         }
 
         public static bool TryResolveTransformAnimationPlayer(
@@ -268,6 +328,126 @@ namespace Game.UI
                 boundsService.MarkDirty();
                 boundsService.RebuildNow();
             }
+        }
+
+        static Rect ResolveRectTransformLayoutRect(Transform? listRoot, RectTransform? layoutRectTransform)
+        {
+            if (layoutRectTransform != null)
+                return layoutRectTransform.rect;
+
+            return listRoot is RectTransform rootRect
+                ? rootRect.rect
+                : new Rect(0f, 0f, 0f, 0f);
+        }
+
+        static bool TryResolveAreaChannelLayoutRect(
+            Transform? listRoot,
+            Transform? layoutReferenceTransform,
+            RectTransform? layoutRectTransform,
+            Canvas? canvas,
+            IScopeNode? activeScope,
+            TransformGridEnvironmentKind environmentKind,
+            in ActorSource areaActorSource,
+            ref ActorSourceResolveCache areaActorSourceCache,
+            string? areaChannelTag,
+            out Rect rect)
+        {
+            rect = default;
+            if (activeScope?.Resolver == null)
+                return false;
+
+            var areaScope = ActorSourceFastResolver.ResolveCached(activeScope, areaActorSource, ref areaActorSourceCache);
+            if (areaScope?.Resolver == null)
+                return false;
+
+            if (!areaScope.Resolver.TryResolve<IAreaChannelHubService>(out var hub) || hub == null)
+                return false;
+
+            var normalizedTag = string.IsNullOrWhiteSpace(areaChannelTag) ? "default" : areaChannelTag.Trim();
+            var referenceTransform = layoutReferenceTransform ?? (Transform?)layoutRectTransform ?? listRoot;
+            if (referenceTransform == null)
+                return false;
+
+            if (environmentKind == TransformGridEnvironmentKind.ScreenUI)
+            {
+                if (canvas == null || !hub.TryGetCanvasRectSnapshot(normalizedTag, canvas, out var canvasSnapshot))
+                    return false;
+
+                return TryConvertCanvasRectSnapshotToLocalRect(canvasSnapshot, referenceTransform, out rect);
+            }
+
+            if (!hub.TryGetRectSnapshot(normalizedTag, out var worldSnapshot))
+                return false;
+
+            return TryConvertWorldRectSnapshotToLocalRect(worldSnapshot, referenceTransform, out rect);
+        }
+
+        static bool TryConvertCanvasRectSnapshotToLocalRect(
+            in AreaCanvasRectSnapshot snapshot,
+            Transform referenceTransform,
+            out Rect rect)
+        {
+            var corners = new Vector3[4];
+            var source = snapshot.LocalRect;
+            corners[0] = snapshot.CanvasRect.TransformPoint(new Vector3(source.xMin, source.yMin, 0f));
+            corners[1] = snapshot.CanvasRect.TransformPoint(new Vector3(source.xMax, source.yMin, 0f));
+            corners[2] = snapshot.CanvasRect.TransformPoint(new Vector3(source.xMax, source.yMax, 0f));
+            corners[3] = snapshot.CanvasRect.TransformPoint(new Vector3(source.xMin, source.yMax, 0f));
+            return TryBuildLocalRectFromWorldCorners(referenceTransform, corners, out rect);
+        }
+
+        static bool TryConvertWorldRectSnapshotToLocalRect(
+            in AreaRectSnapshot snapshot,
+            Transform referenceTransform,
+            out Rect rect)
+        {
+            var halfSize = snapshot.Size * 0.5f;
+            var corners = new Vector3[4];
+            corners[0] = snapshot.Center + ToPlane(new Vector2(-halfSize.x, -halfSize.y), snapshot.Plane);
+            corners[1] = snapshot.Center + ToPlane(new Vector2(halfSize.x, -halfSize.y), snapshot.Plane);
+            corners[2] = snapshot.Center + ToPlane(new Vector2(halfSize.x, halfSize.y), snapshot.Plane);
+            corners[3] = snapshot.Center + ToPlane(new Vector2(-halfSize.x, halfSize.y), snapshot.Plane);
+            return TryBuildLocalRectFromWorldCorners(referenceTransform, corners, out rect);
+        }
+
+        static bool TryBuildLocalRectFromWorldCorners(
+            Transform referenceTransform,
+            Vector3[] worldCorners,
+            out Rect rect)
+        {
+            rect = default;
+            if (referenceTransform == null || worldCorners == null || worldCorners.Length == 0)
+                return false;
+
+            var min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            for (var i = 0; i < worldCorners.Length; i++)
+            {
+                var local = (Vector2)referenceTransform.InverseTransformPoint(worldCorners[i]);
+                if (!IsFinite(local))
+                    return false;
+
+                min = Vector2.Min(min, local);
+                max = Vector2.Max(max, local);
+            }
+
+            rect = Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+            return true;
+        }
+
+        static Vector3 ToPlane(Vector2 point, AreaPlane plane)
+        {
+            return plane == AreaPlane.XZ
+                ? new Vector3(point.x, 0f, point.y)
+                : new Vector3(point.x, point.y, 0f);
+        }
+
+        static bool IsFinite(Vector2 value)
+        {
+            return !float.IsNaN(value.x) &&
+                   !float.IsNaN(value.y) &&
+                   !float.IsInfinity(value.x) &&
+                   !float.IsInfinity(value.y);
         }
 
         static float ResolveHorizontalBase(Rect rect, int alignment, int totalColumns, float stepX)

@@ -80,6 +80,9 @@ namespace Game.Commands
                 builder.Register<VNext.WithPlayerExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
+                builder.Register<VNext.WithTargetChannelExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
                 builder.Register<VNext.CommandChannelExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
@@ -209,6 +212,8 @@ namespace Game.Commands
                 builder.Register<VNext.UserMoveRotateRuntimeControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.TargetChannelControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.AreaChannelControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ShowTooltipExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();

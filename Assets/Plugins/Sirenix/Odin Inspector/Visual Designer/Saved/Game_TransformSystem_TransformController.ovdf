@@ -1,0 +1,9 @@
+OVDF v1.1
+Game.TransformSystem.TransformController, Assembly-CSharp
+MetaGuid:f65a15917f8d3ce4ea073de9761a84a3
+
+# rigidbody2DAdditiveControl
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 175
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 139

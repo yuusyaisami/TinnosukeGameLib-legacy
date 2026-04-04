@@ -67,6 +67,7 @@ namespace Game.UI
         readonly AsyncLocal<int> _operationContextStamp = new();
 
         ActorSourceResolveCache _holderHubSourceCache;
+        ActorSourceResolveCache _layoutAreaSourceCache;
         ActorSourceResolveCache _fixedAnchorSourceCache;
 
         CancellationTokenSource? _lifecycleCts;
@@ -80,6 +81,7 @@ namespace Game.UI
         ITraitPlacementService? _placementService;
         IScopeNode? _activeScope;
         Transform? _listRoot;
+        Transform? _layoutReferenceTransform;
         RectTransform? _layoutRectTransform;
         Canvas? _canvas;
         TraitListChannelEnvironmentKind _environmentKind;
@@ -114,9 +116,10 @@ namespace Game.UI
             _ = isReset;
             _activeScope = scope;
             _listRoot = _definition.ListRoot != null ? _definition.ListRoot : _mb.transform;
-            _layoutRectTransform = _definition.LayoutRectTransform != null
+            _layoutReferenceTransform = _definition.LayoutRectTransform != null
                 ? _definition.LayoutRectTransform
-                : _listRoot as RectTransform;
+                : _listRoot;
+            _layoutRectTransform = _layoutReferenceTransform as RectTransform;
             _environmentKind = TraitListChannelRuntimeHelpers.ResolveEnvironment(_listRoot, out _canvas);
             _lifecycleCts = new CancellationTokenSource();
             _isActive = true;
@@ -191,9 +194,11 @@ namespace Game.UI
 
             _activeScope = null;
             _listRoot = null;
+            _layoutReferenceTransform = null;
             _layoutRectTransform = null;
             _canvas = null;
             _holderHubSourceCache = default;
+            _layoutAreaSourceCache = default;
             _fixedAnchorSourceCache = default;
             _resolvedRuntimeTemplate = null;
             _resolvedBinding = new TraitListChannelBinding();
@@ -457,7 +462,6 @@ namespace Game.UI
                 return true;
             }
 
-            var newlySpawned = new HashSet<ITraitInstance>(global::Game.ReferenceEqualityComparer<ITraitInstance>.Instance);
             var slotLookup = new Dictionary<ITraitInstance, TraitListChannelSlot>(global::Game.ReferenceEqualityComparer<ITraitInstance>.Instance);
             for (var i = 0; i < slots.Count; i++)
             {
@@ -489,12 +493,31 @@ namespace Game.UI
                             _lookup.Remove(instance.Trait);
                     }
                 }
+            }
 
+            var totalNewlySpawned = 0;
+            if (mode != TraitListChannelRefreshMode.LayoutOnly)
+            {
                 for (var i = 0; i < slots.Count; i++)
                 {
-                    ct.ThrowIfCancellationRequested();
                     var slot = slots[i];
-                    if (slot.Trait == null || _lookup.ContainsKey(slot.Trait))
+                    if (slot.Trait != null && !_lookup.ContainsKey(slot.Trait))
+                        totalNewlySpawned++;
+                }
+            }
+
+            var initializedNewSpawned = 0;
+            RecalculateSlotPositions(slots);
+            for (var i = 0; i < slots.Count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+                var slot = slots[i];
+                if (slot.Trait == null)
+                    continue;
+
+                if (!_lookup.TryGetValue(slot.Trait, out var instance) || instance == null)
+                {
+                    if (mode == TraitListChannelRefreshMode.LayoutOnly)
                         continue;
 
                     var spawned = await SpawnRawAsync(slot, ct);
@@ -503,23 +526,7 @@ namespace Game.UI
 
                     _instances.Add(spawned);
                     _lookup[slot.Trait] = spawned;
-                    newlySpawned.Add(slot.Trait);
-                }
-            }
-
-            var totalNewlySpawned = newlySpawned.Count;
-            var initializedNewSpawned = 0;
-            RecalculateSlotPositions(slots);
-            for (var i = 0; i < slots.Count; i++)
-            {
-                ct.ThrowIfCancellationRequested();
-                var slot = slots[i];
-                if (slot.Trait == null || !_lookup.TryGetValue(slot.Trait, out var instance) || instance == null)
-                    continue;
-
-                if (newlySpawned.Contains(slot.Trait))
-                {
-                    await InitializeSpawnedInstanceAsync(instance, slot, ct);
+                    await InitializeSpawnedInstanceAsync(spawned, slot, ct);
                     initializedNewSpawned++;
                     await DelayBetweenNewSpawnsIfNeededAsync(initializedNewSpawned, totalNewlySpawned, ct);
                 }
@@ -538,6 +545,15 @@ namespace Game.UI
             if (slots == null || slots.Count == 0)
                 return;
 
+            RecalculateSlotPositions(slots);
+            var initializedSpawned = 0;
+            var totalSpawnCount = 0;
+            for (var i = 0; i < slots.Count; i++)
+            {
+                if (slots[i].Trait != null)
+                    totalSpawnCount++;
+            }
+
             for (var i = 0; i < slots.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -551,20 +567,9 @@ namespace Game.UI
 
                 _instances.Add(spawned);
                 _lookup[slot.Trait] = spawned;
-            }
-
-            RecalculateSlotPositions(slots);
-            var initializedSpawned = 0;
-            for (var i = 0; i < slots.Count; i++)
-            {
-                ct.ThrowIfCancellationRequested();
-                var slot = slots[i];
-                if (slot.Trait == null || !_lookup.TryGetValue(slot.Trait, out var instance) || instance == null)
-                    continue;
-
-                await InitializeSpawnedInstanceAsync(instance, slot, ct);
+                await InitializeSpawnedInstanceAsync(spawned, slot, ct);
                 initializedSpawned++;
-                await DelayBetweenNewSpawnsIfNeededAsync(initializedSpawned, _instances.Count, ct);
+                await DelayBetweenNewSpawnsIfNeededAsync(initializedSpawned, totalSpawnCount, ct);
             }
 
             SortInstancesByListIndex();
@@ -572,11 +577,24 @@ namespace Game.UI
 
         void RecalculateSlotPositions(List<TraitListChannelSlot> slots)
         {
-            var itemSize = ResolveLayoutItemSize(_instances);
+            var itemSize = ResolvePlanningItemSize();
+            var layoutRect = TransformGridSharedUtility.ResolveLayoutRect(
+                _listRoot,
+                _layoutReferenceTransform,
+                _layoutRectTransform,
+                _canvas,
+                _activeScope,
+                _environmentKind == TraitListChannelEnvironmentKind.ScreenUI
+                    ? TransformGridEnvironmentKind.ScreenUI
+                    : TransformGridEnvironmentKind.World,
+                _resolvedLayoutPreset.RangeSourceMode,
+                _resolvedLayoutPreset.AreaActorSource,
+                ref _layoutAreaSourceCache,
+                _resolvedLayoutPreset.AreaChannelTag);
             TraitListChannelLayoutUtility.RecalculateTargetPositions(
                 slots,
                 _resolvedLayoutPreset,
-                _layoutRectTransform,
+                layoutRect,
                 itemSize);
         }
 
@@ -636,6 +654,7 @@ namespace Game.UI
             }
 
             var instance = new TraitListChannelVisualInstance(slot.Trait, root, scopeNode, resolver);
+            TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, false);
             AttachDebugProbe(instance.Root, slot);
             return instance;
         }
@@ -648,6 +667,9 @@ namespace Game.UI
             instance.UpdateSlot(slot);
             var payload = BuildPayload(slot);
             var commandVars = ApplyPayloadToBlackboard(instance, payload);
+            TryInvokeLtsInstantiated(instance);
+            await ExecuteSpawnCommandsAsync(slot, instance, commandVars, ct);
+            TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
             var startAnchor = ResolveSpawnAnchorLocalPosition(slot);
             var startLocal = TraitListChannelRuntimeHelpers.ResolvePlacementLocalPosition(
                 instance,
@@ -659,10 +681,8 @@ namespace Game.UI
                 slot.TargetLocalPosition,
                 slot.ItemHorizontalAlignment,
                 slot.ItemVerticalAlignment);
-
             TraitListChannelRuntimeHelpers.SetLocalPosition(instance, startLocal, _environmentKind);
-            TryInvokeLtsInstantiated(instance);
-            await ExecuteSpawnCommandsAsync(slot, instance, commandVars, ct);
+            TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, true);
             await AnimateInstanceAsync(instance, targetLocal, _resolvedLayoutPreset.SpawnMotion, ct);
         }
 
@@ -674,6 +694,7 @@ namespace Game.UI
             instance.UpdateSlot(slot);
             var payload = BuildPayload(slot);
             ApplyPayloadToBlackboard(instance, payload);
+            TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
             var targetLocal = TraitListChannelRuntimeHelpers.ResolvePlacementLocalPosition(
                 instance,
                 slot.TargetLocalPosition,
@@ -705,6 +726,12 @@ namespace Game.UI
                 if (playerTarget != null &&
                     (ReferenceEquals(playerTarget, instance.Root) || ReferenceEquals(playerTarget, instance.RootRect)))
                 {
+                    var motionTarget = TransformGridSharedUtility.ResolveMotionTargetPosition(
+                        instance.RootRect,
+                        targetLocal,
+                        _environmentKind == TraitListChannelEnvironmentKind.ScreenUI
+                            ? TransformGridEnvironmentKind.ScreenUI
+                            : TransformGridEnvironmentKind.World);
                     var step = new TransformAnimationPresetStep
                     {
                         operation = _environmentKind == TraitListChannelEnvironmentKind.ScreenUI && instance.RootRect != null
@@ -718,7 +745,7 @@ namespace Game.UI
 
                     if (motion.WaitForCompletion)
                     {
-                        await player.PlayStepAsync(targetLocal, step);
+                        await player.PlayStepAsync(motionTarget, step);
                         TraitListChannelRuntimeHelpers.SetLocalPosition(instance, targetLocal, _environmentKind);
                         return;
                     }
@@ -727,7 +754,7 @@ namespace Game.UI
                     {
                         try
                         {
-                            await player.PlayStepAsync(targetLocal, step);
+                            await player.PlayStepAsync(motionTarget, step);
                             TraitListChannelRuntimeHelpers.SetLocalPosition(instance, targetLocal, _environmentKind);
                         }
                         catch (OperationCanceledException)
@@ -1045,6 +1072,7 @@ namespace Game.UI
         {
             return TransformGridSharedUtility.ResolveLocalPointFromTransform(
                 _listRoot,
+                _layoutReferenceTransform,
                 _layoutRectTransform,
                 _canvas,
                 anchor,
@@ -1074,6 +1102,15 @@ namespace Game.UI
             return Vector2.zero;
         }
 
+        Vector2 ResolvePlanningItemSize()
+        {
+            var current = ResolveLayoutItemSize(_instances);
+            if (current.x > 0f || current.y > 0f)
+                return current;
+
+            return ResolveTemplateLayoutItemSize();
+        }
+
         bool TryResolveLayoutElementSize(TraitListChannelVisualInstance instance, out Vector2 size)
         {
             if (instance == null)
@@ -1088,6 +1125,36 @@ namespace Game.UI
                 (int)_resolvedVisualizerPreset.SizeSource,
                 _resolvedVisualizerPreset.FixedSize,
                 out size);
+        }
+
+        Vector2 ResolveTemplateLayoutItemSize()
+        {
+            if (_resolvedVisualizerPreset.SizeSource == TraitListChannelVisualizerSizeSource.Fixed)
+                return _resolvedVisualizerPreset.FixedSize;
+
+            var prefab = _resolvedRuntimeTemplate?.Prefab;
+            if (prefab == null)
+                return Vector2.zero;
+
+            return TryGetTemplateRectSize(prefab.transform, out var rectSize) ? rectSize : Vector2.zero;
+        }
+
+        static bool TryGetTemplateRectSize(Transform root, out Vector2 size)
+        {
+            size = Vector2.zero;
+            if (root == null)
+                return false;
+
+            var rect = root.GetComponentInChildren<RectTransform>(true);
+            if (rect == null)
+                return false;
+
+            var rectSize = rect.rect.size;
+            if (rectSize.x <= 0f && rectSize.y <= 0f)
+                return false;
+
+            size = rectSize;
+            return true;
         }
 
         async UniTask ClearSpawnedInstancesAsync(CancellationToken ct)

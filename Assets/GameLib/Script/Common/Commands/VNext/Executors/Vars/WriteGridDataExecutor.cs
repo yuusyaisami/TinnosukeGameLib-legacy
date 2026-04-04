@@ -67,9 +67,10 @@ namespace Game.Commands.VNext
                         return;
                     }
 
-                    CopyAllCells(targetGrid, destinationGrid, typed.ClearDestinationBeforeCopy, typed.OverwriteOnCopy);
+                    CopyAllCells(targetGrid, destinationGrid, typed.ClearDestinationBeforeCopy, typed.OverwriteOnCopy, typed.GridId);
                     break;
             }
+
         }
 
         void ExecuteRowOperation(
@@ -82,7 +83,8 @@ namespace Game.Commands.VNext
             switch (typed.RowOperation)
             {
                 case WriteGridDataRowOperation.Append:
-                    targetGrid.AppendRow(out _);
+                    if (targetGrid.AppendRow(out var appendedRow))
+                        ApplyGridIdToRow(targetGrid, appendedRow, typed.GridId);
                     return;
             }
 
@@ -93,10 +95,12 @@ namespace Game.Commands.VNext
             {
                 case WriteGridDataRowOperation.Ensure:
                     targetGrid.EnsureRow(rowIndex);
+                    ApplyGridIdToRow(targetGrid, rowIndex, typed.GridId);
                     break;
 
                 case WriteGridDataRowOperation.Insert:
                     targetGrid.InsertRow(rowIndex);
+                    ApplyGridIdToRow(targetGrid, rowIndex, typed.GridId);
                     break;
 
                 case WriteGridDataRowOperation.Delete:
@@ -105,6 +109,7 @@ namespace Game.Commands.VNext
 
                 case WriteGridDataRowOperation.Clear:
                     targetGrid.ClearRow(rowIndex);
+                    ApplyGridIdToRow(targetGrid, rowIndex, typed.GridId);
                     break;
 
                 case WriteGridDataRowOperation.CopyToRow:
@@ -123,7 +128,8 @@ namespace Game.Commands.VNext
                         destinationGrid,
                         destinationRowIndex,
                         typed.ClearDestinationRowBeforeCopy,
-                        typed.OverwriteRowCopy);
+                        typed.OverwriteRowCopy,
+                        typed.GridId);
                     break;
             }
         }
@@ -164,10 +170,12 @@ namespace Game.Commands.VNext
             {
                 case WriteGridDataColumnOperation.Ensure:
                     targetGrid.EnsureColumn(rowIndex, columnIndex);
+                    ApplyGridIdToCell(targetGrid, rowIndex, columnIndex, typed.GridId);
                     break;
 
                 case WriteGridDataColumnOperation.Insert:
                     targetGrid.InsertColumn(rowIndex, columnIndex);
+                    ApplyGridIdToCell(targetGrid, rowIndex, columnIndex, typed.GridId);
                     break;
 
                 case WriteGridDataColumnOperation.Delete:
@@ -176,6 +184,7 @@ namespace Game.Commands.VNext
 
                 case WriteGridDataColumnOperation.Clear:
                     targetGrid.ClearColumn(rowIndex, columnIndex);
+                    ApplyGridIdToCell(targetGrid, rowIndex, columnIndex, typed.GridId);
                     break;
 
                 case WriteGridDataColumnOperation.CopyToColumn:
@@ -199,7 +208,8 @@ namespace Game.Commands.VNext
                         destinationRowIndex,
                         destinationColumnIndex,
                         typed.ClearDestinationColumnBeforeCopy,
-                        typed.OverwriteColumnCopy);
+                        typed.OverwriteColumnCopy,
+                        typed.GridId);
                     break;
 
                 case WriteGridDataColumnOperation.SetElement:
@@ -221,6 +231,7 @@ namespace Game.Commands.VNext
                             return;
 
                         targetGrid.TryUnsetVariant(varId, rowIndex, columnIndex);
+                        ApplyGridIdToCell(targetGrid, rowIndex, columnIndex, typed.GridId);
                         break;
                     }
 
@@ -268,7 +279,8 @@ namespace Game.Commands.VNext
             IGridBlackboardService source,
             IGridBlackboardService destination,
             bool clearDestinationBeforeCopy,
-            bool overwrite)
+            bool overwrite,
+            int gridIdVarId)
         {
             _snapshotBuffer.Clear();
             source.TryCollectAllCells(_snapshotBuffer);
@@ -279,6 +291,12 @@ namespace Game.Commands.VNext
             for (int i = 0; i < _snapshotBuffer.Count; i++)
             {
                 var cell = _snapshotBuffer[i];
+                if (gridIdVarId != 0)
+                {
+                    var gridIdValue = DynamicVariant.FromBool(true);
+                    GridBlackboardWriteUtility.TryWriteGridId(destination, cell.Row, cell.Column, gridIdVarId, in gridIdValue);
+                }
+
                 if (!overwrite && destination.TryGetVariant(cell.VarId, cell.Row, cell.Column, out _))
                     continue;
 
@@ -292,7 +310,8 @@ namespace Game.Commands.VNext
             IGridBlackboardService destination,
             int destinationRow,
             bool clearDestinationBeforeCopy,
-            bool overwrite)
+            bool overwrite,
+            int gridIdVarId)
         {
             _snapshotBuffer.Clear();
             source.TryCollectRow(sourceRow, _snapshotBuffer);
@@ -304,6 +323,12 @@ namespace Game.Commands.VNext
             for (int i = 0; i < _snapshotBuffer.Count; i++)
             {
                 var cell = _snapshotBuffer[i];
+                if (gridIdVarId != 0)
+                {
+                    var gridIdValue = DynamicVariant.FromBool(true);
+                    GridBlackboardWriteUtility.TryWriteGridId(destination, destinationRow, cell.Column, gridIdVarId, in gridIdValue);
+                }
+
                 if (!overwrite && destination.TryGetVariant(cell.VarId, destinationRow, cell.Column, out _))
                     continue;
 
@@ -319,7 +344,8 @@ namespace Game.Commands.VNext
             int destinationRow,
             int destinationColumn,
             bool clearDestinationBeforeCopy,
-            bool overwrite)
+            bool overwrite,
+            int gridIdVarId)
         {
             _snapshotBuffer.Clear();
             source.TryCollectCell(sourceRow, sourceColumn, _snapshotBuffer);
@@ -331,6 +357,12 @@ namespace Game.Commands.VNext
             for (int i = 0; i < _snapshotBuffer.Count; i++)
             {
                 var cell = _snapshotBuffer[i];
+                if (gridIdVarId != 0)
+                {
+                    var gridIdValue = DynamicVariant.FromBool(true);
+                    GridBlackboardWriteUtility.TryWriteGridId(destination, destinationRow, destinationColumn, gridIdVarId, in gridIdValue);
+                }
+
                 if (!overwrite && destination.TryGetVariant(cell.VarId, destinationRow, destinationColumn, out _))
                     continue;
 
@@ -399,6 +431,24 @@ namespace Game.Commands.VNext
         {
             index = source.GetOrDefault(dynCtx, 0);
             return index >= 0;
+        }
+
+        static void ApplyGridIdToRow(IGridBlackboardService grid, int row, int gridIdVarId)
+        {
+            if (gridIdVarId == 0 || !grid.TryGetColumnCount(row, out var columnCount))
+                return;
+
+            for (var column = 0; column < columnCount; column++)
+                ApplyGridIdToCell(grid, row, column, gridIdVarId);
+        }
+
+        static void ApplyGridIdToCell(IGridBlackboardService grid, int row, int column, int gridIdVarId)
+        {
+            if (gridIdVarId == 0)
+                return;
+
+            var gridIdValue = DynamicVariant.FromBool(true);
+            GridBlackboardWriteUtility.TryWriteGridId(grid, row, column, gridIdVarId, in gridIdValue);
         }
 
         static int ResolveVarId(in VarKeyRef key)

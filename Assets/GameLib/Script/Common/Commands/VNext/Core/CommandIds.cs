@@ -138,6 +138,7 @@ namespace Game.Commands.VNext
         public const int BindGridObjectChannel = 1990;
         public const int RefreshGridObjectChannel = 1991;
         public const int ClearGridObjectChannel = 1992;
+        public const int AreaChannelControl = 1993;
 
         public const int WithActor = 2001;
         public const int WithActorDescendantRouter = 2002;
@@ -148,6 +149,7 @@ namespace Game.Commands.VNext
         public const int CommandListChannelHubControl = 2007;
         public const int CommandListChannelPlayerControl = 2008;
         public const int CommandListChannel = 2009;
+        public const int WithTargetChannel = 2010;
         public const int HostCall = 3001;
 
         public const int EquipTrait = 2200;

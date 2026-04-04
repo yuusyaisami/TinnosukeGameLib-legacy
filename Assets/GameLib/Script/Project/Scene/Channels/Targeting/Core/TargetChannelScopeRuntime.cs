@@ -2,8 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using Game.Channel;
 using Game.Common;
-using Game.Entity;
+using Game.Collision;
 using Game.Search;
 using Unity.Mathematics;
 using UnityEngine;
@@ -15,22 +16,39 @@ namespace Game.Targeting
     public sealed class TargetChannelRuntime : ITargetChannelRuntime
     {
         readonly IDynamicSearchService? _search;
+        readonly IUnityCollisionManager? _collisionManager;
+        readonly IHitColliderScopeRegistry? _hitScopeRegistry;
         readonly TargetChannelOwner _owner;
         readonly List<DynamicSearchHit> _hits;
         readonly List<DynamicSearchHit> _directHits;
+        readonly HashSet<IScopeNode> _collisionScopeSet = new();
+
+        Collider2D[] _collisionBuffer;
 
         TargetChannelPreset _basePreset;
         TargetChannelPreset _currentPreset;
         int _lastUpdatedFrame = int.MinValue;
 
-        public TargetChannelRuntime(IDynamicSearchService? search, in TargetChannelOwner owner, TargetChannelPreset preset)
+        const int MinCollisionBufferSize = 32;
+        const int MaxCollisionBufferSize = 2048;
+
+        public TargetChannelRuntime(
+            IDynamicSearchService? search,
+            in TargetChannelOwner owner,
+            TargetChannelPreset preset,
+            IUnityCollisionManager? collisionManager = null,
+            IHitColliderScopeRegistry? hitScopeRegistry = null)
         {
             _search = search;
+            _collisionManager = collisionManager;
+            _hitScopeRegistry = hitScopeRegistry;
             _owner = owner;
             _basePreset = preset?.CreateRuntimeCopy() ?? throw new ArgumentNullException(nameof(preset));
             _currentPreset = _basePreset.CreateRuntimeCopy();
             _hits = new List<DynamicSearchHit>(Mathf.Max(0, _currentPreset.ExpectedResultCount));
             _directHits = new List<DynamicSearchHit>(Mathf.Max(0, _currentPreset.ExpectedResultCount));
+            _collisionBuffer = new Collider2D[MinCollisionBufferSize];
+            EnsureCollisionBufferCapacity(Mathf.Max(0, _currentPreset.ExpectedResultCount));
         }
 
         public string Tag => _currentPreset.Tag;
@@ -165,6 +183,9 @@ namespace Game.Targeting
                 case TargetChannelSearchType.ScopeSearch:
                     CollectScopeHits();
                     break;
+                case TargetChannelSearchType.CollisionSearch:
+                    CollectCollisionHits();
+                    break;
                 case TargetChannelSearchType.None:
                     CollectDirectHits();
                     break;
@@ -252,6 +273,217 @@ namespace Game.Targeting
             AddScopeHit(scope, ResolveOwnerOrigin(), _currentPreset.ScopeRequireActive);
         }
 
+        void CollectCollisionHits()
+        {
+            if (_collisionManager == null || _hitScopeRegistry == null)
+                return;
+
+            if (!TryResolveCollisionRect(out var center, out var size))
+                return;
+
+            size.x = math.max(0.01f, size.x);
+            size.y = math.max(0.01f, size.y);
+
+            var overlapFilter = default(ContactFilter2D);
+            overlapFilter.useTriggers = true;
+
+            var overlapCount = Physics2D.OverlapBox(
+                new Vector2(center.x, center.y),
+                new Vector2(size.x, size.y),
+                0f,
+                overlapFilter,
+                _collisionBuffer);
+            if (overlapCount <= 0)
+                return;
+
+            if (overlapCount >= _collisionBuffer.Length && _collisionBuffer.Length < MaxCollisionBufferSize)
+            {
+                EnsureCollisionBufferCapacity(_collisionBuffer.Length * 2);
+                overlapCount = Physics2D.OverlapBox(
+                    new Vector2(center.x, center.y),
+                    new Vector2(size.x, size.y),
+                    0f,
+                    overlapFilter,
+                    _collisionBuffer);
+                if (overlapCount <= 0)
+                    return;
+            }
+
+            var ownerOrigin = ResolveOwnerOrigin();
+            _collisionScopeSet.Clear();
+
+            for (var i = 0; i < overlapCount; i++)
+            {
+                var collider = _collisionBuffer[i];
+                if (collider == null)
+                    continue;
+
+                if (!_collisionManager.TryGetDynamicHandle(collider, out var handle) || !handle.IsValid)
+                    continue;
+
+                if (!_collisionManager.TryGetDynamicMetadata(handle, out var metadata))
+                    continue;
+
+                if (!PassCollisionSetFilters(metadata.SetId))
+                    continue;
+
+                var pseudoHit = new CollisionHit
+                {
+                    Kind = CollisionKind.DynamicDynamic,
+                    Self = handle,
+                    OtherDynamic = handle,
+                    OtherStatic = StaticColliderHandle.Invalid,
+                    OtherSetId = metadata.SetId,
+                    OtherStaticKind = default,
+                };
+
+                if (!_currentPreset.CollisionHitFilter.Matches(in pseudoHit))
+                    continue;
+
+                if (!_hitScopeRegistry.TryResolve(handle, out var scope) || scope == null)
+                    continue;
+
+                if (!_collisionScopeSet.Add(scope))
+                    continue;
+
+                var identity = scope.Identity;
+                if (identity == null)
+                    continue;
+
+                if (!TryResolveScopePosition(scope, identity, out var pos))
+                    continue;
+
+                var delta = pos - ownerOrigin;
+                var distSq = math.dot(delta, delta);
+                _hits.Add(new DynamicSearchHit(scope, identity, distSq, pos));
+            }
+
+            for (var i = 0; i < overlapCount; i++)
+                _collisionBuffer[i] = null!;
+        }
+
+        bool TryResolveCollisionRect(out float2 center, out float2 size)
+        {
+            center = default;
+            size = default;
+
+            return _currentPreset.CollisionRangeSource switch
+            {
+                TargetChannelCollisionRangeSource.AreaChannelRect => TryResolveAreaCollisionRect(out center, out size),
+                TargetChannelCollisionRangeSource.DynamicRect => TryResolveDynamicCollisionRect(out center, out size),
+                _ => false,
+            };
+        }
+
+        bool TryResolveAreaCollisionRect(out float2 center, out float2 size)
+        {
+            center = default;
+            size = default;
+
+            var ownerScope = _owner.OwnerScope;
+            if (ownerScope == null)
+                return false;
+
+            var areaScope = VNext.ActorSourceFastResolver.Resolve(ownerScope, _currentPreset.CollisionAreaActorSource);
+            if (areaScope == null)
+                return false;
+
+            if (!TryResolveAreaHub(areaScope, out var areaHub) || areaHub == null)
+                return false;
+
+            var areaTag = string.IsNullOrWhiteSpace(_currentPreset.CollisionAreaTag)
+                ? "default"
+                : _currentPreset.CollisionAreaTag.Trim();
+            if (!areaHub.TryGetRectSnapshot(areaTag, out var snapshot))
+                return false;
+
+            center = snapshot.Plane == AreaPlane.XZ
+                ? new float2(snapshot.Center.x, snapshot.Center.z)
+                : new float2(snapshot.Center.x, snapshot.Center.y);
+            size = new float2(snapshot.Size.x, snapshot.Size.y);
+            return true;
+        }
+
+        bool TryResolveDynamicCollisionRect(out float2 center, out float2 size)
+        {
+            center = default;
+            size = default;
+
+            var ownerScope = _owner.OwnerScope;
+            if (ownerScope == null)
+                return false;
+
+            var context = new SimpleDynamicContext(ResolveVars(ownerScope), ownerScope);
+            if (!_currentPreset.CollisionRectCenter.TryGet(context, out var center3))
+                return false;
+
+            if (!_currentPreset.CollisionRectSize.TryGet(context, out var size2))
+                return false;
+
+            center = new float2(center3.x, center3.y);
+            size = new float2(size2.x, size2.y);
+            return true;
+        }
+
+        bool PassCollisionSetFilters(DynamicColliderSetId setId)
+        {
+            var hasInclude = _currentPreset.CollisionUseIncludeDynamicSets &&
+                             _currentPreset.CollisionIncludeDynamicSets != null &&
+                             _currentPreset.CollisionIncludeDynamicSets.Length > 0;
+            if (hasInclude)
+            {
+                var includeMatched = ContainsSet(_currentPreset.CollisionIncludeDynamicSets, setId);
+                if (_currentPreset.CollisionMatchAnyInclude)
+                {
+                    if (!includeMatched)
+                        return false;
+                }
+                else
+                {
+                    if (!includeMatched)
+                        return false;
+                }
+            }
+
+            var hasExclude = _currentPreset.CollisionUseExcludeDynamicSets &&
+                             _currentPreset.CollisionExcludeDynamicSets != null &&
+                             _currentPreset.CollisionExcludeDynamicSets.Length > 0;
+            if (hasExclude && ContainsSet(_currentPreset.CollisionExcludeDynamicSets, setId))
+                return false;
+
+            return true;
+        }
+
+        static bool ContainsSet(DynamicColliderSetRef[]? sets, DynamicColliderSetId setId)
+        {
+            if (sets == null)
+                return false;
+
+            for (var i = 0; i < sets.Length; i++)
+            {
+                if (sets[i].Id == setId)
+                    return true;
+            }
+
+            return false;
+        }
+
+        bool TryResolveAreaHub(IScopeNode startScope, out IAreaChannelHubService? areaHub)
+        {
+            for (var current = startScope; current != null; current = current.Parent)
+            {
+                var resolver = current.Resolver;
+                if (resolver != null && resolver.TryResolve<IAreaChannelHubService>(out var hub) && hub != null)
+                {
+                    areaHub = hub;
+                    return true;
+                }
+            }
+
+            areaHub = null;
+            return false;
+        }
+
         void CollectDirectHits()
         {
             if (_directHits.Count == 0)
@@ -313,6 +545,20 @@ namespace Game.Targeting
                 _hits.Capacity = capacity;
             if (_directHits.Capacity < capacity)
                 _directHits.Capacity = capacity;
+
+            EnsureCollisionBufferCapacity(capacity);
+        }
+
+        void EnsureCollisionBufferCapacity(int expectedResultCount)
+        {
+            var targetSize = Mathf.Clamp(
+                Mathf.Max(MinCollisionBufferSize, Mathf.Max(1, expectedResultCount) * 2),
+                MinCollisionBufferSize,
+                MaxCollisionBufferSize);
+            if (_collisionBuffer.Length >= targetSize)
+                return;
+
+            _collisionBuffer = new Collider2D[targetSize];
         }
 
         float2 ResolveOrigin()
@@ -401,6 +647,18 @@ namespace Game.Targeting
 
             registry = null;
             return false;
+        }
+
+        static IVarStore ResolveVars(IScopeNode scope)
+        {
+            if (scope.Resolver != null &&
+                scope.Resolver.TryResolve<IVarStore>(out var vars) &&
+                vars != null)
+            {
+                return vars;
+            }
+
+            return NullVarStore.Instance;
         }
 
         static bool TryResolveScopePosition(IScopeNode scope, ILTSIdentityService identity, out float2 pos)

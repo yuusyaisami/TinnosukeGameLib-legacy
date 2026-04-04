@@ -63,9 +63,9 @@ namespace Game.UI
 
         [BoxGroup("Scene")]
         [LabelText("Layout Rect")]
-        [Tooltip("Screen 空間配置でレイアウト領域計算に使う RectTransform。未設定時は List Root が RectTransform ならそれを使います。")]
+        [Tooltip("レイアウト計算の基準 Transform。RectTransform を指定した場合は RectTransform mode の領域として使い、world では AreaChannel の local 変換基準として使います。")]
         [SerializeField]
-        RectTransform? _layoutRectTransform;
+        Transform? _layoutRectTransform;
 
         public string ChannelTag => string.IsNullOrWhiteSpace(_channelTag) ? "default" : _channelTag.Trim();
         public bool AutoBuild => _autoBuild;
@@ -74,7 +74,7 @@ namespace Game.UI
         public DynamicValue<TraitListChannelLayoutPreset> LayoutPresetValue => _layoutPreset;
         public DynamicValue<TraitListChannelVisualizerPreset> VisualizerPresetValue => _visualizerPreset;
         public Transform? ListRoot => _listRoot;
-        public RectTransform? LayoutRectTransform => _layoutRectTransform;
+        public Transform? LayoutRectTransform => _layoutRectTransform;
     }
 
     [DisallowMultipleComponent]

@@ -5,6 +5,7 @@ using DG.Tweening;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.DI;
+using Game.UI;
 using Game.Vars.Generated;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -259,6 +260,26 @@ namespace Game.Channel
     [Serializable]
     public sealed class GridObjectChannelLayoutPreset : IDynamicManagedRefValue
     {
+        [BoxGroup("Range")]
+        [LabelText("Range Source Mode")]
+        [Tooltip("配置領域を Scene の RectTransform から取るか、AreaChannel から取るかを選びます。")]
+        [SerializeField]
+        TransformGridLayoutRangeSourceMode _rangeSourceMode = TransformGridLayoutRangeSourceMode.RectTransform;
+
+        [BoxGroup("Range")]
+        [ShowIf(nameof(UsesAreaChannel))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Area Source\", _areaActorSource)")]
+        [Tooltip("AreaChannel を解決する対象 scope です。")]
+        [SerializeField]
+        ActorSource _areaActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [BoxGroup("Range")]
+        [ShowIf(nameof(UsesAreaChannel))]
+        [LabelText("Area Channel Tag")]
+        [Tooltip("Range Source Mode が AreaChannel のときに使う channel tag です。")]
+        [SerializeField]
+        string _areaChannelTag = "default";
+
         [BoxGroup("Layout")]
         [LabelText("Rows")]
         [Tooltip("レイアウトの行数です。GridBlackboard count source などを動的に参照できます。")]
@@ -366,9 +387,13 @@ namespace Game.Channel
         [SerializeField]
         GridObjectChannelMotionPreset _relayoutMotion = new();
 
+        bool UsesAreaChannel() => _rangeSourceMode == TransformGridLayoutRangeSourceMode.AreaChannel;
         bool UsesFixedAnchor() => _spawnAnchorMode == GridObjectChannelSpawnAnchorMode.FixedAnchor;
         bool ShowsFixedAnchorActorSource() => UsesFixedAnchor() && _useFixedAnchorActorSource;
 
+        public TransformGridLayoutRangeSourceMode RangeSourceMode => _rangeSourceMode;
+        public ActorSource AreaActorSource => _areaActorSource;
+        public string AreaChannelTag => string.IsNullOrWhiteSpace(_areaChannelTag) ? "default" : _areaChannelTag.Trim();
         public DynamicValue<int> Rows => _rows;
         public DynamicValue<int> Columns => _columns;
         public GridObjectChannelOrder Order => _order;
@@ -391,6 +416,9 @@ namespace Game.Channel
         {
             return new GridObjectChannelLayoutPreset
             {
+                _rangeSourceMode = _rangeSourceMode,
+                _areaActorSource = _areaActorSource,
+                _areaChannelTag = _areaChannelTag,
                 _rows = _rows,
                 _columns = _columns,
                 _order = _order,

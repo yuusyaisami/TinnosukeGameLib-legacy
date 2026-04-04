@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
-  m_Name: TeleportNailTraitDefinition
+  m_Name: AhiruTraitDefinition
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
-  _definitionId: TraitDefinition
+  _definitionId: AhiruTraitDefinition
   _name:
-    Template: "\u795E\u5A01"
+    Template: "\u30C8\u30D3\u30BF\u30A4\u30A2\u30D2\u30EB"
     Variables: []
   _description:
-    Template: "\u5668\u3092\u4ED6\u306EKugi\u306B\u30C6\u30EC\u30DD\u30FC\u30C8\u3055\u305B\u308B\u3002 "
+    Template: "\u30D2\u30C3\u30C8\u6642\u3001\u5668\u3092\u4E0A\u65B9\u5411\u306B\u98DB\u3070\u3057\u307E\u3059\u3002"
     Variables: []
-  _weight: 1
+  _weight: 2
   _visualSettings:
     DefaultAnim:
       animationA:
@@ -48,7 +48,7 @@ MonoBehaviour:
             _functionName: 
             _commands: []
           frames:
-          - sprite: {fileID: -9090746076636340146, guid: f9ed9123242189f4c86bf0fc551304ce, type: 3}
+          - sprite: {fileID: 9111012335341097211, guid: c55eaf7cf6475a34484c55d7395c7519, type: 3}
             duration: 0.1
             commands:
               _debugOwner: {fileID: 0}
@@ -309,6 +309,13 @@ MonoBehaviour:
     loop: 0
     loopCount: -1
     steps: []
+  _runOnAddedCommands: 0
+  _onAddedCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
   _runOnHoldCommands: 0
   _onHoldCommands:
     _debugOwner: {fileID: 0}
@@ -336,14 +343,30 @@ MonoBehaviour:
     _debugAssetPath: 
     _functionName: 
     _commands: []
+  _runOnRuntimeSpawnCommands: 0
+  _onRuntimeSpawnCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  _runOnRuntimeVisibleCommands: 0
+  _onRuntimeVisibleCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  _runOnRuntimeHiddenCommands: 0
+  _onRuntimeHiddenCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
   _applyCommonVars: 1
   _commonVars:
     entries:
-    - VarId: 228
-      Kind: 11
-      Value:
-        _source:
-          rid: 5619052465085481187
     - VarId: 100121
       Kind: 3
       Value:
@@ -353,12 +376,12 @@ MonoBehaviour:
       Kind: 255
       Value:
         _source:
-          rid: 5619052564776747353
+          rid: 5619052564776747352
     - VarId: 101105
       Kind: 2
       Value:
         _source:
-          rid: 5619052637487628706
+          rid: 5619052617993552547
   _applyCommonGridTable: 1
   _commonGridTableKeyVarId: 100123
   _commonGridTable:
@@ -412,40 +435,7 @@ MonoBehaviour:
     - rid: 5619052465085481186
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 10
-    - rid: 5619052465085481187
-      type: {class: LiteralCommandListDataSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052465085481188
-    - rid: 5619052465085481188
-      type: {class: CommandListData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        _debugOwner: {fileID: 0}
-        _debugFieldPath: 
-        _debugAssetPath: 
-        _functionName: 
-        _commands:
-        - rid: 5619052465085481189
-    - rid: 5619052465085481189
-      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        function:
-          _source:
-            rid: 5619052465085481190
-          _defaultValue:
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-        initialVars: []
-    - rid: 5619052465085481190
-      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: {fileID: 11400000, guid: f456249af8bbb214caa54d01c3c3c6f9, type: 2}
+        value: 15
     - rid: 5619052465085481193
       type: {class: AssetStatusEffectDefinitionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -458,11 +448,11 @@ MonoBehaviour:
       type: {class: AssetStatusEffectStackPresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {fileID: 11400000, guid: a1f3736810c6dd24689632c6801928c2, type: 2}
-    - rid: 5619052564776747353
+    - rid: 5619052564776747352
       type: {class: AssetStatusEffectDefinitionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: {fileID: 11400000, guid: fea26f1f4da76ad4f814ab7161eba126, type: 2}
-    - rid: 5619052637487628706
+        value: {fileID: 11400000, guid: 3f01dfaf00134d44385f905d9d5145c9, type: 2}
+    - rid: 5619052617993552547
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 3
+        value: 2

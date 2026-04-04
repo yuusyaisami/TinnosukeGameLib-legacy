@@ -1,0 +1,42 @@
+OVDF v1.1
+Game.Commands.VNext.TransformControllerRigidbody2DCommandData, Assembly-CSharp
+
+# ApplySimulated
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ApplyGravityScale
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ApplyFreezeRotation
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ApplyLinearVelocity
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ApplyAngularVelocity
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ApplyMovementEnabled
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ApplyRotationEnabled
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ForceStopMovementNow
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ApplyTransformControllerMovementBlock
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135
+
+# ApplyForceZeroWhenBlocked
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 135

@@ -1,21 +1,28 @@
 #nullable enable
-using Game;
-using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using System.Threading;
+using Cysharp.Threading.Tasks;
+using Game;
 using UnityEngine;
 
 namespace Game.Collision
 {
     /// <summary>
     /// UnityColliderObjectMB の実行時ロジック。
-    /// - IUnityCollisionManager へ登録/解除
+    /// - IUnityCollisionManager へ複数 Collider2D を登録/解除
     /// - IHitColliderScopeRegistry へ handle->scope を登録
-    /// - (同スコープにあれば) HitColliderChannelRuntime へ self を bind
     /// </summary>
     public sealed class UnityColliderObjectService :
         IScopeAcquireHandler,
         IScopeReleaseHandler
     {
+        sealed class RegisteredCollider
+        {
+            public Collider2D Collider = null!;
+            public DynamicColliderHandle Handle;
+            public string Tag = UnityColliderObjectMB.DefaultColliderTag;
+        }
+
         readonly UnityColliderObjectMB _mb;
         readonly IScopeNode _ownerScope;
         IUnityCollisionManager? _manager;
@@ -27,13 +34,19 @@ namespace Game.Collision
         CancellationTokenSource? _monitorCts;
         int _lastObservedManagerFrameIndex = -1;
 #endif
-        int _retryCount;
 
-        DynamicColliderHandle _handle;
+        readonly List<RegisteredCollider> _registered = new(8);
+        readonly List<Collider2D> _configuredColliders = new(8);
+        readonly List<string> _configuredTags = new(8);
+        readonly List<DynamicColliderHandle> _registeredHandlesScratch = new(8);
+
+        int _retryCount;
+        DynamicColliderHandle _primaryHandle;
+
         const int RegisterRetryFrames = 60;
 
-        public bool IsEnabled => _handle.IsValid;
-        public DynamicColliderHandle DynamicHandle => _handle;
+        public bool IsEnabled => _registered.Count > 0;
+        public DynamicColliderHandle DynamicHandle => _primaryHandle;
 
         public UnityColliderObjectService(
             UnityColliderObjectMB mb,
@@ -51,7 +64,7 @@ namespace Game.Collision
                     resolverAvailable: true,
                     managerResolved: true,
                     scopeRegistryResolved: true,
-                    isRegistered: _handle.IsValid,
+                    isRegistered: _registered.Count > 0,
                     retryCount: _retryCount,
                     state: "DependenciesReady",
                     failureReason: string.Empty);
@@ -65,7 +78,7 @@ namespace Game.Collision
                     resolverAvailable: false,
                     managerResolved: _manager != null,
                     scopeRegistryResolved: _hitScopeRegistry != null,
-                    isRegistered: _handle.IsValid,
+                    isRegistered: _registered.Count > 0,
                     retryCount: _retryCount,
                     state: "MissingResolver",
                     failureReason: "scope.Resolver is null");
@@ -107,7 +120,7 @@ namespace Game.Collision
                 resolverAvailable: true,
                 managerResolved: _manager != null,
                 scopeRegistryResolved: _hitScopeRegistry != null,
-                isRegistered: _handle.IsValid,
+                isRegistered: _registered.Count > 0,
                 retryCount: _retryCount,
                 state: ready ? "DependenciesReady" : "DependenciesMissing",
                 failureReason: ready ? string.Empty : "manager/registry unresolved");
@@ -117,7 +130,7 @@ namespace Game.Collision
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
             _retryCount = 0;
-            TryRegisterSelfColliderNow();
+            TryRegisterConfiguredCollidersNow();
 
 #if UNITY_EDITOR
             _lastObservedManagerFrameIndex = -1;
@@ -127,7 +140,7 @@ namespace Game.Collision
             MonitorManagerStateAsync(_monitorCts.Token).Forget();
 #endif
 
-            if (_handle.IsValid)
+            if (_registered.Count > 0)
                 return;
 
             _retryCts?.Cancel();
@@ -148,22 +161,8 @@ namespace Game.Collision
 #endif
             _retryCount = 0;
 
-            if (_manager == null || _hitScopeRegistry == null)
-                return;
-
-            if (_handle.IsValid)
-            {
-                _hitScopeRegistry.Unregister(_handle, _ownerScope);
-                _manager.UnregisterDynamic(_handle);
-                _handle = DynamicColliderHandle.Invalid;
-                _mb.SetRegisteredHandle(_handle);
-                if (_mb.Collider != null)
-                {
-                    _mb.Collider.enabled = false;
-                    _mb.RecordColliderEnabledChange(false, "UnityColliderObjectService.OnRelease");
-                }
-                _mb.RecordRegistrationEvent("OnRelease.UnregisterDynamic");
-            }
+            DisableAllConfiguredColliders("UnityColliderObjectService.OnRelease");
+            UnregisterAll("OnRelease.UnregisterDynamic");
 
             _mb.SetDebugState(
                 resolverAvailable: _ownerScope?.Resolver != null,
@@ -182,14 +181,14 @@ namespace Game.Collision
 
         async UniTaskVoid RetryRegisterAsync(CancellationToken ct)
         {
-            for (int i = 0; i < RegisterRetryFrames; i++)
+            for (var i = 0; i < RegisterRetryFrames; i++)
             {
                 if (ct.IsCancellationRequested)
                     return;
 
                 _retryCount = i + 1;
-                TryRegisterSelfColliderNow();
-                if (_handle.IsValid)
+                TryRegisterConfiguredCollidersNow();
+                if (_registered.Count > 0)
                     return;
 
                 await UniTask.Yield(PlayerLoopTiming.Update);
@@ -205,7 +204,7 @@ namespace Game.Collision
                     retryCount: _retryCount,
                     state: "RegisterFailed",
                     failureReason: $"retry timeout ({RegisterRetryFrames} frames)");
-                Debug.LogWarning($"[UnityColliderObjectService] Failed to register dynamic collider after {RegisterRetryFrames} frames. object='{_mb.gameObject.name}'");
+                Debug.LogWarning($"[UnityColliderObjectService] Failed to register dynamic colliders after {RegisterRetryFrames} frames. object='{_mb.gameObject.name}'");
             }
         }
 
@@ -214,8 +213,7 @@ namespace Game.Collision
 
         async UniTaskVoid MonitorManagerStateAsync(CancellationToken ct)
         {
-            // Phase offset: distribute monitors across frames to avoid synchronized burst
-            int phaseOffset = Mathf.Abs(_mb.GetInstanceID()) % MonitorThrottleFrames;
+            var phaseOffset = Mathf.Abs(_mb.GetInstanceID()) % MonitorThrottleFrames;
             if (phaseOffset > 0)
                 await UniTask.DelayFrame(phaseOffset, PlayerLoopTiming.Update, ct);
 
@@ -251,36 +249,20 @@ namespace Game.Collision
                         enemyBullet: 0);
                 }
 
-                // Sleep for throttle interval instead of yielding every frame
                 await UniTask.DelayFrame(MonitorThrottleFrames, PlayerLoopTiming.Update, ct);
             }
         }
 #endif
 
-        void TryRegisterSelfColliderNow()
+        void TryRegisterConfiguredCollidersNow()
         {
             if (!TryEnsureDependencies())
                 return;
 
-            // Preserve the collider's intended enabled state
-            var col = _mb.Collider;
-            var shouldBeEnabled = _mb.GetDesiredEnabledState();
-            if (col != null)
-            {
-                col.enabled = shouldBeEnabled;
-                _mb.RecordColliderEnabledChange(shouldBeEnabled, "UnityColliderObjectService.TryRegisterSelfColliderNow.Prepare");
-            }
+            UnregisterAll("TryRegisterConfiguredCollidersNow.UnregisterPreviousHandles");
 
-            if (_handle.IsValid)
-            {
-                _hitScopeRegistry!.Unregister(_handle, _ownerScope);
-                _manager!.UnregisterDynamic(_handle);
-                _handle = DynamicColliderHandle.Invalid;
-                _mb.RecordRegistrationEvent("TryRegisterSelfColliderNow.UnregisterPreviousHandle");
-            }
-
-            col = _mb.Collider;
-            if (col == null)
+            _mb.FillConfiguredColliders(_configuredColliders, _configuredTags);
+            if (_configuredColliders.Count == 0)
             {
                 _mb.SetDebugState(
                     resolverAvailable: _ownerScope?.Resolver != null,
@@ -289,11 +271,31 @@ namespace Game.Collision
                     isRegistered: false,
                     retryCount: _retryCount,
                     state: "RegisterSkipped",
-                    failureReason: "Collider is null");
+                    failureReason: "No configured colliders");
                 return;
             }
 
-            if (!col.enabled)
+            var anyRegistered = false;
+            for (var i = 0; i < _configuredColliders.Count; i++)
+            {
+                var collider = _configuredColliders[i];
+                if (collider == null)
+                    continue;
+
+                var shouldBeEnabled = _mb.GetDesiredEnabledState(collider);
+                collider.enabled = shouldBeEnabled;
+                _mb.RecordColliderEnabledChange(shouldBeEnabled, "UnityColliderObjectService.TryRegisterConfiguredCollidersNow.Prepare");
+                if (!shouldBeEnabled)
+                    continue;
+
+                var tag = NormalizeTag(_configuredTags[i]);
+                if (TryRegisterColliderInternal(collider, tag, out _))
+                    anyRegistered = true;
+            }
+
+            SyncRegisteredHandleDebug();
+
+            if (!anyRegistered)
             {
                 _mb.SetDebugState(
                     resolverAvailable: _ownerScope?.Resolver != null,
@@ -302,36 +304,12 @@ namespace Game.Collision
                     isRegistered: false,
                     retryCount: _retryCount,
                     state: "RegisterSkipped",
-                    failureReason: "Collider is disabled before RegisterDynamic");
-                _mb.RecordRegistrationEvent("TryRegisterSelfColliderNow.ColliderDisabled");
+                    failureReason: "All configured colliders are disabled or registration failed");
+                _mb.RecordRegistrationEvent("TryRegisterConfiguredCollidersNow.NoEnabledCollider");
                 return;
             }
 
-            var h = _manager!.RegisterDynamic(new UnityDynamicColliderDesc(
-                collider: col,
-                layerId: _mb.LayerId,
-                hitMask: _mb.HitMask,
-                setId: _mb.SetId,
-                userData: _mb.UserData));
-
-            if (!h.IsValid)
-            {
-                _mb.SetDebugState(
-                    resolverAvailable: _ownerScope?.Resolver != null,
-                    managerResolved: _manager != null,
-                    scopeRegistryResolved: _hitScopeRegistry != null,
-                    isRegistered: false,
-                    retryCount: _retryCount,
-                    state: "RegisterFailed",
-                    failureReason: "IUnityCollisionManager.RegisterDynamic returned invalid handle");
-                _mb.RecordRegistrationEvent("TryRegisterSelfColliderNow.RegisterDynamicInvalid");
-                return;
-            }
-
-            _handle = h;
-            _mb.SetRegisteredHandle(_handle);
-            _hitScopeRegistry!.Register(_handle, _ownerScope);
-            _mb.RecordRegistrationEvent($"TryRegisterSelfColliderNow.Registered handle={_handle.Id}:{_handle.Generation}");
+            _mb.RecordRegistrationEvent($"TryRegisterConfiguredCollidersNow.Registered count={_registered.Count}");
             _mb.SetDebugState(
                 resolverAvailable: _ownerScope?.Resolver != null,
                 managerResolved: _manager != null,
@@ -342,66 +320,122 @@ namespace Game.Collision
                 failureReason: string.Empty);
         }
 
+        public int FillRegisteredHandles(List<DynamicColliderHandle> destination)
+        {
+            if (destination == null)
+                return 0;
+
+            destination.Clear();
+            for (var i = 0; i < _registered.Count; i++)
+            {
+                var handle = _registered[i].Handle;
+                if (handle.IsValid)
+                    destination.Add(handle);
+            }
+
+            return destination.Count;
+        }
+
+        public void NotifyColliderReplaced(Collider2D previous, Collider2D current, string colliderTag)
+        {
+            if (!TryEnsureDependencies())
+                return;
+
+            if (previous != null && !ReferenceEquals(previous, current))
+                UnregisterCollider(previous, "NotifyColliderReplaced.UnregisterPrevious", updateDebug: false);
+
+            if (current != null)
+            {
+                if (current.enabled)
+                    EnsureColliderRegistered(current, NormalizeTag(colliderTag), "NotifyColliderReplaced.RegisterCurrent", updateDebug: false);
+                else
+                    UnregisterCollider(current, "NotifyColliderReplaced.CurrentDisabled", updateDebug: false);
+            }
+
+            SyncRegisteredHandleDebug();
+        }
+
+        public void SyncColliderRegistration(Collider2D collider, string colliderTag)
+        {
+            if (collider == null)
+                return;
+            if (!TryEnsureDependencies())
+                return;
+
+            if (collider.enabled)
+            {
+                EnsureColliderRegistered(collider, NormalizeTag(colliderTag), "SyncColliderRegistration.RegisterOrUpdate");
+                return;
+            }
+
+            UnregisterCollider(collider, "SyncColliderRegistration.Unregister");
+        }
+
         public void SetEnabled(bool enabled)
         {
             if (!TryEnsureDependencies())
                 return;
 
+            _mb.FillConfiguredColliders(_configuredColliders, _configuredTags);
+            for (var i = 0; i < _configuredColliders.Count; i++)
+            {
+                var collider = _configuredColliders[i];
+                if (collider == null)
+                    continue;
+
+                collider.enabled = enabled;
+                _mb.RecordColliderEnabledChange(enabled, enabled
+                    ? "UnityColliderObjectService.SetEnabled(true)"
+                    : "UnityColliderObjectService.SetEnabled(false)");
+
+                var tag = NormalizeTag(_configuredTags[i]);
+                if (enabled)
+                    EnsureColliderRegistered(collider, tag, "SetEnabled(true).Registered", updateDebug: false);
+                else
+                    UnregisterCollider(collider, "SetEnabled(false).Unregister", updateDebug: false);
+            }
+
+            SyncRegisteredHandleDebug();
+        }
+
+        public void SetEnabled(Collider2D collider, bool enabled, string colliderTag)
+        {
+            if (collider == null)
+                return;
+            if (!TryEnsureDependencies())
+                return;
+
+            collider.enabled = enabled;
+            _mb.RecordColliderEnabledChange(enabled, enabled
+                ? "UnityColliderObjectService.SetEnabled(target=true)"
+                : "UnityColliderObjectService.SetEnabled(target=false)");
+
             if (enabled)
             {
-                if (_mb.Collider != null)
-                {
-                    _mb.Collider.enabled = true;
-                    _mb.RecordColliderEnabledChange(true, "UnityColliderObjectService.SetEnabled(true)");
-                }
-
-                if (_handle.IsValid)
-                    return;
-
-                var col = _mb.Collider;
-                if (col == null)
-                    return;
-
-                var h = _manager!.RegisterDynamic(new UnityDynamicColliderDesc(
-                    collider: col,
-                    layerId: _mb.LayerId,
-                    hitMask: _mb.HitMask,
-                    setId: _mb.SetId,
-                    userData: _mb.UserData));
-
-                if (!h.IsValid)
-                {
-                    _mb.RecordRegistrationEvent("SetEnabled(true).RegisterDynamicInvalid");
-                    return;
-                }
-
-                _handle = h;
-                _mb.SetRegisteredHandle(_handle);
-                _hitScopeRegistry!.Register(_handle, _ownerScope);
-                _mb.RecordRegistrationEvent($"SetEnabled(true).Registered handle={_handle.Id}:{_handle.Generation}");
+                EnsureColliderRegistered(collider, NormalizeTag(colliderTag), "SetEnabled(target).Registered");
                 return;
             }
 
-            if (_handle.IsValid)
-            {
-                _hitScopeRegistry!.Unregister(_handle, _ownerScope);
-                _manager!.UnregisterDynamic(_handle);
-                _handle = DynamicColliderHandle.Invalid;
-                _mb.SetRegisteredHandle(_handle);
-                _mb.RecordRegistrationEvent("SetEnabled(false).UnregisterDynamic");
-            }
-
-            if (_mb.Collider != null)
-            {
-                _mb.Collider.enabled = false;
-                _mb.RecordColliderEnabledChange(false, "UnityColliderObjectService.SetEnabled(false)");
-            }
+            UnregisterCollider(collider, "SetEnabled(target).Unregister");
         }
 
         public void SetTrigger(bool isTrigger)
         {
-            if (_mb.Collider != null)
-                _mb.Collider.isTrigger = isTrigger;
+            _mb.FillConfiguredColliders(_configuredColliders, _configuredTags);
+            for (var i = 0; i < _configuredColliders.Count; i++)
+            {
+                var collider = _configuredColliders[i];
+                if (collider != null)
+                    collider.isTrigger = isTrigger;
+            }
+        }
+
+        public void SetTrigger(Collider2D collider, bool isTrigger)
+        {
+            if (collider == null)
+                return;
+
+            collider.isTrigger = isTrigger;
         }
 
         public void SetLayerId(int layerId)
@@ -409,36 +443,229 @@ namespace Game.Collision
             var clamped = Mathf.Clamp(layerId, 0, 31);
             _mb.SetLayerId(clamped);
 
-            var col = _mb.Collider;
-            if (col != null)
-                col.gameObject.layer = clamped;
+            _mb.FillConfiguredColliders(_configuredColliders, _configuredTags);
+            for (var i = 0; i < _configuredColliders.Count; i++)
+            {
+                var collider = _configuredColliders[i];
+                if (collider != null)
+                    collider.gameObject.layer = clamped;
+            }
 
-            if (_handle.IsValid && _manager != null)
-                _manager.SetLayer(_handle, clamped);
+            if (_manager == null)
+                return;
+
+            for (var i = 0; i < _registered.Count; i++)
+                _manager.SetLayer(_registered[i].Handle, clamped);
         }
 
         public void SetHitMask(uint hitMask)
         {
             _mb.SetHitMask(hitMask);
 
-            if (_handle.IsValid && _manager != null)
-                _manager.SetHitMask(_handle, hitMask);
+            if (_manager == null)
+                return;
+
+            for (var i = 0; i < _registered.Count; i++)
+                _manager.SetHitMask(_registered[i].Handle, hitMask);
         }
 
         public void SetSetId(DynamicColliderSetId setId)
         {
             _mb.SetSetId(setId);
 
-            if (_handle.IsValid && _manager != null)
-                _manager.SetSetId(_handle, setId);
+            if (_manager == null)
+                return;
+
+            for (var i = 0; i < _registered.Count; i++)
+                _manager.SetSetId(_registered[i].Handle, setId);
         }
 
         public void SetUserData(int userData)
         {
             _mb.SetUserData(userData);
 
-            if (_handle.IsValid && _manager != null)
-                _manager.SetUserData(_handle, userData);
+            if (_manager == null)
+                return;
+
+            for (var i = 0; i < _registered.Count; i++)
+                _manager.SetUserData(_registered[i].Handle, userData);
+        }
+
+        bool TryRegisterColliderInternal(Collider2D collider, string colliderTag, out DynamicColliderHandle handle)
+        {
+            handle = DynamicColliderHandle.Invalid;
+            if (collider == null || _manager == null || _hitScopeRegistry == null)
+                return false;
+
+            var normalizedTag = NormalizeTag(colliderTag);
+            if (TryGetRegisteredIndex(collider, out var existingIndex))
+            {
+                var existing = _registered[existingIndex];
+                existing.Tag = normalizedTag;
+                ApplyManagerMetadata(existing);
+                handle = existing.Handle;
+                _registered[existingIndex] = existing;
+                return handle.IsValid;
+            }
+
+            var registeredHandle = _manager.RegisterDynamic(new UnityDynamicColliderDesc(
+                collider: collider,
+                layerId: _mb.LayerId,
+                hitMask: _mb.HitMask,
+                setId: _mb.SetId,
+                userData: _mb.UserData,
+                colliderTag: normalizedTag));
+
+            if (!registeredHandle.IsValid)
+                return false;
+
+            _hitScopeRegistry.Register(registeredHandle, _ownerScope);
+
+            var entry = new RegisteredCollider
+            {
+                Collider = collider,
+                Handle = registeredHandle,
+                Tag = normalizedTag,
+            };
+            _registered.Add(entry);
+            ApplyManagerMetadata(entry);
+
+            handle = registeredHandle;
+            return true;
+        }
+
+        void EnsureColliderRegistered(Collider2D collider, string colliderTag, string reason, bool updateDebug = true)
+        {
+            if (collider == null)
+                return;
+
+            if (TryRegisterColliderInternal(collider, colliderTag, out var registeredHandle) && registeredHandle.IsValid)
+            {
+                _mb.RecordRegistrationEvent($"{reason} handle={registeredHandle.Id}:{registeredHandle.Generation}");
+            }
+            else
+            {
+                _mb.RecordRegistrationEvent($"{reason}.RegisterDynamicInvalid");
+            }
+
+            if (updateDebug)
+                SyncRegisteredHandleDebug();
+        }
+
+        bool UnregisterCollider(Collider2D collider, string reason, bool updateDebug = true)
+        {
+            if (collider == null)
+                return false;
+            if (!TryGetRegisteredIndex(collider, out var index))
+                return false;
+
+            UnregisterAt(index, reason, updateDebug);
+            return true;
+        }
+
+        void UnregisterAt(int index, string reason, bool updateDebug)
+        {
+            if (index < 0 || index >= _registered.Count)
+                return;
+
+            var entry = _registered[index];
+            _registered.RemoveAt(index);
+
+            if (_hitScopeRegistry != null && entry.Handle.IsValid)
+                _hitScopeRegistry.Unregister(entry.Handle, _ownerScope);
+
+            if (_manager != null && entry.Handle.IsValid)
+                _manager.UnregisterDynamic(entry.Handle);
+
+            _mb.RecordRegistrationEvent(reason);
+            if (updateDebug)
+                SyncRegisteredHandleDebug();
+        }
+
+        void UnregisterAll(string reason)
+        {
+            if (_registered.Count == 0)
+            {
+                SyncRegisteredHandleDebug();
+                return;
+            }
+
+            for (var i = _registered.Count - 1; i >= 0; i--)
+                UnregisterAt(i, reason, updateDebug: false);
+
+            SyncRegisteredHandleDebug();
+        }
+
+        void DisableAllConfiguredColliders(string reason)
+        {
+            _mb.FillConfiguredColliders(_configuredColliders, _configuredTags);
+            for (var i = 0; i < _configuredColliders.Count; i++)
+            {
+                var collider = _configuredColliders[i];
+                if (collider == null)
+                    continue;
+
+                collider.enabled = false;
+                _mb.RecordColliderEnabledChange(false, reason);
+            }
+        }
+
+        void ApplyManagerMetadata(RegisteredCollider entry)
+        {
+            if (_manager == null || !entry.Handle.IsValid)
+                return;
+
+            var clampedLayer = Mathf.Clamp(_mb.LayerId, 0, 31);
+            entry.Collider.gameObject.layer = clampedLayer;
+
+            _manager.SetLayer(entry.Handle, clampedLayer);
+            _manager.SetHitMask(entry.Handle, _mb.HitMask);
+            _manager.SetSetId(entry.Handle, _mb.SetId);
+            _manager.SetUserData(entry.Handle, _mb.UserData);
+            _manager.SetColliderTag(entry.Handle, entry.Tag);
+        }
+
+        bool TryGetRegisteredIndex(Collider2D collider, out int index)
+        {
+            index = -1;
+            for (var i = 0; i < _registered.Count; i++)
+            {
+                if (!ReferenceEquals(_registered[i].Collider, collider))
+                    continue;
+
+                index = i;
+                return true;
+            }
+
+            return false;
+        }
+
+        void SyncRegisteredHandleDebug()
+        {
+            _registeredHandlesScratch.Clear();
+            _primaryHandle = DynamicColliderHandle.Invalid;
+
+            for (var i = 0; i < _registered.Count; i++)
+            {
+                var handle = _registered[i].Handle;
+                if (!handle.IsValid)
+                    continue;
+
+                if (!_primaryHandle.IsValid)
+                    _primaryHandle = handle;
+
+                _registeredHandlesScratch.Add(handle);
+            }
+
+            _mb.SetRegisteredHandles(_registeredHandlesScratch);
+        }
+
+        static string NormalizeTag(string? tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return UnityColliderObjectMB.DefaultColliderTag;
+
+            return tag.Trim();
         }
     }
 }

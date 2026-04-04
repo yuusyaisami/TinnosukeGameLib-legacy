@@ -521,24 +521,18 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/NailProfile/Effect/Bounce
                     /// </remarks>
                     public const string Bounce = "GameLogic.NailProfile.Effect.Bounce";
-                    /// <summary>連載起動</summary>
-                    /// <remarks>
-                    /// Path: GameLogic/NailProfile/Effect/Chain
-                    /// </remarks>
-                    public const string Chain = "GameLogic.NailProfile.Effect.Chain";
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/Effect/ColiderSize
                     /// </remarks>
                     public const string ColiderSize = "GameLogic.NailProfile.Effect.ColiderSize";
-                    /// <summary>コンバート時の設定</summary>
-                    /// <remarks>
-                    /// Path: GameLogic/NailProfile/Effect/Converter
-                    /// </remarks>
-                    public const string Converter = "GameLogic.NailProfile.Effect.Converter";
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/Effect/Force
                     /// </remarks>
                     public const string Force = "GameLogic.NailProfile.Effect.Force";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/ForceUp
+                    /// </remarks>
+                    public const string ForceUp = "GameLogic.NailProfile.Effect.ForceUp";
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/Effect/Gamble
                     /// </remarks>
@@ -548,6 +542,15 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/NailProfile/Effect/Ghost
                     /// </remarks>
                     public const string Ghost = "GameLogic.NailProfile.Effect.Ghost";
+                    /// <summary>デフォルトは-1です。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/GlobalMaxCount
+                    /// </remarks>
+                    public const string GlobalMaxCount = "GameLogic.NailProfile.Effect.GlobalMaxCount";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/GlobalMaxUseCooldown
+                    /// </remarks>
+                    public const string GlobalMaxUseCooldown = "GameLogic.NailProfile.Effect.GlobalMaxUseCooldown";
                     /// <summary>運を上げます。</summary>
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/Effect/LuckUp
@@ -576,15 +579,6 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/NailProfile/Effect/Teleport
                     /// </remarks>
                     public const string Teleport = "GameLogic.NailProfile.Effect.Teleport";
-                    /// <summary>制限時間を延ばします。</summary>
-                    /// <remarks>
-                    /// Path: GameLogic/NailProfile/Effect/TimeExtend
-                    /// </remarks>
-                    public const string TimeExtend = "GameLogic.NailProfile.Effect.TimeExtend";
-                    /// <remarks>
-                    /// Path: GameLogic/NailProfile/Effect/TimeValueUp
-                    /// </remarks>
-                    public const string TimeValueUp = "GameLogic.NailProfile.Effect.TimeValueUp";
                     /// <summary>価値を倍にします。</summary>
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/Effect/ValueMultiply
@@ -595,6 +589,61 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/NailProfile/Effect/ValueUp
                     /// </remarks>
                     public const string ValueUp = "GameLogic.NailProfile.Effect.ValueUp";
+
+                    public static partial class Chain
+                    {
+                        /// <summary>連載起動</summary>
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Chain/ChainChance
+                        /// </remarks>
+                        public const string ChainChance = "GameLogic.NailProfile.Effect.Chain.ChainChance";
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Chain/ChainRadius
+                        /// </remarks>
+                        public const string ChainRadius = "GameLogic.NailProfile.Effect.Chain.ChainRadius";
+                    }
+
+                    public static partial class Converter
+                    {
+                        /// <summary>コンバート時の設定</summary>
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Converter/ConverterM2P
+                        /// </remarks>
+                        public const string ConverterM2P = "GameLogic.NailProfile.Effect.Converter.ConverterM2P";
+                    }
+
+                    public static partial class SpawnBall
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/SpawnBall/SpawnBallChance
+                        /// </remarks>
+                        public const string SpawnBallChance = "GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance";
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/SpawnBall/SpawnBallCount
+                        /// </remarks>
+                        public const string SpawnBallCount = "GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount";
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/SpawnBall/SpawnBallValue
+                        /// </remarks>
+                        public const string SpawnBallValue = "GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue";
+                    }
+
+                    public static partial class Timer
+                    {
+                        /// <summary>制限時間を延ばします。</summary>
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Timer/ExtendMaxTime
+                        /// </remarks>
+                        public const string ExtendMaxTime = "GameLogic.NailProfile.Effect.Timer.ExtendMaxTime";
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Timer/TimeValueRemove
+                        /// </remarks>
+                        public const string TimeValueRemove = "GameLogic.NailProfile.Effect.Timer.TimeValueRemove";
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Timer/TimeValueUp
+                        /// </remarks>
+                        public const string TimeValueUp = "GameLogic.NailProfile.Effect.Timer.TimeValueUp";
+                    }
                 }
 
                 public static partial class Upgrade
@@ -713,22 +762,30 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GateProfile.RightGate.OpenTime,
             ScalarKeys.GameLogic.NailProfile.Effect.Attract,
             ScalarKeys.GameLogic.NailProfile.Effect.Bounce,
-            ScalarKeys.GameLogic.NailProfile.Effect.Chain,
             ScalarKeys.GameLogic.NailProfile.Effect.ColiderSize,
-            ScalarKeys.GameLogic.NailProfile.Effect.Converter,
             ScalarKeys.GameLogic.NailProfile.Effect.Force,
+            ScalarKeys.GameLogic.NailProfile.Effect.ForceUp,
             ScalarKeys.GameLogic.NailProfile.Effect.Gamble,
             ScalarKeys.GameLogic.NailProfile.Effect.Ghost,
+            ScalarKeys.GameLogic.NailProfile.Effect.GlobalMaxCount,
+            ScalarKeys.GameLogic.NailProfile.Effect.GlobalMaxUseCooldown,
             ScalarKeys.GameLogic.NailProfile.Effect.LuckUp,
             ScalarKeys.GameLogic.NailProfile.Effect.MaxHitCount,
             ScalarKeys.GameLogic.NailProfile.Effect.MaxValueUp,
             ScalarKeys.GameLogic.NailProfile.Effect.SpeedUp,
             ScalarKeys.GameLogic.NailProfile.Effect.Split,
             ScalarKeys.GameLogic.NailProfile.Effect.Teleport,
-            ScalarKeys.GameLogic.NailProfile.Effect.TimeExtend,
-            ScalarKeys.GameLogic.NailProfile.Effect.TimeValueUp,
             ScalarKeys.GameLogic.NailProfile.Effect.ValueMultiply,
             ScalarKeys.GameLogic.NailProfile.Effect.ValueUp,
+            ScalarKeys.GameLogic.NailProfile.Effect.Chain.ChainChance,
+            ScalarKeys.GameLogic.NailProfile.Effect.Chain.ChainRadius,
+            ScalarKeys.GameLogic.NailProfile.Effect.Converter.ConverterM2P,
+            ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance,
+            ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount,
+            ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue,
+            ScalarKeys.GameLogic.NailProfile.Effect.Timer.ExtendMaxTime,
+            ScalarKeys.GameLogic.NailProfile.Effect.Timer.TimeValueRemove,
+            ScalarKeys.GameLogic.NailProfile.Effect.Timer.TimeValueUp,
             ScalarKeys.GameLogic.NailProfile.Upgrade.LevelValue,
             ScalarKeys.GameLogic.NailProfile.Upgrade.MaxLevel,
             ScalarKeys.GameLogic.SlotProfile.CenterMul,

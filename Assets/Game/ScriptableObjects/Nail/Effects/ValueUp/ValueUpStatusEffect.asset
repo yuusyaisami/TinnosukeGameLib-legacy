@@ -26,11 +26,11 @@ MonoBehaviour:
         defaultRuntimeTag: 
         visualData:
           DisplayName:
-            Template: ValueUp
+            Template: "\u4FA1\u5024"
             Variables: []
           IconAnimation: {fileID: 0}
           Description:
-            Template: Value {ValueUp}
+            Template: "\u4FA1\u5024 {ValueUp}"
             Variables:
             - _value:
                 _source:
@@ -40,7 +40,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: Value {intensity|sign=always}
+            Template: "\u4FA1\u5024 {intensity|sign=always}"
             Variables:
             - _value:
                 _source:
@@ -117,7 +117,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.ValueUp
         ApplyMode: 10
         MulPhase: 0
-        ValueMode: 10
+        ValueMode: 20
+        RuntimeIntensitySlot: 10
         Value:
           _source:
             rid: 5619052366731149676
@@ -206,6 +207,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         VarsPolicy: 0
+        AwaitMode: 0
         ExecutionScope: 0
         Body:
           _debugOwner: {fileID: 0}
@@ -275,6 +277,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         DebugMode: 0
         Debug:
           LogLevel: 10

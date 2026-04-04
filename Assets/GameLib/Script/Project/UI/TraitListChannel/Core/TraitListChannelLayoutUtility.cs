@@ -96,7 +96,7 @@ namespace Game.UI
         public static void RecalculateTargetPositions(
             List<TraitListChannelSlot> slots,
             TraitListChannelLayoutPreset preset,
-            RectTransform? layoutRect,
+            Rect layoutRect,
             Vector2 itemSize)
         {
             if (slots == null || slots.Count == 0 || preset == null)
@@ -104,13 +104,12 @@ namespace Game.UI
 
             var rowsUsed = ResolveUsedRowCount(slots);
             var columnsUsed = ResolveUsedColumnCount(slots);
-            var rect = layoutRect != null ? layoutRect.rect : new Rect(0f, 0f, 0f, 0f);
 
             for (var i = 0; i < slots.Count; i++)
             {
                 var slot = slots[i];
                 slot.TargetLocalPosition = TransformGridSharedUtility.ResolveTargetLocalPosition(
-                    rect,
+                    layoutRect,
                     slot.Row,
                     slot.Column,
                     rowsUsed,

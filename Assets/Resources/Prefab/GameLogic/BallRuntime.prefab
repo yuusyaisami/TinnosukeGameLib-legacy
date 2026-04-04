@@ -287,6 +287,7 @@ GameObject:
   - component: {fileID: 1659933102912165164}
   - component: {fileID: 5916766032561930864}
   - component: {fileID: 7495427074702374831}
+  - component: {fileID: 7407847733168114649}
   m_Layer: 0
   m_Name: BallRuntime
   m_TagString: Untagged
@@ -385,6 +386,11 @@ MonoBehaviour:
   initializeLocalBlackboard: 0
   reinitializeLocalBlackboardOnAcquire: 1
   localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
   references:
     version: 2
     RefIds: []
@@ -919,6 +925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3306a888122c6f4e846fbd111fbf70c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.UnityColliderObjectMB
+  _colliders: []
   _collider: {fileID: 0}
   _layerId: 0
   _hitMask: 4294967295
@@ -926,6 +933,7 @@ MonoBehaviour:
     value: 10
   _userData: 0
   _enabledByDefault: 1
+  _debugRegisteredHandleCount: 0
   _debugIsRegistered: 0
   _debugResolverAvailable: 0
   _debugManagerResolved: 0
@@ -943,7 +951,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 8552
+  _debugLastEnabledChangeFrame: 47114
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &7495427074702374831
@@ -966,6 +974,50 @@ MonoBehaviour:
     editLocalBase: 0
     editAddDelta: 0
     editMulFactor: 1
+--- !u!114 &7407847733168114649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871564523398246338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f65a15917f8d3ce4ea073de9761a84a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.TransformSystem.TransformController
+  outputTarget: 4
+  targetTransform: {fileID: 5609855925114514961}
+  targetRectTransform: {fileID: 0}
+  targetRigidbody: {fileID: 5296161294681384248}
+  rigidbody2DVelocityMode: 1
+  rigidbody2DAdditiveControl:
+    Enabled: 0
+    AxisWeightPos: {x: 1, y: 1}
+    AxisWeightNeg: {x: 1, y: 1}
+    SpeedSoftLimitPos: {x: 0, y: 0}
+    SpeedSoftLimitNeg: {x: 0, y: 0}
+    SpeedHardLimitPos: {x: 0, y: 0}
+    SpeedHardLimitNeg: {x: 0, y: 0}
+    AccelSoftLimitPos: {x: 0, y: 0}
+    AccelSoftLimitNeg: {x: 0, y: 0}
+    AccelHardLimitPos: {x: 0, y: 0}
+    AccelHardLimitNeg: {x: 0, y: 0}
+    ClampResultToHardLimit: 0
+    MinScale: 0
+    AxisOverride:
+      Enabled: 0
+      OverrideX: 0
+      OverrideY: 0
+      MinCurrentSpeed: 0.1
+      MinInput: 0.01
+      VelocityChangeEpsilon: 0
+  rigidbody2DGravityClamp:
+    Enabled: 1
+    MinFallSpeed: 5
+  targetCharacterController: {fileID: 0}
+  enableMovement: 1
+  enableRotation: 0
 --- !u!1 &5924458480868492782
 GameObject:
   m_ObjectHideFlags: 0

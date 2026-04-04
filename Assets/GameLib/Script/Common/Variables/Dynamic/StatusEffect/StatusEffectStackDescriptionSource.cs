@@ -51,17 +51,18 @@ namespace Game.Common
             if (definition == null)
                 return DynamicVariant.FromString(string.Empty);
 
-            var templateData = definition.VisualData?.StackDescription;
-            var template = templateData?.Template ?? string.Empty;
-            if (string.IsNullOrEmpty(template))
-                return DynamicVariant.FromString(string.Empty);
-
             if (preset == null)
                 preset = StatusEffectStackPreset.CreateDurationRefreshPreset();
 
             var mergedVars = new VarStore();
             (context.Vars ?? NullVarStore.Instance).MergeInto(mergedVars, overwrite: true);
             WriteStackPresetVars(mergedVars, preset, context);
+
+            var evalContext = new SimpleDynamicContext(mergedVars, context.Scope);
+            var templateData = definition.VisualData?.StackDescription;
+            var template = ResolveTemplate(evalContext, templateData?.Template ?? string.Empty, preset);
+            if (string.IsNullOrEmpty(template))
+                return DynamicVariant.FromString(string.Empty);
 
             _richText.AllowImplicitKeys = true;
             _richText.Template = template;
@@ -70,9 +71,19 @@ namespace Game.Common
             else
                 _richText.ClearExternalVariables();
 
-            var evalContext = new SimpleDynamicContext(mergedVars, context.Scope);
             var result = _richText.Evaluate(evalContext);
             return DynamicVariant.FromString(result.AsString ?? string.Empty);
+        }
+
+        static string ResolveTemplate(
+            IDynamicContext context,
+            string definitionTemplate,
+            StatusEffectStackPreset preset)
+        {
+            if (!preset.ApplyStackDescriptionOverride)
+                return definitionTemplate;
+
+            return preset.StackDescriptionOverride.GetOrDefault(context, string.Empty) ?? string.Empty;
         }
 
         static void TryResolveFromKnownVars(
@@ -269,17 +280,30 @@ namespace Game.Common
         {
             vars.TrySetManagedRef(VarIds.GameLib.Base.StatusEffect.Stack.preset, preset);
             vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.ignoreIfExisting, DynamicVariant.FromBool(preset.IgnoreIfExisting));
-            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyIntensity, DynamicVariant.FromBool(preset.ApplyIntensity));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityA, DynamicVariant.FromBool(preset.ApplyIntensityA));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityB, DynamicVariant.FromBool(preset.ApplyIntensityB));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityC, DynamicVariant.FromBool(preset.ApplyIntensityC));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityD, DynamicVariant.FromBool(preset.ApplyIntensityD));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityE, DynamicVariant.FromBool(preset.ApplyIntensityE));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityF, DynamicVariant.FromBool(preset.ApplyIntensityF));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityG, DynamicVariant.FromBool(preset.ApplyIntensityG));
             vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyDuration, DynamicVariant.FromBool(preset.ApplyDuration));
             vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyCurrentCount, DynamicVariant.FromBool(preset.ApplyCurrentCount));
             vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Stack.applyMaxCount, DynamicVariant.FromBool(preset.ApplyMaxCount));
 
-            WriteStackRule(vars, context, preset.Intensity,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.operation,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.local,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.useGlobal,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.global,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.ignoreGlobalWhenMinusOne);
+            for (int i = 0; i < StatusEffectIntensitySlotUtility.OrderedSlots.Length; i++)
+            {
+                var slot = StatusEffectIntensitySlotUtility.OrderedSlots[i];
+                WriteStackRule(
+                    vars,
+                    context,
+                    preset.GetIntensityRule(slot),
+                    StatusEffectIntensitySlotUtility.GetStackOperationVarId(slot),
+                    StatusEffectIntensitySlotUtility.GetStackLocalVarId(slot),
+                    StatusEffectIntensitySlotUtility.GetStackUseGlobalVarId(slot),
+                    StatusEffectIntensitySlotUtility.GetStackGlobalVarId(slot),
+                    StatusEffectIntensitySlotUtility.GetStackIgnoreGlobalWhenMinusOneVarId(slot));
+            }
 
             WriteStackRule(vars, context, preset.Duration,
                 VarIds.GameLib.Base.StatusEffect.Stack.Duration.operation,
@@ -315,7 +339,7 @@ namespace Game.Common
         {
             var operation = rule?.Operation ?? StatusEffectStackOperation.Add;
             var local = rule?.LocalValue.GetOrDefault(context, 0f) ?? 0f;
-            var useGlobal = rule?.UseGlobalValue ?? false;
+            var useGlobal = rule?.ApplyGlobalValue ?? false;
             var global = rule?.GlobalValue.GetOrDefault(context, 0f) ?? 0f;
             var ignoreGlobalWhenMinusOne = rule?.IgnoreGlobalWhenMinusOne ?? false;
 

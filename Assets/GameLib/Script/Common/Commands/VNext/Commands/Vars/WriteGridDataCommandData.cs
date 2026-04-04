@@ -138,10 +138,10 @@ namespace Game.Commands.VNext
         [LabelText("Set Element After Append")]
         public bool SetElementAfterAppend = false;
 
-        [BoxGroup("Column")]
+        [BoxGroup("Grid Write")]
         [ShowIf(nameof(ShowGridId))]
-        [LabelText("Grid Id")]
-        [Tooltip("各セルへ書き込む識別 VarId です。0 の場合は Grid Id を書き込みません。")]
+        [LabelText("Grid Var Id")]
+        [Tooltip("各セルへ書き込む識別 VarId です。Grid / Row / Column の各 mode で、cell が存在する操作に対して書き込みます。0 の場合は Grid Var を書き込みません。")]
         [VarIdDropdown]
         public int GridId;
 
@@ -226,7 +226,7 @@ namespace Game.Commands.VNext
         bool ShowColumnCopyDestination() => IsColumnMode() && ColumnOperation == WriteGridDataColumnOperation.CopyToColumn;
         bool ShowColumnCopyOptions() => ShowColumnCopyDestination();
         bool ShowColumnAppendSetElementOption() => IsColumnMode() && ColumnOperation == WriteGridDataColumnOperation.Append;
-        bool ShowGridId() => IsColumnMode() && (ColumnOperation == WriteGridDataColumnOperation.Append || ColumnOperation == WriteGridDataColumnOperation.SetElement || ColumnOperation == WriteGridDataColumnOperation.AddNumeric || ColumnOperation == WriteGridDataColumnOperation.MultiplyNumeric);
+        bool ShowGridId() => IsGridMode() || IsRowMode() || IsColumnMode();
         bool ShowElementValues() => IsColumnMode() && (ColumnOperation == WriteGridDataColumnOperation.SetElement || (ColumnOperation == WriteGridDataColumnOperation.Append && SetElementAfterAppend));
 
         bool ShowElementKey()
