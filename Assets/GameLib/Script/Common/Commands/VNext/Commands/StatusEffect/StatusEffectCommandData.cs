@@ -18,6 +18,7 @@ namespace Game.Commands.VNext
         Reset = 60,
         ClearAll = 70,
         UseGlobal = 80,
+        ConfigureServiceSettings = 90,
     }
 
     public enum StatusEffectServiceScope
@@ -29,6 +30,25 @@ namespace Game.Commands.VNext
     [Serializable]
     public sealed class StatusEffectCommandData : ICommandData
     {
+        [Serializable]
+        public sealed class StatusEffectServiceSettingsCommandSection
+        {
+            [LabelText("Apply")]
+            public bool Apply;
+
+            [LabelText("Preset")]
+            [ShowIf(nameof(Apply))]
+            public DynamicValue<StatusEffectGlobalLifetimeSettings> LifetimePreset;
+
+            [LabelText("Preset")]
+            [ShowIf(nameof(Apply))]
+            public DynamicValue<StatusEffectGlobalUseCooldownSettings> UseCooldownPreset;
+
+            [LabelText("Preset")]
+            [ShowIf(nameof(Apply))]
+            public DynamicValue<StatusEffectGlobalCountSettings> CountPreset;
+        }
+
         public int CommandId => CommandIds.StatusEffectControl;
         public string DebugData => $"Op={Op} Target={ServiceScope} Apply={GetApplyLabel()} Filter={BuildFilter().GetDebugLabel()}";
 
@@ -85,12 +105,52 @@ namespace Game.Commands.VNext
         [Tooltip("FilterMode に対応する definitionId / runtimeTag / instanceId を入力します。")]
         public string FilterValue = string.Empty;
 
+        [BoxGroup("Service Settings")]
+        [ShowIf(nameof(IsConfigureServiceSettings))]
+        [LabelText("Apply Global Lifetime")]
+        public bool ApplyGlobalLifetimeSettings;
+
+        [BoxGroup("Service Settings")]
+        [ShowIf(nameof(ShowGlobalLifetimeSettings))]
+        [LabelText("Global Lifetime Preset")]
+        public DynamicValue<StatusEffectGlobalLifetimeSettings> GlobalLifetimeSettings;
+
+        [BoxGroup("Service Settings")]
+        [ShowIf(nameof(IsConfigureServiceSettings))]
+        [LabelText("Apply Global UseCooldown")]
+        public bool ApplyGlobalUseCooldownSettings;
+
+        [BoxGroup("Service Settings")]
+        [ShowIf(nameof(ShowGlobalUseCooldownSettings))]
+        [LabelText("Global UseCooldown Preset")]
+        public DynamicValue<StatusEffectGlobalUseCooldownSettings> GlobalUseCooldownSettings;
+
+        [BoxGroup("Service Settings")]
+        [ShowIf(nameof(IsConfigureServiceSettings))]
+        [LabelText("Apply Global Count")]
+        public bool ApplyGlobalCountSettings;
+
+        [BoxGroup("Service Settings")]
+        [ShowIf(nameof(ShowGlobalCountSettings))]
+        [LabelText("Global Count Preset")]
+        public DynamicValue<StatusEffectGlobalCountSettings> GlobalCountSettings;
+
+        [BoxGroup("Service Settings")]
+        [ShowIf(nameof(IsConfigureServiceSettings))]
+        [LabelText("Reset Global State")]
+        [Tooltip("true のとき、設定差し替え後に service の global runtime state を再初期化します。")]
+        public bool ResetGlobalState = true;
+
         bool IsApply => Op == StatusEffectCommandOp.Apply;
         bool IsClearAll => Op == StatusEffectCommandOp.ClearAll;
         bool IsUseGlobal => Op == StatusEffectCommandOp.UseGlobal;
+        bool IsConfigureServiceSettings => Op == StatusEffectCommandOp.ConfigureServiceSettings;
         bool UseActorSource => ServiceScope == StatusEffectServiceScope.Actor;
-        bool ShowFilterSettings => !IsApply && !IsClearAll && !IsUseGlobal;
+        bool ShowFilterSettings => !IsApply && !IsClearAll && !IsUseGlobal && !IsConfigureServiceSettings;
         bool ShowFilterValue => ShowFilterSettings && FilterMode != StatusEffectRuntimeFilterMode.All;
+        bool ShowGlobalLifetimeSettings => IsConfigureServiceSettings && ApplyGlobalLifetimeSettings;
+        bool ShowGlobalUseCooldownSettings => IsConfigureServiceSettings && ApplyGlobalUseCooldownSettings;
+        bool ShowGlobalCountSettings => IsConfigureServiceSettings && ApplyGlobalCountSettings;
 
         public StatusEffectRuntimeFilter BuildFilter()
         {
@@ -111,7 +171,48 @@ namespace Game.Commands.VNext
             };
         }
 
+        public StatusEffectServiceSettingsOverrideRequest BuildServiceSettingsRequest(IDynamicContext context)
+        {
+            return new StatusEffectServiceSettingsOverrideRequest
+            {
+                ApplyGlobalLifetimeSettings = ApplyGlobalLifetimeSettings,
+                GlobalLifetimeSettings = ResolveLifetimeSettings(context),
+                ApplyGlobalUseCooldownSettings = ApplyGlobalUseCooldownSettings,
+                GlobalUseCooldownSettings = ResolveUseCooldownSettings(context),
+                ApplyGlobalCountSettings = ApplyGlobalCountSettings,
+                GlobalCountSettings = ResolveCountSettings(context),
+                ResetGlobalState = ResetGlobalState,
+            };
+        }
+
         string GetApplyLabel()
             => IsApply ? Definition.SourceTypeName : "-";
+
+        StatusEffectGlobalLifetimeSettings? ResolveLifetimeSettings(IDynamicContext context)
+        {
+            if (!ApplyGlobalLifetimeSettings)
+                return null;
+
+            return GlobalLifetimeSettings.GetOrDefault(context, StatusEffectGlobalLifetimeSettings.CreateDisabled())
+                   ?? StatusEffectGlobalLifetimeSettings.CreateDisabled();
+        }
+
+        StatusEffectGlobalUseCooldownSettings? ResolveUseCooldownSettings(IDynamicContext context)
+        {
+            if (!ApplyGlobalUseCooldownSettings)
+                return null;
+
+            return GlobalUseCooldownSettings.GetOrDefault(context, StatusEffectGlobalUseCooldownSettings.CreateDisabled())
+                   ?? StatusEffectGlobalUseCooldownSettings.CreateDisabled();
+        }
+
+        StatusEffectGlobalCountSettings? ResolveCountSettings(IDynamicContext context)
+        {
+            if (!ApplyGlobalCountSettings)
+                return null;
+
+            return GlobalCountSettings.GetOrDefault(context, StatusEffectGlobalCountSettings.CreateDisabled())
+                   ?? StatusEffectGlobalCountSettings.CreateDisabled();
+        }
     }
 }

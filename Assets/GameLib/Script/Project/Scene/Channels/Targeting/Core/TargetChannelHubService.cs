@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Game.Common;
+using Game.Collision;
 using Game.DI;
 using Game.Search;
 using VContainer;
@@ -33,6 +34,8 @@ namespace Game.Targeting
     {
         readonly TargetChannelHubConfig _config;
         readonly IDynamicSearchService? _search;     // 検索サービス（DI）
+        readonly IUnityCollisionManager? _collisionManager;
+        readonly IHitColliderScopeRegistry? _hitScopeRegistry;
         readonly TargetChannelOwner _owner;         // Hub が扱う Owner 情報
 
         readonly Dictionary<string, ITargetChannelRuntime> _channels; // Tag -> Runtime
@@ -45,10 +48,14 @@ namespace Game.Targeting
             TargetChannelHubConfig config,
             in TargetChannelOwner owner,
             IDynamicSearchService? search,
+            IUnityCollisionManager? collisionManager,
+            IHitColliderScopeRegistry? hitScopeRegistry,
             int initialCapacity = 8)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _search = search;
+            _collisionManager = collisionManager;
+            _hitScopeRegistry = hitScopeRegistry;
             _owner = owner;
 
             _channels = new Dictionary<string, ITargetChannelRuntime>(
@@ -254,6 +261,7 @@ namespace Game.Targeting
             {
                 var runtime = runtimes[i];
                 var preset = runtime.CurrentPreset;
+                var collisionFilterSummary = BuildCollisionFilterSummary(preset);
                 channels.Add(new TargetChannelTelemetrySnapshot(
                     tag: runtime.Tag,
                     enabled: runtime.Enabled,
@@ -269,7 +277,10 @@ namespace Game.Targeting
                     excludeSelf: preset.ExcludeSelf,
                     originSource: preset.OriginSource,
                     forwardSource: preset.ForwardSource,
-                    scopeRequireActive: preset.ScopeRequireActive));
+                        scopeRequireActive: preset.ScopeRequireActive,
+                        collisionRangeSource: preset.CollisionRangeSource,
+                        collisionAreaTag: preset.CollisionAreaTag,
+                        collisionFilterSummary: collisionFilterSummary));
             }
 
             return new TargetChannelHubTelemetrySnapshot(
@@ -331,7 +342,26 @@ namespace Game.Targeting
                 return new NullTargetChannelRuntime(preset);
             }
 
-            return new TargetChannelRuntime(_search, _owner, preset);
+            if (preset.SearchType == TargetChannelSearchType.CollisionSearch &&
+                (_collisionManager == null || _hitScopeRegistry == null))
+            {
+                Debug.LogError($"[TargetChannelHubService] CollisionSearch dependencies not found for '{preset.Tag}'. (IUnityCollisionManager / IHitColliderScopeRegistry)");
+                return new NullTargetChannelRuntime(preset);
+            }
+
+            return new TargetChannelRuntime(_search, _owner, preset, _collisionManager, _hitScopeRegistry);
+        }
+
+        static string BuildCollisionFilterSummary(TargetChannelPreset preset)
+        {
+            var includeCount = preset.CollisionUseIncludeDynamicSets && preset.CollisionIncludeDynamicSets != null
+                ? preset.CollisionIncludeDynamicSets.Length
+                : 0;
+            var excludeCount = preset.CollisionUseExcludeDynamicSets && preset.CollisionExcludeDynamicSets != null
+                ? preset.CollisionExcludeDynamicSets.Length
+                : 0;
+
+            return $"inc:{includeCount} exc:{excludeCount} any:{preset.CollisionMatchAnyInclude}";
         }
 
         static IVarStore ResolveVars(IScopeNode? scope)

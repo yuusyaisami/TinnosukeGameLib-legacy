@@ -21,6 +21,7 @@ namespace Game.Collision
             public uint HitMask;
             public DynamicColliderSetId SetId;
             public int UserData;
+            public string ColliderTag = UnityColliderObjectMB.DefaultColliderTag;
         }
 
         readonly ISyncEventBus _eventBus;
@@ -104,6 +105,7 @@ namespace Game.Collision
                     existing.SetId = desc.SetId;
                 }
                 existing.UserData = desc.UserData;
+                existing.ColliderTag = NormalizeColliderTag(desc.ColliderTag);
                 return existing.Handle;
             }
 
@@ -118,6 +120,7 @@ namespace Game.Collision
                 HitMask = desc.HitMask,
                 SetId = desc.SetId,
                 UserData = desc.UserData,
+                ColliderTag = NormalizeColliderTag(desc.ColliderTag),
             };
 
             _byColliderId.Add(colliderId, e);
@@ -154,6 +157,26 @@ namespace Game.Collision
                 return handle.IsValid;
             }
             return false;
+        }
+
+        public bool TryGetDynamicMetadata(DynamicColliderHandle handle, out UnityDynamicColliderMetadata metadata)
+        {
+            metadata = default;
+
+            if (!handle.IsValid)
+                return false;
+
+            if (!_byHandleId.TryGetValue(handle.Id, out var entry) || entry == null)
+                return false;
+
+            metadata = new UnityDynamicColliderMetadata(
+                collider: entry.Collider,
+                layerId: entry.LayerId,
+                hitMask: entry.HitMask,
+                setId: entry.SetId,
+                userData: entry.UserData,
+                colliderTag: entry.ColliderTag);
+            return true;
         }
 
         public bool IsValid(DynamicColliderHandle handle)
@@ -211,6 +234,25 @@ namespace Game.Collision
 
             entry.UserData = userData;
             return true;
+        }
+
+        public bool SetColliderTag(DynamicColliderHandle handle, string colliderTag)
+        {
+            if (!handle.IsValid)
+                return false;
+            if (!_byHandleId.TryGetValue(handle.Id, out var entry) || entry == null)
+                return false;
+
+            entry.ColliderTag = NormalizeColliderTag(colliderTag);
+            return true;
+        }
+
+        static string NormalizeColliderTag(string? colliderTag)
+        {
+            if (string.IsNullOrWhiteSpace(colliderTag))
+                return UnityColliderObjectMB.DefaultColliderTag;
+
+            return colliderTag.Trim();
         }
 
         public void CollectAndDispatch(float deltaTime)

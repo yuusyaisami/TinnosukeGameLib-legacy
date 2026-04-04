@@ -60,6 +60,26 @@ namespace Game.UI
     [Serializable]
     public sealed class TraitListChannelLayoutPreset : IDynamicManagedRefValue
     {
+        [BoxGroup("Range")]
+        [LabelText("Range Source Mode")]
+        [Tooltip("配置領域を Scene の RectTransform から取るか、AreaChannel から取るかを選びます。")]
+        [SerializeField]
+        TransformGridLayoutRangeSourceMode _rangeSourceMode = TransformGridLayoutRangeSourceMode.RectTransform;
+
+        [BoxGroup("Range")]
+        [ShowIf(nameof(UsesAreaChannel))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Area Source\", _areaActorSource)")]
+        [Tooltip("AreaChannel を解決する対象 scope です。")]
+        [SerializeField]
+        ActorSource _areaActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [BoxGroup("Range")]
+        [ShowIf(nameof(UsesAreaChannel))]
+        [LabelText("Area Channel Tag")]
+        [Tooltip("Range Source Mode が AreaChannel のときに使う channel tag です。")]
+        [SerializeField]
+        string _areaChannelTag = "default";
+
         [BoxGroup("Layout")]
         [LabelText("Rows")]
         [MinValue(1)]
@@ -169,9 +189,13 @@ namespace Game.UI
         [SerializeField]
         TraitListChannelMotionPreset _relayoutMotion = new();
 
+        bool UsesAreaChannel() => _rangeSourceMode == TransformGridLayoutRangeSourceMode.AreaChannel;
         bool UsesFixedAnchor() => _spawnAnchorMode == TraitListChannelSpawnAnchorMode.FixedAnchor;
         bool ShowsFixedAnchorActorSource() => UsesFixedAnchor() && _useFixedAnchorActorSource;
 
+        public TransformGridLayoutRangeSourceMode RangeSourceMode => _rangeSourceMode;
+        public ActorSource AreaActorSource => _areaActorSource;
+        public string AreaChannelTag => string.IsNullOrWhiteSpace(_areaChannelTag) ? "default" : _areaChannelTag.Trim();
         public int Rows => Mathf.Max(1, _rows);
         public int Columns => Mathf.Max(1, _columns);
         public TraitListChannelOrder Order => _order;
@@ -194,6 +218,9 @@ namespace Game.UI
         {
             return new TraitListChannelLayoutPreset
             {
+                _rangeSourceMode = _rangeSourceMode,
+                _areaActorSource = _areaActorSource,
+                _areaChannelTag = _areaChannelTag,
                 _rows = _rows,
                 _columns = _columns,
                 _order = _order,

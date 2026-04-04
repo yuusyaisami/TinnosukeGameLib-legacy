@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using Game.Common;
+using Game.Collision;
 using Game.Entity;
 using Game.Search;
 using Sirenix.OdinInspector;
-using Unity.Mathematics;
 using UnityEngine;
 using VContainer;
 using VNext = Game.Commands.VNext;
@@ -38,7 +38,14 @@ namespace Game.Targeting
     {
         DynamicSearch = 10,
         ScopeSearch = 20,
-        None = 30,
+        CollisionSearch = 30,
+        None = 40,
+    }
+
+    public enum TargetChannelCollisionRangeSource
+    {
+        AreaChannelRect = 10,
+        DynamicRect = 20,
     }
 
     [Serializable]
@@ -46,6 +53,7 @@ namespace Game.Targeting
     {
         public bool IsDynamicSearch => SearchType == TargetChannelSearchType.DynamicSearch;
         public bool IsScopeSearch => SearchType == TargetChannelSearchType.ScopeSearch;
+        public bool IsCollisionSearch => SearchType == TargetChannelSearchType.CollisionSearch;
         public bool IsNoneSearch => SearchType == TargetChannelSearchType.None;
 
         [BoxGroup("Identity")]
@@ -143,6 +151,63 @@ namespace Game.Targeting
         [LabelText("Require Active")]
         public bool ScopeRequireActive = true;
 
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(IsCollisionSearch))]
+        [LabelText("Range Source")]
+        [EnumToggleButtons]
+        public TargetChannelCollisionRangeSource CollisionRangeSource = TargetChannelCollisionRangeSource.AreaChannelRect;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf("@IsCollisionSearch && CollisionRangeSource == TargetChannelCollisionRangeSource.AreaChannelRect")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Area Hub Source\", CollisionAreaActorSource)")]
+        public VNext.ActorSource CollisionAreaActorSource = new() { Kind = VNext.ActorSourceKind.Current };
+
+        [BoxGroup("Collision Search")]
+        [ShowIf("@IsCollisionSearch && CollisionRangeSource == TargetChannelCollisionRangeSource.AreaChannelRect")]
+        [LabelText("Area Tag")]
+        public string CollisionAreaTag = "default";
+
+        [BoxGroup("Collision Search")]
+        [ShowIf("@IsCollisionSearch && CollisionRangeSource == TargetChannelCollisionRangeSource.DynamicRect")]
+        [LabelText("Rect Center")]
+        public DynamicValue<Vector3> CollisionRectCenter = DynamicValueExtensions.FromLiteral(Vector3.zero);
+
+        [BoxGroup("Collision Search")]
+        [ShowIf("@IsCollisionSearch && CollisionRangeSource == TargetChannelCollisionRangeSource.DynamicRect")]
+        [LabelText("Rect Size")]
+        public DynamicValue<Vector2> CollisionRectSize = DynamicValueExtensions.FromLiteral(new Vector2(1f, 1f));
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(IsCollisionSearch))]
+        [LabelText("Use Include Dynamic Sets")]
+        public bool CollisionUseIncludeDynamicSets = false;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf("@IsCollisionSearch && CollisionUseIncludeDynamicSets")]
+        [LabelText("Include Dynamic Sets")]
+        public DynamicColliderSetRef[] CollisionIncludeDynamicSets = Array.Empty<DynamicColliderSetRef>();
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(IsCollisionSearch))]
+        [LabelText("Use Exclude Dynamic Sets")]
+        public bool CollisionUseExcludeDynamicSets = false;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf("@IsCollisionSearch && CollisionUseExcludeDynamicSets")]
+        [LabelText("Exclude Dynamic Sets")]
+        public DynamicColliderSetRef[] CollisionExcludeDynamicSets = Array.Empty<DynamicColliderSetRef>();
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(IsCollisionSearch))]
+        [LabelText("Match Any Include")]
+        public bool CollisionMatchAnyInclude = true;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(IsCollisionSearch))]
+        [InlineProperty]
+        [LabelText("Hit Filter")]
+        public HitFilter CollisionHitFilter;
+
         public float CosHalfAngle
         {
             get
@@ -178,6 +243,21 @@ namespace Game.Targeting
                 CustomForwardVector = CustomForwardVector,
                 ActorSource = ActorSource,
                 ScopeRequireActive = ScopeRequireActive,
+                CollisionRangeSource = CollisionRangeSource,
+                CollisionAreaActorSource = CollisionAreaActorSource,
+                CollisionAreaTag = CollisionAreaTag,
+                CollisionRectCenter = CollisionRectCenter,
+                CollisionRectSize = CollisionRectSize,
+                CollisionUseIncludeDynamicSets = CollisionUseIncludeDynamicSets,
+                CollisionIncludeDynamicSets = CollisionIncludeDynamicSets != null
+                    ? (DynamicColliderSetRef[])CollisionIncludeDynamicSets.Clone()
+                    : Array.Empty<DynamicColliderSetRef>(),
+                CollisionUseExcludeDynamicSets = CollisionUseExcludeDynamicSets,
+                CollisionExcludeDynamicSets = CollisionExcludeDynamicSets != null
+                    ? (DynamicColliderSetRef[])CollisionExcludeDynamicSets.Clone()
+                    : Array.Empty<DynamicColliderSetRef>(),
+                CollisionMatchAnyInclude = CollisionMatchAnyInclude,
+                CollisionHitFilter = CollisionHitFilter,
             };
         }
 
@@ -214,6 +294,25 @@ namespace Game.Targeting
             {
                 ActorSource = mutation.ActorSource;
                 ScopeRequireActive = mutation.ScopeRequireActive;
+            }
+
+            if (mutation.ApplyCollisionSearch)
+            {
+                CollisionRangeSource = mutation.CollisionRangeSource;
+                CollisionAreaActorSource = mutation.CollisionAreaActorSource;
+                CollisionAreaTag = mutation.CollisionAreaTag;
+                CollisionRectCenter = mutation.CollisionRectCenter;
+                CollisionRectSize = mutation.CollisionRectSize;
+                CollisionUseIncludeDynamicSets = mutation.CollisionUseIncludeDynamicSets;
+                CollisionIncludeDynamicSets = mutation.CollisionIncludeDynamicSets != null
+                    ? (DynamicColliderSetRef[])mutation.CollisionIncludeDynamicSets.Clone()
+                    : Array.Empty<DynamicColliderSetRef>();
+                CollisionUseExcludeDynamicSets = mutation.CollisionUseExcludeDynamicSets;
+                CollisionExcludeDynamicSets = mutation.CollisionExcludeDynamicSets != null
+                    ? (DynamicColliderSetRef[])mutation.CollisionExcludeDynamicSets.Clone()
+                    : Array.Empty<DynamicColliderSetRef>();
+                CollisionMatchAnyInclude = mutation.CollisionMatchAnyInclude;
+                CollisionHitFilter = mutation.CollisionHitFilter;
             }
         }
     }
@@ -336,9 +435,71 @@ namespace Game.Targeting
         [LabelText("Require Active")]
         public bool ScopeRequireActive = true;
 
+        [BoxGroup("Collision Search")]
+        [ToggleLeft]
+        [LabelText("Apply Collision Search")]
+        public bool ApplyCollisionSearch;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Range Source")]
+        [EnumToggleButtons]
+        public TargetChannelCollisionRangeSource CollisionRangeSource = TargetChannelCollisionRangeSource.AreaChannelRect;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Area Hub Source\", CollisionAreaActorSource)")]
+        public VNext.ActorSource CollisionAreaActorSource = new() { Kind = VNext.ActorSourceKind.Current };
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Area Tag")]
+        public string CollisionAreaTag = "default";
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Rect Center")]
+        public DynamicValue<Vector3> CollisionRectCenter = DynamicValueExtensions.FromLiteral(Vector3.zero);
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Rect Size")]
+        public DynamicValue<Vector2> CollisionRectSize = DynamicValueExtensions.FromLiteral(new Vector2(1f, 1f));
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Use Include Dynamic Sets")]
+        public bool CollisionUseIncludeDynamicSets = false;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Include Dynamic Sets")]
+        public DynamicColliderSetRef[] CollisionIncludeDynamicSets = Array.Empty<DynamicColliderSetRef>();
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Use Exclude Dynamic Sets")]
+        public bool CollisionUseExcludeDynamicSets = false;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Exclude Dynamic Sets")]
+        public DynamicColliderSetRef[] CollisionExcludeDynamicSets = Array.Empty<DynamicColliderSetRef>();
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [LabelText("Match Any Include")]
+        public bool CollisionMatchAnyInclude = true;
+
+        [BoxGroup("Collision Search")]
+        [ShowIf(nameof(ApplyCollisionSearch))]
+        [InlineProperty]
+        [LabelText("Hit Filter")]
+        public HitFilter CollisionHitFilter;
+
         public bool HasAnyMutation()
         {
-            return ApplyEnabled || ApplySearchType || ApplyDynamicSearch || ApplyScopeSearch;
+            return ApplyEnabled || ApplySearchType || ApplyDynamicSearch || ApplyScopeSearch || ApplyCollisionSearch;
         }
     }
 
@@ -426,6 +587,9 @@ namespace Game.Targeting
         public readonly TargetOriginSource OriginSource;
         public readonly TargetForwardSource ForwardSource;
         public readonly bool ScopeRequireActive;
+        public readonly TargetChannelCollisionRangeSource CollisionRangeSource;
+        public readonly string CollisionAreaTag;
+        public readonly string CollisionFilterSummary;
 
         public TargetChannelTelemetrySnapshot(
             string tag,
@@ -442,7 +606,10 @@ namespace Game.Targeting
             bool excludeSelf,
             TargetOriginSource originSource,
             TargetForwardSource forwardSource,
-            bool scopeRequireActive)
+            bool scopeRequireActive,
+            TargetChannelCollisionRangeSource collisionRangeSource,
+            string collisionAreaTag,
+            string collisionFilterSummary)
         {
             Tag = tag;
             Enabled = enabled;
@@ -459,6 +626,9 @@ namespace Game.Targeting
             OriginSource = originSource;
             ForwardSource = forwardSource;
             ScopeRequireActive = scopeRequireActive;
+            CollisionRangeSource = collisionRangeSource;
+            CollisionAreaTag = collisionAreaTag;
+            CollisionFilterSummary = collisionFilterSummary;
         }
     }
 

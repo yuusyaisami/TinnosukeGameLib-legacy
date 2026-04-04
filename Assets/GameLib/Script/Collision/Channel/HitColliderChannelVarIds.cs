@@ -4,19 +4,33 @@ namespace Game.Collision
 {
     /// <summary>
     /// HitColliderController/Channel が CommandContext.Vars へ書き込むための varId 定義。
-    ///
-    /// VarKeyRegistry が未用意/未同期でもランタイムで確実に参照できるよう、固定の int varId を採用する。
-    /// コマンド側は VarKeyRef.varId にこれらを指定して参照する。
     /// </summary>
     public static class HitColliderChannelVarIds
     {
-        // NOTE: 既存の Generated VarIds と衝突しないよう高めのレンジを使用。
-        public const int Hit = 10001;          // object (boxed CollisionHit)
-        public const int HitMeta = 10002;      // object (boxed HitFrameMeta)
-        public const int IsOtherSide = 10003;  // bool
-        public const int HitEvent = 10004;     // int (HitEventType)
+        static readonly int s_hit = Resolve(HitColliderChannelVariableKeys.Hit);
+        static readonly int s_hitMeta = Resolve(HitColliderChannelVariableKeys.HitMeta);
+        static readonly int s_isOtherSide = Resolve(HitColliderChannelVariableKeys.IsOtherSide);
+        static readonly int s_hitEvent = Resolve(HitColliderChannelVariableKeys.HitEvent);
+        static readonly int s_selfScope = Resolve(HitColliderChannelVariableKeys.SelfScope);
+        static readonly int s_otherScope = Resolve(HitColliderChannelVariableKeys.OtherScope);
+        static readonly int s_selfTag = Resolve(HitColliderChannelVariableKeys.SelfTag);
+        static readonly int s_otherTag = Resolve(HitColliderChannelVariableKeys.OtherTag);
 
-        public const int SelfScope = 10005;    // object (IScopeNode)
-        public const int OtherScope = 10006;   // object (IScopeNode or unset)
+        public static int Hit => s_hit;                 // object (boxed CollisionHit)
+        public static int HitMeta => s_hitMeta;         // object (boxed HitFrameMeta)
+        public static int IsOtherSide => s_isOtherSide; // bool
+        public static int HitEvent => s_hitEvent;       // int (HitEventType)
+
+        public static int SelfScope => s_selfScope;     // object (IScopeNode)
+        public static int OtherScope => s_otherScope;   // object (IScopeNode or unset)
+        public static int SelfTag => s_selfTag;         // string
+        public static int OtherTag => s_otherTag;       // string
+
+        static int Resolve(string stableKey)
+        {
+            return VarIdResolver.TryResolve(stableKey, out var varId) && varId != 0
+                ? varId
+                : 0;
+        }
     }
 }

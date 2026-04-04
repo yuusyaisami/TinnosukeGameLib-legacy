@@ -40,6 +40,17 @@ namespace Game.StatusEffect
         RuntimeIntensity = 20,
     }
 
+    public enum StatusEffectRuntimeIntensityReference
+    {
+        A = 10,
+        B = 20,
+        C = 30,
+        D = 40,
+        E = 50,
+        F = 60,
+        G = 70,
+    }
+
     public enum ScalarModifierApplyMode
     {
         Add = 10,
@@ -234,9 +245,33 @@ namespace Game.StatusEffect
         [Tooltip("同じ slot に既存 effect がある場合の重ね処理 preset です。未指定時は DurationRefresh 相当の既定 preset を使います。")]
         public DynamicValue<StatusEffectStackPreset> StackPreset;
 
-        [LabelText("Intensity")]
-        [Tooltip("RuntimeIntensity を利用する operation に渡す強度値です。未指定時は 1 を使います。")]
-        public DynamicValue<float> Intensity;
+        [LabelText("Intensity A")]
+        [Tooltip("RuntimeIntensity A を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityA;
+
+        [LabelText("Intensity B")]
+        [Tooltip("RuntimeIntensity B を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityB;
+
+        [LabelText("Intensity C")]
+        [Tooltip("RuntimeIntensity C を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityC;
+
+        [LabelText("Intensity D")]
+        [Tooltip("RuntimeIntensity D を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityD;
+
+        [LabelText("Intensity E")]
+        [Tooltip("RuntimeIntensity E を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityE;
+
+        [LabelText("Intensity F")]
+        [Tooltip("RuntimeIntensity F を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityF;
+
+        [LabelText("Intensity G")]
+        [Tooltip("RuntimeIntensity G を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityG;
 
         [LabelText("Override Duration")]
         [Tooltip("definition 側の duration を無視して、この request 側の duration を使います。")]
@@ -255,6 +290,19 @@ namespace Game.StatusEffect
         [InlineProperty]
         [Tooltip("Apply 時に hook command を append / replace / clear するための変更セットです。")]
         public StatusEffectHookMutationSet HookMutations = new();
+
+        public StatusEffectResolvedIntensities ResolveIntensities(IDynamicContext evaluationContext)
+        {
+            StatusEffectResolvedIntensities intensities = default;
+            intensities.A = IntensityA.HasSource ? IntensityA.GetOrDefault(evaluationContext, 0f) : 0f;
+            intensities.B = IntensityB.HasSource ? IntensityB.GetOrDefault(evaluationContext, 0f) : 0f;
+            intensities.C = IntensityC.HasSource ? IntensityC.GetOrDefault(evaluationContext, 0f) : 0f;
+            intensities.D = IntensityD.HasSource ? IntensityD.GetOrDefault(evaluationContext, 0f) : 0f;
+            intensities.E = IntensityE.HasSource ? IntensityE.GetOrDefault(evaluationContext, 0f) : 0f;
+            intensities.F = IntensityF.HasSource ? IntensityF.GetOrDefault(evaluationContext, 0f) : 0f;
+            intensities.G = IntensityG.HasSource ? IntensityG.GetOrDefault(evaluationContext, 0f) : 0f;
+            return intensities;
+        }
     }
 
     public interface IStatusEffectDefinitionData
@@ -417,6 +465,12 @@ namespace Game.StatusEffect
         [Tooltip("Intensity をそのまま使うか、StatusEffect Runtime の VarStore を含む DynamicValue 評価で決めるかを指定します。")]
         public StatusEffectScalarValueMode ValueMode = StatusEffectScalarValueMode.RuntimeIntensity;
 
+        [ShowIf(nameof(UsesRuntimeIntensity))]
+        [LabelText("Runtime Intensity Slot")]
+        [EnumToggleButtons]
+        [Tooltip("RuntimeIntensity 参照時にどのスロット（A〜G）を読むかを指定します。")]
+        public StatusEffectRuntimeIntensityReference RuntimeIntensitySlot = StatusEffectRuntimeIntensityReference.A;
+
         [ShowIf(nameof(UsesDynamicValue))]
         [LabelText("Value")]
         [Tooltip("Value Mode が DynamicValue のときに使う値です。StatusEffect の intensity など runtime vars を参照できます。")]
@@ -432,6 +486,7 @@ namespace Game.StatusEffect
 
         bool UsesMulPhase() => ApplyMode == ScalarModifierApplyMode.Mul;
         bool UsesDynamicValue() => ValueMode == StatusEffectScalarValueMode.DynamicValue;
+        bool UsesRuntimeIntensity() => ValueMode == StatusEffectScalarValueMode.RuntimeIntensity;
 
         public bool TryBuild(StatusEffectBuildContext context, out IStatusEffectOperationRuntime runtime)
         {
@@ -465,6 +520,7 @@ namespace Game.StatusEffect
                 MulPhase,
                 Layer,
                 ValueMode,
+                RuntimeIntensitySlot,
                 valueExpression,
                 evaluationContext,
                 context.Definition.DefinitionId);
@@ -480,7 +536,13 @@ namespace Game.StatusEffect
         {
             return new List<ExpressionVariable>
             {
-                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensity, "intensity"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityA, "intensityA"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityB, "intensityB"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityC, "intensityC"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityD, "intensityD"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityE, "intensityE"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityF, "intensityF"),
+                CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityG, "intensityG"),
                 CreateInt(VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount, "stackCount"),
                 CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingDuration, "remainingDuration"),
                 CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration, "totalDuration"),
@@ -674,6 +736,7 @@ namespace Game.StatusEffect
         readonly ScalarMulPhase _mulPhase;
         readonly string _layer;
         readonly StatusEffectScalarValueMode _valueMode;
+        readonly StatusEffectRuntimeIntensityReference _runtimeIntensitySlot;
         readonly DynamicValue<float> _value;
         readonly IDynamicContext _evaluationContext;
         readonly string _tag;
@@ -690,6 +753,7 @@ namespace Game.StatusEffect
             ScalarMulPhase mulPhase,
             string layer,
             StatusEffectScalarValueMode valueMode,
+            StatusEffectRuntimeIntensityReference runtimeIntensitySlot,
             DynamicValue<float> value,
             IDynamicContext evaluationContext,
             string definitionId)
@@ -701,6 +765,7 @@ namespace Game.StatusEffect
             _mulPhase = mulPhase;
             _layer = layer ?? string.Empty;
             _valueMode = valueMode;
+            _runtimeIntensitySlot = runtimeIntensitySlot;
             _value = value;
             _evaluationContext = evaluationContext;
             _tag = BuildTag(definitionId);
@@ -768,8 +833,21 @@ namespace Game.StatusEffect
 
         float ResolveRuntimeIntensity()
         {
+            var slot = _runtimeIntensitySlot switch
+            {
+                StatusEffectRuntimeIntensityReference.A => StatusEffectIntensitySlot.A,
+                StatusEffectRuntimeIntensityReference.B => StatusEffectIntensitySlot.B,
+                StatusEffectRuntimeIntensityReference.C => StatusEffectIntensitySlot.C,
+                StatusEffectRuntimeIntensityReference.D => StatusEffectIntensitySlot.D,
+                StatusEffectRuntimeIntensityReference.E => StatusEffectIntensitySlot.E,
+                StatusEffectRuntimeIntensityReference.F => StatusEffectIntensitySlot.F,
+                StatusEffectRuntimeIntensityReference.G => StatusEffectIntensitySlot.G,
+                _ => StatusEffectIntensitySlot.A,
+            };
+
+            var varId = StatusEffectIntensitySlotUtility.GetRuntimeElementVarId(slot);
             if (_evaluationContext?.Vars != null &&
-                _evaluationContext.Vars.TryGetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensity, out var variant) &&
+                _evaluationContext.Vars.TryGetVariant(varId, out var variant) &&
                 variant.TryGet(out float intensity))
             {
                 return intensity;

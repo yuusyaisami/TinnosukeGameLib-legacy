@@ -71,6 +71,12 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(AssetStatusEffectDefinitionSource));
             if (targetType == typeof(StatusEffectStackPreset))
                 allowedList.Add(typeof(AssetStatusEffectStackPresetSource));
+            if (targetType == typeof(StatusEffectGlobalLifetimeSettings))
+                allowedList.Add(typeof(AssetStatusEffectGlobalLifetimeSettingsSource));
+            if (targetType == typeof(StatusEffectGlobalUseCooldownSettings))
+                allowedList.Add(typeof(AssetStatusEffectGlobalUseCooldownSettingsSource));
+            if (targetType == typeof(StatusEffectGlobalCountSettings))
+                allowedList.Add(typeof(AssetStatusEffectGlobalCountSettingsSource));
             if (targetType == typeof(MotionPreset))
                 allowedList.Add(typeof(AssetMotionPresetSource));
             if (targetType == typeof(TraitDefinitionSO))
@@ -132,6 +138,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(ActorSourceExistsSource));
                 allowedList.Add(typeof(SharedActorSourceExistsSource));
                 allowedList.Add(typeof(UIModalStackActorMatchSource));
+                allowedList.Add(typeof(DataExistsBoolSource));
             }
             else if (targetType == typeof(int))
             {
@@ -255,6 +262,9 @@ namespace Game.Common.Editor
             if (targetType == typeof(CommandListData)) return typeof(LiteralCommandListDataSource);
             if (targetType == typeof(BaseStatusEffectDefinitionData)) return typeof(LiteralStatusEffectDefinitionSource);
             if (targetType == typeof(StatusEffectStackPreset)) return typeof(LiteralStatusEffectStackPresetSource);
+            if (targetType == typeof(StatusEffectGlobalLifetimeSettings)) return typeof(LiteralStatusEffectGlobalLifetimeSettingsSource);
+            if (targetType == typeof(StatusEffectGlobalUseCooldownSettings)) return typeof(LiteralStatusEffectGlobalUseCooldownSettingsSource);
+            if (targetType == typeof(StatusEffectGlobalCountSettings)) return typeof(LiteralStatusEffectGlobalCountSettingsSource);
             if (targetType == typeof(BaseRuntimeTemplatePreset)) return typeof(LiteralRuntimeTemplatePresetSource);
             if (targetType == typeof(ParticleRuntimeTemplatePreset)) return typeof(LiteralParticleRuntimeTemplatePresetSource);
             if (targetType == typeof(FirePatternRuntimeTemplatePreset)) return typeof(LiteralFirePatternRuntimeTemplatePresetSource);
@@ -277,6 +287,12 @@ namespace Game.Common.Editor
             // Generic types
             if (sourceType.IsGenericType)
             {
+                var genericDef = sourceType.GetGenericTypeDefinition();
+                if (genericDef == typeof(ManagedRefLiteralSource<>))
+                    return "Literal";
+                if (genericDef == typeof(ManagedRefAssetSource<,>))
+                    return "Asset";
+
                 var baseName = name.Substring(0, name.IndexOf('`'));
                 var args = sourceType.GetGenericArguments();
                 return $"{baseName}<{string.Join(", ", args.Select(a => a.Name))}>";

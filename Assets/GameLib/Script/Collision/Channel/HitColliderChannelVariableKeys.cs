@@ -11,5 +11,8 @@ namespace Game.Collision
 
         public const string SelfScope = "Collision.SelfScope";
         public const string OtherScope = "Collision.OtherScope";
+
+        public const string SelfTag = "Collision.SelfTag";
+        public const string OtherTag = "Collision.OtherTag";
     }
 }

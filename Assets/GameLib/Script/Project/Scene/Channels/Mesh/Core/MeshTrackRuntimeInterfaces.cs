@@ -42,6 +42,11 @@ namespace Game.Channel
         public int SmoothingSubdivisions;
     }
 
+    sealed class MeshMultiCenterLineEvaluation : MeshTrackPlayerEvaluation
+    {
+        public readonly List<MeshCenterLineEvaluation> Lines = new();
+    }
+
     sealed class MeshContourEvaluation : MeshTrackPlayerEvaluation
     {
         public readonly List<MeshRuntimePath> Paths = new();

@@ -50,6 +50,12 @@ namespace Game.StatusEffect
         int _lastWrittenGlobalCurrentCount;
         int _lastWrittenGlobalMaxCount;
         bool _lastWrittenGlobalCanUse;
+        StatusEffectGlobalLifetimeSettings? _globalLifetimeSettingsOverride;
+        StatusEffectGlobalUseCooldownSettings? _globalUseCooldownSettingsOverride;
+        StatusEffectGlobalCountSettings? _globalCountSettingsOverride;
+        bool _hasGlobalLifetimeSettingsOverride;
+        bool _hasGlobalUseCooldownSettingsOverride;
+        bool _hasGlobalCountSettingsOverride;
 
         const string OnEffectAppliedKey = EventKeys.GameLib.StatusEffect.OnApplied;
         const string OnEffectRemovedKey = EventKeys.GameLib.StatusEffect.OnRemoved;
@@ -108,7 +114,7 @@ namespace Game.StatusEffect
                 ? definition.DefaultRuntimeTag ?? string.Empty
                 : request.RuntimeTag;
             var slotKey = BuildSlotKey(definition.DefinitionId, runtimeTag);
-            var resolvedIntensity = ResolveIntensity(request, evalContext);
+            var resolvedIntensities = ResolveIntensities(request, evalContext);
             var resolvedStackPreset = ResolveStackPreset(request, evalContext);
             var runtimeVars = new VarStore();
 
@@ -123,7 +129,7 @@ namespace Game.StatusEffect
                     definition,
                     existing.InstanceId,
                     runtimeTag,
-                    resolvedIntensity,
+                    resolvedIntensities,
                     resolvedStackPreset);
 
                 existing.ApplyMutations(request.HookMutations);
@@ -142,7 +148,7 @@ namespace Game.StatusEffect
                 definition,
                 instanceId,
                 runtimeTag,
-                resolvedIntensity,
+                resolvedIntensities,
                 resolvedStackPreset);
 
             if (!TryBuildRuntime(definition, buildContext, slotKey, out var runtime))
@@ -307,6 +313,43 @@ namespace Game.StatusEffect
                 _removeQueue.Add(key);
 
             ProcessRemoveQueue();
+        }
+
+        public void RefreshServiceSettings(bool resetGlobalState = true)
+        {
+            if (_disposed)
+                return;
+
+            EnsureGlobalStateInitialized(forceReset: resetGlobalState || !_hasInitializedGlobalState);
+            SyncAllRuntimeGlobalState(applyActions: _isActive);
+            WriteGlobalStateToBlackboard(force: true);
+        }
+
+        public void ConfigureServiceSettings(StatusEffectServiceSettingsOverrideRequest request, IDynamicContext? evaluationContext = null)
+        {
+            _ = evaluationContext;
+            if (_disposed || request == null)
+                return;
+
+            if (request.ApplyGlobalLifetimeSettings)
+            {
+                _hasGlobalLifetimeSettingsOverride = true;
+                _globalLifetimeSettingsOverride = (request.GlobalLifetimeSettings ?? StatusEffectGlobalLifetimeSettings.CreateDisabled()).CreateRuntimeCopy();
+            }
+
+            if (request.ApplyGlobalUseCooldownSettings)
+            {
+                _hasGlobalUseCooldownSettingsOverride = true;
+                _globalUseCooldownSettingsOverride = (request.GlobalUseCooldownSettings ?? StatusEffectGlobalUseCooldownSettings.CreateDisabled()).CreateRuntimeCopy();
+            }
+
+            if (request.ApplyGlobalCountSettings)
+            {
+                _hasGlobalCountSettingsOverride = true;
+                _globalCountSettingsOverride = (request.GlobalCountSettings ?? StatusEffectGlobalCountSettings.CreateDisabled()).CreateRuntimeCopy();
+            }
+
+            RefreshServiceSettings(request.ResetGlobalState);
         }
 
         public bool HasEffect(string definitionId)
@@ -570,7 +613,7 @@ namespace Game.StatusEffect
                 buildContext.InstanceId,
                 buildContext.RuntimeTag,
                 slotKey,
-                buildContext.ResolvedIntensity,
+                buildContext.ResolvedIntensities,
                 buildContext.ResolvedStackPreset,
                 runtimeVars,
                 operations,
@@ -584,12 +627,9 @@ namespace Game.StatusEffect
             return true;
         }
 
-        float ResolveIntensity(StatusEffectApplyRequest request, IDynamicContext evaluationContext)
+        static StatusEffectResolvedIntensities ResolveIntensities(StatusEffectApplyRequest request, IDynamicContext evaluationContext)
         {
-            if (!request.Intensity.HasSource)
-                return 1f;
-
-            return request.Intensity.GetOrDefault(evaluationContext, 1f);
+            return request.ResolveIntensities(evaluationContext);
         }
 
         StatusEffectStackPreset ResolveStackPreset(StatusEffectApplyRequest request, IDynamicContext evaluationContext)
@@ -651,7 +691,11 @@ namespace Game.StatusEffect
             _hasInitializedGlobalState = true;
             var context = CreateGlobalSettingsContext();
 
-            var lifetimeSettings = _options?.GlobalLifetimeSettings;
+            var lifetimeSettings = _hasGlobalLifetimeSettingsOverride
+                ? _globalLifetimeSettingsOverride?.CreateRuntimeCopy()
+                : _options?.GlobalLifetimeSettingsValue.GetOrDefault(
+                    context,
+                    new StatusEffectGlobalLifetimeSettings())?.CreateRuntimeCopy();
             if (lifetimeSettings != null && lifetimeSettings.Enabled)
             {
                 _globalLifetimeTotal = lifetimeSettings.Duration.GetOrDefault(context, -1f);
@@ -665,7 +709,11 @@ namespace Game.StatusEffect
                 _skipNextGlobalLifetimeTick = false;
             }
 
-            var cooldownSettings = _options?.GlobalUseCooldownSettings;
+            var cooldownSettings = _hasGlobalUseCooldownSettingsOverride
+                ? _globalUseCooldownSettingsOverride?.CreateRuntimeCopy()
+                : _options?.GlobalUseCooldownSettingsValue.GetOrDefault(
+                    context,
+                    new StatusEffectGlobalUseCooldownSettings())?.CreateRuntimeCopy();
             if (cooldownSettings != null && cooldownSettings.Enabled)
                 _globalCooldownTotal = Mathf.Max(0f, cooldownSettings.Duration.GetOrDefault(context, 0f));
             else
@@ -673,7 +721,11 @@ namespace Game.StatusEffect
             _globalCooldownRemaining = 0f;
             _skipNextGlobalCooldownTick = false;
 
-            var countSettings = _options?.GlobalCountSettings;
+            var countSettings = _hasGlobalCountSettingsOverride
+                ? _globalCountSettingsOverride?.CreateRuntimeCopy()
+                : _options?.GlobalCountSettingsValue.GetOrDefault(
+                    context,
+                    new StatusEffectGlobalCountSettings())?.CreateRuntimeCopy();
             if (countSettings != null && countSettings.Enabled)
                 _globalMaxCount = Mathf.Max(0, countSettings.MaxCount.GetOrDefault(context, 0));
             else
@@ -809,7 +861,13 @@ namespace Game.StatusEffect
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration, DynamicVariant.FromFloat(state.TotalDuration));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingDuration, DynamicVariant.FromFloat(state.RemainingTime));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, DynamicVariant.FromFloat(state.RemainingUseCooldown));
-            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensity, DynamicVariant.FromFloat(state.Intensity));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityA, DynamicVariant.FromFloat(state.IntensityA));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityB, DynamicVariant.FromFloat(state.IntensityB));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityC, DynamicVariant.FromFloat(state.IntensityC));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityD, DynamicVariant.FromFloat(state.IntensityD));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityE, DynamicVariant.FromFloat(state.IntensityE));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityF, DynamicVariant.FromFloat(state.IntensityF));
+            payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityG, DynamicVariant.FromFloat(state.IntensityG));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount, DynamicVariant.FromInt(state.StackCount));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isEnabled, DynamicVariant.FromBool(state.IsEnabled));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isApplied, DynamicVariant.FromBool(state.IsApplied));

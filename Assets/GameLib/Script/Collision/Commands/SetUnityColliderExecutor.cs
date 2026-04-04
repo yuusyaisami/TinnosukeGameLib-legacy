@@ -1,4 +1,6 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Collision;
@@ -30,56 +32,85 @@ namespace Game.Commands.VNext
                 unityService = resolvedService;
 
             var unityColliderMb = root.GetComponentInChildren<UnityColliderObjectMB>(includeInactive: true);
-            var collider = ResolvePrimaryCollider(root, unityColliderMb);
-            var host = ResolveHost(root, unityColliderMb, collider);
-            if (host == null)
+
+            var targetColliders = new List<Collider2D>(8);
+            var targetTags = new List<string>(8);
+            ResolveTargets(root, unityColliderMb, typed.TargetTag, targetColliders, targetTags);
+            if (targetColliders.Count == 0)
                 return UniTask.CompletedTask;
 
-            var wasServiceEnabled = unityService?.IsEnabled ?? false;
-            var colliderEnabledBeforeReconfigure = collider?.enabled ?? false;
-            var colliderTriggerBeforeReconfigure = collider?.isTrigger ?? false;
-
-            if (unityService != null && wasServiceEnabled)
-                unityService.SetEnabled(false);
-
-            collider = EnsureModeCollider(host, collider, typed.Mode);
-            if (collider == null)
-                return UniTask.CompletedTask;
-
-            if (unityColliderMb != null)
-                unityColliderMb.SetCollider(collider);
-
-            var currentEnabled = colliderEnabledBeforeReconfigure;
-            var currentIsTrigger = colliderTriggerBeforeReconfigure;
-
-            var finalEnabled = typed.ApplyEnabled
-                ? typed.Enabled.GetOrDefault(ctx, true)
-                : currentEnabled;
-            var finalIsTrigger = typed.ApplyIsTrigger
-                ? typed.IsTrigger.GetOrDefault(ctx, currentIsTrigger)
-                : currentIsTrigger;
-
-            if (typed.ApplyOffset)
+            for (var i = 0; i < targetColliders.Count; i++)
             {
-                var offset = typed.Offset.GetOrDefault(ctx, collider.offset);
-                collider.offset = offset;
+                var sourceCollider = targetColliders[i];
+                if (sourceCollider == null)
+                    continue;
+
+                var colliderTag = i < targetTags.Count
+                    ? NormalizeTag(targetTags[i])
+                    : UnityColliderObjectMB.DefaultColliderTag;
+
+                var enabledBeforeReconfigure = sourceCollider.enabled;
+                var triggerBeforeReconfigure = sourceCollider.isTrigger;
+
+                var configuredCollider = EnsureModeCollider(sourceCollider.gameObject, sourceCollider, typed.Mode);
+                if (configuredCollider == null)
+                    continue;
+
+                if (!ReferenceEquals(configuredCollider, sourceCollider))
+                {
+                    unityColliderMb?.ReplaceCollider(sourceCollider, configuredCollider, colliderTag);
+                    unityService?.NotifyColliderReplaced(sourceCollider, configuredCollider, colliderTag);
+                    targetColliders[i] = configuredCollider;
+                }
+
+                var finalEnabled = typed.ApplyEnabled
+                    ? typed.Enabled.GetOrDefault(ctx, true)
+                    : enabledBeforeReconfigure;
+                var finalIsTrigger = typed.ApplyIsTrigger
+                    ? typed.IsTrigger.GetOrDefault(ctx, triggerBeforeReconfigure)
+                    : triggerBeforeReconfigure;
+
+                if (typed.ApplyOffset)
+                {
+                    var offset = typed.Offset.GetOrDefault(ctx, configuredCollider.offset);
+                    configuredCollider.offset = offset;
+                }
+
+                if (typed.ApplySize)
+                {
+                    var size = typed.Size.GetOrDefault(ctx, Vector2.one);
+                    ApplyGenericSize(configuredCollider, size);
+                }
+
+                ApplyModeSpecificSettings(configuredCollider, typed, ctx);
+
+                if (typed.ApplySharedMaterial)
+                    configuredCollider.sharedMaterial = typed.SharedMaterial;
+
+                configuredCollider.isTrigger = finalIsTrigger;
+                if (unityService != null)
+                {
+                    unityService.SetTrigger(configuredCollider, finalIsTrigger);
+                    unityService.SetEnabled(configuredCollider, finalEnabled, colliderTag);
+                }
+                else
+                {
+                    configuredCollider.enabled = finalEnabled;
+                }
             }
-
-            if (typed.ApplySize)
-            {
-                var size = typed.Size.GetOrDefault(ctx, Vector2.one);
-                ApplyGenericSize(collider, size);
-            }
-
-            ApplyModeSpecificSettings(collider, typed, ctx);
-
-            if (typed.ApplySharedMaterial)
-                collider.sharedMaterial = typed.SharedMaterial;
 
             if (typed.ApplyLayerId)
             {
-                var layerId = Mathf.Clamp(typed.LayerId.GetOrDefault(ctx, collider.gameObject.layer), 0, 31);
-                collider.gameObject.layer = layerId;
+                var layerDefault = targetColliders[0] != null ? targetColliders[0].gameObject.layer : 0;
+                var layerId = Mathf.Clamp(typed.LayerId.GetOrDefault(ctx, layerDefault), 0, 31);
+
+                for (var i = 0; i < targetColliders.Count; i++)
+                {
+                    var collider = targetColliders[i];
+                    if (collider != null)
+                        collider.gameObject.layer = layerId;
+                }
+
                 unityColliderMb?.SetLayerId(layerId);
                 unityService?.SetLayerId(layerId);
             }
@@ -107,19 +138,53 @@ namespace Game.Commands.VNext
                 unityService?.SetUserData(userData);
             }
 
-            collider.isTrigger = finalIsTrigger;
-
-            if (unityService != null)
-            {
-                unityService.SetTrigger(finalIsTrigger);
-                unityService.SetEnabled(finalEnabled);
-            }
-            else
-            {
-                collider.enabled = finalEnabled;
-            }
-
             return UniTask.CompletedTask;
+        }
+
+        static void ResolveTargets(
+            Transform root,
+            UnityColliderObjectMB? unityColliderMb,
+            string rawTargetTag,
+            List<Collider2D> colliders,
+            List<string> tags)
+        {
+            colliders.Clear();
+            tags.Clear();
+
+            var normalizedTargetTag = NormalizeSelectorTag(rawTargetTag);
+            if (normalizedTargetTag == null)
+            {
+                var primary = ResolvePrimaryCollider(root, unityColliderMb);
+                if (primary == null)
+                    return;
+
+                colliders.Add(primary);
+                if (unityColliderMb != null && unityColliderMb.TryGetTagForCollider(primary, out var tag))
+                    tags.Add(tag);
+                else
+                    tags.Add(UnityColliderObjectMB.DefaultColliderTag);
+                return;
+            }
+
+            if (unityColliderMb == null)
+                return;
+
+            unityColliderMb.FillConfiguredColliders(colliders, tags);
+            FilterTargetsByTag(colliders, tags, normalizedTargetTag);
+        }
+
+        static void FilterTargetsByTag(List<Collider2D> colliders, List<string> tags, string targetTag)
+        {
+            for (var i = colliders.Count - 1; i >= 0; i--)
+            {
+                var tag = i < tags.Count ? tags[i] : UnityColliderObjectMB.DefaultColliderTag;
+                if (string.Equals(tag, targetTag, StringComparison.Ordinal))
+                    continue;
+
+                colliders.RemoveAt(i);
+                if (i < tags.Count)
+                    tags.RemoveAt(i);
+            }
         }
 
         static Collider2D? ResolvePrimaryCollider(Transform root, UnityColliderObjectMB? unityColliderMb)
@@ -131,27 +196,15 @@ namespace Game.Commands.VNext
             if (root.TryGetComponent<Collider2D>(out var own) && own != null)
                 return own;
 
-            var colliders = root.GetComponentsInChildren<Collider2D>(includeInactive: true);
-            if (colliders == null || colliders.Length == 0)
-                return null;
-
-            for (int i = 0; i < colliders.Length; i++)
+            var found = root.GetComponentsInChildren<Collider2D>(includeInactive: true);
+            for (var i = 0; i < found.Length; i++)
             {
-                var c = colliders[i];
-                if (c != null)
-                    return c;
+                var collider = found[i];
+                if (collider != null)
+                    return collider;
             }
 
             return null;
-        }
-
-        static GameObject? ResolveHost(Transform root, UnityColliderObjectMB? unityColliderMb, Collider2D? currentCollider)
-        {
-            if (currentCollider != null)
-                return currentCollider.gameObject;
-            if (unityColliderMb != null)
-                return unityColliderMb.gameObject;
-            return root.gameObject;
         }
 
         static Collider2D? EnsureModeCollider(GameObject host, Collider2D? current, UnityColliderShapeMode mode)
@@ -170,27 +223,10 @@ namespace Game.Commands.VNext
             if (current is T typedCurrent)
                 return typedCurrent;
 
-            if (host.TryGetComponent<T>(out var existingTyped) && existingTyped != null)
-            {
-                DisableOtherColliders(host, existingTyped);
-                return existingTyped;
-            }
-
             var added = host.AddComponent<T>();
-            DisableOtherColliders(host, added);
+            if (current != null && !ReferenceEquals(current, added))
+                current.enabled = false;
             return added;
-        }
-
-        static void DisableOtherColliders(GameObject host, Collider2D active)
-        {
-            var all = host.GetComponents<Collider2D>();
-            for (int i = 0; i < all.Length; i++)
-            {
-                var c = all[i];
-                if (c == null || ReferenceEquals(c, active))
-                    continue;
-                c.enabled = false;
-            }
         }
 
         static void ApplyGenericSize(Collider2D collider, Vector2 size)
@@ -231,11 +267,25 @@ namespace Game.Commands.VNext
                     break;
                 case UnityColliderShapeMode.Capsule:
                     if (collider is CapsuleCollider2D capsule)
-                    {
                         capsule.direction = typed.CapsuleDirection;
-                    }
                     break;
             }
+        }
+
+        static string NormalizeTag(string? tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return UnityColliderObjectMB.DefaultColliderTag;
+
+            return tag.Trim();
+        }
+
+        static string? NormalizeSelectorTag(string? tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return null;
+
+            return tag.Trim();
         }
     }
 }

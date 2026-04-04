@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
-  m_Name: TraitDefinition
+  m_Name: YomiTraitDefinition
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
-  _definitionId: TestTraitDefinition
+  _definitionId: YomiTraitDefinition
   _name:
-    Template: "\u9670\u967D\u7389"
+    Template: "\u9EC4\u6CC9\u304C\u3048\u308A\u306E\u77F3"
     Variables: []
   _description:
-    Template: "\u6708\u3068\u592A\u967D\u3001\u9670\u967D\u7389\u3001\n\u30D2\u30C3\u30C8\u3059\u308B\u3068\u4FA1\u5024\u3092\u4E0A\u3052\u307E\u3059\u3002"
+    Template: "\u30D2\u30C3\u30C8\u6642 \u4E00\u5B9A\u306E\u78BA\u7387\u3067\u30DC\u30FC\u30EB\u3092\u305D\u306E\u5834\u306B\u751F\u6210\u3059\u308B"
     Variables: []
-  _weight: 2
+  _weight: 1
   _visualSettings:
     DefaultAnim:
       animationA:
@@ -48,7 +48,7 @@ MonoBehaviour:
             _functionName: 
             _commands: []
           frames:
-          - sprite: {fileID: 6915886441434697886, guid: 8ad632bfe3c098f4bbe11e694ffe3987, type: 3}
+          - sprite: {fileID: -3925147024429336520, guid: 0b3967e060c270e41afcf62386bb9ea4, type: 3}
             duration: 0.1
             commands:
               _debugOwner: {fileID: 0}
@@ -309,6 +309,13 @@ MonoBehaviour:
     loop: 0
     loopCount: -1
     steps: []
+  _runOnAddedCommands: 0
+  _onAddedCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
   _runOnHoldCommands: 0
   _onHoldCommands:
     _debugOwner: {fileID: 0}
@@ -336,14 +343,24 @@ MonoBehaviour:
     _debugAssetPath: 
     _functionName: 
     _commands: []
+  _runOnRuntimeVisibleCommands: 1
+  _onRuntimeVisibleCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands:
+    - rid: 5399842431600952237
+  _runOnRuntimeHiddenCommands: 0
+  _onRuntimeHiddenCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
   _applyCommonVars: 1
   _commonVars:
     entries:
-    - VarId: 228
-      Kind: 11
-      Value:
-        _source:
-          rid: 5619052465085481187
     - VarId: 100121
       Kind: 3
       Value:
@@ -397,6 +414,99 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842431600952237
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842431600952238
+    - rid: 5399842431600952238
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarOps: []
+        ScalarOps:
+        - Op: 0
+          Key:
+            Id: -1617617846
+            Name: GameLogic.NailProfile.Effect.GlobalMaxCount
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5399842431600952239
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
+    - rid: 5399842431600952239
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 3
     - rid: 5619052416848364315
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -412,40 +522,7 @@ MonoBehaviour:
     - rid: 5619052465085481186
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 10
-    - rid: 5619052465085481187
-      type: {class: LiteralCommandListDataSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052465085481188
-    - rid: 5619052465085481188
-      type: {class: CommandListData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        _debugOwner: {fileID: 0}
-        _debugFieldPath: 
-        _debugAssetPath: 
-        _functionName: 
-        _commands:
-        - rid: 5619052465085481189
-    - rid: 5619052465085481189
-      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        function:
-          _source:
-            rid: 5619052465085481190
-          _defaultValue:
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-        initialVars: []
-    - rid: 5619052465085481190
-      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: {fileID: 11400000, guid: f456249af8bbb214caa54d01c3c3c6f9, type: 2}
+        value: 15
     - rid: 5619052465085481193
       type: {class: AssetStatusEffectDefinitionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -461,8 +538,8 @@ MonoBehaviour:
     - rid: 5619052564776747352
       type: {class: AssetStatusEffectDefinitionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: {fileID: 11400000, guid: 8dbf54fda8cac3146a32773b347a2a56, type: 2}
+        value: {fileID: 11400000, guid: fabb3e3f0e735ce4ebce850e17dbabfc, type: 2}
     - rid: 5619052617993552547
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 1
+        value: 3

@@ -36,6 +36,13 @@ namespace Game.Channel
         Gap = 20,
     }
 
+    public enum MeshTargetLinkTopology
+    {
+        Independent = 10,
+        ChainPath = 20,
+        ChainTree = 30,
+    }
+
     public enum MeshEdgeAlphaMode
     {
         FadeInterior = 10,
@@ -774,6 +781,45 @@ namespace Game.Channel
     }
 
     [Serializable]
+    public sealed class MeshTargetLinkTrackPlayerPreset : MeshTrackPlayerPresetBase
+    {
+        [BoxGroup("Target Link")]
+        [LabelText("Condition")]
+        [Tooltip("Track の最終 Enabled を構成する DynamicValue<bool> です。false のときは RequestedEnabled が true でも track.Enabled は false になります。")]
+        public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
+
+        [BoxGroup("Target Link")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Self Actor Source\", SelfActorSource)")]
+        public ActorSource SelfActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [BoxGroup("Target Link")]
+        [LabelText("Target Channel Tag")]
+        public string TargetChannelTag = "default";
+
+        [BoxGroup("Target Link")]
+        [LabelText("Top N (0 = All)")]
+        [MinValue(0)]
+        public int TopN = 0;
+
+        [BoxGroup("Target Link")]
+        [LabelText("Topology")]
+        [EnumToggleButtons]
+        public MeshTargetLinkTopology Topology = MeshTargetLinkTopology.Independent;
+
+        internal override MeshTrackPlayerPresetBase CreateRuntimeCopy()
+        {
+            return new MeshTargetLinkTrackPlayerPreset
+            {
+                Condition = Condition,
+                SelfActorSource = SelfActorSource,
+                TargetChannelTag = TargetChannelTag,
+                TopN = TopN,
+                Topology = Topology,
+            };
+        }
+    }
+
+    [Serializable]
     public struct MeshLineDashPatternElement
     {
         [HorizontalGroup("Pattern", Width = 120f)]
@@ -1314,9 +1360,27 @@ namespace Game.Channel
         [ShowIf(nameof(ApplyAreaTag))]
         public string AreaTag = "default";
 
+        [LabelText("Apply Target Link Config")]
+        [Tooltip("TargetLink preset の参照チャネルとトポロジー設定を上書きします。")]
+        public bool ApplyTargetLinkConfig = false;
+
+        [ShowIf(nameof(ApplyTargetLinkConfig))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Self Actor Source\", SelfActorSource)")]
+        public ActorSource SelfActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [ShowIf(nameof(ApplyTargetLinkConfig))]
+        public string TargetChannelTag = "default";
+
+        [ShowIf(nameof(ApplyTargetLinkConfig))]
+        [MinValue(0)]
+        public int TopN = 0;
+
+        [ShowIf(nameof(ApplyTargetLinkConfig))]
+        public MeshTargetLinkTopology Topology = MeshTargetLinkTopology.Independent;
+
         public bool HasAnyMutation()
         {
-            return ReplacePreset || ApplyCondition || ApplyPoints || ApplyTrailConfig || ApplyAreaTag;
+            return ReplacePreset || ApplyCondition || ApplyPoints || ApplyTrailConfig || ApplyAreaTag || ApplyTargetLinkConfig;
         }
     }
 

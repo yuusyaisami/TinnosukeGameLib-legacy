@@ -29,11 +29,17 @@ namespace Game.Collision
         readonly HashSet<string> _warnedInvalidContextSlotRules = new(StringComparer.Ordinal);
         CancellationTokenSource? _cts;
         CancellationTokenSource? _selfHandleWatchCts;
-        DynamicColliderHandle _boundSelfHandle;
+        readonly List<DynamicColliderHandle> _boundSelfHandles = new(8);
+        readonly List<DynamicColliderHandle> _selfHandlesScratch = new(8);
+        readonly List<Collider2D> _selfCollidersScratch = new(8);
+        readonly List<string> _selfColliderTagsScratch = new(8);
+        readonly HashSet<FrameDedupKey> _frameDedup = new();
+        int _frameDedupFrameIndex = -1;
 
         sealed class RuntimeBinding
         {
             public string RuleName = string.Empty;
+            public int RuleIndex;
             public HitColliderChannelRuntime Runtime = null!;
             public Action<HitContactEvent> OnEnter = null!;
             public Action<HitContactEvent> OnStay = null!;
@@ -187,6 +193,84 @@ namespace Game.Collision
             }
         }
 
+        readonly struct FrameDedupKey : IEquatable<FrameDedupKey>
+        {
+            readonly int _ruleIndex;
+            readonly HitEventType _eventType;
+            readonly bool _isOtherSide;
+            readonly DynamicColliderHandle _otherDynamic;
+            readonly StaticColliderHandle _otherStatic;
+            readonly byte _kind;
+
+            FrameDedupKey(int ruleIndex, HitEventType eventType, bool isOtherSide, DynamicColliderHandle otherDynamic)
+            {
+                _ruleIndex = ruleIndex;
+                _eventType = eventType;
+                _isOtherSide = isOtherSide;
+                _otherDynamic = otherDynamic;
+                _otherStatic = default;
+                _kind = 1;
+            }
+
+            FrameDedupKey(int ruleIndex, HitEventType eventType, bool isOtherSide, StaticColliderHandle otherStatic)
+            {
+                _ruleIndex = ruleIndex;
+                _eventType = eventType;
+                _isOtherSide = isOtherSide;
+                _otherDynamic = default;
+                _otherStatic = otherStatic;
+                _kind = 2;
+            }
+
+            public static bool TryCreate(int ruleIndex, HitEventType eventType, in RoutedHit routedHit, out FrameDedupKey key)
+            {
+                if (routedHit.Hit.OtherDynamic.IsValid)
+                {
+                    key = new FrameDedupKey(ruleIndex, eventType, routedHit.IsOtherSide, routedHit.Hit.OtherDynamic);
+                    return true;
+                }
+
+                if (routedHit.Hit.OtherStatic.IsValid)
+                {
+                    key = new FrameDedupKey(ruleIndex, eventType, routedHit.IsOtherSide, routedHit.Hit.OtherStatic);
+                    return true;
+                }
+
+                key = default;
+                return false;
+            }
+
+            public bool Equals(FrameDedupKey other)
+            {
+                if (_ruleIndex != other._ruleIndex ||
+                    _eventType != other._eventType ||
+                    _isOtherSide != other._isOtherSide ||
+                    _kind != other._kind)
+                    return false;
+
+                return _kind switch
+                {
+                    1 => _otherDynamic.Equals(other._otherDynamic),
+                    2 => _otherStatic.Equals(other._otherStatic),
+                    _ => false,
+                };
+            }
+
+            public override bool Equals(object? obj) => obj is FrameDedupKey other && Equals(other);
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hash = (_ruleIndex * 397) ^ (int)_eventType;
+                    hash = (hash * 397) ^ (_isOtherSide ? 1 : 0);
+                    hash = (hash * 397) ^ _kind;
+                    hash = (hash * 397) ^ (_kind == 1 ? _otherDynamic.GetHashCode() : _otherStatic.GetHashCode());
+                    return hash;
+                }
+            }
+        }
+
         public HitColliderControllerService(
             HitColliderControllerMB mb,
             IScopeNode ownerScope,
@@ -255,6 +339,12 @@ namespace Game.Collision
 
             if (eventType == HitEventType.Exit)
                 ClearStayIntervalCounter(binding, evt);
+
+            if (ShouldSkipByFrameDedupe(binding.RuleIndex, eventType, evt.RoutedHit))
+            {
+                _mb.RecordDebugSkip(rule.Name, eventType, "FrameDedupe", evt.RoutedHit);
+                return;
+            }
 
             var vars = new VarStore(initialCapacity: 8);
             WriteVars(vars, evt.RoutedHit, eventType);
@@ -351,6 +441,21 @@ namespace Game.Collision
             return true;
         }
 
+        bool ShouldSkipByFrameDedupe(int ruleIndex, HitEventType eventType, in RoutedHit routedHit)
+        {
+            if (!FrameDedupKey.TryCreate(ruleIndex, eventType, routedHit, out var key))
+                return false;
+
+            var frameIndex = routedHit.Meta.FrameIndex;
+            if (_frameDedupFrameIndex != frameIndex)
+            {
+                _frameDedupFrameIndex = frameIndex;
+                _frameDedup.Clear();
+            }
+
+            return !_frameDedup.Add(key);
+        }
+
         static VNext.CommandListData? GetCommandList(HitColliderControllerRule rule, HitEventType eventType, bool forSelfWhenBoth = true)
         {
             if (rule.CommandTarget == HitColliderCommandTarget.Both)
@@ -379,6 +484,8 @@ namespace Game.Collision
             vars.TrySetManagedRef(HitColliderChannelVarIds.HitMeta, rh.Meta);
             vars.TrySetVariant(HitColliderChannelVarIds.IsOtherSide, DynamicVariant.FromBool(rh.IsOtherSide));
             vars.TrySetVariant(HitColliderChannelVarIds.HitEvent, DynamicVariant.FromInt((int)eventType));
+            vars.TrySetVariant(HitColliderChannelVarIds.SelfTag, DynamicVariant.FromString(ResolveColliderTag(rh.Hit.Self)));
+            vars.TrySetVariant(HitColliderChannelVarIds.OtherTag, DynamicVariant.FromString(ResolveOtherColliderTag(rh)));
 
             vars.TrySetManagedRef(HitColliderChannelVarIds.SelfScope, _ownerScope);
 
@@ -386,6 +493,32 @@ namespace Game.Collision
                 vars.TrySetManagedRef(HitColliderChannelVarIds.OtherScope, other);
             else
                 vars.TryUnset(HitColliderChannelVarIds.OtherScope);
+        }
+
+        string ResolveOtherColliderTag(in RoutedHit routedHit)
+        {
+            if (routedHit.Hit.OtherDynamic.IsValid)
+                return ResolveColliderTag(routedHit.Hit.OtherDynamic);
+
+            return UnityColliderObjectMB.DefaultColliderTag;
+        }
+
+        string ResolveColliderTag(DynamicColliderHandle handle)
+        {
+            if (!handle.IsValid)
+                return UnityColliderObjectMB.DefaultColliderTag;
+
+            if (!TryEnsureUnityManager())
+                return UnityColliderObjectMB.DefaultColliderTag;
+
+            if (_unityManager != null &&
+                _unityManager.TryGetDynamicMetadata(handle, out var metadata) &&
+                !string.IsNullOrWhiteSpace(metadata.ColliderTag))
+            {
+                return metadata.ColliderTag.Trim();
+            }
+
+            return UnityColliderObjectMB.DefaultColliderTag;
         }
 
         async UniTask ExecuteAsyncTask(
@@ -615,7 +748,9 @@ namespace Game.Collision
                 }
             }
             _bindings.Clear();
-            _boundSelfHandle = default;
+            _boundSelfHandles.Clear();
+            _frameDedup.Clear();
+            _frameDedupFrameIndex = -1;
         }
 
         public void RebindRules()
@@ -644,9 +779,9 @@ namespace Game.Collision
                 if (ct.IsCancellationRequested)
                     return;
 
-                if (TryResolveSelfHandle(out var self) && self.IsValid)
+                if (TryResolveSelfHandles(_selfHandlesScratch) && _selfHandlesScratch.Count > 0)
                 {
-                    BindRules(self, rules);
+                    BindRules(_selfHandlesScratch, rules);
                     return;
                 }
 
@@ -666,60 +801,62 @@ namespace Game.Collision
             }
         }
 
-        bool TryResolveSelfHandle(out DynamicColliderHandle handle)
+        bool TryResolveSelfHandles(List<DynamicColliderHandle> handles)
         {
-            handle = default;
-
-            if (_mb.TryGetSelfHandle(out handle) && handle.IsValid)
-                return true;
+            handles.Clear();
 
             var resolver = _ownerScope?.Resolver;
             if (resolver != null)
             {
-                if (resolver.TryResolve<UnityColliderObjectService>(out var unityService) &&
-                    unityService != null)
+                if (resolver.TryResolve<UnityColliderObjectService>(out var unityService) && unityService != null)
                 {
-                    if (unityService.DynamicHandle.IsValid)
-                    {
-                        handle = unityService.DynamicHandle;
+                    if (unityService.FillRegisteredHandles(handles) > 0)
                         return true;
-                    }
 
                     if (!_attemptedSelfRepairWithUnityService && TryShouldRepairUnityColliderRegistration())
                     {
                         _attemptedSelfRepairWithUnityService = true;
                         unityService.SetEnabled(true);
 
-                        if (unityService.DynamicHandle.IsValid)
-                        {
-                            handle = unityService.DynamicHandle;
+                        if (unityService.FillRegisteredHandles(handles) > 0)
                             return true;
-                        }
                     }
-                }
 
+                    if (unityService.DynamicHandle.IsValid)
+                        AddUniqueHandle(handles, unityService.DynamicHandle);
+                }
+            }
+
+            if (_mb.TryGetSelfHandle(out var handle) && handle.IsValid)
+                AddUniqueHandle(handles, handle);
+
+            if (resolver != null)
+            {
                 if (resolver.TryResolve<ColliderObjectService>(out var colliderObjectService) &&
                     colliderObjectService != null &&
                     colliderObjectService.DynamicHandle.IsValid)
                 {
-                    handle = colliderObjectService.DynamicHandle;
-                    return true;
+                    AddUniqueHandle(handles, colliderObjectService.DynamicHandle);
                 }
             }
 
-            if (TryGetSelfHandleFromUnityCollider(out handle) && handle.IsValid)
-                return true;
+            TryGetSelfHandlesFromUnityCollider(handles);
 
-            return false;
+            return handles.Count > 0;
         }
 
         bool TryShouldRepairUnityColliderRegistration()
         {
-            var collider = ResolveSelfCollider2D();
-            if (collider == null)
-                return false;
+            _selfCollidersScratch.Clear();
+            FillSelfColliders(_selfCollidersScratch);
+            for (var i = 0; i < _selfCollidersScratch.Count; i++)
+            {
+                var collider = _selfCollidersScratch[i];
+                if (collider != null && collider.enabled)
+                    return true;
+            }
 
-            return collider.enabled;
+            return false;
         }
 
         bool HasAnySelfHandleProvider()
@@ -737,38 +874,80 @@ namespace Game.Collision
             return _mb.TryGetComponent<Collider2D>(out var collider) && collider != null;
         }
 
-        bool TryGetSelfHandleFromUnityCollider(out DynamicColliderHandle handle)
+        bool TryGetSelfHandlesFromUnityCollider(List<DynamicColliderHandle> handles)
         {
-            handle = default;
-
             if (!TryEnsureUnityManager())
                 return false;
 
-            var col = ResolveSelfCollider2D();
-            if (col == null)
-                return false;
-
-            if (_unityManager!.TryGetDynamicHandle(col, out var h) && h.IsValid)
+            _selfCollidersScratch.Clear();
+            FillSelfColliders(_selfCollidersScratch);
+            for (var i = 0; i < _selfCollidersScratch.Count; i++)
             {
-                handle = h;
-                return true;
+                var collider = _selfCollidersScratch[i];
+                if (collider == null)
+                    continue;
+
+                if (_unityManager!.TryGetDynamicHandle(collider, out var handle) && handle.IsValid)
+                    AddUniqueHandle(handles, handle);
             }
 
-            return false;
+            return handles.Count > 0;
         }
 
-        Collider2D? ResolveSelfCollider2D()
+        void FillSelfColliders(List<Collider2D> colliders)
         {
+            colliders.Clear();
+
             if (_mb.SelfProvider is Collider2D directCollider)
-                return directCollider;
+            {
+                AddUniqueCollider(colliders, directCollider);
+                return;
+            }
 
             if (_mb.SelfProvider is UnityColliderObjectMB unityProvider)
-                return unityProvider.Collider;
+            {
+                _selfColliderTagsScratch.Clear();
+                unityProvider.FillConfiguredColliders(colliders, _selfColliderTagsScratch);
+                return;
+            }
 
             if (_mb.TryGetComponent<UnityColliderObjectMB>(out var unityColliderObject) && unityColliderObject != null)
-                return unityColliderObject.Collider;
+            {
+                _selfColliderTagsScratch.Clear();
+                unityColliderObject.FillConfiguredColliders(colliders, _selfColliderTagsScratch);
+                return;
+            }
 
-            return _mb.GetComponent<Collider2D>();
+            if (_mb.TryGetComponent<Collider2D>(out var collider) && collider != null)
+                AddUniqueCollider(colliders, collider);
+        }
+
+        static void AddUniqueHandle(List<DynamicColliderHandle> handles, DynamicColliderHandle handle)
+        {
+            if (!handle.IsValid)
+                return;
+
+            for (var i = 0; i < handles.Count; i++)
+            {
+                if (SameHandle(handles[i], handle))
+                    return;
+            }
+
+            handles.Add(handle);
+        }
+
+        static void AddUniqueCollider(List<Collider2D> colliders, Collider2D collider)
+        {
+            if (collider == null)
+                return;
+
+            for (var i = 0; i < colliders.Count; i++)
+            {
+                if (ReferenceEquals(colliders[i], collider))
+                    return;
+            }
+
+            colliders.Add(collider);
         }
 
         bool TryEnsureUnityManager()
@@ -796,40 +975,54 @@ namespace Game.Collision
             return false;
         }
 
-        void BindRules(DynamicColliderHandle self, IReadOnlyList<HitColliderControllerRule> rules)
+        void BindRules(IReadOnlyList<DynamicColliderHandle> selves, IReadOnlyList<HitColliderControllerRule> rules)
         {
             var boundCount = 0;
-            for (int i = 0; i < rules.Count; i++)
+            for (int s = 0; s < selves.Count; s++)
             {
-                var rule = rules[i];
-                if (rule == null || !rule.Enabled)
-                    continue;
-                if (!rule.HasAnyCommands())
+                var self = selves[s];
+                if (!self.IsValid)
                     continue;
 
-                var spec = rule.ToSpec();
-                var runtime = _hub.GetOrCreate(self, spec);
-                //Debug.Log($"[HitColliderController] Bound rule '{rule.Name}' to collider handle {self.Id}.");
-
-                var binding = new RuntimeBinding
+                for (int i = 0; i < rules.Count; i++)
                 {
-                    RuleName = string.IsNullOrWhiteSpace(rule.Name) ? "default" : rule.Name,
-                    Runtime = runtime,
-                };
-                binding.OnEnter = evt => HandleEvent(rule, binding, evt, HitEventType.Enter);
-                binding.OnStay = evt => HandleEvent(rule, binding, evt, HitEventType.Stay);
-                binding.OnExit = evt => HandleEvent(rule, binding, evt, HitEventType.Exit);
+                    var rule = rules[i];
+                    if (rule == null || !rule.Enabled)
+                        continue;
+                    if (!rule.HasAnyCommands())
+                        continue;
 
-                runtime.Enter += binding.OnEnter;
-                runtime.Stay += binding.OnStay;
-                runtime.Exit += binding.OnExit;
+                    var spec = rule.ToSpec();
+                    var runtime = _hub.GetOrCreate(self, spec);
 
-                _bindings.Add(binding);
-                boundCount++;
+                    var binding = new RuntimeBinding
+                    {
+                        RuleName = string.IsNullOrWhiteSpace(rule.Name) ? "default" : rule.Name,
+                        RuleIndex = i,
+                        Runtime = runtime,
+                    };
+                    binding.OnEnter = evt => HandleEvent(rule, binding, evt, HitEventType.Enter);
+                    binding.OnStay = evt => HandleEvent(rule, binding, evt, HitEventType.Stay);
+                    binding.OnExit = evt => HandleEvent(rule, binding, evt, HitEventType.Exit);
+
+                    runtime.Enter += binding.OnEnter;
+                    runtime.Stay += binding.OnStay;
+                    runtime.Exit += binding.OnExit;
+
+                    _bindings.Add(binding);
+                    boundCount++;
+                }
             }
 
-            _boundSelfHandle = self;
-            _mb.SetDebugBindingState(self, boundCount, boundCount > 0 ? "Bound" : "NoEnabledRulesWithCommands");
+            _boundSelfHandles.Clear();
+            for (int i = 0; i < selves.Count; i++)
+            {
+                if (selves[i].IsValid)
+                    _boundSelfHandles.Add(selves[i]);
+            }
+
+            var debugHandle = _boundSelfHandles.Count > 0 ? _boundSelfHandles[0] : default;
+            _mb.SetDebugBindingState(debugHandle, boundCount, boundCount > 0 ? "Bound" : "NoEnabledRulesWithCommands");
         }
 
         public bool TryGetCurrentHitTargetScopes(string? ruleName, List<IScopeNode> targets)
@@ -889,12 +1082,16 @@ namespace Game.Collision
             // To prevent this, monitor current self handle and force rebind on handle change.
             while (!ct.IsCancellationRequested)
             {
-                var hasCurrent =
-                    (TryResolveSelfHandle(out var current) && current.IsValid);
+                var hasCurrent = TryResolveSelfHandles(_selfHandlesScratch) && _selfHandlesScratch.Count > 0;
 
-                if (hasCurrent && current.IsValid && !SameHandle(_boundSelfHandle, current))
+                if (hasCurrent && !SameHandleSet(_boundSelfHandles, _selfHandlesScratch))
                 {
-                    _mb.SetDebugBindingState(current, _bindings.Count, "RebindingByHandleChange");
+                    _mb.SetDebugBindingState(_selfHandlesScratch[0], _bindings.Count, "RebindingByHandleChange");
+                    RebindRules();
+                }
+                else if (!hasCurrent && _boundSelfHandles.Count > 0)
+                {
+                    _mb.SetDebugBindingState(default, _bindings.Count, "RebindingByHandleLost");
                     RebindRules();
                 }
 
@@ -905,6 +1102,30 @@ namespace Game.Collision
         static bool SameHandle(DynamicColliderHandle a, DynamicColliderHandle b)
         {
             return a.IdPlusOne == b.IdPlusOne && a.Generation == b.Generation;
+        }
+
+        static bool SameHandleSet(List<DynamicColliderHandle> a, List<DynamicColliderHandle> b)
+        {
+            if (a.Count != b.Count)
+                return false;
+
+            for (var i = 0; i < a.Count; i++)
+            {
+                var found = false;
+                for (var j = 0; j < b.Count; j++)
+                {
+                    if (!SameHandle(a[i], b[j]))
+                        continue;
+
+                    found = true;
+                    break;
+                }
+
+                if (!found)
+                    return false;
+            }
+
+            return true;
         }
 
         public void Dispose()

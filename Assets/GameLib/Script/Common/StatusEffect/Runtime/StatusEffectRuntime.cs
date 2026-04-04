@@ -25,7 +25,7 @@ namespace Game.StatusEffect
         public BaseStatusEffectDefinitionData Definition { get; }
         public string InstanceId { get; }
         public string RuntimeTag { get; }
-        public float ResolvedIntensity { get; }
+        public StatusEffectResolvedIntensities ResolvedIntensities { get; }
         public StatusEffectStackPreset ResolvedStackPreset { get; }
 
         public IScopeNode Scope => OwnerScope;
@@ -39,7 +39,7 @@ namespace Game.StatusEffect
             BaseStatusEffectDefinitionData definition,
             string instanceId,
             string runtimeTag,
-            float resolvedIntensity,
+            StatusEffectResolvedIntensities resolvedIntensities,
             StatusEffectStackPreset resolvedStackPreset)
         {
             OwnerScope = ownerScope;
@@ -50,7 +50,7 @@ namespace Game.StatusEffect
             Definition = definition;
             InstanceId = instanceId ?? string.Empty;
             RuntimeTag = runtimeTag ?? string.Empty;
-            ResolvedIntensity = resolvedIntensity;
+            ResolvedIntensities = resolvedIntensities;
             ResolvedStackPreset = resolvedStackPreset ?? StatusEffectStackPreset.CreateDurationRefreshPreset();
         }
 
@@ -132,6 +132,7 @@ namespace Game.StatusEffect
         readonly string _slotKey;
 
         readonly VarStore _vars;
+        StatusEffectResolvedIntensities _intensities;
 
         StatusEffectStackPreset _runtimeStackPreset;
 
@@ -154,7 +155,7 @@ namespace Game.StatusEffect
             string instanceId,
             string runtimeTag,
             string slotKey,
-            float intensity,
+            StatusEffectResolvedIntensities intensities,
             StatusEffectStackPreset? runtimeStackPreset,
             VarStore vars,
             List<IStatusEffectOperationRuntime> operations,
@@ -184,7 +185,7 @@ namespace Game.StatusEffect
 
             InstanceId = string.IsNullOrWhiteSpace(instanceId) ? Guid.NewGuid().ToString("N") : instanceId;
             RuntimeTag = runtimeTag ?? string.Empty;
-            Intensity = intensity;
+            _intensities = intensities;
             StackCount = 1;
         }
 
@@ -193,7 +194,13 @@ namespace Game.StatusEffect
         public string InstanceId { get; }
         public string RuntimeTag { get; }
         public string SlotKey => _slotKey;
-        public float Intensity { get; private set; }
+        public float IntensityA => _intensities.A;
+        public float IntensityB => _intensities.B;
+        public float IntensityC => _intensities.C;
+        public float IntensityD => _intensities.D;
+        public float IntensityE => _intensities.E;
+        public float IntensityF => _intensities.F;
+        public float IntensityG => _intensities.G;
         public int StackCount { get; private set; }
         public bool IsRegistered => _isRegistered;
         public bool IsEnabled => _isEnabled;
@@ -490,16 +497,23 @@ namespace Game.StatusEffect
             bool durationChanged = false;
             bool stackCountChanged = false;
 
-            if (preset.ApplyIntensity)
+            for (int i = 0; i < StatusEffectIntensitySlotUtility.OrderedSlots.Length; i++)
             {
-                var intensity = Intensity;
-                intensityChanged = ApplyFloatRule(
+                var slot = StatusEffectIntensitySlotUtility.OrderedSlots[i];
+                if (!preset.ShouldApplyIntensity(slot))
+                    continue;
+
+                var intensity = _intensities.Get(slot);
+                var changed = ApplyFloatRule(
                     context,
-                    preset.Intensity,
-                    context.ResolvedIntensity,
+                    preset.GetIntensityRule(slot),
+                    context.ResolvedIntensities.Get(slot),
                     ref intensity);
-                if (intensityChanged)
-                    Intensity = intensity;
+                if (!changed)
+                    continue;
+
+                _intensities.Set(slot, intensity);
+                intensityChanged = true;
             }
 
             if (preset.ApplyDuration)
@@ -550,7 +564,13 @@ namespace Game.StatusEffect
                 RemainingDuration,
                 TotalDuration,
                 RemainingUseCooldown,
-                Intensity,
+                _intensities.A,
+                _intensities.B,
+                _intensities.C,
+                _intensities.D,
+                _intensities.E,
+                _intensities.F,
+                _intensities.G,
                 StackCount,
                 _isEnabled,
                 _isApplied,
@@ -624,13 +644,16 @@ namespace Game.StatusEffect
                 ? request.DurationOverride.GetOrDefault(context, _durationController.TotalDuration)
                 : _durationController.TotalDuration;
 
-            var local = rule.LocalValue.HasSource
-                ? rule.LocalValue.GetOrDefault(context, localFallback)
-                : localFallback;
+            var changed = false;
+            if (rule.ApplyLocalValue)
+            {
+                var local = rule.LocalValue.HasSource
+                    ? rule.LocalValue.GetOrDefault(context, localFallback)
+                    : localFallback;
+                changed = _durationController.ApplyStack(local, rule.Operation);
+            }
 
-            var changed = _durationController.ApplyStack(local, rule.Operation);
-
-            if (!rule.UseGlobalValue)
+            if (!rule.ApplyGlobalValue)
                 return changed;
 
             var global = rule.GlobalValue.HasSource
@@ -653,12 +676,15 @@ namespace Game.StatusEffect
 
             var before = currentValue;
 
-            var local = rule.LocalValue.HasSource
-                ? rule.LocalValue.GetOrDefault(context, localFallback)
-                : localFallback;
-            currentValue = ApplyOperation(currentValue, local, rule.Operation);
+            if (rule.ApplyLocalValue)
+            {
+                var local = rule.LocalValue.HasSource
+                    ? rule.LocalValue.GetOrDefault(context, localFallback)
+                    : localFallback;
+                currentValue = ApplyOperation(currentValue, local, rule.Operation);
+            }
 
-            if (rule.UseGlobalValue)
+            if (rule.ApplyGlobalValue)
             {
                 var global = rule.GlobalValue.HasSource
                     ? rule.GlobalValue.GetOrDefault(context, 0f)
@@ -682,12 +708,15 @@ namespace Game.StatusEffect
 
             var before = currentValue;
 
-            var local = rule.LocalValue.HasSource
-                ? rule.LocalValue.GetOrDefault(context, localFallback)
-                : localFallback;
-            currentValue = ApplyOperationInt(currentValue, local, rule.Operation, minValue);
+            if (rule.ApplyLocalValue)
+            {
+                var local = rule.LocalValue.HasSource
+                    ? rule.LocalValue.GetOrDefault(context, localFallback)
+                    : localFallback;
+                currentValue = ApplyOperationInt(currentValue, local, rule.Operation, minValue);
+            }
 
-            if (rule.UseGlobalValue)
+            if (rule.ApplyGlobalValue)
             {
                 var global = rule.GlobalValue.HasSource
                     ? rule.GlobalValue.GetOrDefault(context, 0f)
@@ -704,12 +733,16 @@ namespace Game.StatusEffect
             if (_countController == null || rule == null)
                 return false;
 
-            var local = rule.LocalValue.HasSource
-                ? rule.LocalValue.GetOrDefault(context, _countController.MaxCount)
-                : _countController.MaxCount;
-            var changed = _countController.ApplyMaxCountStack(Mathf.RoundToInt(local), rule.Operation);
+            var changed = false;
+            if (rule.ApplyLocalValue)
+            {
+                var local = rule.LocalValue.HasSource
+                    ? rule.LocalValue.GetOrDefault(context, _countController.MaxCount)
+                    : _countController.MaxCount;
+                changed = _countController.ApplyMaxCountStack(Mathf.RoundToInt(local), rule.Operation);
+            }
 
-            if (!rule.UseGlobalValue)
+            if (!rule.ApplyGlobalValue)
             {
                 if (_countController.CanUse)
                     _hasHandledLocalCountExhaustion = false;
@@ -950,7 +983,13 @@ namespace Game.StatusEffect
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isActive, DynamicVariant.FromBool(IsActive));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isUseBlocked, DynamicVariant.FromBool(_isUseBlocked));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount, DynamicVariant.FromInt(StackCount));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensity, DynamicVariant.FromFloat(Intensity));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityA, DynamicVariant.FromFloat(_intensities.A));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityB, DynamicVariant.FromFloat(_intensities.B));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityC, DynamicVariant.FromFloat(_intensities.C));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityD, DynamicVariant.FromFloat(_intensities.D));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityE, DynamicVariant.FromFloat(_intensities.E));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityF, DynamicVariant.FromFloat(_intensities.F));
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityG, DynamicVariant.FromFloat(_intensities.G));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount, DynamicVariant.FromInt(UsedCount));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingDuration, DynamicVariant.FromFloat(RemainingDuration));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration, DynamicVariant.FromFloat(TotalDuration));

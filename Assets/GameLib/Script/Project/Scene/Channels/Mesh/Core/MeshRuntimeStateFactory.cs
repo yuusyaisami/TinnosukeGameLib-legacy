@@ -170,13 +170,23 @@ namespace Game.Channel
 
         public static bool EvaluateConditionEnabled(MeshTrackPlayerPresetBase preset, IDynamicContext context, bool fallback)
         {
-            if (preset is not MeshLineTrackPlayerPreset line)
-                return true;
+            if (preset is MeshLineTrackPlayerPreset line)
+            {
+                if (line.Condition.TryGet(context, out bool enabled))
+                    return enabled;
 
-            if (line.Condition.TryGet(context, out bool enabled))
-                return enabled;
+                return fallback;
+            }
 
-            return fallback;
+            if (preset is MeshTargetLinkTrackPlayerPreset targetLink)
+            {
+                if (targetLink.Condition.TryGet(context, out bool enabled))
+                    return enabled;
+
+                return fallback;
+            }
+
+            return true;
         }
 
         static MeshRenderPipelinePreset ResolveRenderPipeline(DynamicValue<MeshRenderPipelinePreset> value, IDynamicContext context, MeshRenderPipelinePreset fallback)
@@ -197,6 +207,7 @@ namespace Game.Channel
         {
             return preset switch
             {
+                MeshTargetLinkTrackPlayerPreset targetLink => new MeshTargetLinkTrackPlayerRuntime(targetLink),
                 MeshTrailTrackPlayerPreset trail => new MeshTrailTrackPlayerRuntime(trail),
                 MeshAreaFillTrackPlayerPreset area => new MeshAreaFillTrackPlayerRuntime(area),
                 MeshLineTrackPlayerPreset line => new MeshLineTrackPlayerRuntime(line),

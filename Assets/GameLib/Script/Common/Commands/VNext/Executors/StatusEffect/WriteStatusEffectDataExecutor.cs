@@ -93,24 +93,34 @@ namespace Game.Commands.VNext
                 typed.Overwrite);
 
             WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.ignoreIfExisting, DynamicVariant.FromBool(preset.IgnoreIfExisting), typed.Overwrite);
-            WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyIntensity, DynamicVariant.FromBool(preset.ApplyIntensity), typed.Overwrite);
+            WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityA, DynamicVariant.FromBool(preset.ApplyIntensityA), typed.Overwrite);
+            WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityB, DynamicVariant.FromBool(preset.ApplyIntensityB), typed.Overwrite);
+            WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityC, DynamicVariant.FromBool(preset.ApplyIntensityC), typed.Overwrite);
+            WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityD, DynamicVariant.FromBool(preset.ApplyIntensityD), typed.Overwrite);
+            WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityE, DynamicVariant.FromBool(preset.ApplyIntensityE), typed.Overwrite);
+            WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityF, DynamicVariant.FromBool(preset.ApplyIntensityF), typed.Overwrite);
+            WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyIntensityG, DynamicVariant.FromBool(preset.ApplyIntensityG), typed.Overwrite);
             WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyDuration, DynamicVariant.FromBool(preset.ApplyDuration), typed.Overwrite);
             WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyCurrentCount, DynamicVariant.FromBool(preset.ApplyCurrentCount), typed.Overwrite);
             WriteVariant(typed.Target, ctx.Vars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Stack.applyMaxCount, DynamicVariant.FromBool(preset.ApplyMaxCount), typed.Overwrite);
 
-            WriteStackRule(
-                typed.Target,
-                ctx.Vars,
-                targetScope,
-                blackboard,
-                ctx,
-                preset.Intensity,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.operation,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.local,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.useGlobal,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.global,
-                VarIds.GameLib.Base.StatusEffect.Stack.Intensity.ignoreGlobalWhenMinusOne,
-                typed.Overwrite);
+            for (int i = 0; i < StatusEffectIntensitySlotUtility.OrderedSlots.Length; i++)
+            {
+                var slot = StatusEffectIntensitySlotUtility.OrderedSlots[i];
+                WriteStackRule(
+                    typed.Target,
+                    ctx.Vars,
+                    targetScope,
+                    blackboard,
+                    ctx,
+                    preset.GetIntensityRule(slot),
+                    StatusEffectIntensitySlotUtility.GetStackOperationVarId(slot),
+                    StatusEffectIntensitySlotUtility.GetStackLocalVarId(slot),
+                    StatusEffectIntensitySlotUtility.GetStackUseGlobalVarId(slot),
+                    StatusEffectIntensitySlotUtility.GetStackGlobalVarId(slot),
+                    StatusEffectIntensitySlotUtility.GetStackIgnoreGlobalWhenMinusOneVarId(slot),
+                    typed.Overwrite);
+            }
 
             WriteStackRule(
                 typed.Target,
@@ -171,7 +181,7 @@ namespace Game.Commands.VNext
         {
             var operation = rule?.Operation ?? StatusEffectStackOperation.Add;
             var local = rule?.LocalValue.GetOrDefault(context, 0f) ?? 0f;
-            var useGlobal = rule?.UseGlobalValue ?? false;
+            var useGlobal = rule?.ApplyGlobalValue ?? false;
             var global = rule?.GlobalValue.GetOrDefault(context, 0f) ?? 0f;
             var ignoreGlobalWhenMinusOne = rule?.IgnoreGlobalWhenMinusOne ?? false;
 
@@ -237,7 +247,13 @@ namespace Game.Commands.VNext
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.isActive, DynamicVariant.FromBool(state.IsActive), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.isUseBlocked, DynamicVariant.FromBool(state.IsUseBlocked), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount, DynamicVariant.FromInt(state.StackCount), overwrite);
-            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensity, DynamicVariant.FromFloat(state.Intensity), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityA, DynamicVariant.FromFloat(state.IntensityA), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityB, DynamicVariant.FromFloat(state.IntensityB), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityC, DynamicVariant.FromFloat(state.IntensityC), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityD, DynamicVariant.FromFloat(state.IntensityD), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityE, DynamicVariant.FromFloat(state.IntensityE), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityF, DynamicVariant.FromFloat(state.IntensityF), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityG, DynamicVariant.FromFloat(state.IntensityG), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount, DynamicVariant.FromInt(state.UsedCount), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingDuration, DynamicVariant.FromFloat(state.RemainingTime), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration, DynamicVariant.FromFloat(state.TotalDuration), overwrite);

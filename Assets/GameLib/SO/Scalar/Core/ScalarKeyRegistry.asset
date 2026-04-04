@@ -581,14 +581,6 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: af9f3bb7b22d4b5396413900eeaf38c9
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: ValueUp
-    isFolder: 0
-    description: "\u5BFE\u8C61\u8005\u306E\u4FA1\u5024\u3092\u4E0A\u3052\u307E\u3059\u3002"
-    explicitKey: 
-    obsolete: 0
-    tags: []
   - id: cb8097497f764544b39db7ae710a07f3
     parentId: 
     name: GameLib
@@ -613,59 +605,11 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: 5dfabeef3dea4062bb308144c3ba95d9
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: MaxValueUp
-    isFolder: 0
-    description: "\u30DC\u30FC\u30EB\u306E\u6700\u5927\u4FA1\u5024\u4E0A\u9650\u3092\u4E0A\u3052\u307E\u3059\u3002(lv)"
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: a9b6203a85e94ba38528a0d8d4f1f61d
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Bounce
-    isFolder: 0
-    description: "\u30DC\u30FC\u30EB\u306E\u30D0\u30A6\u30F3\u30C9\u7387\u3092\u4E0A\u3052\u307E\u3059\u3002(0~1)"
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 0d17a043efc1424c9133b8db76ed75a5
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: ValueMultiply
-    isFolder: 0
-    description: "\u4FA1\u5024\u3092\u500D\u306B\u3057\u307E\u3059\u3002"
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 6ba41925921341b9952cbc634e7959fa
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Split
-    isFolder: 0
-    description: "\u30DC\u30FC\u30EB\u306E\u5206\u88C2\u7387\u3092\u4E0A\u3052\u307E\u3059\u3002(0~1)"
-    explicitKey: 
-    obsolete: 0
-    tags: []
   - id: b4630c83c79747a9a0eca7ee30606800
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: TimeExtend
+    parentId: 207346c60269466abf961b677b6f24b5
+    name: ExtendMaxTime
     isFolder: 0
     description: "\u5236\u9650\u6642\u9593\u3092\u5EF6\u3070\u3057\u307E\u3059\u3002"
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 1571add841704639a69961d7092fc991
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Attract
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: b163068f9f434602bd5a694963dd944b
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Teleport
-    isFolder: 0
-    description: "\u30C6\u30EC\u30DD\u30FC\u30C8\u3059\u308B"
     explicitKey: 
     obsolete: 0
     tags: []
@@ -677,56 +621,16 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: f8900c372aef4c74b6527e710a320021
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: LuckUp
-    isFolder: 0
-    description: "\u904B\u3092\u4E0A\u3052\u307E\u3059\u3002"
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: a6ed505f9b2445f8bf548019ec0f5281
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Ghost
-    isFolder: 0
-    description: "\u970A\u4F53\u5316"
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 3afaa7709b5c457eb103b9c27c5ddfb2
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: ColiderSize
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
   - id: 7103029dd7024cf9bda08ff99086cd52
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Chain
+    parentId: 5e97c2d5159b4eba889cb1c463ee8422
+    name: ChainChance
     isFolder: 0
     description: "\u9023\u8F09\u8D77\u52D5"
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: 4a94d5ecd4e24e268b0bd7548245fe2c
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Gamble
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 3296d02b2a0745ce9b8a64fbeeae3dc2
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Force
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
   - id: ad58a66320d04d7eaead3c208b8b52e5
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    parentId: 207346c60269466abf961b677b6f24b5
     name: TimeValueUp
     isFolder: 0
     description: 
@@ -734,18 +638,10 @@ MonoBehaviour:
     obsolete: 0
     tags: []
   - id: 3b5769be63d44975b1b434abf78f27fa
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: Converter
+    parentId: 32d7ac44d56c450ea791901d921eabcd
+    name: ConverterM2P
     isFolder: 0
     description: "\u30B3\u30F3\u30D0\u30FC\u30C8\u6642\u306E\u8A2D\u5B9A"
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: fa0cf5e574b9492a875a46dbe6a42ebf
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: SpeedUp
-    isFolder: 0
-    description: 
     explicitKey: 
     obsolete: 0
     tags: []
@@ -777,14 +673,6 @@ MonoBehaviour:
     parentId: 9a22d061de77456ebfda7fac59070350
     name: Base
     isFolder: 1
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 11cef44acdc549ac88de2df082075c2c
-    parentId: 26168ac0ec56492bae8ac4bd6fa23218
-    name: MaxHitCount
-    isFolder: 0
     description: 
     explicitKey: 
     obsolete: 0
@@ -1185,6 +1073,214 @@ MonoBehaviour:
     parentId: 2e8ab9eb37b9488bad206d475b53cca2
     name: QuotaDecrementMul
     isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 5fdac5d6e13047bd9b252c625bcb4354
+    parentId: 7b81e12bcd7a4b38b30ced3c5bcefb0d
+    name: SpawnBallCount
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 1588192dd8e14f949e3120128b46a8aa
+    parentId: 7b81e12bcd7a4b38b30ced3c5bcefb0d
+    name: SpawnBallChance
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 9fceb62720ac4df8a539547e4f0c7960
+    parentId: 7b81e12bcd7a4b38b30ced3c5bcefb0d
+    name: SpawnBallValue
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 79802c31f8ae4b7898d2d74bcf9fe14b
+    parentId: 5e97c2d5159b4eba889cb1c463ee8422
+    name: ChainRadius
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 0b94231420aa497e905c1543dd5e0507
+    parentId: 207346c60269466abf961b677b6f24b5
+    name: TimeValueRemove
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: af9f3bb7b22d4b5396413900eeaf38c9
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: ValueUp
+    isFolder: 0
+    description: "\u5BFE\u8C61\u8005\u306E\u4FA1\u5024\u3092\u4E0A\u3052\u307E\u3059\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 5dfabeef3dea4062bb308144c3ba95d9
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: MaxValueUp
+    isFolder: 0
+    description: "\u30DC\u30FC\u30EB\u306E\u6700\u5927\u4FA1\u5024\u4E0A\u9650\u3092\u4E0A\u3052\u307E\u3059\u3002(lv)"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: a9b6203a85e94ba38528a0d8d4f1f61d
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Bounce
+    isFolder: 0
+    description: "\u30DC\u30FC\u30EB\u306E\u30D0\u30A6\u30F3\u30C9\u7387\u3092\u4E0A\u3052\u307E\u3059\u3002(0~1)"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 0d17a043efc1424c9133b8db76ed75a5
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: ValueMultiply
+    isFolder: 0
+    description: "\u4FA1\u5024\u3092\u500D\u306B\u3057\u307E\u3059\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 6ba41925921341b9952cbc634e7959fa
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Split
+    isFolder: 0
+    description: "\u30DC\u30FC\u30EB\u306E\u5206\u88C2\u7387\u3092\u4E0A\u3052\u307E\u3059\u3002(0~1)"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 1571add841704639a69961d7092fc991
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Attract
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: b163068f9f434602bd5a694963dd944b
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Teleport
+    isFolder: 0
+    description: "\u30C6\u30EC\u30DD\u30FC\u30C8\u3059\u308B"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: f8900c372aef4c74b6527e710a320021
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: LuckUp
+    isFolder: 0
+    description: "\u904B\u3092\u4E0A\u3052\u307E\u3059\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: a6ed505f9b2445f8bf548019ec0f5281
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Ghost
+    isFolder: 0
+    description: "\u970A\u4F53\u5316"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3afaa7709b5c457eb103b9c27c5ddfb2
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: ColiderSize
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 4a94d5ecd4e24e268b0bd7548245fe2c
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Gamble
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 3296d02b2a0745ce9b8a64fbeeae3dc2
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Force
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: a19618fe2f8d4c1bbf9130704a6ae380
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: ForceUp
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: fa0cf5e574b9492a875a46dbe6a42ebf
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: SpeedUp
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 11cef44acdc549ac88de2df082075c2c
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: MaxHitCount
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: cdbfa8ccf2c0414c8e7cb20189466a24
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: GlobalMaxCount
+    isFolder: 0
+    description: "\u30C7\u30D5\u30A9\u30EB\u30C8\u306F-1\u3067\u3059\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: e9d32ecfeb6e4ff581a5c71b4fa5b61d
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: GlobalMaxUseCooldown
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 7b81e12bcd7a4b38b30ced3c5bcefb0d
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: SpawnBall
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 5e97c2d5159b4eba889cb1c463ee8422
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Chain
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 32d7ac44d56c450ea791901d921eabcd
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Converter
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 207346c60269466abf961b677b6f24b5
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Timer
+    isFolder: 1
     description: 
     explicitKey: 
     obsolete: 0

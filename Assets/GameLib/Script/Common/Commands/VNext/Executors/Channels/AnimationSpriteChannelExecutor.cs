@@ -6,6 +6,7 @@ using Game;
 using Game.Channel;
 using Game.MaterialFx;
 using UnityEngine;
+using UnityEngine.UI;
 using VContainer;
 
 namespace Game.Commands.VNext
@@ -53,6 +54,11 @@ namespace Game.Commands.VNext
             {
                 if (typed.SortingOrderSource.TryGet(ctx, out var sortingOrder))
                     player.SetSortingOrder(sortingOrder);
+            }
+
+            if (typed.ApplyVisualType)
+            {
+                ApplyVisualTypeSettings(typed, ctx, player);
             }
 
             if (!typed.ApplyAnimation)
@@ -256,6 +262,114 @@ namespace Game.Commands.VNext
 
             // Command-driven MaterialFx should be visible immediately without waiting for the next system LateTick.
             fx.Tick(0f);
+        }
+
+        static void ApplyVisualTypeSettings(
+            AnimationSpriteChannelCommandData command,
+            CommandContext ctx,
+            IAnimationSpriteChannelPlayer player)
+        {
+            if (player.SpriteRenderer != null)
+                ApplySpriteRendererType(command.SpriteRendererType, ctx, player.SpriteRenderer);
+
+            if (player.Image != null)
+                ApplyImageType(command.ImageType, ctx, player.Image);
+        }
+
+        static void ApplySpriteRendererType(
+            AnimationSpriteRendererTypePayload payload,
+            CommandContext ctx,
+            SpriteRenderer renderer)
+        {
+            if (renderer == null || payload == null)
+                return;
+
+            renderer.drawMode = ConvertRendererType(payload.Type);
+            if (renderer.drawMode != SpriteDrawMode.Sliced &&
+                renderer.drawMode != SpriteDrawMode.Tiled)
+            {
+                return;
+            }
+
+            if (!payload.SizeSource.TryGet(ctx, out var size))
+                return;
+
+            renderer.size = new Vector2(
+                Mathf.Max(0f, size.x),
+                Mathf.Max(0f, size.y));
+        }
+
+        static void ApplyImageType(
+            AnimationSpriteImageTypePayload payload,
+            CommandContext ctx,
+            Image image)
+        {
+            if (image == null || payload == null)
+                return;
+
+            image.type = ConvertImageType(payload.Type);
+            image.preserveAspect = payload.PreserveAspect;
+
+            if (image.type == Image.Type.Sliced || image.type == Image.Type.Tiled)
+            {
+                image.fillCenter = payload.FillCenter;
+                if (payload.PixelsPerUnitMultiplierSource.TryGet(ctx, out var pixelsPerUnitMultiplier))
+                    image.pixelsPerUnitMultiplier = Mathf.Max(0.01f, pixelsPerUnitMultiplier);
+            }
+
+            if (image.type == Image.Type.Filled)
+            {
+                image.fillMethod = ConvertFillMethod(payload.FillMethod);
+                if (payload.FillOriginSource.TryGet(ctx, out var fillOrigin))
+                    image.fillOrigin = fillOrigin;
+                image.fillClockwise = payload.FillClockwise;
+                if (payload.FillAmountSource.TryGet(ctx, out var fillAmount))
+                    image.fillAmount = Mathf.Clamp01(fillAmount);
+            }
+
+            if ((image.type == Image.Type.Simple ||
+                 image.type == Image.Type.Sliced ||
+                 image.type == Image.Type.Tiled) &&
+                image.rectTransform != null &&
+                payload.SizeDeltaSource.TryGet(ctx, out var sizeDelta))
+            {
+                image.rectTransform.sizeDelta = new Vector2(
+                    Mathf.Max(0f, sizeDelta.x),
+                    Mathf.Max(0f, sizeDelta.y));
+            }
+        }
+
+        static SpriteDrawMode ConvertRendererType(AnimationSpriteRendererTypeMode mode)
+        {
+            return mode switch
+            {
+                AnimationSpriteRendererTypeMode.Sliced => SpriteDrawMode.Sliced,
+                AnimationSpriteRendererTypeMode.Tiled => SpriteDrawMode.Tiled,
+                _ => SpriteDrawMode.Simple,
+            };
+        }
+
+        static Image.Type ConvertImageType(AnimationSpriteImageTypeMode mode)
+        {
+            return mode switch
+            {
+                AnimationSpriteImageTypeMode.Sliced => Image.Type.Sliced,
+                AnimationSpriteImageTypeMode.Tiled => Image.Type.Tiled,
+                AnimationSpriteImageTypeMode.Filled => Image.Type.Filled,
+                _ => Image.Type.Simple,
+            };
+        }
+
+        static Image.FillMethod ConvertFillMethod(AnimationSpriteImageFillMethodMode mode)
+        {
+            return mode switch
+            {
+                AnimationSpriteImageFillMethodMode.Vertical => Image.FillMethod.Vertical,
+                AnimationSpriteImageFillMethodMode.Radial90 => Image.FillMethod.Radial90,
+                AnimationSpriteImageFillMethodMode.Radial180 => Image.FillMethod.Radial180,
+                AnimationSpriteImageFillMethodMode.Radial360 => Image.FillMethod.Radial360,
+                _ => Image.FillMethod.Horizontal,
+            };
         }
     }
 }

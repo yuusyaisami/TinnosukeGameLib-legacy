@@ -138,6 +138,42 @@ namespace Game.Trait
         [SerializeField]
         VNext.CommandListData _onLtsInstantiatedCommands = new();
 
+        [BoxGroup("Runtime Commands")]
+        [LabelText("Run On Runtime Spawn")]
+        [SerializeField]
+        bool _runOnRuntimeSpawnCommands;
+
+        [BoxGroup("Runtime Commands")]
+        [ShowIf(nameof(_runOnRuntimeSpawnCommands))]
+        [LabelText("On Runtime Spawn Commands")]
+        [Tooltip("Trait runtime が spawn されたときに実行します。Visible/Hidden とは独立して実行されます。実行主体は spawn 済み RuntimeLTS で、VarStore には runtime blackboard の内容が入ります。")]
+        [SerializeField]
+        VNext.CommandListData _onRuntimeSpawnCommands = new();
+
+        [BoxGroup("Runtime Commands")]
+        [LabelText("Run On Runtime Visible")]
+        [SerializeField]
+        bool _runOnRuntimeVisibleCommands;
+
+        [BoxGroup("Runtime Commands")]
+        [ShowIf(nameof(_runOnRuntimeVisibleCommands))]
+        [LabelText("On Runtime Visible Commands")]
+        [Tooltip("Trait runtime が表示状態になったときに実行します。実行主体は spawn 済み RuntimeLTS で、VarStore には runtime blackboard の内容が入ります。")]
+        [SerializeField]
+        VNext.CommandListData _onRuntimeVisibleCommands = new();
+
+        [BoxGroup("Runtime Commands")]
+        [LabelText("Run On Runtime Hidden")]
+        [SerializeField]
+        bool _runOnRuntimeHiddenCommands;
+
+        [BoxGroup("Runtime Commands")]
+        [ShowIf(nameof(_runOnRuntimeHiddenCommands))]
+        [LabelText("On Runtime Hidden Commands")]
+        [Tooltip("Trait runtime が非表示状態になったときに実行します。実行主体は spawn 済み RuntimeLTS で、VarStore には runtime blackboard の内容が入ります。")]
+        [SerializeField]
+        VNext.CommandListData _onRuntimeHiddenCommands = new();
+
         [BoxGroup("VarStore")]
         [LabelText("Apply Common Vars")]
         [SerializeField]
@@ -184,6 +220,12 @@ namespace Game.Trait
         public TransformAnimationPreset? TraitListMovePreset => _traitListMovePreset;
         public float Weight => Mathf.Max(0f, _weight);
         public PlaceableTraitSettings PlaceableSettings => _placeableSettings;
+        public bool RunOnRuntimeSpawnCommands => _runOnRuntimeSpawnCommands;
+        public VNext.CommandListData OnRuntimeSpawnCommands => _onRuntimeSpawnCommands;
+        public bool RunOnRuntimeVisibleCommands => _runOnRuntimeVisibleCommands;
+        public VNext.CommandListData OnRuntimeVisibleCommands => _onRuntimeVisibleCommands;
+        public bool RunOnRuntimeHiddenCommands => _runOnRuntimeHiddenCommands;
+        public VNext.CommandListData OnRuntimeHiddenCommands => _onRuntimeHiddenCommands;
 
         public virtual ITraitInstance CreateInstance(TraitInstanceContext context)
         {
