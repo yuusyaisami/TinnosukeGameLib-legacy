@@ -678,7 +678,7 @@ namespace Game.UI
                 BaseTargetOffset = Vector3.zero,
                 VelocityOffsetScale = Vector2.zero,
                 VelocityWeight = TransformFollowVelocityWeightSettings.Default,
-                VelocitySourceType = TransformFollowVelocitySourceType.TransformController,
+                VelocitySourceType = TransformFollowVelocitySourceType.TransformChannel,
                 LimitTurnRate = false,
                 TurnRate = 0f,
             };

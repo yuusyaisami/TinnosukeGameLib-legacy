@@ -1121,6 +1121,7 @@ namespace Game.UI
 
             return TransformGridSharedUtility.TryResolveLayoutElementSize(
                 instance.Resolver,
+                instance.Root,
                 instance.RootRect,
                 (int)_resolvedVisualizerPreset.SizeSource,
                 _resolvedVisualizerPreset.FixedSize,

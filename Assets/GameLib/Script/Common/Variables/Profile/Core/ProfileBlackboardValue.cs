@@ -43,6 +43,12 @@ namespace Game.Profile
         protected bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && BlackboardSaveEnabledValue;
 
+        string IProfileValueBinding.ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            GetType().Name,
+            Value,
+            string.Empty,
+            BlackboardVarId);
+
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;
         ScalarKey IProfileValueBinding.ScalarKey => default;
         BlackboardBindPolicy IProfileValueBinding.BlackboardPolicy => BlackboardPolicyValue;
@@ -124,6 +130,12 @@ namespace Game.Profile
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && BlackboardSaveEnabledValue;
 
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileVector2Value),
+            Value,
+            string.Empty,
+            BlackboardVarId);
+
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;
         ScalarKey IProfileValueBinding.ScalarKey => default;
         BlackboardBindPolicy IProfileValueBinding.BlackboardPolicy => BlackboardPolicyValue;
@@ -200,6 +212,12 @@ namespace Game.Profile
 
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && BlackboardSaveEnabledValue;
+
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileVector3Value),
+            Value,
+            string.Empty,
+            BlackboardVarId);
 
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;
         ScalarKey IProfileValueBinding.ScalarKey => default;
@@ -278,6 +296,12 @@ namespace Game.Profile
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && BlackboardSaveEnabledValue;
 
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileVector4Value),
+            Value,
+            string.Empty,
+            BlackboardVarId);
+
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;
         ScalarKey IProfileValueBinding.ScalarKey => default;
         BlackboardBindPolicy IProfileValueBinding.BlackboardPolicy => BlackboardPolicyValue;
@@ -355,6 +379,12 @@ namespace Game.Profile
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && BlackboardSaveEnabledValue;
 
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileColorValue),
+            Value,
+            string.Empty,
+            BlackboardVarId);
+
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;
         ScalarKey IProfileValueBinding.ScalarKey => default;
         BlackboardBindPolicy IProfileValueBinding.BlackboardPolicy => BlackboardPolicyValue;
@@ -431,6 +461,12 @@ namespace Game.Profile
 
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowBlackboardSaveLayer => HasBlackboardKey && BlackboardSaveEnabledValue;
+
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileUnityObjectValue),
+            Value,
+            string.Empty,
+            BlackboardVarId);
 
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;
         ScalarKey IProfileValueBinding.ScalarKey => default;

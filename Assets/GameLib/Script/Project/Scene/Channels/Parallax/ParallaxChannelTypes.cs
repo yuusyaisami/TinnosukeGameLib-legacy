@@ -10,7 +10,7 @@ namespace Game.Channel
     {
         DirectObject = 0,
         TransformAnimationChannel = 1,
-        TransformController = 2,
+        TransformChannel = 2,
     }
 
     public enum ParallaxCameraBindMode
@@ -102,8 +102,8 @@ namespace Game.Channel
         [SerializeField] string transformAnimationChannelTag = "default";
 
         [BoxGroup("Bind")]
-        [ShowIf(nameof(ShowTransformControllerSettings))]
-        [LabelText("Controller Actor")]
+        [ShowIf(nameof(ShowTransformChannelSettings))]
+        [LabelText("Transform Channel Actor")]
         [SerializeField] ActorSource controllerActorSource;
 
         [BoxGroup("Bind")]
@@ -159,7 +159,7 @@ namespace Game.Channel
 
         bool ShowDirectTarget() => driverMode == ParallaxDriverMode.DirectObject;
         bool ShowTransformAnimationSettings() => driverMode == ParallaxDriverMode.TransformAnimationChannel;
-        bool ShowTransformControllerSettings() => driverMode == ParallaxDriverMode.TransformController;
+        bool ShowTransformChannelSettings() => driverMode == ParallaxDriverMode.TransformChannel;
         bool ShowSpecificCameraTransform() => cameraBindMode == ParallaxCameraBindMode.SpecificTransform;
         bool ShowActorSourceCamera() => cameraBindMode == ParallaxCameraBindMode.ActorSource;
 

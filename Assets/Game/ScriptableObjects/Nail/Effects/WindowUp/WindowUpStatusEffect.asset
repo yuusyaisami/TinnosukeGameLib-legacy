@@ -45,6 +45,7 @@ MonoBehaviour:
             rid: -2
         TransformChannelTag: default
         ChannelKey: knockback
+        WriteMode: 10
         Force:
           _source:
             rid: 5399842450832097456
@@ -63,7 +64,9 @@ MonoBehaviour:
           _customKey: 
           _expectedType: 255
         _expressionX: 0
-        _expressionY: ForceUp*10
+        _expressionY: 'ForceUp
+
+'
     - rid: 5399842450832097457
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -71,6 +74,39 @@ MonoBehaviour:
           Id: 2032656033
           Name: GameLogic.NailProfile.Effect.ForceUp
         targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 110
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842460338225799
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842460338225800
+    - rid: 5399842460338225800
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: ForceUp
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
           Kind: 0
           Identity:
             kind: 0
@@ -82,6 +118,60 @@ MonoBehaviour:
           Shared:
             rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches:
+        - Label: 
+          Value:
+            _source:
+              rid: 5399842460338225801
+          IncludeSourceInfo: 1
+    - rid: 5399842460338225801
+      type: {class: Vector2XYExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842460338225802
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expressionX: 0
+        _expressionY: 'ForceUp
+
+'
+    - rid: 5399842460338225802
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 2032656033
+          Name: GameLogic.NailProfile.Effect.ForceUp
+        targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 110
           TargetChannel:
             rid: -2
         createIfMissing: 0
@@ -98,7 +188,7 @@ MonoBehaviour:
             Variables: []
           IconAnimation: {fileID: 0}
           Description:
-            Template: "\u4E0A\u6607\u901F\u5EA6 +Y:{ValueUp}"
+            Template: "\u4E0A\u6607\u901F\u5EA6 +Y:{ForceUp}"
             Variables:
             - _value:
                 _source:
@@ -121,6 +211,7 @@ MonoBehaviour:
           SortOrder: 0
           ApplyAnim: {fileID: 0}
           RemoveAnim: {fileID: 0}
+        runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -181,8 +272,8 @@ MonoBehaviour:
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
         TargetKey:
-          Id: -1907293505
-          Name: GameLogic.NailProfile.Effect.ValueUp
+          Id: 2032656033
+          Name: GameLogic.NailProfile.Effect.ForceUp
         ApplyMode: 10
         MulPhase: 0
         ValueMode: 20
@@ -210,8 +301,8 @@ MonoBehaviour:
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         scalarKey:
-          Id: -1907293505
-          Name: GameLogic.NailProfile.Effect.ValueUp
+          Id: 2032656033
+          Name: GameLogic.NailProfile.Effect.ForceUp
         targetActorSource:
           Kind: 0
           Identity:
@@ -284,6 +375,7 @@ MonoBehaviour:
           _functionName: 
           _commands:
           - rid: 5399842450832097442
+          - rid: 5399842460338225799
     - rid: 5619052366731149523
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:

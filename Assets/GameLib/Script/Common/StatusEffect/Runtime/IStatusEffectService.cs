@@ -26,7 +26,7 @@ namespace Game.StatusEffect
         int SetEnabled(StatusEffectRuntimeFilter filter, bool enabled);
         int Use(StatusEffectRuntimeFilter filter, IScopeNode? userScope = null, CommandContext? sourceContext = null);
         int UseGlobal(IScopeNode? userScope = null, CommandContext? sourceContext = null);
-        int Reset(StatusEffectRuntimeFilter filter);
+        int Reset(StatusEffectRuntimeFilter filter, bool resetGlobalState = false);
         void ClearAll();
         void RefreshServiceSettings(bool resetGlobalState = true);
         void ConfigureServiceSettings(StatusEffectServiceSettingsOverrideRequest request, IDynamicContext? evaluationContext = null);

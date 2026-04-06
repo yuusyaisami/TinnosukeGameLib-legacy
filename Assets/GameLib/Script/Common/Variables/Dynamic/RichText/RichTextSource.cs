@@ -623,7 +623,7 @@ namespace Game.Common
             return
                 $"sourceMode={_sourceMode}, allowImplicitKeys={_allowImplicitKeys}, " +
                 $"localVariables={localCount}, externalVariables={externalCount}, includeLocalWithExternal={_includeLocalVariablesWithExternal}, " +
-                $"logActorStoresOnWarn={_logActorStoresOnWarn}, maxActorStoreEntries={_maxActorStoreEntries}";
+                $"storeDumpOnWarn=always(full)";
         }
 
         string BuildRefKeyDiagnostics(IDynamicContext context)

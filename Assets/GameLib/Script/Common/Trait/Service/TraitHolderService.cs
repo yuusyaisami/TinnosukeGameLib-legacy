@@ -152,9 +152,9 @@ namespace Game.Trait
         {
             if (ShouldLogLifecycle())
             {
-                Debug.Log(
-                    $"[TraitHolderService][Clear] holder='{_holderKey}' traitCount={_traits.Count} heldCount={_held.Count} " +
-                    $"scope='{DescribeScope(_scope)}'");
+                //Debug.Log(
+                //    $"[TraitHolderService][Clear] holder='{_holderKey}' traitCount={_traits.Count} heldCount={_held.Count} " +
+                //    $"scope='{DescribeScope(_scope)}'");
             }
             ClearRichTextRegistrations();
             if (_traits.Count == 0)
@@ -202,9 +202,9 @@ namespace Game.Trait
 
             if (ShouldLogLifecycle())
             {
-                Debug.Log(
-                    $"[TraitHolderService][OnRelease] holder='{_holderKey}' isReset={isReset} traitCount={_traits.Count} heldCount={_held.Count} " +
-                    $"scope='{DescribeScope(scope)}'");
+                //Debug.Log(
+                //    $"[TraitHolderService][OnRelease] holder='{_holderKey}' isReset={isReset} traitCount={_traits.Count} heldCount={_held.Count} " +
+                //    $"scope='{DescribeScope(scope)}'");
             }
             Clear();
             _isActive = false;
@@ -301,9 +301,9 @@ namespace Game.Trait
             WriteHolderVarsToBlackboard();
             if (ShouldLogEmptyTraitsChanged())
             {
-                Debug.Log(
-                    $"[TraitHolderService][NotifyTraitsChanged] holder='{_holderKey}' traitCount={_traits.Count} heldCount={_held.Count} " +
-                    $"scope='{DescribeScope(_scope)}'");
+                //Debug.Log(
+                //    $"[TraitHolderService][NotifyTraitsChanged] holder='{_holderKey}' traitCount={_traits.Count} heldCount={_held.Count} " +
+                //    $"scope='{DescribeScope(_scope)}'");
             }
             OnTraitsChanged?.Invoke(_traits);
         }

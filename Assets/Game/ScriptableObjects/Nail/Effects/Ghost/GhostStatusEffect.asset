@@ -19,122 +19,285 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 5399842433823408769
+    - rid: 5399842438168707841
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         enabled: 1
         data:
-          rid: 5399842433823408770
-    - rid: 5399842433823408770
-      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+          rid: 5399842438168707842
+    - rid: 5399842438168707842
+      type: {class: SetUnityColliderCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
-        Condition:
+        TargetTag: default
+        Mode: 0
+        ApplyEnabled: 0
+        Enabled:
           _source:
-            rid: 5399842433823408772
+            rid: 5399842438168707843
           _defaultValue: 0
-        ThenCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands:
-          - rid: 5619052366731149518
-        ElseCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        OnCanceledCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-    - rid: 5399842433823408772
-      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+        ApplyIsTrigger: 1
+        IsTrigger:
+          _source:
+            rid: 5399842438168707844
+          _defaultValue: 0
+        ApplySharedMaterial: 0
+        SharedMaterial: {fileID: 0}
+        ApplyOffset: 0
+        Offset:
+          _source:
+            rid: 5399842438168707845
+          _defaultValue: {x: 0, y: 0}
+        ApplySize: 0
+        Size:
+          _source:
+            rid: 5399842438168707846
+          _defaultValue: {x: 0, y: 0}
+        CircleRadius:
+          _source:
+            rid: 5399842438168707847
+          _defaultValue: 0
+        BoxEdgeRadius:
+          _source:
+            rid: 5399842438168707848
+          _defaultValue: 0
+        CapsuleDirection: 0
+        ApplyLayerId: 0
+        LayerId:
+          _source:
+            rid: 5399842438168707849
+          _defaultValue: 0
+        ApplyHitMask: 0
+        HitMask:
+          _source:
+            rid: 5399842438168707850
+          _defaultValue: 0
+        ApplySetId: 0
+        SetId:
+          _source:
+            rid: 5399842438168707851
+          _defaultValue: 0
+        ApplyUserData: 0
+        UserData:
+          _source:
+            rid: 5399842438168707852
+          _defaultValue: 0
+    - rid: 5399842438168707843
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        _allowImplicitVariablesFromContext: 1
-        _variables:
-        - _value:
-            _source:
-              rid: 5399842433823408773
-          _useScalarLeafKey: 1
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        _expression: Value < 0
-    - rid: 5399842433823408773
-      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: 1
+    - rid: 5399842438168707844
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        scalarKey:
-          Id: -1391682985
-          Name: GameLogic.BallProfile.Value
-        targetActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 100
-          TargetChannel:
-            rid: -2
-        createIfMissing: 0
-        baselineValue: 0
-    - rid: 5399842433823408774
-      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: 1
+    - rid: 5399842438168707845
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        _allowImplicitVariablesFromContext: 1
-        _variables:
-        - _value:
-            _source:
-              rid: 5399842433823408775
-          _useScalarLeafKey: 1
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        - _value:
-            _source:
-              rid: 5399842433823408776
-          _useScalarLeafKey: 1
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        _expression: ConverterM2P * Value
-    - rid: 5399842433823408775
-      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: {x: 0, y: 0}
+    - rid: 5399842438168707846
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        scalarKey:
-          Id: -649941756
-          Name: GameLogic.NailProfile.Effect.Converter.ConverterM2P
-        targetActorSource:
-          Kind: 10
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 110
-          TargetChannel:
-            rid: -2
-        createIfMissing: 0
-        baselineValue: 0
-    - rid: 5399842433823408776
-      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: {x: 1, y: 1}
+    - rid: 5399842438168707847
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        scalarKey:
-          Id: -1391682985
-          Name: GameLogic.BallProfile.Value
-        targetActorSource:
+        type: 1
+        intValue: 0
+        floatValue: 0.5
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842438168707848
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842438168707849
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842438168707850
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: -1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842438168707851
+      type: {class: DynamicColliderSetIdIntSource, ns: Game.Collision, asm: Assembly-CSharp}
+      data:
+        setId:
+          value: 60
+    - rid: 5399842438168707852
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842438168707854
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842438168707855
+    - rid: 5399842438168707855
+      type: {class: SetUnityColliderCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        TargetTag: default
+        Mode: 0
+        ApplyEnabled: 0
+        Enabled:
+          _source:
+            rid: 5399842438168707856
+          _defaultValue: 0
+        ApplyIsTrigger: 1
+        IsTrigger:
+          _source:
+            rid: 5399842438168707857
+          _defaultValue: 0
+        ApplySharedMaterial: 0
+        SharedMaterial: {fileID: 0}
+        ApplyOffset: 0
+        Offset:
+          _source:
+            rid: 5399842438168707858
+          _defaultValue: {x: 0, y: 0}
+        ApplySize: 0
+        Size:
+          _source:
+            rid: 5399842438168707859
+          _defaultValue: {x: 0, y: 0}
+        CircleRadius:
+          _source:
+            rid: 5399842438168707860
+          _defaultValue: 0
+        BoxEdgeRadius:
+          _source:
+            rid: 5399842438168707861
+          _defaultValue: 0
+        CapsuleDirection: 0
+        ApplyLayerId: 0
+        LayerId:
+          _source:
+            rid: 5399842438168707866
+          _defaultValue: 0
+        ApplyHitMask: 0
+        HitMask:
+          _source:
+            rid: 5399842438168707867
+          _defaultValue: 0
+        ApplySetId: 0
+        SetId:
+          _source:
+            rid: 5399842438168707864
+          _defaultValue: 0
+        ApplyUserData: 0
+        UserData:
+          _source:
+            rid: 5399842438168707868
+          _defaultValue: 0
+    - rid: 5399842438168707856
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842438168707857
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842438168707858
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 5399842438168707859
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 5399842438168707860
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0.5
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842438168707861
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842438168707864
+      type: {class: DynamicColliderSetIdIntSource, ns: Game.Collision, asm: Assembly-CSharp}
+      data:
+        setId:
+          value: 60
+    - rid: 5399842438168707866
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842438168707867
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: -1
+    - rid: 5399842438168707868
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842460338225738
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842460338225739
+    - rid: 5399842460338225739
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: GhostStart
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
           Kind: 0
           Identity:
             kind: 0
@@ -148,43 +311,83 @@ MonoBehaviour:
           ContextSlot: 0
           TargetChannel:
             rid: -2
-        createIfMissing: 0
-        baselineValue: 0
-        searchIncludeGlobal: 0
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
+    - rid: 5399842460338225741
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842460338225742
+    - rid: 5399842460338225742
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: GhostEnd
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
-        definitionId: Kenja
+        definitionId: Ghost
         defaultRuntimeTag: 
         visualData:
           DisplayName:
-            Template: "\u8CE2\u8005\u30C7\u30E1\u30EA\u30C3\u30C8"
+            Template: "\u30B4\u30FC\u30B9\u30C8"
             Variables: []
           IconAnimation: {fileID: 0}
           Description:
-            Template: "\u4FA1\u5024\u304C-\u306E\u3068\u304D x{ConverterM2P}"
-            Variables:
-            - _value:
-                _source:
-                  rid: 5619052366731149468
-              _useScalarLeafKey: 1
-              _useCustomKey: 0
-              _customKey: 
-              _expectedType: 255
+            Template: "<sprite=13> \u970A\u4F53\u5316"
+            Variables: []
           StackDescription:
-            Template: "\u30DE\u30A4\u30CA\u30B9\u4FA1\u5024\u6642 x{intensity}"
-            Variables:
-            - _value:
-                _source:
-                  rid: 5619052465085481745
-              _useScalarLeafKey: 0
-              _useCustomKey: 1
-              _customKey: intensity
-              _expectedType: 255
+            Template: "<sprite=13> \u970A\u4F53\u5316"
+            Variables: []
           EffectType: 10
           SortOrder: 0
           ApplyAnim: {fileID: 0}
           RemoveAnim: {fileID: 0}
+        runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -194,21 +397,24 @@ MonoBehaviour:
         useCount: 0
         countDefinition:
           rid: 5619052465085481674
-        operations:
-        - rid: 5619052366731149466
+        operations: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
             _debugAssetPath: 
             _functionName: 
-            _commands: []
+            _commands:
+            - rid: 5399842438168707841
+            - rid: 5399842460338225738
           OnRemove:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
             _debugAssetPath: 
             _functionName: 
-            _commands: []
+            _commands:
+            - rid: 5399842438168707854
+            - rid: 5399842460338225741
           OnEnable:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
@@ -226,9 +432,7 @@ MonoBehaviour:
             _debugFieldPath: 
             _debugAssetPath: 
             _functionName: 
-            _commands:
-            - rid: 5619052366731149523
-            - rid: 5619052366731149516
+            _commands: []
           OnStackIntensity:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
@@ -241,249 +445,6 @@ MonoBehaviour:
             _debugAssetPath: 
             _functionName: 
             _commands: []
-    - rid: 5619052366731149466
-      type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
-      data:
-        TargetKey:
-          Id: -649941756
-          Name: GameLogic.NailProfile.Effect.Converter.ConverterM2P
-        ApplyMode: 10
-        MulPhase: 0
-        ValueMode: 20
-        RuntimeIntensitySlot: 10
-        Value:
-          _source:
-            rid: 5619052366731149676
-          _defaultValue: 0
-        TargetActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        Layer: 
-    - rid: 5619052366731149468
-      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: 1359636717
-          Name: GameLogic.NailProfile.Effect.Timer.TimeValueRemove
-        targetActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        createIfMissing: 0
-        baselineValue: 0
-        searchIncludeGlobal: 0
-    - rid: 5619052366731149516
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052366731149517
-    - rid: 5619052366731149517
-      type: {class: WithActorCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        ActorSource:
-          Kind: 10
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 100
-          TargetChannel:
-            rid: -2
-        CheckSelfIdentityFilter: 0
-        SelfIdentityFilter:
-          kind: 0
-          id: 
-          category: 
-          requireActive: 0
-          searchScope: 0
-        UseDescendantFilter: 0
-        DescendantFilter:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        VarsPolicy: 0
-        AwaitMode: 0
-        ExecutionScope: 0
-        Body:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands:
-          - rid: 5399842433823408769
-    - rid: 5619052366731149518
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052366731149519
-    - rid: 5619052366731149519
-      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Source:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        Target:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        VarOps: []
-        ScalarOps:
-        - Op: 2
-          Key:
-            Id: -1391682985
-            Name: GameLogic.BallProfile.Value
-          Layer: 
-          MulPhase: 1
-          Value:
-            _source:
-              rid: 5399842433823408774
-            _defaultValue: 0
-          DurationSeconds:
-            _source:
-              rid: 5619052366731149528
-            _defaultValue: 0
-          Tag: 
-          StoreHandleVar:
-            stableKey: 
-            varId: 0
-          HandleVar:
-            stableKey: 
-            varId: 0
-          UnsetAfterDispose: 1
-          KeepLocalBaseOnClearKey: 0
-        DebugMode: 0
-        Debug:
-          LogLevel: 10
-          Prefix: '[WriteDataDebug]'
-          IncludeCommandSummary: 1
-          IncludeOpIndex: 1
-          Vars:
-            Enabled: 1
-            LogSuccess: 1
-            LogFailure: 1
-            IncludeInputValue: 1
-            IncludeBeforeValue: 1
-            IncludeAfterValue: 1
-            IncludeVarKey: 1
-            IncludeScope: 1
-          Scalars:
-            Enabled: 1
-            LogSuccess: 1
-            LogFailure: 1
-            IncludeInputValue: 1
-            IncludeBeforeValue: 1
-            IncludeAfterValue: 1
-            IncludeScalarKey: 1
-            IncludeScope: 1
-            IncludeLayer: 1
-            IncludeDuration: 1
-            IncludeTag: 1
-    - rid: 5619052366731149523
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052366731149524
-    - rid: 5619052366731149524
-      type: {class: SetContextSlotCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Slot: 110
-        ActorSource:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-    - rid: 5619052366731149528
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052366731149676
-      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        _allowImplicitVariablesFromContext: 1
-        _variables:
-        - _value:
-            _source:
-              rid: 5619052366731149677
-          _useScalarLeafKey: 0
-          _useCustomKey: 1
-          _customKey: intensity
-          _expectedType: 255
-        _expression: intensity
-    - rid: 5619052366731149677
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: GameLib.Base.StatusEffect.Element.intensity
-          varId: 100112
     - rid: 5619052465085481672
       type: {class: FixedDurationStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -511,12 +472,6 @@ MonoBehaviour:
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052465085481745
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: GameLib.Base.StatusEffect.Stack.intensityA.local
-          varId: 101149
     - rid: 5619052506154533830
       type: {class: FixedUseCooldownStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:

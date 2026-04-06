@@ -57,8 +57,8 @@ namespace Game.Commands.VNext
                 case AddForceTargetKind.MovementChannel:
                     ApplyToMovementChannel(ctx, typed, force);
                     break;
-                case AddForceTargetKind.TransformControllerRigidbody2D:
-                    await ApplyToTransformControllerRigidbody2DAsync(ctx, typed, force, typed.ForceMode, ct);
+                case AddForceTargetKind.TransformChannelRigidbody2D:
+                    await ApplyToTransformChannelRigidbody2DAsync(ctx, typed, force, typed.WriteMode, typed.ForceMode, ct);
                     break;
             }
         }
@@ -83,34 +83,34 @@ namespace Game.Commands.VNext
                 return;
             }
 
+            if (typed.WriteMode == AddForceWriteMode.OverrideVelocity)
+            {
+                handle.SetImmediateVelocity(force);
+                return;
+            }
+
             handle.AddForce(force);
         }
 
-        static async UniTask ApplyToTransformControllerRigidbody2DAsync(
+        static async UniTask ApplyToTransformChannelRigidbody2DAsync(
             CommandContext ctx,
             AddForceCommandData typed,
             Vector2 force,
+            AddForceWriteMode writeMode,
             ForceMode2D forceMode,
             CancellationToken ct)
         {
             var (resolvedScope, resolveError) = await ActorScopeResolver.ResolveAsync(typed.Target, ctx, ct);
             if (resolvedScope == null)
             {
-                Debug.LogWarning($"[AddForceExecutor] TransformController target resolve failed: {resolveError}");
+                Debug.LogWarning($"[AddForceExecutor] TransformChannel target resolve failed: {resolveError}");
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"AddForce target resolve failed: {resolveError}");
             }
 
-            var resolver = resolvedScope.Resolver;
-            if (resolver == null)
-            {
-                Debug.LogWarning("[AddForceExecutor] Resolved target scope has no resolver.");
-                return;
-            }
-
-            TransformControllerService? service = null;
+            ITransformChannelRuntime? runtime = null;
             for (var attempt = 0; attempt <= ResolveRetryFrames; attempt++)
             {
-                if (TryResolveTransformControllerService(resolver, out service) && service != null)
+                if (TryResolveTransformChannelRuntime(resolvedScope, typed.TransformChannelTag, out runtime) && runtime != null)
                     break;
 
                 if (attempt == ResolveRetryFrames)
@@ -119,51 +119,78 @@ namespace Game.Commands.VNext
                 await UniTask.Yield(PlayerLoopTiming.Update, ct);
             }
 
-            if (service != null && service.TryAddForceToRigidbody2D(force, forceMode))
-                return;
+            if (runtime != null)
+            {
+                if (writeMode == AddForceWriteMode.OverrideVelocity)
+                {
+                    if (runtime.TryApplyRigidbody2DSettings(
+                            applySimulated: false,
+                            simulated: false,
+                            applyGravityScale: false,
+                            gravityScale: 0f,
+                            applyFreezeRotation: false,
+                            freezeRotation: false,
+                            applyLinearVelocity: true,
+                            linearVelocity: force,
+                            applyAngularVelocity: false,
+                            angularVelocity: 0f))
+                    {
+                        return;
+                    }
+                }
+                else if (runtime.TryAddForceToRigidbody2D(force, forceMode))
+                {
+                    return;
+                }
+            }
 
-            var directRigidbody = resolvedScope.Identity?.SelfTransform != null
-                ? resolvedScope.Identity.SelfTransform.GetComponent<Rigidbody2D>()
+            var directRoot = resolvedScope.Identity?.SelfTransform;
+            var directRigidbody = directRoot != null
+                ? directRoot.GetComponent<Rigidbody2D>() ?? directRoot.GetComponentInChildren<Rigidbody2D>(true)
                 : null;
             if (directRigidbody != null)
             {
-                directRigidbody.AddForce(force, forceMode);
+                if (writeMode == AddForceWriteMode.OverrideVelocity)
+                    directRigidbody.linearVelocity = force;
+                else
+                    directRigidbody.AddForce(force, forceMode);
                 return;
             }
 
             var scopeId = resolvedScope.Identity?.Id ?? "(no id)";
             var scopeKind = resolvedScope.Identity?.Kind.ToString() ?? resolvedScope.Kind.ToString();
-            Debug.LogWarning($"[AddForceExecutor] Failed to apply force. TransformControllerService and Rigidbody2D were both unavailable. target={scopeKind}:{scopeId}");
+            var channelTag = string.IsNullOrWhiteSpace(typed.TransformChannelTag) ? "default" : typed.TransformChannelTag.Trim();
+            Debug.LogWarning($"[AddForceExecutor] Failed to apply force. WriteMode={writeMode}, TransformChannel runtime(tag={channelTag}) and Rigidbody2D were both unavailable. target={scopeKind}:{scopeId}");
         }
 
-        static bool TryResolveTransformControllerService(IObjectResolver resolver, out TransformControllerService? service)
+        static bool TryResolveTransformChannelRuntime(IScopeNode scope, string channelTag, out ITransformChannelRuntime? runtime)
         {
-            service = null;
-            if (resolver == null)
-                return false;
+            runtime = null;
 
-            if (resolver.TryResolve<TransformControllerService>(out var direct) && direct != null)
-            {
-                service = direct;
-                return true;
-            }
+            var normalizedTag = string.IsNullOrWhiteSpace(channelTag)
+                ? TransformChannelTagUtility.DefaultTag
+                : channelTag.Trim();
 
-            if (resolver.TryResolve<ITransformControllerTelemetry>(out var telemetry) && telemetry is TransformControllerService byTelemetry)
+            for (var current = scope; current != null; current = current.Parent)
             {
-                service = byTelemetry;
-                return true;
-            }
+                var resolver = current.Resolver;
+                if (resolver == null)
+                    continue;
 
-            if (resolver.TryResolve<ITransformTeleportService>(out var teleport) && teleport is TransformControllerService byTeleport)
-            {
-                service = byTeleport;
-                return true;
-            }
+                if (!resolver.TryResolve<ITransformChannelHubService>(out var hub) || hub == null)
+                    continue;
 
-            if (resolver.TryResolve<ITransformControllerPoseReader>(out var poseReader) && poseReader is TransformControllerService byPoseReader)
-            {
-                service = byPoseReader;
-                return true;
+                if (hub.TryGetRuntime(normalizedTag, out var byTag) && byTag != null)
+                {
+                    runtime = byTag;
+                    return true;
+                }
+
+                if (hub.TryGetRuntime(TransformChannelTagUtility.DefaultTag, out var byDefault) && byDefault != null)
+                {
+                    runtime = byDefault;
+                    return true;
+                }
             }
 
             return false;

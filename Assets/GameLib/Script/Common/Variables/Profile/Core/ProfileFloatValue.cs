@@ -121,6 +121,12 @@ namespace Game.Profile
         string BlackboardBindingGroupName => $"Blackboard Binding ({GetBlackboardBindingLabel()})";
         string BlackboardBindingSaveGroupName => $"{BlackboardBindingGroupName}/Save";
 
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileFloatValue),
+            Value,
+            ScalarKeyValue.Name,
+            BlackboardVarId);
+
         // ================================================================
         // IProfileValueBinding - Base
         // ================================================================

@@ -1285,4 +1285,68 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: 0b3a2664e18b4b0b8b010171a2d4fdea
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Size
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8149089e844343688a7004eafefa17cc
+    parentId: 34e30ff382d146e89c236667344090bb
+    name: SizeRadius
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 34e30ff382d146e89c236667344090bb
+    parentId: 0b3a2664e18b4b0b8b010171a2d4fdea
+    name: Circle
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 867dd5e160d74d37ba4d94bbcfe285f1
+    parentId: 0b3a2664e18b4b0b8b010171a2d4fdea
+    name: Box
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: c605d4aa6ceb408e8c7465845a8fbf0b
+    parentId: 867dd5e160d74d37ba4d94bbcfe285f1
+    name: SizeX
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 4a0b95c3bbc44020ab2fb7b8b3bfd17e
+    parentId: 867dd5e160d74d37ba4d94bbcfe285f1
+    name: SizeY
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 256d785f132045ecad4ffd986e94b600
+    parentId: 9a22d061de77456ebfda7fac59070350
+    name: Sell
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: ac6ecdaa31d14418b7e9fa1c74b5335c
+    parentId: 256d785f132045ecad4ffd986e94b600
+    name: NailSellMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   csvFile: {fileID: 4900000, guid: 0f8f0a1f52c24534fa42d23481dae4e3, type: 3}

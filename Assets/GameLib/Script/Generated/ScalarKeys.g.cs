@@ -477,6 +477,14 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string QuotaIncrementMul = "GameLogic.GameProfile.Quota.QuotaIncrementMul";
                 }
+
+                public static partial class Sell
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Sell/NailSellMul
+                    /// </remarks>
+                    public const string NailSellMul = "GameLogic.GameProfile.Sell.NailSellMul";
+                }
             }
 
             public static partial class GateProfile
@@ -610,6 +618,30 @@ namespace Game.Scalar.Generated
                         /// Path: GameLogic/NailProfile/Effect/Converter/ConverterM2P
                         /// </remarks>
                         public const string ConverterM2P = "GameLogic.NailProfile.Effect.Converter.ConverterM2P";
+                    }
+
+                    public static partial class Size
+                    {
+
+                        public static partial class Box
+                        {
+                            /// <remarks>
+                            /// Path: GameLogic/NailProfile/Effect/Size/Box/SizeX
+                            /// </remarks>
+                            public const string SizeX = "GameLogic.NailProfile.Effect.Size.Box.SizeX";
+                            /// <remarks>
+                            /// Path: GameLogic/NailProfile/Effect/Size/Box/SizeY
+                            /// </remarks>
+                            public const string SizeY = "GameLogic.NailProfile.Effect.Size.Box.SizeY";
+                        }
+
+                        public static partial class Circle
+                        {
+                            /// <remarks>
+                            /// Path: GameLogic/NailProfile/Effect/Size/Circle/SizeRadius
+                            /// </remarks>
+                            public const string SizeRadius = "GameLogic.NailProfile.Effect.Size.Circle.SizeRadius";
+                        }
                     }
 
                     public static partial class SpawnBall
@@ -756,6 +788,7 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Events.GlobalGravityScale,
             ScalarKeys.GameLogic.GameProfile.Quota.QuotaDecrementMul,
             ScalarKeys.GameLogic.GameProfile.Quota.QuotaIncrementMul,
+            ScalarKeys.GameLogic.GameProfile.Sell.NailSellMul,
             ScalarKeys.GameLogic.GateProfile.LeftGate.CloseTime,
             ScalarKeys.GameLogic.GateProfile.LeftGate.OpenTime,
             ScalarKeys.GameLogic.GateProfile.RightGate.CloseTime,
@@ -780,6 +813,9 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.NailProfile.Effect.Chain.ChainChance,
             ScalarKeys.GameLogic.NailProfile.Effect.Chain.ChainRadius,
             ScalarKeys.GameLogic.NailProfile.Effect.Converter.ConverterM2P,
+            ScalarKeys.GameLogic.NailProfile.Effect.Size.Box.SizeX,
+            ScalarKeys.GameLogic.NailProfile.Effect.Size.Box.SizeY,
+            ScalarKeys.GameLogic.NailProfile.Effect.Size.Circle.SizeRadius,
             ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance,
             ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount,
             ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue,

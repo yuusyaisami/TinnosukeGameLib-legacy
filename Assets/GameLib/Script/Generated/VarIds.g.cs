@@ -4069,6 +4069,28 @@ namespace Game.Vars.Generated
                     /// </remarks>
                     public const int RequestBaseQuota = 101124;
                 }
+
+                public static partial class Nail
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Nail/Level
+                    /// StableKey: Level
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Nail/Level
+                    /// StableKey: Level
+                    /// </remarks>
+                    public const int Level = 101185;
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Nail/UpgradeCostMul
+                    /// StableKey: UpgradeCostMul
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Nail/UpgradeCostMul
+                    /// StableKey: UpgradeCostMul
+                    /// </remarks>
+                    public const int UpgradeCostMul = 101184;
+                }
             }
 
             public static partial class LuckProfile
@@ -4139,6 +4161,15 @@ namespace Game.Vars.Generated
                 /// </remarks>
                 public const int InitStack = 101130;
                 /// <remarks>
+                /// Path: GameLogic/NailProfile/isRotate
+                /// StableKey: isRotate
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/isRotate
+                /// StableKey: isRotate
+                /// </remarks>
+                public const int isRotate = 101186;
+                /// <remarks>
                 /// Path: GameLogic/NailProfile/Price
                 /// StableKey: Value
                 /// </remarks>
@@ -4174,6 +4205,19 @@ namespace Game.Vars.Generated
                 /// StableKey: UpgradeTable
                 /// </remarks>
                 public const int UpgradeTable = 100123;
+
+                public static partial class Base
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Base/RandomA
+                    /// StableKey: RandomA
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Base/RandomA
+                    /// StableKey: RandomA
+                    /// </remarks>
+                    public const int RandomA = 101187;
+                }
 
                 public static partial class StatusEffectSetting
                 {
@@ -4702,15 +4746,19 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.GameProfile.BallTable.Elements.SlotMul,
             VarIds.GameLogic.GameProfile.Base.QuotaMul,
             VarIds.GameLogic.GameProfile.Base.RequestBaseQuota,
+            VarIds.GameLogic.GameProfile.Nail.Level,
+            VarIds.GameLogic.GameProfile.Nail.UpgradeCostMul,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
             VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
             VarIds.GameLogic.LuckProfile.Public.LuckValueMul,
             VarIds.GameLogic.NailProfile.InitStack,
+            VarIds.GameLogic.NailProfile.isRotate,
             VarIds.GameLogic.NailProfile.Price,
             VarIds.GameLogic.NailProfile.Rarity,
             VarIds.GameLogic.NailProfile.StatusEffect,
             VarIds.GameLogic.NailProfile.UpgradeTable,
+            VarIds.GameLogic.NailProfile.Base.RandomA,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.CountSetting,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.LifetimeSetting,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.UseSetting,

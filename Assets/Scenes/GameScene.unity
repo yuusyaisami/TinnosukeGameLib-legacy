@@ -3198,8 +3198,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 9.2, y: -19.635}
-  m_SizeDelta: {x: 200, y: 39.27}
+  m_AnchoredPosition: {x: 0.0000085831, y: -0.0000038147}
+  m_SizeDelta: {x: 204.54, y: 39.27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &169104273
 MonoBehaviour:
@@ -3252,7 +3252,7 @@ MonoBehaviour:
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 18
+  m_fontSizeMin: 0
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
@@ -5920,7 +5920,7 @@ BoxCollider2D:
   m_UsedByEffector: 1
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.032766715, y: 0}
+  m_Offset: {x: 0.0327667, y: 0.006745249}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -5930,7 +5930,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.065533, y: 1}
+  m_Size: {x: 1.065533, y: 1.0134904}
   m_EdgeRadius: 0
 --- !u!114 &247894734
 MonoBehaviour:
@@ -6251,7 +6251,7 @@ RectTransform:
   m_GameObject: {fileID: 285872489}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 0, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1909313259}
@@ -7216,6 +7216,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -7381,6 +7383,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -8528,7 +8532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementRuntimeSpawnerMB
   spawnerTag: 
-  root: {fileID: 0}
+  root: {fileID: 905308920}
 --- !u!114 &321809368
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9246,6 +9250,7 @@ GameObject:
   - component: {fileID: 394753036}
   - component: {fileID: 394753048}
   - component: {fileID: 394753049}
+  - component: {fileID: 394753050}
   m_Layer: 0
   m_Name: Scene-Root
   m_TagString: Untagged
@@ -9528,6 +9533,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f108241cf7b84d4caef941251ea390d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Common.RichTextRefServiceMB
+--- !u!114 &394753050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394753035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97aff648a8e9eec44ac0bccc18f97f4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.TransformSystem.TransformManagerMB
+  _movementGlobals: []
+  _rotateGlobals: []
+  _scaleGlobals: []
 --- !u!1 &408003915
 GameObject:
   m_ObjectHideFlags: 0
@@ -15780,6 +15800,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -15925,6 +15947,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -17961,6 +17985,7 @@ RectTransform:
   - {fileID: 68483424}
   - {fileID: 285872490}
   - {fileID: 731910827}
+  - {fileID: 905308920}
   m_Father: {fileID: 321809353}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -20915,7 +20940,7 @@ RectTransform:
   m_GameObject: {fileID: 731910826}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1218426972}
@@ -21290,6 +21315,8 @@ MonoBehaviour:
           ease: 6
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -21455,6 +21482,8 @@ MonoBehaviour:
           ease: 6
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -22551,6 +22580,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -22778,6 +22809,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -23535,6 +23568,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -23762,6 +23797,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -24284,6 +24321,41 @@ RectTransform:
   - {fileID: 774893932}
   - {fileID: 124280817}
   m_Father: {fileID: 1372117887}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &858201833
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 858201834}
+  m_Layer: 0
+  m_Name: Runtime
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &858201834
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 858201833}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1026787982}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -25058,6 +25130,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886854726}
   m_CullTransparentMesh: 1
+--- !u!1 &905308919
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 905308920}
+  m_Layer: 0
+  m_Name: Runtime
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &905308920
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905308919}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 594947188}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &906963507
 GameObject:
   m_ObjectHideFlags: 0
@@ -26052,6 +26159,8 @@ MonoBehaviour:
           ease: 15
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -26197,6 +26306,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -26232,6 +26343,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -28963,6 +29076,8 @@ GameObject:
   - component: {fileID: 1026787992}
   - component: {fileID: 1026787993}
   - component: {fileID: 1026787994}
+  - component: {fileID: 1026787996}
+  - component: {fileID: 1026787995}
   m_Layer: 0
   m_Name: CoinFallEndPanel
   m_TagString: Untagged
@@ -28983,6 +29098,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1781996881}
+  - {fileID: 858201834}
   - {fileID: 925507961}
   m_Father: {fileID: 594947188}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -29192,6 +29308,7 @@ MonoBehaviour:
     _debugAssetPath: 
     _functionName: UIModalStackAffect.OnBecameInScope
     _commands:
+    - rid: 5399842459448508494
     - rid: 5619052416848364233
     - rid: 5619052416848364179
     - rid: 5619052416848364208
@@ -29207,6 +29324,7 @@ MonoBehaviour:
     - rid: 5619052416848364218
     - rid: 5619052416848364240
     - rid: 5399842414997799539
+    - rid: 5399842459448508550
   _onBecameImmediateInScope:
     _debugOwner: {fileID: 1026787991}
     _debugFieldPath: _onBecameImmediateInScope
@@ -29274,6 +29392,7 @@ MonoBehaviour:
           _source:
             rid: 5399842414997799541
           _defaultValue: 0
+        RowClearMode: 10
         DestinationRowGridActorSource:
           Kind: 0
           Identity:
@@ -29366,6 +29485,153 @@ MonoBehaviour:
       data:
         value: 0
     - rid: 5399842414997799547
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508494
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842459448508495
+    - rid: 5399842459448508495
+      type: {class: AutoSpawnChannelControlCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        HubSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Operation: 20
+        Tag: default
+        Mutation:
+          ApplyEnabled: 0
+          Enabled: 1
+          ApplyAllowExternalSpawn: 0
+          AllowExternalSpawn: 1
+          ApplySpawnIntervalSeconds: 0
+          SpawnIntervalSeconds: 1
+          ApplySpawnCountPerInterval: 0
+          SpawnCountPerInterval: 1
+          ApplyInitialSpawnCount: 0
+          InitialSpawnCount: 0
+          ApplyInitialDelaySeconds: 0
+          InitialDelaySeconds: 0
+          ApplyIntervalJitterSeconds: 0
+          IntervalJitterSeconds: 0
+          ResetNextSpawnSchedule: 0
+        Count:
+          _source:
+            rid: 5399842459448508500
+          _defaultValue: 0
+        IntervalSeconds:
+          _source:
+            rid: 5399842459448508499
+          _defaultValue: 0
+        AwaitMode: 1
+    - rid: 5399842459448508499
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.1
+    - rid: 5399842459448508500
+      type: {class: IntExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842459448508501
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: InstanceMoneyValue
+    - rid: 5399842459448508501
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 568001711
+          Name: GameLogic.GameProfile.Base.InstanceMoneyValue
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842459448508550
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842459448508551
+    - rid: 5399842459448508551
+      type: {class: AutoSpawnChannelControlCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        HubSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Operation: 30
+        Tag: default
+        Mutation:
+          ApplyEnabled: 0
+          Enabled: 1
+          ApplyAllowExternalSpawn: 0
+          AllowExternalSpawn: 1
+          ApplySpawnIntervalSeconds: 0
+          SpawnIntervalSeconds: 1
+          ApplySpawnCountPerInterval: 0
+          SpawnCountPerInterval: 1
+          ApplyInitialSpawnCount: 0
+          InitialSpawnCount: 0
+          ApplyInitialDelaySeconds: 0
+          InitialDelaySeconds: 0
+          ApplyIntervalJitterSeconds: 0
+          IntervalJitterSeconds: 0
+          ResetNextSpawnSchedule: 0
+        Count:
+          _source:
+            rid: 5399842459448508554
+          _defaultValue: 0
+        IntervalSeconds:
+          _source:
+            rid: 5399842459448508555
+          _defaultValue: 0
+        AwaitMode: 0
+    - rid: 5399842459448508554
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842459448508555
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
@@ -29907,6 +30173,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -30052,6 +30320,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -30688,6 +30958,813 @@ SortingGroup:
   m_SortingOrder: -1
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
+--- !u!114 &1026787995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1026787981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406fab1016c9ba44b9cd4fc3decec0ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.AutoSpawnChannelHubMB
+  runInLateUpdate: 1
+  channels:
+  - tag: default
+    Enabled: 0
+    AreaTags:
+    - default
+    AreaSelectionMode: 0
+    UseInitialAreaTags: 0
+    InitialAreaTags: []
+    Frequency:
+      SpawnIntervalSeconds: 1
+      SpawnCountPerInterval: 1
+      InitialSpawnCount: 0
+      InitialDelaySeconds: 0
+      IntervalJitterSeconds: 0
+    SpawnOffset:
+      _source:
+        rid: 5399842458134381364
+      _defaultValue: {x: 0, y: 0, z: 0}
+    ConditionMode: 0
+    InitialSpawnConditionPolicy: 0
+    Conditions: []
+    Mappings:
+    - RuntimeTemplatePreset:
+        _source:
+          rid: 5399842459448508502
+        _defaultValue:
+          prefab: {fileID: 0}
+          usePooling: 1
+          category: Runtime
+          templateId: 
+      OnSpawnedCommands:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands:
+        - rid: 5399842459448508504
+        - rid: 5399842459448508537
+        - rid: 5399842459448508522
+      VarsPolicy: 0
+    SpawnerKind: 5
+    SpawnerTag: 
+    AllowPooling: 1
+    AllowExternalSpawn: 1
+    TransformParent: {fileID: 858201834}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842458134381364
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0, z: 0}
+    - rid: 5399842459448508502
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842459448508503
+    - rid: 5399842459448508503
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 1255711634492439393, guid: 26dea7a035ea41b4bab11c2ca9512cdd, type: 3}
+        usePooling: 1
+        category: Runtime
+        templateId: 
+    - rid: 5399842459448508504
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842459448508505
+    - rid: 5399842459448508505
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        ApplyAnimation: 1
+        AwaitMode: 0
+        WaitForOnceCompletion: 1
+        PresetSource:
+          _source:
+            rid: 5399842459448508514
+          _defaultValue:
+            animationA:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            animationB:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            playMode: 0
+            flipX: 0
+            useClipSwitchFlip: 0
+            switchFlipDuration: 0.2
+            switchFlipFullRotation: 0
+            usePlaybackSpeedMultiplier: 1
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 0
+        MaterialFxSource:
+          _source:
+            rid: 5399842459448508515
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyPlaybackSpeed: 0
+        PlaybackSpeedSource:
+          _source:
+            rid: 5399842459448508516
+          _defaultValue: 0
+        ApplyFlipX: 0
+        FlipXMode: 0
+        FlipXAngleSource:
+          _source:
+            rid: 5399842459448508517
+          _defaultValue: 0
+        ApplySortingOrder: 0
+        SortingOrderSource:
+          _source:
+            rid: 5399842459448508518
+          _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 5399842459448508509
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 5399842459448508510
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 5399842459448508519
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 5399842459448508520
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 5399842459448508521
+            _defaultValue: 0
+    - rid: 5399842459448508509
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 5399842459448508510
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 5399842459448508514
+      type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          animationA:
+            kind: 1
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames:
+              - sprite: {fileID: 7774493202208912350, guid: 2d4228813404c004fac0de02901b2b99, type: 3}
+                duration: 0.1
+                commands:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          animationB:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          playMode: 0
+          flipX: 0
+          useClipSwitchFlip: 0
+          switchFlipDuration: 0.2
+          switchFlipFullRotation: 0
+          usePlaybackSpeedMultiplier: 1
+          crossFadeProfile:
+            rid: -2
+    - rid: 5399842459448508515
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5399842459448508516
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842459448508517
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5399842459448508518
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508519
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842459448508520
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508521
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842459448508522
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842459448508523
+    - rid: 5399842459448508523
+      type: {class: TransformAnimationChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        Mode: 0
+        ShakeAction: 0
+        ShakeSettings:
+          AmplitudeX: 0.1
+          AmplitudeY: 0.1
+          Frequency: 12
+          EnableRotation: 0
+          RotationAmplitudeDeg: 2
+          DurationSeconds: 0
+        Preset:
+          _source:
+            rid: 5399842459448508529
+          _defaultValue:
+            loop: 0
+            loopCount: -1
+            steps: []
+        PresetExecutionPolicy: 20
+        WaitForCompletion: 0
+        FollowAction: 0
+        FollowAwaitMode: 1
+        FollowTargetKind: 0
+        FollowTargetTransform:
+          _source:
+            rid: -2
+          _defaultValue: {fileID: 0}
+        FollowTargetPosition:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        FollowOptions:
+          SmoothTime: 0.12
+          FollowX: 1
+          FollowY: 1
+          MaxSpeed: 20
+          UseVelocityOffset: 0
+          BaseTargetOffset: {x: 0, y: 0, z: 0}
+          VelocityOffsetScale: {x: 1, y: 1}
+          VelocityWeight:
+            Enabled: 0
+            SoftLimitPos: {x: 0, y: 0}
+            HardLimitPos: {x: 1, y: 1}
+            SoftLimitNeg: {x: 0, y: 0}
+            HardLimitNeg: {x: 1, y: 1}
+            MinWeightPos: {x: 1, y: 1}
+            MaxWeightPos: {x: 1, y: 1}
+            MinWeightNeg: {x: 1, y: 1}
+            MaxWeightNeg: {x: 1, y: 1}
+          VelocitySourceType: 0
+          LimitTurnRate: 0
+          TurnRate: 360
+        RotateAction: 0
+        RotateSpeedMode: 0
+        RotateSpeed:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RotateSpeedFadeSeconds:
+          _source:
+            rid: 5399842459448508524
+          _defaultValue: 0
+        RotateSpeedDampingRate:
+          _source:
+            rid: 5399842459448508525
+          _defaultValue: 0
+        RotateAngleTarget:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RotateAngleSmoothTime:
+          _source:
+            rid: 5399842459448508526
+          _defaultValue: 0
+        RotateAngleMaxSpeed:
+          _source:
+            rid: 5399842459448508527
+          _defaultValue: 0
+        RotateStopImmediate: 1
+        RotateStopFadeSeconds:
+          _source:
+            rid: 5399842459448508528
+          _defaultValue: 0
+    - rid: 5399842459448508524
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508525
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842459448508526
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.12
+    - rid: 5399842459448508527
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508528
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508529
+      type: {class: LiteralTransformAnimationPresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842459448508530
+    - rid: 5399842459448508530
+      type: {class: TransformAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        loop: 0
+        loopCount: -1
+        steps:
+        - operation: 9
+          duration:
+            _source:
+              rid: 5399842459448508531
+            _defaultValue: 0
+          ease: 1
+          relative: 0
+          fireAndForget: 0
+          scrollSpace: 20
+          scrollUseLocalVelocity: 0
+          ensureShortestLocalRotatePath: 0
+          vector3:
+            _source:
+              rid: 5399842459448508533
+            _defaultValue: {x: 0, y: 0, z: 0}
+          positionPathMode: 10
+          useBezierCurve: 1
+          curveControlSide: 1
+          curveHeight: 1
+          curveControlOffset: {x: 0, y: 0, z: 0}
+          curveSamplingCount: 16
+          polySides: 5
+          polyRadius: 1
+          polyRotationDeg: 0
+          polyDirection: 10
+          vector2:
+            _source:
+              rid: 5399842459448509358
+            _defaultValue: {x: 0, y: 0}
+          anchoredInputMode: 0
+          commandAwaitMode: 0
+          commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    - rid: 5399842459448508531
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508533
+      type: {class: RandomVector3RangeSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        min:
+          _source:
+            rid: 5399842459448508534
+          _defaultValue: {x: 0, y: 0, z: 0}
+        max:
+          _source:
+            rid: 5399842459448508535
+          _defaultValue: {x: 0, y: 0, z: 0}
+        useVarianceController: 0
+        varianceKey: 
+        varianceSettings:
+          Strategy: 1
+          HistorySize: 4
+          MinDistance: 0
+          MinDistanceRatio: 0.15
+          MaxRetry: 6
+          Jitter: 0.05
+    - rid: 5399842459448508534
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: -10, y: -45, z: 0}
+    - rid: 5399842459448508535
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 10, y: -75, z: 0}
+    - rid: 5399842459448508537
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842459448508538
+    - rid: 5399842459448508538
+      type: {class: TransformAnimationChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        Mode: 0
+        ShakeAction: 0
+        ShakeSettings:
+          AmplitudeX: 0.1
+          AmplitudeY: 0.1
+          Frequency: 12
+          EnableRotation: 0
+          RotationAmplitudeDeg: 2
+          DurationSeconds: 0
+        Preset:
+          _source:
+            rid: 5399842459448508539
+          _defaultValue:
+            loop: 0
+            loopCount: -1
+            steps: []
+        PresetExecutionPolicy: 20
+        WaitForCompletion: 0
+        FollowAction: 0
+        FollowAwaitMode: 1
+        FollowTargetKind: 0
+        FollowTargetTransform:
+          _source:
+            rid: -2
+          _defaultValue: {fileID: 0}
+        FollowTargetPosition:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        FollowOptions:
+          SmoothTime: 0.12
+          FollowX: 1
+          FollowY: 1
+          MaxSpeed: 20
+          UseVelocityOffset: 0
+          BaseTargetOffset: {x: 0, y: 0, z: 0}
+          VelocityOffsetScale: {x: 1, y: 1}
+          VelocityWeight:
+            Enabled: 0
+            SoftLimitPos: {x: 0, y: 0}
+            HardLimitPos: {x: 1, y: 1}
+            SoftLimitNeg: {x: 0, y: 0}
+            HardLimitNeg: {x: 1, y: 1}
+            MinWeightPos: {x: 1, y: 1}
+            MaxWeightPos: {x: 1, y: 1}
+            MinWeightNeg: {x: 1, y: 1}
+            MaxWeightNeg: {x: 1, y: 1}
+          VelocitySourceType: 0
+          LimitTurnRate: 0
+          TurnRate: 360
+        RotateAction: 0
+        RotateSpeedMode: 0
+        RotateSpeed:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RotateSpeedFadeSeconds:
+          _source:
+            rid: 5399842459448508540
+          _defaultValue: 0
+        RotateSpeedDampingRate:
+          _source:
+            rid: 5399842459448508541
+          _defaultValue: 0
+        RotateAngleTarget:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RotateAngleSmoothTime:
+          _source:
+            rid: 5399842459448508542
+          _defaultValue: 0
+        RotateAngleMaxSpeed:
+          _source:
+            rid: 5399842459448508543
+          _defaultValue: 0
+        RotateStopImmediate: 1
+        RotateStopFadeSeconds:
+          _source:
+            rid: 5399842459448508544
+          _defaultValue: 0
+    - rid: 5399842459448508539
+      type: {class: LiteralTransformAnimationPresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842459448508545
+    - rid: 5399842459448508540
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508541
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842459448508542
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.12
+    - rid: 5399842459448508543
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508544
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508545
+      type: {class: TransformAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        loop: 0
+        loopCount: -1
+        steps:
+        - operation: 3
+          duration:
+            _source:
+              rid: 5399842459448508546
+            _defaultValue: 0
+          ease: 1
+          relative: 0
+          fireAndForget: 0
+          scrollSpace: 20
+          scrollUseLocalVelocity: 0
+          ensureShortestLocalRotatePath: 0
+          vector3:
+            _source:
+              rid: 5399842459448508547
+            _defaultValue: {x: 0, y: 0, z: 0}
+          positionPathMode: 10
+          useBezierCurve: 1
+          curveControlSide: 1
+          curveHeight: 1
+          curveControlOffset: {x: 0, y: 0, z: 0}
+          curveSamplingCount: 16
+          polySides: 5
+          polyRadius: 1
+          polyRotationDeg: 0
+          polyDirection: 10
+          vector2:
+            _source:
+              rid: 5399842459448509357
+            _defaultValue: {x: 0, y: 0}
+          anchoredInputMode: 0
+          commandAwaitMode: 0
+          commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+        - operation: 6
+          duration:
+            _source:
+              rid: 5399842459448509359
+            _defaultValue: 0
+          ease: 1
+          relative: 0
+          fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
+          ensureShortestLocalRotatePath: 0
+          vector3:
+            _source:
+              rid: -2
+            _defaultValue: {x: 0, y: 0, z: 0}
+          positionPathMode: 10
+          useBezierCurve: 1
+          curveControlSide: 1
+          curveHeight: 1
+          curveControlOffset: {x: 0, y: 0, z: 0}
+          curveSamplingCount: 16
+          polySides: 5
+          polyRadius: 1
+          polyRotationDeg: 0
+          polyDirection: 10
+          vector2:
+            _source:
+              rid: 5399842459448509360
+            _defaultValue: {x: 0, y: 0}
+          anchoredInputMode: 0
+          commandAwaitMode: 0
+          commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    - rid: 5399842459448508546
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448508547
+      type: {class: RandomVector3RangeSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        min:
+          _source:
+            rid: 5399842459448508548
+          _defaultValue: {x: 0, y: 0, z: 0}
+        max:
+          _source:
+            rid: 5399842459448508549
+          _defaultValue: {x: 0, y: 0, z: 0}
+        useVarianceController: 0
+        varianceKey: 
+        varianceSettings:
+          Strategy: 1
+          HistorySize: 4
+          MinDistance: 0
+          MinDistanceRatio: 0.15
+          MaxRetry: 6
+          Jitter: 0.05
+    - rid: 5399842459448508548
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0, z: -30}
+    - rid: 5399842459448508549
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0, z: 30}
+    - rid: 5399842459448509357
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 5399842459448509358
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 5399842459448509359
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842459448509360
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 25, y: 35}
+--- !u!114 &1026787996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1026787981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2122350e355df4e48ae0d69d3895d711, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.AreaChannelHubMB
+  channels:
+  - tag: default
+    Enabled: 1
+    Anchor: {fileID: 0}
+    CenterOffset: {x: 0, y: 7.5, z: 0}
+    Plane: 0
+    Sample:
+      SequenceSeed: 0
+      JitterRate: 0
+      MinDistance: 0
+      MaxRetry: 1
+    Shape:
+      rid: 5399842458134381130
+  showAreaGizmo: 1
+  selectedOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5399842458134381130
+      type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        Size: {x: 19.09, y: 2.57}
 --- !u!1 &1028249287
 GameObject:
   m_ObjectHideFlags: 0
@@ -31218,6 +32295,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -31363,6 +32442,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -33259,6 +34340,8 @@ MonoBehaviour:
       rid: 5619052686853014013
   - _source:
       rid: 5399842374860144784
+  - _source:
+      rid: 5399842460338225773
   _resetOnAcquire: 1
   _clearOnRelease: 1
   _enableSaveInRuntimeScope: 0
@@ -33439,6 +34522,75 @@ MonoBehaviour:
         BlackboardPolicyValue: 0
         BlackboardSaveEnabledValue: 0
         BlackboardSaveLayerValue: 0
+    - rid: 5399842460338225773
+      type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842460338225774
+    - rid: 5399842460338225774
+      type: {class: CustomProfileDefinition, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        _profileName: CustomProfile
+        _bindings:
+        - rid: 5399842460338225776
+    - rid: 5399842460338225776
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 1
+        ScalarKeyValue:
+          Id: 350819607
+          Name: GameLogic.GameProfile.Sell.NailSellMul
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5399842475666834083
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: -1634583523
+          Name: GameLogic.GameProfile.Base.Quota
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
     - rid: 5619052366731149400
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -33455,7 +34607,7 @@ MonoBehaviour:
         - rid: 5619052451121070161
         - rid: 5619052451121070164
         - rid: 5619052366731149419
-        - rid: 5619052451121070166
+        - rid: 5399842475666834083
         - rid: 5619052416848364403
         - rid: 5619052451121070169
         - rid: 5619052416848364406
@@ -33699,35 +34851,6 @@ MonoBehaviour:
         ScalarKeyValue:
           Id: 344884235
           Name: GameLogic.GameProfile.Base.MaxNail
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052451121070166
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 15
-        ScalarKeyValue:
-          Id: -1634583523
-          Name: GameLogic.GameProfile.Base.Quota
         ScalarPolicyValue: 0
         UseEffectMod: 0
         UseClampMod: 0
@@ -34470,7 +35593,7 @@ MonoBehaviour:
     _holderId: 
     _initialTraits:
     - {fileID: 11400000, guid: 1713b2f2c193949459e54a284d382167, type: 2}
-    _allowDuplicateDefinitions: 0
+    _allowDuplicateDefinitions: 1
     _placeEnabled: 0
     _placement:
       _position:
@@ -34525,7 +35648,7 @@ MonoBehaviour:
   - _key: Player
     _holderId: 
     _initialTraits: []
-    _allowDuplicateDefinitions: 0
+    _allowDuplicateDefinitions: 1
     _placeEnabled: 1
     _placement:
       _position:
@@ -34580,7 +35703,7 @@ MonoBehaviour:
   - _key: RewardShop
     _holderId: 
     _initialTraits: []
-    _allowDuplicateDefinitions: 0
+    _allowDuplicateDefinitions: 1
     _placeEnabled: 0
     _placement:
       _position:
@@ -34635,7 +35758,7 @@ MonoBehaviour:
   - _key: RewardPlayer
     _holderId: 
     _initialTraits: []
-    _allowDuplicateDefinitions: 0
+    _allowDuplicateDefinitions: 1
     _placeEnabled: 0
     _placement:
       _position:
@@ -34690,7 +35813,7 @@ MonoBehaviour:
   - _key: EventShop
     _holderId: 
     _initialTraits: []
-    _allowDuplicateDefinitions: 0
+    _allowDuplicateDefinitions: 1
     _placeEnabled: 0
     _placement:
       _position:
@@ -34745,7 +35868,7 @@ MonoBehaviour:
   - _key: EventPlayer
     _holderId: 
     _initialTraits: []
-    _allowDuplicateDefinitions: 0
+    _allowDuplicateDefinitions: 1
     _placeEnabled: 0
     _placement:
       _position:
@@ -34800,7 +35923,7 @@ MonoBehaviour:
   - _key: IdentityShop
     _holderId: 
     _initialTraits: []
-    _allowDuplicateDefinitions: 0
+    _allowDuplicateDefinitions: 1
     _placeEnabled: 0
     _placement:
       _position:
@@ -34855,7 +35978,7 @@ MonoBehaviour:
   - _key: IdentityPlayer
     _holderId: 
     _initialTraits: []
-    _allowDuplicateDefinitions: 0
+    _allowDuplicateDefinitions: 1
     _placeEnabled: 0
     _placement:
       _position:
@@ -35077,6 +36200,10 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        AddValue:
+          _source:
+            rid: -2
+          _defaultValue: 0
         RestartAfterReset: 0
         OutputTarget: 0
         OutputVar:
@@ -35135,6 +36262,10 @@ MonoBehaviour:
             rid: 5619052416848364035
           _defaultValue: 0
         TimeScale:
+          _source:
+            rid: -2
+          _defaultValue: 0
+        AddValue:
           _source:
             rid: -2
           _defaultValue: 0
@@ -35199,6 +36330,10 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        AddValue:
+          _source:
+            rid: -2
+          _defaultValue: 0
         RestartAfterReset: 0
         OutputTarget: 0
         OutputVar:
@@ -35234,6 +36369,10 @@ MonoBehaviour:
             rid: 5619052416848364041
           _defaultValue: 0
         TimeScale:
+          _source:
+            rid: -2
+          _defaultValue: 0
+        AddValue:
           _source:
             rid: -2
           _defaultValue: 0
@@ -35376,7 +36515,13 @@ MonoBehaviour:
           rid: -2
         _defaultValue: 0
   _debugDefinition: {fileID: 0}
-  _debugIntensity: 1
+  _debugIntensityA: 0
+  _debugIntensityB: 0
+  _debugIntensityC: 0
+  _debugIntensityD: 0
+  _debugIntensityE: 0
+  _debugIntensityF: 0
+  _debugIntensityG: 0
   _debugOverrideDuration: 0
   _debugDuration: -1
   _debugRuntimeTag: 
@@ -37141,6 +38286,22 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842479533720078
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842479533720079
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5399842479533720080
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052646656639783
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHubPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -37573,7 +38734,7 @@ MonoBehaviour:
         OverrideCountStartValue: 0
         CountStartValue:
           _source:
-            rid: -2
+            rid: 5399842479533720078
           _defaultValue: 0
         Visible: 1
         AnimationPreset:
@@ -37581,7 +38742,7 @@ MonoBehaviour:
         ApplyMaterialFx: 0
         MaterialFxSource:
           _source:
-            rid: -2
+            rid: 5399842479533720079
           _defaultValue:
             ContextTag: default
             ClearContextFirst: 0
@@ -37590,7 +38751,7 @@ MonoBehaviour:
         ApplyFontSize: 0
         FontSize:
           _source:
-            rid: -2
+            rid: 5399842479533720080
           _defaultValue: 0
     - rid: 5619052646656639805
       type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
@@ -37601,7 +38762,7 @@ MonoBehaviour:
     - rid: 5619052646656639806
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: "\u30B7\u30FC\u30F3\u5185\u306E\u91D8\u306E\u6570\u3092\u610F\u5473\u3057\u307E\u3059\u3002\\n\u6700\u5927\u5024\u306F\u8A2D\u7F6E\u3067\u304D\u308B\u91D8\u306E\u6700\u5927\u500B\u6570\u3067\u3059\u3002"
+        value: "\u30B7\u30FC\u30F3\u5185\u306E\u30E8\u30FC\u30C6\u30E0\u306E\u6570\u3092\u610F\u5473\u3057\u307E\u3059\u3002\\n\u6700\u5927\u5024\u306F\u8A2D\u7F6E\u3067\u304D\u308B\u30E8\u30FC\u30C6\u30E0\u306E\u6700\u5927\u500B\u6570\u3067\u3059\u3002"
 --- !u!1 &1084634061
 GameObject:
   m_ObjectHideFlags: 0
@@ -38500,8 +39661,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1261836343}
+  m_Children: []
   m_Father: {fileID: 1317081136}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -40046,11 +41206,11 @@ MonoBehaviour:
     - rid: 5399842402410693415
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 1
+        value: 0
     - rid: 5399842402410693416
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 1
+        value: 0
 --- !u!114 &1196694514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40944,11 +42104,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!224 &1261836343 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-  m_PrefabInstance: {fileID: 6609770132441807122}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1262260207
 GameObject:
   m_ObjectHideFlags: 0
@@ -43535,7 +44690,6 @@ MonoBehaviour:
     _commands:
     - rid: 5399842374860145096
     - rid: 5399842374860144945
-    - rid: 5399842374860145350
     - rid: 5399842374860144871
     - rid: 5399842374860144901
     - rid: 5399842374860144916
@@ -43699,6 +44853,8 @@ MonoBehaviour:
           ease: 9
           relative: 0
           fireAndForget: 1
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -43734,6 +44890,8 @@ MonoBehaviour:
           ease: 3
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -43911,6 +45069,8 @@ MonoBehaviour:
           ease: 9
           relative: 0
           fireAndForget: 1
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -43946,6 +45106,8 @@ MonoBehaviour:
           ease: 3
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -44123,6 +45285,8 @@ MonoBehaviour:
           ease: 9
           relative: 0
           fireAndForget: 1
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -44158,6 +45322,8 @@ MonoBehaviour:
           ease: 3
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -44335,6 +45501,8 @@ MonoBehaviour:
           ease: 9
           relative: 0
           fireAndForget: 1
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -44370,6 +45538,8 @@ MonoBehaviour:
           ease: 3
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -44547,6 +45717,8 @@ MonoBehaviour:
           ease: 9
           relative: 0
           fireAndForget: 1
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -44582,6 +45754,8 @@ MonoBehaviour:
           ease: 3
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -45115,182 +46289,6 @@ MonoBehaviour:
       type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {fileID: 11400000, guid: eb4c430596e5c8a4394f25772b874fee, type: 2}
-    - rid: 5399842374860145350
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842374860145351
-    - rid: 5399842374860145351
-      type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        ChannelTag: nextQuota
-        Mode: 0
-        AwaitMode: 0
-        Action: 0
-        ApplyText: 1
-        Text:
-          _source:
-            rid: 5399842374860145354
-          _defaultValue: 
-        PlayMode: 0
-        StyleCommand:
-          Enabled: 0
-          Mode: 0
-          Override:
-            ApplyFontStyle: 0
-            FontStyle: 0
-            ApplyFontSize: 0
-            FontSize: 36
-            ApplyVertexColor: 0
-            VertexColor: {r: 1, g: 1, b: 1, a: 1}
-            ApplyColorGradient: 0
-            EnableColorGradient: 0
-            ColorGradientPreset: {fileID: 0}
-            ApplyCharacterSpacing: 0
-            CharacterSpacing: 0
-            ApplyWordSpacing: 0
-            WordSpacing: 0
-            ApplyLineSpacing: 0
-            LineSpacing: 0
-            ApplyParagraphSpacing: 0
-            ParagraphSpacing: 0
-            ApplyAlignment: 0
-            Alignment: 257
-            ApplyWordWrapping: 0
-            EnableWordWrapping: 1
-            ApplyOverflow: 0
-            Overflow: 0
-        WaitForTypewriterComplete: 0
-        ApplyTypewriterEventCommands: 0
-        TypewriterEventCommands:
-          OnTypewriterStart:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnTextShowed:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnTextDisappeared:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnCharacterVisible:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnCharacterWaitStarted:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnCharacterWaitFinished:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnMessage:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-        TextSettings:
-          UseCounter: 0
-          CounterEase: 6
-          CounterDurationSeconds: 0.5
-          CounterUseUnscaledTime: 0
-          FixedIntegerDigits: 0
-          DecimalDigits: 0
-          ShowPlusSign: 0
-          UseThousandsSeparator: 0
-          RoundingMode: 0
-        OverrideCountStartValue: 0
-        CountStartValue:
-          _source:
-            rid: -2
-          _defaultValue: 0
-        Visible: 1
-        AnimationPreset:
-          rid: 5399842374860145352
-        ApplyMaterialFx: 0
-        MaterialFxSource:
-          _source:
-            rid: -2
-          _defaultValue:
-            ContextTag: default
-            ClearContextFirst: 0
-            Priority: 0
-            Entries: []
-        ApplyFontSize: 0
-        FontSize:
-          _source:
-            rid: -2
-          _defaultValue: 0
-    - rid: 5399842374860145352
-      type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
-      data:
-        loop: 0
-        loopCount: -1
-        steps: []
-    - rid: 5399842374860145354
-      type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        _sourceMode: 0
-        _refKey:
-          _source:
-            rid: -2
-          _defaultValue: 
-        _logActorStoresOnWarn: 0
-        _maxActorStoreEntries: 16
-        _allowImplicitKeys: 1
-        _variables:
-        - _value:
-            _source:
-              rid: 5399842374860145355
-          _useScalarLeafKey: 0
-          _useCustomKey: 0
-          _customKey: 
-          _expectedType: 255
-        _template: 
-    - rid: 5399842374860145355
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: 
-          varId: 0
     - rid: 5399842409393160241
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -49256,6 +50254,7 @@ MonoBehaviour:
           - rid: 5399842402410693487
           - rid: 5399842402410693471
           - rid: 5399842402410693495
+          - rid: 5399842475666834297
         ElseCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -49277,8 +50276,8 @@ MonoBehaviour:
             _source:
               rid: 5399842402410693494
           _useScalarLeafKey: 0
-          _useCustomKey: 0
-          _customKey: 
+          _useCustomKey: 1
+          _customKey: RerollCurrentCount
           _expectedType: 255
         _expression: RerollCurrentCount > 0
     - rid: 5399842402410693494
@@ -49479,6 +50478,165 @@ MonoBehaviour:
         vector3Value: {x: 0, y: 0, z: 0}
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842475666834297
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842475666834298
+    - rid: 5399842475666834298
+      type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        Mode: 0
+        AwaitMode: 0
+        Action: 0
+        ApplyText: 1
+        Text:
+          _source:
+            rid: 5399842475666834299
+          _defaultValue: 
+        PlayMode: 0
+        StyleCommand:
+          Enabled: 0
+          Mode: 0
+          Override:
+            ApplyFontStyle: 0
+            FontStyle: 0
+            ApplyFontSize: 0
+            FontSize: 36
+            ApplyVertexColor: 0
+            VertexColor: {r: 1, g: 1, b: 1, a: 1}
+            ApplyColorGradient: 0
+            EnableColorGradient: 0
+            ColorGradientPreset: {fileID: 0}
+            ApplyCharacterSpacing: 0
+            CharacterSpacing: 0
+            ApplyWordSpacing: 0
+            WordSpacing: 0
+            ApplyLineSpacing: 0
+            LineSpacing: 0
+            ApplyParagraphSpacing: 0
+            ParagraphSpacing: 0
+            ApplyAlignment: 0
+            Alignment: 257
+            ApplyWordWrapping: 0
+            EnableWordWrapping: 1
+            ApplyOverflow: 0
+            Overflow: 0
+        WaitForTypewriterComplete: 0
+        ApplyTypewriterEventCommands: 0
+        TypewriterEventCommands:
+          OnTypewriterStart:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextShowed:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextDisappeared:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterVisible:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitStarted:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitFinished:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnMessage:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        TextSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
+        OverrideCountStartValue: 0
+        CountStartValue:
+          _source:
+            rid: -2
+          _defaultValue: 0
+        Visible: 1
+        AnimationPreset:
+          rid: 5399842475666834300
+        ApplyMaterialFx: 0
+        MaterialFxSource:
+          _source:
+            rid: -2
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyFontSize: 0
+        FontSize:
+          _source:
+            rid: -2
+          _defaultValue: 0
+    - rid: 5399842475666834299
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101128
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5399842475666834300
+      type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        loop: 0
+        loopCount: -1
+        steps: []
 --- !u!114 &1474782475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50408,6 +51566,7 @@ MonoBehaviour:
     _commands:
     - rid: 5399842402410693500
     - rid: 5399842402410693504
+    - rid: 5399842475666834291
   _onBecameOutOfScope:
     _debugOwner: {fileID: 1474782482}
     _debugFieldPath: _onBecameOutOfScope
@@ -50573,8 +51732,8 @@ MonoBehaviour:
             _source:
               rid: 5399842402410693508
           _useScalarLeafKey: 0
-          _useCustomKey: 0
-          _customKey: 
+          _useCustomKey: 1
+          _customKey: RerollCurrentCount
           _expectedType: 255
         _expression: RerollCurrentCount > 0
     - rid: 5399842402410693507
@@ -50883,6 +52042,165 @@ MonoBehaviour:
         vector3Value: {x: 0, y: 0, z: 0}
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842475666834291
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842475666834292
+    - rid: 5399842475666834292
+      type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        Mode: 0
+        AwaitMode: 0
+        Action: 0
+        ApplyText: 1
+        Text:
+          _source:
+            rid: 5399842475666834295
+          _defaultValue: 
+        PlayMode: 0
+        StyleCommand:
+          Enabled: 0
+          Mode: 0
+          Override:
+            ApplyFontStyle: 0
+            FontStyle: 0
+            ApplyFontSize: 0
+            FontSize: 36
+            ApplyVertexColor: 0
+            VertexColor: {r: 1, g: 1, b: 1, a: 1}
+            ApplyColorGradient: 0
+            EnableColorGradient: 0
+            ColorGradientPreset: {fileID: 0}
+            ApplyCharacterSpacing: 0
+            CharacterSpacing: 0
+            ApplyWordSpacing: 0
+            WordSpacing: 0
+            ApplyLineSpacing: 0
+            LineSpacing: 0
+            ApplyParagraphSpacing: 0
+            ParagraphSpacing: 0
+            ApplyAlignment: 0
+            Alignment: 257
+            ApplyWordWrapping: 0
+            EnableWordWrapping: 1
+            ApplyOverflow: 0
+            Overflow: 0
+        WaitForTypewriterComplete: 0
+        ApplyTypewriterEventCommands: 0
+        TypewriterEventCommands:
+          OnTypewriterStart:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextShowed:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnTextDisappeared:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterVisible:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitStarted:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnCharacterWaitFinished:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+          OnMessage:
+            Apply: 0
+            Operation: 0
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        TextSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
+        OverrideCountStartValue: 0
+        CountStartValue:
+          _source:
+            rid: -2
+          _defaultValue: 0
+        Visible: 1
+        AnimationPreset:
+          rid: 5399842475666834293
+        ApplyMaterialFx: 0
+        MaterialFxSource:
+          _source:
+            rid: -2
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyFontSize: 0
+        FontSize:
+          _source:
+            rid: -2
+          _defaultValue: 0
+    - rid: 5399842475666834293
+      type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
+      data:
+        loop: 0
+        loopCount: -1
+        steps: []
+    - rid: 5399842475666834295
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101128
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
 --- !u!1 &1482774803
 GameObject:
   m_ObjectHideFlags: 0
@@ -52927,6 +54245,7 @@ MonoBehaviour:
     - rid: 5619052366731149950
       type: {class: SetUnityColliderCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
+        TargetTag: 
         Mode: 0
         ApplyEnabled: 1
         Enabled:
@@ -53139,6 +54458,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3306a888122c6f4e846fbd111fbf70c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.UnityColliderObjectMB
+  _colliders: []
   _collider: {fileID: 0}
   _layerId: 0
   _hitMask: 4294967295
@@ -53146,6 +54466,7 @@ MonoBehaviour:
     value: 21
   _userData: 0
   _enabledByDefault: 1
+  _debugRegisteredHandleCount: 0
   _debugIsRegistered: 0
   _debugResolverAvailable: 0
   _debugManagerResolved: 0
@@ -53163,7 +54484,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 13519
+  _debugLastEnabledChangeFrame: 34105
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1484563809
@@ -55491,6 +56812,7 @@ MonoBehaviour:
     - rid: 5619052366731149950
       type: {class: SetUnityColliderCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
+        TargetTag: 
         Mode: 0
         ApplyEnabled: 1
         Enabled:
@@ -55703,6 +57025,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3306a888122c6f4e846fbd111fbf70c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.UnityColliderObjectMB
+  _colliders: []
   _collider: {fileID: 0}
   _layerId: 0
   _hitMask: 4294967295
@@ -55710,6 +57033,7 @@ MonoBehaviour:
     value: 21
   _userData: 0
   _enabledByDefault: 1
+  _debugRegisteredHandleCount: 0
   _debugIsRegistered: 0
   _debugResolverAvailable: 0
   _debugManagerResolved: 0
@@ -55727,7 +57051,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 13519
+  _debugLastEnabledChangeFrame: 34105
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1505620737
@@ -60374,6 +61698,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -60601,6 +61927,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -61281,8 +62609,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 44.6, y: 25.307}
-  m_SizeDelta: {x: 172.08, y: 26.667}
+  m_AnchoredPosition: {x: 156.95, y: 25.307}
+  m_SizeDelta: {x: 396.8, y: 26.67}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1720211012
 MonoBehaviour:
@@ -61306,8 +62634,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Event
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b0059b6a2950ad34699febf08148d009, type: 2}
-  m_sharedMaterial: {fileID: -6419762927213802236, guid: b0059b6a2950ad34699febf08148d009, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
+  m_sharedMaterial: {fileID: 965238318100020341, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -61757,6 +63085,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -61984,6 +63314,8 @@ MonoBehaviour:
           ease: 26
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -62638,6 +63970,10 @@ MonoBehaviour:
                 varId: 252
               _writeSpawnerToContext: 0
               _spawnerContextSlot: 100
+              _enableChoiceInput: 0
+              _choiceButtonChannelTag: default
+              _choiceDecisionPhase: 20
+              _choiceRequirePhaseTransition: 1
     - rid: 5399842409393160321
       type: {class: 'ManagedRefLiteralSource`1[[Game.Channel.GridObjectChannelPlayerPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -62792,6 +64128,10 @@ MonoBehaviour:
           varId: 252
         _writeSpawnerToContext: 0
         _spawnerContextSlot: 100
+        _enableChoiceInput: 0
+        _choiceButtonChannelTag: default
+        _choiceDecisionPhase: 20
+        _choiceRequirePhaseTransition: 1
     - rid: 5399842409393160330
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -63225,6 +64565,10 @@ MonoBehaviour:
           varId: 252
         _writeSpawnerToContext: 0
         _spawnerContextSlot: 100
+        _enableChoiceInput: 0
+        _choiceButtonChannelTag: default
+        _choiceDecisionPhase: 20
+        _choiceRequirePhaseTransition: 1
     _listRoot: {fileID: 636525401}
     _layoutRectTransform: {fileID: 636525401}
   references:
@@ -63383,6 +64727,10 @@ MonoBehaviour:
           varId: 252
         _writeSpawnerToContext: 1
         _spawnerContextSlot: 100
+        _enableChoiceInput: 0
+        _choiceButtonChannelTag: default
+        _choiceDecisionPhase: 20
+        _choiceRequirePhaseTransition: 1
     - rid: 5399842409393160267
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -66723,7 +68071,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.0009784763, y: -0.00045022802}
+  m_AnchoredPosition: {x: -0.000006144715, y: -0.00045022802}
   m_SizeDelta: {x: -9.01, y: 248.23}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1808438108
@@ -72486,6 +73834,7 @@ MonoBehaviour:
     - rid: 5619052366731149950
       type: {class: SetUnityColliderCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
+        TargetTag: 
         Mode: 0
         ApplyEnabled: 1
         Enabled:
@@ -72698,6 +74047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3306a888122c6f4e846fbd111fbf70c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Collision.UnityColliderObjectMB
+  _colliders: []
   _collider: {fileID: 0}
   _layerId: 0
   _hitMask: 4294967295
@@ -72705,6 +74055,7 @@ MonoBehaviour:
     value: 21
   _userData: 0
   _enabledByDefault: 1
+  _debugRegisteredHandleCount: 0
   _debugIsRegistered: 0
   _debugResolverAvailable: 0
   _debugManagerResolved: 0
@@ -72722,7 +74073,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 13519
+  _debugLastEnabledChangeFrame: 34105
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1979925667
@@ -73895,6 +75246,8 @@ MonoBehaviour:
           ease: 1
           relative: 1
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -74040,6 +75393,8 @@ MonoBehaviour:
           ease: 30
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 1
           vector3:
             _source:
@@ -74206,6 +75561,10 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842475666833870
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0, z: 0}
     - rid: 5619052592248914290
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -74556,7 +75915,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Target:
-          Kind: 0
+          Kind: 5
           Identity:
             kind: 0
             id: 
@@ -74766,10 +76125,12 @@ MonoBehaviour:
           ease: 3
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
-              rid: -2
+              rid: 5399842475666833870
             _defaultValue: {x: 0, y: 0, z: 0}
           positionPathMode: 10
           useBezierCurve: 1
@@ -74796,7 +76157,7 @@ MonoBehaviour:
     - rid: 5619052617993552718
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.25
+        value: 0.1
     - rid: 5619052617993552719
       type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -74911,6 +76272,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -75276,6 +76639,22 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842475666833867
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842475666833868
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5399842475666833869
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052592248914435
       type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -75457,7 +76836,7 @@ MonoBehaviour:
         OverrideCountStartValue: 0
         CountStartValue:
           _source:
-            rid: -2
+            rid: 5399842475666833867
           _defaultValue: 0
         Visible: 1
         AnimationPreset:
@@ -75465,7 +76844,7 @@ MonoBehaviour:
         ApplyMaterialFx: 0
         MaterialFxSource:
           _source:
-            rid: -2
+            rid: 5399842475666833868
           _defaultValue:
             ContextTag: default
             ClearContextFirst: 0
@@ -75474,7 +76853,7 @@ MonoBehaviour:
         ApplyFontSize: 0
         FontSize:
           _source:
-            rid: -2
+            rid: 5399842475666833869
           _defaultValue: 0
     - rid: 5619052592248914440
       type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
@@ -81866,111 +83245,6 @@ MonoBehaviour:
         renderStateCull: 0
         renderStateQueueOffset: 0
         renderStateBlendIntensity: 1
---- !u!1001 &6609770132441807122
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1165198274}
-    m_Modifications:
-    - target: {fileID: 4610338051289506295, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_Name
-      value: CardUIElementRuntime
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 130
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 181.6667
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 19.87
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -10.38
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102193629187882128, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9162102940996061991, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: _onSelectedCommands._debugAssetPath
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 9162102940996061991, guid: c1d9926e26d533641898058248093f32, type: 3}
-      propertyPath: _onDeselectedCommands._debugAssetPath
-      value: 
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: c1d9926e26d533641898058248093f32, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

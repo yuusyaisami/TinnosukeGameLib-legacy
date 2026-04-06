@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.Text;
 using Game;
 using Game.Commands.VNext;
+using Game.Scalar;
 using VContainer;
 
 namespace Game.Common
@@ -124,56 +126,12 @@ namespace Game.Common
 
         public static bool AppendActorStoresSection(StringBuilder sb, IDynamicContext dynamicContext, int maxEntries)
         {
-            var hasAny = false;
-
-            AppendSection(sb, "Actor Blackboard");
-
-            var actorScope = ResolveActorScope(dynamicContext);
-            AppendFieldLine(sb, "actor", DescribeScope(actorScope));
-
-            if (actorScope?.Resolver == null)
-            {
-                AppendFieldLine(sb, "status", "Actor scope or resolver is unavailable.");
-                return false;
-            }
-
-            if (!actorScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
-            {
-                AppendFieldLine(sb, "status", "IBlackboardService is not available on actor scope.");
-                return false;
-            }
-
-            var localVars = blackboard.LocalVars;
-            if (localVars == null)
-            {
-                AppendFieldLine(sb, "status", "blackboard.LocalVars is null.");
-                return false;
-            }
-
             var normalizedMaxEntries = maxEntries < 0 ? 0 : maxEntries;
-            var entries = BuildVarStoreEntries(localVars, normalizedMaxEntries, out var totalCount, out var printedCount, out var truncated);
-
-            AppendFieldLine(sb, "count", totalCount.ToString());
-            if (truncated)
-                AppendFieldLine(sb, "truncated", $"true (maxEntries={normalizedMaxEntries})");
-            AppendFieldLine(sb, "printed", printedCount.ToString());
-            AppendFieldLine(sb, "entries", entries, allowMultiline: true);
-            hasAny = true;
-
-            AppendSection(sb, "Actor VarStore");
-            if (dynamicContext?.Vars == null)
-            {
-                AppendFieldLine(sb, "status", "dynamicContext.Vars is null.");
-                return hasAny;
-            }
-
-            var varStoreEntries = BuildVarStoreEntries(dynamicContext.Vars, normalizedMaxEntries, out var varStoreTotal, out var varStorePrinted, out var varStoreTruncated);
-            AppendFieldLine(sb, "count", varStoreTotal.ToString());
-            if (varStoreTruncated)
-                AppendFieldLine(sb, "truncated", $"true (maxEntries={normalizedMaxEntries})");
-            AppendFieldLine(sb, "printed", varStorePrinted.ToString());
-            AppendFieldLine(sb, "entries", varStoreEntries, allowMultiline: true);
-            return true;
+            var hasAny = false;
+            hasAny |= AppendActorBlackboardStoreSection(sb, dynamicContext, normalizedMaxEntries);
+            hasAny |= AppendActorVarStoreSection(sb, dynamicContext, normalizedMaxEntries);
+            hasAny |= AppendActorScalarSection(sb, dynamicContext, normalizedMaxEntries, normalizedMaxEntries);
+            return hasAny;
         }
 
         public static bool AppendActorBlackboardSection(StringBuilder sb, IDynamicContext dynamicContext, int maxEntries)
@@ -278,6 +236,172 @@ namespace Game.Common
                 return "(none)";
 
             return sb.ToString();
+        }
+
+        static bool AppendActorBlackboardStoreSection(StringBuilder sb, IDynamicContext dynamicContext, int maxEntries)
+        {
+            AppendSection(sb, "Actor Blackboard");
+
+            var actorScope = ResolveActorScope(dynamicContext);
+            AppendFieldLine(sb, "actor", DescribeScope(actorScope));
+
+            if (actorScope?.Resolver == null)
+            {
+                AppendFieldLine(sb, "status", "Actor scope or resolver is unavailable.");
+                return false;
+            }
+
+            if (!actorScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+            {
+                AppendFieldLine(sb, "status", "IBlackboardService is not available on actor scope.");
+                return false;
+            }
+
+            var localVars = blackboard.LocalVars;
+            if (localVars == null)
+            {
+                AppendFieldLine(sb, "status", "blackboard.LocalVars is null.");
+                return false;
+            }
+
+            var entries = BuildVarStoreEntries(localVars, maxEntries, out var totalCount, out var printedCount, out var truncated);
+
+            AppendFieldLine(sb, "count", totalCount.ToString());
+            if (truncated)
+                AppendFieldLine(sb, "truncated", $"true (maxEntries={maxEntries})");
+            AppendFieldLine(sb, "printed", printedCount.ToString());
+            AppendFieldLine(sb, "entries", entries, allowMultiline: true);
+            return true;
+        }
+
+        static bool AppendActorVarStoreSection(StringBuilder sb, IDynamicContext dynamicContext, int maxEntries)
+        {
+            AppendSection(sb, "Actor VarStore");
+
+            if (dynamicContext?.Vars == null)
+            {
+                AppendFieldLine(sb, "status", "dynamicContext.Vars is null.");
+                return false;
+            }
+
+            var entries = BuildVarStoreEntries(dynamicContext.Vars, maxEntries, out var totalCount, out var printedCount, out var truncated);
+            AppendFieldLine(sb, "count", totalCount.ToString());
+            if (truncated)
+                AppendFieldLine(sb, "truncated", $"true (maxEntries={maxEntries})");
+            AppendFieldLine(sb, "printed", printedCount.ToString());
+            AppendFieldLine(sb, "entries", entries, allowMultiline: true);
+            return true;
+        }
+
+        static bool AppendActorScalarSection(StringBuilder sb, IDynamicContext dynamicContext, int maxKeys, int maxSnapshotsPerKey)
+        {
+            AppendSection(sb, "Actor Scalar");
+
+            var actorScope = ResolveActorScope(dynamicContext);
+            AppendFieldLine(sb, "actor", DescribeScope(actorScope));
+
+            if (actorScope?.Resolver == null)
+            {
+                AppendFieldLine(sb, "status", "Actor scope or resolver is unavailable.");
+                return false;
+            }
+
+            if (!actorScope.Resolver.TryResolve<IBaseScalarService>(out var scalar) || scalar == null)
+            {
+                AppendFieldLine(sb, "status", "IBaseScalarService is not available on actor scope.");
+                return false;
+            }
+
+            if (!actorScope.Resolver.TryResolve<IScalarTelemetry>(out var telemetry) || telemetry == null)
+            {
+                AppendFieldLine(sb, "status", "IScalarTelemetry is not available on actor scope.");
+                return false;
+            }
+
+            var printed = 0;
+            var total = 0;
+            var truncated = false;
+            var entries = new StringBuilder(256);
+
+            foreach (var key in telemetry.EnumerateKeys())
+            {
+                if (key.Id == 0 && string.IsNullOrWhiteSpace(key.Name))
+                    continue;
+
+                total++;
+                if (maxKeys > 0 && printed >= maxKeys)
+                {
+                    truncated = true;
+                    continue;
+                }
+
+                if (entries.Length > 0)
+                    entries.Append('\n');
+
+                var hasLocal = scalar.LocalTryGet(key, out var localValue);
+                var hasGlobal = scalar.GlobalTryGet(key, out var globalValue);
+                var current = hasLocal ? localValue : (hasGlobal ? globalValue : 0f);
+
+                entries.Append("key=");
+                entries.Append(key.FormatLabel());
+                entries.Append(" current=");
+                entries.Append(FormatNumber(current));
+                entries.Append(" local=");
+                entries.Append(hasLocal ? FormatNumber(localValue) : "<missing>");
+                entries.Append(" global=");
+                entries.Append(hasGlobal ? FormatNumber(globalValue) : "<missing>");
+
+                var snapshotCount = 0;
+                foreach (var snapshot in telemetry.Enumerate(key))
+                {
+                    if (maxSnapshotsPerKey > 0 && snapshotCount >= maxSnapshotsPerKey)
+                    {
+                        entries.Append('\n');
+                        entries.Append("  ...snapshots truncated after ");
+                        entries.Append(maxSnapshotsPerKey.ToString());
+                        entries.Append(" items.");
+                        break;
+                    }
+
+                    entries.Append('\n');
+                    entries.Append("  ");
+                    entries.Append(DescribeScalarSnapshot(snapshot));
+                    snapshotCount++;
+                }
+
+                if (snapshotCount == 0)
+                {
+                    entries.Append('\n');
+                    entries.Append("  (no snapshots)");
+                }
+
+                printed++;
+            }
+
+            AppendFieldLine(sb, "count", total.ToString());
+            if (truncated)
+                AppendFieldLine(sb, "truncated", $"true (maxKeys={maxKeys})");
+            AppendFieldLine(sb, "printed", printed.ToString());
+            AppendFieldLine(sb, "entries", printed == 0 ? "(none)" : entries.ToString(), allowMultiline: true);
+            return true;
+        }
+
+        static string DescribeScalarSnapshot(ScalarSnapshot snapshot)
+        {
+            var kindLabel = snapshot.Kind == ScalarModKind.Add ? "Add" : "Mul";
+            var valueText = snapshot.Kind == ScalarModKind.Mul
+                ? "x" + FormatNumber(snapshot.Value)
+                : (snapshot.Value >= 0f ? "+" : string.Empty) + FormatNumber(snapshot.Value);
+            var sourceText = snapshot.Source != null ? " src=" + snapshot.Source : string.Empty;
+            var tagText = string.IsNullOrWhiteSpace(snapshot.Tag) ? string.Empty : " tag=" + snapshot.Tag;
+            var layerText = string.IsNullOrWhiteSpace(snapshot.Layer) ? string.Empty : " layer=" + snapshot.Layer;
+            var remainText = snapshot.Remain < 0f ? string.Empty : " remain=" + FormatNumber(snapshot.Remain) + "s";
+            return "[" + kindLabel + "] " + valueText + sourceText + tagText + layerText + remainText;
+        }
+
+        static string FormatNumber(float value)
+        {
+            return value.ToString("0.###", CultureInfo.InvariantCulture);
         }
 
         static string DescribeVarValue(IVarStore vars, int varId, ValueKind kind)

@@ -165,7 +165,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 2
-  m_Sprite: {fileID: -4801876199072412580, guid: 36f91327910585c4b95fe8116e0b59f0, type: 3}
+  m_Sprite: {fileID: 1976415907885009533, guid: f08d1cb668e173147a073c7d5c8d1f27, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.7294118}
   m_FlipX: 0
   m_FlipY: 0
@@ -287,7 +287,8 @@ GameObject:
   - component: {fileID: 1659933102912165164}
   - component: {fileID: 5916766032561930864}
   - component: {fileID: 7495427074702374831}
-  - component: {fileID: 7407847733168114649}
+  - component: {fileID: 5896912824453921834}
+  - component: {fileID: 8361253636758633272}
   m_Layer: 0
   m_Name: BallRuntime
   m_TagString: Untagged
@@ -738,8 +739,8 @@ MonoBehaviour:
         Id: -1973269918
         Name: GameLogic.BallProfile.MaxValue
       ChangeEpsilon: 0
-    ExecuteInitialValueChangedEnter: 0
-    InitialValueChangedEnterDelaySeconds: 0
+    ExecuteInitialValueChangedEnter: 1
+    InitialValueChangedEnterDelaySeconds: 0.5
     OnEnterCommands:
       _debugOwner: {fileID: 4230472558901189611}
       _debugFieldPath: _monitorRules[0].OnEnterCommands
@@ -951,7 +952,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 47114
+  _debugLastEnabledChangeFrame: 308
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &7495427074702374831
@@ -974,7 +975,7 @@ MonoBehaviour:
     editLocalBase: 0
     editAddDelta: 0
     editMulFactor: 1
---- !u!114 &7407847733168114649
+--- !u!114 &5896912824453921834
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -983,41 +984,102 @@ MonoBehaviour:
   m_GameObject: {fileID: 1871564523398246338}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f65a15917f8d3ce4ea073de9761a84a3, type: 3}
+  m_Script: {fileID: 11500000, guid: 226d19e328ab85642baa1d5a8daed72e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.TransformSystem.TransformController
-  outputTarget: 4
-  targetTransform: {fileID: 5609855925114514961}
-  targetRectTransform: {fileID: 0}
-  targetRigidbody: {fileID: 5296161294681384248}
-  rigidbody2DVelocityMode: 1
-  rigidbody2DAdditiveControl:
-    Enabled: 0
-    AxisWeightPos: {x: 1, y: 1}
-    AxisWeightNeg: {x: 1, y: 1}
-    SpeedSoftLimitPos: {x: 0, y: 0}
-    SpeedSoftLimitNeg: {x: 0, y: 0}
-    SpeedHardLimitPos: {x: 0, y: 0}
-    SpeedHardLimitNeg: {x: 0, y: 0}
-    AccelSoftLimitPos: {x: 0, y: 0}
-    AccelSoftLimitNeg: {x: 0, y: 0}
-    AccelHardLimitPos: {x: 0, y: 0}
-    AccelHardLimitNeg: {x: 0, y: 0}
-    ClampResultToHardLimit: 0
-    MinScale: 0
-    AxisOverride:
-      Enabled: 0
-      OverrideX: 0
-      OverrideY: 0
-      MinCurrentSpeed: 0.1
-      MinInput: 0.01
-      VelocityChangeEpsilon: 0
-  rigidbody2DGravityClamp:
-    Enabled: 1
-    MinFallSpeed: 5
-  targetCharacterController: {fileID: 0}
-  enableMovement: 1
-  enableRotation: 0
+  m_EditorClassIdentifier: Assembly-CSharp::Game.TransformSystem.TransformChannelHub
+  _channels:
+  - _channelTag: default
+    _outputPreset:
+      _source:
+        rid: 5399842450832097328
+    _featurePreset:
+      _source:
+        rid: 5399842450832097329
+      _defaultValue:
+        _enableMovement: 1
+        _enableRotation: 0
+        _enableScale: 1
+    _effectPreset:
+      _source:
+        rid: 5399842450832097330
+      _defaultValue:
+        _elements: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5399842450832097328
+      type: {class: 'ManagedRefLiteralSource`1[[Game.TransformSystem.TransformChannelOutputPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842450832097368
+    - rid: 5399842450832097329
+      type: {class: 'ManagedRefLiteralSource`1[[Game.TransformSystem.TransformChannelFeaturePreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842450832097332
+    - rid: 5399842450832097330
+      type: {class: 'ManagedRefLiteralSource`1[[Game.TransformSystem.TransformChannelEffectPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842450832097351
+    - rid: 5399842450832097332
+      type: {class: TransformChannelFeaturePreset, ns: Game.TransformSystem, asm: Assembly-CSharp}
+      data:
+        _enableMovement: 1
+        _enableRotation: 0
+        _enableScale: 0
+    - rid: 5399842450832097351
+      type: {class: TransformChannelEffectPreset, ns: Game.TransformSystem, asm: Assembly-CSharp}
+      data:
+        _elements:
+        - rid: 5399842450832097367
+    - rid: 5399842450832097367
+      type: {class: TransformChannelGlobalEffectElement, ns: Game.TransformSystem, asm: Assembly-CSharp}
+      data:
+        _enabled: 1
+        _channelTagOverride: 
+    - rid: 5399842450832097368
+      type: {class: TransformChannelRigidbody2DOutputPreset, ns: Game.TransformSystem, asm: Assembly-CSharp}
+      data:
+        _targetRigidbody2D: {fileID: 5296161294681384248}
+        _rigidbody2DVelocityMode: 1
+        _rigidbody2DAdditiveControl:
+          Enabled: 0
+          AxisWeightPos: {x: 1, y: 1}
+          AxisWeightNeg: {x: 1, y: 1}
+          SpeedSoftLimitPos: {x: 0, y: 0}
+          SpeedSoftLimitNeg: {x: 0, y: 0}
+          SpeedHardLimitPos: {x: 0, y: 0}
+          SpeedHardLimitNeg: {x: 0, y: 0}
+          AccelSoftLimitPos: {x: 0, y: 0}
+          AccelSoftLimitNeg: {x: 0, y: 0}
+          AccelHardLimitPos: {x: 0, y: 0}
+          AccelHardLimitNeg: {x: 0, y: 0}
+          ClampResultToHardLimit: 0
+          MinScale: 0
+          AxisOverride:
+            Enabled: 0
+            OverrideX: 0
+            OverrideY: 0
+            MinCurrentSpeed: 0.1
+            MinInput: 0.01
+            VelocityChangeEpsilon: 0
+        _rigidbody2DGravityClamp:
+          Enabled: 1
+          MinFallSpeed: 7
+--- !u!114 &8361253636758633272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871564523398246338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e456fc126524e34fbc8f265800db575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Movement.MovementChannelHubMB
+  _movementProfile: {fileID: 0}
 --- !u!1 &5924458480868492782
 GameObject:
   m_ObjectHideFlags: 0
@@ -1240,7 +1302,32 @@ MonoBehaviour:
       usePlaybackSpeedMultiplier: 1
       crossFadeProfile:
         rid: -2
-    materialFxPresetEntries: []
+    materialFxPresetEntries:
+    - Key: BaseShader/AdvancedFade2D/FadeDirection
+      Value:
+        Type: 4
+        Float:
+          _source:
+            rid: 5399842458134381081
+          _defaultValue: 0
+        Int: 3
+        Float2: {x: 0, y: 0}
+        Float3: {x: 0, y: 0, z: 0}
+        Float4: {x: 0, y: 0, z: 0, w: 0}
+        Color: {r: 0, g: 0, b: 0, a: 0}
+        Texture: {fileID: 0}
+      BlendMode: 0
+      LifetimeSeconds: 0
+      ApplyWeightFade: 0
+      TargetWeight:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeDuration:
+        _source:
+          rid: -2
+        _defaultValue: 0
+      FadeEase: 0
     baseShaderPreset:
       sourceMode: 1
       assetPreset: {fileID: 0}
@@ -1411,6 +1498,10 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842458134381081
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052366731149503
       type: {class: BaseShaderFxPreset, ns: Game.MaterialFx, asm: Assembly-CSharp}
       data:

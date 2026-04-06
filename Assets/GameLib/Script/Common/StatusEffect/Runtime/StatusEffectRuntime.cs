@@ -130,6 +130,10 @@ namespace Game.StatusEffect
         readonly IStatusEffectCountDefinition? _countDefinition;
         readonly IStatusEffectCountController? _countController;
         readonly string _slotKey;
+        readonly bool _isAutoGlobalMode;
+        readonly bool _usesServiceGlobalLifetime;
+        readonly bool _usesServiceGlobalUseCooldown;
+        readonly bool _usesServiceGlobalCount;
 
         readonly VarStore _vars;
         StatusEffectResolvedIntensities _intensities;
@@ -160,6 +164,10 @@ namespace Game.StatusEffect
             VarStore vars,
             List<IStatusEffectOperationRuntime> operations,
             StatusEffectHookSet hooks,
+            bool isAutoGlobalMode,
+            bool usesServiceGlobalLifetime,
+            bool usesServiceGlobalUseCooldown,
+            bool usesServiceGlobalCount,
             IStatusEffectDurationDefinition? durationDefinition,
             IStatusEffectDurationController? durationController,
             IStatusEffectUseCooldownDefinition? useCooldownDefinition,
@@ -180,6 +188,10 @@ namespace Game.StatusEffect
             _countDefinition = countDefinition;
             _countController = countController;
             _slotKey = slotKey ?? string.Empty;
+            _isAutoGlobalMode = isAutoGlobalMode;
+            _usesServiceGlobalLifetime = usesServiceGlobalLifetime;
+            _usesServiceGlobalUseCooldown = usesServiceGlobalUseCooldown;
+            _usesServiceGlobalCount = usesServiceGlobalCount;
             _vars = vars ?? new VarStore();
             _runtimeStackPreset = runtimeStackPreset ?? StatusEffectStackPreset.CreateDurationRefreshPreset();
 
@@ -207,10 +219,10 @@ namespace Game.StatusEffect
         public bool IsApplied => _isApplied;
         public bool IsRemoveRequested => _isRemoveRequested;
         public bool IsUseBlocked => _isUseBlocked;
-        public bool UsesServiceGlobalLifetime => _definition.UseDuration && (_durationDefinition?.SyncWithGlobalLifetime ?? false);
-        public bool UsesServiceGlobalUseCooldown => _definition.UseUseCooldown && (_useCooldownDefinition?.SyncWithGlobalUseCooldown ?? false);
-        public bool UsesServiceGlobalCount => _definition.UseCount && (_countDefinition?.SyncWithGlobalCount ?? false);
-        public bool UsesAnyServiceGlobalUseState => UsesServiceGlobalUseCooldown || UsesServiceGlobalCount;
+        public bool UsesServiceGlobalLifetime => _usesServiceGlobalLifetime;
+        public bool UsesServiceGlobalUseCooldown => _usesServiceGlobalUseCooldown;
+        public bool UsesServiceGlobalCount => _usesServiceGlobalCount;
+        public bool UsesAnyServiceGlobalUseState => _isAutoGlobalMode || _usesServiceGlobalUseCooldown || _usesServiceGlobalCount;
         public float RemainingDuration => UsesServiceGlobalLifetime ? _owner.GlobalLifetimeRemaining : _durationController?.RemainingDuration ?? -1f;
         public float TotalDuration => UsesServiceGlobalLifetime ? _owner.GlobalLifetimeTotal : _durationController?.TotalDuration ?? -1f;
         public int MaxUseCount => UsesServiceGlobalCount ? _owner.GlobalMaxCount : _countController?.MaxCount ?? 0;

@@ -51,7 +51,11 @@ namespace Game.UI
 
         public static bool TryResolveVisualBounds(TraitListChannelVisualInstance instance, out VisualBoundsOutput output)
         {
-            return TransformGridSharedUtility.TryResolveVisualBounds(instance.Resolver, out output);
+            return TransformGridSharedUtility.TryResolveVisualBounds(
+                instance.Resolver,
+                instance.Root,
+                instance.RootRect,
+                out output);
         }
 
         public static Vector3 ResolvePlacementLocalPosition(
@@ -62,6 +66,7 @@ namespace Game.UI
         {
             return TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.Root,
                 instance.RootRect,
                 targetLocalPosition,
                 (int)horizontalAlignment,

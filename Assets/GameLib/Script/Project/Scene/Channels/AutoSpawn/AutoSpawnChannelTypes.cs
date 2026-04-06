@@ -1,6 +1,8 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.DI;
@@ -137,6 +139,10 @@ namespace Game.Channel
         [LabelText("Allow Pooling")]
         public bool AllowPooling = true;
 
+        [LabelText("Allow External Spawn")]
+        [Tooltip("外部コマンドからの Spawn 指示を受け付けるかどうか。Enabled が false でも true の場合は外部 Spawn は実行できます。")]
+        public bool AllowExternalSpawn = true;
+
         [LabelText("Transform Parent")]
         public Transform? TransformParent;
 
@@ -154,7 +160,106 @@ namespace Game.Channel
         }
     }
 
+    [Serializable]
+    public sealed class AutoSpawnChannelRuntimeMutation
+    {
+        [BoxGroup("General")]
+        [ToggleLeft]
+        [LabelText("Apply Enabled")]
+        public bool ApplyEnabled;
+
+        [BoxGroup("General")]
+        [ShowIf(nameof(ApplyEnabled))]
+        [LabelText("Enabled")]
+        public bool Enabled = true;
+
+        [BoxGroup("General")]
+        [ToggleLeft]
+        [LabelText("Apply Allow External Spawn")]
+        public bool ApplyAllowExternalSpawn;
+
+        [BoxGroup("General")]
+        [ShowIf(nameof(ApplyAllowExternalSpawn))]
+        [LabelText("Allow External Spawn")]
+        public bool AllowExternalSpawn = true;
+
+        [BoxGroup("Frequency")]
+        [ToggleLeft]
+        [LabelText("Apply Spawn Interval")]
+        public bool ApplySpawnIntervalSeconds;
+
+        [BoxGroup("Frequency")]
+        [ShowIf(nameof(ApplySpawnIntervalSeconds))]
+        [LabelText("Spawn Interval (Sec)")]
+        [Tooltip("-1 は初回のみ(定期スポーン無効)です。")]
+        public float SpawnIntervalSeconds = 1f;
+
+        [BoxGroup("Frequency")]
+        [ToggleLeft]
+        [LabelText("Apply Spawn Count Per Interval")]
+        public bool ApplySpawnCountPerInterval;
+
+        [BoxGroup("Frequency")]
+        [ShowIf(nameof(ApplySpawnCountPerInterval))]
+        [LabelText("Spawn Count Per Interval")]
+        [MinValue(1)]
+        public int SpawnCountPerInterval = 1;
+
+        [BoxGroup("Frequency")]
+        [ToggleLeft]
+        [LabelText("Apply Initial Spawn Count")]
+        public bool ApplyInitialSpawnCount;
+
+        [BoxGroup("Frequency")]
+        [ShowIf(nameof(ApplyInitialSpawnCount))]
+        [LabelText("Initial Spawn Count")]
+        [MinValue(0)]
+        public int InitialSpawnCount;
+
+        [BoxGroup("Frequency")]
+        [ToggleLeft]
+        [LabelText("Apply Initial Delay")]
+        public bool ApplyInitialDelaySeconds;
+
+        [BoxGroup("Frequency")]
+        [ShowIf(nameof(ApplyInitialDelaySeconds))]
+        [LabelText("Initial Delay (Sec)")]
+        [MinValue(0f)]
+        public float InitialDelaySeconds;
+
+        [BoxGroup("Frequency")]
+        [ToggleLeft]
+        [LabelText("Apply Interval Jitter")]
+        public bool ApplyIntervalJitterSeconds;
+
+        [BoxGroup("Frequency")]
+        [ShowIf(nameof(ApplyIntervalJitterSeconds))]
+        [LabelText("Interval Jitter (Sec)")]
+        [MinValue(0f)]
+        public float IntervalJitterSeconds;
+
+        [BoxGroup("Schedule")]
+        [ToggleLeft]
+        [LabelText("Reset Next Spawn Schedule")]
+        public bool ResetNextSpawnSchedule;
+
+        public bool HasAnyMutation()
+        {
+            return ApplyEnabled ||
+                   ApplyAllowExternalSpawn ||
+                   ApplySpawnIntervalSeconds ||
+                   ApplySpawnCountPerInterval ||
+                   ApplyInitialSpawnCount ||
+                   ApplyInitialDelaySeconds ||
+                   ApplyIntervalJitterSeconds ||
+                   ResetNextSpawnSchedule;
+        }
+    }
+
     public interface IAutoSpawnChannelHubService : IChannelHubService
     {
+        bool MutateChannel(string tag, AutoSpawnChannelRuntimeMutation mutation);
+        UniTask<int> SpawnExternallyAsync(string tag, int count, float intervalSeconds, CancellationToken ct = default);
+        UniTask<int> ClearSpawnedAsync(string tag, CancellationToken ct = default);
     }
 }

@@ -30,6 +30,12 @@ namespace Game.Commands.VNext
         CopyToRow = 60,
     }
 
+    public enum WriteGridDataRowClearMode
+    {
+        RemoveColumns = 10,
+        ClearCellVars = 20,
+    }
+
     public enum WriteGridDataColumnOperation
     {
         Ensure = 10,
@@ -106,6 +112,13 @@ namespace Game.Commands.VNext
         [ShowIf(nameof(ShowRowIndex))]
         [LabelText("Row Index")]
         public DynamicValue<int> RowIndex = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [BoxGroup("Row")]
+        [ShowIf(nameof(ShowRowClearMode))]
+        [EnumToggleButtons]
+        [LabelText("Clear Mode")]
+        [Tooltip("Row Clear 時に、Column 自体を削除するか、Column 内の Var のみを削除するかを選択します。")]
+        public WriteGridDataRowClearMode RowClearMode = WriteGridDataRowClearMode.RemoveColumns;
 
         [BoxGroup("Row Copy")]
         [ShowIf(nameof(ShowRowCopyDestination))]
@@ -219,6 +232,7 @@ namespace Game.Commands.VNext
         bool ShowGridCopyOptions() => ShowGridDestination();
 
         bool ShowRowIndex() => IsRowMode() && RowOperation != WriteGridDataRowOperation.Append;
+        bool ShowRowClearMode() => IsRowMode() && RowOperation == WriteGridDataRowOperation.Clear;
         bool ShowRowCopyDestination() => IsRowMode() && RowOperation == WriteGridDataRowOperation.CopyToRow;
         bool ShowRowCopyOptions() => ShowRowCopyDestination();
 

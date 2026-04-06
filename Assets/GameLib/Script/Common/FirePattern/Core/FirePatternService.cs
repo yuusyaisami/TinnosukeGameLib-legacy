@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using Game.Commands.VNext;
 using Game.Search;
 using Game.Spawn;
+using Game.TransformSystem;
 using UnityEngine;
 using VContainer;
 
@@ -145,19 +146,10 @@ namespace Game.Fire
 
             try
             {
-                // Try to set initial rotation on the spawned object's transform or its bulk-transform entry
-                try
-                {
-                    if (outputResolver.TryResolve<Game.TransformSystem.TransformControllerService>(out var tcs) && tcs != null)
-                    {
-                        tcs.SetInitialRotation(spawnParams.Rotation);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (EnableDebugLogs)
-                        Debug.LogWarning($"[FirePatternService] Failed to set initial rotation on spawned object: {ex}");
-                }
+                // Apply initial rotation via TransformChannel runtime if available.
+                if (!TrySetInitialRotation(outputResolver, spawnParams.Rotation) && EnableDebugLogs)
+                    Debug.LogWarning($"[FirePatternService] Initial rotation was skipped because no TransformChannel runtime was resolved. Pattern={pattern.DebugName}");
+
                 if (outputResolver.TryResolve<IOutputFirePattern>(out var output) && output != null)
                 {
                     output.OnFireContextReceived(in context);
@@ -184,6 +176,38 @@ namespace Game.Fire
             }
 
             return outputResolver;
+        }
+
+        static bool TrySetInitialRotation(IObjectResolver resolver, Quaternion rotation)
+        {
+            if (resolver == null)
+                return false;
+
+            if (!resolver.TryResolve<ITransformChannelHubService>(out var hub) || hub == null)
+                return false;
+
+            if (hub.TryGetRuntime(TransformChannelTagUtility.DefaultTag, out var runtime) && runtime != null)
+            {
+                runtime.SetInitialRotation(rotation);
+                return true;
+            }
+
+            var tags = new List<string>(4);
+            hub.GetTags(tags);
+            for (var i = 0; i < tags.Count; i++)
+            {
+                var tag = tags[i];
+                if (string.IsNullOrWhiteSpace(tag))
+                    continue;
+
+                if (hub.TryGetRuntime(tag, out runtime) && runtime != null)
+                {
+                    runtime.SetInitialRotation(rotation);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         static async UniTask DespawnLikeSelfDespawnAsync(IObjectResolver resolver, CancellationToken ct)

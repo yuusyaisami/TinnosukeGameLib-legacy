@@ -51,6 +51,12 @@ namespace Game.StatusEffect
         G = 70,
     }
 
+    public enum StatusEffectRuntimeControlMode
+    {
+        Custom = 0,
+        AutoGlobal = 10,
+    }
+
     public enum ScalarModifierApplyMode
     {
         Add = 10,
@@ -310,6 +316,7 @@ namespace Game.StatusEffect
         string DefinitionId { get; }
         EffectVisualData VisualData { get; }
         string DefaultRuntimeTag { get; }
+        StatusEffectRuntimeControlMode RuntimeControlMode { get; }
         bool UseDuration { get; }
         bool UseUseCooldown { get; }
         bool UseCount { get; }
@@ -330,6 +337,7 @@ namespace Game.StatusEffect
         public abstract string DefinitionId { get; }
         public abstract EffectVisualData VisualData { get; }
         public abstract string DefaultRuntimeTag { get; }
+        public abstract StatusEffectRuntimeControlMode RuntimeControlMode { get; }
         public abstract bool UseDuration { get; }
         public abstract bool UseUseCooldown { get; }
         public abstract bool UseCount { get; }
@@ -366,37 +374,47 @@ namespace Game.StatusEffect
         EffectVisualData visualData = new();
 
         [BoxGroup("Runtime")]
+        [LabelText("Runtime Control")]
+        [EnumToggleButtons]
+        [SerializeField]
+        [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲します。")]
+        StatusEffectRuntimeControlMode runtimeControlMode = StatusEffectRuntimeControlMode.Custom;
+
+        [BoxGroup("Runtime")]
         [LabelText("Use Lifetime")]
+        [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
         [Tooltip("effect の登録時から進む lifetime timer を使う場合に有効にします。")]
         bool useDuration;
 
         [BoxGroup("Runtime")]
-        [ShowIf(nameof(useDuration))]
+        [ShowIf(nameof(ShowDurationDefinition))]
         [SerializeReference]
         [Tooltip("lifetime timer の生成方法です。Use Lifetime が有効なときだけ参照されます。")]
         IStatusEffectDurationDefinition? durationDefinition;
 
         [BoxGroup("Runtime")]
         [LabelText("Use Cooldown")]
+        [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
         [Tooltip("Use 実行後に始まる cooldown timer を使う場合に有効にします。")]
         bool useUseCooldown;
 
         [BoxGroup("Runtime")]
-        [ShowIf(nameof(useUseCooldown))]
+        [ShowIf(nameof(ShowUseCooldownDefinition))]
         [SerializeReference]
         [Tooltip("Use 後の cooldown の生成方法です。Use Cooldown が有効なときだけ参照されます。")]
         IStatusEffectUseCooldownDefinition? useCooldownDefinition;
 
         [BoxGroup("Runtime")]
         [LabelText("Use Count")]
+        [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
         [Tooltip("Use 回数システムを使う effect の場合に有効にします。")]
         bool useCount;
 
         [BoxGroup("Runtime")]
-        [ShowIf(nameof(useCount))]
+        [ShowIf(nameof(ShowCountDefinition))]
         [SerializeReference]
         [Tooltip("回数上限や回数切れ時の挙動を指定します。")]
         IStatusEffectCountDefinition? countDefinition;
@@ -418,6 +436,7 @@ namespace Game.StatusEffect
         public override string DefinitionId => definitionId;
         public override EffectVisualData VisualData => visualData;
         public override string DefaultRuntimeTag => defaultRuntimeTag;
+        public override StatusEffectRuntimeControlMode RuntimeControlMode => runtimeControlMode;
         public override bool UseDuration => useDuration;
         public override bool UseUseCooldown => useUseCooldown;
         public override bool UseCount => useCount;
@@ -426,6 +445,11 @@ namespace Game.StatusEffect
         public override IStatusEffectCountDefinition? CountDefinition => countDefinition;
         public override IReadOnlyList<IStatusEffectOperationDefinition> Operations => operations;
         public override StatusEffectHookSet DefaultHooks => defaultHooks;
+
+        bool UsesCustomRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.Custom;
+        bool ShowDurationDefinition => UsesCustomRuntimeSettings && useDuration;
+        bool ShowUseCooldownDefinition => UsesCustomRuntimeSettings && useUseCooldown;
+        bool ShowCountDefinition => UsesCustomRuntimeSettings && useCount;
     }
 
     public interface IStatusEffectOperationDefinition

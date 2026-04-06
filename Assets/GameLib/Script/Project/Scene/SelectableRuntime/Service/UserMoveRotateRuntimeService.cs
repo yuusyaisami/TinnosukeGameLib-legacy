@@ -33,6 +33,8 @@ namespace Game.SelectRuntime
             public int StartedFrame;
             public Vector3 LastValidPosition;
             public Quaternion LastValidRotation = Quaternion.identity;
+            public Channel.AreaPlane RotationPlane = Channel.AreaPlane.XY;
+            public float RotationDegrees;
 
             public bool IsActive => Editor != null && RuntimeScope != null && RootTransform != null && MoveTransform != null && RotateTransform != null;
 
@@ -46,6 +48,8 @@ namespace Game.SelectRuntime
                 StartedFrame = 0;
                 LastValidPosition = Vector3.zero;
                 LastValidRotation = Quaternion.identity;
+                RotationPlane = Channel.AreaPlane.XY;
+                RotationDegrees = 0f;
             }
         }
 
@@ -296,8 +300,9 @@ namespace Game.SelectRuntime
             var currentRotation = _session.RotateTransform!.rotation;
             var candidatePosition = currentPosition;
             var candidateRotation = currentRotation;
+            var candidateRotationDegrees = _session.RotationDegrees;
 
-            ApplyRotation(frame, request, currentPosition, ref candidateRotation);
+            ApplyRotation(frame, request, _session.RotationDegrees, ref candidateRotation, out candidateRotationDegrees);
             ApplyMovement(frame, request, currentPosition, currentRotation, ref candidatePosition);
 
             _lastPointerScreen = frame.PointerScreen;
@@ -311,7 +316,8 @@ namespace Game.SelectRuntime
             ApplySessionPose(candidatePosition, candidateRotation);
             _session.LastValidPosition = candidatePosition;
             _session.LastValidRotation = candidateRotation;
-            SyncRotateBinding(request, candidateRotation);
+            _session.RotationDegrees = candidateRotationDegrees;
+            SyncRotateBinding();
         }
 
         void HandleEditorEntryFrame(InputFrame frame)
@@ -473,6 +479,10 @@ namespace Game.SelectRuntime
             _session.StartedFrame = Time.frameCount;
             _session.LastValidPosition = moveTransform.position;
             _session.LastValidRotation = rotateTransform.rotation;
+
+            var initRequest = UserMoveRotateValidationRequest.Create(editor, runtimeScope);
+            _session.RotationPlane = UserMoveRotateValidationUtility.ResolvePlane(initRequest, moveTransform.position);
+            _session.RotationDegrees = ExtractRotationDegrees(_session.RotationPlane, rotateTransform.rotation);
 
             BindRotateExternal(editor, runtimeScope);
             BindIsEditorModeExternal(editor, runtimeScope);
@@ -701,8 +711,15 @@ namespace Game.SelectRuntime
             return _pointerActivity.HasRecentPointerActivity();
         }
 
-        void ApplyRotation(InputFrame frame, UserMoveRotateValidationRequest request, Vector3 currentPosition, ref Quaternion candidateRotation)
+        void ApplyRotation(
+            InputFrame frame,
+            UserMoveRotateValidationRequest request,
+            float currentDegrees,
+            ref Quaternion candidateRotation,
+            out float nextDegrees)
         {
+            nextDegrees = currentDegrees;
+
             if (request.Editor == null || frame.Scroll == Vector2.zero)
                 return;
 
@@ -710,8 +727,8 @@ namespace Game.SelectRuntime
             if (Mathf.Approximately(degrees, 0f))
                 return;
 
-            var currentDegrees = ExtractRotationDegrees(request, currentPosition, candidateRotation);
-            candidateRotation = ApplyRotationDegrees(request, currentPosition, candidateRotation, currentDegrees + degrees);
+            nextDegrees = Mathf.Repeat(currentDegrees + degrees, 360f);
+            candidateRotation = ApplyRotationDegrees(_session.RotationPlane, candidateRotation, nextDegrees);
         }
 
         void EndSession(bool runExitCommands)
@@ -742,16 +759,8 @@ namespace Game.SelectRuntime
 
         void BindRotateExternal(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
         {
-            _rotateBinding.Acquire(runtimeScope, editor.RotateBinding, HandleRotateBindingChanged);
-
-            var request = UserMoveRotateValidationRequest.Create(editor, runtimeScope);
-            if (_rotateBinding.TryRead(out var externalDegrees))
-            {
-                if (TryApplyExternalRotation(request, externalDegrees))
-                    return;
-            }
-
-            SyncRotateBinding(request, _session.RotateTransform != null ? _session.RotateTransform.rotation : request.RootTransform.rotation);
+            _rotateBinding.Acquire(runtimeScope, editor.RotateBinding, onValueChanged: null);
+            SyncRotateBinding();
         }
 
         void BindIsEditorModeExternal(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
@@ -767,42 +776,12 @@ namespace Game.SelectRuntime
             _isEditorModeBinding.Write(isEditing);
         }
 
-        void HandleRotateBindingChanged(float value)
-        {
-            if (!_session.IsActive || _session.Editor == null || _session.RuntimeScope == null)
-                return;
-
-            var request = UserMoveRotateValidationRequest.Create(_session.Editor, _session.RuntimeScope);
-            TryApplyExternalRotation(request, value);
-        }
-
-        bool TryApplyExternalRotation(UserMoveRotateValidationRequest request, float absoluteDegrees)
-        {
-            if (!_session.IsActive || _session.MoveTransform == null || _session.RotateTransform == null)
-                return false;
-
-            var currentPosition = _session.MoveTransform.position;
-            var currentRotation = _session.RotateTransform.rotation;
-            var candidateRotation = ApplyRotationDegrees(request, currentPosition, currentRotation, absoluteDegrees);
-            if (Quaternion.Angle(currentRotation, candidateRotation) <= 0.0001f)
-                return true;
-
-            if (!UserMoveRotateValidationUtility.IsValidPose(request, currentPosition, candidateRotation))
-                return false;
-
-            ApplySessionPose(currentPosition, candidateRotation);
-            _session.LastValidPosition = currentPosition;
-            _session.LastValidRotation = candidateRotation;
-            return true;
-        }
-
-        void SyncRotateBinding(UserMoveRotateValidationRequest request, Quaternion rotation)
+        void SyncRotateBinding()
         {
             if (!_rotateBinding.HasBinding)
                 return;
 
-            var degrees = ExtractRotationDegrees(request, _session.MoveTransform != null ? _session.MoveTransform.position : request.RootTransform.position, rotation);
-            _rotateBinding.Write(degrees);
+            _rotateBinding.Write(_session.RotationDegrees);
         }
 
         void ApplySessionPose(Vector3 position, Quaternion rotation)
@@ -820,22 +799,19 @@ namespace Game.SelectRuntime
             _session.RotateTransform.rotation = rotation;
         }
 
-        static float ExtractRotationDegrees(UserMoveRotateValidationRequest request, Vector3 currentPosition, Quaternion rotation)
+        static float ExtractRotationDegrees(Channel.AreaPlane plane, Quaternion rotation)
         {
             var euler = rotation.eulerAngles;
-            var plane = UserMoveRotateValidationUtility.ResolvePlane(request, currentPosition);
             var degrees = plane == Channel.AreaPlane.XZ ? euler.y : euler.z;
             return Mathf.Repeat(degrees, 360f);
         }
 
         static Quaternion ApplyRotationDegrees(
-            UserMoveRotateValidationRequest request,
-            Vector3 currentPosition,
+            Channel.AreaPlane plane,
             Quaternion currentRotation,
             float absoluteDegrees)
         {
             var euler = currentRotation.eulerAngles;
-            var plane = UserMoveRotateValidationUtility.ResolvePlane(request, currentPosition);
             var normalizedDegrees = Mathf.Repeat(absoluteDegrees, 360f);
             if (plane == Channel.AreaPlane.XZ)
                 euler.y = normalizedDegrees;

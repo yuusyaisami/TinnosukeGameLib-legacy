@@ -23,7 +23,12 @@ namespace Game.Profile
     {
         static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-        readonly Dictionary<Type, IProfileRuntime> _profiles = new();
+        // 重要: BaseNail のように同一 ProfileType(CustomProfileDefinition) を複数登録するケースがある。
+        // 以前の Dictionary<Type, IProfileRuntime> のみ実装だと後勝ち上書きになり、
+        // Reapply/Clear-Reset 後に先行定義（例: LevelValue baseline=1）が消えて RichText が Null になった。
+        // _profiles は再適用用に全件保持し、_latestProfileByType は型解決 API 互換のため最新定義だけ保持する。
+        readonly List<IProfileRuntime> _profiles = new();
+        readonly Dictionary<Type, IProfileRuntime> _latestProfileByType = new();
         readonly IBlackboardService _blackboard;
         readonly IBaseScalarService _scalar;
         readonly IScopeNode _scope;
@@ -87,7 +92,10 @@ namespace Game.Profile
 
             var type = profile.ProfileType ?? profile.GetType();
             var runtime = new ProfileDefinitionRuntime(profile, ++_version);
-            _profiles[type] = runtime;
+            // 再適用時に全定義を流し直すため、型重複でも捨てずに積む。
+            _profiles.Add(runtime);
+            // 型解決は従来通り「その型の最新定義」を返す。
+            _latestProfileByType[type] = runtime;
 
             if (_blackboard != null || _scalar != null)
             {
@@ -101,13 +109,13 @@ namespace Game.Profile
             if (profileType == null)
                 throw new ArgumentNullException(nameof(profileType));
 
-            return _profiles.ContainsKey(profileType);
+            return _latestProfileByType.ContainsKey(profileType);
         }
 
         /// <inheritdoc/>
         public bool TryResolveDefinition(Type profileType, out IProfileDefinition profile)
         {
-            if (_profiles.TryGetValue(profileType, out var runtime))
+            if (_latestProfileByType.TryGetValue(profileType, out var runtime))
             {
                 profile = runtime.Profile;
                 return profile != null;
@@ -120,7 +128,7 @@ namespace Game.Profile
         /// <inheritdoc/>
         public bool TryResolveDefinition<T>(out T profile) where T : class, IProfileDefinition
         {
-            if (_profiles.TryGetValue(typeof(T), out var runtime) && runtime.Profile is T typed)
+            if (_latestProfileByType.TryGetValue(typeof(T), out var runtime) && runtime.Profile is T typed)
             {
                 profile = typed;
                 return true;
@@ -139,7 +147,7 @@ namespace Game.Profile
         /// </summary>
         public bool TryGetRuntime(Type type, out IProfileRuntime runtime)
         {
-            return _profiles.TryGetValue(type, out runtime);
+            return _latestProfileByType.TryGetValue(type, out runtime);
         }
 
         /// <summary>
@@ -147,7 +155,7 @@ namespace Game.Profile
         /// </summary>
         public IEnumerable<IProfileRuntime> EnumerateProfiles()
         {
-            return _profiles.Values;
+            return _profiles;
         }
 
         /// <summary>
@@ -163,8 +171,9 @@ namespace Game.Profile
             if (_blackboard == null && _scalar == null)
                 return;
 
-            foreach (var runtime in _profiles.Values)
+            for (var i = 0; i < _profiles.Count; i++)
             {
+                var runtime = _profiles[i];
                 var definition = runtime?.Profile;
                 if (definition != null)
                     ApplyBindingsInternal(runtime, definition, _blackboard, _scalar);
@@ -178,6 +187,7 @@ namespace Game.Profile
         public void ClearAllProfiles(bool resetVersion = true)
         {
             _profiles.Clear();
+            _latestProfileByType.Clear();
             if (resetVersion)
                 _version = 0;
         }

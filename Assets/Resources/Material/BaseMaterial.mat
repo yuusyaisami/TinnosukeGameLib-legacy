@@ -101,7 +101,7 @@ Material:
     - _AdvancedFade2DCircleStartAngleDeg: 90
     - _AdvancedFade2DEnabled: 0
     - _AdvancedFade2DFadeAmount: 0
-    - _AdvancedFade2DFadeDirection: 3
+    - _AdvancedFade2DFadeDirection: 1
     - _AdvancedFade2DGlowBlendMode: 2.84
     - _AdvancedFade2DGlowIntensity: 0.79
     - _AdvancedFade2DGlowRange: 3.1

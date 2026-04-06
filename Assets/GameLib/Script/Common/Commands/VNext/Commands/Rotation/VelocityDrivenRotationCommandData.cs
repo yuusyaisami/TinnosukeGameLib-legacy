@@ -82,7 +82,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Source")]
         [LabelText("Source Kind")]
         [ShowIf("@Mode == VelocityDrivenRotationCommandMode.SetSource")]
-        public VelocityRotationSourceKind Source = VelocityRotationSourceKind.TransformController;
+        public VelocityRotationSourceKind Source = VelocityRotationSourceKind.TransformChannel;
 
         [BoxGroup("Source")]
         [LabelText("Source Transform")]

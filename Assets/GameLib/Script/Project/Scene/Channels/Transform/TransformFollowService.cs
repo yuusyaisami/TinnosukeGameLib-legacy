@@ -9,7 +9,7 @@ namespace Game.Channel
     [Serializable]
     public enum TransformFollowVelocitySourceType
     {
-        TransformController = 0,
+        TransformChannel = 0,
         Rigidbody2D = 1,
     }
 
@@ -128,7 +128,7 @@ namespace Game.Channel
         bool _useTransformTarget;
         Vector3 _smoothVelocity;
         Vector3 _currentDirection;
-        TransformControllerService? _velocitySource;
+        ITransformControllerPoseReader? _velocitySource;
         Rigidbody2D? _rigidbodyVelocitySource;
 
         public bool UseTransformTarget => _useTransformTarget;
@@ -136,7 +136,7 @@ namespace Game.Channel
         public Vector3 TargetPosition => _targetPosition;
         public Vector3 SmoothVelocity => _smoothVelocity;
         public Vector3 CurrentDirection => _currentDirection;
-        public bool HasTransformControllerVelocitySource => _velocitySource != null;
+        public bool HasTransformChannelVelocitySource => _velocitySource != null;
         public bool HasRigidbody2DVelocitySource => _rigidbodyVelocitySource != null;
 
         public void SetTarget(Transform target, in TransformFollowOptions options)
@@ -156,7 +156,7 @@ namespace Game.Channel
                     case TransformFollowVelocitySourceType.Rigidbody2D:
                         _rigidbodyVelocitySource = ResolveRigidbodySource(target);
                         break;
-                    case TransformFollowVelocitySourceType.TransformController:
+                    case TransformFollowVelocitySourceType.TransformChannel:
                     default:
                         _velocitySource = ResolveVelocitySource(target);
                         break;
@@ -251,7 +251,7 @@ namespace Game.Channel
             return _targetPosition + options.BaseTargetOffset;
         }
 
-        static TransformControllerService? ResolveVelocitySource(Transform target)
+        static ITransformControllerPoseReader? ResolveVelocitySource(Transform target)
         {
             for (var current = target; current != null; current = current.parent)
             {
@@ -259,8 +259,8 @@ namespace Game.Channel
                 if (scope?.Resolver == null)
                     continue;
 
-                if (scope.Resolver.TryResolve<TransformControllerService>(out var service) && service != null)
-                    return service;
+                if (scope.Resolver.TryResolve<ITransformControllerPoseReader>(out var poseReader) && poseReader != null)
+                    return poseReader;
             }
 
             return null;
@@ -295,7 +295,7 @@ namespace Game.Channel
                             0f);
                     }
                     break;
-                case TransformFollowVelocitySourceType.TransformController:
+                case TransformFollowVelocitySourceType.TransformChannel:
                 default:
                     if (_velocitySource != null)
                     {

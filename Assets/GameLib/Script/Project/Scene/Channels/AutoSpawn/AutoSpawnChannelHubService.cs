@@ -80,8 +80,7 @@ namespace Game.Channel
 
         public bool TryGetChannelDef(string tag, out ChannelDefBase def)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            tag = NormalizeTag(tag);
 
             if (_defsByTag.TryGetValue(tag, out var hit) && hit != null)
             {
@@ -103,18 +102,101 @@ namespace Game.Channel
 
         public bool UnregisterChannel(string tag)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            tag = NormalizeTag(tag);
 
             if (!_defsByTag.Remove(tag))
                 return false;
 
             if (_playersByTag.TryGetValue(tag, out var player) && player != null)
+            {
+                RequestReleaseManagedSpawns(player);
                 _players.Remove(player);
+            }
 
             _playersByTag.Remove(tag);
             _defsDirty = true;
             return true;
+        }
+
+        public bool MutateChannel(string tag, AutoSpawnChannelRuntimeMutation mutation)
+        {
+            if (mutation == null || !mutation.HasAnyMutation())
+                return false;
+
+            tag = NormalizeTag(tag);
+
+            if (!_defsByTag.TryGetValue(tag, out var def) || def == null)
+                return false;
+
+            var changed = ApplyMutation(def, mutation);
+            if (!changed)
+                return false;
+
+            if (_owner is Component ownerComponent)
+                def.EnsureIntegrity(ownerComponent);
+            else
+                def.Frequency ??= new AutoSpawnChannelFrequency();
+
+            def.Frequency.EnsureIntegrity();
+            var frequency = def.Frequency;
+
+            if (_playersByTag.TryGetValue(tag, out var player) && player != null)
+            {
+                if (mutation.ResetNextSpawnSchedule)
+                {
+                    player.NextSpawnTime = IsRecurringEnabled(def)
+                        ? Time.time + Mathf.Max(0f, frequency.InitialDelaySeconds)
+                        : float.PositiveInfinity;
+                }
+                else if (!IsRecurringEnabled(def))
+                {
+                    player.NextSpawnTime = float.PositiveInfinity;
+                }
+            }
+
+            _defsDirty = true;
+            return true;
+        }
+
+        public async UniTask<int> SpawnExternallyAsync(string tag, int count, float intervalSeconds, CancellationToken ct = default)
+        {
+            if (!_active)
+                return 0;
+
+            if (count <= 0)
+                return 0;
+
+            intervalSeconds = Mathf.Max(0f, intervalSeconds);
+            tag = NormalizeTag(tag);
+
+            if (!_playersByTag.TryGetValue(tag, out var player) || player == null)
+                return 0;
+
+            if (!player.Definition.AllowExternalSpawn)
+                return 0;
+
+            return await SpawnCountAsync(
+                player,
+                count,
+                ct,
+                updateSchedule: false,
+                isInitialBatch: false,
+                releaseAutoProcessingFlag: false,
+                perSpawnIntervalSeconds: intervalSeconds);
+        }
+
+        public async UniTask<int> ClearSpawnedAsync(string tag, CancellationToken ct = default)
+        {
+            tag = NormalizeTag(tag);
+
+            if (!_playersByTag.TryGetValue(tag, out var player) || player == null)
+                return 0;
+
+            var drainedResolvers = DrainManagedResolvers(player);
+            if (drainedResolvers.Count == 0)
+                return 0;
+
+            return await ReleaseManagedResolversAsync(drainedResolvers, ct);
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
@@ -157,7 +239,10 @@ namespace Game.Channel
             _cts = null;
 
             for (int i = 0; i < _players.Count; i++)
+            {
                 _players[i].Processing = false;
+                RequestReleaseManagedSpawns(_players[i]);
+            }
         }
 
         public void Tick()
@@ -238,7 +323,14 @@ namespace Game.Channel
             player.InitialSpawnDone = true;
             var ct = _cts != null ? _cts.Token : CancellationToken.None;
             player.Processing = true;
-            UniTask.Void(async () => await SpawnCountAsync(player, initialCount, ct, updateSchedule: false, isInitialBatch: true));
+            UniTask.Void(async () => await SpawnCountAsync(
+                player,
+                initialCount,
+                ct,
+                updateSchedule: false,
+                isInitialBatch: true,
+                releaseAutoProcessingFlag: true,
+                perSpawnIntervalSeconds: 0f));
         }
 
         bool ShouldRunInitialSpawnOnAcquire(AutoSpawnChannelRuntimePlayer player)
@@ -286,35 +378,50 @@ namespace Game.Channel
         async UniTask SpawnBatchAsync(AutoSpawnChannelRuntimePlayer player, CancellationToken ct)
         {
             var count = Mathf.Max(1, player.Definition.Frequency.SpawnCountPerInterval);
-            await SpawnCountAsync(player, count, ct, updateSchedule: true, isInitialBatch: false);
+            await SpawnCountAsync(
+                player,
+                count,
+                ct,
+                updateSchedule: true,
+                isInitialBatch: false,
+                releaseAutoProcessingFlag: true,
+                perSpawnIntervalSeconds: 0f);
         }
 
-        async UniTask SpawnCountAsync(AutoSpawnChannelRuntimePlayer player, int count, CancellationToken ct, bool updateSchedule, bool isInitialBatch)
+        async UniTask<int> SpawnCountAsync(
+            AutoSpawnChannelRuntimePlayer player,
+            int count,
+            CancellationToken ct,
+            bool updateSchedule,
+            bool isInitialBatch,
+            bool releaseAutoProcessingFlag,
+            float perSpawnIntervalSeconds)
         {
+            var spawnedCount = 0;
             try
             {
                 if (!_active)
-                    return;
+                    return 0;
 
                 if (!TryResolveSpawner(player.Definition, out var spawner))
-                    return;
+                    return 0;
 
                 for (int i = 0; i < count; i++)
                 {
                     if (ct.IsCancellationRequested)
-                        return;
+                        return spawnedCount;
 
                     var owner = _owner;
                     if (owner == null)
-                        return;
+                        return spawnedCount;
 
                     var dynCtx = new SimpleDynamicContext(_vars, owner);
 
                     if (!TryPickMapping(player, dynCtx, out var mapping, out var template))
-                        return;
+                        return spawnedCount;
 
                     if (!TryGetSpawnPosition(player, dynCtx, isInitialBatch, out var position))
-                        return;
+                        return spawnedCount;
 
                     var spawnParams = SpawnParams.ForRuntime(
                         template,
@@ -334,7 +441,7 @@ namespace Game.Channel
                     }
                     catch (OperationCanceledException)
                     {
-                        return;
+                        return spawnedCount;
                     }
                     catch (Exception ex)
                     {
@@ -349,7 +456,22 @@ namespace Game.Channel
                         continue;
                     }
 
+                    RegisterManagedResolver(player, spawnedResolver);
+                    spawnedCount++;
+
                     UniTask.Void(async () => await RunOnSpawnedCommandsAsync(mapping, spawnedResolver, ct));
+
+                    if (perSpawnIntervalSeconds > 0f && i < count - 1)
+                    {
+                        try
+                        {
+                            await UniTask.Delay(TimeSpan.FromSeconds(perSpawnIntervalSeconds), cancellationToken: ct);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            return spawnedCount;
+                        }
+                    }
                 }
             }
             catch (OperationCanceledException)
@@ -362,7 +484,9 @@ namespace Game.Channel
             }
             finally
             {
-                player.Processing = false;
+                if (releaseAutoProcessingFlag)
+                    player.Processing = false;
+
                 if (updateSchedule && IsRecurringEnabled(player.Definition))
                 {
                     player.NextSpawnTime = Time.time + GetNextIntervalSeconds(player.Definition.Frequency);
@@ -372,6 +496,8 @@ namespace Game.Channel
                     player.NextSpawnTime = float.PositiveInfinity;
                 }
             }
+
+            return spawnedCount;
         }
 
         async UniTask RunOnSpawnedCommandsAsync(AutoSpawnChannelMappingEntry mapping, IObjectResolver resolver, CancellationToken ct)
@@ -570,26 +696,172 @@ namespace Game.Channel
             if (def == null)
                 return false;
 
-            if (string.IsNullOrWhiteSpace(def.Tag))
+            var normalizedTag = NormalizeTag(def.Tag);
+            if (string.IsNullOrWhiteSpace(normalizedTag))
                 return false;
 
-            if (_defsByTag.ContainsKey(def.Tag))
+            if (_defsByTag.ContainsKey(normalizedTag))
             {
                 if (!overwrite)
                     return false;
 
-                _defsByTag.Remove(def.Tag);
-                if (_playersByTag.TryGetValue(def.Tag, out var oldPlayer) && oldPlayer != null)
+                _defsByTag.Remove(normalizedTag);
+                if (_playersByTag.TryGetValue(normalizedTag, out var oldPlayer) && oldPlayer != null)
+                {
+                    RequestReleaseManagedSpawns(oldPlayer);
                     _players.Remove(oldPlayer);
-                _playersByTag.Remove(def.Tag);
+                }
+
+                _playersByTag.Remove(normalizedTag);
             }
 
-            _defsByTag[def.Tag] = def;
+            _defsByTag[normalizedTag] = def;
             var runtimePlayer = new AutoSpawnChannelRuntimePlayer(def);
-            _playersByTag[def.Tag] = runtimePlayer;
+            _playersByTag[normalizedTag] = runtimePlayer;
             _players.Add(runtimePlayer);
             _defsDirty = true;
             return true;
+        }
+
+        static bool ApplyMutation(AutoSpawnChannelDefinition def, AutoSpawnChannelRuntimeMutation mutation)
+        {
+            var changed = false;
+
+            if (mutation.ApplyEnabled && def.Enabled != mutation.Enabled)
+            {
+                def.Enabled = mutation.Enabled;
+                changed = true;
+            }
+
+            if (mutation.ApplyAllowExternalSpawn && def.AllowExternalSpawn != mutation.AllowExternalSpawn)
+            {
+                def.AllowExternalSpawn = mutation.AllowExternalSpawn;
+                changed = true;
+            }
+
+            if (mutation.ApplySpawnIntervalSeconds && !Mathf.Approximately(def.Frequency.SpawnIntervalSeconds, mutation.SpawnIntervalSeconds))
+            {
+                def.Frequency.SpawnIntervalSeconds = mutation.SpawnIntervalSeconds;
+                changed = true;
+            }
+
+            if (mutation.ApplySpawnCountPerInterval && def.Frequency.SpawnCountPerInterval != mutation.SpawnCountPerInterval)
+            {
+                def.Frequency.SpawnCountPerInterval = mutation.SpawnCountPerInterval;
+                changed = true;
+            }
+
+            if (mutation.ApplyInitialSpawnCount && def.Frequency.InitialSpawnCount != mutation.InitialSpawnCount)
+            {
+                def.Frequency.InitialSpawnCount = mutation.InitialSpawnCount;
+                changed = true;
+            }
+
+            if (mutation.ApplyInitialDelaySeconds && !Mathf.Approximately(def.Frequency.InitialDelaySeconds, mutation.InitialDelaySeconds))
+            {
+                def.Frequency.InitialDelaySeconds = mutation.InitialDelaySeconds;
+                changed = true;
+            }
+
+            if (mutation.ApplyIntervalJitterSeconds && !Mathf.Approximately(def.Frequency.IntervalJitterSeconds, mutation.IntervalJitterSeconds))
+            {
+                def.Frequency.IntervalJitterSeconds = mutation.IntervalJitterSeconds;
+                changed = true;
+            }
+
+            if (mutation.ResetNextSpawnSchedule)
+                changed = true;
+
+            return changed;
+        }
+
+        static void RegisterManagedResolver(AutoSpawnChannelRuntimePlayer player, IObjectResolver resolver)
+        {
+            lock (player.ManagedSpawnedResolversLock)
+                player.ManagedSpawnedResolvers.Add(resolver);
+        }
+
+        static List<IObjectResolver> DrainManagedResolvers(AutoSpawnChannelRuntimePlayer player)
+        {
+            lock (player.ManagedSpawnedResolversLock)
+            {
+                if (player.ManagedSpawnedResolvers.Count == 0)
+                    return new List<IObjectResolver>(0);
+
+                var drained = new List<IObjectResolver>(player.ManagedSpawnedResolvers);
+                player.ManagedSpawnedResolvers.Clear();
+                return drained;
+            }
+        }
+
+        void RequestReleaseManagedSpawns(AutoSpawnChannelRuntimePlayer player)
+        {
+            var drainedResolvers = DrainManagedResolvers(player);
+            if (drainedResolvers.Count == 0)
+                return;
+
+            UniTask.Void(async () => await ReleaseManagedResolversAsync(drainedResolvers, CancellationToken.None));
+        }
+
+        async UniTask<int> ReleaseManagedResolversAsync(List<IObjectResolver> resolvers, CancellationToken ct)
+        {
+            if (resolvers == null || resolvers.Count == 0)
+                return 0;
+
+            var releasedCount = 0;
+            for (int i = 0; i < resolvers.Count; i++)
+            {
+                if (ct.IsCancellationRequested)
+                    break;
+
+                try
+                {
+                    if (await ReleaseSpawnedResolverAsync(resolvers[i], ct))
+                        releasedCount++;
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"{LogPrefix} Managed spawn release failed: {ex.Message}");
+                    Debug.LogException(ex);
+                }
+            }
+
+            return releasedCount;
+        }
+
+        static async UniTask<bool> ReleaseSpawnedResolverAsync(IObjectResolver resolver, CancellationToken ct)
+        {
+            if (resolver == null)
+                return false;
+
+            await UniTask.SwitchToMainThread(ct);
+
+            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            {
+                if (runtimeScope.Resolver != null &&
+                    runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
+                    pool != null)
+                {
+                    pool.Release(runtimeScope);
+                    return true;
+                }
+
+                Debug.LogError($"{LogPrefix} Runtime scope release was requested, but no IRuntimeLifetimeScopePool was found.");
+                return false;
+            }
+
+            if (resolver.TryResolve<BaseLifetimeScope>(out var baseScope) && baseScope != null)
+            {
+                await baseScope.DespawnAsync(ct);
+                return true;
+            }
+
+            Debug.LogError($"{LogPrefix} Managed spawn resolver does not expose releasable LifetimeScope.");
+            return false;
         }
 
         static float GetNextIntervalSeconds(AutoSpawnChannelFrequency frequency)
@@ -602,7 +874,20 @@ namespace Game.Channel
         }
 
         static bool IsRecurringEnabled(AutoSpawnChannelDefinition def)
-            => def.Frequency.SpawnIntervalSeconds >= 0f;
+        {
+            if (def?.Frequency == null)
+                return false;
+
+            return def.Frequency.SpawnIntervalSeconds >= 0f;
+        }
+
+        static string NormalizeTag(string? tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return "default";
+
+            return tag.Trim();
+        }
 
         static IReadOnlyList<string> ResolveAreaTags(AutoSpawnChannelDefinition def, bool isInitialBatch)
         {

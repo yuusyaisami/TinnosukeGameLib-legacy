@@ -1,8 +1,10 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game;
+using Game.Commands;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.VarStoreKeys;
@@ -23,6 +25,24 @@ namespace Game.SelectRuntime
         IScopeNode? _ownerScope;
         IWorldPointerRuntimeService? _pointerService;
         Transform? _lastParent;
+        readonly List<RunningCommandExecution> _runningExecutions = new(4);
+
+        sealed class RunningCommandExecution
+        {
+            public readonly string EventName;
+            public readonly CancellationTokenSource Cts;
+            public UniTask Task;
+            public bool Completed;
+            public bool Disposed;
+
+            public RunningCommandExecution(string eventName, CancellationTokenSource cts)
+            {
+                EventName = eventName;
+                Cts = cts;
+                Completed = false;
+                Disposed = false;
+            }
+        }
 
         public WorldPointerTargetCommandBridgeService(WorldPointerTargetMB owner)
         {
@@ -51,6 +71,8 @@ namespace Game.SelectRuntime
 
         public void Tick()
         {
+            CleanupCompletedCommandExecutions();
+
             if (_owner == null)
                 return;
 
@@ -102,6 +124,7 @@ namespace Game.SelectRuntime
         void Unbind()
         {
             InitializePointerRelationDefaults(_ownerScope);
+            CancelRunningCommandExecutions(disposeEntries: true);
 
             if (_pointerService != null)
             {
@@ -203,10 +226,10 @@ namespace Game.SelectRuntime
 
             var commands = entered ? _owner.OnHoverEnteredCommands : _owner.OnHoverExitedCommands;
             var eventName = entered ? "HoverEntered" : "HoverExited";
-            ExecuteHoverCommands(commands, eventData.EventData, eventName, isHovered);
+            ExecuteHoverCommands(commands, eventName, isHovered);
         }
 
-        void ExecuteHoverCommands(CommandListData? commands, WorldPointerEventData eventData, string eventName, bool isHovered)
+        void ExecuteHoverCommands(CommandListData? commands, string eventName, bool isHovered)
         {
             if (commands == null || commands.Count == 0)
                 return;
@@ -221,20 +244,7 @@ namespace Game.SelectRuntime
             WritePointerRelation(vars, _owner.HoverStateKey, isHovered);
 
             var context = new CommandContext(_ownerScope, vars, runner, actor: _ownerScope, CommandRunOptions.Default, _ownerScope, _ownerScope, _ownerScope);
-            UniTask.Void(async () =>
-            {
-                try
-                {
-                    await runner.ExecuteListAsync(commands, context, CancellationToken.None, context.Options);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"[WorldPointerTarget] Command execution failed ({eventName}): {ex.Message}");
-                }
-            });
+            StartCommandExecution(commands, context, eventName);
         }
 
         void ExecuteCommands(CommandListData? commands, WorldPointerEventData eventData, string eventName)
@@ -269,20 +279,119 @@ namespace Game.SelectRuntime
             WritePointerRelation(vars, _owner.PointerSelfOrDescendantResultKey, isSelfOrDescendant);
 
             var context = new CommandContext(_ownerScope, vars, runner, actor: _ownerScope, CommandRunOptions.Default, _ownerScope, _ownerScope, _ownerScope);
-            UniTask.Void(async () =>
+            StartCommandExecution(commands, context, eventName);
+        }
+
+        void StartCommandExecution(CommandListData commands, CommandContext context, string eventName)
+        {
+            CleanupCompletedCommandExecutions();
+
+            var behavior = _owner.CommandOverlapBehavior;
+            if (behavior == ExecutionBehavior.SkipIfRunning && HasRunningCommandExecution())
+                return;
+
+            if (behavior == ExecutionBehavior.CancelAndRun)
+                CancelRunningCommandExecutions(disposeEntries: false);
+
+            var cts = new CancellationTokenSource();
+            var entry = new RunningCommandExecution(eventName, cts);
+            _runningExecutions.Add(entry);
+            entry.Task = ExecuteCommandsAsync(entry, commands, context, cts.Token);
+        }
+
+        async UniTask ExecuteCommandsAsync(RunningCommandExecution entry, CommandListData commands, CommandContext context, CancellationToken ct)
+        {
+            try
             {
+                var result = await context.Runner.ExecuteListAsync(commands, context, ct, context.Options);
+                if (result.Status == CommandRunStatus.Error)
+                    Debug.LogError($"[WorldPointerTarget] Command execution failed ({entry.EventName}): {result.Message}");
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[WorldPointerTarget] Command execution failed ({entry.EventName}): {ex.Message}");
+            }
+            finally
+            {
+                entry.Completed = true;
+            }
+        }
+
+        bool HasRunningCommandExecution()
+        {
+            for (var i = 0; i < _runningExecutions.Count; i++)
+            {
+                if (!_runningExecutions[i].Completed)
+                    return true;
+            }
+
+            return false;
+        }
+
+        void CancelRunningCommandExecutions(bool disposeEntries)
+        {
+            for (var i = 0; i < _runningExecutions.Count; i++)
+            {
+                var entry = _runningExecutions[i];
+                if (!entry.Completed)
+                {
+                    try
+                    {
+                        entry.Cts.Cancel();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogException(ex);
+                    }
+                }
+            }
+
+            if (disposeEntries)
+            {
+                for (var i = _runningExecutions.Count - 1; i >= 0; i--)
+                {
+                    var entry = _runningExecutions[i];
+                    if (entry.Disposed)
+                        continue;
+
+                    try
+                    {
+                        entry.Cts.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogException(ex);
+                    }
+
+                    entry.Disposed = true;
+                    _runningExecutions.RemoveAt(i);
+                }
+            }
+        }
+
+        void CleanupCompletedCommandExecutions()
+        {
+            for (var i = _runningExecutions.Count - 1; i >= 0; i--)
+            {
+                var entry = _runningExecutions[i];
+                if (!entry.Completed || entry.Disposed)
+                    continue;
+
                 try
                 {
-                    await runner.ExecuteListAsync(commands, context, CancellationToken.None, context.Options);
-                }
-                catch (OperationCanceledException)
-                {
+                    entry.Cts.Dispose();
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[WorldPointerTarget] Command execution failed ({eventName}): {ex.Message}");
+                    Debug.LogException(ex);
                 }
-            });
+
+                entry.Disposed = true;
+                _runningExecutions.RemoveAt(i);
+            }
         }
 
         static IVarStore CreateVars(IScopeNode scope)

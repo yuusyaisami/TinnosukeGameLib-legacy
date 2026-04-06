@@ -122,6 +122,8 @@ namespace Game.Trait
         bool _isHidden;
         bool _hasAppliedPresentationState;
         TraitRuntimePresentationState _appliedPresentationState;
+        TraitRuntimeLinkKey _spawnExecutedKey;
+        bool _hasSpawnExecutedKey;
         readonly PresentationCommandMutationSlot _hiddenCommandsMutation = new();
         readonly PresentationCommandMutationSlot _visibleCommandsMutation = new();
 
@@ -179,17 +181,22 @@ namespace Game.Trait
                 UnsubscribePlacementService();
                 _hasRegisteredKey = false;
                 _registeredKey = default;
+                _hasSpawnExecutedKey = false;
+                _spawnExecutedKey = default;
                 return;
             }
 
             var currentKey = currentLink.ToLinkKey();
             if (_hasRegisteredKey && _registeredKey.Equals(currentKey))
+            {
+                ExecuteDefinitionSpawnCommandsIfNeeded(currentLink);
                 return;
+            }
 
             _linkData = currentLink;
             _registeredKey = currentKey;
             _hasRegisteredKey = true;
-            ExecuteDefinitionSpawnCommandsIfNeeded();
+            ExecuteDefinitionSpawnCommandsIfNeeded(currentLink);
 
             UnsubscribePlacementService();
             if (TraitPlacementScopeResolver.TryResolvePlacementService(_linkData, out var placementService) && placementService != null)
@@ -202,16 +209,26 @@ namespace Game.Trait
             }
         }
 
-        void ExecuteDefinitionSpawnCommandsIfNeeded()
+        void ExecuteDefinitionSpawnCommandsIfNeeded(TraitRuntimeLinkData? linkData)
         {
-            if (_owner == null)
+            if (_owner == null || linkData == null)
+                return;
+
+            var linkKey = linkData.ToLinkKey();
+            if (_hasSpawnExecutedKey && _spawnExecutedKey.Equals(linkKey))
                 return;
 
             if (!TryResolveRuntimeScope(_owner, out var runtimeScope) || runtimeScope == null)
                 return;
 
-            var definition = ResolveTraitDefinition(runtimeScope);
-            if (definition == null || !definition.RunOnRuntimeSpawnCommands)
+            var definition = ResolveTraitDefinition(runtimeScope, linkData);
+            if (definition == null)
+                return;
+
+            _spawnExecutedKey = linkKey;
+            _hasSpawnExecutedKey = true;
+
+            if (!definition.RunOnRuntimeSpawnCommands)
                 return;
 
             ExecuteCommandList(runtimeScope, definition.OnRuntimeSpawnCommands, "DefinitionSpawn");
@@ -334,7 +351,7 @@ namespace Game.Trait
 
         void ExecuteDefinitionPresentationCommands(RuntimeLifetimeScope scope, TraitRuntimePresentationState state)
         {
-            var definition = ResolveTraitDefinition(scope);
+            var definition = ResolveTraitDefinition(scope, _linkData);
             if (definition == null)
                 return;
 
@@ -402,22 +419,73 @@ namespace Game.Trait
             });
         }
 
-        static TraitDefinitionSO? ResolveTraitDefinition(RuntimeLifetimeScope scope)
+        static TraitDefinitionSO? ResolveTraitDefinition(RuntimeLifetimeScope scope, TraitRuntimeLinkData? linkData)
         {
             var resolver = scope?.Resolver;
-            if (resolver == null)
-                return null;
-
-            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
-                return null;
-
-            if (!blackboard.LocalVars.TryGetManagedRef(VarIds.GameLib.Base.Trait.Element.definitionAsset, out var managed) ||
-                managed is not TraitDefinitionSO definition)
+            if (resolver != null &&
+                resolver.TryResolve<IBlackboardService>(out var blackboard) &&
+                blackboard != null &&
+                blackboard.LocalVars.TryGetManagedRef(VarIds.GameLib.Base.Trait.Element.definitionAsset, out var managed) &&
+                managed is TraitDefinitionSO blackboardDefinition)
             {
-                return null;
+                return blackboardDefinition;
             }
 
-            return definition;
+            if (linkData == null)
+                return null;
+
+            if (!TraitPlacementScopeResolver.TryResolveSourceScope(linkData, out var sourceScope) || sourceScope?.Resolver == null)
+                return null;
+
+            if (!sourceScope.Resolver.TryResolve<ITraitHolderHubService>(out var holderHub) || holderHub == null)
+                return null;
+
+            if (!holderHub.TryGetHolder(linkData.HolderKey, out var holder) || holder == null)
+                return null;
+
+            var traits = holder.Traits;
+            if (traits == null || traits.Count == 0)
+                return null;
+
+            var traitKey = linkData.TraitKey;
+            if (!string.IsNullOrWhiteSpace(traitKey))
+            {
+                for (var i = 0; i < traits.Count; i++)
+                {
+                    var instance = traits[i];
+                    if (instance == null)
+                        continue;
+
+                    if (!string.Equals(instance.InstanceId, traitKey, StringComparison.Ordinal))
+                        continue;
+
+                    if (instance.Definition is TraitDefinitionSO byInstance)
+                        return byInstance;
+                }
+            }
+
+            var definitionId = linkData.TraitDefinitionId;
+            if (string.IsNullOrWhiteSpace(definitionId))
+                return null;
+
+            for (var i = 0; i < traits.Count; i++)
+            {
+                var instance = traits[i];
+                if (instance == null)
+                    continue;
+
+                var definition = instance.Definition;
+                if (definition == null)
+                    continue;
+
+                if (!string.Equals(definition.DefinitionId, definitionId, StringComparison.Ordinal))
+                    continue;
+
+                if (definition is TraitDefinitionSO byDefinitionId)
+                    return byDefinitionId;
+            }
+
+            return null;
         }
 
         void CaptureVisiblePose()
@@ -441,6 +509,8 @@ namespace Game.Trait
             _linkData = null;
             _hasRegisteredKey = false;
             _registeredKey = default;
+            _hasSpawnExecutedKey = false;
+            _spawnExecutedKey = default;
             _isHidden = false;
             _hasVisiblePose = false;
             _hasAppliedPresentationState = false;

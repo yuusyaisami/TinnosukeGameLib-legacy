@@ -32,7 +32,7 @@ namespace Game.Rotation
 
         Transform? _sourceTransform;
         Rigidbody2D? _sourceRigidbody;
-        TransformControllerService? _sourceTransformController;
+        ITransformControllerPoseReader? _sourceTransformChannel;
         Transform? _scopeTransform;
 
         float _currentAngularVelocity;
@@ -60,7 +60,7 @@ namespace Game.Rotation
         public VelocityRotationSourceKind SourceKind => _settings.Source;
         public string RotateChannelKey => string.IsNullOrEmpty(_settings.RotateChannelKey) ? "velocity" : _settings.RotateChannelKey;
         public bool HasChannel => _channel != null;
-        public bool HasSourceTransformController => _sourceTransformController != null;
+        public bool HasSourceTransformChannel => _sourceTransformChannel != null;
         public bool HasSourceRigidbody2D => _sourceRigidbody != null;
         public Vector2 RawVelocity => _lastRawVelocity;
         public Vector2 ScaledVelocity => _lastScaledVelocity;
@@ -194,7 +194,7 @@ namespace Game.Rotation
             DisposeFlip();
             _sourceTransform = null;
             _sourceRigidbody = null;
-            _sourceTransformController = null;
+            _sourceTransformChannel = null;
         }
 
         void EnsureChannel()
@@ -226,15 +226,16 @@ namespace Game.Rotation
             if (_sourceTransform == null)
                 _sourceTransform = _scopeTransform;
 
-            if (_settings.Source == VelocityRotationSourceKind.TransformController)
+            if (_settings.Source == VelocityRotationSourceKind.TransformChannel)
             {
-                _resolver.TryResolve(out _sourceTransformController);
-                if (_sourceTransformController == null && _sourceTransform != null)
-                    _sourceTransformController = TryResolveTransformController(_sourceTransform);
+                _resolver.TryResolve<ITransformControllerPoseReader>(out var poseReader);
+                _sourceTransformChannel = poseReader;
+                if (_sourceTransformChannel == null && _sourceTransform != null)
+                    _sourceTransformChannel = TryResolveTransformChannelPoseReader(_sourceTransform);
             }
             else
             {
-                _sourceTransformController = null;
+                _sourceTransformChannel = null;
             }
 
             if (_settings.Source == VelocityRotationSourceKind.Rigidbody2D)
@@ -260,9 +261,9 @@ namespace Game.Rotation
             {
                 case VelocityRotationSourceKind.Rigidbody2D:
                     return _sourceRigidbody != null ? _sourceRigidbody.linearVelocity : Vector2.zero;
-                case VelocityRotationSourceKind.TransformController:
+                case VelocityRotationSourceKind.TransformChannel:
                 default:
-                    return _sourceTransformController != null ? _sourceTransformController.CurrentVelocity : Vector2.zero;
+                    return _sourceTransformChannel != null ? _sourceTransformChannel.CurrentVelocity : Vector2.zero;
             }
         }
 
@@ -530,7 +531,7 @@ namespace Game.Rotation
             _lastFlipX = false;
         }
 
-        static TransformControllerService? TryResolveTransformController(Transform transform)
+        static ITransformControllerPoseReader? TryResolveTransformChannelPoseReader(Transform transform)
         {
             for (var current = transform; current != null; current = current.parent)
             {
@@ -538,8 +539,8 @@ namespace Game.Rotation
                 if (scope?.Resolver == null)
                     continue;
 
-                if (scope.Resolver.TryResolve<TransformControllerService>(out var service) && service != null)
-                    return service;
+                if (scope.Resolver.TryResolve<ITransformControllerPoseReader>(out var poseReader) && poseReader != null)
+                    return poseReader;
             }
 
             return null;

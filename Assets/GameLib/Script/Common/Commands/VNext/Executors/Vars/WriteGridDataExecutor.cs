@@ -108,8 +108,16 @@ namespace Game.Commands.VNext
                     break;
 
                 case WriteGridDataRowOperation.Clear:
-                    targetGrid.ClearRow(rowIndex);
-                    ApplyGridIdToRow(targetGrid, rowIndex, typed.GridId);
+                    switch (typed.RowClearMode)
+                    {
+                        case WriteGridDataRowClearMode.ClearCellVars:
+                            targetGrid.ClearRow(rowIndex);
+                            break;
+
+                        default:
+                            ClearRowColumns(targetGrid, rowIndex);
+                            break;
+                    }
                     break;
 
                 case WriteGridDataRowOperation.CopyToRow:
@@ -184,7 +192,6 @@ namespace Game.Commands.VNext
 
                 case WriteGridDataColumnOperation.Clear:
                     targetGrid.ClearColumn(rowIndex, columnIndex);
-                    ApplyGridIdToCell(targetGrid, rowIndex, columnIndex, typed.GridId);
                     break;
 
                 case WriteGridDataColumnOperation.CopyToColumn:
@@ -431,6 +438,15 @@ namespace Game.Commands.VNext
         {
             index = source.GetOrDefault(dynCtx, 0);
             return index >= 0;
+        }
+
+        static void ClearRowColumns(IGridBlackboardService grid, int row)
+        {
+            if (!grid.TryGetColumnCount(row, out var columnCount) || columnCount <= 0)
+                return;
+
+            for (var column = columnCount - 1; column >= 0; column--)
+                grid.RemoveColumn(row, column);
         }
 
         static void ApplyGridIdToRow(IGridBlackboardService grid, int row, int gridIdVarId)

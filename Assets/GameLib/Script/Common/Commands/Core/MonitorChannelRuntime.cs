@@ -612,7 +612,11 @@ namespace Game.Commands
                             return true;
                         break;
                     case MonitorValueSourceKind.Scalar:
-                        if (state.ScalarSubscription == null)
+                        // Scalar ownership can migrate after acquire (for example when profile bindings
+                        // create/override local keys). Keep polling fallback in EventDriven mode so
+                        // ValueChanged never becomes silent even if the initial subscription target
+                        // no longer reflects the effective value source.
+                        if (mode == MonitorEvaluationMode.EventDriven || state.ScalarSubscription == null)
                             return true;
                         break;
                 }

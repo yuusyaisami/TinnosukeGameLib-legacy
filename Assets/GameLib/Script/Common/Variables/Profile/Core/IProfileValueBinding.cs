@@ -16,6 +16,11 @@ namespace Game.Profile
     public interface IProfileValueBinding
     {
         /// <summary>
+        /// Inspector の ListElementLabelName で使用する行ラベル
+        /// </summary>
+        string ProfileBindingListLabel { get; }
+
+        /// <summary>
         /// Blackboard にバインドする VarId（0 の場合は Blackboard にバインドしない）
         /// </summary>
         int BlackboardKey { get; }

@@ -338,12 +338,21 @@ namespace Game.Collision
             if (!_initialColliderEnabledCaptured)
                 CaptureInitialColliderEnabledState();
 
-            if (_enabledByDefault)
-                return true;
-
             if (_initialColliderEnabledByInstanceId != null &&
                 _initialColliderEnabledByInstanceId.TryGetValue(collider.GetInstanceID(), out var initialEnabled))
-                return initialEnabled;
+            {
+                // Keep colliders that were initially disabled as disabled at registration time.
+                if (!initialEnabled)
+                    return false;
+
+                if (_enabledByDefault)
+                    return true;
+
+                return true;
+            }
+
+            if (_enabledByDefault)
+                return true;
 
             return collider.enabled;
         }

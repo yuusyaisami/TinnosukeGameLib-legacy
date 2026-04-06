@@ -8,8 +8,9 @@ namespace Game.Channel
 {
     public sealed class AreaChannelHubService : IAreaChannelHubService, IScopeAcquireHandler, IScopeReleaseHandler
     {
-        readonly Dictionary<string, AreaChannelDefinition> _defsByTag = new(StringComparer.Ordinal);
-        readonly Dictionary<string, AreaChannelRuntimePlayer> _runtimeByTag = new(StringComparer.Ordinal);
+        readonly IScopeNode _owner;
+        readonly Dictionary<string, AreaChannelDefinition> _defsByTag = new(StringComparer.OrdinalIgnoreCase);
+        readonly Dictionary<string, AreaChannelRuntimePlayer> _runtimeByTag = new(StringComparer.OrdinalIgnoreCase);
         readonly List<ChannelDefBase> _defsSnapshot = new();
         bool _defsDirty = true;
 
@@ -31,8 +32,10 @@ namespace Game.Channel
             }
         }
 
-        public AreaChannelHubService(AreaChannelDefinition[] definitions)
+        public AreaChannelHubService(IScopeNode owner, AreaChannelDefinition[] definitions)
         {
+            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+
             if (definitions == null)
                 return;
 
@@ -79,7 +82,7 @@ namespace Game.Channel
                 if (!player.TrySamplePosition(basePosition, in request, out position))
                     continue;
 
-                selectedTag = string.IsNullOrWhiteSpace(tag) ? "default" : tag;
+                selectedTag = NormalizeTag(tag);
                 return true;
             }
 
@@ -153,8 +156,7 @@ namespace Game.Channel
 
         public bool TryGetChannelDef(string tag, out ChannelDefBase def)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            tag = NormalizeTag(tag);
 
             if (_defsByTag.TryGetValue(tag, out var hit) && hit != null)
             {
@@ -176,8 +178,7 @@ namespace Game.Channel
 
         public bool UnregisterChannel(string tag)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            tag = NormalizeTag(tag);
 
             if (!_defsByTag.Remove(tag))
                 return false;
@@ -192,8 +193,7 @@ namespace Game.Channel
             if (mutation == null || !mutation.HasAnyMutation())
                 return false;
 
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            tag = NormalizeTag(tag);
 
             if (!_defsByTag.TryGetValue(tag, out var def) || def == null)
                 return false;
@@ -216,6 +216,9 @@ namespace Game.Channel
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_owner, scope))
+                return;
+
             _ownerScope = scope;
             foreach (var runtime in _runtimeByTag.Values)
                 runtime.ResetRuntime();
@@ -223,6 +226,9 @@ namespace Game.Channel
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_owner, scope))
+                return;
+
             _ownerScope = null;
         }
 
@@ -231,34 +237,42 @@ namespace Game.Channel
             if (def == null)
                 return false;
 
-            if (string.IsNullOrWhiteSpace(def.Tag))
+            var normalizedTag = NormalizeTag(def.Tag);
+            if (string.IsNullOrWhiteSpace(normalizedTag))
                 return false;
 
-            if (_defsByTag.ContainsKey(def.Tag))
+            if (_defsByTag.ContainsKey(normalizedTag))
             {
                 if (!overwrite)
                     return false;
 
-                _defsByTag.Remove(def.Tag);
-                _runtimeByTag.Remove(def.Tag);
+                _defsByTag.Remove(normalizedTag);
+                _runtimeByTag.Remove(normalizedTag);
             }
 
-            _defsByTag[def.Tag] = def;
-            _runtimeByTag[def.Tag] = new AreaChannelRuntimePlayer(def);
+            _defsByTag[normalizedTag] = def;
+            _runtimeByTag[normalizedTag] = new AreaChannelRuntimePlayer(def);
             _defsDirty = true;
             return true;
         }
 
         bool TryGetRuntime(string tag, out AreaChannelRuntimePlayer runtime)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            tag = NormalizeTag(tag);
 
             if (_runtimeByTag.TryGetValue(tag, out runtime) && runtime != null && runtime.Definition.Enabled)
                 return true;
 
             runtime = null!;
             return false;
+        }
+
+        static string NormalizeTag(string? tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return "default";
+
+            return tag.Trim();
         }
 
         static bool TryResolveBasePosition(AreaChannelDefinition def, IScopeNode? ownerScope, out Vector3 basePosition)

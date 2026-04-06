@@ -1133,10 +1133,10 @@ namespace Game.Common
         public DynamicVariant Evaluate(IDynamicContext context)
         {
             var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache);
-            if (targetScope?.Resolver == null)
+            if (targetScope == null)
                 return DynamicVariant.Null;
 
-            if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc))
+            if (!TryResolveScalarService(targetScope, out var svc) || svc == null)
                 return DynamicVariant.Null;
 
             if (svc.LocalTryGet(scalarKey, out float value))
@@ -1151,6 +1151,25 @@ namespace Game.Common
             }
 
             return DynamicVariant.Null;
+        }
+
+        static bool TryResolveScalarService(IScopeNode scope, out IBaseScalarService? svc)
+        {
+            for (var node = scope; node != null; node = node.Parent)
+            {
+                var resolver = node.Resolver;
+                if (resolver == null)
+                    continue;
+
+                if (resolver.TryResolve<IBaseScalarService>(out var resolved) && resolved != null)
+                {
+                    svc = resolved;
+                    return true;
+                }
+            }
+
+            svc = null;
+            return false;
         }
 
         string DescribeTargetActorSource()
@@ -1202,10 +1221,10 @@ namespace Game.Common
         public DynamicVariant Evaluate(IDynamicContext context)
         {
             var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache);
-            if (targetScope?.Resolver == null)
+            if (targetScope == null)
                 return DynamicVariant.Null;
 
-            if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var svc))
+            if (!TryResolveScalarService(targetScope, out var svc) || svc == null)
                 return DynamicVariant.Null;
 
             if (svc.LocalTryGet(scalarKey, out float value))
@@ -1218,6 +1237,25 @@ namespace Game.Common
             }
 
             return DynamicVariant.Null;
+        }
+
+        static bool TryResolveScalarService(IScopeNode scope, out IBaseScalarService? svc)
+        {
+            for (var node = scope; node != null; node = node.Parent)
+            {
+                var resolver = node.Resolver;
+                if (resolver == null)
+                    continue;
+
+                if (resolver.TryResolve<IBaseScalarService>(out var resolved) && resolved != null)
+                {
+                    svc = resolved;
+                    return true;
+                }
+            }
+
+            svc = null;
+            return false;
         }
 
         string DescribeTargetActorSource()

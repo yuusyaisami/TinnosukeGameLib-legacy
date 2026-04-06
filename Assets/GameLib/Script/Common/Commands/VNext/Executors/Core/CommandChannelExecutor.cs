@@ -15,7 +15,6 @@ namespace Game.Commands.VNext
     {
         static readonly object BackgroundGateLock = new();
         static readonly HashSet<string> RunningBackgroundKeys = new(StringComparer.Ordinal);
-        static readonly AsyncLocal<List<string>?> ExecutionStack = new();
 
         public int CommandId => CommandIds.CommandChannelExecute;
 
@@ -342,7 +341,7 @@ namespace Game.Commands.VNext
             CancellationToken ct)
         {
             var executeKey = BuildBackgroundKey(hub, tag, ctx);
-            if (!TryEnterExecution(executeKey, out var chain))
+            if (!TryEnterExecution(ctx, executeKey, out var chain))
             {
                 var recursionMessage =
                     $"Recursive CommandChannel detected. tag='{tag}' key='{executeKey}'. Chain={chain}";
@@ -377,50 +376,23 @@ namespace Game.Commands.VNext
             }
             finally
             {
-                ExitExecution(executeKey);
+                ExitExecution(ctx, executeKey);
             }
         }
 
-        static bool TryEnterExecution(string key, out string chain)
+        static bool TryEnterExecution(CommandContext ctx, string key, out string chain)
         {
-            var stack = ExecutionStack.Value;
-            if (stack == null)
-            {
-                stack = new List<string>(4);
-                ExecutionStack.Value = stack;
-            }
-
-            if (stack.Contains(key))
-            {
-                chain = stack.Count > 0 ? string.Join(" -> ", stack) : "<empty>";
+            if (ctx.TryEnterChannelExecution(key, out chain))
+                return true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.LogError($"[CommandChannelExecutor] Recursive execution blocked. Key={key}, Chain={chain}");
+            Debug.LogError($"[CommandChannelExecutor] Recursive execution blocked. Key={key}, Chain={chain}");
 #endif
-                return false;
-            }
-
-            stack.Add(key);
-            chain = string.Join(" -> ", stack);
-            return true;
+            return false;
         }
 
-        static void ExitExecution(string key)
+        static void ExitExecution(CommandContext ctx, string key)
         {
-            var stack = ExecutionStack.Value;
-            if (stack == null || stack.Count == 0)
-                return;
-
-            for (var i = stack.Count - 1; i >= 0; i--)
-            {
-                if (!string.Equals(stack[i], key, StringComparison.Ordinal))
-                    continue;
-
-                stack.RemoveAt(i);
-                break;
-            }
-
-            if (stack.Count == 0)
-                ExecutionStack.Value = null;
+            ctx.ExitChannelExecution(key);
         }
     }
 }

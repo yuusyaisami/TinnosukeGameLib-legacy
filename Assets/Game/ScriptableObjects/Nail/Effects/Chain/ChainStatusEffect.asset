@@ -250,35 +250,13 @@ MonoBehaviour:
                   rid: 5399842433823408768
                 _defaultValue: 0
               IgnoreGlobalWhenMinusOne: 0
+            ApplyStackDescriptionOverride: 0
             StackDescriptionOverride:
               _source:
                 rid: -2
               _defaultValue: 
-        IntensityA:
-          _source:
-            rid: -2
-          _defaultValue: 0
-        IntensityB:
-          _source:
-            rid: -2
-          _defaultValue: 0
-        IntensityC:
-          _source:
-            rid: -2
-          _defaultValue: 0
-        IntensityD:
-          _source:
-            rid: -2
-          _defaultValue: 0
-        IntensityE:
-          _source:
-            rid: -2
-          _defaultValue: 0
-        IntensityF:
-          _source:
-            rid: -2
-          _defaultValue: 0
-        IntensityG:
+        OverrideDuration: 0
+        DurationOverride:
           _source:
             rid: -2
           _defaultValue: 0
@@ -373,6 +351,7 @@ MonoBehaviour:
                 rid: -2
               _defaultValue: 0
         ResetGlobalState: 1
+        ResetGlobalStateOnReset: 0
     - rid: 5399842433823408763
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -672,8 +651,8 @@ MonoBehaviour:
             Variables: []
           IconAnimation: {fileID: 0}
           Description:
-            Template: "\u30C1\u30A7\u30FC\u30F3\u767A\u52D5\u7387 x{ChainChance|percent=1}
-              /\n  -\u52B9\u679C\u534A\u5F84 r={ChainRadius}-"
+            Template: "<sprite=16>\u30C1\u30A7\u30FC\u30F3<sprite=15>\u767A\u52D5\u7387
+              x{ChainChance|percent=1} /\n  -\u52B9\u679C\u534A\u5F84 r={ChainRadius}-"
             Variables:
             - _value:
                 _source:
@@ -690,7 +669,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: "\u767A\u52D5\u7387 {intensity}"
+            Template: "<sprite=16>\u767A\u52D5\u7387 {intensity}"
             Variables:
             - _value:
                 _source:
@@ -703,6 +682,7 @@ MonoBehaviour:
           SortOrder: 0
           ApplyAnim: {fileID: 0}
           RemoveAnim: {fileID: 0}
+        runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
