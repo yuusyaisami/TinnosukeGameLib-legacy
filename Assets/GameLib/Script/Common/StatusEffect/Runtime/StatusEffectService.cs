@@ -114,8 +114,8 @@ namespace Game.StatusEffect
                 ? definition.DefaultRuntimeTag ?? string.Empty
                 : request.RuntimeTag;
             var slotKey = BuildSlotKey(definition.DefinitionId, runtimeTag);
-            var resolvedIntensities = ResolveIntensities(request, evalContext);
             var resolvedStackPreset = ResolveStackPreset(request, evalContext);
+            var resolvedIntensities = ResolveIntensities(request, evalContext, resolvedStackPreset);
             var runtimeVars = new VarStore();
 
             if (_effects.TryGetValue(slotKey, out var existing) && existing != null)
@@ -627,9 +627,114 @@ namespace Game.StatusEffect
             return true;
         }
 
-        static StatusEffectResolvedIntensities ResolveIntensities(StatusEffectApplyRequest request, IDynamicContext evaluationContext)
+        static StatusEffectResolvedIntensities ResolveIntensities(
+            StatusEffectApplyRequest request,
+            IDynamicContext evaluationContext,
+            StatusEffectStackPreset stackPreset)
         {
-            return request.ResolveIntensities(evaluationContext);
+            var intensities = request.ResolveIntensities(evaluationContext);
+
+            // For command-driven applies, stack preset local values are commonly used as
+            // the first-apply intensity source. If explicit intensity sources are provided,
+            // keep those as the authoritative values.
+            if (!request.StackPreset.HasSource || stackPreset == null)
+                return intensities;
+
+            ApplyInitialIntensityFromStackPresetRule(
+                request.IntensityA.HasSource,
+                stackPreset,
+                StatusEffectIntensitySlot.A,
+                evaluationContext,
+                ref intensities.A);
+
+            ApplyInitialIntensityFromStackPresetRule(
+                request.IntensityB.HasSource,
+                stackPreset,
+                StatusEffectIntensitySlot.B,
+                evaluationContext,
+                ref intensities.B);
+
+            ApplyInitialIntensityFromStackPresetRule(
+                request.IntensityC.HasSource,
+                stackPreset,
+                StatusEffectIntensitySlot.C,
+                evaluationContext,
+                ref intensities.C);
+
+            ApplyInitialIntensityFromStackPresetRule(
+                request.IntensityD.HasSource,
+                stackPreset,
+                StatusEffectIntensitySlot.D,
+                evaluationContext,
+                ref intensities.D);
+
+            ApplyInitialIntensityFromStackPresetRule(
+                request.IntensityE.HasSource,
+                stackPreset,
+                StatusEffectIntensitySlot.E,
+                evaluationContext,
+                ref intensities.E);
+
+            ApplyInitialIntensityFromStackPresetRule(
+                request.IntensityF.HasSource,
+                stackPreset,
+                StatusEffectIntensitySlot.F,
+                evaluationContext,
+                ref intensities.F);
+
+            ApplyInitialIntensityFromStackPresetRule(
+                request.IntensityG.HasSource,
+                stackPreset,
+                StatusEffectIntensitySlot.G,
+                evaluationContext,
+                ref intensities.G);
+
+            return intensities;
+        }
+
+        static void ApplyInitialIntensityFromStackPresetRule(
+            bool hasExplicitIntensity,
+            StatusEffectStackPreset stackPreset,
+            StatusEffectIntensitySlot slot,
+            IDynamicContext evaluationContext,
+            ref float currentIntensity)
+        {
+            if (hasExplicitIntensity || !stackPreset.ShouldApplyIntensity(slot))
+                return;
+
+            var rule = stackPreset.GetIntensityRule(slot);
+            if (rule == null)
+                return;
+
+            if (rule.ApplyLocalValue)
+            {
+                var local = rule.LocalValue.HasSource
+                    ? rule.LocalValue.GetOrDefault(evaluationContext, currentIntensity)
+                    : currentIntensity;
+                currentIntensity = ApplyStackOperation(currentIntensity, local, rule.Operation);
+            }
+
+            if (!rule.ApplyGlobalValue)
+                return;
+
+            var global = rule.GlobalValue.HasSource
+                ? rule.GlobalValue.GetOrDefault(evaluationContext, 0f)
+                : 0f;
+            if (rule.IgnoreGlobalWhenMinusOne && Mathf.Approximately(global, -1f))
+                return;
+
+            currentIntensity = ApplyStackOperation(currentIntensity, global, rule.Operation);
+        }
+
+        static float ApplyStackOperation(float current, float value, StatusEffectStackOperation operation)
+        {
+            return operation switch
+            {
+                StatusEffectStackOperation.Set => value,
+                StatusEffectStackOperation.Add => current + value,
+                StatusEffectStackOperation.Mul => current * value,
+                _ => current,
+            };
         }
 
         StatusEffectStackPreset ResolveStackPreset(StatusEffectApplyRequest request, IDynamicContext evaluationContext)

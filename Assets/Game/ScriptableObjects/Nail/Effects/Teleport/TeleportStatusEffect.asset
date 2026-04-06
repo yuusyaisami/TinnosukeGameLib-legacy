@@ -162,8 +162,8 @@ MonoBehaviour:
       type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         key:
-          stableKey: GameLib.Base.StatusEffect.Stack.intensity.local
-          varId: 101029
+          stableKey: GameLib.Base.StatusEffect.Stack.intensityA.local
+          varId: 101149
     - rid: 5619052506154533830
       type: {class: FixedUseCooldownStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
