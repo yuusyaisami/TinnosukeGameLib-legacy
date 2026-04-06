@@ -32778,7 +32778,7 @@ MonoBehaviour:
       _debugAssetPath: 
       _functionName: 
       _commands:
-      - rid: 5399842482115051703
+      - rid: 5399842479533720163
     endCommands:
       _debugOwner: {fileID: 0}
       _debugFieldPath: 
@@ -33242,13 +33242,13 @@ MonoBehaviour:
         LogWatches: 1
         MaxWatchEntries: 16
         Watches: []
-    - rid: 5399842482115051703
+    - rid: 5399842479533720163
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         enabled: 1
         data:
-          rid: 5399842482115051704
-    - rid: 5399842482115051704
+          rid: 5399842479533720164
+    - rid: 5399842479533720164
       type: {class: UIControlCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Target:
@@ -34419,168 +34419,40 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5399842374860144788
-    - rid: 5399842374860144788
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: 311094062
-          Name: GameLogic.GameProfile.Events.GlobalGravityScale
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5399842374860144792
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5399842374860144794
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0.1
-        ScalarKeyValue:
-          Id: -246769584
-          Name: GameLogic.GameProfile.Base.BuffBallChance
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 1
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 1
-          Min:
-            _source:
-              rid: 5399842374860144792
-            _defaultValue: 0
-          UseMax: 1
-          Max:
-            _source:
-              rid: 5399842374860144795
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5399842374860144795
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
-    - rid: 5399842374860144799
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5399842374860144801
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0.1
-        ScalarKeyValue:
-          Id: 1419425966
-          Name: GameLogic.GameProfile.Base.DebuffBallChance
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 1
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 1
-          Min:
-            _source:
-              rid: 5399842374860144799
-            _defaultValue: 0
-          UseMax: 1
-          Max:
-            _source:
-              rid: 5399842374860144802
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5399842374860144802
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
-    - rid: 5399842404696851445
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: 2064459732
-          Name: GameLogic.GameProfile.Base.AllSlotMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5399842409393160355
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: -1433182947
-          Name: GameLogic.GameProfile.Base.TurnValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
     - rid: 5399842460338225773
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -34591,65 +34463,40 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5399842460338225776
-    - rid: 5399842460338225776
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: 350819607
-          Name: GameLogic.GameProfile.Sell.NailSellMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5399842475666834083
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: -1634583523
-          Name: GameLogic.GameProfile.Base.Quota
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
     - rid: 5619052366731149400
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -34660,481 +34507,822 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052580083597672
-        - rid: 5619052366731149470
-        - rid: 5399842409393160355
-        - rid: 5619052451121070161
-        - rid: 5619052451121070164
-        - rid: 5619052366731149419
-        - rid: 5399842475666834083
-        - rid: 5619052416848364403
-        - rid: 5619052451121070169
-        - rid: 5619052416848364406
-        - rid: 5619052451121070170
-        - rid: 5619052416848364408
-        - rid: 5619052416848364409
-        - rid: 5619052451121070171
-        - rid: 5399842374860144794
-        - rid: 5399842374860144801
-        - rid: 5619052451121070221
-        - rid: 5619052465085481766
-        - rid: 5619052506154533043
-        - rid: 5619052506154533042
-        - rid: 5619052643689169405
-        - rid: 5619052643689169408
-        - rid: 5619052643689169412
-        - rid: 5619052643689169415
-    - rid: 5619052366731149419
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: 1134412572
-          Name: GameLogic.GameProfile.Base.NailValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052366731149470
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: 568001711
-          Name: GameLogic.GameProfile.Base.InstanceMoneyValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: 5619052366731149473
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052366731149474
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052366731149471
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052366731149472
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052366731149473
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052366731149474
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052416848364403
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: 439860536
-          Name: GameLogic.GameProfile.Base.PlayerQuota
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052416848364406
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: -1979261059
-          Name: GameLogic.GameProfile.Base.TimeLimitValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052416848364408
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: 1866400761
-          Name: GameLogic.GameProfile.Base.BallCount
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052416848364409
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: 753908669
-          Name: GameLogic.GameProfile.Base.LuckValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052451121070161
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 3
-        ScalarKeyValue:
-          Id: -447342445
-          Name: GameLogic.GameProfile.Base.MaxTurnValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052451121070164
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 5
-        ScalarKeyValue:
-          Id: 344884235
-          Name: GameLogic.GameProfile.Base.MaxNail
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052451121070169
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 12
-        ScalarKeyValue:
-          Id: 1475514439
-          Name: GameLogic.GameProfile.Base.MaxTimeLimit
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052451121070170
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 4
-        ScalarKeyValue:
-          Id: 590335990
-          Name: GameLogic.GameProfile.Base.MaxBall
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052451121070171
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: 1799240082
-          Name: GameLogic.GameProfile.Base.ShopPriceMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052451121070221
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: -478819391
-          Name: GameLogic.GameProfile.Base.GameStage
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052465085481766
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: 617272028
-          Name: GameLogic.GameProfile.Base.NailUpgradePriceMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052506154533042
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: 1007326956
-          Name: GameLogic.GameProfile.Base.RerollValueMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052506154533043
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 5
-        ScalarKeyValue:
-          Id: 1291327690
-          Name: GameLogic.GameProfile.Base.RerollValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
     - rid: 5619052506154533157
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -35145,125 +35333,108 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052506154533161
-        - rid: 5619052506154533163
-        - rid: 5619052506154533194
-    - rid: 5619052506154533161
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 10
-        ScalarKeyValue:
-          Id: 394194146
-          Name: GameLogic.GameProfile.Base.LuckWayPoint
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052506154533163
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: 0
-          Name: 
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 101057
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052506154533194
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0.5
-        ScalarKeyValue:
-          Id: 1558893705
-          Name: GameLogic.GameProfile.Base.LuckUniqueValueMulAdd
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052580083597672
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 30
-        ScalarKeyValue:
-          Id: 160700043
-          Name: GameLogic.GameProfile.Base.MoneyValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 1
-        UseClampMod: 1
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: 5619052366731149471
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052366731149472
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
     - rid: 5619052617993552312
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -35274,266 +35445,142 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052646656639689
-        - rid: 5619052646656639690
-        - rid: 5619052646656639694
-        - rid: 5619052646656639693
-    - rid: 5619052617993552325
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052617993552331
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052617993552335
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052643689169405
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 10
-        ScalarKeyValue:
-          Id: -94062334
-          Name: GameLogic.GameProfile.Base.BuffBallMaxValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052643689169408
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 5
-        ScalarKeyValue:
-          Id: 211142678
-          Name: GameLogic.GameProfile.Base.BuffBallValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052643689169412
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: -3
-        ScalarKeyValue:
-          Id: -704619215
-          Name: GameLogic.GameProfile.Base.DebuffBallValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052643689169415
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: -30
-        ScalarKeyValue:
-          Id: -1386913848
-          Name: GameLogic.GameProfile.Base.DebuffBallMinValue
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052646656639496
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052646656639497
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052646656639498
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052646656639689
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 3
-        ScalarKeyValue:
-          Id: -916368210
-          Name: GameLogic.GateProfile.LeftGate.OpenTime
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052646656639690
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 3
-        ScalarKeyValue:
-          Id: 1505074948
-          Name: GameLogic.GateProfile.LeftGate.CloseTime
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 1
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 1
-          Min:
-            _source:
-              rid: 5619052617993552335
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052646656639496
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052646656639693
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 3
-        ScalarKeyValue:
-          Id: 1173678747
-          Name: GameLogic.GateProfile.RightGate.CloseTime
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 1
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 1
-          Min:
-            _source:
-              rid: 5619052617993552325
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052646656639498
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052646656639694
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 3
-        ScalarKeyValue:
-          Id: -462050817
-          Name: GameLogic.GateProfile.RightGate.OpenTime
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 1
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 1
-          Min:
-            _source:
-              rid: 5619052617993552331
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052646656639497
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
     - rid: 5619052686853014013
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -35544,97 +35591,142 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052686853014017
-        - rid: 5619052686853014018
-        - rid: 5619052686853014020
-        - rid: 5399842404696851445
-    - rid: 5619052686853014017
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: -1215990987
-          Name: GameLogic.GameProfile.Ball.BallValueMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052686853014018
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: -476241549
-          Name: GameLogic.GameProfile.Ball.BallValueAdd
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052686853014020
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 1
-        ScalarKeyValue:
-          Id: 1708961263
-          Name: GameLogic.GameProfile.Ball.BallGravityScale
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
 --- !u!114 &1046528814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46550,7 +46642,7 @@ MonoBehaviour:
         _fixedSize: {x: 100, y: 100}
         _delayBetweenSpawns:
           _source:
-            rid: 5399842409393160240
+            rid: 5399842481793139698
           _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
@@ -46674,18 +46766,10 @@ MonoBehaviour:
         vector3Value: {x: 0, y: 0, z: 0}
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842409393160240
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+    - rid: 5399842481793139698
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
+        value: 0
 --- !u!1 &1332165850
 GameObject:
   m_ObjectHideFlags: 0
@@ -54544,7 +54628,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 0
+  _debugLastEnabledChangeFrame: 2844
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1484563809
@@ -57111,7 +57195,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 0
+  _debugLastEnabledChangeFrame: 2844
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1505620737
@@ -59738,112 +59822,108 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings:
-        - rid: 5619052506154533190
-        - rid: 5619052506154533191
-        - rid: 5619052506154533192
-    - rid: 5619052366731149929
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052366731149930
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052416848363699
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052416848363700
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052506154533190
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: -545404644
-          Name: GameLogic.SlotProfile.LeftMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: 5619052366731149929
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052366731149930
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052506154533191
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: -354043114
-          Name: GameLogic.SlotProfile.CenterMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: 5619052416848363699
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: 5619052416848363700
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
-    - rid: 5619052506154533192
-      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
-      data:
-        Value: 0
-        ScalarKeyValue:
-          Id: 2120132904
-          Name: GameLogic.SlotProfile.RightMul
-        ScalarPolicyValue: 0
-        UseEffectMod: 0
-        UseClampMod: 0
-        UseLocalBase: 0
-        LocalBaseValue: 0
-        Clamp:
-          UseMin: 0
-          Min:
-            _source:
-              rid: -2
-            _defaultValue: 0
-          UseMax: 0
-          Max:
-            _source:
-              rid: -2
-            _defaultValue: 0
-        ScalarSaveEnabledValue: 0
-        ScalarSaveLayerValue: 0
-        BlackboardVarId: 0
-        BlackboardPolicyValue: 0
-        BlackboardSaveEnabledValue: 0
-        BlackboardSaveLayerValue: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
+        - _kind: 10
+          _floatValue: 0
+          _intValue: 0
+          _boolValue: 0
+          _stringValue: 
+          _vector2Value: {x: 0, y: 0}
+          _vector3Value: {x: 0, y: 0, z: 0}
+          _colorValue: {r: 1, g: 1, b: 1, a: 1}
+          _unityObjectValue: {fileID: 0}
+          _scalarKey:
+            Id: 0
+            Name: 
+          _scalarPolicy: 0
+          _useEffectMod: 0
+          _useClampMod: 0
+          _useLocalBase: 0
+          _localBaseValue: 0
+          _clamp:
+            UseMin: 0
+            Min:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            UseMax: 0
+            Max:
+              _source:
+                rid: -2
+              _defaultValue: 0
+          _scalarSaveEnabled: 0
+          _scalarSaveLayer: 0
+          _blackboardKey: 0
+          _blackboardPolicy: 0
+          _blackboardSaveEnabled: 0
+          _blackboardSaveLayer: 0
 --- !u!1 &1619748296
 GameObject:
   m_ObjectHideFlags: 0
@@ -74133,7 +74213,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 0
+  _debugLastEnabledChangeFrame: 2844
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1979925667

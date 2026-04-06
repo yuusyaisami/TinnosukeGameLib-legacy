@@ -147,15 +147,25 @@ namespace Game.Commands.VNext
             if (holder == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
 
-            if (holder.TryRegister(definition, out var _))
+            ITraitInstance? targetInstance = null;
+            if (holder.TryRegister(definition, out var addedInstance))
+            {
+                targetInstance = addedInstance;
+            }
+            else if (holder.TryGetInstance(definition, out var existing) && existing != null)
+            {
+                targetInstance = existing;
+            }
+            else
+            {
+                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "Trait could not be registered.");
+            }
+
+            if (!typed.AutoUseAfterAdd)
                 return;
 
-            // Repeated UI interactions can invoke Add for a definition that is already held.
-            // Treat that as idempotent success instead of a hard command failure.
-            if (holder.TryGetInstance(definition, out var existing) && existing != null)
-                return;
-
-            throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "Trait could not be registered.");
+            if (targetInstance == null || !holder.TryUse(targetInstance))
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Trait could not be used after add.");
         }
 
         static string DescribeTraitDefinitionResolveFailure(AddTraitToHolderCommandData typed, CommandContext ctx)
