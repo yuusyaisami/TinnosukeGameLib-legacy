@@ -82,6 +82,60 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Apply")]
         [ShowIf(nameof(IsApply))]
+        [LabelText("Intensity A")]
+        [Tooltip("RuntimeIntensity A に渡す値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityA;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(IsApply))]
+        [LabelText("Intensity B")]
+        [Tooltip("RuntimeIntensity B に渡す値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityB;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(IsApply))]
+        [LabelText("Intensity C")]
+        [Tooltip("RuntimeIntensity C に渡す値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityC;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(IsApply))]
+        [LabelText("Intensity D")]
+        [Tooltip("RuntimeIntensity D に渡す値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityD;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(IsApply))]
+        [LabelText("Intensity E")]
+        [Tooltip("RuntimeIntensity E に渡す値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityE;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(IsApply))]
+        [LabelText("Intensity F")]
+        [Tooltip("RuntimeIntensity F に渡す値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityF;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(IsApply))]
+        [LabelText("Intensity G")]
+        [Tooltip("RuntimeIntensity G に渡す値です。未指定時は 0 です。")]
+        public DynamicValue<float> IntensityG;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(IsApply))]
+        [LabelText("Override Duration")]
+        [Tooltip("definition 側の duration ではなく request 側の duration を使う場合に有効にします。")]
+        public bool OverrideDuration;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(ShowDurationOverride))]
+        [LabelText("Duration Override")]
+        [Tooltip("Override Duration が有効なときに使う持続時間です。")]
+        public DynamicValue<float> DurationOverride;
+
+        [BoxGroup("Apply")]
+        [ShowIf(nameof(IsApply))]
         [LabelText("Runtime Tag")]
         [Tooltip("同じ definition を別 slot として共存させたいときの識別タグです。")]
         public string RuntimeTag = string.Empty;
@@ -148,6 +202,7 @@ namespace Game.Commands.VNext
         bool UseActorSource => ServiceScope == StatusEffectServiceScope.Actor;
         bool ShowFilterSettings => !IsApply && !IsClearAll && !IsUseGlobal && !IsConfigureServiceSettings;
         bool ShowFilterValue => ShowFilterSettings && FilterMode != StatusEffectRuntimeFilterMode.All;
+        bool ShowDurationOverride => IsApply && OverrideDuration;
         bool ShowGlobalLifetimeSettings => IsConfigureServiceSettings && ApplyGlobalLifetimeSettings;
         bool ShowGlobalUseCooldownSettings => IsConfigureServiceSettings && ApplyGlobalUseCooldownSettings;
         bool ShowGlobalCountSettings => IsConfigureServiceSettings && ApplyGlobalCountSettings;
@@ -166,6 +221,15 @@ namespace Game.Commands.VNext
             {
                 Definition = Definition,
                 StackPreset = StackPreset,
+                IntensityA = IntensityA,
+                IntensityB = IntensityB,
+                IntensityC = IntensityC,
+                IntensityD = IntensityD,
+                IntensityE = IntensityE,
+                IntensityF = IntensityF,
+                IntensityG = IntensityG,
+                OverrideDuration = OverrideDuration,
+                DurationOverride = DurationOverride,
                 RuntimeTag = RuntimeTag ?? string.Empty,
                 HookMutations = HookMutations ?? new StatusEffectHookMutationSet(),
             };

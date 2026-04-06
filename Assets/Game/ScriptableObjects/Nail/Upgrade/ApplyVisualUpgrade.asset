@@ -172,7 +172,7 @@ MonoBehaviour:
             rid: -2
         createIfMissing: 0
         baselineValue: 0
-        searchIncludeGlobal: 0
+        searchIncludeGlobal: 1
     - rid: 5619052641403535443
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
