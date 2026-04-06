@@ -120,9 +120,14 @@ namespace Game.StatusEffect
             var resolvedStackPreset = ResolveStackPreset(request, evalContext);
             var resolvedIntensities = ResolveIntensities(request, evalContext, resolvedStackPreset);
             var runtimeVars = new VarStore();
+            var hookMutationLabel = request.HookMutations != null ? request.HookMutations.GetType().Name : "<null>";
 
             if (_effects.TryGetValue(slotKey, out var existing) && existing != null)
             {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log(
+                    $"[StatusEffectService] TryApply reuse definition={definition.DefinitionId} slot={slotKey} instance={existing.InstanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
+#endif
                 var stackContext = new StatusEffectBuildContext(
                     _scope,
                     evalContext.Vars,
@@ -163,9 +168,21 @@ namespace Game.StatusEffect
             _effects[slotKey] = runtime;
             if (_isActive)
             {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log(
+                    $"[StatusEffectService] TryApply immediate ApplyInitial definition={definition.DefinitionId} slot={slotKey} instance={instanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
+#endif
                 runtime.ApplyInitial();
                 runtime.RefreshFromServiceGlobalState(applyActions: true);
             }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (!_isActive)
+            {
+                Debug.Log(
+                    $"[StatusEffectService] TryApply created while inactive definition={definition.DefinitionId} slot={slotKey} instance={instanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
+            }
+#endif
 
             if (runtime.IsRemoveRequested)
             {
@@ -211,6 +228,23 @@ namespace Game.StatusEffect
                     runtime.Disable();
 
                 count++;
+            }
+
+            return count;
+        }
+
+        public int SetOperationEnabled(StatusEffectRuntimeFilter filter, string operationId, bool enabled)
+        {
+            if (_disposed || string.IsNullOrWhiteSpace(operationId))
+                return 0;
+
+            int count = 0;
+            foreach (var runtime in _effects.Values)
+            {
+                if (runtime == null || !filter.Matches(runtime))
+                    continue;
+
+                count += runtime.SetOperationEnabled(operationId, enabled);
             }
 
             return count;
@@ -295,9 +329,9 @@ namespace Game.StatusEffect
             return count;
         }
 
-        public int Reset(StatusEffectRuntimeFilter filter, bool resetGlobalState = false)
+        public int RestoreState(StatusEffectRuntimeFilter filter, bool restoreGlobalState = false)
         {
-            if (resetGlobalState)
+            if (restoreGlobalState)
             {
                 EnsureGlobalStateInitialized(forceReset: true);
                 SyncAllRuntimeGlobalState(applyActions: _isActive);
@@ -309,7 +343,7 @@ namespace Game.StatusEffect
                 if (runtime == null || !filter.Matches(runtime))
                     continue;
 
-                runtime.ResetRuntime();
+                runtime.RestoreRuntimeState();
                 count++;
             }
 
@@ -491,7 +525,7 @@ namespace Game.StatusEffect
 
                 if (isReset)
                 {
-                    runtime.ResetRuntime();
+                    runtime.RestoreRuntimeState();
                     continue;
                 }
 

@@ -2849,7 +2849,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 10573
+  _debugLastEnabledChangeFrame: 1612
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -3197,6 +3197,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 80
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -4994,6 +4995,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 90
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -5394,6 +5396,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 90
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -5944,6 +5947,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 90
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -6213,6 +6217,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 90
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -7973,6 +7978,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 60
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -9287,6 +9293,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.RuntimeTraitMB
   _writeTraitDataOnLink: 1
+  _condition:
+    _source:
+      rid: 5399842483577029257
+    _defaultValue: 0
+  _presentationStateKey:
+    stableKey: traitRuntime.presentationState
+    varId: 0
   _onHiddenCommands:
     _source:
       rid: 5619052506154532959
@@ -9310,6 +9323,77 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842483577029257
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842483577029340
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: isGameOverlayPanel
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842483577029464
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: isGameEditor
+          _expectedType: 255
+        _expression: isGameOverlayPanel && isGameEditor
+    - rid: 5399842483577029340
+      type: {class: UIModalStackActorMatchSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        modalStackActorSource:
+          Kind: 3
+          Identity:
+            kind: 7
+            id: ScreenCanvas-Root
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        compareActorSource:
+          Kind: 3
+          Identity:
+            kind: 8
+            id: GameOverlayPanel
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        includeAffectedScope: 0
+    - rid: 5399842483577029464
+      type: {class: GameStateMachineCompareBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        actorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        op: 0
+        targetState: 14
     - rid: 5619052506154532959
       type: {class: LiteralCommandListDataSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -12331,6 +12415,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -13578,6 +13663,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -19515,6 +19601,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0

@@ -19,6 +19,92 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842490007683181
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842490007683182
+    - rid: 5399842490007683182
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: Teleport Execute
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
+    - rid: 5399842490007683183
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842490007683184
+    - rid: 5399842490007683184
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: onAppy
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -28,7 +114,6 @@ MonoBehaviour:
           DisplayName:
             Template: "\u30C6\u30EC\u30DD\u30FC\u30C8"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: "\u63A5\u7D9A\u5148\u306B\u30C6\u30EC\u30DD\u30FC\u30C8"
             Variables:
@@ -49,10 +134,9 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
         runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
@@ -72,6 +156,7 @@ MonoBehaviour:
             _functionName: 
             _commands:
             - rid: 5619052545064042621
+            - rid: 5399842490007683183
           OnRemove:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
@@ -209,6 +294,7 @@ MonoBehaviour:
             _debugAssetPath: 
             _functionName: 
             _commands:
+            - rid: 5399842490007683181
             - rid: 5619052545064043277
     - rid: 5619052545064043277
       type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}

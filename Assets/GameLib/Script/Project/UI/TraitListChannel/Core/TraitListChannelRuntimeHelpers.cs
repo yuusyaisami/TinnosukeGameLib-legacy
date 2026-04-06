@@ -96,9 +96,9 @@ namespace Game.UI
                 return;
 
             await UniTask.SwitchToMainThread();
-            Debug.Log(
-                $"[TraitListChannel][ReleaseSpawnedInstance] root='{DescribeTransform(root)}' scope='{scope?.GetType().Name ?? "<null>"}' " +
-                $"resolver='{resolver.GetType().Name}'");
+            //Debug.Log(
+            //    $"[TraitListChannel][ReleaseSpawnedInstance] root='{DescribeTransform(root)}' scope='{scope?.GetType().Name ?? "<null>"}' " +
+            //    $"resolver='{resolver.GetType().Name}'");
 
             try
             {

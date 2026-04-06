@@ -18,7 +18,7 @@ MonoBehaviour:
     Variables: []
   _description:
     Template: "\u521D\u3081\u304B\u3089\u8CEA\u306E\u9AD8\u3044\u30DC\u30FC\u30EB\u306E\u4E0A\u9650\u4FA1\u5024\u304C\u4E0A\u304C\u308A\u307E\u3059\u3002
-      {BuffBallMaxValue}->{BuffBallMaxValue+10}"
+      {BuffBallMaxValue}->{BuffBallMaxValue+10|color=\"#00FF00\"}"
     Variables:
     - _value:
         _source:
@@ -440,6 +440,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -949,6 +950,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 20
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -2102,6 +2104,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5

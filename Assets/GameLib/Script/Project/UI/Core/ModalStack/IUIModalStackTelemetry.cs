@@ -16,6 +16,6 @@ namespace Game.UI
 
         // Helper snapshot APIs
         string[] GetStackModalIds();
-        IReadOnlyList<(string ModalId, string SelectedName)> GetSelectionHistorySnapshot();
+        IReadOnlyList<(string RootLabel, string SelectedName)> GetSelectionHistorySnapshot();
     }
 }

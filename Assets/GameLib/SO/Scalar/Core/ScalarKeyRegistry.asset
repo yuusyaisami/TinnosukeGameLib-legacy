@@ -1349,4 +1349,20 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: da3ba4671db34f5f81fb86faade563be
+    parentId: e55046d74f30487689bc911d9c21b1b6
+    name: LeftWindowScale
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: e1237daef80042c48d73bcc5b0bce7ef
+    parentId: e55046d74f30487689bc911d9c21b1b6
+    name: RightWindowScale
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   csvFile: {fileID: 4900000, guid: 0f8f0a1f52c24534fa42d23481dae4e3, type: 3}

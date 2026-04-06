@@ -41,8 +41,16 @@ namespace Game.Commands.VNext
                     service.SetEnabled(typed.BuildFilter(), true);
                     break;
 
+                case StatusEffectCommandOp.EnableOperation:
+                    service.SetOperationEnabled(typed.BuildFilter(), typed.OperationId, true);
+                    break;
+
                 case StatusEffectCommandOp.Disable:
                     service.SetEnabled(typed.BuildFilter(), false);
+                    break;
+
+                case StatusEffectCommandOp.DisableOperation:
+                    service.SetOperationEnabled(typed.BuildFilter(), typed.OperationId, false);
                     break;
 
                 case StatusEffectCommandOp.Use:
@@ -53,8 +61,8 @@ namespace Game.Commands.VNext
                     service.UseGlobal(ctx.Actor ?? ctx.Scope, ctx);
                     break;
 
-                case StatusEffectCommandOp.Reset:
-                    service.Reset(typed.BuildFilter(), typed.ResetGlobalStateOnReset);
+                case StatusEffectCommandOp.RestoreState:
+                    service.RestoreState(typed.BuildFilter(), typed.ResetGlobalStateOnReset);
                     break;
 
                 case StatusEffectCommandOp.ClearAll:

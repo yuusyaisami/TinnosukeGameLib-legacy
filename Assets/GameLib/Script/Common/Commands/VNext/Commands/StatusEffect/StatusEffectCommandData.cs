@@ -13,9 +13,11 @@ namespace Game.Commands.VNext
         Apply = 10,
         Remove = 20,
         Enable = 30,
+        EnableOperation = 35,
         Disable = 40,
+        DisableOperation = 45,
         Use = 50,
-        Reset = 60,
+        RestoreState = 60,
         ClearAll = 70,
         UseGlobal = 80,
         ConfigureServiceSettings = 90,
@@ -50,12 +52,18 @@ namespace Game.Commands.VNext
         }
 
         public int CommandId => CommandIds.StatusEffectControl;
-        public string DebugData => $"Op={Op} Target={ServiceScope} Apply={GetApplyLabel()} Filter={BuildFilter().GetDebugLabel()}";
+        public string DebugData => $"Op={Op} Target={ServiceScope} Apply={GetApplyLabel()} Filter={BuildFilter().GetDebugLabel()} OperationId={GetOperationIdLabel()}";
 
         [BoxGroup("Operation")]
         [EnumToggleButtons]
         [Tooltip("StatusEffectService に対して実行する操作を選びます。")]
         public StatusEffectCommandOp Op = StatusEffectCommandOp.Apply;
+
+        [BoxGroup("Operation")]
+        [ShowIf(nameof(UsesOperationId))]
+        [LabelText("Operation Id")]
+        [Tooltip("EnableOperation / DisableOperation で対象にする operationId です。")]
+        public string OperationId = string.Empty;
 
         [BoxGroup("Target")]
         [EnumToggleButtons]
@@ -153,17 +161,20 @@ namespace Game.Commands.VNext
         [Tooltip("true のとき、設定差し替え後に service の global runtime state を再初期化します。")]
         public bool ResetGlobalState = true;
 
-        [BoxGroup("Reset")]
-        [ShowIf(nameof(IsReset))]
-        [LabelText("Reset Global State")]
-        [Tooltip("true のとき、Reset 実行時に service の global runtime state も再初期化します。")]
+        [BoxGroup("Restore")]
+        [ShowIf(nameof(IsRestoreState))]
+        [LabelText("Restore Global State")]
+        [Tooltip("true のとき、Restore 実行時に service の global runtime state も復元します。")]
         public bool ResetGlobalStateOnReset;
 
         bool IsApply => Op == StatusEffectCommandOp.Apply;
-        bool IsReset => Op == StatusEffectCommandOp.Reset;
+        bool IsRestoreState => Op == StatusEffectCommandOp.RestoreState;
         bool IsClearAll => Op == StatusEffectCommandOp.ClearAll;
         bool IsUseGlobal => Op == StatusEffectCommandOp.UseGlobal;
         bool IsConfigureServiceSettings => Op == StatusEffectCommandOp.ConfigureServiceSettings;
+        bool IsEnableOperation => Op == StatusEffectCommandOp.EnableOperation;
+        bool IsDisableOperation => Op == StatusEffectCommandOp.DisableOperation;
+        bool UsesOperationId => IsEnableOperation || IsDisableOperation;
         bool UseActorSource => ServiceScope == StatusEffectServiceScope.Actor;
         bool ShowFilterSettings => !IsApply && !IsClearAll && !IsUseGlobal && !IsConfigureServiceSettings;
         bool ShowFilterValue => ShowFilterSettings && FilterMode != StatusEffectRuntimeFilterMode.All;
@@ -209,6 +220,9 @@ namespace Game.Commands.VNext
 
         string GetApplyLabel()
             => IsApply ? Definition.SourceTypeName : "-";
+
+        string GetOperationIdLabel()
+            => UsesOperationId ? (OperationId ?? string.Empty) : "-";
 
         StatusEffectGlobalLifetimeSettings? ResolveLifetimeSettings(IDynamicContext context)
         {

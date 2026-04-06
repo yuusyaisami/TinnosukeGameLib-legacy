@@ -169,7 +169,7 @@ namespace Game.Profile
     /// ProfileValue&lt;int&gt; 特殊化
     /// </summary>
     [Serializable]
-    public struct ProfileIntValue : IProfileValueBinding
+    public sealed class ProfileIntValue : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
@@ -247,14 +247,14 @@ namespace Game.Profile
 
         void IProfileValueBinding.WriteToScalar(IBaseScalarService scalar) { }
 
-        public static implicit operator int(ProfileIntValue pv) => pv.Value;
+        public static implicit operator int(ProfileIntValue pv) => pv != null ? pv.Value : default;
     }
 
     /// <summary>
     /// ProfileValue&lt;bool&gt; 特殊化
     /// </summary>
     [Serializable]
-    public struct ProfileBoolValue : IProfileValueBinding
+    public sealed class ProfileBoolValue : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
@@ -332,18 +332,18 @@ namespace Game.Profile
 
         void IProfileValueBinding.WriteToScalar(IBaseScalarService scalar) { }
 
-        public static implicit operator bool(ProfileBoolValue pv) => pv.Value;
+        public static implicit operator bool(ProfileBoolValue pv) => pv != null && pv.Value;
     }
 
     /// <summary>
     /// ProfileValue&lt;string&gt; 特殊化
     /// </summary>
     [Serializable]
-    public struct ProfileStringValue : IProfileValueBinding
+    public sealed class ProfileStringValue : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
-        public string Value;
+        public string Value = string.Empty;
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Blackboard VarId")]
@@ -417,6 +417,6 @@ namespace Game.Profile
 
         void IProfileValueBinding.WriteToScalar(IBaseScalarService scalar) { }
 
-        public static implicit operator string(ProfileStringValue pv) => pv.Value;
+        public static implicit operator string(ProfileStringValue pv) => pv != null ? pv.Value : string.Empty;
     }
 }

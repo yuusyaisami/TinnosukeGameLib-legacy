@@ -2950,7 +2950,7 @@ MonoBehaviour:
       data:
         Condition:
           _source:
-            rid: 5399842404696850465
+            rid: 5399842482115052335
           _defaultValue: 0
         ThenCommands:
           _debugOwner: {fileID: 0}
@@ -2974,15 +2974,6 @@ MonoBehaviour:
           _debugAssetPath: 
           _functionName: 
           _commands: []
-    - rid: 5399842404696850465
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 226
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
     - rid: 5399842404696850707
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -3007,7 +2998,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Target:
-          Kind: 0
+          Kind: 9
           Identity:
             kind: 0
             id: 
@@ -3016,7 +3007,7 @@ MonoBehaviour:
             searchScope: 0
           UnityObject: {fileID: 0}
           Shared:
-            rid: -2
+            rid: 5399842482115052457
           ContextSlot: 0
           TargetChannel:
             rid: -2
@@ -3069,6 +3060,65 @@ MonoBehaviour:
       type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {x: 0, y: 0}
+    - rid: 5399842482115052335
+      type: {class: OtherBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 226
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+        targetActor:
+          Kind: 9
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: 5399842482115052408
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+    - rid: 5399842482115052408
+      type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        SharedTag: Parent
+        SharedHubActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+    - rid: 5399842482115052457
+      type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        SharedTag: Parent
+        SharedHubActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
 --- !u!114 &260458423786819113
 MonoBehaviour:
   m_ObjectHideFlags: 0

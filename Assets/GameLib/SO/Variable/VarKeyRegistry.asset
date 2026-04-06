@@ -4596,7 +4596,24 @@ MonoBehaviour:
     varId: 101187
     stableKey: RandomA
     aliases: []
-  nextVarId: 101188
+  - id: 383c359dcd8545198d927d73667540d9
+    parentId: 5a82fbdd83034a54b59bb48263d10fe7
+    name: Runtime
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: f9833a90b4d24efdb8ca25c0f0327e03
+    parentId: 383c359dcd8545198d927d73667540d9
+    name: presentationState
+    isFolder: 0
+    description: RuntimeTrait visible/hidden state.
+    varId: 100125
+    stableKey: traitRuntime.presentationState
+    aliases:
+    - presentationState
+  nextVarId: 101189
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

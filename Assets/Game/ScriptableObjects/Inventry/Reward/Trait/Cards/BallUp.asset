@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
   m_Name: BallUp
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
-  _definitionId: OfuroBallValue
+  _definitionId: BallUp
   _name:
     Template: "\u30B5\u30D7\u30E9\u30A4\u30BA! (Supply!)"
     Variables: []

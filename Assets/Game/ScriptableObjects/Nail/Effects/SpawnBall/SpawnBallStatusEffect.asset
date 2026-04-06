@@ -66,10 +66,10 @@ MonoBehaviour:
         TransformParentPolicy: 2
         TransformParent: {fileID: 0}
         TransformParentActorSource:
-          Kind: 0
+          Kind: 3
           Identity:
-            kind: 0
-            id: 
+            kind: 5
+            id: BallField
             category: 
             requireActive: 0
             searchScope: 0
@@ -101,7 +101,7 @@ MonoBehaviour:
         SpawnerContextSlot: 110
         RunCommandsOnSpawned: 1
         VarsPolicy: 0
-        AwaitOnSpawnedCommands: 1
+        AwaitOnSpawnedCommands: 0
         OnSpawnedCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -110,6 +110,7 @@ MonoBehaviour:
           _commands:
           - rid: 5399842427028636426
           - rid: 5399842431600952228
+          - rid: 5399842483577029164
     - rid: 5399842427028636419
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -135,7 +136,7 @@ MonoBehaviour:
         channelTag: outArea
         sampleMode: 0
         layerKey: 
-        failureBehavior: 20
+        failureBehavior: 30
         fallback: {x: 0, y: 0, z: 0}
     - rid: 5399842427028636421
       type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
@@ -173,7 +174,7 @@ MonoBehaviour:
       data:
         prefab: {fileID: 1871564523398246338, guid: b8bd2f4fbe04cde4aae3cebc0310a837, type: 3}
         usePooling: 1
-        category: Ball
+        category: BallRuntime
         templateId: 
     - rid: 5399842427028636428
       type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
@@ -230,13 +231,13 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: 'RandomA < SpawnBall '
+        _expression: RandomA < SpawnBallChance
     - rid: 5399842427028636437
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         scalarKey:
-          Id: 816145772
-          Name: GameLogic.NailProfile.Effect.SpawnBall
+          Id: -2048929054
+          Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance
         targetActorSource:
           Kind: 0
           Identity:
@@ -418,6 +419,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
     - rid: 5399842435756196007
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -466,6 +468,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
     - rid: 5399842435756196011
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -642,6 +645,103 @@ MonoBehaviour:
         fallbackInitialValue:
           _source:
             rid: -2
+    - rid: 5399842483577029164
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842483577029165
+    - rid: 5399842483577029165
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Target:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarOps: []
+        ScalarOps:
+        - Op: 2
+          Key:
+            Id: 1866400761
+            Name: GameLogic.GameProfile.Base.BallCount
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5399842483577029166
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: 5399842483577029167
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
+    - rid: 5399842483577029166
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842483577029167
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -651,7 +751,6 @@ MonoBehaviour:
           DisplayName:
             Template: "\u30B9\u30DD\u30FC\u30F3\u30DC\u30FC\u30EB"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: "<sprite=15> {SpawnBallChance|percent=1} /\n-\u751F\u6210\u6642<sprite=10>{SpawnBallValue}, 
               <sprite=14>{SpawnBallCount}-"
@@ -687,10 +786,9 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
         runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
@@ -779,6 +877,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

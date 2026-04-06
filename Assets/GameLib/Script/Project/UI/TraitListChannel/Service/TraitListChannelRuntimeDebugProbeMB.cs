@@ -21,23 +21,23 @@ namespace Game.UI
 
         void OnTransformParentChanged()
         {
-            Debug.Log(
-                $"[TraitListChannel][ProbeParentChanged] tag='{_channelTag}' trait='{_traitLabel}' object='{DescribeTransform(transform)}' " +
-                $"parent='{DescribeTransform(transform.parent)}' expectedRoot='{_expectedRoot}'");
+            //Debug.Log(
+            //    $"[TraitListChannel][ProbeParentChanged] tag='{_channelTag}' trait='{_traitLabel}' object='{DescribeTransform(transform)}' " +
+            //    $"parent='{DescribeTransform(transform.parent)}' expectedRoot='{_expectedRoot}'");
         }
 
         void OnDisable()
         {
-            Debug.Log(
-                $"[TraitListChannel][ProbeDisable] tag='{_channelTag}' trait='{_traitLabel}' object='{DescribeTransform(transform)}' " +
-                $"parent='{DescribeTransform(transform.parent)}' activeSelf={gameObject.activeSelf} activeInHierarchy={gameObject.activeInHierarchy}");
+            //Debug.Log(
+            //    $"[TraitListChannel][ProbeDisable] tag='{_channelTag}' trait='{_traitLabel}' object='{DescribeTransform(transform)}' " +
+            //    $"parent='{DescribeTransform(transform.parent)}' activeSelf={gameObject.activeSelf} activeInHierarchy={gameObject.activeInHierarchy}");
         }
 
         void OnDestroy()
         {
-            Debug.Log(
-                $"[TraitListChannel][ProbeDestroy] tag='{_channelTag}' trait='{_traitLabel}' object='{DescribeTransform(transform)}' " +
-                $"parent='{DescribeTransform(transform.parent)}'");
+            //Debug.Log(
+            //    $"[TraitListChannel][ProbeDestroy] tag='{_channelTag}' trait='{_traitLabel}' object='{DescribeTransform(transform)}' " +
+            //    $"parent='{DescribeTransform(transform.parent)}'");
         }
 
         static string DescribeTransform(Transform? target)

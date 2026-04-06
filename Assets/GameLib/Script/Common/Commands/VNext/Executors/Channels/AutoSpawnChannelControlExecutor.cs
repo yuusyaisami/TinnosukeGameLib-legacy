@@ -79,7 +79,7 @@ namespace Game.Commands.VNext
 
             var count = typed.Count.GetOrDefault(ctx, 1);
             if (count <= 0)
-                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AutoSpawn external spawn count must be greater than zero.");
+                return;
 
             var intervalSeconds = typed.IntervalSeconds.GetOrDefault(ctx, 0f);
             if (intervalSeconds < 0f)

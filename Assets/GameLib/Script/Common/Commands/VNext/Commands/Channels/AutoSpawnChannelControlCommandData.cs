@@ -44,7 +44,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Spawn")]
         [ShowIf(nameof(UsesSpawn))]
         [LabelText("Count")]
-        [Tooltip("外部 Spawn の実行個数。1 以上を指定してください。")]
+        [Tooltip("外部 Spawn の実行個数。0 以下の場合は何もしません。")]
         public DynamicValue<int> Count = DynamicValueExtensions.FromLiteral(1);
 
         [BoxGroup("Spawn")]

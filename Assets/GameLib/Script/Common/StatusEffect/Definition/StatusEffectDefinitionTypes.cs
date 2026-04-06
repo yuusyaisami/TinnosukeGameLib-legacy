@@ -459,12 +459,15 @@ namespace Game.StatusEffect
 
     public interface IStatusEffectOperationRuntime
     {
+        string OperationId { get; }
+        bool IsOperationEnabled { get; }
         void Apply();
         void Remove();
         void Enable();
         void Disable();
         void Reset();
         void RefreshValue();
+        bool SetOperationEnabled(bool enabled);
     }
 
     [Serializable]
@@ -508,6 +511,10 @@ namespace Game.StatusEffect
         [Tooltip("modifier を積む layer 名です。空文字でも使用できます。")]
         public string Layer = string.Empty;
 
+        [LabelText("Operation Id")]
+        [Tooltip("外部から個別に Enable/Disable 制御するための ID です。同一 ID を複数 operation に設定できます。")]
+        public string OperationId = string.Empty;
+
         bool UsesMulPhase() => ApplyMode == ScalarModifierApplyMode.Mul;
         bool UsesDynamicValue() => ValueMode == StatusEffectScalarValueMode.DynamicValue;
         bool UsesRuntimeIntensity() => ValueMode == StatusEffectScalarValueMode.RuntimeIntensity;
@@ -543,6 +550,7 @@ namespace Game.StatusEffect
                 ApplyMode,
                 MulPhase,
                 Layer,
+                OperationId,
                 ValueMode,
                 RuntimeIntensitySlot,
                 valueExpression,
@@ -759,6 +767,7 @@ namespace Game.StatusEffect
         readonly ScalarModifierApplyMode _applyMode;
         readonly ScalarMulPhase _mulPhase;
         readonly string _layer;
+        readonly string _operationId;
         readonly StatusEffectScalarValueMode _valueMode;
         readonly StatusEffectRuntimeIntensityReference _runtimeIntensitySlot;
         readonly DynamicValue<float> _value;
@@ -768,6 +777,8 @@ namespace Game.StatusEffect
 
         ScalarHandle? _handle;
         bool _isApplied;
+        bool _isExternallyEnabled;
+        bool _isSuspended;
 
         public ScalarModifierOperationRuntime(
             IScopeNode targetScope,
@@ -776,6 +787,7 @@ namespace Game.StatusEffect
             ScalarModifierApplyMode applyMode,
             ScalarMulPhase mulPhase,
             string layer,
+            string operationId,
             StatusEffectScalarValueMode valueMode,
             StatusEffectRuntimeIntensityReference runtimeIntensitySlot,
             DynamicValue<float> value,
@@ -788,16 +800,28 @@ namespace Game.StatusEffect
             _applyMode = applyMode;
             _mulPhase = mulPhase;
             _layer = layer ?? string.Empty;
+            _operationId = operationId ?? string.Empty;
             _valueMode = valueMode;
             _runtimeIntensitySlot = runtimeIntensitySlot;
             _value = value;
             _evaluationContext = evaluationContext;
-            _tag = BuildTag(definitionId);
+            _tag = BuildTag(definitionId, _operationId);
             _source = targetScope;
+            _isExternallyEnabled = true;
         }
+
+        public string OperationId => _operationId;
+        public bool IsOperationEnabled => _isExternallyEnabled;
 
         public void Apply()
         {
+            _isSuspended = false;
+            if (!_isExternallyEnabled)
+            {
+                DisposeHandle();
+                return;
+            }
+
             var currentValue = EvaluateCurrentValue();
             if (_isApplied)
             {
@@ -813,16 +837,19 @@ namespace Game.StatusEffect
 
         public void Remove()
         {
+            _isSuspended = true;
             DisposeHandle();
         }
 
         public void Enable()
         {
+            _isSuspended = false;
             Apply();
         }
 
         public void Disable()
         {
+            _isSuspended = true;
             DisposeHandle();
         }
 
@@ -834,7 +861,28 @@ namespace Game.StatusEffect
 
         public void RefreshValue()
         {
+            if (!_isExternallyEnabled || _isSuspended)
+                return;
+
             Apply();
+        }
+
+        public bool SetOperationEnabled(bool enabled)
+        {
+            if (_isExternallyEnabled == enabled)
+                return false;
+
+            _isExternallyEnabled = enabled;
+            if (!_isExternallyEnabled)
+            {
+                DisposeHandle();
+                return true;
+            }
+
+            if (!_isSuspended)
+                Apply();
+
+            return true;
         }
 
         void DisposeHandle()
@@ -852,8 +900,14 @@ namespace Game.StatusEffect
                 ? ResolveRuntimeIntensity()
                 : _value.GetOrDefault(_evaluationContext, _applyMode == ScalarModifierApplyMode.Mul ? 1f : 0f);
 
-        static string BuildTag(string definitionId)
-            => string.IsNullOrWhiteSpace(definitionId) ? "StatusEffect" : definitionId;
+        static string BuildTag(string definitionId, string operationId)
+        {
+            var baseTag = string.IsNullOrWhiteSpace(definitionId) ? "StatusEffect" : definitionId;
+            if (string.IsNullOrWhiteSpace(operationId))
+                return baseTag;
+
+            return $"{baseTag}:{operationId}";
+        }
 
         float ResolveRuntimeIntensity()
         {

@@ -136,108 +136,108 @@ namespace Game.Trait
             switch (Kind)
             {
                 case TraitElementSelectorKind.ByInstanceId:
-                {
-                    if (!InstanceId.TryGet(dynamicContext, out var instanceIdValue))
                     {
-                        error = "InstanceId could not be resolved.";
+                        if (!InstanceId.TryGet(dynamicContext, out var instanceIdValue))
+                        {
+                            error = "InstanceId could not be resolved.";
+                            return false;
+                        }
+
+                        var instanceId = string.IsNullOrWhiteSpace(instanceIdValue) ? string.Empty : instanceIdValue.Trim();
+                        if (string.IsNullOrEmpty(instanceId))
+                        {
+                            error = "InstanceId is empty.";
+                            return false;
+                        }
+
+                        for (int i = 0; i < traits.Count; i++)
+                        {
+                            var candidate = traits[i];
+                            if (candidate == null)
+                                continue;
+
+                            if (!string.Equals(candidate.InstanceId, instanceId, StringComparison.Ordinal))
+                                continue;
+
+                            instance = candidate;
+                            return true;
+                        }
+
+                        error = $"Trait instance '{instanceId}' was not found.";
                         return false;
                     }
-
-                    var instanceId = string.IsNullOrWhiteSpace(instanceIdValue) ? string.Empty : instanceIdValue.Trim();
-                    if (string.IsNullOrEmpty(instanceId))
-                    {
-                        error = "InstanceId is empty.";
-                        return false;
-                    }
-
-                    for (int i = 0; i < traits.Count; i++)
-                    {
-                        var candidate = traits[i];
-                        if (candidate == null)
-                            continue;
-
-                        if (!string.Equals(candidate.InstanceId, instanceId, StringComparison.Ordinal))
-                            continue;
-
-                        instance = candidate;
-                        return true;
-                    }
-
-                    error = $"Trait instance '{instanceId}' was not found.";
-                    return false;
-                }
                 case TraitElementSelectorKind.ByDefinition:
-                {
-                    if (!Definition.TryGet(dynamicContext, out var definition) || definition == null)
                     {
-                        error = "Trait definition could not be resolved.";
+                        if (!Definition.TryGet(dynamicContext, out var definition) || definition == null)
+                        {
+                            error = "Trait definition could not be resolved.";
+                            return false;
+                        }
+
+                        for (int i = 0; i < traits.Count; i++)
+                        {
+                            var candidate = traits[i];
+                            if (candidate == null)
+                                continue;
+
+                            if (!ReferenceEquals(candidate.Definition, definition))
+                                continue;
+
+                            instance = candidate;
+                            return true;
+                        }
+
+                        error = $"Trait definition '{definition.name}' was not found.";
                         return false;
                     }
-
-                    for (int i = 0; i < traits.Count; i++)
-                    {
-                        var candidate = traits[i];
-                        if (candidate == null)
-                            continue;
-
-                        if (!ReferenceEquals(candidate.Definition, definition))
-                            continue;
-
-                        instance = candidate;
-                        return true;
-                    }
-
-                    error = $"Trait definition '{definition.name}' was not found.";
-                    return false;
-                }
                 case TraitElementSelectorKind.ByDefinitionId:
-                {
-                    var definitionId = string.IsNullOrWhiteSpace(DefinitionId) ? string.Empty : DefinitionId.Trim();
-                    if (string.IsNullOrEmpty(definitionId))
                     {
-                        error = "DefinitionId is empty.";
+                        var definitionId = string.IsNullOrWhiteSpace(DefinitionId) ? string.Empty : DefinitionId.Trim();
+                        if (string.IsNullOrEmpty(definitionId))
+                        {
+                            error = "DefinitionId is empty.";
+                            return false;
+                        }
+
+                        for (int i = 0; i < traits.Count; i++)
+                        {
+                            var candidate = traits[i];
+                            if (candidate == null)
+                                continue;
+
+                            if (!string.Equals(candidate.Definition.DefinitionId, definitionId, StringComparison.Ordinal))
+                                continue;
+
+                            instance = candidate;
+                            return true;
+                        }
+
+                        error = $"Trait definition id '{definitionId}' was not found.";
                         return false;
                     }
-
-                    for (int i = 0; i < traits.Count; i++)
+                case TraitElementSelectorKind.ByIndex:
                     {
-                        var candidate = traits[i];
-                        if (candidate == null)
-                            continue;
+                        if (!Index.TryGet(dynamicContext, out var resolvedIndex))
+                        {
+                            error = "Trait index could not be resolved.";
+                            return false;
+                        }
 
-                        if (!string.Equals(candidate.Definition.DefinitionId, definitionId, StringComparison.Ordinal))
-                            continue;
+                        if (resolvedIndex < 0 || resolvedIndex >= traits.Count)
+                        {
+                            error = $"Trait index is out of range. index={resolvedIndex} count={traits.Count}";
+                            return false;
+                        }
 
-                        instance = candidate;
+                        instance = traits[resolvedIndex];
+                        if (instance == null)
+                        {
+                            error = $"Trait at index {resolvedIndex} is null.";
+                            return false;
+                        }
+
                         return true;
                     }
-
-                    error = $"Trait definition id '{definitionId}' was not found.";
-                    return false;
-                }
-                case TraitElementSelectorKind.ByIndex:
-                {
-                    if (!Index.TryGet(dynamicContext, out var resolvedIndex))
-                    {
-                        error = "Trait index could not be resolved.";
-                        return false;
-                    }
-
-                    if (resolvedIndex < 0 || resolvedIndex >= traits.Count)
-                    {
-                        error = $"Trait index is out of range. index={resolvedIndex} count={traits.Count}";
-                        return false;
-                    }
-
-                    instance = traits[resolvedIndex];
-                    if (instance == null)
-                    {
-                        error = $"Trait at index {resolvedIndex} is null.";
-                        return false;
-                    }
-
-                    return true;
-                }
                 case TraitElementSelectorKind.First:
                     for (int i = 0; i < traits.Count; i++)
                     {
@@ -373,7 +373,7 @@ namespace Game.Trait
         public const string TraitDefinitionId = "traitRuntime.traitDefinitionId";
         public const string PresentationState = "traitRuntime.presentationState";
 
-        public static void WriteLinkData(IVarStore vars, TraitRuntimeLinkData linkData, TraitRuntimePresentationState state)
+        public static void WriteLinkData(IVarStore vars, TraitRuntimeLinkData linkData)
         {
             if (vars == null || linkData == null)
                 return;
@@ -384,7 +384,23 @@ namespace Game.Trait
             TrySetString(vars, HolderKey, linkData.HolderKey);
             TrySetString(vars, TraitKey, linkData.TraitKey);
             TrySetString(vars, TraitDefinitionId, linkData.TraitDefinitionId);
-            TrySetInt(vars, PresentationState, (int)state);
+        }
+
+        // Hidden / Visible の現在状態は、RuntimeTraitMB で選んだキーに書く。
+        // キー未設定時は legacy の stable key を使ってフォールバックする。
+        public static void WritePresentationState(IVarStore vars, TraitRuntimePresentationState state, RuntimeTraitMB? runtimeBridge)
+        {
+            if (vars == null)
+                return;
+
+            if (runtimeBridge != null && runtimeBridge.TryResolvePresentationStateVarId(out var varId) && varId > 0)
+            {
+                vars.TrySetVariant(varId, DynamicVariant.FromInt((int)state));
+                return;
+            }
+
+            if (VarIdResolver.TryResolve(PresentationState, out var fallbackVarId) && fallbackVarId > 0)
+                vars.TrySetVariant(fallbackVarId, DynamicVariant.FromInt((int)state));
         }
 
         static void TrySetInt(IVarStore vars, string stableKey, int value)

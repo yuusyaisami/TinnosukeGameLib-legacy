@@ -39,6 +39,7 @@ MonoBehaviour:
           SortOrder: 0
           ApplyAnim: {fileID: 0}
           RemoveAnim: {fileID: 0}
+        runtimeControlMode: 0
         useDuration: 0
         durationDefinition:
           rid: -2
@@ -99,9 +100,10 @@ MonoBehaviour:
         TargetKey:
           Id: 1708961263
           Name: GameLogic.GameProfile.Ball.BallGravityScale
-        ApplyMode: 10
+        ApplyMode: 20
         MulPhase: 0
         ValueMode: 20
+        RuntimeIntensitySlot: 10
         Value:
           _source:
             rid: -2

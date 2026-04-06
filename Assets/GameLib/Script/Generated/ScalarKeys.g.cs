@@ -342,6 +342,14 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/GameProfile/Ball/BallValueMul
                     /// </remarks>
                     public const string BallValueMul = "GameLogic.GameProfile.Ball.BallValueMul";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Ball/LeftWindowScale
+                    /// </remarks>
+                    public const string LeftWindowScale = "GameLogic.GameProfile.Ball.LeftWindowScale";
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Ball/RightWindowScale
+                    /// </remarks>
+                    public const string RightWindowScale = "GameLogic.GameProfile.Ball.RightWindowScale";
                 }
 
                 public static partial class Base
@@ -758,6 +766,8 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Ball.BallGravityScale,
             ScalarKeys.GameLogic.GameProfile.Ball.BallValueAdd,
             ScalarKeys.GameLogic.GameProfile.Ball.BallValueMul,
+            ScalarKeys.GameLogic.GameProfile.Ball.LeftWindowScale,
+            ScalarKeys.GameLogic.GameProfile.Ball.RightWindowScale,
             ScalarKeys.GameLogic.GameProfile.Base.AllSlotMul,
             ScalarKeys.GameLogic.GameProfile.Base.BallCount,
             ScalarKeys.GameLogic.GameProfile.Base.BuffBallChance,

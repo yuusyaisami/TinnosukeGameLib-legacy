@@ -1360,6 +1360,94 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 1000
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 1001
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 1002
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1003
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1004
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1005
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 1006
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 1007
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1008
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1009
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5399842374860144803
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1478,6 +1566,35 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145264
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 1000
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 1001
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 1002
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 1003
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 1004
+            _defaultValue: 0
     - rid: 5399842374860145260
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1952,6 +2069,35 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145300
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 1005
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 1006
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 1007
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 1008
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 1009
+            _defaultValue: 0
     - rid: 5399842374860145296
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2536,6 +2682,7 @@ MonoBehaviour:
             rid: 5399842374860144822
           _defaultValue: {fileID: 0}
         UseBoundHolder: 0
+        AutoUseAfterAdd: 1
         HolderActorSource:
           Kind: 5
           Identity:
@@ -2800,6 +2947,8 @@ MonoBehaviour:
           ease: 1
           relative: 1
           fireAndForget: 1
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -2835,6 +2984,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -2906,7 +3057,7 @@ MonoBehaviour:
       data:
         Condition:
           _source:
-            rid: 5399842404696850465
+            rid: 5399842482115052181
           _defaultValue: 0
         ThenCommands:
           _debugOwner: {fileID: 0}
@@ -2930,15 +3081,6 @@ MonoBehaviour:
           _debugAssetPath: 
           _functionName: 
           _commands: []
-    - rid: 5399842404696850465
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 226
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
     - rid: 5399842404696850707
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -2963,7 +3105,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Target:
-          Kind: 0
+          Kind: 9
           Identity:
             kind: 0
             id: 
@@ -2972,7 +3114,7 @@ MonoBehaviour:
             searchScope: 0
           UnityObject: {fileID: 0}
           Shared:
-            rid: -2
+            rid: 5399842482115052302
           ContextSlot: 0
           TargetChannel:
             rid: -2
@@ -3025,6 +3167,65 @@ MonoBehaviour:
       type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {x: 0, y: 0}
+    - rid: 5399842482115052181
+      type: {class: OtherBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 226
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+        targetActor:
+          Kind: 9
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: 5399842482115052303
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+    - rid: 5399842482115052302
+      type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        SharedTag: Parent
+        SharedHubActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+    - rid: 5399842482115052303
+      type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        SharedTag: Parent
+        SharedHubActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
 --- !u!114 &260458423786819113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3116,6 +3317,270 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 1000
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 1001
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 1002
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1003
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1004
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1005
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 1006
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 1007
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1008
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1009
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1010
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 1011
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 1012
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1013
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1014
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1015
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 1016
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 1017
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1018
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1019
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1020
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 1021
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 1022
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1023
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1024
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1025
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 1026
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 1027
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1028
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 1029
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5399842374860144991
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -3817,6 +4282,35 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145048
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 1005
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 1006
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 1007
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 1008
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 1009
+            _defaultValue: 0
     - rid: 5399842374860145044
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4027,6 +4521,35 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145059
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 1010
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 1011
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 1012
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 1013
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 1014
+            _defaultValue: 0
     - rid: 5399842374860145055
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4249,6 +4772,35 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145070
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 1015
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 1016
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 1017
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 1018
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 1019
+            _defaultValue: 0
     - rid: 5399842374860145066
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4463,6 +5015,35 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145078
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 1020
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 1021
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 1022
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 1023
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 1024
+            _defaultValue: 0
     - rid: 5399842374860145074
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4677,6 +5258,35 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145086
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 1025
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 1026
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 1027
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 1028
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 1029
+            _defaultValue: 0
     - rid: 5399842374860145082
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4887,6 +5497,35 @@ MonoBehaviour:
           _source:
             rid: 5399842402410692882
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 1000
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 1001
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 1002
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 1003
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 1004
+            _defaultValue: 0
     - rid: 5399842374860145093
       type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

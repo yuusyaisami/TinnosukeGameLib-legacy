@@ -360,14 +360,14 @@ namespace Game.Trait
                 : TraitRuntimePresentationState.None;
             if (previousState == newState)
             {
-                if (runtime != null && _linkByRuntime.TryGetValue(runtime, out var existingLink))
-                    WritePresentationState(runtime, existingLink, newState);
+                if (runtime != null)
+                    WritePresentationState(runtime, newState);
                 return;
             }
 
             _presentationByLink[linkKey] = newState;
-            if (runtime != null && _linkByRuntime.TryGetValue(runtime, out var linkData))
-                WritePresentationState(runtime, linkData, newState);
+            if (runtime != null)
+                WritePresentationState(runtime, newState);
 
             OnPresentationStateChanged?.Invoke(new TraitRuntimePresentationChange(
                 linkKey.HolderKey,
@@ -423,10 +423,11 @@ namespace Game.Trait
                 blackboard.LocalVars.TrySetVariant(VarIds.GameLib.Base.Trait.Element.definitionId, DynamicVariant.FromString(linkData.TraitDefinitionId));
             }
 
-            TraitRuntimeLinkVarKeys.WriteLinkData(blackboard.LocalVars, linkData, presentationState);
+            TraitRuntimeLinkVarKeys.WriteLinkData(blackboard.LocalVars, linkData);
+            TraitRuntimeLinkVarKeys.WritePresentationState(blackboard.LocalVars, presentationState, runtimeBridge);
         }
 
-        void WritePresentationState(RuntimeLifetimeScope runtime, TraitRuntimeLinkData linkData, TraitRuntimePresentationState state)
+        void WritePresentationState(RuntimeLifetimeScope runtime, TraitRuntimePresentationState state)
         {
             if (runtime == null || runtime.Resolver == null)
                 return;
@@ -434,7 +435,8 @@ namespace Game.Trait
             if (!runtime.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
                 return;
 
-            TraitRuntimeLinkVarKeys.WriteLinkData(blackboard.LocalVars, linkData, state);
+            var runtimeBridge = runtime.GetComponentInChildren<RuntimeTraitMB>(true);
+            TraitRuntimeLinkVarKeys.WritePresentationState(blackboard.LocalVars, state, runtimeBridge);
         }
 
         bool TryApplyInitialPlacement(
@@ -450,25 +452,68 @@ namespace Game.Trait
             if (editor == null)
                 return true;
 
+            ResolvePlacementTransforms(runtimeScope, editor, out var moveTransform, out var rotateTransform);
+            ApplyPlacementPose(moveTransform, rotateTransform, requestedPosition, requestedRotation);
+
             var request = UserMoveRotateValidationRequest.Create(editor, runtimeScope);
             if (!request.IsValid)
                 return true;
 
-            if (UserMoveRotateValidationUtility.IsValidPose(request, requestedPosition, requestedRotation))
+            var currentPosition = moveTransform.position;
+            var currentRotation = rotateTransform.rotation;
+            if (UserMoveRotateValidationUtility.IsValidPose(request, currentPosition, currentRotation))
                 return true;
 
             if (!UserMoveRotateValidationUtility.TryFindNearestValidPose(
                     request,
-                    requestedPosition,
-                    requestedRotation,
+                    currentPosition,
+                    currentRotation,
                     out var correctedPosition,
                     out var correctedRotation))
             {
                 return false;
             }
 
-            runtimeScope.transform.SetPositionAndRotation(correctedPosition, correctedRotation);
+            ApplyPlacementPose(moveTransform, rotateTransform, correctedPosition, correctedRotation);
             return true;
+        }
+
+        static void ResolvePlacementTransforms(
+            RuntimeLifetimeScope runtimeScope,
+            UserMoveRotateRuntimeMB editor,
+            out Transform moveTransform,
+            out Transform rotateTransform)
+        {
+            var rootTransform = ResolveRootTransform(runtimeScope);
+            moveTransform = editor.ApplyOverrideTargetTransform && editor.MoveTargetTransform != null
+                ? editor.MoveTargetTransform
+                : rootTransform;
+            rotateTransform = editor.ApplyOverrideTargetTransform && editor.RotateTargetTransform != null
+                ? editor.RotateTargetTransform
+                : rootTransform;
+        }
+
+        static Transform ResolveRootTransform(RuntimeLifetimeScope runtimeScope)
+        {
+            return runtimeScope.Identity?.SelfTransform != null
+                ? runtimeScope.Identity.SelfTransform
+                : runtimeScope.transform;
+        }
+
+        static void ApplyPlacementPose(
+            Transform moveTransform,
+            Transform rotateTransform,
+            Vector3 position,
+            Quaternion rotation)
+        {
+            if (ReferenceEquals(moveTransform, rotateTransform))
+            {
+                moveTransform.SetPositionAndRotation(position, rotation);
+                return;
+            }
+
+            moveTransform.position = position;
+            rotateTransform.rotation = rotation;
         }
 
         TraitRuntimeLinkData BuildLinkData(string holderKey, ITraitInstance instance)

@@ -499,19 +499,19 @@ namespace Game.UI
                 var key = kv.Key;
                 var entries = kv.Value.Entries;
                 for (int i = 0; i < entries.Count; i++)
-                    ids.Add($"{key}:{entries[i].Root.ModalId}");
+                    ids.Add(UIModalStackDebugLabelUtility.DescribeStackEntry(key, entries[i].Root));
             }
             var arr = new string[ids.Count];
             for (int i = 0; i < ids.Count; i++) arr[i] = ids[i];
             return arr;
         }
 
-        IReadOnlyList<(string ModalId, string SelectedName)> IUIModalStackTelemetry.GetSelectionHistorySnapshot()
+        IReadOnlyList<(string RootLabel, string SelectedName)> IUIModalStackTelemetry.GetSelectionHistorySnapshot()
         {
             var list = new List<(string, string)>();
             foreach (var kv in _selectionHistoryPerModal)
             {
-                var modalId = kv.Key.ModalId;
+                var modalId = UIModalStackDebugLabelUtility.DescribeRoot(kv.Key);
                 var selectedName = kv.Value?.Identity?.SelfTransform != null
                     ? kv.Value.Identity.SelfTransform.name
                     : "(none)";
@@ -741,7 +741,7 @@ namespace Game.UI
 
             if (foundIndex < 0)
             {
-                Debug.LogWarning($"[UIModalStackService] PopModal: '{root.ModalId}' not found in stack.");
+                Debug.LogWarning($"[UIModalStackService] PopModal: {UIModalStackDebugLabelUtility.DescribeRoot(root)} not found in stack. StackKey='{stackKey}', Depth={Depth}");
                 return false;
             }
 
@@ -785,7 +785,7 @@ namespace Game.UI
             var root = entry.Root;
             state.Entries.RemoveAt(state.Entries.Count - 1);
 
-            Debug.Log($"[UIModalStackService] PopTop: '{root.ModalId}' popped. Depth={Depth}");
+            Debug.Log($"[UIModalStackService] PopTop: {UIModalStackDebugLabelUtility.DescribeRoot(root)} popped. Depth={Depth}");
 
             NotifyModalStackChanged(stackKey, previousRoot, GetStackCurrentRoot(state), changeType);
             UpdateActiveRoots(ActiveRootsChangeKind.StackChanged, stackKey, changeType, EvaluateChangeKind(previousRoot, GetStackCurrentRoot(state)));
@@ -901,11 +901,11 @@ namespace Game.UI
 
             if (element == null)
             {
-                return $"(null) -> {root.ModalId}";
+                return $"(null) -> {UIModalStackDebugLabelUtility.DescribeRoot(root)}";
             }
 
             // 簡易的な実装（詳細は後で拡張）
-            return $"{element.Identity?.SelfTransform?.name ?? "(unknown)"} -> {root.ModalId}";
+            return $"{element.Identity?.SelfTransform?.name ?? "(unknown)"} -> {UIModalStackDebugLabelUtility.DescribeRoot(root)}";
         }
 
         void NotifyModalStackChanged(string stackKey, IUIModalRoot? previousRoot, IUIModalRoot? currentRoot, UIModalStackChangeType changeType)
@@ -1043,6 +1043,39 @@ namespace Game.UI
                 return ModalStackChangeKind.DescendantPop;
 
             return ModalStackChangeKind.RootSwap;
+        }
+    }
+
+    internal static class UIModalStackDebugLabelUtility
+    {
+        public static string DescribeRoot(IUIModalRoot? root)
+        {
+            if (root == null)
+                return "(none)";
+
+            return $"{root.ModalId} [{DescribeScope(root.OwnerScope)}]";
+        }
+
+        public static string DescribeStackEntry(string stackKey, IUIModalRoot? root)
+        {
+            var key = string.IsNullOrEmpty(stackKey) ? "(default)" : stackKey;
+            return $"{key}:{DescribeRoot(root)}";
+        }
+
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "no-scope";
+
+            var identity = scope.Identity;
+            var kind = identity != null ? identity.Kind.ToString() : scope.Kind.ToString();
+            var id = identity != null && !string.IsNullOrEmpty(identity.Id) ? identity.Id : "(no-id)";
+            var category = identity != null && !string.IsNullOrEmpty(identity.Category) ? identity.Category : "(no-category)";
+            var transform = identity?.SelfTransform;
+            var transformName = transform != null ? transform.name : "(no-transform)";
+            var instanceId = transform != null ? transform.GetInstanceID().ToString() : "n/a";
+
+            return $"Kind={kind}, Id={id}, Category={category}, Transform={transformName}, InstanceId={instanceId}";
         }
     }
 }

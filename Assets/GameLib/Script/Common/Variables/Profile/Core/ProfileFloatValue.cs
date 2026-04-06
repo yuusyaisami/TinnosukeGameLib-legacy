@@ -17,7 +17,7 @@ namespace Game.Profile
     /// MovementProfile の DefaultSpeed など、Scalar System で管理する値に使用。
     /// </summary>
     [Serializable]
-    public struct ProfileFloatValue : IProfileValueBinding
+    public sealed class ProfileFloatValue : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
@@ -370,6 +370,6 @@ namespace Game.Profile
         /// <summary>
         /// 暗黙的な float からの変換
         /// </summary>
-        public static implicit operator float(ProfileFloatValue pv) => pv.Value;
+        public static implicit operator float(ProfileFloatValue pv) => pv != null ? pv.Value : default;
     }
 }

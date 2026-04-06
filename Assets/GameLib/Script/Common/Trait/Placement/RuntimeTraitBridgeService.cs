@@ -262,6 +262,7 @@ namespace Game.Trait
                     _pointerService.OnRightClicked += HandleRightClicked;
             }
 
+            UnsubscribePlacementService();
             if (_linkData != null && TraitPlacementScopeResolver.TryResolvePlacementService(_linkData, out var placementService) && placementService != null)
             {
                 _placementService = placementService;
@@ -279,6 +280,14 @@ namespace Game.Trait
 
             var linkData = _owner.LinkData;
             if (linkData == null)
+                return;
+
+            RuntimeLifetimeScope? runtimeScope = null;
+            TryResolveRuntimeScope(_owner, out runtimeScope);
+
+            // Hidden の手動適用は MB の Condition で制御する。
+            // 条件が false のときは右クリックしても状態を変えない。
+            if (!_owner.CanHideOnRightClick(runtimeScope))
                 return;
 
             if (!TraitPlacementScopeResolver.TryResolvePlacementService(linkData, out var placementService) || placementService == null)
@@ -600,6 +609,9 @@ namespace Game.Trait
                 if (mutation.RequiresCommands() && mutation.Commands == null)
                     return false;
 
+                if (HasEquivalentMutation(mutation))
+                    return true;
+
                 mutationService?.Register(_runtimeView);
                 _history.Add(new CommandListMutationStep
                 {
@@ -638,6 +650,23 @@ namespace Game.Trait
             {
                 _history.Clear();
                 _runtimeView.ClearRuntimeMutations();
+            }
+
+            bool HasEquivalentMutation(CommandListMutationStep mutation)
+            {
+                for (int i = 0; i < _history.Count; i++)
+                {
+                    var existing = _history[i];
+                    if (existing.Operation != mutation.Operation)
+                        continue;
+
+                    if (!ReferenceEquals(existing.Commands, mutation.Commands))
+                        continue;
+
+                    return true;
+                }
+
+                return false;
             }
         }
     }
