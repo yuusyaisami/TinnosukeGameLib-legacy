@@ -1,0 +1,2 @@
+Assets/TextMesh[[:space:]]Pro/Fonts/NotoSansJP-Bold.asset filter=lfs diff=lfs merge=lfs -text
+Assets/TextMesh[[:space:]]Pro/Fonts/NotoSansJP-Bold-SDF.asset filter=lfs diff=lfs merge=lfs -text
