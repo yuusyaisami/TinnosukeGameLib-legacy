@@ -887,7 +887,7 @@ namespace Game.UI
 
             NotifyStateChanged(_isActive, _isActive, prevVisible, _isVisible);
 
-            Debug.Log($"[UIElementStateService] '{_owner.Identity?.SelfTransform.name}' Visible changed: {prevVisible} -> {visible}");
+            //Debug.Log($"[UIElementStateService] '{_owner.Identity?.SelfTransform.name}' Visible changed: {prevVisible} -> {visible}");
         }
 
         /// <inheritdoc/>

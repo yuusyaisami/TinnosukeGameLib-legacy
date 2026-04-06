@@ -48,10 +48,11 @@ namespace Game.Profile
 
         public void InstallInitialIfNeeded()
         {
-            if (_scope.Kind == LifetimeScopeKind.Runtime)
-                return;
-
-            RegisterSelectedProfiles();
+            // Runtime は初回 Acquire より前に MonitorRule / RichText が評価されることがある。
+            // ここで初期 Profile を登録しないと、Scalar baseline（例: LevelValue=1）が未適用のまま
+            // 先に参照され、RTN-RESOLVE-NULL を引くため build 時点で先行登録しておく。
+            if (_registry.ProfileCount == 0)
+                RegisterSelectedProfiles();
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)

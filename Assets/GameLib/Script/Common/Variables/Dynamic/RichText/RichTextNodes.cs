@@ -267,6 +267,9 @@ namespace Game.Common
         string BuildSettingsSummary()
         {
             var resolver = _valueExpression != null ? "expression" : (_hasExplicitValue ? "explicit" : "implicit");
+            var explicitSource = _hasExplicitValue
+                ? $", explicitSourceType={_explicitValue.SourceTypeName}, explicitSource={_explicitValue.SourceDebugData}"
+                : string.Empty;
             var conditionMode = _condition == null
                 ? "none"
                 : (_useConditionForVisibility ? "condition+visibility" : "condition-only");
@@ -282,7 +285,7 @@ namespace Game.Common
                 $"trueColor='{_decoratorOptions.TrueColor ?? string.Empty}', falseColor='{_decoratorOptions.FalseColor ?? string.Empty}', " +
                 $"wrap='{_decoratorOptions.Wrap ?? string.Empty}', wrapEnd='{_decoratorOptions.WrapEnd ?? string.Empty}'";
 
-            return $"resolver={resolver}, condition={conditionMode}, format=({format}), decorator=({decorator})";
+            return $"resolver={resolver}{explicitSource}, condition={conditionMode}, format=({format}), decorator=({decorator})";
         }
 
         static string FormatNullable(int? value)
@@ -355,8 +358,16 @@ namespace Game.Common
             DynamicRuntimeLogUtility.AppendFieldLine(sb, "detail", context.Detail, allowMultiline: true);
 
             DynamicRuntimeLogUtility.AppendDynamicContextSection(sb, context.DynamicContext);
-            if (context.IncludeActorStores)
+
+            var includeAllStores =
+                string.Equals(level, "WARN", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(level, "ERROR", StringComparison.OrdinalIgnoreCase);
+
+            if (includeAllStores)
+                DynamicRuntimeLogUtility.AppendActorStoresSection(sb, context.DynamicContext, 0);
+            else if (context.IncludeActorStores)
                 DynamicRuntimeLogUtility.AppendActorStoresSection(sb, context.DynamicContext, context.MaxActorStoreEntries);
+
             DynamicRuntimeLogUtility.AppendCommandTraceSection(sb);
             return sb.ToString();
         }

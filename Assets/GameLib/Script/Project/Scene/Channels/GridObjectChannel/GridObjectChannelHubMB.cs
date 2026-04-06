@@ -87,6 +87,7 @@ namespace Game.Channel
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<IGridObjectChannelHubService>()
+                .As<IChoiceChannelHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
         }

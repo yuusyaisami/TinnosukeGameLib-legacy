@@ -53,6 +53,12 @@ namespace Game.Profile
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowSaveLayer => HasBlackboardKey && SaveEnabledValue;
 
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            $"ProfileValue<{typeof(T).Name}>",
+            Value,
+            string.Empty,
+            BlackboardVarId);
+
         // ================================================================
         // IProfileValueBinding - Base
         // ================================================================
@@ -192,6 +198,12 @@ namespace Game.Profile
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowSaveLayer => HasBlackboardKey && SaveEnabledValue;
 
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileIntValue),
+            Value,
+            string.Empty,
+            BlackboardVarId);
+
         // IProfileValueBinding
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;
         ScalarKey IProfileValueBinding.ScalarKey => default;
@@ -271,6 +283,12 @@ namespace Game.Profile
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowSaveLayer => HasBlackboardKey && SaveEnabledValue;
 
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileBoolValue),
+            Value,
+            string.Empty,
+            BlackboardVarId);
+
         // IProfileValueBinding
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;
         ScalarKey IProfileValueBinding.ScalarKey => default;
@@ -349,6 +367,12 @@ namespace Game.Profile
 
         bool HasBlackboardKey => BlackboardVarId != 0;
         bool ShowSaveLayer => HasBlackboardKey && SaveEnabledValue;
+
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileStringValue),
+            Value,
+            string.Empty,
+            BlackboardVarId);
 
         // IProfileValueBinding
         int IProfileValueBinding.BlackboardKey => BlackboardVarId;

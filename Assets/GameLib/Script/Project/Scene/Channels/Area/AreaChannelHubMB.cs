@@ -40,6 +40,7 @@ namespace Game.Channel
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .AsSelf()
+                .WithParameter(owner)
                 .WithParameter(channels);
         }
 

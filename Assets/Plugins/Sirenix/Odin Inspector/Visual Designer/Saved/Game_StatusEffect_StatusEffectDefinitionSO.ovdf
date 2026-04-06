@@ -3,5 +3,5 @@ Game.StatusEffect.StatusEffectDefinitionSO, Assembly-CSharp
 MetaGuid:770327120433404448f0aea8ad9b1311
 
 # preset
-* [Sirenix.OdinInspector.InlinePropertyAttribute]
-	LabelWidth = 122
++ [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 247

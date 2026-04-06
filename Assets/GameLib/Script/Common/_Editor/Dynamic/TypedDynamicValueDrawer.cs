@@ -17,6 +17,7 @@ using Sirenix.Utilities.Editor;
 using Object = UnityEngine.Object;
 using Game.Commands.VNext;
 using Game.Health;
+using Game.Profile;
 using Game.StatusEffect;
 using Game.Trait;
 
@@ -112,6 +113,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(TargetChannelDirectionFromActor2Source));
                 allowedList.Add(typeof(TargetChannelTargetPosition2Source));
                 allowedList.Add(typeof(TransformAnimationChannelPosition2Source));
+                allowedList.Add(typeof(TransformAnimationChannelDirection2Source));
                 allowedList.Add(typeof(AreaChannelPosition2Source));
                 allowedList.Add(typeof(SplitVector2Source));
                 allowedList.Add(typeof(VisualBoundsValue2Source));
@@ -123,6 +125,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(TargetChannelDirectionFromActor3Source));
                 allowedList.Add(typeof(TargetChannelTargetPosition3Source));
                 allowedList.Add(typeof(TransformAnimationChannelPosition3Source));
+                allowedList.Add(typeof(TransformAnimationChannelDirection3Source));
                 allowedList.Add(typeof(AreaChannelPosition3Source));
                 allowedList.Add(typeof(SplitVector3Source));
                 allowedList.Add(typeof(VisualBoundsValue3Source));
@@ -151,6 +154,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(TimerValueSource));
                 allowedList.Add(typeof(ActorWorldPositionXSource));
                 allowedList.Add(typeof(ActorWorldPositionYSource));
+                allowedList.Add(typeof(TransformAnimationChannelAngleSource));
             }
             else if (targetType == typeof(Vector2))
             {
@@ -565,9 +569,21 @@ namespace Game.Common.Editor
                 return "None";
 
             if (TryGetButtonDetail(sourceProp, src, out var detail) && !string.IsNullOrEmpty(detail))
-                return $"{detail}";
+                return TrimForButton(detail, 48);
 
             return initials;
+        }
+
+        static string TrimForButton(string text, int maxLength)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+
+            var singleLine = text.Replace('\n', ' ').Replace('\r', ' ').Trim();
+            if (singleLine.Length <= maxLength)
+                return singleLine;
+
+            return singleLine.Substring(0, maxLength - 3) + "...";
         }
 
         static string GetTypeInitials(string typeName)
@@ -591,6 +607,28 @@ namespace Game.Common.Editor
             detail = null;
             if (sourceProp == null || src == null)
                 return false;
+
+            var sourceType = src.GetType();
+            if (sourceType.IsGenericType)
+            {
+                var genericDef = sourceType.GetGenericTypeDefinition();
+                if (genericDef == typeof(ManagedRefLiteralSource<>))
+                    return TryGetManagedRefLiteralDetail(sourceProp, out detail);
+
+                if (genericDef == typeof(ManagedRefAssetSource<,>))
+                    return TryGetManagedRefAssetDetail(sourceProp, out detail);
+            }
+
+            if (src is BindingPresetAssetSource)
+            {
+                if (TryGetChildValue(sourceProp, "_asset", out var assetRaw) && assetRaw is Object assetObj)
+                {
+                    detail = assetObj != null ? assetObj.name : "null";
+                    return true;
+                }
+
+                return TryGetChildValueAsString(sourceProp, "_asset", out detail);
+            }
 
             if (src is LiteralTransformAnimationPresetSource)
             {
@@ -648,7 +686,11 @@ namespace Game.Common.Editor
                 return true;
             }
 
-            if (src is TransformAnimationChannelPosition2Source or TransformAnimationChannelPosition3Source)
+            if (src is TransformAnimationChannelPosition2Source
+                or TransformAnimationChannelPosition3Source
+                or TransformAnimationChannelDirection2Source
+                or TransformAnimationChannelDirection3Source
+                or TransformAnimationChannelAngleSource)
             {
                 return TryGetChildValueAsString(sourceProp, "channelTag", out detail);
             }
@@ -659,6 +701,77 @@ namespace Game.Common.Editor
             }
 
             return false;
+        }
+
+        static bool TryGetManagedRefLiteralDetail(InspectorProperty sourceProp, out string detail)
+        {
+            detail = null;
+            if (!TryGetChildValue(sourceProp, "value", out var raw))
+                return false;
+
+            if (raw == null)
+            {
+                detail = "null";
+                return true;
+            }
+
+            if (raw is BaseProfileData profileData)
+            {
+                var name = GetProfileDisplayName(profileData);
+                var count = profileData.GetBindingCount();
+                detail = $"{name} [b:{count}]";
+                return true;
+            }
+
+            if (raw is ScriptableObject so)
+            {
+                detail = !string.IsNullOrEmpty(so.name) ? so.name : so.GetType().Name;
+                return true;
+            }
+
+            detail = raw.ToString();
+            return !string.IsNullOrEmpty(detail);
+        }
+
+        static bool TryGetManagedRefAssetDetail(InspectorProperty sourceProp, out string detail)
+        {
+            detail = null;
+            if (!TryGetChildValue(sourceProp, "value", out var raw))
+                return false;
+
+            if (raw == null)
+            {
+                detail = "null";
+                return true;
+            }
+
+            if (raw is ScriptableObject so)
+            {
+                detail = !string.IsNullOrEmpty(so.name) ? so.name : so.GetType().Name;
+                return true;
+            }
+
+            detail = raw.ToString();
+            return !string.IsNullOrEmpty(detail);
+        }
+
+        static string GetProfileDisplayName(BaseProfileData profileData)
+        {
+            if (profileData == null)
+                return "null";
+
+            if (profileData is CustomProfileDefinition custom && !string.IsNullOrEmpty(custom.ProfileName))
+                return custom.ProfileName;
+
+            var toString = profileData.ToString();
+            if (!string.IsNullOrEmpty(toString)
+                && !string.Equals(toString, profileData.GetType().Name, StringComparison.Ordinal)
+                && !string.Equals(toString, profileData.GetType().FullName, StringComparison.Ordinal))
+            {
+                return toString;
+            }
+
+            return profileData.GetType().Name;
         }
 
         static bool TryGetVarKeyDetail(InspectorProperty sourceProp, out string detail)

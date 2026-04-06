@@ -54,7 +54,7 @@ namespace Game.Commands.VNext
                     break;
 
                 case StatusEffectCommandOp.Reset:
-                    service.Reset(typed.BuildFilter());
+                    service.Reset(typed.BuildFilter(), typed.ResetGlobalStateOnReset);
                     break;
 
                 case StatusEffectCommandOp.ClearAll:

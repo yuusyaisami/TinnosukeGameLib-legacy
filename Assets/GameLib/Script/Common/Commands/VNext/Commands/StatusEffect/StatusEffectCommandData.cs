@@ -77,50 +77,8 @@ namespace Game.Commands.VNext
         [BoxGroup("Apply")]
         [ShowIf(nameof(IsApply))]
         [LabelText("Stack Preset")]
-        [Tooltip("同じ slot に既存 effect がある場合の重ね方を preset で指定します。未指定時は DurationRefresh 相当の既定 preset を使います。")]
+        [Tooltip("同じ slot に既存 effect がある場合の重ね方を preset で指定します。Intensity A-G の初期値もこの preset 側で定義します。未定義の Intensity は自動で 0 として扱われます。未指定時は DurationRefresh 相当の既定 preset を使います。")]
         public DynamicValue<StatusEffectStackPreset> StackPreset;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Intensity A")]
-        [Tooltip("RuntimeIntensity A に渡す値です。未指定時は 0 です。")]
-        public DynamicValue<float> IntensityA;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Intensity B")]
-        [Tooltip("RuntimeIntensity B に渡す値です。未指定時は 0 です。")]
-        public DynamicValue<float> IntensityB;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Intensity C")]
-        [Tooltip("RuntimeIntensity C に渡す値です。未指定時は 0 です。")]
-        public DynamicValue<float> IntensityC;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Intensity D")]
-        [Tooltip("RuntimeIntensity D に渡す値です。未指定時は 0 です。")]
-        public DynamicValue<float> IntensityD;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Intensity E")]
-        [Tooltip("RuntimeIntensity E に渡す値です。未指定時は 0 です。")]
-        public DynamicValue<float> IntensityE;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Intensity F")]
-        [Tooltip("RuntimeIntensity F に渡す値です。未指定時は 0 です。")]
-        public DynamicValue<float> IntensityF;
-
-        [BoxGroup("Apply")]
-        [ShowIf(nameof(IsApply))]
-        [LabelText("Intensity G")]
-        [Tooltip("RuntimeIntensity G に渡す値です。未指定時は 0 です。")]
-        public DynamicValue<float> IntensityG;
 
         [BoxGroup("Apply")]
         [ShowIf(nameof(IsApply))]
@@ -195,7 +153,14 @@ namespace Game.Commands.VNext
         [Tooltip("true のとき、設定差し替え後に service の global runtime state を再初期化します。")]
         public bool ResetGlobalState = true;
 
+        [BoxGroup("Reset")]
+        [ShowIf(nameof(IsReset))]
+        [LabelText("Reset Global State")]
+        [Tooltip("true のとき、Reset 実行時に service の global runtime state も再初期化します。")]
+        public bool ResetGlobalStateOnReset;
+
         bool IsApply => Op == StatusEffectCommandOp.Apply;
+        bool IsReset => Op == StatusEffectCommandOp.Reset;
         bool IsClearAll => Op == StatusEffectCommandOp.ClearAll;
         bool IsUseGlobal => Op == StatusEffectCommandOp.UseGlobal;
         bool IsConfigureServiceSettings => Op == StatusEffectCommandOp.ConfigureServiceSettings;
@@ -221,13 +186,6 @@ namespace Game.Commands.VNext
             {
                 Definition = Definition,
                 StackPreset = StackPreset,
-                IntensityA = IntensityA,
-                IntensityB = IntensityB,
-                IntensityC = IntensityC,
-                IntensityD = IntensityD,
-                IntensityE = IntensityE,
-                IntensityF = IntensityF,
-                IntensityG = IntensityG,
                 OverrideDuration = OverrideDuration,
                 DurationOverride = DurationOverride,
                 RuntimeTag = RuntimeTag ?? string.Empty,

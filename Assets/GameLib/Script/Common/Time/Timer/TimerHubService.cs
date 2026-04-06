@@ -24,6 +24,7 @@ namespace Game.Times
         void Stop();
         void Reset();
         void SetTime(float time);
+        bool TryAddCurrent(float delta);
         void SetTimeScale(float timeScale);
     }
 
@@ -280,6 +281,7 @@ namespace Game.Times
         float _timeScale;
         bool _running;
         int _runVersion;
+        int _lastAddCurrentFrame = -1;
         CancellationTokenSource _runCommandsCts;
 
         public string Key { get; }
@@ -381,11 +383,50 @@ namespace Game.Times
 
         public void SetTime(float time)
         {
+            // AddCurrent と同フレームで SetTime が重なると、見た目上「一瞬だけ反映して戻る」状態になりやすい。
+            // 同一フレーム内では AddCurrent の更新を優先し、次フレーム以降の SetTime を有効化する。
+            if (_lastAddCurrentFrame == UnityEngine.Time.frameCount)
+            {
+                LogDebug("SetTime ignored because AddCurrent already updated this timer in the same frame");
+                return;
+            }
+
             _time = Mathf.Clamp(time, _minTime, _maxTime);
             RenewRunContext();
             LogDebug($"SetTime called -> {_time:F3}");
             RefreshTriggerStates();
             WriteOutput();
+        }
+
+        public bool TryAddCurrent(float delta)
+        {
+            if (!_running)
+                return false;
+
+            if (Mathf.Approximately(delta, 0f))
+                return true;
+
+            var prev = _time;
+            var expected = prev + delta;
+            _time = Mathf.Clamp(expected, _minTime, _maxTime);
+            var clipped = !Mathf.Approximately(_time, expected);
+
+            TryFireTriggers(prev, _time);
+            RefreshTriggerStates();
+
+            var movedForward = _direction == TimerDirection.Up
+                ? delta > 0f
+                : delta < 0f;
+            if (clipped && movedForward)
+            {
+                LogDebug("Auto stop by boundary clamp after AddCurrent");
+                _running = false;
+            }
+
+            WriteOutput();
+            _lastAddCurrentFrame = UnityEngine.Time.frameCount;
+            LogDebug($"AddCurrent called delta={delta:F3} -> {_time:F3}");
+            return true;
         }
 
         public void SetTimeScale(float timeScale)

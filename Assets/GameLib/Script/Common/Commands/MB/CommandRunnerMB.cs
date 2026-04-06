@@ -171,7 +171,13 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.TeleportExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TransformControllerRigidbody2DExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.TransformChannelRigidbody2DExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TransformManagerMovementExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TransformManagerRotateExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TransformManagerScaleExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.HealthApplyDamageExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -214,6 +220,8 @@ namespace Game.Commands
                 builder.Register<VNext.TargetChannelControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.AreaChannelControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.AutoSpawnChannelControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ShowTooltipExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -329,6 +337,8 @@ namespace Game.Commands
                 builder.Register<global::Game.Commands.VNext.RefreshGridObjectChannelExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.ClearGridObjectChannelExecutor>(Lifetime.Singleton)
+                    .As<global::Game.Commands.VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.ShowGridObjectChoiceAndWaitExecutor>(Lifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
 
                 builder.Register<global::Game.Commands.VNext.EquipTraitExecutor>(Lifetime.Singleton)

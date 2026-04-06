@@ -20,6 +20,7 @@ namespace Game.Profile
     {
         [Header("Profiles")]
         [Tooltip("登録する Profile Preset。Literal (inline) または Asset (SO参照) で指定可能。")]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowPaging = false)]
         [SerializeField]
         List<DynamicValue<BaseProfileData>> _profiles = new();
 

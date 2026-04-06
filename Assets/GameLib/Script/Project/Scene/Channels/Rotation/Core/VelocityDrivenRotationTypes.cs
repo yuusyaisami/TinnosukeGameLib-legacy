@@ -19,7 +19,7 @@ namespace Game.Rotation
 
     public enum VelocityRotationSourceKind
     {
-        TransformController = 0,
+        TransformChannel = 0,
         Rigidbody2D = 1,
     }
 
@@ -129,7 +129,7 @@ namespace Game.Rotation
             Enabled = false,
             RotateChannelKey = "velocity",
             Mode = VelocityRotationMode.Tilt,
-            Source = VelocityRotationSourceKind.TransformController,
+            Source = VelocityRotationSourceKind.TransformChannel,
             SourceTransform = null,
             SourceRigidbody2D = null,
             SpeedScale = 1f,

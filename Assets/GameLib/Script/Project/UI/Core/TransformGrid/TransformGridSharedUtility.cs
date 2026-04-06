@@ -41,8 +41,8 @@ namespace Game.UI
         {
             if (order == OrderColumnMajor)
             {
-                var safeColumns = Mathf.Max(1, columns);
-                return (listIndex / safeColumns, listIndex % safeColumns);
+                var safeRows = Mathf.Max(1, rows);
+                return (listIndex % safeRows, listIndex / safeRows);
             }
 
             return (listIndex / Mathf.Max(1, columns), listIndex % Mathf.Max(1, columns));
@@ -93,6 +93,15 @@ namespace Game.UI
 
         public static bool TryResolveVisualBounds(IObjectResolver? resolver, out VisualBoundsOutput output)
         {
+            return TryResolveVisualBounds(resolver, expectedRoot: null, expectedRootRect: null, out output);
+        }
+
+        public static bool TryResolveVisualBounds(
+            IObjectResolver? resolver,
+            Transform? expectedRoot,
+            RectTransform? expectedRootRect,
+            out VisualBoundsOutput output)
+        {
             output = default;
             if (resolver == null)
                 return false;
@@ -100,11 +109,21 @@ namespace Game.UI
             if (!resolver.TryResolve<IVisualBoundsService>(out var boundsService) || boundsService == null)
                 return false;
 
-            return boundsService.TryGetLastOutput(out output) && output.HasBounds;
+            if (!boundsService.TryGetLastOutput(out output) || !output.HasBounds)
+                return false;
+
+            if (!IsVisualBoundsRootCompatible(resolver, boundsService, expectedRoot, expectedRootRect))
+            {
+                output = default;
+                return false;
+            }
+
+            return true;
         }
 
         public static bool TryResolveLayoutElementSize(
             IObjectResolver? resolver,
+            Transform? root,
             RectTransform? rootRect,
             int sizeSource,
             Vector2 fixedSize,
@@ -125,7 +144,7 @@ namespace Game.UI
                         }
                     }
 
-                    if (TryResolveVisualBounds(resolver, out var rectFallbackBounds) &&
+                    if (TryResolveVisualBounds(resolver, root, rootRect, out var rectFallbackBounds) &&
                         (rectFallbackBounds.LocalSize.x > 0f || rectFallbackBounds.LocalSize.y > 0f))
                     {
                         size = rectFallbackBounds.LocalSize;
@@ -134,7 +153,7 @@ namespace Game.UI
                     return false;
 
                 case SizeSourceVisualBounds:
-                    if (TryResolveVisualBounds(resolver, out var bounds) &&
+                    if (TryResolveVisualBounds(resolver, root, rootRect, out var bounds) &&
                         (bounds.LocalSize.x > 0f || bounds.LocalSize.y > 0f))
                     {
                         size = bounds.LocalSize;
@@ -162,12 +181,13 @@ namespace Game.UI
 
         public static Vector3 ResolvePlacementLocalPosition(
             IObjectResolver? resolver,
+            Transform? root,
             RectTransform? rootRect,
             Vector3 targetLocalPosition,
             int horizontalAlignment,
             int verticalAlignment)
         {
-            if (TryResolveVisualBounds(resolver, out var bounds))
+            if (TryResolveVisualBounds(resolver, root, rootRect, out var bounds))
             {
                 var anchor = new Vector3(
                     ResolveHorizontalAnchor(bounds.LocalRect, horizontalAlignment),
@@ -330,6 +350,33 @@ namespace Game.UI
             }
         }
 
+        static bool IsVisualBoundsRootCompatible(
+            IObjectResolver resolver,
+            IVisualBoundsService boundsService,
+            Transform? expectedRoot,
+            RectTransform? expectedRootRect)
+        {
+            var expected = (Transform?)expectedRootRect ?? expectedRoot;
+            if (expected == null)
+                return true;
+
+            Transform? actualRoot = null;
+            if (boundsService is IVisualBoundsOutput boundsOutput)
+                actualRoot = boundsOutput.LocalSpaceRoot;
+
+            if (actualRoot == null &&
+                resolver.TryResolve<IVisualBoundsOutput>(out var resolvedOutput) &&
+                resolvedOutput != null)
+            {
+                actualRoot = resolvedOutput.LocalSpaceRoot;
+            }
+
+            if (actualRoot == null)
+                return false;
+
+            return ReferenceEquals(actualRoot, expected) || actualRoot.IsChildOf(expected);
+        }
+
         static Rect ResolveRectTransformLayoutRect(Transform? listRoot, RectTransform? layoutRectTransform)
         {
             if (layoutRectTransform != null)
@@ -393,7 +440,7 @@ namespace Game.UI
             corners[1] = snapshot.CanvasRect.TransformPoint(new Vector3(source.xMax, source.yMin, 0f));
             corners[2] = snapshot.CanvasRect.TransformPoint(new Vector3(source.xMax, source.yMax, 0f));
             corners[3] = snapshot.CanvasRect.TransformPoint(new Vector3(source.xMin, source.yMax, 0f));
-            return TryBuildLocalRectFromWorldCorners(referenceTransform, corners, out rect);
+            return TryBuildLocalRectFromWorldCorners(referenceTransform, corners, AreaPlane.XY, out rect);
         }
 
         static bool TryConvertWorldRectSnapshotToLocalRect(
@@ -407,12 +454,13 @@ namespace Game.UI
             corners[1] = snapshot.Center + ToPlane(new Vector2(halfSize.x, -halfSize.y), snapshot.Plane);
             corners[2] = snapshot.Center + ToPlane(new Vector2(halfSize.x, halfSize.y), snapshot.Plane);
             corners[3] = snapshot.Center + ToPlane(new Vector2(-halfSize.x, halfSize.y), snapshot.Plane);
-            return TryBuildLocalRectFromWorldCorners(referenceTransform, corners, out rect);
+            return TryBuildLocalRectFromWorldCorners(referenceTransform, corners, snapshot.Plane, out rect);
         }
 
         static bool TryBuildLocalRectFromWorldCorners(
             Transform referenceTransform,
             Vector3[] worldCorners,
+            AreaPlane plane,
             out Rect rect)
         {
             rect = default;
@@ -423,7 +471,10 @@ namespace Game.UI
             var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
             for (var i = 0; i < worldCorners.Length; i++)
             {
-                var local = (Vector2)referenceTransform.InverseTransformPoint(worldCorners[i]);
+                var local3 = referenceTransform.InverseTransformPoint(worldCorners[i]);
+                var local = plane == AreaPlane.XZ
+                    ? new Vector2(local3.x, local3.z)
+                    : new Vector2(local3.x, local3.y);
                 if (!IsFinite(local))
                     return false;
 

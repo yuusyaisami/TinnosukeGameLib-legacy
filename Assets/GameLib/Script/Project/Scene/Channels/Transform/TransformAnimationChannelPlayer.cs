@@ -46,7 +46,7 @@ namespace Game.Channel
         public readonly Vector3 FollowTargetPosition;
         public readonly Vector3 FollowSmoothVelocity;
         public readonly Vector3 FollowCurrentDirection;
-        public readonly bool FollowHasTransformControllerVelocitySource;
+        public readonly bool FollowHasTransformChannelVelocitySource;
         public readonly bool FollowHasRigidbody2DVelocitySource;
         public readonly TransformFollowOptions FollowOptions;
 
@@ -73,7 +73,7 @@ namespace Game.Channel
             Vector3 followTargetPosition,
             Vector3 followSmoothVelocity,
             Vector3 followCurrentDirection,
-            bool followHasTransformControllerVelocitySource,
+            bool followHasTransformChannelVelocitySource,
             bool followHasRigidbody2DVelocitySource,
             TransformFollowOptions followOptions)
         {
@@ -99,7 +99,7 @@ namespace Game.Channel
             FollowTargetPosition = followTargetPosition;
             FollowSmoothVelocity = followSmoothVelocity;
             FollowCurrentDirection = followCurrentDirection;
-            FollowHasTransformControllerVelocitySource = followHasTransformControllerVelocitySource;
+            FollowHasTransformChannelVelocitySource = followHasTransformChannelVelocitySource;
             FollowHasRigidbody2DVelocitySource = followHasRigidbody2DVelocitySource;
             FollowOptions = followOptions;
         }
@@ -651,7 +651,7 @@ namespace Game.Channel
                 : Vector3.zero;
             var followSmoothVelocity = hasFollow && follow != null ? follow.SmoothVelocity : Vector3.zero;
             var followCurrentDirection = hasFollow && follow != null ? follow.CurrentDirection : Vector3.zero;
-            var followHasTransformControllerVelocitySource = hasFollow && follow != null && follow.HasTransformControllerVelocitySource;
+            var followHasTransformChannelVelocitySource = hasFollow && follow != null && follow.HasTransformChannelVelocitySource;
             var followHasRigidbody2DVelocitySource = hasFollow && follow != null && follow.HasRigidbody2DVelocitySource;
 
             return new TransformAnimationChannelTelemetrySnapshot(
@@ -677,7 +677,7 @@ namespace Game.Channel
                 followTargetPosition: followTargetPosition,
                 followSmoothVelocity: followSmoothVelocity,
                 followCurrentDirection: followCurrentDirection,
-                followHasTransformControllerVelocitySource: followHasTransformControllerVelocitySource,
+                followHasTransformChannelVelocitySource: followHasTransformChannelVelocitySource,
                 followHasRigidbody2DVelocitySource: followHasRigidbody2DVelocitySource,
                 followOptions: _followTrack?.Options ?? default);
         }

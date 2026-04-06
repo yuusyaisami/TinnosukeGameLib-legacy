@@ -109,7 +109,6 @@ namespace Game.Commands.VNext
         public const int TimerControl = 1961;
         public const int HitColliderRuleControl = 1962;
         public const int WithHitColliderTargets = 1963;
-        public const int TransformControllerRigidbody2D = 1964;
         public const int UnityRoomSendScore = 1965;
         public const int SetColliderSharedMaterial = 1966;
         public const int SetColliderPhysicsMaterialValues = 1967;
@@ -139,6 +138,12 @@ namespace Game.Commands.VNext
         public const int RefreshGridObjectChannel = 1991;
         public const int ClearGridObjectChannel = 1992;
         public const int AreaChannelControl = 1993;
+        public const int TransformChannelRigidbody2D = 1994;
+        public const int TransformManagerMovement = 1995;
+        public const int TransformManagerRotate = 1996;
+        public const int TransformManagerScale = 1997;
+        public const int ShowGridObjectChoiceAndWait = 1998;
+        public const int AutoSpawnChannelControl = 1999;
 
         public const int WithActor = 2001;
         public const int WithActorDescendantRouter = 2002;

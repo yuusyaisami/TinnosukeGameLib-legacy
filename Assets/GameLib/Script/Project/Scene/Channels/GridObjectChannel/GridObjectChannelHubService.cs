@@ -18,14 +18,71 @@ namespace Game.Channel
         UniTask<bool> ClearAsync(string tag, bool keepBinding, CancellationToken ct);
     }
 
+    public interface IChoiceSessionHandle
+    {
+        string ChannelTag { get; }
+        bool IsCompleted { get; }
+        bool Cancel(string reason = "");
+        UniTask<GridObjectChoiceSessionResult> WaitAsync(CancellationToken ct);
+    }
+
+    public interface IChoiceChannelHubService
+    {
+        bool IsChoiceSessionActive(string tag);
+        bool TryGetChoiceSession(string tag, out IChoiceSessionHandle? session);
+        UniTask<GridObjectChoiceSessionResult> ShowChoiceAndWaitAsync(string tag, GridObjectChoiceRequest request, CancellationToken ct);
+        bool CancelChoice(string tag, string reason = "");
+    }
+
     public sealed class GridObjectChannelHubService :
         IGridObjectChannelHubService,
+        IChoiceChannelHubService,
         IScopeAcquireHandler,
         IScopeReleaseHandler
     {
+        sealed class ChoiceSessionHandle : IChoiceSessionHandle
+        {
+            readonly GridObjectChannelRuntime _runtime;
+            readonly UniTask<GridObjectChoiceSessionResult> _task;
+            bool _isCompleted;
+
+            public ChoiceSessionHandle(string channelTag, GridObjectChannelRuntime runtime, UniTask<GridObjectChoiceSessionResult> task)
+            {
+                ChannelTag = channelTag;
+                _runtime = runtime;
+                _task = task;
+
+                UniTask.Void(async () =>
+                {
+                    try
+                    {
+                        await _task;
+                    }
+                    finally
+                    {
+                        _isCompleted = true;
+                    }
+                });
+            }
+
+            public string ChannelTag { get; }
+            public bool IsCompleted => _isCompleted;
+
+            public bool Cancel(string reason = "")
+            {
+                return _runtime.TryCancelActiveChoice(reason);
+            }
+
+            public UniTask<GridObjectChoiceSessionResult> WaitAsync(CancellationToken ct)
+            {
+                return ct.CanBeCanceled ? _task.AttachExternalCancellation(ct) : _task;
+            }
+        }
+
         readonly IScopeNode _owner;
         readonly GridObjectChannelHubMB _mb;
         readonly Dictionary<string, GridObjectChannelRuntime> _channels = new(StringComparer.Ordinal);
+        readonly Dictionary<string, IChoiceSessionHandle> _choiceSessions = new(StringComparer.Ordinal);
         readonly List<GridObjectChannelRuntime> _orderedChannels = new();
 
         public int ChannelCount => _orderedChannels.Count;
@@ -38,11 +95,17 @@ namespace Game.Channel
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_owner, scope))
+                return;
+
             RebuildChannels(scope, isReset);
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_owner, scope))
+                return;
+
             ReleaseChannels(scope, isReset);
         }
 
@@ -85,6 +148,70 @@ namespace Game.Channel
             return runtime.ClearAsync(keepBinding, ct);
         }
 
+        public bool IsChoiceSessionActive(string tag)
+        {
+            if (!_channels.TryGetValue(NormalizeTag(tag), out var runtime))
+                return false;
+
+            return runtime.IsChoiceSessionActive;
+        }
+
+        public bool TryGetChoiceSession(string tag, out IChoiceSessionHandle? session)
+        {
+            session = null;
+            var normalizedTag = NormalizeTag(tag);
+            if (!_choiceSessions.TryGetValue(normalizedTag, out var handle))
+                return false;
+
+            if (handle == null || handle.IsCompleted)
+            {
+                _choiceSessions.Remove(normalizedTag);
+                return false;
+            }
+
+            session = handle;
+            return true;
+        }
+
+        public async UniTask<GridObjectChoiceSessionResult> ShowChoiceAndWaitAsync(
+            string tag,
+            GridObjectChoiceRequest request,
+            CancellationToken ct)
+        {
+            if (request == null)
+                return GridObjectChoiceSessionResult.Failed("[GOC-CHOICE-100] Choice request is null.");
+
+            var normalizedTag = NormalizeTag(tag);
+            if (!_channels.TryGetValue(normalizedTag, out var runtime) || runtime == null)
+                return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-101] GridObjectChannel '{normalizedTag}' was not found.");
+
+            var task = runtime.ShowChoiceAndWaitAsync(request, ct);
+            var handle = new ChoiceSessionHandle(normalizedTag, runtime, task);
+            _choiceSessions[normalizedTag] = handle;
+
+            try
+            {
+                return await task;
+            }
+            finally
+            {
+                if (_choiceSessions.TryGetValue(normalizedTag, out var current) && ReferenceEquals(current, handle))
+                    _choiceSessions.Remove(normalizedTag);
+            }
+        }
+
+        public bool CancelChoice(string tag, string reason = "")
+        {
+            var normalizedTag = NormalizeTag(tag);
+            if (_choiceSessions.TryGetValue(normalizedTag, out var handle) && handle != null && !handle.IsCompleted)
+                return handle.Cancel(reason);
+
+            if (!_channels.TryGetValue(normalizedTag, out var runtime) || runtime == null)
+                return false;
+
+            return runtime.TryCancelActiveChoice(reason);
+        }
+
         void RebuildChannels(IScopeNode scope, bool isReset)
         {
             ReleaseChannels(scope, isReset);
@@ -112,6 +239,14 @@ namespace Game.Channel
 
         void ReleaseChannels(IScopeNode scope, bool isReset)
         {
+            if (_choiceSessions.Count > 0)
+            {
+                foreach (var pair in _choiceSessions)
+                    pair.Value?.Cancel($"[GOC-CHOICE-102] Hub released. tag='{pair.Key}'");
+
+                _choiceSessions.Clear();
+            }
+
             for (var i = _orderedChannels.Count - 1; i >= 0; i--)
                 _orderedChannels[i].OnRelease(scope, isReset);
 

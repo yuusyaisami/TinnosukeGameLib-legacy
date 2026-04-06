@@ -47,6 +47,12 @@ namespace Game.Channel
         CounterClockwise = 20,
     }
 
+    public enum TransformScrollSpace
+    {
+        WorldPosition = 10,
+        AnchoredPosition = 20,
+    }
+
     public interface ITransformAnimationPreset
     {
         bool Loop { get; }
@@ -77,6 +83,8 @@ namespace Game.Channel
         TransformPolyDirection PolyDirection { get; }
         VNext.CommandListData Commands { get; }
         VNext.FlowRunAwaitMode CommandAwaitMode { get; }
+        TransformScrollSpace ScrollSpace { get; }
+        bool ScrollUseLocalVelocity { get; }
     }
 
     [Serializable]
@@ -129,6 +137,16 @@ namespace Game.Channel
         [ShowIf(nameof(UsesTweenOptions))]
         [LabelText("Fire&Forget")]
         public bool fireAndForget;
+
+        [ShowIf(nameof(UsesScroll))]
+        [LabelText("Scroll Space")]
+        [EnumToggleButtons]
+        public TransformScrollSpace scrollSpace = TransformScrollSpace.WorldPosition;
+
+        [ShowIf(nameof(UsesWorldScroll))]
+        [LabelText("Use Local Velocity")]
+        [Tooltip("WorldPosition Scroll のときのみ有効です。true の場合は target の local 軸速度として解釈します。")]
+        public bool scrollUseLocalVelocity;
 
         [ShowIf(nameof(UsesLocalRotate))]
         [LabelText("Shortest Path")]
@@ -210,6 +228,12 @@ namespace Game.Channel
             operation == TransformAnimationOperation.LocalScale ||
             operation == TransformAnimationOperation.Scroll;
 
+        bool UsesScroll => operation == TransformAnimationOperation.Scroll;
+
+        bool UsesWorldScroll =>
+            operation == TransformAnimationOperation.Scroll &&
+            scrollSpace == TransformScrollSpace.WorldPosition;
+
         bool UsesVector2 =>
             operation == TransformAnimationOperation.AnchoredPosition ||
             operation == TransformAnimationOperation.DeltaSize ||
@@ -232,13 +256,21 @@ namespace Game.Channel
             operation == TransformAnimationOperation.LocalRotate;
 
         bool UsesTweenOptions =>
-            operation != TransformAnimationOperation.Command;
+            operation != TransformAnimationOperation.Command &&
+            operation != TransformAnimationOperation.Scroll;
 
         bool UsesCommand =>
             operation == TransformAnimationOperation.Command;
 
         string BuildListLabel()
         {
+            if (operation == TransformAnimationOperation.Scroll)
+            {
+                var velocity = vector3.GetOrDefaultWithoutContext(Vector3.zero);
+                var localFlag = scrollSpace == TransformScrollSpace.WorldPosition && (scrollUseLocalVelocity || relative) ? "T" : "F";
+                return $"  op: {operation}, Space: {scrollSpace}, LocalVel: {localFlag}, Vel: {velocity}";
+            }
+
             var durationValue = duration.GetOrDefaultWithoutContext(0f);
             var relativeFlag = relative ? "T" : "F";
             var fireAndForgetFlag = fireAndForget ? "T" : "F";
@@ -266,5 +298,7 @@ namespace Game.Channel
         TransformPolyDirection ITransformAnimationStep.PolyDirection => polyDirection;
         VNext.CommandListData ITransformAnimationStep.Commands => commands;
         VNext.FlowRunAwaitMode ITransformAnimationStep.CommandAwaitMode => commandAwaitMode;
+        TransformScrollSpace ITransformAnimationStep.ScrollSpace => scrollSpace;
+        bool ITransformAnimationStep.ScrollUseLocalVelocity => scrollUseLocalVelocity;
     }
 }

@@ -843,7 +843,7 @@ namespace Game.UI
             if (Depth == 0)
                 return;
 
-            Debug.Log($"[UIModalStackService] ClearAll: Clearing {Depth} modals.");
+            //Debug.Log($"[UIModalStackService] ClearAll: Clearing {Depth} modals.");
             var changeType = UIModalStackChangeType.Normal;
             var snapshots = new List<(string Key, IUIModalRoot? PreviousRoot)>();
             foreach (var kv in _stacks)

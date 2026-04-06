@@ -54,8 +54,20 @@ MonoBehaviour:
             rid: -2
         HolderKey: RewardShop
         Candidates:
+        - {fileID: 11400000, guid: 61a89091371d3e44a9e071223e00c14c, type: 2}
+        - {fileID: 11400000, guid: 031b8dca95182eb42bdaafc551c1d75a, type: 2}
+        - {fileID: 11400000, guid: ffe3a87deb5c329498b4b1b419f29fc5, type: 2}
+        - {fileID: 11400000, guid: 79ae73a5d7a4bd44bb903d64246463ca, type: 2}
+        - {fileID: 11400000, guid: fe4d417325f0e174f9278c8624910832, type: 2}
+        - {fileID: 11400000, guid: f0c2444165de6ed41a55abe4272b6d3a, type: 2}
+        - {fileID: 11400000, guid: f11cca8be05b0bc4798022ec43a394e3, type: 2}
+        - {fileID: 11400000, guid: 983e1c83c2b33d84eb1e0c15d750ebbe, type: 2}
         - {fileID: 11400000, guid: 47639da86257fe748ad9d51574ff1004, type: 2}
         - {fileID: 11400000, guid: 0eebb896c8ae44e47b0cf3890ae3891f, type: 2}
+        - {fileID: 11400000, guid: f0c092866daa2994788629fd676ea235, type: 2}
+        - {fileID: 11400000, guid: 9db370b3265de7f46a1fdea67e36bd91, type: 2}
+        - {fileID: 11400000, guid: ac7000d74d2517948977338ca7307538, type: 2}
+        - {fileID: 11400000, guid: 1e8d569792066dd4ca6749b3a26a7ff1, type: 2}
         ConditionalCandidates: []
         DrawCount:
           _source:

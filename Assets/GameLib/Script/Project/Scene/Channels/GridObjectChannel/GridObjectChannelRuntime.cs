@@ -304,10 +304,54 @@ namespace Game.Channel
             public bool ForceFullRebuild { get; }
         }
 
+        sealed class ActiveChoiceSession
+        {
+            public readonly CancellationTokenSource CancelSource = new();
+            public readonly UniTaskCompletionSource<GridObjectChoiceSessionResult> Completion = new();
+            public GridObjectChoiceSessionResult CancelResult = GridObjectChoiceSessionResult.Canceled("Choice canceled.");
+        }
+
+        sealed class ChoiceOutputSubscription : IDisposable
+        {
+            readonly IButtonChannelOutput _output;
+            readonly Action<ButtonChannelOutputSnapshot> _handler;
+
+            public ChoiceOutputSubscription(
+                int listIndex,
+                IButtonChannelOutput output,
+                Action<ButtonChannelOutputSnapshot> handler)
+            {
+                ListIndex = listIndex;
+                _output = output;
+                _handler = handler;
+                HasLastPhase = true;
+                LastPhase = output.Phase;
+                _output.OnUpdated += _handler;
+            }
+
+            public int ListIndex { get; }
+            public bool HasLastPhase { get; private set; }
+            public ButtonChannelPhase LastPhase { get; private set; }
+
+            public bool IsPhaseTransition(ButtonChannelPhase next)
+            {
+                var transitioned = !HasLastPhase || LastPhase != next;
+                LastPhase = next;
+                HasLastPhase = true;
+                return transitioned;
+            }
+
+            public void Dispose()
+            {
+                _output.OnUpdated -= _handler;
+            }
+        }
+
         readonly IScopeNode _owner;
         readonly GridObjectChannelHubMB _mb;
         readonly GridObjectChannelDefinition _definition;
         readonly SemaphoreSlim _mutex = new(1, 1);
+        readonly SemaphoreSlim _choiceSessionGate = new(1, 1);
         readonly Dictionary<GridObjectChannelItemKey, GridObjectChannelVisualInstance> _lookup = new();
         readonly List<GridObjectChannelVisualInstance> _instances = new();
         readonly AsyncLocal<int> _operationContextStamp = new();
@@ -333,8 +377,12 @@ namespace Game.Channel
         bool _queueWorkerActive;
         bool _refreshQueued;
         GridObjectChannelRefreshMode _queuedRefreshMode;
+        bool _deferredClearRequested;
+        bool _deferredClearKeepBinding = true;
         int _activeOperationStamp;
         int _operationStampSeed;
+        ActiveChoiceSession? _activeChoiceSession;
+        IReadOnlyList<GridObjectChoiceEntry>? _activeChoiceEntries;
 
         public GridObjectChannelRuntime(
             IScopeNode owner,
@@ -349,9 +397,277 @@ namespace Game.Channel
         }
 
         public string Tag { get; }
+        public bool IsChoiceSessionActive => _activeChoiceSession != null;
+
+        public bool TryCancelActiveChoice(string reason = "")
+        {
+            return TryCancelActiveChoiceInternal(replaced: false, reason);
+        }
+
+        public bool TryReplaceActiveChoice(string reason = "")
+        {
+            return TryCancelActiveChoiceInternal(replaced: true, reason);
+        }
+
+        public async UniTask<GridObjectChoiceSessionResult> ShowChoiceAndWaitAsync(
+            GridObjectChoiceRequest request,
+            CancellationToken ct)
+        {
+            if (request == null)
+                return GridObjectChoiceSessionResult.Failed("[GOC-CHOICE-000] Choice request is null.");
+
+            var runtimeRequest = request.CreateRuntimeCopy();
+            if (runtimeRequest.Entries == null || runtimeRequest.Entries.Count == 0)
+                return GridObjectChoiceSessionResult.Failed("[GOC-CHOICE-000] Choice entries are empty.");
+
+            var waitOptions = runtimeRequest.WaitOptions?.CreateRuntimeCopy() ?? new GridObjectChoiceWaitOptions();
+            ActiveChoiceSession? sessionToRun = null;
+
+            await _choiceSessionGate.WaitAsync(ct);
+            try
+            {
+                if (!_isActive || _activeScope == null)
+                    return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-001] GridObjectChannel is inactive. tag='{Tag}'");
+
+                if (_activeChoiceSession != null)
+                {
+                    switch (waitOptions.ConcurrencyPolicy)
+                    {
+                        case GridObjectChoiceConcurrencyPolicy.ErrorIfActive:
+                            Debug.LogError($"[GridObjectChannel] Choice session conflict. tag='{Tag}' policy={waitOptions.ConcurrencyPolicy}");
+                            return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-004] Choice session is already active. tag='{Tag}'");
+
+                        case GridObjectChoiceConcurrencyPolicy.CancelAndReplace:
+                            Debug.LogWarning($"[GridObjectChannel] Choice session replaced. tag='{Tag}'");
+                            TryCancelActiveChoiceInternal(replaced: true, $"[GOC-CHOICE-009] Replaced by another choice request. tag='{Tag}'");
+                            break;
+
+                        case GridObjectChoiceConcurrencyPolicy.Queue:
+                            break;
+
+                        default:
+                            return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-004] Unsupported concurrency policy: {waitOptions.ConcurrencyPolicy}");
+                    }
+
+                    while (_activeChoiceSession != null)
+                        await UniTask.DelayFrame(1, cancellationToken: ct);
+                }
+
+                sessionToRun = new ActiveChoiceSession();
+                _activeChoiceSession = sessionToRun;
+            }
+            finally
+            {
+                _choiceSessionGate.Release();
+            }
+
+            return await RunChoiceSessionAsync(sessionToRun, runtimeRequest, waitOptions, ct);
+        }
+
+        async UniTask<GridObjectChoiceSessionResult> RunChoiceSessionAsync(
+            ActiveChoiceSession session,
+            GridObjectChoiceRequest runtimeRequest,
+            GridObjectChoiceWaitOptions waitOptions,
+            CancellationToken ct)
+        {
+            CancellationTokenSource? linkedLifecycleCts = null;
+            CancellationTokenSource? sessionLinkedCts = null;
+            List<ChoiceOutputSubscription>? subscriptions = null;
+
+            try
+            {
+                linkedLifecycleCts = CreateLinkedTokenSource(ct);
+                sessionLinkedCts = linkedLifecycleCts != null
+                    ? CancellationTokenSource.CreateLinkedTokenSource(linkedLifecycleCts.Token, session.CancelSource.Token)
+                    : CancellationTokenSource.CreateLinkedTokenSource(ct, session.CancelSource.Token);
+
+                var sessionToken = sessionLinkedCts.Token;
+                using var cancelRegistration = sessionToken.Register(() => session.Completion.TrySetResult(session.CancelResult));
+
+                _activeChoiceEntries = runtimeRequest.Entries;
+
+                var bindRequest = BuildChoiceBindRequest(runtimeRequest);
+                var bindSucceeded = await BindAsync(bindRequest, rebuild: true, sessionToken);
+                if (!bindSucceeded)
+                    return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-001] Choice bind failed. tag='{Tag}'");
+
+                if (!_resolvedVisualizerPreset.EnableChoiceInput)
+                {
+                    Debug.LogError($"[GridObjectChannel] Choice requested with non-choice visualizer. tag='{Tag}'");
+                    return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-002] Visualizer preset is not choice-compatible. tag='{Tag}'");
+                }
+
+                subscriptions = BuildChoiceSubscriptions(runtimeRequest, session);
+                if (subscriptions.Count == 0)
+                {
+                    Debug.LogError($"[GridObjectChannel] Choice button outputs were not found. tag='{Tag}' buttonTag='{_resolvedVisualizerPreset.ChoiceButtonChannelTag}'");
+                    return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-003] ButtonChannel output not found. tag='{Tag}' buttonTag='{_resolvedVisualizerPreset.ChoiceButtonChannelTag}'");
+                }
+
+                var timeoutSeconds = ResolveChoiceTimeoutSeconds(waitOptions);
+                if (timeoutSeconds > 0f)
+                {
+                    var timeoutTask = UniTask.Delay(TimeSpan.FromSeconds(timeoutSeconds), cancellationToken: CancellationToken.None);
+                    var (resolved, selectedResult) = await UniTask.WhenAny(session.Completion.Task, timeoutTask);
+                    _ = selectedResult;
+                    if (!resolved)
+                    {
+                        Debug.LogWarning($"[GridObjectChannel] Choice timed out. tag='{Tag}' timeout={timeoutSeconds:0.###}");
+                        session.Completion.TrySetResult(GridObjectChoiceSessionResult.Timeout($"[GOC-CHOICE-005] Choice timed out. tag='{Tag}' timeout={timeoutSeconds:0.###}"));
+                    }
+                }
+
+                var result = await session.Completion.Task;
+                if (result.CompletionKind == GridObjectChoiceCompletionKind.Canceled && !waitOptions.AllowCancel)
+                    return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-006] Choice cancel is not allowed. tag='{Tag}'");
+
+                if (result.CompletionKind == GridObjectChoiceCompletionKind.Selected)
+                {
+                    Debug.Log($"[GridObjectChannel] Choice selected. tag='{Tag}' index={result.SelectedIndex} phase={result.TriggeredPhase}");
+                }
+                else if (result.CompletionKind == GridObjectChoiceCompletionKind.Canceled ||
+                         result.CompletionKind == GridObjectChoiceCompletionKind.Replaced)
+                {
+                    Debug.LogWarning($"[GridObjectChannel] Choice canceled. tag='{Tag}' kind={result.CompletionKind} msg='{result.Message}'");
+                }
+
+                return result;
+            }
+            finally
+            {
+                if (subscriptions != null)
+                {
+                    for (var i = 0; i < subscriptions.Count; i++)
+                        subscriptions[i].Dispose();
+                }
+
+                if (!waitOptions.KeepAliveAfterCompletion)
+                {
+                    try
+                    {
+                        await ClearAsync(keepBinding: false, CancellationToken.None);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"[GridObjectChannel] Choice cleanup failed. Tag='{Tag}' Message={ex.Message}");
+                    }
+                }
+
+                _activeChoiceEntries = null;
+                if (ReferenceEquals(_activeChoiceSession, session))
+                    _activeChoiceSession = null;
+
+                sessionLinkedCts?.Dispose();
+                linkedLifecycleCts?.Dispose();
+                session.CancelSource.Dispose();
+            }
+        }
+
+        GridObjectChannelBindRequest BuildChoiceBindRequest(GridObjectChoiceRequest request)
+        {
+            var bindRequest = request.BindRequest?.Clone() ?? new GridObjectChannelBindRequest();
+            var countPreset = GridObjectChannelStandalonePlayerPreset.CreateFixedCount(request.Entries?.Count ?? 0);
+            bindRequest.OverridePlayerPreset = true;
+            bindRequest.PlayerPresetValue = DynamicValue<GridObjectChannelPlayerPresetBase>.FromSource(
+                new ManagedRefLiteralSource<GridObjectChannelPlayerPresetBase>(countPreset));
+            return bindRequest;
+        }
+
+        List<ChoiceOutputSubscription> BuildChoiceSubscriptions(
+            GridObjectChoiceRequest request,
+            ActiveChoiceSession session)
+        {
+            var subscriptions = new List<ChoiceOutputSubscription>(_instances.Count);
+
+            for (var i = 0; i < _instances.Count; i++)
+            {
+                var instance = _instances[i];
+                if (instance == null)
+                    continue;
+
+                if (!TryResolveFromScopeOrAncestors<IButtonChannelHubService>(instance.Scope, out var buttonHub) ||
+                    buttonHub == null)
+                {
+                    continue;
+                }
+
+                if (!buttonHub.TryGetOutput(_resolvedVisualizerPreset.ChoiceButtonChannelTag, out var output) || output == null)
+                    continue;
+
+                ChoiceOutputSubscription? subscription = null;
+                subscription = new ChoiceOutputSubscription(
+                    instance.ListIndex,
+                    output,
+                    snapshot => HandleChoiceOutputUpdated(subscription, snapshot, request, session));
+                subscriptions.Add(subscription);
+            }
+
+            return subscriptions;
+        }
+
+        void HandleChoiceOutputUpdated(
+            ChoiceOutputSubscription? subscription,
+            ButtonChannelOutputSnapshot snapshot,
+            GridObjectChoiceRequest request,
+            ActiveChoiceSession session)
+        {
+            if (subscription == null)
+                return;
+
+            if (!ReferenceEquals(_activeChoiceSession, session))
+                return;
+
+            var phaseTransitioned = subscription.IsPhaseTransition(snapshot.Phase);
+            if (_resolvedVisualizerPreset.ChoiceRequirePhaseTransition && !phaseTransitioned)
+                return;
+
+            if (!_resolvedVisualizerPreset.IsChoiceDecisionPhase(snapshot.Phase))
+                return;
+
+            var selectedIndex = subscription.ListIndex;
+            if (selectedIndex < 0 || request.Entries == null || selectedIndex >= request.Entries.Count)
+            {
+                session.Completion.TrySetResult(GridObjectChoiceSessionResult.Failed(
+                    $"[GOC-CHOICE-007] Selected index out of range. tag='{Tag}' index={selectedIndex}"));
+                return;
+            }
+
+            session.Completion.TrySetResult(GridObjectChoiceSessionResult.Selected(selectedIndex, snapshot.Phase));
+        }
+
+        float ResolveChoiceTimeoutSeconds(GridObjectChoiceWaitOptions waitOptions)
+        {
+            if (_activeScope == null || waitOptions == null)
+                return 0f;
+
+            var dynamicContext = new SimpleDynamicContext(ResolveVars(_activeScope), _activeScope);
+            return waitOptions.ResolveTimeoutSeconds(dynamicContext);
+        }
+
+        bool TryCancelActiveChoiceInternal(bool replaced, string reason)
+        {
+            var session = _activeChoiceSession;
+            if (session == null)
+                return false;
+
+            session.CancelResult = replaced
+                ? GridObjectChoiceSessionResult.Replaced(reason)
+                : GridObjectChoiceSessionResult.Canceled(reason);
+
+            if (!session.CancelSource.IsCancellationRequested)
+                session.CancelSource.Cancel();
+
+            return true;
+        }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_owner, scope))
+                return;
+
             _ = isReset;
             _activeScope = scope;
             _listRoot = _definition.ListRoot != null ? _definition.ListRoot : _mb.transform;
@@ -364,6 +680,8 @@ namespace Game.Channel
             _isActive = true;
             _isBuilt = false;
             _hasBinding = false;
+            _deferredClearRequested = false;
+            _deferredClearKeepBinding = true;
             _layoutAreaSourceCache = default;
             _fixedAnchorSourceCache = default;
 
@@ -388,12 +706,19 @@ namespace Game.Channel
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            if (!ReferenceEquals(_owner, scope))
+                return;
+
             _ = scope;
             _ = isReset;
 
             _isActive = false;
             _refreshQueued = false;
             _queueWorkerActive = false;
+            _deferredClearRequested = false;
+            _deferredClearKeepBinding = true;
+            TryCancelActiveChoiceInternal(replaced: false, $"[GOC-CHOICE-010] Channel released. tag='{Tag}'");
+            _activeChoiceEntries = null;
 
             _playerRuntime?.Dispose();
             _playerRuntime = null;
@@ -437,6 +762,7 @@ namespace Game.Channel
             _resolvedRuntimeTemplate = null;
             _layoutAreaSourceCache = default;
             _fixedAnchorSourceCache = default;
+            _activeChoiceSession = null;
         }
 
         public async UniTask<bool> BindAsync(GridObjectChannelBindRequest request, bool rebuild, CancellationToken ct)
@@ -460,9 +786,14 @@ namespace Game.Channel
                     return false;
 
                 if (!rebuild)
+                {
+                    await FlushDeferredClearRequestsInsideLockAsync(linkedToken);
                     return true;
+                }
 
-                return await RefreshResolvedStateAsync(GridObjectChannelRefreshMode.FullRebuild, linkedToken);
+                var result = await RefreshResolvedStateAsync(GridObjectChannelRefreshMode.FullRebuild, linkedToken);
+                await FlushDeferredClearRequestsInsideLockAsync(linkedToken);
+                return result;
             }
             finally
             {
@@ -492,7 +823,9 @@ namespace Game.Channel
                 if (resolveResult.ForceFullRebuild)
                     mode = GridObjectChannelRefreshMode.FullRebuild;
 
-                return await RefreshResolvedStateAsync(mode, linkedToken);
+                var result = await RefreshResolvedStateAsync(mode, linkedToken);
+                await FlushDeferredClearRequestsInsideLockAsync(linkedToken);
+                return result;
             }
             finally
             {
@@ -503,29 +836,22 @@ namespace Game.Channel
 
         public async UniTask<bool> ClearAsync(bool keepBinding, CancellationToken ct)
         {
+            TryCancelActiveChoiceInternal(replaced: false, $"[GOC-CHOICE-011] Channel clear requested. tag='{Tag}'");
+
             using var linkedCts = CreateLinkedTokenSource(ct);
             var linkedToken = linkedCts?.Token ?? ct;
 
-            var lockState = await TryEnterOperationMutexAsync(linkedToken, "Clear");
+            var lockState = await TryEnterOperationMutexAsync(linkedToken, "Clear", reentrantIsError: false);
             if (!lockState.Entered)
-                return false;
+            {
+                RequestDeferredClear(keepBinding);
+                return true;
+            }
 
             try
             {
-                await ClearSpawnedInstancesAsync(linkedToken);
-                _isBuilt = false;
-
-                if (!keepBinding)
-                {
-                    _playerRuntime?.Dispose();
-                    _playerRuntime = null;
-                    _hasBinding = false;
-                    _bindRequest = new GridObjectChannelBindRequest();
-                    _resolvedPlayerPreset = new GridObjectChannelStandalonePlayerPreset();
-                    _resolvedLayoutPreset = new GridObjectChannelLayoutPreset();
-                    _resolvedVisualizerPreset = new GridObjectChannelVisualizerPreset();
-                    _resolvedRuntimeTemplate = null;
-                }
+                await ExecuteClearCoreAsync(keepBinding, linkedToken);
+                await FlushDeferredClearRequestsInsideLockAsync(linkedToken);
 
                 return true;
             }
@@ -534,6 +860,53 @@ namespace Game.Channel
                 ExitOperationContext(lockState.PreviousStamp, lockState.CurrentStamp);
                 _mutex.Release();
             }
+        }
+
+        async UniTask ExecuteClearCoreAsync(bool keepBinding, CancellationToken ct)
+        {
+            await ClearSpawnedInstancesAsync(ct);
+            _isBuilt = false;
+
+            if (keepBinding)
+                return;
+
+            _playerRuntime?.Dispose();
+            _playerRuntime = null;
+            _hasBinding = false;
+            _bindRequest = new GridObjectChannelBindRequest();
+            _resolvedPlayerPreset = new GridObjectChannelStandalonePlayerPreset();
+            _resolvedLayoutPreset = new GridObjectChannelLayoutPreset();
+            _resolvedVisualizerPreset = new GridObjectChannelVisualizerPreset();
+            _resolvedRuntimeTemplate = null;
+        }
+
+        void RequestDeferredClear(bool keepBinding)
+        {
+            _deferredClearRequested = true;
+            if (!keepBinding)
+                _deferredClearKeepBinding = false;
+        }
+
+        async UniTask FlushDeferredClearRequestsInsideLockAsync(CancellationToken ct)
+        {
+            const int maxFlushCount = 4;
+            var flushCount = 0;
+
+            while (_deferredClearRequested && flushCount < maxFlushCount)
+            {
+                var keepBinding = _deferredClearKeepBinding;
+                _deferredClearRequested = false;
+                _deferredClearKeepBinding = true;
+                await ExecuteClearCoreAsync(keepBinding, ct);
+                flushCount++;
+            }
+
+            if (!_deferredClearRequested)
+                return;
+
+            Debug.LogWarning($"[GridObjectChannel] Deferred clear was dropped after max flush count. Tag='{Tag}'");
+            _deferredClearRequested = false;
+            _deferredClearKeepBinding = true;
         }
 
         ResolveResult ResolveCurrentState()
@@ -660,6 +1033,15 @@ namespace Game.Channel
 
                 RecalculateItemPositions(items);
 
+                var totalNewCount = 0;
+                for (var i = 0; i < items.Count; i++)
+                {
+                    if (!_lookup.ContainsKey(items[i].Key))
+                        totalNewCount++;
+                }
+
+                var initializedNewCount = 0;
+
                 for (var i = 0; i < items.Count; i++)
                 {
                     ct.ThrowIfCancellationRequested();
@@ -675,14 +1057,16 @@ namespace Game.Channel
                     _instances.Add(spawned);
                     _lookup[item.Key] = spawned;
                     newlySpawnedKeys.Add(item.Key);
+
+                    await InitializeSpawnedInstanceAsync(spawned, item, ct);
+                    initializedNewCount++;
+                    await DelayBetweenNewSpawnsIfNeededAsync(initializedNewCount, totalNewCount, ct);
                 }
             }
 
             if (mode == GridObjectChannelRefreshMode.LayoutOnly)
                 RecalculateItemPositions(items);
 
-            var initializedNewCount = 0;
-            var totalNewCount = newlySpawnedKeys.Count;
             for (var i = 0; i < items.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -691,15 +1075,9 @@ namespace Game.Channel
                     continue;
 
                 if (newlySpawnedKeys.Contains(item.Key))
-                {
-                    await InitializeSpawnedInstanceAsync(instance, item, ct);
-                    initializedNewCount++;
-                    await DelayBetweenNewSpawnsIfNeededAsync(initializedNewCount, totalNewCount, ct);
-                }
-                else
-                {
-                    await RelayoutInstanceAsync(instance, item, ct);
-                }
+                    continue;
+
+                await RelayoutInstanceAsync(instance, item, ct);
             }
 
             SortInstancesByListIndex();
@@ -712,6 +1090,8 @@ namespace Game.Channel
                 return;
 
             RecalculateItemPositions(items);
+            var totalSpawnCount = items.Count;
+            var initializedSpawnCount = 0;
             for (var i = 0; i < items.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -723,18 +1103,10 @@ namespace Game.Channel
                 spawned.UpdateFromItem(item);
                 _instances.Add(spawned);
                 _lookup[item.Key] = spawned;
-            }
-            var initializedSpawnCount = 0;
-            for (var i = 0; i < items.Count; i++)
-            {
-                ct.ThrowIfCancellationRequested();
-                var item = items[i];
-                if (!_lookup.TryGetValue(item.Key, out var instance) || instance == null)
-                    continue;
 
-                await InitializeSpawnedInstanceAsync(instance, item, ct);
+                await InitializeSpawnedInstanceAsync(spawned, item, ct);
                 initializedSpawnCount++;
-                await DelayBetweenNewSpawnsIfNeededAsync(initializedSpawnCount, _instances.Count, ct);
+                await DelayBetweenNewSpawnsIfNeededAsync(initializedSpawnCount, totalSpawnCount, ct);
             }
 
             SortInstancesByListIndex();
@@ -757,6 +1129,7 @@ namespace Game.Channel
             var rows = Mathf.Max(1, _resolvedLayoutPreset.Rows.GetOrDefault(dynamicContext, 1));
             var columns = Mathf.Max(1, _resolvedLayoutPreset.Columns.GetOrDefault(dynamicContext, 1));
 
+            var writeIndex = 0;
             for (var i = 0; i < items.Count; i++)
             {
                 var item = items[i];
@@ -773,8 +1146,15 @@ namespace Game.Channel
                     item.Column = Mathf.Max(0, column + _playerRuntime.ColumnOffset);
                 }
 
-                items[i] = item;
+                // Layout rows/columns are treated as visible grid bounds.
+                if (item.Row >= rows || item.Column >= columns)
+                    continue;
+
+                items[writeIndex++] = item;
             }
+
+            if (writeIndex < items.Count)
+                items.RemoveRange(writeIndex, items.Count - writeIndex);
 
             return true;
         }
@@ -875,7 +1255,7 @@ namespace Game.Channel
 
             var instance = new GridObjectChannelVisualInstance(GridObjectChannelItemKey.Standalone(-1), root, scopeNode, resolver);
             ApplyPreviewSpawnPosition(instance, item);
-            TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, false);
+            SetInstancePresentationVisible(instance, false);
             return instance;
         }
 
@@ -894,19 +1274,21 @@ namespace Game.Channel
             var startAnchor = ResolveSpawnAnchorLocalPosition(item);
             var startLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.Root,
                 instance.RootRect,
                 startAnchor,
                 (int)_resolvedLayoutPreset.ItemHorizontalAlignment,
                 (int)_resolvedLayoutPreset.ItemVerticalAlignment);
             var targetLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.Root,
                 instance.RootRect,
                 item.TargetLocalPosition,
                 (int)_resolvedLayoutPreset.ItemHorizontalAlignment,
                 (int)_resolvedLayoutPreset.ItemVerticalAlignment);
 
             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, startLocal, _environmentKind);
-            TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, true);
+            SetInstancePresentationVisible(instance, true);
             await AnimateInstanceAsync(instance, targetLocal, _resolvedLayoutPreset.SpawnMotion, ct);
         }
 
@@ -920,6 +1302,7 @@ namespace Game.Channel
             TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
             var targetLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.Root,
                 instance.RootRect,
                 item.TargetLocalPosition,
                 (int)_resolvedLayoutPreset.ItemHorizontalAlignment,
@@ -1074,6 +1457,14 @@ namespace Game.Channel
             {
                 if (_resolvedVisualizerPreset.SpawnCommands != null && _resolvedVisualizerPreset.SpawnCommands.Count > 0)
                     await runner.ExecuteListAsync(_resolvedVisualizerPreset.SpawnCommands, ctx, ct, CommandRunOptions.Default);
+
+                if (TryGetActiveChoiceEntry(item.ListIndex, out var choiceEntry) &&
+                    choiceEntry != null &&
+                    choiceEntry.SpawnCommands != null &&
+                    choiceEntry.SpawnCommands.Count > 0)
+                {
+                    await runner.ExecuteListAsync(choiceEntry.SpawnCommands, ctx, ct, CommandRunOptions.Default);
+                }
             }
             catch (OperationCanceledException)
             {
@@ -1138,6 +1529,17 @@ namespace Game.Channel
 
                 vars.TrySetVariant(cell.VarId, cell.Value);
             }
+        }
+
+        bool TryGetActiveChoiceEntry(int listIndex, out GridObjectChoiceEntry? entry)
+        {
+            entry = null;
+            var entries = _activeChoiceEntries;
+            if (entries == null || listIndex < 0 || listIndex >= entries.Count)
+                return false;
+
+            entry = entries[listIndex];
+            return entry != null;
         }
 
         Vector3 ResolveSpawnAnchorLocalPosition(GridObjectChannelResolvedItem item)
@@ -1206,6 +1608,7 @@ namespace Game.Channel
 
                 if (TransformGridSharedUtility.TryResolveLayoutElementSize(
                         instance.Resolver,
+                    instance.Root,
                         instance.RootRect,
                         (int)_resolvedVisualizerPreset.SizeSource,
                         _resolvedVisualizerPreset.FixedSize,
@@ -1246,11 +1649,31 @@ namespace Game.Channel
             var startAnchor = ResolveSpawnAnchorLocalPosition(item);
             var previewLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
                 instance.Resolver,
+                instance.Root,
                 instance.RootRect,
                 startAnchor,
                 (int)_resolvedLayoutPreset.ItemHorizontalAlignment,
                 (int)_resolvedLayoutPreset.ItemVerticalAlignment);
             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, previewLocal, _environmentKind);
+        }
+
+        static void SetInstancePresentationVisible(GridObjectChannelVisualInstance instance, bool visible)
+        {
+            if (instance == null)
+                return;
+
+            TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, visible);
+            instance.Scope.TrySetVisible(visible);
+
+            var renderers = instance.Root.GetComponentsInChildren<Renderer>(true);
+            for (var i = 0; i < renderers.Length; i++)
+            {
+                var renderer = renderers[i];
+                if (renderer == null)
+                    continue;
+
+                renderer.forceRenderingOff = !visible;
+            }
         }
 
         static bool TryGetTemplateRectSize(Transform root, out Vector2 size)
@@ -1553,12 +1976,15 @@ namespace Game.Channel
             return CancellationTokenSource.CreateLinkedTokenSource(ct, _lifecycleCts.Token);
         }
 
-        async UniTask<OperationLockState> TryEnterOperationMutexAsync(CancellationToken ct, string operationName)
+        async UniTask<OperationLockState> TryEnterOperationMutexAsync(CancellationToken ct, string operationName, bool reentrantIsError = true)
         {
             if (IsReentrantOperationCall())
             {
-                Debug.LogError(
-                    $"[GridObjectChannel] Re-entrant '{operationName}' was blocked to avoid deadlock. Tag='{Tag}'");
+                var message = $"[GridObjectChannel] Re-entrant '{operationName}' was blocked to avoid deadlock. Tag='{Tag}'";
+                if (reentrantIsError)
+                    Debug.LogError(message);
+                else
+                    Debug.LogWarning(message);
                 return new OperationLockState(false, 0, 0);
             }
 

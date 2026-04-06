@@ -12,7 +12,7 @@ namespace Game.Rotation
         VelocityRotationSourceKind SourceKind { get; }
         string RotateChannelKey { get; }
         bool HasChannel { get; }
-        bool HasSourceTransformController { get; }
+        bool HasSourceTransformChannel { get; }
         bool HasSourceRigidbody2D { get; }
         Vector2 RawVelocity { get; }
         Vector2 ScaledVelocity { get; }
@@ -32,7 +32,7 @@ namespace Game.Rotation
         [ShowInInspector, ReadOnly] public VelocityRotationSourceKind SourceKind { get { Refresh(); return _sourceKind; } }
         [ShowInInspector, ReadOnly] public string RotateChannelKey { get { Refresh(); return _rotateChannelKey; } }
         [ShowInInspector, ReadOnly] public bool HasChannel { get { Refresh(); return _hasChannel; } }
-        [ShowInInspector, ReadOnly] public bool HasSourceTransformController { get { Refresh(); return _hasSourceTransformController; } }
+        [ShowInInspector, ReadOnly] public bool HasSourceTransformChannel { get { Refresh(); return _hasSourceTransformChannel; } }
         [ShowInInspector, ReadOnly] public bool HasSourceRigidbody2D { get { Refresh(); return _hasSourceRigidbody2D; } }
         [ShowInInspector, ReadOnly] public Vector2 RawVelocity { get { Refresh(); return _rawVelocity; } }
         [ShowInInspector, ReadOnly] public Vector2 ScaledVelocity { get { Refresh(); return _scaledVelocity; } }
@@ -49,7 +49,7 @@ namespace Game.Rotation
         VelocityRotationSourceKind _sourceKind;
         string _rotateChannelKey = "(none)";
         bool _hasChannel;
-        bool _hasSourceTransformController;
+        bool _hasSourceTransformChannel;
         bool _hasSourceRigidbody2D;
         Vector2 _rawVelocity;
         Vector2 _scaledVelocity;
@@ -83,7 +83,7 @@ namespace Game.Rotation
             _sourceKind = _telemetry.SourceKind;
             _rotateChannelKey = _telemetry.RotateChannelKey;
             _hasChannel = _telemetry.HasChannel;
-            _hasSourceTransformController = _telemetry.HasSourceTransformController;
+            _hasSourceTransformChannel = _telemetry.HasSourceTransformChannel;
             _hasSourceRigidbody2D = _telemetry.HasSourceRigidbody2D;
             _rawVelocity = _telemetry.RawVelocity;
             _scaledVelocity = _telemetry.ScaledVelocity;

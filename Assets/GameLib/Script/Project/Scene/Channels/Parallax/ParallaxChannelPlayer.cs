@@ -537,8 +537,8 @@ namespace Game.Channel
                 case ParallaxDriverMode.TransformAnimationChannel:
                     return TryResolveTargetFromAnimationHub(out target);
 
-                case ParallaxDriverMode.TransformController:
-                    return TryResolveTargetFromTransformController(out target);
+                case ParallaxDriverMode.TransformChannel:
+                    return TryResolveTargetFromTransformChannel(out target);
             }
 
             return false;
@@ -561,7 +561,7 @@ namespace Game.Channel
             return target != null;
         }
 
-        bool TryResolveTargetFromTransformController(out Transform? target)
+        bool TryResolveTargetFromTransformChannel(out Transform? target)
         {
             target = null;
 
@@ -624,8 +624,8 @@ namespace Game.Channel
                 case ParallaxDriverMode.TransformAnimationChannel:
                     return $"(Anim:{_transformAnimationChannelTag})";
 
-                case ParallaxDriverMode.TransformController:
-                    return "(TransformController)";
+                case ParallaxDriverMode.TransformChannel:
+                    return "(TransformChannel)";
             }
 
             return "(null)";

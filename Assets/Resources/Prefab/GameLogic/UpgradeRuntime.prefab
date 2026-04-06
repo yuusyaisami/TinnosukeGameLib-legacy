@@ -3454,7 +3454,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _template: $ {NailUpgradePriceMul * Price|effect=color_if|cond=MoneyValue
+        _template: <sprite=8>{NailUpgradePriceMul * Price|effect=color_if|cond=MoneyValue
           >= NailUpgradePriceMul * Price|trueColor="#00FF00"|falseColor="#FF0000"}
     - rid: 5619052465085481359
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}

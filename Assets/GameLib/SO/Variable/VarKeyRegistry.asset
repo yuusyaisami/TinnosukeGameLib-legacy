@@ -4458,6 +4458,62 @@ MonoBehaviour:
     varId: 101129
     stableKey: RerollMaxCount
     aliases: []
+  - id: 319c494f4bcd4cda863f92e0da06ee07
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: CountSetting
+    isFolder: 0
+    description: 
+    varId: 101131
+    stableKey: ApplyCount
+    aliases: []
+  - id: cc809a3e277c4f2793a4be261c003785
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: LifetimeSetting
+    isFolder: 0
+    description: 
+    varId: 101132
+    stableKey: LifetimeSetting
+    aliases: []
+  - id: d4007715cdf54038a395b7da19af6e50
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: UseSetting
+    isFolder: 0
+    description: 
+    varId: 101133
+    stableKey: UseSetting
+    aliases: []
+  - id: 328b3cca9010454cb0b538212aaca253
+    parentId: b08882a0c8e24de48a4f005e0b281469
+    name: CustomCommandList
+    isFolder: 0
+    description: 
+    varId: 101183
+    stableKey: CustomCommandList
+    aliases: []
+  - id: 0e66128602464a3b80be89d41178a423
+    parentId: da35a1b429744fc8a2c01c9a54c8d1f5
+    name: Nail
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 126fed74d8714e33be674fb5058ff758
+    parentId: 0e66128602464a3b80be89d41178a423
+    name: UpgradeCostMul
+    isFolder: 0
+    description: 
+    varId: 101184
+    stableKey: UpgradeCostMul
+    aliases: []
+  - id: abc8c607335943a5b21f3ac9660b1a8e
+    parentId: 0e66128602464a3b80be89d41178a423
+    name: Level
+    isFolder: 0
+    description: 
+    varId: 101185
+    stableKey: Level
+    aliases: []
   - id: ccfa7f9a86004733ae585511d3c058c5
     parentId: 550c79e9f5644ddbbe60095b28fc9b2b
     name: StatusEffect
@@ -4491,6 +4547,14 @@ MonoBehaviour:
     varId: 100123
     stableKey: UpgradeTable
     aliases: []
+  - id: 53ba4ed4154e476fb69d61c27ae5612c
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: isRotate
+    isFolder: 0
+    description: 
+    varId: 101186
+    stableKey: isRotate
+    aliases: []
   - id: 39d1a4b4b1994adc963e571dc6a3efe7
     parentId: 550c79e9f5644ddbbe60095b28fc9b2b
     name: Rarity
@@ -4516,39 +4580,23 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
-  - id: 319c494f4bcd4cda863f92e0da06ee07
-    parentId: 4f4f067cc1974770b91b38703e80941e
-    name: CountSetting
+  - id: 09358cadb08646dd92518786d5ce9af1
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Base
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 15d2a15772bb4daf8402b52a25eba337
+    parentId: 09358cadb08646dd92518786d5ce9af1
+    name: RandomA
     isFolder: 0
     description: 
-    varId: 101131
-    stableKey: ApplyCount
+    varId: 101187
+    stableKey: RandomA
     aliases: []
-  - id: cc809a3e277c4f2793a4be261c003785
-    parentId: 4f4f067cc1974770b91b38703e80941e
-    name: LifetimeSetting
-    isFolder: 0
-    description: 
-    varId: 101132
-    stableKey: LifetimeSetting
-    aliases: []
-  - id: d4007715cdf54038a395b7da19af6e50
-    parentId: 4f4f067cc1974770b91b38703e80941e
-    name: UseSetting
-    isFolder: 0
-    description: 
-    varId: 101133
-    stableKey: UseSetting
-    aliases: []
-  - id: 328b3cca9010454cb0b538212aaca253
-    parentId: b08882a0c8e24de48a4f005e0b281469
-    name: CustomCommandList
-    isFolder: 0
-    description: 
-    varId: 101183
-    stableKey: CustomCommandList
-    aliases: []
-  nextVarId: 101184
+  nextVarId: 101188
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

@@ -11,7 +11,13 @@ namespace Game.Commands.VNext
     public enum AddForceTargetKind
     {
         MovementChannel = 10,
-        TransformControllerRigidbody2D = 20,
+        TransformChannelRigidbody2D = 20,
+    }
+
+    public enum AddForceWriteMode
+    {
+        AddForce = 10,
+        OverrideVelocity = 20,
     }
 
     [Serializable]
@@ -95,7 +101,7 @@ namespace Game.Commands.VNext
             get
             {
                 var key = string.IsNullOrEmpty(ChannelKey) ? "<none>" : ChannelKey;
-                return $"Target={TargetKind} Channel={key} ForceMode={ForceMode}";
+                return $"Target={TargetKind} Channel={key} WriteMode={WriteMode} ForceMode={ForceMode}";
             }
         }
 
@@ -105,10 +111,16 @@ namespace Game.Commands.VNext
         public AddForceTargetKind TargetKind = AddForceTargetKind.MovementChannel;
 
         [BoxGroup("Target")]
-        [ShowIf(nameof(UseTransformControllerTarget))]
+        [ShowIf(nameof(UseTransformChannelTarget))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
         [SerializeField]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
+
+        [BoxGroup("Target")]
+        [ShowIf(nameof(UseTransformChannelTarget))]
+        [LabelText("Transform Channel Tag")]
+        [SerializeField]
+        public string TransformChannelTag = "default";
 
         [BoxGroup("Channel")]
         [ShowIf(nameof(UseMovementChannel))]
@@ -117,18 +129,24 @@ namespace Game.Commands.VNext
         public string ChannelKey = "knockback";
 
         [BoxGroup("Force")]
+        [LabelText("Write Mode")]
+        [SerializeField]
+        public AddForceWriteMode WriteMode = AddForceWriteMode.AddForce;
+
+        [BoxGroup("Force")]
         [LabelText("Force")]
         [SerializeField]
         public DynamicValue<Vector2> Force;
 
         [BoxGroup("Force")]
-        [ShowIf(nameof(UseTransformControllerTarget))]
+        [ShowIf(nameof(UseRigidbodyForceMode))]
         [LabelText("Force Mode")]
         [SerializeField]
         public ForceMode2D ForceMode = ForceMode2D.Force;
 
         bool UseMovementChannel() => TargetKind == AddForceTargetKind.MovementChannel;
-        bool UseTransformControllerTarget() => TargetKind == AddForceTargetKind.TransformControllerRigidbody2D;
+        bool UseTransformChannelTarget() => TargetKind == AddForceTargetKind.TransformChannelRigidbody2D;
+        bool UseRigidbodyForceMode() => UseTransformChannelTarget() && WriteMode == AddForceWriteMode.AddForce;
     }
 
     [Serializable]

@@ -14,6 +14,7 @@ namespace Game.Commands.VNext
         SetTime = 3,
         SetTimeScale = 4,
         GetTime = 5,
+        AddCurrent = 6,
     }
 
     [Serializable]
@@ -52,6 +53,12 @@ namespace Game.Commands.VNext
         [LabelText("Time Scale")]
         public DynamicValue<float> TimeScale;
 
+        [BoxGroup("Add Current")]
+        [ShowIf(nameof(ShowAddCurrent))]
+        [LabelText("Add Value")]
+        [Tooltip("再生中の timer current に加算する値です。負の値で減算できます。")]
+        public DynamicValue<float> AddValue;
+
         [BoxGroup("Reset")]
         [ShowIf(nameof(ShowResetRestart))]
         [LabelText("Restart After Reset")]
@@ -71,6 +78,7 @@ namespace Game.Commands.VNext
 
         bool ShowSetTime() => Mode == TimerCommandMode.SetTime;
         bool ShowSetTimeScale() => Mode == TimerCommandMode.SetTimeScale;
+        bool ShowAddCurrent() => Mode == TimerCommandMode.AddCurrent;
         bool ShowResetRestart() => Mode == TimerCommandMode.Reset;
         bool ShowGetTime() => Mode == TimerCommandMode.GetTime;
     }

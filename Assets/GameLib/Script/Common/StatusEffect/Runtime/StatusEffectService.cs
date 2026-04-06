@@ -56,6 +56,9 @@ namespace Game.StatusEffect
         bool _hasGlobalLifetimeSettingsOverride;
         bool _hasGlobalUseCooldownSettingsOverride;
         bool _hasGlobalCountSettingsOverride;
+        bool _isGlobalLifetimeEnabled;
+        bool _isGlobalUseCooldownEnabled;
+        bool _isGlobalCountEnabled;
 
         const string OnEffectAppliedKey = EventKeys.GameLib.StatusEffect.OnApplied;
         const string OnEffectRemovedKey = EventKeys.GameLib.StatusEffect.OnRemoved;
@@ -292,8 +295,14 @@ namespace Game.StatusEffect
             return count;
         }
 
-        public int Reset(StatusEffectRuntimeFilter filter)
+        public int Reset(StatusEffectRuntimeFilter filter, bool resetGlobalState = false)
         {
+            if (resetGlobalState)
+            {
+                EnsureGlobalStateInitialized(forceReset: true);
+                SyncAllRuntimeGlobalState(applyActions: _isActive);
+            }
+
             int count = 0;
             foreach (var runtime in _effects.Values)
             {
@@ -549,9 +558,11 @@ namespace Game.StatusEffect
                 operations.Add(opRuntime);
             }
 
-            var durationDefinition = definition.DurationDefinition;
+            var runtimeResolution = ResolveRuntimeResolution(definition);
+
+            var durationDefinition = runtimeResolution.DurationDefinition;
             IStatusEffectDurationController? durationController = null;
-            if (definition.UseDuration)
+            if (runtimeResolution.UseDuration)
             {
                 if (durationDefinition == null)
                 {
@@ -559,7 +570,7 @@ namespace Game.StatusEffect
                     return false;
                 }
 
-                if (!durationDefinition.SyncWithGlobalLifetime &&
+                if (!runtimeResolution.UsesServiceGlobalLifetime &&
                     (!durationDefinition.TryCreateController(buildContext, out durationController) || durationController == null))
                 {
                     Debug.LogWarning($"[StatusEffectService] Failed to create duration controller. DefinitionId={definition.DefinitionId}");
@@ -567,9 +578,9 @@ namespace Game.StatusEffect
                 }
             }
 
-            var useCooldownDefinition = definition.UseCooldownDefinition;
+            var useCooldownDefinition = runtimeResolution.UseCooldownDefinition;
             IStatusEffectUseCooldownController? useCooldownController = null;
-            if (definition.UseUseCooldown)
+            if (runtimeResolution.UseUseCooldown)
             {
                 if (useCooldownDefinition == null)
                 {
@@ -577,7 +588,7 @@ namespace Game.StatusEffect
                     return false;
                 }
 
-                if (!useCooldownDefinition.SyncWithGlobalUseCooldown &&
+                if (!runtimeResolution.UsesServiceGlobalUseCooldown &&
                     (!useCooldownDefinition.TryCreateController(buildContext, out useCooldownController) || useCooldownController == null))
                 {
                     Debug.LogWarning($"[StatusEffectService] Failed to create use cooldown controller. DefinitionId={definition.DefinitionId}");
@@ -585,9 +596,9 @@ namespace Game.StatusEffect
                 }
             }
 
-            var countDefinition = definition.CountDefinition;
+            var countDefinition = runtimeResolution.CountDefinition;
             IStatusEffectCountController? countController = null;
-            if (definition.UseCount)
+            if (runtimeResolution.UseCount)
             {
                 if (countDefinition == null)
                 {
@@ -595,7 +606,7 @@ namespace Game.StatusEffect
                     return false;
                 }
 
-                if (!countDefinition.SyncWithGlobalCount &&
+                if (!runtimeResolution.UsesServiceGlobalCount &&
                     (!countDefinition.TryCreateController(buildContext, out countController) || countController == null))
                 {
                     Debug.LogWarning($"[StatusEffectService] Failed to create count controller. DefinitionId={definition.DefinitionId}");
@@ -618,6 +629,10 @@ namespace Game.StatusEffect
                 runtimeVars,
                 operations,
                 hooks,
+                runtimeResolution.IsAutoGlobalMode,
+                runtimeResolution.UsesServiceGlobalLifetime,
+                runtimeResolution.UsesServiceGlobalUseCooldown,
+                runtimeResolution.UsesServiceGlobalCount,
                 durationDefinition,
                 durationController,
                 useCooldownDefinition,
@@ -625,6 +640,67 @@ namespace Game.StatusEffect
                 countDefinition,
                 countController);
             return true;
+        }
+
+        StatusEffectRuntimeResolution ResolveRuntimeResolution(BaseStatusEffectDefinitionData definition)
+        {
+            if (definition.RuntimeControlMode != StatusEffectRuntimeControlMode.AutoGlobal)
+            {
+                var useDuration = definition.UseDuration;
+                var useUseCooldown = definition.UseUseCooldown;
+                var useCount = definition.UseCount;
+
+                return new StatusEffectRuntimeResolution(
+                    isAutoGlobalMode: false,
+                    useDuration: useDuration,
+                    useUseCooldown: useUseCooldown,
+                    useCount: useCount,
+                    durationDefinition: useDuration ? definition.DurationDefinition : null,
+                    useCooldownDefinition: useUseCooldown ? definition.UseCooldownDefinition : null,
+                    countDefinition: useCount ? definition.CountDefinition : null);
+            }
+
+            var autoUseDuration = _isGlobalLifetimeEnabled;
+            var autoUseCooldown = _isGlobalUseCooldownEnabled;
+            var autoUseCount = _isGlobalCountEnabled;
+
+            return new StatusEffectRuntimeResolution(
+                isAutoGlobalMode: true,
+                useDuration: autoUseDuration,
+                useUseCooldown: autoUseCooldown,
+                useCount: autoUseCount,
+                durationDefinition: autoUseDuration ? CreateAutoGlobalDurationDefinition() : null,
+                useCooldownDefinition: autoUseCooldown ? CreateAutoGlobalUseCooldownDefinition() : null,
+                countDefinition: autoUseCount ? CreateAutoGlobalCountDefinition() : null);
+        }
+
+        static IStatusEffectDurationDefinition CreateAutoGlobalDurationDefinition()
+        {
+            return new FixedDurationStatusEffectDefinition
+            {
+                SyncWithGlobalLifetime = true,
+                EndAction = EffectLifetimeEndAction.Remove,
+            };
+        }
+
+        static IStatusEffectUseCooldownDefinition CreateAutoGlobalUseCooldownDefinition()
+        {
+            return new FixedUseCooldownStatusEffectDefinition
+            {
+                SyncWithGlobalUseCooldown = true,
+                Duration = DynamicValueExtensions.FromLiteral(0f),
+            };
+        }
+
+        static IStatusEffectCountDefinition CreateAutoGlobalCountDefinition()
+        {
+            return new DynamicCountStatusEffectDefinition
+            {
+                SyncWithGlobalCount = true,
+                MaxCount = DynamicValueExtensions.FromLiteral(0),
+                ExhaustedAction = EffectCountExhaustedAction.Disable,
+                ActivePolicy = StatusEffectActivePolicy.RegisteredEvenIfDisabled,
+            };
         }
 
         static StatusEffectResolvedIntensities ResolveIntensities(
@@ -801,14 +877,16 @@ namespace Game.StatusEffect
                 : _options?.GlobalLifetimeSettingsValue.GetOrDefault(
                     context,
                     new StatusEffectGlobalLifetimeSettings())?.CreateRuntimeCopy();
-            if (lifetimeSettings != null && lifetimeSettings.Enabled)
+            if (lifetimeSettings is { Enabled: true } enabledLifetimeSettings)
             {
-                _globalLifetimeTotal = lifetimeSettings.Duration.GetOrDefault(context, -1f);
+                _isGlobalLifetimeEnabled = true;
+                _globalLifetimeTotal = enabledLifetimeSettings.Duration.GetOrDefault(context, -1f);
                 _globalLifetimeRemaining = _globalLifetimeTotal;
                 _skipNextGlobalLifetimeTick = _globalLifetimeTotal >= 0f && _globalLifetimeRemaining > 0f;
             }
             else
             {
+                _isGlobalLifetimeEnabled = false;
                 _globalLifetimeTotal = -1f;
                 _globalLifetimeRemaining = -1f;
                 _skipNextGlobalLifetimeTick = false;
@@ -819,10 +897,16 @@ namespace Game.StatusEffect
                 : _options?.GlobalUseCooldownSettingsValue.GetOrDefault(
                     context,
                     new StatusEffectGlobalUseCooldownSettings())?.CreateRuntimeCopy();
-            if (cooldownSettings != null && cooldownSettings.Enabled)
-                _globalCooldownTotal = Mathf.Max(0f, cooldownSettings.Duration.GetOrDefault(context, 0f));
+            if (cooldownSettings is { Enabled: true } enabledCooldownSettings)
+            {
+                _isGlobalUseCooldownEnabled = true;
+                _globalCooldownTotal = Mathf.Max(0f, enabledCooldownSettings.Duration.GetOrDefault(context, 0f));
+            }
             else
+            {
+                _isGlobalUseCooldownEnabled = false;
                 _globalCooldownTotal = 0f;
+            }
             _globalCooldownRemaining = 0f;
             _skipNextGlobalCooldownTick = false;
 
@@ -831,10 +915,16 @@ namespace Game.StatusEffect
                 : _options?.GlobalCountSettingsValue.GetOrDefault(
                     context,
                     new StatusEffectGlobalCountSettings())?.CreateRuntimeCopy();
-            if (countSettings != null && countSettings.Enabled)
-                _globalMaxCount = Mathf.Max(0, countSettings.MaxCount.GetOrDefault(context, 0));
+            if (countSettings is { Enabled: true } enabledCountSettings)
+            {
+                _isGlobalCountEnabled = true;
+                _globalMaxCount = Mathf.Max(0, enabledCountSettings.MaxCount.GetOrDefault(context, 0));
+            }
             else
+            {
+                _isGlobalCountEnabled = false;
                 _globalMaxCount = 0;
+            }
             _globalCurrentCount = _globalMaxCount > 0 ? _globalMaxCount : -1;
 
             UpdateGlobalCanUse();
@@ -986,6 +1076,39 @@ namespace Game.StatusEffect
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.descriptionKey, DynamicVariant.FromString(state.DescriptionKey));
             payload.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData, DynamicVariant.FromUnityObject(state.Icon));
             return payload;
+        }
+
+        readonly struct StatusEffectRuntimeResolution
+        {
+            public readonly bool IsAutoGlobalMode;
+            public readonly bool UseDuration;
+            public readonly bool UseUseCooldown;
+            public readonly bool UseCount;
+            public readonly IStatusEffectDurationDefinition? DurationDefinition;
+            public readonly IStatusEffectUseCooldownDefinition? UseCooldownDefinition;
+            public readonly IStatusEffectCountDefinition? CountDefinition;
+
+            public bool UsesServiceGlobalLifetime => UseDuration && (DurationDefinition?.SyncWithGlobalLifetime ?? false);
+            public bool UsesServiceGlobalUseCooldown => UseUseCooldown && (UseCooldownDefinition?.SyncWithGlobalUseCooldown ?? false);
+            public bool UsesServiceGlobalCount => UseCount && (CountDefinition?.SyncWithGlobalCount ?? false);
+
+            public StatusEffectRuntimeResolution(
+                bool isAutoGlobalMode,
+                bool useDuration,
+                bool useUseCooldown,
+                bool useCount,
+                IStatusEffectDurationDefinition? durationDefinition,
+                IStatusEffectUseCooldownDefinition? useCooldownDefinition,
+                IStatusEffectCountDefinition? countDefinition)
+            {
+                IsAutoGlobalMode = isAutoGlobalMode;
+                UseDuration = useDuration;
+                UseUseCooldown = useUseCooldown;
+                UseCount = useCount;
+                DurationDefinition = durationDefinition;
+                UseCooldownDefinition = useCooldownDefinition;
+                CountDefinition = countDefinition;
+            }
         }
     }
 }

@@ -18,6 +18,7 @@ namespace Game.Commands.VNext
             if (data is not TimerCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "TimerCommandData is required.");
 
+            var timerKey = typed.TimerKey?.Trim() ?? string.Empty;
             var origin = ctx.Actor ?? ctx.Scope;
             var scope = ActorSourceFastResolver.Resolve(ctx, typed.ActorSource, origin);
             if (scope?.Resolver == null)
@@ -29,10 +30,10 @@ namespace Game.Commands.VNext
                 return UniTask.CompletedTask;
             }
 
-            if (string.IsNullOrWhiteSpace(typed.TimerKey))
+            if (string.IsNullOrWhiteSpace(timerKey))
                 return UniTask.CompletedTask;
 
-            if (!hub.TryGetRuntime(typed.TimerKey.Trim(), out var runtime) || runtime == null)
+            if (!hub.TryGetRuntime(timerKey, out var runtime) || runtime == null)
                 return UniTask.CompletedTask;
 
             switch (typed.Mode)
@@ -49,17 +50,41 @@ namespace Game.Commands.VNext
                         runtime.Start();
                     break;
                 case TimerCommandMode.SetTime:
-                    runtime.SetTime(typed.Time.GetOrDefault(ctx, runtime.CurrentTime));
+                    var setTime = typed.Time.GetOrDefault(ctx, runtime.CurrentTime);
+                    runtime.SetTime(setTime);
                     break;
                 case TimerCommandMode.SetTimeScale:
-                    runtime.SetTimeScale(typed.TimeScale.GetOrDefault(ctx, runtime.TimeScale));
+                    var timeScale = typed.TimeScale.GetOrDefault(ctx, runtime.TimeScale);
+                    runtime.SetTimeScale(timeScale);
                     break;
                 case TimerCommandMode.GetTime:
                     WriteTime(typed, ctx, scope, runtime.CurrentTime);
                     break;
+                case TimerCommandMode.AddCurrent:
+                    var addValue = ResolveAddCurrentValue(typed, ctx);
+                    if (Mathf.Approximately(addValue, 0f))
+                        break;
+
+                    // AddCurrent は再生中のみ成功する実装のため、停止中は明示的に SetTime へフォールバックする。
+                    var tryAddApplied = runtime.TryAddCurrent(addValue);
+                    if (!tryAddApplied)
+                        runtime.SetTime(runtime.CurrentTime + addValue);
+                    break;
             }
 
             return UniTask.CompletedTask;
+        }
+
+        static float ResolveAddCurrentValue(TimerCommandData typed, CommandContext ctx)
+        {
+            if (typed.AddValue.HasSource)
+                return typed.AddValue.GetOrDefault(ctx, 0f);
+
+            // 既存データ互換: AddCurrent に切り替えた旧コマンドが Time に加算値を持っている場合がある。
+            if (typed.Time.HasSource)
+                return typed.Time.GetOrDefault(ctx, 0f);
+
+            return typed.AddValue.GetOrDefault(ctx, 0f);
         }
 
         static void WriteTime(TimerCommandData typed, CommandContext ctx, IScopeNode scope, float time)

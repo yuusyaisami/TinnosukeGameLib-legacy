@@ -1,5 +1,8 @@
 #nullable enable
 
+using System.Collections.Generic;
+using VContainer;
+
 namespace Game.Channel
 {
     internal sealed class AutoSpawnChannelRuntimePlayer
@@ -11,6 +14,8 @@ namespace Game.Channel
         public bool LoggedMapping;
         public bool LoggedArea;
         public bool InitialSpawnDone;
+        public readonly List<IObjectResolver> ManagedSpawnedResolvers = new();
+        public readonly object ManagedSpawnedResolversLock = new();
 
         public AutoSpawnChannelRuntimePlayer(AutoSpawnChannelDefinition definition)
         {

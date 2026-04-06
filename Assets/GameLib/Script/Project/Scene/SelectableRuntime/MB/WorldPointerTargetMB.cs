@@ -1,6 +1,7 @@
 #nullable enable
 using System.Collections.Generic;
 using Game;
+using Game.Commands;
 using Game.Common;
 using Game.Commands.VNext;
 using Game.Vars.Generated;
@@ -101,6 +102,13 @@ namespace Game.SelectRuntime
         [SerializeField]
         bool _onlyExecuteWhenSelfClicked = true;
 
+        [BoxGroup("Commands")]
+        [LabelText("Command Overlap Behavior")]
+        [Tooltip("同一ターゲットで前回のコマンド実行が残っている時の挙動です。SkipIfRunning=新規を無視, CancelAndRun=前回を停止して新規実行, AllowConcurrent=並列実行")]
+        [EnumToggleButtons]
+        [SerializeField]
+        ExecutionBehavior _commandOverlapBehavior = ExecutionBehavior.AllowConcurrent;
+
         [BoxGroup("Variables")]
         [InlineProperty]
         [HideLabel]
@@ -135,6 +143,7 @@ namespace Game.SelectRuntime
         public CommandListData OnHoverEnteredCommands => _onHoverEnteredCommands;
         public CommandListData OnHoverExitedCommands => _onHoverExitedCommands;
         public bool OnlyExecuteWhenSelfClicked => _onlyExecuteWhenSelfClicked;
+        public ExecutionBehavior CommandOverlapBehavior => _commandOverlapBehavior;
         public VarKeyRef PointerSelfResultKey => _pointerSelfResultKey;
         public VarKeyRef PointerSelfOrDescendantResultKey => _pointerSelfOrDescendantResultKey;
         public VarKeyRef HoverStateKey => _hoverStateKey;

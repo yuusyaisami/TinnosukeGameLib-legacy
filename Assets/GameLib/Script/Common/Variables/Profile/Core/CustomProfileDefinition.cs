@@ -23,7 +23,7 @@ namespace Game.Profile
         [BoxGroup("Profile")]
         [LabelText("Bindings")]
         [SerializeReference]
-        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true)]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, CustomAddFunction = nameof(CreateBinding), ListElementLabelName = "ProfileBindingListLabel")]
         List<IProfileValueBinding> _bindings = new();
 
         public string ProfileName => _profileName;
@@ -74,6 +74,8 @@ namespace Game.Profile
             }
             return count;
         }
+
+        IProfileValueBinding CreateBinding() => new ProfileDynamicValue();
     }
 
     public enum ProfileDynamicValueKind
@@ -242,6 +244,30 @@ namespace Game.Profile
         string BlackboardBindingGroupName => $"Blackboard Binding ({GetBlackboardBindingLabel()})";
         string BlackboardBindingSaveGroupName => $"{BlackboardBindingGroupName}/Save";
 
+        public string ProfileBindingListLabel => ProfileBindingInspectorLabelUtility.BuildLabel(
+            nameof(ProfileDynamicValue),
+            GetValueLabel(),
+            CanBindScalar && HasScalarKey ? _scalarKey.Name : string.Empty,
+            _blackboardKey);
+
+        public override string ToString()
+        {
+            var valueLabel = GetValueLabel();
+            var scalarLabel = CanBindScalar && HasScalarKey ? GetLeafLabel(_scalarKey.Name) : string.Empty;
+            var blackboardLabel = HasBlackboardKey ? GetLeafLabel(GetBlackboardBindingLabel()) : string.Empty;
+
+            if (!string.IsNullOrEmpty(scalarLabel) && !string.IsNullOrEmpty(blackboardLabel))
+                return $"{_kind}:{valueLabel} [{scalarLabel}/{blackboardLabel}]";
+
+            if (!string.IsNullOrEmpty(scalarLabel))
+                return $"{_kind}:{valueLabel} [{scalarLabel}]";
+
+            if (!string.IsNullOrEmpty(blackboardLabel))
+                return $"{_kind}:{valueLabel} [{blackboardLabel}]";
+
+            return $"{_kind}:{valueLabel}";
+        }
+
         int IProfileValueBinding.BlackboardKey => _blackboardKey;
         ScalarKey IProfileValueBinding.ScalarKey => _scalarKey;
         BlackboardBindPolicy IProfileValueBinding.BlackboardPolicy => _blackboardPolicy;
@@ -392,6 +418,38 @@ namespace Game.Profile
                 return stableKey;
 
             return $"varId:{_blackboardKey}";
+        }
+
+        string GetValueLabel()
+        {
+            return _kind switch
+            {
+                ProfileDynamicValueKind.Float => _floatValue.ToString("0.###"),
+                ProfileDynamicValueKind.Int => _intValue.ToString(),
+                ProfileDynamicValueKind.Bool => _boolValue ? "true" : "false",
+                ProfileDynamicValueKind.String => string.IsNullOrEmpty(_stringValue) ? "\"\"" : $"\"{_stringValue}\"",
+                ProfileDynamicValueKind.Vector2 => _vector2Value.ToString(),
+                ProfileDynamicValueKind.Vector3 => _vector3Value.ToString(),
+                ProfileDynamicValueKind.Color => _colorValue.ToString(),
+                ProfileDynamicValueKind.UnityObject => _unityObjectValue != null ? _unityObjectValue.name : "null",
+                _ => "<none>"
+            };
+        }
+
+        static string GetLeafLabel(string fullKey)
+        {
+            if (string.IsNullOrEmpty(fullKey))
+                return "Unbound";
+
+            var lastDot = fullKey.LastIndexOf('.');
+            if (lastDot >= 0 && lastDot + 1 < fullKey.Length)
+                return fullKey.Substring(lastDot + 1);
+
+            var lastSlash = fullKey.LastIndexOf('/');
+            if (lastSlash >= 0 && lastSlash + 1 < fullKey.Length)
+                return fullKey.Substring(lastSlash + 1);
+
+            return fullKey;
         }
     }
 }
