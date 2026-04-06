@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Commands;
@@ -229,7 +231,7 @@ namespace Game.StatusEffect
         public int UsedCount => UsesServiceGlobalCount ? _owner.GlobalUsedCount : _countController?.UsedCount ?? 0;
         public int RemainingUseCount => UsesServiceGlobalCount ? _owner.GlobalCurrentCount : _countController?.RemainingCount ?? -1;
         public float RemainingUseCooldown => UsesServiceGlobalUseCooldown ? _owner.GlobalCooldownRemaining : _useCooldownController?.RemainingDuration ?? 0f;
-        public EffectType Type => _visualData?.EffectType ?? EffectType.Neutral;
+        public EffectType Type => EffectType.Neutral;
         public string DisplayName => _visualData?.DisplayNameText ?? DefinitionId;
         public string NameKey => _nameKey;
         public string DescriptionKey => _descriptionKey;
@@ -247,7 +249,7 @@ namespace Game.StatusEffect
             }
         }
 
-        public void ApplyInitial()
+        public void ApplyInitial([CallerMemberName] string caller = "")
         {
             if (_isApplied)
                 return;
@@ -260,6 +262,11 @@ namespace Game.StatusEffect
             _isApplied = true;
             RefreshUseBlockedState();
             WriteRuntimeVars();
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log(
+                $"[StatusEffectRuntime] ApplyInitial caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} scope={DescribeScope(_scope)} enabled={_isEnabled} applied={_isApplied} hookCount={_hooks.Resolve(StatusEffectHookKind.Apply)?.Count ?? 0}");
+#endif
             ExecuteHook(StatusEffectHookKind.Apply, _scope);
         }
 
@@ -470,22 +477,47 @@ namespace Game.StatusEffect
             WriteRuntimeVars();
         }
 
-        public void ResetRuntime()
+        public void RestoreRuntimeState([CallerMemberName] string caller = "")
         {
             if (!_isRegistered)
                 return;
+
+            var wasApplied = _isApplied;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log(
+                $"[StatusEffectRuntime] RestoreRuntimeState caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} scope={DescribeScope(_scope)} applied={_isApplied} enabled={_isEnabled} suspended={_isSuspendedByScopeRelease} hookCount={_hooks.Resolve(StatusEffectHookKind.Apply)?.Count ?? 0}");
+#endif
 
             _durationController?.Reset();
             _countController?.Reset();
             _useCooldownController?.Reset();
             _isSuspendedByScopeRelease = false;
+            _isRemoveRequested = false;
             _hasHandledGlobalLifetimeExpiration = false;
             _hasHandledGlobalCountExhaustion = false;
             _hasHandledLocalCountExhaustion = false;
-            RemoveOperations(permanent: false);
-            _isEnabled = true;
-            _isApplied = false;
-            ApplyInitial();
+
+            RegisterRichText();
+
+            if (_isEnabled && !wasApplied)
+            {
+                _isApplied = false;
+                WriteRuntimeVars();
+                ApplyOperations();
+                _isApplied = true;
+            }
+            else if (!_isEnabled)
+            {
+                _isApplied = false;
+            }
+            else
+            {
+                _isApplied = true;
+            }
+
+            RefreshUseBlockedState();
+            WriteRuntimeVars();
             RefreshFromServiceGlobalState(applyActions: true);
         }
 
@@ -591,6 +623,52 @@ namespace Game.StatusEffect
                 UsedCount,
                 RemainingUseCount,
                 MaxUseCount);
+        }
+
+        public int SetOperationEnabled(string operationId, bool enabled)
+        {
+            if (!_isRegistered || string.IsNullOrWhiteSpace(operationId))
+                return 0;
+
+            int matchedCount = 0;
+            for (int i = 0; i < _operations.Count; i++)
+            {
+                var operation = _operations[i];
+                if (operation == null)
+                    continue;
+
+                if (!string.Equals(operation.OperationId, operationId, StringComparison.Ordinal))
+                    continue;
+
+                operation.SetOperationEnabled(enabled);
+                matchedCount++;
+            }
+
+            if (matchedCount > 0)
+                WriteRuntimeVars();
+
+            return matchedCount;
+        }
+
+        public bool IsAnyOperationEnabled(string operationId)
+        {
+            if (string.IsNullOrWhiteSpace(operationId))
+                return false;
+
+            for (int i = 0; i < _operations.Count; i++)
+            {
+                var operation = _operations[i];
+                if (operation == null)
+                    continue;
+
+                if (!string.Equals(operation.OperationId, operationId, StringComparison.Ordinal))
+                    continue;
+
+                if (operation.IsOperationEnabled)
+                    return true;
+            }
+
+            return false;
         }
 
         void HandleDurationExpired()
@@ -873,7 +951,7 @@ namespace Game.StatusEffect
             _descriptionKey = baseKey;
             _nameKey = $"{baseKey}:name";
 
-            TryRegisterTemplate(richText, _descriptionKey, _visualData?.Description);
+            TryRegisterDescriptionProvider(richText, _descriptionKey, _visualData, this);
             TryRegisterTemplate(richText, _nameKey, _visualData?.DisplayName);
         }
 
@@ -905,7 +983,124 @@ namespace Game.StatusEffect
             richText.TryRegister(key, new RichTextProvider(source), overwrite: true);
         }
 
-        void ExecuteHook(StatusEffectHookKind kind, IScopeNode actorScope, CommandContext? sourceContext = null)
+        static void TryRegisterDescriptionProvider(
+            IRichTextRefService richText,
+            string key,
+            EffectVisualData? visualData,
+            StatusEffectRuntime runtime)
+        {
+            if (string.IsNullOrWhiteSpace(key) || visualData == null || runtime == null)
+                return;
+
+            bool hasBaseTemplate = !string.IsNullOrWhiteSpace(visualData.Description?.Template);
+            bool hasAdditional = visualData.AdditionalDescriptions != null && visualData.AdditionalDescriptions.Count > 0;
+            if (!hasBaseTemplate && !hasAdditional)
+                return;
+
+            richText.TryRegister(key, new StatusEffectDescriptionProvider(runtime, visualData), overwrite: true);
+        }
+
+        sealed class StatusEffectDescriptionProvider : IRichTextProvider
+        {
+            readonly StatusEffectRuntime _runtime;
+            readonly RichTextSource _baseSource = new();
+            readonly IReadOnlyList<StatusEffectAdditionalDescriptionEntry> _additionalEntries;
+
+            public StatusEffectDescriptionProvider(StatusEffectRuntime runtime, EffectVisualData visualData)
+            {
+                _runtime = runtime;
+                _additionalEntries = visualData.AdditionalDescriptions != null
+                    ? visualData.AdditionalDescriptions
+                    : (IReadOnlyList<StatusEffectAdditionalDescriptionEntry>)Array.Empty<StatusEffectAdditionalDescriptionEntry>();
+
+                if (!string.IsNullOrWhiteSpace(visualData.Description?.Template))
+                {
+                    _baseSource.Template = visualData.Description.Template;
+                    _baseSource.SetExternalVariables(visualData.Description.Variables, includeLocalVariables: false);
+                }
+            }
+
+            public string Evaluate(IDynamicContext ctx)
+            {
+                var evaluationContext = _runtime.BuildDescriptionEvaluationContext(ctx);
+                var builder = new StringBuilder();
+
+                var baseText = _baseSource.Evaluate(evaluationContext).AsString ?? string.Empty;
+                if (!string.IsNullOrWhiteSpace(baseText))
+                    builder.Append(baseText);
+
+                for (int i = 0; i < _additionalEntries.Count; i++)
+                {
+                    var entry = _additionalEntries[i];
+                    if (entry == null)
+                        continue;
+
+                    if (!IsConditionMatched(entry.Condition, evaluationContext))
+                        continue;
+
+                    var text = ResolveEntryText(entry, evaluationContext);
+                    if (string.IsNullOrWhiteSpace(text))
+                        continue;
+
+                    if (builder.Length > 0)
+                        builder.Append('\n');
+
+                    builder.Append(text);
+                }
+
+                return builder.ToString();
+            }
+
+            public IReadOnlyList<string> GetDependentKeys()
+                => _baseSource.GetDependentKeys() ?? Array.Empty<string>();
+
+            bool IsConditionMatched(StatusEffectAdditionalDescriptionCondition? condition, IDynamicContext context)
+            {
+                if (condition == null)
+                    return true;
+
+                bool actual;
+                switch (condition.ConditionType)
+                {
+                    case StatusEffectAdditionalDescriptionConditionType.DynamicBool:
+                        {
+                            var boolValue = condition.BoolValue;
+                            boolValue.TrySetExternalExpressionVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
+                            actual = boolValue.GetOrDefault(context, false);
+                            break;
+                        }
+
+                    case StatusEffectAdditionalDescriptionConditionType.OperationEnabledById:
+                    default:
+                        actual = _runtime.IsAnyOperationEnabled(condition.OperationId);
+                        break;
+                }
+
+                return condition.CompareMode == StatusEffectBooleanCompareMode.Equals
+                    ? actual == condition.Expected
+                    : actual != condition.Expected;
+            }
+
+            static string ResolveEntryText(StatusEffectAdditionalDescriptionEntry entry, IDynamicContext context)
+            {
+                var textValue = entry.Text;
+                textValue.TrySetExternalExpressionVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
+                return textValue.GetOrDefault(context, string.Empty) ?? string.Empty;
+            }
+        }
+
+        IDynamicContext BuildDescriptionEvaluationContext(IDynamicContext? sourceContext)
+        {
+            if (sourceContext == null)
+                return new StatusEffectOperationDynamicContext(_vars, _scope, _scope);
+
+            var merged = new VarStore();
+            sourceContext.Vars.MergeInto(merged, overwrite: true);
+            _vars.MergeInto(merged, overwrite: true);
+            return new StatusEffectOperationDynamicContext(merged, _scope, sourceContext.CommandRootScope ?? _scope);
+        }
+
+        void ExecuteHook(StatusEffectHookKind kind, IScopeNode actorScope, CommandContext? sourceContext = null, [CallerMemberName] string caller = "")
         {
             var runner = _owner.CommandRunner;
             if (_scope == null || runner == null)
@@ -914,6 +1109,14 @@ namespace Game.StatusEffect
             var commands = _hooks.Resolve(kind);
             if (commands == null || commands.Count == 0)
                 return;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (kind == StatusEffectHookKind.Apply)
+            {
+                Debug.Log(
+                    $"[StatusEffectRuntime] ExecuteHook kind={kind} caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} actor={DescribeScope(actorScope)} scope={DescribeScope(_scope)} commandList={commands.FunctionName} commandCount={commands.Count} sourceContext={DescribeCommandContext(sourceContext)}");
+            }
+#endif
 
             WriteRuntimeVars();
             var context = sourceContext != null
@@ -942,6 +1145,30 @@ namespace Game.StatusEffect
                     Debug.LogException(ex);
                 }
             });
+        }
+
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "<null>";
+
+            if (scope.Identity != null)
+            {
+                var name = scope.Identity.SelfTransform != null
+                    ? scope.Identity.SelfTransform.name
+                    : "(unnamed)";
+                return $"{scope.Identity.Id}:{scope.Identity.Kind}:{name}";
+            }
+
+            return scope.GetType().Name;
+        }
+
+        static string DescribeCommandContext(CommandContext? sourceContext)
+        {
+            if (sourceContext == null)
+                return "<none>";
+
+            return $"scope={DescribeScope(sourceContext.Scope)} actor={DescribeScope(sourceContext.Actor)} root={DescribeScope(sourceContext.CommandRootScope)}";
         }
 
         void ExecuteRemoveHookAndFinalize()

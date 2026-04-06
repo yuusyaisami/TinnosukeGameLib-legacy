@@ -39,6 +39,7 @@ MonoBehaviour:
           SortOrder: 0
           ApplyAnim: {fileID: 0}
           RemoveAnim: {fileID: 0}
+        runtimeControlMode: 0
         useDuration: 0
         durationDefinition:
           rid: -2
@@ -101,10 +102,11 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.MaxNail
         ApplyMode: 10
         MulPhase: 0
-        ValueMode: 20
+        ValueMode: 10
+        RuntimeIntensitySlot: 10
         Value:
           _source:
-            rid: -2
+            rid: 5399842483577028937
           _defaultValue: 0
         TargetActorSource:
           Kind: 5
@@ -121,3 +123,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+    - rid: 5399842483577028937
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0

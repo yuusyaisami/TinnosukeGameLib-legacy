@@ -372,7 +372,46 @@ namespace Game.Common
                 return string.Compare(a.AsString, b.AsString, StringComparison.Ordinal);
             }
 
+            if (TryGetComparableNumber(a, out var left) && TryGetComparableNumber(b, out var right))
+            {
+                if (AreApproximatelyEqual(left, right))
+                    return 0;
+
+                return left.CompareTo(right);
+            }
+
             return AsNumber(a).CompareTo(AsNumber(b));
+        }
+
+        static bool TryGetComparableNumber(DynamicVariant value, out double result)
+        {
+            switch (value.Kind)
+            {
+                case ValueKind.Bool:
+                    result = value.AsBool ? 1d : 0d;
+                    return true;
+                case ValueKind.Int:
+                    result = value.AsInt;
+                    return true;
+                case ValueKind.Float:
+                    result = value.AsFloat;
+                    return true;
+                default:
+                    result = default;
+                    return false;
+            }
+        }
+
+        static bool AreApproximatelyEqual(double left, double right)
+        {
+            const double tolerance = 0.000001d;
+
+            var diff = Math.Abs(left - right);
+            if (diff <= tolerance)
+                return true;
+
+            var scale = Math.Max(Math.Abs(left), Math.Abs(right));
+            return diff <= tolerance * Math.Max(1d, scale);
         }
 
         static bool IsNumericKind(ValueKind kind)

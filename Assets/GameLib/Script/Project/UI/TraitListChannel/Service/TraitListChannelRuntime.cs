@@ -1166,9 +1166,9 @@ namespace Game.UI
                 var instance = _instances[i];
                 if (instance == null)
                     continue;
-                Debug.Log(
-                    $"[TraitListChannel][Clear] tag='{Tag}' trait='{DescribeTrait(instance.Trait)}' root='{DescribeTransform(instance.Root)}' " +
-                    $"parent='{DescribeTransform(instance.Root.parent)}'");
+                //Debug.Log(
+                //    $"[TraitListChannel][Clear] tag='{Tag}' trait='{DescribeTrait(instance.Trait)}' root='{DescribeTransform(instance.Root)}' " +
+                //    $"parent='{DescribeTransform(instance.Root.parent)}'");
                 await TraitListChannelRuntimeHelpers.ReleaseSpawnedInstanceAsync(instance.Root, instance.Scope, instance.Resolver);
             }
 

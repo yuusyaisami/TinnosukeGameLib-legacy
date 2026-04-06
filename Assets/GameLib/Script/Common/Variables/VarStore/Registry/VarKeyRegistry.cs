@@ -42,6 +42,8 @@ namespace Game.VarStoreKeys
             new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.IsLong, "UIButton.ShortLong.IsLong"),
             new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.IsLongMax, "UIButton.ShortLong.IsLongMax"),
             new(Game.Vars.Generated.VarIds.GameLib.UI.Button.ShortLong.LongMaxTime, "UIButton.ShortLong.LongMaxTime"),
+            // RuntimeTrait の Hidden / Visible 状態を書き込むキー。
+            new(100125, "traitRuntime.presentationState"),
         };
 
         [Serializable]

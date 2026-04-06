@@ -19,6 +19,16 @@ namespace Game.Trait
         [Tooltip("Trait が配線された時に、Trait の CommonVars と基本データを Blackboard に書き込みます。WriteTraitData と同等のキーで書き込みます。")]
         [SerializeField] bool _writeTraitDataOnLink = true;
 
+        [BoxGroup("Presentation")]
+        [LabelText("Condition")]
+        [Tooltip("右クリックで Hidden を適用するかを判定する条件です。DynamicValue<bool> なので Blackboard や式を参照できます。")]
+        [SerializeField] DynamicValue<bool> _condition = DynamicValueExtensions.FromLiteral(true);
+
+        [BoxGroup("Blackboard")]
+        [LabelText("Presentation State Key")]
+        [Tooltip("現在の Hidden / Visible 状態を書き込む VarKey です。既定は traitRuntime.presentationState です。")]
+        [SerializeField] VarKeyRef _presentationStateKey = new(0, TraitRuntimeLinkVarKeys.PresentationState);
+
         [BoxGroup("Presentation Commands")]
         [LabelText("On Hidden Commands")]
         [InlineProperty]
@@ -45,7 +55,11 @@ namespace Game.Trait
 
         public bool WriteTraitDataOnLink => _writeTraitDataOnLink;
 
+        public DynamicValue<bool> Condition => _condition;
+
         public TraitRuntimeLinkData? LinkData => _linkData?.Clone();
+
+        public VarKeyRef PresentationStateKey => _presentationStateKey;
 
         public DynamicValue<CommandListData> OnHiddenCommands => _onHiddenCommands;
 
@@ -59,6 +73,45 @@ namespace Game.Trait
         public void ClearLinkData()
         {
             _linkData = null;
+        }
+
+        public bool CanHideOnRightClick(IScopeNode? scope)
+        {
+            IVarStore vars = NullVarStore.Instance;
+            if (scope?.Resolver != null &&
+                scope.Resolver.TryResolve<IBlackboardService>(out var blackboard) &&
+                blackboard != null &&
+                blackboard.LocalVars != null)
+            {
+                vars = blackboard.LocalVars;
+            }
+
+            var context = new SimpleDynamicContext(vars, scope);
+            if (_condition.TryGet(context, out var allowHide))
+                return allowHide;
+
+            return true;
+        }
+
+        public bool TryResolvePresentationStateVarId(out int varId)
+        {
+            if (_presentationStateKey.VarId > 0)
+            {
+                varId = _presentationStateKey.VarId;
+                return true;
+            }
+
+            var stableKey = _presentationStateKey.StableKey;
+            if (!string.IsNullOrEmpty(stableKey) &&
+                VarIdResolver.TryResolve(stableKey, out var resolvedVarId) &&
+                resolvedVarId > 0)
+            {
+                varId = resolvedVarId;
+                return true;
+            }
+
+            varId = 0;
+            return false;
         }
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)

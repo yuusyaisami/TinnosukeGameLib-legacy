@@ -100,7 +100,7 @@ namespace Game.Profile
     }
 
     [Serializable]
-    public struct ProfileVector2Value : IProfileValueBinding
+    public sealed class ProfileVector2Value : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
@@ -183,7 +183,7 @@ namespace Game.Profile
     }
 
     [Serializable]
-    public struct ProfileVector3Value : IProfileValueBinding
+    public sealed class ProfileVector3Value : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
@@ -266,7 +266,7 @@ namespace Game.Profile
     }
 
     [Serializable]
-    public struct ProfileVector4Value : IProfileValueBinding
+    public sealed class ProfileVector4Value : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
@@ -349,7 +349,7 @@ namespace Game.Profile
     }
 
     [Serializable]
-    public struct ProfileColorValue : IProfileValueBinding
+    public sealed class ProfileColorValue : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
@@ -432,7 +432,7 @@ namespace Game.Profile
     }
 
     [Serializable]
-    public struct ProfileUnityObjectValue : IProfileValueBinding
+    public sealed class ProfileUnityObjectValue : IProfileValueBinding
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]

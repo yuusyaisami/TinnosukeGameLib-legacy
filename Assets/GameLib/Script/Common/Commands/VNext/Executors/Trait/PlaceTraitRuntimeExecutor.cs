@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Common;
+using Game.SelectRuntime;
 using Game.Trait;
 using UnityEngine;
 using VContainer;
@@ -145,6 +146,9 @@ namespace Game.Commands.VNext
                 //    $"RunFlag={typed.RunOnPlacedCommands} Count={(typed.OnPlacedCommands != null ? typed.OnPlacedCommands.Count : -1)}");
             }
 #endif
+
+            if (!TryApplyFinalPlacementCorrection(runtime))
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Placed runtime pose could not be corrected to a valid state.");
         }
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
@@ -241,6 +245,78 @@ namespace Game.Commands.VNext
             //    $"[PlaceTraitRuntime] ExecuteOnPlaced complete. TraitInstanceId='{traitInstanceId}' " +
             //    $"Status={result.Status} FailureCount={result.FailureCount} List={commands.GetDebugLabel()}");
 #endif
+        }
+
+        static bool TryApplyFinalPlacementCorrection(RuntimeLifetimeScope runtimeScope)
+        {
+            if (runtimeScope == null)
+                return true;
+
+            var editor = runtimeScope.GetComponentInChildren<UserMoveRotateRuntimeMB>(true);
+            if (editor == null)
+                return true;
+
+            var request = UserMoveRotateValidationRequest.Create(editor, runtimeScope);
+            if (!request.IsValid)
+                return true;
+
+            ResolvePlacementTransforms(runtimeScope, editor, out var moveTransform, out var rotateTransform);
+            var currentPosition = moveTransform.position;
+            var currentRotation = rotateTransform.rotation;
+
+            if (UserMoveRotateValidationUtility.IsValidPose(request, currentPosition, currentRotation))
+                return true;
+
+            if (!UserMoveRotateValidationUtility.TryFindNearestValidPose(
+                    request,
+                    currentPosition,
+                    currentRotation,
+                    out var correctedPosition,
+                    out var correctedRotation))
+            {
+                return false;
+            }
+
+            ApplyPlacementPose(moveTransform, rotateTransform, correctedPosition, correctedRotation);
+            return true;
+        }
+
+        static void ResolvePlacementTransforms(
+            RuntimeLifetimeScope runtimeScope,
+            UserMoveRotateRuntimeMB editor,
+            out Transform moveTransform,
+            out Transform rotateTransform)
+        {
+            var rootTransform = ResolveRootTransform(runtimeScope);
+            moveTransform = editor.ApplyOverrideTargetTransform && editor.MoveTargetTransform != null
+                ? editor.MoveTargetTransform
+                : rootTransform;
+            rotateTransform = editor.ApplyOverrideTargetTransform && editor.RotateTargetTransform != null
+                ? editor.RotateTargetTransform
+                : rootTransform;
+        }
+
+        static Transform ResolveRootTransform(RuntimeLifetimeScope runtimeScope)
+        {
+            return runtimeScope.Identity?.SelfTransform != null
+                ? runtimeScope.Identity.SelfTransform
+                : runtimeScope.transform;
+        }
+
+        static void ApplyPlacementPose(
+            Transform moveTransform,
+            Transform rotateTransform,
+            Vector3 position,
+            Quaternion rotation)
+        {
+            if (ReferenceEquals(moveTransform, rotateTransform))
+            {
+                moveTransform.SetPositionAndRotation(position, rotation);
+                return;
+            }
+
+            moveTransform.position = position;
+            rotateTransform.rotation = rotation;
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

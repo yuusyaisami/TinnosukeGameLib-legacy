@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
   m_Name: Maneki
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
-  _definitionId: ExtendNailBox
+  _definitionId: Maneki
   _name:
     Template: "\u5B9F\u5728\u62DB\u304D\u732B"
     Variables: []

@@ -55,6 +55,11 @@ MonoBehaviour:
         HolderKey: EventShop
         Candidates:
         - {fileID: 11400000, guid: 5df5cd471e44c104b9c6ce80321b6b0e, type: 2}
+        - {fileID: 11400000, guid: e736a7dcc6677624487cd9c28fb85277, type: 2}
+        - {fileID: 11400000, guid: 9b074c8d1bd77ce4b9ceabee24816809, type: 2}
+        - {fileID: 11400000, guid: 8b43d7613e233ac4e836cfebca77efe9, type: 2}
+        - {fileID: 11400000, guid: 920db0b845788884ab9af2b3b70f8672, type: 2}
+        - {fileID: 11400000, guid: 295f215fe680e864f96009fba81d92d1, type: 2}
         ConditionalCandidates: []
         DrawCount:
           _source:

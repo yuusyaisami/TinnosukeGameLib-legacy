@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
   m_Name: MaxNailUp
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
-  _definitionId: ExtendNailBox
+  _definitionId: MaxNailUp
   _name:
     Template: "\u30E8\u30FC\u30C6\u30E0\u306E\u30DC\u30C3\u30AF\u30B9"
     Variables: []

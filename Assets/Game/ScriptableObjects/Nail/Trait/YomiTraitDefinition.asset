@@ -350,14 +350,13 @@ MonoBehaviour:
     _debugAssetPath: 
     _functionName: 
     _commands: []
-  _runOnRuntimeVisibleCommands: 1
+  _runOnRuntimeVisibleCommands: 0
   _onRuntimeVisibleCommands:
     _debugOwner: {fileID: 0}
     _debugFieldPath: 
     _debugAssetPath: 
     _functionName: 
-    _commands:
-    - rid: 5399842431600952237
+    _commands: []
   _runOnRuntimeHiddenCommands: 0
   _onRuntimeHiddenCommands:
     _debugOwner: {fileID: 0}
@@ -426,99 +425,6 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 5399842431600952237
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842431600952238
-    - rid: 5399842431600952238
-      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Source:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        Target:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        VarOps: []
-        ScalarOps:
-        - Op: 0
-          Key:
-            Id: -1617617846
-            Name: GameLogic.NailProfile.Effect.GlobalMaxCount
-          Layer: 
-          MulPhase: 1
-          Value:
-            _source:
-              rid: 5399842431600952239
-            _defaultValue: 0
-          DurationSeconds:
-            _source:
-              rid: 5399842479533719728
-            _defaultValue: 0
-          Tag: 
-          StoreHandleVar:
-            stableKey: 
-            varId: 0
-          HandleVar:
-            stableKey: 
-            varId: 0
-          UnsetAfterDispose: 1
-          KeepLocalBaseOnClearKey: 0
-        DebugMode: 0
-        Debug:
-          LogLevel: 10
-          Prefix: '[WriteDataDebug]'
-          IncludeCommandSummary: 1
-          IncludeOpIndex: 1
-          Vars:
-            Enabled: 1
-            LogSuccess: 1
-            LogFailure: 1
-            IncludeInputValue: 1
-            IncludeBeforeValue: 1
-            IncludeAfterValue: 1
-            IncludeVarKey: 1
-            IncludeScope: 1
-          Scalars:
-            Enabled: 1
-            LogSuccess: 1
-            LogFailure: 1
-            IncludeInputValue: 1
-            IncludeBeforeValue: 1
-            IncludeAfterValue: 1
-            IncludeScalarKey: 1
-            IncludeScope: 1
-            IncludeLayer: 1
-            IncludeDuration: 1
-            IncludeTag: 1
-    - rid: 5399842431600952239
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 3
     - rid: 5399842452542849177
       type: {class: LiteralStatusEffectStackPresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -882,10 +788,6 @@ MonoBehaviour:
       data:
         value: 1
     - rid: 5399842462289887738
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5399842479533719728
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0

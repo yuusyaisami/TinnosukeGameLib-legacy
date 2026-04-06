@@ -55,6 +55,8 @@ MonoBehaviour:
         HolderKey: IdentityShop
         Candidates:
         - {fileID: 11400000, guid: 224d77d42dc7e9d44b1845e62ce2834e, type: 2}
+        - {fileID: 11400000, guid: 437e5f61e0e63c4419ed16c8ba24a104, type: 2}
+        - {fileID: 11400000, guid: ff21b7689bc4e5e4799a815c922c017e, type: 2}
         ConditionalCandidates: []
         DrawCount:
           _source:

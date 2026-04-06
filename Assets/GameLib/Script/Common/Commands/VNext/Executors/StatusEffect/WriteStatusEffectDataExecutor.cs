@@ -233,7 +233,7 @@ namespace Game.Commands.VNext
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.descriptionTemplate, DynamicVariant.FromString(visualData?.DescriptionText ?? string.Empty), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.nameKey, DynamicVariant.FromString(string.Empty), overwrite);
             WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.descriptionKey, DynamicVariant.FromString(string.Empty), overwrite);
-            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.effectType, DynamicVariant.FromInt((int)(visualData?.EffectType ?? EffectType.Neutral)), overwrite);
+            WriteVariant(target, commandVars, targetScope, blackboard, VarIds.GameLib.Base.StatusEffect.Definition.Element.effectType, DynamicVariant.FromInt((int)EffectType.Neutral), overwrite);
         }
 
         static void WriteRuntimeCore(IVarStore? commandVars, VarStoreTarget target, IScopeNode? targetScope, IBlackboardService? blackboard, EffectState state, bool overwrite)

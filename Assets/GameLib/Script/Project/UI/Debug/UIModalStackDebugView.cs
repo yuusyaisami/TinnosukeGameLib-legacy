@@ -21,7 +21,7 @@ namespace Game.UI
         public string[] ActiveRoots = Array.Empty<string>();
 
         [ShowInInspector, ReadOnly]
-        public (string ModalId, string Selected)[] SelectionHistory = Array.Empty<(string, string)>();
+        public (string RootLabel, string Selected)[] SelectionHistory = Array.Empty<(string, string)>();
 
         IUIModalStackTelemetry? _telemetry;
 
@@ -47,7 +47,7 @@ namespace Game.UI
         void Refresh()
         {
             if (_telemetry == null) return;
-            CurrentInputRoot = _telemetry.CurrentInputRoot?.ModalId ?? "(none)";
+            CurrentInputRoot = UIModalStackDebugLabelUtility.DescribeRoot(_telemetry.CurrentInputRoot);
             Depth = _telemetry.Depth;
             StackModalIds = _telemetry.GetStackModalIds();
             var roots = _telemetry.ActiveRoots;
@@ -57,7 +57,7 @@ namespace Game.UI
                 for (int i = 0; i < roots.Count; i++)
                 {
                     var r = roots[i];
-                    rootsArr[i] = $"{r.StackKey}:{r.Root?.ModalId ?? "(none)"}";
+                    rootsArr[i] = UIModalStackDebugLabelUtility.DescribeStackEntry(r.StackKey, r.Root);
                 }
                 ActiveRoots = rootsArr;
             }

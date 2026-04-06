@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
   m_Name: QuotaSagi
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
-  _definitionId: OfuroBallValue
+  _definitionId: QuotaSega
   _name:
     Template: "\u30CE\u30EB\u30DE\u8A50\u6B3A (Supply!)"
     Variables: []
