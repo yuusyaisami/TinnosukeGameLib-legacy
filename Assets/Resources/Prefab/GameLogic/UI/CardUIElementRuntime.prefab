@@ -2575,6 +2575,7 @@ MonoBehaviour:
             rid: 5399842374860144822
           _defaultValue: {fileID: 0}
         UseBoundHolder: 0
+        AutoUseAfterAdd: 1
         HolderActorSource:
           Kind: 5
           Identity:
@@ -3644,7 +3645,7 @@ MonoBehaviour:
               rid: -2
           Condition:
             _source:
-              rid: -2
+              rid: 5399842481793139699
             _defaultValue: 0
           Commands:
             _debugOwner: {fileID: 0}
@@ -3663,7 +3664,7 @@ MonoBehaviour:
               rid: -2
           Condition:
             _source:
-              rid: -2
+              rid: 5399842481793139700
             _defaultValue: 0
           Commands:
             _debugOwner: {fileID: 0}
@@ -3682,7 +3683,7 @@ MonoBehaviour:
               rid: -2
           Condition:
             _source:
-              rid: -2
+              rid: 5399842481793139701
             _defaultValue: 0
           Commands:
             _debugOwner: {fileID: 0}
@@ -5397,6 +5398,18 @@ MonoBehaviour:
         vector3Value: {x: 0, y: 0, z: 0}
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842481793139699
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842481793139700
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842481793139701
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
 --- !u!1 &6542313115128094517
 GameObject:
   m_ObjectHideFlags: 0

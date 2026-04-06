@@ -76,13 +76,15 @@ namespace Game.Commands.VNext
     public sealed class AddTraitToHolderCommandData : ICommandData
     {
         public int CommandId => CommandIds.AddTraitToHolder;
-        public string DebugData => $"UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
+        public string DebugData => $"UseBound={UseBoundHolder} AutoUseAfterAdd={AutoUseAfterAdd} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [LabelText("Trait")]
         [Tooltip("追加する Trait。AssetTraitDefinitionSource、Var、Blackboard などから解決する。")]
         public DynamicValue<TraitDefinitionSO> TraitDefinition;
         [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
         public bool UseBoundHolder = true;
+        [Tooltip("true の場合、Trait の追加に成功した直後にその Trait に対して Use を実行します。")]
+        public bool AutoUseAfterAdd = false;
 
         [ShowIf("@!UseBoundHolder")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]

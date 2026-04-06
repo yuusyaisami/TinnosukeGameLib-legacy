@@ -2849,7 +2849,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 34315
+  _debugLastEnabledChangeFrame: 10573
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -10293,7 +10293,7 @@ MonoBehaviour:
   _editorLongPressSeconds: 0.8
   _editorCondition:
     _source:
-      rid: 5619052648602796133
+      rid: 5399842479533720165
     _defaultValue: 0
   _longPressEntryProgress: 0.5
   _moveSourceMode: 30
@@ -10571,6 +10571,77 @@ MonoBehaviour:
         vector3Value: {x: 0, y: 0, z: 0}
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842479533720165
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842479533720246
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: isGameEditor
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842479533720287
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: isGameOverlayPanel
+          _expectedType: 255
+        _expression: isGameEditor
+    - rid: 5399842479533720246
+      type: {class: GameStateMachineCompareBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        actorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        op: 0
+        targetState: 14
+    - rid: 5399842479533720287
+      type: {class: UIModalStackActorMatchSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        modalStackActorSource:
+          Kind: 3
+          Identity:
+            kind: 7
+            id: ScreenCanvas-Root
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        compareActorSource:
+          Kind: 3
+          Identity:
+            kind: 8
+            id: GameOverlayPanel
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        includeAffectedScope: 0
     - rid: 5619052416848364386
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -11132,25 +11203,6 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5619052648602796133
-      type: {class: GameStateMachineCompareBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        actorSource:
-          Kind: 5
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        op: 0
-        targetState: 14
     - rid: 5619052648602796239
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -15160,7 +15212,7 @@ MonoBehaviour:
       data:
         Tag: TargetBaseNail
         Enabled: 1
-        SearchType: 30
+        SearchType: 40
         Kind: 10
         Radius: 5
         HalfAngleDeg: 60

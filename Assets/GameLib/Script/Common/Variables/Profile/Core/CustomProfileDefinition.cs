@@ -23,8 +23,12 @@ namespace Game.Profile
         [BoxGroup("Profile")]
         [LabelText("Bindings")]
         [SerializeReference]
-        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, CustomAddFunction = nameof(CreateBinding), ListElementLabelName = "ProfileBindingListLabel")]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, CustomAddFunction = nameof(AddBindingInternal), ListElementLabelName = "ProfileBindingListLabel")]
         List<IProfileValueBinding> _bindings = new();
+
+        [BoxGroup("Profile")]
+        [Button("Add Binding", ButtonSizes.Small)]
+        void AddBindingButton() => AddBindingInternal();
 
         public string ProfileName => _profileName;
 
@@ -75,7 +79,11 @@ namespace Game.Profile
             return count;
         }
 
-        IProfileValueBinding CreateBinding() => new ProfileDynamicValue();
+        public void AddBindingInternal()
+        {
+            _bindings ??= new List<IProfileValueBinding>();
+            _bindings.Add(new ProfileDynamicValue());
+        }
     }
 
     public enum ProfileDynamicValueKind
