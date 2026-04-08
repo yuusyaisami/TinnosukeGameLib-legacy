@@ -20,7 +20,7 @@ namespace Game.Profile
     {
         [Header("Profiles")]
         [Tooltip("登録する Profile Preset。Literal (inline) または Asset (SO参照) で指定可能。")]
-        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowPaging = false)]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowPaging = false, CustomAddFunction = nameof(AddProfileInternal))]
         [SerializeField]
         List<DynamicValue<BaseProfileData>> _profiles = new();
 
@@ -118,6 +118,12 @@ namespace Game.Profile
                 var installer = container.Resolve<ScopeBindingRegistryInstallService>();
                 installer.InstallInitialIfNeeded();
             });
+        }
+
+        void AddProfileInternal()
+        {
+            _profiles ??= new List<DynamicValue<BaseProfileData>>();
+            _profiles.Add(DynamicValue<BaseProfileData>.FromSource(new ManagedRefLiteralSource<BaseProfileData>(new CustomProfileDefinition())));
         }
     }
 }

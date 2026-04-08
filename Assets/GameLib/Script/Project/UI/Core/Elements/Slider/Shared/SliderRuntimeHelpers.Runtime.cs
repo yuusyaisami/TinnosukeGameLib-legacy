@@ -398,37 +398,16 @@ namespace Game.UI
             }
 
             var baseScale = isRootTarget ? root.localScale : visualPose.LocalScale;
-            var localScale = baseScale;
             var resolvedLength = Mathf.Max(0f, majorLength);
             var resolvedCrossLength = Mathf.Max(0f, minorLength);
-            var localMajorLength = ResolveLocalLengthForAxis(targetTransform, fillAxis == SliderAreaFillAxis.SizeX, resolvedLength);
-            var localCrossLength = ResolveLocalLengthForAxis(targetTransform, fillAxis != SliderAreaFillAxis.SizeX, resolvedCrossLength);
-            var drawMode = renderer.drawMode;
-            var supportsRendererSize = drawMode == SpriteDrawMode.Sliced || drawMode == SpriteDrawMode.Tiled;
-            if (supportsRendererSize)
-            {
-                renderer.size = fillAxis == SliderAreaFillAxis.SizeX
-                    ? new Vector2(localMajorLength, localCrossLength)
-                    : new Vector2(localCrossLength, localMajorLength);
-                targetTransform.localScale = baseScale;
-                return false;
-            }
+            if (renderer.drawMode == SpriteDrawMode.Simple)
+                renderer.drawMode = SpriteDrawMode.Sliced;
 
-            renderer.size = spriteState.Size;
-            var spriteLocalSize = ResolveSpriteLocalSize(renderer, spriteState);
-            if (fillAxis == SliderAreaFillAxis.SizeX)
-            {
-                localScale.x = ResolveSpriteFallbackAxisScale(targetTransform, baseScale.x, spriteLocalSize.x, resolvedLength, useXAxis: true);
-                localScale.y = ResolveSpriteFallbackAxisScale(targetTransform, baseScale.y, spriteLocalSize.y, resolvedCrossLength, useXAxis: false);
-            }
-            else
-            {
-                localScale.y = ResolveSpriteFallbackAxisScale(targetTransform, baseScale.y, spriteLocalSize.y, resolvedLength, useXAxis: false);
-                localScale.x = ResolveSpriteFallbackAxisScale(targetTransform, baseScale.x, spriteLocalSize.x, resolvedCrossLength, useXAxis: true);
-            }
-
-            targetTransform.localScale = localScale;
-            return true;
+            renderer.size = fillAxis == SliderAreaFillAxis.SizeX
+                ? new Vector2(ResolveLocalLengthForAxis(targetTransform, true, resolvedLength), ResolveLocalLengthForAxis(targetTransform, false, resolvedCrossLength))
+                : new Vector2(ResolveLocalLengthForAxis(targetTransform, false, resolvedCrossLength), ResolveLocalLengthForAxis(targetTransform, true, resolvedLength));
+            targetTransform.localScale = baseScale;
+            return false;
         }
 
         static void ApplyImageVisualTargetGeometry(

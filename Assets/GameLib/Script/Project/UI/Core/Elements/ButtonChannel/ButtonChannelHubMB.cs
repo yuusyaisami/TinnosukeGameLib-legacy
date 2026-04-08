@@ -57,7 +57,10 @@ namespace Game.UI
         [SerializeField]
         List<ButtonChannelDefinition> _channels = new() { new ButtonChannelDefinition() };
 
+        IButtonChannelHubService? _hub;
+
         public IReadOnlyList<ButtonChannelDefinition> Channels => _channels;
+        public IButtonChannelHubService? Hub => _hub;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
@@ -68,6 +71,11 @@ namespace Game.UI
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<ITickable>();
+
+            builder.RegisterBuildCallback(resolver =>
+            {
+                resolver.TryResolve(out _hub);
+            });
         }
     }
 }

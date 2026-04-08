@@ -13,6 +13,7 @@ namespace Game.UI
         public TooltipClampSettings ClampSettings = TooltipClampSettings.Default;
         public int SpawnWarmupFrames = 2;
         public TooltipSystemSharedDefaults SharedDefaults = new();
+        public TooltipHubPreset SharedHubPreset = new();
     }
 
     public sealed class TooltipSystemService :
@@ -34,6 +35,7 @@ namespace Game.UI
         public TooltipClampSettings ClampSettings => _config.ClampSettings;
         public int SpawnWarmupFrames => _config.SpawnWarmupFrames;
         public TooltipSystemSharedDefaults SharedDefaults => _config.SharedDefaults;
+        public TooltipHubPreset SharedHubPreset => _config.SharedHubPreset;
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {

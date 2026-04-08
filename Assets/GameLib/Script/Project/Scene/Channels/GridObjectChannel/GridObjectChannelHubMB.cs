@@ -60,6 +60,26 @@ namespace Game.Channel
         [SerializeField]
         Transform? _layoutRectTransform;
 
+        [BoxGroup("Debug")]
+        [LabelText("Enable Debug Log")]
+        [Tooltip("true のとき GridObjectChannelRuntime が layout / spawn / blackboard 連携ログを出力します。")]
+        [SerializeField]
+        bool _enableDebugLog;
+
+        [BoxGroup("Debug")]
+        [ShowIf(nameof(_enableDebugLog))]
+        [LabelText("Verbose Layout")]
+        [Tooltip("true のとき row / column の詳細ログを追加出力します。")]
+        [SerializeField]
+        bool _enableVerboseLayoutLog;
+
+        [BoxGroup("Debug")]
+        [ShowIf(nameof(_enableDebugLog))]
+        [LabelText("Verbose Blackboard")]
+        [Tooltip("true のとき GridBlackboard cell 値や blackboard 連携 payload を詳細出力します。")]
+        [SerializeField]
+        bool _enableVerboseBlackboardLog;
+
         public string ChannelTag => string.IsNullOrWhiteSpace(_channelTag) ? "default" : _channelTag.Trim();
         public bool AutoBuild => _autoBuild;
         public DynamicValue<GridObjectChannelPlayerPresetBase> PlayerPresetValue => _playerPreset;
@@ -67,6 +87,9 @@ namespace Game.Channel
         public DynamicValue<GridObjectChannelVisualizerPreset> VisualizerPresetValue => _visualizerPreset;
         public Transform? ListRoot => _listRoot;
         public Transform? LayoutRectTransform => _layoutRectTransform;
+        public bool EnableDebugLog => _enableDebugLog;
+        public bool EnableVerboseLayoutLog => _enableDebugLog && _enableVerboseLayoutLog;
+        public bool EnableVerboseBlackboardLog => _enableDebugLog && _enableVerboseBlackboardLog;
     }
 
     [DisallowMultipleComponent]

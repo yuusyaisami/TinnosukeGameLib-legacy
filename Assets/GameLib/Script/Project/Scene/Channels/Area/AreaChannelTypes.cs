@@ -223,15 +223,20 @@ namespace Game.Channel
     [Serializable]
     public sealed class CircleAreaShape : IAreaShape
     {
-        [LabelText("Radius"), MinValue(0f)]
-        public float Radius = 5f;
+        [LabelText("Radius")]
+        public DynamicValue<float> Radius = DynamicValue<float>.FromDefault(5f);
 
-        [LabelText("Inner Radius"), MinValue(0f)]
-        public float InnerRadius = 0f;
+        [LabelText("Inner Radius")]
+        public DynamicValue<float> InnerRadius = DynamicValue<float>.FromDefault(0f);
 
         public AreaShapeLayer Layer => AreaShapeLayer.Area;
 
         public bool TrySample(in AreaShapeSampleContext context, Vector2 uv01, out Vector2 localPosition)
+        {
+            return TrySample(in context, EmptyDynamicContext.Instance, uv01, out localPosition);
+        }
+
+        public bool TrySample(in AreaShapeSampleContext context, IDynamicContext dynamicContext, Vector2 uv01, out Vector2 localPosition)
         {
             if (context.Mode != AreaSampleMode.InteriorRandom)
             {
@@ -239,43 +244,85 @@ namespace Game.Channel
                 return false;
             }
 
-            return AreaCircleShapeUtility.TrySampleRing(uv01, Radius, InnerRadius, out localPosition);
+            return AreaCircleShapeUtility.TrySampleRing(
+                uv01,
+                ResolveRadius(dynamicContext),
+                ResolveInnerRadius(dynamicContext),
+                out localPosition);
         }
 
         public bool ContainsLocalPosition(Vector2 localPosition)
         {
-            return AreaCircleShapeUtility.ContainsRing(localPosition, Radius, InnerRadius);
+            return ContainsLocalPosition(EmptyDynamicContext.Instance, localPosition);
+        }
+
+        public bool ContainsLocalPosition(IDynamicContext dynamicContext, Vector2 localPosition)
+        {
+            return AreaCircleShapeUtility.ContainsRing(
+                localPosition,
+                ResolveRadius(dynamicContext),
+                ResolveInnerRadius(dynamicContext));
         }
 
         public bool TryGetContourLocal(out AreaContourData contour)
         {
+            return TryGetContourLocal(EmptyDynamicContext.Instance, out contour);
+        }
+
+        public bool TryGetContourLocal(IDynamicContext dynamicContext, out AreaContourData contour)
+        {
+            var radius = Mathf.Max(0f, ResolveRadius(dynamicContext));
             contour = new AreaContourData(
                 AreaPlane.XY,
                 new[]
                 {
-                    new AreaContourPath(AreaContourUtility.BuildCirclePoints(Mathf.Max(0f, Radius), clockwise: false), isHole: false),
+                    new AreaContourPath(AreaContourUtility.BuildCirclePoints(radius, clockwise: false), isHole: false),
                 });
-            return Radius > 0f;
+            return radius > 0f;
         }
 
         public void DrawGizmo(Vector3 center, AreaPlane plane)
         {
-            AreaCircleShapeUtility.DrawRingGizmo(center, Radius, InnerRadius, plane);
+            DrawGizmo(EmptyDynamicContext.Instance, center, plane);
+        }
+
+        public void DrawGizmo(IDynamicContext dynamicContext, Vector3 center, AreaPlane plane)
+        {
+            AreaCircleShapeUtility.DrawRingGizmo(
+                center,
+                ResolveRadius(dynamicContext),
+                ResolveInnerRadius(dynamicContext),
+                plane);
+        }
+
+        public float ResolveRadius(IDynamicContext? dynamicContext)
+        {
+            return Radius.GetOrDefault(dynamicContext ?? EmptyDynamicContext.Instance, 5f);
+        }
+
+        public float ResolveInnerRadius(IDynamicContext? dynamicContext)
+        {
+            return InnerRadius.GetOrDefault(dynamicContext ?? EmptyDynamicContext.Instance, 0f);
         }
     }
 
     [Serializable]
     public sealed class DonutAreaShape : IAreaShape
     {
-        [LabelText("Outer Radius"), MinValue(0f)]
-        public float OuterRadius = 5f;
+        [LabelText("Outer Radius")]
+        public DynamicValue<float> OuterRadius = DynamicValue<float>.FromDefault(5f);
 
-        [LabelText("Inner Radius"), MinValue(0f)]
-        public float InnerRadius = 2f;
+        [LabelText("Inner Radius")]
+        public DynamicValue<float> InnerRadius = DynamicValue<float>.FromDefault(2f);
 
         public AreaShapeLayer Layer => AreaShapeLayer.Area;
 
         public bool TrySample(in AreaShapeSampleContext context, Vector2 uv01, out Vector2 localPosition)
+        {
+            return TrySample(in context, EmptyDynamicContext.Instance, uv01, out localPosition);
+        }
+
+        public bool TrySample(in AreaShapeSampleContext context, IDynamicContext dynamicContext, Vector2 uv01, out Vector2 localPosition)
         {
             if (context.Mode != AreaSampleMode.InteriorRandom)
             {
@@ -283,17 +330,35 @@ namespace Game.Channel
                 return false;
             }
 
-            return AreaCircleShapeUtility.TrySampleRing(uv01, OuterRadius, InnerRadius, out localPosition);
+            return AreaCircleShapeUtility.TrySampleRing(
+                uv01,
+                ResolveOuterRadius(dynamicContext),
+                ResolveInnerRadius(dynamicContext),
+                out localPosition);
         }
 
         public bool ContainsLocalPosition(Vector2 localPosition)
         {
-            return AreaCircleShapeUtility.ContainsRing(localPosition, OuterRadius, InnerRadius);
+            return ContainsLocalPosition(EmptyDynamicContext.Instance, localPosition);
+        }
+
+        public bool ContainsLocalPosition(IDynamicContext dynamicContext, Vector2 localPosition)
+        {
+            return AreaCircleShapeUtility.ContainsRing(
+                localPosition,
+                ResolveOuterRadius(dynamicContext),
+                ResolveInnerRadius(dynamicContext));
         }
 
         public bool TryGetContourLocal(out AreaContourData contour)
         {
-            if (OuterRadius <= 0f)
+            return TryGetContourLocal(EmptyDynamicContext.Instance, out contour);
+        }
+
+        public bool TryGetContourLocal(IDynamicContext dynamicContext, out AreaContourData contour)
+        {
+            var outerRadius = Mathf.Max(0f, ResolveOuterRadius(dynamicContext));
+            if (outerRadius <= 0f)
             {
                 contour = default;
                 return false;
@@ -301,11 +366,12 @@ namespace Game.Channel
 
             var paths = new List<AreaContourPath>
             {
-                new(AreaContourUtility.BuildCirclePoints(Mathf.Max(0f, OuterRadius), clockwise: false), isHole: false),
+                new(AreaContourUtility.BuildCirclePoints(outerRadius, clockwise: false), isHole: false),
             };
 
-            if (InnerRadius > 0f)
-                paths.Add(new AreaContourPath(AreaContourUtility.BuildCirclePoints(Mathf.Clamp(InnerRadius, 0f, OuterRadius), clockwise: true), isHole: true));
+            var innerRadius = Mathf.Clamp(ResolveInnerRadius(dynamicContext), 0f, outerRadius);
+            if (innerRadius > 0f)
+                paths.Add(new AreaContourPath(AreaContourUtility.BuildCirclePoints(innerRadius, clockwise: true), isHole: true));
 
             contour = new AreaContourData(AreaPlane.XY, paths);
             return true;
@@ -313,7 +379,26 @@ namespace Game.Channel
 
         public void DrawGizmo(Vector3 center, AreaPlane plane)
         {
-            AreaCircleShapeUtility.DrawRingGizmo(center, OuterRadius, InnerRadius, plane);
+            DrawGizmo(EmptyDynamicContext.Instance, center, plane);
+        }
+
+        public void DrawGizmo(IDynamicContext dynamicContext, Vector3 center, AreaPlane plane)
+        {
+            AreaCircleShapeUtility.DrawRingGizmo(
+                center,
+                ResolveOuterRadius(dynamicContext),
+                ResolveInnerRadius(dynamicContext),
+                plane);
+        }
+
+        public float ResolveOuterRadius(IDynamicContext? dynamicContext)
+        {
+            return OuterRadius.GetOrDefault(dynamicContext ?? EmptyDynamicContext.Instance, 5f);
+        }
+
+        public float ResolveInnerRadius(IDynamicContext? dynamicContext)
+        {
+            return InnerRadius.GetOrDefault(dynamicContext ?? EmptyDynamicContext.Instance, 2f);
         }
     }
 
@@ -321,11 +406,16 @@ namespace Game.Channel
     public sealed class RectAreaShape : IAreaShape
     {
         [LabelText("Size")]
-        public Vector2 Size = new(5f, 5f);
+        public DynamicValue<Vector2> Size = DynamicValue<Vector2>.FromDefault(new Vector2(5f, 5f));
 
         public AreaShapeLayer Layer => AreaShapeLayer.Area;
 
         public bool TrySample(in AreaShapeSampleContext context, Vector2 uv01, out Vector2 localPosition)
+        {
+            return TrySample(in context, EmptyDynamicContext.Instance, uv01, out localPosition);
+        }
+
+        public bool TrySample(in AreaShapeSampleContext context, IDynamicContext dynamicContext, Vector2 uv01, out Vector2 localPosition)
         {
             if (context.Mode != AreaSampleMode.InteriorRandom)
             {
@@ -333,22 +423,35 @@ namespace Game.Channel
                 return false;
             }
 
-            var sx = Mathf.Max(0f, Size.x);
-            var sy = Mathf.Max(0f, Size.y);
+            var size = ResolveSize(dynamicContext);
+            var sx = Mathf.Max(0f, size.x);
+            var sy = Mathf.Max(0f, size.y);
             localPosition = new Vector2((uv01.x - 0.5f) * sx, (uv01.y - 0.5f) * sy);
             return true;
         }
 
         public bool ContainsLocalPosition(Vector2 localPosition)
         {
-            var halfWidth = Mathf.Max(0f, Size.x) * 0.5f;
-            var halfHeight = Mathf.Max(0f, Size.y) * 0.5f;
+            return ContainsLocalPosition(EmptyDynamicContext.Instance, localPosition);
+        }
+
+        public bool ContainsLocalPosition(IDynamicContext dynamicContext, Vector2 localPosition)
+        {
+            var size = ResolveSize(dynamicContext);
+            var halfWidth = Mathf.Max(0f, size.x) * 0.5f;
+            var halfHeight = Mathf.Max(0f, size.y) * 0.5f;
             return Mathf.Abs(localPosition.x) <= halfWidth && Mathf.Abs(localPosition.y) <= halfHeight;
         }
 
         public bool TryGetContourLocal(out AreaContourData contour)
         {
-            var size = new Vector2(Mathf.Max(0f, Size.x), Mathf.Max(0f, Size.y));
+            return TryGetContourLocal(EmptyDynamicContext.Instance, out contour);
+        }
+
+        public bool TryGetContourLocal(IDynamicContext dynamicContext, out AreaContourData contour)
+        {
+            var resolved = ResolveSize(dynamicContext);
+            var size = new Vector2(Mathf.Max(0f, resolved.x), Mathf.Max(0f, resolved.y));
             if (size.x <= 0f || size.y <= 0f)
             {
                 contour = default;
@@ -376,7 +479,13 @@ namespace Game.Channel
 
         public void DrawGizmo(Vector3 center, AreaPlane plane)
         {
-            var size = new Vector2(Mathf.Max(0f, Size.x), Mathf.Max(0f, Size.y));
+            DrawGizmo(EmptyDynamicContext.Instance, center, plane);
+        }
+
+        public void DrawGizmo(IDynamicContext dynamicContext, Vector3 center, AreaPlane plane)
+        {
+            var resolved = ResolveSize(dynamicContext);
+            var size = new Vector2(Mathf.Max(0f, resolved.x), Mathf.Max(0f, resolved.y));
             var hx = size.x * 0.5f;
             var hy = size.y * 0.5f;
 
@@ -389,6 +498,24 @@ namespace Game.Channel
             Gizmos.DrawLine(p1, p2);
             Gizmos.DrawLine(p2, p3);
             Gizmos.DrawLine(p3, p0);
+        }
+
+        public bool TryGetRectSnapshot(IDynamicContext dynamicContext, Vector3 basePosition, AreaPlane plane, out AreaRectSnapshot snapshot)
+        {
+            var resolved = ResolveSize(dynamicContext);
+            var size = new Vector2(Mathf.Max(0f, resolved.x), Mathf.Max(0f, resolved.y));
+            snapshot = new AreaRectSnapshot(basePosition, size, plane);
+            return size.x > 0f && size.y > 0f;
+        }
+
+        public bool TryGetRectSnapshot(IDynamicContext dynamicContext, Vector3 basePosition, out AreaRectSnapshot snapshot)
+        {
+            return TryGetRectSnapshot(dynamicContext, basePosition, AreaPlane.XY, out snapshot);
+        }
+
+        public Vector2 ResolveSize(IDynamicContext? dynamicContext)
+        {
+            return Size.GetOrDefault(dynamicContext ?? EmptyDynamicContext.Instance, new Vector2(5f, 5f));
         }
 
         static Vector3 OffsetPoint(Vector3 center, float x, float y, AreaPlane plane)
@@ -537,11 +664,11 @@ namespace Game.Channel
     public interface IAreaChannelPlayer
     {
         AreaChannelDefinition Definition { get; }
-        bool TrySamplePosition(Vector3 basePosition, in AreaSampleRequest request, out Vector3 position);
-        bool ContainsPosition(Vector3 basePosition, Vector3 worldPosition);
-        bool TryGetContour(Vector3 basePosition, out AreaContourData contour);
-        bool TryGetRectSnapshot(Vector3 basePosition, out AreaRectSnapshot snapshot);
-        bool TryGetCanvasRectSnapshot(Vector3 basePosition, Canvas canvas, out AreaCanvasRectSnapshot snapshot);
+        bool TrySamplePosition(IDynamicContext context, Vector3 basePosition, in AreaSampleRequest request, out Vector3 position);
+        bool ContainsPosition(IDynamicContext context, Vector3 basePosition, Vector3 worldPosition);
+        bool TryGetContour(IDynamicContext context, Vector3 basePosition, out AreaContourData contour);
+        bool TryGetRectSnapshot(IDynamicContext context, Vector3 basePosition, out AreaRectSnapshot snapshot);
+        bool TryGetCanvasRectSnapshot(IDynamicContext context, Vector3 basePosition, Canvas canvas, out AreaCanvasRectSnapshot snapshot);
     }
 
     static class AreaContourUtility

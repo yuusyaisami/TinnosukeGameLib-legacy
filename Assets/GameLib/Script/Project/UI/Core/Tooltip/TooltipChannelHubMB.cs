@@ -58,6 +58,7 @@ namespace Game.UI
         const string SpaceGroup = "Space";
         const string PresetGroup = "Preset";
         const string ChannelsGroup = "Channels";
+        const string DebugGroup = "Debug";
 
         [BoxGroup(SpaceGroup)]
         [LabelText("Space Kind")]
@@ -79,6 +80,13 @@ namespace Game.UI
         RectTransform? _tooltipRootOverride;
 
         [BoxGroup(PresetGroup)]
+        [LabelText("Apply Hub Preset Override")]
+        [Tooltip("true のときだけ TooltipSystem の shared hub preset を上書きします。false のときは TooltipSystem 側の default を使用します。")]
+        [SerializeField]
+        bool _applyHubPresetOverride;
+
+        [BoxGroup(PresetGroup)]
+        [ShowIf(nameof(_applyHubPresetOverride))]
         [LabelText("Hub Preset")]
         [Tooltip("camera tag、default hit test、stack/clamp 設定など hub 共通設定です。")]
         [SerializeField]
@@ -86,17 +94,26 @@ namespace Game.UI
             DynamicValue<TooltipHubPreset>.FromSource(
                 new ManagedRefLiteralSource<TooltipHubPreset>(new TooltipHubPreset()));
 
+        [BoxGroup(DebugGroup)]
+        [LabelText("Enable Debug Log")]
+        [Tooltip("true のとき TooltipChannel の acquire/hit test/spawn/close ログを出力します。")]
+        [SerializeField]
+        bool _enableDebugLog;
+
         [BoxGroup(ChannelsGroup)]
         [LabelText("Channels")]
+        [Tooltip("必要になったタイミングで動的追加できます。0件のままでも問題ありません。")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
         [SerializeField]
-        List<TooltipChannelDefinition> _channels = new() { new TooltipChannelDefinition() };
+        List<TooltipChannelDefinition> _channels = new();
 
         public DynamicValue<TooltipHubPreset> HubPresetValue => _hubPresetValue;
+        public bool ApplyHubPresetOverride => _applyHubPresetOverride;
         public IReadOnlyList<TooltipChannelDefinition> Channels => _channels;
         public TooltipChannelSpaceKind SpaceKind => NormalizeSpaceKind(_spaceKind);
         public bool ApplyTooltipRootOverride => _applyTooltipRootOverride;
         public RectTransform? TooltipRootOverride => _tooltipRootOverride != null ? _tooltipRootOverride : GetComponent<RectTransform>();
+        public bool EnableDebugLog => _enableDebugLog;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
@@ -124,13 +141,7 @@ namespace Game.UI
         void EnsureDefaults()
         {
             if (_channels == null)
-            {
-                _channels = new List<TooltipChannelDefinition> { new TooltipChannelDefinition() };
-            }
-            else if (_channels.Count == 0)
-            {
-                _channels.Add(new TooltipChannelDefinition());
-            }
+                _channels = new List<TooltipChannelDefinition>();
 
             if (_tooltipRootOverride == null && _applyTooltipRootOverride)
                 _tooltipRootOverride = GetComponent<RectTransform>();

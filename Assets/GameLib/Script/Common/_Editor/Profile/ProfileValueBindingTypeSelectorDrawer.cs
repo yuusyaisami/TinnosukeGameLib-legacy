@@ -92,8 +92,6 @@ namespace Game.Profile.Editor
                     continue;
                 if (!child.State.Visible)
                     continue;
-                if (!string.IsNullOrEmpty(child.Name) && child.Name[0] == '$')
-                    continue;
                 if (!string.IsNullOrEmpty(child.Name) && child.Name[0] == '#')
                     child.State.Expanded = true;
 

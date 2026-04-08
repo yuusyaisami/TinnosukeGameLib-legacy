@@ -116,6 +116,19 @@ namespace Game.Targeting
         [LabelText("Exclude Self")]
         public bool ExcludeSelf = true;
 
+        [BoxGroup("Filters")]
+        [Title("Direct Targets")]
+        [ShowIf(nameof(IsNoneSearch))]
+        [LabelText("Monitor Active State")]
+        public bool MonitorActiveState = false;
+
+        [BoxGroup("Filters")]
+        [ShowIf(nameof(IsNoneSearch))]
+        [LabelText("Valid Distance")]
+        [Tooltip("0以下で無効。指定距離より離れると direct target を自動で切断します。")]
+        [MinValue(0f)]
+        public float DirectTargetValidDistance = 0f;
+
         [BoxGroup("Sources")]
         [ShowIf(nameof(IsDynamicSearch))]
         [LabelText("Origin Source")]
@@ -236,6 +249,8 @@ namespace Game.Targeting
                 FilterId = FilterId,
                 FilterCategory = FilterCategory,
                 ExcludeSelf = ExcludeSelf,
+                MonitorActiveState = MonitorActiveState,
+                DirectTargetValidDistance = DirectTargetValidDistance,
                 OriginSource = OriginSource,
                 CustomOriginTransform = CustomOriginTransform,
                 ForwardSource = ForwardSource,
@@ -295,6 +310,9 @@ namespace Game.Targeting
                 ActorSource = mutation.ActorSource;
                 ScopeRequireActive = mutation.ScopeRequireActive;
             }
+
+            if (mutation.ApplyMonitorActiveState)
+                MonitorActiveState = mutation.MonitorActiveState;
 
             if (mutation.ApplyCollisionSearch)
             {
@@ -497,9 +515,19 @@ namespace Game.Targeting
         [LabelText("Hit Filter")]
         public HitFilter CollisionHitFilter;
 
+        [BoxGroup("Direct Targets")]
+        [ToggleLeft]
+        [LabelText("Apply Monitor Active State")]
+        public bool ApplyMonitorActiveState;
+
+        [BoxGroup("Direct Targets")]
+        [ShowIf(nameof(ApplyMonitorActiveState))]
+        [LabelText("Monitor Active State")]
+        public bool MonitorActiveState = false;
+
         public bool HasAnyMutation()
         {
-            return ApplyEnabled || ApplySearchType || ApplyDynamicSearch || ApplyScopeSearch || ApplyCollisionSearch;
+            return ApplyEnabled || ApplySearchType || ApplyDynamicSearch || ApplyScopeSearch || ApplyCollisionSearch || ApplyMonitorActiveState;
         }
     }
 
@@ -587,6 +615,8 @@ namespace Game.Targeting
         public readonly TargetOriginSource OriginSource;
         public readonly TargetForwardSource ForwardSource;
         public readonly bool ScopeRequireActive;
+        public readonly bool MonitorActiveState;
+        public readonly float DirectTargetValidDistance;
         public readonly TargetChannelCollisionRangeSource CollisionRangeSource;
         public readonly string CollisionAreaTag;
         public readonly string CollisionFilterSummary;
@@ -607,6 +637,8 @@ namespace Game.Targeting
             TargetOriginSource originSource,
             TargetForwardSource forwardSource,
             bool scopeRequireActive,
+            bool monitorActiveState,
+            float directTargetValidDistance,
             TargetChannelCollisionRangeSource collisionRangeSource,
             string collisionAreaTag,
             string collisionFilterSummary)
@@ -626,6 +658,8 @@ namespace Game.Targeting
             OriginSource = originSource;
             ForwardSource = forwardSource;
             ScopeRequireActive = scopeRequireActive;
+            MonitorActiveState = monitorActiveState;
+            DirectTargetValidDistance = directTargetValidDistance;
             CollisionRangeSource = collisionRangeSource;
             CollisionAreaTag = collisionAreaTag;
             CollisionFilterSummary = collisionFilterSummary;

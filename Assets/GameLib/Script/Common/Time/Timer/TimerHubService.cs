@@ -488,7 +488,7 @@ namespace Game.Times
             if (scope == TimerScalarWriteScope.Global)
                 _scalar.SetGlobalBase(key, value);
             else
-                _scalar.SetRuntimeBaseline(key, value);
+                _scalar.SetLocalBase(key, value);
         }
 
         void WriteBlackboard(int varId, in DynamicVariant value, TimerBlackboardWriteScope scope)

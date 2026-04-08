@@ -59,7 +59,10 @@ namespace Game.Channel
                    .WithParameter(_channelDefs)
                    .WithParameter(owner)
                    .As<ITextChannelHubService>()
-                   .As<IChannelHubService>();
+                     .As<IChannelHubService>()
+                     .As<IScopeAcquireHandler>()
+                     .As<IScopeReleaseHandler>()
+                     .As<ITickable>();
 
             // デバッグ用に参照を保持
             builder.RegisterBuildCallback(container =>

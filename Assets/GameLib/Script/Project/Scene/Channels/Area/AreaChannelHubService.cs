@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Game;
+using Game.Common;
 using UnityEngine;
 
 namespace Game.Channel
@@ -15,6 +16,7 @@ namespace Game.Channel
         bool _defsDirty = true;
 
         IScopeNode? _ownerScope;
+        IDynamicContext _dynamicContext = EmptyDynamicContext.Instance;
 
         public IReadOnlyList<ChannelDefBase> ChannelDefs
         {
@@ -53,7 +55,7 @@ namespace Game.Channel
             if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
                 return false;
 
-            return player.TrySamplePosition(basePosition, in request, out position);
+            return player.TrySamplePosition(_dynamicContext, basePosition, in request, out position);
         }
 
         public bool TrySamplePosition(IReadOnlyList<string> tags, AreaTagSelectionMode selectionMode, in AreaSampleRequest request, out Vector3 position, out string selectedTag)
@@ -79,7 +81,7 @@ namespace Game.Channel
                 if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
                     continue;
 
-                if (!player.TrySamplePosition(basePosition, in request, out position))
+                if (!player.TrySamplePosition(_dynamicContext, basePosition, in request, out position))
                     continue;
 
                 selectedTag = NormalizeTag(tag);
@@ -109,7 +111,7 @@ namespace Game.Channel
             if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
                 return false;
 
-            return player.ContainsPosition(basePosition, worldPosition);
+            return player.ContainsPosition(_dynamicContext, basePosition, worldPosition);
         }
 
         public bool TryGetContour(string tag, out AreaContourData contour)
@@ -122,7 +124,7 @@ namespace Game.Channel
             if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
                 return false;
 
-            return player.TryGetContour(basePosition, out contour);
+            return player.TryGetContour(_dynamicContext, basePosition, out contour);
         }
 
         public bool TryGetRectSnapshot(string tag, out AreaRectSnapshot snapshot)
@@ -135,7 +137,7 @@ namespace Game.Channel
             if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
                 return false;
 
-            return player.TryGetRectSnapshot(basePosition, out snapshot);
+            return player.TryGetRectSnapshot(_dynamicContext, basePosition, out snapshot);
         }
 
         public bool TryGetCanvasRectSnapshot(string tag, Canvas canvas, out AreaCanvasRectSnapshot snapshot)
@@ -151,7 +153,7 @@ namespace Game.Channel
             if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
                 return false;
 
-            return player.TryGetCanvasRectSnapshot(basePosition, canvas, out snapshot);
+            return player.TryGetCanvasRectSnapshot(_dynamicContext, basePosition, canvas, out snapshot);
         }
 
         public bool TryGetChannelDef(string tag, out ChannelDefBase def)
@@ -220,6 +222,7 @@ namespace Game.Channel
                 return;
 
             _ownerScope = scope;
+            _dynamicContext = AreaChannelDynamicContextUtility.CreateContext(scope);
             foreach (var runtime in _runtimeByTag.Values)
                 runtime.ResetRuntime();
         }
@@ -230,6 +233,7 @@ namespace Game.Channel
                 return;
 
             _ownerScope = null;
+            _dynamicContext = EmptyDynamicContext.Instance;
         }
 
         bool RegisterChannelInternal(AreaChannelDefinition? def, bool overwrite)

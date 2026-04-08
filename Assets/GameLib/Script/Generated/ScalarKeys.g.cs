@@ -493,6 +493,20 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string NailSellMul = "GameLogic.GameProfile.Sell.NailSellMul";
                 }
+
+                public static partial class Shop
+                {
+                    /// <summary>1以上だと毎ターンショップをリセットする。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Shop/isShopTurnReset
+                    /// </remarks>
+                    public const string isShopTurnReset = "GameLogic.GameProfile.Shop.isShopTurnReset";
+                    /// <summary>ショップに並ぶアイテムの数。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Shop/ShopItemCount
+                    /// </remarks>
+                    public const string ShopItemCount = "GameLogic.GameProfile.Shop.ShopItemCount";
+                }
             }
 
             public static partial class GateProfile
@@ -649,6 +663,10 @@ namespace Game.Scalar.Generated
                             /// Path: GameLogic/NailProfile/Effect/Size/Circle/SizeRadius
                             /// </remarks>
                             public const string SizeRadius = "GameLogic.NailProfile.Effect.Size.Circle.SizeRadius";
+                            /// <remarks>
+                            /// Path: GameLogic/NailProfile/Effect/Size/Circle/SizeScale
+                            /// </remarks>
+                            public const string SizeScale = "GameLogic.NailProfile.Effect.Size.Circle.SizeScale";
                         }
                     }
 
@@ -683,6 +701,14 @@ namespace Game.Scalar.Generated
                         /// Path: GameLogic/NailProfile/Effect/Timer/TimeValueUp
                         /// </remarks>
                         public const string TimeValueUp = "GameLogic.NailProfile.Effect.Timer.TimeValueUp";
+                    }
+
+                    public static partial class TimeToValueUp
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/TimeToValueUp/TimeToValueUpMul
+                        /// </remarks>
+                        public const string TimeToValueUpMul = "GameLogic.NailProfile.Effect.TimeToValueUp.TimeToValueUpMul";
                     }
                 }
 
@@ -799,6 +825,8 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Quota.QuotaDecrementMul,
             ScalarKeys.GameLogic.GameProfile.Quota.QuotaIncrementMul,
             ScalarKeys.GameLogic.GameProfile.Sell.NailSellMul,
+            ScalarKeys.GameLogic.GameProfile.Shop.isShopTurnReset,
+            ScalarKeys.GameLogic.GameProfile.Shop.ShopItemCount,
             ScalarKeys.GameLogic.GateProfile.LeftGate.CloseTime,
             ScalarKeys.GameLogic.GateProfile.LeftGate.OpenTime,
             ScalarKeys.GameLogic.GateProfile.RightGate.CloseTime,
@@ -826,12 +854,14 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.NailProfile.Effect.Size.Box.SizeX,
             ScalarKeys.GameLogic.NailProfile.Effect.Size.Box.SizeY,
             ScalarKeys.GameLogic.NailProfile.Effect.Size.Circle.SizeRadius,
+            ScalarKeys.GameLogic.NailProfile.Effect.Size.Circle.SizeScale,
             ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance,
             ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount,
             ScalarKeys.GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue,
             ScalarKeys.GameLogic.NailProfile.Effect.Timer.ExtendMaxTime,
             ScalarKeys.GameLogic.NailProfile.Effect.Timer.TimeValueRemove,
             ScalarKeys.GameLogic.NailProfile.Effect.Timer.TimeValueUp,
+            ScalarKeys.GameLogic.NailProfile.Effect.TimeToValueUp.TimeToValueUpMul,
             ScalarKeys.GameLogic.NailProfile.Upgrade.LevelValue,
             ScalarKeys.GameLogic.NailProfile.Upgrade.MaxLevel,
             ScalarKeys.GameLogic.SlotProfile.CenterMul,

@@ -9,7 +9,11 @@ namespace Game.UI
         public readonly TooltipChannelPlayerRuntime Runtime;
         public readonly int Priority;
         public readonly int Order;
-        public readonly Vector2 BaseAnchorScreenPosition;
+        public readonly Vector3 BaseWorldPosition;
+        public readonly Vector3 DirectionOffset;
+        public readonly Vector3 DirectionRightWorld;
+        public readonly Vector3 DirectionUpWorld;
+        public readonly Vector3 DirectionForwardWorld;
         public readonly Vector2 ScreenSize;
         public readonly TooltipChannelAnchorX AnchorX;
         public readonly TooltipChannelAnchorY AnchorY;
@@ -18,7 +22,11 @@ namespace Game.UI
             TooltipChannelPlayerRuntime runtime,
             int priority,
             int order,
-            Vector2 baseAnchorScreenPosition,
+            Vector3 baseWorldPosition,
+            Vector3 directionOffset,
+            Vector3 directionRightWorld,
+            Vector3 directionUpWorld,
+            Vector3 directionForwardWorld,
             Vector2 screenSize,
             TooltipChannelAnchorX anchorX,
             TooltipChannelAnchorY anchorY)
@@ -26,7 +34,11 @@ namespace Game.UI
             Runtime = runtime;
             Priority = priority;
             Order = order;
-            BaseAnchorScreenPosition = baseAnchorScreenPosition;
+            BaseWorldPosition = baseWorldPosition;
+            DirectionOffset = directionOffset;
+            DirectionRightWorld = directionRightWorld;
+            DirectionUpWorld = directionUpWorld;
+            DirectionForwardWorld = directionForwardWorld;
             ScreenSize = screenSize;
             AnchorX = anchorX;
             AnchorY = anchorY;
@@ -63,6 +75,7 @@ namespace Game.UI
         TooltipPlacementSolution Solve(
             TooltipPlacementRequest request,
             IReadOnlyList<TooltipPlacementSolution> placed,
+            Camera? camera,
             TooltipHubPreset preset,
             Rect screenRect,
             IScreenClampService clampService);
@@ -80,13 +93,15 @@ namespace Game.UI
         public TooltipPlacementSolution Solve(
             TooltipPlacementRequest request,
             IReadOnlyList<TooltipPlacementSolution> placed,
+            Camera? camera,
             TooltipHubPreset preset,
             Rect screenRect,
             IScreenClampService clampService)
         {
             var anchorX = request.AnchorX;
             var anchorY = request.AnchorY;
-            var rect = BuildRect(request.BaseAnchorScreenPosition, request.ScreenSize, anchorX, anchorY);
+            var anchorScreen = ResolveAnchorScreen(request, anchorX, anchorY, camera);
+            var rect = BuildRect(anchorScreen, request.ScreenSize, anchorX, anchorY);
 
             if (preset.EnableClamp)
             {
@@ -101,38 +116,31 @@ namespace Game.UI
                 else if (clamp.BottomRate > preset.FlipThresholdY)
                     anchorY = TooltipChannelAnchorY.Up;
 
-                rect = BuildRect(request.BaseAnchorScreenPosition, request.ScreenSize, anchorX, anchorY);
+                anchorScreen = ResolveAnchorScreen(request, anchorX, anchorY, camera);
+                rect = BuildRect(anchorScreen, request.ScreenSize, anchorX, anchorY);
                 rect = ClampRect(rect, screenRect);
             }
 
             var bestRect = rect;
-            var bestOverlap = ComputeOverlapArea(bestRect, placed);
-            if (bestOverlap > 0.0001f)
+            if (placed.Count > 0)
             {
-                var direction = ResolveDirectionVector(preset.StackDirection);
-                var stepDistance = ComputePrimaryDistance(request.ScreenSize, preset.StackDirection) + preset.StackGap;
-                if (stepDistance <= 0.001f)
-                    stepDistance = 8f;
-
-                for (var i = 1; i <= 16; i++)
+                var candidate = rect;
+                for (var i = 0; i < 16; i++)
                 {
-                    var candidate = OffsetRect(rect, direction * (stepDistance * i));
+                    var shifted = ResolveStackedRect(candidate, placed, preset.StackDirection, preset.StackGap);
+                    if (shifted == candidate)
+                        break;
+
+                    candidate = shifted;
                     if (preset.EnableClamp)
                         candidate = ClampRect(candidate, screenRect);
-
-                    var overlap = ComputeOverlapArea(candidate, placed);
-                    if (overlap + 0.0001f < bestOverlap)
-                    {
-                        bestRect = candidate;
-                        bestOverlap = overlap;
-                        if (bestOverlap <= 0.0001f)
-                            break;
-                    }
                 }
+
+                bestRect = candidate;
             }
 
-            var anchorScreen = ResolveAnchorScreen(bestRect, anchorX, anchorY);
-            return new TooltipPlacementSolution(request.Runtime, anchorX, anchorY, anchorScreen, bestRect);
+            var finalAnchorScreen = ResolveAnchorScreen(bestRect, anchorX, anchorY);
+            return new TooltipPlacementSolution(request.Runtime, anchorX, anchorY, finalAnchorScreen, bestRect);
         }
 
         internal static Rect BuildRect(
@@ -225,22 +233,114 @@ namespace Game.UI
             return total;
         }
 
-        internal static float ComputePrimaryDistance(Vector2 size, TooltipChannelStackDirection direction)
+        internal static Rect ResolveStackedRect(
+            Rect rect,
+            IReadOnlyList<TooltipPlacementSolution> placed,
+            TooltipChannelStackDirection direction,
+            float gap)
         {
-            return direction == TooltipChannelStackDirection.Left || direction == TooltipChannelStackDirection.Right
-                ? Mathf.Max(1f, size.x)
-                : Mathf.Max(1f, size.y);
+            var adjusted = rect;
+            var hasOverlap = false;
+
+            switch (direction)
+            {
+                case TooltipChannelStackDirection.Up:
+                    {
+                        var requiredDelta = 0f;
+                        for (var i = 0; i < placed.Count; i++)
+                        {
+                            var other = placed[i].ScreenRect;
+                            if (!adjusted.Overlaps(other, true))
+                                continue;
+
+                            hasOverlap = true;
+                            requiredDelta = Mathf.Max(requiredDelta, (other.yMax + gap) - adjusted.yMin);
+                        }
+
+                        return hasOverlap ? OffsetRect(adjusted, new Vector2(0f, requiredDelta)) : rect;
+                    }
+                case TooltipChannelStackDirection.Down:
+                    {
+                        var requiredDelta = 0f;
+                        for (var i = 0; i < placed.Count; i++)
+                        {
+                            var other = placed[i].ScreenRect;
+                            if (!adjusted.Overlaps(other, true))
+                                continue;
+
+                            hasOverlap = true;
+                            requiredDelta = Mathf.Min(requiredDelta, (other.yMin - gap) - adjusted.yMax);
+                        }
+
+                        return hasOverlap ? OffsetRect(adjusted, new Vector2(0f, requiredDelta)) : rect;
+                    }
+                case TooltipChannelStackDirection.Left:
+                    {
+                        var requiredDelta = 0f;
+                        for (var i = 0; i < placed.Count; i++)
+                        {
+                            var other = placed[i].ScreenRect;
+                            if (!adjusted.Overlaps(other, true))
+                                continue;
+
+                            hasOverlap = true;
+                            requiredDelta = Mathf.Min(requiredDelta, (other.xMin - gap) - adjusted.xMax);
+                        }
+
+                        return hasOverlap ? OffsetRect(adjusted, new Vector2(requiredDelta, 0f)) : rect;
+                    }
+                case TooltipChannelStackDirection.Right:
+                default:
+                    {
+                        var requiredDelta = 0f;
+                        for (var i = 0; i < placed.Count; i++)
+                        {
+                            var other = placed[i].ScreenRect;
+                            if (!adjusted.Overlaps(other, true))
+                                continue;
+
+                            hasOverlap = true;
+                            requiredDelta = Mathf.Max(requiredDelta, (other.xMax + gap) - adjusted.xMin);
+                        }
+
+                        return hasOverlap ? OffsetRect(adjusted, new Vector2(requiredDelta, 0f)) : rect;
+                    }
+            }
         }
 
-        internal static Vector2 ResolveDirectionVector(TooltipChannelStackDirection direction)
+        internal static Vector2 ResolveAnchorScreen(
+            TooltipPlacementRequest request,
+            TooltipChannelAnchorX anchorX,
+            TooltipChannelAnchorY anchorY,
+            Camera? camera)
         {
-            return direction switch
+            var offsetWorld =
+                request.DirectionRightWorld * ResolveDirectionalComponent(request.DirectionOffset.x, anchorX) +
+                request.DirectionUpWorld * ResolveDirectionalComponent(request.DirectionOffset.y, anchorY) +
+                request.DirectionForwardWorld * request.DirectionOffset.z;
+            var screen = RectTransformUtility.WorldToScreenPoint(camera, request.BaseWorldPosition + offsetWorld);
+            return new Vector2(screen.x, screen.y);
+        }
+
+        static float ResolveDirectionalComponent(float value, TooltipChannelAnchorX anchorX)
+        {
+            return anchorX switch
             {
-                TooltipChannelStackDirection.Up => Vector2.up,
-                TooltipChannelStackDirection.Down => Vector2.down,
-                TooltipChannelStackDirection.Left => Vector2.left,
-                TooltipChannelStackDirection.Right => Vector2.right,
-                _ => Vector2.up,
+                TooltipChannelAnchorX.Left => -value,
+                TooltipChannelAnchorX.Center => value,
+                TooltipChannelAnchorX.Right => value,
+                _ => value,
+            };
+        }
+
+        static float ResolveDirectionalComponent(float value, TooltipChannelAnchorY anchorY)
+        {
+            return anchorY switch
+            {
+                TooltipChannelAnchorY.Up => value,
+                TooltipChannelAnchorY.Center => value,
+                TooltipChannelAnchorY.Down => -value,
+                _ => value,
             };
         }
     }

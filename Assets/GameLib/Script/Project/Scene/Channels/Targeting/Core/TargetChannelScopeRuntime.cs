@@ -132,6 +132,8 @@ namespace Game.Targeting
                     _directHits.Add(hits[i]);
             }
 
+            RefreshDirectTargets();
+
             _lastUpdatedFrame = Time.frameCount;
             _hits.Clear();
             _hits.AddRange(_directHits);
@@ -144,11 +146,10 @@ namespace Game.Targeting
             if (!_currentPreset.IsNoneSearch)
                 return false;
 
-            var changed = _directHits.Count > 0 || _hits.Count > 0;
             _directHits.Clear();
             _hits.Clear();
             _lastUpdatedFrame = Time.frameCount;
-            return changed;
+            return true;
         }
 
         void EnsureUpdated(bool ignoreInterval)
@@ -165,12 +166,15 @@ namespace Game.Targeting
             if (frame == _lastUpdatedFrame)
                 return;
 
-            if (!ignoreInterval && _currentPreset.RefreshIntervalFrames > 1)
+            if (!ignoreInterval && !_currentPreset.IsNoneSearch && _currentPreset.RefreshIntervalFrames > 1)
             {
                 int delta = frame - _lastUpdatedFrame;
                 if (delta > 0 && delta < _currentPreset.RefreshIntervalFrames)
                     return;
             }
+
+            if (_currentPreset.IsNoneSearch)
+                RefreshDirectTargets();
 
             _lastUpdatedFrame = frame;
             _hits.Clear();
@@ -200,15 +204,6 @@ namespace Game.Targeting
             {
                 if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(_hits[i]))
                     _hits.RemoveAt(i);
-            }
-
-            if (!_currentPreset.IsNoneSearch)
-                return;
-
-            for (int i = _directHits.Count - 1; i >= 0; i--)
-            {
-                if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(_directHits[i]))
-                    _directHits.RemoveAt(i);
             }
         }
 
@@ -489,11 +484,12 @@ namespace Game.Targeting
             if (_directHits.Count == 0)
                 return;
 
+            var requireActive = _currentPreset.IsNoneSearch && _currentPreset.MonitorActiveState;
             var origin = ResolveOwnerOrigin();
             for (int i = 0; i < _directHits.Count; i++)
             {
                 var direct = _directHits[i];
-                if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(direct))
+                if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(direct, requireActive))
                     continue;
 
                 float2 pos;
@@ -503,6 +499,40 @@ namespace Game.Targeting
                 var delta = pos - origin;
                 var distSq = math.dot(delta, delta);
                 _hits.Add(new DynamicSearchHit(direct.Scope, direct.Identity, distSq, pos));
+            }
+        }
+
+        void RefreshDirectTargets()
+        {
+            if (!_currentPreset.IsNoneSearch || _directHits.Count == 0)
+                return;
+
+            var requireActive = _currentPreset.MonitorActiveState;
+            var hasValidDistance = _currentPreset.DirectTargetValidDistance > 0f;
+            var maxDistanceSq = hasValidDistance
+                ? _currentPreset.DirectTargetValidDistance * _currentPreset.DirectTargetValidDistance
+                : 0f;
+            var origin = hasValidDistance ? ResolveOwnerOrigin() : default;
+
+            for (int i = _directHits.Count - 1; i >= 0; i--)
+            {
+                var direct = _directHits[i];
+                if (!TargetChannelTargetPositionSourceHelper.IsHitAlive(direct, requireActive))
+                {
+                    _directHits.RemoveAt(i);
+                    continue;
+                }
+
+                if (!hasValidDistance)
+                    continue;
+
+                float2 pos;
+                if (!TryResolveScopePosition(direct.Scope, direct.Identity, out pos))
+                    pos = direct.Position;
+
+                var delta = pos - origin;
+                if (math.dot(delta, delta) > maxDistanceSq)
+                    _directHits.RemoveAt(i);
             }
         }
 

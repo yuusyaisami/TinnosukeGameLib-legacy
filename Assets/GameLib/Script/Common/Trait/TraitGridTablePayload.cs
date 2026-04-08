@@ -72,7 +72,11 @@ namespace Game.Trait
 
             [SerializeField]
             [LabelText("Kind")]
-            public Common.VarStorePayload.EntryValueKind Kind;
+            public Common.VarStorePayload.EntryValueKind Kind = Common.VarStorePayload.EntryValueKind.Auto;
+
+            [SerializeField]
+            [LabelText("Store Mode")]
+            public Common.VarStoreWriteMode StoreMode = Common.VarStoreWriteMode.Immediate;
 
             [SerializeField]
             [LabelText("Value")]
@@ -80,6 +84,19 @@ namespace Game.Trait
 
             public bool TryToVariant(out Common.DynamicVariant value)
             {
+                if (StoreMode == Common.VarStoreWriteMode.DeferredDynamic)
+                {
+                    if (!Value.HasSource)
+                    {
+                        value = Common.DynamicVariant.Null;
+                        return true;
+                    }
+
+                    var deferred = new Common.DeferredDynamicVarValue(Value, Kind, VarId, nameof(TraitGridTablePayload));
+                    value = Common.DynamicVariant.FromManagedRef(deferred);
+                    return true;
+                }
+
                 var entry = new Common.VarStorePayload.Entry
                 {
                     Kind = Kind,

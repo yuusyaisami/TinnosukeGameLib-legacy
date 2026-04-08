@@ -7,7 +7,6 @@ using VContainer.Unity;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(ButtonChannelHubMB))]
     public sealed class UIScrollBarMB : MonoBehaviour, IFeatureInstaller
     {
         [BoxGroup("Scene")]
@@ -17,6 +16,7 @@ namespace Game.UI
 
         [BoxGroup("Scene")]
         [LabelText("Handle Rect")]
+        [Tooltip("ButtonChannelHubMB はこの RectTransform の GameObject に配置します。")]
         [SerializeField]
         RectTransform? _handleRect;
 
@@ -32,7 +32,6 @@ namespace Game.UI
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<UIScrollBarBindingService>(Lifetime.Singleton)
-                .WithParameter(scope)
                 .WithParameter(this)
                 .As<IUIScrollBarBindingService>()
                 .As<IScopeAcquireHandler>()
@@ -58,7 +57,6 @@ namespace Game.UI
         IScopeAcquireHandler,
         IScopeReleaseHandler
     {
-        readonly IScopeNode _owner;
         readonly UIScrollBarMB _mb;
 
         IButtonChannelHubService? _buttonChannelHub;
@@ -68,28 +66,30 @@ namespace Game.UI
         public GameObject? VisibilityRoot => _mb.VisibilityRoot;
         public IButtonChannelHubService? ButtonChannelHub => _buttonChannelHub;
 
-        public UIScrollBarBindingService(IScopeNode owner, UIScrollBarMB mb)
+        public UIScrollBarBindingService(UIScrollBarMB mb)
         {
-            _owner = owner;
             _mb = mb;
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            _ = scope;
             _ = isReset;
             _buttonChannelHub = null;
 
-            if (_mb.VisibilityRoot != null && _mb.VisibilityRoot.activeSelf)
+            // VisibilityRoot が ScrollBar 自身の場合は scope 自体を無効化してしまうため、
+            // 自動非表示は行わない。
+            if (_mb.VisibilityRoot != null &&
+                _mb.VisibilityRoot.activeSelf &&
+                !ReferenceEquals(_mb.VisibilityRoot, _mb.gameObject))
                 _mb.VisibilityRoot.SetActive(false);
 
-            if (_owner.Resolver != null && _owner.Resolver.TryResolve<IButtonChannelHubService>(out var resolvedHub) && resolvedHub != null)
+            var handleRect = _mb.HandleRect;
+            var hubHost = handleRect != null ? handleRect.GetComponent<ButtonChannelHubMB>() : null;
+            if (hubHost?.Hub != null)
             {
-                _buttonChannelHub = resolvedHub;
-                return;
+                _buttonChannelHub = hubHost.Hub;
             }
-
-            if (scope.Resolver != null && scope.Resolver.TryResolve<IButtonChannelHubService>(out var fallbackHub) && fallbackHub != null)
-                _buttonChannelHub = fallbackHub;
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)

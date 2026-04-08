@@ -23,6 +23,19 @@ namespace Game.Common
                 if (!overwrite && dest.Contains(entry.VarId))
                     continue;
 
+                if (entry.StoreMode == VarStoreWriteMode.DeferredDynamic)
+                {
+                    if (!entry.Value.HasSource)
+                    {
+                        dest.TryUnset(entry.VarId);
+                        continue;
+                    }
+
+                    var deferred = new DeferredDynamicVarValue(entry.Value, entry.Kind, entry.VarId, nameof(VarStorePayload));
+                    dest.TrySetManagedRef(entry.VarId, deferred);
+                    continue;
+                }
+
                 if (!VarStoreEntryValueKindConverter.TryConvertToVariant(in entry, context, out var value))
                     continue;
 

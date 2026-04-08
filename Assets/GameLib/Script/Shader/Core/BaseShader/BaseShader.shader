@@ -588,6 +588,12 @@ Shader "Game/Base/Surface2D_Lit_Fx"
                 half4 fxColor = Surface2D_AfterSample_Apply(baseCol, baseAlphaRaw, uv, i.screenUV, surfaceCtx, i.color.a);
                 baseCol = fxColor;
 
+#ifdef UNITY_UI_CLIP_RECT
+                float clipFactor = UnityGet2DClipping(i.uiLocalPos, _ClipRect);
+                baseCol.rgb *= clipFactor;
+                baseCol.a *= clipFactor;
+#endif
+
                 half blendIntensity = (half)saturate(_FxBlendIntensity);
                 baseCol.rgb *= blendIntensity;
                 baseCol.a *= blendIntensity;
@@ -810,6 +816,11 @@ Shader "Game/Base/Surface2D_Lit_Fx"
                 }
                 float4 fxColor = Surface2D_AfterSample_Apply(baseCol, baseAlphaRaw, uv, i.screenUV, surfaceCtx, i.color.a);
                 baseCol = (half4)fxColor;
+#ifdef UNITY_UI_CLIP_RECT
+                float clipFactor = UnityGet2DClipping(i.uiLocalPos, _ClipRect);
+                baseCol.rgb *= clipFactor;
+                baseCol.a *= clipFactor;
+#endif
                 half blendIntensity = (half)saturate(_FxBlendIntensity);
                 baseCol.rgb *= blendIntensity;
                 baseCol.a *= blendIntensity;

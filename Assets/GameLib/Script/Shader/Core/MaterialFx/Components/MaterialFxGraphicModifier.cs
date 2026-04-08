@@ -171,6 +171,7 @@ namespace Game.MaterialFx
             CopyFloatPropertyIfExists(source, target, "_StencilReadMask");
             CopyFloatPropertyIfExists(source, target, "_ColorMask");
             CopyFloatPropertyIfExists(source, target, "_UseUIAlphaClip");
+            CopyVectorPropertyIfExists(source, target, "_ClipRect");
         }
 
         static void CopyFloatPropertyIfExists(Material source, Material target, string propertyName)
@@ -180,6 +181,15 @@ namespace Game.MaterialFx
 
             var propId = Shader.PropertyToID(propertyName);
             target.SetFloat(propId, source.GetFloat(propId));
+        }
+
+        static void CopyVectorPropertyIfExists(Material source, Material target, string propertyName)
+        {
+            if (!source.HasProperty(propertyName) || !target.HasProperty(propertyName))
+                return;
+
+            var propId = Shader.PropertyToID(propertyName);
+            target.SetVector(propId, source.GetVector(propId));
         }
     }
 }

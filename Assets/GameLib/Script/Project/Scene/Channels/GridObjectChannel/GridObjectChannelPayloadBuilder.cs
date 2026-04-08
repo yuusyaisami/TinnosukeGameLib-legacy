@@ -1,0 +1,76 @@
+#nullable enable
+using Game.Common;
+using Game.Vars.Generated;
+using VContainer;
+
+namespace Game.Channel
+{
+    internal sealed class GridObjectChannelPayloadBuilder
+    {
+        readonly string _tag;
+
+        public GridObjectChannelPayloadBuilder(string tag)
+        {
+            _tag = tag;
+        }
+
+        public VarStore BuildPayload(GridObjectChannelResolvedItem item)
+        {
+            var payload = new VarStore(initialCapacity: 32);
+            ApplyItemVars(payload, item);
+            ApplyCellValues(payload, item.CellValues);
+            return payload;
+        }
+
+        public IVarStore ApplyPayloadToBlackboard(GridObjectChannelVisualInstance instance, VarStore payload)
+        {
+            var commandVars = new VarStore(initialCapacity: 32);
+            var hasLocalBlackboard = instance.Resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null;
+            if (hasLocalBlackboard && blackboard != null)
+            {
+                payload.MergeInto(blackboard.LocalVars, overwrite: true);
+                blackboard.LocalVars.MergeInto(commandVars, overwrite: true);
+            }
+            else
+            {
+                payload.MergeInto(commandVars, overwrite: true);
+            }
+
+            return commandVars;
+        }
+
+        void ApplyItemVars(IVarStore vars, GridObjectChannelResolvedItem item)
+        {
+            GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.channelTag, DynamicVariant.FromString(_tag));
+            GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.listIndex, DynamicVariant.FromInt(item.ListIndex));
+            GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.row, DynamicVariant.FromInt(item.Row));
+            GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.column, DynamicVariant.FromInt(item.Column));
+            GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.sourceRow, DynamicVariant.FromInt(item.SourceRow));
+            GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.sourceColumn, DynamicVariant.FromInt(item.SourceColumn));
+        }
+
+        static void ApplyCellValues(IVarStore vars, System.Collections.Generic.List<GridBlackboardCellSnapshot>? values)
+        {
+            if (vars == null || values == null)
+                return;
+
+            for (var i = 0; i < values.Count; i++)
+            {
+                var cell = values[i];
+                if (cell.VarId == 0)
+                    continue;
+
+                if (cell.Value.Kind == ValueKind.ManagedRef)
+                {
+                    var managed = cell.Value.AsManagedRef;
+                    if (managed != null)
+                        vars.TrySetManagedRef(cell.VarId, managed);
+
+                    continue;
+                }
+
+                vars.TrySetVariant(cell.VarId, cell.Value);
+            }
+        }
+    }
+}

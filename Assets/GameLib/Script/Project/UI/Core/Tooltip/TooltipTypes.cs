@@ -33,6 +33,7 @@ namespace Game.UI
         TooltipClampSettings ClampSettings { get; }
         int SpawnWarmupFrames { get; }
         TooltipSystemSharedDefaults SharedDefaults { get; }
+        TooltipHubPreset SharedHubPreset { get; }
     }
 
     [Serializable]
@@ -95,7 +96,7 @@ namespace Game.UI
         [BoxGroup("Input")]
         [LabelText("Pointer Move Threshold")]
         [MinValue(0d)]
-        [Tooltip("表示中に pointer がこの距離以上動いたら閉じる既定距離です。")]
+        [Tooltip("hover delay 計測中に pointer がこの距離以上動いたら待機をやり直す既定距離です。")]
         [SerializeField]
         float _pointerMoveThreshold = 2f;
 
@@ -135,10 +136,10 @@ namespace Game.UI
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(IsFollowPointer))]
-        [LabelText("Follow Pointer Offset")]
-        [Tooltip("FollowPointer の既定オフセットです。")]
+        [LabelText("Follow Pointer Direction Offset")]
+        [Tooltip("FollowPointer の既定方向オフセットです。UI では TooltipRoot 基準の anchored/local 座標、World では world 座標です。X/Y は最終 anchor 方向に応じて符号が決まり、Z は固定加算です。")]
         [SerializeField]
-        Vector2 _followPointerOffset = Vector2.zero;
+        Vector3 _followPointerDirectionOffset = Vector3.zero;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(IsFollowPointer))]
@@ -149,10 +150,10 @@ namespace Game.UI
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(IsFixedOffset))]
-        [LabelText("Fixed Offset")]
-        [Tooltip("FixedOffset の既定オフセットです。")]
+        [LabelText("Fixed Direction Offset")]
+        [Tooltip("FixedOffset の既定方向オフセットです。UI では TooltipRoot 基準の anchored/local 座標、World では world 座標です。X/Y は最終 anchor 方向に応じて符号が決まり、Z は固定加算です。")]
         [SerializeField]
-        Vector2 _fixedOffset = Vector2.zero;
+        Vector3 _fixedDirectionOffset = Vector3.zero;
 
         [BoxGroup("Placement")]
         [LabelText("Anchor X")]
@@ -168,9 +169,9 @@ namespace Game.UI
 
         public ActorSource AnchorActorSource => _anchorActorSource;
         public TooltipChannelSpawnMode SpawnMode => _spawnMode;
-        public Vector2 FollowPointerOffset => _followPointerOffset;
+        public Vector3 FollowPointerDirectionOffset => _followPointerDirectionOffset;
         public Vector2 FollowPointerMoveScale => _followPointerMoveScale;
-        public Vector2 FixedOffset => _fixedOffset;
+        public Vector3 FixedDirectionOffset => _fixedDirectionOffset;
         public TooltipChannelAnchorX AnchorX => _anchorX;
         public TooltipChannelAnchorY AnchorY => _anchorY;
 
@@ -180,9 +181,9 @@ namespace Game.UI
             {
                 _anchorActorSource = _anchorActorSource,
                 _spawnMode = _spawnMode,
-                _followPointerOffset = _followPointerOffset,
+                _followPointerDirectionOffset = _followPointerDirectionOffset,
                 _followPointerMoveScale = _followPointerMoveScale,
-                _fixedOffset = _fixedOffset,
+                _fixedDirectionOffset = _fixedDirectionOffset,
                 _anchorX = _anchorX,
                 _anchorY = _anchorY,
             };
@@ -213,9 +214,16 @@ namespace Game.UI
         [SerializeField]
         TooltipSystemPlacementDefaults _placementDefaults = new();
 
+        [BoxGroup("Shared Defaults")]
+        [LabelText("Hub")]
+        [InlineProperty]
+        [SerializeField]
+        TooltipHubPreset _hubPreset = new();
+
         public TooltipSystemRuntimeDefaults RuntimeDefaults => _runtimeDefaults;
         public TooltipSystemInputDefaults InputDefaults => _inputDefaults;
         public TooltipSystemPlacementDefaults PlacementDefaults => _placementDefaults;
+        public TooltipHubPreset HubPreset => _hubPreset;
 
         public TooltipSystemSharedDefaults CreateRuntimeCopy()
         {
@@ -224,6 +232,7 @@ namespace Game.UI
                 _runtimeDefaults = _runtimeDefaults.CreateRuntimeCopy(),
                 _inputDefaults = _inputDefaults.CreateRuntimeCopy(),
                 _placementDefaults = _placementDefaults.CreateRuntimeCopy(),
+                _hubPreset = _hubPreset.CreateRuntimeCopy(),
             };
         }
     }

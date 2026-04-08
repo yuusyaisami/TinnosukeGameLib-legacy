@@ -169,6 +169,7 @@ namespace Game.Commands.VNext
         public const int RuntimeTraitPresentationCommandMutation = 2209;
 
         public const int BackgroundLayer = 2300;
+        public const int VisualBoundsReactiveHubControl = 2301;
 
         // ゲームロジックのコマンド
         // Assets\Game\Script\Project\System\Stages\Core\StageManagerExecutors.cs

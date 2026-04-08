@@ -269,7 +269,8 @@ namespace Game.UI
             if (player.Definition.Shape is not RectAreaShape)
                 return SliderRangeResolveStatus.UnsupportedShape;
 
-            if (!player.TryGetRectSnapshot(ResolveAreaBasePosition(player.Definition, areaScope), out snapshot))
+            var dynamicContext = AreaChannelDynamicContextUtility.CreateContext(areaScope);
+            if (!player.TryGetRectSnapshot(dynamicContext, ResolveAreaBasePosition(player.Definition, areaScope), out snapshot))
                 return SliderRangeResolveStatus.AreaPlayerUnavailable;
 
             return SliderRangeResolveStatus.Success;
@@ -506,37 +507,16 @@ namespace Game.UI
             transform.position = ApplyDepthOffset(worldCenter, basePose.LocalPosition, areaSnapshot.Plane);
             transform.localRotation = basePose.LocalRotation;
 
-            var localScale = basePose.LocalScale;
             var resolvedLength = Mathf.Max(0f, majorLength);
             var resolvedCrossLength = Mathf.Max(0f, minorLength);
-            var localMajorLength = ResolveLocalLengthForAxis(transform, fillAxis == SliderAreaFillAxis.SizeX, resolvedLength);
-            var localCrossLength = ResolveLocalLengthForAxis(transform, fillAxis != SliderAreaFillAxis.SizeX, resolvedCrossLength);
-            var drawMode = renderer.drawMode;
-            var supportsRendererSize = drawMode == SpriteDrawMode.Sliced || drawMode == SpriteDrawMode.Tiled;
-            if (supportsRendererSize)
-            {
-                renderer.size = fillAxis == SliderAreaFillAxis.SizeX
-                    ? new Vector2(localMajorLength, localCrossLength)
-                    : new Vector2(localCrossLength, localMajorLength);
-                transform.localScale = basePose.LocalScale;
-                return false;
-            }
+            if (renderer.drawMode == SpriteDrawMode.Simple)
+                renderer.drawMode = SpriteDrawMode.Sliced;
 
-            renderer.size = spriteState.Size;
-            var spriteLocalSize = ResolveSpriteLocalSize(renderer, spriteState);
-            if (fillAxis == SliderAreaFillAxis.SizeX)
-            {
-                localScale.x = ResolveSpriteFallbackAxisScale(transform, basePose.LocalScale.x, spriteLocalSize.x, resolvedLength, useXAxis: true);
-                localScale.y = ResolveSpriteFallbackAxisScale(transform, basePose.LocalScale.y, spriteLocalSize.y, resolvedCrossLength, useXAxis: false);
-            }
-            else
-            {
-                localScale.y = ResolveSpriteFallbackAxisScale(transform, basePose.LocalScale.y, spriteLocalSize.y, resolvedLength, useXAxis: false);
-                localScale.x = ResolveSpriteFallbackAxisScale(transform, basePose.LocalScale.x, spriteLocalSize.x, resolvedCrossLength, useXAxis: true);
-            }
-
-            transform.localScale = localScale;
-            return true;
+            renderer.size = fillAxis == SliderAreaFillAxis.SizeX
+                ? new Vector2(ResolveLocalLengthForAxis(transform, true, resolvedLength), ResolveLocalLengthForAxis(transform, false, resolvedCrossLength))
+                : new Vector2(ResolveLocalLengthForAxis(transform, false, resolvedCrossLength), ResolveLocalLengthForAxis(transform, true, resolvedLength));
+            transform.localScale = basePose.LocalScale;
+            return false;
         }
 
         public static bool TryResolveRuntimeVisualTarget(

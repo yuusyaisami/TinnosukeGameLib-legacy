@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using UnityEngine;
 
 namespace Game.Channel
@@ -42,6 +43,11 @@ namespace Game.Channel
 
         public bool TrySamplePosition(Vector3 basePosition, in AreaSampleRequest request, out Vector3 position)
         {
+            return TrySamplePosition(EmptyDynamicContext.Instance, basePosition, in request, out position);
+        }
+
+        public bool TrySamplePosition(IDynamicContext context, Vector3 basePosition, in AreaSampleRequest request, out Vector3 position)
+        {
             position = default;
 
             var shape = _definition.Shape;
@@ -58,7 +64,7 @@ namespace Game.Channel
                 uv.x = ApplyJitter01(uv.x, jitter);
                 uv.y = ApplyJitter01(uv.y, jitter);
 
-                if (!shape.TrySample(in shapeContext, uv, out var local2))
+                if (!AreaShapeRuntimeUtility.TrySample(shape, context, in shapeContext, uv, out var local2))
                     continue;
 
                 var candidate = basePosition + ToPlane(local2, _definition.Plane);
@@ -75,21 +81,31 @@ namespace Game.Channel
 
         public bool ContainsPosition(Vector3 basePosition, Vector3 worldPosition)
         {
+            return ContainsPosition(EmptyDynamicContext.Instance, basePosition, worldPosition);
+        }
+
+        public bool ContainsPosition(IDynamicContext context, Vector3 basePosition, Vector3 worldPosition)
+        {
             var shape = _definition.Shape;
             if (shape == null)
                 return false;
 
             var localOffset = worldPosition - basePosition;
             var localPosition = ToLocal(localOffset, _definition.Plane);
-            return shape.ContainsLocalPosition(localPosition);
+            return AreaShapeRuntimeUtility.ContainsLocalPosition(shape, context, localPosition);
         }
 
         public bool TryGetContour(Vector3 basePosition, out AreaContourData contour)
         {
+            return TryGetContour(EmptyDynamicContext.Instance, basePosition, out contour);
+        }
+
+        public bool TryGetContour(IDynamicContext context, Vector3 basePosition, out AreaContourData contour)
+        {
             contour = default;
 
             var shape = _definition.Shape;
-            if (shape == null || !shape.TryGetContourLocal(out var localContour))
+            if (shape == null || !AreaShapeRuntimeUtility.TryGetContourLocal(shape, context, out var localContour))
                 return false;
 
             var worldPaths = new List<AreaContourPath>(localContour.Paths.Count);
@@ -117,19 +133,25 @@ namespace Game.Channel
 
         public bool TryGetRectSnapshot(Vector3 basePosition, out AreaRectSnapshot snapshot)
         {
+            return TryGetRectSnapshot(EmptyDynamicContext.Instance, basePosition, out snapshot);
+        }
+
+        public bool TryGetRectSnapshot(IDynamicContext context, Vector3 basePosition, out AreaRectSnapshot snapshot)
+        {
             snapshot = default;
 
-            if (_definition.Shape is not RectAreaShape rectShape)
+            if (!AreaShapeRuntimeUtility.TryGetRectSnapshot(_definition.Shape, context, basePosition, _definition.Plane, out snapshot))
                 return false;
 
-            snapshot = new AreaRectSnapshot(
-                basePosition,
-                new Vector2(Mathf.Max(0f, rectShape.Size.x), Mathf.Max(0f, rectShape.Size.y)),
-                _definition.Plane);
             return true;
         }
 
         public bool TryGetCanvasRectSnapshot(Vector3 basePosition, Canvas canvas, out AreaCanvasRectSnapshot snapshot)
+        {
+            return TryGetCanvasRectSnapshot(EmptyDynamicContext.Instance, basePosition, canvas, out snapshot);
+        }
+
+        public bool TryGetCanvasRectSnapshot(IDynamicContext context, Vector3 basePosition, Canvas canvas, out AreaCanvasRectSnapshot snapshot)
         {
             snapshot = default;
 
@@ -139,7 +161,7 @@ namespace Game.Channel
             if (canvas.renderMode == RenderMode.WorldSpace)
                 return false;
 
-            if (!TryGetRectSnapshot(basePosition, out var rectSnapshot))
+            if (!TryGetRectSnapshot(context, basePosition, out var rectSnapshot))
                 return false;
 
             if (canvas.transform is not RectTransform canvasRect)

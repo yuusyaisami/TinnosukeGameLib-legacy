@@ -65,6 +65,10 @@ namespace Game.StatusEffect
         [Tooltip("この条件が成立したときだけ Text を追加します。")]
         public StatusEffectAdditionalDescriptionCondition Condition = new();
 
+        [LabelText("Override")]
+        [Tooltip("有効な場合、それ以前に積まれた説明文をすべて破棄して、この要素を起点に説明文を組み直します。")]
+        public bool OverrideDescription;
+
         [LabelText("Text")]
         [Tooltip("条件成立時に追加する説明文です。既定で RichText source を使用します。")]
         public DynamicValue<string> Text = DynamicValue<string>.FromSource(new RichTextSource());
@@ -92,7 +96,7 @@ namespace Game.StatusEffect
         public RichTextTemplateData StackDescription = new();
 
         [LabelText("Additional Descriptions")]
-        [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = false, ShowFoldout = true)]
+        [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
         [Tooltip("条件成立時のみ末尾に追加する説明文です。複数設定できます。")]
         public List<StatusEffectAdditionalDescriptionEntry> AdditionalDescriptions = new();
 

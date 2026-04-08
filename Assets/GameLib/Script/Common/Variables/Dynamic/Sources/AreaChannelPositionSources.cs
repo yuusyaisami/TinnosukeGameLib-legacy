@@ -97,8 +97,9 @@ namespace Game.Common
                 return false;
             }
 
+            var dynamicContext = AreaChannelDynamicContextUtility.CreateContext(scope);
             var request = new AreaSampleRequest(sampleMode, layerKey ?? string.Empty);
-            if (!player.TrySamplePosition(basePosition, in request, out sampled))
+            if (!player.TrySamplePosition(dynamicContext, basePosition, in request, out sampled))
             {
                 error = $"AreaChannelPosition3 sampling returned no position. Tag='{normalizedTag}' SampleMode={sampleMode} Layer='{layerKey ?? string.Empty}'";
                 return false;
@@ -196,8 +197,9 @@ namespace Game.Common
             if (!TryResolveBasePosition(scope, player.Definition, out var basePosition))
                 return false;
 
+            var dynamicContext = AreaChannelDynamicContextUtility.CreateContext(scope);
             var request = new AreaSampleRequest(sampleMode, layerKey ?? string.Empty);
-            return player.TrySamplePosition(basePosition, in request, out sampled);
+            return player.TrySamplePosition(dynamicContext, basePosition, in request, out sampled);
         }
 
         static bool TryResolveBasePosition(IScopeNode scope, AreaChannelDefinition definition, out Vector3 basePosition)

@@ -20,23 +20,46 @@ namespace Game.VarStoreKeys.Editor
 
             var stableProp = property.FindPropertyRelative("stableKey");
             var idProp = property.FindPropertyRelative("varId");
+            var registry = VarKeyRegistryLocator.GetOrCreate();
 
             var rect = EditorGUI.PrefixLabel(position, label);
             if (rect.height < EditorGUIUtility.singleLineHeight)
                 rect.height = EditorGUIUtility.singleLineHeight;
 
             var current = stableProp.stringValue ?? string.Empty;
-            var display = string.IsNullOrEmpty(current) ? "<None>" : current.Replace(".", " › ");
+            var display = ResolveDisplayText(registry, idProp.intValue, current);
 
             if (GUI.Button(rect, display, EditorStyles.popup))
             {
-                ShowDropdown(rect, stableProp, idProp, current);
+                ShowDropdown(rect, stableProp, idProp, current, idProp.intValue);
             }
 
             EditorGUI.EndProperty();
         }
 
-        void ShowDropdown(Rect rect, SerializedProperty stableProp, SerializedProperty idProp, string currentPath)
+        static string ResolveDisplayText(VarKeyRegistry registry, int varId, string stableKey)
+        {
+            if (registry != null && varId > 0)
+            {
+                var nodes = registry.Nodes;
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    var node = nodes[i];
+                    if (node == null || node.IsFolder || node.VarId != varId)
+                        continue;
+
+                    var displayPath = registry.GetDisplayPath(node.Id);
+                    if (!string.IsNullOrEmpty(displayPath))
+                        return displayPath.Replace("/", " › ");
+                }
+            }
+
+            return string.IsNullOrEmpty(stableKey)
+                ? "<None>"
+                : stableKey.Replace(".", " › ");
+        }
+
+        void ShowDropdown(Rect rect, SerializedProperty stableProp, SerializedProperty idProp, string currentPath, int currentVarId)
         {
             var registry = VarKeyRegistryLocator.GetOrCreate();
             var visited = new HashSet<string>(StringComparer.Ordinal);
@@ -51,7 +74,7 @@ namespace Game.VarStoreKeys.Editor
 
             menu.AddSeparator(string.Empty);
 
-            AddMenuItemsFromRegistry(menu, registry, stableProp, idProp, currentPath, visited);
+            AddMenuItemsFromRegistry(menu, registry, stableProp, idProp, currentPath, currentVarId, visited);
 
             menu.DropDown(rect);
         }
@@ -62,6 +85,7 @@ namespace Game.VarStoreKeys.Editor
             SerializedProperty stableProp,
             SerializedProperty idProp,
             string currentPath,
+            int currentVarId,
             HashSet<string> visited)
         {
             if (registry == null) return;
@@ -80,7 +104,9 @@ namespace Game.VarStoreKeys.Editor
 
                 if (visited.Add(menuPath))
                 {
-                    var isOn = string.Equals(currentPath, keyString, StringComparison.Ordinal);
+                    var isOn = currentVarId > 0
+                        ? currentVarId == node.VarId
+                        : string.Equals(currentPath, keyString, StringComparison.Ordinal);
                     var capturedKey = keyString;
                     var capturedId = node.VarId;
                     var label = menuPath;
