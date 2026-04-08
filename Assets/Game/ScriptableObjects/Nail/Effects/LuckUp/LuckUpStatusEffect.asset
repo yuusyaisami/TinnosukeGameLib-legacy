@@ -1549,7 +1549,6 @@ MonoBehaviour:
           DisplayName:
             Template: "\u30E9\u30C3\u30AF\u5024\u30A2\u30C3\u30D7"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: "<sprite=12> \u30E9\u30C3\u30AF {LuckUp}"
             Variables:
@@ -1561,7 +1560,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: <sprite=12> {intensity|sign=always}
+            Template: "<sprite=12> \u30E9\u30C3\u30AF {intensity|sign=always}"
             Variables:
             - _value:
                 _source:
@@ -1570,10 +1569,9 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
         runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
@@ -1660,6 +1658,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

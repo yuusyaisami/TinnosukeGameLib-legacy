@@ -1365,4 +1365,52 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: 5a6eda50d4014ffca318f8861b4f3a39
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: TimeToValueUp
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8bbbbd058c994f979843e582a37494f6
+    parentId: 5a6eda50d4014ffca318f8861b4f3a39
+    name: TimeToValueUpMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 45828274232040ab870904a57246debd
+    parentId: 9a22d061de77456ebfda7fac59070350
+    name: Shop
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 60519de409ac4b6db7e6b5b4ab860ab6
+    parentId: 45828274232040ab870904a57246debd
+    name: ShopItemCount
+    isFolder: 0
+    description: "\u30B7\u30E7\u30C3\u30D7\u306B\u4E26\u3076\u30A2\u30A4\u30C6\u30E0\u306E\u6570\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 5c2b07a0cac24b8d8c4859a0ec5d39b7
+    parentId: 34e30ff382d146e89c236667344090bb
+    name: SizeScale
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: dcca9caae4f7492d8750c469c810b3e2
+    parentId: 45828274232040ab870904a57246debd
+    name: isShopTurnReset
+    isFolder: 0
+    description: "1\u4EE5\u4E0A\u3060\u3068\u6BCE\u30BF\u30FC\u30F3\u30B7\u30E7\u30C3\u30D7\u3092\u30EA\u30BB\u30C3\u30C8\u3059\u308B\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
   csvFile: {fileID: 4900000, guid: 0f8f0a1f52c24534fa42d23481dae4e3, type: 3}

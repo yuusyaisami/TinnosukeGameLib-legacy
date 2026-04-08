@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
   m_Name: CosmosTraitDefinition
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
-  _definitionId: KenjaTraitDefinition
+  _definitionId: CosmosTrait
   _name:
     Template: "\u9EC4\u8272\u306E\u30B3\u30B9\u30E2\u30B9"
     Variables: []
@@ -388,6 +388,11 @@ MonoBehaviour:
       Value:
         _source:
           rid: 5399842452542849315
+    - VarId: 0
+      Kind: 0
+      Value:
+        _source:
+          rid: -2
   _applyCommonGridTable: 1
   _commonGridTableKeyVarId: 100123
   _commonGridTable:

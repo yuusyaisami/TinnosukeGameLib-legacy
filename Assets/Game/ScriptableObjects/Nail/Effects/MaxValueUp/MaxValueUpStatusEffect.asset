@@ -1440,7 +1440,6 @@ MonoBehaviour:
           DisplayName:
             Template: "\u4E0A\u9650\u4FA1\u5024"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: "<sprite=11>\u4E0A\u9650 {MaxValueUp}"
             Variables:
@@ -1461,10 +1460,9 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
-          SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
+          SortOrder: -2
         runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
@@ -1526,6 +1524,7 @@ MonoBehaviour:
     - rid: 5619052366731149466
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: 525909163
           Name: GameLogic.NailProfile.Effect.MaxValueUp
@@ -1552,6 +1551,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

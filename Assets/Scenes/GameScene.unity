@@ -1939,6 +1939,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848364265
@@ -2277,10 +2289,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052643689169383
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -2294,6 +2308,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -2337,9 +2352,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -2427,6 +2442,7 @@ MonoBehaviour:
     - rid: 5619052643689169389
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -2514,9 +2530,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 10
         _anchorY: 10
         _hitTestValue:
@@ -2821,6 +2837,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052646656639733
@@ -3581,6 +3609,7 @@ MonoBehaviour:
             stableKey: A
             varId: 226
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052416848363979
@@ -4280,14 +4309,30 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 5399842535607107818
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 2.79, y: 0.6}
+    - rid: 5399842535607107819
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 2.6, y: 0.6}
     - rid: 5619052416848363965
       type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
         Size: {x: 2.79, y: 0.61}
+        SizeOverride:
+          _source:
+            rid: 5399842535607107818
+          _defaultValue: {x: 0, y: 0}
     - rid: 5619052416848363967
       type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
         Size: {x: 2.62, y: 0.61}
+        SizeOverride:
+          _source:
+            rid: 5399842535607107819
+          _defaultValue: {x: 0, y: 0}
 --- !u!114 &175959470
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8350,7 +8395,6 @@ GameObject:
   - component: {fileID: 321809357}
   - component: {fileID: 321809356}
   - component: {fileID: 321809367}
-  - component: {fileID: 321809368}
   - component: {fileID: 321809369}
   m_Layer: 0
   m_Name: ScreenCanvas-Root
@@ -8535,6 +8579,8 @@ MonoBehaviour:
     Previous: (none)
     Hovered: (none)
     CandidateProvider: (none)
+    NavigationCandidates: []
+    PointerCandidates: []
     NavigationCandidateTexts: []
     PointerCandidateTexts: []
   _includeGraphicsInDump: 1
@@ -8665,81 +8711,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementRuntimeSpawnerMB
   spawnerTag: 
   root: {fileID: 905308920}
---- !u!114 &321809368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 321809352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0486971128f9d4a43b671127e7d0de07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TooltipSystemMB
-  tooltipRoot: {fileID: 321809353}
-  worldRoot: {fileID: 0}
-  clampArea: {fileID: 321809353}
-  inputMode: 10
-  enableClamp: 1
-  flipThresholdX: 0.2
-  flipThresholdY: 0.2
-  spawnWarmupFrames: 2
-  sharedDefaults:
-    _runtimeDefaults:
-      _runtimeTemplatePreset:
-        _source:
-          rid: 5619052617993552690
-        _defaultValue:
-          prefab: {fileID: 0}
-          usePooling: 1
-          category: Runtime
-          templateId: 
-      _spawnerTag: 
-    _inputDefaults:
-      _enablePointerHover: 1
-      _enableSelectionHover: 1
-      _hoverDelaySeconds: 0.4
-      _selectionDelaySeconds: 0.3
-      _pointerMoveThreshold: 2
-    _placementDefaults:
-      _anchorActorSource:
-        Kind: 0
-        Identity:
-          kind: 0
-          id: 
-          category: 
-          requireActive: 0
-          searchScope: 0
-        UnityObject: {fileID: 0}
-        Shared:
-          rid: -2
-        ContextSlot: 0
-        TargetChannel:
-          rid: -2
-      _spawnMode: 10
-      _followPointerOffset: {x: 0, y: 0}
-      _followPointerMoveScale: {x: 1, y: 0.5}
-      _fixedOffset: {x: 0, y: 0}
-      _anchorX: 30
-      _anchorY: 10
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 5619052617993552690
-      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5619052617993552691
-    - rid: 5619052617993552691
-      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
-      data:
-        prefab: {fileID: 1255711634492439393, guid: 4350ccb0b12cd754b8e92d250ef89544, type: 3}
-        usePooling: 1
-        category: Runtime
-        templateId: 
 --- !u!114 &321809369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9383,6 +9354,7 @@ GameObject:
   - component: {fileID: 394753048}
   - component: {fileID: 394753049}
   - component: {fileID: 394753050}
+  - component: {fileID: 394753051}
   m_Layer: 0
   m_Name: Scene-Root
   m_TagString: Untagged
@@ -9702,6 +9674,135 @@ MonoBehaviour:
     _velocity: {x: 0, y: 0}
   _rotateGlobals: []
   _scaleGlobals: []
+--- !u!114 &394753051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394753035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0486971128f9d4a43b671127e7d0de07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TooltipSystemMB
+  tooltipRoot: {fileID: 321809353}
+  worldRoot: {fileID: 321809353}
+  clampArea: {fileID: 321809353}
+  inputMode: 10
+  enableClamp: 1
+  flipThresholdX: 0.2
+  flipThresholdY: 0.2
+  spawnWarmupFrames: 2
+  sharedDefaults:
+    _runtimeDefaults:
+      _runtimeTemplatePreset:
+        _source:
+          rid: 5619052617993552690
+        _defaultValue:
+          prefab: {fileID: 0}
+          usePooling: 1
+          category: Runtime
+          templateId: 
+      _spawnerTag: 
+    _inputDefaults:
+      _enablePointerHover: 1
+      _enableSelectionHover: 1
+      _hoverDelaySeconds: 0.4
+      _selectionDelaySeconds: 0.3
+      _pointerMoveThreshold: 2
+    _placementDefaults:
+      _anchorActorSource:
+        Kind: 0
+        Identity:
+          kind: 0
+          id: 
+          category: 
+          requireActive: 0
+          searchScope: 0
+        UnityObject: {fileID: 0}
+        Shared:
+          rid: -2
+        ContextSlot: 0
+        TargetChannel:
+          rid: -2
+      _spawnMode: 10
+      _followPointerDirectionOffset: {x: 5, y: 5, z: -1}
+      _followPointerMoveScale: {x: 1, y: 0.5}
+      _fixedDirectionOffset: {x: 0, y: 0, z: 0}
+      _anchorX: 30
+      _anchorY: 10
+    _hubPreset:
+      _renderSpace: 10
+      _cameraLocationTag: default
+      _inputMode: 40
+      _defaultHitTestValue:
+        _source:
+          rid: 5399842526980211615
+        _defaultValue:
+          _targets: []
+      _stackDirection: 10
+      _stackGap: 8
+      _enableClamp: 1
+      _flipThresholdX: 0.2
+      _flipThresholdY: 0.2
+      _spawnWarmupFrames: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842526980211615
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHitTestPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842526980211616
+    - rid: 5399842526980211616
+      type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _targets:
+        - _kind: 10
+          _actorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+        - _kind: 20
+          _actorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+    - rid: 5619052617993552690
+      type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5619052617993552691
+    - rid: 5619052617993552691
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 1255711634492439393, guid: 4350ccb0b12cd754b8e92d250ef89544, type: 3}
+        usePooling: 1
+        category: Runtime
+        templateId: 
 --- !u!1 &408003915
 GameObject:
   m_ObjectHideFlags: 0
@@ -11685,6 +11786,18 @@ MonoBehaviour:
           _source:
             rid: 5619052416848363844
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848363839
@@ -11914,6 +12027,18 @@ MonoBehaviour:
           _source:
             rid: 5619052416848363849
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848363850
@@ -13634,10 +13759,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052646656639807
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -13651,6 +13778,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -13694,9 +13822,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -13784,6 +13912,7 @@ MonoBehaviour:
     - rid: 5619052646656639813
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -13871,9 +14000,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -14178,6 +14307,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052646656639829
@@ -14858,6 +14999,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848364291
@@ -14967,10 +15120,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052646656639879
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -14984,6 +15139,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -15027,9 +15183,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -15117,6 +15273,7 @@ MonoBehaviour:
     - rid: 5619052646656639885
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -15204,9 +15361,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -15511,6 +15668,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052646656639901
@@ -16784,6 +16953,18 @@ MonoBehaviour:
           _source:
             rid: 5619052416848364275
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848364273
@@ -17063,10 +17244,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052646656639735
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -17080,6 +17263,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -17123,9 +17307,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -17213,6 +17397,7 @@ MonoBehaviour:
     - rid: 5619052646656639741
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -17300,9 +17485,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -17607,6 +17792,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052646656639757
@@ -17750,6 +17947,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 548990149}
+  - component: {fileID: 548990156}
+  - component: {fileID: 548990155}
+  - component: {fileID: 548990154}
+  - component: {fileID: 548990153}
+  - component: {fileID: 548990152}
+  - component: {fileID: 548990151}
   m_Layer: 0
   m_Name: GameField-Root
   m_TagString: Untagged
@@ -17776,6 +17979,135 @@ Transform:
   - {fileID: 1603827029}
   m_Father: {fileID: 394753047}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &548990151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548990148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e37d0156c0742546b52a679848097af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Field.FieldLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  useAsGameLogicRoot: 0
+  debugAwakeFrame: -1
+  debugBuildFrame: -1
+  debugBuildDelayFrames: -1
+  debugAwakeRealtime: -1
+  debugBuildRealtime: -1
+  debugParent: null
+  debugParentHasResolver: 0
+  debugParentBuildStatus: Unknown
+  debugPath: 
+  debugBuildStatus: NotBuilt
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  initiallyVisible: 1
+--- !u!114 &548990152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548990148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 5
+  id: GameField-Root
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+--- !u!114 &548990153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548990148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c908c57ac520c7948a9a1e73ebd05f10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.EventMB
+  _captureEventLog: 1
+  _logCapacity: 64
+--- !u!114 &548990154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548990148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 0
+  _debugView:
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!114 &548990155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548990148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &548990156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548990148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
+  enableDebugView: 0
+  _debugView:
+    queryKey: 
+    queryVarId: 0
+    writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &567136095
 GameObject:
   m_ObjectHideFlags: 0
@@ -20599,6 +20931,8 @@ MonoBehaviour:
     Previous: (none)
     Hovered: (none)
     CandidateProvider: (none)
+    NavigationCandidates: []
+    PointerCandidates: []
     NavigationCandidateTexts: []
     PointerCandidateTexts: []
   _includeGraphicsInDump: 1
@@ -21094,7 +21428,7 @@ RectTransform:
   m_GameObject: {fileID: 731910826}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 0, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1218426972}
@@ -21720,6 +22054,7 @@ MonoBehaviour:
             stableKey: RerollCurrentCount
             varId: 101128
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5399842402410693486
@@ -24863,8 +25198,8 @@ MonoBehaviour:
         _order: 10
         _rowSpacing: 0
         _columnSpacing: 0
-        _itemHorizontalAlignment: 10
-        _itemVerticalAlignment: 10
+        _itemHorizontalAlignment: 20
+        _itemVerticalAlignment: 20
         _areaHorizontalAlignment: 20
         _areaVerticalAlignment: 20
         _itemOffset: {x: 0, y: 0, z: 0}
@@ -24914,7 +25249,7 @@ MonoBehaviour:
         _fixedSize: {x: 100, y: 100}
         _delayBetweenSpawns:
           _source:
-            rid: 5399842409393160248
+            rid: 5399842506086809976
           _defaultValue: 0
         _spawnCommands:
           _debugOwner: {fileID: 0}
@@ -24979,18 +25314,10 @@ MonoBehaviour:
         vector3Value: {x: 0, y: 0, z: 0}
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842409393160248
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+    - rid: 5399842506086809976
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        type: 1
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
+        value: 0
 --- !u!114 &883118298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26777,6 +27104,18 @@ MonoBehaviour:
           _source:
             rid: 5619052686853013939
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052686853013937
@@ -26947,6 +27286,18 @@ MonoBehaviour:
           _source:
             rid: 5619052686853013950
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052686853013948
@@ -27184,6 +27535,18 @@ MonoBehaviour:
           _source:
             rid: 5619052686853013960
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052686853013958
@@ -28158,7 +28521,6 @@ GameObject:
   - component: {fileID: 979540353}
   - component: {fileID: 979540356}
   - component: {fileID: 979540355}
-  - component: {fileID: 979540354}
   m_Layer: 0
   m_Name: Scrollbar Vertical
   m_TagString: Untagged
@@ -28186,55 +28548,6 @@ RectTransform:
   m_AnchoredPosition: {x: -144.26901, y: -1.7950978}
   m_SizeDelta: {x: 3.2060769, y: -7.17511}
   m_Pivot: {x: 1, y: 1}
---- !u!114 &979540354
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 979540352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a4db7a114972834c8e4117be1d82ba3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Scrollbar
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 1670822306}
-  m_HandleRect: {fileID: 1670822305}
-  m_Direction: 2
-  m_Value: 1.0000691
-  m_Size: 0.9742174
-  m_NumberOfSteps: 0
-  m_OnValueChanged:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &979540355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29969,6 +30282,18 @@ MonoBehaviour:
           _source:
             rid: 5619052416848364187
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848364185
@@ -31917,6 +32242,14 @@ MonoBehaviour:
       type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
         Size: {x: 19.09, y: 2.57}
+        SizeOverride:
+          _source:
+            rid: 5399842535607107821
+          _defaultValue: {x: 0, y: 0}
+    - rid: 5399842535607107821
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 19, y: 2.5}
 --- !u!1 &1028249287
 GameObject:
   m_ObjectHideFlags: 0
@@ -31927,8 +32260,15 @@ GameObject:
   m_Component:
   - component: {fileID: 1028249288}
   - component: {fileID: 1028249291}
-  - component: {fileID: 1028249290}
-  - component: {fileID: 1028249289}
+  - component: {fileID: 1028249292}
+  - component: {fileID: 1028249300}
+  - component: {fileID: 1028249299}
+  - component: {fileID: 1028249298}
+  - component: {fileID: 1028249297}
+  - component: {fileID: 1028249296}
+  - component: {fileID: 1028249295}
+  - component: {fileID: 1028249294}
+  - component: {fileID: 1028249293}
   m_Layer: 0
   m_Name: Viewport
   m_TagString: Untagged
@@ -31956,49 +32296,6 @@ RectTransform:
   m_AnchoredPosition: {x: 9.809998, y: -5.579994}
   m_SizeDelta: {x: -14.95, y: -10.96}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1028249289
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1028249287}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
-  m_ShowMaskGraphic: 0
---- !u!114 &1028249290
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1028249287}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1028249291
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -32007,6 +32304,217 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1028249287}
   m_CullTransparentMesh: 1
+--- !u!114 &1028249292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
+--- !u!114 &1028249293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10dc57d000ff71540babc0aa72757627, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIRectMaskMB
+  _navigationOcclusionThreshold: 0.5
+  _enableDebugLog: 1
+--- !u!114 &1028249294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ec127ea933e5841b6d80cc35226cfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  useAsGameLogicRoot: 0
+  debugAwakeFrame: -1
+  debugBuildFrame: -1
+  debugBuildDelayFrames: -1
+  debugAwakeRealtime: -1
+  debugBuildRealtime: -1
+  debugParent: null
+  debugParentHasResolver: 0
+  debugParentBuildStatus: Unknown
+  debugPath: 
+  debugBuildStatus: NotBuilt
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  initiallyVisible: 1
+--- !u!114 &1028249295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 8
+  id: Viewport
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+--- !u!114 &1028249296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
+  enableDebugView: 0
+  _debugView:
+    queryKey: 
+    queryVarId: 0
+    writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1028249297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a513bb93c2de2a49b7f6d82c576a598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementStateMB
+  _initialActive: 1
+  _initialVisible: 1
+  _hitTestRects:
+  - {fileID: 1028249288}
+  _selectionOrder: 0
+  _navigationSelectionOrder: 0
+  _isSelectable:
+    _source:
+      rid: 5399842514896421346
+    _defaultValue: 0
+  _isNavigationSelectable:
+    _source:
+      rid: 5399842514896421347
+    _defaultValue: 0
+  _navigationOverride:
+    Up: {fileID: 0}
+    Down: {fileID: 0}
+    Left: {fileID: 0}
+    Right: {fileID: 0}
+  _onSelectedCommands:
+    _debugOwner: {fileID: 1028249297}
+    _debugFieldPath: _onSelectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnSelected
+    _commands: []
+  _onDeselectedCommands:
+    _debugOwner: {fileID: 1028249297}
+    _debugFieldPath: _onDeselectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnDeselected
+    _commands: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5399842514896421346
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842514896421347
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+--- !u!114 &1028249298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c908c57ac520c7948a9a1e73ebd05f10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.EventMB
+  _captureEventLog: 1
+  _logCapacity: 64
+--- !u!114 &1028249299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 0
+  _debugView:
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!114 &1028249300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028249287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &1031081245
 GameObject:
   m_ObjectHideFlags: 0
@@ -32831,11 +33339,13 @@ MonoBehaviour:
       _functionName: 
       _commands:
       - rid: 5399842482115052080
+      - rid: 5399842530663334421
       - rid: 5619052416848364052
       - rid: 5619052451121070206
       - rid: 5619052451121070223
       - rid: 5399842374860145380
       - rid: 5399842374860145356
+      - rid: 5399842511542026831
     endCommands:
       _debugOwner: {fileID: 0}
       _debugFieldPath: 
@@ -32888,7 +33398,7 @@ MonoBehaviour:
       - rid: 5619052451121070339
       - rid: 5619052416848364047
       - rid: 5619052506154533153
-      - rid: 5619052506154533031
+      - rid: 5399842530663334403
     endCommands:
       _debugOwner: {fileID: 0}
       _debugFieldPath: 
@@ -32903,6 +33413,7 @@ MonoBehaviour:
       _functionName: 
       _commands:
       - rid: 5399842374860145132
+      - rid: 5399842530663334424
     endCommands:
       _debugOwner: {fileID: 0}
       _debugFieldPath: 
@@ -33415,6 +33926,152 @@ MonoBehaviour:
       type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {fileID: 11400000, guid: a7073b69bf5c03946ba49f8d72557ab8, type: 2}
+    - rid: 5399842511542026831
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842511542026832
+    - rid: 5399842511542026832
+      type: {class: CommandChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        ExecutionActorMode: 0
+        ExecutorActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        ExecutionScope: 0
+        Tag: ResetTimer
+        AwaitMode: 0
+    - rid: 5399842530663334403
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842530663334404
+    - rid: 5399842530663334404
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5399842530663334406
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5619052506154533031
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842530663334406
+      type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842530663334407
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: isShopTurnReset > 0
+    - rid: 5399842530663334407
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1078883971
+          Name: GameLogic.GameProfile.Shop.isShopTurnReset
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842530663334421
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5399842530663334422
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5399842530663334422
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 2bed4f4c7d61662469308fe8d8c519ad, type: 2}
+    - rid: 5399842530663334424
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5399842530663334425
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5399842530663334425
+      type: {class: 'ManagedRefAssetSource`2[[Game.Commands.VNext.CommandFunctionSO, Assembly-CSharp],[Game.Commands.VNext.CommandFunctionPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000, guid: 2bed4f4c7d61662469308fe8d8c519ad, type: 2}
     - rid: 5619052416848364044
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -34720,6 +35377,8 @@ MonoBehaviour:
         _profileName: CustomProfile
         _bindings:
         - rid: 5399842460338225776
+        - rid: 5399842511542026834
+        - rid: 5399842530663334427
     - rid: 5399842460338225776
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
@@ -34851,6 +35510,64 @@ MonoBehaviour:
         ScalarKeyValue:
           Id: -1751722524
           Name: GameLogic.GameProfile.Ball.RightWindowScale
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5399842511542026834
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 3
+        ScalarKeyValue:
+          Id: 1082989941
+          Name: GameLogic.GameProfile.Shop.ShopItemCount
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 5399842530663334427
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: -1078883971
+          Name: GameLogic.GameProfile.Shop.isShopTurnReset
         ScalarPolicyValue: 0
         UseEffectMod: 0
         UseClampMod: 0
@@ -36447,11 +37164,55 @@ MonoBehaviour:
       _commands:
       - rid: 5619052416848364036
       - rid: 5619052416848364038
+      - rid: 5399842525030383702
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842525030383702
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842525030383703
+    - rid: 5399842525030383703
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: ResetTimer
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
     - rid: 5619052416848364028
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -38275,6 +39036,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848363932
@@ -38500,6 +39273,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848363941
@@ -38792,10 +39577,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052646656639783
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -38809,6 +39596,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -38852,9 +39640,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -38958,6 +39746,7 @@ MonoBehaviour:
     - rid: 5619052646656639789
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -39045,9 +39834,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -39352,6 +40141,18 @@ MonoBehaviour:
           _source:
             rid: 5399842479533720078
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052646656639805
@@ -43514,6 +44315,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848363947
@@ -43739,6 +44552,18 @@ MonoBehaviour:
           _source:
             rid: 5619052416848363960
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848363957
@@ -44047,10 +44872,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052646656639759
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -44064,6 +44891,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -44107,9 +44935,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -44197,6 +45025,7 @@ MonoBehaviour:
     - rid: 5619052646656639765
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -44284,9 +45113,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -44591,6 +45420,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052646656639781
@@ -46556,6 +47397,18 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145032
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5399842374860144947
@@ -46982,6 +47835,7 @@ MonoBehaviour:
             stableKey: A
             varId: 226
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5399842482115052484
@@ -50950,6 +51804,7 @@ MonoBehaviour:
             stableKey: RerollCurrentCount
             varId: 101128
           Op: 2
+          StoreMode: 0
           Value:
             _source:
               rid: 5399842402410693489
@@ -51360,6 +52215,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5399842475666834300
@@ -52392,6 +53259,7 @@ MonoBehaviour:
             stableKey: RerollCurrentCount
             varId: 101128
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5399842402410693502
@@ -52924,6 +53792,18 @@ MonoBehaviour:
           _source:
             rid: 5399842483577029154
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5399842475666834293
@@ -54653,6 +55533,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052451121070197
@@ -56626,10 +57518,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052646656639831
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -56643,6 +57537,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -56686,9 +57581,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -56776,6 +57671,7 @@ MonoBehaviour:
     - rid: 5619052646656639837
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -56863,9 +57759,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -57170,6 +58066,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052646656639853
@@ -59357,6 +60265,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052451121070181
@@ -62744,6 +63664,13 @@ GameObject:
   - component: {fileID: 1670822305}
   - component: {fileID: 1670822307}
   - component: {fileID: 1670822306}
+  - component: {fileID: 1670822315}
+  - component: {fileID: 1670822313}
+  - component: {fileID: 1670822312}
+  - component: {fileID: 1670822311}
+  - component: {fileID: 1670822310}
+  - component: {fileID: 1670822309}
+  - component: {fileID: 1670822308}
   m_Layer: 0
   m_Name: Handle
   m_TagString: Untagged
@@ -62766,7 +63693,7 @@ RectTransform:
   m_Father: {fileID: 725483875}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0.9742175}
   m_AnchoredPosition: {x: 0, y: -0.000015258789}
   m_SizeDelta: {x: 0.000020981, y: 0.000015259}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -62808,6 +63735,383 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1670822304}
   m_CullTransparentMesh: 1
+--- !u!114 &1670822308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670822304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a513bb93c2de2a49b7f6d82c576a598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementStateMB
+  _initialActive: 1
+  _initialVisible: 1
+  _hitTestRects:
+  - {fileID: 1670822305}
+  _selectionOrder: 0
+  _navigationSelectionOrder: 0
+  _isSelectable:
+    _source:
+      rid: 5399842514896421344
+    _defaultValue: 0
+  _isNavigationSelectable:
+    _source:
+      rid: 5399842514896421345
+    _defaultValue: 0
+  _navigationOverride:
+    Up: {fileID: 0}
+    Down: {fileID: 0}
+    Left: {fileID: 0}
+    Right: {fileID: 0}
+  _onSelectedCommands:
+    _debugOwner: {fileID: 1670822308}
+    _debugFieldPath: _onSelectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnSelected
+    _commands: []
+  _onDeselectedCommands:
+    _debugOwner: {fileID: 1670822308}
+    _debugFieldPath: _onDeselectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnDeselected
+    _commands: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5399842514896421344
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842514896421345
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+--- !u!114 &1670822309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670822304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  debugAwakeFrame: -1
+  debugBuildFrame: -1
+  debugBuildDelayFrames: -1
+  debugAwakeRealtime: -1
+  debugBuildRealtime: -1
+  debugParent: null
+  debugParentHasResolver: 0
+  debugParentBuildStatus: Unknown
+  debugPath: 
+  debugBuildStatus: NotBuilt
+--- !u!114 &1670822310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670822304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1670822311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670822304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
+  enableDebugView: 0
+  _debugView:
+    queryKey: 
+    queryVarId: 0
+    writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1670822312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670822304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73a10913f1437c843b3c22bc4cf2127f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeTickHub
+  enableDistanceCulling: 0
+  distanceCullTarget:
+    Kind: 0
+    Identity:
+      kind: 0
+      id: 
+      category: 
+      requireActive: 0
+      searchScope: 0
+    UnityObject: {fileID: 0}
+    Shared:
+      rid: -2
+    ContextSlot: 0
+    TargetChannel:
+      rid: -2
+  distanceCullRange: 0
+  distanceCullUse2D: 1
+  distanceCheckIntervalFrames: 5
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &1670822313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670822304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 9
+  id: Handle
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+--- !u!114 &1670822315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670822304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38de24b4e088bae489d7199516c7f8c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.ButtonChannelHubMB
+  _channels:
+  - _channelTag: default
+    _presetValue:
+      _source:
+        rid: 5399842514896421330
+      _defaultValue:
+        _inputPreset:
+          _source:
+            rid: 5399842514896421331
+        _playerPreset:
+          _source:
+            rid: 5399842514896421332
+          _defaultValue:
+            _enabledCondition:
+              _source:
+                rid: 5399842514896421333
+              _defaultValue: 0
+            _uiTriggerAction: 0
+            _worldTriggerButton: 10
+            _guardDuringCommandExecution: 1
+            _disableSelectionDuringCommandExecution: 0
+            _allowNavigationSelectionChangeWhileInteracting: 0
+            _allowPointerSelectionChangeWhileInteracting: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5399842514896421330
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842514896421334
+    - rid: 5399842514896421331
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842514896421335
+    - rid: 5399842514896421332
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842514896421336
+    - rid: 5399842514896421333
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842514896421334
+      type: {class: ButtonChannelPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _inputPreset:
+          _source:
+            rid: 5399842514896421337
+        _playerPreset:
+          _source:
+            rid: 5399842514896421338
+          _defaultValue:
+            _enabledCondition:
+              _source:
+                rid: 5399842514896421339
+              _defaultValue: 0
+            _uiTriggerAction: 0
+            _worldTriggerButton: 10
+            _guardDuringCommandExecution: 1
+            _disableSelectionDuringCommandExecution: 0
+            _allowNavigationSelectionChangeWhileInteracting: 0
+            _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842514896421335
+      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _onDownCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onUpCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onCancelCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842514896421336
+      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabledCondition:
+          _source:
+            rid: 5399842514896421340
+          _defaultValue: 0
+        _uiTriggerAction: 0
+        _worldTriggerButton: 10
+        _guardDuringCommandExecution: 1
+        _disableSelectionDuringCommandExecution: 0
+        _allowNavigationSelectionChangeWhileInteracting: 0
+        _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842514896421337
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842514896421341
+    - rid: 5399842514896421338
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842514896421342
+    - rid: 5399842514896421339
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842514896421340
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842514896421341
+      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _onDownCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onUpCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onCancelCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842514896421342
+      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabledCondition:
+          _source:
+            rid: 5399842514896421343
+          _defaultValue: 0
+        _uiTriggerAction: 0
+        _worldTriggerButton: 10
+        _guardDuringCommandExecution: 1
+        _disableSelectionDuringCommandExecution: 0
+        _allowNavigationSelectionChangeWhileInteracting: 0
+        _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842514896421343
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1685991540
 GameObject:
   m_ObjectHideFlags: 0
@@ -63123,8 +64427,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1713894686}
   - component: {fileID: 1713894689}
-  - component: {fileID: 1713894688}
-  - component: {fileID: 1713894687}
+  - component: {fileID: 1713894697}
+  - component: {fileID: 1713894696}
+  - component: {fileID: 1713894695}
+  - component: {fileID: 1713894694}
+  - component: {fileID: 1713894693}
+  - component: {fileID: 1713894692}
+  - component: {fileID: 1713894698}
+  - component: {fileID: 1713894699}
   m_Layer: 0
   m_Name: Scroll View
   m_TagString: Untagged
@@ -63153,66 +64463,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0.0003078, y: 0.00032873}
   m_SizeDelta: {x: 149.08, y: 252.79}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1713894687
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1713894685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
-  m_Content: {fileID: 1799633335}
-  m_Horizontal: 1
-  m_Vertical: 1
-  m_MovementType: 1
-  m_Elasticity: 0.1
-  m_Inertia: 1
-  m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
-  m_Viewport: {fileID: 1028249288}
-  m_HorizontalScrollbar: {fileID: 0}
-  m_VerticalScrollbar: {fileID: 979540354}
-  m_HorizontalScrollbarVisibility: 1
-  m_VerticalScrollbarVisibility: 1
-  m_HorizontalScrollbarSpacing: -3
-  m_VerticalScrollbarSpacing: -3
-  m_OnValueChanged:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &1713894688
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1713894685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1713894689
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -63221,6 +64471,477 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1713894685}
   m_CullTransparentMesh: 1
+--- !u!114 &1713894692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713894685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b295c3894941eb04fb4282769bbc661d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIScrollRectMB
+  _content: {fileID: 1799633335}
+  _viewportRect: {fileID: 1028249288}
+  _presetValue:
+    _source:
+      rid: 5399842511542026884
+    _defaultValue:
+      _horizontal:
+        _enabled: 1
+        _scrollBarSourceMode: 10
+        _scrollBarActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        _runtimeTemplatePreset:
+          _source:
+            rid: 5399842511542026885
+          _defaultValue:
+            prefab: {fileID: 0}
+            usePooling: 1
+            category: Runtime
+            templateId: 
+        _rangeSourceMode: 10
+        _rangeRectTransform: {fileID: 0}
+        _areaActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        _areaChannelTag: default
+        _autoHide: 1
+      _vertical:
+        _enabled: 1
+        _scrollBarSourceMode: 10
+        _scrollBarActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        _runtimeTemplatePreset:
+          _source:
+            rid: 5399842511542026886
+          _defaultValue:
+            prefab: {fileID: 0}
+            usePooling: 1
+            category: Runtime
+            templateId: 
+        _rangeSourceMode: 10
+        _rangeRectTransform: {fileID: 0}
+        _areaActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        _areaChannelTag: default
+        _autoHide: 1
+      _interaction:
+        _wheelSensitivity: 0.1
+        _pageSize: 0.9
+        _pageRepeatDelay: 0.35
+        _pageRepeatInterval: 0.08
+        _swipeThresholdPixels: 12
+        _dragSensitivity: 1
+        _overDragDamping: 0.75
+      _physics:
+        _movementType: 20
+        _inertia: 1
+        _decelerationRate: 0.135
+        _elasticity: 0.1
+  _enableDebugLog: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842511542026884
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.UIScrollRectPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842511542026887
+    - rid: 5399842511542026885
+      type: {class: 'ManagedRefLiteralSource`1[[Game.DI.BaseRuntimeTemplatePreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842511542026888
+    - rid: 5399842511542026886
+      type: {class: 'ManagedRefLiteralSource`1[[Game.DI.BaseRuntimeTemplatePreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842511542026889
+    - rid: 5399842511542026887
+      type: {class: UIScrollRectPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _horizontal:
+          _enabled: 0
+          _scrollBarSourceMode: 10
+          _scrollBarActorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          _runtimeTemplatePreset:
+            _source:
+              rid: 5399842511542026890
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _rangeSourceMode: 10
+          _rangeRectTransform: {fileID: 0}
+          _areaActorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          _areaChannelTag: default
+          _autoHide: 1
+        _vertical:
+          _enabled: 1
+          _scrollBarSourceMode: 10
+          _scrollBarActorSource:
+            Kind: 0
+            Identity:
+              kind: 9
+              id: Handle
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          _runtimeTemplatePreset:
+            _source:
+              rid: 5399842511542026891
+            _defaultValue:
+              prefab: {fileID: 0}
+              usePooling: 1
+              category: Runtime
+              templateId: 
+          _rangeSourceMode: 10
+          _rangeRectTransform: {fileID: 0}
+          _areaActorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          _areaChannelTag: default
+          _autoHide: 1
+        _interaction:
+          _wheelSensitivity: 0.1
+          _pageSize: 0.9
+          _pageRepeatDelay: 0.35
+          _pageRepeatInterval: 0.08
+          _swipeThresholdPixels: 12
+          _dragSensitivity: 1
+          _overDragDamping: 0.75
+        _physics:
+          _movementType: 20
+          _inertia: 1
+          _decelerationRate: 0.135
+          _elasticity: 0.1
+    - rid: 5399842511542026888
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 0}
+        usePooling: 1
+        category: Runtime
+        templateId: 
+    - rid: 5399842511542026889
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 0}
+        usePooling: 1
+        category: Runtime
+        templateId: 
+    - rid: 5399842511542026890
+      type: {class: 'ManagedRefLiteralSource`1[[Game.DI.BaseRuntimeTemplatePreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842511542026892
+    - rid: 5399842511542026891
+      type: {class: 'ManagedRefLiteralSource`1[[Game.DI.BaseRuntimeTemplatePreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842511542026893
+    - rid: 5399842511542026892
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 0}
+        usePooling: 1
+        category: Runtime
+        templateId: 
+    - rid: 5399842511542026893
+      type: {class: BaseRuntimeTemplatePreset, ns: Game.DI, asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 0}
+        usePooling: 1
+        category: Runtime
+        templateId: 
+--- !u!114 &1713894693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713894685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  debugAwakeFrame: -1
+  debugBuildFrame: -1
+  debugBuildDelayFrames: -1
+  debugAwakeRealtime: -1
+  debugBuildRealtime: -1
+  debugParent: null
+  debugParentHasResolver: 0
+  debugParentBuildStatus: Unknown
+  debugPath: 
+  debugBuildStatus: NotBuilt
+--- !u!114 &1713894694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713894685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1713894695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713894685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
+  enableDebugView: 0
+  _debugView:
+    queryKey: 
+    queryVarId: 0
+    writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1713894696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713894685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73a10913f1437c843b3c22bc4cf2127f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeTickHub
+  enableDistanceCulling: 0
+  distanceCullTarget:
+    Kind: 0
+    Identity:
+      kind: 0
+      id: 
+      category: 
+      requireActive: 0
+      searchScope: 0
+    UnityObject: {fileID: 0}
+    Shared:
+      rid: -2
+    ContextSlot: 0
+    TargetChannel:
+      rid: -2
+  distanceCullRange: 0
+  distanceCullUse2D: 1
+  distanceCheckIntervalFrames: 5
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &1713894697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713894685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 9
+  id: Scroll View
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+--- !u!114 &1713894698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713894685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a513bb93c2de2a49b7f6d82c576a598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementStateMB
+  _initialActive: 1
+  _initialVisible: 1
+  _hitTestRects:
+  - {fileID: 1713894686}
+  _selectionOrder: 0
+  _navigationSelectionOrder: 0
+  _isSelectable:
+    _source:
+      rid: 5399842514896421328
+    _defaultValue: 0
+  _isNavigationSelectable:
+    _source:
+      rid: 5399842514896421329
+    _defaultValue: 0
+  _navigationOverride:
+    Up: {fileID: 0}
+    Down: {fileID: 0}
+    Left: {fileID: 0}
+    Right: {fileID: 0}
+  _onSelectedCommands:
+    _debugOwner: {fileID: 1713894698}
+    _debugFieldPath: _onSelectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnSelected
+    _commands: []
+  _onDeselectedCommands:
+    _debugOwner: {fileID: 1713894698}
+    _debugFieldPath: _onDeselectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnDeselected
+    _commands: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5399842514896421328
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842514896421329
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+--- !u!114 &1713894699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713894685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a31c169213fd7814dab2c6d617bb63af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIScrollBarMB
+  _trackRect: {fileID: 725483875}
+  _handleRect: {fileID: 1670822305}
+  _visibilityRoot: {fileID: 725483874}
 --- !u!1 &1720211010
 GameObject:
   m_ObjectHideFlags: 0
@@ -63278,7 +64999,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Event
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
   m_sharedMaterial: {fileID: 965238318100020341, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
@@ -65217,6 +66938,9 @@ MonoBehaviour:
         _choiceRequirePhaseTransition: 1
     _listRoot: {fileID: 636525401}
     _layoutRectTransform: {fileID: 636525401}
+    _enableDebugLog: 0
+    _enableVerboseLayoutLog: 0
+    _enableVerboseBlackboardLog: 0
   references:
     version: 2
     RefIds:
@@ -65552,6 +67276,18 @@ MonoBehaviour:
           _source:
             rid: 5399842409393160283
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5399842409393160284
@@ -65690,6 +67426,18 @@ MonoBehaviour:
           _source:
             rid: 5399842409393160288
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5399842409393160289
@@ -65828,6 +67576,18 @@ MonoBehaviour:
           _source:
             rid: 5399842409393160293
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5399842409393160294
@@ -66528,6 +68288,11 @@ MonoBehaviour:
         _gridKey:
           stableKey: TableId
           varId: 101106
+        _elementCondition:
+          _enabled: 0
+          _key:
+            stableKey: 
+            varId: 0
         _sparseLayoutMode: 20
         _swapRowAndColumn: 1
     - rid: 5399842409393160318
@@ -68410,10 +70175,18 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 5399842535607107820
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
     - rid: 5619052416848364332
       type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
         Size: {x: 10.01, y: 7.76}
+        SizeOverride:
+          _source:
+            rid: 5399842535607107820
+          _defaultValue: {x: 0, y: 0}
 --- !u!1 &1789457583
 GameObject:
   m_ObjectHideFlags: 0
@@ -68673,7 +70446,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000006144715, y: -0.00045022802}
+  m_AnchoredPosition: {x: -0.000006144715, y: 6.4008217}
   m_SizeDelta: {x: -9.01, y: 248.23}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1808438108
@@ -68687,6 +70460,14 @@ GameObject:
   - component: {fileID: 1808438109}
   - component: {fileID: 1808438111}
   - component: {fileID: 1808438110}
+  - component: {fileID: 1808438119}
+  - component: {fileID: 1808438118}
+  - component: {fileID: 1808438117}
+  - component: {fileID: 1808438116}
+  - component: {fileID: 1808438115}
+  - component: {fileID: 1808438114}
+  - component: {fileID: 1808438113}
+  - component: {fileID: 1808438112}
   m_Layer: 0
   m_Name: Handle
   m_TagString: Untagged
@@ -68751,6 +70532,374 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1808438108}
   m_CullTransparentMesh: 1
+--- !u!114 &1808438112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808438108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38de24b4e088bae489d7199516c7f8c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.ButtonChannelHubMB
+  _channels:
+  - _channelTag: default
+    _presetValue:
+      _source:
+        rid: 5399842409393160369
+      _defaultValue:
+        _inputPreset:
+          _source:
+            rid: 5399842409393160370
+        _playerPreset:
+          _source:
+            rid: 5399842409393160371
+          _defaultValue:
+            _enabledCondition:
+              _source:
+                rid: 5399842409393160372
+              _defaultValue: 0
+            _uiTriggerAction: 0
+            _worldTriggerButton: 10
+            _guardDuringCommandExecution: 1
+            _disableSelectionDuringCommandExecution: 0
+            _allowNavigationSelectionChangeWhileInteracting: 0
+            _allowPointerSelectionChangeWhileInteracting: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5399842409393160369
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842409393160373
+    - rid: 5399842409393160370
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842409393160374
+    - rid: 5399842409393160371
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842409393160375
+    - rid: 5399842409393160372
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160373
+      type: {class: ButtonChannelPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _inputPreset:
+          _source:
+            rid: 5399842409393160376
+        _playerPreset:
+          _source:
+            rid: 5399842409393160377
+          _defaultValue:
+            _enabledCondition:
+              _source:
+                rid: 5399842409393160378
+              _defaultValue: 0
+            _uiTriggerAction: 0
+            _worldTriggerButton: 10
+            _guardDuringCommandExecution: 1
+            _disableSelectionDuringCommandExecution: 0
+            _allowNavigationSelectionChangeWhileInteracting: 0
+            _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842409393160374
+      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _onDownCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onUpCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onCancelCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842409393160375
+      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabledCondition:
+          _source:
+            rid: 5399842409393160379
+          _defaultValue: 0
+        _uiTriggerAction: 0
+        _worldTriggerButton: 10
+        _guardDuringCommandExecution: 1
+        _disableSelectionDuringCommandExecution: 0
+        _allowNavigationSelectionChangeWhileInteracting: 0
+        _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842409393160376
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842409393160380
+    - rid: 5399842409393160377
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842409393160381
+    - rid: 5399842409393160378
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160379
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842409393160380
+      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _onDownCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onUpCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onCancelCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842409393160381
+      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabledCondition:
+          _source:
+            rid: 5399842409393160383
+          _defaultValue: 0
+        _uiTriggerAction: 0
+        _worldTriggerButton: 10
+        _guardDuringCommandExecution: 1
+        _disableSelectionDuringCommandExecution: 0
+        _allowNavigationSelectionChangeWhileInteracting: 0
+        _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842409393160383
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+--- !u!114 &1808438113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808438108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ec127ea933e5841b6d80cc35226cfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  useAsGameLogicRoot: 0
+  debugAwakeFrame: -1
+  debugBuildFrame: -1
+  debugBuildDelayFrames: -1
+  debugAwakeRealtime: -1
+  debugBuildRealtime: -1
+  debugParent: null
+  debugParentHasResolver: 0
+  debugParentBuildStatus: Unknown
+  debugPath: 
+  debugBuildStatus: NotBuilt
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  initiallyVisible: 1
+--- !u!114 &1808438114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808438108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 8
+  id: Handle
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+--- !u!114 &1808438115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808438108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
+  enableDebugView: 0
+  _debugView:
+    queryKey: 
+    queryVarId: 0
+    writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1808438116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808438108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a513bb93c2de2a49b7f6d82c576a598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementStateMB
+  _initialActive: 1
+  _initialVisible: 1
+  _hitTestRects:
+  - {fileID: 1808438109}
+  _selectionOrder: 0
+  _navigationSelectionOrder: 0
+  _isSelectable:
+    _source:
+      rid: -2
+    _defaultValue: 0
+  _isNavigationSelectable:
+    _source:
+      rid: -2
+    _defaultValue: 0
+  _navigationOverride:
+    Up: {fileID: 0}
+    Down: {fileID: 0}
+    Left: {fileID: 0}
+    Right: {fileID: 0}
+  _onSelectedCommands:
+    _debugOwner: {fileID: 1808438116}
+    _debugFieldPath: _onSelectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnSelected
+    _commands: []
+  _onDeselectedCommands:
+    _debugOwner: {fileID: 1808438116}
+    _debugFieldPath: _onDeselectedCommands
+    _debugAssetPath: 
+    _functionName: UIElementState.OnDeselected
+    _commands: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &1808438117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808438108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c908c57ac520c7948a9a1e73ebd05f10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.EventMB
+  _captureEventLog: 1
+  _logCapacity: 64
+--- !u!114 &1808438118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808438108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aecefb3700c021343aff54fcf2320c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
+  enableDebugView: 0
+  _debugView:
+    editKey:
+      Id: 0
+      Name: 
+    editLocalBase: 0
+    editAddDelta: 0
+    editMulFactor: 1
+--- !u!114 &1808438119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808438108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &1812546932
 GameObject:
   m_ObjectHideFlags: 0
@@ -70083,6 +72232,18 @@ MonoBehaviour:
           _source:
             rid: 5619052592248914484
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052506154533068
@@ -70249,10 +72410,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052617993552655
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -70266,6 +72429,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -70309,9 +72473,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -70399,6 +72563,7 @@ MonoBehaviour:
     - rid: 5619052617993552661
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -70486,9 +72651,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -70785,6 +72950,18 @@ MonoBehaviour:
           _source:
             rid: 5619052617993552680
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052617993552681
@@ -71917,11 +74094,13 @@ MonoBehaviour:
         _pageRepeatInterval: 0.08
         _swipeThresholdPixels: 12
         _dragSensitivity: 1
+        _overDragDamping: 0.75
       _physics:
         _movementType: 20
         _inertia: 1
         _decelerationRate: 0.135
         _elasticity: 0.1
+  _enableDebugLog: 0
   references:
     version: 2
     RefIds:
@@ -71998,7 +74177,7 @@ MonoBehaviour:
               id: ScrollbarVertical
               category: 
               requireActive: 0
-              searchScope: 0
+              searchScope: 2
             UnityObject: {fileID: 2031910712}
             Shared:
               rid: -2
@@ -72038,6 +74217,7 @@ MonoBehaviour:
           _pageRepeatInterval: 0.08
           _swipeThresholdPixels: 12
           _dragSensitivity: 1
+          _overDragDamping: 0.75
         _physics:
           _movementType: 20
           _inertia: 1
@@ -74001,6 +76181,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052451121070190
@@ -77382,6 +79574,18 @@ MonoBehaviour:
           _source:
             rid: 5399842475666833867
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052592248914440
@@ -77445,7 +79649,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _template: '{RerollValue * RerollValueMul * ShopPriceMul|effect=color_if|cond=MoneyValue
+        _template: '{(RerollValue) * RerollValueMul * ShopPriceMul|effect=color_if|cond=MoneyValue
           >= RerollValue * RerollValueMul * ShopPriceMul|trueColor="#A4DDDB"|falseColor="#FF0000"}'
     - rid: 5619052592248914443
       type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -77546,7 +79750,6 @@ GameObject:
   - component: {fileID: 2031910713}
   - component: {fileID: 2031910716}
   - component: {fileID: 2031910715}
-  - component: {fileID: 2031910725}
   - component: {fileID: 2031910724}
   - component: {fileID: 2031910723}
   - component: {fileID: 2031910722}
@@ -77811,198 +80014,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIScrollBarMB
   _trackRect: {fileID: 2031910713}
   _handleRect: {fileID: 1808438109}
-  _visibilityRoot: {fileID: 2031910712}
---- !u!114 &2031910725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2031910712}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38de24b4e088bae489d7199516c7f8c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.ButtonChannelHubMB
-  _channels:
-  - _channelTag: default
-    _presetValue:
-      _source:
-        rid: 5399842409393160369
-      _defaultValue:
-        _inputPreset:
-          _source:
-            rid: 5399842409393160370
-        _playerPreset:
-          _source:
-            rid: 5399842409393160371
-          _defaultValue:
-            _enabledCondition:
-              _source:
-                rid: 5399842409393160372
-              _defaultValue: 0
-            _uiTriggerAction: 0
-            _worldTriggerButton: 10
-            _guardDuringCommandExecution: 1
-            _disableSelectionDuringCommandExecution: 0
-            _allowNavigationSelectionChangeWhileInteracting: 0
-            _allowPointerSelectionChangeWhileInteracting: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 5399842409393160369
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5399842409393160373
-    - rid: 5399842409393160370
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5399842409393160374
-    - rid: 5399842409393160371
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5399842409393160375
-    - rid: 5399842409393160372
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 2
-        intValue: 0
-        floatValue: 0
-        boolValue: 1
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842409393160373
-      type: {class: ButtonChannelPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _inputPreset:
-          _source:
-            rid: 5399842409393160376
-        _playerPreset:
-          _source:
-            rid: 5399842409393160377
-          _defaultValue:
-            _enabledCondition:
-              _source:
-                rid: 5399842409393160378
-              _defaultValue: 0
-            _uiTriggerAction: 0
-            _worldTriggerButton: 10
-            _guardDuringCommandExecution: 1
-            _disableSelectionDuringCommandExecution: 0
-            _allowNavigationSelectionChangeWhileInteracting: 0
-            _allowPointerSelectionChangeWhileInteracting: 0
-    - rid: 5399842409393160374
-      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _onDownCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        _onUpCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        _onCancelCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-    - rid: 5399842409393160375
-      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _enabledCondition:
-          _source:
-            rid: 5399842409393160379
-          _defaultValue: 0
-        _uiTriggerAction: 0
-        _worldTriggerButton: 10
-        _guardDuringCommandExecution: 1
-        _disableSelectionDuringCommandExecution: 0
-        _allowNavigationSelectionChangeWhileInteracting: 0
-        _allowPointerSelectionChangeWhileInteracting: 0
-    - rid: 5399842409393160376
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5399842409393160380
-    - rid: 5399842409393160377
-      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          rid: 5399842409393160381
-    - rid: 5399842409393160378
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 2
-        intValue: 0
-        floatValue: 0
-        boolValue: 1
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842409393160379
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 2
-        intValue: 0
-        floatValue: 0
-        boolValue: 1
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842409393160380
-      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _onDownCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        _onUpCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-        _onCancelCommands:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands: []
-    - rid: 5399842409393160381
-      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
-      data:
-        _enabledCondition:
-          _source:
-            rid: 5399842409393160383
-          _defaultValue: 0
-        _uiTriggerAction: 0
-        _worldTriggerButton: 10
-        _guardDuringCommandExecution: 1
-        _disableSelectionDuringCommandExecution: 0
-        _allowNavigationSelectionChangeWhileInteracting: 0
-        _allowPointerSelectionChangeWhileInteracting: 0
-    - rid: 5399842409393160383
-      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
+  _visibilityRoot: {fileID: 63788240}
 --- !u!1 &2035924696
 GameObject:
   m_ObjectHideFlags: 0
@@ -78919,6 +80931,18 @@ MonoBehaviour:
           _source:
             rid: 5399842374860145393
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5399842374860145391
@@ -79029,6 +81053,7 @@ MonoBehaviour:
             stableKey: RequestBaseQuota
             varId: 101124
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5399842402410693153
@@ -79156,6 +81181,7 @@ MonoBehaviour:
             stableKey: QuotaMul
             varId: 101126
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5399842374860145414
@@ -80615,6 +82641,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052416848364057
@@ -81682,10 +83720,12 @@ MonoBehaviour:
   _spaceKind: 10
   _applyTooltipRootOverride: 0
   _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
   _hubPresetValue:
     _source:
       rid: 5619052646656639855
     _defaultValue:
+      _renderSpace: 10
       _cameraLocationTag: default
       _inputMode: 40
       _defaultHitTestValue:
@@ -81699,6 +83739,7 @@ MonoBehaviour:
       _flipThresholdX: 0.2
       _flipThresholdY: 0.2
       _spawnWarmupFrames: 2
+  _enableDebugLog: 0
   _channels:
   - _channelTag: default
     _presetValue:
@@ -81742,9 +83783,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -81832,6 +83873,7 @@ MonoBehaviour:
     - rid: 5619052646656639861
       type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
       data:
+        _renderSpace: 10
         _cameraLocationTag: default
         _inputMode: 40
         _defaultHitTestValue:
@@ -81919,9 +83961,9 @@ MonoBehaviour:
         _selectionDelaySeconds: 0.3
         _pointerMoveThreshold: 2
         _spawnMode: 10
-        _followPointerOffset: {x: 0, y: 0}
+        _followPointerDirectionOffset: {x: 0, y: 0, z: 0}
         _followPointerMoveScale: {x: 1, y: 1}
-        _fixedOffset: {x: 0, y: 0}
+        _fixedDirectionOffset: {x: 0, y: 0, z: 0}
         _anchorX: 30
         _anchorY: 10
         _hitTestValue:
@@ -82226,6 +84268,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052646656639877

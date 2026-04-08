@@ -3,4 +3,4 @@ Game.Commands.VNext.WorldPointerTargetControlCommandData, Assembly-CSharp
 
 # EventCommandProgram
 + [Sirenix.OdinInspector.LabelWidthAttribute]
-	Width = 114
+	Width = 0.1

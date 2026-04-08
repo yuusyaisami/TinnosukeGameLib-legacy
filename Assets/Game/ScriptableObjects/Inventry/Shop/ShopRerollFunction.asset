@@ -19,6 +19,28 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842511542026883
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1082989941
+          Name: GameLogic.GameProfile.Shop.ShopItemCount
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
     - rid: 5619052506154533024
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -70,7 +92,7 @@ MonoBehaviour:
         ConditionalCandidates: []
         DrawCount:
           _source:
-            rid: 5619052506154533028
+            rid: 5399842511542026883
           _defaultValue: 0
         AllowDuplicates: 0
         ExcludeExistingHolderTraits: 0
@@ -93,7 +115,3 @@ MonoBehaviour:
         DuplicateAllowedTraits: []
         ShortageMode: 0
         ApplyMode: 10
-    - rid: 5619052506154533028
-      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 3

@@ -28,9 +28,8 @@ MonoBehaviour:
           DisplayName:
             Template: "\u30D0\u30A6\u30F3\u30C9"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
-            Template: "\u30D0\u30A6\u30F3\u30C9\u7387 x{Bounce|percent}"
+            Template: "\u30D0\u30A6\u30F3\u30C9\u7387 x{Bounce|percent|fixed=1}"
             Variables:
             - _value:
                 _source:
@@ -40,7 +39,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: "\u30D0\u30A6\u30F3\u30C9\u7387 x{intensity}"
+            Template: "\u30D0\u30A6\u30F3\u30C9\u7387 x{intensity|fixed=1}"
             Variables:
             - _value:
                 _source:
@@ -49,10 +48,9 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
-          SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
+          SortOrder: 5
         runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
@@ -111,6 +109,7 @@ MonoBehaviour:
     - rid: 5619052366731149466
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: -1978594423
           Name: GameLogic.NailProfile.Effect.Bounce
@@ -137,6 +136,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

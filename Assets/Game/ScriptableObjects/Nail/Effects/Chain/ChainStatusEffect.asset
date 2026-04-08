@@ -87,6 +87,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 80
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -595,6 +596,7 @@ MonoBehaviour:
     - rid: 5399842435756196002
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: 1852274193
           Name: GameLogic.NailProfile.Effect.Chain.ChainRadius
@@ -621,6 +623,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
     - rid: 5399842435756196003
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -640,6 +643,183 @@ MonoBehaviour:
         key:
           stableKey: GameLib.Base.StatusEffect.Element.intensity
           varId: 100112
+    - rid: 5399842530663334433
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842530663334434
+    - rid: 5399842530663334434
+      type: {class: TargetChannelControlCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        HubSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Operation: 40
+        Tag: nail
+        Preset:
+          _source:
+            rid: -2
+          _defaultValue:
+            Tag: default
+            Enabled: 1
+            SearchType: 10
+            Kind: 10
+            Radius: 5
+            HalfAngleDeg: 60
+            RefreshIntervalFrames: 1
+            ExpectedResultCount: 32
+            KindMask: 64
+            FilterId: 
+            FilterCategory: 
+            ExcludeSelf: 1
+            MonitorActiveState: 0
+            DirectTargetValidDistance: 0
+            OriginSource: 10
+            CustomOriginTransform: {fileID: 0}
+            ForwardSource: 10
+            CustomForwardTransform: {fileID: 0}
+            CustomForwardVector: {x: 0, y: 1}
+            ActorSource:
+              Kind: 0
+              Identity:
+                kind: 0
+                id: 
+                category: 
+                requireActive: 0
+                searchScope: 0
+              UnityObject: {fileID: 0}
+              Shared:
+                rid: -2
+              ContextSlot: 0
+              TargetChannel:
+                rid: -2
+            ScopeRequireActive: 1
+            CollisionRangeSource: 10
+            CollisionAreaActorSource:
+              Kind: 0
+              Identity:
+                kind: 0
+                id: 
+                category: 
+                requireActive: 0
+                searchScope: 0
+              UnityObject: {fileID: 0}
+              Shared:
+                rid: -2
+              ContextSlot: 0
+              TargetChannel:
+                rid: -2
+            CollisionAreaTag: default
+            CollisionRectCenter:
+              _source:
+                rid: 5399842530663334435
+              _defaultValue: {x: 0, y: 0, z: 0}
+            CollisionRectSize:
+              _source:
+                rid: 5399842530663334436
+              _defaultValue: {x: 0, y: 0}
+            CollisionUseIncludeDynamicSets: 0
+            CollisionIncludeDynamicSets: []
+            CollisionUseExcludeDynamicSets: 0
+            CollisionExcludeDynamicSets: []
+            CollisionMatchAnyInclude: 1
+        Mutation:
+          ApplyEnabled: 1
+          Enabled: 1
+          ApplySearchType: 0
+          SearchType: 10
+          ApplyDynamicSearch: 0
+          Kind: 10
+          Radius: 5
+          HalfAngleDeg: 60
+          RefreshIntervalFrames: 1
+          ExpectedResultCount: 32
+          KindMask: 64
+          FilterId: 
+          FilterCategory: 
+          ExcludeSelf: 1
+          OriginSource: 10
+          CustomOriginTransform: {fileID: 0}
+          ForwardSource: 10
+          CustomForwardTransform: {fileID: 0}
+          CustomForwardVector: {x: 0, y: 1}
+          ApplyScopeSearch: 0
+          ActorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          ScopeRequireActive: 1
+          ApplyCollisionSearch: 0
+          CollisionRangeSource: 10
+          CollisionAreaActorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+          CollisionAreaTag: default
+          CollisionRectCenter:
+            _source:
+              rid: 5399842530663334437
+            _defaultValue: {x: 0, y: 0, z: 0}
+          CollisionRectSize:
+            _source:
+              rid: 5399842530663334438
+            _defaultValue: {x: 0, y: 0}
+          CollisionUseIncludeDynamicSets: 0
+          CollisionIncludeDynamicSets: []
+          CollisionUseExcludeDynamicSets: 0
+          CollisionExcludeDynamicSets: []
+          CollisionMatchAnyInclude: 1
+          ApplyMonitorActiveState: 0
+          MonitorActiveState: 0
+        DirectTargets: []
+    - rid: 5399842530663334435
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0, z: 0}
+    - rid: 5399842530663334436
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 5399842530663334437
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0, z: 0}
+    - rid: 5399842530663334438
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -649,10 +829,9 @@ MonoBehaviour:
           DisplayName:
             Template: "\u30C1\u30A7\u30FC\u30F3"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: "<sprite=16>\u30C1\u30A7\u30FC\u30F3<sprite=15>\u767A\u52D5\u7387
-              x{ChainChance|percent=1} /\n  -\u52B9\u679C\u534A\u5F84 r={ChainRadius}-"
+              x{ChainChance|percent=1|fixed=1} /\n  -\u52B9\u679C\u534A\u5F84 r={ChainRadius|fixed=1}-"
             Variables:
             - _value:
                 _source:
@@ -678,10 +857,9 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
         runtimeControlMode: 10
         useDuration: 0
         durationDefinition:
@@ -701,7 +879,8 @@ MonoBehaviour:
             _debugFieldPath: 
             _debugAssetPath: 
             _functionName: 
-            _commands: []
+            _commands:
+            - rid: 5399842530663334433
           OnRemove:
             _debugOwner: {fileID: 0}
             _debugFieldPath: 
@@ -743,6 +922,7 @@ MonoBehaviour:
     - rid: 5619052366731149466
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: 1897931631
           Name: GameLogic.NailProfile.Effect.Chain.ChainChance
@@ -769,6 +949,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

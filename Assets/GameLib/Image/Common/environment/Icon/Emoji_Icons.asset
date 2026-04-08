@@ -123,6 +123,21 @@ MonoBehaviour:
     m_GlyphIndex: 16
     m_Scale: 1
     m_Name: Emoji_Icons_15
+  - m_ElementType: 2
+    m_Unicode: 65534
+    m_GlyphIndex: 17
+    m_Scale: 1
+    m_Name: Emoji_Icons_16
+  - m_ElementType: 2
+    m_Unicode: 65534
+    m_GlyphIndex: 18
+    m_Scale: 1
+    m_Name: Emoji_Icons_17
+  - m_ElementType: 2
+    m_Unicode: 65534
+    m_GlyphIndex: 19
+    m_Scale: 1
+    m_Name: Emoji_Icons_18
   m_GlyphTable:
   - m_Index: 0
     m_Metrics:
@@ -396,6 +411,54 @@ MonoBehaviour:
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
     sprite: {fileID: 362011732, guid: 3ca5d3c68c947a947b19820c58bc5f05, type: 3}
+  - m_Index: 17
+    m_Metrics:
+      m_Width: 8
+      m_Height: 8
+      m_HorizontalBearingX: 0.52
+      m_HorizontalBearingY: 8.37
+      m_HorizontalAdvance: 9.4
+    m_GlyphRect:
+      m_X: 174
+      m_Y: 5
+      m_Width: 8
+      m_Height: 8
+    m_Scale: 0.6
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
+    sprite: {fileID: 1445591308, guid: 3ca5d3c68c947a947b19820c58bc5f05, type: 3}
+  - m_Index: 18
+    m_Metrics:
+      m_Width: 13
+      m_Height: 16
+      m_HorizontalBearingX: 1.1
+      m_HorizontalBearingY: 15.8
+      m_HorizontalAdvance: 14.35
+    m_GlyphRect:
+      m_X: 160
+      m_Y: 2
+      m_Width: 13
+      m_Height: 16
+    m_Scale: 0.7
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
+    sprite: {fileID: 2125915815, guid: 3ca5d3c68c947a947b19820c58bc5f05, type: 3}
+  - m_Index: 19
+    m_Metrics:
+      m_Width: 11
+      m_Height: 6
+      m_HorizontalBearingX: 0.82
+      m_HorizontalBearingY: 6.52
+      m_HorizontalAdvance: 12.33
+    m_GlyphRect:
+      m_X: 168
+      m_Y: 19
+      m_Width: 11
+      m_Height: 6
+    m_Scale: 0.54
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
+    sprite: {fileID: -1282990030, guid: 3ca5d3c68c947a947b19820c58bc5f05, type: 3}
   spriteInfoList: []
   fallbackSpriteAssets: []
 --- !u!21 &692208796332524224

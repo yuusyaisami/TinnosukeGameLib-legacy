@@ -191,6 +191,10 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
+    - rid: 5399842506086809962
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052637487629038
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -225,7 +229,7 @@ MonoBehaviour:
               rid: -2
           Condition:
             _source:
-              rid: -2
+              rid: 5399842506086809962
             _defaultValue: 0
           Commands:
             _debugOwner: {fileID: 0}
