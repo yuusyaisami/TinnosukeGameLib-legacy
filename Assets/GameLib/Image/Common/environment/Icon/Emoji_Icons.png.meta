@@ -499,7 +499,7 @@ TextureImporter:
         width: 12
         height: 12
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -508,6 +508,72 @@ TextureImporter:
       bones: []
       spriteID: 8040b7c3edd1c904492ab1006f81c8de
       internalID: 362011732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emoji_Icons_16
+      rect:
+        serializedVersion: 2
+        x: 174
+        y: 5
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a613150ab899c5d4a83cc9a5fda02f8e
+      internalID: 1445591308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emoji_Icons_17
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 2
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 98a085a0873e032448982aa2eee069c3
+      internalID: 2125915815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Emoji_Icons_18
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 19
+        width: 11
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4a53514a833b2649af5bba7fb206d02
+      internalID: -1282990030
       vertices: []
       indices: 
       edges: []
@@ -535,6 +601,9 @@ TextureImporter:
       Emoji_Icons_13: 137540730
       Emoji_Icons_14: 1020721127
       Emoji_Icons_15: 362011732
+      Emoji_Icons_16: 1445591308
+      Emoji_Icons_17: 2125915815
+      Emoji_Icons_18: -1282990030
       Emoji_Icons_2: 1196960324
       Emoji_Icons_3: 1063472634
       Emoji_Icons_4: 911090945

@@ -43,92 +43,6 @@ MonoBehaviour:
       type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {x: 1, y: 1}
-    - rid: 5399842483577029168
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842483577029169
-    - rid: 5399842483577029169
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: NailEditorPanel Pop Start
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
-    - rid: 5399842483577029171
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842483577029172
-    - rid: 5399842483577029172
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: NailEditorPanel Pop End
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
     - rid: 5619052545064042626
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -208,9 +122,7 @@ MonoBehaviour:
           - rid: 5619052545064042670
           - rid: 5619052545064042635
           - rid: 5619052545064042672
-          - rid: 5399842483577029168
           - rid: 5619052545064043275
-          - rid: 5399842483577029171
         ElseCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -420,6 +332,8 @@ MonoBehaviour:
             FilterId: 
             FilterCategory: 
             ExcludeSelf: 1
+            MonitorActiveState: 0
+            DirectTargetValidDistance: 0
             OriginSource: 10
             CustomOriginTransform: {fileID: 0}
             ForwardSource: 10
@@ -535,6 +449,8 @@ MonoBehaviour:
           CollisionUseExcludeDynamicSets: 0
           CollisionExcludeDynamicSets: []
           CollisionMatchAnyInclude: 1
+          ApplyMonitorActiveState: 0
+          MonitorActiveState: 0
         DirectTargets:
         - Kind: 9
           Identity:
@@ -569,6 +485,8 @@ MonoBehaviour:
         FilterId: 
         FilterCategory: 
         ExcludeSelf: 1
+        MonitorActiveState: 0
+        DirectTargetValidDistance: 0
         OriginSource: 10
         CustomOriginTransform: {fileID: 0}
         ForwardSource: 10

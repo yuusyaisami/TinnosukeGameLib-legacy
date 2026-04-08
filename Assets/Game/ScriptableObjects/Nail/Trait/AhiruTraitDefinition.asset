@@ -834,7 +834,7 @@ MonoBehaviour:
     - rid: 5619052465085481726
       type: {class: AssetStatusEffectStackPresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: {fileID: 11400000, guid: a1f3736810c6dd24689632c6801928c2, type: 2}
+        value: {fileID: 11400000, guid: eddc926040c51c4418eede7e8ce6c574, type: 2}
     - rid: 5619052564776747352
       type: {class: AssetStatusEffectDefinitionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

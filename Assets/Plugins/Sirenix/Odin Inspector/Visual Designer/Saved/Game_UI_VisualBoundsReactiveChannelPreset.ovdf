@@ -1,0 +1,24 @@
+OVDF v1.1
+Game.UI.VisualBoundsReactiveChannelPreset, Assembly-CSharp
+
+# _target
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 140
+
+# _inputEffect
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 140
+
+# _output
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 140
+
+# _enabled
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90

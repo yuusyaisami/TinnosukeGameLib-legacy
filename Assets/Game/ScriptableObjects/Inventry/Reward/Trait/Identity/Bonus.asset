@@ -406,6 +406,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -915,6 +916,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 20
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -2072,6 +2074,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -2738,7 +2741,7 @@ MonoBehaviour:
     - rid: 5399842482115052510
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 15
+        value: 900
     - rid: 5399842482115052511
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

@@ -19,7 +19,7 @@ MonoBehaviour:
   _description:
     Template: "\u5668\u306E\u4E0A\u9650\u4FA1\u5024\u3068\u4FA1\u5024\u3092\u4E0A\u3052\u307E\u3059\u304C\u3001\n\u4EE3\u511F\u306B\u5236\u9650\u6642\u9593\u304C\u6E1B\u308A\u307E\u3059\u3002"
     Variables: []
-  _weight: 2
+  _weight: 1
   _visualSettings:
     DefaultAnim:
       animationA:
@@ -437,6 +437,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -605,6 +606,11 @@ MonoBehaviour:
               _source:
                 rid: -2
               _defaultValue: 
+        OverrideDuration: 0
+        DurationOverride:
+          _source:
+            rid: -2
+          _defaultValue: 0
         RuntimeTag: 
         HookMutations:
           OnApply:
@@ -696,6 +702,7 @@ MonoBehaviour:
                 rid: -2
               _defaultValue: 0
         ResetGlobalState: 1
+        ResetGlobalStateOnReset: 0
     - rid: 5399842435756196750
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1328,6 +1335,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 0
@@ -1496,6 +1504,11 @@ MonoBehaviour:
               _source:
                 rid: -2
               _defaultValue: 
+        OverrideDuration: 0
+        DurationOverride:
+          _source:
+            rid: 5399842530663334736
+          _defaultValue: 0
         RuntimeTag: 
         HookMutations:
           OnApply:
@@ -1587,6 +1600,7 @@ MonoBehaviour:
                 rid: -2
               _defaultValue: 0
         ResetGlobalState: 1
+        ResetGlobalStateOnReset: 0
     - rid: 5399842436331864328
       type: {class: AssetStatusEffectDefinitionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2451,6 +2465,10 @@ MonoBehaviour:
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 
+    - rid: 5399842530663334736
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052416848364315
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

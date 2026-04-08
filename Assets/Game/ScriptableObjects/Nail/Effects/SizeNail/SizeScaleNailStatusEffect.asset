@@ -1,0 +1,226 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 770327120433404448f0aea8ad9b1311, type: 3}
+  m_Name: SizeScaleNailStatusEffect
+  m_EditorClassIdentifier: Assembly-CSharp::Game.StatusEffect.StatusEffectDefinitionSO
+  preset:
+    rid: 5619052366731149464
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5619052366731149464
+      type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        definitionId: SizeScaleNail
+        defaultRuntimeTag: 
+        visualData:
+          DisplayName:
+            Template: "\u30B5\u30A4\u30BA"
+            Variables: []
+          Description:
+            Template: "\u30E8\u30FC\u30C6\u30E0\u30B5\u30A4\u30BA: {SizeRadius}"
+            Variables:
+            - _value:
+                _source:
+                  rid: 5619052366731149468
+              _useScalarLeafKey: 1
+              _useCustomKey: 0
+              _customKey: 
+              _expectedType: 255
+          StackDescription:
+            Template: "\u30B5\u30A4\u30BA {intensity|sign=always}"
+            Variables:
+            - _value:
+                _source:
+                  rid: 5619052465085481745
+              _useScalarLeafKey: 0
+              _useCustomKey: 1
+              _customKey: intensity
+              _expectedType: 255
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
+          SortOrder: 0
+        runtimeControlMode: 10
+        useDuration: 0
+        durationDefinition:
+          rid: 5619052465085481672
+        useUseCooldown: 1
+        useCooldownDefinition:
+          rid: 5619052506154533830
+        useCount: 0
+        countDefinition:
+          rid: 5619052465085481674
+        operations:
+        - rid: 5619052366731149466
+        defaultHooks:
+          OnApply:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnRemove:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnEnable:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnDisable:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnUse:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnStackIntensity:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          OnStackDuration:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+    - rid: 5619052366731149466
+      type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        Enabled: 1
+        TargetKey:
+          Id: 146311982
+          Name: GameLogic.NailProfile.Effect.Size.Circle.SizeScale
+        ApplyMode: 10
+        MulPhase: 0
+        ValueMode: 20
+        RuntimeIntensitySlot: 10
+        Value:
+          _source:
+            rid: 5619052366731149676
+          _defaultValue: 0
+        TargetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Layer: 
+        OperationId: 
+    - rid: 5619052366731149468
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 228317698
+          Name: GameLogic.NailProfile.Effect.Size.Circle.SizeRadius
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5619052366731149676
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5619052366731149677
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensity
+          _expectedType: 255
+        _expression: intensity
+    - rid: 5619052366731149677
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Element.intensity
+          varId: 100112
+    - rid: 5619052465085481672
+      type: {class: FixedDurationStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        SyncWithGlobalLifetime: 0
+        Duration:
+          _source:
+            rid: 5619052465085481673
+          _defaultValue: 0
+        EndAction: 0
+    - rid: 5619052465085481673
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052465085481674
+      type: {class: DynamicCountStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        SyncWithGlobalCount: 0
+        MaxCount:
+          _source:
+            rid: 5619052465085481675
+          _defaultValue: 0
+        ExhaustedAction: 20
+        ActivePolicy: 20
+    - rid: 5619052465085481675
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5619052465085481745
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Stack.intensityA.local
+          varId: 101149
+    - rid: 5619052506154533830
+      type: {class: FixedUseCooldownStatusEffectDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        SyncWithGlobalUseCooldown: 1
+        Duration:
+          _source:
+            rid: 5619052506154533831
+          _defaultValue: 0
+    - rid: 5619052506154533831
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0

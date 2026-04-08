@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20b777e5a10b0c944ae2d590f72cbaef, type: 3}
   m_Name: BellTraitDefinition
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
-  _definitionId: KenjaTraitDefinition
+  _definitionId: BellTrait
   _name:
     Template: "\u30D9\u30EB\u30EA\u30F3"
     Variables: []
   _description:
-    Template: "\u30D2\u30C3\u30C8\u6642\u3001\u5468\u56F2\u306E\u307F\u3053\u3068\u7389\u3082\u5DFB\u304D\u8FBC\u307F\u767A\u52D5\u3059\u308B\u3002\n(\u767A\u52D5
+    Template: "\u30D2\u30C3\u30C8\u6642\u3001\u5468\u56F2\u306E\u30E8\u30FC\u30C6\u30E0\u3082\u5DFB\u304D\u8FBC\u307F\u767A\u52D5\u3059\u308B\u3002\n(\u767A\u52D5
       : \u30D2\u30C3\u30C8\u6642\u306E\u52D5\u4F5C\u306E\u3053\u3068\u3067\u3059)"
     Variables: []
   _weight: 2

@@ -512,6 +512,7 @@ GameObject:
   - component: {fileID: 4812668606520634464}
   - component: {fileID: 4105534307656006857}
   - component: {fileID: 3900731220571847115}
+  - component: {fileID: -989232180953418788}
   m_Layer: 0
   m_Name: UpgradeRuntime
   m_TagString: Untagged
@@ -719,7 +720,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.78, y: 1.1}
   m_EdgeRadius: 0
 --- !u!114 &5292740060312735414
 MonoBehaviour:
@@ -813,6 +814,7 @@ MonoBehaviour:
     _commands:
     - rid: 5619052643689169446
   _onlyExecuteWhenSelfClicked: 1
+  _commandOverlapBehavior: 2
   _pointerSelfResultKey:
     stableKey: 
     varId: 0
@@ -1988,6 +1990,7 @@ MonoBehaviour:
       - rid: 5619052465085481211
       - rid: 5619052465085481215
       - rid: 5619052465085481300
+      - rid: 5399842506086810610
   references:
     version: 2
     RefIds:
@@ -2161,6 +2164,89 @@ MonoBehaviour:
         vector3Value: {x: 0, y: 0, z: 0}
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842506086810610
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842506086810612
+    - rid: 5399842506086810612
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5399842506086810615
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5399842506086810620
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842506086810615
+      type: {class: DataExistsBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        storeType: 20
+        key:
+          stableKey: CustomPanelCommandList
+          varId: 101189
+        blackboardReadScope: 0
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        scalarKey:
+          Id: 0
+          Name: 
+        searchIncludeGlobal: 0
+        expectedKind: 255
+    - rid: 5399842506086810620
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5399842511542026241
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5399842511542026241
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101189
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
     - rid: 5619052465085481211
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -2288,6 +2374,18 @@ MonoBehaviour:
           _source:
             rid: 5619052465085481238
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052465085481213
@@ -2438,6 +2536,18 @@ MonoBehaviour:
           _source:
             rid: 5619052465085481826
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052465085481217
@@ -3404,6 +3514,18 @@ MonoBehaviour:
           _source:
             rid: 5619052465085481359
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052465085481360
@@ -3543,6 +3665,147 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f108241cf7b84d4caef941251ea390d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Common.RichTextRefServiceMB
+--- !u!114 &-989232180953418788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2830354420757913882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a82ffdbd9a28c14483f5098a001f971, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TooltipChannelHubMB
+  _spaceKind: 20
+  _applyTooltipRootOverride: 0
+  _tooltipRootOverride: {fileID: 0}
+  _applyHubPresetOverride: 0
+  _hubPresetValue:
+    _source:
+      rid: 5399842526980211309
+    _defaultValue:
+      _renderSpace: 10
+      _cameraLocationTag: default
+      _inputMode: 40
+      _defaultHitTestValue:
+        _source:
+          rid: 5399842526980211310
+        _defaultValue:
+          _targets: []
+      _stackDirection: 10
+      _stackGap: 8
+      _enableClamp: 1
+      _flipThresholdX: 0.2
+      _flipThresholdY: 0.2
+      _spawnWarmupFrames: 2
+  _enableDebugLog: 0
+  _channels: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842526980211309
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHubPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842526980211311
+    - rid: 5399842526980211310
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHitTestPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842526980211312
+    - rid: 5399842526980211311
+      type: {class: TooltipHubPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _renderSpace: 10
+        _cameraLocationTag: default
+        _inputMode: 40
+        _defaultHitTestValue:
+          _source:
+            rid: 5399842526980211313
+          _defaultValue:
+            _targets: []
+        _stackDirection: 10
+        _stackGap: 8
+        _enableClamp: 1
+        _flipThresholdX: 0.2
+        _flipThresholdY: 0.2
+        _spawnWarmupFrames: 2
+    - rid: 5399842526980211312
+      type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _targets:
+        - _kind: 10
+          _actorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+        - _kind: 20
+          _actorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+    - rid: 5399842526980211313
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHitTestPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842526980211314
+    - rid: 5399842526980211314
+      type: {class: TooltipHitTestPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _targets:
+        - _kind: 10
+          _actorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+        - _kind: 20
+          _actorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
 --- !u!1 &5524751127155479890
 GameObject:
   m_ObjectHideFlags: 0

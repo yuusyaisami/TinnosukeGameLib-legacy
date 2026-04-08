@@ -1,0 +1,1167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &829452727166665734
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 672252170078601953}
+  - component: {fileID: 8984572872179900337}
+  - component: {fileID: 1458889457611652243}
+  m_Layer: 0
+  m_Name: Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &672252170078601953
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829452727166665734}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4363307009504329139}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 20, y: 5}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!23 &8984572872179900337
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829452727166665734}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 965238318100020341, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1458889457611652243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829452727166665734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshPro
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
+  m_sharedMaterial: {fileID: 965238318100020341, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 14.97
+  m_fontSizeBase: 14.97
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 0
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  _SortingLayer: 0
+  _SortingLayerID: 0
+  _SortingOrder: 0
+  m_hasFontAssetChanged: 0
+  m_renderer: {fileID: 8984572872179900337}
+  m_maskType: 0
+--- !u!1 &1255711634492439393
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2561798230306123067}
+  - component: {fileID: 2842734896834985967}
+  - component: {fileID: 981644591788737331}
+  - component: {fileID: 1868327803171634473}
+  - component: {fileID: 679350126330972818}
+  - component: {fileID: 6492978099401191921}
+  - component: {fileID: 8678687384512050743}
+  - component: {fileID: 1813799831630085270}
+  - component: {fileID: 1525134185427385016}
+  m_Layer: 0
+  m_Name: WorldTooltipRuntimeElementObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2561798230306123067
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 62.3, y: -5.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4363307009504329139}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!222 &2842734896834985967
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_CullTransparentMesh: 1
+--- !u!114 &981644591788737331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  kind: 9
+  id: UITooltipRuntimeElementObject
+  category: 
+  initiallyActive: 1
+  timeScaleBehavior: 0
+  registerToDynamicRegistry: 1
+  radius: 0
+--- !u!114 &1868327803171634473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73a10913f1437c843b3c22bc4cf2127f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeTickHub
+  enableDistanceCulling: 0
+  distanceCullTarget:
+    Kind: 0
+    Identity:
+      kind: 0
+      id: 
+      category: 
+      requireActive: 0
+      searchScope: 0
+    UnityObject: {fileID: 0}
+    Shared:
+      rid: -2
+    ContextSlot: 0
+    TargetChannel:
+      rid: -2
+  distanceCullRange: 0
+  distanceCullUse2D: 1
+  distanceCheckIntervalFrames: 5
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &679350126330972818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
+  enableDebugView: 1
+  _debugView:
+    queryKey: 
+    queryVarId: 0
+    writeEntries: []
+  autoWriteTransformVars: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &6492978099401191921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _defaultVars:
+    entries: []
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &8678687384512050743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
+  includeFeatureInstallers: 1
+  includeInactiveFeatureInstallers: 1
+  debugAwakeFrame: -1
+  debugBuildFrame: -1
+  debugBuildDelayFrames: -1
+  debugAwakeRealtime: -1
+  debugBuildRealtime: -1
+  debugParent: null
+  debugParentHasResolver: 0
+  debugParentBuildStatus: Unknown
+  debugPath: 
+  debugBuildStatus: NotBuilt
+--- !u!114 &1813799831630085270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c01b69fa2d13e1f43b695ce5ea2394ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.VisualBoundsMB
+  root: {fileID: 672252170078601953}
+  rectTargets: []
+  imageTargets: []
+  textTargets: []
+  spriteTargets: []
+  meshTargets:
+  - {fileID: 8984572872179900337}
+  collider2DTargets: []
+  colliderTargets: []
+  excludeInactive: 1
+  autoRebuild: 1
+  autoDetectChanges: 1
+  autoRebuildIntervalSeconds: 0
+  runInLateUpdate: 1
+  executeOnBoundsChanged: 1
+  rebuildBeforeCommandCheck: 1
+  commandPositionEpsilon: 0.1
+  commandSizeEpsilon: 0.1
+  onBoundsChangedCommands:
+    _debugOwner: {fileID: 0}
+    _debugFieldPath: 
+    _debugAssetPath: 
+    _functionName: 
+    _commands: []
+  executeOnBoundsChangedOnAcquire: 1
+  commandDebugLog: 0
+  enableDebugGui: 0
+  debugCamera: {fileID: 0}
+  rebuildEveryGui: 0
+  debugLineColor: {r: 0.2, g: 1, b: 0.6, a: 1}
+  debugLineWidth: 2
+  showDebugLabel: 1
+  debugLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  showInScene: 1
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &1525134185427385016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255711634492439393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8abfb3f8b2544646b01b16008052fd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.VisualBoundsReactiveHubMB
+  _channels:
+  - _channelTag: default
+    _presetValue:
+      _source:
+        rid: 5399842506086809995
+      _defaultValue:
+        _enabled: 1
+        _target:
+          _targetTransform: {fileID: 0}
+          _targetRectTransform: {fileID: 0}
+          _useActorSource: 0
+          _actorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+        _inputEffect:
+          _offset: {x: 0, y: 0, z: 0}
+          _expandLeft: 0
+          _expandRight: 0
+          _expandTop: 0
+          _expandBottom: 0
+        _output:
+          rid: 5399842506086809996
+  _settings:
+    _rebuildBeforeEvaluate: 1
+    _executeOnAcquire: 1
+    _positionEpsilon: 0.1
+    _sizeEpsilon: 0.1
+    _enableDebugLog: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842506086809995
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.VisualBoundsReactiveChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842506086809997
+    - rid: 5399842506086809996
+      type: {class: VisualBoundsReactiveRectTransformOutputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _targetRectTransform: {fileID: 0}
+        _applyAnchoredPosition: 1
+        _applySizeDelta: 1
+    - rid: 5399842506086809997
+      type: {class: VisualBoundsReactiveChannelPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabled: 1
+        _target:
+          _targetTransform: {fileID: 2561798230306123067}
+          _targetRectTransform: {fileID: 0}
+          _useActorSource: 0
+          _actorSource:
+            Kind: 0
+            Identity:
+              kind: 0
+              id: 
+              category: 
+              requireActive: 0
+              searchScope: 0
+            UnityObject: {fileID: 0}
+            Shared:
+              rid: -2
+            ContextSlot: 0
+            TargetChannel:
+              rid: -2
+        _inputEffect:
+          _offset: {x: 0, y: 0, z: 0}
+          _expandLeft: 0
+          _expandRight: 0
+          _expandTop: 0
+          _expandBottom: 0
+        _output:
+          rid: 5399842506086810003
+    - rid: 5399842506086810003
+      type: {class: VisualBoundsReactiveChannelOutputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _spriteMode: 30
+        _spriteChannelTag: default
+        _transformChannelTag: default
+        _forceSlicedSpriteRenderer: 1
+        _applySpriteSize: 1
+        _applyTransformPosition: 1
+--- !u!1 &5265970239230943650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4363307009504329139}
+  - component: {fileID: 1289431269009287111}
+  - component: {fileID: 7792219408472272264}
+  - component: {fileID: 2531006373521767799}
+  m_Layer: 0
+  m_Name: Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4363307009504329139
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5265970239230943650}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3626169896305571964}
+  - {fileID: 672252170078601953}
+  m_Father: {fileID: 2561798230306123067}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1289431269009287111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5265970239230943650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dea5d2dfef5e5fd489f9e2d5dda8097f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.AnimationSpriteHubMB
+  channels:
+  - tag: default
+    spriteRenderer: {fileID: 8712351834684575440}
+    image: {fileID: 0}
+    playOnSpawn: 0
+    spritePreset:
+      animationA:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      animationB:
+        kind: 0
+        asset: {fileID: 0}
+        inline:
+          animationName: 
+          defaultFrameDuration: 0.1
+          awaitFrameCommands: 0
+          onStart:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onEnd:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          onCanceled:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
+          frames: []
+        randomAsset:
+          entries: []
+        randomInline:
+          entries: []
+      playMode: 0
+      flipX: 0
+      useClipSwitchFlip: 0
+      switchFlipDuration: 0.2
+      switchFlipFullRotation: 0
+      usePlaybackSpeedMultiplier: 1
+      crossFadeProfile:
+        rid: -2
+    materialFxPresetEntries: []
+    baseShaderPreset:
+      sourceMode: 1
+      assetPreset: {fileID: 0}
+      inlinePreset:
+        rid: 7292587181578649756
+  replaceWithTransparentOnRelease: 0
+  hubTag: default
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 7292587181578649756
+      type: {class: BaseShaderFxPreset, ns: Game.MaterialFx, asm: Assembly-CSharp}
+      data:
+        CustomEntries: []
+        AutoEntries: []
+        dissolveEnabled: 0
+        dissolveThreshold: 0
+        dissolveEdgeWidth: 0.1
+        dissolveEdgeColor: {r: 1, g: 1, b: 1, a: 1}
+        dissolveSourceSlotType: 0
+        dissolveSourceChannel: 1
+        dissolveSourceUVSpace: 0
+        flowWarpEnabled: 0
+        flowWarpStrength: {x: 0.1, y: 0.1}
+        flowWarpSpeed: 1
+        flowWarpSourceSlotType: 0
+        flowWarpSourceChannel: 1
+        flowWarpSourceUVSpace: 0
+        colorOverlayEnabled: 0
+        colorOverlayColor: {r: 1, g: 1, b: 1, a: 1}
+        colorOverlayBlendMode: 0
+        colorOverlayIntensity: 1
+        colorOverlaySourceSlotType: 0
+        colorOverlaySourceChannel: 1
+        colorOverlaySourceUVSpace: 0
+        colorRampEnabled: 0
+        colorRampTexture: {fileID: 0}
+        colorRampIntensity: 1
+        colorRampPreserveAlpha: 1
+        colorRampSourceSlotType: 0
+        colorRampSourceChannel: 1
+        colorRampSourceUVSpace: 0
+        refractionEnabled: 0
+        refractionStrength: {x: 0.1, y: 0.1}
+        refractionChromaticAberration: 0
+        refractionSourceSlotType: 0
+        refractionSourceChannel: 1
+        refractionSourceUVSpace: 0
+        causticsEnabled: 0
+        causticsColor: {r: 1, g: 1, b: 1, a: 1}
+        causticsIntensity: 1
+        causticsThreshold: 0.5
+        causticsSoftness: 0.1
+        causticsScrollA: {x: 0.1, y: 0.1}
+        causticsScrollB: {x: -0.1, y: 0.05}
+        causticsSourceASlotType: 0
+        causticsSourceAChannel: 0
+        causticsSourceAUVSpace: 0
+        causticsSourceBSlotType: 0
+        causticsSourceBChannel: 0
+        causticsSourceBUVSpace: 0
+        rippleEnabled: 0
+        rippleCenter: {x: 0.5, y: 0.5}
+        rippleWaveParams: {x: 10, y: 0.05, z: 2, w: 5}
+        rippleAmplitude: 0.1
+        ripplePhase: 0
+        rippleDistortUV: 1
+        rippleColorBlend: 0
+        rippleColor: {r: 1, g: 1, b: 1, a: 1}
+        hueShiftEnabled: 0
+        hueShiftAmount: 0
+        hueSaturationMod: 0
+        hueValueMod: 0
+        hueShiftMaskSlotType: 0
+        hueShiftMaskChannel: 0
+        hueShiftMaskUVSpace: 0
+        normalMapEnabled: 0
+        normalMapStrength: 1
+        normalMapLightDir: {x: 0, y: 0, z: 1}
+        normalMapSourceSlotType: 0
+        normalMapSourceChannel: 1
+        normalMapSourceUVSpace: 0
+        emissionEnabled: 0
+        emissionColor: {r: 1, g: 1, b: 1, a: 1}
+        emissionIntensity: 1
+        maskEnabled: 0
+        maskThreshold: 0.5
+        maskSoftness: 0.1
+        maskSourceSlotType: 0
+        maskSourceChannel: 1
+        maskSourceUVSpace: 0
+        outlineEnabled: 0
+        outlineMode: 10
+        outlineColor: {r: 1, g: 1, b: 1, a: 1}
+        outlineDirectionMask: 15
+        outlineAutoColorEnabled: 0
+        outlineAutoColorMode: 0
+        outlineAutoHue: 0
+        outlineAutoSaturation: 0
+        outlineAutoLightness: 0
+        outlineAnimatedGradientEnabled: 0
+        outlineAnimatedGradientPatternType: 10
+        outlineAnimatedGradientMasterStrength: 1
+        outlineAnimatedGradientNoiseScale: 6
+        outlineAnimatedGradientNoiseDirection: {x: 1, y: 0}
+        outlineAnimatedGradientNoiseSpeed: 0.2
+        outlineAnimatedGradientNoiseOffset: {x: 0, y: 0}
+        outlineAnimatedGradientRotationSpeed: 0
+        outlineAnimatedGradientPulseAmplitude: 0
+        outlineAnimatedGradientPulseSpeed: 1
+        outlineAnimatedGradientWarpPatternType: 10
+        outlineAnimatedGradientWarpScale: 2
+        outlineAnimatedGradientWarpStrength: 0.1
+        outlineAnimatedGradientWarpDirection: {x: 0.71, y: 0.43}
+        outlineAnimatedGradientWarpSpeed: 0.35
+        outlineAnimatedGradientLoopSeconds: 0
+        outlineAnimatedGradientOctaves: 4
+        outlineAnimatedGradientLacunarity: 2
+        outlineAnimatedGradientGain: 0.5
+        outlineAnimatedGradientCellSharpness: 1.5
+        outlineAnimatedGradientPatternContrast: 1
+        outlineAnimatedGradientHueAmplitude: 0.0025
+        outlineAnimatedGradientSaturationAmplitude: 0.008
+        outlineAnimatedGradientLightnessAmplitude: 0.015
+        outlineWidth: 1
+        outlineOpacity: 1
+        outlineSoftness: 0
+        outlineBlendMode: 10
+        outlinePixelPerfect: 1
+        outlineWidthUnit: 10
+        outlinePixelStep: 1
+        outlineSamplePattern: 10
+        outlineMaskRespect: 1
+        outlineUseVertexColor: 0
+        outlineUvClampEnabled: 1
+        outlineZTestMode: 10
+        textOutlineEnabled: 0
+        textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+        textOutlineThickness: 1
+        textOutlineSoftness: 0.1
+        textOutlineDirectionMask: 15
+        textOutlineAutoColorEnabled: 0
+        textOutlineAutoColorMode: 0
+        textOutlineAutoHue: 0
+        textOutlineAutoSaturation: 0
+        textOutlineAutoLightness: 0
+        textShadowEnabled: 0
+        textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+        textShadowOffset: {x: 1, y: -1}
+        textShadowSoftness: 0.1
+        textGlowEnabled: 0
+        textGlowColor: {r: 1, g: 1, b: 1, a: 0.5}
+        textGlowThickness: 2
+        textGlowSoftness: 0.2
+        blendColor2DEnabled: 0
+        blendColor2DColor: {r: 1, g: 1, b: 1, a: 1}
+        blendColor2DBlendIntensity: 0
+        blendColor2DBlendGradDirection: 0
+        blendColor2DBlendGradationAmount: 0
+        blendColor2DBlendSoftness: 1
+        blendColor2DBlendMode: 0
+        blendColor2DAnimatedGradientEnabled: 0
+        blendColor2DAnimatedGradientPatternType: 10
+        blendColor2DAnimatedGradientMasterStrength: 1
+        blendColor2DAnimatedGradientNoiseScale: 6
+        blendColor2DAnimatedGradientNoiseDirection: {x: 1, y: 0}
+        blendColor2DAnimatedGradientNoiseSpeed: 0.2
+        blendColor2DAnimatedGradientNoiseOffset: {x: 0, y: 0}
+        blendColor2DAnimatedGradientRotationSpeed: 0
+        blendColor2DAnimatedGradientPulseAmplitude: 0
+        blendColor2DAnimatedGradientPulseSpeed: 1
+        blendColor2DAnimatedGradientWarpPatternType: 10
+        blendColor2DAnimatedGradientWarpScale: 2
+        blendColor2DAnimatedGradientWarpStrength: 0.1
+        blendColor2DAnimatedGradientWarpDirection: {x: 0.71, y: 0.43}
+        blendColor2DAnimatedGradientWarpSpeed: 0.35
+        blendColor2DAnimatedGradientLoopSeconds: 0
+        blendColor2DAnimatedGradientOctaves: 4
+        blendColor2DAnimatedGradientLacunarity: 2
+        blendColor2DAnimatedGradientGain: 0.5
+        blendColor2DAnimatedGradientCellSharpness: 1.5
+        blendColor2DAnimatedGradientPatternContrast: 1
+        blendColor2DAnimatedGradientHueAmplitude: 0.0025
+        blendColor2DAnimatedGradientSaturationAmplitude: 0.008
+        blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        advancedFadeEnabled: 0
+        advancedFadeFadeDirection: 0
+        advancedFadeFadeAmount: 0
+        advancedFadeSoft: 0.1
+        advancedFadeGlowIntensity: 0
+        advancedFadeGlowRange: 0.05
+        advancedFadeGlowBlendMode: 0
+        advancedFadeWaveParamsA: {x: 0, y: 0, z: 0, w: 0}
+        advancedFadeWaveParamsB: {x: 0, y: 0, z: 0, w: 0}
+        advancedFadeCircleStartAngleDeg: 90
+        advancedFadeCircleClockwise: 1
+        rainbowEnabled: 0
+        rainbowMode: 0
+        rainbowPattern: 0
+        rainbowDirection: {x: 1, y: 0}
+        rainbowScale: 1
+        rainbowOffset: 0
+        rainbowSpeed: 0.5
+        rainbowPixelSize: 2
+        rainbowIntensity: 0.5
+        rainbowBlendMode: 1
+        advancedFadeBurnEnabled: 0
+        advancedFadeBurnProgress: 0
+        advancedFadeBurnEdgeWidth: 0.1
+        advancedFadeBurnNoiseScale: 4
+        advancedFadeBurnNoiseStrength: 0.5
+        advancedFadeBurnNoiseType: 0
+        advancedFadeBurnDirection: {x: 0, y: 1}
+        advancedFadeBurnEdgeColor: {r: 1, g: 0.5, b: 0.1, a: 1}
+        advancedFadeBurnBlendMode: 0
+        advancedFadeBurnInvert: 0
+        advancedFadeBurnAnimatedNoiseEnabled: 0
+        advancedFadeBurnAnimatedNoisePatternType: 10
+        advancedFadeBurnAnimatedNoiseDirection: {x: 1, y: 0}
+        advancedFadeBurnAnimatedNoiseSpeed: 0.2
+        advancedFadeBurnAnimatedNoiseOffset: {x: 0, y: 0}
+        advancedFadeBurnAnimatedNoiseRotationSpeed: 0
+        advancedFadeBurnAnimatedNoisePulseAmplitude: 0
+        advancedFadeBurnAnimatedNoisePulseSpeed: 1
+        advancedFadeBurnAnimatedNoiseWarpPatternType: 10
+        advancedFadeBurnAnimatedNoiseWarpScale: 2
+        advancedFadeBurnAnimatedNoiseWarpStrength: 0.2
+        advancedFadeBurnAnimatedNoiseWarpDirection: {x: 0.71, y: 0.43}
+        advancedFadeBurnAnimatedNoiseWarpSpeed: 0.35
+        advancedFadeBurnAnimatedNoiseLoopSeconds: 0
+        advancedFadeBurnAnimatedNoiseOctaves: 4
+        advancedFadeBurnAnimatedNoiseLacunarity: 2
+        advancedFadeBurnAnimatedNoiseGain: 0.5
+        advancedFadeBurnAnimatedNoiseCellSharpness: 1.5
+        advancedFadeBurnAnimatedNoisePatternContrast: 1
+        renderStateBlendPreset: 0
+        renderStateUseCustomBlendFactors: 0
+        renderStateSrcBlend: 5
+        renderStateDstBlend: 10
+        renderStateZWrite: 0
+        renderStateCull: 0
+        renderStateQueueOffset: 0
+        renderStateBlendIntensity: 1
+--- !u!114 &7792219408472272264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5265970239230943650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43afddf95ff55e847a1d17a9f691fa88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.TextChannelHubMB
+  _channelDefs:
+  - tag: default
+    text: {fileID: 0}
+    materialFxPresetEntries: []
+    useRichTextAnimator: 0
+    useTypewriter: 0
+    typewriterEventCommands:
+      Apply: 0
+      OnTypewriterStart:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextShowed:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnTextDisappeared:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterVisible:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitStarted:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnCharacterWaitFinished:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+      OnMessage:
+        _debugOwner: {fileID: 0}
+        _debugFieldPath: 
+        _debugAssetPath: 
+        _functionName: 
+        _commands: []
+    useCounter: 0
+    counterEase: 6
+    counterDurationSeconds: 0.5
+    counterUseUnscaledTime: 0
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &2531006373521767799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5265970239230943650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30581df0886dc1945b0cd73d6f2085e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Channel.TransformAnimationHubMB
+  channels:
+  - tag: default
+    target: {fileID: 3626169896305571964}
+    rectTransform: {fileID: 0}
+    playOnSpawnPreset: 0
+    playOnSpawnDelaySeconds: 0.01
+    transformPreset:
+      loop: 0
+      loopCount: -1
+      steps:
+      - operation: 6
+        duration:
+          _source:
+            rid: 7292587181578649757
+          _defaultValue: 0
+        ease: 1
+        relative: 0
+        fireAndForget: 0
+        scrollSpace: 10
+        scrollUseLocalVelocity: 0
+        ensureShortestLocalRotatePath: 0
+        vector3:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        positionPathMode: 10
+        useBezierCurve: 1
+        curveControlSide: 1
+        curveHeight: 1
+        curveControlOffset: {x: 0, y: 0, z: 0}
+        curveSamplingCount: 16
+        polySides: 5
+        polyRadius: 1
+        polyRotationDeg: 0
+        polyDirection: 10
+        vector2:
+          _source:
+            rid: 7292587181578649759
+          _defaultValue: {x: 0, y: 0}
+        anchoredInputMode: 0
+        commandAwaitMode: 0
+        commands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    initialTransform:
+      applyOnAwake: 0
+      applyLocalPosition: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      applyLocalRotation: 0
+      localRotation: {x: 0, y: 0, z: 0}
+      applyLocalScale: 0
+      localScale: {x: 1, y: 1, z: 1}
+    initialRectTransform:
+      applyOnAwake: 0
+      applyAnchoredPosition: 0
+      anchoredPosition: {x: 0, y: 0}
+      applySizeDelta: 0
+      sizeDelta: {x: 0, y: 0}
+      applyPivot: 0
+      pivot: {x: 0.5, y: 0.5}
+      applyAnchorMin: 0
+      anchorMin: {x: 0.5, y: 0.5}
+      applyAnchorMax: 0
+      anchorMax: {x: 0.5, y: 0.5}
+  showCurveGizmo: 1
+  curveSelectedOnly: 1
+  curvePointRadius: 0.08
+  enableSceneHandles: 1
+  moveDestinationHandle: 1
+  moveCurveControlHandle: 1
+  enableDebugLog: 0
+  debugViewer:
+    autoRefreshEveryNFrames: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 7292587181578649757
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 7292587181578649759
+      type: {class: VisualBoundsValue2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        boundsOwnerActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        space: 0
+        anchor: 0
+        rebuildBeforeRead: 0
+        multiplier: 1
+        offset: {x: 0, y: 0}
+        fallback: {x: 0, y: 0}
+--- !u!1 &8427990102816413648
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3626169896305571964}
+  - component: {fileID: 3590440140400382069}
+  - component: {fileID: 8712351834684575440}
+  m_Layer: 0
+  m_Name: Back
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3626169896305571964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8427990102816413648}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4363307009504329139}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!222 &3590440140400382069
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8427990102816413648}
+  m_CullTransparentMesh: 1
+--- !u!212 &8712351834684575440
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8427990102816413648}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 2359812366630250299, guid: 1e3b02bab5a0a74498d139259d544bf5, type: 3}
+  m_Color: {r: 0.06672629, g: 0.066176124, b: 0.088050246, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 1
+  m_Size: {x: 16, y: 16}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0

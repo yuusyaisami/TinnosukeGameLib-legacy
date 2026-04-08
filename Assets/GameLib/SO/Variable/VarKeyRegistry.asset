@@ -4458,35 +4458,11 @@ MonoBehaviour:
     varId: 101129
     stableKey: RerollMaxCount
     aliases: []
-  - id: 319c494f4bcd4cda863f92e0da06ee07
-    parentId: 4f4f067cc1974770b91b38703e80941e
-    name: CountSetting
-    isFolder: 0
-    description: 
-    varId: 101131
-    stableKey: ApplyCount
-    aliases: []
-  - id: cc809a3e277c4f2793a4be261c003785
-    parentId: 4f4f067cc1974770b91b38703e80941e
-    name: LifetimeSetting
-    isFolder: 0
-    description: 
-    varId: 101132
-    stableKey: LifetimeSetting
-    aliases: []
-  - id: d4007715cdf54038a395b7da19af6e50
-    parentId: 4f4f067cc1974770b91b38703e80941e
-    name: UseSetting
-    isFolder: 0
-    description: 
-    varId: 101133
-    stableKey: UseSetting
-    aliases: []
   - id: 328b3cca9010454cb0b538212aaca253
     parentId: b08882a0c8e24de48a4f005e0b281469
-    name: CustomCommandList
+    name: CustomRuntimeCommandList
     isFolder: 0
-    description: 
+    description: "\u3053\u306E\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u3092\u3057\u305F\u3068\u304D\u306B\u5B9F\u884C\u3059\u308B\u30B3\u30DE\u30F3\u30C9\u3067\u3059\u3002"
     varId: 101183
     stableKey: CustomCommandList
     aliases: []
@@ -4613,7 +4589,71 @@ MonoBehaviour:
     stableKey: traitRuntime.presentationState
     aliases:
     - presentationState
-  nextVarId: 101189
+  - id: 399d42f3007148d8b85b5880d227b235
+    parentId: b08882a0c8e24de48a4f005e0b281469
+    name: CustomPanelCommandList
+    isFolder: 0
+    description: "\u30D1\u30CD\u30EB\u3092\u30B9\u30DD\u30FC\u30F3\u3055\u305B\u305F\u3068\u304D\u306B\u5B9F\u884C\u3059\u308B\u30B3\u30DE\u30F3\u30C9\u3067\u3059\u3002"
+    varId: 101189
+    stableKey: CustomPanelCommandList
+    aliases: []
+  - id: cb5c78b9cc424b1cb4115fbdc8712240
+    parentId: da35a1b429744fc8a2c01c9a54c8d1f5
+    name: Shop
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: b9455ef054bb43f7b864ebd13bb7ee96
+    parentId: cb5c78b9cc424b1cb4115fbdc8712240
+    name: RerollBaseValue
+    isFolder: 0
+    description: 
+    varId: 101190
+    stableKey: RerollBaseValue
+    aliases: []
+  - id: 24af76e715904a819eaf935c0d65c13a
+    parentId: b08882a0c8e24de48a4f005e0b281469
+    name: Condition
+    isFolder: 0
+    description: 
+    varId: 101191
+    stableKey: Condition
+    aliases: []
+  - id: 319c494f4bcd4cda863f92e0da06ee07
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: CountSetting
+    isFolder: 0
+    description: 
+    varId: 101131
+    stableKey: CountSetting
+    aliases: []
+  - id: 474238277eae40c6ba631a392ff327cd
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: CountStack
+    isFolder: 0
+    description: 
+    varId: 101193
+    stableKey: CountStack
+    aliases: []
+  - id: cc809a3e277c4f2793a4be261c003785
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: LifetimeSetting
+    isFolder: 0
+    description: 
+    varId: 101132
+    stableKey: LifetimeSetting
+    aliases: []
+  - id: d4007715cdf54038a395b7da19af6e50
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: UseSetting
+    isFolder: 0
+    description: 
+    varId: 101133
+    stableKey: UseSetting
+    aliases: []
+  nextVarId: 101194
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount
@@ -4808,5 +4848,8 @@ MonoBehaviour:
     aliases: []
   - varId: 101125
     stableKey: OnlyVar
+    aliases: []
+  - varId: 101192
+    stableKey: isCount
     aliases: []
   csvFile: {fileID: 0}
