@@ -207,6 +207,8 @@ namespace Game.Commands
 
                 builder.Register<VNext.UIControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.VisualBoundsReactiveHubControlExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ButtonChannelHubControlExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ButtonChannelPlayerControlExecutor>(Lifetime.Singleton)

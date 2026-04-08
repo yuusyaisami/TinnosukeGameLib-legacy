@@ -328,8 +328,11 @@ namespace Game.Common
             return false;
         }
 
-        internal static bool IsHitAlive(in DynamicSearchHit hit)
+        internal static bool IsHitAlive(in DynamicSearchHit hit, bool requireActive = false)
         {
+            if (requireActive && !IsHitActive(hit))
+                return false;
+
             if (hit.Identity?.SelfTransform != null)
                 return true;
 
@@ -340,6 +343,14 @@ namespace Game.Common
                 return true;
 
             return false;
+        }
+
+        static bool IsHitActive(in DynamicSearchHit hit)
+        {
+            if (hit.Identity != null)
+                return hit.Identity.IsActive;
+
+            return hit.Scope != null && hit.Scope.IsActive;
         }
 
         internal static bool TryResolveHubAtScope(IScopeNode scope, out ITargetChannelHub? hub)

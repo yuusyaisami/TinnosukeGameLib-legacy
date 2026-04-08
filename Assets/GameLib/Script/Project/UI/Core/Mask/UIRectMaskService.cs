@@ -1,7 +1,5 @@
 #nullable enable
-using System;
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections.Generic;
 
 namespace Game.UI
@@ -145,6 +143,18 @@ namespace Game.UI
         MaskTestResult TestElementVisibility(RectTransform targetRect, Camera? camera);
 
         /// <summary>
+        /// 指定した複数の RectTransform がこの Mask でどの程度隠れているかを判定する。
+        /// 
+        /// ## 用途
+        /// 
+        /// 複数の HitTestRects を持つ UIElement のナビゲーション可視率判定。
+        /// </summary>
+        /// <param name="targetRects">判定対象の RectTransform 群</param>
+        /// <param name="camera">座標変換に使用するカメラ</param>
+        /// <returns>判定結果</returns>
+        MaskTestResult TestElementVisibility(IReadOnlyList<RectTransform> targetRects, Camera? camera);
+
+        /// <summary>
         /// ナビゲーション時の遮蔽閾値。
         /// この割合以上 Mask で隠れている候補は選択不可となる。
         /// デフォルト: 0.5 (50%)
@@ -180,9 +190,6 @@ namespace Game.UI
         /// <summary>一時的な Rect 計算用配列（GC対策）</summary>
         readonly Vector3[] _corners = new Vector3[4];
 
-        /// <summary>Image 系 Mask の当たり判定用フィルター</summary>
-        readonly ICanvasRaycastFilter[] _raycastFilters;
-
         /// <summary>ナビゲーション時の遮蔽閾値</summary>
         float _navigationOcclusionThreshold = 0.5f;
 
@@ -216,7 +223,6 @@ namespace Game.UI
         {
             _maskOwner = maskOwner;
             _maskRect = maskOwner?.GetComponent<RectTransform>();
-            _raycastFilters = maskOwner?.GetComponents<ICanvasRaycastFilter>() ?? Array.Empty<ICanvasRaycastFilter>();
             _navigationOcclusionThreshold = Mathf.Clamp01(navigationOcclusionThreshold);
         }
 
@@ -236,20 +242,6 @@ namespace Game.UI
             if (!RectTransformUtility.RectangleContainsScreenPoint(_maskRect, screenPosition, camera))
             {
                 return MaskTestResult.Block(_maskOwner, 1f);
-            }
-
-            // Image などの形状マスクはフィルターに任せる
-            foreach (var filter in _raycastFilters)
-            {
-                if (filter == null)
-                {
-                    continue;
-                }
-
-                if (!filter.IsRaycastLocationValid(screenPosition, camera))
-                {
-                    return MaskTestResult.Block(_maskOwner, 1f);
-                }
             }
 
             return MaskTestResult.Pass;
@@ -287,6 +279,54 @@ namespace Game.UI
 
             var visibleArea = intersection.width * intersection.height;
             var occlusionRatio = 1f - (visibleArea / targetArea);
+
+            if (occlusionRatio >= _navigationOcclusionThreshold)
+            {
+                return MaskTestResult.Block(_maskOwner, occlusionRatio);
+            }
+
+            return new MaskTestResult(true, occlusionRatio, null);
+        }
+
+        /// <inheritdoc/>
+        public MaskTestResult TestElementVisibility(IReadOnlyList<RectTransform> targetRects, Camera? camera)
+        {
+            if (_maskRect == null || targetRects == null || targetRects.Count == 0)
+            {
+                return MaskTestResult.Pass;
+            }
+
+            var maskScreenRect = GetScreenRect(_maskRect, camera);
+            var targetArea = 0f;
+            var visibleArea = 0f;
+
+            for (var i = 0; i < targetRects.Count; i++)
+            {
+                var targetRect = targetRects[i];
+                if (targetRect == null)
+                {
+                    continue;
+                }
+
+                var targetScreenRect = GetScreenRect(targetRect, camera);
+                var rectArea = GetRectArea(targetScreenRect);
+                if (rectArea <= 0f)
+                {
+                    continue;
+                }
+
+                targetArea += rectArea;
+                var intersection = IntersectRects(targetScreenRect, maskScreenRect);
+                visibleArea += GetRectArea(intersection);
+            }
+
+            if (targetArea <= 0f)
+            {
+                return MaskTestResult.Pass;
+            }
+
+            var visibilityRatio = Mathf.Clamp01(visibleArea / targetArea);
+            var occlusionRatio = 1f - visibilityRatio;
 
             if (occlusionRatio >= _navigationOcclusionThreshold)
             {
@@ -352,6 +392,13 @@ namespace Game.UI
             }
 
             return new Rect(xMin, yMin, width, height);
+        }
+
+        static float GetRectArea(Rect rect)
+        {
+            var width = Mathf.Max(0f, rect.width);
+            var height = Mathf.Max(0f, rect.height);
+            return width * height;
         }
     }
 }

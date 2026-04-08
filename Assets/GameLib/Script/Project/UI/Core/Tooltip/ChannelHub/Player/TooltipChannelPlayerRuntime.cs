@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.DI;
+using Game.SelectRuntime;
 using Game.Spawn;
 using UnityEngine;
 using VContainer;
@@ -42,11 +43,16 @@ namespace Game.UI
         {
             public readonly RectTransform? RectTransform;
             public readonly SpriteRenderer? SpriteRenderer;
+            public readonly WorldPointerTargetMB? WorldPointerTarget;
 
-            public ResolvedHitTestTarget(RectTransform? rectTransform, SpriteRenderer? spriteRenderer)
+            public ResolvedHitTestTarget(
+                RectTransform? rectTransform,
+                SpriteRenderer? spriteRenderer,
+                WorldPointerTargetMB? worldPointerTarget)
             {
                 RectTransform = rectTransform;
                 SpriteRenderer = spriteRenderer;
+                WorldPointerTarget = worldPointerTarget;
             }
         }
 
@@ -65,9 +71,9 @@ namespace Game.UI
         float _effectivePointerMoveThreshold = 2f;
         ActorSource _effectiveAnchorActorSource = new() { Kind = ActorSourceKind.Current };
         TooltipChannelSpawnMode _effectiveSpawnMode = TooltipChannelSpawnMode.FollowPointer;
-        Vector2 _effectiveFollowPointerOffset = Vector2.zero;
+        Vector3 _effectiveFollowPointerDirectionOffset = Vector3.zero;
         Vector2 _effectiveFollowPointerMoveScale = Vector2.one;
-        Vector2 _effectiveFixedOffset = Vector2.zero;
+        Vector3 _effectiveFixedDirectionOffset = Vector3.zero;
         TooltipChannelAnchorX _effectiveAnchorX = TooltipChannelAnchorX.Right;
         TooltipChannelAnchorY _effectiveAnchorY = TooltipChannelAnchorY.Up;
 
@@ -93,6 +99,11 @@ namespace Game.UI
         Vector2 _candidateStartPointer;
         Vector2 _lastPointerPos;
         bool _hasLastPointerPos;
+        string _lastPointerOverDebugState = string.Empty;
+        TooltipAutoTriggerKind _lastLoggedTrigger = TooltipAutoTriggerKind.None;
+        bool _hasLoggedTrigger;
+        bool _lastLoggedVisibleRequested;
+        bool _hasLoggedVisibleRequested;
 
         Vector2 _followPointerStartUi;
         Vector2 _followPointerBaseUi;
@@ -100,6 +111,8 @@ namespace Game.UI
         Vector3 _followPointerStartWorld;
         Vector3 _followPointerBaseWorld;
         bool _hasFollowPointerWorld;
+        float _spawnBaseUiLocalZ;
+        float _spawnBaseWorldZ;
         Rect _cachedUiLocalRect;
         Vector2 _cachedUiScreenSize;
         Vector3 _cachedUiWorldPosition;
@@ -161,12 +174,20 @@ namespace Game.UI
             _hasLastPointerPos = false;
             _hasFollowPointerUi = false;
             _hasFollowPointerWorld = false;
+            _spawnBaseUiLocalZ = 0f;
+            _spawnBaseWorldZ = 0f;
             _anchorActorCache = default;
             _resolvedHitTestPresetSource = null;
             _resolvedHitTestTargets.Clear();
             ResetPlacementCaches();
+            _lastPointerOverDebugState = string.Empty;
+            _lastLoggedTrigger = TooltipAutoTriggerKind.None;
+            _hasLoggedTrigger = false;
+            _lastLoggedVisibleRequested = false;
+            _hasLoggedVisibleRequested = false;
 
             ResolveSourcePresets();
+            LogDebug($"Acquire. TriggerSpace={_hub.CurrentTriggerSpaceKind} RenderSpace={_hub.CurrentRenderSpaceKind} PointerHover={_effectiveEnablePointerHover} SelectionHover={_effectiveEnableSelectionHover}");
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -205,6 +226,8 @@ namespace Game.UI
             _isVisibleRequested = false;
             _hasFollowPointerUi = false;
             _hasFollowPointerWorld = false;
+            _spawnBaseUiLocalZ = 0f;
+            _spawnBaseWorldZ = 0f;
             _hasLastPointerPos = false;
             _anchorActorCache = default;
             _resolvedHitTestPresetSource = null;
@@ -219,8 +242,20 @@ namespace Game.UI
 
             _conditionEnabled = _currentPlayerPreset.Condition.GetOrDefault(_dynamicContext, true);
             _autoTriggered = EvaluateAutoTrigger(inputMode, pointerScreen, camera);
+            if (!_hasLoggedTrigger || _lastLoggedTrigger != _candidateTrigger)
+            {
+                _lastLoggedTrigger = _candidateTrigger;
+                _hasLoggedTrigger = true;
+                LogDebug($"CandidateTrigger={_candidateTrigger} AutoTriggered={_autoTriggered} InputMode={inputMode}");
+            }
 
             _isVisibleRequested = ResolveDesiredVisibility();
+            if (!_hasLoggedVisibleRequested || _lastLoggedVisibleRequested != _isVisibleRequested)
+            {
+                _lastLoggedVisibleRequested = _isVisibleRequested;
+                _hasLoggedVisibleRequested = true;
+                LogDebug($"VisibleRequested={_isVisibleRequested} Condition={_conditionEnabled} AutoTriggered={_autoTriggered} Override={_overrideMode} State={_visibilityState}");
+            }
             if (_isVisibleRequested)
             {
                 if (_visibilityState == TooltipChannelVisibilityState.Hidden)
@@ -311,13 +346,16 @@ namespace Game.UI
                 return false;
 
             var baseLocal = ResolveUiBaseLocal(pointerScreen, camera);
-            var anchorWorld = _hub.UiRoot.TransformPoint(new Vector3(baseLocal.x, baseLocal.y, 0f));
-            var anchorScreen = RectTransformUtility.WorldToScreenPoint(camera, anchorWorld);
+            var baseWorld = _hub.UiRoot.TransformPoint(new Vector3(baseLocal.x, baseLocal.y, _spawnBaseUiLocalZ));
             request = new TooltipPlacementRequest(
                 this,
                 Priority,
                 _order,
-                anchorScreen,
+                baseWorld,
+                ResolveActiveDirectionOffset(),
+                _hub.UiRoot.TransformVector(Vector3.right),
+                _hub.UiRoot.TransformVector(Vector3.up),
+                _hub.UiRoot.TransformVector(Vector3.forward),
                 screenSize,
                 _effectiveAnchorX,
                 _effectiveAnchorY);
@@ -334,12 +372,15 @@ namespace Game.UI
                 return false;
 
             var baseWorld = ResolveWorldBase(pointerScreen, camera);
-            var anchorScreen3 = camera.WorldToScreenPoint(baseWorld);
             request = new TooltipPlacementRequest(
                 this,
                 Priority,
                 _order,
-                new Vector2(anchorScreen3.x, anchorScreen3.y),
+                baseWorld,
+                ResolveActiveDirectionOffset(),
+                Vector3.right,
+                Vector3.up,
+                Vector3.forward,
                 screenSize,
                 _effectiveAnchorX,
                 _effectiveAnchorY);
@@ -356,11 +397,10 @@ namespace Game.UI
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(_hub.UiRoot, solution.AnchorScreenPosition, camera, out var localPoint))
                 return;
 
-            var currentLocal = _activeRectTransform.localPosition;
             _activeRectTransform.localPosition = new Vector3(
                 localPoint.x - localAnchor.x,
                 localPoint.y - localAnchor.y,
-                currentLocal.z);
+                _spawnBaseUiLocalZ + ResolveActiveDirectionOffset().z);
         }
 
         internal void ApplyWorldPlacement(in TooltipPlacementSolution solution, Camera? camera)
@@ -378,7 +418,7 @@ namespace Game.UI
             var offset = currentAnchor - rootPos;
 
             var target = anchorWorld - offset;
-            target.z = rootPos.z;
+            target.z = _spawnBaseWorldZ + ResolveActiveDirectionOffset().z;
             _activeTransform.position = target;
         }
 
@@ -408,21 +448,37 @@ namespace Game.UI
                 return false;
             }
 
-            // Fast path: while already visible via pointer trigger and pointer is stable,
-            // avoid repeating full hit-test scans every frame.
+            // While already visible, keep the tooltip alive as long as the original
+            // trigger condition is still satisfied. PointerMoveThreshold is used only
+            // to reset the initial hover delay before spawn, not to force-close an
+            // already visible tooltip while the pointer remains over the target.
             if (_visibilityState == TooltipChannelVisibilityState.Active && _autoTriggered)
             {
                 switch (inputMode)
                 {
                     case TooltipChannelInputMode.Pointer:
                         {
-                            if (_effectiveEnablePointerHover && !HasPointerMoved(pointerScreen, _effectivePointerMoveThreshold))
+                            if (_effectiveEnablePointerHover && IsPointerOver(pointerScreen, camera))
                                 return true;
                             break;
                         }
                     case TooltipChannelInputMode.PointerNavigation:
                         {
-                            if (_effectiveEnablePointerHover && IsSelectionMatch() && !HasPointerMoved(pointerScreen, _effectivePointerMoveThreshold))
+                            if (_hub.CurrentTriggerSpaceKind == TooltipChannelSpaceKind.World)
+                            {
+                                if (_effectiveEnablePointerHover && IsPointerOver(pointerScreen, camera))
+                                    return true;
+                            }
+                            else
+                            {
+                                if (_effectiveEnablePointerHover && IsSelectionMatch() && IsPointerOver(pointerScreen, camera))
+                                    return true;
+                            }
+                            break;
+                        }
+                    case TooltipChannelInputMode.Navigation:
+                        {
+                            if (_effectiveEnableSelectionHover && IsSelectionMatch())
                                 return true;
                             break;
                         }
@@ -431,14 +487,6 @@ namespace Game.UI
 
             var trigger = ResolveEligibleTrigger(inputMode, pointerScreen, camera);
             if (trigger == TooltipAutoTriggerKind.None)
-            {
-                ResetCandidate();
-                return false;
-            }
-
-            if (_visibilityState == TooltipChannelVisibilityState.Active &&
-                (trigger == TooltipAutoTriggerKind.Pointer || trigger == TooltipAutoTriggerKind.PointerNavigation) &&
-                HasPointerMoved(pointerScreen, _effectivePointerMoveThreshold))
             {
                 ResetCandidate();
                 return false;
@@ -461,7 +509,13 @@ namespace Game.UI
                         : TooltipAutoTriggerKind.None;
 
                 case TooltipChannelInputMode.PointerNavigation:
-                    return _effectiveEnablePointerHover && IsPointerOver(pointerScreen, camera) && IsSelectionMatch()
+                    if (!_effectiveEnablePointerHover || !IsPointerOver(pointerScreen, camera))
+                        return TooltipAutoTriggerKind.None;
+
+                    if (_hub.CurrentTriggerSpaceKind == TooltipChannelSpaceKind.World)
+                        return TooltipAutoTriggerKind.Pointer;
+
+                    return IsSelectionMatch()
                         ? TooltipAutoTriggerKind.PointerNavigation
                         : TooltipAutoTriggerKind.None;
 
@@ -538,32 +592,130 @@ namespace Game.UI
                 : _hub.CurrentDefaultHitTest;
 
             if (!hitTest.HasAnyTarget)
+            {
+                LogPointerOverState("No hit test targets.");
                 return false;
+            }
 
             ResolveHitTestTargets();
 
-            if (_hub.CurrentSpaceKind == TooltipChannelSpaceKind.UIScreen)
+            if (_hub.CurrentTriggerSpaceKind == TooltipChannelSpaceKind.UIScreen)
             {
                 for (var i = 0; i < _resolvedHitTestTargets.Count; i++)
                 {
                     var rect = _resolvedHitTestTargets[i].RectTransform;
                     if (rect != null && RectTransformUtility.RectangleContainsScreenPoint(rect, pointerScreen, camera))
+                    {
+                        LogPointerOverState($"UI rect hit. Index={i} Name={rect.name}");
                         return true;
+                    }
                 }
 
+                LogPointerOverState($"UI miss. ResolvedTargets={_resolvedHitTestTargets.Count}");
                 return false;
             }
 
-            if (camera == null || _hub.PointerService == null)
-                return false;
+            if (TryIsWorldPointerHoveringResolvedTarget(out var hoveredTargetName, out var hoverDebugState))
+            {
+                LogPointerOverState($"World pointer hover hit. Target={hoveredTargetName}");
+                return true;
+            }
 
-            var z = ResolveWorldPlaneZ();
-            var world2 = _hub.PointerService.PointerWorld(camera, z);
-            var world = new Vector3(world2.x, world2.y, z);
+            if (camera == null || _hub.PointerService == null)
+            {
+                LogPointerOverState($"World miss. CameraNull={camera == null} PointerServiceNull={_hub.PointerService == null}");
+                return false;
+            }
+
             for (var i = 0; i < _resolvedHitTestTargets.Count; i++)
             {
+                var pointerTarget = _resolvedHitTestTargets[i].WorldPointerTarget;
+                if (pointerTarget != null && TryHitWorldPointerTarget(pointerTarget, pointerScreen, camera, out var pointerTargetWorld))
+                {
+                    LogPointerOverState($"World pointer target hit. Index={i} Name={pointerTarget.name} World={pointerTargetWorld}");
+                    return true;
+                }
+
+                var rect = _resolvedHitTestTargets[i].RectTransform;
+                if (rect != null && RectTransformUtility.RectangleContainsScreenPoint(rect, pointerScreen, camera))
+                {
+                    LogPointerOverState($"World rect hit. Index={i} Name={rect.name}");
+                    return true;
+                }
+
                 var sprite = _resolvedHitTestTargets[i].SpriteRenderer;
-                if (sprite != null && sprite.bounds.Contains(world))
+                if (sprite == null)
+                    continue;
+
+                var bounds = sprite.bounds;
+                var spriteZ = bounds.center.z;
+                var world2 = _hub.PointerService.PointerWorld(camera, spriteZ);
+                var world = new Vector3(world2.x, world2.y, spriteZ);
+                if (bounds.Contains(world))
+                {
+                    LogPointerOverState($"World sprite hit. Index={i} Name={sprite.name} World={world}");
+                    return true;
+                }
+            }
+
+            var fallbackZ = ResolveWorldPlaneZ();
+            _ = fallbackZ;
+            LogPointerOverState($"World miss. ResolvedTargets={_resolvedHitTestTargets.Count} HoverState={hoverDebugState}");
+            return false;
+        }
+
+        bool TryIsWorldPointerHoveringResolvedTarget(out string hoveredTargetName, out string debugState)
+        {
+            hoveredTargetName = string.Empty;
+            debugState = "Unavailable";
+
+            var worldPointer = _hub.WorldPointerService;
+            if (worldPointer == null)
+            {
+                debugState = "ServiceNull";
+                return false;
+            }
+
+            if (!worldPointer.TryGetCurrentHover(out var hoverData))
+            {
+                debugState = "NoCurrentHover";
+                return false;
+            }
+
+            if (hoverData.Target == null)
+            {
+                debugState = "HoverTargetNull";
+                return false;
+            }
+
+            hoveredTargetName = hoverData.Target.name;
+            for (var i = 0; i < _resolvedHitTestTargets.Count; i++)
+            {
+                var target = _resolvedHitTestTargets[i].WorldPointerTarget;
+                if (target != null && ReferenceEquals(target, hoverData.Target))
+                {
+                    debugState = $"Matched:{hoveredTargetName}";
+                    return true;
+                }
+            }
+
+            debugState = $"Hovering:{hoveredTargetName}";
+            return false;
+        }
+
+        bool TryHitWorldPointerTarget(WorldPointerTargetMB target, Vector2 pointerScreen, Camera camera, out Vector3 pointerWorld)
+        {
+            pointerWorld = Vector3.zero;
+            if (_hub.PointerService == null)
+                return false;
+
+            var world2 = _hub.PointerService.PointerWorld(camera, target.transform.position.z);
+            pointerWorld = new Vector3(world2.x, world2.y, target.transform.position.z);
+            var colliders = target.ResolveColliders();
+            for (var i = 0; i < colliders.Count; i++)
+            {
+                var collider = colliders[i];
+                if (collider != null && collider.OverlapPoint(world2))
                     return true;
             }
 
@@ -572,7 +724,7 @@ namespace Game.UI
 
         bool IsSelectionMatch()
         {
-            return _hub.CurrentSpaceKind == TooltipChannelSpaceKind.UIScreen &&
+            return _hub.CurrentTriggerSpaceKind == TooltipChannelSpaceKind.UIScreen &&
                    _hub.SelectionState?.CurrentElement != null &&
                    ReferenceEquals(_hub.SelectionState.CurrentElement, _owner) &&
                    IsModalAllowed();
@@ -580,7 +732,7 @@ namespace Game.UI
 
         bool IsModalAllowed()
         {
-            if (_hub.CurrentSpaceKind != TooltipChannelSpaceKind.UIScreen)
+            if (_hub.CurrentTriggerSpaceKind != TooltipChannelSpaceKind.UIScreen)
                 return true;
 
             if (_hub.ModalStackService == null)
@@ -605,6 +757,18 @@ namespace Game.UI
             {
                 TooltipHitTestTargetKind.OwnerSpriteRenderer => ResolveOwnerSpriteRenderer(),
                 TooltipHitTestTargetKind.ActorSpriteRenderer => ResolveActorSpriteRenderer(target.ActorSource),
+                _ => null,
+            };
+        }
+
+        WorldPointerTargetMB? ResolveWorldPointerTarget(TooltipHitTestTarget target)
+        {
+            return target.Kind switch
+            {
+                TooltipHitTestTargetKind.OwnerWorldPointerTarget => ResolveOwnerWorldPointerTarget(),
+                TooltipHitTestTargetKind.ActorWorldPointerTarget => ResolveActorWorldPointerTarget(target.ActorSource),
+                TooltipHitTestTargetKind.OwnerSelectablePointerTarget => ResolveOwnerSelectablePointerTarget(),
+                TooltipHitTestTargetKind.ActorSelectablePointerTarget => ResolveActorSelectablePointerTarget(target.ActorSource),
                 _ => null,
             };
         }
@@ -639,6 +803,40 @@ namespace Game.UI
             var scope = ActorSourceFastResolver.Resolve(_activeScope ?? _owner, actorSource);
             var transform = scope?.Identity?.SelfTransform;
             return transform != null ? transform.GetComponentInChildren<SpriteRenderer>(true) : null;
+        }
+
+        WorldPointerTargetMB? ResolveOwnerWorldPointerTarget()
+        {
+            var transform = _owner.Identity?.SelfTransform;
+            return transform != null ? transform.GetComponentInChildren<WorldPointerTargetMB>(true) : null;
+        }
+
+        WorldPointerTargetMB? ResolveActorWorldPointerTarget(ActorSource actorSource)
+        {
+            var scope = ActorSourceFastResolver.Resolve(_activeScope ?? _owner, actorSource);
+            var transform = scope?.Identity?.SelfTransform;
+            return transform != null ? transform.GetComponentInChildren<WorldPointerTargetMB>(true) : null;
+        }
+
+        WorldPointerTargetMB? ResolveOwnerSelectablePointerTarget()
+        {
+            var transform = _owner.Identity?.SelfTransform;
+            if (transform == null)
+                return null;
+
+            var selectable = transform.GetComponentInChildren<SelectableRuntimeMB>(true);
+            return selectable != null ? selectable.ResolveTarget() : null;
+        }
+
+        WorldPointerTargetMB? ResolveActorSelectablePointerTarget(ActorSource actorSource)
+        {
+            var scope = ActorSourceFastResolver.Resolve(_activeScope ?? _owner, actorSource);
+            var transform = scope?.Identity?.SelfTransform;
+            if (transform == null)
+                return null;
+
+            var selectable = transform.GetComponentInChildren<SelectableRuntimeMB>(true);
+            return selectable != null ? selectable.ResolveTarget() : null;
         }
 
         Transform? ResolveAnchorTransform()
@@ -703,19 +901,27 @@ namespace Game.UI
                 switch (target.Kind)
                 {
                     case TooltipHitTestTargetKind.OwnerRectTransform:
-                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(ResolveOwnerRectTransform(), null));
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(ResolveOwnerRectTransform(), null, null));
                         break;
                     case TooltipHitTestTargetKind.OwnerSpriteRenderer:
-                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(null, ResolveOwnerSpriteRenderer()));
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(null, ResolveOwnerSpriteRenderer(), null));
                         break;
                     case TooltipHitTestTargetKind.ActorRectTransform:
-                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(ResolveActorRectTransform(target.ActorSource), null));
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(ResolveActorRectTransform(target.ActorSource), null, null));
                         break;
                     case TooltipHitTestTargetKind.ActorSpriteRenderer:
-                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(null, ResolveActorSpriteRenderer(target.ActorSource)));
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(null, ResolveActorSpriteRenderer(target.ActorSource), null));
+                        break;
+                    case TooltipHitTestTargetKind.OwnerWorldPointerTarget:
+                    case TooltipHitTestTargetKind.ActorWorldPointerTarget:
+                    case TooltipHitTestTargetKind.OwnerSelectablePointerTarget:
+                    case TooltipHitTestTargetKind.ActorSelectablePointerTarget:
+                        _resolvedHitTestTargets.Add(new ResolvedHitTestTarget(null, null, ResolveWorldPointerTarget(target)));
                         break;
                 }
             }
+
+            LogResolvedHitTargets();
         }
 
         void ResolveEffectiveSettings()
@@ -757,9 +963,9 @@ namespace Game.UI
             {
                 _effectiveAnchorActorSource = _currentPlayerPreset.AnchorActorSource;
                 _effectiveSpawnMode = _currentPlayerPreset.SpawnMode;
-                _effectiveFollowPointerOffset = _currentPlayerPreset.FollowPointerOffset;
+                _effectiveFollowPointerDirectionOffset = _currentPlayerPreset.FollowPointerDirectionOffset;
                 _effectiveFollowPointerMoveScale = _currentPlayerPreset.FollowPointerMoveScale;
-                _effectiveFixedOffset = _currentPlayerPreset.FixedOffset;
+                _effectiveFixedDirectionOffset = _currentPlayerPreset.FixedDirectionOffset;
                 _effectiveAnchorX = _currentPlayerPreset.AnchorX;
                 _effectiveAnchorY = _currentPlayerPreset.AnchorY;
             }
@@ -767,9 +973,9 @@ namespace Game.UI
             {
                 _effectiveAnchorActorSource = placementDefaults.AnchorActorSource;
                 _effectiveSpawnMode = placementDefaults.SpawnMode;
-                _effectiveFollowPointerOffset = placementDefaults.FollowPointerOffset;
+                _effectiveFollowPointerDirectionOffset = placementDefaults.FollowPointerDirectionOffset;
                 _effectiveFollowPointerMoveScale = placementDefaults.FollowPointerMoveScale;
-                _effectiveFixedOffset = placementDefaults.FixedOffset;
+                _effectiveFixedDirectionOffset = placementDefaults.FixedDirectionOffset;
                 _effectiveAnchorX = placementDefaults.AnchorX;
                 _effectiveAnchorY = placementDefaults.AnchorY;
             }
@@ -788,9 +994,9 @@ namespace Game.UI
             _effectivePointerMoveThreshold = 2f;
             _effectiveAnchorActorSource = new ActorSource { Kind = ActorSourceKind.Current };
             _effectiveSpawnMode = TooltipChannelSpawnMode.FollowPointer;
-            _effectiveFollowPointerOffset = Vector2.zero;
+            _effectiveFollowPointerDirectionOffset = Vector3.zero;
             _effectiveFollowPointerMoveScale = Vector2.one;
-            _effectiveFixedOffset = Vector2.zero;
+            _effectiveFixedDirectionOffset = Vector3.zero;
             _effectiveAnchorX = TooltipChannelAnchorX.Right;
             _effectiveAnchorY = TooltipChannelAnchorY.Up;
         }
@@ -819,6 +1025,7 @@ namespace Game.UI
             if (_lifetimeCts == null || _dynamicContext == null || _visibilityState == TooltipChannelVisibilityState.Spawning)
                 return;
 
+            LogDebug($"BeginSpawn. Pointer={pointerScreen} Camera={(camera != null ? camera.name : "null")}");
             CancelOperation();
             _visibilityState = TooltipChannelVisibilityState.Spawning;
             _operationCts = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeCts.Token);
@@ -831,6 +1038,7 @@ namespace Game.UI
             if (_visibilityState == TooltipChannelVisibilityState.Hidden || _visibilityState == TooltipChannelVisibilityState.Closing)
                 return;
 
+            LogDebug($"BeginClose. RunHideCommands={runHideCommands}");
             CancelOperation();
             _visibilityState = TooltipChannelVisibilityState.Closing;
             var lifetimeToken = _lifetimeCts != null ? _lifetimeCts.Token : CancellationToken.None;
@@ -868,7 +1076,7 @@ namespace Game.UI
                     return;
                 }
 
-                var spawnerKind = _hub.CurrentSpaceKind == TooltipChannelSpaceKind.UIScreen
+                var spawnerKind = _hub.CurrentRenderSpaceKind == TooltipChannelRenderSpaceKind.UIScreen
                     ? SpawnerKind.RuntimeUIElement
                     : SpawnerKind.RuntimeEntity;
                 var resolved = SceneSpawnerResolver.TryResolveAsyncSpawner(
@@ -884,7 +1092,7 @@ namespace Game.UI
                     return;
                 }
 
-                var transformParent = _hub.CurrentSpaceKind == TooltipChannelSpaceKind.UIScreen
+                var transformParent = _hub.CurrentRenderSpaceKind == TooltipChannelRenderSpaceKind.UIScreen
                     ? _hub.UiRoot
                     : _hub.WorldRoot;
                 var spawnParams = SpawnParams.ForRuntime(
@@ -895,7 +1103,7 @@ namespace Game.UI
                     identity: null,
                     transformParent: transformParent,
                     lifetimeScopeParent: _owner,
-                    worldSpace: _hub.CurrentSpaceKind == TooltipChannelSpaceKind.World,
+                    worldSpace: _hub.CurrentRenderSpaceKind == TooltipChannelRenderSpaceKind.World,
                     allowPooling: runtimeTemplate.UsePooling);
 
                 var resolver = await resolved.Spawner.SpawnAsync(spawnParams, ct);
@@ -919,6 +1127,8 @@ namespace Game.UI
                 _spawnedScope = spawnedScope;
                 _activeTransform = transform;
                 _activeRectTransform = transform as RectTransform;
+                _spawnBaseUiLocalZ = _activeRectTransform != null ? _activeRectTransform.localPosition.z : 0f;
+                _spawnBaseWorldZ = _activeTransform.position.z;
                 ResetPlacementCaches();
                 ResolveBoundsService(spawnedScope);
                 CaptureFollowPointerReference(pointerScreen, camera);
@@ -935,6 +1145,7 @@ namespace Game.UI
                 }
 
                 _visibilityState = TooltipChannelVisibilityState.Active;
+                LogDebug($"Spawn completed. Scope={spawnedScope.Identity?.Id ?? TooltipChannelHubService.GetTransformFromScope(spawnedScope)?.name ?? "(unknown)"}");
             }
             catch (OperationCanceledException)
             {
@@ -954,6 +1165,8 @@ namespace Game.UI
                     _activeRectTransform = null;
                     _boundsService = null;
                     _boundsOutput = null;
+                    _spawnBaseUiLocalZ = 0f;
+                    _spawnBaseWorldZ = 0f;
                     ResetPlacementCaches();
                     _visibilityState = TooltipChannelVisibilityState.Hidden;
                 }
@@ -990,12 +1203,54 @@ namespace Game.UI
                     _activeRectTransform = null;
                     _boundsService = null;
                     _boundsOutput = null;
+                    _spawnBaseUiLocalZ = 0f;
+                    _spawnBaseWorldZ = 0f;
                     ResetPlacementCaches();
                     _hasFollowPointerUi = false;
                     _hasFollowPointerWorld = false;
                     _visibilityState = TooltipChannelVisibilityState.Hidden;
+                    LogDebug("Close completed.");
                 }
             }
+        }
+
+        void LogResolvedHitTargets()
+        {
+            if (!_hub.EnableDebugLog)
+                return;
+
+            Debug.Log($"[TooltipChannel] Resolved hit targets. Tag={_tag} Count={_resolvedHitTestTargets.Count} TriggerSpace={_hub.CurrentTriggerSpaceKind} RenderSpace={_hub.CurrentRenderSpaceKind}");
+            for (var i = 0; i < _resolvedHitTestTargets.Count; i++)
+            {
+                var rect = _resolvedHitTestTargets[i].RectTransform;
+                var sprite = _resolvedHitTestTargets[i].SpriteRenderer;
+                var pointerTarget = _resolvedHitTestTargets[i].WorldPointerTarget;
+                var label = rect != null
+                    ? $"RectTransform({rect.name})"
+                    : sprite != null
+                        ? $"SpriteRenderer({sprite.name})"
+                        : pointerTarget != null
+                            ? $"WorldPointerTarget({pointerTarget.name})"
+                            : "null";
+                Debug.Log($"[TooltipChannel] HitTarget[{i}] Tag={_tag} {label}");
+            }
+        }
+
+        void LogPointerOverState(string state)
+        {
+            if (!_hub.EnableDebugLog || string.Equals(_lastPointerOverDebugState, state, StringComparison.Ordinal))
+                return;
+
+            _lastPointerOverDebugState = state;
+            Debug.Log($"[TooltipChannel] PointerOver Tag={_tag} {state}");
+        }
+
+        void LogDebug(string message)
+        {
+            if (!_hub.EnableDebugLog)
+                return;
+
+            Debug.Log($"[TooltipChannel] {message} Tag={_tag}");
         }
 
         bool IsCurrentVersion(int version)
@@ -1044,7 +1299,7 @@ namespace Game.UI
 
         void MoveOffscreen()
         {
-            if (_hub.CurrentSpaceKind == TooltipChannelSpaceKind.UIScreen)
+            if (_hub.CurrentRenderSpaceKind == TooltipChannelRenderSpaceKind.UIScreen)
                 MoveUiOffscreen();
             else
                 MoveWorldOffscreen();
@@ -1111,7 +1366,7 @@ namespace Game.UI
             if (_effectiveSpawnMode != TooltipChannelSpawnMode.FollowPointer)
                 return;
 
-            if (_hub.CurrentSpaceKind == TooltipChannelSpaceKind.UIScreen)
+            if (_hub.CurrentRenderSpaceKind == TooltipChannelRenderSpaceKind.UIScreen)
             {
                 var root = _hub.UiRoot;
                 if (root == null)
@@ -1119,7 +1374,7 @@ namespace Game.UI
 
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(root, pointerScreen, camera, out var local);
                 _followPointerStartUi = local;
-                _followPointerBaseUi = local + _effectiveFollowPointerOffset;
+                _followPointerBaseUi = local;
                 _hasFollowPointerUi = true;
                 return;
             }
@@ -1130,7 +1385,7 @@ namespace Game.UI
             var z = ResolveWorldPlaneZ();
             var world2 = _hub.PointerService.PointerWorld(camera, z);
             _followPointerStartWorld = new Vector3(world2.x, world2.y, z);
-            _followPointerBaseWorld = _followPointerStartWorld + new Vector3(_effectiveFollowPointerOffset.x, _effectiveFollowPointerOffset.y, 0f);
+            _followPointerBaseWorld = _followPointerStartWorld;
             _hasFollowPointerWorld = true;
         }
 
@@ -1144,7 +1399,7 @@ namespace Game.UI
             {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(root, pointerScreen, camera, out var local);
                 if (!_hasFollowPointerUi)
-                    return local + _effectiveFollowPointerOffset;
+                    return local;
 
                 var delta = local - _followPointerStartUi;
                 return _followPointerBaseUi + Vector2.Scale(delta, _effectiveFollowPointerMoveScale);
@@ -1152,7 +1407,7 @@ namespace Game.UI
 
             var anchor = ResolveAnchorTransform() ?? _hub.UiRoot ?? _hub.WorldRoot;
             var anchorLocal = anchor != null ? (Vector2)root.InverseTransformPoint(anchor.position) : Vector2.zero;
-            return anchorLocal + _effectiveFixedOffset;
+            return anchorLocal;
         }
 
         Vector3 ResolveWorldBase(Vector2 pointerScreen, Camera camera)
@@ -1163,7 +1418,7 @@ namespace Game.UI
                 var world2 = _hub.PointerService.PointerWorld(camera, z);
                 var current = new Vector3(world2.x, world2.y, z);
                 if (!_hasFollowPointerWorld)
-                    return current + new Vector3(_effectiveFollowPointerOffset.x, _effectiveFollowPointerOffset.y, 0f);
+                    return current;
 
                 var delta = current - _followPointerStartWorld;
                 var scaled = new Vector3(
@@ -1175,13 +1430,20 @@ namespace Game.UI
 
             var anchor = ResolveAnchorTransform() ?? _activeTransform ?? _hub.WorldRoot;
             var pos = anchor != null ? anchor.position : Vector3.zero;
-            return pos + new Vector3(_effectiveFixedOffset.x, _effectiveFixedOffset.y, 0f);
+            return new Vector3(pos.x, pos.y, ResolveWorldPlaneZ());
+        }
+
+        Vector3 ResolveActiveDirectionOffset()
+        {
+            return _effectiveSpawnMode == TooltipChannelSpawnMode.FollowPointer
+                ? _effectiveFollowPointerDirectionOffset
+                : _effectiveFixedDirectionOffset;
         }
 
         float ResolveWorldPlaneZ()
         {
             if (_activeTransform != null)
-                return _activeTransform.position.z;
+                return _spawnBaseWorldZ;
 
             var anchor = ResolveAnchorTransform();
             if (anchor != null)

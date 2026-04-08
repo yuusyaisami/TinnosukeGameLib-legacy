@@ -13,6 +13,7 @@ namespace Game.StatusEffect
         public readonly string DescriptionKey;
         public readonly Sprite Icon;
         public readonly EffectType Type;
+        public readonly int SortOrder;
         public readonly float RemainingTime;
         public readonly float TotalDuration;
         public readonly float RemainingUseCooldown;
@@ -58,7 +59,8 @@ namespace Game.StatusEffect
             bool isUseBlocked,
             int usedCount,
             int remainingUseCount,
-            int maxUseCount)
+            int maxUseCount,
+            int sortOrder = 0)
         {
             EffectId = effectId;
             InstanceId = instanceId;
@@ -68,6 +70,7 @@ namespace Game.StatusEffect
             DescriptionKey = descriptionKey;
             Icon = icon;
             Type = type;
+            SortOrder = sortOrder;
             RemainingTime = remainingTime;
             TotalDuration = totalDuration;
             RemainingUseCooldown = remainingUseCooldown;
@@ -110,7 +113,8 @@ namespace Game.StatusEffect
             bool isApplied,
             bool isActive,
             int remainingUseCount,
-            int maxUseCount)
+            int maxUseCount,
+            int sortOrder = 0)
             : this(
                 effectId,
                 instanceId,
@@ -137,7 +141,8 @@ namespace Game.StatusEffect
                 false,
                 0,
                 remainingUseCount,
-                maxUseCount)
+                maxUseCount,
+                sortOrder)
         {
         }
     }

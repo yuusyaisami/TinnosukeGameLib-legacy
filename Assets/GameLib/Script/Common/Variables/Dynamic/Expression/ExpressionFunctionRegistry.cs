@@ -254,6 +254,14 @@ namespace Game.Common
                 return DynamicVariant.FromVector2(new Vector2(x, y));
             });
 
+            Register("Vec3", 3, 3, args =>
+            {
+                var x = ExpressionHelper.AsNumber(args[0]);
+                var y = ExpressionHelper.AsNumber(args[1]);
+                var z = ExpressionHelper.AsNumber(args[2]);
+                return DynamicVariant.FromVector3(new Vector3(x, y, z));
+            });
+
             Register("Dot", 2, 2, args =>
             {
                 if (!ExpressionHelper.TryAsVector2(args[0], out var a) || !ExpressionHelper.TryAsVector2(args[1], out var b))

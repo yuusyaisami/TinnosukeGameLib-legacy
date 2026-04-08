@@ -264,6 +264,26 @@ namespace Game.Commands.VNext
 
                         case VarWriteOpKind.Set:
                             {
+                                if (op.StoreMode == VarStoreWriteMode.DeferredDynamic)
+                                {
+                                    hasInput = true;
+                                    if (!op.Value.HasSource)
+                                    {
+                                        input = DynamicVariant.Null;
+                                        success = TryUnsetOrAlreadyUnset(op.Target, targetScope, blackboard, commandVars, varId);
+                                        if (!success)
+                                            LogVarOpFailed("Set(Deferred)", op.Target, targetScope, varId);
+                                        break;
+                                    }
+
+                                    var deferred = new DeferredDynamicVarValue(op.Value, VarStorePayload.EntryValueKind.Auto, varId, "WriteData.Set");
+                                    input = DynamicVariant.FromManagedRef(deferred);
+                                    success = TrySetManagedRef(op.Target, targetScope, blackboard, commandVars, varId, deferred);
+                                    if (!success)
+                                        LogVarOpFailed("Set(Deferred)", op.Target, targetScope, varId);
+                                    break;
+                                }
+
                                 var v = op.Value.Evaluate(ctx);
                                 hasInput = true;
                                 input = v;
@@ -742,6 +762,11 @@ namespace Game.Commands.VNext
             if (value.Kind == ValueKind.ManagedRef)
             {
                 var managed = value.AsManagedRef;
+                if (managed is DeferredDynamicVarValue deferred)
+                {
+                    return $"DeferredDynamic:expected={deferred.ExpectedKind} owner={deferred.Owner} varId={deferred.VarId}";
+                }
+
                 return managed == null ? "ManagedRef:null" : $"ManagedRef:{managed.GetType().Name}";
             }
 

@@ -142,6 +142,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(SharedActorSourceExistsSource));
                 allowedList.Add(typeof(UIModalStackActorMatchSource));
                 allowedList.Add(typeof(DataExistsBoolSource));
+                allowedList.Add(typeof(StatusEffectOperationEnabledBoolSource));
             }
             else if (targetType == typeof(int))
             {
@@ -160,6 +161,11 @@ namespace Game.Common.Editor
             {
                 allowedList.Add(typeof(Vector2ExpressionSource));
                 allowedList.Add(typeof(Vector2XYExpressionSource));
+            }
+            else if (targetType == typeof(Vector3))
+            {
+                allowedList.Add(typeof(Vector3ExpressionSource));
+                allowedList.Add(typeof(Vector3XYZExpressionSource));
             }
 
             // 2.5 Random sources

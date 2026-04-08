@@ -204,7 +204,7 @@ namespace Game.UI
     /// 
     /// 1. Active=falseのUIElementが見つかったら、その枝は探索しない
     /// 2. 探索はModal Stack境界内に限定される
-    /// 3. Maskによる遮蔽は別途考慮される（TODO: IUIRectMaskServiceと連携）
+    /// 3. Maskによる遮蔽は候補プロバイダー側で考慮される
     /// 
     /// ## 実装クラス
     /// 

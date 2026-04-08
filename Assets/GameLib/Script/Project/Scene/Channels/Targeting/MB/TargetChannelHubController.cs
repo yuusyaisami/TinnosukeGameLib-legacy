@@ -307,6 +307,8 @@ namespace Game.Targeting
                     OriginSource = channel.OriginSource,
                     ForwardSource = channel.ForwardSource,
                     ScopeRequireActive = channel.ScopeRequireActive,
+                    MonitorActiveState = channel.MonitorActiveState,
+                    DirectTargetValidDistance = channel.DirectTargetValidDistance,
                     CollisionRangeSource = channel.CollisionRangeSource,
                     CollisionAreaTag = string.IsNullOrEmpty(channel.CollisionAreaTag) ? "(empty)" : channel.CollisionAreaTag,
                     CollisionFilterSummary = string.IsNullOrEmpty(channel.CollisionFilterSummary) ? "(none)" : channel.CollisionFilterSummary,
@@ -332,6 +334,8 @@ namespace Game.Targeting
             [TableColumnWidth(100)] public TargetOriginSource OriginSource;
             [TableColumnWidth(105)] public TargetForwardSource ForwardSource;
             [TableColumnWidth(90)] public bool ScopeRequireActive;
+            [TableColumnWidth(110)] public bool MonitorActiveState;
+            [TableColumnWidth(110)] public float DirectTargetValidDistance;
             [TableColumnWidth(100)] public TargetChannelCollisionRangeSource CollisionRangeSource;
             [TableColumnWidth(120)] public string CollisionAreaTag = string.Empty;
             [TableColumnWidth(150)] public string CollisionFilterSummary = string.Empty;

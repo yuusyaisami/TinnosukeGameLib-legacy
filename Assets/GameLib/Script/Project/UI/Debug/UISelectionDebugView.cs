@@ -24,10 +24,10 @@ namespace Game.UI
         public string CandidateProvider = "(none)";
 
         [ShowInInspector, ReadOnly]
-        public SelectCandidate[] NavigationCandidates = Array.Empty<SelectCandidate>();
+        public string[] NavigationCandidates = Array.Empty<string>();
 
         [ShowInInspector, ReadOnly]
-        public SelectCandidate[] PointerCandidates = Array.Empty<SelectCandidate>();
+        public string[] PointerCandidates = Array.Empty<string>();
 
         [ShowInInspector, ReadOnly]
         public string[] NavigationCandidateTexts = Array.Empty<string>();
@@ -71,20 +71,20 @@ namespace Game.UI
             if (_telemetry == null) return;
             var nav = _telemetry.LastNavigationCandidates;
             var ptr = _telemetry.LastPointerCandidates;
-            NavigationCandidates = nav != null ? new List<SelectCandidate>(nav).ToArray() : Array.Empty<SelectCandidate>();
-            PointerCandidates = ptr != null ? new List<SelectCandidate>(ptr).ToArray() : Array.Empty<SelectCandidate>();
+            NavigationCandidates = BuildCandidateTexts(nav);
+            PointerCandidates = BuildCandidateTexts(ptr);
 
-            NavigationCandidateTexts = BuildCandidateTexts(NavigationCandidates);
-            PointerCandidateTexts = BuildCandidateTexts(PointerCandidates);
+            NavigationCandidateTexts = NavigationCandidates;
+            PointerCandidateTexts = PointerCandidates;
         }
 
-        static string[] BuildCandidateTexts(SelectCandidate[] candidates)
+        static string[] BuildCandidateTexts(IReadOnlyList<SelectCandidate>? candidates)
         {
-            if (candidates == null || candidates.Length == 0)
+            if (candidates == null || candidates.Count == 0)
                 return Array.Empty<string>();
 
-            var list = new string[candidates.Length];
-            for (int i = 0; i < candidates.Length; i++)
+            var list = new string[candidates.Count];
+            for (int i = 0; i < candidates.Count; i++)
             {
                 list[i] = candidates[i].ToString();
             }

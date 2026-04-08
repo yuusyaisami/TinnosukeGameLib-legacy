@@ -968,6 +968,8 @@ namespace Game.Common
         [SerializeField, InlineProperty, HideLabel]
         VarKeyRef key;
 
+        public int VarId => ResolveVarId();
+
         public string SourceTypeName => "Var";
         public string GetDebugData => string.IsNullOrEmpty(key.StableKey)
             ? $"varId={key.VarId}"
@@ -979,7 +981,7 @@ namespace Game.Common
                 return DynamicVariant.Null;
 
             var vars = context.Vars;
-            var varId = ResolveVarId(vars);
+            var varId = ResolveVarId();
             if (varId <= 0)
                 return DynamicVariant.Null;
 
@@ -987,7 +989,11 @@ namespace Game.Common
             {
                 // ManagedRef として取得（非UnityEngine.Object のクラスもサポート）
                 if (vars.TryGetManagedRef(varId, out var managed) && managed != null)
+                {
+                    if (DeferredDynamicVarResolver.TryResolve(managed, context, $"VarStore:{varId}", out var deferred))
+                        return deferred;
                     return DynamicVariant.FromManagedRef(managed);
+                }
                 return DynamicVariant.Null;
             }
 
@@ -998,12 +1004,15 @@ namespace Game.Common
             return DynamicVariant.Null;
         }
 
-        int ResolveVarId(IVarStore vars)
+        int ResolveVarId()
         {
+            if (key.VarId > 0)
+                return key.VarId;
+
             if (!string.IsNullOrEmpty(key.StableKey) && VarIdResolver.TryResolve(key.StableKey, out var resolved) && resolved > 0)
                 return resolved;
 
-            return key.VarId;
+            return 0;
         }
 
         public static VarStoreSource FromVarId(int id) => new() { key = new VarKeyRef(id) };
@@ -1111,6 +1120,7 @@ namespace Game.Common
         bool searchIncludeGlobal;
 
         public ScalarKey ScalarKey => scalarKey;
+        public ActorSource TargetActorSource => targetActorSource;
         public string SourceTypeName => "SelfScalar";
         public string GetDebugData => $"{scalarKey} @ {DescribeTargetActorSource()}";
 
@@ -1200,6 +1210,7 @@ namespace Game.Common
         float baselineValue;
 
         public ScalarKey ScalarKey => scalarKey;
+        public ActorSource TargetActorSource => targetActorSource;
         public string SourceTypeName => "OtherScalar";
         public string GetDebugData => $"{scalarKey} @ {DescribeTargetActorSource()}";
 
@@ -1287,6 +1298,9 @@ namespace Game.Common
         [ShowIf("@fallback == BlackboardReadFallback.CreateLocal || fallback == BlackboardReadFallback.CreateGameLogicRoot || fallback == BlackboardReadFallback.CreateRoot")]
         DynamicValue fallbackInitialValue;
 
+        public int BlackboardVarId => blackboardId;
+        public BlackboardReadScope ReadScope => readScope;
+
         public string SourceTypeName => "SelfBlackboard";
         public string GetDebugData => VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)";
 
@@ -1303,7 +1317,7 @@ namespace Game.Common
             {
                 // Global means: search this scope -> parents, consulting each scope's *local* var store.
                 // This avoids relying on which IBlackboardService instance DI returned.
-                if (TryGetHierarchical(context.Scope, blackboardId, out var variant))
+                if (TryGetHierarchical(context.Scope, blackboardId, context, out var variant))
                     return variant;
                 if (resolvedFallback == BlackboardReadFallback.Fail)
                     return BlackboardSourceUtility.FailOrNull(
@@ -1327,7 +1341,11 @@ namespace Game.Common
                 if (kind == ValueKind.ManagedRef)
                 {
                     if (localVars.TryGetManagedRef(blackboardId, out var managed) && managed != null)
+                    {
+                        if (DeferredDynamicVarResolver.TryResolve(managed, context, $"SelfBlackboard:local:{blackboardId}", out var deferred))
+                            return deferred;
                         return DynamicVariant.FromManagedRef(managed);
+                    }
                 }
                 else if (kind != ValueKind.Null && bb.TryLocalGetVariant(blackboardId, out var localVariant))
                 {
@@ -1342,7 +1360,7 @@ namespace Game.Common
             return BlackboardSourceUtility.ApplyFallback(context.Scope, bb, blackboardId, resolvedFallback, initialValue);
         }
 
-        static bool TryGetHierarchical(IScopeNode? origin, int varId, out DynamicVariant value)
+        static bool TryGetHierarchical(IScopeNode? origin, int varId, IDynamicContext context, out DynamicVariant value)
         {
             // Search nearest -> farthest by scope parent chain.
             // We intentionally consult each scope's *local* var store to avoid
@@ -1365,6 +1383,12 @@ namespace Game.Common
                 {
                     if (local.TryGetManagedRef(varId, out var managed) && managed != null)
                     {
+                        if (DeferredDynamicVarResolver.TryResolve(managed, context, $"SelfBlackboard:global:{varId}@{node.Identity?.Id ?? "(none)"}", out var deferred))
+                        {
+                            value = deferred;
+                            return true;
+                        }
+
                         value = DynamicVariant.FromManagedRef(managed);
                         return true;
                     }
@@ -1409,6 +1433,10 @@ namespace Game.Common
 
         [NonSerialized] ActorSourceResolveCache _cache;
 
+        public int BlackboardVarId => blackboardId;
+        public BlackboardReadScope ReadScope => readScope;
+        public ActorSource TargetActor => targetActor;
+
         public string SourceTypeName => "OtherBlackboard";
         public string GetDebugData => VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)";
 
@@ -1434,7 +1462,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
             if (readScope == BlackboardReadScope.Global)
             {
-                if (TryGetHierarchical(targetScope, blackboardId, out var variant))
+                if (TryGetHierarchical(targetScope, blackboardId, context, out var variant))
                     return variant;
 
                 if (resolvedFallback == BlackboardReadFallback.Fail)
@@ -1460,7 +1488,11 @@ namespace Game.Common
                 if (kind == ValueKind.ManagedRef)
                 {
                     if (localVars.TryGetManagedRef(blackboardId, out var managed) && managed != null)
+                    {
+                        if (DeferredDynamicVarResolver.TryResolve(managed, context, $"OtherBlackboard:local:{blackboardId}@{targetScope.Identity?.Id ?? "(none)"}", out var deferred))
+                            return deferred;
                         return DynamicVariant.FromManagedRef(managed);
+                    }
                 }
                 else if (kind != ValueKind.Null && bb.TryLocalGetVariant(blackboardId, out var localVariant))
                 {
@@ -1476,7 +1508,7 @@ namespace Game.Common
             return BlackboardSourceUtility.ApplyFallback(targetScope, bb, blackboardId, resolvedFallback, initialValue);
         }
 
-        static bool TryGetHierarchical(IScopeNode? origin, int varId, out DynamicVariant value)
+        static bool TryGetHierarchical(IScopeNode? origin, int varId, IDynamicContext context, out DynamicVariant value)
         {
             for (IScopeNode? node = origin; node != null; node = node.Parent)
             {
@@ -1496,6 +1528,12 @@ namespace Game.Common
                 {
                     if (local.TryGetManagedRef(varId, out var managed) && managed != null)
                     {
+                        if (DeferredDynamicVarResolver.TryResolve(managed, context, $"OtherBlackboard:global:{varId}@{node.Identity?.Id ?? "(none)"}", out var deferred))
+                        {
+                            value = deferred;
+                            return true;
+                        }
+
                         value = DynamicVariant.FromManagedRef(managed);
                         return true;
                     }

@@ -263,10 +263,10 @@ namespace Game.StatusEffect
             RefreshUseBlockedState();
             WriteRuntimeVars();
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log(
-                $"[StatusEffectRuntime] ApplyInitial caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} scope={DescribeScope(_scope)} enabled={_isEnabled} applied={_isApplied} hookCount={_hooks.Resolve(StatusEffectHookKind.Apply)?.Count ?? 0}");
-#endif
+            //#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            //            Debug.Log(
+            //                $"[StatusEffectRuntime] ApplyInitial caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} scope={DescribeScope(_scope)} enabled={_isEnabled} applied={_isApplied} hookCount={_hooks.Resolve(StatusEffectHookKind.Apply)?.Count ?? 0}");
+            //#endif
             ExecuteHook(StatusEffectHookKind.Apply, _scope);
         }
 
@@ -484,10 +484,10 @@ namespace Game.StatusEffect
 
             var wasApplied = _isApplied;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.Log(
-                $"[StatusEffectRuntime] RestoreRuntimeState caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} scope={DescribeScope(_scope)} applied={_isApplied} enabled={_isEnabled} suspended={_isSuspendedByScopeRelease} hookCount={_hooks.Resolve(StatusEffectHookKind.Apply)?.Count ?? 0}");
-#endif
+            //#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            //            Debug.Log(
+            //                $"[StatusEffectRuntime] RestoreRuntimeState caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} scope={DescribeScope(_scope)} applied={_isApplied} enabled={_isEnabled} suspended={_isSuspendedByScopeRelease} hookCount={_hooks.Resolve(StatusEffectHookKind.Apply)?.Count ?? 0}");
+            //#endif
 
             _durationController?.Reset();
             _countController?.Reset();
@@ -622,7 +622,8 @@ namespace Game.StatusEffect
                 _isUseBlocked,
                 UsedCount,
                 RemainingUseCount,
-                MaxUseCount);
+                MaxUseCount,
+                _visualData.SortOrder);
         }
 
         public int SetOperationEnabled(string operationId, bool enabled)
@@ -1038,6 +1039,9 @@ namespace Game.StatusEffect
                     if (!IsConditionMatched(entry.Condition, evaluationContext))
                         continue;
 
+                    if (entry.OverrideDescription)
+                        builder.Clear();
+
                     var text = ResolveEntryText(entry, evaluationContext);
                     if (string.IsNullOrWhiteSpace(text))
                         continue;
@@ -1110,13 +1114,13 @@ namespace Game.StatusEffect
             if (commands == null || commands.Count == 0)
                 return;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (kind == StatusEffectHookKind.Apply)
-            {
-                Debug.Log(
-                    $"[StatusEffectRuntime] ExecuteHook kind={kind} caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} actor={DescribeScope(actorScope)} scope={DescribeScope(_scope)} commandList={commands.FunctionName} commandCount={commands.Count} sourceContext={DescribeCommandContext(sourceContext)}");
-            }
-#endif
+            //#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            //            if (kind == StatusEffectHookKind.Apply)
+            //            {
+            //                Debug.Log(
+            //                    $"[StatusEffectRuntime] ExecuteHook kind={kind} caller={caller} definition={DefinitionId} instance={InstanceId} slot={SlotKey} tag={RuntimeTag} actor={DescribeScope(actorScope)} scope={DescribeScope(_scope)} commandList={commands.FunctionName} commandCount={commands.Count} sourceContext={DescribeCommandContext(sourceContext)}");
+            //            }
+            //#endif
 
             WriteRuntimeVars();
             var context = sourceContext != null

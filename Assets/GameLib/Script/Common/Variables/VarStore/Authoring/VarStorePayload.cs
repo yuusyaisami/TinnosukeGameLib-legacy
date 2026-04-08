@@ -52,6 +52,10 @@ namespace Game.Common
             public EntryValueKind Kind;
 
             [SerializeField]
+            [LabelText("Store Mode")]
+            public VarStoreWriteMode StoreMode;
+
+            [SerializeField]
             [LabelText("Value")]
             public DynamicValue Value;
         }
@@ -70,6 +74,19 @@ namespace Game.Common
 
                 if (!overwrite && dest.Contains(e.VarId))
                     continue;
+
+                if (e.StoreMode == VarStoreWriteMode.DeferredDynamic)
+                {
+                    if (!e.Value.HasSource)
+                    {
+                        dest.TryUnset(varId);
+                        continue;
+                    }
+
+                    var deferred = new DeferredDynamicVarValue(e.Value, e.Kind, varId, nameof(VarStorePayload));
+                    dest.TrySetManagedRef(varId, deferred);
+                    continue;
+                }
 
                 if (!VarStoreEntryValueKindConverter.TryConvertToVariant(in e, out var value))
                     continue;

@@ -94,6 +94,7 @@ namespace Game.UI
                 ClampSettings = new TooltipClampSettings(enableClamp, flipThresholdX, flipThresholdY),
                 SpawnWarmupFrames = spawnWarmupFrames,
                 SharedDefaults = sharedDefaults != null ? sharedDefaults.CreateRuntimeCopy() : new TooltipSystemSharedDefaults(),
+                SharedHubPreset = sharedDefaults != null ? sharedDefaults.HubPreset.CreateRuntimeCopy() : new TooltipHubPreset(),
             };
 
             builder.RegisterInstance(config);

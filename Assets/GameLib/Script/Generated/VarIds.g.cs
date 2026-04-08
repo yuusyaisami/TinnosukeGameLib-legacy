@@ -1983,6 +1983,21 @@ namespace Game.Vars.Generated
                         /// </remarks>
                         public const int traitCount = 245;
                     }
+
+                    public static partial class Runtime
+                    {
+                        /// <summary>RuntimeTrait visible/hidden state.</summary>
+                        /// <remarks>
+                        /// Path: GameLib/Base/Trait/Runtime/presentationState
+                        /// StableKey: traitRuntime.presentationState
+                        /// </remarks>
+                        /// <summary>RuntimeTrait visible/hidden state.</summary>
+                        /// <remarks>
+                        /// Path: GameLib/Base/Trait/Runtime/presentationState
+                        /// StableKey: traitRuntime.presentationState
+                        /// </remarks>
+                        public const int presentationState = 100125;
+                    }
                 }
 
                 public static partial class Transform
@@ -4091,6 +4106,19 @@ namespace Game.Vars.Generated
                     /// </remarks>
                     public const int UpgradeCostMul = 101184;
                 }
+
+                public static partial class Shop
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Shop/RerollBaseValue
+                    /// StableKey: RerollBaseValue
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/Shop/RerollBaseValue
+                    /// StableKey: RerollBaseValue
+                    /// </remarks>
+                    public const int RerollBaseValue = 101190;
+                }
             }
 
             public static partial class LuckProfile
@@ -4253,14 +4281,36 @@ namespace Game.Vars.Generated
                 public static partial class UpgradePanel
                 {
                     /// <remarks>
-                    /// Path: GameLogic/NailProfile/UpgradePanel/CustomCommandList
-                    /// StableKey: CustomCommandList
+                    /// Path: GameLogic/NailProfile/UpgradePanel/Condition
+                    /// StableKey: Condition
                     /// </remarks>
                     /// <remarks>
-                    /// Path: GameLogic/NailProfile/UpgradePanel/CustomCommandList
+                    /// Path: GameLogic/NailProfile/UpgradePanel/Condition
+                    /// StableKey: Condition
+                    /// </remarks>
+                    public const int Condition = 101191;
+                    /// <summary>パネルをスポーンさせたときに実行するコマンドです。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/CustomPanelCommandList
+                    /// StableKey: CustomPanelCommandList
+                    /// </remarks>
+                    /// <summary>パネルをスポーンさせたときに実行するコマンドです。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/CustomPanelCommandList
+                    /// StableKey: CustomPanelCommandList
+                    /// </remarks>
+                    public const int CustomPanelCommandList = 101189;
+                    /// <summary>このアップグレードをしたときに実行するコマンドです。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/CustomRuntimeCommandList
                     /// StableKey: CustomCommandList
                     /// </remarks>
-                    public const int CustomCommandList = 101183;
+                    /// <summary>このアップグレードをしたときに実行するコマンドです。</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/CustomRuntimeCommandList
+                    /// StableKey: CustomCommandList
+                    /// </remarks>
+                    public const int CustomRuntimeCommandList = 101183;
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/UpgradePanel/Price
                     /// StableKey: Price
@@ -4543,6 +4593,7 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.Trait.Holder.holderId,
             VarIds.GameLib.Base.Trait.Holder.holderKey,
             VarIds.GameLib.Base.Trait.Holder.traitCount,
+            VarIds.GameLib.Base.Trait.Runtime.presentationState,
             VarIds.GameLib.Base.Transform.Position.Local.x,
             VarIds.GameLib.Base.Transform.Position.Local.y,
             VarIds.GameLib.Base.Transform.Position.Local.z,
@@ -4748,6 +4799,7 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.GameProfile.Base.RequestBaseQuota,
             VarIds.GameLogic.GameProfile.Nail.Level,
             VarIds.GameLogic.GameProfile.Nail.UpgradeCostMul,
+            VarIds.GameLogic.GameProfile.Shop.RerollBaseValue,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
             VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
@@ -4762,7 +4814,9 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.NailProfile.StatusEffectSetting.CountSetting,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.LifetimeSetting,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.UseSetting,
-            VarIds.GameLogic.NailProfile.UpgradePanel.CustomCommandList,
+            VarIds.GameLogic.NailProfile.UpgradePanel.Condition,
+            VarIds.GameLogic.NailProfile.UpgradePanel.CustomPanelCommandList,
+            VarIds.GameLogic.NailProfile.UpgradePanel.CustomRuntimeCommandList,
             VarIds.GameLogic.NailProfile.UpgradePanel.Price,
             VarIds.GameLogic.NailProfile.UpgradePanel.StackPreset,
             VarIds.GameLogic.NailProfile.UpgradePanel.StatusEffect,

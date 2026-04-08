@@ -18,6 +18,22 @@ namespace Game.Common
         CommaSpace = 30,
     }
 
+    static class StatusEffectSourceUtility
+    {
+        public static bool TryResolveStatusEffectService(
+            IScopeNode origin,
+            out IStatusEffectService? service)
+        {
+            service = null;
+
+            var resolver = origin?.Resolver;
+            if (resolver == null)
+                return false;
+
+            return resolver.TryResolve<IStatusEffectService>(out service) && service != null;
+        }
+    }
+
     [Serializable]
     public sealed class ActiveStatusEffectDescriptionsSource : IDynamicSource
     {
@@ -42,6 +58,20 @@ namespace Game.Common
         ActorSourceResolveCache _cache;
 
         static readonly List<EffectState> SharedStates = new();
+        static readonly List<int> SharedIndices = new();
+        static readonly EffectStateIndexComparer SharedIndexComparer = new();
+
+        sealed class EffectStateIndexComparer : IComparer<int>
+        {
+            public int Compare(int left, int right)
+            {
+                var compare = SharedStates[left].SortOrder.CompareTo(SharedStates[right].SortOrder);
+                if (compare != 0)
+                    return compare;
+
+                return left.CompareTo(right);
+            }
+        }
 
         public string SourceTypeName => "StatusEffectDescriptions";
         public string GetDebugData => $"{actorSource.Kind} exclude={excludedDefinitionIds?.Count ?? 0}";
@@ -55,7 +85,7 @@ namespace Game.Common
             if (scope == null)
                 return DynamicVariant.FromString(string.Empty);
 
-            if (!TryResolveStatusEffectService(scope, out var service) || service == null)
+            if (!StatusEffectSourceUtility.TryResolveStatusEffectService(scope, out var service) || service == null)
                 return DynamicVariant.FromString(string.Empty);
 
             SharedStates.Clear();
@@ -63,10 +93,17 @@ namespace Game.Common
             if (SharedStates.Count == 0)
                 return DynamicVariant.FromString(string.Empty);
 
-            var builder = new StringBuilder();
+            SharedIndices.Clear();
             for (int i = 0; i < SharedStates.Count; i++)
+                SharedIndices.Add(i);
+
+            if (SharedIndices.Count > 1)
+                SharedIndices.Sort(SharedIndexComparer);
+
+            var builder = new StringBuilder();
+            for (int i = 0; i < SharedIndices.Count; i++)
             {
-                var state = SharedStates[i];
+                var state = SharedStates[SharedIndices[i]];
                 if (ShouldExclude(state.EffectId))
                     continue;
 
@@ -137,17 +174,54 @@ namespace Game.Common
                 service.TryEvaluate(key, context, out text);
         }
 
-        static bool TryResolveStatusEffectService(
-            IScopeNode origin,
-            out IStatusEffectService? service)
+    }
+
+    [Serializable]
+    public sealed class StatusEffectOperationEnabledBoolSource : IDynamicSource
+    {
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
+        [SerializeField]
+        [Tooltip("IStatusEffectService を解決する対象 Actor を指定します。")]
+        ActorSource targetActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [LabelText("Definition")]
+        [SerializeField]
+        [Tooltip("対象の StatusEffect 定義です。DefinitionId で runtime を照合します。")]
+        DynamicValue<BaseStatusEffectDefinitionData> definition;
+
+        [LabelText("Operation Id")]
+        [SerializeField]
+        [Tooltip("有効状態を確認する operationId です。")]
+        DynamicValue<string> operationId;
+
+        [NonSerialized]
+        ActorSourceResolveCache _targetActorCache;
+
+        public string SourceTypeName => "StatusEffectOperationEnabled";
+        public string GetDebugData => $"{targetActorSource.Kind} def={definition.SourceDebugData} op={operationId.SourceDebugData}";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
         {
-            service = null;
+            if (context == null)
+                return DynamicVariant.FromBool(false);
 
-            var resolver = origin?.Resolver;
-            if (resolver == null)
-                return false;
+            var resolvedOperationId = operationId.GetOrDefault(context, string.Empty);
+            if (string.IsNullOrWhiteSpace(resolvedOperationId))
+                return DynamicVariant.FromBool(false);
 
-            return resolver.TryResolve<IStatusEffectService>(out service) && service != null;
+            var resolvedDefinition = definition.GetOrDefault(context, default!);
+            if (resolvedDefinition == null || string.IsNullOrWhiteSpace(resolvedDefinition.DefinitionId))
+                return DynamicVariant.FromBool(false);
+
+            var scope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache);
+            if (scope == null)
+                return DynamicVariant.FromBool(false);
+
+            if (!StatusEffectSourceUtility.TryResolveStatusEffectService(scope, out var service) || service == null)
+                return DynamicVariant.FromBool(false);
+
+            var filter = new StatusEffectRuntimeFilter(StatusEffectRuntimeFilterMode.DefinitionId, resolvedDefinition.DefinitionId);
+            return DynamicVariant.FromBool(service.IsAnyOperationEnabled(filter, resolvedOperationId));
         }
     }
 }

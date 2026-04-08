@@ -106,6 +106,24 @@ namespace Game.Commands.VNext
         [LabelText("Start Value")]
         public DynamicValue<float> CountStartValue;
 
+        [BoxGroup("Dynamic Bind")]
+        [ShowIf(nameof(ShouldShowDynamicBindToggle))]
+        [LabelText("Enable")]
+        [PropertyTooltip("SetText 実行後に Text DynamicValue<string> の継続監視を登録します。次の SetText/Append/Clear で解除されます。")]
+        public bool EnableDynamicBind;
+
+        [BoxGroup("Dynamic Bind")]
+        [ShowIf(nameof(ShouldShowDynamicBindMode))]
+        [LabelText("Update Play Mode")]
+        [PropertyTooltip("バインド更新時に使う再生モード。Typewriter は非対応です。")]
+        public TextDynamicBindingPlayMode DynamicBindPlayMode = TextDynamicBindingPlayMode.Instant;
+
+        [BoxGroup("Dynamic Bind")]
+        [ShowIf(nameof(ShouldShowDynamicBindCounterSettings))]
+        [LabelText("Counter Settings")]
+        [PropertyTooltip("Update Play Mode=Counter のときに使用するカウンター設定です。")]
+        public SetTextSettings DynamicBindCounterSettings = SetTextSettings.Default;
+
         [BoxGroup("Visibility")]
         [ShowIf("@Mode == TextChannelCommandMode.Single && Action == TextChannelCommandAction.SetVisible")]
         [LabelText("Visible")]
@@ -142,6 +160,23 @@ namespace Game.Commands.VNext
                    (Action == TextChannelCommandAction.SetText || Action == TextChannelCommandAction.Append) &&
                    PlayMode == TextPlayMode.Typewriter &&
                    ApplyTypewriterEventCommands;
+        }
+
+        bool ShouldShowDynamicBindToggle()
+        {
+            return Mode == TextChannelCommandMode.Single &&
+                   ApplyText &&
+                   Action == TextChannelCommandAction.SetText;
+        }
+
+        bool ShouldShowDynamicBindMode()
+        {
+            return ShouldShowDynamicBindToggle() && EnableDynamicBind;
+        }
+
+        bool ShouldShowDynamicBindCounterSettings()
+        {
+            return ShouldShowDynamicBindMode() && DynamicBindPlayMode == TextDynamicBindingPlayMode.Counter;
         }
     }
 }

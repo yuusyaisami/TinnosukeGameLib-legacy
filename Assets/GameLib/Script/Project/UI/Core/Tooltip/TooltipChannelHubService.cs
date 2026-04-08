@@ -5,6 +5,7 @@ using Game;
 using Game.CameraSystem;
 using Game.Common;
 using Game.Input;
+using Game.SelectRuntime;
 using Game.Spawn;
 using UnityEngine;
 using VContainer;
@@ -42,6 +43,7 @@ namespace Game.UI
         IScopeNode? _activeScope;
         IUIInputService? _uiInputService;
         IPointerService? _pointerService;
+        IWorldPointerRuntimeService? _worldPointerService;
         IUISelectionState? _selectionState;
         IUIModalStackService? _modalStackService;
         ISceneSpawnerRegistry? _spawnerRegistry;
@@ -60,6 +62,7 @@ namespace Game.UI
         int _cachedClampScreenHeight;
         bool _hasCachedClampRect;
         TooltipChannelSpaceKind _spaceKind = TooltipChannelSpaceKind.Unknown;
+        TooltipChannelRenderSpaceKind _renderSpaceKind = TooltipChannelRenderSpaceKind.Auto;
         int _nextDynamicOrder;
         bool _isAcquired;
 
@@ -74,12 +77,15 @@ namespace Game.UI
 
         internal TooltipHubPreset CurrentHubPreset => _currentHubPreset;
         internal TooltipHitTestPreset CurrentDefaultHitTest => _currentDefaultHitTest;
-        internal TooltipChannelSpaceKind CurrentSpaceKind => _spaceKind;
+        internal TooltipChannelSpaceKind CurrentTriggerSpaceKind => _spaceKind;
+        internal TooltipChannelRenderSpaceKind CurrentRenderSpaceKind => _renderSpaceKind;
+        internal bool EnableDebugLog => _mb.EnableDebugLog;
         internal ITooltipSystemService? TooltipSystemService => _tooltipSystemService;
         internal RectTransform? UiRoot => _uiRoot;
         internal Transform? WorldRoot => _worldRoot;
         internal ISceneSpawnerRegistry? SpawnerRegistry => _spawnerRegistry;
         internal IPointerService? PointerService => _pointerService;
+        internal IWorldPointerRuntimeService? WorldPointerService => _worldPointerService;
         internal IUISelectionState? SelectionState => _selectionState;
         internal IUIModalStackService? ModalStackService => _modalStackService;
         internal int ResolveSpawnWarmupFrames()
@@ -105,7 +111,8 @@ namespace Game.UI
             ResolveRoots();
             ResolveHubPreset(scope);
             ResolveSpaceAndSolver();
-            if (_spaceKind == TooltipChannelSpaceKind.UIScreen && _uiRoot == null)
+            LogDebug($"Acquire. TriggerSpace={_spaceKind} RenderSpace={_renderSpaceKind} UiRoot={DescribeObject(_uiRoot)} WorldRoot={DescribeObject(_worldRoot)}");
+            if (_renderSpaceKind == TooltipChannelRenderSpaceKind.UIScreen && _uiRoot == null)
             {
                 Debug.LogWarning($"[TooltipChannelHub] UI space hub requires TooltipSystem.TooltipRoot or Tooltip Root Override. Hub '{scope.Identity?.Id ?? scope.Identity?.SelfTransform?.name ?? gameObjectName()}' is disabled.");
                 return;
@@ -121,6 +128,7 @@ namespace Game.UI
             _activeScope = null;
             _uiInputService = null;
             _pointerService = null;
+            _worldPointerService = null;
             _selectionState = null;
             _modalStackService = null;
             _spawnerRegistry = null;
@@ -128,6 +136,7 @@ namespace Game.UI
             _tooltipSystemService = null;
             _solver = null;
             _spaceKind = TooltipChannelSpaceKind.Unknown;
+            _renderSpaceKind = TooltipChannelRenderSpaceKind.Auto;
             _uiRoot = null;
             _worldRoot = null;
             _clampArea = null;
@@ -184,7 +193,7 @@ namespace Game.UI
             var screenRect = ResolveClampScreenRect(camera);
             for (var i = 0; i < _requests.Count; i++)
             {
-                var solution = _solver.Solve(_requests[i], _solutions, _currentHubPreset, screenRect, _screenClampService);
+                var solution = _solver.Solve(_requests[i], _solutions, camera, _currentHubPreset, screenRect, _screenClampService);
                 _solutions.Add(solution);
             }
 
@@ -311,6 +320,7 @@ namespace Game.UI
         {
             scope.TryResolveInAncestors(out _uiInputService);
             scope.TryResolveInAncestors(out _pointerService);
+            scope.TryResolveInAncestors(out _worldPointerService);
             scope.TryResolveInAncestors(out _selectionState);
             scope.TryResolveInAncestors(out _modalStackService);
             scope.TryResolveInAncestors(out _spawnerRegistry);
@@ -346,7 +356,17 @@ namespace Game.UI
         void ResolveHubPreset(IScopeNode scope)
         {
             var context = CreateDynamicContext(scope);
-            _baseHubPreset = ResolveHubPreset(_mb.HubPresetValue, context);
+            if (_mb.ApplyHubPresetOverride)
+            {
+                _baseHubPreset = ResolveHubPreset(_mb.HubPresetValue, context);
+            }
+            else
+            {
+                _baseHubPreset = _tooltipSystemService != null
+                    ? _tooltipSystemService.SharedHubPreset.CreateRuntimeCopy()
+                    : new TooltipHubPreset();
+            }
+
             _currentHubPreset = _baseHubPreset.CreateRuntimeCopy();
             _baseDefaultHitTest = ResolveHitTestPreset(_currentHubPreset.DefaultHitTestValue, context, TooltipHitTestPreset.CreateOwnerDefault());
             _currentDefaultHitTest = _baseDefaultHitTest.CreateRuntimeCopy();
@@ -357,9 +377,21 @@ namespace Game.UI
             _spaceKind = _mb.SpaceKind;
             if (_spaceKind == TooltipChannelSpaceKind.Unknown)
                 _spaceKind = _uiRoot != null ? TooltipChannelSpaceKind.UIScreen : TooltipChannelSpaceKind.World;
-            _solver = _spaceKind == TooltipChannelSpaceKind.UIScreen
+            _renderSpaceKind = ResolveRenderSpaceKind(_currentHubPreset.RenderSpace, _uiRoot);
+            _solver = _renderSpaceKind == TooltipChannelRenderSpaceKind.UIScreen
                 ? new UITooltipPlacementSolver()
                 : new WorldTooltipPlacementSolver();
+        }
+
+        static TooltipChannelRenderSpaceKind ResolveRenderSpaceKind(TooltipChannelRenderSpaceKind configured, RectTransform? uiRoot)
+        {
+            if (configured == TooltipChannelRenderSpaceKind.UIScreen)
+                return uiRoot != null ? TooltipChannelRenderSpaceKind.UIScreen : TooltipChannelRenderSpaceKind.World;
+
+            if (configured == TooltipChannelRenderSpaceKind.World)
+                return TooltipChannelRenderSpaceKind.World;
+
+            return uiRoot != null ? TooltipChannelRenderSpaceKind.UIScreen : TooltipChannelRenderSpaceKind.World;
         }
 
         void RebuildChannels(IScopeNode scope, bool isReset)
@@ -386,6 +418,8 @@ namespace Game.UI
                 _channels.Add(tag, entry);
                 _orderedChannels.Add(entry);
             }
+
+            LogDebug($"Channels rebuilt. Count={_orderedChannels.Count}");
         }
 
         void ReleaseChannels(IScopeNode scope, bool isReset)
@@ -417,7 +451,7 @@ namespace Game.UI
                 return resolvedCamera;
             }
 
-            if (_spaceKind == TooltipChannelSpaceKind.UIScreen && _uiRootCanvas != null)
+            if (_renderSpaceKind == TooltipChannelRenderSpaceKind.UIScreen && _uiRootCanvas != null)
             {
                 if (_uiRootCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
                     return null;
@@ -575,6 +609,25 @@ namespace Game.UI
         static string NormalizeTag(string? tag)
         {
             return string.IsNullOrWhiteSpace(tag) ? "default" : tag.Trim();
+        }
+
+        void LogDebug(string message)
+        {
+            if (!_mb.EnableDebugLog)
+                return;
+
+            Debug.Log($"[TooltipChannelHub] {message}");
+        }
+
+        static string DescribeObject(UnityEngine.Object? obj)
+        {
+            if (obj == null)
+                return "null";
+
+            if (obj is Component component)
+                return $"{component.GetType().Name}({component.gameObject.name})";
+
+            return obj.name;
         }
 
         string gameObjectName()

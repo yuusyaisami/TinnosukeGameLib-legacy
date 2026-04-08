@@ -255,6 +255,9 @@ namespace Game.Common
 
         int ResolveVarId()
         {
+            if (key.VarId > 0)
+                return key.VarId;
+
             if (!string.IsNullOrWhiteSpace(key.StableKey) &&
                 VarIdResolver.TryResolve(key.StableKey, out var resolved) &&
                 resolved > 0)
@@ -262,7 +265,7 @@ namespace Game.Common
                 return resolved;
             }
 
-            return key.VarId;
+            return 0;
         }
 
         string GetVarKeyDebugLabel()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Game.Commands.VNext;
 using Game.Common;
 using Game.DI;
+using Game.SelectRuntime;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -12,6 +13,13 @@ namespace Game.UI
     public enum TooltipChannelSpaceKind
     {
         Unknown = 0,
+        UIScreen = 10,
+        World = 20,
+    }
+
+    public enum TooltipChannelRenderSpaceKind
+    {
+        Auto = 0,
         UIScreen = 10,
         World = 20,
     }
@@ -95,6 +103,10 @@ namespace Game.UI
         OwnerSpriteRenderer = 20,
         ActorRectTransform = 30,
         ActorSpriteRenderer = 40,
+        OwnerWorldPointerTarget = 50,
+        ActorWorldPointerTarget = 60,
+        OwnerSelectablePointerTarget = 70,
+        ActorSelectablePointerTarget = 80,
     }
 
     public interface ITooltipChannelPlayer
@@ -155,7 +167,7 @@ namespace Game.UI
         [BoxGroup("Target")]
         [ShowIf(nameof(UsesActorSource))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Actor Source\", _actorSource)")]
-        [Tooltip("Actor 系 target を使うときの解決先です。RectTransform/SpriteRenderer はその scope の SelfTransform から取得します。")]
+        [Tooltip("Actor 系 target を使うときの解決先です。RectTransform/SpriteRenderer/WorldPointerTarget はその scope の SelfTransform から取得します。")]
         [SerializeField]
         ActorSource _actorSource = new() { Kind = ActorSourceKind.Current };
 
@@ -181,7 +193,9 @@ namespace Game.UI
 
         bool UsesActorSource =>
             _kind == TooltipHitTestTargetKind.ActorRectTransform ||
-            _kind == TooltipHitTestTargetKind.ActorSpriteRenderer;
+            _kind == TooltipHitTestTargetKind.ActorSpriteRenderer ||
+            _kind == TooltipHitTestTargetKind.ActorWorldPointerTarget ||
+            _kind == TooltipHitTestTargetKind.ActorSelectablePointerTarget;
     }
 
     [Serializable]
@@ -395,7 +409,7 @@ namespace Game.UI
         [ShowIf(nameof(ShowsInputOverrideFields))]
         [LabelText("Pointer Move Threshold")]
         [MinValue(0d)]
-        [Tooltip("表示中に pointer がこの距離以上動いたら auto trigger を解除します。")]
+        [Tooltip("hover delay 計測中に pointer がこの距離以上動いたら待機をやり直します。")]
         [SerializeField]
         float _pointerMoveThreshold = 2f;
 
@@ -408,10 +422,10 @@ namespace Game.UI
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsFollowPointerFields))]
-        [LabelText("Follow Pointer Offset")]
-        [Tooltip("pointer follow の基準オフセットです。UI では local 単位、World では world 単位です。")]
+        [LabelText("Follow Pointer Direction Offset")]
+        [Tooltip("pointer follow の基準方向オフセットです。UI では TooltipRoot 基準の anchored/local 座標、World では world 座標です。X/Y は最終 anchor 方向に応じて符号が決まり、Z は固定加算です。")]
         [SerializeField]
-        Vector2 _followPointerOffset = Vector2.zero;
+        Vector3 _followPointerDirectionOffset = Vector3.zero;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsFollowPointerFields))]
@@ -422,10 +436,10 @@ namespace Game.UI
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsFixedOffsetFields))]
-        [LabelText("Fixed Offset")]
-        [Tooltip("anchor actor からの固定オフセットです。UI では local 単位、World では world 単位です。")]
+        [LabelText("Fixed Direction Offset")]
+        [Tooltip("anchor actor からの固定方向オフセットです。UI では TooltipRoot 基準の anchored/local 座標、World では world 座標です。X/Y は最終 anchor 方向に応じて符号が決まり、Z は固定加算です。")]
         [SerializeField]
-        Vector2 _fixedOffset = Vector2.zero;
+        Vector3 _fixedDirectionOffset = Vector3.zero;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsPlacementOverrideFields))]
@@ -471,9 +485,9 @@ namespace Game.UI
         public float SelectionDelaySeconds => Mathf.Max(0f, _selectionDelaySeconds);
         public float PointerMoveThreshold => Mathf.Max(0f, _pointerMoveThreshold);
         public TooltipChannelSpawnMode SpawnMode => _spawnMode;
-        public Vector2 FollowPointerOffset => _followPointerOffset;
+        public Vector3 FollowPointerDirectionOffset => _followPointerDirectionOffset;
         public Vector2 FollowPointerMoveScale => _followPointerMoveScale;
-        public Vector2 FixedOffset => _fixedOffset;
+        public Vector3 FixedDirectionOffset => _fixedDirectionOffset;
         public TooltipChannelAnchorX AnchorX => _anchorX;
         public TooltipChannelAnchorY AnchorY => _anchorY;
         public DynamicValue<TooltipHitTestPreset> HitTestValue => _hitTestValue;
@@ -497,9 +511,9 @@ namespace Game.UI
                 _selectionDelaySeconds = _selectionDelaySeconds,
                 _pointerMoveThreshold = _pointerMoveThreshold,
                 _spawnMode = _spawnMode,
-                _followPointerOffset = _followPointerOffset,
+                _followPointerDirectionOffset = _followPointerDirectionOffset,
                 _followPointerMoveScale = _followPointerMoveScale,
-                _fixedOffset = _fixedOffset,
+                _fixedDirectionOffset = _fixedDirectionOffset,
                 _anchorX = _anchorX,
                 _anchorY = _anchorY,
                 _hitTestValue = _hitTestValue,
@@ -517,6 +531,12 @@ namespace Game.UI
     [Serializable]
     public sealed class TooltipHubPreset : IDynamicManagedRefValue
     {
+        [BoxGroup("Render")]
+        [LabelText("Render Space")]
+        [Tooltip("tooltip を実際に spawn / placement する空間です。Trigger の hit test 空間とは別です。既定は UIScreen です。")]
+        [SerializeField]
+        TooltipChannelRenderSpaceKind _renderSpace = TooltipChannelRenderSpaceKind.UIScreen;
+
         [BoxGroup("Camera")]
         [LabelText("Camera Location Tag")]
         [Tooltip("camera 解決に使う CameraLocation tag です。空白の場合は default を使用します。")]
@@ -579,6 +599,7 @@ namespace Game.UI
         [SerializeField]
         int _spawnWarmupFrames = 2;
 
+        public TooltipChannelRenderSpaceKind RenderSpace => _renderSpace;
         public string CameraLocationTag => string.IsNullOrWhiteSpace(_cameraLocationTag) ? "default" : _cameraLocationTag.Trim();
         public TooltipChannelInputMode InputMode => _inputMode;
         public DynamicValue<TooltipHitTestPreset> DefaultHitTestValue => _defaultHitTestValue;
@@ -593,6 +614,7 @@ namespace Game.UI
         {
             return new TooltipHubPreset
             {
+                _renderSpace = _renderSpace,
                 _cameraLocationTag = _cameraLocationTag,
                 _inputMode = _inputMode,
                 _defaultHitTestValue = _defaultHitTestValue,

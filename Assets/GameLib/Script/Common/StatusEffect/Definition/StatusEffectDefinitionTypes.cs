@@ -454,6 +454,7 @@ namespace Game.StatusEffect
 
     public interface IStatusEffectOperationDefinition
     {
+        bool Enabled { get; }
         bool TryBuild(StatusEffectBuildContext context, out IStatusEffectOperationRuntime runtime);
     }
 
@@ -473,6 +474,10 @@ namespace Game.StatusEffect
     [Serializable]
     public sealed class ScalarModifierOperationDefinition : IStatusEffectOperationDefinition
     {
+        [LabelText("Enabled")]
+        [Tooltip("定義登録時の初期有効状態です。false の場合でも operation runtime は生成されますが、最初は無効です。")]
+        public bool Enabled = true;
+
         [LabelText("Target Key")]
         [Tooltip("変更対象の scalar key です。")]
         public ScalarKey TargetKey;
@@ -519,6 +524,8 @@ namespace Game.StatusEffect
         bool UsesDynamicValue() => ValueMode == StatusEffectScalarValueMode.DynamicValue;
         bool UsesRuntimeIntensity() => ValueMode == StatusEffectScalarValueMode.RuntimeIntensity;
 
+        bool IStatusEffectOperationDefinition.Enabled => Enabled;
+
         public bool TryBuild(StatusEffectBuildContext context, out IStatusEffectOperationRuntime runtime)
         {
             runtime = default!;
@@ -555,7 +562,8 @@ namespace Game.StatusEffect
                 RuntimeIntensitySlot,
                 valueExpression,
                 evaluationContext,
-                context.Definition.DefinitionId);
+                context.Definition.DefinitionId,
+                Enabled);
             return true;
         }
     }
@@ -792,7 +800,8 @@ namespace Game.StatusEffect
             StatusEffectRuntimeIntensityReference runtimeIntensitySlot,
             DynamicValue<float> value,
             IDynamicContext evaluationContext,
-            string definitionId)
+            string definitionId,
+            bool isInitiallyEnabled)
         {
             _targetScope = targetScope;
             _scalarService = scalarService;
@@ -805,9 +814,9 @@ namespace Game.StatusEffect
             _runtimeIntensitySlot = runtimeIntensitySlot;
             _value = value;
             _evaluationContext = evaluationContext;
-            _tag = BuildTag(definitionId, _operationId);
+            _tag = BuildTag(definitionId, _operationId, Guid.NewGuid().ToString("N"));
             _source = targetScope;
-            _isExternallyEnabled = true;
+            _isExternallyEnabled = isInitiallyEnabled;
         }
 
         public string OperationId => _operationId;
@@ -900,13 +909,15 @@ namespace Game.StatusEffect
                 ? ResolveRuntimeIntensity()
                 : _value.GetOrDefault(_evaluationContext, _applyMode == ScalarModifierApplyMode.Mul ? 1f : 0f);
 
-        static string BuildTag(string definitionId, string operationId)
+        static string BuildTag(string definitionId, string operationId, string runtimeOperationId)
         {
             var baseTag = string.IsNullOrWhiteSpace(definitionId) ? "StatusEffect" : definitionId;
-            if (string.IsNullOrWhiteSpace(operationId))
-                return baseTag;
+            if (!string.IsNullOrWhiteSpace(operationId))
+                baseTag = $"{baseTag}:{operationId}";
 
-            return $"{baseTag}:{operationId}";
+            return string.IsNullOrWhiteSpace(runtimeOperationId)
+                ? baseTag
+                : $"{baseTag}:{runtimeOperationId}";
         }
 
         float ResolveRuntimeIntensity()

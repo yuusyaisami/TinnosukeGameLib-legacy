@@ -278,6 +278,8 @@ namespace Game.Targeting
                     originSource: preset.OriginSource,
                     forwardSource: preset.ForwardSource,
                         scopeRequireActive: preset.ScopeRequireActive,
+                    monitorActiveState: preset.MonitorActiveState,
+                    directTargetValidDistance: preset.DirectTargetValidDistance,
                         collisionRangeSource: preset.CollisionRangeSource,
                         collisionAreaTag: preset.CollisionAreaTag,
                         collisionFilterSummary: collisionFilterSummary));

@@ -124,10 +124,10 @@ namespace Game.StatusEffect
 
             if (_effects.TryGetValue(slotKey, out var existing) && existing != null)
             {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.Log(
-                    $"[StatusEffectService] TryApply reuse definition={definition.DefinitionId} slot={slotKey} instance={existing.InstanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
-#endif
+                //#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                //                Debug.Log(
+                //                    $"[StatusEffectService] TryApply reuse definition={definition.DefinitionId} slot={slotKey} instance={existing.InstanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
+                //#endif
                 var stackContext = new StatusEffectBuildContext(
                     _scope,
                     evalContext.Vars,
@@ -168,21 +168,21 @@ namespace Game.StatusEffect
             _effects[slotKey] = runtime;
             if (_isActive)
             {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.Log(
-                    $"[StatusEffectService] TryApply immediate ApplyInitial definition={definition.DefinitionId} slot={slotKey} instance={instanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
-#endif
+                //#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                //                Debug.Log(
+                //                    $"[StatusEffectService] TryApply immediate ApplyInitial definition={definition.DefinitionId} slot={slotKey} instance={instanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
+                //#endif
                 runtime.ApplyInitial();
                 runtime.RefreshFromServiceGlobalState(applyActions: true);
             }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (!_isActive)
-            {
-                Debug.Log(
-                    $"[StatusEffectService] TryApply created while inactive definition={definition.DefinitionId} slot={slotKey} instance={instanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
-            }
-#endif
+            //#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            //            if (!_isActive)
+            //            {
+            //                Debug.Log(
+            //                    $"[StatusEffectService] TryApply created while inactive definition={definition.DefinitionId} slot={slotKey} instance={instanceId} tag={runtimeTag} active={_isActive} hookMutations={hookMutationLabel}");
+            //            }
+            //#endif
 
             if (runtime.IsRemoveRequested)
             {
@@ -409,6 +409,23 @@ namespace Game.StatusEffect
             return false;
         }
 
+        public bool IsAnyOperationEnabled(StatusEffectRuntimeFilter filter, string operationId)
+        {
+            if (_disposed || string.IsNullOrWhiteSpace(operationId))
+                return false;
+
+            foreach (var runtime in _effects.Values)
+            {
+                if (runtime == null || !filter.Matches(runtime))
+                    continue;
+
+                if (runtime.IsAnyOperationEnabled(operationId))
+                    return true;
+            }
+
+            return false;
+        }
+
         public bool TryGetRegisteredDefinition(StatusEffectRuntimeFilter filter, out BaseStatusEffectDefinitionData definition)
         {
             definition = default!;
@@ -585,7 +602,15 @@ namespace Game.StatusEffect
 
                 if (!operation.TryBuild(buildContext, out var opRuntime) || opRuntime == null)
                 {
-                    Debug.LogWarning($"[StatusEffectService] Failed to build operation. DefinitionId={definition.DefinitionId} OperationType={operation.GetType().Name}");
+                    if (!operation.Enabled)
+                    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                        Debug.LogWarning($"[StatusEffectService] Skipped disabled invalid operation. DefinitionId={definition.DefinitionId} OperationIndex={i} OperationType={operation.GetType().Name}");
+#endif
+                        continue;
+                    }
+
+                    Debug.LogWarning($"[StatusEffectService] Failed to build operation. DefinitionId={definition.DefinitionId} OperationIndex={i} OperationType={operation.GetType().Name}");
                     return false;
                 }
 

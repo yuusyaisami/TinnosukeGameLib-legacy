@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using Game;
 using Game.Commands;
 using Game.Common;
@@ -262,7 +263,7 @@ namespace Game.Commands.VNext
                         if (MatchesIdentity(node, filter))
                             return node;
                     }
-                    return null;
+                    return ResolveByIdentityTransformFallback(origin, filter);
 
                 case CommandTargetSearchScope.All:
                 default:
@@ -279,9 +280,97 @@ namespace Game.Commands.VNext
                             if (MatchesIdentity(node, filter))
                                 return node;
                         }
-                        return null;
+
+                        return ResolveByIdentityTransformFallback(origin, filter);
                     }
             }
+        }
+
+        static IScopeNode? ResolveByIdentityTransformFallback(IScopeNode origin, in CommandTargetIdentityFilter filter)
+        {
+            var originTransform = origin.Identity?.SelfTransform;
+            if (originTransform == null)
+                return null;
+
+            switch (filter.searchScope)
+            {
+                case CommandTargetSearchScope.AncestorsOnly:
+                    for (var current = originTransform.parent; current != null; current = current.parent)
+                    {
+                        if (TryResolveMatchingScope(current, filter, out var scope))
+                            return scope;
+                    }
+                    return null;
+
+                case CommandTargetSearchScope.DescendantsOnly:
+                    return FindMatchingScopeInSubtree(originTransform, filter, includeSelf: false);
+
+                case CommandTargetSearchScope.All:
+                default:
+                    {
+                        var root = originTransform;
+                        while (root.parent != null)
+                            root = root.parent;
+
+                        return FindMatchingScopeInSubtree(root, filter, includeSelf: true);
+                    }
+            }
+        }
+
+        static IScopeNode? FindMatchingScopeInSubtree(Transform root, in CommandTargetIdentityFilter filter, bool includeSelf)
+        {
+            if (root == null)
+                return null;
+
+            var queue = new Queue<Transform>();
+            if (includeSelf)
+            {
+                queue.Enqueue(root);
+            }
+            else
+            {
+                for (var i = 0; i < root.childCount; i++)
+                    queue.Enqueue(root.GetChild(i));
+            }
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                if (TryResolveMatchingScope(current, filter, out var scope))
+                    return scope;
+
+                for (var i = 0; i < current.childCount; i++)
+                    queue.Enqueue(current.GetChild(i));
+            }
+
+            return null;
+        }
+
+        static bool TryResolveMatchingScope(Transform transform, in CommandTargetIdentityFilter filter, out IScopeNode? scope)
+        {
+            scope = null;
+            if (transform == null)
+                return false;
+
+            if (!transform.TryGetComponent<LTSIdentityMB>(out var identityMB) || identityMB == null)
+                return false;
+
+            if (!MatchesIdentity(identityMB, filter))
+                return false;
+
+            if (transform.TryGetComponent<BaseLifetimeScope>(out var baseScope) && baseScope != null)
+            {
+                scope = baseScope;
+                return true;
+            }
+
+            if (transform.TryGetComponent<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            {
+                scope = runtimeScope;
+                return true;
+            }
+
+            return false;
         }
 
         static IScopeNode? ResolveGameLogicRoot(IScopeNode origin)
@@ -411,6 +500,26 @@ namespace Game.Commands.VNext
 
             if (!string.IsNullOrEmpty(filter.category) &&
                 !string.Equals(identity.Category, filter.category, StringComparison.Ordinal))
+                return false;
+
+            return true;
+        }
+
+        static bool MatchesIdentity(LTSIdentityMB identity, in CommandTargetIdentityFilter filter)
+        {
+            if (identity == null)
+                return false;
+
+            if (filter.requireActive && !identity.gameObject.activeInHierarchy)
+                return false;
+
+            if (filter.kind != LifetimeScopeKind.None && identity.kind != filter.kind)
+                return false;
+
+            if (!string.IsNullOrEmpty(filter.id) && !string.Equals(identity.id, filter.id, StringComparison.Ordinal))
+                return false;
+
+            if (!string.IsNullOrEmpty(filter.category) && !string.Equals(identity.category, filter.category, StringComparison.Ordinal))
                 return false;
 
             return true;

@@ -332,6 +332,7 @@ namespace Game.Trait
                     ExecuteDefinitionPresentationCommands(runtimeScope, TraitRuntimePresentationState.Hidden);
                 }
 
+                runtimeScope.RuntimeIdentity.IsActive = false;
                 runtimeScope.TrySetVisible(false);
                 _hasAppliedPresentationState = true;
                 _appliedPresentationState = TraitRuntimePresentationState.Hidden;
@@ -345,6 +346,7 @@ namespace Game.Trait
                     runtimeScope.transform.SetPositionAndRotation(_visiblePosition, _visibleRotation);
                 }
 
+                runtimeScope.RuntimeIdentity.IsActive = true;
                 runtimeScope.TrySetVisible(true);
                 _isHidden = false;
                 if (previousState != TraitRuntimePresentationState.Visible)
@@ -434,8 +436,9 @@ namespace Game.Trait
             if (resolver != null &&
                 resolver.TryResolve<IBlackboardService>(out var blackboard) &&
                 blackboard != null &&
-                blackboard.LocalVars.TryGetManagedRef(VarIds.GameLib.Base.Trait.Element.definitionAsset, out var managed) &&
-                managed is TraitDefinitionSO blackboardDefinition)
+                blackboard.LocalVars.TryGetVariant(VarIds.GameLib.Base.Trait.Element.definitionAsset, out var variant) &&
+                variant.TryGet<TraitDefinitionSO>(out var blackboardDefinition) &&
+                blackboardDefinition != null)
             {
                 return blackboardDefinition;
             }

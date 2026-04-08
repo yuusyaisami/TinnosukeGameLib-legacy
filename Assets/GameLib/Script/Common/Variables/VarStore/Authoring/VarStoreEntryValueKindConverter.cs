@@ -49,6 +49,17 @@ namespace Game.Common
                 || kind == VarStorePayload.EntryValueKind.CommandListData;
         }
 
+        public static bool TryCoerceToKind(VarStorePayload.EntryValueKind kind, in DynamicVariant source, out DynamicVariant value)
+        {
+            if (kind == VarStorePayload.EntryValueKind.Auto)
+            {
+                value = source;
+                return true;
+            }
+
+            return TryCoerce(kind, in source, out value);
+        }
+
         static bool TryCoerce(VarStorePayload.EntryValueKind kind, in DynamicVariant source, out DynamicVariant value)
         {
             value = DynamicVariant.Null;

@@ -125,8 +125,8 @@ namespace Game.Trait
             if (!ReferenceEquals(_ownerScope, scope))
                 return;
 
-            UnityEngine.Debug.Log(
-                $"[TraitHolderHubService][OnRelease] scope='{DescribeScope(scope)}' isReset={isReset} holderCount={_holderList.Count}");
+            //UnityEngine.Debug.Log(
+            //    $"[TraitHolderHubService][OnRelease] scope='{DescribeScope(scope)}' isReset={isReset} holderCount={_holderList.Count}");
             if (_holderList.Count == 0)
                 return;
 

@@ -71,7 +71,8 @@ namespace Game.Profile.Editor
                 if (hasQuery)
                 {
                     _showFullProfilesList = EditorGUILayout.ToggleLeft("Show Full Profiles List", _showFullProfilesList);
-                    DrawFilteredEntries(profilesProperty);
+                    if (!_showFullProfilesList)
+                        DrawFilteredEntries(profilesProperty);
                 }
                 else
                 {

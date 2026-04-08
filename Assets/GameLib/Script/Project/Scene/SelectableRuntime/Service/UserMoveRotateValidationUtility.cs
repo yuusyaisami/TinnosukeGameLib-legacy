@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Game.Channel;
 using Game.Commands.VNext;
+using Game.Common;
 using UnityEngine;
 using VContainer;
 
@@ -85,7 +86,7 @@ namespace Game.SelectRuntime
         {
             correctedPosition = worldPosition;
 
-            if (!TryResolveFirstAreaPlayer(request, out var player, out var basePosition))
+            if (!TryResolveFirstAreaPlayer(request, out var player, out var basePosition, out var dynamicContext))
                 return false;
 
             var shape = player.Definition.Shape;
@@ -100,11 +101,11 @@ namespace Game.SelectRuntime
             {
                 case CircleAreaShape circle:
                     {
-                        var outer = Mathf.Max(0f, circle.Radius);
+                        var outer = Mathf.Max(0f, circle.ResolveRadius(dynamicContext));
                         if (outer <= 0f)
                             return false;
 
-                        var inner = Mathf.Clamp(circle.InnerRadius, 0f, outer);
+                        var inner = Mathf.Clamp(circle.ResolveInnerRadius(dynamicContext), 0f, outer);
                         var magnitude = local.magnitude;
                         if (magnitude <= Mathf.Epsilon)
                         {
@@ -125,7 +126,7 @@ namespace Game.SelectRuntime
 
                 case RectAreaShape rect:
                     {
-                        var halfSize = rect.Size * 0.5f;
+                        var halfSize = rect.ResolveSize(dynamicContext) * 0.5f;
                         if (halfSize.x <= 0f && halfSize.y <= 0f)
                             return false;
 
@@ -172,10 +173,10 @@ namespace Game.SelectRuntime
             for (int i = 0; i < areaTags.Count; i++)
             {
                 var areaTag = areaTags[i];
-                if (!TryResolveAreaPlayer(request, areaTag, out var player, out var basePosition))
+                if (!TryResolveAreaPlayer(request, areaTag, out var player, out var basePosition, out var dynamicContext))
                     continue;
 
-                if (player.ContainsPosition(basePosition, position))
+                if (player.ContainsPosition(dynamicContext, basePosition, position))
                     return true;
             }
 
@@ -275,10 +276,12 @@ namespace Game.SelectRuntime
             UserMoveRotateValidationRequest request,
             string areaTag,
             out IAreaChannelPlayer player,
-            out Vector3 basePosition)
+            out Vector3 basePosition,
+            out IDynamicContext dynamicContext)
         {
             player = null!;
             basePosition = default;
+            dynamicContext = EmptyDynamicContext.Instance;
 
             if (string.IsNullOrWhiteSpace(areaTag))
                 return false;
@@ -294,6 +297,7 @@ namespace Game.SelectRuntime
                 return false;
 
             basePosition = ResolveAreaBasePosition(player.Definition, areaScope);
+            dynamicContext = AreaChannelDynamicContextUtility.CreateContext(areaScope);
             return true;
         }
 
@@ -319,7 +323,7 @@ namespace Game.SelectRuntime
 
         public static AreaPlane ResolvePlane(UserMoveRotateValidationRequest request, Vector3 currentPosition)
         {
-            if (TryResolveFirstAreaPlayer(request, out var player, out _))
+            if (TryResolveFirstAreaPlayer(request, out var player, out _, out _))
                 return player.Definition.Plane;
 
             return request.Editor.FallbackPlane;
@@ -327,7 +331,7 @@ namespace Game.SelectRuntime
 
         static Vector3 ResolvePlaneOrigin(UserMoveRotateValidationRequest request, Vector3 currentPosition)
         {
-            if (TryResolveFirstAreaPlayer(request, out _, out var basePosition))
+            if (TryResolveFirstAreaPlayer(request, out _, out var basePosition, out _))
                 return basePosition;
 
             return currentPosition;
@@ -336,10 +340,12 @@ namespace Game.SelectRuntime
         static bool TryResolveFirstAreaPlayer(
             UserMoveRotateValidationRequest request,
             out IAreaChannelPlayer player,
-            out Vector3 basePosition)
+            out Vector3 basePosition,
+            out IDynamicContext dynamicContext)
         {
             player = null!;
             basePosition = default;
+            dynamicContext = EmptyDynamicContext.Instance;
 
             if (!HasConfiguredAreaTags(request))
                 return false;
@@ -347,7 +353,7 @@ namespace Game.SelectRuntime
             var areaTags = request.Editor.AreaTags;
             for (int i = 0; i < areaTags.Count; i++)
             {
-                if (TryResolveAreaPlayer(request, areaTags[i], out player, out basePosition))
+                if (TryResolveAreaPlayer(request, areaTags[i], out player, out basePosition, out dynamicContext))
                     return true;
             }
 

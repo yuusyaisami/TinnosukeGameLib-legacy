@@ -449,7 +449,7 @@ namespace Game.UI
                     TryGetElementState(explicitTarget, out var explicitState);
                     if ((explicitState == null || explicitState.EvaluateIsSelectable()) &&
                         (explicitState == null || explicitState.EvaluateIsNavigationSelectable()) &&
-                        TestElementVisibilityAgainstParentMasks(explicitTarget, rootScope, camera))
+                        TestElementVisibilityAgainstParentMasks(explicitTarget, explicitState, rootScope, camera))
                     {
                         results.Add(SelectCandidate.FromExplicitLink(explicitTarget));
                         _navigationSelectionOrderCache[explicitTarget] = explicitState?.NavigationSelectionOrder ?? 0;
@@ -475,7 +475,7 @@ namespace Game.UI
                 var selectionOrder = state?.NavigationSelectionOrder ?? 0;
 
                 // Mask 判定: 親階層の全ての Mask をチェック
-                if (!TestElementVisibilityAgainstParentMasks(candidate, rootScope, camera))
+                if (!TestElementVisibilityAgainstParentMasks(candidate, state, rootScope, camera))
                 {
                     continue;
                 }
@@ -603,12 +603,69 @@ namespace Game.UI
             // GCアロケーション回避のため、キャッシュされた Comparer を使用
             results.Sort(_pointerComparer);
 
+            // Mask コンテナ自身が子UI候補を奪うのを避ける。
+            // 子候補が存在する場合は親 Mask 所有要素を pointer 候補から除外する。
+            SuppressMaskContainerCandidates(results);
+
             _lastPointerQueryFrame = Time.frameCount;
             _lastPointerQueryScreenPosition = screenPosition;
             _lastPointerQueryRootScope = rootScope;
             _lastPointerQueryResults.Clear();
             for (int i = 0; i < results.Count; i++)
                 _lastPointerQueryResults.Add(results[i]);
+        }
+
+        void SuppressMaskContainerCandidates(List<SelectCandidate> results)
+        {
+            if (results.Count <= 1)
+                return;
+
+            for (int i = results.Count - 1; i >= 0; i--)
+            {
+                var candidate = results[i].Element;
+                if (candidate == null || !IsMaskOwner(candidate))
+                    continue;
+
+                if (!TryGetElementTransform(candidate, out var candidateTransform))
+                    continue;
+
+                for (int j = 0; j < results.Count; j++)
+                {
+                    if (i == j)
+                        continue;
+
+                    var other = results[j].Element;
+                    if (other == null)
+                        continue;
+
+                    if (!TryGetElementTransform(other, out var otherTransform))
+                        continue;
+
+                    if (ReferenceEquals(otherTransform, candidateTransform))
+                        continue;
+
+                    if (otherTransform.IsChildOf(candidateTransform))
+                    {
+                        results.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+        }
+
+        static bool IsMaskOwner(Game.IScopeNode node)
+        {
+            if (node is Component component && component.GetComponent<UIRectMaskMB>() != null)
+                return true;
+
+            if (node.Identity?.SelfTransform != null && node.Identity.SelfTransform.GetComponent<UIRectMaskMB>() != null)
+                return true;
+
+            var resolver = node.Resolver;
+            if (resolver == null)
+                return false;
+
+            return resolver.TryResolve<IUIRectMaskService>(out var maskService) && maskService != null;
         }
 
         // ----------------------------------------------------------------
@@ -730,6 +787,7 @@ namespace Game.UI
         /// </summary>
         bool TestElementVisibilityAgainstParentMasks(
             Game.IScopeNode candidate,
+            IUIElementState? candidateState,
             Game.IScopeNode rootScope,
             Camera? camera)
         {
@@ -738,6 +796,20 @@ namespace Game.UI
             if (_maskBuffer.Count == 0)
             {
                 return true; // Mask がなければ通過
+            }
+
+            if (candidateState != null && candidateState.HitTestRects.Count > 0)
+            {
+                foreach (var maskService in _maskBuffer)
+                {
+                    var result = maskService.TestElementVisibility(candidateState.HitTestRects, camera);
+                    if (!result.Passed)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
             }
 
             // 候補の RectTransform を取得
@@ -1353,7 +1425,7 @@ namespace Game.UI
             }
         }
 
-        static int CompareAncestorFrontToBack(Game.IScopeNode a, Game.IScopeNode b)
+        static int CompareScopeAncestorFrontToBack(Game.IScopeNode a, Game.IScopeNode b)
         {
             if (ReferenceEquals(a, b))
                 return 0;
@@ -1369,6 +1441,27 @@ namespace Game.UI
                 if (ReferenceEquals(current, b))
                     return -1;
             }
+
+            return 0;
+        }
+
+        int CompareTransformAncestorFrontToBack(Game.IScopeNode a, Game.IScopeNode b)
+        {
+            if (ReferenceEquals(a, b))
+                return 0;
+
+            if (!TryGetElementTransform(a, out var at) || at == null)
+                return 0;
+            if (!TryGetElementTransform(b, out var bt) || bt == null)
+                return 0;
+            if (ReferenceEquals(at, bt))
+                return 0;
+
+            if (at.IsChildOf(bt))
+                return -1;
+
+            if (bt.IsChildOf(at))
+                return 1;
 
             return 0;
         }
@@ -1504,8 +1597,13 @@ namespace Game.UI
                 if (ak.SelectionOrder != bk.SelectionOrder) return bk.SelectionOrder.CompareTo(ak.SelectionOrder);
 
                 // 親子が同時ヒットしている場合は、必ず子孫 UI を優先する。
-                // これを描画順より先に置くことで、全面 panel/root が子要素を奪う揺れを抑える。
-                var ancestorCmp = CompareAncestorFrontToBack(ae, be);
+                // まず Transform 階層で判定し、Scope 親子が一致しない構成でも child を優先する。
+                var ancestorCmp = _owner.CompareTransformAncestorFrontToBack(ae, be);
+                if (ancestorCmp != 0)
+                    return ancestorCmp;
+
+                // Scope 親子関係も補助的に見る（Transform だけで判定できないケースの安定化）。
+                ancestorCmp = CompareScopeAncestorFrontToBack(ae, be);
                 if (ancestorCmp != 0)
                     return ancestorCmp;
 

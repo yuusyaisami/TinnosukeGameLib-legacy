@@ -28,9 +28,15 @@ namespace Game.UI
             DynamicValue<UIScrollRectPreset>.FromSource(
                 new ManagedRefLiteralSource<UIScrollRectPreset>(new UIScrollRectPreset()));
 
+        [BoxGroup("Debug")]
+        [LabelText("Enable Debug Log")]
+        [SerializeField]
+        bool _enableDebugLog;
+
         public RectTransform? Content => _content;
         public RectTransform? ViewportRect => _viewportRect;
         public DynamicValue<UIScrollRectPreset> PresetValue => _presetValue;
+        public bool EnableDebugLog => _enableDebugLog;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {

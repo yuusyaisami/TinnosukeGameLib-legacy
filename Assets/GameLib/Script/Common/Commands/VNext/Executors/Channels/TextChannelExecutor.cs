@@ -32,7 +32,7 @@ namespace Game.Commands.VNext
             if (data is not TextChannelCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "TextChannelCommandData is required.");
 
-            if (!TryResolvePlayerWithHub(ctx, typed.ChannelTag, out var player, out var hub) || player == null || hub == null)
+            if (!TextChannelResolveUtility.TryResolvePlayerWithHub(ctx, typed.ChannelTag, out var player, out var hub) || player == null || hub == null)
             {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                 //Debug.Log($"[TextChannelExecutor] Player resolve failed. tag={typed.ChannelTag} chain={DescribeAncestorChain(ctx.Scope)} hubs={DescribeHubChain(ctx.Scope)}");
@@ -72,6 +72,13 @@ namespace Game.Commands.VNext
 
         static async UniTask ExecuteSingleAsync(TextChannelCommandData typed, ITextChannelPlayer player, ITextChannelHubService hub, CommandContext ctx, CancellationToken ct)
         {
+            if (typed.Action == TextChannelCommandAction.SetText ||
+                typed.Action == TextChannelCommandAction.Append ||
+                typed.Action == TextChannelCommandAction.Clear)
+            {
+                hub.UnregisterDynamicBinding(typed.ChannelTag);
+            }
+
             var shouldWaitTypewriter = false;
             var typewriterEventConfig = BuildTypewriterEventRuntimeConfig(typed, hub, ctx);
             player.SetTypewriterEventCommands(typewriterEventConfig, new TypewriterEventCommandRuntimeContext(ctx));
@@ -86,7 +93,7 @@ namespace Game.Commands.VNext
                         var resolvedText = resolved ?? string.Empty;
                         if (typed.PlayMode == TextPlayMode.Count)
                         {
-                            resolvedText = TryEvaluateRichTextTemplate(ctx, resolvedText);
+                            resolvedText = TextChannelTextEvaluationUtility.EvaluateRichTextTemplate(ctx, resolvedText);
                             var settings = typed.TextSettings;
                             settings.UseCounter = true;
 
@@ -107,6 +114,9 @@ namespace Game.Commands.VNext
                         }
 
                         shouldWaitTypewriter = typed.PlayMode == TextPlayMode.Typewriter && typed.WaitForTypewriterComplete;
+
+                        if (typed.EnableDynamicBind)
+                            TryRegisterDynamicBinding(typed, hub, ctx);
                     }
                     break;
                 case TextChannelCommandAction.Append:
@@ -335,22 +345,31 @@ namespace Game.Commands.VNext
             return CountNumberPattern.Replace(targetText, formatted);
         }
 
-        static string TryEvaluateRichTextTemplate(CommandContext ctx, string text)
+        static void TryRegisterDynamicBinding(TextChannelCommandData typed, ITextChannelHubService hub, CommandContext ctx)
         {
-            if (string.IsNullOrEmpty(text))
-                return text;
+            if (!typed.Text.HasSource)
+                return;
 
-            if (text.IndexOf('{') < 0 || text.IndexOf('}') < 0)
-                return text;
+            var snapshotVars = new VarStore();
+            ctx.Vars.MergeInto(snapshotVars, overwrite: true);
 
-            var source = new RichTextSource
+            var counterSettings = typed.DynamicBindCounterSettings;
+            counterSettings.UseCounter = typed.DynamicBindPlayMode == TextDynamicBindingPlayMode.Counter;
+
+            var request = new TextDynamicBindingRegisterRequest(
+                typed.ChannelTag,
+                typed.Text,
+                typed.DynamicBindPlayMode,
+                counterSettings,
+                snapshotVars,
+                ctx,
+                ctx.Actor ?? ctx.Scope,
+                TextDynamicBindingDefaults.PollIntervalFrames);
+
+            if (!hub.RegisterDynamicBinding(in request))
             {
-                AllowImplicitKeys = true,
-                Template = text,
-            };
-
-            var evaluated = source.Evaluate(ctx).AsString ?? string.Empty;
-            return string.IsNullOrEmpty(evaluated) ? text : evaluated;
+                Debug.LogWarning($"[TextChannelExecutor] Dynamic bind registration was rejected. tag={typed.ChannelTag} source={typed.Text.SourceTypeName}");
+            }
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -425,96 +444,5 @@ namespace Game.Commands.VNext
         }
 #endif
 
-        static bool TryResolvePlayerWithHub(CommandContext ctx, string tag, out ITextChannelPlayer? player, out ITextChannelHubService? hub)
-        {
-            player = null;
-            hub = null;
-
-            var origin = ctx.Actor ?? ctx.Scope;
-
-            // Prefer hubs within actor/scope subtree first.
-            if (TryResolvePlayerInSubtree(origin, tag, out player, out hub))
-                return true;
-
-            // Fallback to ancestor chain from current scope.
-            if (TryResolvePlayerInAncestors(ctx.Scope, tag, out player, out hub))
-                return true;
-
-            // Last fallback: ancestor chain from actor (if different from scope).
-            if (!ReferenceEquals(origin, ctx.Scope) && TryResolvePlayerInAncestors(origin, tag, out player, out hub))
-                return true;
-
-            return false;
-        }
-
-        static bool TryResolvePlayerInSubtree(IScopeNode? origin, string tag, out ITextChannelPlayer? player, out ITextChannelHubService? hub)
-        {
-            player = null;
-            hub = null;
-
-            if (origin == null)
-                return false;
-
-            foreach (var node in ScopeNodeHierarchy.EnumerateSubtree(origin, includeSelf: true))
-            {
-                var resolver = node?.Resolver;
-                if (resolver == null)
-                    continue;
-
-                if (!resolver.TryResolve<ITextChannelHubService>(out var foundHub) || foundHub == null)
-                    continue;
-
-                if (!IsHubOwnedByNode(foundHub, node))
-                    continue;
-
-                if (foundHub.TryGetPlayer(tag, out var foundPlayer) && foundPlayer != null)
-                {
-                    player = foundPlayer;
-                    hub = foundHub;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        static bool TryResolvePlayerInAncestors(IScopeNode? scope, string tag, out ITextChannelPlayer? player, out ITextChannelHubService? hub)
-        {
-            player = null;
-            hub = null;
-
-            if (scope == null)
-                return false;
-
-            foreach (var node in scope.EnumerateAncestors(includeSelf: true))
-            {
-                var resolver = node.Resolver;
-                if (resolver == null)
-                    continue;
-
-                if (!resolver.TryResolve<ITextChannelHubService>(out var foundHub) || foundHub == null)
-                    continue;
-
-                if (!IsHubOwnedByNode(foundHub, node))
-                    continue;
-
-                if (foundHub.TryGetPlayer(tag, out var foundPlayer) && foundPlayer != null)
-                {
-                    player = foundPlayer;
-                    hub = foundHub;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        static bool IsHubOwnedByNode(ITextChannelHubService hub, IScopeNode? node)
-        {
-            if (hub is TextChannelHubService textHub)
-                return ReferenceEquals(textHub.OwnerScope, node);
-
-            return true;
-        }
     }
 }

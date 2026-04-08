@@ -23,6 +23,7 @@ namespace Game.UI
         IUIInputBubbleConsumer
     {
         const float Epsilon = 0.0001f;
+        const float WheelSmoothTime = 0.08f;
         const int InputPriority = 220;
         const string HorizontalButtonTag = "scrollrect.horizontal";
         const string VerticalButtonTag = "scrollrect.vertical";
@@ -52,6 +53,10 @@ namespace Game.UI
             public bool PageHoldActive;
             public float PageHoldTargetNormalized;
             public float NextPageRepeatTime;
+            public bool WheelScrollActive;
+            public float WheelScrollTargetNormalized;
+            public float WheelScrollVelocity;
+            public bool ExistingScopeBindErrorReported;
 
             public AxisState(UIScrollRectAxisKind kind, string buttonTag)
             {
@@ -83,6 +88,10 @@ namespace Game.UI
                 PageHoldActive = false;
                 PageHoldTargetNormalized = 0f;
                 NextPageRepeatTime = 0f;
+                WheelScrollActive = false;
+                WheelScrollTargetNormalized = 0f;
+                WheelScrollVelocity = 0f;
+                ExistingScopeBindErrorReported = false;
             }
 
             static float kindDefaultNormalized(UIScrollRectAxisKind kind)
@@ -167,6 +176,7 @@ namespace Game.UI
         bool _contentDragActive;
         bool _hasLastContentPosition;
         bool _boundsValid;
+        int _acquireFrame = -1;
 
         public UIScrollRectSnapshot Snapshot => _snapshot;
         int IUIInputPreviewObserver.Priority => InputPriority;
@@ -195,11 +205,21 @@ namespace Game.UI
             _dynamicContext = new SimpleDynamicContext(ResolveVars(scope), scope);
             _preset = ResolvePreset(_mb.PresetValue, _dynamicContext);
             _timeScaleBehavior = SliderRuntimeHelpers.ResolveTimeScaleBehavior(scope);
+            _acquireFrame = Time.frameCount;
 
             _horizontal.ResetRuntime();
             _vertical.ResetRuntime();
             _horizontal.Preset = _preset.Horizontal.CreateRuntimeCopy();
             _vertical.Preset = _preset.Vertical.CreateRuntimeCopy();
+
+            if (_mb.EnableDebugLog)
+            {
+                Debug.Log(
+                    $"[UIScrollRect][Acquire] owner='{_owner}' frame={Time.frameCount} acquireFrame={_acquireFrame} scope='{DescribeScope(scope)}' " +
+                    $"viewport='{DescribeTransform(_viewport)}' content='{DescribeTransform(_content)}' " +
+                    $"horizontalSource={ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", _horizontal.Preset.ScrollBarActorSource)} " +
+                    $"verticalSource={ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", _vertical.Preset.ScrollBarActorSource)}");
+            }
 
             scope.TryResolveInAncestors(out _inputRoutingHub);
             scope.TryResolveInAncestors(out _selectionState);
@@ -221,7 +241,10 @@ namespace Game.UI
                 $"contentPos={contentPosText}");
 
             if (_content != null && _viewport != null)
+            {
                 UpdateBoundsAndVisuals();
+                ApplyInitialAlignmentAndClamp();
+            }
 
             UniTask.Void(async () => await BindScrollBarsAsync(_bindCts.Token));
         }
@@ -257,6 +280,7 @@ namespace Game.UI
             _boundsValid = false;
             _hasLastContentPosition = false;
             _isAcquired = false;
+            _acquireFrame = -1;
 
             ResetTransientState();
         }
@@ -266,11 +290,26 @@ namespace Game.UI
             if (!_isAcquired || _content == null || _viewport == null)
                 return;
 
+            TryBindAxisIfMissing(_horizontal);
+            TryBindAxisIfMissing(_vertical);
+
             UpdateBoundsAndVisuals();
 
-            if (!HasActiveInteraction())
+            if (ApplyNonScrollableAxisAlignment())
+                UpdateBoundsAndVisuals();
+
+            var deltaTime = ResolveDeltaTime();
+            var wheelAnimating = false;
+            if (deltaTime > Epsilon)
             {
-                var deltaTime = ResolveDeltaTime();
+                wheelAnimating |= UpdateWheelScroll(_horizontal, deltaTime);
+                wheelAnimating |= UpdateWheelScroll(_vertical, deltaTime);
+                if (wheelAnimating)
+                    UpdateBoundsAndVisuals();
+            }
+
+            if (!HasActiveInteraction() && !wheelAnimating)
+            {
                 if (deltaTime > Epsilon && UpdatePhysics(deltaTime))
                     UpdateBoundsAndVisuals();
             }
@@ -278,9 +317,9 @@ namespace Game.UI
             var currentPosition = _content.anchoredPosition;
             if (_hasLastContentPosition)
             {
-                var deltaTime = ResolveDeltaTime();
-                if (HasActiveInteraction() && deltaTime > Epsilon)
-                    _velocity = (currentPosition - _lastContentPosition) / deltaTime;
+                var velocityDeltaTime = ResolveDeltaTime();
+                if (HasActiveInteraction() && velocityDeltaTime > Epsilon)
+                    _velocity = (currentPosition - _lastContentPosition) / velocityDeltaTime;
             }
 
             _lastContentPosition = currentPosition;
@@ -293,6 +332,7 @@ namespace Game.UI
                 return;
 
             UpdateBoundsAndVisuals();
+            ApplyInitialAlignmentAndClamp();
         }
 
         public bool SetNormalizedPosition(Vector2 value)
@@ -368,7 +408,7 @@ namespace Game.UI
             switch (inputEvent.Type)
             {
                 case UIInputEventType.Scroll:
-                    return HandleBubbleScroll(inputEvent.Direction);
+                    return HandleBubbleScroll(inputEvent.PointerPosition, inputEvent.Direction);
                 case UIInputEventType.SubmitDown:
                 case UIInputEventType.SubmitHeld:
                 case UIInputEventType.SubmitUp:
@@ -384,9 +424,22 @@ namespace Game.UI
         {
             try
             {
+                if (_mb.EnableDebugLog)
+                {
+                    Debug.Log($"[UIScrollRect][BindScrollBarsStart] owner='{_owner}' frame={Time.frameCount} acquireFrame={_acquireFrame}");
+                }
+
                 await UniTask.SwitchToMainThread(ct);
                 await BindAxisAsync(_horizontal, ct);
                 await BindAxisAsync(_vertical, ct);
+
+                if (_mb.EnableDebugLog)
+                {
+                    Debug.Log(
+                        $"[UIScrollRect][BindScrollBarsComplete] owner='{_owner}' frame={Time.frameCount} " +
+                        $"horizontalBound={_horizontal.Binding != null} verticalBound={_vertical.Binding != null}");
+                }
+
                 UpdateBoundsAndVisuals();
             }
             catch (OperationCanceledException)
@@ -398,16 +451,42 @@ namespace Game.UI
         {
             ReleaseAxisRuntime(axis);
             axis.Preset = ResolveAxisPreset(axis.Kind);
+
+            if (_mb.EnableDebugLog)
+            {
+                Debug.Log(
+                    $"[UIScrollRect][BindAxisStart] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} " +
+                    $"sourceMode={axis.Preset.ScrollBarSourceMode} " +
+                    $"source={ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", axis.Preset.ScrollBarActorSource)} " +
+                    $"activeScope='{DescribeScope(_activeScope)}'");
+            }
+
             if (_activeScope == null || !axis.Preset.Enabled)
                 return;
 
             if (axis.Preset.ScrollBarSourceMode == UIScrollBarSourceMode.ExistingScope)
             {
+                if (_mb.EnableDebugLog)
+                {
+                    Debug.Log(
+                        $"[UIScrollRect][ResolveExistingScope] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} " +
+                        $"source={ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", axis.Preset.ScrollBarActorSource)} " +
+                        $"activeScope='{DescribeScope(_activeScope)}'");
+                }
+
                 var targetScope = ActorSourceFastResolver.ResolveCached(
                     _activeScope,
                     axis.Preset.ScrollBarActorSource,
                     ref axis.ScrollBarSourceCache);
-                TryBindAxisFromScope(axis, targetScope);
+
+                if (_mb.EnableDebugLog)
+                {
+                    Debug.Log(
+                        $"[UIScrollRect][ResolveExistingScopeResult] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} " +
+                        $"targetScope='{DescribeScope(targetScope)}'");
+                }
+
+                TryBindAxisFromScope(axis, targetScope, logExistingScopeError: true);
                 return;
             }
 
@@ -431,20 +510,107 @@ namespace Game.UI
                 ct);
             axis.SpawnedResolver = resolver;
             SliderRuntimeHelpers.ExtractSpawnedInfo(resolver, out _, out var runtimeScope, out _);
-            TryBindAxisFromScope(axis, runtimeScope);
+            TryBindAxisFromScope(axis, runtimeScope, logExistingScopeError: false);
         }
 
-        void TryBindAxisFromScope(AxisState axis, IScopeNode? scope)
+        bool TryBindAxisFromScope(AxisState axis, IScopeNode? scope, bool logExistingScopeError)
         {
-            if (scope?.Resolver == null)
-                return;
+            if (scope == null)
+            {
+                if (_mb.EnableDebugLog)
+                {
+                    Debug.Log(
+                        $"[UIScrollRect][BindAxisFail] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} " +
+                        $"source={ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", axis.Preset.ScrollBarActorSource)} " +
+                        $"reason='resolved scope is null' targetScope='{DescribeScope(scope)}'");
+                }
+
+                if (logExistingScopeError && ShouldReportExistingScopeBindError(scope))
+                    ReportExistingScopeBindError(axis, scope, "resolved scope is null");
+                return false;
+            }
+
+            if (scope.Resolver == null)
+            {
+                var pendingBuild = scope is BaseLifetimeScope baseScope && !baseScope.IsBuildCompleted;
+                if (_mb.EnableDebugLog)
+                {
+                    Debug.Log(
+                        $"[UIScrollRect][BindAxis{(pendingBuild ? "Pending" : "Fail")}] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} " +
+                        $"source={ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", axis.Preset.ScrollBarActorSource)} " +
+                        $"reason='{(pendingBuild ? "scope exists but build is not complete" : "resolved scope has no resolver")}' targetScope='{DescribeScope(scope)}'");
+                }
+
+                if (!pendingBuild && logExistingScopeError)
+                    ReportExistingScopeBindError(axis, scope, "resolved scope has no resolver");
+                return false;
+            }
 
             if (!scope.Resolver.TryResolve<IUIScrollBarBindingService>(out var binding) || binding == null)
-                return;
+            {
+                if (_mb.EnableDebugLog)
+                {
+                    Debug.Log(
+                        $"[UIScrollRect][BindAxisFail] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} " +
+                        $"source={ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", axis.Preset.ScrollBarActorSource)} " +
+                        $"reason='scope does not provide IUIScrollBarBindingService' targetScope='{DescribeScope(scope)}'");
+                }
+
+                if (logExistingScopeError)
+                    ReportExistingScopeBindError(axis, scope, "scope does not provide IUIScrollBarBindingService");
+                return false;
+            }
 
             axis.BindingScope = scope;
             axis.Binding = binding;
+            axis.ExistingScopeBindErrorReported = false;
+
+            if (_mb.EnableDebugLog)
+            {
+                Debug.Log(
+                    $"[UIScrollRect][BindAxisSuccess] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} " +
+                    $"bindingScope='{DescribeScope(scope)}' buttonHub={(binding.ButtonChannelHub != null ? "present" : "<null>")} ");
+            }
+
             EnsureBarButtonChannel(axis);
+            return true;
+        }
+
+        bool ShouldReportExistingScopeBindError(IScopeNode? scope)
+        {
+            if (_acquireFrame >= 0 && Time.frameCount <= _acquireFrame)
+                return false;
+
+            if (scope is ICoordinatedBuildScope coordinated && !coordinated.IsBuildCompleted)
+                return false;
+
+            return true;
+        }
+
+        void TryBindAxisIfMissing(AxisState axis)
+        {
+            if (_activeScope == null)
+                return;
+
+            if (axis.Binding != null || !axis.Preset.Enabled)
+                return;
+
+            if (axis.Preset.ScrollBarSourceMode != UIScrollBarSourceMode.ExistingScope)
+                return;
+
+            if (_mb.EnableDebugLog)
+            {
+                Debug.Log(
+                    $"[UIScrollRect][RetryExistingScopeBind] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} acquireFrame={_acquireFrame} " +
+                    $"source={ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", axis.Preset.ScrollBarActorSource)} " +
+                    $"activeScope='{DescribeScope(_activeScope)}'");
+            }
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(
+                _activeScope,
+                axis.Preset.ScrollBarActorSource,
+                ref axis.ScrollBarSourceCache);
+            TryBindAxisFromScope(axis, targetScope, logExistingScopeError: true);
         }
 
         void EnsureBarButtonChannel(AxisState axis)
@@ -466,6 +632,22 @@ namespace Game.UI
             axis.BindingScope = null;
             SliderRuntimeHelpers.ReleaseSpawnedRuntime(axis.SpawnedResolver);
             axis.SpawnedResolver = null;
+        }
+
+        void ReportExistingScopeBindError(AxisState axis, IScopeNode? scope, string reason)
+        {
+            if (axis.ExistingScopeBindErrorReported)
+                return;
+
+            axis.ExistingScopeBindErrorReported = true;
+
+            var sourceLabel = ActorSourceOdinLabelHelper.GetLabel("ScrollBar Source", axis.Preset.ScrollBarActorSource);
+            var buildState = scope is ICoordinatedBuildScope coordinated
+                ? coordinated.IsBuildCompleted.ToString()
+                : "n/a";
+
+            Debug.LogError(
+                $"[UIScrollRect][ExistingScopeError] owner='{_owner}' axis={axis.Kind} frame={Time.frameCount} acquireFrame={_acquireFrame} source={sourceLabel} reason={reason} targetScope='{DescribeScope(scope)}' buildCompleted={buildState}");
         }
 
         void HandlePreviewSubmitDown(Vector2 screenPosition)
@@ -551,9 +733,9 @@ namespace Game.UI
             BeginContentDrag(viewportLocal);
         }
 
-        bool HandleBubbleScroll(Vector2 direction)
+        bool HandleBubbleScroll(Vector2 pointerPosition, Vector2 direction)
         {
-            if (!CanHandleWheelScroll())
+            if (!CanHandleWheelScroll(pointerPosition))
                 return false;
 
             UpdateBoundsAndVisuals();
@@ -582,8 +764,92 @@ namespace Game.UI
             if (sensitivity <= Epsilon)
                 return false;
 
-            var nextNormalized = axis.NormalizedPosition + wheelDelta * sensitivity;
-            return SetAxisNormalizedInternal(axis, nextNormalized, setVelocity: true);
+            _velocity = Vector2.zero;
+
+            var currentTarget = axis.WheelScrollActive ? axis.WheelScrollTargetNormalized : axis.NormalizedPosition;
+            axis.WheelScrollTargetNormalized = Mathf.Clamp01(currentTarget + wheelDelta * sensitivity);
+            axis.WheelScrollActive = true;
+            axis.WheelScrollVelocity = 0f;
+            return true;
+        }
+
+        bool UpdateWheelScroll(AxisState axis, float deltaTime)
+        {
+            if (!axis.WheelScrollActive)
+                return false;
+
+            if (!axis.Preset.Enabled || !axis.Scrollable || _content == null || axis.HiddenLength <= Epsilon)
+            {
+                ResetWheelScroll(axis);
+                return false;
+            }
+
+            var nextNormalized = Mathf.SmoothDamp(
+                axis.NormalizedPosition,
+                axis.WheelScrollTargetNormalized,
+                ref axis.WheelScrollVelocity,
+                WheelSmoothTime,
+                Mathf.Infinity,
+                deltaTime);
+
+            var changed = SetAxisNormalizedInternal(axis, nextNormalized, setVelocity: false);
+
+            if (Mathf.Abs(axis.WheelScrollTargetNormalized - axis.NormalizedPosition) <= 0.0005f &&
+                Mathf.Abs(axis.WheelScrollVelocity) <= 0.001f)
+            {
+                SetAxisNormalizedInternal(axis, axis.WheelScrollTargetNormalized, setVelocity: false);
+                ResetWheelScroll(axis);
+            }
+
+            return changed || axis.WheelScrollActive;
+        }
+
+        bool ApplyNonScrollableAxisAlignment()
+        {
+            if (_content == null)
+                return false;
+
+            var nextPosition = _content.anchoredPosition;
+            var changed = false;
+
+            changed |= AlignNonScrollableAxisToDefaultEdgeAndResetWheel(_horizontal, ref nextPosition.x);
+            changed |= AlignNonScrollableAxisToDefaultEdgeAndResetWheel(_vertical, ref nextPosition.y);
+
+            if (!changed)
+                return false;
+
+            return SetContentAnchoredPosition(nextPosition);
+        }
+
+        bool AlignNonScrollableAxisToDefaultEdgeAndResetWheel(AxisState axis, ref float anchoredPosition)
+        {
+            if (!axis.Preset.Enabled)
+                return false;
+
+            if (axis.Scrollable)
+            {
+                ResetWheelScroll(axis);
+                return false;
+            }
+
+            ResetWheelScroll(axis);
+
+            var delta = axis.Kind == UIScrollRectAxisKind.Horizontal
+                ? _viewBounds.min.x - _contentBounds.min.x
+                : _viewBounds.max.y - _contentBounds.max.y;
+
+            if (Mathf.Abs(delta) <= Epsilon)
+                return false;
+
+            anchoredPosition += delta;
+            return true;
+        }
+
+        void ResetWheelScroll(AxisState axis)
+        {
+            axis.WheelScrollActive = false;
+            axis.WheelScrollTargetNormalized = 0f;
+            axis.WheelScrollVelocity = 0f;
         }
 
         bool TryBeginBarInteraction(AxisState axis, Vector2 screenPosition)
@@ -689,6 +955,19 @@ namespace Game.UI
             if (!_boundsValid)
                 UpdateBoundsAndVisuals();
 
+            if (_preset.Physics.MovementType == UIScrollRectMovementType.Elastic)
+            {
+                var projectedOffset = CalculateOffset(delta);
+                var damping = _preset.Interaction.OverDragDamping;
+                if (damping > Epsilon)
+                {
+                    if (_horizontal.Scrollable && Mathf.Abs(projectedOffset.x) > Epsilon)
+                        delta.x *= GetElasticDragScale(projectedOffset.x, _horizontal.ViewSize, damping);
+                    if (_vertical.Scrollable && Mathf.Abs(projectedOffset.y) > Epsilon)
+                        delta.y *= GetElasticDragScale(projectedOffset.y, _vertical.ViewSize, damping);
+                }
+            }
+
             var currentPosition = _content.anchoredPosition;
             var nextPosition = currentPosition + delta;
             var offset = CalculateOffset(nextPosition - currentPosition);
@@ -707,6 +986,20 @@ namespace Game.UI
 
             if (SetContentAnchoredPosition(nextPosition))
                 UpdateBoundsAndVisuals();
+        }
+
+        static float GetElasticDragScale(float overscroll, float viewSize, float damping)
+        {
+            var baseScale = Mathf.Clamp01(1f - damping);
+            if (baseScale <= Epsilon)
+                return 0f;
+
+            if (viewSize <= Epsilon)
+                return baseScale;
+
+            var overscrollRatio = Mathf.Clamp01(Mathf.Abs(overscroll) / viewSize);
+            var farScale = baseScale * 0.25f;
+            return Mathf.Lerp(baseScale, farScale, overscrollRatio);
         }
 
         bool SetAxisNormalizedInternal(AxisState axis, float normalizedValue, bool setVelocity)
@@ -930,8 +1223,15 @@ namespace Game.UI
             if (binding == null)
                 return;
 
-            if (binding.VisibilityRoot != null && binding.VisibilityRoot.activeSelf != axis.Visible)
-                binding.VisibilityRoot.SetActive(axis.Visible);
+            if (binding.VisibilityRoot != null)
+            {
+                var bindingScopeGo = ResolveScopeGameObject(axis.BindingScope);
+                if (!ReferenceEquals(binding.VisibilityRoot, bindingScopeGo) &&
+                    binding.VisibilityRoot.activeSelf != axis.Visible)
+                {
+                    binding.VisibilityRoot.SetActive(axis.Visible);
+                }
+            }
 
             if (!axis.Visible || binding.HandleRect == null)
                 return;
@@ -961,10 +1261,28 @@ namespace Game.UI
             handleRect.sizeDelta = sizeDelta;
         }
 
-        bool CanHandleWheelScroll()
+        bool CanHandleWheelScroll(Vector2 pointerPosition)
         {
+            if (IsPointerInsideViewport(pointerPosition))
+                return true;
+
+            var hovered = _selectionState?.HoveredElement;
+            if (hovered != null && IsScopeSelfOrDescendant(hovered))
+                return true;
+
             var current = _selectionState?.CurrentElement;
             return current != null && IsScopeSelfOrDescendant(current);
+        }
+
+        bool IsPointerInsideViewport(Vector2 screenPosition)
+        {
+            if (_viewport == null)
+                return false;
+
+            return RectTransformUtility.RectangleContainsScreenPoint(
+                _viewport,
+                screenPosition,
+                ResolveRectCamera(_viewport));
         }
 
         bool CanStartNewPointerInteraction()
@@ -1037,6 +1355,46 @@ namespace Game.UI
             _bindCts?.Cancel();
             _bindCts?.Dispose();
             _bindCts = null;
+        }
+
+        void ApplyInitialAlignmentAndClamp()
+        {
+            if (_content == null || _viewport == null)
+                return;
+
+            if (!_boundsValid)
+                UpdateBoundsAndVisuals();
+
+            var nextPosition = _content.anchoredPosition;
+            var changed = false;
+            changed |= AlignNonScrollableAxisToDefaultEdge(_horizontal, ref nextPosition.x);
+            changed |= AlignNonScrollableAxisToDefaultEdge(_vertical, ref nextPosition.y);
+
+            if (changed && SetContentAnchoredPosition(nextPosition))
+                UpdateBoundsAndVisuals();
+
+            var clampOffset = CalculateOffset(Vector2.zero);
+            if (Mathf.Abs(clampOffset.x) <= Epsilon && Mathf.Abs(clampOffset.y) <= Epsilon)
+                return;
+
+            if (SetContentAnchoredPosition(_content.anchoredPosition + clampOffset))
+                UpdateBoundsAndVisuals();
+        }
+
+        bool AlignNonScrollableAxisToDefaultEdge(AxisState axis, ref float anchoredPosition)
+        {
+            if (!axis.Preset.Enabled || axis.Scrollable)
+                return false;
+
+            var delta = axis.Kind == UIScrollRectAxisKind.Horizontal
+                ? _viewBounds.min.x - _contentBounds.min.x
+                : _viewBounds.max.y - _contentBounds.max.y;
+
+            if (Mathf.Abs(delta) <= Epsilon)
+                return false;
+
+            anchoredPosition += delta;
+            return true;
         }
 
         bool SetContentAnchoredPosition(Vector2 position)
@@ -1211,6 +1569,16 @@ namespace Game.UI
             return false;
         }
 
+        static GameObject? ResolveScopeGameObject(IScopeNode? scope)
+        {
+            if (scope is Component component)
+                return component.gameObject;
+
+            return scope?.Identity?.SelfTransform != null
+                ? scope.Identity.SelfTransform.gameObject
+                : null;
+        }
+
         void TryEnsureSelected()
         {
             _selectionNavigation?.TrySelect(_owner);
@@ -1300,6 +1668,18 @@ namespace Game.UI
             }
 
             return path;
+        }
+
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "<null>";
+
+            var id = scope.Identity?.Id;
+            var identityText = string.IsNullOrWhiteSpace(id) ? "<none>" : id;
+            var buildStatus = scope is BaseLifetimeScope baseScope ? baseScope.DebugBuildStatus : null;
+            var buildText = string.IsNullOrWhiteSpace(buildStatus) ? string.Empty : $" build='{buildStatus}'";
+            return $"{scope.Kind} id='{identityText}' transform='{DescribeTransform(scope.Identity?.SelfTransform)}'{buildText}";
         }
 
         static UIScrollRectPreset ResolvePreset(DynamicValue<UIScrollRectPreset> value, IDynamicContext context)

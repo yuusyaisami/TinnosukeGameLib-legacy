@@ -298,6 +298,11 @@ namespace Game.Common
         {
             return new DynamicValue<T> { _source = source };
         }
+
+        public static DynamicValue<T> FromDefault(T defaultValue)
+        {
+            return new DynamicValue<T> { _defaultValue = defaultValue };
+        }
     }
 
     // ================================================================

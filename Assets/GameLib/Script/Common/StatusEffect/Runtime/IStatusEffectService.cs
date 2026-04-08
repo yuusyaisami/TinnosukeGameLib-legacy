@@ -33,6 +33,7 @@ namespace Game.StatusEffect
         void ConfigureServiceSettings(StatusEffectServiceSettingsOverrideRequest request, IDynamicContext? evaluationContext = null);
 
         bool HasEffect(string definitionId);
+        bool IsAnyOperationEnabled(StatusEffectRuntimeFilter filter, string operationId);
         bool TryGetRegisteredDefinition(StatusEffectRuntimeFilter filter, out BaseStatusEffectDefinitionData definition);
         void GetActiveEffectStates(List<EffectState> output);
         void GetStates(List<EffectState> output, StatusEffectRuntimeFilter filter);

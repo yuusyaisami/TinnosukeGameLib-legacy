@@ -36,8 +36,15 @@ namespace Game.Commands.VNext
         [EnumToggleButtons]
         public VarWriteOpKind Op = VarWriteOpKind.Set;
 
+        [ShowIf(nameof(ShowStoreMode))]
+        [LabelText("Store Mode")]
+        [EnumToggleButtons]
+        public VarStoreWriteMode StoreMode = VarStoreWriteMode.Immediate;
+
         [ShowIf("@Op != VarWriteOpKind.Unset")]
         public DynamicValue Value;
+
+        bool ShowStoreMode => Op == VarWriteOpKind.Set;
     }
 
     public enum ScalarWriteOpKind

@@ -47,9 +47,7 @@ namespace Game.UI
         readonly List<SliderSpawnedRuntimeInstance> _markers = new();
 
         bool _loggedBackgroundRendererMissing;
-        bool _loggedBackgroundScaleFallback;
         bool _loggedSegmentBarRendererMissing;
-        bool _loggedSegmentScaleFallback;
 
         public WorldSpaceSliderVisualBackend(
             IScopeNode owner,
@@ -76,9 +74,7 @@ namespace Game.UI
             _visualDirty = true;
             _hasLastRangeSnapshot = false;
             _loggedBackgroundRendererMissing = false;
-            _loggedBackgroundScaleFallback = false;
             _loggedSegmentBarRendererMissing = false;
-            _loggedSegmentScaleFallback = false;
 
             StopSpawn();
             ReleaseRuntimeInstances();
@@ -490,19 +486,13 @@ namespace Game.UI
                 worldCenter.z += depthOffset;
 
             var minorLength = SliderRuntimeHelpers.ResolveAreaCrossLength(rangeSnapshot, _visualizerPreset.Segmented.FillAxis);
-            var usedScaleFallback = SliderRuntimeHelpers.ApplySpawnedBarGeometry(
+            SliderRuntimeHelpers.ApplySpawnedBarGeometry(
                 instance,
                 rangeSnapshot,
                 _visualizerPreset.Segmented.FillAxis,
                 worldCenter,
                 majorLength,
                 minorLength);
-
-            if (usedScaleFallback && !_loggedBackgroundScaleFallback)
-            {
-                Debug.LogWarning("[SliderVisualizerService] Background SpriteRenderer drawMode is Simple. Falling back to transform scale.");
-                _loggedBackgroundScaleFallback = true;
-            }
         }
 
         void ApplySegmentBarSnapshot(
@@ -537,19 +527,13 @@ namespace Game.UI
                 majorLength *= ResolveBarSpanScale();
 
             var minorLength = SliderRuntimeHelpers.ResolveAreaCrossLength(rangeSnapshot, _visualizerPreset.Segmented.FillAxis);
-            var usedScaleFallback = SliderRuntimeHelpers.ApplySpawnedBarGeometry(
+            SliderRuntimeHelpers.ApplySpawnedBarGeometry(
                 instance,
                 rangeSnapshot,
                 _visualizerPreset.Segmented.FillAxis,
                 worldCenter,
                 majorLength,
                 minorLength);
-
-            if (usedScaleFallback && !_loggedSegmentScaleFallback)
-            {
-                Debug.LogWarning("[SliderVisualizerService] Segment bar SpriteRenderer drawMode is Simple. Falling back to transform scale.");
-                _loggedSegmentScaleFallback = true;
-            }
 
             if (instance.Root != null)
                 instance.Root.gameObject.SetActive(isVisible);

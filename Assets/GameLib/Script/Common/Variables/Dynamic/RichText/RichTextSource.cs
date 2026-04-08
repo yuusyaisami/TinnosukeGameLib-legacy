@@ -92,6 +92,7 @@ namespace Game.Common
         bool IsRefServiceMode => _sourceMode == RichTextSourceMode.RefService;
         bool ShouldShowActorStoreEntryLimit => IsRefServiceMode && _logActorStoresOnWarn;
         string ExpressionFunctionTooltip => ExpressionFunctionRegistry.GetInspectorFunctionTooltip();
+        public RichTextSourceMode SourceMode => _sourceMode;
 
         public string SourceTypeName => _sourceMode == RichTextSourceMode.RefService ? "RichTextRef" : "RichText";
         public string GetDebugData => _sourceMode == RichTextSourceMode.RefService

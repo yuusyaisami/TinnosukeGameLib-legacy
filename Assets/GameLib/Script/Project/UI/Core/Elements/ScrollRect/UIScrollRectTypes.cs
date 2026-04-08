@@ -209,12 +209,20 @@ namespace Game.UI
         [SerializeField]
         float _dragSensitivity = 1f;
 
+        [BoxGroup("Swipe")]
+        [Range(0f, 1f)]
+        [LabelText("Over Drag Damping")]
+        [Tooltip("端でオーバーしたときのドラッグ減衰量です。1 に近いほど強く抑制します。")]
+        [SerializeField]
+        float _overDragDamping = 0.75f;
+
         public float WheelSensitivity => Mathf.Max(0f, _wheelSensitivity);
         public float PageSize => Mathf.Max(0f, _pageSize);
         public float PageRepeatDelay => Mathf.Max(0f, _pageRepeatDelay);
         public float PageRepeatInterval => Mathf.Max(0.001f, _pageRepeatInterval);
         public float SwipeThresholdPixels => Mathf.Max(0f, _swipeThresholdPixels);
         public float DragSensitivity => Mathf.Max(0f, _dragSensitivity);
+        public float OverDragDamping => Mathf.Clamp01(_overDragDamping);
 
         public UIScrollRectInteractionPreset CreateRuntimeCopy()
         {
@@ -226,6 +234,7 @@ namespace Game.UI
                 _pageRepeatInterval = _pageRepeatInterval,
                 _swipeThresholdPixels = _swipeThresholdPixels,
                 _dragSensitivity = _dragSensitivity,
+                _overDragDamping = _overDragDamping,
             };
         }
     }
