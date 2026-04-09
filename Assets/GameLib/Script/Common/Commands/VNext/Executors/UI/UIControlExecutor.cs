@@ -21,7 +21,7 @@ namespace Game.Commands.VNext
 
             ct.ThrowIfCancellationRequested();
 
-            if (typed.Operation == UIControlOperation.ModalClearAll)
+            if (typed.Operation == UIControlOperation.ModalClearAll || typed.Operation == UIControlOperation.ModalLayerClearAll)
             {
                 var clearScope = await ResolveControlScopeByUiLtsIdOrThrowAsync(typed, ctx, ct);
                 EnsureScopeBuiltIfNeeded(clearScope);
@@ -111,6 +111,52 @@ namespace Game.Commands.VNext
                             modalSetRoot.SetDefaultRoot(typed.StackKey, defaultRoot);
                         else
                             modalSetRoot.SetDefaultRoot(defaultRoot);
+                    }
+                    break;
+
+                // ---------------- Modal stack channel ----------------
+                case UIControlOperation.ModalLayerPush:
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalLayerPush) && modalLayerPush != null
+                        && TryResolve(targetScope, out IUIModalRoot? layerPushRoot) && layerPushRoot != null)
+                    {
+                        modalLayerPush.PushModal(typed.LayerKey, layerPushRoot, typed.ModalOptions);
+                    }
+                    break;
+
+                case UIControlOperation.ModalLayerPop:
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalLayerPop) && modalLayerPop != null
+                        && TryResolve(targetScope, out IUIModalRoot? layerPopRoot) && layerPopRoot != null)
+                    {
+                        modalLayerPop.PopModal(typed.LayerKey, layerPopRoot);
+                    }
+                    break;
+
+                case UIControlOperation.ModalLayerPopTop:
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalLayerPopTop) && modalLayerPopTop != null)
+                    {
+                        modalLayerPopTop.PopTop(typed.LayerKey);
+                    }
+                    break;
+
+                case UIControlOperation.ModalLayerClear:
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalLayerClear) && modalLayerClear != null)
+                    {
+                        modalLayerClear.ClearLayer(typed.LayerKey);
+                    }
+                    break;
+
+                case UIControlOperation.ModalLayerClearAll:
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalLayerClearAll) && modalLayerClearAll != null)
+                    {
+                        modalLayerClearAll.ClearAll();
+                    }
+                    break;
+
+                case UIControlOperation.ModalLayerSetDefaultRoot:
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalLayerSetRoot) && modalLayerSetRoot != null
+                        && TryResolve(targetScope, out IUIModalRoot? layerDefaultRoot) && layerDefaultRoot != null)
+                    {
+                        modalLayerSetRoot.SetDefaultRoot(typed.LayerKey, layerDefaultRoot);
                     }
                     break;
 

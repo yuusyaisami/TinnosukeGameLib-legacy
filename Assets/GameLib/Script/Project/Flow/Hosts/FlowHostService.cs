@@ -5,7 +5,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Common;
 using VNext = Game.Commands.VNext;
-using Game.UI;
 using UnityEngine;
 using VContainer;
 
@@ -145,65 +144,8 @@ namespace Game.Flow
         /// </summary>
         async UniTask<FlowSyscallResult> UiDialogChoiceAsync(FlowContext ctx, FlowSyscallRequest req, CancellationToken ct)
         {
-            if (req.ArgCount < 2)
-                return FlowSyscallResult.Failure;
-
-            if (!TryResolveStringArg(ctx, req.ArgStart, out var channelKey) || string.IsNullOrWhiteSpace(channelKey))
-                return FlowSyscallResult.Failure;
-
-            var eventKeys = new string[req.ArgCount - 1];
-            for (int i = 0; i < eventKeys.Length; i++)
-            {
-                if (!TryResolveStringArg(ctx, req.ArgStart + 1 + i, out var k) || string.IsNullOrWhiteSpace(k))
-                    return FlowSyscallResult.Failure;
-                eventKeys[i] = k;
-            }
-
-            // Resolve dialog hub and channel
-            if (!TryResolveDialogHub(ctx, out var hub) || hub == null)
-                return FlowSyscallResult.Failure;
-
-            if (!hub.TryGetChannel(channelKey, out var channel) || channel == null)
-                return FlowSyscallResult.Failure;
-
-            var spec = new DialogAwaitSpec
-            {
-                EventKeys = eventKeys,
-                CloseAfterEvent = true,
-            };
-
-            var request = new UIDialogRequest(owner: ctx.Scope, initialVariables: null);
-
-            DialogAwaitResult result;
-            try
-            {
-                result = await channel.ShowAndWaitAsync(request, spec, ct);
-            }
-            catch (OperationCanceledException)
-            {
-                return FlowSyscallResult.Failure;
-            }
-            catch
-            {
-                return FlowSyscallResult.Failure;
-            }
-
-            var selected = result.WasCancelled ? -1 : result.SelectedIndex;
-            return FlowSyscallResult.FromValue(DynamicVariant.FromInt(selected));
-        }
-
-        /// <summary>
-        /// ダイアログハブを解決します。まず現在のスコープで探します。
-        /// </summary>
-        static bool TryResolveDialogHub(FlowContext ctx, out IDialogChannelHubService? hub)
-        {
-            hub = null;
-
-            var resolver = ctx.Scope?.Resolver;
-            if (resolver != null && resolver.TryResolve<IDialogChannelHubService>(out hub) && hub != null)
-                return true;
-
-            return false;
+            await UniTask.CompletedTask;
+            return FlowSyscallResult.Failure;
         }
 
         /// <summary>
@@ -342,50 +284,8 @@ namespace Game.Flow
 
         async UniTask<VNext.CommandHostCallResult> UiDialogChoiceAsync(Game.IScopeNode scope, IVarStore vars, DynamicVariant[] args, int argCount, CancellationToken ct)
         {
-            if (argCount < 2)
-                return VNext.CommandHostCallResult.Failure;
-
-            if (!TryResolveStringArg(args[0], out var channelKey) || string.IsNullOrWhiteSpace(channelKey))
-                return VNext.CommandHostCallResult.Failure;
-
-            var eventKeys = new string[argCount - 1];
-            for (int i = 0; i < eventKeys.Length; i++)
-            {
-                if (!TryResolveStringArg(args[1 + i], out var k) || string.IsNullOrWhiteSpace(k))
-                    return VNext.CommandHostCallResult.Failure;
-                eventKeys[i] = k;
-            }
-
-            if (!TryResolveDialogHub(scope, out var hub) || hub == null)
-                return VNext.CommandHostCallResult.Failure;
-
-            if (!hub.TryGetChannel(channelKey, out var channel) || channel == null)
-                return VNext.CommandHostCallResult.Failure;
-
-            var spec = new DialogAwaitSpec
-            {
-                EventKeys = eventKeys,
-                CloseAfterEvent = true,
-            };
-
-            var request = new UIDialogRequest(owner: scope, initialVariables: null);
-
-            DialogAwaitResult result;
-            try
-            {
-                result = await channel.ShowAndWaitAsync(request, spec, ct);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch
-            {
-                return VNext.CommandHostCallResult.Failure;
-            }
-
-            var selected = result.WasCancelled ? -1 : result.SelectedIndex;
-            return VNext.CommandHostCallResult.FromValue(DynamicVariant.FromInt(selected));
+            await UniTask.CompletedTask;
+            return VNext.CommandHostCallResult.Failure;
         }
 
         static bool TryResolveCommandKey(in DynamicVariant value, VNext.ICommandKeyResolver resolver, out VNext.CommandKeyId keyId)
@@ -511,15 +411,6 @@ namespace Game.Flow
                 return runtimeScope;
 
             return null;
-        }
-
-        static bool TryResolveDialogHub(Game.IScopeNode scope, out IDialogChannelHubService? hub)
-        {
-            hub = null;
-            var resolver = scope?.Resolver;
-            if (resolver != null && resolver.TryResolve<IDialogChannelHubService>(out hub) && hub != null)
-                return true;
-            return false;
         }
 
         static void EnsureScopeBuiltIfNeeded(Game.IScopeNode scope)

@@ -6,6 +6,21 @@ using UnityEngine;
 
 namespace Game.UI
 {
+    public enum DialogCloseReason
+    {
+        Explicit = 0,
+        Replaced = 1,
+        ActionInvoked = 2,
+        ModalStackChanged = 3,
+    }
+
+    [Serializable]
+    public sealed class DialogRuntimeOptions
+    {
+        [LabelText("Focus On Show")]
+        public bool FocusOnShow = true;
+    }
+
     public readonly struct UIDialogRuntimeContext
     {
         public Game.IScopeNode DialogScope { get; }

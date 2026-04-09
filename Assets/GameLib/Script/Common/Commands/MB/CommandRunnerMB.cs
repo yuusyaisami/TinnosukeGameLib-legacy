@@ -258,8 +258,6 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.WaitEventExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.UIDialogChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
 
                 builder.Register<VNext.VisualSetStateExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
