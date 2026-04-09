@@ -16,6 +16,14 @@ namespace Game.Commands.VNext
         ModalClearAll = 3,
         ModalSetDefaultRoot = 4,
 
+        // Modal stack channel (new)
+        ModalLayerPush = 5,
+        ModalLayerPop = 6,
+        ModalLayerPopTop = 7,
+        ModalLayerClear = 8,
+        ModalLayerClearAll = 9,
+        ModalLayerSetDefaultRoot = 13,
+
         // Selection
         Select = 10,
         TrySelect = 11,
@@ -44,8 +52,9 @@ namespace Game.Commands.VNext
                 var targetLabel = ActorSourceOdinLabelHelper.GetLabel("Target", Target);
                 var thenCount = Then?.Count ?? 0;
                 var stackLabel = string.IsNullOrEmpty(StackKey) ? "" : $" Stack={StackKey}";
+                var layerLabel = string.IsNullOrEmpty(LayerKey) ? "" : $" Layer={LayerKey}";
                 var uiScopeLabel = string.IsNullOrEmpty(UILifetimeScopeId) ? "" : $" UILTS={UILifetimeScopeId}";
-                return $"{targetLabel} Op={Operation}{stackLabel}{uiScopeLabel} Then={thenCount}";
+                return $"{targetLabel} Op={Operation}{stackLabel}{layerLabel}{uiScopeLabel} Then={thenCount}";
             }
         }
 
@@ -67,6 +76,10 @@ namespace Game.Commands.VNext
         [ShowIf("@Operation == UIControlOperation.ModalPush || Operation == UIControlOperation.ModalPop || Operation == UIControlOperation.ModalPopTop || Operation == UIControlOperation.ModalSetDefaultRoot")]
         [LabelText("Stack Key")]
         public string StackKey = string.Empty;
+
+        [ShowIf("@Operation == UIControlOperation.ModalLayerPush || Operation == UIControlOperation.ModalLayerPop || Operation == UIControlOperation.ModalLayerPopTop || Operation == UIControlOperation.ModalLayerClear || Operation == UIControlOperation.ModalLayerSetDefaultRoot")]
+        [LabelText("Layer Key")]
+        public string LayerKey = "default";
 
         [ShowIf("@Operation == UIControlOperation.SetActive")]
         [LabelText("Active")]
