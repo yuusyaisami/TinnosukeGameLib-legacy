@@ -1,51 +1,45 @@
 #nullable enable
 
-using System;
 using System.Collections.Generic;
-using Game.Dialogue;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace Game.Dialogue
+namespace Game.Conversation
 {
     [DisallowMultipleComponent]
-    public sealed class DialogueChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ConversationChannelHubMB : MonoBehaviour, IFeatureInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
         [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true, DraggableItems = true)]
         [SerializeField]
-        List<DialogueChannelDefinition> _channels = new() { new DialogueChannelDefinition() };
+        List<ConversationChannelDefinition> _channels = new() { new ConversationChannelDefinition() };
 
         [FoldoutGroup("Debug")]
         [LabelText("Enable Debug Log")]
         [SerializeField]
         bool _enableDebugLog;
 
-        IDialogueChannelHubService? _hub;
+        IConversationChannelHubService? _hub;
 
-        public IReadOnlyList<DialogueChannelDefinition> Channels => _channels;
+        public IReadOnlyList<ConversationChannelDefinition> Channels => _channels;
         public bool EnableDebugLog => _enableDebugLog;
-        public IDialogueChannelHubService? Hub => _hub;
+        public IConversationChannelHubService? Hub => _hub;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<DialogueChannelHubService>(Lifetime.Singleton)
+            builder.Register<ConversationChannelHubService>(Lifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
-                .As<IDialogueChannelHubService>()
+                .As<IConversationChannelHubService>()
                 .As<IScopeAcquireHandler>()
-                .As<IScopeReleaseHandler>()
-                .As<ITickable>();
-
-            builder.Register<DialogueService>(Lifetime.Singleton)
-                .As<IDialogueService>();
+                .As<IScopeReleaseHandler>();
 
             builder.RegisterBuildCallback(resolver =>
             {
-                if (resolver.TryResolve<IDialogueChannelHubService>(out var hub) && hub != null)
+                if (resolver.TryResolve<IConversationChannelHubService>(out var hub) && hub != null)
                     _hub = hub;
             });
         }
@@ -53,11 +47,10 @@ namespace Game.Dialogue
 #if UNITY_EDITOR
         void OnValidate()
         {
-            _channels ??= new List<DialogueChannelDefinition>();
+            _channels ??= new List<ConversationChannelDefinition>();
             if (_channels.Count == 0)
-                _channels.Add(new DialogueChannelDefinition());
+                _channels.Add(new ConversationChannelDefinition());
         }
 #endif
     }
 }
-

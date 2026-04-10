@@ -1,0 +1,6 @@
+OVDF v1.1
+Game.Conversation.ConversationNodePreset, Assembly-CSharp
+
+# _messageRequest
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 160

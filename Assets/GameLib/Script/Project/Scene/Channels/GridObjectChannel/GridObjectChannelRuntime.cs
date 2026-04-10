@@ -423,7 +423,7 @@ namespace Game.Channel
             return true;
         }
 
-        async UniTask<List<GridObjectChannelResolvedItem>?> BuildItemsForRefreshAsync(
+        UniTask<List<GridObjectChannelResolvedItem>?> BuildItemsForRefreshAsync(
             GridObjectChannelRefreshMode mode,
             CancellationToken ct)
         {
@@ -450,7 +450,7 @@ namespace Game.Channel
                         _state,
                         new SimpleDynamicContext(GridObjectChannelRuntimeUtility.ResolveVars(_state.ActiveScope), _state.ActiveScope!)),
                     items);
-                return items;
+                return UniTask.FromResult<List<GridObjectChannelResolvedItem>?>(items);
             }
 
             var context = new SimpleDynamicContext(GridObjectChannelRuntimeUtility.ResolveVars(_state.ActiveScope), _state.ActiveScope!);
@@ -460,14 +460,14 @@ namespace Game.Channel
                     out var error))
             {
                 Debug.LogError($"[GridObjectChannel] Item build failed. Tag='{Tag}' Message={error}");
-                return null;
+                return UniTask.FromResult<List<GridObjectChannelResolvedItem>?>(null);
             }
 
             _layoutPlanner.RecalculateItemPositions(
                 new GridObjectChannelLayoutPlanContext(_state, context),
                 items);
             LogBuiltItems(items);
-            return items;
+            return UniTask.FromResult<List<GridObjectChannelResolvedItem>?>(items);
         }
 
         async UniTask BuildFromItemsAsync(List<GridObjectChannelResolvedItem> items, CancellationToken ct)
