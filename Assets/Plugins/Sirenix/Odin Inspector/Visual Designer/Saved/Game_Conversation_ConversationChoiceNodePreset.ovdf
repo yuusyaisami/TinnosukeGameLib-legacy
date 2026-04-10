@@ -3,4 +3,4 @@ Game.Conversation.ConversationChoiceNodePreset, Assembly-CSharp
 
 # _choiceRequest
 + [Sirenix.OdinInspector.LabelWidthAttribute]
-	Width = 0
+	Width = 0.3
