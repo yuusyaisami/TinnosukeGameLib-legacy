@@ -1015,8 +1015,7 @@ namespace Game.Conversation.Editor
             var previousZoom = Mathf.Max(MinGraphZoom, _graphZoom);
             if (_graphRoot != null && mouseLocalPosition.HasValue)
             {
-                var zoomIn = clamped > _graphZoom;
-                var pivot = ResolveZoomPivot(mouseLocalPosition.Value, zoomIn);
+                var pivot = ResolveZoomPivot(mouseLocalPosition.Value);
                 var graphPivot = (pivot - _graphPan) / previousZoom;
 
                 _graphZoom = clamped;
@@ -1031,15 +1030,18 @@ namespace Game.Conversation.Editor
             _wireLayer?.MarkDirtyRepaint();
         }
 
-        Vector2 ResolveZoomPivot(Vector2 mouseLocalPosition, bool zoomIn)
+        Vector2 ResolveZoomPivot(Vector2 mouseLocalPosition)
         {
             if (_graphRoot == null)
                 return mouseLocalPosition;
 
             var rect = _graphRoot.contentRect;
             var center = rect.center;
-            var blend = zoomIn ? 0.56f : 0.34f;
-            var pivot = Vector2.Lerp(center, mouseLocalPosition, blend);
+            var offset = mouseLocalPosition - center;
+            var maxDistance = Mathf.Max(1f, Mathf.Min(rect.width, rect.height) * 0.5f);
+            var distanceFactor = Mathf.Clamp01(offset.magnitude / maxDistance);
+            var blend = Mathf.Lerp(0.18f, 0.72f, distanceFactor);
+            var pivot = center + (offset * blend);
             pivot.x = Mathf.Clamp(pivot.x, rect.xMin, rect.xMax);
             pivot.y = Mathf.Clamp(pivot.y, rect.yMin, rect.yMax);
             return pivot;
@@ -1308,13 +1310,16 @@ namespace Game.Conversation.Editor
 
                     EditorGUILayout.LabelField("Conversation Settings", EditorStyles.boldLabel);
 
-                    var settingsProperty = flowProperty.FindPropertyRelative("_settings");
-                    if (settingsProperty != null)
+                    if (!TryDrawFlowSettingsDirect())
                     {
-                        if (!TryDrawOdinPropertyAtUnityPath(settingsProperty.propertyPath))
+                        var settingsProperty = flowProperty.FindPropertyRelative("_settings");
+                        if (settingsProperty != null)
                         {
-                            EditorGUILayout.HelpBox("Odin property drawing failed for flow settings; fallback Unity property drawing was used.", MessageType.Warning);
-                            EditorGUILayout.PropertyField(settingsProperty, true);
+                            if (!TryDrawOdinPropertyAtUnityPath(settingsProperty.propertyPath))
+                            {
+                                EditorGUILayout.HelpBox("Odin property drawing failed for flow settings; fallback Unity property drawing was used.", MessageType.Warning);
+                                EditorGUILayout.PropertyField(settingsProperty, true);
+                            }
                         }
                     }
 
@@ -1681,6 +1686,49 @@ namespace Game.Conversation.Editor
             _inspectorPropertyTree ??= PropertyTree.Create(_ownerSerializedObject);
             tree = _inspectorPropertyTree;
             return tree != null;
+        }
+
+        bool TryDrawFlowSettingsDirect()
+        {
+            if (_preset == null)
+                return false;
+
+            PropertyTree? tree = null;
+            var beganDraw = false;
+            try
+            {
+                tree = PropertyTree.Create(_preset);
+                if (tree == null)
+                    return false;
+
+                tree.UpdateTree();
+                var settingsProperty = tree.GetPropertyAtUnityPath("_settings");
+                if (settingsProperty == null)
+                    return false;
+
+                tree.BeginDraw(false);
+                beganDraw = true;
+                DrawInspectorPropertySafely(settingsProperty);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (ex is ExitGUIException)
+                    throw;
+
+                Debug.LogWarning($"[ConversationFlow] Flow settings direct draw failed. message={ex.Message}");
+                return false;
+            }
+            finally
+            {
+                if (tree != null)
+                {
+                    if (beganDraw)
+                        tree.EndDraw();
+
+                    tree.Dispose();
+                }
+            }
         }
 
         static void DrawInspectorPropertySafely(InspectorProperty property)
