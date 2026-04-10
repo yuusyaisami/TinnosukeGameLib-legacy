@@ -347,10 +347,10 @@ namespace Game.UI
             }
         }
 
-        async UniTask<bool> ResolveCurrentStateAsync(CancellationToken ct)
+        UniTask<bool> ResolveCurrentStateAsync(CancellationToken ct)
         {
             if (_activeScope == null)
-                return false;
+            return UniTask.FromResult(false);
 
             var dynCtx = new SimpleDynamicContext(TraitListChannelRuntimeHelpers.ResolveVars(_activeScope), _activeScope);
             var binding = _definition.DefaultBinding != null ? _definition.DefaultBinding.Clone() : new TraitListChannelBinding();
@@ -392,7 +392,7 @@ namespace Game.UI
             if (string.IsNullOrEmpty(holderKey))
             {
                 UnbindServices();
-                return false;
+                return UniTask.FromResult(false);
             }
 
             var hubScope = ActorSourceFastResolver.ResolveCached(_activeScope, binding.HolderHubSource, ref _holderHubSourceCache);
@@ -401,14 +401,14 @@ namespace Game.UI
             {
                 UnbindServices();
                 Debug.LogWarning($"[TraitListChannel] TraitHolderHubService is missing. Tag='{Tag}'");
-                return false;
+                return UniTask.FromResult(false);
             }
 
             if (!hub.TryGetHolder(holderKey, out var holder) || holder == null)
             {
                 UnbindServices();
                 Debug.LogWarning($"[TraitListChannel] Holder was not found. Tag='{Tag}' HolderKey='{holderKey}'");
-                return false;
+                return UniTask.FromResult(false);
             }
 
             ITraitPlacementService? placementService = null;
@@ -417,7 +417,7 @@ namespace Game.UI
 
             BindServices(holder, placementService);
             ct.ThrowIfCancellationRequested();
-            return true;
+            return UniTask.FromResult(true);
         }
 
         async UniTask<bool> RefreshResolvedStateAsync(TraitListChannelRefreshMode mode, CancellationToken ct)

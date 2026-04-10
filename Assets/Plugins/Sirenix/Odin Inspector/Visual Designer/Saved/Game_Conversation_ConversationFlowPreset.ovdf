@@ -1,0 +1,8 @@
+OVDF v1.1
+Game.Conversation.ConversationFlowPreset, Assembly-CSharp
+
+# _settings
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 0.72
+* [Sirenix.OdinInspector.LabelTextAttribute]
+	Text = "Settings"

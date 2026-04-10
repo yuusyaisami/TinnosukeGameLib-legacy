@@ -1,0 +1,8 @@
+OVDF v1.1
+Game.Dialogue.DialogueMessageRequest, Assembly-CSharp
+
+# AutoSetup
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 68.4
+* [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = 163

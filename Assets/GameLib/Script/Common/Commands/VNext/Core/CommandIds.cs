@@ -54,7 +54,9 @@ namespace Game.Commands.VNext
         public const int MeshChannelControl = 1837;
         public const int MeshMaterialFxControl = 1838;
         public const int ParallaxChannel = 1839;
-        public const int UIDialogChannel = 1840;
+        public const int DialogueChannel = 1840;
+        public const int ConversationFlow = 1841;
+        public const int ConversationInFlow = 1842;
         public const int WriteData = 1850;
         public const int WriteGridData = 1851;
 

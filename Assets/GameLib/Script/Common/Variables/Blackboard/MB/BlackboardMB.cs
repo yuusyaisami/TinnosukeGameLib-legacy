@@ -134,7 +134,7 @@ namespace Game.Common
         [InlineProperty]
         [SerializeField] LocalGridBlackboardInit localGridBlackboardInit = new();
 
-        IScopeNode _owner;
+        IScopeNode? _owner;
         bool _debugInitialized;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
