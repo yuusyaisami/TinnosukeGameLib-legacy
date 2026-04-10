@@ -1310,16 +1310,13 @@ namespace Game.Conversation.Editor
 
                     EditorGUILayout.LabelField("Conversation Settings", EditorStyles.boldLabel);
 
-                    if (!TryDrawFlowSettingsDirect())
+                    var settingsProperty = flowProperty.FindPropertyRelative("_settings");
+                    if (settingsProperty != null)
                     {
-                        var settingsProperty = flowProperty.FindPropertyRelative("_settings");
-                        if (settingsProperty != null)
+                        if (!TryDrawOdinPropertyAtUnityPath(settingsProperty.propertyPath))
                         {
-                            if (!TryDrawOdinPropertyAtUnityPath(settingsProperty.propertyPath))
-                            {
-                                EditorGUILayout.HelpBox("Odin property drawing failed for flow settings; fallback Unity property drawing was used.", MessageType.Warning);
-                                EditorGUILayout.PropertyField(settingsProperty, true);
-                            }
+                            EditorGUILayout.HelpBox("Odin property drawing failed for flow settings; fallback Unity property drawing was used.", MessageType.Warning);
+                            EditorGUILayout.PropertyField(settingsProperty, true);
                         }
                     }
 
@@ -1686,49 +1683,6 @@ namespace Game.Conversation.Editor
             _inspectorPropertyTree ??= PropertyTree.Create(_ownerSerializedObject);
             tree = _inspectorPropertyTree;
             return tree != null;
-        }
-
-        bool TryDrawFlowSettingsDirect()
-        {
-            if (_preset == null)
-                return false;
-
-            PropertyTree? tree = null;
-            var beganDraw = false;
-            try
-            {
-                tree = PropertyTree.Create(_preset);
-                if (tree == null)
-                    return false;
-
-                tree.UpdateTree();
-                var settingsProperty = tree.GetPropertyAtUnityPath("_settings");
-                if (settingsProperty == null)
-                    return false;
-
-                tree.BeginDraw(false);
-                beganDraw = true;
-                DrawInspectorPropertySafely(settingsProperty);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                if (ex is ExitGUIException)
-                    throw;
-
-                Debug.LogWarning($"[ConversationFlow] Flow settings direct draw failed. message={ex.Message}");
-                return false;
-            }
-            finally
-            {
-                if (tree != null)
-                {
-                    if (beganDraw)
-                        tree.EndDraw();
-
-                    tree.Dispose();
-                }
-            }
         }
 
         static void DrawInspectorPropertySafely(InspectorProperty property)
