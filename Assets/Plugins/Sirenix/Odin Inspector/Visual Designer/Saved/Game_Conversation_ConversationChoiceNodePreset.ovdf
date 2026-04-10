@@ -1,0 +1,6 @@
+OVDF v1.1
+Game.Conversation.ConversationChoiceNodePreset, Assembly-CSharp
+
+# _choiceRequest
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 0
