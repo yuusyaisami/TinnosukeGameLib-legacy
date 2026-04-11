@@ -735,10 +735,10 @@ namespace Game.UI
             if (_hub.CurrentTriggerSpaceKind != TooltipChannelSpaceKind.UIScreen)
                 return true;
 
-            if (_hub.ModalStackService == null)
+            if (_hub.ModalStackHub == null)
                 return true;
 
-            return _hub.ModalStackService.IsInAnyInputRoot(_owner);
+            return _hub.ModalStackHub.IsInAnyInputRoot(_owner);
         }
 
         RectTransform? ResolveRectTransform(TooltipHitTestTarget target)

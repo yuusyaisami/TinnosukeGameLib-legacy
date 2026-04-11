@@ -42,8 +42,7 @@ namespace Game.UI
     {
         IUISelectionTelemetry? _telemetry;
         IUISelectionNavigation? _navigation;
-        IUIModalStackTelemetry? _modalTelemetry;
-        IUIModalStackService? _modalStackService;
+        IModalStackChannelHubService? _modalStackHub;
 
         // ----------------------------------------------------------------
         // Inspector設定
@@ -77,9 +76,9 @@ namespace Game.UI
                 return;
             }
 
-            if (_telemetry == null || _navigation == null || _modalTelemetry == null || _modalStackService == null)
+            if (_telemetry == null || _navigation == null || _modalStackHub == null)
             {
-                Debug.LogWarning("[UISelectionMB] DumpSelectableUITree: telemetry or modal stack service is not ready.");
+                Debug.LogWarning("[UISelectionMB] DumpSelectableUITree: telemetry or modal stack hub is not ready.");
                 return;
             }
 
@@ -90,34 +89,28 @@ namespace Game.UI
             sb.Append("Hovered: ").AppendLine(DescribeNode(_telemetry.Hovered));
             sb.Append("SelectionSource: ").AppendLine(_telemetry.LastSelectionSource.ToString());
             sb.Append("CandidateProvider: ").AppendLine(_telemetry.CandidateProvider?.GetType().FullName ?? "(null)");
-            sb.Append("CurrentInputRoot: ").AppendLine(_modalTelemetry.CurrentInputRoot?.ModalId ?? "(null)");
-            sb.Append("ModalDepth: ").AppendLine(_modalTelemetry.Depth.ToString());
-            sb.Append("ActiveRoots: ").AppendLine(_modalTelemetry.ActiveRoots.Count.ToString());
+            sb.Append("CurrentInputRoot: ").AppendLine(ModalStackChannelDebugLabelUtility.DescribeRoot(_modalStackHub.CurrentInputRoot));
+            sb.Append("LayerCount: ").AppendLine(_modalStackHub.LayerStates.Count.ToString());
+            sb.Append("RootCount: ").AppendLine(_modalStackHub.RootStates.Count.ToString());
 
-            for (int i = 0; i < _modalTelemetry.ActiveRoots.Count; i++)
+            for (int i = 0; i < _modalStackHub.LayerStates.Count; i++)
             {
-                var activeRoot = _modalTelemetry.ActiveRoots[i];
-                var rootScope = activeRoot.Root.OwnerScope;
-                sb.Append("  [").Append(i).Append("] StackKey=").Append(activeRoot.StackKey)
-                    .Append(" Priority=").Append(activeRoot.Priority)
-                    .Append(" Policy=").Append(activeRoot.Policy)
-                    .Append(" Root=").Append(activeRoot.Root.ModalId)
-                    .Append(" Scope=").AppendLine(DescribeNode(rootScope));
+                var layerState = _modalStackHub.LayerStates[i];
+                if (!layerState.InputActive || layerState.ActiveRoot == null)
+                    continue;
+
+                sb.Append("  [").Append(i).Append("] LayerKey=").Append(layerState.LayerKey)
+                    .Append(" Order=").Append(layerState.Order)
+                    .Append(" Visible=").Append(layerState.Visible)
+                    .Append(" InputActive=").Append(layerState.InputActive)
+                    .Append(" TopOrder=").Append(layerState.IsTopOrderGroup)
+                    .Append(" Primary=").Append(layerState.IsPrimaryInOrder)
+                    .Append(" SuppressedBy=").Append(string.IsNullOrWhiteSpace(layerState.SuppressedByLayerKey) ? "(none)" : layerState.SuppressedByLayerKey)
+                    .Append(" Root=").AppendLine(ModalStackChannelDebugLabelUtility.DescribeRoot(layerState.ActiveRoot));
             }
 
             var rootScopes = new List<IScopeNode>();
-            var rootDedup = new HashSet<IScopeNode>(Game.ReferenceEqualityComparer<IScopeNode>.Instance);
-            for (int i = 0; i < _modalTelemetry.ActiveRoots.Count; i++)
-            {
-                var rootScope = _modalTelemetry.ActiveRoots[i].Root.OwnerScope;
-                if (rootScope != null && rootDedup.Add(rootScope))
-                    rootScopes.Add(rootScope);
-            }
-
-            if (rootScopes.Count == 0 && _telemetry.CurrentInputRoot?.OwnerScope != null)
-            {
-                rootScopes.Add(_telemetry.CurrentInputRoot.OwnerScope);
-            }
+            TryGetActiveRootScopes(rootScopes);
 
             if (rootScopes.Count == 0)
             {
@@ -159,8 +152,8 @@ namespace Game.UI
         /// UISelectionServiceをDIコンテナに登録する。
         /// 
         /// 登録順序の注意:
-        /// - UISelectionServiceはIUIModalStackServiceに依存する
-        /// - UIModalStackMBが先に登録されている必要がある
+        /// - UISelectionServiceはIModalStackChannelHubServiceに依存する
+        /// - ModalStackChannelHubMBが先に登録されている必要がある
         /// </summary>
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
@@ -197,12 +190,41 @@ namespace Game.UI
                 if (container.TryResolve<IUISelectionNavigation>(out var navigation))
                     _navigation = navigation;
 
-                if (container.TryResolve<IUIModalStackTelemetry>(out var modalTelemetry))
-                    _modalTelemetry = modalTelemetry;
-
-                if (container.TryResolve<IUIModalStackService>(out var modalStackService))
-                    _modalStackService = modalStackService;
+                if (container.TryResolve<IModalStackChannelHubService>(out var modalStackHub))
+                    _modalStackHub = modalStackHub;
             });
+        }
+
+        bool TryGetActiveRootScopes(List<IScopeNode> results)
+        {
+            results.Clear();
+
+            if (_modalStackHub == null)
+                return false;
+
+            var layerStates = _modalStackHub.LayerStates;
+            for (var i = 0; i < layerStates.Count; i++)
+            {
+                var layerState = layerStates[i];
+                if (!layerState.InputActive)
+                    continue;
+
+                var scope = layerState.ActiveRoot?.OwnerScope;
+                if (scope != null && !results.Contains(scope))
+                    results.Add(scope);
+            }
+
+            if (results.Count > 0)
+                return true;
+
+            var fallback = _modalStackHub.CurrentInputRoot?.OwnerScope;
+            if (fallback != null)
+            {
+                results.Add(fallback);
+                return true;
+            }
+
+            return false;
         }
 
         void AppendScopeNodeRecursive(
@@ -224,7 +246,7 @@ namespace Game.UI
 
             TryResolveOwnedUIState(node, out var state);
             var canSelect = _navigation != null && _navigation.CanSelect(node);
-            var inAnyInputRoot = _modalStackService != null && _modalStackService.IsInAnyInputRoot(node);
+            var inAnyInputRoot = _modalStackHub != null && _modalStackHub.IsInAnyInputRoot(node);
             var isCurrent = ReferenceEquals(_telemetry?.Current, node);
             var isHovered = ReferenceEquals(_telemetry?.Hovered, node);
             var isPrevious = ReferenceEquals(_telemetry?.Previous, node);

@@ -1867,16 +1867,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 8466907973153253532}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74be04bbab6d9944ab9837fd6ac8fa21, type: 3}
+  m_Script: {fileID: 11500000, guid: 27200420eb73a5a4a9eca3cd47ce1933, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIModalStackMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.ModalStackChannelHubMB
   _initialRoot: {fileID: 1805377878543686054}
   _enableModalStackLogging: 0
   _debugView:
     CurrentInputRoot: (none)
-    Depth: 0
-    StackModalIds: []
-    ActiveRoots: []
+    LastChange: (none)
+    LayerCount: 0
+    RootCount: 0
+    Layers: []
+    Roots: []
 --- !u!114 &4443362442980422187
 MonoBehaviour:
   m_ObjectHideFlags: 0

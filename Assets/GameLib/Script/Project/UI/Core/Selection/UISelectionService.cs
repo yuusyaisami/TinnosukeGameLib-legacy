@@ -26,7 +26,7 @@ namespace Game.UI
     //
     // ## 依存サービス
     //
-    // - IUIModalStackService: Modal Stack境界の判定
+    // - IModalStackChannelHubService: Modal Stack Channel境界の判定
     // - ISelectCandidateProvider: 候補の取得（後から設定）
     //   （Mask 判定は CandidateProvider 内で行われる）
     //
@@ -57,7 +57,7 @@ namespace Game.UI
         /// Modal Stackサービス。
         /// 選択境界の判定に使用。
         /// </summary>
-        readonly IUIModalStackService _modalStackService;
+        readonly IModalStackChannelHubService _modalStackHub;
 
         /// <summary>
         /// 候補プロバイダー。
@@ -192,7 +192,7 @@ namespace Game.UI
 
         // Telemetry properties
         ISelectCandidateProvider? IUISelectionTelemetry.CandidateProvider => _candidateProvider;
-        IUIModalRoot? IUISelectionTelemetry.CurrentInputRoot => _modalStackService.CurrentInputRoot;
+        IUIModalRoot? IUISelectionTelemetry.CurrentInputRoot => _modalStackHub.CurrentInputRoot;
         IReadOnlyList<SelectCandidate> IUISelectionTelemetry.LastNavigationCandidates => _lastNavigationCandidates;
         IReadOnlyList<SelectCandidate> IUISelectionTelemetry.LastPointerCandidates => _lastPointerCandidates;
         UISelectionService.SelectionSource IUISelectionTelemetry.LastSelectionSource => _selectionSource;
@@ -244,21 +244,19 @@ namespace Game.UI
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        /// <param name="modalStackService">Modal Stackサービス（必須）</param>
-        public UISelectionService(IUIModalStackService modalStackService, ISelectCandidateProvider? candidateProvider = null)
+        /// <param name="modalStackHub">Modal Stack Channelサービス（必須）</param>
+        public UISelectionService(IModalStackChannelHubService modalStackHub, ISelectCandidateProvider? candidateProvider = null)
         {
-            _modalStackService = modalStackService;
+            _modalStackHub = modalStackHub;
             _candidateProvider = candidateProvider;
 
-            // Modal Stack変更時に選択をクランプする
-            _modalStackService.OnModalStackChanged += HandleModalStackChanged;
-            _modalStackService.OnActiveRootsChanged += HandleActiveRootsChanged;
+            // Modal Stack Channel変更時に選択をクランプする
+            _modalStackHub.OnLayerStatesChanged += HandleLayerStatesChanged;
         }
 
         public void Dispose()
         {
-            _modalStackService.OnModalStackChanged -= HandleModalStackChanged;
-            _modalStackService.OnActiveRootsChanged -= HandleActiveRootsChanged;
+            _modalStackHub.OnLayerStatesChanged -= HandleLayerStatesChanged;
         }
 
         // ================================================================
@@ -281,19 +279,23 @@ namespace Game.UI
         {
             results.Clear();
 
-            var roots = _modalStackService.ActiveRoots;
-            if (roots != null && roots.Count > 0)
+            var layerStates = _modalStackHub.LayerStates;
+            if (layerStates != null && layerStates.Count > 0)
             {
-                for (int i = 0; i < roots.Count; i++)
+                for (int i = 0; i < layerStates.Count; i++)
                 {
-                    var scope = roots[i].Root?.OwnerScope;
+                    var layerState = layerStates[i];
+                    if (!layerState.InputActive)
+                        continue;
+
+                    var scope = layerState.ActiveRoot?.OwnerScope;
                     if (scope != null && !results.Contains(scope))
                         results.Add(scope);
                 }
                 return results.Count > 0;
             }
 
-            var fallback = _modalStackService.CurrentInputRoot?.OwnerScope;
+            var fallback = _modalStackHub.CurrentInputRoot?.OwnerScope;
             if (fallback != null)
             {
                 results.Add(fallback);
@@ -667,7 +669,7 @@ namespace Game.UI
             }
 
             // Modal Stack境界内にいるか
-            if (!_modalStackService.IsInAnyInputRoot(target))
+            if (!_modalStackHub.IsInAnyInputRoot(target))
                 return false;
 
             // UIElementStateがEffectivelyActiveか
@@ -769,22 +771,9 @@ namespace Game.UI
             _currentConsumers.Sort((a, b) => b.Priority.CompareTo(a.Priority));
         }
 
-        /// <summary>
-        /// Modal Stack変更時のハンドラ。
-        /// 選択が範囲外になった場合はクリアする。
-        /// 
-        /// ## 注意
-        /// 
-        /// フォールバック処理は別途ModalStackServiceが行う。
-        /// ここでは単純にCanSelect判定のみ。
-        /// </summary>
-        void HandleModalStackChanged(UIModalStackChangeContext context)
+        void HandleLayerStatesChanged(ModalLayerStatesChangedContext context)
         {
-            HandleModalBoundaryChanged();
-        }
-
-        void HandleActiveRootsChanged(UIModalStackRootsChangeContext context)
-        {
+            _ = context;
             HandleModalBoundaryChanged();
         }
 

@@ -418,8 +418,8 @@ namespace Game.UI
         /// <summary>ナビゲーションサービス（UIInputEvent配信先）</summary>
         readonly IUINavigationService _navigationService;
 
-        /// <summary>ModalStackサービス（ActiveRoots変更検知用）</summary>
-        readonly IUIModalStackService? _modalStackService;
+        /// <summary>ModalStack Channelテレメトリ（LayerStates変更検知用）</summary>
+        readonly IModalStackChannelTelemetry? _modalStackTelemetry;
 
         /// <summary>UIInputオプション</summary>
         readonly UIInputOptions _options;
@@ -477,14 +477,14 @@ namespace Game.UI
             IInputRouter inputRouter,
             IUINavigationService navigationService,
             UIInputOptions? options = null,
-            IUIModalStackService? modalStackService = null)
+            IModalStackChannelTelemetry? modalStackTelemetry = null)
         {
             _controlSchemeService = controlSchemeService;
             _pointerService = pointerService;
             _inputRouter = inputRouter;
             _navigationService = navigationService;
             _options = options ?? new UIInputOptions();
-            _modalStackService = modalStackService;
+            _modalStackTelemetry = modalStackTelemetry;
         }
 
         // ----------------------------------------------------------------
@@ -506,8 +506,8 @@ namespace Game.UI
             _controlSchemeService.OnUsageModeChanged += HandleUsageModeChanged;
             _lastUsageMode = _controlSchemeService.CurrentUsageMode;
 
-            if (_modalStackService != null)
-                _modalStackService.OnActiveRootsChanged += HandleModalActiveRootsChanged;
+            if (_modalStackTelemetry != null)
+                _modalStackTelemetry.OnLayerStatesChanged += HandleModalLayerStatesChanged;
         }
 
         /// <summary>
@@ -526,8 +526,8 @@ namespace Game.UI
             // イベント購読解除
             _controlSchemeService.OnUsageModeChanged -= HandleUsageModeChanged;
 
-            if (_modalStackService != null)
-                _modalStackService.OnActiveRootsChanged -= HandleModalActiveRootsChanged;
+            if (_modalStackTelemetry != null)
+                _modalStackTelemetry.OnLayerStatesChanged -= HandleModalLayerStatesChanged;
         }
 
         // ----------------------------------------------------------------
@@ -547,7 +547,7 @@ namespace Game.UI
             }
         }
 
-        void HandleModalActiveRootsChanged(UIModalStackRootsChangeContext context)
+        void HandleModalLayerStatesChanged(ModalLayerStatesChangedContext context)
         {
             _ = context;
             if (!_options.BlockInputAfterModalActiveRootsChanged)

@@ -1,9 +1,41 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Game.UI
 {
+    [Serializable]
+    public struct ModalOptions
+    {
+        [Tooltip("モーダルがPopされたときに、自動的に前回の選択にフォールバックするか")]
+        public bool AutoFallbackOnPop;
+
+        [Tooltip("このモーダル内でのデフォルト選択対象UIElement")]
+        public IScopeNode? DefaultSelectedElement;
+
+        [Tooltip("背景クリックでモーダルを閉じるか")]
+        public bool CloseOnBackgroundClick;
+
+        [Tooltip("キャンセルボタンでモーダルを閉じるか")]
+        public bool CloseOnCancel;
+
+        public static ModalOptions Default => new()
+        {
+            AutoFallbackOnPop = true,
+            CloseOnBackgroundClick = false,
+            CloseOnCancel = true,
+            DefaultSelectedElement = null,
+        };
+    }
+
+    public enum UIModalStackChangeType
+    {
+        Normal = 0,
+        Immediate = 1,
+        Temporary = 2,
+    }
+
     public enum ModalLayerTiePolicy
     {
         FirstCome = 10,
@@ -158,6 +190,7 @@ namespace Game.UI
         IReadOnlyList<ModalLayerResolvedState> LayerStates { get; }
         IReadOnlyList<ModalRootResolvedState> RootStates { get; }
         IUIModalRoot? CurrentInputRoot { get; }
+        bool IsInAnyInputRoot(IScopeNode? element);
 
         void RegisterLayer(ModalLayerPreset preset);
         bool TryGetLayerState(string layerKey, out ModalLayerResolvedState state);
