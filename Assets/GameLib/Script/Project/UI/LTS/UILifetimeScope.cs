@@ -35,7 +35,7 @@ namespace Game.UI
     // UI専用RequireComponent属性
     [RequireComponent(typeof(UIInputMB))]
     [RequireComponent(typeof(UINavigationMB))]
-    [RequireComponent(typeof(UIModalStackMB))]
+    [RequireComponent(typeof(ModalStackChannelHubMB))]
     [RequireComponent(typeof(UISelectionMB))]
     [RequireComponent(typeof(UICanvasMB))]
     [RequireComponent(typeof(BlackboardMB))]

@@ -161,7 +161,7 @@ namespace Game.UI
     /// 
     /// - UINavigationService: ナビゲーション入力を選択に変換
     /// - UIInputService: ポインター移動をホバー/選択に変換
-    /// - ModalStackService: Pop時の選択復元
+    /// - ModalStackChannelHubService: Pop時の選択復元
     /// </summary>
     public interface IUISelectionNavigation
     {

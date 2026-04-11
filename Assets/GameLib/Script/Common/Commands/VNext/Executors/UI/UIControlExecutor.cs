@@ -65,52 +65,40 @@ namespace Game.Commands.VNext
             {
                 // ---------------- Modal stack ----------------
                 case UIControlOperation.ModalPush:
-                    if (TryResolve(controlScope, out IUIModalStackService? modal) && modal != null
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modal) && modal != null
                         && TryResolve(targetScope, out IUIModalRoot? root) && root != null)
                     {
-                        if (HasStackKey(typed))
-                            modal.PushModal(typed.StackKey, root, typed.ModalOptions);
-                        else
-                            modal.PushModal(root, typed.ModalOptions);
+                        modal.PushModal(typed.StackKey, root, typed.ModalOptions);
                     }
                     break;
 
                 case UIControlOperation.ModalPop:
-                    if (TryResolve(controlScope, out IUIModalStackService? modalPop) && modalPop != null
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalPop) && modalPop != null
                         && TryResolve(targetScope, out IUIModalRoot? rootPop) && rootPop != null)
                     {
-                        if (HasStackKey(typed))
-                            modalPop.PopModal(typed.StackKey, rootPop);
-                        else
-                            modalPop.PopModal(rootPop);
+                        modalPop.PopModal(typed.StackKey, rootPop);
                     }
                     break;
 
                 case UIControlOperation.ModalPopTop:
-                    if (TryResolve(controlScope, out IUIModalStackService? modalPopTop) && modalPopTop != null)
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalPopTop) && modalPopTop != null)
                     {
-                        if (HasStackKey(typed))
-                            modalPopTop.PopTop(typed.StackKey);
-                        else
-                            modalPopTop.PopTop();
+                        modalPopTop.PopTop(typed.StackKey);
                     }
                     break;
 
                 case UIControlOperation.ModalClearAll:
-                    if (TryResolve(controlScope, out IUIModalStackService? modalClear) && modalClear != null)
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalClear) && modalClear != null)
                     {
                         modalClear.ClearAll();
                     }
                     break;
 
                 case UIControlOperation.ModalSetDefaultRoot:
-                    if (TryResolve(controlScope, out IUIModalStackService? modalSetRoot) && modalSetRoot != null
+                    if (TryResolve(controlScope, out IModalStackChannelHubService? modalSetRoot) && modalSetRoot != null
                         && TryResolve(targetScope, out IUIModalRoot? defaultRoot) && defaultRoot != null)
                     {
-                        if (HasStackKey(typed))
-                            modalSetRoot.SetDefaultRoot(typed.StackKey, defaultRoot);
-                        else
-                            modalSetRoot.SetDefaultRoot(defaultRoot);
+                        modalSetRoot.SetDefaultRoot(typed.StackKey, defaultRoot);
                     }
                     break;
 

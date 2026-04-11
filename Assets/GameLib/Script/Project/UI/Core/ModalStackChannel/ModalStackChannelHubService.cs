@@ -100,6 +100,26 @@ namespace Game.UI
             return false;
         }
 
+        public bool IsInAnyInputRoot(IScopeNode? element)
+        {
+            if (element == null)
+                return false;
+
+            var layerStates = _layerStates;
+            for (var i = 0; i < layerStates.Count; i++)
+            {
+                var layerState = layerStates[i];
+                if (!layerState.InputActive)
+                    continue;
+
+                var activeRoot = layerState.ActiveRoot;
+                if (activeRoot != null && activeRoot.IsDescendant(element))
+                    return true;
+            }
+
+            return false;
+        }
+
         public void SetDefaultRoot(string layerKey, IUIModalRoot? root, UIModalStackChangeType changeType = UIModalStackChangeType.Normal)
         {
             var layer = EnsureLayer(layerKey);

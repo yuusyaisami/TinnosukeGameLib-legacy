@@ -45,7 +45,7 @@ namespace Game.UI
         IPointerService? _pointerService;
         IWorldPointerRuntimeService? _worldPointerService;
         IUISelectionState? _selectionState;
-        IUIModalStackService? _modalStackService;
+        IModalStackChannelHubService? _modalStackHub;
         ISceneSpawnerRegistry? _spawnerRegistry;
         ICameraLocationChannelService? _cameraLocationService;
         ITooltipSystemService? _tooltipSystemService;
@@ -87,7 +87,7 @@ namespace Game.UI
         internal IPointerService? PointerService => _pointerService;
         internal IWorldPointerRuntimeService? WorldPointerService => _worldPointerService;
         internal IUISelectionState? SelectionState => _selectionState;
-        internal IUIModalStackService? ModalStackService => _modalStackService;
+        internal IModalStackChannelHubService? ModalStackHub => _modalStackHub;
         internal int ResolveSpawnWarmupFrames()
         {
             var hubFrames = _currentHubPreset.SpawnWarmupFrames;
@@ -130,7 +130,7 @@ namespace Game.UI
             _pointerService = null;
             _worldPointerService = null;
             _selectionState = null;
-            _modalStackService = null;
+            _modalStackHub = null;
             _spawnerRegistry = null;
             _cameraLocationService = null;
             _tooltipSystemService = null;
@@ -322,7 +322,7 @@ namespace Game.UI
             scope.TryResolveInAncestors(out _pointerService);
             scope.TryResolveInAncestors(out _worldPointerService);
             scope.TryResolveInAncestors(out _selectionState);
-            scope.TryResolveInAncestors(out _modalStackService);
+            scope.TryResolveInAncestors(out _modalStackHub);
             scope.TryResolveInAncestors(out _spawnerRegistry);
             scope.TryResolveInAncestors(out _cameraLocationService);
             scope.TryResolveInAncestors(out _tooltipSystemService);

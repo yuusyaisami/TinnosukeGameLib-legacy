@@ -2371,20 +2371,24 @@ namespace Game.Common
                 return DynamicVariant.Null;
 
             var modalScope = ActorSourceFastResolver.ResolveCached(context, modalStackActorSource, ref _modalStackActorCache);
-            if (!TryResolveModalStackService(modalScope, out var modalStackService) || modalStackService == null)
+            if (!TryResolveModalStackChannelTelemetry(modalScope, out var modalStackTelemetry) || modalStackTelemetry == null)
                 return DynamicVariant.FromBool(false);
 
             var compareScope = ActorSourceFastResolver.ResolveCached(context, compareActorSource, ref _compareActorCache);
             if (compareScope == null)
                 return DynamicVariant.FromBool(false);
 
-            var activeRoots = modalStackService.ActiveRoots;
-            if (activeRoots == null || activeRoots.Count == 0)
+            var layerStates = modalStackTelemetry.LayerStates;
+            if (layerStates == null || layerStates.Count == 0)
                 return DynamicVariant.FromBool(false);
 
-            for (int i = 0; i < activeRoots.Count; i++)
+            for (int i = 0; i < layerStates.Count; i++)
             {
-                var root = activeRoots[i].Root;
+                var layerState = layerStates[i];
+                if (!layerState.InputActive)
+                    continue;
+
+                var root = layerState.ActiveRoot;
                 var ownerScope = root?.OwnerScope;
                 if (root == null || ownerScope == null)
                     continue;
@@ -2399,17 +2403,17 @@ namespace Game.Common
             return DynamicVariant.FromBool(false);
         }
 
-        static bool TryResolveModalStackService(IScopeNode? scope, out IUIModalStackService? modalStackService)
+        static bool TryResolveModalStackChannelTelemetry(IScopeNode? scope, out IModalStackChannelTelemetry? modalStackTelemetry)
         {
-            modalStackService = null;
+            modalStackTelemetry = null;
             for (var current = scope; current != null; current = current.Parent)
             {
                 var resolver = current.Resolver;
                 if (resolver != null &&
-                    resolver.TryResolve<IUIModalStackService>(out var resolved) &&
+                    resolver.TryResolve<IModalStackChannelTelemetry>(out var resolved) &&
                     resolved != null)
                 {
-                    modalStackService = resolved;
+                    modalStackTelemetry = resolved;
                     return true;
                 }
             }
