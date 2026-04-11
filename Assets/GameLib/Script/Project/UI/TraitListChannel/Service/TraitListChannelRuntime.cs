@@ -350,7 +350,7 @@ namespace Game.UI
         UniTask<bool> ResolveCurrentStateAsync(CancellationToken ct)
         {
             if (_activeScope == null)
-            return UniTask.FromResult(false);
+                return UniTask.FromResult(false);
 
             var dynCtx = new SimpleDynamicContext(TraitListChannelRuntimeHelpers.ResolveVars(_activeScope), _activeScope);
             var binding = _definition.DefaultBinding != null ? _definition.DefaultBinding.Clone() : new TraitListChannelBinding();

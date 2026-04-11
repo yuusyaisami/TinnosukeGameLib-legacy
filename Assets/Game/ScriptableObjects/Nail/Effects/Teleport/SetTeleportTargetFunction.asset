@@ -82,7 +82,8 @@ MonoBehaviour:
           AutoFallbackOnPop: 1
           CloseOnBackgroundClick: 0
           CloseOnCancel: 1
-        StackKey: 
+        StackKey: default
+        LayerKey: default
         Active: 1
         Visible: 1
         NavigationSelectable: 1
@@ -565,7 +566,8 @@ MonoBehaviour:
           AutoFallbackOnPop: 1
           CloseOnBackgroundClick: 0
           CloseOnCancel: 1
-        StackKey: 
+        StackKey: default
+        LayerKey: default
         Active: 1
         Visible: 1
         NavigationSelectable: 1
@@ -727,6 +729,18 @@ MonoBehaviour:
           _source:
             rid: 5619052637487628711
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052637487628709
@@ -897,6 +911,18 @@ MonoBehaviour:
           _source:
             rid: 5619052637487628718
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052637487628716
