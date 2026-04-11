@@ -58,23 +58,29 @@ namespace Game.Conversation
         [SerializeField]
         string _channelTag = "default";
 
-        [BoxGroup("Preset")]
-        [LabelText("Flow Preset")]
-        [Tooltip("この channel に割り当てる会話フロープリセットです。")]
+        [BoxGroup("Dialogue Link")]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Dialogue Channel\", _dialogueChannelSource)")]
+        [Tooltip("リンク先の IDialogueService を持つ scope です。")]
         [SerializeField]
-        DynamicValue<ConversationFlowPreset> _presetValue =
-            DynamicValue<ConversationFlowPreset>.FromSource(
-                new ManagedRefLiteralSource<ConversationFlowPreset>(new ConversationFlowPreset()));
+        ActorSource _dialogueChannelSource = new() { Kind = ActorSourceKind.Current };
+
+        [BoxGroup("Dialogue Link")]
+        [LabelText("Dialogue Channel Tag")]
+        [Tooltip("リンク時に使用する DialogueChannel の tag です。")]
+        [SerializeField]
+        string _dialogueChannelTag = "default";
 
         public string ChannelTag => ConversationTagUtility.Normalize(_channelTag);
-        public DynamicValue<ConversationFlowPreset> PresetValue => _presetValue;
+        public ActorSource DialogueChannelSource => _dialogueChannelSource;
+        public string DialogueChannelTag => DialogueTagUtility.Normalize(_dialogueChannelTag);
 
         public ConversationChannelDefinition CreateRuntimeCopy()
         {
             return new ConversationChannelDefinition
             {
                 _channelTag = _channelTag,
-                _presetValue = _presetValue,
+                _dialogueChannelSource = _dialogueChannelSource,
+                _dialogueChannelTag = _dialogueChannelTag,
             };
         }
     }
@@ -99,7 +105,7 @@ namespace Game.Conversation
         [BoxGroup("Flow")]
         [LabelText("Nodes")]
         [Tooltip("会話ノード定義です。NodeId は flow 内で一意にします。")]
-        [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true, DraggableItems = true)]
+        [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true, DraggableItems = true, CustomAddFunction = nameof(AddNodeInternal), ListElementLabelName = nameof(ConversationNodePresetBase.ListLabel))]
         [SerializeReference]
         List<ConversationNodePresetBase> _nodes = new() { new ConversationStartNodePreset() };
 
@@ -110,7 +116,8 @@ namespace Game.Conversation
         ConversationFlowSettingsPreset _settings = new();
 
         [BoxGroup("Flow")]
-        [LabelText("Dialogue Routing")]
+        [LabelText("Dialogue Routing Overrides")]
+        [Tooltip("必要なら slot ごとの Dialogue Channel Tag を上書きします。未設定なら Conversation Channel の Dialogue Channel Tag を使います。")]
         [InlineProperty]
         [SerializeField]
         ConversationDialogueRoutingPreset _dialogueRouting = new();
@@ -136,9 +143,16 @@ namespace Game.Conversation
         public ConversationFlowHookPreset Hooks => _hooks;
         public ConversationFlowGraphStatePreset GraphState => _graphState;
 
+        public string ListLabel => $"Nodes={_nodes?.Count ?? 0}";
+
         public void SetEntryNodeId(int nodeId)
         {
             _entryNodeId = Mathf.Max(1, nodeId);
+        }
+
+        public void AddNodeInternal()
+        {
+            AddNode(new ConversationMessageNodePreset());
         }
 
         public ConversationFlowPreset CreateRuntimeCopy()
@@ -609,37 +623,37 @@ namespace Game.Conversation
         [BoxGroup("Routing")]
         [LabelText("Far Left")]
         [SerializeField]
-        string _farLeftTag = "default";
+        string _farLeftTag = string.Empty;
 
         [BoxGroup("Routing")]
         [LabelText("Left")]
         [SerializeField]
-        string _leftTag = "default";
+        string _leftTag = string.Empty;
 
         [BoxGroup("Routing")]
         [LabelText("Mid Left")]
         [SerializeField]
-        string _midLeftTag = "default";
+        string _midLeftTag = string.Empty;
 
         [BoxGroup("Routing")]
         [LabelText("Center")]
         [SerializeField]
-        string _centerTag = "default";
+        string _centerTag = string.Empty;
 
         [BoxGroup("Routing")]
         [LabelText("Mid Right")]
         [SerializeField]
-        string _midRightTag = "default";
+        string _midRightTag = string.Empty;
 
         [BoxGroup("Routing")]
         [LabelText("Right")]
         [SerializeField]
-        string _rightTag = "default";
+        string _rightTag = string.Empty;
 
         [BoxGroup("Routing")]
         [LabelText("Far Right")]
         [SerializeField]
-        string _farRightTag = "default";
+        string _farRightTag = string.Empty;
 
         public ConversationDialogueRoutingPreset CreateRuntimeCopy()
         {
@@ -655,18 +669,18 @@ namespace Game.Conversation
             };
         }
 
-        public string ResolveTag(ConversationCharacterSlot slot)
+        public string? ResolveTag(ConversationCharacterSlot slot)
         {
             return slot switch
             {
-                ConversationCharacterSlot.FarLeft => ConversationTagUtility.Normalize(_farLeftTag),
-                ConversationCharacterSlot.Left => ConversationTagUtility.Normalize(_leftTag),
-                ConversationCharacterSlot.MidLeft => ConversationTagUtility.Normalize(_midLeftTag),
-                ConversationCharacterSlot.Center => ConversationTagUtility.Normalize(_centerTag),
-                ConversationCharacterSlot.MidRight => ConversationTagUtility.Normalize(_midRightTag),
-                ConversationCharacterSlot.Right => ConversationTagUtility.Normalize(_rightTag),
-                ConversationCharacterSlot.FarRight => ConversationTagUtility.Normalize(_farRightTag),
-                _ => ConversationTagUtility.Normalize(_centerTag),
+                ConversationCharacterSlot.FarLeft => ConversationTagUtility.NormalizeNullable(_farLeftTag),
+                ConversationCharacterSlot.Left => ConversationTagUtility.NormalizeNullable(_leftTag),
+                ConversationCharacterSlot.MidLeft => ConversationTagUtility.NormalizeNullable(_midLeftTag),
+                ConversationCharacterSlot.Center => ConversationTagUtility.NormalizeNullable(_centerTag),
+                ConversationCharacterSlot.MidRight => ConversationTagUtility.NormalizeNullable(_midRightTag),
+                ConversationCharacterSlot.Right => ConversationTagUtility.NormalizeNullable(_rightTag),
+                ConversationCharacterSlot.FarRight => ConversationTagUtility.NormalizeNullable(_farRightTag),
+                _ => ConversationTagUtility.NormalizeNullable(_centerTag),
             };
         }
     }
@@ -806,6 +820,7 @@ namespace Game.Conversation
         public virtual bool SupportsDynamicJoints => false;
         public virtual ConversationNodeJointPreset? AddDynamicJoint() => null;
         public virtual bool RemoveJoint(ConversationNodeJointPreset joint) => false;
+        public string ListLabel => $"{NodeId}: {DebugViewText}";
 
         protected abstract string BuildDebugViewText();
 

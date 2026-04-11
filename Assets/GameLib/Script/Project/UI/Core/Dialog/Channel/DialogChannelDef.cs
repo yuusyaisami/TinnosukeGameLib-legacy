@@ -90,19 +90,19 @@ namespace Game.Dialogue
 
         [BoxGroup("Preset")]
         [LabelText("Character")]
-        [Tooltip("キャラクターのスポーン、名前表示、ポートレート再生の設定です。")]
+        [Tooltip("キャラクターのスポーン/既存利用、名前表示、ポートレート再生、CharacterLayout の設定です。")]
         [SerializeField]
-        DynamicValue<DialogueCharacterPreset> _characterPresetValue =
-            DynamicValue<DialogueCharacterPreset>.FromSource(
-                new ManagedRefLiteralSource<DialogueCharacterPreset>(new DialogueCharacterPreset()));
+        DynamicValue<DialogueCharacterPresetBase> _characterPresetValue =
+            DynamicValue<DialogueCharacterPresetBase>.FromSource(
+                new ManagedRefLiteralSource<DialogueCharacterPresetBase>(new RuntimeSpawnCharacterPreset()));
 
         [BoxGroup("Preset")]
         [LabelText("Layout")]
-        [Tooltip("ダイアログ本体や文字列の配置、Transform animation 連携の設定です。")]
+        [Tooltip("ダイアログ本体の root 移動、または command-only layout の設定です。")]
         [SerializeField]
-        DynamicValue<DialogueLayoutPreset> _layoutPresetValue =
-            DynamicValue<DialogueLayoutPreset>.FromSource(
-                new ManagedRefLiteralSource<DialogueLayoutPreset>(new DialogueLayoutPreset()));
+        DynamicValue<DialogueLayoutPresetBase> _layoutPresetValue =
+            DynamicValue<DialogueLayoutPresetBase>.FromSource(
+                new ManagedRefLiteralSource<DialogueLayoutPresetBase>(new DialogueLayoutPreset()));
 
         [BoxGroup("Preset")]
         [LabelText("State")]
@@ -115,8 +115,8 @@ namespace Game.Dialogue
         public DynamicValue<DialogueInputPreset> InputPresetValue => _inputPresetValue;
         public DynamicValue<DialogueTextPreset> TextPresetValue => _textPresetValue;
         public DynamicValue<DialogueChoicePreset> ChoicePresetValue => _choicePresetValue;
-        public DynamicValue<DialogueCharacterPreset> CharacterPresetValue => _characterPresetValue;
-        public DynamicValue<DialogueLayoutPreset> LayoutPresetValue => _layoutPresetValue;
+        public DynamicValue<DialogueCharacterPresetBase> CharacterPresetValue => _characterPresetValue;
+        public DynamicValue<DialogueLayoutPresetBase> LayoutPresetValue => _layoutPresetValue;
         public DynamicValue<DialogueStatePreset> StatePresetValue => _statePresetValue;
 
         public DialogueChannelPreset CreateRuntimeCopy()
@@ -138,8 +138,8 @@ namespace Game.Dialogue
         public DialogueInputPreset Input = new();
         public DialogueTextPreset Text = new();
         public DialogueChoicePreset Choice = new();
-        public DialogueCharacterPreset Character = new();
-        public DialogueLayoutPreset Layout = new();
+        public DialogueCharacterPresetBase Character = new RuntimeSpawnCharacterPreset();
+        public DialogueLayoutPresetBase Layout = new DialogueLayoutPreset();
         public DialogueStatePreset State = new();
 
         public static DialoguePresetRuntimeSnapshot Resolve(DynamicValue<DialogueChannelPreset> source, IDynamicContext context)
@@ -150,7 +150,7 @@ namespace Game.Dialogue
                 Input = root.InputPresetValue.GetOrDefault(context, new DialogueInputPreset()).CreateRuntimeCopy(),
                 Text = root.TextPresetValue.GetOrDefault(context, new DialogueTextPreset()).CreateRuntimeCopy(),
                 Choice = root.ChoicePresetValue.GetOrDefault(context, new DialogueChoicePreset()).CreateRuntimeCopy(),
-                Character = root.CharacterPresetValue.GetOrDefault(context, new DialogueCharacterPreset()).CreateRuntimeCopy(),
+                Character = root.CharacterPresetValue.GetOrDefault(context, new RuntimeSpawnCharacterPreset()).CreateRuntimeCopy(),
                 Layout = root.LayoutPresetValue.GetOrDefault(context, new DialogueLayoutPreset()).CreateRuntimeCopy(),
                 State = root.StatePresetValue.GetOrDefault(context, new DialogueStatePreset()).CreateRuntimeCopy(),
             };
@@ -233,6 +233,334 @@ namespace Game.Dialogue
                 _modalLayerKey = _modalLayerKey,
                 _modalOptions = _modalOptions,
             };
+        }
+    }
+
+    [Serializable]
+    public sealed class DialogueCharacterLayoutPreset
+    {
+        [BoxGroup("Layout")]
+        [LabelText("On None")]
+        [Tooltip("Anchor が None のときに実行する command list です。")]
+        [CommandListFunctionName("DialogueChannel.CharacterLayout.OnNone")]
+        [SerializeField]
+        CommandListData _onNone = new();
+
+        [BoxGroup("Layout")]
+        [LabelText("On Left")]
+        [Tooltip("Anchor が Left のときに実行する command list です。")]
+        [CommandListFunctionName("DialogueChannel.CharacterLayout.OnLeft")]
+        [SerializeField]
+        CommandListData _onLeft = new();
+
+        [BoxGroup("Layout")]
+        [LabelText("On Center")]
+        [Tooltip("Anchor が Center のときに実行する command list です。")]
+        [CommandListFunctionName("DialogueChannel.CharacterLayout.OnCenter")]
+        [SerializeField]
+        CommandListData _onCenter = new();
+
+        [BoxGroup("Layout")]
+        [LabelText("On Right")]
+        [Tooltip("Anchor が Right のときに実行する command list です。")]
+        [CommandListFunctionName("DialogueChannel.CharacterLayout.OnRight")]
+        [SerializeField]
+        CommandListData _onRight = new();
+
+        public CommandListData ResolveCommands(DialogueCharacterAnchor anchor)
+        {
+            return anchor switch
+            {
+                DialogueCharacterAnchor.Left => _onLeft,
+                DialogueCharacterAnchor.Center => _onCenter,
+                DialogueCharacterAnchor.Right => _onRight,
+                _ => _onNone,
+            };
+        }
+
+        public DialogueCharacterLayoutPreset CreateRuntimeCopy()
+        {
+            return new DialogueCharacterLayoutPreset
+            {
+                _onNone = DialogueCloneUtility.CloneCommandList(_onNone),
+                _onLeft = DialogueCloneUtility.CloneCommandList(_onLeft),
+                _onCenter = DialogueCloneUtility.CloneCommandList(_onCenter),
+                _onRight = DialogueCloneUtility.CloneCommandList(_onRight),
+            };
+        }
+    }
+
+    [Serializable]
+    public abstract class DialogueCharacterPresetBase : IDynamicManagedRefValue
+    {
+        [BoxGroup("Character")]
+        [LabelText("Character Layout")]
+        [Tooltip("anchor 変化後に実行する command list の束です。")]
+        [InlineProperty]
+        [SerializeField]
+        DialogueCharacterLayoutPreset _characterLayout = new();
+
+        [BoxGroup("Character")]
+        [LabelText("Default Name Channel Tag")]
+        [Tooltip("名前表示に使う TextChannel の既定タグです。")]
+        [SerializeField]
+        string _defaultNameChannelTag = "default";
+
+        [BoxGroup("Character")]
+        [LabelText("Default Sprite Channel Tag")]
+        [Tooltip("ポートレート表示に使う SpriteChannel の既定タグです。")]
+        [SerializeField]
+        string _defaultSpriteChannelTag = "default";
+
+        public DialogueCharacterLayoutPreset CharacterLayout => _characterLayout;
+        public string DefaultNameChannelTag => DialogueTagUtility.Normalize(_defaultNameChannelTag);
+        public string DefaultSpriteChannelTag => DialogueTagUtility.Normalize(_defaultSpriteChannelTag);
+
+        public virtual bool EnableRuntimeSpawn => false;
+        public virtual Transform? RuntimeParent => null;
+        public virtual bool ReleaseSpawnedOnEnd => false;
+        public virtual string RuntimeIdentityCategory => "DialogueCharacter";
+
+        public abstract DialogueCharacterPresetBase CreateRuntimeCopy();
+
+        protected void CopyCommonStateTo(DialogueCharacterPresetBase copy)
+        {
+            copy._characterLayout = _characterLayout?.CreateRuntimeCopy() ?? new DialogueCharacterLayoutPreset();
+            copy._defaultNameChannelTag = _defaultNameChannelTag;
+            copy._defaultSpriteChannelTag = _defaultSpriteChannelTag;
+        }
+    }
+
+    [Serializable]
+    public sealed class RuntimeSpawnCharacterPreset : DialogueCharacterPresetBase
+    {
+        [BoxGroup("Spawn")]
+        [LabelText("Runtime Parent")]
+        [Tooltip("spawn した character runtime の親 transform です。空なら owner を使います。")]
+        [SerializeField]
+        Transform? _runtimeParent;
+
+        [BoxGroup("Spawn")]
+        [LabelText("Release Spawned On End")]
+        [Tooltip("true のとき、終了時に spawn した runtime を解放します。")]
+        [SerializeField]
+        bool _releaseSpawnedOnEnd = true;
+
+        [BoxGroup("Spawn")]
+        [LabelText("Runtime Identity Category")]
+        [Tooltip("spawn した runtime identity の category です。")]
+        [SerializeField]
+        string _runtimeIdentityCategory = "DialogueCharacter";
+
+        public override bool EnableRuntimeSpawn => true;
+        public override Transform? RuntimeParent => _runtimeParent;
+        public override bool ReleaseSpawnedOnEnd => _releaseSpawnedOnEnd;
+        public override string RuntimeIdentityCategory => string.IsNullOrWhiteSpace(_runtimeIdentityCategory) ? "DialogueCharacter" : _runtimeIdentityCategory.Trim();
+
+        public override DialogueCharacterPresetBase CreateRuntimeCopy()
+        {
+            var copy = new RuntimeSpawnCharacterPreset
+            {
+                _runtimeParent = _runtimeParent,
+                _releaseSpawnedOnEnd = _releaseSpawnedOnEnd,
+                _runtimeIdentityCategory = _runtimeIdentityCategory,
+            };
+
+            CopyCommonStateTo(copy);
+            return copy;
+        }
+    }
+
+    [Serializable]
+    public sealed class DialogueCharacterPreset : DialogueCharacterPresetBase
+    {
+        [BoxGroup("Spawn")]
+        [LabelText("Enable Runtime Spawn")]
+        [Tooltip("旧シーン互換用の設定です。Runtime spawn を有効にするかどうかを保持します。")]
+        [SerializeField]
+        bool _enableRuntimeSpawn = true;
+
+        [BoxGroup("Spawn")]
+        [LabelText("Runtime Parent")]
+        [Tooltip("旧シーン互換用の設定です。spawn した character runtime の親 transform です。")]
+        [SerializeField]
+        Transform? _runtimeParent;
+
+        [BoxGroup("Spawn")]
+        [LabelText("Release Spawned On End")]
+        [Tooltip("旧シーン互換用の設定です。true のとき、終了時に spawn した runtime を解放します。")]
+        [SerializeField]
+        bool _releaseSpawnedOnEnd = true;
+
+        [BoxGroup("Spawn")]
+        [LabelText("Runtime Identity Category")]
+        [Tooltip("旧シーン互換用の設定です。spawn した runtime identity の category です。")]
+        [SerializeField]
+        string _runtimeIdentityCategory = "DialogueCharacter";
+
+        public override bool EnableRuntimeSpawn => _enableRuntimeSpawn;
+        public override Transform? RuntimeParent => _runtimeParent;
+        public override bool ReleaseSpawnedOnEnd => _releaseSpawnedOnEnd;
+        public override string RuntimeIdentityCategory => string.IsNullOrWhiteSpace(_runtimeIdentityCategory) ? "DialogueCharacter" : _runtimeIdentityCategory.Trim();
+
+        public override DialogueCharacterPresetBase CreateRuntimeCopy()
+        {
+            var copy = new DialogueCharacterPreset
+            {
+                _enableRuntimeSpawn = _enableRuntimeSpawn,
+                _runtimeParent = _runtimeParent,
+                _releaseSpawnedOnEnd = _releaseSpawnedOnEnd,
+                _runtimeIdentityCategory = _runtimeIdentityCategory,
+            };
+
+            CopyCommonStateTo(copy);
+            return copy;
+        }
+    }
+
+    [Serializable]
+    public sealed class SimpleCharacterPreset : DialogueCharacterPresetBase
+    {
+        public override DialogueCharacterPresetBase CreateRuntimeCopy()
+        {
+            var copy = new SimpleCharacterPreset();
+            CopyCommonStateTo(copy);
+            return copy;
+        }
+    }
+
+    [Serializable]
+    public abstract class DialogueLayoutPresetBase : IDynamicManagedRefValue
+    {
+        [BoxGroup("Layout")]
+        [LabelText("Enable")]
+        [Tooltip("true のとき、VisualBounds を使った layout refresh を有効にします。")]
+        [SerializeField]
+        bool _enableLayout = true;
+
+        [BoxGroup("Layout")]
+        [ShowIf(nameof(UsesLayout))]
+        [LabelText("Root Position")]
+        [Tooltip("VisualBounds のどの辺を基準に root を置くかを選びます。")]
+        [SerializeField]
+        DialogueRootPosition _rootPosition = DialogueRootPosition.Bottom;
+
+        [BoxGroup("Layout")]
+        [ShowIf(nameof(UsesLayout))]
+        [LabelText("Refresh On Setup")]
+        [Tooltip("Setup 時に layout を再計算するかどうかです。")]
+        [SerializeField]
+        bool _refreshOnSetup = true;
+
+        [BoxGroup("Layout")]
+        [ShowIf(nameof(UsesLayout))]
+        [LabelText("Refresh On Message")]
+        [Tooltip("Message 表示のたびに layout を再計算するかどうかです。")]
+        [SerializeField]
+        bool _refreshOnMessage = false;
+
+        [BoxGroup("Layout")]
+        [ShowIf(nameof(UsesLayout))]
+        [LabelText("Refresh On Character Update")]
+        [Tooltip("Character frame 更新のたびに layout を再計算するかどうかです。")]
+        [SerializeField]
+        bool _refreshOnCharacterUpdate = true;
+
+        public bool EnableLayout => _enableLayout;
+        public DialogueRootPosition RootPosition => _rootPosition;
+        public bool RefreshOnSetup => _refreshOnSetup;
+        public bool RefreshOnMessage => _refreshOnMessage;
+        public bool RefreshOnCharacterUpdate => _refreshOnCharacterUpdate;
+        public virtual DynamicValue<float> RootMargin => DynamicValueExtensions.FromLiteral(0f);
+        public virtual DynamicValue<float> MoveDurationSeconds => DynamicValueExtensions.FromLiteral(0f);
+        public virtual Ease MoveEase => Ease.Linear;
+
+        public bool UsesLayout => _enableLayout;
+
+        public abstract DialogueLayoutPresetBase CreateRuntimeCopy();
+
+        protected void CopyCommonStateTo(DialogueLayoutPresetBase copy)
+        {
+            copy._enableLayout = _enableLayout;
+            copy._rootPosition = _rootPosition;
+            copy._refreshOnSetup = _refreshOnSetup;
+            copy._refreshOnMessage = _refreshOnMessage;
+            copy._refreshOnCharacterUpdate = _refreshOnCharacterUpdate;
+        }
+    }
+
+    [Serializable]
+    public sealed class DialogueLayoutPreset : DialogueLayoutPresetBase
+    {
+        [BoxGroup("Layout")]
+        [ShowIf(nameof(UsesLayout))]
+        [LabelText("Root Transform Channel Tag")]
+        [Tooltip("root の移動を委譲する TransformAnimationChannel のタグです。")]
+        [SerializeField]
+        string _rootTransformChannelTag = "default";
+
+        [BoxGroup("Layout")]
+        [ShowIf(nameof(UsesLayout))]
+        [LabelText("Root Margin")]
+        [Tooltip("VisualBounds の端から root をどれだけ離すかを表す余白です。座標ではなく距離です。")]
+        [SerializeField]
+        DynamicValue<float> _rootMargin = DynamicValueExtensions.FromLiteral(32f);
+
+        [BoxGroup("Motion")]
+        [ShowIf(nameof(UsesLayout))]
+        [LabelText("Move Duration")]
+        [Tooltip("root を移動するときの補間時間です。")]
+        [SerializeField]
+        DynamicValue<float> _moveDurationSeconds = DynamicValueExtensions.FromLiteral(0f);
+
+        [BoxGroup("Motion")]
+        [ShowIf(nameof(UsesLayout))]
+        [LabelText("Move Ease")]
+        [Tooltip("root 移動の easing です。")]
+        [SerializeField]
+        Ease _moveEase = Ease.Linear;
+
+        public string RootTransformChannelTag => DialogueTagUtility.Normalize(_rootTransformChannelTag);
+        public override DynamicValue<float> RootMargin => _rootMargin;
+        public override DynamicValue<float> MoveDurationSeconds => _moveDurationSeconds;
+        public override Ease MoveEase => _moveEase;
+
+        public override DialogueLayoutPresetBase CreateRuntimeCopy()
+        {
+            var copy = new DialogueLayoutPreset
+            {
+                _rootTransformChannelTag = _rootTransformChannelTag,
+                _rootMargin = _rootMargin,
+                _moveDurationSeconds = _moveDurationSeconds,
+                _moveEase = _moveEase,
+            };
+
+            CopyCommonStateTo(copy);
+            return copy;
+        }
+    }
+
+    [Serializable]
+    public sealed class DialogueLayoutCommandOnlyPreset : DialogueLayoutPresetBase
+    {
+        [BoxGroup("Hooks")]
+        [LabelText("Commands")]
+        [Tooltip("layout refresh 時に実行する command list です。")]
+        [CommandListFunctionName("DialogueChannel.Layout.CommandOnly")]
+        [SerializeField]
+        CommandListData _commands = new();
+
+        public CommandListData Commands => _commands;
+
+        public override DialogueLayoutPresetBase CreateRuntimeCopy()
+        {
+            var copy = new DialogueLayoutCommandOnlyPreset
+            {
+                _commands = DialogueCloneUtility.CloneCommandList(_commands),
+            };
+
+            CopyCommonStateTo(copy);
+            return copy;
         }
     }
 
@@ -415,251 +743,6 @@ namespace Game.Dialogue
                 _lockDialogueInputDuringChoice = _lockDialogueInputDuringChoice,
                 _cancelChoiceOnEnd = _cancelChoiceOnEnd,
             };
-        }
-    }
-
-    [Serializable]
-    public sealed class DialogueCharacterPreset : IDynamicManagedRefValue
-    {
-        [BoxGroup("Character")]
-        [LabelText("Enable Runtime Spawn")]
-        [Tooltip("true のとき、キャラクター用 RuntimeLTS を必要に応じて spawn します。")]
-        [SerializeField]
-        bool _enableRuntimeSpawn = true;
-
-        [BoxGroup("Character")]
-        [ShowIf(nameof(UsesRuntimeSpawn))]
-        [LabelText("Runtime Parent")]
-        [Tooltip("spawn した RuntimeLTS をぶら下げる親 Transform です。空なら channel の root を使います。")]
-        [SerializeField]
-        Transform? _runtimeParent;
-
-        [BoxGroup("Character")]
-        [ShowIf(nameof(UsesRuntimeSpawn))]
-        [LabelText("Release Spawned On End")]
-        [Tooltip("true のとき、DialogueChannel の終了時に spawn したキャラクターを解放します。")]
-        [SerializeField]
-        bool _releaseSpawnedOnEnd = true;
-
-        [BoxGroup("Character")]
-        [ShowIf(nameof(UsesRuntimeSpawn))]
-        [LabelText("Runtime Identity Category")]
-        [Tooltip("RuntimeLTS の identity category です。再利用やデバッグ分類に使います。")]
-        [SerializeField]
-        string _runtimeIdentityCategory = "DialogueCharacter";
-
-        [BoxGroup("Character")]
-        [LabelText("Default Name Tag")]
-        [Tooltip("名前表示に使う既定 TextChannel タグです。")]
-        [SerializeField]
-        string _defaultNameChannelTag = "default";
-
-        [BoxGroup("Character")]
-        [LabelText("Default Sprite Tag")]
-        [Tooltip("ポートレート描画に使う既定 SpriteChannel タグです。")]
-        [SerializeField]
-        string _defaultSpriteChannelTag = "default";
-
-        [BoxGroup("Character")]
-        [LabelText("Refresh Layout On Update")]
-        [Tooltip("キャラクター更新後にレイアウト再計算を行うかどうかです。")]
-        [SerializeField]
-        bool _refreshLayoutOnCharacterUpdate = true;
-
-        public bool EnableRuntimeSpawn => _enableRuntimeSpawn;
-        public Transform? RuntimeParent => _runtimeParent;
-        public bool ReleaseSpawnedOnEnd => _releaseSpawnedOnEnd;
-        public string RuntimeIdentityCategory => string.IsNullOrWhiteSpace(_runtimeIdentityCategory) ? "DialogueCharacter" : _runtimeIdentityCategory.Trim();
-        public string DefaultNameChannelTag => DialogueTagUtility.Normalize(_defaultNameChannelTag);
-        public string DefaultSpriteChannelTag => DialogueTagUtility.Normalize(_defaultSpriteChannelTag);
-        public bool RefreshLayoutOnCharacterUpdate => _refreshLayoutOnCharacterUpdate;
-
-        bool UsesRuntimeSpawn => _enableRuntimeSpawn;
-
-        public DialogueCharacterPreset CreateRuntimeCopy()
-        {
-            return new DialogueCharacterPreset
-            {
-                _enableRuntimeSpawn = _enableRuntimeSpawn,
-                _runtimeParent = _runtimeParent,
-                _releaseSpawnedOnEnd = _releaseSpawnedOnEnd,
-                _runtimeIdentityCategory = _runtimeIdentityCategory,
-                _defaultNameChannelTag = _defaultNameChannelTag,
-                _defaultSpriteChannelTag = _defaultSpriteChannelTag,
-                _refreshLayoutOnCharacterUpdate = _refreshLayoutOnCharacterUpdate,
-            };
-        }
-    }
-
-    [Serializable]
-    public sealed class DialogueLayoutChannelShift : IDynamicManagedRefValue
-    {
-        [BoxGroup("Shift")]
-        [LabelText("Transform Animation Tag")]
-        [Tooltip("必要なら文字表示と同期して動かす TransformAnimation のタグです。")]
-        [SerializeField]
-        string _transformAnimationTag = "default";
-
-        [BoxGroup("Shift")]
-        [LabelText("None")]
-        [Tooltip("anchor が None のときに使うオフセットです。")]
-        [SerializeField]
-        DynamicValue<Vector3> _nonePosition = DynamicValueExtensions.FromLiteral(Vector3.zero);
-
-        [BoxGroup("Shift")]
-        [LabelText("Left")]
-        [Tooltip("anchor が Left のときに使うオフセットです。")]
-        [SerializeField]
-        DynamicValue<Vector3> _leftPosition = DynamicValueExtensions.FromLiteral(Vector3.zero);
-
-        [BoxGroup("Shift")]
-        [LabelText("Center")]
-        [Tooltip("anchor が Center のときに使うオフセットです。")]
-        [SerializeField]
-        DynamicValue<Vector3> _centerPosition = DynamicValueExtensions.FromLiteral(Vector3.zero);
-
-        [BoxGroup("Shift")]
-        [LabelText("Right")]
-        [Tooltip("anchor が Right のときに使うオフセットです。")]
-        [SerializeField]
-        DynamicValue<Vector3> _rightPosition = DynamicValueExtensions.FromLiteral(Vector3.zero);
-
-        public string TransformAnimationTag => DialogueTagUtility.Normalize(_transformAnimationTag);
-
-        public Vector3 ResolveTarget(DialogueCharacterAnchor anchor, IDynamicContext context)
-        {
-            return anchor switch
-            {
-                DialogueCharacterAnchor.Left => _leftPosition.GetOrDefault(context, Vector3.zero),
-                DialogueCharacterAnchor.Center => _centerPosition.GetOrDefault(context, Vector3.zero),
-                DialogueCharacterAnchor.Right => _rightPosition.GetOrDefault(context, Vector3.zero),
-                _ => _nonePosition.GetOrDefault(context, Vector3.zero),
-            };
-        }
-
-        public DialogueLayoutChannelShift CreateRuntimeCopy()
-        {
-            return new DialogueLayoutChannelShift
-            {
-                _transformAnimationTag = _transformAnimationTag,
-                _nonePosition = _nonePosition,
-                _leftPosition = _leftPosition,
-                _centerPosition = _centerPosition,
-                _rightPosition = _rightPosition,
-            };
-        }
-    }
-
-    [Serializable]
-    public sealed class DialogueLayoutPreset : IDynamicManagedRefValue
-    {
-        [BoxGroup("Layout")]
-        [LabelText("Enable")]
-        [Tooltip("true のとき、VisualBounds を使った自動レイアウトを有効にします。")]
-        [SerializeField]
-        bool _enableLayout = true;
-
-        [BoxGroup("Layout")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Root Transform Channel Tag")]
-        [Tooltip("root の移動を委譲する TransformAnimationChannel のタグです。")]
-        [SerializeField]
-        string _rootTransformChannelTag = "default";
-
-        [BoxGroup("Layout")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Root Position")]
-        [Tooltip("VisualBounds のどの辺を基準に root を置くかを選びます。")]
-        [SerializeField]
-        DialogueRootPosition _rootPosition = DialogueRootPosition.Bottom;
-
-        [BoxGroup("Layout")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Root Margin")]
-        [Tooltip("VisualBounds の端から root をどれだけ離すかを表す余白です。座標ではなく距離です。")]
-        [SerializeField]
-        DynamicValue<float> _rootMargin = DynamicValueExtensions.FromLiteral(32f);
-
-        [BoxGroup("Motion")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Move Duration")]
-        [Tooltip("root を移動するときの補間時間です。")]
-        [SerializeField]
-        DynamicValue<float> _moveDurationSeconds = DynamicValueExtensions.FromLiteral(0f);
-
-        [BoxGroup("Motion")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Move Ease")]
-        [Tooltip("root 移動の easing です。")]
-        [SerializeField]
-        Ease _moveEase = Ease.Linear;
-
-        [BoxGroup("Layout")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Refresh On Setup")]
-        [Tooltip("Setup 時に layout を再計算するかどうかです。")]
-        [SerializeField]
-        bool _refreshOnSetup = true;
-
-        [BoxGroup("Layout")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Refresh On Message")]
-        [Tooltip("Message 表示のたびに layout を再計算するかどうかです。")]
-        [SerializeField]
-        bool _refreshOnMessage = false;
-
-        [BoxGroup("Layout")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Refresh On Character Update")]
-        [Tooltip("Character frame 更新のたびに layout を再計算するかどうかです。")]
-        [SerializeField]
-        bool _refreshOnCharacterUpdate = true;
-
-        [BoxGroup("Text Shift")]
-        [ShowIf(nameof(UsesLayout))]
-        [LabelText("Text Shift Channels")]
-        [Tooltip("キャラクター anchor ごとに文字列の移動先を調整する shift 一覧です。")]
-        [SerializeField]
-        [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true)]
-        List<DialogueLayoutChannelShift> _textShiftChannels = new();
-
-        public bool EnableLayout => _enableLayout;
-        public string RootTransformChannelTag => DialogueTagUtility.Normalize(_rootTransformChannelTag);
-        public DialogueRootPosition RootPosition => _rootPosition;
-        public DynamicValue<float> RootMargin => _rootMargin;
-        public DynamicValue<float> MoveDurationSeconds => _moveDurationSeconds;
-        public Ease MoveEase => _moveEase;
-        public bool RefreshOnSetup => _refreshOnSetup;
-        public bool RefreshOnMessage => _refreshOnMessage;
-        public bool RefreshOnCharacterUpdate => _refreshOnCharacterUpdate;
-        public IReadOnlyList<DialogueLayoutChannelShift> TextShiftChannels => _textShiftChannels;
-
-        bool UsesLayout => _enableLayout;
-
-        public DialogueLayoutPreset CreateRuntimeCopy()
-        {
-            var copy = new DialogueLayoutPreset
-            {
-                _enableLayout = _enableLayout,
-                _rootTransformChannelTag = _rootTransformChannelTag,
-                _rootPosition = _rootPosition,
-                _rootMargin = _rootMargin,
-                _moveDurationSeconds = _moveDurationSeconds,
-                _moveEase = _moveEase,
-                _refreshOnSetup = _refreshOnSetup,
-                _refreshOnMessage = _refreshOnMessage,
-                _refreshOnCharacterUpdate = _refreshOnCharacterUpdate,
-            };
-
-            copy._textShiftChannels.Clear();
-            for (var i = 0; i < _textShiftChannels.Count; i++)
-            {
-                if (_textShiftChannels[i] == null)
-                    continue;
-                copy._textShiftChannels.Add(_textShiftChannels[i].CreateRuntimeCopy());
-            }
-
-            return copy;
         }
     }
 

@@ -3779,6 +3779,62 @@ namespace Game.Vars.Generated
                     }
                 }
 
+                public static partial class DialogueChannel
+                {
+
+                    public static partial class Character
+                    {
+
+                        public static partial class Element
+                        {
+                            /// <summary>Left, Right, Center, Noneとあります。</summary>
+                            /// <remarks>
+                            /// Path: GameLib/UI/DialogueChannel/Character/Element/Anchor
+                            /// StableKey: Anchor
+                            /// </remarks>
+                            /// <summary>Left, Right, Center, Noneとあります。</summary>
+                            /// <remarks>
+                            /// Path: GameLib/UI/DialogueChannel/Character/Element/Anchor
+                            /// StableKey: Anchor
+                            /// </remarks>
+                            public const int Anchor = 101194;
+                            /// <remarks>
+                            /// Path: GameLib/UI/DialogueChannel/Character/Element/IconAnimPreset
+                            /// StableKey: IconAnim
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/UI/DialogueChannel/Character/Element/IconAnimPreset
+                            /// StableKey: IconAnim
+                            /// </remarks>
+                            public const int IconAnimPreset = 101196;
+                            /// <remarks>
+                            /// Path: GameLib/UI/DialogueChannel/Character/Element/Name
+                            /// StableKey: Name
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/UI/DialogueChannel/Character/Element/Name
+                            /// StableKey: Name
+                            /// </remarks>
+                            public const int Name = 101195;
+                        }
+                    }
+
+                    public static partial class DialogueLayout
+                    {
+                        /// <summary>Bottom, Center, Top</summary>
+                        /// <remarks>
+                        /// Path: GameLib/UI/DialogueChannel/DialogueLayout/RootPositionType
+                        /// StableKey: RootPosition
+                        /// </remarks>
+                        /// <summary>Bottom, Center, Top</summary>
+                        /// <remarks>
+                        /// Path: GameLib/UI/DialogueChannel/DialogueLayout/RootPositionType
+                        /// StableKey: RootPosition
+                        /// </remarks>
+                        public const int RootPositionType = 101197;
+                    }
+                }
+
                 public static partial class TraitList
                 {
 
@@ -4251,13 +4307,22 @@ namespace Game.Vars.Generated
                 {
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/StatusEffectSetting/CountSetting
-                    /// StableKey: ApplyCount
+                    /// StableKey: CountSetting
                     /// </remarks>
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/StatusEffectSetting/CountSetting
-                    /// StableKey: ApplyCount
+                    /// StableKey: CountSetting
                     /// </remarks>
                     public const int CountSetting = 101131;
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/StatusEffectSetting/CountStack
+                    /// StableKey: CountStack
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/StatusEffectSetting/CountStack
+                    /// StableKey: CountStack
+                    /// </remarks>
+                    public const int CountStack = 101193;
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/StatusEffectSetting/LifetimeSetting
                     /// StableKey: LifetimeSetting
@@ -4767,6 +4832,10 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.ButtonChannel.ShortLong.LongProgress,
             VarIds.GameLib.UI.ButtonChannel.ShortLong.ShortProgress,
             VarIds.GameLib.UI.ButtonChannel.ShortLong.State,
+            VarIds.GameLib.UI.DialogueChannel.Character.Element.Anchor,
+            VarIds.GameLib.UI.DialogueChannel.Character.Element.IconAnimPreset,
+            VarIds.GameLib.UI.DialogueChannel.Character.Element.Name,
+            VarIds.GameLib.UI.DialogueChannel.DialogueLayout.RootPositionType,
             VarIds.GameLib.UI.TraitList.Item.column,
             VarIds.GameLib.UI.TraitList.Item.holderKey,
             VarIds.GameLib.UI.TraitList.Item.listIndex,
@@ -4812,6 +4881,7 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.NailProfile.UpgradeTable,
             VarIds.GameLogic.NailProfile.Base.RandomA,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.CountSetting,
+            VarIds.GameLogic.NailProfile.StatusEffectSetting.CountStack,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.LifetimeSetting,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.UseSetting,
             VarIds.GameLogic.NailProfile.UpgradePanel.Condition,

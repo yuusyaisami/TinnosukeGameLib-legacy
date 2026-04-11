@@ -937,14 +937,6 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
-  - id: fd9088134958414f87659d8b250fdbf0
-    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
-    name: TraitList
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
   - id: 869a1c6eb9894901bbbb480dc4e0161a
     parentId: fd9088134958414f87659d8b250fdbf0
     name: Item
@@ -1040,14 +1032,6 @@ MonoBehaviour:
     description: 
     varId: 113
     stableKey: traitInstanceRef
-    aliases: []
-  - id: 4a777b647bf84b03afb2ce8fa7f7d701
-    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
-    name: TraitListChannel
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
     aliases: []
   - id: 6d54f7fbb9d44761a8fe772d12f6aa8c
     parentId: 4a777b647bf84b03afb2ce8fa7f7d701
@@ -1217,14 +1201,6 @@ MonoBehaviour:
     varId: 101128
     stableKey: GameLib.Channel.GridObjectChannel.Item.sourceColumn
     aliases: []
-  - id: ea23671d6ebf4e7e8404197464a7aa6e
-    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
-    name: Button
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
   - id: c6e05408598d472d81107a0a1f79662b
     parentId: ea23671d6ebf4e7e8404197464a7aa6e
     name: HoldTime
@@ -1296,14 +1272,6 @@ MonoBehaviour:
     description: 
     varId: 101090
     stableKey: UIButton.ShortLong.LongMaxTime
-    aliases: []
-  - id: a288e842fcb84ab0a9f2a382e3c499c3
-    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
-    name: ButtonChannel
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
     aliases: []
   - id: 206e3df987cb409983955e52ed20864c
     parentId: a288e842fcb84ab0a9f2a382e3c499c3
@@ -4653,7 +4621,103 @@ MonoBehaviour:
     varId: 101133
     stableKey: UseSetting
     aliases: []
-  nextVarId: 101194
+  - id: fd9088134958414f87659d8b250fdbf0
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: TraitList
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 4a777b647bf84b03afb2ce8fa7f7d701
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: TraitListChannel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 828fa9a04b864f15b5ec0f9a80fb224a
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: DialogueChannel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: ea23671d6ebf4e7e8404197464a7aa6e
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: Button
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: a288e842fcb84ab0a9f2a382e3c499c3
+    parentId: bd7d3c55e3b240329ee6d3a19d9deef8
+    name: ButtonChannel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 5042cb8d6d5449c7aef63f515701b95e
+    parentId: 828fa9a04b864f15b5ec0f9a80fb224a
+    name: Character
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: b91750811f154696b3447799114c2cdb
+    parentId: b56ecabfd3be487fac55e8e3848e6767
+    name: Anchor
+    isFolder: 0
+    description: "Left, Right, Center, None\u3068\u3042\u308A\u307E\u3059\u3002"
+    varId: 101194
+    stableKey: Anchor
+    aliases: []
+  - id: b56ecabfd3be487fac55e8e3848e6767
+    parentId: 5042cb8d6d5449c7aef63f515701b95e
+    name: Element
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: b9d468407fcb45ca8beb805304ec339f
+    parentId: b56ecabfd3be487fac55e8e3848e6767
+    name: Name
+    isFolder: 0
+    description: 
+    varId: 101195
+    stableKey: Name
+    aliases: []
+  - id: f77e96605b47494e907f7d14407a4c60
+    parentId: b56ecabfd3be487fac55e8e3848e6767
+    name: IconAnimPreset
+    isFolder: 0
+    description: 
+    varId: 101196
+    stableKey: IconAnim
+    aliases: []
+  - id: c08facd8401341d494d78510d26aab38
+    parentId: 828fa9a04b864f15b5ec0f9a80fb224a
+    name: DialogueLayout
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 8b29bc5314c44b049d05988ff711487d
+    parentId: c08facd8401341d494d78510d26aab38
+    name: RootPositionType
+    isFolder: 0
+    description: Bottom, Center, Top
+    varId: 101197
+    stableKey: RootPosition
+    aliases: []
+  nextVarId: 101198
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

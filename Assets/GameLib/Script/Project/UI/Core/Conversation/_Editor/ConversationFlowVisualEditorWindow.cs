@@ -42,6 +42,14 @@ namespace Game.Conversation.Editor
             public Dictionary<ConversationNodeJointPreset, JointVisualContext> JointVisuals = new();
         }
 
+        sealed class NodeClipboardData
+        {
+            public ConversationNodePresetBase Node = null!;
+            public Vector2 Position;
+            public Vector2 Size;
+            public bool IsExpanded;
+        }
+
         readonly struct CharacterDefinitionOption
         {
             public int CharacterId { get; }
@@ -80,11 +88,11 @@ namespace Game.Conversation.Editor
         Vector2 _graphPanStartMouse;
         Vector2 _graphPanStartOffset;
 
-        bool _loggedMissingSerializedBinding;
         bool _loggedFlowPathMismatch;
         bool _needsGraphRebuildFromSerializedSync;
         bool _isGraphRebuildQueued;
         int _lastUnresolvedSelectedNodeId = -1;
+        NodeClipboardData? _nodeClipboard;
 
         readonly Dictionary<int, NodeVisualContext> _nodeVisuals = new();
 
@@ -141,6 +149,10 @@ namespace Game.Conversation.Editor
 
         void CreateGUI()
         {
+            rootVisualElement.focusable = true;
+            rootVisualElement.tabIndex = 0;
+            rootVisualElement.RegisterCallback<KeyDownEvent>(OnRootKeyDown, TrickleDown.TrickleDown);
+
             rootVisualElement.style.flexDirection = FlexDirection.Column;
             rootVisualElement.style.backgroundColor = new Color(0.09f, 0.10f, 0.12f, 1f);
 
@@ -245,6 +257,8 @@ namespace Game.Conversation.Editor
         void BuildGraphPane()
         {
             _graphRoot = new VisualElement();
+            _graphRoot.focusable = true;
+            _graphRoot.tabIndex = 0;
             _graphRoot.style.flexGrow = 1f;
             _graphRoot.style.position = Position.Relative;
             _graphRoot.style.backgroundColor = new Color(0.11f, 0.12f, 0.14f, 1f);
@@ -612,6 +626,7 @@ namespace Game.Conversation.Editor
                 if (evt.button != 0)
                     return;
 
+                FocusGraph();
                 SelectNode(context.Node.NodeId);
                 dragStartMouse = (Vector2)evt.position;
                 dragStartNode = context.NodeView.Position;
@@ -671,6 +686,11 @@ namespace Game.Conversation.Editor
         {
             var position = ToGraphSpace(evt.localMousePosition);
             AppendAddNodeMenu(evt.menu, position);
+
+            if (_nodeClipboard != null && _nodeClipboard.Node != null)
+            {
+                evt.menu.AppendAction("Node/Paste", _ => PasteClipboardNode(position), _ => DropdownMenuAction.Status.Normal);
+            }
         }
 
         void AppendAddNodeMenu(DropdownMenu menu, Vector2 graphPosition)
@@ -709,6 +729,15 @@ namespace Game.Conversation.Editor
         {
             evt.menu.AppendAction("Node/Delete", _ => DeleteNode(context.Node.NodeId),
                 _ => context.Node.IsStartNode ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
+
+            evt.menu.AppendAction("Node/Copy", _ => CopySelectedNodeToClipboard(context.Node.NodeId),
+                _ => context.Node.IsStartNode ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
+
+            evt.menu.AppendAction("Node/Duplicate", _ => DuplicateNode(context.Node.NodeId),
+                _ => context.Node.IsStartNode ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
+
+            evt.menu.AppendAction("Node/Paste", _ => PasteClipboardNode(context.NodeView.Position + new Vector2(40f, 24f)),
+                _ => _nodeClipboard != null && _nodeClipboard.Node != null ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled);
 
             evt.menu.AppendAction("Node/Toggle Expanded", _ =>
             {
@@ -969,6 +998,7 @@ namespace Game.Conversation.Editor
         {
             if (evt.button == 2)
             {
+                FocusGraph();
                 BeginGraphPan(evt);
                 evt.StopPropagation();
                 return;
@@ -980,6 +1010,7 @@ namespace Game.Conversation.Editor
             if (!IsBackgroundPointerDown(evt))
                 return;
 
+            FocusGraph();
             ClearNodeSelection();
             BeginGraphPan(evt);
             evt.StopPropagation();
@@ -1006,6 +1037,152 @@ namespace Game.Conversation.Editor
             evt.StopPropagation();
         }
 
+        void OnRootKeyDown(KeyDownEvent evt)
+        {
+            if (!IsGraphShortcutContext())
+                return;
+
+            if (EditorGUIUtility.editingTextField)
+                return;
+
+            var handled = false;
+            if (evt.actionKey && evt.keyCode == KeyCode.C)
+                handled = CopySelectedNodeToClipboard();
+            else if (evt.actionKey && evt.keyCode == KeyCode.V)
+                handled = PasteClipboardNode();
+            else if (evt.actionKey && evt.keyCode == KeyCode.D)
+                handled = DuplicateSelectedNode();
+            else if (evt.keyCode == KeyCode.Delete || evt.keyCode == KeyCode.Backspace)
+                handled = DeleteSelectedNode();
+
+            if (!handled)
+                return;
+
+            evt.StopPropagation();
+        }
+
+        void FocusGraph()
+        {
+            _graphRoot?.Focus();
+        }
+
+        bool IsGraphShortcutContext()
+        {
+            if (_graphRoot == null || rootVisualElement.panel == null)
+                return false;
+
+            var focusedElement = rootVisualElement.panel.focusController.focusedElement as VisualElement;
+            if (focusedElement == null)
+                return false;
+
+            return focusedElement == _graphRoot || _graphRoot.Contains(focusedElement);
+        }
+
+        bool DeleteSelectedNode()
+        {
+            if (_preset == null)
+                return false;
+
+            var selectedNodeId = _preset.GraphState.SelectedNodeId;
+            if (selectedNodeId <= 0)
+                return false;
+
+            if (!_preset.TryGetNode(selectedNodeId, out var selectedNode) || selectedNode == null || selectedNode.IsStartNode)
+                return false;
+
+            DeleteNode(selectedNodeId);
+            return true;
+        }
+
+        bool CopySelectedNodeToClipboard(int nodeId = 0)
+        {
+            if (_preset == null)
+                return false;
+
+            if (nodeId <= 0)
+                nodeId = _preset.GraphState.SelectedNodeId;
+
+            if (nodeId <= 0)
+                return false;
+
+            if (!_preset.TryGetNode(nodeId, out var node) || node == null || node.IsStartNode)
+                return false;
+
+            var nodeView = _preset.GetOrCreateNodeView(nodeId);
+            _nodeClipboard = new NodeClipboardData
+            {
+                Node = node.CreateRuntimeCopy(),
+                Position = nodeView.Position,
+                Size = nodeView.Size,
+                IsExpanded = nodeView.IsExpanded,
+            };
+
+            return true;
+        }
+
+        bool DuplicateNode(int nodeId)
+        {
+            if (_preset == null)
+                return false;
+
+            if (nodeId <= 0)
+                return false;
+
+            if (!_preset.TryGetNode(nodeId, out var selectedNode) || selectedNode == null || selectedNode.IsStartNode)
+                return false;
+
+            if (!CopySelectedNodeToClipboard(nodeId))
+                return false;
+
+            var selectedNodeView = _preset.GetOrCreateNodeView(nodeId);
+            return PasteClipboardNode(selectedNodeView.Position + new Vector2(40f, 24f), "Duplicate Conversation Node");
+        }
+
+        bool DuplicateSelectedNode()
+        {
+            if (_preset == null)
+                return false;
+
+            return DuplicateNode(_preset.GraphState.SelectedNodeId);
+        }
+
+        bool PasteClipboardNode()
+        {
+            return PasteClipboardNode(null, "Paste Conversation Node");
+        }
+
+        bool PasteClipboardNode(Vector2? graphPosition)
+        {
+            return PasteClipboardNode(graphPosition, "Paste Conversation Node");
+        }
+
+        bool PasteClipboardNode(Vector2? graphPosition, string undoLabel)
+        {
+            if (_preset == null || _nodeClipboard == null || _nodeClipboard.Node == null)
+                return false;
+
+            var node = _nodeClipboard.Node.CreateRuntimeCopy();
+            var nodeId = _preset.GenerateNextNodeId();
+            node.SetNodeId(nodeId);
+
+            var position = graphPosition ?? _lastGraphMouse;
+
+            RecordOwnerUndo(undoLabel);
+            _preset.AddNode(node);
+            _preset.EnsureStartNode();
+
+            var nodeView = _preset.GetOrCreateNodeView(nodeId);
+            nodeView.SetPosition(SnapPosition(position));
+            nodeView.SetSize(_nodeClipboard.Size);
+            nodeView.SetExpanded(_nodeClipboard.IsExpanded);
+
+            _preset.RebuildPreviousLinks();
+            MarkOwnerDirty();
+            RebuildGraph();
+            SelectNode(nodeId);
+            return true;
+        }
+
         void SetGraphZoom(float zoom, Vector2? mouseLocalPosition = null)
         {
             var clamped = Mathf.Clamp(zoom, MinGraphZoom, MaxGraphZoom);
@@ -1015,11 +1192,11 @@ namespace Game.Conversation.Editor
             var previousZoom = Mathf.Max(MinGraphZoom, _graphZoom);
             if (_graphRoot != null && mouseLocalPosition.HasValue)
             {
-                var pivot = ResolveZoomPivot(mouseLocalPosition.Value);
-                var graphPivot = (pivot - _graphPan) / previousZoom;
+                var pivotOffset = ResolveZoomPivot(mouseLocalPosition.Value);
+                var graphPivot = (pivotOffset - _graphPan) / previousZoom;
 
                 _graphZoom = clamped;
-                _graphPan = pivot - (graphPivot * _graphZoom);
+                _graphPan = pivotOffset - (graphPivot * _graphZoom);
             }
             else
             {
@@ -1036,15 +1213,7 @@ namespace Game.Conversation.Editor
                 return mouseLocalPosition;
 
             var rect = _graphRoot.contentRect;
-            var center = rect.center;
-            var offset = mouseLocalPosition - center;
-            var maxDistance = Mathf.Max(1f, Mathf.Min(rect.width, rect.height) * 0.5f);
-            var distanceFactor = Mathf.Clamp01(offset.magnitude / maxDistance);
-            var blend = Mathf.Lerp(0.18f, 0.72f, distanceFactor);
-            var pivot = center + (offset * blend);
-            pivot.x = Mathf.Clamp(pivot.x, rect.xMin, rect.xMax);
-            pivot.y = Mathf.Clamp(pivot.y, rect.yMin, rect.yMax);
-            return pivot;
+            return mouseLocalPosition - rect.center;
         }
 
         void ApplyGraphZoom()
@@ -1075,6 +1244,7 @@ namespace Game.Conversation.Editor
             if (_preset.GraphState.SelectedNodeId == 0)
                 return;
 
+            FocusGraph();
             _preset.GraphState.SetSelectedNodeId(0);
             foreach (var pair in _nodeVisuals)
                 ApplyNodeSelectionStyle(pair.Value, false);
@@ -1226,21 +1396,12 @@ namespace Game.Conversation.Editor
             {
                 _inspectorScroll = EditorGUILayout.BeginScrollView(_inspectorScroll);
                 beganScroll = true;
-
                 if (!hasSerializedFlow || flowProperty == null)
                 {
-                    if (!_loggedMissingSerializedBinding)
-                    {
-                        Debug.LogWarning("[ConversationFlow] Serialized property binding was not resolved. Open this window from the Flow field Open button.");
-                        _loggedMissingSerializedBinding = true;
-                    }
-
-                    EditorGUILayout.HelpBox("Serialized property binding was not resolved. Open this window from the Flow field Open button.", MessageType.Warning);
+                    EditorGUILayout.HelpBox("Serialized property binding was not resolved. Open this window from the Flow field Open button.", MessageType.Info);
                     DrawFallbackInspector();
                     return;
                 }
-
-                _loggedMissingSerializedBinding = false;
 
                 _ownerSerializedObject?.UpdateIfRequiredOrScript();
                 EditorGUI.BeginChangeCheck();

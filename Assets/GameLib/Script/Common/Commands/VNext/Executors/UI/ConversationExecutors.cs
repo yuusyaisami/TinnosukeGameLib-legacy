@@ -35,7 +35,7 @@ namespace Game.Commands.VNext
                 case ConversationFlowOperation.Start:
                 case ConversationFlowOperation.Run:
                     {
-                        if (!TryResolveFlowPreset(typed, hub, ctx, targetScope, tag, out var preset, out var presetError) || preset == null)
+                        if (!TryResolveFlowPreset(typed, ctx, targetScope, tag, out var preset, out var presetError) || preset == null)
                         {
                             EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, presetError);
                             return;
@@ -92,7 +92,6 @@ namespace Game.Commands.VNext
 
         static bool TryResolveFlowPreset(
             ConversationFlowCommandData typed,
-            IConversationChannelHubService hub,
             CommandContext ctx,
             IScopeNode targetScope,
             string tag,
@@ -103,12 +102,6 @@ namespace Game.Commands.VNext
             if (typed.FlowPreset.TryGet(dynamicContext, out preset) && preset != null)
             {
                 preset = preset.CreateRuntimeCopy();
-                error = string.Empty;
-                return true;
-            }
-
-            if (typed.UseRegisteredPresetFallback && hub.TryResolvePreset(tag, dynamicContext, out preset) && preset != null)
-            {
                 error = string.Empty;
                 return true;
             }
@@ -126,9 +119,10 @@ namespace Game.Commands.VNext
             CommandContext ctx,
             CancellationToken ct)
         {
-            if (!ConversationExecutorUtility.TryResolve(targetScope, out IDialogueService? dialogue) || dialogue == null)
+            var (dialogue, dialogueError) = await ConversationExecutorUtility.ResolveDialogueServiceAsync(session, targetScope, ctx, ct);
+            if (dialogue == null)
             {
-                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, "IDialogueService is missing on target scope.");
+                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, dialogueError);
                 return;
             }
 
@@ -771,9 +765,10 @@ namespace Game.Commands.VNext
             {
                 case ConversationInFlowOperation.ShowMessage:
                     {
-                        if (!ConversationExecutorUtility.TryResolve(targetScope, out IDialogueService? dialogue) || dialogue == null)
+                        var (dialogue, dialogueError) = await ConversationExecutorUtility.ResolveDialogueServiceAsync(session, targetScope, ctx, ct);
+                        if (dialogue == null)
                         {
-                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, "IDialogueService is missing on target scope.");
+                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, dialogueError);
                             return;
                         }
 
@@ -795,9 +790,10 @@ namespace Game.Commands.VNext
 
                 case ConversationInFlowOperation.ShowChoiceAndWait:
                     {
-                        if (!ConversationExecutorUtility.TryResolve(targetScope, out IDialogueService? dialogue) || dialogue == null)
+                        var (dialogue, dialogueError) = await ConversationExecutorUtility.ResolveDialogueServiceAsync(session, targetScope, ctx, ct);
+                        if (dialogue == null)
                         {
-                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, "IDialogueService is missing on target scope.");
+                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, dialogueError);
                             return;
                         }
 
@@ -1031,6 +1027,43 @@ namespace Game.Commands.VNext
                 return false;
 
             return resolver.TryResolve(out value) && value != null;
+        }
+
+        public static async UniTask<(IDialogueService? dialogue, string error)> ResolveDialogueServiceAsync(
+            IConversationRuntimeSession session,
+            IScopeNode targetScope,
+            CommandContext ctx,
+            CancellationToken ct)
+        {
+            if (session == null)
+                return (null, "[CONV-239] Conversation session is missing.");
+
+            var dialogueContext = new CommandContext(
+                targetScope,
+                ctx.Vars ?? NullVarStore.Instance,
+                ctx.Runner,
+                actor: targetScope,
+                options: ctx.Options,
+                commandRootScope: ctx.CommandRootScope,
+                rootActor: ctx.RootActor,
+                callerActor: ctx.CallerActor,
+                sourceContext: ctx);
+
+            var (dialogueScope, scopeError) = await ActorScopeResolver.ResolveAsync(session.DialogueChannelSource, dialogueContext, ct);
+            if (dialogueScope == null)
+            {
+                var message = string.IsNullOrWhiteSpace(scopeError)
+                    ? $"[CONV-240] Dialogue channel scope was not found. source={session.DialogueChannelSource.Kind} tag='{session.DialogueChannelTag}'"
+                    : scopeError;
+                return (null, message);
+            }
+
+            if (!TryResolve(dialogueScope, out IDialogueService? dialogue) || dialogue == null)
+            {
+                return (null, $"[CONV-241] IDialogueService is missing on dialogue channel scope. source={session.DialogueChannelSource.Kind} tag='{session.DialogueChannelTag}'");
+            }
+
+            return (dialogue, string.Empty);
         }
 
         public static int ResolveVarId(VarKeyRef keyRef, int fallback)
