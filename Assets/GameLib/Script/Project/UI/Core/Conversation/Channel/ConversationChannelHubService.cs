@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Common;
+using Game.Commands.VNext;
 using UnityEngine;
 using VContainer;
 
@@ -13,6 +13,8 @@ namespace Game.Conversation
         string Tag { get; }
         bool IsActive { get; }
         ConversationFlowPreset FlowPreset { get; }
+        ActorSource DialogueChannelSource { get; }
+        string DialogueChannelTag { get; }
         int CurrentNodeId { get; }
         int LastCompletedNodeId { get; }
         int TurnCount { get; }
@@ -36,8 +38,6 @@ namespace Game.Conversation
     {
         int DefinitionCount { get; }
         bool Contains(string tag);
-        bool TryResolvePreset(string tag, IDynamicContext context, out ConversationFlowPreset? preset);
-        bool RegisterOrReplace(string tag, ConversationFlowPreset preset);
         bool Unregister(string tag);
 
         bool IsActive(string tag);
@@ -56,7 +56,6 @@ namespace Game.Conversation
         readonly IScopeNode _owner;
         readonly ConversationChannelHubMB _mb;
         readonly Dictionary<string, ConversationChannelDefinition> _definitions = new(StringComparer.Ordinal);
-        readonly Dictionary<string, ConversationFlowPreset> _registeredPresets = new(StringComparer.Ordinal);
         readonly Dictionary<string, ConversationRuntimeSession> _sessions = new(StringComparer.Ordinal);
 
         string _activeSessionTag = string.Empty;
@@ -87,7 +86,6 @@ namespace Game.Conversation
 
             ReleaseAllSessions();
             _definitions.Clear();
-            _registeredPresets.Clear();
             _activeSessionTag = string.Empty;
             _isAcquired = false;
         }
@@ -95,37 +93,6 @@ namespace Game.Conversation
         public bool Contains(string tag)
         {
             return _definitions.ContainsKey(ConversationTagUtility.Normalize(tag));
-        }
-
-        public bool TryResolvePreset(string tag, IDynamicContext context, out ConversationFlowPreset? preset)
-        {
-            preset = null;
-            var normalized = ConversationTagUtility.Normalize(tag);
-
-            if (_registeredPresets.TryGetValue(normalized, out var registered) && registered != null)
-            {
-                preset = registered.CreateRuntimeCopy();
-                return true;
-            }
-
-            if (!_definitions.TryGetValue(normalized, out var def) || def == null)
-                return false;
-
-            if (!def.PresetValue.TryGet(context, out ConversationFlowPreset? resolved) || resolved == null)
-                return false;
-
-            preset = resolved.CreateRuntimeCopy();
-            return true;
-        }
-
-        public bool RegisterOrReplace(string tag, ConversationFlowPreset preset)
-        {
-            if (preset == null)
-                return false;
-
-            var normalized = ConversationTagUtility.Normalize(tag);
-            _registeredPresets[normalized] = preset.CreateRuntimeCopy();
-            return true;
         }
 
         public bool Unregister(string tag)
@@ -136,7 +103,6 @@ namespace Game.Conversation
                 return false;
 
             var removed = _definitions.Remove(normalized);
-            removed |= _registeredPresets.Remove(normalized);
             return removed;
         }
 
@@ -197,7 +163,19 @@ namespace Game.Conversation
                 return false;
             }
 
-            var runtime = new ConversationRuntimeSession(normalized, preset.CreateRuntimeCopy());
+            var dialogueChannelSource = new ActorSource { Kind = ActorSourceKind.Current };
+            var dialogueChannelTag = "default";
+            if (_definitions.TryGetValue(normalized, out var definition) && definition != null)
+            {
+                dialogueChannelSource = definition.DialogueChannelSource;
+                dialogueChannelTag = definition.DialogueChannelTag;
+            }
+
+            var runtime = new ConversationRuntimeSession(
+                normalized,
+                preset.CreateRuntimeCopy(),
+                dialogueChannelSource,
+                dialogueChannelTag);
             if (!runtime.IsActive)
             {
                 message = $"[CONV-103] Conversation preset is invalid. tag='{normalized}'";
@@ -279,6 +257,8 @@ namespace Game.Conversation
         public string Tag { get; }
         public bool IsActive => _isActive;
         public ConversationFlowPreset FlowPreset { get; }
+        public ActorSource DialogueChannelSource { get; }
+        public string DialogueChannelTag { get; }
         public int CurrentNodeId => _currentNodeId;
         public int LastCompletedNodeId => _lastCompletedNodeId;
         public int TurnCount => _turnCount;
@@ -297,10 +277,12 @@ namespace Game.Conversation
             _endKind,
             _endMessage);
 
-        public ConversationRuntimeSession(string tag, ConversationFlowPreset flowPreset)
+        public ConversationRuntimeSession(string tag, ConversationFlowPreset flowPreset, ActorSource dialogueChannelSource, string dialogueChannelTag)
         {
             Tag = ConversationTagUtility.Normalize(tag);
             FlowPreset = flowPreset ?? new ConversationFlowPreset();
+            DialogueChannelSource = dialogueChannelSource;
+            DialogueChannelTag = ConversationTagUtility.Normalize(dialogueChannelTag);
 
             if (FlowPreset.Nodes != null)
             {
@@ -350,7 +332,8 @@ namespace Game.Conversation
 
         public bool TryResolveDialogueTag(ConversationCharacterSlot slot, out string dialogueTag)
         {
-            dialogueTag = FlowPreset.DialogueRouting?.ResolveTag(slot) ?? "default";
+            var resolvedTag = FlowPreset.DialogueRouting?.ResolveTag(slot);
+            dialogueTag = string.IsNullOrWhiteSpace(resolvedTag) ? DialogueChannelTag : resolvedTag;
             return !string.IsNullOrEmpty(dialogueTag);
         }
 

@@ -2,5 +2,7 @@ OVDF v1.1
 Game.Conversation.ConversationFlowSettingsPreset, Assembly-CSharp
 
 # _defaultMessageDetailSettings
-* [Sirenix.OdinInspector.InlinePropertyAttribute]
-	LabelWidth = 0
+- [Sirenix.OdinInspector.InlinePropertyAttribute]
+	LabelWidth = -10
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 0.03

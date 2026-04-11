@@ -52,12 +52,6 @@ namespace Game.Commands.VNext
         [Tooltip("true のとき失敗を command error として扱います。false のとき失敗時も処理を継続します。")]
         public bool Strict = true;
 
-        [BoxGroup("Policy")]
-        [ShowIf(nameof(UsesPreset))]
-        [LabelText("Use Registered Preset Fallback")]
-        [Tooltip("FlowPreset が resolve できないとき、hub 登録済み preset を fallback 使用します。")]
-        public bool UseRegisteredPresetFallback = true;
-
         [BoxGroup("Flow")]
         [ShowIf(nameof(UsesPreset))]
         [LabelText("Flow Preset")]

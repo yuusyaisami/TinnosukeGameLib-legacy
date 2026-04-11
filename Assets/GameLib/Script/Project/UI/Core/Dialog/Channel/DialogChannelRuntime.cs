@@ -14,6 +14,7 @@ using Game.Project.Scene.Runtime;
 using Game.Spawn;
 using Game.Times;
 using Game.UI;
+using Game.Vars.Generated;
 using UnityEngine;
 using VContainer;
 
@@ -103,6 +104,8 @@ namespace Game.Dialogue
         DialogueTypewriterState _typewriterState = DialogueTypewriterState.Idle;
         DialogueChoiceState _choiceState = DialogueChoiceState.None;
         DialogueCharacterAnchor _activeCharacterAnchor = DialogueCharacterAnchor.None;
+        string _activeCharacterName = string.Empty;
+        AnimationDataSource? _activeCharacterIconAnimPreset;
 
         ActiveMessageSession? _activeMessageSession;
         DialogueChannelSnapshot _lastSnapshot;
@@ -157,6 +160,8 @@ namespace Game.Dialogue
             _typewriterState = DialogueTypewriterState.Idle;
             _choiceState = DialogueChoiceState.None;
             _activeCharacterAnchor = DialogueCharacterAnchor.None;
+            _activeCharacterName = string.Empty;
+            _activeCharacterIconAnimPreset = null;
             _activeChoiceChannelTag = string.Empty;
             _activeMessageSession = null;
             _activeTypewriterPlayers.Clear();
@@ -204,6 +209,8 @@ namespace Game.Dialogue
             _typewriterState = DialogueTypewriterState.Idle;
             _choiceState = DialogueChoiceState.None;
             _activeCharacterAnchor = DialogueCharacterAnchor.None;
+            _activeCharacterName = string.Empty;
+            _activeCharacterIconAnimPreset = null;
             _activeChoiceChannelTag = string.Empty;
 
             _ownerTransform = null;
@@ -499,6 +506,9 @@ namespace Game.Dialogue
             var context = new SimpleDynamicContext(_vars, _activeScope);
 
             var resolvedAnchor = DialogueCharacterAnchor.None;
+            var activeCharacterName = string.Empty;
+            AnimationDataSource? activeCharacterIconAnimPreset = null;
+            var capturedActiveCharacterState = false;
             for (var i = 0; i < runtimeRequest.Entries.Count; i++)
             {
                 var entry = runtimeRequest.Entries[i];
@@ -510,7 +520,7 @@ namespace Game.Dialogue
 
                 var resolvedCharacter = ResolveCharacterEntry(entry, i, context);
 
-                if (entry.SpawnIfNeeded && resolvedCharacter.RuntimeTemplate != null && _preset.Character.EnableRuntimeSpawn)
+                if (entry.SpawnIfNeeded || resolvedCharacter.CharacterDataId > 0)
                     await EnsureCharacterRuntimeSpawnedAsync(resolvedCharacter, entry, context, ct);
 
                 var displayName = ResolveDisplayName(entry, context, resolvedCharacter.Definition);
@@ -522,14 +532,31 @@ namespace Game.Dialogue
                     ApplyNameText(nameTag, displayName);
                 }
 
-                if (TryResolvePortraitAnimation(entry, resolvedCharacter.Definition, out var animationData, out var resolvedSpriteTag) &&
+                if (TryResolvePortraitAnimation(entry, resolvedCharacter.Definition, out var animationData, out var resolvedSpriteTag, out var resolvedIconAnimPreset) &&
                     animationData != null)
                 {
                     await PlayCharacterPortraitAsync(resolvedCharacter.RuntimeKey, resolvedSpriteTag, animationData, entry.PortraitPlayMode, ct);
                 }
+
+                if (!capturedActiveCharacterState)
+                {
+                    activeCharacterName = displayName;
+                    activeCharacterIconAnimPreset = resolvedIconAnimPreset;
+                    capturedActiveCharacterState = true;
+                }
+
+                if (resolvedAnchor == DialogueCharacterAnchor.None && entry.Anchor != DialogueCharacterAnchor.None)
+                {
+                    resolvedAnchor = entry.Anchor;
+                    activeCharacterName = displayName;
+                    activeCharacterIconAnimPreset = resolvedIconAnimPreset;
+                    capturedActiveCharacterState = true;
+                }
             }
 
             _activeCharacterAnchor = resolvedAnchor;
+            _activeCharacterName = activeCharacterName;
+            _activeCharacterIconAnimPreset = activeCharacterIconAnimPreset;
             PublishSnapshot(force: true);
 
             if (runtimeRequest.RefreshLayout && _preset.Layout.EnableLayout && _preset.Layout.RefreshOnCharacterUpdate)
@@ -553,21 +580,32 @@ namespace Game.Dialogue
                 ? runtimeRequest.RootPosition
                 : _preset.Layout.RootPosition;
 
-            var target = ResolveRootTargetPosition(rootPosition, runtimeRequest, context);
-            var rootMoved = await MoveByTransformChannelAsync(_preset.Layout.RootTransformChannelTag, target, context, ct);
-            if (!rootMoved)
-                Trace($"Layout root move skipped. tag={_tag} channel={_preset.Layout.RootTransformChannelTag}");
+            CommandListData? layoutCommands = null;
+            if (_preset.Layout is DialogueLayoutCommandOnlyPreset commandOnlyPreset)
+                layoutCommands = commandOnlyPreset.Commands;
 
-            var shifts = _preset.Layout.TextShiftChannels;
-            for (var i = 0; i < shifts.Count; i++)
+            var characterCommands = _preset.Character.CharacterLayout.ResolveCommands(_activeCharacterAnchor);
+
+            IVarStore? commandVars = null;
+            if ((layoutCommands != null && layoutCommands.Count > 0) ||
+                characterCommands.Count > 0)
             {
-                var shift = shifts[i];
-                if (shift == null)
-                    continue;
-
-                var shiftTarget = shift.ResolveTarget(_activeCharacterAnchor, context);
-                await MoveByTransformChannelAsync(shift.TransformAnimationTag, shiftTarget, context, ct);
+                commandVars = BuildCommandVars(rootPosition);
             }
+
+            if (_preset.Layout is DialogueLayoutPreset layoutPreset)
+            {
+                var target = ResolveRootTargetPosition(rootPosition, context);
+                var rootMoved = await MoveByTransformChannelAsync(layoutPreset.RootTransformChannelTag, target, context, ct);
+                if (!rootMoved)
+                    Trace($"Layout root move skipped. tag={_tag} channel={layoutPreset.RootTransformChannelTag}");
+            }
+
+            if (layoutCommands != null && layoutCommands.Count > 0)
+                await RunHookCommandsAsync(layoutCommands, "LayoutCommandOnly", ct, commandVars);
+
+            if (characterCommands.Count > 0)
+                await RunHookCommandsAsync(characterCommands, "CharacterLayout", ct, commandVars);
 
             return true;
         }
@@ -597,6 +635,8 @@ namespace Game.Dialogue
             _typewriterState = DialogueTypewriterState.Idle;
             _choiceState = DialogueChoiceState.None;
             _activeCharacterAnchor = DialogueCharacterAnchor.None;
+            _activeCharacterName = string.Empty;
+            _activeCharacterIconAnimPreset = null;
             PublishSnapshot(force: true);
             return true;
         }
@@ -841,9 +881,11 @@ namespace Game.Dialogue
             DialogueCharacterEntryRequest entry,
             CharacterDataBaseDefinition? definition,
             out IAnimationData? animationData,
-            out string spriteTag)
+            out string spriteTag,
+            out AnimationDataSource? animationSource)
         {
             animationData = null;
+            animationSource = entry.PortraitAnimation;
             spriteTag = string.IsNullOrWhiteSpace(entry.SpriteChannelTag)
                 ? _preset.Character.DefaultSpriteChannelTag
                 : DialogueTagUtility.Normalize(entry.SpriteChannelTag);
@@ -853,6 +895,7 @@ namespace Game.Dialogue
                 explicitAnimationData != null)
             {
                 animationData = explicitAnimationData;
+                animationSource = entry.PortraitAnimation;
                 return true;
             }
 
@@ -866,6 +909,7 @@ namespace Game.Dialogue
                 expressionAnimationData != null)
             {
                 animationData = expressionAnimationData;
+                animationSource = expressionEntry.PortraitAnimation;
                 return true;
             }
 
@@ -884,6 +928,7 @@ namespace Game.Dialogue
                 spriteTag = DialogueTagUtility.Normalize(defaultImageModule.SpriteChannelTag);
 
             animationData = fallbackAnimationData;
+            animationSource = defaultImageModule.DefaultPortraitAnimation;
             return true;
         }
 
@@ -924,11 +969,7 @@ namespace Game.Dialogue
             IDynamicContext context,
             CancellationToken ct)
         {
-            if (_activeScope == null || resolved.RuntimeTemplate == null)
-                return;
-
-            var runtimeTemplate = RuntimeTemplatePresetResolver.ResolveTemplateSO(resolved.RuntimeTemplate);
-            if (runtimeTemplate == null)
+            if (_activeScope == null)
                 return;
 
             if (_characterRecords.TryGetValue(resolved.RuntimeKey, out var existing) && existing != null && existing.Resolver != null)
@@ -956,6 +997,16 @@ namespace Game.Dialogue
                 _characterRecords[resolved.RuntimeKey] = adopted;
                 return;
             }
+
+            if (!entry.SpawnIfNeeded || resolved.RuntimeTemplate == null)
+                return;
+
+            var runtimeTemplate = RuntimeTemplatePresetResolver.ResolveTemplateSO(resolved.RuntimeTemplate);
+            if (runtimeTemplate == null)
+                return;
+
+            if (!_preset.Character.EnableRuntimeSpawn)
+                return;
 
             if (_runtimeSpawner == null)
                 return;
@@ -1074,7 +1125,7 @@ namespace Game.Dialogue
                 UnityEngine.Object.Destroy(record.Root.gameObject);
         }
 
-        Vector3 ResolveRootTargetPosition(DialogueRootPosition rootPosition, DialogueLayoutRefreshRequest request, IDynamicContext context)
+        Vector3 ResolveRootTargetPosition(DialogueRootPosition rootPosition, IDynamicContext context)
         {
             if (TryResolveLayoutBounds(out var boundsRect))
             {
@@ -1154,7 +1205,24 @@ namespace Game.Dialogue
             return true;
         }
 
-        async UniTask RunHookCommandsAsync(CommandListData? commands, string hookName, CancellationToken ct)
+        IVarStore BuildCommandVars(DialogueRootPosition rootPosition)
+        {
+            var vars = new VarStore();
+            _vars.MergeInto(vars, overwrite: true);
+
+            vars.TrySetVariant(VarIds.GameLib.UI.DialogueChannel.Character.Element.Anchor, DynamicVariant.FromInt((int)_activeCharacterAnchor));
+            vars.TrySetVariant(VarIds.GameLib.UI.DialogueChannel.Character.Element.Name, DynamicVariant.FromString(_activeCharacterName ?? string.Empty));
+
+            if (_activeCharacterIconAnimPreset != null)
+                vars.TrySetManagedRef(VarIds.GameLib.UI.DialogueChannel.Character.Element.IconAnimPreset, _activeCharacterIconAnimPreset);
+            else
+                vars.TryUnset(VarIds.GameLib.UI.DialogueChannel.Character.Element.IconAnimPreset);
+
+            vars.TrySetVariant(VarIds.GameLib.UI.DialogueChannel.DialogueLayout.RootPositionType, DynamicVariant.FromInt((int)rootPosition));
+            return vars;
+        }
+
+        async UniTask RunHookCommandsAsync(CommandListData? commands, string hookName, CancellationToken ct, IVarStore? vars = null)
         {
             if (commands == null || commands.Count == 0)
                 return;
@@ -1164,7 +1232,7 @@ namespace Game.Dialogue
 
             var ctx = new CommandContext(
                 _activeScope,
-                _vars,
+                vars ?? _vars,
                 _commandRunner,
                 _activeScope,
                 CommandRunOptions.Default);
