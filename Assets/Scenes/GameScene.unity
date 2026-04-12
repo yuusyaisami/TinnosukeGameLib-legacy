@@ -1060,6 +1060,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -3876,7 +3877,7 @@ MonoBehaviour:
       data:
         prefab: {fileID: 1871564523398246338, guid: b8bd2f4fbe04cde4aae3cebc0310a837, type: 3}
         usePooling: 1
-        category: Runtime
+        category: BallRuntime
         templateId: 
     - rid: 5619052416848364002
       type: {class: AreaChannelPosition3Source, ns: Game.Common, asm: Assembly-CSharp}
@@ -8229,6 +8230,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -9852,8 +9854,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 966207255}
+  m_Children: []
   m_Father: {fileID: 1937569377}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.25}
@@ -10841,6 +10842,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -12808,7 +12810,7 @@ MonoBehaviour:
             _debugAssetPath: 
             _functionName: 
             _commands: []
-          _hideWhenFillIsMin: 0
+          _hideWhenFillIsMin: 1
         _segmented:
           _fillAxis: 10
           _originSide: 10
@@ -12988,6 +12990,12 @@ MonoBehaviour:
     _rangeRectTransform: {fileID: 662131349}
     _segmentBarsRoot: {fileID: 1631804060}
     _segmentMarkersRoot: {fileID: 1631804060}
+    _enableDebugLog: 0
+    _enableBindingDebugLog: 0
+    _debugLogChannelTagFilter: 
+  _enableDebugLog: 0
+  _enableBindingDebugLog: 0
+  _debugLogChannelTagFilter: 
   references:
     version: 2
     RefIds:
@@ -13001,42 +13009,18 @@ MonoBehaviour:
       type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {x: 0, y: 0}
-    - rid: 5399842427028636297
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+    - rid: 5399842623454183700
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842427028636298
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: 1
+    - rid: 5399842623454183701
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        type: 0
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842427028636299
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: 0
+    - rid: 5399842623454183702
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
+        value: 1
     - rid: 5619052617993552261
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.SliderVisualizerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -13150,7 +13134,7 @@ MonoBehaviour:
             _source:
               rid: 5619052617993552278
             _defaultValue: 0
-          _splitBarsByLayout: 0
+          _splitBarsByLayout: 1
           _barSpanScale:
             _source:
               rid: 5619052617993552279
@@ -13464,17 +13448,17 @@ MonoBehaviour:
           FillCenter: 1
           PixelsPerUnitMultiplierSource:
             _source:
-              rid: 5399842427028636297
+              rid: 5399842623454183700
             _defaultValue: 0
           FillMethod: 10
           FillOriginSource:
             _source:
-              rid: 5399842427028636298
+              rid: 5399842623454183701
             _defaultValue: 0
           FillClockwise: 1
           FillAmountSource:
             _source:
-              rid: 5399842427028636299
+              rid: 5399842623454183702
             _defaultValue: 0
     - rid: 5619052617993552289
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -22687,6 +22671,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -28878,6 +28863,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -29043,81 +29029,6 @@ RectTransform:
   m_AnchoredPosition: {x: 6.965, y: -0.686}
   m_SizeDelta: {x: -13.93, y: 13.346}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &966207254
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 966207255}
-  - component: {fileID: 966207257}
-  - component: {fileID: 966207256}
-  m_Layer: 0
-  m_Name: Fill
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &966207255
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 966207254}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 408003916}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &966207256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 966207254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: -8757816339171775503, guid: f23b6688703c6cf48a7d1fdc754de675, type: 3}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &966207257
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 966207254}
-  m_CullTransparentMesh: 1
 --- !u!1 &967018044
 GameObject:
   m_ObjectHideFlags: 0
@@ -29728,6 +29639,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -31889,7 +31801,7 @@ MonoBehaviour:
   channels:
   - tag: default
     Enabled: 1
-    Anchor: {fileID: 0}
+    Anchor: {fileID: 1026787982}
     CenterOffset: {x: 0, y: 8.18, z: 0}
     Plane: 0
     Sample:
@@ -35171,30 +35083,30 @@ MonoBehaviour:
         _graphState:
           _zoom: 1
           _pan: {x: 0, y: 0}
-          _selectedNodeId: 4
+          _selectedNodeId: 0
           _nodeViews:
           - _nodeId: 1
             _position: {x: 52, y: 56}
             _size: {x: 320, y: 84}
             _isExpanded: 1
           - _nodeId: 2
-            _position: {x: 552, y: 88}
+            _position: {x: 24, y: 192}
             _size: {x: 320, y: 84}
             _isExpanded: 1
           - _nodeId: 3
-            _position: {x: 928, y: 104}
+            _position: {x: 32, y: 304}
             _size: {x: 320, y: 84}
             _isExpanded: 1
           - _nodeId: 4
-            _position: {x: 1288, y: 144}
+            _position: {x: 32, y: 416}
             _size: {x: 320, y: 84}
             _isExpanded: 1
           - _nodeId: 5
-            _position: {x: 1672, y: 280}
+            _position: {x: 376, y: 496}
             _size: {x: 320, y: 84}
             _isExpanded: 1
           - _nodeId: 6
-            _position: {x: 1664, y: 160}
+            _position: {x: 736, y: 448}
             _size: {x: 320, y: 84}
             _isExpanded: 1
     - rid: 5399842582475833576
@@ -39597,7 +39509,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0852641e703b1894e8652e3c538b4b52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.StatusEffect.StatusEffectMB
+  _debugStatus: (unbound)
+  _registeredEffectCount: 0
   _activeEffectCount: 0
+  _globalRuntime:
+    HasInitialized: 0
+    IsLifetimeEnabled: 0
+    LifetimeRemaining: 0
+    LifetimeTotal: 0
+    IsLifetimeExpired: 0
+    IsUseCooldownEnabled: 0
+    UseCooldownRemaining: 0
+    UseCooldownTotal: 0
+    IsUseCooldownActive: 0
+    IsCountEnabled: 0
+    CurrentCount: 0
+    MaxCount: 0
+    UsedCount: 0
+    IsCountExhausted: 0
+    CanUse: 0
+    StatusText: 
   _activeEffects: []
   _globalLifetimeSettings:
     _source:
@@ -58398,7 +58329,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 0
+  _debugLastEnabledChangeFrame: 1297
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1484563809
@@ -59016,6 +58947,12 @@ MonoBehaviour:
     _rangeRectTransform: {fileID: 15677577}
     _segmentBarsRoot: {fileID: 15677577}
     _segmentMarkersRoot: {fileID: 15677577}
+    _enableDebugLog: 0
+    _enableBindingDebugLog: 0
+    _debugLogChannelTagFilter: 
+  _enableDebugLog: 0
+  _enableBindingDebugLog: 0
+  _debugLogChannelTagFilter: 
   references:
     version: 2
     RefIds:
@@ -60981,7 +60918,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 0
+  _debugLastEnabledChangeFrame: 1297
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1505620737
@@ -63835,8 +63772,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
     - rid: 5399842581721120802
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -63960,8 +63895,7 @@ MonoBehaviour:
           _debugFieldPath: 
           _debugAssetPath: 
           _functionName: 
-          _commands:
-          - rid: 5399842582475833688
+          _commands: []
         _onUpCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -63991,49 +63925,6 @@ MonoBehaviour:
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
-    - rid: 5399842582475833688
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842582475833689
-    - rid: 5399842582475833689
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: CommandDebug
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
 --- !u!114 &1634063626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64197,8 +64088,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
     - rid: 5399842581721120768
       type: {class: 'ManagedRefLiteralSource`1[[Game.Dialogue.DialogueChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -64659,7 +64548,6 @@ MonoBehaviour:
           _functionName: 
           _commands:
           - rid: 5399842582475833864
-          - rid: 5399842604630671756
     - rid: 5399842581721120799
       type: {class: DialogueStatePreset, ns: Game.Dialogue, asm: Assembly-CSharp}
       data:
@@ -64976,49 +64864,6 @@ MonoBehaviour:
         key:
           stableKey: DisplayName
           varId: 101198
-    - rid: 5399842604630671756
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842604630671757
-    - rid: 5399842604630671757
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: SpawnChoice
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
 --- !u!114 &1634063627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68064,7 +67909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 11d52799064862141b32003d1f790320, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -74604,7 +74449,7 @@ MonoBehaviour:
   channels:
   - tag: default
     Enabled: 1
-    Anchor: {fileID: 0}
+    Anchor: {fileID: 1788464276}
     CenterOffset: {x: 0, y: -0.28, z: 0}
     Plane: 0
     Sample:
@@ -74619,14 +74464,16 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 5399842617430901563
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 9.61, y: 7.34}
     - rid: 5619052416848364332
       type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
         Size:
           _source:
-            rid: -2
+            rid: 5399842617430901563
           _defaultValue: {x: 5, y: 5}
 --- !u!1 &1789457583
 GameObject:
@@ -81600,7 +81447,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 0
+  _debugLastEnabledChangeFrame: 1297
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1979925667
@@ -85196,6 +85043,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -86752,8 +86600,6 @@ GameObject:
   - component: {fileID: 2084415580}
   - component: {fileID: 2084415579}
   - component: {fileID: 2084415578}
-  - component: {fileID: 2084415577}
-  - component: {fileID: 2084415576}
   - component: {fileID: 2084415585}
   - component: {fileID: 2084415586}
   - component: {fileID: 2084415587}
@@ -86785,192 +86631,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0.0000042915, y: -10.812012}
   m_SizeDelta: {x: 470.38, y: 21.615}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2084415576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2084415574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24c9e058f28672347bca2100d571a399, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UISliderMB
-  _unitySlider: {fileID: 2084415577}
-  _hitTestRect: {fileID: 0}
-  _minValue:
-    _source:
-      rid: 5619052416848364023
-    _defaultValue: 0
-  _maxValue:
-    _source:
-      rid: 5619052416848364027
-    _defaultValue: 0
-  _initialValue:
-    _source:
-      rid: 5619052416848364025
-    _defaultValue: 0
-  _step:
-    _source:
-      rid: 5619052416848364026
-    _defaultValue: 0
-  _stepMode: 0
-  _updateEpsilon: 0.0001
-  _isEditable: 1
-  _cancelBehavior: 0
-  _inputMode: 2
-  _paddingStart: 0
-  _paddingEnd: 0
-  _uiCamera: {fileID: 0}
-  _navigateRepeatDelay: 0.25
-  _navigateRepeatInterval: 0.08
-  _scrollRepeatDelay: 0.1
-  _scrollRepeatInterval: 0.05
-  _disableUnityNativeInput: 1
-  _useScalarBinding: 1
-  _scalarBindingSource:
-    Kind: 5
-    Identity:
-      kind: 0
-      id: 
-      category: 
-      requireActive: 0
-      searchScope: 0
-    UnityObject: {fileID: 0}
-    Shared:
-      rid: -2
-    ContextSlot: 0
-    TargetChannel:
-      rid: -2
-  _scalarKey:
-    Id: -1979261059
-    Name: GameLogic.GameProfile.Base.TimeLimitValue
-  _useBlackboardBinding: 0
-  _blackboardBindingSource:
-    Kind: 0
-    Identity:
-      kind: 0
-      id: 
-      category: 
-      requireActive: 0
-      searchScope: 0
-    UnityObject: {fileID: 0}
-    Shared:
-      rid: -2
-    ContextSlot: 0
-    TargetChannel:
-      rid: -2
-  _blackboardKey:
-    stableKey: 
-    varId: 0
-  _bindingPriority: 0
-  _writeToBothBindings: 1
-  _onValueChangedCommands:
-    _debugOwner: {fileID: 0}
-    _debugFieldPath: 
-    _debugAssetPath: 
-    _functionName: 
-    _commands: []
-  _inspectorTelemetry:
-    LastEvent: 0
-    LastPointerPosition: {x: 0, y: 0}
-    NormalizedValue: 0
-    RawValue: 0
-    IsEditing: 0
-    IsPointerDown: 0
-    IsLongPressed: 0
-    TimestampUtc: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 5619052416848364023
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052416848364025
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052416848364026
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0.1
-    - rid: 5619052416848364027
-      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: 1475514439
-          Name: GameLogic.GameProfile.Base.MaxTimeLimit
-        targetActorSource:
-          Kind: 5
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 100
-          TargetChannel:
-            rid: -2
-        createIfMissing: 0
-        baselineValue: 0
---- !u!114 &2084415577
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2084415574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 0
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 0
-  m_TargetGraphic: {fileID: 0}
-  m_FillRect: {fileID: 966207255}
-  m_HandleRect: {fileID: 0}
-  m_Direction: 0
-  m_MinValue: 0
-  m_MaxValue: 1
-  m_WholeNumbers: 0
-  m_Value: 1
-  m_OnValueChanged:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &2084415578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87726,6 +87386,12 @@ MonoBehaviour:
     _rangeRectTransform: {fileID: 408003916}
     _segmentBarsRoot: {fileID: 408003916}
     _segmentMarkersRoot: {fileID: 408003916}
+    _enableDebugLog: 0
+    _enableBindingDebugLog: 0
+    _debugLogChannelTagFilter: 
+  _enableDebugLog: 0
+  _enableBindingDebugLog: 0
+  _debugLogChannelTagFilter: 
   references:
     version: 2
     RefIds:
@@ -87739,42 +87405,102 @@ MonoBehaviour:
       type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {x: 0, y: 0}
-    - rid: 5399842427028636407
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+    - rid: 5399842623454183676
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842427028636408
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: 1
+    - rid: 5399842623454183677
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        type: 0
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5399842427028636409
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+        value: 180
+    - rid: 5399842623454183678
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
+        value: 0
+    - rid: 5399842623454183679
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842623454183680
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183681
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842623454183682
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183683
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183684
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183685
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.05
+    - rid: 5399842623454183686
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183687
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183688
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183689
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183690
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183691
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842623454183692
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183693
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183694
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183695
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183696
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842623454183697
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.1
+    - rid: 5399842623454183698
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.1
+    - rid: 5399842623454183703
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.5
     - rid: 5619052617993552456
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.SliderVisualizerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -88172,18 +87898,18 @@ MonoBehaviour:
         ApplyPlaybackSpeed: 0
         PlaybackSpeedSource:
           _source:
-            rid: 5619052617993552481
+            rid: 5399842623454183676
           _defaultValue: 0
         ApplyFlipX: 0
         FlipXMode: 0
         FlipXAngleSource:
           _source:
-            rid: 5619052617993552482
+            rid: 5399842623454183677
           _defaultValue: 0
         ApplySortingOrder: 0
         SortingOrderSource:
           _source:
-            rid: 5619052617993552483
+            rid: 5399842623454183678
           _defaultValue: 0
         ApplyVisualType: 0
         SpriteRendererType:
@@ -88202,54 +87928,18 @@ MonoBehaviour:
           FillCenter: 1
           PixelsPerUnitMultiplierSource:
             _source:
-              rid: 5399842427028636407
+              rid: 5399842623454183679
             _defaultValue: 0
           FillMethod: 10
           FillOriginSource:
             _source:
-              rid: 5399842427028636408
+              rid: 5399842623454183680
             _defaultValue: 0
           FillClockwise: 1
           FillAmountSource:
             _source:
-              rid: 5399842427028636409
+              rid: 5399842623454183681
             _defaultValue: 0
-    - rid: 5619052617993552481
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052617993552482
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 180
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052617993552483
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 0
-        intValue: 0
-        floatValue: 0
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5619052617993552484
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -88343,7 +88033,7 @@ MonoBehaviour:
               Type: 5
               Float:
                 _source:
-                  rid: 5619052617993552487
+                  rid: 5399842623454183682
                 _defaultValue: 0
               Int: 1
               Float2: {x: 0, y: 0}
@@ -88356,19 +88046,19 @@ MonoBehaviour:
             ApplyWeightFade: 0
             TargetWeight:
               _source:
-                rid: -2
+                rid: 5399842623454183683
               _defaultValue: 0
             FadeDuration:
               _source:
-                rid: -2
+                rid: 5399842623454183684
               _defaultValue: 0
             FadeEase: 0
-          - Key: BaseShader/BlendColor2D/BlendIntensity
+          - Key: BaseShader/BlendColor2D/AnimatedGradient/HueAmplitude
             Value:
               Type: 0
               Float:
                 _source:
-                  rid: 5619052617993552488
+                  rid: 5399842623454183685
                 _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
@@ -88381,19 +88071,44 @@ MonoBehaviour:
             ApplyWeightFade: 0
             TargetWeight:
               _source:
-                rid: -2
+                rid: 5399842623454183686
               _defaultValue: 0
             FadeDuration:
               _source:
-                rid: -2
+                rid: 5399842623454183687
               _defaultValue: 0
             FadeEase: 0
-          - Key: BaseShader/BlendColor2D/BlendMode
+          - Key: BaseShader/BlendColor2D/AnimatedGradient/Enabled
+            Value:
+              Type: 5
+              Float:
+                _source:
+                  rid: 5399842623454183688
+                _defaultValue: 0
+              Int: 1
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842623454183689
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842623454183690
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/BlendColor2D/AnimatedGradient/NoiseScale
             Value:
               Type: 0
               Float:
                 _source:
-                  rid: 5619052617993552490
+                  rid: 5399842623454183691
                 _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
@@ -88406,11 +88121,11 @@ MonoBehaviour:
             ApplyWeightFade: 0
             TargetWeight:
               _source:
-                rid: -2
+                rid: 5399842623454183692
               _defaultValue: 0
             FadeDuration:
               _source:
-                rid: -2
+                rid: 5399842623454183693
               _defaultValue: 0
             FadeEase: 0
           - Key: BaseShader/BlendColor2D/Color
@@ -88418,13 +88133,38 @@ MonoBehaviour:
               Type: 6
               Float:
                 _source:
-                  rid: 5619052617993552491
+                  rid: 5399842623454183694
                 _defaultValue: 0
               Int: 0
               Float2: {x: 0, y: 0}
               Float3: {x: 0, y: 0, z: 0}
               Float4: {x: 0, y: 0, z: 0, w: 0}
-              Color: {r: 0.91194963, g: 0.15772699, b: 0.15772699, a: 1}
+              Color: {r: 1, g: 0.17295581, b: 0.17295581, a: 1}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842623454183695
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842623454183696
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/BlendColor2D/AnimatedGradient/LightnessAmplitude
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842623454183697
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
               Texture: {fileID: 0}
             BlendMode: 0
             LifetimeSeconds: 0
@@ -88438,30 +88178,81 @@ MonoBehaviour:
                 rid: -2
               _defaultValue: 0
             FadeEase: 0
-    - rid: 5619052617993552487
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052617993552488
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
-    - rid: 5619052617993552490
-      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        type: 1
-        intValue: 0
-        floatValue: 1
-        boolValue: 0
-        stringValue: 
-        vector2Value: {x: 0, y: 0}
-        vector3Value: {x: 0, y: 0, z: 0}
-        vector4Value: {x: 0, y: 0, z: 0, w: 0}
-        colorValue: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 5619052617993552491
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
+          - Key: BaseShader/BlendColor2D/AnimatedGradient/SaturationAmplitude
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842623454183698
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/BlendColor2D/AnimatedGradient/PatternContrast
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842623454183703
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: 
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: -2
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeEase: 0
     - rid: 5619052617993552492
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -89519,6 +89310,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -90343,6 +90135,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -90576,6 +90369,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
