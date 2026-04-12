@@ -48,6 +48,15 @@ namespace Game.Channel
             out GridObjectChannelResolvedPresetState resolved,
             out string? error)
         {
+            if (state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Resolve preset sources. Tag='{state.ChannelTag}' " +
+                    $"DefinitionLayoutHasSource={_definition.LayoutPresetValue.HasSource} DefinitionLayoutSourceType={_definition.LayoutPresetValue.SourceTypeName} DefinitionLayoutSource={_definition.LayoutPresetValue.SourceDebugData} " +
+                    $"BindLayoutOverride={state.BindRequest.OverrideLayoutPreset} BindLayoutHasSource={state.BindRequest.LayoutPresetValue.HasSource} BindLayoutSourceType={state.BindRequest.LayoutPresetValue.SourceTypeName} BindLayoutSource={state.BindRequest.LayoutPresetValue.SourceDebugData}",
+                    state.ListRoot);
+            }
+
             var playerPreset = _definition.PlayerPresetValue.GetOrDefault(
                 dynamicContext,
                 new GridObjectChannelStandalonePlayerPreset())?.CreateRuntimeCopy() ?? new GridObjectChannelStandalonePlayerPreset();
@@ -62,9 +71,22 @@ namespace Game.Channel
             if (state.BindRequest.OverrideLayoutPreset)
                 layoutPreset = state.BindRequest.LayoutPresetValue.GetOrDefault(dynamicContext, new GridObjectChannelLayoutPreset()).CreateRuntimeCopy();
 
+            if (state.BindRequest.ForceChoiceCompatible)
+            {
+                var choiceItemCount = state.ActiveChoiceEntries?.Count ?? 0;
+                if (choiceItemCount > 0)
+                    layoutPreset = layoutPreset.CreateChoiceRuntimeCopy(choiceItemCount);
+            }
+
             var visualizerPreset = _definition.VisualizerPresetValue.GetOrDefault(dynamicContext, new GridObjectChannelVisualizerPreset()).CreateRuntimeCopy();
             if (state.BindRequest.OverrideVisualizerPreset)
                 visualizerPreset = state.BindRequest.VisualizerPresetValue.GetOrDefault(dynamicContext, new GridObjectChannelVisualizerPreset()).CreateRuntimeCopy();
+
+            if (state.BindRequest.ForceChoiceCompatible)
+                visualizerPreset = visualizerPreset.CreateChoiceRuntimeCopy();
+
+            if (state.BindRequest.SpawnCommands != null && state.BindRequest.SpawnCommands.Count > 0)
+                visualizerPreset.SpawnCommands.AddRuntimeCommands(state.BindRequest.SpawnCommands);
 
             BaseRuntimeTemplateSO? runtimeTemplate = null;
             if (!visualizerPreset.TryResolveRuntimeTemplate(dynamicContext, out runtimeTemplate) || runtimeTemplate == null)
@@ -104,6 +126,14 @@ namespace Game.Channel
                 visualizerPreset,
                 runtimeTemplate,
                 forceFullRebuild);
+
+            if (state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Resolved preset copy. Tag='{state.ChannelTag}' LayoutPreset={layoutPreset} VisualizerChoice={visualizerPreset.EnableChoiceInput} RuntimeTemplate={(runtimeTemplate != null ? runtimeTemplate.name : "null")}",
+                    state.ListRoot);
+            }
+
             return true;
         }
     }

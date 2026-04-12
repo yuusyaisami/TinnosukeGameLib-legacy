@@ -115,6 +115,19 @@ namespace Game.Channel
                 ref state.LayoutAreaSourceCache,
                 state.ResolvedLayoutPreset.AreaChannelTag);
 
+            if (state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Layout rect resolved. Channel={state.ChannelTag} Env={state.EnvironmentKind} " +
+                    $"Rect={rect} ListRoot={DescribeTransform(state.ListRoot)} LayoutRef={DescribeTransform(state.LayoutReferenceTransform)} " +
+                    $"LayoutRect={DescribeRectTransform(state.LayoutRectTransform)} ItemSize={itemSize} TotalRows={totalRows} TotalColumns={totalColumns} " +
+                    $"RowSpacing={state.ResolvedLayoutPreset.RowSpacing} ColumnSpacing={state.ResolvedLayoutPreset.ColumnSpacing} " +
+                    $"AreaAlign={state.ResolvedLayoutPreset.AreaHorizontalAlignment}/{state.ResolvedLayoutPreset.AreaVerticalAlignment} " +
+                    $"ItemAlign={state.ResolvedLayoutPreset.ItemHorizontalAlignment}/{state.ResolvedLayoutPreset.ItemVerticalAlignment} " +
+                    $"ItemOffset={state.ResolvedLayoutPreset.ItemOffset}",
+                    state.ListRoot);
+            }
+
             for (var i = 0; i < items.Count; i++)
             {
                 var item = items[i];
@@ -131,6 +144,14 @@ namespace Game.Channel
                     (int)state.ResolvedLayoutPreset.AreaVerticalAlignment,
                     state.ResolvedLayoutPreset.ItemOffset);
                 items[i] = item;
+
+                if (state.EnableVerboseLayoutLog)
+                {
+                    Debug.Log(
+                        $"[GridObjectChannel] Item target resolved. Channel={state.ChannelTag} Index={i} Key={item.Key.Kind}:{item.Key.ValueA},{item.Key.ValueB} " +
+                        $"SourceRow={item.SourceRow} SourceColumn={item.SourceColumn} Row={item.Row} Column={item.Column} TargetLocal={item.TargetLocalPosition}",
+                        state.ListRoot);
+                }
             }
         }
 
@@ -226,6 +247,23 @@ namespace Game.Channel
             }
 
             return maxColumn + 1;
+        }
+
+        static string DescribeTransform(Transform? transform)
+        {
+            if (transform == null)
+                return "null";
+
+            return $"{transform.name} local={transform.localPosition} world={transform.position}";
+        }
+
+        static string DescribeRectTransform(RectTransform? rectTransform)
+        {
+            if (rectTransform == null)
+                return "null";
+
+            var rect = rectTransform.rect;
+            return $"{rectTransform.name} rect={rect} anchored={rectTransform.anchoredPosition3D} anchorMin={rectTransform.anchorMin} anchorMax={rectTransform.anchorMax} pivot={rectTransform.pivot}";
         }
     }
 }

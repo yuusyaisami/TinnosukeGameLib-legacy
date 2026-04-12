@@ -162,6 +162,15 @@ namespace Game.Channel
             };
         }
 
+        public GridObjectChannelVisualizerPreset CreateChoiceRuntimeCopy()
+        {
+            var copy = CreateRuntimeCopy();
+            copy._enableChoiceInput = true;
+            copy._choiceDecisionPhase = GridObjectChoiceDecisionPhase.Pressed;
+            copy._choiceRequirePhaseTransition = true;
+            return copy;
+        }
+
         static CommandListData CloneCommandList(CommandListData? source)
         {
             var clone = new CommandListData();

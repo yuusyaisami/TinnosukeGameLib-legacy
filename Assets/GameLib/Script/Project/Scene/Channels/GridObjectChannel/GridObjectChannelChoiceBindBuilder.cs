@@ -12,6 +12,8 @@ namespace Game.Channel
             bindRequest.OverridePlayerPreset = true;
             bindRequest.PlayerPresetValue = DynamicValue<GridObjectChannelPlayerPresetBase>.FromSource(
                 new ManagedRefLiteralSource<GridObjectChannelPlayerPresetBase>(countPreset));
+
+            bindRequest.ForceChoiceCompatible = true;
             return bindRequest;
         }
     }

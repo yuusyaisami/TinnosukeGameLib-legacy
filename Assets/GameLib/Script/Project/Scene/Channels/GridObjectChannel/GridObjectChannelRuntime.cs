@@ -76,13 +76,20 @@ namespace Game.Channel
                 return;
 
             _ = isReset;
+            if (_definition.ListRoot == null)
+            {
+                Debug.LogError($"[GridObjectChannel] Invalid layout binding. Tag='{Tag}' requires ListRoot, but it was not assigned.");
+                return;
+            }
+
             _state.ActiveScope = scope;
-            _state.ListRoot = _definition.ListRoot != null ? _definition.ListRoot : _mb.transform;
+            _state.ListRoot = _definition.ListRoot;
+            var listRoot = _state.ListRoot;
             _state.LayoutReferenceTransform = _definition.LayoutRectTransform != null
                 ? _definition.LayoutRectTransform
                 : _state.ListRoot;
             _state.LayoutRectTransform = _state.LayoutReferenceTransform as RectTransform;
-            _state.EnvironmentKind = TransformGridSharedUtility.ResolveEnvironment(_state.ListRoot, out var canvas);
+            _state.EnvironmentKind = TransformGridSharedUtility.ResolveEnvironment(listRoot, out var canvas);
             _state.Canvas = canvas;
             _state.LifecycleCts = new CancellationTokenSource();
             _state.IsActive = true;
@@ -92,6 +99,15 @@ namespace Game.Channel
             _state.FixedAnchorSourceCache = default;
             _state.ActiveChoiceEntries = null;
             _operations.ResetQueueState();
+
+            if (_state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Acquire layout. Tag='{Tag}' Env={_state.EnvironmentKind} " +
+                    $"ListRoot={DescribeTransform(_state.ListRoot)} LayoutRef={DescribeTransform(_state.LayoutReferenceTransform)} " +
+                    $"LayoutRect={DescribeRectTransform(_state.LayoutRectTransform)} AutoBuild={_definition.AutoBuild}",
+                    _state.ListRoot);
+            }
 
             LogDebug($"Acquire. AutoBuild={_definition.AutoBuild}");
 
@@ -309,6 +325,41 @@ namespace Game.Channel
             _state.ResolvedVisualizerPreset = resolved.VisualizerPreset;
             _state.ResolvedRuntimeTemplate = resolved.RuntimeTemplate;
             forceFullRebuild = resolved.ForceFullRebuild;
+
+            if (_state.ActiveScope.Resolver != null)
+                TransformGridSharedUtility.RefreshLayoutAndBounds(_state.ActiveScope.Resolver);
+
+            if (_state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Resolved layout context. Tag='{Tag}' Channel={_state.ChannelTag} " +
+                    $"Env={_state.EnvironmentKind} RangeSource={_state.ResolvedLayoutPreset.RangeSourceMode} " +
+                    $"SpawnAnchor={_state.ResolvedLayoutPreset.SpawnAnchorMode} " +
+                    $"ItemAlign={_state.ResolvedLayoutPreset.ItemHorizontalAlignment}/{_state.ResolvedLayoutPreset.ItemVerticalAlignment} " +
+                    $"AreaAlign={_state.ResolvedLayoutPreset.AreaHorizontalAlignment}/{_state.ResolvedLayoutPreset.AreaVerticalAlignment} " +
+                    $"ItemOffset={_state.ResolvedLayoutPreset.ItemOffset} SpawnOffset={_state.ResolvedLayoutPreset.SpawnOffset} " +
+                    $"ListRoot={DescribeTransform(_state.ListRoot)} LayoutRef={DescribeTransform(_state.LayoutReferenceTransform)} " +
+                    $"LayoutRect={DescribeRectTransform(_state.LayoutRectTransform)} RuntimeTemplate={_state.ResolvedRuntimeTemplate?.name ?? "null"}",
+                    _state.ListRoot);
+            }
+
+            if (_state.EnvironmentKind == TransformGridEnvironmentKind.ScreenUI &&
+                _state.ResolvedLayoutPreset.RangeSourceMode == TransformGridLayoutRangeSourceMode.RectTransform)
+            {
+                if (_state.LayoutRectTransform == null)
+                {
+                    Debug.LogError($"[GridObjectChannel] Invalid layout binding. Tag='{Tag}' requires a RectTransform for RectTransform range source, but LayoutRectTransform was not resolved.");
+                    return false;
+                }
+
+                var layoutRect = _state.LayoutRectTransform.rect;
+                if (layoutRect.width <= 0f && layoutRect.height <= 0f)
+                {
+                    Debug.LogError($"[GridObjectChannel] Invalid layout binding. Tag='{Tag}' LayoutRectTransform='{_state.LayoutRectTransform.name}' has zero size. Rect={layoutRect}");
+                    return false;
+                }
+            }
+
             LogDebug(
                 $"Resolved state. ForceFullRebuild={forceFullRebuild} Player={_state.ResolvedPlayerPreset.GetType().Name} " +
                 $"Rows={_state.ResolvedLayoutPreset.Rows.GetOrDefault(dynamicContext, 1)} " +
@@ -325,6 +376,16 @@ namespace Game.Channel
             {
                 Debug.LogWarning($"[GridObjectChannel] Refresh skipped because RuntimeTemplate is null. Tag='{Tag}'");
                 return false;
+            }
+
+            if (_state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Refresh begin. Tag='{Tag}' Mode={mode} Built={_state.IsBuilt} " +
+                    $"Env={_state.EnvironmentKind} ListRoot={DescribeTransform(_state.ListRoot)} " +
+                    $"LayoutRef={DescribeTransform(_state.LayoutReferenceTransform)} LayoutRect={DescribeRectTransform(_state.LayoutRectTransform)} " +
+                    $"RuntimeTemplate={_state.ResolvedRuntimeTemplate?.name ?? "null"}",
+                    _state.ListRoot);
             }
 
             var items = await BuildItemsForRefreshAsync(mode, ct);
@@ -411,7 +472,7 @@ namespace Game.Channel
 
                 if (mode != GridObjectChannelRefreshMode.LayoutOnly)
                 {
-                    var payload = _payloadBuilder.BuildPayload(item);
+                    var payload = _payloadBuilder.BuildPayload(_state, item);
                     _ = _payloadBuilder.ApplyPayloadToBlackboard(instance, payload);
                 }
 
@@ -549,6 +610,23 @@ namespace Game.Channel
                 return;
 
             Debug.Log($"[GridObjectChannel] {message} Tag='{Tag}'");
+        }
+
+        static string DescribeTransform(Transform? transform)
+        {
+            if (transform == null)
+                return "null";
+
+            return $"{transform.name} local={transform.localPosition} world={transform.position}";
+        }
+
+        static string DescribeRectTransform(RectTransform? rectTransform)
+        {
+            if (rectTransform == null)
+                return "null";
+
+            var rect = rectTransform.rect;
+            return $"{rectTransform.name} rect={rect} anchored={rectTransform.anchoredPosition3D} anchorMin={rectTransform.anchorMin} anchorMax={rectTransform.anchorMax} pivot={rectTransform.pivot}";
         }
     }
 }

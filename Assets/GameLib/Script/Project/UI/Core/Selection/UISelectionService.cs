@@ -252,6 +252,8 @@ namespace Game.UI
 
             // Modal Stack Channel変更時に選択をクランプする
             _modalStackHub.OnLayerStatesChanged += HandleLayerStatesChanged;
+
+            HandleModalBoundaryChanged();
         }
 
         public void Dispose()
@@ -273,6 +275,7 @@ namespace Game.UI
         public void SetCandidateProvider(ISelectCandidateProvider? provider)
         {
             _candidateProvider = provider;
+            HandleModalBoundaryChanged();
         }
 
         bool TryGetActiveRootScopes(List<IScopeNode> results)

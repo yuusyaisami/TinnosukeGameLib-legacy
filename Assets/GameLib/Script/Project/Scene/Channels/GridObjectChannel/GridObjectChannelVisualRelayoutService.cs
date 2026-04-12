@@ -43,9 +43,27 @@ namespace Game.Channel
             GridObjectChannelMotionPreset motion,
             CancellationToken ct)
         {
+            if (state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Animate start. Tag='{_tag}' Channel={state.ChannelTag} Key={instance.Key.Kind}:{instance.Key.ValueA},{instance.Key.ValueB} " +
+                    $"TargetLocal={targetLocal} MotionDuration={motion?.DurationSeconds ?? 0f} UseTransformAnimation={motion?.UseTransformAnimation ?? false} " +
+                    $"WaitForCompletion={motion?.WaitForCompletion ?? false} RootBefore={DescribeLocalPosition(instance.Root, instance.RootRect)}",
+                    instance.Root);
+            }
+
             if (motion == null || motion.DurationSeconds <= 0f)
             {
                 TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, targetLocal, state.EnvironmentKind);
+
+                if (state.EnableVerboseLayoutLog)
+                {
+                    Debug.Log(
+                        $"[GridObjectChannel] Animate applied immediately. Tag='{_tag}' Channel={state.ChannelTag} Key={instance.Key.Kind}:{instance.Key.ValueA},{instance.Key.ValueB} " +
+                        $"RootAfter={DescribeLocalPosition(instance.Root, instance.RootRect)} TargetLocal={targetLocal}",
+                        instance.Root);
+                }
+
                 return;
             }
 
@@ -76,6 +94,15 @@ namespace Game.Channel
                     {
                         await player.PlayStepAsync(motionTarget, step);
                         TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, targetLocal, state.EnvironmentKind);
+
+                        if (state.EnableVerboseLayoutLog)
+                        {
+                            Debug.Log(
+                                $"[GridObjectChannel] Animate completed via TransformAnimation. Tag='{_tag}' Channel={state.ChannelTag} Key={instance.Key.Kind}:{instance.Key.ValueA},{instance.Key.ValueB} " +
+                                $"RootAfter={DescribeLocalPosition(instance.Root, instance.RootRect)} TargetLocal={targetLocal}",
+                                instance.Root);
+                        }
+
                         return;
                     }
 
@@ -100,6 +127,14 @@ namespace Game.Channel
             }
 
             await RunFallbackTweenAsync(state, instance, targetLocal, motion, ct);
+
+            if (state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Animate completed via fallback tween. Tag='{_tag}' Channel={state.ChannelTag} Key={instance.Key.Kind}:{instance.Key.ValueA},{instance.Key.ValueB} " +
+                    $"RootAfter={DescribeLocalPosition(instance.Root, instance.RootRect)} TargetLocal={targetLocal}",
+                    instance.Root);
+            }
         }
 
         async UniTask RunFallbackTweenAsync(
@@ -160,6 +195,13 @@ namespace Game.Channel
             }
 
             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, targetLocal, state.EnvironmentKind);
+        }
+
+        static string DescribeLocalPosition(Transform root, RectTransform? rootRect)
+        {
+            return rootRect != null
+                ? $"anchored={rootRect.anchoredPosition3D} local={root.localPosition}"
+                : $"local={root.localPosition}";
         }
     }
 }

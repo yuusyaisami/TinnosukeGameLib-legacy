@@ -4717,7 +4717,23 @@ MonoBehaviour:
     varId: 101197
     stableKey: RootPosition
     aliases: []
-  nextVarId: 101198
+  - id: 4ab73c628e844ddeae90d5695f0b61b7
+    parentId: 828fa9a04b864f15b5ec0f9a80fb224a
+    name: Choice
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 089e9bfbe7f7474389b0d84c8423488c
+    parentId: 4ab73c628e844ddeae90d5695f0b61b7
+    name: DisplayName
+    isFolder: 0
+    description: 
+    varId: 101198
+    stableKey: DisplayName
+    aliases: []
+  nextVarId: 101199
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

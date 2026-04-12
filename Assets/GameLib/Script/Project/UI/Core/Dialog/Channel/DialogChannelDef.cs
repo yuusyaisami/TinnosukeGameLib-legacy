@@ -180,7 +180,7 @@ namespace Game.Dialogue
         [LabelText("Advance Phase")]
         [Tooltip("この phase に入った瞬間を進行入力として扱います。")]
         [SerializeField]
-        ButtonChannelPhase _advancePhase = ButtonChannelPhase.CompletedWaitingRelease;
+        ButtonChannelPhase _advancePhase = ButtonChannelPhase.Pressed;
 
         [BoxGroup("Input")]
         [ShowIf(nameof(UsesInputSettings))]
@@ -729,10 +729,18 @@ namespace Game.Dialogue
         [SerializeField]
         bool _cancelChoiceOnEnd = true;
 
+        [BoxGroup("Commands")]
+        [LabelText("Spawn Commands")]
+        [Tooltip("選択肢表示の spawn 時に共通で実行する command list です。")]
+        [SerializeField]
+        [CommandListFunctionName("DialogueChannel.Choice.OnSpawn")]
+        CommandListData _spawnCommands = new();
+
         public string ChoiceChannelTag => DialogueTagUtility.Normalize(_choiceChannelTag);
         public bool KeepTextVisibleDuringChoice => _keepTextVisibleDuringChoice;
         public bool LockDialogueInputDuringChoice => _lockDialogueInputDuringChoice;
         public bool CancelChoiceOnEnd => _cancelChoiceOnEnd;
+        public CommandListData SpawnCommands => _spawnCommands;
 
         public DialogueChoicePreset CreateRuntimeCopy()
         {
@@ -742,7 +750,16 @@ namespace Game.Dialogue
                 _keepTextVisibleDuringChoice = _keepTextVisibleDuringChoice,
                 _lockDialogueInputDuringChoice = _lockDialogueInputDuringChoice,
                 _cancelChoiceOnEnd = _cancelChoiceOnEnd,
+                _spawnCommands = CloneCommandList(_spawnCommands),
             };
+        }
+
+        static CommandListData CloneCommandList(CommandListData? source)
+        {
+            var clone = new CommandListData();
+            if (source != null)
+                clone.SetCommands(source);
+            return clone;
         }
     }
 

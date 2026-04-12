@@ -1,3 +1,4 @@
+using System;
 using Game.Health;
 using UnityEngine;
 
@@ -29,6 +30,10 @@ namespace Game.StatusEffect
         public readonly bool IsApplied;
         public readonly bool IsActive;
         public readonly bool IsUseBlocked;
+        public readonly bool UsesServiceGlobalLifetime;
+        public readonly bool UsesServiceGlobalUseCooldown;
+        public readonly bool UsesServiceGlobalCount;
+        public readonly bool UsesAnyServiceGlobalUseState;
         public readonly int UsedCount;
         public readonly int RemainingUseCount;
         public readonly int MaxUseCount;
@@ -57,6 +62,10 @@ namespace Game.StatusEffect
             bool isApplied,
             bool isActive,
             bool isUseBlocked,
+            bool usesServiceGlobalLifetime,
+            bool usesServiceGlobalUseCooldown,
+            bool usesServiceGlobalCount,
+            bool usesAnyServiceGlobalUseState,
             int usedCount,
             int remainingUseCount,
             int maxUseCount,
@@ -86,6 +95,10 @@ namespace Game.StatusEffect
             IsApplied = isApplied;
             IsActive = isActive;
             IsUseBlocked = isUseBlocked;
+            UsesServiceGlobalLifetime = usesServiceGlobalLifetime;
+            UsesServiceGlobalUseCooldown = usesServiceGlobalUseCooldown;
+            UsesServiceGlobalCount = usesServiceGlobalCount;
+            UsesAnyServiceGlobalUseState = usesAnyServiceGlobalUseState;
             UsedCount = usedCount;
             RemainingUseCount = remainingUseCount;
             MaxUseCount = maxUseCount;
@@ -112,6 +125,10 @@ namespace Game.StatusEffect
             bool isEnabled,
             bool isApplied,
             bool isActive,
+            bool usesServiceGlobalLifetime,
+            bool usesServiceGlobalUseCooldown,
+            bool usesServiceGlobalCount,
+            bool usesAnyServiceGlobalUseState,
             int remainingUseCount,
             int maxUseCount,
             int sortOrder = 0)
@@ -139,11 +156,153 @@ namespace Game.StatusEffect
                 isApplied,
                 isActive,
                 false,
+                usesServiceGlobalLifetime,
+                usesServiceGlobalUseCooldown,
+                usesServiceGlobalCount,
+                usesAnyServiceGlobalUseState,
                 0,
                 remainingUseCount,
                 maxUseCount,
                 sortOrder)
         {
+        }
+    }
+
+    [Serializable]
+    public struct StatusEffectGlobalRuntimeState
+    {
+        public bool HasInitialized;
+        public bool IsLifetimeEnabled;
+        public float LifetimeRemaining;
+        public float LifetimeTotal;
+        public bool IsLifetimeExpired;
+        public bool IsUseCooldownEnabled;
+        public float UseCooldownRemaining;
+        public float UseCooldownTotal;
+        public bool IsUseCooldownActive;
+        public bool IsCountEnabled;
+        public int CurrentCount;
+        public int MaxCount;
+        public int UsedCount;
+        public bool IsCountExhausted;
+        public bool CanUse;
+        public string StatusText;
+
+        public StatusEffectGlobalRuntimeState(
+            bool hasInitialized,
+            bool isLifetimeEnabled,
+            float lifetimeRemaining,
+            float lifetimeTotal,
+            bool isLifetimeExpired,
+            bool isUseCooldownEnabled,
+            float useCooldownRemaining,
+            float useCooldownTotal,
+            bool isUseCooldownActive,
+            bool isCountEnabled,
+            int currentCount,
+            int maxCount,
+            int usedCount,
+            bool isCountExhausted,
+            bool canUse)
+        {
+            HasInitialized = hasInitialized;
+            IsLifetimeEnabled = isLifetimeEnabled;
+            LifetimeRemaining = lifetimeRemaining;
+            LifetimeTotal = lifetimeTotal;
+            IsLifetimeExpired = isLifetimeExpired;
+            IsUseCooldownEnabled = isUseCooldownEnabled;
+            UseCooldownRemaining = useCooldownRemaining;
+            UseCooldownTotal = useCooldownTotal;
+            IsUseCooldownActive = isUseCooldownActive;
+            IsCountEnabled = isCountEnabled;
+            CurrentCount = currentCount;
+            MaxCount = maxCount;
+            UsedCount = usedCount;
+            IsCountExhausted = isCountExhausted;
+            CanUse = canUse;
+            StatusText = BuildStatusText(
+                hasInitialized,
+                isLifetimeEnabled,
+                lifetimeRemaining,
+                lifetimeTotal,
+                isLifetimeExpired,
+                isUseCooldownEnabled,
+                useCooldownRemaining,
+                useCooldownTotal,
+                isUseCooldownActive,
+                isCountEnabled,
+                currentCount,
+                maxCount,
+                isCountExhausted,
+                canUse);
+        }
+
+        public static StatusEffectGlobalRuntimeState CreateUnavailable(string statusText)
+        {
+            return new StatusEffectGlobalRuntimeState
+            {
+                HasInitialized = false,
+                IsLifetimeEnabled = false,
+                LifetimeRemaining = -1f,
+                LifetimeTotal = -1f,
+                IsLifetimeExpired = false,
+                IsUseCooldownEnabled = false,
+                UseCooldownRemaining = 0f,
+                UseCooldownTotal = 0f,
+                IsUseCooldownActive = false,
+                IsCountEnabled = false,
+                CurrentCount = -1,
+                MaxCount = 0,
+                UsedCount = 0,
+                IsCountExhausted = false,
+                CanUse = false,
+                StatusText = statusText ?? string.Empty,
+            };
+        }
+
+        static string BuildStatusText(
+            bool hasInitialized,
+            bool isLifetimeEnabled,
+            float lifetimeRemaining,
+            float lifetimeTotal,
+            bool isLifetimeExpired,
+            bool isUseCooldownEnabled,
+            float useCooldownRemaining,
+            float useCooldownTotal,
+            bool isUseCooldownActive,
+            bool isCountEnabled,
+            int currentCount,
+            int maxCount,
+            bool isCountExhausted,
+            bool canUse)
+        {
+            if (!hasInitialized)
+                return "Uninitialized";
+
+            if (!canUse)
+            {
+                if (isLifetimeEnabled && lifetimeTotal >= 0f && lifetimeRemaining <= 0f)
+                    return "Lifetime expired";
+
+                if (isUseCooldownEnabled && isUseCooldownActive && useCooldownRemaining > 0f)
+                    return "Use cooldown active";
+
+                if (isCountEnabled && maxCount > 0 && currentCount <= 0)
+                    return "Count exhausted";
+
+                if (isLifetimeExpired)
+                    return "Lifetime expired";
+
+                if (isCountExhausted)
+                    return "Count exhausted";
+
+                return "Blocked";
+            }
+
+            if (!isLifetimeEnabled && !isUseCooldownEnabled && !isCountEnabled)
+                return "Ready";
+
+            return "Ready";
         }
     }
 }

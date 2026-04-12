@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Game.Common;
 using UnityEngine;
@@ -43,26 +44,16 @@ namespace Game.Channel
         sealed class ChoiceSessionHandle : IChoiceSessionHandle
         {
             readonly GridObjectChannelRuntime _runtime;
-            readonly UniTask<GridObjectChoiceSessionResult> _task;
+            readonly Task<GridObjectChoiceSessionResult> _task;
             bool _isCompleted;
 
-            public ChoiceSessionHandle(string channelTag, GridObjectChannelRuntime runtime, UniTask<GridObjectChoiceSessionResult> task)
+            public ChoiceSessionHandle(string channelTag, GridObjectChannelRuntime runtime, Task<GridObjectChoiceSessionResult> task)
             {
                 ChannelTag = channelTag;
                 _runtime = runtime;
                 _task = task;
 
-                UniTask.Void(async () =>
-                {
-                    try
-                    {
-                        await _task;
-                    }
-                    finally
-                    {
-                        _isCompleted = true;
-                    }
-                });
+                _task.ContinueWith(_ => _isCompleted = true, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
             }
 
             public string ChannelTag { get; }
@@ -75,7 +66,7 @@ namespace Game.Channel
 
             public UniTask<GridObjectChoiceSessionResult> WaitAsync(CancellationToken ct)
             {
-                return ct.CanBeCanceled ? _task.AttachExternalCancellation(ct) : _task;
+                return ct.CanBeCanceled ? _task.AsUniTask().AttachExternalCancellation(ct) : _task.AsUniTask();
             }
         }
 
@@ -185,7 +176,7 @@ namespace Game.Channel
             if (!_channels.TryGetValue(normalizedTag, out var runtime) || runtime == null)
                 return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-101] GridObjectChannel '{normalizedTag}' was not found.");
 
-            var task = runtime.ShowChoiceAndWaitAsync(request, ct);
+            var task = runtime.ShowChoiceAndWaitAsync(request, ct).AsTask();
             var handle = new ChoiceSessionHandle(normalizedTag, runtime, task);
             _choiceSessions[normalizedTag] = handle;
 

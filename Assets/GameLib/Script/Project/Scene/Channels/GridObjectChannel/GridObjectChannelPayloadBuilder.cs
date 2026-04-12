@@ -14,10 +14,10 @@ namespace Game.Channel
             _tag = tag;
         }
 
-        public VarStore BuildPayload(GridObjectChannelResolvedItem item)
+        public VarStore BuildPayload(GridObjectChannelRuntimeState state, GridObjectChannelResolvedItem item)
         {
             var payload = new VarStore(initialCapacity: 32);
-            ApplyItemVars(payload, item);
+            ApplyItemVars(payload, state, item);
             ApplyCellValues(payload, item.CellValues);
             return payload;
         }
@@ -39,7 +39,7 @@ namespace Game.Channel
             return commandVars;
         }
 
-        void ApplyItemVars(IVarStore vars, GridObjectChannelResolvedItem item)
+        void ApplyItemVars(IVarStore vars, GridObjectChannelRuntimeState state, GridObjectChannelResolvedItem item)
         {
             GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.channelTag, DynamicVariant.FromString(_tag));
             GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.listIndex, DynamicVariant.FromInt(item.ListIndex));
@@ -47,6 +47,13 @@ namespace Game.Channel
             GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.column, DynamicVariant.FromInt(item.Column));
             GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.sourceRow, DynamicVariant.FromInt(item.SourceRow));
             GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.Channel.GridObjectChannel.Item.sourceColumn, DynamicVariant.FromInt(item.SourceColumn));
+
+            if (state.ActiveChoiceEntries == null || item.ListIndex < 0 || item.ListIndex >= state.ActiveChoiceEntries.Count)
+                return;
+
+            var choiceEntry = state.ActiveChoiceEntries[item.ListIndex];
+            var displayName = choiceEntry?.DisplayName ?? string.Empty;
+            GridObjectChannelRuntimeUtility.WriteVariant(vars, VarIds.GameLib.UI.DialogueChannel.Choice.DisplayName, DynamicVariant.FromString(displayName));
         }
 
         static void ApplyCellValues(IVarStore vars, System.Collections.Generic.List<GridBlackboardCellSnapshot>? values)

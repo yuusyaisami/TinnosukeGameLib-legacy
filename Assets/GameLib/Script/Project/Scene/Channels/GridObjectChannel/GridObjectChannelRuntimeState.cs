@@ -40,6 +40,8 @@ namespace Game.Channel
         public bool IsActive;
         public IReadOnlyList<GridObjectChoiceEntry>? ActiveChoiceEntries;
 
+        public string ChannelTag => _definition.ChannelTag;
+
         public bool EnableDebugLog => _definition.EnableDebugLog;
         public bool EnableVerboseLayoutLog => _definition.EnableVerboseLayoutLog;
         public bool EnableVerboseBlackboardLog => _definition.EnableVerboseBlackboardLog;

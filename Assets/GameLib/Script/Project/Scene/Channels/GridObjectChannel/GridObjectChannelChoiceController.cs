@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Game.Common;
 using Game.UI;
@@ -100,6 +101,29 @@ namespace Game.Channel
             if (runtimeRequest.Entries == null || runtimeRequest.Entries.Count == 0)
                 return GridObjectChoiceSessionResult.Failed("[GOC-CHOICE-000] Choice entries are empty.");
 
+            if (_state.EnableVerboseLayoutLog)
+            {
+                Debug.Log(
+                    $"[GridObjectChannel] Choice request received. Tag='{_tag}' Entries={runtimeRequest.Entries.Count} " +
+                    $"BindSpawnCommands={runtimeRequest.BindRequest?.SpawnCommands?.Count ?? 0} " +
+                    $"OverridePlayer={runtimeRequest.BindRequest?.OverridePlayerPreset} OverrideLayout={runtimeRequest.BindRequest?.OverrideLayoutPreset} " +
+                    $"OverrideVisualizer={runtimeRequest.BindRequest?.OverrideVisualizerPreset} ForceChoiceCompatible={runtimeRequest.BindRequest?.ForceChoiceCompatible}",
+                    _state.ListRoot);
+
+                for (var i = 0; i < runtimeRequest.Entries.Count; i++)
+                {
+                    var entry = runtimeRequest.Entries[i];
+                    if (entry == null)
+                        continue;
+
+                    Debug.Log(
+                        $"[GridObjectChannel] Choice entry[{i}]. Tag='{_tag}' DisplayName='{entry.DisplayName}' " +
+                        $"SpawnCommands={entry.SpawnCommands?.Count ?? 0} SelectedCommands={entry.SelectedCommands?.Count ?? 0} " +
+                        $"SelectedVars={entry.SelectedVars.Entries?.Count ?? 0}",
+                        _state.ListRoot);
+                }
+            }
+
             var waitOptions = runtimeRequest.WaitOptions?.CreateRuntimeCopy() ?? new GridObjectChoiceWaitOptions();
             ActiveChoiceSession? sessionToRun = null;
 
@@ -167,6 +191,16 @@ namespace Game.Channel
                 _state.ActiveChoiceEntries = runtimeRequest.Entries;
 
                 var bindRequest = GridObjectChannelChoiceBindBuilder.Build(runtimeRequest);
+
+                if (_state.EnableVerboseLayoutLog)
+                {
+                    Debug.Log(
+                        $"[GridObjectChannel] Choice bind prepared. Tag='{_tag}' Entries={runtimeRequest.Entries.Count} " +
+                        $"BindSpawnCommands={bindRequest.SpawnCommands?.Count ?? 0} OverrideLayout={bindRequest.OverrideLayoutPreset} " +
+                        $"LayoutPreset={(bindRequest.OverrideLayoutPreset ? "bind-override" : "definition")}",
+                        _state.ListRoot);
+                }
+
                 var bindSucceeded = await _bindAsync(bindRequest, sessionToken);
                 if (!bindSucceeded)
                     return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-001] Choice bind failed. tag='{_tag}'");
@@ -184,20 +218,20 @@ namespace Game.Channel
                     return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-003] ButtonChannel output not found. tag='{_tag}' buttonTag='{_state.ResolvedVisualizerPreset.ChoiceButtonChannelTag}'");
                 }
 
+                var completionTask = session.Completion.Task.AsTask();
                 var timeoutSeconds = _resolveTimeoutSeconds(waitOptions);
                 if (timeoutSeconds > 0f)
                 {
-                    var timeoutTask = UniTask.Delay(TimeSpan.FromSeconds(timeoutSeconds), cancellationToken: CancellationToken.None);
-                    var (resolved, selectedResult) = await UniTask.WhenAny(session.Completion.Task, timeoutTask);
-                    _ = selectedResult;
-                    if (!resolved)
+                    var timeoutTask = UniTask.Delay(TimeSpan.FromSeconds(timeoutSeconds), cancellationToken: CancellationToken.None).AsTask();
+                    var winner = await Task.WhenAny(completionTask, timeoutTask);
+                    if (winner == timeoutTask)
                     {
                         Debug.LogWarning($"[GridObjectChannel] Choice timed out. tag='{_tag}' timeout={timeoutSeconds:0.###}");
                         session.Completion.TrySetResult(GridObjectChoiceSessionResult.Timeout($"[GOC-CHOICE-005] Choice timed out. tag='{_tag}' timeout={timeoutSeconds:0.###}"));
                     }
                 }
 
-                var result = await session.Completion.Task;
+                var result = await completionTask;
                 if (result.CompletionKind == GridObjectChoiceCompletionKind.Canceled && !waitOptions.AllowCancel)
                     return GridObjectChoiceSessionResult.Failed($"[GOC-CHOICE-006] Choice cancel is not allowed. tag='{_tag}'");
 

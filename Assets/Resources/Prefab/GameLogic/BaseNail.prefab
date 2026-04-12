@@ -2510,69 +2510,63 @@ MonoBehaviour:
     - rid: 5399842414997799628
       type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
-        Size: {x: 2.5, y: 1}
-        SizeOverride:
+        Size:
           _source:
-            rid: 5399842533945115504
-          _defaultValue: {x: 0, y: 0}
+            rid: 5399842616775016759
+          _defaultValue: {x: 5, y: 5}
     - rid: 5399842433823408170
       type: {class: CircleAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
-        Radius: 0.6
-        RadiusOverride:
+        Radius:
           _source:
-            rid: 5399842533945115505
-          _defaultValue: 0
-        InnerRadius: 0
-        InnerRadiusOverride:
+            rid: 5399842616775016760
+          _defaultValue: 5
+        InnerRadius:
           _source:
-            rid: 5399842533945115506
+            rid: 5399842616775016761
           _defaultValue: 0
-    - rid: 5399842533945115501
+    - rid: 5399842616775016756
       type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: {x: 1, y: 0.12}
-    - rid: 5399842533945115502
+        value: {x: 0, y: 0}
+    - rid: 5399842616775016757
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 1
-    - rid: 5399842533945115503
+        value: 0
+    - rid: 5399842616775016758
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.73
-    - rid: 5399842533945115504
+        value: 0
+    - rid: 5399842616775016759
       type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: {x: 2.5, y: 1}
-    - rid: 5399842533945115505
+        value: {x: 0, y: 0}
+    - rid: 5399842616775016760
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.6
-    - rid: 5399842533945115506
+        value: 0
+    - rid: 5399842616775016761
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
     - rid: 5619052506154533296
       type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
-        Size: {x: 1, y: 0.12}
-        SizeOverride:
+        Size:
           _source:
-            rid: 5399842533945115501
-          _defaultValue: {x: 0, y: 0}
+            rid: 5399842616775016756
+          _defaultValue: {x: 5, y: 5}
     - rid: 5619052545064043039
       type: {class: DonutAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
-        OuterRadius: 1
-        OuterRadiusOverride:
+        OuterRadius:
           _source:
-            rid: 5399842533945115502
-          _defaultValue: 0
-        InnerRadius: 0.73
-        InnerRadiusOverride:
+            rid: 5399842616775016757
+          _defaultValue: 5
+        InnerRadius:
           _source:
-            rid: 5399842533945115503
-          _defaultValue: 0
+            rid: 5399842616775016758
+          _defaultValue: 2
 --- !u!1 &9144259269532508853
 GameObject:
   m_ObjectHideFlags: 0
@@ -2926,7 +2920,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 557
+  _debugLastEnabledChangeFrame: 414
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -5096,6 +5090,7 @@ MonoBehaviour:
           _functionName: 
           _commands:
           - rid: 5399842431559271357
+          - rid: 5399842616775016846
         OnCanceledCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -9125,28 +9120,24 @@ MonoBehaviour:
     - rid: 5399842530663334483
       type: {class: CircleAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
-        Radius: 5
-        RadiusOverride:
+        Radius:
           _source:
             rid: -2
-          _defaultValue: 0
-        InnerRadius: 0
-        InnerRadiusOverride:
+          _defaultValue: 5
+        InnerRadius:
           _source:
             rid: -2
           _defaultValue: 0
     - rid: 5399842530663334484
       type: {class: CircleAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
-        Radius: 5
-        RadiusOverride:
+        Radius:
           _source:
-            rid: 5399842530663334693
-          _defaultValue: 0
-        InnerRadius: 0
-        InnerRadiusOverride:
+            rid: 5399842616775016803
+          _defaultValue: 5
+        InnerRadius:
           _source:
-            rid: 5399842530663334694
+            rid: 5399842616775016804
           _defaultValue: 0
     - rid: 5399842530663334485
       type: {class: AreaChannelDefinition, ns: Game.Channel, asm: Assembly-CSharp}
@@ -9166,24 +9157,65 @@ MonoBehaviour:
     - rid: 5399842530663334486
       type: {class: CircleAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
-        Radius: 5
-        RadiusOverride:
+        Radius:
+          _source:
+            rid: -2
+          _defaultValue: 5
+        InnerRadius:
           _source:
             rid: -2
           _defaultValue: 0
-        InnerRadius: 0
-        InnerRadiusOverride:
-          _source:
+    - rid: 5399842616775016803
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842616775016804
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842616775016846
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842616775016888
+    - rid: 5399842616775016888
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: ChangeMaxCount
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
             rid: -2
-          _defaultValue: 0
-    - rid: 5399842530663334693
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5399842530663334694
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
     - rid: 5619052366731149906
       type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -11646,6 +11678,7 @@ MonoBehaviour:
           CloseOnBackgroundClick: 0
           CloseOnCancel: 1
         StackKey: 
+        LayerKey: default
         Active: 1
         Visible: 1
         NavigationSelectable: 1
@@ -11692,6 +11725,7 @@ MonoBehaviour:
           CloseOnBackgroundClick: 0
           CloseOnCancel: 1
         StackKey: 
+        LayerKey: default
         Active: 1
         Visible: 1
         NavigationSelectable: 1

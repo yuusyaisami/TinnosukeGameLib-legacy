@@ -166,7 +166,7 @@ namespace Game.Dialogue
             _activeMessageSession = null;
             _activeTypewriterPlayers.Clear();
 
-            RebindInputOutput();
+            TryRebindInputOutput(out _);
             RefreshModalRegistration();
             PublishSnapshot(force: true);
             Trace($"Acquire tag={_tag} env={_environmentKind}");
@@ -228,7 +228,7 @@ namespace Game.Dialogue
             var context = new SimpleDynamicContext(ResolveVars(scope), scope);
             _preset = DialoguePresetRuntimeSnapshot.Resolve(_sourcePreset, context);
             _isInputEnabled = _preset.Input.EnableInput && _isInputEnabled;
-            RebindInputOutput();
+            TryRebindInputOutput(out _);
             RefreshModalRegistration();
             Trace($"Preset rebuilt tag={_tag}");
         }
@@ -352,7 +352,11 @@ namespace Game.Dialogue
             var runtimeContext = new SimpleDynamicContext(_vars, _activeScope);
             var targetPlayers = new List<ITextChannelPlayer>(8);
 
-            ApplyMessageLines(runtimeRequest.BodyLines, isNameLine: false, playMode, textSettings, runtimeContext, targetPlayers);
+            if (!TryApplyMessageLines(runtimeRequest.BodyLines, isNameLine: false, playMode, textSettings, runtimeContext, targetPlayers, out var bodyError))
+            {
+                LogError(bodyError);
+                return DialogueMessageResult.Failed(bodyError);
+            }
 
             var waitTypewriter = playMode == TextPlayMode.Typewriter &&
                                  (runtimeRequest.WaitForTypewriterComplete || _preset.Text.WaitForTypewriterBeforeAdvance);
@@ -371,6 +375,23 @@ namespace Game.Dialogue
                 WaitingForTypewriter = waitTypewriter,
                 AllowTypewriterSkipByInput = runtimeRequest.AllowTypewriterSkipByInput && _preset.Text.AllowSkipTypewriterByInput,
             };
+
+            if (session.AwaitInput && !_preset.Input.EnableInput)
+            {
+                var errorMessage = BuildError("DIALOGUE-110", $"Dialogue input was requested, but input is disabled. tag='{_tag}'");
+                LogError(errorMessage);
+                return DialogueMessageResult.Failed(errorMessage);
+            }
+
+            var requiresInputBinding = session.AwaitInput && CanAcceptDialogueInput();
+            if (requiresInputBinding && _inputOutput == null)
+            {
+                if (!TryRebindInputOutput(out var inputError))
+                {
+                    LogError(inputError);
+                    return DialogueMessageResult.Failed(inputError);
+                }
+            }
 
             _activeMessageSession = session;
             PublishSnapshot(force: true);
@@ -449,7 +470,11 @@ namespace Game.Dialogue
                 return DialogueChoiceResult.Failed($"[DIALOGUE-200] Channel '{_tag}' is inactive.");
 
             if (_choiceHub == null)
-                return DialogueChoiceResult.Failed($"[DIALOGUE-201] IChoiceChannelHubService was not found. tag='{_tag}'");
+            {
+                var errorMessage = BuildError("DIALOGUE-201", $"Required IChoiceChannelHubService was not found. tag='{_tag}'");
+                LogError(errorMessage);
+                return DialogueChoiceResult.Failed(errorMessage);
+            }
 
             var runtimeRequest = request?.CreateRuntimeCopy() ?? new DialogueChoiceRequest();
             if (runtimeRequest.PlayPreMessage)
@@ -457,6 +482,31 @@ namespace Game.Dialogue
                 var preResult = await ShowMessageAsync(runtimeRequest.PreMessage, ct);
                 if (!preResult.Success)
                     return DialogueChoiceResult.Failed(preResult.Message);
+            }
+
+            var gridChoiceRequest = runtimeRequest.GridChoiceRequest;
+            if (gridChoiceRequest == null)
+            {
+                var errorMessage = BuildError("DIALOGUE-202", $"Choice grid request was null. tag='{_tag}'");
+                LogError(errorMessage);
+                return DialogueChoiceResult.Failed(errorMessage);
+            }
+
+            if (_enableDebugLog)
+            {
+                Trace(
+                    $"Choice request begin. Tag='{_tag}' GridEntries={gridChoiceRequest.Entries?.Count ?? 0} " +
+                    $"ChoiceSpawnCommands={_preset.Choice.SpawnCommands?.Count ?? 0} " +
+                    $"BindSpawnCommandsBeforeAppend={gridChoiceRequest.BindRequest?.SpawnCommands?.Count ?? 0}");
+            }
+
+            ApplyChoiceSpawnCommands(runtimeRequest);
+
+            if (_enableDebugLog)
+            {
+                Trace(
+                    $"Choice request after append. Tag='{_tag}' GridEntries={gridChoiceRequest.Entries?.Count ?? 0} " +
+                    $"BindSpawnCommandsAfterAppend={gridChoiceRequest.BindRequest?.SpawnCommands?.Count ?? 0}");
             }
 
             var channelTag = runtimeRequest.UsePresetChannelTag
@@ -478,7 +528,7 @@ namespace Game.Dialogue
             Game.Channel.GridObjectChoiceSessionResult choiceResult;
             try
             {
-                choiceResult = await _choiceHub.ShowChoiceAndWaitAsync(channelTag, runtimeRequest.GridChoiceRequest, ct);
+                choiceResult = await _choiceHub.ShowChoiceAndWaitAsync(channelTag, gridChoiceRequest, ct);
             }
             finally
             {
@@ -495,6 +545,16 @@ namespace Game.Dialogue
             }
 
             return DialogueChoiceResult.Completed(choiceResult);
+        }
+
+        void ApplyChoiceSpawnCommands(DialogueChoiceRequest runtimeRequest)
+        {
+            var spawnCommands = _preset.Choice.SpawnCommands;
+            if (runtimeRequest?.GridChoiceRequest == null || spawnCommands == null || spawnCommands.Count == 0)
+                return;
+
+            var bindRequest = runtimeRequest.GridChoiceRequest.BindRequest;
+            bindRequest.SpawnCommands.AddRuntimeCommands(spawnCommands);
         }
 
         public async UniTask<bool> ApplyCharactersAsync(DialogueCharacterFrameRequest request, CancellationToken ct)
@@ -529,7 +589,11 @@ namespace Game.Dialogue
                     var nameTag = string.IsNullOrWhiteSpace(entry.NameChannelTag)
                         ? _preset.Character.DefaultNameChannelTag
                         : DialogueTagUtility.Normalize(entry.NameChannelTag);
-                    ApplyNameText(nameTag, displayName);
+                    if (!TryApplyNameText(nameTag, displayName, out var nameError))
+                    {
+                        LogError(nameError);
+                        return false;
+                    }
                 }
 
                 if (TryResolvePortraitAnimation(entry, resolvedCharacter.Definition, out var animationData, out var resolvedSpriteTag, out var resolvedIconAnimPreset) &&
@@ -654,25 +718,33 @@ namespace Game.Dialogue
             TryResolveFromScopeOrAncestors(scope, out _commandRunner);
         }
 
-        void RebindInputOutput()
+        bool TryRebindInputOutput(out string errorMessage)
         {
-            UnbindInputOutput();
+            errorMessage = string.Empty;
 
             if (_activeScope == null)
-                return;
+                return false;
 
             if (!_preset.Input.EnableInput)
-                return;
+                return false;
 
             if (!TryResolveFromScopeOrAncestors(_activeScope, out IButtonChannelHubService? buttonHub) || buttonHub == null)
-                return;
+            {
+                errorMessage = BuildError("DIALOGUE-150", $"Required IButtonChannelHubService was not found. tag='{_tag}' buttonTag='{_preset.Input.ButtonChannelTag}'");
+                return false;
+            }
 
             if (!buttonHub.TryGetOutput(_preset.Input.ButtonChannelTag, out var output) || output == null)
-                return;
+            {
+                errorMessage = BuildError("DIALOGUE-151", $"Required ButtonChannel output was not found. tag='{_tag}' buttonTag='{_preset.Input.ButtonChannelTag}'");
+                return false;
+            }
 
+            UnbindInputOutput();
             _inputOutput = output;
             _lastInputPhase = output.Phase;
             _inputOutput.OnUpdated += HandleInputOutputUpdated;
+            return true;
         }
 
         void UnbindInputOutput()
@@ -752,16 +824,27 @@ namespace Game.Dialogue
             }
         }
 
-        void ApplyMessageLines(
+        bool TryApplyMessageLines(
             List<DialogueMessageLine> lines,
             bool isNameLine,
             TextPlayMode playMode,
             in SetTextSettings textSettings,
             IDynamicContext context,
-            List<ITextChannelPlayer> targetPlayers)
+            List<ITextChannelPlayer> targetPlayers,
+            out string errorMessage)
         {
-            if (_textHub == null || lines == null)
-                return;
+            errorMessage = string.Empty;
+            if (lines == null || lines.Count == 0)
+                return true;
+
+            if (_textHub == null)
+            {
+                errorMessage = BuildError("DIALOGUE-120", $"Required ITextChannelHubService was not found. tag='{_tag}'");
+                return false;
+            }
+
+            var resolvedPlayers = new List<ITextChannelPlayer>(lines.Count);
+            var resolvedTexts = new List<string>(lines.Count);
 
             for (var i = 0; i < lines.Count; i++)
             {
@@ -770,32 +853,113 @@ namespace Game.Dialogue
                     continue;
 
                 var lineTag = DialogueTagUtility.Normalize(line.DialogueTag);
-                var defaultDialogueTag = "default";
-                if (!string.Equals(lineTag, defaultDialogueTag, StringComparison.Ordinal))
-                    continue;
+                var channelTag = ResolveTextChannelTag(
+                    isNameLine ? _preset.Text.NameChannels : _preset.Text.BodyChannels,
+                    lineTag,
+                    line.ChannelTag,
+                    isNameLine ? _preset.Text.DefaultNameChannelTag : _preset.Text.DefaultBodyChannelTag);
 
-                var channelTag = string.IsNullOrWhiteSpace(line.ChannelTag)
-                    ? (isNameLine ? _preset.Text.DefaultNameChannelTag : _preset.Text.DefaultBodyChannelTag)
-                    : DialogueTagUtility.Normalize(line.ChannelTag);
+                if (string.IsNullOrWhiteSpace(channelTag))
+                {
+                    errorMessage = BuildError(
+                        "DIALOGUE-121",
+                        $"Required text channel binding was not found. tag='{_tag}' dialogueTag='{lineTag}' isNameLine={isNameLine} lineIndex={i}");
+                    return false;
+                }
 
                 if (!_textHub.TryGetPlayer(channelTag, out var player) || player == null)
-                    continue;
+                {
+                    errorMessage = BuildError(
+                        "DIALOGUE-122",
+                        $"Required text channel '{channelTag}' was not found. tag='{_tag}' dialogueTag='{lineTag}' isNameLine={isNameLine} lineIndex={i}");
+                    return false;
+                }
 
                 var text = line.Text.GetOrDefault(context, string.Empty);
-                player.SetText(text, playMode, textSettings);
+                resolvedPlayers.Add(player);
+                resolvedTexts.Add(text);
+            }
+
+            for (var i = 0; i < resolvedPlayers.Count; i++)
+            {
+                var player = resolvedPlayers[i];
+                player.SetText(resolvedTexts[i], playMode, textSettings);
                 targetPlayers.Add(player);
             }
+
+            return true;
         }
 
-        void ApplyNameText(string channelTag, string text)
+        bool TryApplyNameText(string channelTag, string text, out string errorMessage)
         {
+            errorMessage = string.Empty;
             if (_textHub == null)
-                return;
+            {
+                errorMessage = BuildError("DIALOGUE-123", $"Required ITextChannelHubService was not found while applying a character name. tag='{_tag}'");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(channelTag))
+            {
+                errorMessage = BuildError("DIALOGUE-124", $"Required name channel binding was not found. tag='{_tag}'");
+                return false;
+            }
 
             if (!_textHub.TryGetPlayer(channelTag, out var player) || player == null)
-                return;
+            {
+                errorMessage = BuildError("DIALOGUE-125", $"Required name channel '{channelTag}' was not found. tag='{_tag}'");
+                return false;
+            }
 
             player.SetText(text, TextPlayMode.Instant, _preset.Text.DefaultTextSettings);
+            return true;
+        }
+
+        static string ResolveTextChannelTag(
+            IReadOnlyList<DialogueTextChannelBinding>? bindings,
+            string dialogueTag,
+            string explicitChannelTag,
+            string defaultChannelTag)
+        {
+            var normalizedDefaultTag = DialogueTagUtility.Normalize(defaultChannelTag);
+            var normalizedExplicitTag = DialogueTagUtility.Normalize(explicitChannelTag);
+
+            if (!string.IsNullOrWhiteSpace(normalizedExplicitTag) &&
+                !string.Equals(normalizedExplicitTag, normalizedDefaultTag, StringComparison.Ordinal))
+            {
+                return normalizedExplicitTag;
+            }
+
+            var bindingTag = ResolveBindingChannelTag(bindings, dialogueTag);
+            if (!string.IsNullOrWhiteSpace(bindingTag))
+                return bindingTag;
+
+            return normalizedExplicitTag;
+        }
+
+        static string ResolveBindingChannelTag(
+            IReadOnlyList<DialogueTextChannelBinding>? bindings,
+            string dialogueTag)
+        {
+            if (bindings == null || bindings.Count == 0)
+                return string.Empty;
+
+            var normalizedDialogueTag = DialogueTagUtility.Normalize(dialogueTag);
+            for (var i = 0; i < bindings.Count; i++)
+            {
+                var binding = bindings[i];
+                if (binding == null)
+                    continue;
+
+                if (!string.Equals(binding.DialogueTag, normalizedDialogueTag, StringComparison.Ordinal))
+                    continue;
+
+                var textChannelTag = binding.TextChannelTag;
+                if (!string.IsNullOrWhiteSpace(textChannelTag))
+                    return textChannelTag;
+            }
+
+            return string.Empty;
         }
 
         ResolvedCharacterEntry ResolveCharacterEntry(DialogueCharacterEntryRequest entry, int index, IDynamicContext context)
@@ -924,9 +1088,6 @@ namespace Game.Dialogue
                 fallbackAnimationData == null)
                 return false;
 
-            if (string.IsNullOrWhiteSpace(entry.SpriteChannelTag) && !string.IsNullOrWhiteSpace(defaultImageModule.SpriteChannelTag))
-                spriteTag = DialogueTagUtility.Normalize(defaultImageModule.SpriteChannelTag);
-
             animationData = fallbackAnimationData;
             animationSource = defaultImageModule.DefaultPortraitAnimation;
             return true;
@@ -944,10 +1105,16 @@ namespace Game.Dialogue
 
             var hub = ResolveCharacterSpriteHub(characterId) ?? _spriteHub;
             if (hub == null)
+            {
+                LogError(BuildError("DIALOGUE-160", $"Required IAnimationSpriteHubService was not found while playing a portrait. tag='{_tag}' characterId='{characterId}' spriteTag='{spriteTag}'"));
                 return;
+            }
 
             if (!hub.TryGetPlayer(spriteTag, out var player) || player == null)
+            {
+                LogError(BuildError("DIALOGUE-161", $"Required portrait channel '{spriteTag}' was not found. tag='{_tag}' characterId='{characterId}'"));
                 return;
+            }
 
             await player.PlayAsync(animationData, null, playMode, false, ct);
         }
@@ -998,25 +1165,37 @@ namespace Game.Dialogue
                 return;
             }
 
-            if (!entry.SpawnIfNeeded || resolved.RuntimeTemplate == null)
-                return;
-
-            var runtimeTemplate = RuntimeTemplatePresetResolver.ResolveTemplateSO(resolved.RuntimeTemplate);
-            if (runtimeTemplate == null)
-                return;
-
             if (!_preset.Character.EnableRuntimeSpawn)
                 return;
 
-            if (_runtimeSpawner == null)
+            if (resolved.RuntimeTemplate == null)
+            {
+                LogError(BuildError("DIALOGUE-163", $"Required character runtime template was not found while spawning character '{resolved.RuntimeKey}'. tag='{_tag}'"));
                 return;
+            }
+
+            var runtimeTemplate = RuntimeTemplatePresetResolver.ResolveTemplateSO(resolved.RuntimeTemplate);
+            if (runtimeTemplate == null)
+            {
+                LogError(BuildError("DIALOGUE-164", $"Required character runtime template resolution failed while spawning character '{resolved.RuntimeKey}'. tag='{_tag}'"));
+                return;
+            }
+
+            if (_runtimeSpawner == null)
+            {
+                LogError(BuildError("DIALOGUE-162", $"Required IRuntimeLifetimeScopeSpawnerService was not found while spawning character '{resolved.RuntimeKey}'. tag='{_tag}'"));
+                return;
+            }
 
             var parent = _preset.Character.RuntimeParent != null
                 ? _preset.Character.RuntimeParent
                 : _ownerTransform;
 
             if (parent == null)
+            {
+                LogError(BuildError("DIALOGUE-163", $"Required spawn parent was not found while spawning character '{resolved.RuntimeKey}'. tag='{_tag}'"));
                 return;
+            }
 
             var localPos = entry.SpawnLocalPosition.GetOrDefault(context, Vector3.zero);
             var identity = RuntimeIdentityData.CreateDefault(parent, resolved.RuntimeKey, _preset.Character.RuntimeIdentityCategory);
@@ -1036,7 +1215,10 @@ namespace Game.Dialogue
 
             var resolver = await _runtimeSpawner.SpawnAsync(spawnParams, ct);
             if (resolver == null)
+            {
+                LogError(BuildError("DIALOGUE-166", $"Character runtime spawn failed for '{resolved.RuntimeKey}'. tag='{_tag}'"));
                 return;
+            }
 
             var record = new CharacterRuntimeRecord
             {
@@ -1184,10 +1366,16 @@ namespace Game.Dialogue
                 return false;
 
             if (_transformHub == null)
+            {
+                LogError(BuildError("DIALOGUE-170", $"Required ITransformAnimationHubService was not found while moving layout channel '{channelTag}'. tag='{_tag}'"));
                 return false;
+            }
 
             if (!_transformHub.TryGetPlayer(channelTag, out var player) || player == null)
+            {
+                LogError(BuildError("DIALOGUE-171", $"Required transform channel '{channelTag}' was not found. tag='{_tag}'"));
                 return false;
+            }
 
             var duration = Mathf.Max(0f, _preset.Layout.MoveDurationSeconds.GetOrDefault(context, 0f));
             var step = new TransformAnimationPresetStep
@@ -1228,7 +1416,11 @@ namespace Game.Dialogue
                 return;
 
             if (_activeScope == null || _commandRunner == null)
+            {
+                if (_activeScope != null)
+                    LogError(BuildError("DIALOGUE-130", $"Required ICommandRunner was not found while executing hook '{hookName}'. tag='{_tag}'"));
                 return;
+            }
 
             var ctx = new CommandContext(
                 _activeScope,
@@ -1261,7 +1453,11 @@ namespace Game.Dialogue
         void RefreshModalRegistration()
         {
             if (_modalHub == null)
+            {
+                if (_preset.Input.AutoPushModalLayer && _isVisible && _isActive)
+                    LogError(BuildError("DIALOGUE-140", $"Required IModalStackChannelHubService was not found for modal registration. tag='{_tag}' modalLayerKey='{_preset.Input.ModalLayerKey}'"));
                 return;
+            }
 
             var shouldRegister = _preset.Input.AutoPushModalLayer && _isVisible && _isActive;
             if (shouldRegister)
@@ -1270,10 +1466,16 @@ namespace Game.Dialogue
                     return;
 
                 if (_activeScope?.Resolver == null)
+                {
+                    LogError(BuildError("DIALOGUE-141", $"Required scope resolver was not found for modal registration. tag='{_tag}' modalLayerKey='{_preset.Input.ModalLayerKey}'"));
                     return;
+                }
 
                 if (!_activeScope.Resolver.TryResolve<IUIModalRoot>(out var root) || root == null)
+                {
+                    LogError(BuildError("DIALOGUE-142", $"Required IUIModalRoot was not found for modal registration. tag='{_tag}' modalLayerKey='{_preset.Input.ModalLayerKey}'"));
                     return;
+                }
 
                 _modalRoot = root;
                 _modalHub.PushModal(_preset.Input.ModalLayerKey, root, _preset.Input.ModalOptions);
@@ -1368,6 +1570,16 @@ namespace Game.Dialogue
                 return;
 
             Debug.Log($"[DialogueChannel] {message}");
+        }
+
+        static string BuildError(string code, string message)
+        {
+            return $"[{code}] {message}";
+        }
+
+        void LogError(string message)
+        {
+            Debug.LogError($"[DialogueChannel] {message}");
         }
 
         static bool TryResolveFromScopeOrAncestors<T>(IScopeNode? scope, out T? value) where T : class
