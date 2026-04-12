@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Game.Channel;
 using Game.Common;
 using Game.DI;
 using Game.Spawn;
@@ -89,17 +90,7 @@ namespace Game.Commands.VNext
 
                 var rotation = Quaternion.Euler(typed.RotationEuler.Resolve(dynCtx));
                 var scale = typed.Scale.HasSource ? typed.Scale.Resolve(dynCtx) : Vector3.one;
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                //Debug.Log(
-                //    $"[SpawnRuntimeTemplateExecutor] Resolve idx={i}/{spawnCount - 1} " +
-                //    $"worldSpace={typed.WorldSpace} parent={DescribeTransform(transformParent)} " +
-                //    $"pos={basePos} offset={offset} finalPos={spawnPos} rot={rotation.eulerAngles} scale={scale} " +
-                //    $"posSrc={typed.Position.SourceTypeName}:{typed.Position.SourceDebugData} " +
-                //    $"offsetSrc={typed.Offset.SourceTypeName}:{typed.Offset.SourceDebugData}");
-#endif
-
-                var spawnParams = SpawnParams.ForRuntime(
+                var finalSpawnParams = SpawnParams.ForRuntime(
                     runtimeTemplate,
                     spawnPos,
                     rotation,
@@ -109,6 +100,22 @@ namespace Game.Commands.VNext
                     lifetimeScopeParent: lifetimeScopeParent,
                     worldSpace: typed.WorldSpace,
                     allowPooling: typed.AllowPooling);
+
+                var spawnParams = finalSpawnParams;
+                if (typed.UseHiddenPreSpawn)
+                {
+                    var hiddenOffset = typed.HiddenSpawnOffset.Resolve(dynCtx);
+                    spawnParams.Position = spawnPos + hiddenOffset;
+                }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                //Debug.Log(
+                //    $"[SpawnRuntimeTemplateExecutor] Resolve idx={i}/{spawnCount - 1} " +
+                //    $"worldSpace={typed.WorldSpace} parent={DescribeTransform(transformParent)} " +
+                //    $"pos={basePos} offset={offset} finalPos={spawnPos} rot={rotation.eulerAngles} scale={scale} " +
+                //    $"posSrc={typed.Position.SourceTypeName}:{typed.Position.SourceDebugData} " +
+                //    $"offsetSrc={typed.Offset.SourceTypeName}:{typed.Offset.SourceDebugData}");
+#endif
 
                 var spawnedResolver = await spawner.SpawnAsync(spawnParams, ct);
                 if (spawnedResolver != null)
@@ -126,49 +133,55 @@ namespace Game.Commands.VNext
                         ctx.SetScope(typed.SpawnedScopeSlot, spawnedScope);
                     }
 
-                    if (!shouldRunOnSpawnedCommands)
-                        continue;
-
-                    if (!TryResolveRunner(spawnedScope, out var runner) || runner == null)
-                        throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "Spawned scope has no ICommandRunner.");
-
-                    var vars = ResolveVars(typed.VarsPolicy, ctx, spawnedScope);
-                    var spawnedOptions = ctx.Options.WithSuppressCancelLog(true);
-                    var spawnedCtx = new CommandContext(
-                        spawnedScope,
-                        vars,
-                        runner,
-                        actor: spawnedScope,
-                        options: spawnedOptions,
-                        commandRootScope: ctx.CommandRootScope,
-                        rootActor: ctx.RootActor,
-                        callerActor: ctx.Actor,
-                        sourceContext: ctx);
-
-                    if (typed.WriteSpawnerToContext)
+                    if (typed.UseHiddenPreSpawn)
                     {
-                        if (!CommandLtsSlotUtility.IsContextSlot(typed.SpawnerContextSlot))
-                            throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"SpawnerContextSlot must be a context slot. slot={typed.SpawnerContextSlot}");
-
-                        var spawnerScope = ctx.Actor ?? ctx.Scope;
-                        spawnedCtx.SetScope(typed.SpawnerContextSlot, spawnerScope);
+                        var revealDelayFrames = Mathf.Max(0, typed.RevealDelayFrames.Resolve(dynCtx));
+                        await RevealSpawnedScopeAsync(spawnedScope, finalSpawnParams, revealDelayFrames, ct);
                     }
 
-                    if (typed.AwaitOnSpawnedCommands)
+                    if (shouldRunOnSpawnedCommands)
                     {
-                        var result = await runner.ExecuteListAsync(onSpawnedCommands!, spawnedCtx, ct, spawnedOptions);
-                        if (result.Status == CommandRunStatus.Canceled)
-                            throw new OperationCanceledException();
+                        if (!TryResolveRunner(spawnedScope, out var runner) || runner == null)
+                            throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "Spawned scope has no ICommandRunner.");
 
-                        if (result.Status == CommandRunStatus.Error || result.FailureCount > 0)
+                        var vars = ResolveVars(typed.VarsPolicy, ctx, spawnedScope);
+                        var spawnedOptions = ctx.Options.WithSuppressCancelLog(true);
+                        var spawnedCtx = new CommandContext(
+                            spawnedScope,
+                            vars,
+                            runner,
+                            actor: spawnedScope,
+                            options: spawnedOptions,
+                            commandRootScope: ctx.CommandRootScope,
+                            rootActor: ctx.RootActor,
+                            callerActor: ctx.Actor,
+                            sourceContext: ctx);
+
+                        if (typed.WriteSpawnerToContext)
                         {
-                            var msg = $"OnSpawned command list failed. FailureCount={result.FailureCount}, ErrorIndex={result.ErrorIndex}, Message={result.Message}";
-                            throw new CommandExecutionException(result.FailureKind, msg);
+                            if (!CommandLtsSlotUtility.IsContextSlot(typed.SpawnerContextSlot))
+                                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"SpawnerContextSlot must be a context slot. slot={typed.SpawnerContextSlot}");
+
+                            var spawnerScope = ctx.Actor ?? ctx.Scope;
+                            spawnedCtx.SetScope(typed.SpawnerContextSlot, spawnerScope);
                         }
-                    }
-                    else
-                    {
-                        RunOnSpawnedInBackground(runner, onSpawnedCommands!, spawnedCtx, ct, typed.SpawnerTag);
+
+                        if (typed.AwaitOnSpawnedCommands)
+                        {
+                            var result = await runner.ExecuteListAsync(onSpawnedCommands!, spawnedCtx, ct, spawnedOptions);
+                            if (result.Status == CommandRunStatus.Canceled)
+                                throw new OperationCanceledException();
+
+                            if (result.Status == CommandRunStatus.Error || result.FailureCount > 0)
+                            {
+                                var msg = $"OnSpawned command list failed. FailureCount={result.FailureCount}, ErrorIndex={result.ErrorIndex}, Message={result.Message}";
+                                throw new CommandExecutionException(result.FailureKind, msg);
+                            }
+                        }
+                        else
+                        {
+                            RunOnSpawnedInBackground(runner, onSpawnedCommands!, spawnedCtx, ct, typed.SpawnerTag);
+                        }
                     }
                 }
 
@@ -280,6 +293,38 @@ namespace Game.Commands.VNext
                     Debug.LogException(new Exception($"[SpawnRuntimeTemplateExecutor] OnSpawned command list exception (background). SpawnerTag={spawnerTag}", ex));
                 }
             });
+        }
+
+        static async UniTask RevealSpawnedScopeAsync(
+            IScopeNode spawnedScope,
+            SpawnParams finalSpawnParams,
+            int delayFrames,
+            CancellationToken ct)
+        {
+            if (delayFrames > 0)
+                await UniTask.DelayFrame(delayFrames, PlayerLoopTiming.Update, ct);
+
+            StopTransformAnimationsIfAvailable(spawnedScope);
+
+            var spawnedTransform = spawnedScope.Identity?.SelfTransform;
+            if (spawnedTransform == null)
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Spawned scope does not expose a Transform for delayed reveal.");
+
+            SpawnPoseUtility.ApplySpawnPose(spawnedTransform, finalSpawnParams);
+        }
+
+        static void StopTransformAnimationsIfAvailable(IScopeNode spawnedScope)
+        {
+            var resolver = spawnedScope.Resolver;
+            if (resolver == null || !resolver.TryResolve<ITransformAnimationHubService>(out var hub) || hub == null)
+                return;
+
+            var players = hub.Players;
+            if (players == null)
+                return;
+
+            for (var i = 0; i < players.Count; i++)
+                players[i]?.Stop();
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

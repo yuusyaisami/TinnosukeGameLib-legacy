@@ -42,6 +42,8 @@ namespace Game.UI
         bool _isAcquired;
         bool _hasLastRect;
         Rect _lastRect;
+        int _suppressChannelOutputUntilFrame = -1;
+        bool _needsInitialChannelOutputApply;
 
         public int ChannelCount => _orderedChannels.Count;
 
@@ -60,6 +62,8 @@ namespace Game.UI
             _activeScope = scope;
             _isAcquired = true;
             _hasLastRect = false;
+            _suppressChannelOutputUntilFrame = Time.frameCount + 1;
+            _needsInitialChannelOutputApply = true;
 
             ResolveServices(scope);
             RebuildChannels(scope);
@@ -84,6 +88,8 @@ namespace Game.UI
             _orderedChannels.Clear();
             _hasLastRect = false;
             _lastRect = default;
+            _suppressChannelOutputUntilFrame = -1;
+            _needsInitialChannelOutputApply = false;
             _isAcquired = false;
         }
 
@@ -271,6 +277,8 @@ namespace Game.UI
             var currentRect = output.LocalRect;
             if (!_hasLastRect)
                 force = true;
+            else if (_needsInitialChannelOutputApply && Time.frameCount > _suppressChannelOutputUntilFrame)
+                force = true;
 
             if (!force && !HasMeaningfulChange(_lastRect, currentRect, _mb.HubSettings.PositionEpsilon, _mb.HubSettings.SizeEpsilon))
                 return;
@@ -279,6 +287,9 @@ namespace Game.UI
             _hasLastRect = true;
 
             ApplyChannels(output);
+
+            if (_needsInitialChannelOutputApply && Time.frameCount > _suppressChannelOutputUntilFrame)
+                _needsInitialChannelOutputApply = false;
         }
 
         void ApplyChannels(IVisualBoundsOutput output)
@@ -293,6 +304,12 @@ namespace Game.UI
                 var preset = entry.RuntimeOverride ?? entry.SourcePreset;
                 if (preset == null || !preset.Enabled)
                     continue;
+
+                if (preset.Output is VisualBoundsReactiveChannelOutputPreset && Time.frameCount <= _suppressChannelOutputUntilFrame)
+                {
+                    Trace($"Skip channel output on acquire frame. tag={entry.Tag}");
+                    continue;
+                }
 
                 ResolveTarget(scope, preset.Target, ref entry.TargetActorSourceCache, out var resolvedTransform, out var resolvedRect);
                 if (resolvedTransform == null && resolvedRect == null)

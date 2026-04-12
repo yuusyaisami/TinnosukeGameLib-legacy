@@ -28,7 +28,10 @@ namespace Game.Commands.VNext
                 var tag = string.IsNullOrEmpty(SpawnerTag) ? "<none>" : SpawnerTag;
                 var contextLabel = WriteSpawnedScopeToContext ? $" Ctx={SpawnedScopeSlot}" : string.Empty;
                 var sourceLabel = WriteSpawnerToContext ? $" Src={SpawnerContextSlot}" : string.Empty;
-                return $"Template={templateName} Spawner={SpawnerKind} Tag={tag}{contextLabel}{sourceLabel}";
+                var hiddenLabel = UseHiddenPreSpawn
+                    ? $" HiddenPreSpawn=on Offset={CommandDebugDataHelper.GetDynamicDebugData(HiddenSpawnOffset, "(far)")} Delay={CommandDebugDataHelper.GetDynamicDebugData(RevealDelayFrames, "1")}" 
+                    : string.Empty;
+                return $"Template={templateName} Spawner={SpawnerKind} Tag={tag}{contextLabel}{sourceLabel}{hiddenLabel}";
             }
         }
 
@@ -76,12 +79,30 @@ namespace Game.Commands.VNext
         [PropertyTooltip("生成時のローカルスケールです。")]
         public DynamicValue<Vector3> Scale = DynamicValueExtensions.FromLiteral(Vector3.one);
 
+        [Header("Pre Spawn")]
+        [SerializeField]
+        [LabelText("Use Hidden Pre Spawn")]
+        [PropertyTooltip("true のとき、まず十分に遠い場所へ spawn してから指定フレーム後に Position へ戻します。RuntimeLTS の初期描画崩れ対策です。")]
+        public bool UseHiddenPreSpawn = false;
+
+        [SerializeField, ShowIf(nameof(UseHiddenPreSpawn))]
+        [LabelText("Hidden Spawn Offset")]
+        [PropertyTooltip("Hidden Pre Spawn 時に final Position へ足すオフセットです。十分に遠い値を指定してください。")]
+        public DynamicValue<Vector3> HiddenSpawnOffset = DynamicValueExtensions.FromLiteral(new Vector3(100000f, 100000f, 100000f));
+
+        [SerializeField, ShowIf(nameof(UseHiddenPreSpawn))]
+        [MinValue(0)]
+        [LabelText("Reveal Delay Frames")]
+        [PropertyTooltip("Hidden で spawn してから final Position に戻すまでのフレーム数です。1 か 2 を推奨します。")]
+        public DynamicValue<int> RevealDelayFrames = DynamicValueExtensions.FromLiteral(1);
+
         [Header("Count")]
         [SerializeField]
         [MinValue(1)]
         [LabelText("Count")]
         [PropertyTooltip("何体生成するかを指定します。")]
         public DynamicValue<int> Count = DynamicValueExtensions.FromLiteral(1);
+
         [Header("Delay Between Spawns")]
         [SerializeField]
         [LabelText("Delay Seconds")]
