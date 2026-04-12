@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using Game.Channel;
 using Game.Commands.VNext;
@@ -61,6 +62,81 @@ namespace Game.UI
         public static string NormalizeTag(string? tag)
         {
             return string.IsNullOrWhiteSpace(tag) ? "default" : tag.Trim();
+        }
+
+        static string FormatDebugPrefix(string category, string? channelTag)
+        {
+            return $"[SliderChannel][{category}][{NormalizeTag(channelTag)}]";
+        }
+
+        public static string FormatChannelDebugPrefix(string? channelTag)
+        {
+            return FormatCoordinateDebugPrefix(channelTag);
+        }
+
+        public static string FormatCoordinateDebugPrefix(string? channelTag)
+        {
+            return FormatDebugPrefix("Coordinate", channelTag);
+        }
+
+        public static string FormatBindingDebugPrefix(string? channelTag)
+        {
+            return FormatDebugPrefix("Player", channelTag);
+        }
+
+        static bool ShouldEmitDebugLog(ISliderOptions options, bool enabled)
+        {
+            if (options == null || !enabled)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(options.DebugLogChannelTagFilter))
+                return true;
+
+            return string.Equals(
+                NormalizeTag(options.ChannelTag),
+                NormalizeTag(options.DebugLogChannelTagFilter),
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static bool ShouldEmitCoordinateDebugLog(ISliderOptions options)
+        {
+            return options != null && ShouldEmitDebugLog(options, options.EnableDebugLog);
+        }
+
+        public static bool ShouldEmitBindingDebugLog(ISliderOptions options)
+        {
+            return options != null && ShouldEmitDebugLog(options, options.EnableBindingDebugLog);
+        }
+
+        public static void LogCoordinateDebug(ISliderOptions options, string message)
+        {
+            if (!ShouldEmitCoordinateDebugLog(options))
+                return;
+
+            Debug.Log($"{FormatCoordinateDebugPrefix(options.ChannelTag)} {message}");
+        }
+
+        public static void LogBindingDebug(ISliderOptions options, string message)
+        {
+            if (!ShouldEmitBindingDebugLog(options))
+                return;
+
+            Debug.Log($"{FormatBindingDebugPrefix(options.ChannelTag)} {message}");
+        }
+
+        public static void LogDebug(ISliderOptions options, string message)
+        {
+            LogCoordinateDebug(options, message);
+        }
+
+        public static void LogWarning(string? channelTag, string message)
+        {
+            Debug.LogWarning($"{FormatCoordinateDebugPrefix(channelTag)} {message}");
+        }
+
+        public static void LogError(string? channelTag, string message)
+        {
+            Debug.LogError($"{FormatCoordinateDebugPrefix(channelTag)} {message}");
         }
 
         public static BaseRuntimeTemplateSO? ResolveRuntimeTemplate(
@@ -270,8 +346,11 @@ namespace Game.UI
                 return SliderRangeResolveStatus.UnsupportedShape;
 
             var dynamicContext = AreaChannelDynamicContextUtility.CreateContext(areaScope);
-            if (!player.TryGetRectSnapshot(dynamicContext, ResolveAreaBasePosition(player.Definition, areaScope), out snapshot))
-                return SliderRangeResolveStatus.AreaPlayerUnavailable;
+            if (!TryResolveAreaBasePosition(player.Definition, out var basePosition))
+                return SliderRangeResolveStatus.AreaBasePositionUnavailable;
+
+            if (!player.TryGetRectSnapshot(dynamicContext, basePosition, out snapshot))
+                return SliderRangeResolveStatus.AreaRectSnapshotUnavailable;
 
             return SliderRangeResolveStatus.Success;
         }
@@ -313,8 +392,11 @@ namespace Game.UI
             if (player.Definition.Shape is not RectAreaShape)
                 return SliderRangeResolveStatus.UnsupportedShape;
 
+            if (player.Definition.Anchor == null)
+                return SliderRangeResolveStatus.AreaBasePositionUnavailable;
+
             if (!hub.TryGetCanvasRectSnapshot(options.AreaChannelTag, canvas, out var areaSnapshot))
-                return SliderRangeResolveStatus.AreaPlayerUnavailable;
+                return SliderRangeResolveStatus.AreaCanvasRectSnapshotUnavailable;
 
             snapshot = new SliderScreenRangeSnapshot(areaSnapshot.CanvasRect, areaSnapshot.LocalRect, areaSnapshot.UICamera);
             return SliderRangeResolveStatus.Success;
@@ -509,7 +591,7 @@ namespace Game.UI
 
             var resolvedLength = Mathf.Max(0f, majorLength);
             var resolvedCrossLength = Mathf.Max(0f, minorLength);
-            if (renderer.drawMode == SpriteDrawMode.Simple)
+            if (renderer.drawMode != SpriteDrawMode.Sliced)
                 renderer.drawMode = SpriteDrawMode.Sliced;
 
             renderer.size = fillAxis == SliderAreaFillAxis.SizeX

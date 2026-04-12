@@ -13,6 +13,7 @@ namespace Game.Channel
         readonly Dictionary<string, AreaChannelDefinition> _defsByTag = new(StringComparer.OrdinalIgnoreCase);
         readonly Dictionary<string, AreaChannelRuntimePlayer> _runtimeByTag = new(StringComparer.OrdinalIgnoreCase);
         readonly List<ChannelDefBase> _defsSnapshot = new();
+        readonly HashSet<string> _missingBasePositionLoggedTags = new(StringComparer.OrdinalIgnoreCase);
         bool _defsDirty = true;
 
         IScopeNode? _ownerScope;
@@ -52,7 +53,7 @@ namespace Game.Channel
             if (!TryGetPlayer(tag, out var player) || player == null)
                 return false;
 
-            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+            if (!TryResolveBasePosition(tag, player.Definition, out var basePosition))
                 return false;
 
             return player.TrySamplePosition(_dynamicContext, basePosition, in request, out position);
@@ -78,7 +79,7 @@ namespace Game.Channel
                 if (!TryGetPlayer(tag, out var player) || player == null)
                     continue;
 
-                if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+                if (!TryResolveBasePosition(tag, player.Definition, out var basePosition))
                     continue;
 
                 if (!player.TrySamplePosition(_dynamicContext, basePosition, in request, out position))
@@ -108,7 +109,7 @@ namespace Game.Channel
             if (!TryGetPlayer(tag, out var player) || player == null)
                 return false;
 
-            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+            if (!TryResolveBasePosition(tag, player.Definition, out var basePosition))
                 return false;
 
             return player.ContainsPosition(_dynamicContext, basePosition, worldPosition);
@@ -121,7 +122,7 @@ namespace Game.Channel
             if (!TryGetPlayer(tag, out var player) || player == null)
                 return false;
 
-            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+            if (!TryResolveBasePosition(tag, player.Definition, out var basePosition))
                 return false;
 
             return player.TryGetContour(_dynamicContext, basePosition, out contour);
@@ -134,7 +135,7 @@ namespace Game.Channel
             if (!TryGetPlayer(tag, out var player) || player == null)
                 return false;
 
-            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+            if (!TryResolveBasePosition(tag, player.Definition, out var basePosition))
                 return false;
 
             return player.TryGetRectSnapshot(_dynamicContext, basePosition, out snapshot);
@@ -150,7 +151,7 @@ namespace Game.Channel
             if (!TryGetPlayer(tag, out var player) || player == null)
                 return false;
 
-            if (!TryResolveBasePosition(player.Definition, _ownerScope, out var basePosition))
+            if (!TryResolveBasePosition(tag, player.Definition, out var basePosition))
                 return false;
 
             return player.TryGetCanvasRectSnapshot(_dynamicContext, basePosition, canvas, out snapshot);
@@ -223,6 +224,7 @@ namespace Game.Channel
 
             _ownerScope = scope;
             _dynamicContext = AreaChannelDynamicContextUtility.CreateContext(scope);
+            _missingBasePositionLoggedTags.Clear();
             foreach (var runtime in _runtimeByTag.Values)
                 runtime.ResetRuntime();
         }
@@ -234,6 +236,7 @@ namespace Game.Channel
 
             _ownerScope = null;
             _dynamicContext = EmptyDynamicContext.Instance;
+            _missingBasePositionLoggedTags.Clear();
         }
 
         bool RegisterChannelInternal(AreaChannelDefinition? def, bool overwrite)
@@ -279,18 +282,16 @@ namespace Game.Channel
             return tag.Trim();
         }
 
-        static bool TryResolveBasePosition(AreaChannelDefinition def, IScopeNode? ownerScope, out Vector3 basePosition)
+        bool TryResolveBasePosition(string tag, AreaChannelDefinition def, out Vector3 basePosition)
         {
             var anchor = def.Anchor;
             if (anchor == null)
             {
-                var ownerTf = ownerScope?.Identity?.SelfTransform;
-                if (ownerTf == null)
-                {
-                    basePosition = default;
-                    return false;
-                }
-                anchor = ownerTf;
+                basePosition = default;
+                var normalizedTag = NormalizeTag(tag);
+                if (_missingBasePositionLoggedTags.Add(normalizedTag))
+                    Debug.LogError($"[AreaChannelHubService] Area channel anchor is required for range resolution. Tag='{normalizedTag}'.");
+                return false;
             }
 
             basePosition = anchor.position + def.CenterOffset;

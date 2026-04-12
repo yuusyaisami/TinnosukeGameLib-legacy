@@ -164,11 +164,15 @@ namespace Game.UI
         DynamicValue<SliderPlayerPreset> PlayerPresetValue { get; }
         Transform? SegmentBarsRoot { get; }
         Transform? SegmentMarkersRoot { get; }
+        string ChannelTag { get; }
         ActorSource AreaActorSource { get; }
         string AreaChannelTag { get; }
         SliderRangeSourceMode RangeSourceMode { get; }
         RectTransform? RangeRectTransform { get; }
         Transform OwnerTransform { get; }
+        bool EnableDebugLog { get; }
+        bool EnableBindingDebugLog { get; }
+        string DebugLogChannelTagFilter { get; }
     }
 
     internal interface ISliderRuntimePresetProvider

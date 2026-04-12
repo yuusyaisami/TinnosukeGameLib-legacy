@@ -28,6 +28,8 @@ namespace Game.UI
                 _displayedRawValue = _maxValue;
             _hasInitialized = true;
             EmitUpdated();
+            LogBindingSnapshot("InitialSnapshot", $"raw={FormatFloat(clamped)}");
+            UpdateLoggedVisibleBarCount();
         }
 
         void SetHiddenSnapshot()
@@ -39,6 +41,8 @@ namespace Game.UI
             _isVisible = false;
             _hasInitialized = true;
             EmitUpdated();
+            LogBindingSnapshot("HiddenSnapshot");
+            ResetLoggedVisibleBarCount();
         }
 
         void SetTargetRawValue(float rawValue, bool allowCommands)
@@ -78,6 +82,8 @@ namespace Game.UI
             }
 
             StartDisplayedTransition();
+            LogBindingSnapshot("TargetChanged", $"requested={FormatFloat(rawValue)} effective={FormatFloat(clamped)}");
+            UpdateLoggedVisibleBarCount();
         }
 
         void StartDisplayedTransition()
@@ -156,6 +162,8 @@ namespace Game.UI
                 ExecuteCrossingCommands(previousRawValue, previousNormalizedValue, displayedRawValue, displayedNormalizedValue);
 
             EmitUpdated();
+            if (ShouldLogVisibleBarSnapshot())
+                LogBindingSnapshot("DisplayedChanged", $"continuous={FormatFloat(continuousRawValue)} displayed={FormatFloat(displayedRawValue)}");
         }
 
         void ExecuteCrossingCommands(
@@ -330,12 +338,22 @@ namespace Game.UI
             }
         }
 
-        void ResolveRange()
+        bool ResolveRange()
         {
             var resolvedMinValue = ResolveFloat(_playerPreset.MinValue, 0f);
             var resolvedMaxValue = ResolveFloat(_playerPreset.MaxValue, 1f);
-            _minValue = Mathf.Min(resolvedMinValue, resolvedMaxValue);
-            _maxValue = Mathf.Max(resolvedMinValue, resolvedMaxValue);
+            var nextMinValue = Mathf.Min(resolvedMinValue, resolvedMaxValue);
+            var nextMaxValue = Mathf.Max(resolvedMinValue, resolvedMaxValue);
+
+            if (Mathf.Abs(nextMinValue - _minValue) <= 0.0001f &&
+                Mathf.Abs(nextMaxValue - _maxValue) <= 0.0001f)
+            {
+                return false;
+            }
+
+            _minValue = nextMinValue;
+            _maxValue = nextMaxValue;
+            return true;
         }
 
         float ResolveFloat(DynamicValue<float> dynamicValue, float fallback)

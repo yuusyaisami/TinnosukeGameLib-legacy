@@ -122,15 +122,24 @@ namespace Game.UI
                 var tag = SliderRuntimeHelpers.NormalizeTag(definition.ChannelTag);
                 if (_channels.ContainsKey(tag))
                 {
-                    Debug.LogWarning($"[SliderChannelHub] Duplicate channel tag '{tag}' was skipped.");
+                    SliderRuntimeHelpers.LogWarning(tag, $"Duplicate channel tag '{tag}' was skipped.");
                     continue;
                 }
 
-                var options = definition.CreateOptions(_mb.transform);
+                var options = definition.CreateOptions(
+                    _mb.transform,
+                    tag,
+                    _mb.EnableDebugLog,
+                    _mb.EnableBindingDebugLog,
+                    _mb.DebugLogChannelTagFilter);
                 var preset = new SliderChannelPresetRuntime(options);
                 var player = new SliderChannelPlayerRuntime(_owner, options, preset);
                 var visualizer = new SliderChannelVisualizerRuntime(_owner, options, player, preset, _environmentKind, _canvas);
                 var interaction = CreateInteractionRuntime(options, player, preset);
+
+                SliderRuntimeHelpers.LogDebug(
+                    options,
+                    $"Acquire. RangeMode={options.RangeSourceMode} AreaTag='{options.AreaChannelTag}' Environment={_environmentKind}. ");
 
                 preset.OnAcquire(scope, isReset);
                 player.OnAcquire(scope, isReset);
@@ -157,6 +166,7 @@ namespace Game.UI
             for (var i = _orderedChannels.Count - 1; i >= 0; i--)
             {
                 var runtime = _orderedChannels[i];
+                SliderRuntimeHelpers.LogDebug(runtime.Options, "Release.");
                 runtime.Interaction?.OnRelease(scope, isReset);
                 runtime.Visualizer.OnRelease(scope, isReset);
                 runtime.Player.OnRelease(scope, isReset);

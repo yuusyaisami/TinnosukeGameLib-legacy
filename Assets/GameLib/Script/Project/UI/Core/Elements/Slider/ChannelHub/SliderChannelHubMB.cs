@@ -23,11 +23,15 @@ namespace Game.UI
 
         public Transform? SegmentBarsRoot { get; set; }
         public Transform? SegmentMarkersRoot { get; set; }
+        public string ChannelTag { get; set; } = "default";
         public ActorSource AreaActorSource { get; set; } = new() { Kind = ActorSourceKind.Current };
         public string AreaChannelTag { get; set; } = "default";
         public SliderRangeSourceMode RangeSourceMode { get; set; } = SliderRangeSourceMode.AreaChannel;
         public RectTransform? RangeRectTransform { get; set; }
         public Transform OwnerTransform { get; set; } = null!;
+        public bool EnableDebugLog { get; set; }
+        public bool EnableBindingDebugLog { get; set; }
+        public string DebugLogChannelTagFilter { get; set; } = string.Empty;
     }
 
     [Serializable]
@@ -85,15 +89,41 @@ namespace Game.UI
         [SerializeField]
         Transform? _segmentMarkersRoot;
 
+        [BoxGroup("Debug")]
+        [LabelText("Enable Coordinate Debug Log")]
+        [Tooltip("true のとき、座標系 / range / geometry のログを出します。")]
+        [SerializeField]
+        bool _enableDebugLog;
+
+        [BoxGroup("Debug")]
+        [LabelText("Enable Player Debug Log")]
+        [Tooltip("true のとき、binding 変数 / state / bar count のログを出します。")]
+        [SerializeField]
+        bool _enableBindingDebugLog;
+
+        [BoxGroup("Debug")]
+        [ShowIf(nameof(HasAnyDebugLogEnabled))]
+        [LabelText("Debug Log Channel Tag Filter")]
+        [Tooltip("空白なら全チャネル。Tag を指定すると一致した SliderChannel だけログを出します。")]
+        [SerializeField]
+        string _debugLogChannelTagFilter = string.Empty;
+
         bool UsesAreaChannel() => _rangeSourceMode == SliderRangeSourceMode.AreaChannel;
         bool UsesRectTransform() => _rangeSourceMode == SliderRangeSourceMode.RectTransform;
+        bool HasAnyDebugLogEnabled() => _enableDebugLog || _enableBindingDebugLog;
 
         public string ChannelTag => string.IsNullOrWhiteSpace(_channelTag) ? "default" : _channelTag.Trim();
 
-        internal SliderChannelOptions CreateOptions(Transform ownerTransform)
+        internal SliderChannelOptions CreateOptions(
+            Transform ownerTransform,
+            string channelTag,
+            bool enableDebugLog,
+            bool enableBindingDebugLog,
+            string debugLogChannelTagFilter)
         {
             return new SliderChannelOptions
             {
+                ChannelTag = string.IsNullOrWhiteSpace(channelTag) ? "default" : channelTag.Trim(),
                 VisualizerPresetValue = _visualizerPreset,
                 PlayerPresetValue = _playerPreset,
                 SegmentBarsRoot = _segmentBarsRoot,
@@ -103,6 +133,9 @@ namespace Game.UI
                 RangeSourceMode = _rangeSourceMode,
                 RangeRectTransform = _rangeRectTransform,
                 OwnerTransform = ownerTransform,
+                EnableDebugLog = enableDebugLog,
+                EnableBindingDebugLog = enableBindingDebugLog,
+                DebugLogChannelTagFilter = string.IsNullOrWhiteSpace(debugLogChannelTagFilter) ? string.Empty : debugLogChannelTagFilter.Trim(),
             };
         }
     }
@@ -116,7 +149,31 @@ namespace Game.UI
         [SerializeField]
         List<SliderChannelDefinition> _channels = new() { new SliderChannelDefinition() };
 
+        [BoxGroup("Debug")]
+        [LabelText("Enable Coordinate Debug Log")]
+        [Tooltip("true のとき、指定した Tag の SliderChannel の座標系ログを出します。")]
+        [SerializeField]
+        bool _enableDebugLog;
+
+        [BoxGroup("Debug")]
+        [LabelText("Enable Player Debug Log")]
+        [Tooltip("true のとき、指定した Tag の SliderChannel の Player ログを出します。")]
+        [SerializeField]
+        bool _enableBindingDebugLog;
+
+        [BoxGroup("Debug")]
+        [ShowIf(nameof(HasAnyDebugLogEnabled))]
+        [LabelText("Debug Log Channel Tag Filter")]
+        [Tooltip("空白なら全チャネル。Tag を指定すると一致した SliderChannel だけログを出します。")]
+        [SerializeField]
+        string _debugLogChannelTagFilter = string.Empty;
+
         public IReadOnlyList<SliderChannelDefinition> Channels => _channels;
+        public bool EnableDebugLog => _enableDebugLog;
+        public bool EnableBindingDebugLog => _enableBindingDebugLog;
+        public string DebugLogChannelTagFilter => string.IsNullOrWhiteSpace(_debugLogChannelTagFilter) ? string.Empty : _debugLogChannelTagFilter.Trim();
+
+        bool HasAnyDebugLogEnabled() => _enableDebugLog || _enableBindingDebugLog;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
