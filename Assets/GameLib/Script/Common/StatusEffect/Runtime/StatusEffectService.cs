@@ -284,23 +284,32 @@ namespace Game.StatusEffect
                 return 0;
 
             EnsureGlobalStateInitialized(forceReset: false);
-
+            int count = 0;
             bool needsGlobalCountConsumption = false;
             bool needsGlobalCooldownStart = false;
-            int candidateCount = 0;
 
-            foreach (var runtime in _effects.Values)
+            foreach (var pair in _effects)
             {
+                var runtime = pair.Value;
                 if (runtime == null || !runtime.UsesAnyServiceGlobalUseState || !runtime.CanUseViaGlobalRequest())
                     continue;
 
-                candidateCount++;
-                needsGlobalCountConsumption |= runtime.UsesServiceGlobalCount;
-                needsGlobalCooldownStart |= runtime.UsesServiceGlobalUseCooldown;
+                if (runtime.UseViaGlobal(userScope ?? _scope, sourceContext))
+                {
+                    count++;
+                    needsGlobalCountConsumption |= runtime.UsesServiceGlobalCount;
+                    needsGlobalCooldownStart |= runtime.UsesServiceGlobalUseCooldown;
+                }
+
+                if (runtime.IsRemoveRequested)
+                    _removeQueue.Add(pair.Key);
             }
 
-            if (candidateCount == 0)
+            if (count <= 0)
+            {
+                ProcessRemoveQueue();
                 return 0;
+            }
 
             if (needsGlobalCountConsumption && _globalMaxCount > 0 && _globalCurrentCount > 0)
                 _globalCurrentCount--;
@@ -313,20 +322,6 @@ namespace Game.StatusEffect
 
             UpdateGlobalCanUse();
             WriteGlobalStateToBlackboard(force: false);
-
-            int count = 0;
-            foreach (var pair in _effects)
-            {
-                var runtime = pair.Value;
-                if (runtime == null || !runtime.UsesAnyServiceGlobalUseState)
-                    continue;
-
-                if (runtime.UseViaGlobal(userScope ?? _scope, sourceContext))
-                    count++;
-
-                if (runtime.IsRemoveRequested)
-                    _removeQueue.Add(pair.Key);
-            }
 
             SyncAllRuntimeGlobalState(applyActions: true);
             ProcessRemoveQueue();
@@ -743,26 +738,22 @@ namespace Game.StatusEffect
                     countDefinition: useCount ? definition.CountDefinition : null);
             }
 
-            var autoUseDuration = _isGlobalLifetimeEnabled;
-            var autoUseCooldown = _isGlobalUseCooldownEnabled;
-            var autoUseCount = _isGlobalCountEnabled;
-
             return new StatusEffectRuntimeResolution(
                 isAutoGlobalMode: true,
-                useDuration: autoUseDuration,
-                useUseCooldown: autoUseCooldown,
-                useCount: autoUseCount,
-                durationDefinition: autoUseDuration ? CreateAutoGlobalDurationDefinition() : null,
-                useCooldownDefinition: autoUseCooldown ? CreateAutoGlobalUseCooldownDefinition() : null,
-                countDefinition: autoUseCount ? CreateAutoGlobalCountDefinition() : null);
+                useDuration: true,
+                useUseCooldown: true,
+                useCount: true,
+                durationDefinition: CreateAutoGlobalDurationDefinition(definition.AutoGlobalAdvancedOption),
+                useCooldownDefinition: CreateAutoGlobalUseCooldownDefinition(),
+                countDefinition: CreateAutoGlobalCountDefinition(definition.AutoGlobalAdvancedOption));
         }
 
-        static IStatusEffectDurationDefinition CreateAutoGlobalDurationDefinition()
+        static IStatusEffectDurationDefinition CreateAutoGlobalDurationDefinition(StatusEffectAutoGlobalAdvancedOption? advancedOption)
         {
             return new FixedDurationStatusEffectDefinition
             {
                 SyncWithGlobalLifetime = true,
-                EndAction = EffectLifetimeEndAction.Remove,
+                EndAction = advancedOption?.LifetimeEndAction ?? EffectLifetimeEndAction.None,
             };
         }
 
@@ -775,13 +766,13 @@ namespace Game.StatusEffect
             };
         }
 
-        static IStatusEffectCountDefinition CreateAutoGlobalCountDefinition()
+        static IStatusEffectCountDefinition CreateAutoGlobalCountDefinition(StatusEffectAutoGlobalAdvancedOption? advancedOption)
         {
             return new DynamicCountStatusEffectDefinition
             {
                 SyncWithGlobalCount = true,
                 MaxCount = DynamicValueExtensions.FromLiteral(0),
-                ExhaustedAction = EffectCountExhaustedAction.Disable,
+                ExhaustedAction = advancedOption?.CountExhaustedAction ?? EffectCountExhaustedAction.None,
                 ActivePolicy = StatusEffectActivePolicy.RegisteredEvenIfDisabled,
             };
         }
@@ -1001,7 +992,8 @@ namespace Game.StatusEffect
             if (countSettings is { Enabled: true } enabledCountSettings)
             {
                 _isGlobalCountEnabled = true;
-                _globalMaxCount = Mathf.Max(0, enabledCountSettings.MaxCount.GetOrDefault(context, 0));
+                var resolvedGlobalMaxCount = enabledCountSettings.MaxCount.GetOrDefault(context, 0);
+                _globalMaxCount = resolvedGlobalMaxCount > 0 ? resolvedGlobalMaxCount : -1;
             }
             else
             {
