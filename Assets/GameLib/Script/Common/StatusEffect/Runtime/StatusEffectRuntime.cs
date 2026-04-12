@@ -148,6 +148,8 @@ namespace Game.StatusEffect
         bool _isRegistered = true;
         bool _isSuspendedByScopeRelease;
         bool _isUseBlocked;
+        bool _hasOperationBlockedUseSync;
+        bool _lastOperationBlockedUseState;
         bool _hasHandledGlobalLifetimeExpiration;
         bool _hasHandledGlobalCountExhaustion;
         bool _hasHandledLocalCountExhaustion;
@@ -221,9 +223,9 @@ namespace Game.StatusEffect
         public bool IsApplied => _isApplied;
         public bool IsRemoveRequested => _isRemoveRequested;
         public bool IsUseBlocked => _isUseBlocked;
-        public bool UsesServiceGlobalLifetime => _usesServiceGlobalLifetime;
-        public bool UsesServiceGlobalUseCooldown => _usesServiceGlobalUseCooldown;
-        public bool UsesServiceGlobalCount => _usesServiceGlobalCount;
+        public bool UsesServiceGlobalLifetime => _isAutoGlobalMode ? _owner.IsGlobalLifetimeEnabled : _usesServiceGlobalLifetime;
+        public bool UsesServiceGlobalUseCooldown => _isAutoGlobalMode ? _owner.IsGlobalUseCooldownEnabled : _usesServiceGlobalUseCooldown;
+        public bool UsesServiceGlobalCount => _isAutoGlobalMode ? _owner.IsGlobalCountEnabled : _usesServiceGlobalCount;
         public bool UsesAnyServiceGlobalUseState => _isAutoGlobalMode || _usesServiceGlobalUseCooldown || _usesServiceGlobalCount;
         public float RemainingDuration => UsesServiceGlobalLifetime ? _owner.GlobalLifetimeRemaining : _durationController?.RemainingDuration ?? -1f;
         public float TotalDuration => UsesServiceGlobalLifetime ? _owner.GlobalLifetimeTotal : _durationController?.TotalDuration ?? -1f;
@@ -383,7 +385,7 @@ namespace Game.StatusEffect
         public bool CanUseViaGlobalRequest()
         {
             RefreshUseBlockedState();
-            if (!_isRegistered || !UsesAnyServiceGlobalUseState || _isUseBlocked)
+            if (!_isRegistered || !UsesAnyServiceGlobalUseState || _isUseBlocked || !CanUseGlobalState())
                 return false;
 
             return CanUseLocalControllers();
@@ -391,7 +393,8 @@ namespace Game.StatusEffect
 
         public bool UseViaGlobal(IScopeNode? userScope, CommandContext? sourceContext = null)
         {
-            if (!_isRegistered || !UsesAnyServiceGlobalUseState || !CanUseLocalControllers())
+            RefreshUseBlockedState();
+            if (!_isRegistered || !UsesAnyServiceGlobalUseState || _isUseBlocked || !CanUseGlobalState() || !CanUseLocalControllers())
                 return false;
 
             if (_countController != null && !_countController.ConsumeUse())
@@ -419,6 +422,14 @@ namespace Game.StatusEffect
                 return false;
 
             if (_useCooldownController != null && !_useCooldownController.CanUse)
+                return false;
+
+            return true;
+        }
+
+        bool CanUseGlobalState()
+        {
+            if (UsesServiceGlobalCount && _owner.IsGlobalCountExhausted)
                 return false;
 
             return true;
@@ -926,6 +937,33 @@ namespace Game.StatusEffect
             _isUseBlocked = isBlocked;
         }
 
+        void SyncOperationsForBlockedUseState(bool force)
+        {
+            if (!_isRegistered || !_isEnabled || !_isApplied || _isSuspendedByScopeRelease)
+            {
+                _hasOperationBlockedUseSync = false;
+                return;
+            }
+
+            if (!force && _hasOperationBlockedUseSync && _lastOperationBlockedUseState == _isUseBlocked)
+                return;
+
+            _hasOperationBlockedUseSync = true;
+            _lastOperationBlockedUseState = _isUseBlocked;
+
+            for (var i = 0; i < _operations.Count; i++)
+            {
+                var operation = _operations[i];
+                if (operation == null || operation.BlockedUsePropagationMode != StatusEffectBlockedUsePropagationMode.Suspend)
+                    continue;
+
+                if (_isUseBlocked)
+                    operation.Disable();
+                else
+                    operation.Enable();
+            }
+        }
+
         static bool ShouldBlockFromCountExhaustion(EffectCountExhaustedAction action)
             => action == EffectCountExhaustedAction.Disable || action == EffectCountExhaustedAction.DisableUseOnly;
 
@@ -1250,6 +1288,8 @@ namespace Game.StatusEffect
             var visualData = (object?)_visualData;
             if (visualData != null)
                 _vars.TrySetManagedRef(VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData, visualData);
+
+            SyncOperationsForBlockedUseState(force: false);
         }
 
         void WriteRuntimeGlobalVars()

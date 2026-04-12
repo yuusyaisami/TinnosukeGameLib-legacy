@@ -57,10 +57,30 @@ namespace Game.StatusEffect
         AutoGlobal = 10,
     }
 
+    [Serializable]
+    public sealed class StatusEffectAutoGlobalAdvancedOption
+    {
+        [LabelText("Lifetime End Action")]
+        [EnumToggleButtons]
+        [Tooltip("AutoGlobal の lifetime 期限切れ時に行う特別動作です。None が既定です。")]
+        public EffectLifetimeEndAction LifetimeEndAction = EffectLifetimeEndAction.None;
+
+        [LabelText("Count Exhausted Action")]
+        [EnumToggleButtons]
+        [Tooltip("AutoGlobal の count 枯渇時に行う特別動作です。None が既定です。")]
+        public EffectCountExhaustedAction CountExhaustedAction = EffectCountExhaustedAction.None;
+    }
+
     public enum ScalarModifierApplyMode
     {
         Add = 10,
         Mul = 20,
+    }
+
+    public enum StatusEffectBlockedUsePropagationMode
+    {
+        Continue = 10,
+        Suspend = 20,
     }
 
     public enum StatusEffectHookKind
@@ -317,6 +337,7 @@ namespace Game.StatusEffect
         EffectVisualData VisualData { get; }
         string DefaultRuntimeTag { get; }
         StatusEffectRuntimeControlMode RuntimeControlMode { get; }
+        StatusEffectAutoGlobalAdvancedOption? AutoGlobalAdvancedOption { get; }
         bool UseDuration { get; }
         bool UseUseCooldown { get; }
         bool UseCount { get; }
@@ -338,6 +359,7 @@ namespace Game.StatusEffect
         public abstract EffectVisualData VisualData { get; }
         public abstract string DefaultRuntimeTag { get; }
         public abstract StatusEffectRuntimeControlMode RuntimeControlMode { get; }
+        public abstract StatusEffectAutoGlobalAdvancedOption? AutoGlobalAdvancedOption { get; }
         public abstract bool UseDuration { get; }
         public abstract bool UseUseCooldown { get; }
         public abstract bool UseCount { get; }
@@ -377,8 +399,16 @@ namespace Game.StatusEffect
         [LabelText("Runtime Control")]
         [EnumToggleButtons]
         [SerializeField]
-        [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲します。")]
+        [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲し、AdvancedOption で lifetime/count の終了時動作だけ調整できます。")]
         StatusEffectRuntimeControlMode runtimeControlMode = StatusEffectRuntimeControlMode.Custom;
+
+        [FoldoutGroup("AdvancedOption", Expanded = true)]
+        [ShowIf(nameof(UsesAutoGlobalRuntimeSettings))]
+        [InlineProperty]
+        [HideLabel]
+        [SerializeField]
+        [Tooltip("AutoGlobal 用の追加設定です。None が既定です。")]
+        StatusEffectAutoGlobalAdvancedOption autoGlobalAdvancedOption = new();
 
         [BoxGroup("Runtime")]
         [LabelText("Use Lifetime")]
@@ -437,6 +467,7 @@ namespace Game.StatusEffect
         public override EffectVisualData VisualData => visualData;
         public override string DefaultRuntimeTag => defaultRuntimeTag;
         public override StatusEffectRuntimeControlMode RuntimeControlMode => runtimeControlMode;
+        public override StatusEffectAutoGlobalAdvancedOption? AutoGlobalAdvancedOption => autoGlobalAdvancedOption;
         public override bool UseDuration => useDuration;
         public override bool UseUseCooldown => useUseCooldown;
         public override bool UseCount => useCount;
@@ -447,6 +478,7 @@ namespace Game.StatusEffect
         public override StatusEffectHookSet DefaultHooks => defaultHooks;
 
         bool UsesCustomRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.Custom;
+        bool UsesAutoGlobalRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.AutoGlobal;
         bool ShowDurationDefinition => UsesCustomRuntimeSettings && useDuration;
         bool ShowUseCooldownDefinition => UsesCustomRuntimeSettings && useUseCooldown;
         bool ShowCountDefinition => UsesCustomRuntimeSettings && useCount;
@@ -462,6 +494,7 @@ namespace Game.StatusEffect
     {
         string OperationId { get; }
         bool IsOperationEnabled { get; }
+        StatusEffectBlockedUsePropagationMode BlockedUsePropagationMode { get; }
         void Apply();
         void Remove();
         void Enable();
@@ -520,6 +553,11 @@ namespace Game.StatusEffect
         [Tooltip("外部から個別に Enable/Disable 制御するための ID です。同一 ID を複数 operation に設定できます。")]
         public string OperationId = string.Empty;
 
+        [LabelText("Blocked Use Propagation")]
+        [EnumToggleButtons]
+        [Tooltip("Count/Cooldown で Use が block 中の operation 挙動です。Continue は継続、Suspend は block 中のみ停止し解除時に再開します。")]
+        public StatusEffectBlockedUsePropagationMode BlockedUsePropagation = StatusEffectBlockedUsePropagationMode.Continue;
+
         bool UsesMulPhase() => ApplyMode == ScalarModifierApplyMode.Mul;
         bool UsesDynamicValue() => ValueMode == StatusEffectScalarValueMode.DynamicValue;
         bool UsesRuntimeIntensity() => ValueMode == StatusEffectScalarValueMode.RuntimeIntensity;
@@ -560,6 +598,7 @@ namespace Game.StatusEffect
                 OperationId,
                 ValueMode,
                 RuntimeIntensitySlot,
+                BlockedUsePropagation,
                 valueExpression,
                 evaluationContext,
                 context.Definition.DefinitionId,
@@ -778,6 +817,7 @@ namespace Game.StatusEffect
         readonly string _operationId;
         readonly StatusEffectScalarValueMode _valueMode;
         readonly StatusEffectRuntimeIntensityReference _runtimeIntensitySlot;
+        readonly StatusEffectBlockedUsePropagationMode _blockedUsePropagationMode;
         readonly DynamicValue<float> _value;
         readonly IDynamicContext _evaluationContext;
         readonly string _tag;
@@ -798,6 +838,7 @@ namespace Game.StatusEffect
             string operationId,
             StatusEffectScalarValueMode valueMode,
             StatusEffectRuntimeIntensityReference runtimeIntensitySlot,
+            StatusEffectBlockedUsePropagationMode blockedUsePropagationMode,
             DynamicValue<float> value,
             IDynamicContext evaluationContext,
             string definitionId,
@@ -812,6 +853,7 @@ namespace Game.StatusEffect
             _operationId = operationId ?? string.Empty;
             _valueMode = valueMode;
             _runtimeIntensitySlot = runtimeIntensitySlot;
+            _blockedUsePropagationMode = blockedUsePropagationMode;
             _value = value;
             _evaluationContext = evaluationContext;
             _tag = BuildTag(definitionId, _operationId, Guid.NewGuid().ToString("N"));
@@ -821,6 +863,7 @@ namespace Game.StatusEffect
 
         public string OperationId => _operationId;
         public bool IsOperationEnabled => _isExternallyEnabled;
+        public StatusEffectBlockedUsePropagationMode BlockedUsePropagationMode => _blockedUsePropagationMode;
 
         public void Apply()
         {

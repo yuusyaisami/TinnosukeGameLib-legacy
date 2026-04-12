@@ -45,8 +45,16 @@ namespace Game.StatusEffect
         [LabelText("Runtime Control")]
         [EnumToggleButtons]
         [SerializeField]
-        [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲します。")]
+        [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲し、AdvancedOption で lifetime/count の終了時動作だけ調整できます。")]
         StatusEffectRuntimeControlMode runtimeControlMode = StatusEffectRuntimeControlMode.Custom;
+        
+        [FoldoutGroup("AdvancedOption", Expanded = true)]
+        [ShowIf(nameof(UsesAutoGlobalRuntimeSettings))]
+        [InlineProperty]
+        [HideLabel]
+        [SerializeField]
+        [Tooltip("AutoGlobal 用の追加設定です。None が既定です。")]
+        StatusEffectAutoGlobalAdvancedOption autoGlobalAdvancedOption = new();
 
         [BoxGroup("Duration")]
         [LabelText("Use Lifetime")]
@@ -101,6 +109,7 @@ namespace Game.StatusEffect
         public override EffectVisualData VisualData => visualData ?? new EffectVisualData();
         public override string DefaultRuntimeTag => defaultRuntimeTag ?? string.Empty;
         public override StatusEffectRuntimeControlMode RuntimeControlMode => runtimeControlMode;
+        public override StatusEffectAutoGlobalAdvancedOption? AutoGlobalAdvancedOption => autoGlobalAdvancedOption;
         public override bool UseDuration => useDuration;
         public override bool UseUseCooldown => useUseCooldown;
         public override bool UseCount => useCount;
@@ -111,6 +120,7 @@ namespace Game.StatusEffect
         public override StatusEffectHookSet DefaultHooks => defaultHooks ?? new StatusEffectHookSet();
 
         bool UsesCustomRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.Custom;
+    bool UsesAutoGlobalRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.AutoGlobal;
         bool ShowDurationDefinition => UsesCustomRuntimeSettings && useDuration;
         bool ShowUseCooldownDefinition => UsesCustomRuntimeSettings && useUseCooldown;
         bool ShowCountDefinition => UsesCustomRuntimeSettings && useCount;
