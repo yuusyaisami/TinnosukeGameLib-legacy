@@ -164,6 +164,7 @@ Item,BaseShader/BlendColor2D/AnimatedGradient/PatternContrast,BaseShader,Float,_
 Item,BaseShader/BlendColor2D/AnimatedGradient/HueAmplitude,BaseShader,Float,_BlendColor2DAnimatedGradientHueAmplitude,BaseShader/BlendColor2D/AnimatedGradient/HueAmplitude,
 Item,BaseShader/BlendColor2D/AnimatedGradient/SaturationAmplitude,BaseShader,Float,_BlendColor2DAnimatedGradientSaturationAmplitude,BaseShader/BlendColor2D/AnimatedGradient/SaturationAmplitude,
 Item,BaseShader/BlendColor2D/AnimatedGradient/LightnessAmplitude,BaseShader,Float,_BlendColor2DAnimatedGradientLightnessAmplitude,BaseShader/BlendColor2D/AnimatedGradient/LightnessAmplitude,
+Item,BaseShader/BlendColor2D/AnimatedGradient/PixelSize,BaseShader,Float,_BlendColor2DAnimatedGradientPixelSize,BaseShader/BlendColor2D/AnimatedGradient/PixelSize,
 
 # --- AdvancedFade2D ---
 # Wipe-based fade with boundary glow and wave effects

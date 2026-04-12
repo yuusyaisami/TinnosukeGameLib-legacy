@@ -137,7 +137,7 @@ namespace Game.MaterialFx.Generated
                     public const string NoiseStrength = "BaseShader/AdvancedFade2D/Burn/NoiseStrength";
                     /// <remarks>
                     /// Sender: BaseShader
-                    /// ValueType: Float
+                    /// ValueType: Int
                     /// ShaderPropertyName: _AdvancedFade2DBurnNoiseType
                     /// Path: BaseShader/AdvancedFade2D/Burn/NoiseType
                     /// </remarks>
@@ -154,6 +154,13 @@ namespace Game.MaterialFx.Generated
                     {
                         /// <remarks>
                         /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseCellSharpness
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/CellSharpness
+                        /// </remarks>
+                        public const string CellSharpness = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/CellSharpness";
+                        /// <remarks>
+                        /// Sender: BaseShader
                         /// ValueType: Float2
                         /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseDirection
                         /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Direction
@@ -164,125 +171,118 @@ namespace Game.MaterialFx.Generated
                         /// ValueType: Bool
                         /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseEnabled
                         /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Enabled
-                    /// </remarks>
-                    public const string Enabled = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Enabled";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseCellSharpness
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/CellSharpness
-                    /// </remarks>
-                    public const string CellSharpness = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/CellSharpness";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseGain
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Gain
-                    /// </remarks>
-                    public const string Gain = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Gain";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseLoopSeconds
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/LoopSeconds
-                    /// </remarks>
-                    public const string LoopSeconds = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/LoopSeconds";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseLacunarity
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Lacunarity
-                    /// </remarks>
-                    public const string Lacunarity = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Lacunarity";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseOctaves
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Octaves
-                    /// </remarks>
-                    public const string Octaves = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Octaves";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float2
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseOffset
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Offset
-                    /// </remarks>
-                    public const string Offset = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Offset";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Int
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePatternType
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternType
-                    /// </remarks>
-                    public const string PatternType = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternType";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePatternContrast
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternContrast
-                    /// </remarks>
-                    public const string PatternContrast = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternContrast";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePulseAmplitude
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseAmplitude
-                    /// </remarks>
-                    public const string PulseAmplitude = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseAmplitude";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePulseSpeed
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseSpeed
-                    /// </remarks>
-                    public const string PulseSpeed = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseSpeed";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseRotationSpeed
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/RotationSpeed
-                    /// </remarks>
-                    public const string RotationSpeed = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/RotationSpeed";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseSpeed
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Speed
-                    /// </remarks>
-                    public const string Speed = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Speed";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float2
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpDirection
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpDirection
-                    /// </remarks>
-                    public const string WarpDirection = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpDirection";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Int
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpPatternType
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpPatternType
-                    /// </remarks>
-                    public const string WarpPatternType = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpPatternType";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpScale
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpScale
-                    /// </remarks>
-                    public const string WarpScale = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpScale";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpSpeed
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpSpeed
-                    /// </remarks>
-                    public const string WarpSpeed = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpSpeed";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpStrength
-                    /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpStrength
+                        /// </remarks>
+                        public const string Enabled = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Enabled";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseGain
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Gain
+                        /// </remarks>
+                        public const string Gain = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Gain";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseLacunarity
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Lacunarity
+                        /// </remarks>
+                        public const string Lacunarity = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Lacunarity";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseLoopSeconds
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/LoopSeconds
+                        /// </remarks>
+                        public const string LoopSeconds = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/LoopSeconds";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseOctaves
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Octaves
+                        /// </remarks>
+                        public const string Octaves = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Octaves";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float2
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseOffset
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Offset
+                        /// </remarks>
+                        public const string Offset = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Offset";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePatternContrast
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternContrast
+                        /// </remarks>
+                        public const string PatternContrast = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternContrast";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Int
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePatternType
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternType
+                        /// </remarks>
+                        public const string PatternType = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PatternType";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePulseAmplitude
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseAmplitude
+                        /// </remarks>
+                        public const string PulseAmplitude = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseAmplitude";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoisePulseSpeed
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseSpeed
+                        /// </remarks>
+                        public const string PulseSpeed = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/PulseSpeed";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseRotationSpeed
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/RotationSpeed
+                        /// </remarks>
+                        public const string RotationSpeed = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/RotationSpeed";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseSpeed
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Speed
+                        /// </remarks>
+                        public const string Speed = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/Speed";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float2
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpDirection
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpDirection
+                        /// </remarks>
+                        public const string WarpDirection = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpDirection";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Int
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpPatternType
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpPatternType
+                        /// </remarks>
+                        public const string WarpPatternType = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpPatternType";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpScale
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpScale
+                        /// </remarks>
+                        public const string WarpScale = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpScale";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpSpeed
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpSpeed
+                        /// </remarks>
+                        public const string WarpSpeed = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpSpeed";
+                        /// <remarks>
+                        /// Sender: BaseShader
+                        /// ValueType: Float
+                        /// ShaderPropertyName: _AdvancedFade2DBurnAnimatedNoiseWarpStrength
+                        /// Path: BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpStrength
                         /// </remarks>
                         public const string WarpStrength = "BaseShader/AdvancedFade2D/Burn/AnimatedNoise/WarpStrength";
                     }
@@ -459,18 +459,18 @@ namespace Game.MaterialFx.Generated
                 {
                     /// <remarks>
                     /// Sender: BaseShader
-                    /// ValueType: Bool
-                    /// ShaderPropertyName: _BlendColor2DAnimatedGradientEnabled
-                    /// Path: BaseShader/BlendColor2D/AnimatedGradient/Enabled
-                    /// </remarks>
-                    public const string Enabled = "BaseShader/BlendColor2D/AnimatedGradient/Enabled";
-                    /// <remarks>
-                    /// Sender: BaseShader
                     /// ValueType: Float
                     /// ShaderPropertyName: _BlendColor2DAnimatedGradientCellSharpness
                     /// Path: BaseShader/BlendColor2D/AnimatedGradient/CellSharpness
                     /// </remarks>
                     public const string CellSharpness = "BaseShader/BlendColor2D/AnimatedGradient/CellSharpness";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Bool
+                    /// ShaderPropertyName: _BlendColor2DAnimatedGradientEnabled
+                    /// Path: BaseShader/BlendColor2D/AnimatedGradient/Enabled
+                    /// </remarks>
+                    public const string Enabled = "BaseShader/BlendColor2D/AnimatedGradient/Enabled";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Float
@@ -529,20 +529,6 @@ namespace Game.MaterialFx.Generated
                     public const string NoiseOffset = "BaseShader/BlendColor2D/AnimatedGradient/NoiseOffset";
                     /// <remarks>
                     /// Sender: BaseShader
-                    /// ValueType: Int
-                    /// ShaderPropertyName: _BlendColor2DAnimatedGradientPatternType
-                    /// Path: BaseShader/BlendColor2D/AnimatedGradient/PatternType
-                    /// </remarks>
-                    public const string PatternType = "BaseShader/BlendColor2D/AnimatedGradient/PatternType";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _BlendColor2DAnimatedGradientPatternContrast
-                    /// Path: BaseShader/BlendColor2D/AnimatedGradient/PatternContrast
-                    /// </remarks>
-                    public const string PatternContrast = "BaseShader/BlendColor2D/AnimatedGradient/PatternContrast";
-                    /// <remarks>
-                    /// Sender: BaseShader
                     /// ValueType: Float
                     /// ShaderPropertyName: _BlendColor2DAnimatedGradientNoiseScale
                     /// Path: BaseShader/BlendColor2D/AnimatedGradient/NoiseScale
@@ -562,6 +548,27 @@ namespace Game.MaterialFx.Generated
                     /// Path: BaseShader/BlendColor2D/AnimatedGradient/Octaves
                     /// </remarks>
                     public const string Octaves = "BaseShader/BlendColor2D/AnimatedGradient/Octaves";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _BlendColor2DAnimatedGradientPatternContrast
+                    /// Path: BaseShader/BlendColor2D/AnimatedGradient/PatternContrast
+                    /// </remarks>
+                    public const string PatternContrast = "BaseShader/BlendColor2D/AnimatedGradient/PatternContrast";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Int
+                    /// ShaderPropertyName: _BlendColor2DAnimatedGradientPatternType
+                    /// Path: BaseShader/BlendColor2D/AnimatedGradient/PatternType
+                    /// </remarks>
+                    public const string PatternType = "BaseShader/BlendColor2D/AnimatedGradient/PatternType";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _BlendColor2DAnimatedGradientPixelSize
+                    /// Path: BaseShader/BlendColor2D/AnimatedGradient/PixelSize
+                    /// </remarks>
+                    public const string PixelSize = "BaseShader/BlendColor2D/AnimatedGradient/PixelSize";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Float
@@ -1795,18 +1802,18 @@ namespace Game.MaterialFx.Generated
                 {
                     /// <remarks>
                     /// Sender: BaseShader
-                    /// ValueType: Bool
-                    /// ShaderPropertyName: _OutlineAnimatedGradientEnabled
-                    /// Path: BaseShader/Outline/AnimatedGradient/Enabled
-                    /// </remarks>
-                    public const string Enabled = "BaseShader/Outline/AnimatedGradient/Enabled";
-                    /// <remarks>
-                    /// Sender: BaseShader
                     /// ValueType: Float
                     /// ShaderPropertyName: _OutlineAnimatedGradientCellSharpness
                     /// Path: BaseShader/Outline/AnimatedGradient/CellSharpness
                     /// </remarks>
                     public const string CellSharpness = "BaseShader/Outline/AnimatedGradient/CellSharpness";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Bool
+                    /// ShaderPropertyName: _OutlineAnimatedGradientEnabled
+                    /// Path: BaseShader/Outline/AnimatedGradient/Enabled
+                    /// </remarks>
+                    public const string Enabled = "BaseShader/Outline/AnimatedGradient/Enabled";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Float
@@ -1865,20 +1872,6 @@ namespace Game.MaterialFx.Generated
                     public const string NoiseOffset = "BaseShader/Outline/AnimatedGradient/NoiseOffset";
                     /// <remarks>
                     /// Sender: BaseShader
-                    /// ValueType: Int
-                    /// ShaderPropertyName: _OutlineAnimatedGradientPatternType
-                    /// Path: BaseShader/Outline/AnimatedGradient/PatternType
-                    /// </remarks>
-                    public const string PatternType = "BaseShader/Outline/AnimatedGradient/PatternType";
-                    /// <remarks>
-                    /// Sender: BaseShader
-                    /// ValueType: Float
-                    /// ShaderPropertyName: _OutlineAnimatedGradientPatternContrast
-                    /// Path: BaseShader/Outline/AnimatedGradient/PatternContrast
-                    /// </remarks>
-                    public const string PatternContrast = "BaseShader/Outline/AnimatedGradient/PatternContrast";
-                    /// <remarks>
-                    /// Sender: BaseShader
                     /// ValueType: Float
                     /// ShaderPropertyName: _OutlineAnimatedGradientNoiseScale
                     /// Path: BaseShader/Outline/AnimatedGradient/NoiseScale
@@ -1898,6 +1891,20 @@ namespace Game.MaterialFx.Generated
                     /// Path: BaseShader/Outline/AnimatedGradient/Octaves
                     /// </remarks>
                     public const string Octaves = "BaseShader/Outline/AnimatedGradient/Octaves";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Float
+                    /// ShaderPropertyName: _OutlineAnimatedGradientPatternContrast
+                    /// Path: BaseShader/Outline/AnimatedGradient/PatternContrast
+                    /// </remarks>
+                    public const string PatternContrast = "BaseShader/Outline/AnimatedGradient/PatternContrast";
+                    /// <remarks>
+                    /// Sender: BaseShader
+                    /// ValueType: Int
+                    /// ShaderPropertyName: _OutlineAnimatedGradientPatternType
+                    /// Path: BaseShader/Outline/AnimatedGradient/PatternType
+                    /// </remarks>
+                    public const string PatternType = "BaseShader/Outline/AnimatedGradient/PatternType";
                     /// <remarks>
                     /// Sender: BaseShader
                     /// ValueType: Float
@@ -2333,12 +2340,24 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.NoiseStrength,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.NoiseType,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.Progress,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.CellSharpness,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Direction,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Enabled,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Gain,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Lacunarity,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.LoopSeconds,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Octaves,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Offset,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.PatternContrast,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.PatternType,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.PulseAmplitude,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.PulseSpeed,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.RotationSpeed,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.Speed,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpDirection,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpPatternType,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpScale,
+            MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpSpeed,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Burn.AnimatedNoise.WarpStrength,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Circle.Clockwise,
             MaterialFxKeys.BaseShader.AdvancedFade2D.Circle.StartAngleDeg,
@@ -2361,16 +2380,30 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.BlendColor2D.BlendSoftness,
             MaterialFxKeys.BaseShader.BlendColor2D.Color,
             MaterialFxKeys.BaseShader.BlendColor2D.Enabled,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.CellSharpness,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.Enabled,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.Gain,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.HueAmplitude,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.Lacunarity,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.LightnessAmplitude,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.LoopSeconds,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.MasterStrength,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.NoiseDirection,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.NoiseOffset,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.NoiseScale,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.NoiseSpeed,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.Octaves,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PatternContrast,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PatternType,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PixelSize,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PulseAmplitude,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PulseSpeed,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.RotationSpeed,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.SaturationAmplitude,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpDirection,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpPatternType,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpScale,
+            MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpSpeed,
             MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.WarpStrength,
             MaterialFxKeys.BaseShader.Common.Flip,
             MaterialFxKeys.BaseShader.Common.SpriteTexelSizeLocal,
@@ -2520,16 +2553,29 @@ namespace Game.MaterialFx.Generated
             MaterialFxKeys.BaseShader.Outline.Width,
             MaterialFxKeys.BaseShader.Outline.WidthUnit,
             MaterialFxKeys.BaseShader.Outline.ZTestMode,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.CellSharpness,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.Enabled,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.Gain,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.HueAmplitude,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.Lacunarity,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.LightnessAmplitude,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.LoopSeconds,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.MasterStrength,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.NoiseDirection,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.NoiseOffset,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.NoiseScale,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.NoiseSpeed,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.Octaves,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.PatternContrast,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.PatternType,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.PulseAmplitude,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.PulseSpeed,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.RotationSpeed,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.SaturationAmplitude,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpDirection,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpPatternType,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpScale,
+            MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpSpeed,
             MaterialFxKeys.BaseShader.Outline.AnimatedGradient.WarpStrength,
             MaterialFxKeys.BaseShader.Pixelation.AlphaSteps,
             MaterialFxKeys.BaseShader.Pixelation.BlockScreenSize,

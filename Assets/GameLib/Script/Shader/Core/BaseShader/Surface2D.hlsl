@@ -246,6 +246,7 @@ CBUFFER_START(UnityPerMaterial)
     float  _BlendColor2DAnimatedGradientHueAmplitude;
     float  _BlendColor2DAnimatedGradientSaturationAmplitude;
     float  _BlendColor2DAnimatedGradientLightnessAmplitude;
+    float  _BlendColor2DAnimatedGradientPixelSize;
 
     // --- ColorRamp (v3.0) ---
     // ★ BaseShader.shader のプロパティ名と一致させる
@@ -692,7 +693,8 @@ inline Surface2DContext MakeSurface2DContext()
         _BlendColor2DAnimatedGradientPatternContrast,
         _BlendColor2DAnimatedGradientHueAmplitude,
         _BlendColor2DAnimatedGradientSaturationAmplitude,
-        _BlendColor2DAnimatedGradientLightnessAmplitude
+        _BlendColor2DAnimatedGradientLightnessAmplitude,
+        _BlendColor2DAnimatedGradientPixelSize
     );
 
     // AdvancedFade2D パラメータ

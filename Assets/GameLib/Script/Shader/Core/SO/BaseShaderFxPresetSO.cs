@@ -1112,6 +1112,12 @@ namespace Game.MaterialFx
         [Min(0f)]
         public float blendColor2DAnimatedGradientLightnessAmplitude = 0.015f;
 
+        [TitleGroup("Blend Color")]
+        [ShowIf(nameof(ShowBlendColorAnimatedGradientSettings))]
+        [LabelText("Pixel Size")]
+        [Min(1f)]
+        public float blendColor2DAnimatedGradientPixelSize = 1f;
+
         // --- AdvancedFade2D ---
         [TitleGroup("AdvancedFade", "ワイプ / 境界グロー / Burn")]
         [ToggleLeft]
@@ -1621,6 +1627,7 @@ namespace Game.MaterialFx
                     SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.HueAmplitude, MakeFloat(blendColor2DAnimatedGradientHueAmplitude));
                     SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.SaturationAmplitude, MakeFloat(blendColor2DAnimatedGradientSaturationAmplitude));
                     SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.LightnessAmplitude, MakeFloat(blendColor2DAnimatedGradientLightnessAmplitude));
+                    SetAutoEntry(MaterialFxKeys.BaseShader.BlendColor2D.AnimatedGradient.PixelSize, MakeFloat(blendColor2DAnimatedGradientPixelSize));
                 }
             }
 

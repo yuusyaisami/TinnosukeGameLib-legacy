@@ -233,6 +233,7 @@ Shader "Game/Base/Surface2D_Lit_Fx"
         _BlendColor2DAnimatedGradientHueAmplitude("BlendColor2D Animated Gradient Hue Amplitude", Float) = 0.0025
         _BlendColor2DAnimatedGradientSaturationAmplitude("BlendColor2D Animated Gradient Saturation Amplitude", Float) = 0.008
         _BlendColor2DAnimatedGradientLightnessAmplitude("BlendColor2D Animated Gradient Lightness Amplitude", Float) = 0.015
+        _BlendColor2DAnimatedGradientPixelSize("BlendColor2D Animated Gradient Pixel Size", Float) = 1
 
         // ═══════════════════════════════════════════════════════════════════════════
         // Composite System (BaseShader-CompositeSystem-v2.0 準拠)
