@@ -106,31 +106,32 @@ Material:
     - _AdvancedFade2DGlowIntensity: 0.79
     - _AdvancedFade2DGlowRange: 3.1
     - _AdvancedFade2DSoft: 0.047
-    - _BlendColor2DAnimatedGradientCellSharpness: 1.5
+    - _BlendColor2DAnimatedGradientCellSharpness: 1.58
     - _BlendColor2DAnimatedGradientEnabled: 0
-    - _BlendColor2DAnimatedGradientGain: 0.5
-    - _BlendColor2DAnimatedGradientHueAmplitude: 0.14
-    - _BlendColor2DAnimatedGradientLacunarity: 0.88
-    - _BlendColor2DAnimatedGradientLightnessAmplitude: 0.015
+    - _BlendColor2DAnimatedGradientGain: 0.75
+    - _BlendColor2DAnimatedGradientHueAmplitude: 0.15
+    - _BlendColor2DAnimatedGradientLacunarity: 1.11
+    - _BlendColor2DAnimatedGradientLightnessAmplitude: 0.06
     - _BlendColor2DAnimatedGradientLoopSeconds: 0
     - _BlendColor2DAnimatedGradientMasterStrength: 1
-    - _BlendColor2DAnimatedGradientNoiseScale: 6
-    - _BlendColor2DAnimatedGradientNoiseSpeed: 0.2
-    - _BlendColor2DAnimatedGradientOctaves: 12.2
+    - _BlendColor2DAnimatedGradientNoiseScale: 1.17
+    - _BlendColor2DAnimatedGradientNoiseSpeed: 0.5
+    - _BlendColor2DAnimatedGradientOctaves: 12.3
     - _BlendColor2DAnimatedGradientPatternContrast: 1
-    - _BlendColor2DAnimatedGradientPatternType: 2
-    - _BlendColor2DAnimatedGradientPulseAmplitude: -0.74
-    - _BlendColor2DAnimatedGradientPulseSpeed: 1
-    - _BlendColor2DAnimatedGradientRotationSpeed: 0
+    - _BlendColor2DAnimatedGradientPatternType: 2.17
+    - _BlendColor2DAnimatedGradientPixelSize: 1
+    - _BlendColor2DAnimatedGradientPulseAmplitude: 0.22
+    - _BlendColor2DAnimatedGradientPulseSpeed: 1.03
+    - _BlendColor2DAnimatedGradientRotationSpeed: 0.1
     - _BlendColor2DAnimatedGradientSaturationAmplitude: 0.45
-    - _BlendColor2DAnimatedGradientWarpPatternType: 10
+    - _BlendColor2DAnimatedGradientWarpPatternType: 1
     - _BlendColor2DAnimatedGradientWarpScale: 2
     - _BlendColor2DAnimatedGradientWarpSpeed: 0.35
     - _BlendColor2DAnimatedGradientWarpStrength: 0.1
     - _BlendColor2DBlendGradDirection: 0
     - _BlendColor2DBlendGradationAmount: 1
     - _BlendColor2DBlendIntensity: 1
-    - _BlendColor2DBlendMode: 4
+    - _BlendColor2DBlendMode: 1
     - _BlendColor2DBlendSoftness: 1
     - _BlendColor2DEnabled: 0
     - _CausticsEnabled: 0
@@ -341,10 +342,10 @@ Material:
     - _AtlasSlot2: {r: -1, g: -1, b: 0, a: 0}
     - _AtlasSlot3: {r: -1, g: -1, b: 0, a: 0}
     - _AtlasSlot4: {r: -1, g: -1, b: 0, a: 0}
-    - _BlendColor2DAnimatedGradientNoiseDirection: {r: 1, g: 0, b: 0, a: 0}
+    - _BlendColor2DAnimatedGradientNoiseDirection: {r: 1.11, g: 0.4, b: 0, a: 0}
     - _BlendColor2DAnimatedGradientNoiseOffset: {r: 0, g: 0, b: 0, a: 0}
     - _BlendColor2DAnimatedGradientWarpDirection: {r: 1.59, g: 2.07, b: 0, a: 0}
-    - _BlendColor2DColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BlendColor2DColor: {r: 0.40566027, g: 1, b: 0.43794954, a: 1}
     - _CausticsColor: {r: 1, g: 1, b: 1, a: 1}
     - _CausticsScrollA: {r: 0.1, g: 0.05, b: 0, a: 0}
     - _CausticsScrollB: {r: -0.08, g: 0.06, b: 0, a: 0}

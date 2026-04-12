@@ -14,6 +14,7 @@
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/BlendModes.hlsl"
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/ColorSpaceUtils.hlsl"
 #include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/AnimatedNoise2D.hlsl"
+#include "Assets/GameLib/Script/Shader/Core/BaseShader/Features/Pixelation2D.hlsl"
 
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -61,6 +62,7 @@ struct BlendColor2DParams
     float animatedGradientHueAmplitude;
     float animatedGradientSaturationAmplitude;
     float animatedGradientLightnessAmplitude;
+    float animatedGradientPixelSize;
 };
 
 // ---------------------------------------------------------------------------
@@ -97,7 +99,8 @@ inline BlendColor2DParams MakeBlendColor2DParams(
     float animatedGradientPatternContrast,
     float animatedGradientHueAmplitude,
     float animatedGradientSaturationAmplitude,
-    float animatedGradientLightnessAmplitude)
+    float animatedGradientLightnessAmplitude,
+    float animatedGradientPixelSize)
 {
     BlendColor2DParams p = (BlendColor2DParams)0;
     p.enabled = enabled;
@@ -131,6 +134,7 @@ inline BlendColor2DParams MakeBlendColor2DParams(
     p.animatedGradientHueAmplitude = animatedGradientHueAmplitude;
     p.animatedGradientSaturationAmplitude = animatedGradientSaturationAmplitude;
     p.animatedGradientLightnessAmplitude = animatedGradientLightnessAmplitude;
+    p.animatedGradientPixelSize = max(animatedGradientPixelSize, 1.0);
     return p;
 }
 
@@ -169,7 +173,18 @@ inline BlendColor2DParams MakeDefaultBlendColor2DParams()
     p.animatedGradientHueAmplitude = 0.0025;
     p.animatedGradientSaturationAmplitude = 0.008;
     p.animatedGradientLightnessAmplitude = 0.015;
+    p.animatedGradientPixelSize = 1;
     return p;
+}
+
+inline float2 BlendColor2D_ApplyAnimatedGradientPixelation(float2 uvLocal, float pixelSize)
+{
+    if (pixelSize <= 1.0)
+        return uvLocal;
+
+    float2 atlasUV = SpriteLocalUVToAtlasUV(uvLocal);
+    atlasUV = Pixelation2D_ApplyUV_Texel_SpriteLocal(atlasUV, float2(pixelSize, pixelSize));
+    return AtlasUVToSpriteLocalUV(atlasUV);
 }
 
 inline AnimatedNoise2DMotionParams BlendColor2D_MakeAnimatedGradientNoiseParams(BlendColor2DParams p)
@@ -203,13 +218,14 @@ inline half3 ResolveBlendColor2DAnimatedColor(Surface2D s, BlendColor2DParams p)
     if (p.animatedGradientEnabled < 0.5 || p.animatedGradientMasterStrength <= 1e-5)
         return color;
 
+    float2 uvLocal = BlendColor2D_ApplyAnimatedGradientPixelation(s.uvLocal, p.animatedGradientPixelSize);
     AnimatedNoise2DMotionParams motion = BlendColor2D_MakeAnimatedGradientNoiseParams(p);
     float time = _Time.y;
     half3 hsl = RGBtoHSL(saturate(color));
     float hueWobble;
     float satWobble;
     float lightWobble;
-    AnimatedNoise2D_SampleSignedTriplet(s.uvLocal, motion, time, hueWobble, satWobble, lightWobble);
+    AnimatedNoise2D_SampleSignedTriplet(uvLocal, motion, time, hueWobble, satWobble, lightWobble);
     float master = p.animatedGradientMasterStrength;
 
     hsl.x = frac(hsl.x + (half)(hueWobble * p.animatedGradientHueAmplitude * master));

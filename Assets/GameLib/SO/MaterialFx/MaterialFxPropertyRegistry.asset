@@ -1189,6 +1189,18 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
+  - id: a4f30e9c2b4d4c1b8a5f7e6d3c2b1a09
+    parentId: 3b568db708262fdcfbfd49dcadfd0dbc
+    name: PixelSize
+    isFolder: 0
+    description: 
+    stableKey: BaseShader/BlendColor2D/AnimatedGradient/PixelSize
+    sender: 0
+    valueType: 0
+    shaderPropertyName: _BlendColor2DAnimatedGradientPixelSize
+    enumDefinition: {fileID: 0}
+    rangeEnabled: 0
+    rangeMinMax: {x: 0, y: 1}
   - id: 01110208017a2ba69278191f05263884
     parentId: 3b568db708262fdcfbfd49dcadfd0dbc
     name: LoopSeconds
@@ -3769,7 +3781,6 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
-  csvFile: {fileID: 0}
   - id: 48af1293abff6fc9090d9084af7f2358
     parentId: 3b568db708262fdcfbfd49dcadfd0dbc
     name: PatternType
@@ -4226,3 +4237,4 @@ MonoBehaviour:
     enumDefinition: {fileID: 0}
     rangeEnabled: 0
     rangeMinMax: {x: 0, y: 1}
+  csvFile: {fileID: 0}
