@@ -587,10 +587,7 @@ namespace Game.Conversation.Editor
 
                 case ConversationMessageNodePreset messageNode:
                     {
-                        var speaker = messageNode.CharacterDataId > 0
-                            ? $"CharacterId: {messageNode.CharacterDataId}"
-                            : "Speaker: (none)";
-                        return speaker;
+                        return BuildMessageNodeBodyPreview(messageNode);
                     }
 
                 case ConversationChoiceNodePreset choiceNode:
@@ -1888,6 +1885,12 @@ namespace Game.Conversation.Editor
             {
                 EditorGUILayout.LabelField($"Selected Node: {selectedNodeId}", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("Type", node.GetType().Name);
+                if (node is ConversationMessageNodePreset messageNode)
+                {
+                    EditorGUILayout.LabelField("Preview", $"{node.DebugViewText}, {BuildMessageNodeBodyPreview(messageNode)}");
+                    return;
+                }
+
                 EditorGUILayout.LabelField("Preview", node.DebugViewText);
                 return;
             }
@@ -2339,6 +2342,28 @@ namespace Game.Conversation.Editor
             }
 
             return false;
+        }
+
+        static string BuildMessageNodeBodyPreview(ConversationMessageNodePreset messageNode)
+        {
+            var bodyText = messageNode.BodyText.GetOrDefaultWithoutContext(string.Empty);
+            if (string.IsNullOrWhiteSpace(bodyText))
+                return "Msg: (empty)";
+
+            return $"Msg: \"{EscapePreviewText(bodyText.Trim())}\"";
+        }
+
+        static string EscapePreviewText(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            return text
+                .Replace("\\", "\\\\")
+                .Replace("\r\n", "\\n")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\n")
+                .Replace("\"", "\\\"");
         }
 
         void RecordOwnerUndo(string label)

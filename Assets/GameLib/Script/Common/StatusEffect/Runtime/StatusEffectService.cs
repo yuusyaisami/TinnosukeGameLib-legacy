@@ -82,6 +82,10 @@ namespace Game.StatusEffect
         internal int GlobalMaxCount => _globalMaxCount;
         internal int GlobalUsedCount => _globalMaxCount > 0 && _globalCurrentCount >= 0 ? Mathf.Max(0, _globalMaxCount - _globalCurrentCount) : 0;
         internal bool GlobalCanUse => _globalCanUse;
+        internal bool HasInitializedGlobalState => _hasInitializedGlobalState;
+        internal bool IsGlobalLifetimeEnabled => _isGlobalLifetimeEnabled;
+        internal bool IsGlobalUseCooldownEnabled => _isGlobalUseCooldownEnabled;
+        internal bool IsGlobalCountEnabled => _isGlobalCountEnabled;
         internal bool IsGlobalLifetimeExpired => _globalLifetimeTotal >= 0f && _globalLifetimeRemaining <= 0f;
         internal bool IsGlobalUseCooldownActive => _globalCooldownRemaining > 0f;
         internal bool IsGlobalCountExhausted => _globalMaxCount > 0 && _globalCurrentCount == 0;
@@ -465,6 +469,26 @@ namespace Game.StatusEffect
                 if (runtime != null && filter.Matches(runtime))
                     output.Add(runtime.ToState());
             }
+        }
+
+        public StatusEffectGlobalRuntimeState GetDebugState()
+        {
+            return new StatusEffectGlobalRuntimeState(
+                _hasInitializedGlobalState,
+                _isGlobalLifetimeEnabled,
+                _globalLifetimeRemaining,
+                _globalLifetimeTotal,
+                IsGlobalLifetimeExpired,
+                _isGlobalUseCooldownEnabled,
+                _globalCooldownRemaining,
+                _globalCooldownTotal,
+                IsGlobalUseCooldownActive,
+                _isGlobalCountEnabled,
+                _globalCurrentCount,
+                _globalMaxCount,
+                GlobalUsedCount,
+                IsGlobalCountExhausted,
+                _globalCanUse);
         }
 
         public void Tick()

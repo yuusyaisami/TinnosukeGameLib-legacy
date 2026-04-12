@@ -125,6 +125,7 @@ namespace Game.StatusEffect
             public string RuntimeTag;
             public string DisplayName;
             public EffectType Type;
+            public float TotalDuration;
             public float RemainingTime;
             public float RemainingUseCooldown;
             public float IntensityA;
@@ -139,16 +140,31 @@ namespace Game.StatusEffect
             public bool IsApplied;
             public bool IsActive;
             public bool IsUseBlocked;
+            public bool UsesServiceGlobalLifetime;
+            public bool UsesServiceGlobalUseCooldown;
+            public bool UsesServiceGlobalCount;
+            public bool UsesAnyServiceGlobalUseState;
             public int UsedCount;
             public int RemainingUseCount;
             public int MaxUseCount;
+            public int SortOrder;
         }
 
-        [Header("Debug")]
-        [SerializeField, ReadOnly]
+        [Header("Runtime Debug")]
+        [SerializeField, ReadOnly, LabelText("Debug Status")]
+        string _debugStatus = "(unbound)";
+
+        [SerializeField, ReadOnly, LabelText("Registered Effect Count")]
+        int _registeredEffectCount;
+
+        [SerializeField, ReadOnly, LabelText("Active Effect Count")]
         int _activeEffectCount;
 
-        [SerializeField]
+        [SerializeField, ReadOnly, LabelText("Global Runtime State")]
+        StatusEffectGlobalRuntimeState _globalRuntime;
+
+        [SerializeField, ReadOnly, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false, DraggableItems = false)]
+        [LabelText("Runtime Effects")]
         List<EffectDebugEntry> _activeEffects = new();
 
         [Header("Global Runtime")]
@@ -209,6 +225,27 @@ namespace Game.StatusEffect
         IScopeNode _scopeNode;
         float _nextDebugRefreshTime;
 
+        static int CompareEffectState(EffectState left, EffectState right)
+        {
+            var activeCompare = right.IsActive.CompareTo(left.IsActive);
+            if (activeCompare != 0)
+                return activeCompare;
+
+            var sortOrderCompare = left.SortOrder.CompareTo(right.SortOrder);
+            if (sortOrderCompare != 0)
+                return sortOrderCompare;
+
+            var displayNameCompare = string.Compare(left.DisplayName, right.DisplayName, StringComparison.Ordinal);
+            if (displayNameCompare != 0)
+                return displayNameCompare;
+
+            var effectIdCompare = string.Compare(left.EffectId, right.EffectId, StringComparison.Ordinal);
+            if (effectIdCompare != 0)
+                return effectIdCompare;
+
+            return string.Compare(left.InstanceId, right.InstanceId, StringComparison.Ordinal);
+        }
+
         public IStatusEffectService StatusEffectService => _statusEffectService;
         public DynamicValue<StatusEffectGlobalLifetimeSettings> GlobalLifetimeSettingsValue => _globalLifetimeSettings;
         public DynamicValue<StatusEffectGlobalUseCooldownSettings> GlobalUseCooldownSettingsValue => _globalUseCooldownSettings;
@@ -237,7 +274,21 @@ namespace Game.StatusEffect
             var resolver = scope?.Resolver;
             _scopeNode = scope;
             if (resolver != null && resolver.TryResolve<IStatusEffectService>(out var service) && service != null)
+            {
                 _statusEffectService = service;
+                _debugStatus = "(bound)";
+                _globalRuntime = _statusEffectService.GetDebugState();
+                RefreshDebugView();
+            }
+            else
+            {
+                _debugStatus = "(service missing)";
+                _globalRuntime = StatusEffectGlobalRuntimeState.CreateUnavailable(_debugStatus);
+                _registeredEffectCount = 0;
+                _activeEffectCount = 0;
+                _activeEffects.Clear();
+                _tempStates.Clear();
+            }
             _nextDebugRefreshTime = 0f;
         }
 
@@ -247,9 +298,12 @@ namespace Game.StatusEffect
             _ = isReset;
             _statusEffectService = null;
             _scopeNode = null;
+            _debugStatus = "(unbound)";
             _activeEffects.Clear();
             _tempStates.Clear();
+            _registeredEffectCount = 0;
             _activeEffectCount = 0;
+            _globalRuntime = StatusEffectGlobalRuntimeState.CreateUnavailable(_debugStatus);
             _nextDebugRefreshTime = 0f;
         }
 
@@ -262,13 +316,36 @@ namespace Game.StatusEffect
                 return;
 
             _nextDebugRefreshTime = Time.unscaledTime + 0.2f;
-            _statusEffectService.GetActiveEffectStates(_tempStates);
-            _activeEffectCount = _tempStates.Count;
+            RefreshDebugView();
+        }
+
+        void RefreshDebugView()
+        {
+            var service = _statusEffectService;
+            if (service == null)
+            {
+                _debugStatus = _scopeNode == null ? "(unbound)" : "(service missing)";
+                _registeredEffectCount = 0;
+                _activeEffectCount = 0;
+                _globalRuntime = StatusEffectGlobalRuntimeState.CreateUnavailable(_debugStatus);
+                _activeEffects.Clear();
+                _tempStates.Clear();
+                return;
+            }
+
+            _debugStatus = "(bound)";
+            service.GetStates(_tempStates, StatusEffectRuntimeFilter.All);
+            _tempStates.Sort(CompareEffectState);
+            _registeredEffectCount = _tempStates.Count;
+            _activeEffectCount = 0;
             _activeEffects.Clear();
 
             for (int i = 0; i < _tempStates.Count; i++)
             {
                 var state = _tempStates[i];
+                if (state.IsActive)
+                    _activeEffectCount++;
+
                 _activeEffects.Add(new EffectDebugEntry
                 {
                     EffectId = state.EffectId,
@@ -276,6 +353,7 @@ namespace Game.StatusEffect
                     RuntimeTag = state.RuntimeTag,
                     DisplayName = state.DisplayName,
                     Type = state.Type,
+                    TotalDuration = state.TotalDuration,
                     RemainingTime = state.RemainingTime,
                     RemainingUseCooldown = state.RemainingUseCooldown,
                     IntensityA = state.IntensityA,
@@ -290,11 +368,18 @@ namespace Game.StatusEffect
                     IsApplied = state.IsApplied,
                     IsActive = state.IsActive,
                     IsUseBlocked = state.IsUseBlocked,
+                    UsesServiceGlobalLifetime = state.UsesServiceGlobalLifetime,
+                    UsesServiceGlobalUseCooldown = state.UsesServiceGlobalUseCooldown,
+                    UsesServiceGlobalCount = state.UsesServiceGlobalCount,
+                    UsesAnyServiceGlobalUseState = state.UsesAnyServiceGlobalUseState,
                     UsedCount = state.UsedCount,
                     RemainingUseCount = state.RemainingUseCount,
-                    MaxUseCount = state.MaxUseCount
+                    MaxUseCount = state.MaxUseCount,
+                    SortOrder = state.SortOrder
                 });
             }
+
+            _globalRuntime = service.GetDebugState();
         }
 
 #if UNITY_EDITOR
@@ -325,6 +410,7 @@ namespace Game.StatusEffect
 
             var context = new SimpleDynamicContext(NullVarStore.Instance, _scopeNode);
             _statusEffectService.TryApply(request, context, out _);
+            RefreshDebugView();
         }
 
         [Button("Use All")]
@@ -334,6 +420,7 @@ namespace Game.StatusEffect
                 return;
 
             _statusEffectService?.Use(StatusEffectRuntimeFilter.All, _scopeNode);
+            RefreshDebugView();
         }
 
         [Button("Use Global")]
@@ -343,12 +430,14 @@ namespace Game.StatusEffect
                 return;
 
             _statusEffectService?.UseGlobal(_scopeNode);
+            RefreshDebugView();
         }
 
         [Button("Clear All Effects")]
         void DebugClearAll()
         {
             _statusEffectService?.ClearAll();
+            RefreshDebugView();
         }
 #endif
     }

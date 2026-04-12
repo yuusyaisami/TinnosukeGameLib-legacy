@@ -161,13 +161,17 @@ namespace Game.Commands.VNext
 
         public void AddRuntimeCommands(CommandListData? other)
         {
-            if (other == null || other._commands == null || other._commands.Count == 0)
+            if (other == null)
                 return;
 
-            _runtimeAppendedCommands ??= new List<ICommandSource>(other._commands.Count);
-            for (int i = 0; i < other._commands.Count; i++)
+            var count = other.Count;
+            if (count <= 0)
+                return;
+
+            _runtimeAppendedCommands ??= new List<ICommandSource>(count);
+            for (int i = 0; i < count; i++)
             {
-                var source = other._commands[i];
+                var source = other.GetAt(i);
                 if (source == null)
                     continue;
                 _runtimeAppendedCommands.Add(source);
@@ -178,16 +182,23 @@ namespace Game.Commands.VNext
         {
             _hasRuntimeOverride = true;
 
-            if (other == null || other._commands == null || other._commands.Count == 0)
+            if (other == null)
             {
                 _runtimeOverrideCommands = new List<ICommandSource>(0);
                 return;
             }
 
-            _runtimeOverrideCommands = new List<ICommandSource>(other._commands.Count);
-            for (int i = 0; i < other._commands.Count; i++)
+            var count = other.Count;
+            if (count <= 0)
             {
-                var source = other._commands[i];
+                _runtimeOverrideCommands = new List<ICommandSource>(0);
+                return;
+            }
+
+            _runtimeOverrideCommands = new List<ICommandSource>(count);
+            for (int i = 0; i < count; i++)
+            {
+                var source = other.GetAt(i);
                 if (source == null)
                     continue;
                 _runtimeOverrideCommands.Add(source);
@@ -220,6 +231,14 @@ namespace Game.Commands.VNext
             copy._debugFieldPath = _debugFieldPath;
             copy._debugAssetPath = _debugAssetPath;
             copy._functionName = _functionName;
+
+            if (_runtimeAppendedCommands != null && _runtimeAppendedCommands.Count > 0)
+                copy._runtimeAppendedCommands = new List<ICommandSource>(_runtimeAppendedCommands);
+
+            if (_runtimeOverrideCommands != null && _runtimeOverrideCommands.Count > 0)
+                copy._runtimeOverrideCommands = new List<ICommandSource>(_runtimeOverrideCommands);
+
+            copy._hasRuntimeOverride = _hasRuntimeOverride;
             return copy;
         }
 

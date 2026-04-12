@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Commands.VNext;
 using Game.Common;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -47,6 +48,17 @@ namespace Game.Channel
             DynamicValue<GridObjectChannelVisualizerPreset>.FromSource(
                 new ManagedRefLiteralSource<GridObjectChannelVisualizerPreset>(new GridObjectChannelVisualizerPreset()));
 
+        [LabelText("Force Choice Compatible")]
+        [Tooltip("true のとき choice session 用に visualizer preset の choice input を有効化します。")]
+        [SerializeField]
+        bool _forceChoiceCompatible;
+
+        [LabelText("Spawn Commands")]
+        [Tooltip("bind 実行時に visualizer preset の SpawnCommands へ追加する command list です。")]
+        [SerializeField]
+        [CommandListFunctionName("GridObjectChannel.Bind.OnSpawn")]
+        CommandListData _spawnCommands = new();
+
         public bool OverridePlayerPreset
         {
             get => _overridePlayerPreset;
@@ -83,6 +95,18 @@ namespace Game.Channel
             set => _visualizerPresetValue = value;
         }
 
+        public bool ForceChoiceCompatible
+        {
+            get => _forceChoiceCompatible;
+            set => _forceChoiceCompatible = value;
+        }
+
+        public CommandListData SpawnCommands
+        {
+            get => _spawnCommands;
+            set => _spawnCommands = value ?? new CommandListData();
+        }
+
         public GridObjectChannelBindRequest Clone()
         {
             return new GridObjectChannelBindRequest
@@ -93,6 +117,8 @@ namespace Game.Channel
                 _layoutPresetValue = _layoutPresetValue,
                 _overrideVisualizerPreset = _overrideVisualizerPreset,
                 _visualizerPresetValue = _visualizerPresetValue,
+                _forceChoiceCompatible = _forceChoiceCompatible,
+                _spawnCommands = _spawnCommands?.CreateRuntimeCopy() ?? new CommandListData(),
             };
         }
     }

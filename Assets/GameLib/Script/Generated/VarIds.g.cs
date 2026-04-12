@@ -3819,6 +3819,19 @@ namespace Game.Vars.Generated
                         }
                     }
 
+                    public static partial class Choice
+                    {
+                        /// <remarks>
+                        /// Path: GameLib/UI/DialogueChannel/Choice/DisplayName
+                        /// StableKey: DisplayName
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/DialogueChannel/Choice/DisplayName
+                        /// StableKey: DisplayName
+                        /// </remarks>
+                        public const int DisplayName = 101198;
+                    }
+
                     public static partial class DialogueLayout
                     {
                         /// <summary>Bottom, Center, Top</summary>
@@ -4835,6 +4848,7 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.DialogueChannel.Character.Element.Anchor,
             VarIds.GameLib.UI.DialogueChannel.Character.Element.IconAnimPreset,
             VarIds.GameLib.UI.DialogueChannel.Character.Element.Name,
+            VarIds.GameLib.UI.DialogueChannel.Choice.DisplayName,
             VarIds.GameLib.UI.DialogueChannel.DialogueLayout.RootPositionType,
             VarIds.GameLib.UI.TraitList.Item.column,
             VarIds.GameLib.UI.TraitList.Item.holderKey,

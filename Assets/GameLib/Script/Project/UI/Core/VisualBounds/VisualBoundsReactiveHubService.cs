@@ -387,7 +387,16 @@ namespace Game.UI
             }
 
             if (!outputPreset.ApplySizeDelta)
+            {
+                if (_mb.HubSettings.EnableDebugLog)
+                {
+                    Trace(
+                        $"Apply rect output done. tag={tag} target={targetRect.name} compatible={compatibleWithRoot} " +
+                        $"anchoredPosition={targetRect.anchoredPosition} sizeDelta={targetRect.sizeDelta} localRect={effectedLocalRect} worldCenter={effectedWorldBounds.center}");
+                }
+
                 return;
+            }
 
             if (compatibleWithRoot)
             {
@@ -404,6 +413,13 @@ namespace Game.UI
             }
 
             targetRect.sizeDelta = projectedSize;
+
+            if (_mb.HubSettings.EnableDebugLog)
+            {
+                Trace(
+                    $"Apply rect output done. tag={tag} target={targetRect.name} compatible={compatibleWithRoot} " +
+                    $"anchoredPosition={targetRect.anchoredPosition} sizeDelta={targetRect.sizeDelta} localRect={effectedLocalRect} worldCenter={effectedWorldBounds.center}");
+            }
         }
 
         bool TryApplyAnchoredPositionFromWorldCenter(RectTransform targetRect, in Vector3 worldCenter)

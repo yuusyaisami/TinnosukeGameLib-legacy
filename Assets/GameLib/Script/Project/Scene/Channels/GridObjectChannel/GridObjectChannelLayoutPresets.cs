@@ -239,6 +239,28 @@ namespace Game.Channel
                 _relayoutMotion = _relayoutMotion?.CreateRuntimeCopy() ?? new GridObjectChannelMotionPreset(),
             };
         }
+
+        public GridObjectChannelLayoutPreset CreateChoiceRuntimeCopy(int itemCount)
+        {
+            var runtimeCopy = CreateRuntimeCopy();
+            var safeCount = Mathf.Max(1, itemCount);
+            if (runtimeCopy.Order == GridObjectChannelOrder.ColumnMajor)
+            {
+                runtimeCopy._rows = DynamicValueExtensions.FromLiteral(1);
+                runtimeCopy._columns = DynamicValueExtensions.FromLiteral(safeCount);
+            }
+            else
+            {
+                runtimeCopy._rows = DynamicValueExtensions.FromLiteral(safeCount);
+                runtimeCopy._columns = DynamicValueExtensions.FromLiteral(1);
+            }
+            return runtimeCopy;
+        }
+
+        public override string ToString()
+        {
+            return $"LayoutPreset(Range={RangeSourceMode}, Rows={Rows.GetOrDefaultWithoutContext(1)}, Columns={Columns.GetOrDefaultWithoutContext(1)}, Order={Order}, AreaAlign={AreaHorizontalAlignment}/{AreaVerticalAlignment}, ItemAlign={ItemHorizontalAlignment}/{ItemVerticalAlignment}, RowSpacing={RowSpacing}, ColumnSpacing={ColumnSpacing}, SpawnAnchor={SpawnAnchorMode}, SpawnOffset={SpawnOffset})";
+        }
     }
 
     [CreateAssetMenu(

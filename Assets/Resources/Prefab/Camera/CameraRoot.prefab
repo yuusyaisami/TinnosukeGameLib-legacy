@@ -19,7 +19,6 @@ GameObject:
   - component: {fileID: 6555489884228042963}
   - component: {fileID: 4698840263569056865}
   - component: {fileID: 5374939568041709761}
-  - component: {fileID: 427425396839441572}
   - component: {fileID: 7656163090949361769}
   - component: {fileID: 1389376501286495512}
   - component: {fileID: 8746446318027437256}
@@ -39,7 +38,7 @@ Transform:
   m_GameObject: {fileID: 3587969221000343246}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.46, y: -0.9, z: -0.009}
+  m_LocalPosition: {x: 3.46, y: -0.9, z: -20.009}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -62,6 +61,7 @@ MonoBehaviour:
   cameraTransform: {fileID: 1046952551252465959}
   cameraComponent: {fileID: 3793873472497823749}
   volume: {fileID: 1114813929003280263}
+  cameraTag: main
   moveChannelTag: camera
   runInLateUpdate: 1
   timeScaleBehavior: 0
@@ -98,7 +98,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
   enableDebugView: 0
   _debugView:
-    watchKeys: []
     editKey:
       Id: 0
       Name: 
@@ -159,8 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff87a7e7a0ffc3478a4f79d8cb3c5bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Profile.ProfileRegistryMB
-  _profilesFromInspector: []
-  _profileDefinitionsFromInspector: []
+  _profiles: []
   _resetOnAcquire: 1
   _clearOnRelease: 1
   _enableSaveInRuntimeScope: 0
@@ -186,8 +184,6 @@ MonoBehaviour:
   timeScaleBehavior: 0
   registerToDynamicRegistry: 1
   radius: 0
-  advanceOptions: 0
-  retryIntervalSeconds: 0.5
 --- !u!114 &4698840263569056865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,53 +232,17 @@ MonoBehaviour:
     queryVarId: 0
     writeEntries: []
   autoWriteTransformVars: 0
-  initializeBaseLocalVars: 0
-  reinitializeBaseLocalVarsOnAcquire: 1
-  baseLocalVarEntries: []
---- !u!114 &427425396839441572
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3587969221000343246}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f65a15917f8d3ce4ea073de9761a84a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.TransformSystem.TransformController
-  outputTarget: 1
-  targetTransform: {fileID: 2529265604302942540}
-  targetRectTransform: {fileID: 0}
-  targetRigidbody: {fileID: 0}
-  rigidbody2DVelocityMode: 0
-  rigidbody2DAdditiveControl:
-    Enabled: 0
-    AxisWeightPos: {x: 1, y: 1}
-    AxisWeightNeg: {x: 1, y: 1}
-    SpeedSoftLimitPos: {x: 0, y: 0}
-    SpeedSoftLimitNeg: {x: 0, y: 0}
-    SpeedHardLimitPos: {x: 0, y: 0}
-    SpeedHardLimitNeg: {x: 0, y: 0}
-    AccelSoftLimitPos: {x: 0, y: 0}
-    AccelSoftLimitNeg: {x: 0, y: 0}
-    AccelHardLimitPos: {x: 0, y: 0}
-    AccelHardLimitNeg: {x: 0, y: 0}
-    ClampResultToHardLimit: 0
-    MinScale: 0
-    AxisOverride:
-      Enabled: 0
-      OverrideX: 0
-      OverrideY: 0
-      MinCurrentSpeed: 0.1
-      MinInput: 0.01
-      VelocityChangeEpsilon: 0
-  rigidbody2DGravityClamp:
-    Enabled: 0
-    MinFallSpeed: 0
-  targetCharacterController: {fileID: 0}
-  enableMovement: 1
-  enableRotation: 0
+  initializeLocalBlackboard: 0
+  reinitializeLocalBlackboardOnAcquire: 1
+  localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &7656163090949361769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -381,9 +341,28 @@ MonoBehaviour:
     _commands: []
   despawnDelaySeconds: 0
   cancelSpawnOnDespawn: 1
+  autoDespawnWhenConditionFalse: 0
+  autoDespawnCondition:
+    _source:
+      rid: 5399842616775016520
+    _defaultValue: 0
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842616775016520
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 7292586816786137178
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -393,6 +372,36 @@ MonoBehaviour:
     - rid: 7292587055229961166
       type: {class: CommandChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
+        ActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        ExecutionActorMode: 0
+        ExecutorActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        ExecutionScope: 0
         Tag: FollowPlayer
         AwaitMode: 1
 --- !u!114 &8746446318027437256
@@ -419,6 +428,28 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842616775016521
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842616775016522
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842616775016523
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.12
+    - rid: 5399842616775016524
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842616775016525
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 7292587055229961162
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -439,9 +470,13 @@ MonoBehaviour:
           RotationAmplitudeDeg: 2
           DurationSeconds: 0
         Preset:
-          loop: 0
-          loopCount: -1
-          steps: []
+          _source:
+            rid: -2
+          _defaultValue:
+            loop: 0
+            loopCount: -1
+            steps: []
+        PresetExecutionPolicy: 10
         WaitForCompletion: 1
         FollowAction: 0
         FollowAwaitMode: 1
@@ -475,6 +510,37 @@ MonoBehaviour:
           VelocitySourceType: 1
           LimitTurnRate: 0
           TurnRate: 360
+        RotateAction: 0
+        RotateSpeedMode: 0
+        RotateSpeed:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RotateSpeedFadeSeconds:
+          _source:
+            rid: 5399842616775016521
+          _defaultValue: 0
+        RotateSpeedDampingRate:
+          _source:
+            rid: 5399842616775016522
+          _defaultValue: 0
+        RotateAngleTarget:
+          _source:
+            rid: -2
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RotateAngleSmoothTime:
+          _source:
+            rid: 5399842616775016523
+          _defaultValue: 0
+        RotateAngleMaxSpeed:
+          _source:
+            rid: 5399842616775016524
+          _defaultValue: 0
+        RotateStopImmediate: 1
+        RotateStopFadeSeconds:
+          _source:
+            rid: 5399842616775016525
+          _defaultValue: 0
     - rid: 7292587055229961164
       type: {class: 'UnityObjectRefSource`1[[UnityEngine.Transform, UnityEngine.CoreModule]]', ns: Game.Common, asm: Assembly-CSharp}
       data:

@@ -1268,10 +1268,36 @@ namespace Game.Conversation
 
         protected override string BuildDebugViewText()
         {
-            var speaker = _characterDataId > 0
-                ? $"CID:{_characterDataId}"
-                : "NoSpeaker";
-            return $"Message [{speaker}]";
+            if (_characterDataId <= 0)
+                return "Chara: (none)";
+
+            var speaker = ResolveSpeakerLabel();
+            return string.IsNullOrWhiteSpace(speaker)
+                ? "Chara: (unresolved)"
+                : $"Chara: {speaker}";
+        }
+
+        string ResolveSpeakerLabel()
+        {
+            if (_characterDataId <= 0)
+                return string.Empty;
+
+            if (!TryResolveCharacterDefinition(_characterDataId, out var definition) || definition == null)
+                return string.Empty;
+
+            var displayName = string.IsNullOrWhiteSpace(definition.DisplayName)
+                ? string.Empty
+                : definition.DisplayName.Trim();
+            if (!string.IsNullOrEmpty(displayName))
+                return displayName;
+
+            var stableKey = string.IsNullOrWhiteSpace(definition.StableKey)
+                ? string.Empty
+                : definition.StableKey.Trim();
+            if (!string.IsNullOrEmpty(stableKey))
+                return stableKey;
+
+            return string.Empty;
         }
 
         public override ConversationNodePresetBase CreateRuntimeCopy()

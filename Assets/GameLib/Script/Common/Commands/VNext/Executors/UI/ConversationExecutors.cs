@@ -6,6 +6,7 @@ using Game.Channel;
 using Game.Common;
 using Game.Conversation;
 using Game.Dialogue;
+using Game.Vars.Generated;
 using UnityEngine;
 using VContainer;
 
@@ -76,9 +77,35 @@ namespace Game.Commands.VNext
 
                 case ConversationFlowOperation.End:
                     {
+                        if (!hub.TryGetSession(tag, out var session) || session == null)
+                        {
+                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-201] Active conversation session was not found. tag='{tag}'");
+                            return;
+                        }
+
+                        var resolvedDialogue = await ConversationExecutorUtility.ResolveDialogueServiceAsync(session, targetScope, ctx, ct);
+                        var dialogue = resolvedDialogue.dialogue;
+                        var dialogueError = resolvedDialogue.error;
+                        var dialogueClosed = false;
+
+                        if (dialogue != null)
+                            dialogueClosed = await TryCloseDialogueAsync(session, dialogue, ct);
+
                         if (!hub.TryEndSession(tag, ConversationSessionEndKind.Forced, typed.EndMessage, out _))
                         {
                             EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-202] Conversation session end failed. tag='{tag}'");
+                            return;
+                        }
+
+                        if (dialogue == null)
+                        {
+                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, dialogueError);
+                            return;
+                        }
+
+                        if (!dialogueClosed && !ct.IsCancellationRequested)
+                        {
+                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-203] Dialogue channel end failed. tag='{session.DialogueChannelTag}'");
                             return;
                         }
 
@@ -136,9 +163,20 @@ namespace Game.Commands.VNext
                 outcome = ConversationRunOutcome.Canceled("[CONV-250] Conversation run was canceled by token.");
             }
 
+            var dialogueClosed = await TryCloseDialogueAsync(session, dialogue, ct);
+
             if (!hub.TryEndSession(session.Tag, outcome.EndKind, outcome.Message, out _))
             {
+                if (ct.IsCancellationRequested || !session.IsActive)
+                    return;
+
                 EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-251] Conversation session end failed. tag='{session.Tag}'");
+                return;
+            }
+
+            if (!dialogueClosed && !ct.IsCancellationRequested)
+            {
+                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-252] Dialogue channel end failed. tag='{session.DialogueChannelTag}'");
                 return;
             }
 
@@ -467,7 +505,6 @@ namespace Game.Commands.VNext
                 Anchor = ToDialogueCharacterAnchor(messageNode.Slot),
                 ExpressionKey = messageNode.ExpressionKey,
                 UseDefaultImageFallback = messageNode.UseDefaultImageFallback,
-                SpawnIfNeeded = true,
             };
 
             frame.Entries.Add(entry);
@@ -565,6 +602,17 @@ namespace Game.Commands.VNext
             destination.TrySetVariant(varId, DynamicVariant.FromInt(selectedIndex));
         }
 
+        static void WriteChoiceDisplayNameToVars(GridObjectChoiceEntry? entry, CommandContext ctx)
+        {
+            if (entry == null)
+                return;
+
+            var destination = ctx.Vars ?? NullVarStore.Instance;
+            destination.TrySetVariant(
+                VarIds.GameLib.UI.DialogueChannel.Choice.DisplayName,
+                DynamicVariant.FromString(entry.DisplayName));
+        }
+
         static async UniTask<ConversationNodeExecuteResult> ApplySelectedEntryAsync(
             DialogueChoiceRequest choiceRequest,
             int selectedIndex,
@@ -583,7 +631,9 @@ namespace Game.Commands.VNext
                 return ConversationNodeExecuteResult.FromSuccess(0, hasNextNode: false);
 
             var destination = ctx.Vars ?? NullVarStore.Instance;
+            WriteChoiceDisplayNameToVars(selectedEntry, ctx);
             selectedEntry.SelectedVars?.ApplyTo(destination, ctx, overwrite: true);
+            WriteChoiceDisplayNameToVars(selectedEntry, ctx);
 
             var selectedResult = await ExecuteBranchCommandsAsync(selectedEntry.SelectedCommands, ctx, ct, "choice.entry.onSelected");
             if (!selectedResult.Success)
@@ -665,6 +715,23 @@ namespace Game.Commands.VNext
                 ConversationSessionEndKind.Failed => CommandRunFailureKind.ResolveFailed,
                 _ => CommandRunFailureKind.None,
             };
+        }
+
+        static async UniTask<bool> TryCloseDialogueAsync(
+            IConversationRuntimeSession session,
+            IDialogueService dialogue,
+            CancellationToken ct)
+        {
+            if (session == null || dialogue == null)
+                return false;
+
+            if (!dialogue.TryGetSnapshot(session.DialogueChannelTag, out var snapshot))
+                return false;
+
+            if (!snapshot.IsVisible && !snapshot.IsActive)
+                return true;
+
+            return await dialogue.EndAsync(session.DialogueChannelTag, new DialogueEndRequest(), ct);
         }
 
         static void EnsureStrict(bool strict, bool success, CommandRunFailureKind kind, string message)
@@ -920,6 +987,17 @@ namespace Game.Commands.VNext
             WriteIntToVars(keyRef, value, ctx);
         }
 
+        static void WriteChoiceDisplayNameToVars(GridObjectChoiceEntry? entry, CommandContext ctx)
+        {
+            if (entry == null)
+                return;
+
+            var destination = ctx.Vars ?? NullVarStore.Instance;
+            destination.TrySetVariant(
+                VarIds.GameLib.UI.DialogueChannel.Choice.DisplayName,
+                DynamicVariant.FromString(entry.DisplayName));
+        }
+
         static async UniTask ApplySelectedEntryAsync(
             DialogueChoiceRequest choiceRequest,
             int selectedIndex,
@@ -938,7 +1016,9 @@ namespace Game.Commands.VNext
                 return;
 
             var destination = ctx.Vars ?? NullVarStore.Instance;
+            WriteChoiceDisplayNameToVars(selectedEntry, ctx);
             selectedEntry.SelectedVars?.ApplyTo(destination, ctx, overwrite: true);
+            WriteChoiceDisplayNameToVars(selectedEntry, ctx);
 
             if (selectedEntry.SelectedCommands == null || selectedEntry.SelectedCommands.Count == 0 || ctx.Runner == null)
                 return;

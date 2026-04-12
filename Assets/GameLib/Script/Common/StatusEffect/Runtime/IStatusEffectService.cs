@@ -37,5 +37,6 @@ namespace Game.StatusEffect
         bool TryGetRegisteredDefinition(StatusEffectRuntimeFilter filter, out BaseStatusEffectDefinitionData definition);
         void GetActiveEffectStates(List<EffectState> output);
         void GetStates(List<EffectState> output, StatusEffectRuntimeFilter filter);
+        StatusEffectGlobalRuntimeState GetDebugState();
     }
 }
