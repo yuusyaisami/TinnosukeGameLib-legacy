@@ -350,10 +350,17 @@ namespace Game.UI
                 : new Vector3(local.x, local.y, 0f);
         }
 
-        static Vector3 ResolveAreaBasePosition(AreaChannelDefinition definition, IScopeNode scope)
+        static bool TryResolveAreaBasePosition(AreaChannelDefinition definition, out Vector3 basePosition)
         {
-            var anchor = definition.Anchor != null ? definition.Anchor : scope.Identity?.SelfTransform;
-            return anchor != null ? anchor.position + definition.CenterOffset : definition.CenterOffset;
+            var anchor = definition.Anchor;
+            if (anchor == null)
+            {
+                basePosition = default;
+                return false;
+            }
+
+            basePosition = anchor.position + definition.CenterOffset;
+            return true;
         }
 
         static Vector3 ApplyDepthOffset(Vector3 position, Vector3 baseLocalPosition, AreaPlane plane)
@@ -400,7 +407,7 @@ namespace Game.UI
             var baseScale = isRootTarget ? root.localScale : visualPose.LocalScale;
             var resolvedLength = Mathf.Max(0f, majorLength);
             var resolvedCrossLength = Mathf.Max(0f, minorLength);
-            if (renderer.drawMode == SpriteDrawMode.Simple)
+            if (renderer.drawMode != SpriteDrawMode.Sliced)
                 renderer.drawMode = SpriteDrawMode.Sliced;
 
             renderer.size = fillAxis == SliderAreaFillAxis.SizeX

@@ -1,0 +1,6 @@
+OVDF v1.1
+Game.Channel.AreaChannelHubMB, Assembly-CSharp
+MetaGuid:2122350e355df4e48ae0d69d3895d711
+
+# channels
++ [Sirenix.OdinInspector.LabelWidthAttribute]

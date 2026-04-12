@@ -88,15 +88,23 @@ namespace Game.UI
             _segmentLayout = SliderRuntimeHelpers.BuildSegmentLayout(_visualizerPreset, dynamicContext, _minValue, _maxValue);
 
             if (!_hasInitialized)
+            {
+                LogBindingSnapshot("VisualizerPresetRefreshed");
+                UpdateLoggedVisibleBarCount();
                 return;
+            }
 
             if (!_isVisible)
             {
                 EmitUpdated();
+                LogBindingSnapshot("VisualizerPresetRefreshed");
+                UpdateLoggedVisibleBarCount();
                 return;
             }
 
             ApplyPublicDisplayedValue(_continuousDisplayedRawValue, allowCrossingCommands: false);
+            LogBindingSnapshot("VisualizerPresetRefreshed");
+            UpdateLoggedVisibleBarCount();
         }
 
         void RefreshPlayerPreset(IScopeNode scope)
@@ -127,6 +135,8 @@ namespace Game.UI
             _continuousDisplayedNormalizedValue = Normalize(_continuousDisplayedRawValue);
             _hasInitialized = hadInitialized;
             RefreshActiveBindingEntry(scope, forceRebind: true);
+            LogBindingSnapshot("PlayerPresetRefreshed");
+            UpdateLoggedVisibleBarCount();
         }
 
         void StopCommands()
@@ -181,6 +191,7 @@ namespace Game.UI
                 if (!executeCommands || !_hasBindingConditionStateSnapshot || current == previous)
                     continue;
 
+                LogBindingSnapshot("BindingConditionChanged", $"entryIndex={i} previous={previous} current={current}");
                 ExecuteConditionChangedCommands(entry, i, current).Forget();
             }
 
@@ -210,6 +221,12 @@ namespace Game.UI
             _blackboardBindingSourceCache = default;
             ResolveBindings(scope);
             SubscribeExternal();
+
+            LogBindingSnapshot(
+                _activeBindingEntry == null ? "BindingDisabled" : "ActiveBindingChanged",
+                _activeBindingEntry == null
+                    ? $"resolvedIndex={resolvedIndex}"
+                    : $"resolvedIndex={resolvedIndex} order={_activeBindingEntry.Order}");
 
             if (_activeBindingEntry == null)
             {

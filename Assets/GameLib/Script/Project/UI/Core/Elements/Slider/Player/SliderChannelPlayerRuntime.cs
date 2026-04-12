@@ -35,10 +35,12 @@ namespace Game.UI
         IBaseScalarService? _scalarService;
         IDisposable? _scalarSubscription;
         ActorSourceResolveCache _scalarBindingSourceCache;
+        IScopeNode? _scalarBindingScope;
 
         IVarStore? _blackboardVars;
         int _blackboardVarId;
         ActorSourceResolveCache _blackboardBindingSourceCache;
+        IScopeNode? _blackboardBindingScope;
         SliderPlayerBindingEntry? _activeBindingEntry;
         int _activeBindingEntryIndex = -1;
         readonly List<bool> _bindingConditionStates = new();
@@ -136,6 +138,7 @@ namespace Game.UI
             SubscribePresetProvider();
             RefreshBindingConditionStates(executeCommands: false);
             RefreshActiveBindingEntry(scope, forceRebind: true);
+            LogBindingSnapshot("Acquire");
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -184,6 +187,19 @@ namespace Game.UI
             {
                 RefreshBindingConditionStates(executeCommands: true);
                 RefreshActiveBindingEntry(_activeScope, forceRebind: false);
+                var rangeChanged = false;
+
+                if (ResolveRange())
+                {
+                    rangeChanged = true;
+                    var dynamicContext = _dynamicContext ?? new SimpleDynamicContext(ResolveVars(_activeScope), _activeScope);
+                    _segmentLayout = SliderRuntimeHelpers.BuildSegmentLayout(_visualizerPreset, dynamicContext, _minValue, _maxValue);
+                    SyncFromExternal(allowCommands: false);
+                    LogBindingSnapshot("RangeChanged", "source=Tick");
+                    UpdateLoggedVisibleBarCount();
+                }
+
+                PollBindingResyncInTick(allowCommands: !rangeChanged);
             }
 
             if (_isInteracting && !IsUserInputEnabled)
@@ -279,6 +295,7 @@ namespace Game.UI
                 return false;
 
             var changed = Mathf.Abs(rawValue - _targetRawValue) > 0.0001f;
+            LogBindingSnapshot("BoundaryIndexRequested", $"index={index} source={source}");
             SetTargetRawValue(rawValue, allowCommands: true);
 
             if (changed && (source == SliderChangeSource.UserPointer || source == SliderChangeSource.UserNavigate))

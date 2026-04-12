@@ -226,6 +226,12 @@ namespace Game.Channel
             using var linkedCts = GridObjectChannelRuntimeUtility.CreateLinkedTokenSource(_state.LifecycleCts, ct);
             var linkedToken = linkedCts?.Token ?? ct;
 
+            if (_operations.IsReentrantOperationCall(_state))
+            {
+                QueueRefresh(mode);
+                return true;
+            }
+
             var lockState = await _operations.TryEnterAsync(_state, linkedToken, "Refresh");
             if (!lockState.Entered)
                 return false;

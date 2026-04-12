@@ -125,6 +125,11 @@ MonoBehaviour:
   initializeLocalBlackboard: 0
   reinitializeLocalBlackboardOnAcquire: 1
   localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
   references:
     version: 2
     RefIds: []
@@ -234,7 +239,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -4698600402995417950, guid: c4ce9e579dd9eac4caec44774da7f3c1, type: 3}
+  m_Sprite: {fileID: -6174189788439684328, guid: b799d5fcb66e6614ba1802e6b0d14cb8, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -243,7 +248,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 5
 --- !u!1 &5265970239230943650
 GameObject:
   m_ObjectHideFlags: 0

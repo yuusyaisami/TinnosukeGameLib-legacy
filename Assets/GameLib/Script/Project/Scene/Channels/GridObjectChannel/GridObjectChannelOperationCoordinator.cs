@@ -156,7 +156,7 @@ namespace Game.Channel
             });
         }
 
-        bool IsReentrantOperationCall(GridObjectChannelRuntimeState state)
+        public bool IsReentrantOperationCall(GridObjectChannelRuntimeState state)
         {
             var activeStamp = Volatile.Read(ref _activeOperationStamp);
             var contextStamp = state.OperationContextStamp.Value;

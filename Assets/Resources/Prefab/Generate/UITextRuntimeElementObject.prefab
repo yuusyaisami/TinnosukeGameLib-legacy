@@ -778,6 +778,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -920,7 +921,7 @@ MonoBehaviour:
   channels:
   - tag: default
     target: {fileID: 0}
-    rectTransform: {fileID: 2561798230306123067}
+    rectTransform: {fileID: 4363307009504329139}
     playOnSpawnPreset: 0
     playOnSpawnDelaySeconds: 0
     transformPreset:

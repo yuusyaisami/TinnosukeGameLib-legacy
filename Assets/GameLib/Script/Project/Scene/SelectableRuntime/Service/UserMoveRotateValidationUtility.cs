@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using Game.Channel;
 using Game.Commands.VNext;
@@ -12,6 +13,7 @@ namespace Game.SelectRuntime
     {
         static readonly List<SelectableRuntimeMB> SelectableBuffer = new();
         static readonly Collider[] OverlapBuffer = new Collider[64];
+        static readonly HashSet<string> MissingAreaBasePositionLoggedTags = new(StringComparer.OrdinalIgnoreCase);
 
         public static bool IsValidPose(UserMoveRotateValidationRequest request, Vector3 position, Quaternion rotation)
         {
@@ -296,15 +298,27 @@ namespace Game.SelectRuntime
             if (!hub.TryGetPlayer(areaTag, out player) || player == null)
                 return false;
 
-            basePosition = ResolveAreaBasePosition(player.Definition, areaScope);
+            if (!TryResolveAreaBasePosition(areaTag, player.Definition, out basePosition))
+                return false;
+
             dynamicContext = AreaChannelDynamicContextUtility.CreateContext(areaScope);
             return true;
         }
 
-        static Vector3 ResolveAreaBasePosition(AreaChannelDefinition definition, IScopeNode scope)
+        static bool TryResolveAreaBasePosition(string areaTag, AreaChannelDefinition definition, out Vector3 basePosition)
         {
-            var anchor = definition.Anchor != null ? definition.Anchor : scope.Identity?.SelfTransform;
-            return anchor != null ? anchor.position + definition.CenterOffset : definition.CenterOffset;
+            var anchor = definition.Anchor;
+            if (anchor == null)
+            {
+                basePosition = default;
+                var normalizedTag = string.IsNullOrWhiteSpace(areaTag) ? "default" : areaTag.Trim();
+                if (MissingAreaBasePositionLoggedTags.Add(normalizedTag))
+                    Debug.LogError($"[UserMoveRotateValidation] Area channel anchor is required for validation. Tag='{normalizedTag}'.");
+                return false;
+            }
+
+            basePosition = anchor.position + definition.CenterOffset;
+            return true;
         }
 
         static Vector2 ToLocal(Vector3 offset, AreaPlane plane)

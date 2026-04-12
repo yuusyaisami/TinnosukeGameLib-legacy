@@ -14,6 +14,8 @@ namespace Game.UI
             _scalarService = null;
             _blackboardVars = null;
             _blackboardVarId = 0;
+            _scalarBindingScope = null;
+            _blackboardBindingScope = null;
 
             if (_activeBindingEntry != null &&
                 _activeBindingEntry.UseScalarBinding &&
@@ -61,6 +63,8 @@ namespace Game.UI
             _scalarService = null;
             _blackboardVars = null;
             _blackboardVarId = 0;
+            _scalarBindingScope = null;
+            _blackboardBindingScope = null;
         }
 
         bool TryResolveScalarService(IScopeNode scope, out IBaseScalarService? scalarService)
@@ -79,6 +83,7 @@ namespace Game.UI
             if (!targetScope.Resolver.TryResolve<IBaseScalarService>(out var resolved) || resolved == null)
                 return false;
 
+            _scalarBindingScope = targetScope;
             scalarService = resolved;
             return true;
         }
@@ -99,6 +104,7 @@ namespace Game.UI
             if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
                 return false;
 
+            _blackboardBindingScope = targetScope;
             blackboardVars = blackboard.LocalVars;
             return blackboardVars != null;
         }
@@ -119,9 +125,11 @@ namespace Game.UI
             if (_isInteracting)
             {
                 _pendingExternalResync = true;
+                LogBindingSnapshot("ScalarChanged", $"newValue={FormatFloat(args.NewValue)} pendingExternalResync=true");
                 return;
             }
 
+            LogBindingSnapshot("ScalarChanged", $"newValue={FormatFloat(args.NewValue)}");
             RefreshTargetFromBinding();
         }
 
@@ -144,9 +152,17 @@ namespace Game.UI
             if (_isInteracting)
             {
                 _pendingExternalResync = true;
+                var currentValueText = TryReadBlackboard(out var pendingValue)
+                    ? FormatFloat(pendingValue)
+                    : "(unavailable)";
+                LogBindingSnapshot("BlackboardChanged", $"varId={varId} newValue={currentValueText} pendingExternalResync=true");
                 return;
             }
 
+            var valueText = TryReadBlackboard(out var value)
+                ? FormatFloat(value)
+                : "(unavailable)";
+            LogBindingSnapshot("BlackboardChanged", $"varId={varId} newValue={valueText}");
             RefreshTargetFromBinding();
         }
 
@@ -161,6 +177,42 @@ namespace Game.UI
 
             _suppressRuntimeCommands = false;
             SetTargetRawValue(rawValue, allowCommands: true);
+        }
+
+        void PollBindingResyncInTick(bool allowCommands)
+        {
+            if (_isInteracting || !_isVisible || _activeBindingEntry == null)
+                return;
+
+            ResolveRange();
+            if (!TryReadBoundValue(out var rawValue))
+                return;
+
+            var effectiveRawValue = Mathf.Clamp(rawValue, _minValue, _maxValue);
+            var effectiveNormalizedValue = SliderRuntimeHelpers.SnapNormalizedToEdge(Normalize(effectiveRawValue));
+            if (effectiveNormalizedValue <= 0f)
+            {
+                effectiveRawValue = _minValue;
+                effectiveNormalizedValue = 0f;
+            }
+            else if (effectiveNormalizedValue >= 1f)
+            {
+                effectiveRawValue = _maxValue;
+                effectiveNormalizedValue = 1f;
+            }
+
+            if (Mathf.Abs(effectiveRawValue - _targetRawValue) <= 0.0001f &&
+                Mathf.Abs(effectiveNormalizedValue - _targetNormalizedValue) <= 0.0001f)
+                return;
+
+            _suppressRuntimeCommands = !allowCommands;
+            SetTargetRawValue(effectiveRawValue, allowCommands);
+            if (!_transitionActive)
+                _suppressRuntimeCommands = false;
+
+            LogBindingSnapshot(
+                "TickBindingResync",
+                $"raw={FormatFloat(rawValue)} effective={FormatFloat(effectiveRawValue)} allowCommands={allowCommands}");
         }
 
         void SyncFromExternal(bool allowCommands)
@@ -262,6 +314,7 @@ namespace Game.UI
             _suppressScalarEcho = true;
             _lastScalarWrite = rawValue;
             _scalarService.SetGlobalBase(_activeBindingEntry.ScalarKey, rawValue);
+            LogBindingSnapshot("WriteScalar", $"key={_activeBindingEntry.ScalarKey.FormatLabel()} value={FormatFloat(rawValue)}");
             return true;
         }
 
@@ -275,6 +328,7 @@ namespace Game.UI
             {
                 _suppressVarEcho = true;
                 _lastVarWriteVersion = nextVersion;
+                LogBindingSnapshot("WriteBlackboard", $"varId={_blackboardVarId} key={FormatVarKeyRef(_activeBindingEntry?.BlackboardKey ?? default)} value={FormatFloat(rawValue)}");
                 return true;
             }
 

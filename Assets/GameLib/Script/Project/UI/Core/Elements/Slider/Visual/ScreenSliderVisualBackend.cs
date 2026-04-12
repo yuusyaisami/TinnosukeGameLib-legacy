@@ -144,6 +144,14 @@ namespace Game.UI
             _lastRangeSnapshot = rangeSnapshot;
             _hasLastRangeSnapshot = true;
 
+            if (rangeChanged)
+            {
+                var uiCameraName = _lastRangeSnapshot.UICamera != null ? _lastRangeSnapshot.UICamera.name : "null";
+                SliderRuntimeHelpers.LogDebug(
+                    _options,
+                    $"RangeResolved. LocalRect={_lastRangeSnapshot.LocalRect} CanvasRect={_lastRangeSnapshot.CanvasRect.name} UICamera={uiCameraName}");
+            }
+
             if (!_hasLastSnapshot)
                 _lastSnapshot = BuildCurrentSnapshot();
 
@@ -162,6 +170,11 @@ namespace Game.UI
 
             ApplySnapshot(_lastSnapshot, rangeSnapshot);
             _visualDirty = false;
+
+            SliderRuntimeHelpers.LogDebug(
+                _options,
+                $"ApplySnapshot. TargetRaw={_lastSnapshot.TargetRawValue:0.###} TargetNorm={_lastSnapshot.TargetNormalizedValue:0.###} DisplayedRaw={_lastSnapshot.DisplayedRawValue:0.###} DisplayedNorm={_lastSnapshot.DisplayedNormalizedValue:0.###} Visible={_lastSnapshot.IsVisible}");
+
         }
 
         void ResolveServices(IScopeNode scope)
@@ -213,6 +226,10 @@ namespace Game.UI
             _lastSnapshot = snapshot;
             _hasLastSnapshot = true;
             _visualDirty = true;
+
+            SliderRuntimeHelpers.LogDebug(
+                _options,
+                $"OutputUpdated. TargetRaw={snapshot.TargetRawValue:0.###} TargetNorm={snapshot.TargetNormalizedValue:0.###} DisplayedRaw={snapshot.DisplayedRawValue:0.###} DisplayedNorm={snapshot.DisplayedNormalizedValue:0.###} Visible={snapshot.IsVisible}");
         }
 
         void HandleVisualizerPresetChanged()
@@ -235,6 +252,10 @@ namespace Game.UI
 
         void BeginBuild()
         {
+            SliderRuntimeHelpers.LogDebug(
+                _options,
+                $"BuildStart. BoundaryCount={_output.BoundaryCount} Background={_visualizerPreset.Background.Enabled} SegmentBars={_visualizerPreset.Segmented.SpawnSegmentBars} Markers={_visualizerPreset.Segmented.SpawnMarkers} Handle={_visualizerPreset.Handle.Enabled}");
+
             StopSpawn();
             ReleaseRuntimeInstances();
 
@@ -398,6 +419,10 @@ namespace Game.UI
                 _buildReady = true;
                 _visualDirty = true;
 
+                SliderRuntimeHelpers.LogDebug(
+                    _options,
+                    $"BuildComplete. Background={(background != null)} SegmentBars={bars.Count} Markers={markers.Count} Handle={(handle != null)}");
+
                 await UniTask.SwitchToMainThread(ct);
                 Tick();
                 if (background != null)
@@ -414,7 +439,7 @@ namespace Game.UI
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[SliderVisualizerService] Screen slider build failed: {ex.Message}");
+                SliderRuntimeHelpers.LogError(_options.ChannelTag, $"Screen slider build failed: {ex.Message}");
             }
             finally
             {
@@ -618,7 +643,7 @@ namespace Game.UI
             spawner = null;
             if (_spawnerRegistry == null)
             {
-                Debug.LogWarning("[SliderVisualizerService] ISceneSpawnerRegistry is not available.");
+                SliderRuntimeHelpers.LogWarning(_options.ChannelTag, "ISceneSpawnerRegistry is not available.");
                 return false;
             }
 
@@ -630,7 +655,7 @@ namespace Game.UI
                 allowRuntimeUiFallback: true);
             if (!resolvedSpawner.HasValue || resolvedSpawner.Spawner == null)
             {
-                Debug.LogWarning("[SliderVisualizerService] RuntimeUIElement spawner was not found.");
+                SliderRuntimeHelpers.LogWarning(_options.ChannelTag, "RuntimeUIElement spawner was not found.");
                 return false;
             }
 
@@ -811,13 +836,13 @@ namespace Game.UI
                 {
                     if (!_loggedBackgroundVisualMissing)
                     {
-                        Debug.LogWarning(warningMessage);
+                        SliderRuntimeHelpers.LogWarning(_options.ChannelTag, warningMessage);
                         _loggedBackgroundVisualMissing = true;
                     }
                 }
                 else if (!_loggedSegmentBarVisualMissing)
                 {
-                    Debug.LogWarning(warningMessage);
+                    SliderRuntimeHelpers.LogWarning(_options.ChannelTag, warningMessage);
                     _loggedSegmentBarVisualMissing = true;
                 }
 
@@ -958,7 +983,7 @@ namespace Game.UI
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[SliderVisualizerService] Spawn commands failed: {ex.Message}");
+                SliderRuntimeHelpers.LogError(_options.ChannelTag, $"Spawn commands failed: {ex.Message}");
             }
         }
 
@@ -1054,22 +1079,34 @@ namespace Game.UI
             switch (status)
             {
                 case SliderRangeResolveStatus.CanvasUnavailable:
-                    Debug.LogWarning("[SliderVisualizerService] Screen slider requires a Canvas RectTransform.");
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, "Screen slider requires a Canvas RectTransform.");
+                    break;
+                case SliderRangeResolveStatus.AreaBasePositionUnavailable:
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, $"Area base position could not be resolved for '{_options.AreaChannelTag}'.");
+                    break;
+                case SliderRangeResolveStatus.AreaRectSnapshotUnavailable:
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, $"Area rect snapshot could not be resolved for '{_options.AreaChannelTag}'.");
+                    break;
+                case SliderRangeResolveStatus.AreaCanvasRectSnapshotUnavailable:
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, $"Area canvas rect snapshot could not be resolved for '{_options.AreaChannelTag}'.");
                     break;
                 case SliderRangeResolveStatus.AreaScopeUnavailable:
-                    Debug.LogWarning("[SliderVisualizerService] Area scope could not be resolved.");
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, $"Area scope could not be resolved. AreaTag='{_options.AreaChannelTag}'.");
                     break;
                 case SliderRangeResolveStatus.AreaHubUnavailable:
-                    Debug.LogWarning("[SliderVisualizerService] IAreaChannelHubService could not be resolved.");
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, $"IAreaChannelHubService could not be resolved. AreaTag='{_options.AreaChannelTag}'.");
                     break;
                 case SliderRangeResolveStatus.AreaPlayerUnavailable:
-                    Debug.LogWarning($"[SliderVisualizerService] Range source '{_options.AreaChannelTag}' could not be resolved.");
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, $"Range source '{_options.AreaChannelTag}' could not be resolved.");
                     break;
                 case SliderRangeResolveStatus.RectTransformUnavailable:
-                    Debug.LogWarning("[SliderVisualizerService] Range RectTransform could not be resolved.");
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, "Range RectTransform could not be resolved.");
                     break;
                 case SliderRangeResolveStatus.UnsupportedShape:
-                    Debug.LogWarning("[SliderVisualizerService] Slider only supports RectAreaShape.");
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, "Slider only supports RectAreaShape.");
+                    break;
+                default:
+                    SliderRuntimeHelpers.LogError(_options.ChannelTag, $"Screen range resolution failed. Status={status}.");
                     break;
             }
 
