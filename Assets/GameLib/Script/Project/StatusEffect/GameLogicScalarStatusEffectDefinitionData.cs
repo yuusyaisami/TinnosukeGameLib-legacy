@@ -47,6 +47,12 @@ namespace Game.StatusEffect
         [SerializeField]
         [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲し、AdvancedOption で lifetime/count の終了時動作だけ調整できます。")]
         StatusEffectRuntimeControlMode runtimeControlMode = StatusEffectRuntimeControlMode.Custom;
+
+        [BoxGroup("Runtime")]
+        [LabelText("Condition")]
+        [SerializeField]
+        [Tooltip("true のとき effect を active 扱いにします。TraitRuntime の Visible/Hidden などの blackboard 値を参照できます。")]
+        DynamicValue<bool> condition = DynamicValueExtensions.FromLiteral(true);
         
         [FoldoutGroup("AdvancedOption", Expanded = true)]
         [ShowIf(nameof(UsesAutoGlobalRuntimeSettings))]
@@ -108,6 +114,7 @@ namespace Game.StatusEffect
         public override string DefinitionId => definitionId ?? string.Empty;
         public override EffectVisualData VisualData => visualData ?? new EffectVisualData();
         public override string DefaultRuntimeTag => defaultRuntimeTag ?? string.Empty;
+        public override DynamicValue<bool> Condition => condition;
         public override StatusEffectRuntimeControlMode RuntimeControlMode => runtimeControlMode;
         public override StatusEffectAutoGlobalAdvancedOption? AutoGlobalAdvancedOption => autoGlobalAdvancedOption;
         public override bool UseDuration => useDuration;
