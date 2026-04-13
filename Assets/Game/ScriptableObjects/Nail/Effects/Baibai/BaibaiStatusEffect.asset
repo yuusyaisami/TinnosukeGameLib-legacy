@@ -93,9 +93,8 @@ MonoBehaviour:
           DisplayName:
             Template: "\u500D\u3005"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
-            Template: "\u4FA1\u5024 x{MaxValueUp}"
+            Template: "\u4FA1\u5024 x{ValueMultiply}"
             Variables:
             - _value:
                 _source:
@@ -114,11 +113,13 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
         runtimeControlMode: 10
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -178,6 +179,7 @@ MonoBehaviour:
     - rid: 5619052366731149466
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: -993477421
           Name: GameLogic.NailProfile.Effect.ValueMultiply
@@ -204,6 +206,8 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

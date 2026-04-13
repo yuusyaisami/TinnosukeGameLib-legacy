@@ -18,7 +18,7 @@ MonoBehaviour:
     Variables: []
   _description:
     Template: "\u5BA4\u306E\u826F\u3044\u5668\u3092\u63D0\u4F9B\u3057\u3066\u3082\u3089\u3048\u308B\u78BA\u7387\u30A2\u30C3\u30D7\n
-      {BuffBallChance|percent=1|fixed=1} -> {Clamp(BuffBallChance*1.25), 0, 1)|percent=1|fixed=1}"
+      {BuffBallChance|percent=1|fixed=1} -> {Clamp(BuffBallChance*1.25, 0, 1)|percent=1|fixed=1}"
     Variables:
     - _value:
         _source:
@@ -380,6 +380,7 @@ MonoBehaviour:
     entries:
     - VarId: 101123
       Kind: 3
+      StoreMode: 0
       Value:
         _source:
           rid: 5399842402410692610
@@ -440,6 +441,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -949,6 +951,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 20
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -2133,6 +2136,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
