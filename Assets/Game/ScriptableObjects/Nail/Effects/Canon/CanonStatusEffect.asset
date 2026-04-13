@@ -70,12 +70,12 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 3
-        _expression: direction * Force
+        _expression: (direction * Rot2D(90)) * Force
     - rid: 5399842450832097459
       type: {class: TransformAnimationChannelDirection2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         actorSource:
-          Kind: 0
+          Kind: 10
           Identity:
             kind: 0
             id: 
@@ -85,7 +85,7 @@ MonoBehaviour:
           UnityObject: {fileID: 0}
           Shared:
             rid: -2
-          ContextSlot: 0
+          ContextSlot: 110
           TargetChannel:
             rid: -2
         channelTag: collider
@@ -174,7 +174,7 @@ MonoBehaviour:
             _source:
               rid: 5399842533945115497
           IncludeSourceInfo: 1
-        - Label: direction * Force (Vector2)
+        - Label: (direction*Rot2D(90)) * Force (Vector2)
           Value:
             _source:
               rid: 5399842533945115498
@@ -183,7 +183,7 @@ MonoBehaviour:
       type: {class: TransformAnimationChannelDirection2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         actorSource:
-          Kind: 0
+          Kind: 10
           Identity:
             kind: 0
             id: 
@@ -193,7 +193,7 @@ MonoBehaviour:
           UnityObject: {fileID: 0}
           Shared:
             rid: -2
-          ContextSlot: 0
+          ContextSlot: 110
           TargetChannel:
             rid: -2
         channelTag: collider
@@ -248,7 +248,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 3
-        _expression: direction * Force
+        _expression: (direction*Rot2D(90)) * Force
     - rid: 5399842533945115499
       type: {class: TransformAnimationChannelDirection2Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -332,6 +332,9 @@ MonoBehaviour:
           Icon: {fileID: 0}
           SortOrder: 0
         runtimeControlMode: 10
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -419,6 +422,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

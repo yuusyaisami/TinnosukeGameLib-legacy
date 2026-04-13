@@ -62,6 +62,7 @@ MonoBehaviour:
             stableKey: QuotaMul
             varId: 101126
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5399842404696851065
@@ -112,7 +113,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: Random(QuotaDecrementMul, QuotaIncrementMul)
+        _expression: Round(Random(QuotaDecrementMul, QuotaIncrementMul), 1)
     - rid: 5399842404696851066
       type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
