@@ -136,6 +136,7 @@ namespace Game.StatusEffect
         readonly bool _usesServiceGlobalLifetime;
         readonly bool _usesServiceGlobalUseCooldown;
         readonly bool _usesServiceGlobalCount;
+        readonly StatusEffectOperationDynamicContext _conditionEvaluationContext;
 
         readonly VarStore _vars;
         StatusEffectResolvedIntensities _intensities;
@@ -197,6 +198,7 @@ namespace Game.StatusEffect
             _usesServiceGlobalUseCooldown = usesServiceGlobalUseCooldown;
             _usesServiceGlobalCount = usesServiceGlobalCount;
             _vars = vars ?? new VarStore();
+            _conditionEvaluationContext = new StatusEffectOperationDynamicContext(_vars, _scope, _scope);
             _runtimeStackPreset = runtimeStackPreset ?? StatusEffectStackPreset.CreateDurationRefreshPreset();
 
             InstanceId = string.IsNullOrWhiteSpace(instanceId) ? Guid.NewGuid().ToString("N") : instanceId;
@@ -244,11 +246,21 @@ namespace Game.StatusEffect
         {
             get
             {
+                if (!EvaluateCondition())
+                    return false;
+
                 if (ResolveActivePolicy() == StatusEffectActivePolicy.RegisteredEvenIfDisabled)
                     return _isRegistered;
 
                 return _isRegistered && _isEnabled && _isApplied;
             }
+        }
+
+        bool EvaluateCondition()
+        {
+            var condition = _definition.Condition;
+            condition.TrySetExternalExpressionVariables(StatusEffectExpressionVariables.ConditionVariables, includeLocalVariables: true);
+            return condition.GetOrDefault(_conditionEvaluationContext, true);
         }
 
         public void ApplyInitial([CallerMemberName] string caller = "")
@@ -1265,7 +1277,6 @@ namespace Game.StatusEffect
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.effectType, DynamicVariant.FromInt((int)Type));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isEnabled, DynamicVariant.FromBool(_isEnabled));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isApplied, DynamicVariant.FromBool(_isApplied));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isActive, DynamicVariant.FromBool(IsActive));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isUseBlocked, DynamicVariant.FromBool(_isUseBlocked));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount, DynamicVariant.FromInt(StackCount));
             _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.intensityA, DynamicVariant.FromFloat(_intensities.A));
@@ -1288,6 +1299,8 @@ namespace Game.StatusEffect
             var visualData = (object?)_visualData;
             if (visualData != null)
                 _vars.TrySetManagedRef(VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData, visualData);
+
+            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Element.isActive, DynamicVariant.FromBool(IsActive));
 
             SyncOperationsForBlockedUseState(force: false);
         }

@@ -336,6 +336,7 @@ namespace Game.StatusEffect
         string DefinitionId { get; }
         EffectVisualData VisualData { get; }
         string DefaultRuntimeTag { get; }
+        DynamicValue<bool> Condition { get; }
         StatusEffectRuntimeControlMode RuntimeControlMode { get; }
         StatusEffectAutoGlobalAdvancedOption? AutoGlobalAdvancedOption { get; }
         bool UseDuration { get; }
@@ -358,6 +359,7 @@ namespace Game.StatusEffect
         public abstract string DefinitionId { get; }
         public abstract EffectVisualData VisualData { get; }
         public abstract string DefaultRuntimeTag { get; }
+        public abstract DynamicValue<bool> Condition { get; }
         public abstract StatusEffectRuntimeControlMode RuntimeControlMode { get; }
         public abstract StatusEffectAutoGlobalAdvancedOption? AutoGlobalAdvancedOption { get; }
         public abstract bool UseDuration { get; }
@@ -401,6 +403,12 @@ namespace Game.StatusEffect
         [SerializeField]
         [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲し、AdvancedOption で lifetime/count の終了時動作だけ調整できます。")]
         StatusEffectRuntimeControlMode runtimeControlMode = StatusEffectRuntimeControlMode.Custom;
+
+        [BoxGroup("Runtime")]
+        [LabelText("Condition")]
+        [SerializeField]
+        [Tooltip("true のとき effect を active 扱いにします。TraitRuntime の Visible/Hidden などの blackboard 値を参照できます。")]
+        DynamicValue<bool> condition = DynamicValueExtensions.FromLiteral(true);
 
         [FoldoutGroup("AdvancedOption", Expanded = true)]
         [ShowIf(nameof(UsesAutoGlobalRuntimeSettings))]
@@ -466,6 +474,7 @@ namespace Game.StatusEffect
         public override string DefinitionId => definitionId;
         public override EffectVisualData VisualData => visualData;
         public override string DefaultRuntimeTag => defaultRuntimeTag;
+        public override DynamicValue<bool> Condition => condition;
         public override StatusEffectRuntimeControlMode RuntimeControlMode => runtimeControlMode;
         public override StatusEffectAutoGlobalAdvancedOption? AutoGlobalAdvancedOption => autoGlobalAdvancedOption;
         public override bool UseDuration => useDuration;
@@ -610,6 +619,7 @@ namespace Game.StatusEffect
     static class StatusEffectExpressionVariables
     {
         public static readonly IReadOnlyList<ExpressionVariable> Variables = Build();
+        public static readonly IReadOnlyList<ExpressionVariable> ConditionVariables = BuildConditionVariables();
 
         static IReadOnlyList<ExpressionVariable> Build()
         {
@@ -635,6 +645,15 @@ namespace Game.StatusEffect
                 CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, "remainingUseCooldown"),
                 CreateFloat(VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingInverseInterval, "remainingInverseInterval"),
             };
+        }
+
+        static IReadOnlyList<ExpressionVariable> BuildConditionVariables()
+        {
+            var variables = new List<ExpressionVariable>(Variables);
+
+            // Condition は IsActive の自己参照を避けるため、isActive を外した変数群で評価する。
+            variables.RemoveAll(v => string.Equals(v.ExpressionKey, "isActive", StringComparison.Ordinal));
+            return variables;
         }
 
         static ExpressionVariable CreateFloat(int varId, string key)
