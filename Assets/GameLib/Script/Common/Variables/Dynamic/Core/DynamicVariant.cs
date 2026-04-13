@@ -3,7 +3,7 @@
 // DynamicVariant - 動的値の評価結果を表す軽量構造体
 //
 // 設計決定:
-// - 数値/Bool/String/Vector/UnityObject参照を保持可能
+// - 数値/Bool/String/Vector/Matrix/UnityObject参照を保持可能
 // - object を外部に露出しない
 // - 型変換は旧 VariableBag と同等の規則を適用
 
@@ -37,10 +37,124 @@ namespace Game.Common
         /// </summary>
         ManagedRef = 10,
         /// <summary>
+        /// 式エンジン専用の 2x2 行列。
+        /// Vector2 * Matrix2x2 の回転・変換に使用する。
+        /// </summary>
+        Matrix2x2 = 11,
+        /// <summary>
         /// 期待型の自動推論を表すヒント値。
         /// 既存 ValueKind の数値互換を崩さないため 255 を使用する。
         /// </summary>
         Auto = 255,
+    }
+
+    /// <summary>
+    /// Expression 用の 2x2 行列。
+    /// Vector2 * Matrix2x2 の形で適用する row-vector convention を採用する。
+    /// </summary>
+    public readonly struct Matrix2x2 : IEquatable<Matrix2x2>, IComparable<Matrix2x2>
+    {
+        const float Epsilon = 0.000001f;
+
+        public readonly float M00;
+        public readonly float M01;
+        public readonly float M10;
+        public readonly float M11;
+
+        public Matrix2x2(float m00, float m01, float m10, float m11)
+        {
+            M00 = m00;
+            M01 = m01;
+            M10 = m10;
+            M11 = m11;
+        }
+
+        public static Matrix2x2 Identity => new(1f, 0f, 0f, 1f);
+
+        public static Matrix2x2 Rotation(float degrees)
+        {
+            var radians = degrees * Mathf.Deg2Rad;
+            var cos = Mathf.Cos(radians);
+            var sin = Mathf.Sin(radians);
+            return new Matrix2x2(cos, sin, -sin, cos);
+        }
+
+        public Vector2 Transform(Vector2 vector)
+            => new(vector.x * M00 + vector.y * M10, vector.x * M01 + vector.y * M11);
+
+        public Matrix2x2 Compose(Matrix2x2 other)
+            => new(
+                M00 * other.M00 + M01 * other.M10,
+                M00 * other.M01 + M01 * other.M11,
+                M10 * other.M00 + M11 * other.M10,
+                M10 * other.M01 + M11 * other.M11);
+
+        public Matrix2x2 Add(Matrix2x2 other)
+            => new(M00 + other.M00, M01 + other.M01, M10 + other.M10, M11 + other.M11);
+
+        public Matrix2x2 Subtract(Matrix2x2 other)
+            => new(M00 - other.M00, M01 - other.M01, M10 - other.M10, M11 - other.M11);
+
+        public Matrix2x2 Scale(float scalar)
+            => new(M00 * scalar, M01 * scalar, M10 * scalar, M11 * scalar);
+
+        public Matrix2x2 Divide(float scalar)
+        {
+            if (Mathf.Abs(scalar) <= Epsilon)
+                return default;
+
+            return Scale(1f / scalar);
+        }
+
+        public int CompareTo(Matrix2x2 other)
+        {
+            var c = M00.CompareTo(other.M00);
+            if (c != 0) return c;
+
+            c = M01.CompareTo(other.M01);
+            if (c != 0) return c;
+
+            c = M10.CompareTo(other.M10);
+            if (c != 0) return c;
+
+            return M11.CompareTo(other.M11);
+        }
+
+        public bool Equals(Matrix2x2 other)
+        {
+            return M00.Equals(other.M00) &&
+                   M01.Equals(other.M01) &&
+                   M10.Equals(other.M10) &&
+                   M11.Equals(other.M11);
+        }
+
+        public override bool Equals(object obj) => obj is Matrix2x2 other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hash = M00.GetHashCode();
+                hash = (hash * 397) ^ M01.GetHashCode();
+                hash = (hash * 397) ^ M10.GetHashCode();
+                hash = (hash * 397) ^ M11.GetHashCode();
+                return hash;
+            }
+        }
+
+        public static Matrix2x2 operator +(Matrix2x2 left, Matrix2x2 right) => left.Add(right);
+        public static Matrix2x2 operator -(Matrix2x2 left, Matrix2x2 right) => left.Subtract(right);
+        public static Matrix2x2 operator *(Matrix2x2 left, Matrix2x2 right) => left.Compose(right);
+        public static Matrix2x2 operator *(Matrix2x2 matrix, float scalar) => matrix.Scale(scalar);
+        public static Matrix2x2 operator *(float scalar, Matrix2x2 matrix) => matrix.Scale(scalar);
+        public static Matrix2x2 operator /(Matrix2x2 matrix, float scalar) => matrix.Divide(scalar);
+        public static Vector2 operator *(Vector2 vector, Matrix2x2 matrix) => matrix.Transform(vector);
+        public static Vector2 operator *(Matrix2x2 matrix, Vector2 vector) => matrix.Transform(vector);
+        public static bool operator ==(Matrix2x2 left, Matrix2x2 right) => left.Equals(right);
+        public static bool operator !=(Matrix2x2 left, Matrix2x2 right) => !left.Equals(right);
+
+        public override string ToString()
+            => $"[{M00.ToString(CultureInfo.InvariantCulture)}, {M01.ToString(CultureInfo.InvariantCulture)}; {M10.ToString(CultureInfo.InvariantCulture)}, {M11.ToString(CultureInfo.InvariantCulture)}]";
     }
 
     /// <summary>
@@ -104,6 +218,9 @@ namespace Game.Common
         public static DynamicVariant FromColor(Color value)
             => new(ValueKind.Color, 0, null, new Vector4(value.r, value.g, value.b, value.a), null);
 
+        public static DynamicVariant FromMatrix2x2(Matrix2x2 value)
+            => new(ValueKind.Matrix2x2, 0, null, new Vector4(value.M00, value.M01, value.M10, value.M11), null);
+
         public static DynamicVariant FromUnityObject(Object value)
             => new(ValueKind.UnityObject, 0, null, default, value);
 
@@ -140,6 +257,7 @@ namespace Game.Common
                 Vector3 v3 => FromVector3(v3),
                 Vector4 v4 => FromVector4(v4),
                 Color c => FromColor(c),
+                Matrix2x2 m => FromMatrix2x2(m),
                 Object obj => FromUnityObject(obj),
                 _ => FromManagedRef(value)   // 非プリミティブ型は ManagedRef として格納
             };
@@ -159,6 +277,7 @@ namespace Game.Common
         public Vector3 AsVector3 => new(_vectorValue.x, _vectorValue.y, _vectorValue.z);
         public Vector4 AsVector4 => _vectorValue;
         public Color AsColor => new(_vectorValue.x, _vectorValue.y, _vectorValue.z, _vectorValue.w);
+        public Matrix2x2 AsMatrix2x2 => new(_vectorValue.x, _vectorValue.y, _vectorValue.z, _vectorValue.w);
         public Object AsUnityObject => _objectValue;
         public object AsManagedRef => _managedRef;
 
@@ -212,6 +331,9 @@ namespace Game.Common
                     return true;
                 case ValueKind.Color when targetType == typeof(Color):
                     value = (T)(object)AsColor;
+                    return true;
+                case ValueKind.Matrix2x2 when targetType == typeof(Matrix2x2):
+                    value = (T)(object)AsMatrix2x2;
                     return true;
                 case ValueKind.UnityObject when typeof(Object).IsAssignableFrom(targetType):
                     if (_objectValue == null || targetType.IsInstanceOfType(_objectValue))
@@ -358,6 +480,7 @@ namespace Game.Common
                 ValueKind.String => _stringValue == other._stringValue,
                 ValueKind.Vector2 or ValueKind.Vector3 or
                 ValueKind.Vector4 or ValueKind.Color => _vectorValue == other._vectorValue,
+                ValueKind.Matrix2x2 => _vectorValue == other._vectorValue,
                 ValueKind.UnityObject => ReferenceEquals(_objectValue, other._objectValue),
                 ValueKind.ManagedRef => ReferenceEquals(_managedRef, other._managedRef),
                 _ => false
@@ -374,7 +497,7 @@ namespace Game.Common
                 ValueKind.Bool or ValueKind.Int or ValueKind.Float => _numericValue.GetHashCode(),
                 ValueKind.String => _stringValue?.GetHashCode() ?? 0,
                 ValueKind.Vector2 or ValueKind.Vector3 or
-                ValueKind.Vector4 or ValueKind.Color => _vectorValue.GetHashCode(),
+                ValueKind.Vector4 or ValueKind.Color or ValueKind.Matrix2x2 => _vectorValue.GetHashCode(),
                 ValueKind.UnityObject => _objectValue?.GetHashCode() ?? 0,
                 ValueKind.ManagedRef => _managedRef?.GetHashCode() ?? 0,
                 _ => 0
@@ -401,6 +524,7 @@ namespace Game.Common
                 ValueKind.Vector3 => $"({_vectorValue.x.ToString(InvariantCulture)}, {_vectorValue.y.ToString(InvariantCulture)}, {_vectorValue.z.ToString(InvariantCulture)})",
                 ValueKind.Vector4 => $"({_vectorValue.x.ToString(InvariantCulture)}, {_vectorValue.y.ToString(InvariantCulture)}, {_vectorValue.z.ToString(InvariantCulture)}, {_vectorValue.w.ToString(InvariantCulture)})",
                 ValueKind.Color => $"RGBA({_vectorValue.x.ToString(InvariantCulture)}, {_vectorValue.y.ToString(InvariantCulture)}, {_vectorValue.z.ToString(InvariantCulture)}, {_vectorValue.w.ToString(InvariantCulture)})",
+                ValueKind.Matrix2x2 => $"Matrix2x2[{_vectorValue.x.ToString(InvariantCulture)}, {_vectorValue.y.ToString(InvariantCulture)}; {_vectorValue.z.ToString(InvariantCulture)}, {_vectorValue.w.ToString(InvariantCulture)}]",
                 ValueKind.UnityObject => _objectValue != null ? _objectValue.name : "null",
                 ValueKind.ManagedRef => _managedRef?.ToString() ?? "null",
                 _ => "unknown"

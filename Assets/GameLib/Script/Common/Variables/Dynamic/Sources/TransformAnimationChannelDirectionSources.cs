@@ -2,8 +2,11 @@
 
 using System;
 using Game.Commands.VNext;
+using Game.TransformSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace Game.Common
 {
@@ -101,14 +104,14 @@ namespace Game.Common
                 return DynamicVariant.FromVector2(TransformAnimationChannelDirectionSourceMath.NormalizeOrDefault(fallback, Vector2.right));
             }
 
-            var direction3 = TransformAnimationChannelDirectionSourceMath.ResolveDirection(resolved, space, directionAxis);
+            var direction3 = TransformAnimationChannelDirectionSourceMath.ResolveDirection(resolved, space, directionAxis, out var rotationSource);
             var projected = TransformAnimationChannelDirectionSourceMath.ProjectToPlane(direction3, outputPlane);
             var output = TransformAnimationChannelDirectionSourceMath.NormalizeOrDefault(projected, fallback);
 
             TryLog(
                 $"tag={channelTag}, actor={actorSource.Kind}, mode={targetSelectMode}, root={TransformAnimationChannelPositionSourceHelper.GetTransformPath(root)}, " +
                 $"resolved={TransformAnimationChannelPositionSourceHelper.GetTransformPath(resolved)}, space={space}, axis={directionAxis}, plane={outputPlane}, " +
-                $"dir3={direction3}, out={output}");
+                $"dir3={direction3}, rotationSource={rotationSource}, out={output}");
 
             return DynamicVariant.FromVector2(output);
         }
@@ -199,13 +202,13 @@ namespace Game.Common
                 return DynamicVariant.FromVector3(TransformAnimationChannelDirectionSourceMath.NormalizeOrDefault(fallback, Vector3.forward));
             }
 
-            var direction = TransformAnimationChannelDirectionSourceMath.ResolveDirection(resolved, space, directionAxis);
+            var direction = TransformAnimationChannelDirectionSourceMath.ResolveDirection(resolved, space, directionAxis, out var rotationSource);
             var output = TransformAnimationChannelDirectionSourceMath.NormalizeOrDefault(direction, fallback);
 
             TryLog(
                 $"tag={channelTag}, actor={actorSource.Kind}, mode={targetSelectMode}, root={TransformAnimationChannelPositionSourceHelper.GetTransformPath(root)}, " +
                 $"resolved={TransformAnimationChannelPositionSourceHelper.GetTransformPath(resolved)}, space={space}, axis={directionAxis}, " +
-                $"dir3={direction}, out={output}");
+                $"dir3={direction}, rotationSource={rotationSource}, out={output}");
 
             return DynamicVariant.FromVector3(output);
         }
@@ -302,7 +305,7 @@ namespace Game.Common
                 return DynamicVariant.FromFloat(fallback);
             }
 
-            var direction3 = TransformAnimationChannelDirectionSourceMath.ResolveDirection(resolved, space, directionAxis);
+            var direction3 = TransformAnimationChannelDirectionSourceMath.ResolveDirection(resolved, space, directionAxis, out var rotationSource);
             var projected = TransformAnimationChannelDirectionSourceMath.ProjectToPlane(direction3, projectionPlane);
 
             if (!TransformAnimationChannelDirectionSourceMath.TryNormalize(projected, out var normalized))
@@ -322,7 +325,7 @@ namespace Game.Common
             TryLog(
                 $"tag={channelTag}, actor={actorSource.Kind}, mode={targetSelectMode}, root={TransformAnimationChannelPositionSourceHelper.GetTransformPath(root)}, " +
                 $"resolved={TransformAnimationChannelPositionSourceHelper.GetTransformPath(resolved)}, space={space}, axis={directionAxis}, plane={projectionPlane}, " +
-                $"dir3={direction3}, projected={normalized}, unit={angleUnit}, out={output}");
+                $"dir3={direction3}, rotationSource={rotationSource}, projected={normalized}, unit={angleUnit}, out={output}");
 
             return DynamicVariant.FromFloat(output);
         }
@@ -349,11 +352,10 @@ namespace Game.Common
         public static Vector3 ResolveDirection(
             Transform transform,
             TransformAnimationChannelPositionSpace space,
-            TransformAnimationChannelDirectionAxis axis)
+            TransformAnimationChannelDirectionAxis axis,
+            out string rotationSource)
         {
-            var rotation = space == TransformAnimationChannelPositionSpace.World
-                ? transform.rotation
-                : transform.localRotation;
+            var rotation = ResolveRotation(transform, space, out rotationSource);
 
             return axis switch
             {
@@ -361,6 +363,51 @@ namespace Game.Common
                 TransformAnimationChannelDirectionAxis.Up => rotation * Vector3.up,
                 _ => rotation * Vector3.forward,
             };
+        }
+
+        static Quaternion ResolveRotation(
+            Transform transform,
+            TransformAnimationChannelPositionSpace space,
+            out string rotationSource)
+        {
+            if (TryResolveControllerPoseReader(transform, out var poseReader))
+            {
+                var poseTransform = poseReader.TargetTransform;
+                if (poseTransform != null && ReferenceEquals(poseTransform, transform))
+                {
+                    var worldRotation = poseReader.CurrentWorldRotation;
+                    if (space == TransformAnimationChannelPositionSpace.World)
+                    {
+                        rotationSource = "PoseReader.World";
+                        return worldRotation;
+                    }
+
+                    rotationSource = "PoseReader.Local";
+                    var parent = transform.parent;
+                    return parent != null ? Quaternion.Inverse(parent.rotation) * worldRotation : worldRotation;
+                }
+            }
+
+            rotationSource = space == TransformAnimationChannelPositionSpace.World ? "Transform.World" : "Transform.Local";
+            return space == TransformAnimationChannelPositionSpace.World
+                ? transform.rotation
+                : transform.localRotation;
+        }
+
+        static bool TryResolveControllerPoseReader(Transform transform, out ITransformControllerPoseReader poseReader)
+        {
+            for (var current = transform; current != null; current = current.parent)
+            {
+                var scope = current.GetComponent<BaseLifetimeScope>();
+                if (scope?.Resolver == null)
+                    continue;
+
+                if (scope.Resolver.TryResolve<ITransformControllerPoseReader>(out poseReader) && poseReader != null)
+                    return true;
+            }
+
+            poseReader = null!;
+            return false;
         }
 
         public static Vector2 ProjectToPlane(Vector3 direction, TransformAnimationChannelVector2Plane plane)

@@ -254,6 +254,21 @@ namespace Game.Common
                 return DynamicVariant.FromVector2(new Vector2(x, y));
             });
 
+            Register("Mat2", 4, 4, args =>
+            {
+                var m00 = ExpressionHelper.AsNumber(args[0]);
+                var m01 = ExpressionHelper.AsNumber(args[1]);
+                var m10 = ExpressionHelper.AsNumber(args[2]);
+                var m11 = ExpressionHelper.AsNumber(args[3]);
+                return DynamicVariant.FromMatrix2x2(new Matrix2x2(m00, m01, m10, m11));
+            });
+
+            Register("Rot2D", 1, 1, args =>
+                DynamicVariant.FromMatrix2x2(Matrix2x2.Rotation(ExpressionHelper.AsNumber(args[0]))));
+
+            Register("Rotation2D", 1, 1, args =>
+                DynamicVariant.FromMatrix2x2(Matrix2x2.Rotation(ExpressionHelper.AsNumber(args[0]))));
+
             Register("Vec3", 3, 3, args =>
             {
                 var x = ExpressionHelper.AsNumber(args[0]);
@@ -436,7 +451,7 @@ namespace Game.Common
 
             _inspectorTooltipCache =
                 "Functions: " + string.Join(", ", entries) +
-                "\nExample: Clamp(Sin(t) * 10, -3, 3)";
+                "\nExample: Vec2(1, 0) * Rot2D(90)";
 
             return _inspectorTooltipCache;
         }

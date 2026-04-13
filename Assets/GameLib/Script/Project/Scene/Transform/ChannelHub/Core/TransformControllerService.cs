@@ -60,6 +60,21 @@ namespace Game.TransformSystem
         public TransformAnimationOutput AnimationOutput => _animationOutput;
         public Vector2 CurrentVelocity => _movementHub?.Output?.Value ?? Vector2.zero;
         public float CurrentAngularVelocity => _rotateHub?.Output?.Value ?? 0f;
+        public Quaternion CurrentWorldRotation
+        {
+            get
+            {
+                if (_config.OutputTarget == TransformOutputTarget.Rigidbody2D)
+                {
+                    var rb = ResolveTelemetryRigidbody2D();
+                    if (rb != null)
+                        return Quaternion.Euler(0f, 0f, rb.rotation);
+                }
+
+                var target = TargetTransform;
+                return target != null ? target.rotation : Quaternion.identity;
+            }
+        }
         public string TargetName => TargetTransform != null ? TargetTransform.name : "(none)";
         public TransformOutputTarget OutputTarget => _config.OutputTarget;
         public bool MovementEnabled => _config.EnableMovement;
