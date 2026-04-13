@@ -1,0 +1,14 @@
+OVDF v1.1
+Game.StatusEffect.EffectVisualData, Assembly-CSharp
+
+# DisplayName
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 100
+
+# Description
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 100
+
+# StackDescription
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 100

@@ -1,0 +1,7 @@
+OVDF v1.1
+Game.Trait.TraitHolderDebugViewer, Assembly-CSharp
+
+# Holders
+* [Sirenix.OdinInspector.TableListAttribute]
+	DefaultMinColumnWidth = 100
+	MinScrollViewHeight = 18

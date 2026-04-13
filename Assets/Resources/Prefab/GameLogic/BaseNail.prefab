@@ -2929,7 +2929,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 542
+  _debugLastEnabledChangeFrame: 949
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -17649,7 +17649,7 @@ MonoBehaviour:
     _enableBindingDebugLog: 0
     _debugLogChannelTagFilter: 
   _enableDebugLog: 0
-  _enableBindingDebugLog: 1
+  _enableBindingDebugLog: 0
   _debugLogChannelTagFilter: count
   references:
     version: 2
