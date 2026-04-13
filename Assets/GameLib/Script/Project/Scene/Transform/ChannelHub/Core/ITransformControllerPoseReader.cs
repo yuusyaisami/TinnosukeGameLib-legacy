@@ -8,5 +8,6 @@ namespace Game.TransformSystem
         Transform TargetTransform { get; }
         TransformOutputTarget OutputTarget { get; }
         Vector2 CurrentVelocity { get; }
+        Quaternion CurrentWorldRotation { get; }
     }
 }

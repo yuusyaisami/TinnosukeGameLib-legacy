@@ -207,6 +207,14 @@ namespace Game.Common
             if (ExpressionHelper.TryEvaluateVectorBinary(ExprTokenKind.Plus, a, b, out var vec))
                 return DynamicVariant.FromVector2(vec);
 
+            if (ExpressionHelper.TryAsMatrix2x2(a, out _) || ExpressionHelper.TryAsMatrix2x2(b, out _))
+            {
+                if (ExpressionHelper.TryEvaluateMatrixBinary(ExprTokenKind.Plus, a, b, out var matrix))
+                    return DynamicVariant.FromMatrix2x2(matrix);
+
+                throw new InvalidOperationException("Matrix2x2 addition requires Matrix2x2 operands.");
+            }
+
             return DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) + ExpressionHelper.AsNumber(b));
         }
 
@@ -214,6 +222,14 @@ namespace Game.Common
         {
             if (ExpressionHelper.TryEvaluateVectorBinary(ExprTokenKind.Minus, a, b, out var vec))
                 return DynamicVariant.FromVector2(vec);
+
+            if (ExpressionHelper.TryAsMatrix2x2(a, out _) || ExpressionHelper.TryAsMatrix2x2(b, out _))
+            {
+                if (ExpressionHelper.TryEvaluateMatrixBinary(ExprTokenKind.Minus, a, b, out var matrix))
+                    return DynamicVariant.FromMatrix2x2(matrix);
+
+                throw new InvalidOperationException("Matrix2x2 subtraction requires Matrix2x2 operands.");
+            }
 
             return DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) - ExpressionHelper.AsNumber(b));
         }
@@ -223,6 +239,14 @@ namespace Game.Common
             if (ExpressionHelper.TryEvaluateVectorBinary(ExprTokenKind.Star, a, b, out var vec))
                 return DynamicVariant.FromVector2(vec);
 
+            if (ExpressionHelper.TryAsMatrix2x2(a, out _) || ExpressionHelper.TryAsMatrix2x2(b, out _))
+            {
+                if (ExpressionHelper.TryEvaluateMatrixBinary(ExprTokenKind.Star, a, b, out var matrix))
+                    return DynamicVariant.FromMatrix2x2(matrix);
+
+                throw new InvalidOperationException("Matrix2x2 multiplication requires Vector2, Matrix2x2, or numeric operands.");
+            }
+
             return DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) * ExpressionHelper.AsNumber(b));
         }
 
@@ -230,6 +254,14 @@ namespace Game.Common
         {
             if (ExpressionHelper.TryEvaluateVectorBinary(ExprTokenKind.Slash, a, b, out var vec))
                 return DynamicVariant.FromVector2(vec);
+
+            if (ExpressionHelper.TryAsMatrix2x2(a, out _) || ExpressionHelper.TryAsMatrix2x2(b, out _))
+            {
+                if (ExpressionHelper.TryEvaluateMatrixBinary(ExprTokenKind.Slash, a, b, out var matrix))
+                    return DynamicVariant.FromMatrix2x2(matrix);
+
+                throw new InvalidOperationException("Matrix2x2 division requires a Matrix2x2 left operand and numeric right operand.");
+            }
 
             return DynamicVariant.FromFloat(ExpressionHelper.AsNumber(a) / ExpressionHelper.AsNumber(b));
         }
@@ -249,6 +281,7 @@ namespace Game.Common
                 ValueKind.Bool => v.AsBool ? 1f : 0f,
                 ValueKind.Int => v.AsInt,
                 ValueKind.Float => v.AsFloat,
+                ValueKind.Matrix2x2 => throw new InvalidOperationException("Matrix2x2 cannot be used as a number."),
                 _ => 0f
             };
         }
@@ -275,14 +308,52 @@ namespace Game.Common
             }
         }
 
+        public static bool TryAsMatrix2x2(DynamicVariant v, out Matrix2x2 value)
+        {
+            if (v.Kind == ValueKind.Matrix2x2)
+            {
+                value = v.AsMatrix2x2;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
         public static bool TryEvaluateVectorBinary(ExprTokenKind op, in DynamicVariant a, in DynamicVariant b, out Vector2 result)
         {
             result = Vector2.zero;
 
             var leftIsVector = TryAsVector2(a, out var left);
             var rightIsVector = TryAsVector2(b, out var right);
+            var leftIsMatrix = TryAsMatrix2x2(a, out var leftMatrix);
+            var rightIsMatrix = TryAsMatrix2x2(b, out var rightMatrix);
             if (!leftIsVector && !rightIsVector)
-                return false;
+            {
+                if (!leftIsMatrix && !rightIsMatrix)
+                    return false;
+
+                switch (op)
+                {
+                    case ExprTokenKind.Star:
+                        if (leftIsMatrix && rightIsVector)
+                        {
+                            result = leftMatrix.Transform(right);
+                            return true;
+                        }
+
+                        if (leftIsVector && rightIsMatrix)
+                        {
+                            result = rightMatrix.Transform(left);
+                            return true;
+                        }
+
+                        return false;
+
+                    default:
+                        return false;
+                }
+            }
 
             switch (op)
             {
@@ -305,6 +376,18 @@ namespace Game.Common
                     return false;
 
                 case ExprTokenKind.Star:
+                    if (leftIsMatrix && rightIsVector)
+                    {
+                        result = leftMatrix.Transform(right);
+                        return true;
+                    }
+
+                    if (leftIsVector && rightIsMatrix)
+                    {
+                        result = rightMatrix.Transform(left);
+                        return true;
+                    }
+
                     if (leftIsVector && rightIsVector)
                     {
                         result = new Vector2(left.x * right.x, left.y * right.y);
@@ -352,6 +435,77 @@ namespace Game.Common
             }
         }
 
+        public static bool TryEvaluateMatrixBinary(ExprTokenKind op, in DynamicVariant a, in DynamicVariant b, out Matrix2x2 result)
+        {
+            result = default;
+
+            var leftIsMatrix = TryAsMatrix2x2(a, out var left);
+            var rightIsMatrix = TryAsMatrix2x2(b, out var right);
+            if (!leftIsMatrix && !rightIsMatrix)
+                return false;
+
+            switch (op)
+            {
+                case ExprTokenKind.Plus:
+                    if (leftIsMatrix && rightIsMatrix)
+                    {
+                        result = left + right;
+                        return true;
+                    }
+
+                    return false;
+
+                case ExprTokenKind.Minus:
+                    if (leftIsMatrix && rightIsMatrix)
+                    {
+                        result = left - right;
+                        return true;
+                    }
+
+                    return false;
+
+                case ExprTokenKind.Star:
+                    if (leftIsMatrix && rightIsMatrix)
+                    {
+                        result = left * right;
+                        return true;
+                    }
+
+                    if (leftIsMatrix && IsNumericKind(b.Kind))
+                    {
+                        result = left * AsNumber(b);
+                        return true;
+                    }
+
+                    if (IsNumericKind(a.Kind) && rightIsMatrix)
+                    {
+                        result = right * AsNumber(a);
+                        return true;
+                    }
+
+                    return false;
+
+                case ExprTokenKind.Slash:
+                    if (leftIsMatrix && IsNumericKind(b.Kind))
+                    {
+                        var divisor = AsNumber(b);
+                        if (Mathf.Abs(divisor) <= Epsilon)
+                        {
+                            result = default;
+                            return true;
+                        }
+
+                        result = left / divisor;
+                        return true;
+                    }
+
+                    return false;
+
+                default:
+                    return false;
+            }
+        }
+
         public static bool AsBool(DynamicVariant v)
         {
             return v.Kind switch
@@ -361,12 +515,21 @@ namespace Game.Common
                 ValueKind.Int => v.AsInt != 0,
                 ValueKind.Float => Math.Abs(v.AsFloat) > float.Epsilon,
                 ValueKind.String => !string.IsNullOrEmpty(v.AsString),
+                ValueKind.Matrix2x2 => throw new InvalidOperationException("Matrix2x2 cannot be used as a boolean."),
                 _ => false
             };
         }
 
         public static int Compare(DynamicVariant a, DynamicVariant b)
         {
+            if (TryAsMatrix2x2(a, out var leftMatrix) || TryAsMatrix2x2(b, out var rightMatrix))
+            {
+                if (TryAsMatrix2x2(a, out leftMatrix) && TryAsMatrix2x2(b, out rightMatrix))
+                    return leftMatrix.CompareTo(rightMatrix);
+
+                throw new InvalidOperationException("Matrix2x2 comparison requires Matrix2x2 operands.");
+            }
+
             if (a.Kind == ValueKind.String || b.Kind == ValueKind.String)
             {
                 return string.Compare(a.AsString, b.AsString, StringComparison.Ordinal);

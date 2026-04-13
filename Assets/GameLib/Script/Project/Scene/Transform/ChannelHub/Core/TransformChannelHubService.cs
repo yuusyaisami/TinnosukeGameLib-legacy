@@ -604,6 +604,15 @@ namespace Game.TransformSystem
             }
         }
 
+        public Quaternion CurrentWorldRotation
+        {
+            get
+            {
+                var target = TargetTransform;
+                return target != null ? target.rotation : Quaternion.identity;
+            }
+        }
+
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
             if (!ReferenceEquals(_owner, scope))
