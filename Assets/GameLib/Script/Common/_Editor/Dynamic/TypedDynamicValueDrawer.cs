@@ -229,6 +229,8 @@ namespace Game.Common.Editor
             {
                 allowedList.Add(typeof(SelfGridBlackboardSource));
                 allowedList.Add(typeof(OtherGridBlackboardSource));
+                allowedList.Add(typeof(SelfTableCellSource));
+                allowedList.Add(typeof(OtherTableCellSource));
             }
 
             if (targetType == typeof(int))
@@ -236,6 +238,16 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(SelfGridBlackboardColumnCountSource));
                 allowedList.Add(typeof(OtherGridBlackboardColumnCountSource));
                 allowedList.Add(typeof(SelfGridBlackboardRowCountSource));
+                allowedList.Add(typeof(SelfTableColumnCountSource));
+                allowedList.Add(typeof(OtherTableColumnCountSource));
+                allowedList.Add(typeof(SelfTableRowCountSource));
+                allowedList.Add(typeof(OtherTableRowCountSource));
+            }
+
+            if (targetType == typeof(bool))
+            {
+                allowedList.Add(typeof(SelfTableCellExistsSource));
+                allowedList.Add(typeof(OtherTableCellExistsSource));
             }
 
             // 5. Scalar（int / float / string に対応）
@@ -291,6 +303,14 @@ namespace Game.Common.Editor
             if (sourceType == typeof(SelfGridBlackboardColumnCountSource)) return "Grid Column Count At Row (Self)";
             if (sourceType == typeof(OtherGridBlackboardColumnCountSource)) return "Grid Column Count At Row (Other)";
             if (sourceType == typeof(SelfGridBlackboardRowCountSource)) return "Grid Row Count (Self)";
+            if (sourceType == typeof(SelfTableCellSource)) return "Table Cell Value (Self)";
+            if (sourceType == typeof(OtherTableCellSource)) return "Table Cell Value (Other)";
+            if (sourceType == typeof(SelfTableCellExistsSource)) return "Table Cell Exists (Self)";
+            if (sourceType == typeof(OtherTableCellExistsSource)) return "Table Cell Exists (Other)";
+            if (sourceType == typeof(SelfTableColumnCountSource)) return "Table Column Count At Row (Self)";
+            if (sourceType == typeof(OtherTableColumnCountSource)) return "Table Column Count At Row (Other)";
+            if (sourceType == typeof(SelfTableRowCountSource)) return "Table Row Count (Self)";
+            if (sourceType == typeof(OtherTableRowCountSource)) return "Table Row Count (Other)";
 
             var name = sourceType.Name;
 

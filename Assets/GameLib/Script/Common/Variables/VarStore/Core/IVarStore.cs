@@ -39,6 +39,23 @@ namespace Game.Common
         bool TrySetManagedRef(int varId, object value);
         bool TryGetManagedRef(int varId, out object value);
 
+        // ---- Table (2D / Cell VarStore) ----
+        IEnumerable<int> EnumerateTableVarIds();
+        bool ContainsTable(int tableVarId);
+        int GetTableVersion(int tableVarId);
+        bool TryGetTableRowCount(int tableVarId, out int rowCount);
+        bool TryGetTableColumnCount(int tableVarId, int rowIndex, out int columnCount);
+        bool TryHasTableCell(int tableVarId, int rowIndex, int columnIndex);
+        bool TryEnsureTableRow(int tableVarId, int rowIndex);
+        bool TryInsertTableRow(int tableVarId, int rowIndex);
+        bool TryRemoveTableRow(int tableVarId, int rowIndex);
+        bool TryAppendTableCell(int tableVarId, int rowIndex, out int columnIndex);
+        bool TryInsertTableCell(int tableVarId, int rowIndex, int columnIndex);
+        bool TryRemoveTableCell(int tableVarId, int rowIndex, int columnIndex);
+        bool TryClearTable(int tableVarId);
+        bool TryGetTableCellStore(int tableVarId, int rowIndex, int columnIndex, out IVarStore cellStore);
+        bool TryGetOrEnsureTableCellStore(int tableVarId, int rowIndex, int columnIndex, bool autoCreateRow, out IVarStore cellStore);
+
         /// <summary>
         /// 値の未設定化。
         /// - 既に未設定なら false
