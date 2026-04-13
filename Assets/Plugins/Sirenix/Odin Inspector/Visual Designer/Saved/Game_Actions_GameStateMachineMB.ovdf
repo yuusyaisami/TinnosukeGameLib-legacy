@@ -1,0 +1,7 @@
+OVDF v1.1
+Game.Actions.GameStateMachineMB, Assembly-CSharp
+MetaGuid:f38c66f5f7aa4c448b66fb4fb639b96b
+
+# _debugViewer
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 100

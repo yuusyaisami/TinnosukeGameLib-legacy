@@ -3498,6 +3498,38 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 772173016843681913
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 100000, y: 100000, z: 100000}
+    - rid: 772173016843681914
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 772173016843681915
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 100000, y: 100000, z: 100000}
+    - rid: 772173016843681916
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
     - rid: 5619052416848363968
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -3793,6 +3825,15 @@ MonoBehaviour:
           _source:
             rid: 5619052416848363995
           _defaultValue: {x: 0, y: 0, z: 0}
+        UseHiddenPreSpawn: 0
+        HiddenSpawnOffset:
+          _source:
+            rid: 772173016843681913
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RevealDelayFrames:
+          _source:
+            rid: 772173016843681914
+          _defaultValue: 0
         Count:
           _source:
             rid: 5619052416848363999
@@ -3937,6 +3978,15 @@ MonoBehaviour:
           _source:
             rid: 5619052416848364010
           _defaultValue: {x: 0, y: 0, z: 0}
+        UseHiddenPreSpawn: 0
+        HiddenSpawnOffset:
+          _source:
+            rid: 772173016843681915
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RevealDelayFrames:
+          _source:
+            rid: 772173016843681916
+          _defaultValue: 0
         Count:
           _source:
             rid: 5619052416848364011
@@ -22271,7 +22321,7 @@ RectTransform:
   m_GameObject: {fileID: 755106987}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 0, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1023374572}
@@ -25770,7 +25820,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.TraitListChannelHubMB
   _channels:
   - _channelTag: default
-    _autoBuild: 0
+    _autoBuild: 1
     _defaultBinding:
       _holderHubSource:
         Kind: 5
@@ -58329,7 +58379,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 1297
+  _debugLastEnabledChangeFrame: 0
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1484563809
@@ -60918,7 +60968,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 1297
+  _debugLastEnabledChangeFrame: 0
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1505620737
@@ -81447,7 +81497,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 1297
+  _debugLastEnabledChangeFrame: 0
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!61 &1979925667
@@ -85354,6 +85404,7 @@ MonoBehaviour:
         - rid: 5399842374860145410
         - rid: 5399842374860145412
         - rid: 5399842374860145389
+        - rid: 772173016843682034
       IntervalSeconds: 0.1
     WhileFalseCommands:
       Commands:
@@ -85372,6 +85423,49 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 772173016843682034
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 772173016843682035
+    - rid: 772173016843682035
+      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Label: CommandDebug
+        Message: 
+        LogScopeInfo: 1
+        LogRunnerInfo: 1
+        LogContextSlots: 1
+        LogOptions: 1
+        LogVarStore: 1
+        TargetScope:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        LogTargetScopeInfo: 1
+        LogTargetBlackboard: 1
+        MaxBlackboardEntries: 0
+        LogTargetGridBlackboard: 1
+        MaxGridBlackboardEntries: 0
+        LogTargetScalar: 1
+        MaxScalarEntries: 0
+        LogScalarSnapshots: 1
+        MaxScalarSnapshotsPerKey: 0
+        MaxVarEntries: 64
+        LogWatches: 1
+        MaxWatchEntries: 16
+        Watches: []
     - rid: 5399842374860145385
       type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
