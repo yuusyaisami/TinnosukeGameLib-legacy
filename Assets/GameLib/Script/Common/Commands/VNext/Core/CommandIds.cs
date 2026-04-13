@@ -59,6 +59,7 @@ namespace Game.Commands.VNext
         public const int ConversationInFlow = 1842;
         public const int WriteData = 1850;
         public const int WriteGridData = 1851;
+        public const int WriteTableData = 1852;
 
         public const int BuildRoomMap = 1860;
         public const int ClearRoomMap = 1861;
@@ -157,6 +158,7 @@ namespace Game.Commands.VNext
         public const int CommandListChannelPlayerControl = 2008;
         public const int CommandListChannel = 2009;
         public const int WithTargetChannel = 2010;
+        public const int WithTableElements = 2011;
         public const int HostCall = 3001;
 
         public const int EquipTrait = 2200;

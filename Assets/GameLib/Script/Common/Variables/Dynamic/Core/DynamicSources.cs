@@ -1895,6 +1895,504 @@ namespace Game.Common
         }
     }
 
+    [Serializable]
+    public sealed class SelfTableRowCountSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
+        int tableVarId;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        public string SourceTypeName => "SelfTableRowCount";
+        public string GetDebugData => VarIdResolver.TryGetIdToStable(tableVarId) ?? "(none)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context?.Scope == null || tableVarId == 0)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableRowCount(tableVarId, out var count))
+                        return DynamicVariant.FromInt(count);
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
+                return DynamicVariant.Null;
+
+            return localVars.TryGetTableRowCount(tableVarId, out var localCount)
+                ? DynamicVariant.FromInt(localCount)
+                : DynamicVariant.Null;
+        }
+    }
+
+    [Serializable]
+    public sealed class OtherTableRowCountSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
+        int tableVarId;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActor)")]
+        ActorSource targetActor;
+
+        [NonSerialized] ActorSourceResolveCache _cache;
+
+        public string SourceTypeName => "OtherTableRowCount";
+        public string GetDebugData => VarIdResolver.TryGetIdToStable(tableVarId) ?? "(none)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null || tableVarId == 0)
+                return DynamicVariant.Null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableRowCount(tableVarId, out var count))
+                        return DynamicVariant.FromInt(count);
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
+                return DynamicVariant.Null;
+
+            return localVars.TryGetTableRowCount(tableVarId, out var localCount)
+                ? DynamicVariant.FromInt(localCount)
+                : DynamicVariant.Null;
+        }
+    }
+
+    [Serializable]
+    public sealed class SelfTableColumnCountSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
+        int tableVarId;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Row")]
+        DynamicValue<int> row = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        public string SourceTypeName => "SelfTableColumnCount";
+        public string GetDebugData => VarIdResolver.TryGetIdToStable(tableVarId) ?? "(none)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context?.Scope == null || tableVarId == 0)
+                return DynamicVariant.Null;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            if (rowIndex < 0)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableColumnCount(tableVarId, rowIndex, out var count))
+                        return DynamicVariant.FromInt(count);
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
+                return DynamicVariant.Null;
+
+            return localVars.TryGetTableColumnCount(tableVarId, rowIndex, out var localCount)
+                ? DynamicVariant.FromInt(localCount)
+                : DynamicVariant.Null;
+        }
+    }
+
+    [Serializable]
+    public sealed class OtherTableColumnCountSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
+        int tableVarId;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Row")]
+        DynamicValue<int> row = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActor)")]
+        ActorSource targetActor;
+
+        [NonSerialized] ActorSourceResolveCache _cache;
+
+        public string SourceTypeName => "OtherTableColumnCount";
+        public string GetDebugData => VarIdResolver.TryGetIdToStable(tableVarId) ?? "(none)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null || tableVarId == 0)
+                return DynamicVariant.Null;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            if (rowIndex < 0)
+                return DynamicVariant.Null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableColumnCount(tableVarId, rowIndex, out var count))
+                        return DynamicVariant.FromInt(count);
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
+                return DynamicVariant.Null;
+
+            return localVars.TryGetTableColumnCount(tableVarId, rowIndex, out var localCount)
+                ? DynamicVariant.FromInt(localCount)
+                : DynamicVariant.Null;
+        }
+    }
+
+    [Serializable]
+    public sealed class SelfTableCellExistsSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
+        int tableVarId;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Row")]
+        DynamicValue<int> row = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("Column")]
+        DynamicValue<int> column = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        public string SourceTypeName => "SelfTableCellExists";
+        public string GetDebugData => VarIdResolver.TryGetIdToStable(tableVarId) ?? "(none)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context?.Scope == null || tableVarId == 0)
+                return DynamicVariant.Null;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            var columnIndex = TableVarStoreSourceUtility.EvaluateIndex(context, column);
+            if (rowIndex < 0 || columnIndex < 0)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryHasTableCell(tableVarId, rowIndex, columnIndex))
+                        return DynamicVariant.FromBool(true);
+                }
+
+                return DynamicVariant.FromBool(false);
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
+                return DynamicVariant.Null;
+
+            return DynamicVariant.FromBool(localVars.TryHasTableCell(tableVarId, rowIndex, columnIndex));
+        }
+    }
+
+    [Serializable]
+    public sealed class OtherTableCellExistsSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
+        int tableVarId;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Row")]
+        DynamicValue<int> row = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("Column")]
+        DynamicValue<int> column = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActor)")]
+        ActorSource targetActor;
+
+        [NonSerialized] ActorSourceResolveCache _cache;
+
+        public string SourceTypeName => "OtherTableCellExists";
+        public string GetDebugData => VarIdResolver.TryGetIdToStable(tableVarId) ?? "(none)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null || tableVarId == 0)
+                return DynamicVariant.Null;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            var columnIndex = TableVarStoreSourceUtility.EvaluateIndex(context, column);
+            if (rowIndex < 0 || columnIndex < 0)
+                return DynamicVariant.Null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryHasTableCell(tableVarId, rowIndex, columnIndex))
+                        return DynamicVariant.FromBool(true);
+                }
+
+                return DynamicVariant.FromBool(false);
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
+                return DynamicVariant.Null;
+
+            return DynamicVariant.FromBool(localVars.TryHasTableCell(tableVarId, rowIndex, columnIndex));
+        }
+    }
+
+    [Serializable]
+    public sealed class SelfTableCellSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
+        int tableVarId;
+
+        [SerializeField, LabelText("Use Var Key Filter")]
+        bool useVarKeyFilter = true;
+
+        [SerializeField, ShowIf(nameof(useVarKeyFilter)), LabelText("Var Key"), VarIdDropdown]
+        int varIdFilter;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Row")]
+        DynamicValue<int> row = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("Column")]
+        DynamicValue<int> column = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        public string SourceTypeName => "SelfTableCell";
+        public string GetDebugData
+            => useVarKeyFilter
+                ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
+                : "(first var in cell)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context?.Scope == null || tableVarId == 0)
+                return DynamicVariant.Null;
+
+            if (useVarKeyFilter && varIdFilter == 0)
+                return DynamicVariant.Null;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            var columnIndex = TableVarStoreSourceUtility.EvaluateIndex(context, column);
+            if (rowIndex < 0 || columnIndex < 0)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (TableVarStoreSourceUtility.TryGetCellVariant(vars, tableVarId, rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out var value))
+                        return value;
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
+                return DynamicVariant.Null;
+
+            return TableVarStoreSourceUtility.TryGetCellVariant(localVars, tableVarId, rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out var localValue)
+                ? localValue
+                : DynamicVariant.Null;
+        }
+    }
+
+    [Serializable]
+    public sealed class OtherTableCellSource : IDynamicSource
+    {
+        [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
+        int tableVarId;
+
+        [SerializeField, LabelText("Use Var Key Filter")]
+        bool useVarKeyFilter = true;
+
+        [SerializeField, ShowIf(nameof(useVarKeyFilter)), LabelText("Var Key"), VarIdDropdown]
+        int varIdFilter;
+
+        [SerializeField, LabelText("Read Scope")]
+        BlackboardReadScope readScope = BlackboardReadScope.Local;
+
+        [SerializeField, LabelText("Row")]
+        DynamicValue<int> row = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("Column")]
+        DynamicValue<int> column = DynamicValue<int>.FromSource(new LiteralIntSource(0));
+
+        [SerializeField, LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActor)")]
+        ActorSource targetActor;
+
+        [NonSerialized] ActorSourceResolveCache _cache;
+
+        public string SourceTypeName => "OtherTableCell";
+        public string GetDebugData
+            => useVarKeyFilter
+                ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
+                : "(first var in cell)";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null || tableVarId == 0)
+                return DynamicVariant.Null;
+
+            if (useVarKeyFilter && varIdFilter == 0)
+                return DynamicVariant.Null;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            var columnIndex = TableVarStoreSourceUtility.EvaluateIndex(context, column);
+            if (rowIndex < 0 || columnIndex < 0)
+                return DynamicVariant.Null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return DynamicVariant.Null;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (TableVarStoreSourceUtility.TryGetCellVariant(vars, tableVarId, rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out var value))
+                        return value;
+                }
+
+                return DynamicVariant.Null;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
+                return DynamicVariant.Null;
+
+            return TableVarStoreSourceUtility.TryGetCellVariant(localVars, tableVarId, rowIndex, columnIndex, useVarKeyFilter, varIdFilter, out var localValue)
+                ? localValue
+                : DynamicVariant.Null;
+        }
+    }
+
+    static class TableVarStoreSourceUtility
+    {
+        public static int EvaluateIndex(IDynamicContext context, DynamicValue<int> value)
+        {
+            if (value.HasSource)
+                return value.Evaluate(context).TryGet<int>(out var evaluated) ? evaluated : -1;
+
+            return 0;
+        }
+
+        public static bool TryResolveScopeVars(IScopeNode? scope, out IVarStore vars)
+        {
+            vars = NullVarStore.Instance;
+            var resolver = scope?.Resolver;
+            if (resolver == null)
+                return false;
+
+            if (!resolver.TryResolve<IVarStore>(out var resolved) || resolved == null)
+                return false;
+
+            vars = resolved;
+            return true;
+        }
+
+        public static bool TryGetCellVariant(
+            IVarStore vars,
+            int tableVarId,
+            int rowIndex,
+            int columnIndex,
+            bool useVarKeyFilter,
+            int varIdFilter,
+            out DynamicVariant value)
+        {
+            if (!vars.TryGetTableCellStore(tableVarId, rowIndex, columnIndex, out var cellVars))
+            {
+                value = default;
+                return false;
+            }
+
+            if (useVarKeyFilter)
+            {
+                if (cellVars.GetVarKind(varIdFilter) == ValueKind.ManagedRef)
+                {
+                    value = default;
+                    return false;
+                }
+
+                return cellVars.TryGetVariant(varIdFilter, out value);
+            }
+
+            foreach (var varId in cellVars.EnumerateVarIds())
+            {
+                if (cellVars.GetVarKind(varId) == ValueKind.ManagedRef)
+                    continue;
+
+                if (cellVars.TryGetVariant(varId, out value))
+                    return true;
+            }
+
+            value = default;
+            return false;
+        }
+    }
+
     static class GridBlackboardSourceUtility
     {
         public static bool TryEvaluateIndices(IDynamicContext context, DynamicValue<int> rowValue, DynamicValue<int> columnValue, out int rowIndex, out int columnIndex)

@@ -274,6 +274,10 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.WriteGridDataExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.WriteTableDataExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.WithTableElementsExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.WriteStatusEffectDataExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<global::Game.Commands.VNext.LotteryExecutor>(Lifetime.Singleton)

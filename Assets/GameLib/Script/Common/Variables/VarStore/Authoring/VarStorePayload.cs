@@ -39,7 +39,11 @@ namespace Game.Common
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
         List<Entry> entries = new();
 
+        [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
+        List<TableEntry> tables = new();
+
         public IReadOnlyList<Entry> Entries => entries;
+        public IReadOnlyList<TableEntry> Tables => tables;
 
         [Serializable]
         public struct Entry
@@ -60,10 +64,40 @@ namespace Game.Common
             public DynamicValue Value;
         }
 
+        [Serializable]
+        public sealed class TableEntry
+        {
+            [SerializeField, VarIdDropdown]
+            public int TableVarId;
+
+            [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
+            public List<TableRow> Rows = new();
+        }
+
+        [Serializable]
+        public sealed class TableRow
+        {
+            [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
+            public List<TableCell> Cells = new();
+        }
+
+        [Serializable]
+        public sealed class TableCell
+        {
+            [SerializeField, InlineProperty]
+            public VarStorePayload Vars = new();
+        }
+
         public void ApplyTo(IVarStore dest, bool overwrite)
         {
-            if (dest == null || entries == null || entries.Count == 0)
+            if (dest == null)
                 return;
+
+            if (entries == null || entries.Count == 0)
+            {
+                ApplyTables(dest, overwrite, context: null);
+                return;
+            }
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -99,6 +133,60 @@ namespace Game.Common
                 }
 
                 dest.TrySetVariant(varId, value);
+            }
+
+            ApplyTables(dest, overwrite, context: null);
+        }
+
+        internal void ApplyTables(IVarStore dest, bool overwrite, IDynamicContext? context)
+        {
+            if (dest == null || tables == null || tables.Count == 0)
+                return;
+
+            for (var t = 0; t < tables.Count; t++)
+            {
+                var table = tables[t];
+                if (table == null || table.TableVarId == 0)
+                    continue;
+
+                if (!overwrite && dest.ContainsTable(table.TableVarId))
+                    continue;
+
+                if (overwrite && dest.ContainsTable(table.TableVarId))
+                    dest.TryClearTable(table.TableVarId);
+
+                var rows = table.Rows;
+                if (rows == null || rows.Count == 0)
+                    continue;
+
+                for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+                {
+                    if (!dest.TryEnsureTableRow(table.TableVarId, rowIndex))
+                        continue;
+
+                    var row = rows[rowIndex];
+                    var cells = row?.Cells;
+                    if (cells == null || cells.Count == 0)
+                        continue;
+
+                    for (var columnIndex = 0; columnIndex < cells.Count; columnIndex++)
+                    {
+                        if (!dest.TryAppendTableCell(table.TableVarId, rowIndex, out _))
+                            break;
+
+                        if (!dest.TryGetTableCellStore(table.TableVarId, rowIndex, columnIndex, out var cellStore))
+                            continue;
+
+                        var cell = cells[columnIndex];
+                        if (cell?.Vars == null)
+                            continue;
+
+                        if (context == null)
+                            cell.Vars.ApplyTo(cellStore, overwrite: true);
+                        else
+                            cell.Vars.ApplyTo(cellStore, context, overwrite: true);
+                    }
+                }
             }
         }
 

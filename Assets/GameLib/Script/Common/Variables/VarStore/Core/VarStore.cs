@@ -21,12 +21,50 @@ namespace Game.Common
             public object? ManagedRef;
         }
 
+        sealed class TableSlot
+        {
+            public int Version;
+            public readonly List<List<TableCell>> Rows = new();
+        }
+
+        sealed class TableCell
+        {
+            readonly VarStore _owner;
+            readonly int _tableVarId;
+            readonly Action<int> _onChanged;
+
+            public readonly VarStore Vars;
+
+            public TableCell(VarStore owner, int tableVarId)
+            {
+                _owner = owner;
+                _tableVarId = tableVarId;
+                _onChanged = HandleCellVarChanged;
+                Vars = new VarStore();
+                Vars.OnVarChanged += _onChanged;
+            }
+
+            public void Dispose()
+            {
+                Vars.OnVarChanged -= _onChanged;
+            }
+
+            void HandleCellVarChanged(int _)
+            {
+                _owner.NotifyTableCellChanged(_tableVarId);
+            }
+        }
+
         readonly Dictionary<int, VarSlot> _slots;
+        readonly Dictionary<int, TableSlot> _tables;
         readonly IVarSchema? _schema;
         int _globalVersion;
         int _lastVarId;
         VarSlot _lastSlot;
         bool _hasLastSlot;
+        int _lastTableVarId;
+        TableSlot? _lastTableSlot;
+        bool _hasLastTableSlot;
 
         public int GlobalVersion => _globalVersion;
         public event Action<int>? OnVarChanged;
@@ -35,14 +73,22 @@ namespace Game.Common
         {
             _schema = schema;
             _slots = initialCapacity > 0 ? new Dictionary<int, VarSlot>(initialCapacity) : new Dictionary<int, VarSlot>();
+            _tables = initialCapacity > 0 ? new Dictionary<int, TableSlot>(initialCapacity) : new Dictionary<int, TableSlot>();
             _globalVersion = 0;
         }
 
         public IEnumerable<int> EnumerateVarIds() => _slots.Keys;
 
+        public IEnumerable<int> EnumerateTableVarIds() => _tables.Keys;
+
         public bool Contains(int varId)
         {
             return TryGetSlot(varId, out _);
+        }
+
+        public bool ContainsTable(int tableVarId)
+        {
+            return TryGetTableSlot(tableVarId, out _);
         }
 
         public int GetVarVersion(int varId)
@@ -50,15 +96,199 @@ namespace Game.Common
             return TryGetSlot(varId, out var slot) ? slot.Version : 0;
         }
 
+        public int GetTableVersion(int tableVarId)
+        {
+            return TryGetTableSlot(tableVarId, out var slot) ? slot.Version : 0;
+        }
+
         public ValueKind GetVarKind(int varId)
         {
             return TryGetSlot(varId, out var slot) ? slot.Kind : ValueKind.Null;
+        }
+
+        public bool TryGetTableRowCount(int tableVarId, out int rowCount)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table))
+            {
+                rowCount = 0;
+                return false;
+            }
+
+            rowCount = table.Rows.Count;
+            return true;
+        }
+
+        public bool TryGetTableColumnCount(int tableVarId, int rowIndex, out int columnCount)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table) || rowIndex < 0 || rowIndex >= table.Rows.Count)
+            {
+                columnCount = 0;
+                return false;
+            }
+
+            columnCount = table.Rows[rowIndex].Count;
+            return true;
+        }
+
+        public bool TryHasTableCell(int tableVarId, int rowIndex, int columnIndex)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table) || rowIndex < 0 || columnIndex < 0)
+                return false;
+
+            if (rowIndex >= table.Rows.Count)
+                return false;
+
+            var row = table.Rows[rowIndex];
+            return columnIndex < row.Count;
+        }
+
+        public bool TryEnsureTableRow(int tableVarId, int rowIndex)
+        {
+            if (rowIndex < 0 || !TryGetOrCreateTableSlot(tableVarId, createIfMissing: true, out var table))
+                return false;
+
+            var changed = false;
+            while (table.Rows.Count <= rowIndex)
+            {
+                table.Rows.Add(new List<TableCell>());
+                changed = true;
+            }
+
+            if (changed)
+                BumpTableVersionAndNotify(tableVarId, table);
+
+            return true;
+        }
+
+        public bool TryInsertTableRow(int tableVarId, int rowIndex)
+        {
+            if (rowIndex < 0 || !TryGetOrCreateTableSlot(tableVarId, createIfMissing: true, out var table))
+                return false;
+
+            if (rowIndex > table.Rows.Count)
+                return false;
+
+            table.Rows.Insert(rowIndex, new List<TableCell>());
+            BumpTableVersionAndNotify(tableVarId, table);
+            return true;
+        }
+
+        public bool TryRemoveTableRow(int tableVarId, int rowIndex)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table) || rowIndex < 0 || rowIndex >= table.Rows.Count)
+                return false;
+
+            DisposeRow(table.Rows[rowIndex]);
+            table.Rows.RemoveAt(rowIndex);
+            BumpTableVersionAndNotify(tableVarId, table);
+            return true;
+        }
+
+        public bool TryAppendTableCell(int tableVarId, int rowIndex, out int columnIndex)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table) || rowIndex < 0 || rowIndex >= table.Rows.Count)
+            {
+                columnIndex = -1;
+                return false;
+            }
+
+            var row = table.Rows[rowIndex];
+            var cell = CreateTableCell(tableVarId);
+            row.Add(cell);
+            columnIndex = row.Count - 1;
+            BumpTableVersionAndNotify(tableVarId, table);
+            return true;
+        }
+
+        public bool TryInsertTableCell(int tableVarId, int rowIndex, int columnIndex)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table) || rowIndex < 0 || rowIndex >= table.Rows.Count)
+                return false;
+
+            var row = table.Rows[rowIndex];
+            if (columnIndex < 0 || columnIndex > row.Count)
+                return false;
+
+            row.Insert(columnIndex, CreateTableCell(tableVarId));
+            BumpTableVersionAndNotify(tableVarId, table);
+            return true;
+        }
+
+        public bool TryRemoveTableCell(int tableVarId, int rowIndex, int columnIndex)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table) || rowIndex < 0 || rowIndex >= table.Rows.Count)
+                return false;
+
+            var row = table.Rows[rowIndex];
+            if (columnIndex < 0 || columnIndex >= row.Count)
+                return false;
+
+            row[columnIndex].Dispose();
+            row.RemoveAt(columnIndex);
+            BumpTableVersionAndNotify(tableVarId, table);
+            return true;
+        }
+
+        public bool TryClearTable(int tableVarId)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table))
+                return false;
+
+            if (table.Rows.Count == 0)
+                return true;
+
+            DisposeRows(table.Rows);
+            table.Rows.Clear();
+            BumpTableVersionAndNotify(tableVarId, table);
+            return true;
+        }
+
+        public bool TryGetTableCellStore(int tableVarId, int rowIndex, int columnIndex, out IVarStore cellStore)
+        {
+            if (TryGetTableCell(tableVarId, rowIndex, columnIndex, out var cell))
+            {
+                cellStore = cell.Vars;
+                return true;
+            }
+
+            cellStore = NullVarStore.Instance;
+            return false;
+        }
+
+        public bool TryGetOrEnsureTableCellStore(int tableVarId, int rowIndex, int columnIndex, bool autoCreateRow, out IVarStore cellStore)
+        {
+            if (rowIndex < 0 || columnIndex < 0)
+            {
+                cellStore = NullVarStore.Instance;
+                return false;
+            }
+
+            if (autoCreateRow)
+            {
+                if (!TryEnsureTableRow(tableVarId, rowIndex))
+                {
+                    cellStore = NullVarStore.Instance;
+                    return false;
+                }
+            }
+
+            if (TryGetTableCell(tableVarId, rowIndex, columnIndex, out var cell))
+            {
+                cellStore = cell.Vars;
+                return true;
+            }
+
+            cellStore = NullVarStore.Instance;
+            return false;
         }
 
         public bool TrySetVariant(int varId, in DynamicVariant value)
         {
 
             if (varId == 0)
+                return false;
+
+            if (ContainsTable(varId))
                 return false;
 
             if (value.Kind == ValueKind.Null)
@@ -178,6 +408,9 @@ namespace Game.Common
             if (varId == 0)
                 return false;
 
+            if (ContainsTable(varId))
+                return false;
+
             if (value == null)
                 return TryUnset(varId);
 
@@ -250,12 +483,17 @@ namespace Game.Common
 
         public void Clear()
         {
-            if (_slots.Count == 0)
+            if (_slots.Count == 0 && _tables.Count == 0)
                 return;
 
             _slots.Clear();
+            foreach (var pair in _tables)
+                DisposeRows(pair.Value.Rows);
+
+            _tables.Clear();
             _globalVersion++;
             ClearCache();
+            ClearTableCache();
         }
 
         bool TryGetSlot(int varId, out VarSlot slot)
@@ -306,6 +544,117 @@ namespace Game.Common
             _globalVersion++;
             slot.Version = _globalVersion;
             OnVarChanged?.Invoke(varId);
+        }
+
+        bool TryGetTableSlot(int tableVarId, out TableSlot table)
+        {
+            if (tableVarId == 0)
+            {
+                table = null!;
+                return false;
+            }
+
+            if (_hasLastTableSlot && _lastTableVarId == tableVarId && _lastTableSlot != null)
+            {
+                table = _lastTableSlot;
+                return true;
+            }
+
+            if (_tables.TryGetValue(tableVarId, out table))
+            {
+                CacheTableSlot(tableVarId, table);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool TryGetOrCreateTableSlot(int tableVarId, bool createIfMissing, out TableSlot table)
+        {
+            if (TryGetTableSlot(tableVarId, out table))
+                return true;
+
+            if (!createIfMissing || tableVarId == 0)
+                return false;
+
+            if (Contains(tableVarId))
+                return false;
+
+            table = new TableSlot();
+            _tables[tableVarId] = table;
+            CacheTableSlot(tableVarId, table);
+            return true;
+        }
+
+        bool TryGetTableCell(int tableVarId, int rowIndex, int columnIndex, out TableCell cell)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table) || rowIndex < 0 || columnIndex < 0 || rowIndex >= table.Rows.Count)
+            {
+                cell = null!;
+                return false;
+            }
+
+            var row = table.Rows[rowIndex];
+            if (columnIndex >= row.Count)
+            {
+                cell = null!;
+                return false;
+            }
+
+            cell = row[columnIndex];
+            return true;
+        }
+
+        TableCell CreateTableCell(int tableVarId)
+        {
+            return new TableCell(this, tableVarId);
+        }
+
+        void CacheTableSlot(int tableVarId, TableSlot table)
+        {
+            _lastTableVarId = tableVarId;
+            _lastTableSlot = table;
+            _hasLastTableSlot = true;
+        }
+
+        void InvalidateTableCache(int tableVarId)
+        {
+            if (_hasLastTableSlot && _lastTableVarId == tableVarId)
+                ClearTableCache();
+        }
+
+        void ClearTableCache()
+        {
+            _lastTableVarId = 0;
+            _lastTableSlot = null;
+            _hasLastTableSlot = false;
+        }
+
+        void NotifyTableCellChanged(int tableVarId)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table))
+                return;
+
+            BumpTableVersionAndNotify(tableVarId, table);
+        }
+
+        void BumpTableVersionAndNotify(int tableVarId, TableSlot table)
+        {
+            _globalVersion++;
+            table.Version = _globalVersion;
+            OnVarChanged?.Invoke(tableVarId);
+        }
+
+        static void DisposeRows(List<List<TableCell>> rows)
+        {
+            for (var i = 0; i < rows.Count; i++)
+                DisposeRow(rows[i]);
+        }
+
+        static void DisposeRow(List<TableCell> row)
+        {
+            for (var i = 0; i < row.Count; i++)
+                row[i].Dispose();
         }
 
         internal static bool TryCoerceVariant(ValueKind expectedKind, in DynamicVariant value, out DynamicVariant coerced, bool logOnFailure = true)
