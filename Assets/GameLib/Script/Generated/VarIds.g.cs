@@ -2739,7 +2739,7 @@ namespace Game.Vars.Generated
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/channelTag
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.channelTag
                                 /// </remarks>
-                                public const int channelTag = 101123;
+                                public const int channelTag = 200001;
                                 /// <remarks>
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/column
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.column
@@ -2748,7 +2748,7 @@ namespace Game.Vars.Generated
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/column
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.column
                                 /// </remarks>
-                                public const int column = 101126;
+                                public const int column = 200003;
                                 /// <remarks>
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/listIndex
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.listIndex
@@ -2757,7 +2757,7 @@ namespace Game.Vars.Generated
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/listIndex
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.listIndex
                                 /// </remarks>
-                                public const int listIndex = 101124;
+                                public const int listIndex = 200000;
                                 /// <remarks>
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/row
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.row
@@ -2766,7 +2766,7 @@ namespace Game.Vars.Generated
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/row
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.row
                                 /// </remarks>
-                                public const int row = 101125;
+                                public const int row = 200002;
                                 /// <remarks>
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/sourceColumn
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.sourceColumn
@@ -2775,7 +2775,7 @@ namespace Game.Vars.Generated
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/sourceColumn
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.sourceColumn
                                 /// </remarks>
-                                public const int sourceColumn = 101128;
+                                public const int sourceColumn = 200005;
                                 /// <remarks>
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/sourceRow
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.sourceRow
@@ -2784,7 +2784,7 @@ namespace Game.Vars.Generated
                                 /// Path: GameLib/Movement/TransformController/Channel/GridObjectChannel/Item/sourceRow
                                 /// StableKey: GameLib.Channel.GridObjectChannel.Item.sourceRow
                                 /// </remarks>
-                                public const int sourceRow = 101127;
+                                public const int sourceRow = 200004;
                             }
                         }
 

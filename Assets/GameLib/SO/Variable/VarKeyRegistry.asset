@@ -1158,7 +1158,7 @@ MonoBehaviour:
     name: channelTag
     isFolder: 0
     description: 
-    varId: 101123
+    varId: 200001
     stableKey: GameLib.Channel.GridObjectChannel.Item.channelTag
     aliases: []
   - id: c3beb494f9c54f14878928087c246cbd
@@ -1166,7 +1166,7 @@ MonoBehaviour:
     name: listIndex
     isFolder: 0
     description: 
-    varId: 101124
+    varId: 200000
     stableKey: GameLib.Channel.GridObjectChannel.Item.listIndex
     aliases: []
   - id: 27bc8ddf32be4ab99b1d82e89b2fc113
@@ -1174,7 +1174,7 @@ MonoBehaviour:
     name: row
     isFolder: 0
     description: 
-    varId: 101125
+    varId: 200002
     stableKey: GameLib.Channel.GridObjectChannel.Item.row
     aliases: []
   - id: cfb6fd7d06744249bfdbcb4e766971f3
@@ -1182,7 +1182,7 @@ MonoBehaviour:
     name: column
     isFolder: 0
     description: 
-    varId: 101126
+    varId: 200003
     stableKey: GameLib.Channel.GridObjectChannel.Item.column
     aliases: []
   - id: 7d39e42098e94cb1b2f214f40233f7cf
@@ -1190,7 +1190,7 @@ MonoBehaviour:
     name: sourceRow
     isFolder: 0
     description: 
-    varId: 101127
+    varId: 200004
     stableKey: GameLib.Channel.GridObjectChannel.Item.sourceRow
     aliases: []
   - id: 54bd0da85a7540ebb14a9c2991b70b56
@@ -1198,7 +1198,7 @@ MonoBehaviour:
     name: sourceColumn
     isFolder: 0
     description: 
-    varId: 101128
+    varId: 200005
     stableKey: GameLib.Channel.GridObjectChannel.Item.sourceColumn
     aliases: []
   - id: c6e05408598d472d81107a0a1f79662b
