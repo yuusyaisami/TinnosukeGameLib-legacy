@@ -522,6 +522,52 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
+    /// <summary>Table 固定リテラル</summary>
+    [Serializable]
+    public sealed class LiteralTableSource : IDynamicSource
+    {
+        [SerializeField, InlineProperty, HideLabel]
+        Table value = new();
+
+        public LiteralTableSource()
+        {
+        }
+
+        public LiteralTableSource(Table? value)
+        {
+            this.value = value ?? new Table();
+        }
+
+        public string SourceTypeName => "LiteralTable";
+        public string GetDebugData => value != null ? $"rows={value.RowCount}" : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
+    /// <summary>VarStorePayload 固定リテラル（互換用）</summary>
+    [Serializable]
+    public sealed class LiteralVarStorePayloadSource : IDynamicSource
+    {
+        [SerializeField, InlineProperty, HideLabel]
+        VarStorePayload value = new();
+
+        public LiteralVarStorePayloadSource()
+        {
+        }
+
+        public LiteralVarStorePayloadSource(VarStorePayload? value)
+        {
+            this.value = value ?? new VarStorePayload();
+        }
+
+        public string SourceTypeName => "Literal";
+        public string GetDebugData => value != null ? $"entries={value.Entries.Count}, tables={value.Tables.Count}" : "null";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+    }
+
     /// <summary>BaseStatusEffectDefinitionData 固定リテラル</summary>
     [Serializable]
     public sealed class LiteralStatusEffectDefinitionSource : IDynamicSource

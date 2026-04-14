@@ -282,6 +282,8 @@ namespace Game.Common.Editor
             if (targetType == typeof(MotionPreset)) return typeof(LiteralMotionPresetSource);
             if (targetType == typeof(TransformAnimationPreset)) return typeof(LiteralTransformAnimationPresetSource);
             if (targetType == typeof(CommandListData)) return typeof(LiteralCommandListDataSource);
+            if (targetType == typeof(Table)) return typeof(LiteralTableSource);
+            if (targetType == typeof(VarStorePayload)) return typeof(LiteralVarStorePayloadSource);
             if (targetType == typeof(BaseStatusEffectDefinitionData)) return typeof(LiteralStatusEffectDefinitionSource);
             if (targetType == typeof(StatusEffectStackPreset)) return typeof(LiteralStatusEffectStackPresetSource);
             if (targetType == typeof(StatusEffectGlobalLifetimeSettings)) return typeof(LiteralStatusEffectGlobalLifetimeSettingsSource);
@@ -311,6 +313,8 @@ namespace Game.Common.Editor
             if (sourceType == typeof(OtherTableColumnCountSource)) return "Table Column Count At Row (Other)";
             if (sourceType == typeof(SelfTableRowCountSource)) return "Table Row Count (Self)";
             if (sourceType == typeof(OtherTableRowCountSource)) return "Table Row Count (Other)";
+            if (sourceType == typeof(LiteralTableSource)) return "LiteralTable";
+            if (sourceType == typeof(LiteralVarStorePayloadSource)) return "LiteralPayload";
 
             var name = sourceType.Name;
 
@@ -667,6 +671,12 @@ namespace Game.Common.Editor
                 return TryGetChildValueAsString(sourceProp, "value", out detail);
             }
 
+            if (src is LiteralTableSource)
+                return TryGetLiteralTableDetail(sourceProp, out detail);
+
+            if (src is LiteralVarStorePayloadSource)
+                return TryGetLiteralVarStorePayloadDetail(sourceProp, out detail);
+
             // 型固定 Literal
             if (src is LiteralIntSource or LiteralFloatSource or LiteralBoolSource
                 or LiteralStringSource or LiteralVector2Source or LiteralVector3Source
@@ -779,6 +789,34 @@ namespace Game.Common.Editor
 
             detail = raw.ToString();
             return !string.IsNullOrEmpty(detail);
+        }
+
+        static bool TryGetLiteralTableDetail(InspectorProperty sourceProp, out string detail)
+        {
+            detail = null;
+            if (!TryGetChildValue(sourceProp, "value", out var raw) || raw is not Table table)
+                return false;
+
+            var rowCount = table.Rows?.Count ?? 0;
+            var cellCount = 0;
+            if (table.Rows != null)
+            {
+                foreach (var row in table.Rows)
+                    cellCount += row?.Cells?.Count ?? 0;
+            }
+
+            detail = $"r{rowCount} c{cellCount}";
+            return true;
+        }
+
+        static bool TryGetLiteralVarStorePayloadDetail(InspectorProperty sourceProp, out string detail)
+        {
+            detail = null;
+            if (!TryGetChildValue(sourceProp, "value", out var raw) || raw is not VarStorePayload payload)
+                return false;
+
+            detail = $"e{payload.Entries?.Count ?? 0} t{payload.Tables?.Count ?? 0}";
+            return true;
         }
 
         static string GetProfileDisplayName(BaseProfileData profileData)

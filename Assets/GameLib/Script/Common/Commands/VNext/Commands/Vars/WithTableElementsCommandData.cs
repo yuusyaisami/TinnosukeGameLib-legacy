@@ -30,8 +30,8 @@ namespace Game.Commands.VNext
             get
             {
                 var bodyCount = Body?.Count ?? 0;
-                var table = DescribeTableId(TableVarId);
-                return $"Table.WithElements Row={RowMode} Col={ColumnMode} Order={TraversalOrder} Await={AwaitMode} Body={bodyCount} {table}";
+                var table = DescribeTableSource(TableSource);
+                return $"Table.WithElements Row={RowMode} Col={ColumnMode} Order={TraversalOrder} Await={AwaitMode} Missing={MissingTablePolicy} Body={bodyCount} {table}";
             }
         }
 
@@ -40,9 +40,8 @@ namespace Game.Commands.VNext
         public ActorSource TableActorSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
-        [LabelText("Table Var Id")]
-        [VarIdDropdown]
-        public int TableVarId;
+        [LabelText("Table")]
+        public DynamicValue<Table> TableSource = DynamicValue<Table>.FromSource(new LiteralTableSource());
 
         [BoxGroup("Select")]
         [LabelText("Row Mode")]
@@ -83,6 +82,11 @@ namespace Game.Commands.VNext
         [LabelText("Await Mode")]
         public FlowRunAwaitMode AwaitMode = FlowRunAwaitMode.WaitForCompletion;
 
+        [BoxGroup("Execution")]
+        [LabelText("Missing Table Policy")]
+        [EnumToggleButtons]
+        public CommandFailurePolicy MissingTablePolicy = CommandFailurePolicy.FailFast;
+
         [BoxGroup("Context")]
         [LabelText("Row Index Var")]
         [VarIdDropdown]
@@ -113,7 +117,17 @@ namespace Game.Commands.VNext
         bool ShowColumnIndex() => ColumnMode == TableSelectorMode.Custom;
         bool ShowColumnCondition() => ColumnMode == TableSelectorMode.Condition;
 
-        static string DescribeTableId(int tableVarId)
-            => tableVarId == 0 ? "table=0" : (VarIdResolver.TryGetIdToStable(tableVarId) ?? $"table={tableVarId}");
+        static string DescribeTableSource(DynamicValue<Table> tableSource)
+        {
+            if (!tableSource.HasSource)
+                return "table=None";
+
+            var sourceType = tableSource.SourceTypeName;
+            var debugData = tableSource.SourceDebugData;
+            if (string.IsNullOrEmpty(debugData))
+                return $"table={sourceType}";
+
+            return $"table={sourceType}:{debugData}";
+        }
     }
 }

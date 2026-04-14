@@ -163,6 +163,10 @@ namespace Game.Common.Editor
             {
                 case LiteralSource _:
                     return TryGetLiteralDetail(sourceProp, out detail);
+                case LiteralTableSource _:
+                    return TryGetLiteralTableDetail(sourceProp, out detail);
+                case LiteralVarStorePayloadSource _:
+                    return TryGetLiteralVarStorePayloadDetail(sourceProp, out detail);
                 case VarStoreSource _:
                     return TryGetVarKeyDetail(sourceProp, out detail);
                 case SelfBlackboardSource _:
@@ -207,6 +211,33 @@ namespace Game.Common.Editor
             }
 
             return false;
+        }
+
+        static bool TryGetLiteralTableDetail(InspectorProperty sourceProp, out string detail)
+        {
+            detail = null;
+            if (!TryGetChildValue(sourceProp, "value", out var raw) || raw is not Table table)
+                return false;
+
+            var cellCount = 0;
+            if (table.Rows != null)
+            {
+                foreach (var row in table.Rows)
+                    cellCount += row?.Cells?.Count ?? 0;
+            }
+
+            detail = $"r{table.RowCount} c{cellCount}";
+            return true;
+        }
+
+        static bool TryGetLiteralVarStorePayloadDetail(InspectorProperty sourceProp, out string detail)
+        {
+            detail = null;
+            if (!TryGetChildValue(sourceProp, "value", out var raw) || raw is not VarStorePayload payload)
+                return false;
+
+            detail = $"e{payload.Entries?.Count ?? 0} t{payload.Tables?.Count ?? 0}";
+            return true;
         }
 
         static bool TryGetLiteralDetail(InspectorProperty sourceProp, out string detail)

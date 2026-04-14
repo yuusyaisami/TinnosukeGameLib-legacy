@@ -36,20 +36,23 @@ namespace Game.Commands.VNext
             if (typed.Body == null || typed.Body.Count == 0)
                 return;
 
-            if (typed.TableVarId == 0)
-                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "Table Var Id is required.");
+            var table = typed.TableSource.GetOrDefault(ctx);
+            if (table == null)
+            {
+                if (typed.MissingTablePolicy == CommandFailurePolicy.Skip)
+                    return;
+
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Table was not found.");
+            }
 
             var targetScope = ResolveTargetScope(ctx, typed.TableActorSource);
             EnsureScopeBuiltIfNeeded(targetScope);
 
-            var tableStore = ResolveTargetVarStore(targetScope);
-            if (!tableStore.TryGetTableRowCount(typed.TableVarId, out var rowCount))
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"Table was not found. table={typed.TableVarId}");
-
             if (!TryResolveRunner(targetScope, out var runner) || runner == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "ICommandRunner is missing on target scope.");
 
-            var elements = BuildExecutionElements(typed, ctx, targetScope, runner, tableStore, rowCount);
+            var rowCount = table.RowCount;
+            var elements = BuildExecutionElements(typed, ctx, targetScope, runner, table, rowCount);
             if (elements.Count == 0)
                 return;
 
@@ -57,7 +60,7 @@ namespace Game.Commands.VNext
             {
                 for (var i = 0; i < elements.Count; i++)
                 {
-                    var runCtx = BuildExecutionContext(typed, ctx, targetScope, runner, tableStore, rowCount, elements[i]);
+                    var runCtx = BuildExecutionContext(typed, ctx, targetScope, runner, table, rowCount, elements[i]);
                     var task = runner.ExecuteListAsync(typed.Body, runCtx, ct, ctx.Options);
                     RunInBackground(task);
                 }
@@ -69,7 +72,7 @@ namespace Game.Commands.VNext
             {
                 ct.ThrowIfCancellationRequested();
 
-                var runCtx = BuildExecutionContext(typed, ctx, targetScope, runner, tableStore, rowCount, elements[i]);
+                var runCtx = BuildExecutionContext(typed, ctx, targetScope, runner, table, rowCount, elements[i]);
                 var result = await runner.ExecuteListAsync(typed.Body, runCtx, ct, ctx.Options);
                 if (result.Status == CommandRunStatus.Canceled)
                     throw new OperationCanceledException();
@@ -84,19 +87,19 @@ namespace Game.Commands.VNext
             CommandContext rootCtx,
             IScopeNode targetScope,
             ICommandRunner runner,
-            IVarStore tableStore,
+            Table table,
             int rowCount)
         {
-            var rows = SelectRows(typed, rootCtx, targetScope, runner, tableStore, rowCount);
+            var rows = SelectRows(typed, rootCtx, targetScope, runner, table, rowCount);
             var elements = new List<TableElement>();
 
             for (var i = 0; i < rows.Count; i++)
             {
                 var row = rows[i];
-                if (!tableStore.TryGetTableColumnCount(typed.TableVarId, row, out var columnCount))
-                    throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"Row was not found while selecting columns. table={typed.TableVarId} row={row}");
+                if (!table.TryGetColumnCount(row, out var columnCount))
+                    throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"Row was not found while selecting columns. row={row}");
 
-                var columns = SelectColumns(typed, rootCtx, targetScope, runner, tableStore, rowCount, row, columnCount);
+                var columns = SelectColumns(typed, rootCtx, targetScope, runner, table, rowCount, row, columnCount);
                 for (var c = 0; c < columns.Count; c++)
                     elements.Add(new TableElement(row, columns[c], columnCount));
             }
@@ -121,21 +124,21 @@ namespace Game.Commands.VNext
             CommandContext rootCtx,
             IScopeNode targetScope,
             ICommandRunner runner,
-            IVarStore tableStore,
+            Table table,
             int rowCount)
         {
             var rows = new List<int>();
             switch (typed.RowMode)
             {
                 case TableSelectorMode.Custom:
-                {
-                    var rowIndex = ResolveNonNegativeIndex(typed.RowIndex, rootCtx, "row index");
-                    if (rowIndex >= rowCount)
-                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"Custom row index is out of range. row={rowIndex} rowCount={rowCount}");
+                    {
+                        var rowIndex = ResolveNonNegativeIndex(typed.RowIndex, rootCtx, "row index");
+                        if (rowIndex >= rowCount)
+                            throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"Custom row index is out of range. row={rowIndex} rowCount={rowCount}");
 
-                    rows.Add(rowIndex);
-                    break;
-                }
+                        rows.Add(rowIndex);
+                        break;
+                    }
 
                 case TableSelectorMode.All:
                     for (var row = 0; row < rowCount; row++)
@@ -145,10 +148,10 @@ namespace Game.Commands.VNext
                 case TableSelectorMode.Condition:
                     for (var row = 0; row < rowCount; row++)
                     {
-                        if (!tableStore.TryGetTableColumnCount(typed.TableVarId, row, out var columnCount))
-                            throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"Row was not found while evaluating row condition. table={typed.TableVarId} row={row}");
+                        if (!table.TryGetColumnCount(row, out var columnCount))
+                            throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"Row was not found while evaluating row condition. row={row}");
 
-                        var rowVars = BuildContextVars(typed, rootCtx.Vars, row, -1, rowCount, columnCount, null);
+                        var rowVars = BuildContextVars(typed, rootCtx, targetScope, runner, rootCtx.Vars, row, -1, rowCount, columnCount, null);
                         var rowCtx = CreateDerivedContext(rootCtx, targetScope, runner, rowVars);
                         if (typed.RowCondition.EvaluateBool(rowCtx))
                             rows.Add(row);
@@ -164,7 +167,7 @@ namespace Game.Commands.VNext
             CommandContext rootCtx,
             IScopeNode targetScope,
             ICommandRunner runner,
-            IVarStore tableStore,
+            Table table,
             int rowCount,
             int row,
             int columnCount)
@@ -173,16 +176,16 @@ namespace Game.Commands.VNext
             switch (typed.ColumnMode)
             {
                 case TableSelectorMode.Custom:
-                {
-                    var rowVars = BuildContextVars(typed, rootCtx.Vars, row, -1, rowCount, columnCount, null);
-                    var rowCtx = CreateDerivedContext(rootCtx, targetScope, runner, rowVars);
-                    var columnIndex = ResolveNonNegativeIndex(typed.ColumnIndex, rowCtx, "column index");
-                    if (columnIndex >= columnCount)
-                        throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"Custom column index is out of range. row={row} column={columnIndex} columnCount={columnCount}");
+                    {
+                        var rowVars = BuildContextVars(typed, rootCtx, targetScope, runner, rootCtx.Vars, row, -1, rowCount, columnCount, null);
+                        var rowCtx = CreateDerivedContext(rootCtx, targetScope, runner, rowVars);
+                        var columnIndex = ResolveNonNegativeIndex(typed.ColumnIndex, rowCtx, "column index");
+                        if (columnIndex >= columnCount)
+                            throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, $"Custom column index is out of range. row={row} column={columnIndex} columnCount={columnCount}");
 
-                    columns.Add(columnIndex);
-                    break;
-                }
+                        columns.Add(columnIndex);
+                        break;
+                    }
 
                 case TableSelectorMode.All:
                     for (var column = 0; column < columnCount; column++)
@@ -192,10 +195,10 @@ namespace Game.Commands.VNext
                 case TableSelectorMode.Condition:
                     for (var column = 0; column < columnCount; column++)
                     {
-                        if (!tableStore.TryGetTableCellStore(typed.TableVarId, row, column, out var cellVars))
+                        if (!table.TryGetCellVars(row, column, out var cellVars))
                             throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"Cell was not found while evaluating column condition. row={row} column={column}");
 
-                        var columnVars = BuildContextVars(typed, rootCtx.Vars, row, column, rowCount, columnCount, cellVars);
+                        var columnVars = BuildContextVars(typed, rootCtx, targetScope, runner, rootCtx.Vars, row, column, rowCount, columnCount, cellVars);
                         var columnCtx = CreateDerivedContext(rootCtx, targetScope, runner, columnVars);
                         if (typed.ColumnCondition.EvaluateBool(columnCtx))
                             columns.Add(column);
@@ -211,15 +214,18 @@ namespace Game.Commands.VNext
             CommandContext rootCtx,
             IScopeNode targetScope,
             ICommandRunner runner,
-            IVarStore tableStore,
+            Table table,
             int rowCount,
             TableElement element)
         {
-            if (!tableStore.TryGetTableCellStore(typed.TableVarId, element.Row, element.Column, out var cellVars))
+            if (!table.TryGetCellVars(element.Row, element.Column, out var cellVars))
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"Cell was not found. row={element.Row} column={element.Column}");
 
             var merged = BuildContextVars(
                 typed,
+                rootCtx,
+                targetScope,
+                runner,
                 rootCtx.Vars,
                 element.Row,
                 element.Column,
@@ -232,12 +238,15 @@ namespace Game.Commands.VNext
 
         static VarStore BuildContextVars(
             WithTableElementsCommandData typed,
+            CommandContext rootCtx,
+            IScopeNode targetScope,
+            ICommandRunner runner,
             IVarStore commandVars,
             int rowIndex,
             int columnIndex,
             int rowCount,
             int columnCount,
-            IVarStore? cellVars)
+            VarStoreCellPayload? cellVars)
         {
             var merged = new VarStore(initialCapacity: 16);
             (commandVars ?? NullVarStore.Instance).MergeInto(merged, overwrite: true);
@@ -248,7 +257,10 @@ namespace Game.Commands.VNext
             WriteInt(merged, typed.ColumnCountVarId, columnCount);
 
             if (cellVars != null)
-                cellVars.MergeInto(merged, overwrite: false);
+            {
+                var tempContext = CreateDerivedContext(rootCtx, targetScope, runner, merged);
+                cellVars.ApplyTo(merged, tempContext, overwrite: false);
+            }
 
             return merged;
         }
@@ -280,15 +292,6 @@ namespace Game.Commands.VNext
             var origin = ctx.Actor ?? ctx.Scope;
             var resolved = ActorSourceFastResolver.Resolve(ctx, actorSource, origin);
             return resolved ?? origin;
-        }
-
-        static IVarStore ResolveTargetVarStore(IScopeNode targetScope)
-        {
-            var resolver = targetScope?.Resolver;
-            if (resolver != null && resolver.TryResolve<IVarStore>(out var vars) && vars != null)
-                return vars;
-
-            throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "IVarStore is missing on target scope.");
         }
 
         static bool TryResolveRunner(IScopeNode scope, out ICommandRunner? runner)
