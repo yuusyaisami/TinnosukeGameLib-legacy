@@ -75,7 +75,10 @@ namespace Game.Commands.VNext
                 //Debug.Log($"[CommandChannelExecutor] Execute Tag={typed.Tag}, Await={typed.AwaitMode}, ActorSource={typed.ActorSource.Kind}, Scope={scopeName}");
 #endif
 
-                var runTask = ExecuteInternalAsync(hub, typed.Tag, channelCtx, ct);
+                var runToken = typed.BackgroundCancellationMode == CommandChannelBackgroundCancellationMode.DetachFromCaller
+                    ? CancellationToken.None
+                    : ct;
+                var runTask = ExecuteInternalAsync(hub, typed.Tag, channelCtx, runToken);
                 if (typed.AwaitMode == FlowRunAwaitMode.WaitForCompletion)
                 {
                     await runTask;
