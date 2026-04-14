@@ -370,24 +370,29 @@ MonoBehaviour:
     entries:
     - VarId: 100121
       Kind: 3
+      StoreMode: 0
       Value:
         _source:
           rid: 5619052465085481186
     - VarId: 101082
       Kind: 255
+      StoreMode: 0
       Value:
         _source:
           rid: 5619052564776747352
     - VarId: 101105
       Kind: 2
+      StoreMode: 0
       Value:
         _source:
           rid: 5619052617993552547
     - VarId: 101130
       Kind: 255
+      StoreMode: 0
       Value:
         _source:
           rid: 5399842452542849416
+    tables: []
   _applyCommonGridTable: 1
   _commonGridTableKeyVarId: 100123
   _commonGridTable:
@@ -396,19 +401,28 @@ MonoBehaviour:
       - _vars:
         - VarId: 100124
           Kind: 255
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052465085481193
         - VarId: 101017
           Kind: 3
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052465085481227
         - VarId: 101048
           Kind: 255
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052465085481726
+        - VarId: 101084
+          Kind: 255
+          StoreMode: 0
+          Value:
+            _source:
+              rid: -2
   _placeableSettings:
     _enabled: 1
     _runtimeTemplate:
