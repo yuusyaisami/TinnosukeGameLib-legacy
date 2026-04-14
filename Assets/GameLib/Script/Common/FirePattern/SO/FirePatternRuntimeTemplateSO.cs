@@ -11,7 +11,7 @@ namespace Game.Fire
     {
         protected override bool UsesBasePreset => false;
 
-        [SerializeReference, InlineProperty]
+        [HideReferenceObjectPicker, SerializeReference, InlineProperty]
         FirePatternRuntimeTemplatePreset? preset = new();
 
         public FirePatternRuntimeTemplatePreset? Preset => preset;
