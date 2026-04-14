@@ -53,10 +53,12 @@ namespace Game.Common
 
                 if (roundDigits.HasValue)
                     number = Math.Round(number, roundDigits.Value, MidpointRounding.AwayFromZero);
+                else if (!fixedDigits.HasValue)
+                    number = Math.Round(number, 6, MidpointRounding.AwayFromZero);
 
                 string numberText = fixedDigits.HasValue
                     ? number.ToString("F" + fixedDigits.Value, InvariantCulture)
-                    : number.ToString(InvariantCulture);
+                    : number.ToString(BuildNumberFormat(roundDigits ?? 6), InvariantCulture);
 
                 if (options.SignAlways && number >= 0)
                     numberText = "+" + numberText;
@@ -71,6 +73,14 @@ namespace Game.Common
             text = value.Kind == ValueKind.String ? value.AsString : value.ToString();
             text = ApplyAffixes(text, options);
             return true;
+        }
+
+        static string BuildNumberFormat(int digits)
+        {
+            if (digits <= 0)
+                return "0";
+
+            return "0." + new string('#', digits);
         }
 
         static bool HasNumericOptions(in RichTextFormatOptions options)
