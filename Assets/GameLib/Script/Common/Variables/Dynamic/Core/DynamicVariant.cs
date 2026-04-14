@@ -359,6 +359,13 @@ namespace Game.Common
                         value = (T)_managedRef;
                         return true;
                     }
+
+                    if (targetType == typeof(Table) && _managedRef is VarStorePayload legacyPayload)
+                    {
+                        value = (T)(object)Table.FromLegacy(legacyPayload);
+                        return true;
+                    }
+
                     return false;
             }
 

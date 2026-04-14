@@ -111,7 +111,9 @@ namespace Game.Common
                 return false;
 
             if (blackboardReadScope == BlackboardReadScope.Global)
+            {
                 return TryMatchBlackboardHierarchy(targetScope, varId, expectedKind);
+            }
 
             var resolver = targetScope.Resolver;
             if (resolver == null)
@@ -247,6 +249,9 @@ namespace Game.Common
 
                 case VarStorePayload.EntryValueKind.CommandListData:
                     return variant.Kind == ValueKind.ManagedRef && variant.AsManagedRef is CommandListData;
+
+                case VarStorePayload.EntryValueKind.Table:
+                    return variant.Kind == ValueKind.ManagedRef && (variant.AsManagedRef is Table || variant.AsManagedRef is VarStorePayload);
 
                 default:
                     return false;

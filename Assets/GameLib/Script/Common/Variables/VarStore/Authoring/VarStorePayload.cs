@@ -33,6 +33,7 @@ namespace Game.Common
             UnityObject = 9,
             ManagedRef = 10,
             CommandListData = 11,
+            Table = 12,
             Auto = 255,
         }
 
@@ -85,60 +86,30 @@ namespace Game.Common
         public sealed class TableCell
         {
             [SerializeField, InlineProperty]
-            public VarStorePayload Vars = new();
+            public VarStoreCellPayload Vars = new();
+        }
+
+        public static VarStorePayload FromTables(IEnumerable<TableEntry>? tableEntries)
+        {
+            var payload = new VarStorePayload();
+            if (tableEntries != null)
+                payload.tables.AddRange(tableEntries);
+            return payload;
         }
 
         public void ApplyTo(IVarStore dest, bool overwrite)
+            => ApplyTo(dest, context: null, overwrite);
+
+        public void ApplyTo(IVarStore dest, IDynamicContext? context, bool overwrite)
         {
             if (dest == null)
                 return;
 
-            if (entries == null || entries.Count == 0)
-            {
-                ApplyTables(dest, overwrite, context: null);
-                return;
-            }
-
-            for (int i = 0; i < entries.Count; i++)
-            {
-                var e = entries[i];
-                if (e.VarId == 0)
-                    continue;
-                var varId = e.VarId;
-
-                if (!overwrite && dest.Contains(e.VarId))
-                    continue;
-
-                if (e.StoreMode == VarStoreWriteMode.DeferredDynamic)
-                {
-                    if (!e.Value.HasSource)
-                    {
-                        dest.TryUnset(varId);
-                        continue;
-                    }
-
-                    var deferred = new DeferredDynamicVarValue(e.Value, e.Kind, varId, nameof(VarStorePayload));
-                    dest.TrySetManagedRef(varId, deferred);
-                    continue;
-                }
-
-                if (!VarStoreEntryValueKindConverter.TryConvertToVariant(in e, out var value))
-                    continue;
-
-                if (value.Kind == ValueKind.ManagedRef)
-                {
-                    if (value.AsManagedRef != null)
-                        dest.TrySetManagedRef(varId, value.AsManagedRef);
-                    continue;
-                }
-
-                dest.TrySetVariant(varId, value);
-            }
-
-            ApplyTables(dest, overwrite, context: null);
+            ApplyEntries(entries, dest, context, overwrite, allowTableEntries: true, tableVarIdOverride: null, ownerName: nameof(VarStorePayload));
+            ApplyTables(dest, overwrite, context);
         }
 
-        internal void ApplyTables(IVarStore dest, bool overwrite, IDynamicContext? context)
+        internal void ApplyTables(IVarStore dest, bool overwrite, IDynamicContext? context, int? tableVarIdOverride = null)
         {
             if (dest == null || tables == null || tables.Count == 0)
                 return;
@@ -146,14 +117,21 @@ namespace Game.Common
             for (var t = 0; t < tables.Count; t++)
             {
                 var table = tables[t];
-                if (table == null || table.TableVarId == 0)
+                if (table == null)
                     continue;
 
-                if (!overwrite && dest.ContainsTable(table.TableVarId))
+                var tableVarId = table.TableVarId;
+                if (tableVarId == 0 && tableVarIdOverride.HasValue)
+                    tableVarId = tableVarIdOverride.Value;
+
+                if (tableVarId == 0)
                     continue;
 
-                if (overwrite && dest.ContainsTable(table.TableVarId))
-                    dest.TryClearTable(table.TableVarId);
+                if (!overwrite && dest.ContainsTable(tableVarId))
+                    continue;
+
+                if (overwrite && dest.ContainsTable(tableVarId))
+                    dest.TryClearTable(tableVarId);
 
                 var rows = table.Rows;
                 if (rows == null || rows.Count == 0)
@@ -161,7 +139,7 @@ namespace Game.Common
 
                 for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
                 {
-                    if (!dest.TryEnsureTableRow(table.TableVarId, rowIndex))
+                    if (!dest.TryEnsureTableRow(tableVarId, rowIndex))
                         continue;
 
                     var row = rows[rowIndex];
@@ -171,23 +149,108 @@ namespace Game.Common
 
                     for (var columnIndex = 0; columnIndex < cells.Count; columnIndex++)
                     {
-                        if (!dest.TryAppendTableCell(table.TableVarId, rowIndex, out _))
+                        if (!dest.TryAppendTableCell(tableVarId, rowIndex, out _))
                             break;
 
-                        if (!dest.TryGetTableCellStore(table.TableVarId, rowIndex, columnIndex, out var cellStore))
+                        if (!dest.TryGetTableCellStore(tableVarId, rowIndex, columnIndex, out var cellStore))
                             continue;
 
                         var cell = cells[columnIndex];
                         if (cell?.Vars == null)
                             continue;
 
-                        if (context == null)
-                            cell.Vars.ApplyTo(cellStore, overwrite: true);
-                        else
-                            cell.Vars.ApplyTo(cellStore, context, overwrite: true);
+                        cell.Vars.ApplyTo(cellStore, context, overwrite: true);
                     }
                 }
             }
+        }
+
+        internal static void ApplyEntries(
+            IReadOnlyList<Entry>? entries,
+            IVarStore dest,
+            IDynamicContext? context,
+            bool overwrite,
+            bool allowTableEntries,
+            int? tableVarIdOverride,
+            string ownerName)
+        {
+            if (dest == null || entries == null || entries.Count == 0)
+                return;
+
+            for (var i = 0; i < entries.Count; i++)
+                ApplyEntry(entries[i], dest, context, overwrite, allowTableEntries, tableVarIdOverride, ownerName);
+        }
+
+        internal static bool ApplyEntry(
+            Entry entry,
+            IVarStore dest,
+            IDynamicContext? context,
+            bool overwrite,
+            bool allowTableEntries,
+            int? tableVarIdOverride,
+            string ownerName)
+        {
+            if (entry.VarId == 0)
+                return false;
+
+            if (!overwrite && dest.Contains(entry.VarId))
+                return true;
+
+            if (entry.Kind == EntryValueKind.Table)
+            {
+                if (!entry.Value.HasSource)
+                {
+                    dest.TryUnset(entry.VarId);
+                    return true;
+                }
+
+                var evaluated = entry.Value.Evaluate(context ?? EmptyDynamicContext.Instance);
+                if (evaluated.Kind == ValueKind.Null)
+                {
+                    dest.TryUnset(entry.VarId);
+                    return true;
+                }
+
+                if (evaluated.Kind == ValueKind.ManagedRef && evaluated.AsManagedRef is Table table)
+                {
+                    dest.TrySetManagedRef(entry.VarId, table);
+                    return true;
+                }
+
+                if (evaluated.Kind == ValueKind.ManagedRef && evaluated.AsManagedRef is VarStorePayload legacyPayload)
+                {
+                    dest.TrySetManagedRef(entry.VarId, Table.FromLegacy(legacyPayload));
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (entry.StoreMode == VarStoreWriteMode.DeferredDynamic)
+            {
+                if (!entry.Value.HasSource)
+                {
+                    dest.TryUnset(entry.VarId);
+                    return true;
+                }
+
+                var deferred = new DeferredDynamicVarValue(entry.Value, entry.Kind, entry.VarId, ownerName);
+                dest.TrySetManagedRef(entry.VarId, deferred);
+                return true;
+            }
+
+            if (!VarStoreEntryValueKindConverter.TryConvertToVariant(in entry, context ?? EmptyDynamicContext.Instance, out var value))
+                return false;
+
+            if (value.Kind == ValueKind.ManagedRef)
+            {
+                if (value.AsManagedRef != null)
+                    dest.TrySetManagedRef(entry.VarId, value.AsManagedRef);
+                return true;
+            }
+
+            dest.TrySetVariant(entry.VarId, value);
+            return true;
         }
 
         public VarStore ToVarStore()
@@ -195,6 +258,109 @@ namespace Game.Common
             var vars = new VarStore();
             ApplyTo(vars, overwrite: true);
             return vars;
+        }
+    }
+
+    [Serializable]
+    public sealed class VarStoreCellPayload
+    {
+        [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
+        List<VarStorePayload.Entry> entries = new();
+
+        public IReadOnlyList<VarStorePayload.Entry> Entries => entries;
+
+        public void ApplyTo(IVarStore dest, IDynamicContext? context, bool overwrite)
+        {
+            VarStorePayload.ApplyEntries(entries, dest, context, overwrite, allowTableEntries: true, tableVarIdOverride: null, ownerName: nameof(VarStoreCellPayload));
+        }
+    }
+
+    [Serializable]
+    public sealed class Table
+    {
+        [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
+        List<RowPayload> rows = new();
+
+        public IReadOnlyList<RowPayload> Rows => rows;
+
+        public int RowCount => rows?.Count ?? 0;
+
+        public static Table FromLegacy(VarStorePayload? payload)
+        {
+            var table = new Table();
+            if (payload?.Tables == null || payload.Tables.Count == 0)
+                return table;
+
+            var legacyTable = payload.Tables[0];
+            if (legacyTable?.Rows == null || legacyTable.Rows.Count == 0)
+                return table;
+
+            table.rows.Clear();
+            for (var rowIndex = 0; rowIndex < legacyTable.Rows.Count; rowIndex++)
+            {
+                var sourceRow = legacyTable.Rows[rowIndex];
+                var row = new RowPayload();
+
+                if (sourceRow?.Cells != null)
+                {
+                    for (var columnIndex = 0; columnIndex < sourceRow.Cells.Count; columnIndex++)
+                    {
+                        var sourceCell = sourceRow.Cells[columnIndex];
+                        row.Cells.Add(new CellPayload
+                        {
+                            Vars = sourceCell?.Vars ?? new VarStoreCellPayload(),
+                        });
+                    }
+                }
+
+                table.rows.Add(row);
+            }
+
+            return table;
+        }
+
+        public bool TryGetColumnCount(int rowIndex, out int columnCount)
+        {
+            columnCount = 0;
+
+            if (rows == null || rowIndex < 0 || rowIndex >= rows.Count)
+                return false;
+
+            var row = rows[rowIndex];
+            if (row?.Cells == null)
+                return false;
+
+            columnCount = row.Cells.Count;
+            return true;
+        }
+
+        public bool TryGetCellVars(int rowIndex, int columnIndex, out VarStoreCellPayload? vars)
+        {
+            vars = null;
+
+            if (rows == null || rowIndex < 0 || rowIndex >= rows.Count)
+                return false;
+
+            var row = rows[rowIndex];
+            if (row?.Cells == null || columnIndex < 0 || columnIndex >= row.Cells.Count)
+                return false;
+
+            vars = row.Cells[columnIndex]?.Vars;
+            return vars != null;
+        }
+
+        [Serializable]
+        public sealed class RowPayload
+        {
+            [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
+            public List<CellPayload> Cells = new();
+        }
+
+        [Serializable]
+        public sealed class CellPayload
+        {
+            [SerializeField, InlineProperty]
+            public VarStoreCellPayload Vars = new();
         }
     }
 }

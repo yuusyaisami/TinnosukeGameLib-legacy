@@ -4416,6 +4416,37 @@ namespace Game.Vars.Generated
                     /// StableKey: StatusEffect
                     /// </remarks>
                     public const int StatusEffect = 100124;
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/StatusEffectStackTable
+                    /// StableKey: StatusEffectStackTable
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/UpgradePanel/StatusEffectStackTable
+                    /// StableKey: StatusEffectStackTable
+                    /// </remarks>
+                    public const int StatusEffectStackTable = 200006;
+
+                    public static partial class StatusEffectStackTableFolder
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/UpgradePanel/StatusEffectStackTableFolder/StackPreset
+                        /// StableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StackPreset
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/UpgradePanel/StatusEffectStackTableFolder/StackPreset
+                        /// StableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StackPreset
+                        /// </remarks>
+                        public const int StackPreset = 200008;
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/UpgradePanel/StatusEffectStackTableFolder/StatusEffect
+                        /// StableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StatusEffect
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/UpgradePanel/StatusEffectStackTableFolder/StatusEffect
+                        /// StableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StatusEffect
+                        /// </remarks>
+                        public const int StatusEffect = 200007;
+                    }
                 }
             }
 
@@ -4904,6 +4935,9 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.NailProfile.UpgradePanel.Price,
             VarIds.GameLogic.NailProfile.UpgradePanel.StackPreset,
             VarIds.GameLogic.NailProfile.UpgradePanel.StatusEffect,
+            VarIds.GameLogic.NailProfile.UpgradePanel.StatusEffectStackTable,
+            VarIds.GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StackPreset,
+            VarIds.GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StatusEffect,
             VarIds.GameLogic.RewardCardProfile.Element.Rarity,
             VarIds.GameLogic.RewardEventProfile.RerollCurrentCount,
             VarIds.GameLogic.RewardEventProfile.RerollMaxCount,

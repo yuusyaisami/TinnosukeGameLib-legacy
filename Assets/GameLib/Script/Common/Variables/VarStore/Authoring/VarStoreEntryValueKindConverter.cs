@@ -41,12 +41,14 @@ namespace Game.Common
 
         public static bool IsManagedReferenceOutput(in VarStorePayload.Entry entry)
             => entry.Kind == VarStorePayload.EntryValueKind.ManagedRef
-               || entry.Kind == VarStorePayload.EntryValueKind.CommandListData;
+               || entry.Kind == VarStorePayload.EntryValueKind.CommandListData
+               || entry.Kind == VarStorePayload.EntryValueKind.Table;
 
         public static bool IsManagedReferenceKind(VarStorePayload.EntryValueKind kind)
         {
             return kind == VarStorePayload.EntryValueKind.ManagedRef
-                || kind == VarStorePayload.EntryValueKind.CommandListData;
+                || kind == VarStorePayload.EntryValueKind.CommandListData
+                || kind == VarStorePayload.EntryValueKind.Table;
         }
 
         public static bool TryCoerceToKind(VarStorePayload.EntryValueKind kind, in DynamicVariant source, out DynamicVariant value)
@@ -156,6 +158,21 @@ namespace Game.Common
                         value = DynamicVariant.FromManagedRef(list);
                         return value.Kind == ValueKind.ManagedRef;
                     }
+                    return false;
+
+                case VarStorePayload.EntryValueKind.Table:
+                    if (source.Kind == ValueKind.ManagedRef && source.AsManagedRef is Table table)
+                    {
+                        value = DynamicVariant.FromManagedRef(table);
+                        return true;
+                    }
+
+                    if (source.Kind == ValueKind.ManagedRef && source.AsManagedRef is VarStorePayload legacyPayload)
+                    {
+                        value = DynamicVariant.FromManagedRef(Table.FromLegacy(legacyPayload));
+                        return true;
+                    }
+
                     return false;
 
                 case VarStorePayload.EntryValueKind.Auto:

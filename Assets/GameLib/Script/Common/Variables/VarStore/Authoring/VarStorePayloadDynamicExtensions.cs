@@ -7,49 +7,7 @@ namespace Game.Common
     {
         public static void ApplyTo(this VarStorePayload payload, IVarStore dest, IDynamicContext? context, bool overwrite)
         {
-            if (payload == null || dest == null)
-                return;
-
-            var entries = payload.Entries;
-            if (entries != null && entries.Count > 0)
-            {
-                for (var i = 0; i < entries.Count; i++)
-                {
-                    var entry = entries[i];
-                    if (entry.VarId == 0)
-                        continue;
-
-                    if (!overwrite && dest.Contains(entry.VarId))
-                        continue;
-
-                    if (entry.StoreMode == VarStoreWriteMode.DeferredDynamic)
-                    {
-                        if (!entry.Value.HasSource)
-                        {
-                            dest.TryUnset(entry.VarId);
-                            continue;
-                        }
-
-                        var deferred = new DeferredDynamicVarValue(entry.Value, entry.Kind, entry.VarId, nameof(VarStorePayload));
-                        dest.TrySetManagedRef(entry.VarId, deferred);
-                        continue;
-                    }
-
-                    if (!VarStoreEntryValueKindConverter.TryConvertToVariant(in entry, context, out var value))
-                        continue;
-
-                    if (value.Kind == ValueKind.ManagedRef)
-                    {
-                        if (value.AsManagedRef != null)
-                            dest.TrySetManagedRef(entry.VarId, value.AsManagedRef);
-                        continue;
-                    }
-
-                    dest.TrySetVariant(entry.VarId, value);
-                }
-            }
-
-            payload.ApplyTables(dest, overwrite, context);
+            payload?.ApplyTo(dest, context, overwrite);
         }
 
         public static VarStore ToVarStore(this VarStorePayload payload, IDynamicContext? context)

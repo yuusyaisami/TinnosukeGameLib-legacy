@@ -126,6 +126,12 @@ namespace Game.Common
         public static DynamicValue FromLiteral(Vector3 value)
             => FromSource(LiteralSource.FromVector3(value));
 
+        public static DynamicValue FromLiteral(Table value)
+            => FromSource(new LiteralTableSource(value));
+
+        public static DynamicValue FromLiteral(VarStorePayload value)
+            => FromSource(new LiteralVarStorePayloadSource(value));
+
         public static DynamicValue FromVarId(int varId)
             => FromSource(VarStoreSource.FromVarId(varId));
 
@@ -346,6 +352,18 @@ namespace Game.Common
         /// </summary>
         public static DynamicValue<Vector3> FromLiteral(Vector3 value)
             => DynamicValue<Vector3>.FromSource(new LiteralVector3Source(value));
+
+        /// <summary>
+        /// Table 用リテラル作成。
+        /// </summary>
+        public static DynamicValue<Table> FromLiteral(Table value)
+            => DynamicValue<Table>.FromSource(new LiteralTableSource(value));
+
+        /// <summary>
+        /// VarStorePayload 用の互換リテラル作成。
+        /// </summary>
+        public static DynamicValue<VarStorePayload> FromLiteral(VarStorePayload value)
+            => DynamicValue<VarStorePayload>.FromSource(new LiteralVarStorePayloadSource(value));
 
         /// <summary>
         /// CommandListData 用リテラル作成。
