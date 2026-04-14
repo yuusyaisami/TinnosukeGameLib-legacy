@@ -18,7 +18,7 @@ MonoBehaviour:
     Variables: []
   _description:
     Template: "\u5236\u9650\u6642\u9593\u306E\u4E0A\u9650\u3092\u4F38\u3070\u3057\u307E\u3059\u304C\u3001\u5668\u304C\u4E00\u500B\u6E1B\u308A\u307E\u3059\u3002 
-      <sprite=9>{MaxTimeLimit}s->{MaxTimeLimit+6s|suffix=\"s\"|color=\"#00FF00\"}, "
+      <sprite=9>{MaxTimeLimit}s->{MaxTimeLimit+3|suffix=\"s\"|color=\"#00FF00\"}, "
     Variables:
     - _value:
         _source:
@@ -382,9 +382,11 @@ MonoBehaviour:
     entries:
     - VarId: 101123
       Kind: 3
+      StoreMode: 0
       Value:
         _source:
           rid: 5399842402410692610
+    tables: []
   _applyCommonGridTable: 0
   _commonGridTableKeyVarId: 0
   _commonGridTable:
@@ -420,6 +422,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -929,6 +932,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 20
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -2168,6 +2172,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -2995,6 +3000,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -3264,6 +3270,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -4336,7 +4343,7 @@ MonoBehaviour:
     - rid: 5399842481793139652
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 6
+        value: 3
     - rid: 5399842481793139653
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

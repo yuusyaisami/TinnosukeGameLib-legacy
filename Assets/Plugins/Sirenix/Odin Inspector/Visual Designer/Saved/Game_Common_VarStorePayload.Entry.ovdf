@@ -1,0 +1,14 @@
+OVDF v1.1
+Game.Common.VarStorePayload+Entry, Assembly-CSharp
+
+# VarId
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 70
+
+# Kind
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 70
+
+# StoreMode
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 70

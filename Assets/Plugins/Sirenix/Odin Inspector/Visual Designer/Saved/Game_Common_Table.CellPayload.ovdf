@@ -1,0 +1,6 @@
+OVDF v1.1
+Game.Common.Table+CellPayload, Assembly-CSharp
+
+# Vars
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 26.94

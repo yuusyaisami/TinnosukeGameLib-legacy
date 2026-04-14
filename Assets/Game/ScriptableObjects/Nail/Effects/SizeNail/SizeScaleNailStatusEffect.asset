@@ -19,6 +19,10 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842667810783613
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -29,7 +33,8 @@ MonoBehaviour:
             Template: "\u30B5\u30A4\u30BA"
             Variables: []
           Description:
-            Template: "\u30E8\u30FC\u30C6\u30E0\u30B5\u30A4\u30BA: {SizeRadius}"
+            Template: "\u30E8\u30FC\u30C6\u30E0\u30B5\u30A4\u30BA: {Round(SizeRadius,
+              2)}"
             Variables:
             - _value:
                 _source:
@@ -39,7 +44,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: "\u30B5\u30A4\u30BA {intensity|sign=always}"
+            Template: "\u30B5\u30A4\u30BA {Round(intensity, 2)|sign=always}"
             Variables:
             - _value:
                 _source:
@@ -52,6 +57,13 @@ MonoBehaviour:
           Icon: {fileID: 0}
           SortOrder: 0
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842667810783613
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -137,6 +149,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

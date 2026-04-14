@@ -11,4 +11,16 @@ Game.Commands.VNext.StatusEffectCommandData, Assembly-CSharp
 
 # Definition
 + [Sirenix.OdinInspector.LabelWidthAttribute]
-	Width = 145.59
+	Width = 80
+
+# StackPreset
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 80
+
+# OverrideDuration
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 80
+
+# RuntimeTag
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 80

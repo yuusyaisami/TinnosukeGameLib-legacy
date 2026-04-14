@@ -4733,7 +4733,41 @@ MonoBehaviour:
     varId: 101198
     stableKey: DisplayName
     aliases: []
-  nextVarId: 101199
+  - id: faeff8a24a15408a9bdea881277cee5f
+    parentId: b08882a0c8e24de48a4f005e0b281469
+    name: StatusEffectStackTable
+    isFolder: 0
+    description: 
+    varId: 200006
+    stableKey: StatusEffectStackTable
+    aliases: []
+  - id: 7f6a32b01b4d4606b93c5449aaea95c7
+    parentId: b08882a0c8e24de48a4f005e0b281469
+    name: StatusEffectStackTableFolder
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: defa6a2d124045059dc88be9f2feafc9
+    parentId: 7f6a32b01b4d4606b93c5449aaea95c7
+    name: StatusEffect
+    isFolder: 0
+    description: 
+    varId: 200007
+    stableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StatusEffect
+    aliases:
+    - StatusEffect
+  - id: f5457da9a00b4e2dbbd4636a1810a398
+    parentId: 7f6a32b01b4d4606b93c5449aaea95c7
+    name: StackPreset
+    isFolder: 0
+    description: 
+    varId: 200008
+    stableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StackPreset
+    aliases:
+    - StackPreset
+  nextVarId: 200009
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

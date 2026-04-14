@@ -147,6 +147,15 @@ MonoBehaviour:
           _source:
             rid: 5399842460338225266
           _defaultValue: {x: 0, y: 0, z: 0}
+        UseHiddenPreSpawn: 0
+        HiddenSpawnOffset:
+          _source:
+            rid: 5399842667066556764
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RevealDelayFrames:
+          _source:
+            rid: 5399842667066556765
+          _defaultValue: 0
         Count:
           _source:
             rid: 5399842460338225267
@@ -1434,6 +1443,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: TimeToValueUp
+        BlockedUsePropagation: 10
     - rid: 5399842506086809980
       type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1553,6 +1563,26 @@ MonoBehaviour:
             rid: -2
         createIfMissing: 0
         baselineValue: 0
+    - rid: 5399842667066556764
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 100000, y: 100000, z: 100000}
+    - rid: 5399842667066556765
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842667810783689
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -1600,6 +1630,13 @@ MonoBehaviour:
           Icon: {fileID: 0}
           SortOrder: -1
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842667810783689
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -1689,6 +1726,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
