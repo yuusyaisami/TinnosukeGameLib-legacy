@@ -145,7 +145,7 @@ namespace Game.DI
     public sealed class FirePatternRuntimeTemplatePreset : BaseRuntimeTemplatePreset
     {
         [Header("Fire Pattern Override")]
-        [SerializeReference, InlineProperty]
+        [HideReferenceObjectPicker, SerializeReference, InlineProperty]
         [Tooltip("When set, overrides the FirePatternServiceMB input patterns before ISpawnContextConsumer is invoked.")]
         BaseFirePattern? overrideFirePattern;
 

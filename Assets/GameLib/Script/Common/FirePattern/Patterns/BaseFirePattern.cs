@@ -21,7 +21,7 @@ namespace Game.Fire
         [SerializeField] string _patternId = "";
 
         [Header("Fire Definition")]
-        [SerializeReference, InlineProperty]
+        [HideReferenceObjectPicker, SerializeReference, InlineProperty]
         [SerializeField] FireDefinition? _fireDefinition;
 
         [Header("Spawner Settings")]
