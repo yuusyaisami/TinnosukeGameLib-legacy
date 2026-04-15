@@ -130,6 +130,7 @@ namespace Game.StatusEffect
         readonly IStatusEffectUseCooldownDefinition? _useCooldownDefinition;
         readonly IStatusEffectUseCooldownController? _useCooldownController;
         readonly IStatusEffectCountDefinition? _countDefinition;
+        readonly StatusEffectPeriodicCommandSet _periodicCommands;
         readonly IStatusEffectCountController? _countController;
         readonly string _slotKey;
         readonly bool _isAutoGlobalMode;
@@ -154,6 +155,7 @@ namespace Game.StatusEffect
         bool _hasHandledGlobalLifetimeExpiration;
         bool _hasHandledGlobalCountExhaustion;
         bool _hasHandledLocalCountExhaustion;
+        float _periodicCommandsElapsed;
         string _nameKey = string.Empty;
         string _descriptionKey = string.Empty;
 
@@ -200,6 +202,7 @@ namespace Game.StatusEffect
             _vars = vars ?? new VarStore();
             _conditionEvaluationContext = new StatusEffectOperationDynamicContext(_vars, _scope, _scope);
             _runtimeStackPreset = runtimeStackPreset ?? StatusEffectStackPreset.CreateDurationRefreshPreset();
+            _periodicCommands = definition.PeriodicCommands ?? new StatusEffectPeriodicCommandSet();
 
             InstanceId = string.IsNullOrWhiteSpace(instanceId) ? Guid.NewGuid().ToString("N") : instanceId;
             RuntimeTag = runtimeTag ?? string.Empty;
@@ -276,6 +279,7 @@ namespace Game.StatusEffect
             _isApplied = true;
             RefreshUseBlockedState();
             WriteRuntimeVars();
+            ResetPeriodicCommands();
 
             //#if UNITY_EDITOR || DEVELOPMENT_BUILD
             //            Debug.Log(
@@ -297,6 +301,7 @@ namespace Game.StatusEffect
 
             RefreshUseBlockedState();
             WriteRuntimeVars();
+            ResetPeriodicCommands();
             ExecuteHook(StatusEffectHookKind.Enable, _scope);
         }
 
@@ -309,6 +314,7 @@ namespace Game.StatusEffect
             _isEnabled = false;
             _isApplied = false;
             WriteRuntimeVars();
+            ResetPeriodicCommands();
 
             if (runHook)
                 ExecuteHook(StatusEffectHookKind.Disable, _scope);
@@ -325,6 +331,7 @@ namespace Game.StatusEffect
             _isApplied = false;
             _isSuspendedByScopeRelease = true;
             WriteRuntimeVars();
+            ResetPeriodicCommands();
         }
 
         public void ResumeFromScopeAcquire()
@@ -344,6 +351,7 @@ namespace Game.StatusEffect
 
             RefreshUseBlockedState();
             WriteRuntimeVars();
+            ResetPeriodicCommands();
         }
 
         public void Remove()
@@ -480,6 +488,7 @@ namespace Game.StatusEffect
 
             RefreshUseBlockedState();
             WriteRuntimeVars();
+            ResetPeriodicCommands();
         }
 
         public void Tick(float deltaTime)
@@ -496,8 +505,89 @@ namespace Game.StatusEffect
 
             _useCooldownController?.Tick(deltaTime);
 
-            RefreshUseBlockedState();
             WriteRuntimeVars();
+            TickPeriodicCommands(deltaTime);
+        }
+
+        void ResetPeriodicCommands()
+        {
+            _periodicCommandsElapsed = 0f;
+        }
+
+        void TickPeriodicCommands(float deltaTime)
+        {
+            if (!_isRegistered || !_isEnabled || !_isApplied || _isRemoveRequested)
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            if (!EvaluateCondition())
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            var runner = _owner.CommandRunner;
+            if (_scope == null || runner == null)
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            var commands = _periodicCommands?.Commands;
+            if (commands == null || commands.Count == 0)
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            var condition = _periodicCommands.Condition;
+            condition.TrySetExternalExpressionVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
+            if (!condition.GetOrDefault(_conditionEvaluationContext, true))
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            var interval = _periodicCommands.IntervalSeconds;
+            interval.TrySetExternalExpressionVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
+            var intervalSeconds = interval.GetOrDefault(_conditionEvaluationContext, 1f);
+            if (!(intervalSeconds > 0f))
+            {
+                ResetPeriodicCommands();
+                ExecutePeriodicCommands(commands, runner);
+                return;
+            }
+
+            _periodicCommandsElapsed += Mathf.Max(0f, deltaTime);
+            if (_periodicCommandsElapsed < intervalSeconds)
+                return;
+
+            _periodicCommandsElapsed = 0f;
+            ExecutePeriodicCommands(commands, runner);
+        }
+
+        void ExecutePeriodicCommands(CommandListData commands, ICommandRunner runner)
+        {
+            if (_scope == null || runner == null || commands == null || commands.Count == 0)
+                return;
+
+            var context = new CommandContext(_scope, _vars, runner, _scope, CommandRunOptions.Default);
+            UniTask.Void(async () =>
+            {
+                try
+                {
+                    await runner.ExecuteListAsync(commands, context, CancellationToken.None, context.Options);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            });
         }
 
         public void RestoreRuntimeState([CallerMemberName] string caller = "")
@@ -520,6 +610,7 @@ namespace Game.StatusEffect
             _hasHandledGlobalLifetimeExpiration = false;
             _hasHandledGlobalCountExhaustion = false;
             _hasHandledLocalCountExhaustion = false;
+            ResetPeriodicCommands();
 
             RegisterRichText();
 
@@ -596,9 +687,7 @@ namespace Game.StatusEffect
                     ref stackCount,
                     minValue: 1);
             }
-            if (stackCountChanged)
-                StackCount = stackCount;
-
+            StackCount = stackCount;
             if (preset.ApplyMaxCount)
                 ApplyMaxCountRule(context, preset.MaxCount);
 

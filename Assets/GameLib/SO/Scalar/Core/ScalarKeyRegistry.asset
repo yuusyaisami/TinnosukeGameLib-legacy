@@ -645,22 +645,6 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: 8f2906baa2254a049c6d3ae838813740
-    parentId: c35e4c9d87c74b6f88b55cda964299c9
-    name: Value
-    isFolder: 0
-    description: "\u4FA1\u5024"
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 8d6c66803f7e441ca888c96178515d81
-    parentId: c35e4c9d87c74b6f88b55cda964299c9
-    name: MaxValue
-    isFolder: 0
-    description: "\u4E0A\u9650\u4FA1\u5024"
-    explicitKey: 
-    obsolete: 0
-    tags: []
   - id: 9a22d061de77456ebfda7fac59070350
     parentId: 550c8f224cfd4a189fe337f7c3127a11
     name: GameProfile
@@ -1077,6 +1061,158 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: 79802c31f8ae4b7898d2d74bcf9fe14b
+    parentId: 5e97c2d5159b4eba889cb1c463ee8422
+    name: ChainRadius
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 0b94231420aa497e905c1543dd5e0507
+    parentId: 207346c60269466abf961b677b6f24b5
+    name: TimeValueRemove
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8149089e844343688a7004eafefa17cc
+    parentId: 34e30ff382d146e89c236667344090bb
+    name: SizeRadius
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 34e30ff382d146e89c236667344090bb
+    parentId: 0b3a2664e18b4b0b8b010171a2d4fdea
+    name: Circle
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 867dd5e160d74d37ba4d94bbcfe285f1
+    parentId: 0b3a2664e18b4b0b8b010171a2d4fdea
+    name: Box
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: c605d4aa6ceb408e8c7465845a8fbf0b
+    parentId: 867dd5e160d74d37ba4d94bbcfe285f1
+    name: SizeX
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 4a0b95c3bbc44020ab2fb7b8b3bfd17e
+    parentId: 867dd5e160d74d37ba4d94bbcfe285f1
+    name: SizeY
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 256d785f132045ecad4ffd986e94b600
+    parentId: 9a22d061de77456ebfda7fac59070350
+    name: Sell
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: ac6ecdaa31d14418b7e9fa1c74b5335c
+    parentId: 256d785f132045ecad4ffd986e94b600
+    name: NailSellMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: da3ba4671db34f5f81fb86faade563be
+    parentId: e55046d74f30487689bc911d9c21b1b6
+    name: LeftWindowScale
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: e1237daef80042c48d73bcc5b0bce7ef
+    parentId: e55046d74f30487689bc911d9c21b1b6
+    name: RightWindowScale
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8bbbbd058c994f979843e582a37494f6
+    parentId: 5a6eda50d4014ffca318f8861b4f3a39
+    name: TimeToValueUpMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 45828274232040ab870904a57246debd
+    parentId: 9a22d061de77456ebfda7fac59070350
+    name: Shop
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 60519de409ac4b6db7e6b5b4ab860ab6
+    parentId: 45828274232040ab870904a57246debd
+    name: ShopItemCount
+    isFolder: 0
+    description: "\u30B7\u30E7\u30C3\u30D7\u306B\u4E26\u3076\u30A2\u30A4\u30C6\u30E0\u306E\u6570\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 5c2b07a0cac24b8d8c4859a0ec5d39b7
+    parentId: 34e30ff382d146e89c236667344090bb
+    name: SizeScale
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: dcca9caae4f7492d8750c469c810b3e2
+    parentId: 45828274232040ab870904a57246debd
+    name: isShopTurnReset
+    isFolder: 0
+    description: "1\u4EE5\u4E0A\u3060\u3068\u6BCE\u30BF\u30FC\u30F3\u30B7\u30E7\u30C3\u30D7\u3092\u30EA\u30BB\u30C3\u30C8\u3059\u308B\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 704175e3cdc545e3bc883b92459e89ed
+    parentId: 5e97c2d5159b4eba889cb1c463ee8422
+    name: ChainDuration
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 29318902c2aa4bb8be812ee15e8bea50
+    parentId: 72da6318282542548a4a8259df875f93
+    name: BuffChance
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 0e76ee109f5e42ad9c8c0c991e586260
+    parentId: 72da6318282542548a4a8259df875f93
+    name: DebuffChance
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   - id: 5fdac5d6e13047bd9b252c625bcb4354
     parentId: 7b81e12bcd7a4b38b30ced3c5bcefb0d
     name: SpawnBallCount
@@ -1096,22 +1232,6 @@ MonoBehaviour:
   - id: 9fceb62720ac4df8a539547e4f0c7960
     parentId: 7b81e12bcd7a4b38b30ced3c5bcefb0d
     name: SpawnBallValue
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 79802c31f8ae4b7898d2d74bcf9fe14b
-    parentId: 5e97c2d5159b4eba889cb1c463ee8422
-    name: ChainRadius
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 0b94231420aa497e905c1543dd5e0507
-    parentId: 207346c60269466abf961b677b6f24b5
-    name: TimeValueRemove
     isFolder: 0
     description: 
     explicitKey: 
@@ -1146,6 +1266,14 @@ MonoBehaviour:
     name: ValueMultiply
     isFolder: 0
     description: "\u4FA1\u5024\u3092\u500D\u306B\u3057\u307E\u3059\u3002"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: bdc8658aa8aa4bc4a36e6017d4fd1567
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: MaxValueMultiply
+    isFolder: 0
+    description: 
     explicitKey: 
     obsolete: 0
     tags: []
@@ -1253,6 +1381,14 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: d119d8fff4a54d39a6c2fbda415ce4d1
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: AddRuby
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   - id: 7b81e12bcd7a4b38b30ced3c5bcefb0d
     parentId: 26168ac0ec56492bae8ac4bd6fa23218
     name: SpawnBall
@@ -1293,78 +1429,6 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: 8149089e844343688a7004eafefa17cc
-    parentId: 34e30ff382d146e89c236667344090bb
-    name: SizeRadius
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 34e30ff382d146e89c236667344090bb
-    parentId: 0b3a2664e18b4b0b8b010171a2d4fdea
-    name: Circle
-    isFolder: 1
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 867dd5e160d74d37ba4d94bbcfe285f1
-    parentId: 0b3a2664e18b4b0b8b010171a2d4fdea
-    name: Box
-    isFolder: 1
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: c605d4aa6ceb408e8c7465845a8fbf0b
-    parentId: 867dd5e160d74d37ba4d94bbcfe285f1
-    name: SizeX
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 4a0b95c3bbc44020ab2fb7b8b3bfd17e
-    parentId: 867dd5e160d74d37ba4d94bbcfe285f1
-    name: SizeY
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 256d785f132045ecad4ffd986e94b600
-    parentId: 9a22d061de77456ebfda7fac59070350
-    name: Sell
-    isFolder: 1
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: ac6ecdaa31d14418b7e9fa1c74b5335c
-    parentId: 256d785f132045ecad4ffd986e94b600
-    name: NailSellMul
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: da3ba4671db34f5f81fb86faade563be
-    parentId: e55046d74f30487689bc911d9c21b1b6
-    name: LeftWindowScale
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: e1237daef80042c48d73bcc5b0bce7ef
-    parentId: e55046d74f30487689bc911d9c21b1b6
-    name: RightWindowScale
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
   - id: 5a6eda50d4014ffca318f8861b4f3a39
     parentId: 26168ac0ec56492bae8ac4bd6fa23218
     name: TimeToValueUp
@@ -1373,43 +1437,83 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: 8bbbbd058c994f979843e582a37494f6
-    parentId: 5a6eda50d4014ffca318f8861b4f3a39
-    name: TimeToValueUpMul
-    isFolder: 0
-    description: 
-    explicitKey: 
-    obsolete: 0
-    tags: []
-  - id: 45828274232040ab870904a57246debd
-    parentId: 9a22d061de77456ebfda7fac59070350
-    name: Shop
+  - id: 72da6318282542548a4a8259df875f93
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: BuffDebuff
     isFolder: 1
     description: 
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: 60519de409ac4b6db7e6b5b4ab860ab6
-    parentId: 45828274232040ab870904a57246debd
-    name: ShopItemCount
-    isFolder: 0
-    description: "\u30B7\u30E7\u30C3\u30D7\u306B\u4E26\u3076\u30A2\u30A4\u30C6\u30E0\u306E\u6570\u3002"
+  - id: a65224470e8e464dabbe2e229b57864b
+    parentId: 35f57bb279f9497689576eb6ef4ac5c5
+    name: Ahiru
+    isFolder: 1
+    description: 
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: 5c2b07a0cac24b8d8c4859a0ec5d39b7
-    parentId: 34e30ff382d146e89c236667344090bb
-    name: SizeScale
+  - id: 72cdf4d93ac54041b7dd3515cf94aee2
+    parentId: a65224470e8e464dabbe2e229b57864b
+    name: BubbleValue
     isFolder: 0
     description: 
     explicitKey: 
     obsolete: 0
     tags: []
-  - id: dcca9caae4f7492d8750c469c810b3e2
-    parentId: 45828274232040ab870904a57246debd
-    name: isShopTurnReset
+  - id: 16b219ac670742c7b8f29bd4d62e3883
+    parentId: c35e4c9d87c74b6f88b55cda964299c9
+    name: GravityScale
     isFolder: 0
-    description: "1\u4EE5\u4E0A\u3060\u3068\u6BCE\u30BF\u30FC\u30F3\u30B7\u30E7\u30C3\u30D7\u3092\u30EA\u30BB\u30C3\u30C8\u3059\u308B\u3002"
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8f2906baa2254a049c6d3ae838813740
+    parentId: c35e4c9d87c74b6f88b55cda964299c9
+    name: Value
+    isFolder: 0
+    description: "\u4FA1\u5024"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 8d6c66803f7e441ca888c96178515d81
+    parentId: c35e4c9d87c74b6f88b55cda964299c9
+    name: MaxValue
+    isFolder: 0
+    description: "\u4E0A\u9650\u4FA1\u5024"
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 35f57bb279f9497689576eb6ef4ac5c5
+    parentId: c35e4c9d87c74b6f88b55cda964299c9
+    name: Effects
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 1c837756cc794f2993547d626084076b
+    parentId: 26168ac0ec56492bae8ac4bd6fa23218
+    name: Bubble
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: cf89f856dca84138b48697f9e945ec58
+    parentId: 1c837756cc794f2993547d626084076b
+    name: BubbleMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: 75166200f7c64d9a8f1e784d4d217adb
+    parentId: 1c837756cc794f2993547d626084076b
+    name: BubbleDuration
+    isFolder: 0
+    description: 
     explicitKey: 
     obsolete: 0
     tags: []

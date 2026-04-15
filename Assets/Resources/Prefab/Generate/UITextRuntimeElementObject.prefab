@@ -338,7 +338,7 @@ MonoBehaviour:
   excludeInactive: 1
   autoRebuild: 1
   autoDetectChanges: 1
-  autoRebuildIntervalSeconds: 0
+  autoRebuildIntervalSeconds: 0.01
   runInLateUpdate: 1
   executeOnBoundsChanged: 0
   rebuildBeforeCommandCheck: 1

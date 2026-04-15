@@ -313,6 +313,10 @@ namespace Game.Scalar.Generated
 
             public static partial class BallProfile
             {
+                /// <remarks>
+                /// Path: GameLogic/BallProfile/GravityScale
+                /// </remarks>
+                public const string GravityScale = "GameLogic.BallProfile.GravityScale";
                 /// <summary>上限価値</summary>
                 /// <remarks>
                 /// Path: GameLogic/BallProfile/MaxValue
@@ -323,6 +327,18 @@ namespace Game.Scalar.Generated
                 /// Path: GameLogic/BallProfile/Value
                 /// </remarks>
                 public const string Value = "GameLogic.BallProfile.Value";
+
+                public static partial class Effects
+                {
+
+                    public static partial class Ahiru
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/BallProfile/Effects/Ahiru/BubbleValue
+                        /// </remarks>
+                        public const string BubbleValue = "GameLogic.BallProfile.Effects.Ahiru.BubbleValue";
+                    }
+                }
             }
 
             public static partial class GameProfile
@@ -543,6 +559,10 @@ namespace Game.Scalar.Generated
                 public static partial class Effect
                 {
                     /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/AddRuby
+                    /// </remarks>
+                    public const string AddRuby = "GameLogic.NailProfile.Effect.AddRuby";
+                    /// <remarks>
                     /// Path: GameLogic/NailProfile/Effect/Attract
                     /// </remarks>
                     public const string Attract = "GameLogic.NailProfile.Effect.Attract";
@@ -590,6 +610,10 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/NailProfile/Effect/MaxHitCount
                     /// </remarks>
                     public const string MaxHitCount = "GameLogic.NailProfile.Effect.MaxHitCount";
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/Effect/MaxValueMultiply
+                    /// </remarks>
+                    public const string MaxValueMultiply = "GameLogic.NailProfile.Effect.MaxValueMultiply";
                     /// <summary>ボールの最大価値上限を上げます。(lv)</summary>
                     /// <remarks>
                     /// Path: GameLogic/NailProfile/Effect/MaxValueUp
@@ -620,6 +644,30 @@ namespace Game.Scalar.Generated
                     /// </remarks>
                     public const string ValueUp = "GameLogic.NailProfile.Effect.ValueUp";
 
+                    public static partial class Bubble
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Bubble/BubbleDuration
+                        /// </remarks>
+                        public const string BubbleDuration = "GameLogic.NailProfile.Effect.Bubble.BubbleDuration";
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Bubble/BubbleMul
+                        /// </remarks>
+                        public const string BubbleMul = "GameLogic.NailProfile.Effect.Bubble.BubbleMul";
+                    }
+
+                    public static partial class BuffDebuff
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/BuffDebuff/BuffChance
+                        /// </remarks>
+                        public const string BuffChance = "GameLogic.NailProfile.Effect.BuffDebuff.BuffChance";
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/BuffDebuff/DebuffChance
+                        /// </remarks>
+                        public const string DebuffChance = "GameLogic.NailProfile.Effect.BuffDebuff.DebuffChance";
+                    }
+
                     public static partial class Chain
                     {
                         /// <summary>連載起動</summary>
@@ -627,6 +675,10 @@ namespace Game.Scalar.Generated
                         /// Path: GameLogic/NailProfile/Effect/Chain/ChainChance
                         /// </remarks>
                         public const string ChainChance = "GameLogic.NailProfile.Effect.Chain.ChainChance";
+                        /// <remarks>
+                        /// Path: GameLogic/NailProfile/Effect/Chain/ChainDuration
+                        /// </remarks>
+                        public const string ChainDuration = "GameLogic.NailProfile.Effect.Chain.ChainDuration";
                         /// <remarks>
                         /// Path: GameLogic/NailProfile/Effect/Chain/ChainRadius
                         /// </remarks>
@@ -787,8 +839,10 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLib.StatusEffect.SpeedMod.DefaultDuration,
             ScalarKeys.GameLib.StatusEffect.SpeedMod.DefaultIntensity,
             ScalarKeys.GameLib.StatusEffect.SpeedMod.Multiplier,
+            ScalarKeys.GameLogic.BallProfile.GravityScale,
             ScalarKeys.GameLogic.BallProfile.MaxValue,
             ScalarKeys.GameLogic.BallProfile.Value,
+            ScalarKeys.GameLogic.BallProfile.Effects.Ahiru.BubbleValue,
             ScalarKeys.GameLogic.GameProfile.Ball.BallGravityScale,
             ScalarKeys.GameLogic.GameProfile.Ball.BallValueAdd,
             ScalarKeys.GameLogic.GameProfile.Ball.BallValueMul,
@@ -831,6 +885,7 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GateProfile.LeftGate.OpenTime,
             ScalarKeys.GameLogic.GateProfile.RightGate.CloseTime,
             ScalarKeys.GameLogic.GateProfile.RightGate.OpenTime,
+            ScalarKeys.GameLogic.NailProfile.Effect.AddRuby,
             ScalarKeys.GameLogic.NailProfile.Effect.Attract,
             ScalarKeys.GameLogic.NailProfile.Effect.Bounce,
             ScalarKeys.GameLogic.NailProfile.Effect.ColiderSize,
@@ -842,13 +897,19 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.NailProfile.Effect.GlobalMaxUseCooldown,
             ScalarKeys.GameLogic.NailProfile.Effect.LuckUp,
             ScalarKeys.GameLogic.NailProfile.Effect.MaxHitCount,
+            ScalarKeys.GameLogic.NailProfile.Effect.MaxValueMultiply,
             ScalarKeys.GameLogic.NailProfile.Effect.MaxValueUp,
             ScalarKeys.GameLogic.NailProfile.Effect.SpeedUp,
             ScalarKeys.GameLogic.NailProfile.Effect.Split,
             ScalarKeys.GameLogic.NailProfile.Effect.Teleport,
             ScalarKeys.GameLogic.NailProfile.Effect.ValueMultiply,
             ScalarKeys.GameLogic.NailProfile.Effect.ValueUp,
+            ScalarKeys.GameLogic.NailProfile.Effect.Bubble.BubbleDuration,
+            ScalarKeys.GameLogic.NailProfile.Effect.Bubble.BubbleMul,
+            ScalarKeys.GameLogic.NailProfile.Effect.BuffDebuff.BuffChance,
+            ScalarKeys.GameLogic.NailProfile.Effect.BuffDebuff.DebuffChance,
             ScalarKeys.GameLogic.NailProfile.Effect.Chain.ChainChance,
+            ScalarKeys.GameLogic.NailProfile.Effect.Chain.ChainDuration,
             ScalarKeys.GameLogic.NailProfile.Effect.Chain.ChainRadius,
             ScalarKeys.GameLogic.NailProfile.Effect.Converter.ConverterM2P,
             ScalarKeys.GameLogic.NailProfile.Effect.Size.Box.SizeX,

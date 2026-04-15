@@ -32237,6 +32237,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: Show
         AwaitMode: 1
+        BackgroundCancellationMode: 0
     - rid: 5399842570380247557
       type: {class: CommandChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32272,6 +32273,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: Show
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5399842570380247558
       type: {class: CommandListChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32697,6 +32699,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: Hide
         AwaitMode: 1
+        BackgroundCancellationMode: 0
     - rid: 5399842570380247586
       type: {class: CommandChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32732,6 +32735,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: Hide
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5399842570380247587
       type: {class: TransformAnimationChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -34817,6 +34821,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: ResetTimer
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5399842530663334403
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -36371,6 +36376,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: StartTimer
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5619052416848364064
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -36412,6 +36418,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: SpawnBall
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5619052416848364066
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -36453,6 +36460,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: ResetTimer
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5619052451121070201
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -37218,6 +37226,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: ClearBall
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5619052648602796855
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -39244,55 +39253,11 @@ MonoBehaviour:
       _commands:
       - rid: 5619052416848364036
       - rid: 5619052416848364038
-      - rid: 5399842525030383702
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 5399842525030383702
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842525030383703
-    - rid: 5399842525030383703
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: ResetTimer
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
     - rid: 5619052416848364028
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -74954,7 +74919,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u307E\u3042\u305D\u3046\u3044\u3046\u3053\u3068\u3082\u3042\u308B\u3088\u306D"
+  m_text: "\u307E\u3042\u305D\u3046\u3044\u3046\u3053\u3068\u3082\u3042\u308B\u3088\u306D<sprite=22>b"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
   m_sharedMaterial: {fileID: 965238318100020341, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
@@ -86772,6 +86737,7 @@ GameObject:
   - component: {fileID: 2084415585}
   - component: {fileID: 2084415586}
   - component: {fileID: 2084415587}
+  - component: {fileID: 2084415588}
   m_Layer: 0
   m_Name: TimeLimit
   m_TagString: Untagged
@@ -88585,6 +88551,22 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842685578379563
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842685578379564
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries: []
+    - rid: 5399842685578379565
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052646656639855
       type: {class: 'ManagedRefLiteralSource`1[[Game.UI.TooltipHubPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -89018,7 +89000,7 @@ MonoBehaviour:
         OverrideCountStartValue: 0
         CountStartValue:
           _source:
-            rid: -2
+            rid: 5399842685578379563
           _defaultValue: 0
         EnableDynamicBind: 0
         DynamicBindPlayMode: 10
@@ -89038,7 +89020,7 @@ MonoBehaviour:
         ApplyMaterialFx: 0
         MaterialFxSource:
           _source:
-            rid: -2
+            rid: 5399842685578379564
           _defaultValue:
             ContextTag: default
             ClearContextFirst: 0
@@ -89047,7 +89029,7 @@ MonoBehaviour:
         ApplyFontSize: 0
         FontSize:
           _source:
-            rid: -2
+            rid: 5399842685578379565
           _defaultValue: 0
     - rid: 5619052646656639877
       type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
@@ -89058,7 +89040,233 @@ MonoBehaviour:
     - rid: 5619052646656639878
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: "\u30BF\u30FC\u30F3\u3042\u305F\u308A\u306E\u5236\u9650\u6642\u9593\u3067\u3059\u3002\\n\u6642\u9593\u304C\u7121\u304F\u306A\u308B\u307E\u305F\u306F\u3001\u5668\u304C\u5168\u3066\u843D\u3061\u305F\u5834\u5408\u3001\u7D42\u4E86\u3068\u306A\u308A\u307E\u3059\u3002"
+        value: "\u30BF\u30FC\u30F3\u3042\u305F\u308A\u306E\u5236\u9650\u6642\u9593\u3067\u3059\u3002\\n\u30AF\u30EA\u30C3\u30AF\u3059\u308B\u3068\u5F37\u5236\u7D42\u4E86\u3055\u305B\u308B\u3053\u3068\u304C\u3067\u304D\u307E\u3059\u3002"
+--- !u!114 &2084415588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2084415574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38de24b4e088bae489d7199516c7f8c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.ButtonChannelHubMB
+  _channels:
+  - _channelTag: default
+    _presetValue:
+      _source:
+        rid: 5399842685578379546
+      _defaultValue:
+        _inputPreset:
+          _source:
+            rid: 5399842685578379547
+        _playerPreset:
+          _source:
+            rid: 5399842685578379548
+          _defaultValue:
+            _enabledCondition:
+              _source:
+                rid: 5399842685578379549
+              _defaultValue: 0
+            _uiTriggerAction: 0
+            _worldTriggerButton: 10
+            _guardDuringCommandExecution: 1
+            _disableSelectionDuringCommandExecution: 0
+            _allowNavigationSelectionChangeWhileInteracting: 0
+            _allowPointerSelectionChangeWhileInteracting: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5399842685578379546
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonChannelPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842685578379550
+    - rid: 5399842685578379547
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842685578379551
+    - rid: 5399842685578379548
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842685578379552
+    - rid: 5399842685578379549
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842685578379550
+      type: {class: ButtonChannelPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _inputPreset:
+          _source:
+            rid: 5399842685578379553
+        _playerPreset:
+          _source:
+            rid: 5399842685578379554
+          _defaultValue:
+            _enabledCondition:
+              _source:
+                rid: 5399842685578379555
+              _defaultValue: 0
+            _uiTriggerAction: 0
+            _worldTriggerButton: 10
+            _guardDuringCommandExecution: 1
+            _disableSelectionDuringCommandExecution: 0
+            _allowNavigationSelectionChangeWhileInteracting: 0
+            _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842685578379551
+      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _onDownCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onUpCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onCancelCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842685578379552
+      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabledCondition:
+          _source:
+            rid: 5399842685578379556
+          _defaultValue: 0
+        _uiTriggerAction: 0
+        _worldTriggerButton: 10
+        _guardDuringCommandExecution: 1
+        _disableSelectionDuringCommandExecution: 0
+        _allowNavigationSelectionChangeWhileInteracting: 0
+        _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842685578379553
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonInputPresetBase, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842685578379557
+    - rid: 5399842685578379554
+      type: {class: 'ManagedRefLiteralSource`1[[Game.UI.ButtonPlayerPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          rid: 5399842685578379558
+    - rid: 5399842685578379555
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842685578379556
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842685578379557
+      type: {class: InstantButtonInputPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _onDownCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5399842685578379561
+        _onUpCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        _onCancelCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842685578379558
+      type: {class: ButtonPlayerPreset, ns: Game.UI, asm: Assembly-CSharp}
+      data:
+        _enabledCondition:
+          _source:
+            rid: 5399842685578379559
+          _defaultValue: 0
+        _uiTriggerAction: 0
+        _worldTriggerButton: 10
+        _guardDuringCommandExecution: 1
+        _disableSelectionDuringCommandExecution: 0
+        _allowNavigationSelectionChangeWhileInteracting: 0
+        _allowPointerSelectionChangeWhileInteracting: 0
+    - rid: 5399842685578379559
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 2
+        intValue: 0
+        floatValue: 0
+        boolValue: 1
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842685578379561
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842685578379562
+    - rid: 5399842685578379562
+      type: {class: ChangeGameStateCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        StateMachineSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        State: 16
 --- !u!1 &2086723548
 GameObject:
   m_ObjectHideFlags: 0

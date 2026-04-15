@@ -74,6 +74,8 @@ namespace Game.Commands.VNext
 
                 var runCtx = BuildExecutionContext(typed, ctx, targetScope, runner, table, rowCount, elements[i]);
                 var result = await runner.ExecuteListAsync(typed.Body, runCtx, ct, ctx.Options);
+                if (result.Status == CommandRunStatus.Break)
+                    break;
                 if (result.Status == CommandRunStatus.Canceled)
                     throw new OperationCanceledException();
 
@@ -258,8 +260,15 @@ namespace Game.Commands.VNext
 
             if (cellVars != null)
             {
+                // Cell vars must win over the outer command vars for row-specific data.
                 var tempContext = CreateDerivedContext(rootCtx, targetScope, runner, merged);
-                cellVars.ApplyTo(merged, tempContext, overwrite: false);
+                cellVars.ApplyTo(merged, tempContext, overwrite: true);
+
+                // Keep the table indices authoritative even if a cell reuses the same var ids.
+                WriteInt(merged, typed.RowIndexVarId, rowIndex);
+                WriteInt(merged, typed.ColumnIndexVarId, columnIndex);
+                WriteInt(merged, typed.RowCountVarId, rowCount);
+                WriteInt(merged, typed.ColumnCountVarId, columnCount);
             }
 
             return merged;

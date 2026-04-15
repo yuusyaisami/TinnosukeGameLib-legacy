@@ -447,6 +447,95 @@ namespace Game.Commands.VNext
 
             if (count == 0)
                 sb.AppendLine("  (no vars)");
+
+            AppendVarStoreTables(sb, vars, maxEntries, count);
+        }
+
+        static void AppendVarStoreTables(StringBuilder sb, IVarStore vars, int maxEntries, int usedEntries)
+        {
+            var totalEntries = usedEntries;
+            var truncated = false;
+            var hasTables = false;
+
+            foreach (var tableVarId in vars.EnumerateTableVarIds())
+            {
+                if (tableVarId == 0)
+                    continue;
+
+                if (!hasTables)
+                {
+                    sb.AppendLine("VarStore Tables:");
+                    hasTables = true;
+                }
+
+                var tableKey = VarIdResolver.TryGetStableKey(tableVarId, out var tableStableKey) ? tableStableKey : "<runtime>";
+                if (!vars.TryGetTableRowCount(tableVarId, out var rowCount))
+                {
+                    sb.AppendLine($"  tableVarId={tableVarId} key={tableKey} rows=<unresolved>");
+                    continue;
+                }
+
+                sb.AppendLine($"  tableVarId={tableVarId} key={tableKey} rows={rowCount}");
+                for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
+                {
+                    if (!vars.TryGetTableColumnCount(tableVarId, rowIndex, out var columnCount))
+                    {
+                        sb.AppendLine($"    row={rowIndex} cols=<unresolved>");
+                        continue;
+                    }
+
+                    sb.AppendLine($"    row={rowIndex} cols={columnCount}");
+                    for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
+                    {
+                        if (!vars.TryGetTableCellStore(tableVarId, rowIndex, columnIndex, out var cellStore) || cellStore == null)
+                        {
+                            sb.AppendLine($"      cell[{rowIndex},{columnIndex}] <missing>");
+                            continue;
+                        }
+
+                        var cellValueCount = 0;
+                        foreach (var cellVarId in cellStore.EnumerateVarIds())
+                        {
+                            if (cellVarId == 0)
+                                continue;
+
+                            if (maxEntries > 0 && totalEntries >= maxEntries)
+                            {
+                                truncated = true;
+                                break;
+                            }
+
+                            if (cellValueCount == 0)
+                                sb.AppendLine($"      cell[{rowIndex},{columnIndex}]");
+
+                            var kind = cellStore.GetVarKind(cellVarId);
+                            var cellKey = VarIdResolver.TryGetStableKey(cellVarId, out var cellStableKey) ? cellStableKey : "<runtime>";
+                            var value = GetVarValueDescription(cellStore, cellVarId, kind);
+                            sb.AppendLine($"        varId={cellVarId} key={cellKey} kind={kind} value={value}");
+                            cellValueCount++;
+                            totalEntries++;
+                        }
+
+                        if (!truncated && cellValueCount == 0)
+                            sb.AppendLine($"      cell[{rowIndex},{columnIndex}] (empty)");
+
+                        if (truncated && cellValueCount == 0)
+                            sb.AppendLine($"      cell[{rowIndex},{columnIndex}] <truncated>");
+
+                        if (truncated)
+                            break;
+                    }
+
+                    if (truncated)
+                        break;
+                }
+
+                if (truncated)
+                    break;
+            }
+
+            if (truncated)
+                sb.AppendLine($"  ...table cell entries truncated after {maxEntries} items.");
         }
 
         static void AppendWatches(StringBuilder sb, System.Collections.Generic.IReadOnlyList<CommandDebugWatchEntry>? watches, CommandContext ctx, int maxEntries)
@@ -479,7 +568,7 @@ namespace Game.Commands.VNext
 
                 var label = string.IsNullOrWhiteSpace(w.Label) ? $"watch[{i}]" : w.Label.Trim();
                 var v = w.Value.Evaluate(ctx);
-                var valueText = v.ToString();
+                var valueText = GetVariantValueDescription(v);
                 if (!w.Value.HasSource)
                 {
                     valueText += " [WARN: no source]";
@@ -552,7 +641,7 @@ namespace Game.Commands.VNext
                 }
 
                 var key = VarIdResolver.TryGetIdToStable(cell.VarId) ?? $"varId={cell.VarId}";
-                sb.AppendLine($"    varId={cell.VarId} key={key} value={cell.Value}");
+                sb.AppendLine($"    varId={cell.VarId} key={key} value={GetVariantValueDescription(cell.Value)}");
                 count++;
             }
 
@@ -565,14 +654,22 @@ namespace Game.Commands.VNext
             if (kind == ValueKind.ManagedRef)
             {
                 if (vars.TryGetManagedRef(varId, out var managedRef) && managedRef != null)
-                    return managedRef.GetType().Name;
+                    return ManagedRefDebugTextFormatter.Format(managedRef);
                 return "null";
             }
 
             if (vars.TryGetVariant(varId, out var variant))
-                return variant.ToString();
+                return GetVariantValueDescription(variant);
 
             return "<unknown>";
+        }
+
+        static string GetVariantValueDescription(in DynamicVariant variant)
+        {
+            if (variant.Kind == ValueKind.ManagedRef)
+                return ManagedRefDebugTextFormatter.Format(variant.AsManagedRef);
+
+            return variant.ToString();
         }
     }
 }

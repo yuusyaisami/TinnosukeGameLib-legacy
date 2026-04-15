@@ -19,6 +19,18 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842689165558452
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842691240689908
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842691240689909
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -52,6 +64,13 @@ MonoBehaviour:
           Icon: {fileID: 0}
           SortOrder: 5
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842689165558452
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -63,6 +82,21 @@ MonoBehaviour:
           rid: 5619052465085481674
         operations:
         - rid: 5619052366731149466
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842691240689908
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842691240689909
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
@@ -137,6 +171,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

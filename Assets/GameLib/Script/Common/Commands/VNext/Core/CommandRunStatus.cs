@@ -7,5 +7,6 @@ namespace Game.Commands.VNext
         Completed = 0,
         Canceled = 1,
         Error = 2,
+        Break = 3,
     }
 }

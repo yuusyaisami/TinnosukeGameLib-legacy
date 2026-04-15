@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Game.Commands.VNext;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -137,6 +138,8 @@ namespace Game.Common
                 if (rows == null || rows.Count == 0)
                     continue;
 
+                LogLiteralTableRowContextBegin(tableVarId, rows.Count, context);
+
                 for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
                 {
                     if (!dest.TryEnsureTableRow(tableVarId, rowIndex))
@@ -160,6 +163,7 @@ namespace Game.Common
                             continue;
 
                         cell.Vars.ApplyTo(cellStore, context, overwrite: true);
+                        LogLiteralTableCellWrite(tableVarId, rowIndex, columnIndex, cellStore, context);
                     }
                 }
             }
@@ -213,13 +217,18 @@ namespace Game.Common
 
                 if (evaluated.Kind == ValueKind.ManagedRef && evaluated.AsManagedRef is Table table)
                 {
-                    dest.TrySetManagedRef(entry.VarId, table);
+                    if (!dest.TrySetManagedRef(entry.VarId, table))
+                        return false;
+                    LogLiteralTableManagedRefWrite(ownerName, entry.VarId, table, entry.Value, context, "Table");
                     return true;
                 }
 
                 if (evaluated.Kind == ValueKind.ManagedRef && evaluated.AsManagedRef is VarStorePayload legacyPayload)
                 {
-                    dest.TrySetManagedRef(entry.VarId, Table.FromLegacy(legacyPayload));
+                    var converted = Table.FromLegacy(legacyPayload);
+                    if (!dest.TrySetManagedRef(entry.VarId, converted))
+                        return false;
+                    LogLiteralTableManagedRefWrite(ownerName, entry.VarId, converted, entry.Value, context, "LegacyVarStorePayload");
                     return true;
                 }
 
@@ -235,8 +244,7 @@ namespace Game.Common
                 }
 
                 var deferred = new DeferredDynamicVarValue(entry.Value, entry.Kind, entry.VarId, ownerName);
-                dest.TrySetManagedRef(entry.VarId, deferred);
-                return true;
+                return dest.TrySetManagedRef(entry.VarId, deferred);
             }
 
             if (!VarStoreEntryValueKindConverter.TryConvertToVariant(in entry, context ?? EmptyDynamicContext.Instance, out var value))
@@ -245,12 +253,134 @@ namespace Game.Common
             if (value.Kind == ValueKind.ManagedRef)
             {
                 if (value.AsManagedRef != null)
-                    dest.TrySetManagedRef(entry.VarId, value.AsManagedRef);
+                    return dest.TrySetManagedRef(entry.VarId, value.AsManagedRef);
                 return true;
             }
 
-            dest.TrySetVariant(entry.VarId, value);
-            return true;
+            return dest.TrySetVariant(entry.VarId, value);
+        }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        static void LogLiteralTableManagedRefWrite(
+            string ownerName,
+            int varId,
+            Table table,
+            in DynamicValue source,
+            IDynamicContext? context,
+            string origin)
+        {
+            Debug.Log(
+                $"[VarStorePayload] LiteralTableManagedRefWrite Owner={ownerName} VarId={varId} Origin={origin} SourceType={source.SourceTypeName} SourceData={source.SourceDebugData} Scope={DescribeContextScope(context)} Payload={BuildLiteralTableSummary(table)}");
+        }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        static void LogLiteralTableRowContextBegin(int tableVarId, int rowCount, IDynamicContext? context)
+        {
+            Debug.Log($"[VarStorePayload] LiteralTableRowContextBegin TableVarId={tableVarId} Rows={rowCount} Scope={DescribeContextScope(context)}");
+        }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        static void LogLiteralTableCellWrite(int tableVarId, int rowIndex, int columnIndex, IVarStore cellStore, IDynamicContext? context)
+        {
+            Debug.Log(
+                $"[VarStorePayload] LiteralTableCellWrite TableVarId={tableVarId} Row={rowIndex} Column={columnIndex} Scope={DescribeContextScope(context)} Values=[{BuildCellStoreSummary(cellStore)}]");
+        }
+
+        static string DescribeContextScope(IDynamicContext? context)
+        {
+            if (context?.Scope?.Identity != null)
+                return $"{context.Scope.Identity.Id}:{context.Scope.Identity.Kind}";
+
+            return context?.Scope?.GetType().Name ?? "<null>";
+        }
+
+        static string BuildLiteralTableSummary(Table table)
+        {
+            var sb = new StringBuilder();
+            var rowCount = table.RowCount;
+            sb.Append($"rows={rowCount}");
+
+            var maxRows = Math.Min(rowCount, 4);
+            for (var rowIndex = 0; rowIndex < maxRows; rowIndex++)
+            {
+                if (!table.TryGetColumnCount(rowIndex, out var columnCount))
+                {
+                    sb.Append($" row[{rowIndex}]cols=?");
+                    continue;
+                }
+
+                sb.Append($" row[{rowIndex}]cols={columnCount}");
+                var maxColumns = Math.Min(columnCount, 3);
+                for (var columnIndex = 0; columnIndex < maxColumns; columnIndex++)
+                {
+                    if (!table.TryGetCellVars(rowIndex, columnIndex, out var vars) || vars == null)
+                    {
+                        sb.Append($" cell[{rowIndex},{columnIndex}]=<missing>");
+                        continue;
+                    }
+
+                    sb.Append($" cell[{rowIndex},{columnIndex}]vars={vars.Entries.Count}");
+                }
+
+                if (columnCount > maxColumns)
+                    sb.Append(" ...");
+            }
+
+            if (rowCount > maxRows)
+                sb.Append(" ...");
+
+            return sb.ToString();
+        }
+
+        static string BuildCellStoreSummary(IVarStore cellStore)
+        {
+            var sb = new StringBuilder();
+            var count = 0;
+            foreach (var varId in cellStore.EnumerateVarIds())
+            {
+                if (varId == 0)
+                    continue;
+
+                if (count > 0)
+                    sb.Append(", ");
+
+                var key = VarIdResolver.TryGetStableKey(varId, out var stableKey) ? stableKey : "<runtime>";
+                var kind = cellStore.GetVarKind(varId);
+                sb.Append($"varId={varId} key={key} kind={kind} value={DescribeVarStoreValue(cellStore, varId, kind)}");
+                count++;
+
+                if (count >= 16)
+                {
+                    sb.Append(", ...");
+                    break;
+                }
+            }
+
+            return count == 0 ? "(empty)" : sb.ToString();
+        }
+
+        static string DescribeVarStoreValue(IVarStore vars, int varId, ValueKind kind)
+        {
+            if (kind == ValueKind.ManagedRef)
+            {
+                if (!vars.TryGetManagedRef(varId, out var managedRef) || managedRef == null)
+                    return "null";
+
+                return ManagedRefDebugTextFormatter.Format(managedRef);
+            }
+
+            if (vars.TryGetVariant(varId, out var variant))
+            {
+                if (variant.Kind == ValueKind.ManagedRef)
+                    return ManagedRefDebugTextFormatter.Format(variant.AsManagedRef);
+
+                return variant.ToString();
+            }
+
+            return "<unknown>";
         }
 
         public VarStore ToVarStore()

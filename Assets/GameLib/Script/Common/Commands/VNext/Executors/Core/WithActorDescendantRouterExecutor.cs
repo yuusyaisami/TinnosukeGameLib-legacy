@@ -44,7 +44,8 @@ namespace Game.Commands.VNext
                 if (targetScope == null)
                     continue;
 
-                await ExecuteOnTargetAsync(typed, ctx, actorScope, targetScope, ct, allowFallback);
+                if (await ExecuteOnTargetAsync(typed, ctx, actorScope, targetScope, ct, allowFallback))
+                    break;
             }
         }
 
@@ -58,7 +59,7 @@ namespace Game.Commands.VNext
             };
         }
 
-        static async UniTask ExecuteOnTargetAsync(
+        static async UniTask<bool> ExecuteOnTargetAsync(
             WithActorDescendantRouterCommandData typed,
             CommandContext ctx,
             IScopeNode actorScope,
@@ -103,23 +104,34 @@ namespace Game.Commands.VNext
             if (typed.FilterMode == DescendantFilterMode.Exclude)
                 isMatch = !isMatch;
 
-            await ExecuteListIfAnyAsync(typed.Common, targetCtx, ct, "Common");
+            if (await ExecuteListIfAnyAsync(typed.Common, targetCtx, ct, "Common"))
+                return true;
             if (isMatch)
-                await ExecuteListIfAnyAsync(typed.OnMatched, targetCtx, ct, "OnMatched");
+            {
+                if (await ExecuteListIfAnyAsync(typed.OnMatched, targetCtx, ct, "OnMatched"))
+                    return true;
+            }
             else
-                await ExecuteListIfAnyAsync(typed.OnUnmatched, targetCtx, ct, "OnUnmatched");
+            {
+                if (await ExecuteListIfAnyAsync(typed.OnUnmatched, targetCtx, ct, "OnUnmatched"))
+                    return true;
+            }
+
+            return false;
         }
 
-        static async UniTask ExecuteListIfAnyAsync(CommandListData? list, CommandContext ctx, CancellationToken ct, string label)
+        static async UniTask<bool> ExecuteListIfAnyAsync(CommandListData? list, CommandContext ctx, CancellationToken ct, string label)
         {
             if (list == null || list.Count == 0)
-                return;
+                return false;
 
             var runner = ctx.Runner;
             if (runner == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "ICommandRunner is null.");
 
             var result = await runner.ExecuteListAsync(list, ctx, ct, ctx.Options);
+            if (result.Status == CommandRunStatus.Break)
+                return true;
             if (result.Status == CommandRunStatus.Canceled)
                 throw new OperationCanceledException();
 
@@ -128,6 +140,8 @@ namespace Game.Commands.VNext
                 var msg = $"{label} command list failed for scope {DescribeScope(ctx.Scope)}. FailureCount={result.FailureCount}, ErrorIndex={result.ErrorIndex}, Message={result.Message}";
                 throw new CommandExecutionException(result.FailureKind, msg);
             }
+
+            return false;
         }
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)

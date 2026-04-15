@@ -109,7 +109,7 @@ Material:
     - _BlendColor2DAnimatedGradientCellSharpness: 1.58
     - _BlendColor2DAnimatedGradientEnabled: 0
     - _BlendColor2DAnimatedGradientGain: 0.75
-    - _BlendColor2DAnimatedGradientHueAmplitude: 0.15
+    - _BlendColor2DAnimatedGradientHueAmplitude: 0.16
     - _BlendColor2DAnimatedGradientLacunarity: 1.11
     - _BlendColor2DAnimatedGradientLightnessAmplitude: 0.06
     - _BlendColor2DAnimatedGradientLoopSeconds: 0
@@ -118,7 +118,7 @@ Material:
     - _BlendColor2DAnimatedGradientNoiseSpeed: 0.5
     - _BlendColor2DAnimatedGradientOctaves: 12.3
     - _BlendColor2DAnimatedGradientPatternContrast: 1
-    - _BlendColor2DAnimatedGradientPatternType: 2.17
+    - _BlendColor2DAnimatedGradientPatternType: 2.14
     - _BlendColor2DAnimatedGradientPixelSize: 1
     - _BlendColor2DAnimatedGradientPulseAmplitude: 0.22
     - _BlendColor2DAnimatedGradientPulseSpeed: 1.03
@@ -345,7 +345,7 @@ Material:
     - _BlendColor2DAnimatedGradientNoiseDirection: {r: 1.11, g: 0.4, b: 0, a: 0}
     - _BlendColor2DAnimatedGradientNoiseOffset: {r: 0, g: 0, b: 0, a: 0}
     - _BlendColor2DAnimatedGradientWarpDirection: {r: 1.59, g: 2.07, b: 0, a: 0}
-    - _BlendColor2DColor: {r: 0.40566027, g: 1, b: 0.43794954, a: 1}
+    - _BlendColor2DColor: {r: 0.05345905, g: 1, b: 0.71194583, a: 1}
     - _CausticsColor: {r: 1, g: 1, b: 1, a: 1}
     - _CausticsScrollA: {r: 0.1, g: 0.05, b: 0, a: 0}
     - _CausticsScrollB: {r: -0.08, g: 0.06, b: 0, a: 0}

@@ -1,0 +1,10 @@
+OVDF v1.1
+Game.Common.ExpressionVariable, Assembly-CSharp
+
+# _useScalarLeafKey
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90
+
+# _useCustomKey
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90

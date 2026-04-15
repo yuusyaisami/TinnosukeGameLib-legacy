@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 770327120433404448f0aea8ad9b1311, type: 3}
-  m_Name: GlobalStatusEffect
+  m_Name: GlobalCountStatusEffect
   m_EditorClassIdentifier: Assembly-CSharp::Game.StatusEffect.StatusEffectDefinitionSO
   preset:
     rid: 5619052366731149464
@@ -175,6 +175,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5399842533269308386
       type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -193,6 +194,10 @@ MonoBehaviour:
         fallbackInitialValue:
           _source:
             rid: -2
+    - rid: 5399842685578379455
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -233,6 +238,13 @@ MonoBehaviour:
           Icon: {fileID: 0}
           SortOrder: 10
         runtimeControlMode: 0
+        condition:
+          _source:
+            rid: 5399842685578379455
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672

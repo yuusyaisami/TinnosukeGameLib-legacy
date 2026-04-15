@@ -108,6 +108,13 @@ namespace Game.StatusEffect
         [Tooltip("Apply / Remove / Use など各タイミングで挟む command 群です。")]
         StatusEffectHookSet defaultHooks = new();
 
+        [BoxGroup("Commands")]
+        [SerializeField]
+        [InlineProperty]
+        [HideLabel]
+        [Tooltip("StatusEffect が有効で、Condition が true の間に interval ごとに実行する command 群です。")]
+        StatusEffectPeriodicCommandSet periodicCommands = new();
+
         [NonSerialized]
         IReadOnlyList<IStatusEffectOperationDefinition>? singleOperationCache;
 
@@ -124,6 +131,7 @@ namespace Game.StatusEffect
         public override IStatusEffectUseCooldownDefinition? UseCooldownDefinition => useCooldownDefinition;
         public override IStatusEffectCountDefinition? CountDefinition => countDefinition;
         public override IReadOnlyList<IStatusEffectOperationDefinition> Operations => GetOperations();
+        public override StatusEffectPeriodicCommandSet PeriodicCommands => periodicCommands ?? new StatusEffectPeriodicCommandSet();
         public override StatusEffectHookSet DefaultHooks => defaultHooks ?? new StatusEffectHookSet();
 
         bool UsesCustomRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.Custom;

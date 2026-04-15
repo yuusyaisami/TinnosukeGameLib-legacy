@@ -542,7 +542,39 @@ namespace Game.Common
         public string GetDebugData => value != null ? $"rows={value.RowCount}" : "null";
 
         public DynamicVariant Evaluate(IDynamicContext context)
-            => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+        {
+            LogLiteralTableEvaluate(value, context);
+            return value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
+        }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        static void LogLiteralTableEvaluate(Table? table, IDynamicContext? context)
+        {
+            var scopeLabel = context?.Scope?.Identity != null
+                ? $"{context.Scope.Identity.Id}:{context.Scope.Identity.Kind}"
+                : context?.Scope?.GetType().Name ?? "<null>";
+
+            if (table == null)
+            {
+                Debug.Log($"[LiteralTableSource] Evaluate Source=LiteralTable Data=null Scope={scopeLabel}");
+                return;
+            }
+
+            var rowCount = table.RowCount;
+            var maxRows = Math.Min(rowCount, 8);
+            var rowColumns = new List<string>(maxRows);
+            for (var rowIndex = 0; rowIndex < maxRows; rowIndex++)
+            {
+                if (table.TryGetColumnCount(rowIndex, out var columnCount))
+                    rowColumns.Add($"{rowIndex}:{columnCount}");
+                else
+                    rowColumns.Add($"{rowIndex}:?");
+            }
+
+            var truncated = rowCount > maxRows ? ", ..." : string.Empty;
+            //Debug.Log($"[LiteralTableSource] Evaluate Source=LiteralTable Data=rows={rowCount} Scope={scopeLabel} RowColumns=[{string.Join(", ", rowColumns)}{truncated}]");
+        }
     }
 
     /// <summary>VarStorePayload 固定リテラル（互換用）</summary>

@@ -330,7 +330,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1216275316219396018, guid: faeb7befe6a05bf4eb2bc43bf45cd21f, type: 3}
+  m_Sprite: {fileID: 6915886441434697886, guid: 8ad632bfe3c098f4bbe11e694ffe3987, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2546,11 +2546,11 @@ MonoBehaviour:
     - rid: 5399842616775016760
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 1.04
+        value: 2.5
     - rid: 5399842616775016761
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.38
+        value: 0
     - rid: 5619052506154533296
       type: {class: RectAreaShape, ns: Game.Channel, asm: Assembly-CSharp}
       data:
@@ -2600,6 +2600,7 @@ GameObject:
   - component: {fileID: -6112238922162089892}
   - component: {fileID: 338628280259829478}
   - component: {fileID: 2202384741156108333}
+  - component: {fileID: -5838268372193102072}
   m_Layer: 0
   m_Name: BaseNail
   m_TagString: Untagged
@@ -2930,7 +2931,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 402
+  _debugLastEnabledChangeFrame: 58
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -3826,7 +3827,7 @@ MonoBehaviour:
     - rid: 5399842432444268883
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
-        Value: 0.8
+        Value: 0
         ScalarKeyValue:
           Id: 1852274193
           Name: GameLogic.NailProfile.Effect.Chain.ChainRadius
@@ -3866,6 +3867,7 @@ MonoBehaviour:
         - rid: 5399842450832097876
         - rid: 5399842450832097917
         - rid: 5399842530386247941
+        - rid: 5399842687169593459
     - rid: 5399842450832097835
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
@@ -4048,6 +4050,35 @@ MonoBehaviour:
       data:
         _profileName: CustomProfile
         _bindings: []
+    - rid: 5399842687169593459
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0
+        ScalarKeyValue:
+          Id: -2034312381
+          Name: GameLogic.NailProfile.Effect.Chain.ChainDuration
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
     - rid: 5619052366731149622
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -9106,7 +9137,7 @@ MonoBehaviour:
               rid: 5399842530663334483
         Overwrite: 1
         Mutation:
-          ApplyEnabled: 0
+          ApplyEnabled: 1
           Enabled: 1
           ApplyCenterOffset: 0
           CenterOffset: {x: 0, y: 0, z: 0}
@@ -9142,7 +9173,7 @@ MonoBehaviour:
       data:
         Radius:
           _source:
-            rid: 5399842616775016803
+            rid: 5399842693069668619
           _defaultValue: 5
         InnerRadius:
           _source:
@@ -9174,14 +9205,33 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
-    - rid: 5399842616775016803
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
     - rid: 5399842616775016804
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
+    - rid: 5399842693069668619
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1852274193
+          Name: GameLogic.NailProfile.Effect.Chain.ChainRadius
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
     - rid: 5619052366731149906
       type: {class: BoolExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -14228,7 +14278,7 @@ MonoBehaviour:
     - rid: 5399842457152127086
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.5
+        value: 0.75
     - rid: 5399842505363817366
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -16381,7 +16431,7 @@ MonoBehaviour:
           _defaultValue: {x: 0, y: 0}
         CollisionUseIncludeDynamicSets: 1
         CollisionIncludeDynamicSets:
-        - value: 10
+        - value: 20
         CollisionUseExcludeDynamicSets: 0
         CollisionExcludeDynamicSets: []
         CollisionMatchAnyInclude: 1
@@ -16657,7 +16707,7 @@ MonoBehaviour:
     - rid: 5399842433823408663
       type: {class: MeshLineTrackVisualizerPreset, ns: Game.Channel, asm: Assembly-CSharp}
       data:
-        BaseWidth: 0.05
+        BaseWidth: 0.2
         HeadTaperNormalized: 0.014
         TailTaperNormalized: 0.306
         WaveEnabled: 1
@@ -20203,8 +20253,8 @@ MonoBehaviour:
             rid: 5399842514896420901
           _defaultValue: 0
         _order: 20
-        _rowSpacing: 0
-        _columnSpacing: 0
+        _rowSpacing: 0.1
+        _columnSpacing: 0.1
         _itemHorizontalAlignment: 20
         _itemVerticalAlignment: 20
         _areaHorizontalAlignment: 20
@@ -23309,3 +23359,38 @@ MonoBehaviour:
         key:
           stableKey: StackPreset
           varId: 200008
+--- !u!114 &-5838268372193102072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9144259269532508853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 431fb97f5cc3fcf4896dafd249cb4e65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Times.TimerHubMB
+  autoInitializeOnStart: 1
+  enableDebugLog: 0
+  timers:
+  - Key: chain
+    InitialTime: 0.5
+    AutoStart: 0
+    DeltaMode: 0
+    Direction: 1
+    TimeScale: 1
+    MinTime: 0
+    MaxTime: Infinity
+    Output:
+      kind: 1
+      scalarKey:
+        Id: -2034312381
+        Name: GameLogic.NailProfile.Effect.Chain.ChainDuration
+      scalarScope: 0
+      blackboardVarId: 0
+      blackboardScope: 0
+    Triggers: []
+  references:
+    version: 2
+    RefIds: []

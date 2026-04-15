@@ -45,7 +45,8 @@ namespace Game.Commands.VNext
                 if (targetScope == null)
                     continue;
 
-                await ExecuteBodyOnScope(typed, ctx, targetScope, playerScope, ct, allowFallback);
+                if (await ExecuteBodyOnScope(typed, ctx, targetScope, playerScope, ct, allowFallback))
+                    break;
             }
         }
 
@@ -98,7 +99,7 @@ namespace Game.Commands.VNext
             };
         }
 
-        static async UniTask ExecuteBodyOnScope(
+        static async UniTask<bool> ExecuteBodyOnScope(
             WithPlayerCommandData typed,
             CommandContext ctx,
             IScopeNode targetScope,
@@ -111,7 +112,7 @@ namespace Game.Commands.VNext
 
             if (typed.UseDescendantFilter && !DoesScopeMatchFilter(typed.DescendantFilter, executionScope, playerScope, ctx))
             {
-                return;
+                return false;
             }
 
             if (!TryResolveRunner(executionScope, out var runner) || runner == null)
@@ -146,6 +147,8 @@ namespace Game.Commands.VNext
             try
             {
                 var result = await runner.ExecuteListAsync(typed.Body, playerCtx, ct, ctx.Options);
+                if (result.Status == CommandRunStatus.Break)
+                    return true;
                 if (result.Status == CommandRunStatus.Canceled)
                     throw new OperationCanceledException();
 
@@ -154,6 +157,8 @@ namespace Game.Commands.VNext
                     var msg = $"Player command list failed for scope {DescribeScope(executionScope)}. FailureCount={result.FailureCount}, ErrorIndex={result.ErrorIndex}, Message={result.Message}";
                     throw new CommandExecutionException(result.FailureKind, msg);
                 }
+
+                return false;
             }
             catch (OperationCanceledException)
             {

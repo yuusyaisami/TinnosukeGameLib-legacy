@@ -261,6 +261,23 @@ namespace Game.StatusEffect
     }
 
     [Serializable]
+    public sealed class StatusEffectPeriodicCommandSet
+    {
+        [LabelText("Condition")]
+        [Tooltip("true のときだけ Commands を実行します。")]
+        public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
+
+        [LabelText("Interval")]
+        [Tooltip("Condition が true の間に Commands を再実行する間隔です。0 以下なら毎 Tick 実行します。")]
+        public DynamicValue<float> IntervalSeconds = DynamicValueExtensions.FromLiteral(1f);
+
+        [LabelText("Commands")]
+        [CommandListFunctionName("StatusEffect.Commands")]
+        [Tooltip("StatusEffect が有効で、Condition が true の間に interval ごとに実行する command 群です。")]
+        public CommandListData Commands = new();
+    }
+
+    [Serializable]
     public sealed class StatusEffectApplyRequest
     {
         [LabelText("Definition")]
@@ -346,13 +363,15 @@ namespace Game.StatusEffect
         IStatusEffectUseCooldownDefinition? UseCooldownDefinition { get; }
         IStatusEffectCountDefinition? CountDefinition { get; }
         IReadOnlyList<IStatusEffectOperationDefinition> Operations { get; }
+        StatusEffectPeriodicCommandSet PeriodicCommands { get; }
         StatusEffectHookSet DefaultHooks { get; }
     }
 
     [Serializable]
     public abstract class BaseStatusEffectDefinitionData :
         BaseProfileData,
-        IStatusEffectDefinitionData
+        IStatusEffectDefinitionData,
+        IDynamicManagedRefDebugText
     {
         public override Type ProfileType => GetType();
 
@@ -369,7 +388,11 @@ namespace Game.StatusEffect
         public abstract IStatusEffectUseCooldownDefinition? UseCooldownDefinition { get; }
         public abstract IStatusEffectCountDefinition? CountDefinition { get; }
         public abstract IReadOnlyList<IStatusEffectOperationDefinition> Operations { get; }
+        public abstract StatusEffectPeriodicCommandSet PeriodicCommands { get; }
         public abstract StatusEffectHookSet DefaultHooks { get; }
+
+        public string GetManagedRefDebugText()
+            => DefinitionId;
 
         public override string ToString()
             => string.IsNullOrWhiteSpace(DefinitionId) ? GetType().Name : DefinitionId;
@@ -464,6 +487,13 @@ namespace Game.StatusEffect
         [Tooltip("effect の本体処理です。複数の operation を並べて構成できます。")]
         List<IStatusEffectOperationDefinition> operations = new();
 
+        [BoxGroup("Commands")]
+        [InlineProperty]
+        [HideLabel]
+        [SerializeField]
+        [Tooltip("StatusEffect が有効で、Condition が true の間に interval ごとに実行する command 群です。")]
+        StatusEffectPeriodicCommandSet periodicCommands = new();
+
         [BoxGroup("Hooks")]
         [InlineProperty]
         [HideLabel]
@@ -484,6 +514,7 @@ namespace Game.StatusEffect
         public override IStatusEffectUseCooldownDefinition? UseCooldownDefinition => useCooldownDefinition;
         public override IStatusEffectCountDefinition? CountDefinition => countDefinition;
         public override IReadOnlyList<IStatusEffectOperationDefinition> Operations => operations;
+        public override StatusEffectPeriodicCommandSet PeriodicCommands => periodicCommands;
         public override StatusEffectHookSet DefaultHooks => defaultHooks;
 
         bool UsesCustomRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.Custom;
