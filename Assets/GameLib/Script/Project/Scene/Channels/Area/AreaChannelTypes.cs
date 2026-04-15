@@ -281,6 +281,19 @@ namespace Game.Channel
             return radius > 0f;
         }
 
+        public bool TryGetRectSnapshot(IDynamicContext dynamicContext, Vector3 basePosition, AreaPlane plane, out AreaRectSnapshot snapshot)
+        {
+            var radius = Mathf.Max(0f, ResolveRadius(dynamicContext));
+            var diameter = radius * 2f;
+            snapshot = new AreaRectSnapshot(basePosition, new Vector2(diameter, diameter), plane);
+            return radius > 0f;
+        }
+
+        public bool TryGetRectSnapshot(IDynamicContext dynamicContext, Vector3 basePosition, out AreaRectSnapshot snapshot)
+        {
+            return TryGetRectSnapshot(dynamicContext, basePosition, AreaPlane.XY, out snapshot);
+        }
+
         public void DrawGizmo(Vector3 center, AreaPlane plane)
         {
             DrawGizmo(EmptyDynamicContext.Instance, center, plane);
@@ -375,6 +388,19 @@ namespace Game.Channel
 
             contour = new AreaContourData(AreaPlane.XY, paths);
             return true;
+        }
+
+        public bool TryGetRectSnapshot(IDynamicContext dynamicContext, Vector3 basePosition, AreaPlane plane, out AreaRectSnapshot snapshot)
+        {
+            var outerRadius = Mathf.Max(0f, ResolveOuterRadius(dynamicContext));
+            var diameter = outerRadius * 2f;
+            snapshot = new AreaRectSnapshot(basePosition, new Vector2(diameter, diameter), plane);
+            return outerRadius > 0f;
+        }
+
+        public bool TryGetRectSnapshot(IDynamicContext dynamicContext, Vector3 basePosition, out AreaRectSnapshot snapshot)
+        {
+            return TryGetRectSnapshot(dynamicContext, basePosition, AreaPlane.XY, out snapshot);
         }
 
         public void DrawGizmo(Vector3 center, AreaPlane plane)

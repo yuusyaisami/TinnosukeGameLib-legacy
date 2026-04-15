@@ -53,7 +53,7 @@ namespace Game.StatusEffect
         [SerializeField]
         [Tooltip("true のとき effect を active 扱いにします。TraitRuntime の Visible/Hidden などの blackboard 値を参照できます。")]
         DynamicValue<bool> condition = DynamicValueExtensions.FromLiteral(true);
-        
+
         [FoldoutGroup("AdvancedOption", Expanded = true)]
         [ShowIf(nameof(UsesAutoGlobalRuntimeSettings))]
         [InlineProperty]
@@ -135,7 +135,7 @@ namespace Game.StatusEffect
         public override StatusEffectHookSet DefaultHooks => defaultHooks ?? new StatusEffectHookSet();
 
         bool UsesCustomRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.Custom;
-    bool UsesAutoGlobalRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.AutoGlobal;
+        bool UsesAutoGlobalRuntimeSettings => runtimeControlMode == StatusEffectRuntimeControlMode.AutoGlobal;
         bool ShowDurationDefinition => UsesCustomRuntimeSettings && useDuration;
         bool ShowUseCooldownDefinition => UsesCustomRuntimeSettings && useUseCooldown;
         bool ShowCountDefinition => UsesCustomRuntimeSettings && useCount;

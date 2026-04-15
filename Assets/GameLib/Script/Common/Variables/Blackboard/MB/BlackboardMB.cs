@@ -262,8 +262,17 @@ namespace Game.Common
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
-            _ = scope;
-            _ = isReset;
+            if (!isReset)
+                return;
+
+            var resolver = scope?.Resolver;
+            if (resolver == null)
+                return;
+
+            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                return;
+
+            blackboard.LocalVars.Clear();
         }
 
         void TryInitializeDebugView(IBlackboardService blackboard, IGridBlackboardService? gridBlackboard)

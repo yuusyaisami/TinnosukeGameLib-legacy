@@ -495,6 +495,10 @@ namespace Game.Common
             if (_slots.Count == 0 && _tables.Count == 0)
                 return;
 
+            var changedHandler = OnVarChanged;
+            List<int>? slotIds = changedHandler != null && _slots.Count > 0 ? new List<int>(_slots.Keys) : null;
+            List<int>? tableIds = changedHandler != null && _tables.Count > 0 ? new List<int>(_tables.Keys) : null;
+
             _slots.Clear();
             foreach (var pair in _tables)
                 DisposeRows(pair.Value.Rows);
@@ -503,6 +507,21 @@ namespace Game.Common
             _globalVersion++;
             ClearCache();
             ClearTableCache();
+
+            if (changedHandler != null)
+            {
+                if (slotIds != null)
+                {
+                    for (int i = 0; i < slotIds.Count; i++)
+                        changedHandler(slotIds[i]);
+                }
+
+                if (tableIds != null)
+                {
+                    for (int i = 0; i < tableIds.Count; i++)
+                        changedHandler(tableIds[i]);
+                }
+            }
         }
 
         bool TryGetSlot(int varId, out VarSlot slot)

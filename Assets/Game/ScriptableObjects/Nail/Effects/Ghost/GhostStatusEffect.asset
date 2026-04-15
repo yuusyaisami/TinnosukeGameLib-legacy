@@ -766,6 +766,56 @@ MonoBehaviour:
                 rid: 5399842685578379485
               _defaultValue: 0
             FadeEase: 0
+          - Key: BaseShader/BlendColor2D/AnimatedGradient/Enabled
+            Value:
+              Type: 5
+              Float:
+                _source:
+                  rid: 5399842696204386463
+                _defaultValue: 0
+              Int: 1
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842696204386464
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842696204386465
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/BlendColor2D/AnimatedGradient/PatternContrast
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842696204386507
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842696204386508
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842696204386509
+              _defaultValue: 0
+            FadeEase: 0
     - rid: 5399842685578379468
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -781,7 +831,7 @@ MonoBehaviour:
     - rid: 5399842685578379471
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.25
+        value: 0.5
     - rid: 5399842685578379472
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -838,6 +888,38 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
+    - rid: 5399842696204386461
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842696204386462
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842696204386463
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842696204386464
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842696204386465
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842696204386507
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.6
+    - rid: 5399842696204386508
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842696204386509
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -875,6 +957,21 @@ MonoBehaviour:
           rid: 5619052465085481674
         operations:
         - rid: 5399842685578379266
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842696204386461
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842696204386462
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}

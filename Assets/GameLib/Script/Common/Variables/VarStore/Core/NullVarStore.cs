@@ -41,6 +41,7 @@ namespace Game.Common
         public bool TryGetTableCellStore(int tableVarId, int rowIndex, int columnIndex, out IVarStore cellStore) { cellStore = Instance; return false; }
         public bool TryGetOrEnsureTableCellStore(int tableVarId, int rowIndex, int columnIndex, bool autoCreateRow, out IVarStore cellStore) { cellStore = Instance; return false; }
         public bool TryUnset(int varId) => false;
+        public void Clear() { }
     }
 }
 
