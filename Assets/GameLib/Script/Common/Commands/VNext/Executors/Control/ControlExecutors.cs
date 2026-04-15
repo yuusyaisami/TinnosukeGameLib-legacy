@@ -193,6 +193,20 @@ namespace Game.Commands.VNext
         }
     }
 
+    public sealed class BreakExecutor : ICommandExecutor
+    {
+        public int CommandId => CommandIds.Break;
+
+        public UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
+        {
+            if (data is not BreakCommandData)
+                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "BreakCommandData is required.");
+
+            ctx.RequestBreak();
+            return UniTask.CompletedTask;
+        }
+    }
+
     public sealed class DelayExecutorExecutor : ICommandExecutor
     {
         public int CommandId => CommandIds.DelayExecutor;
@@ -712,7 +726,8 @@ namespace Game.Commands.VNext
                     break;
 
                 SetCounter(typed, ctx, i);
-                await RunBody(typed, runner, ctx, ct);
+                if (await RunBody(typed, runner, ctx, ct))
+                    break;
             }
         }
 
@@ -731,7 +746,8 @@ namespace Game.Commands.VNext
                     break;
 
                 SetCounter(typed, ctx, iterations);
-                await RunBody(typed, runner, ctx, ct);
+                if (await RunBody(typed, runner, ctx, ct))
+                    break;
                 iterations++;
             }
         }
@@ -751,7 +767,8 @@ namespace Game.Commands.VNext
                     break;
 
                 SetCounter(typed, ctx, iterations);
-                await RunBody(typed, runner, ctx, ct);
+                if (await RunBody(typed, runner, ctx, ct))
+                    break;
                 iterations++;
 
                 if (typed.Condition.GetOrDefault(ctx, false))
@@ -784,7 +801,8 @@ namespace Game.Commands.VNext
                 if (ShouldBreak(typed, ctx))
                     break;
 
-                await RunBody(typed, runner, ctx, ct);
+                if (await RunBody(typed, runner, ctx, ct))
+                    break;
             }
         }
 
@@ -810,13 +828,17 @@ namespace Game.Commands.VNext
             return ShouldBreak(typed, ctx);
         }
 
-        async UniTask RunBody(ForCommandData typed, ICommandRunner runner, CommandContext ctx, CancellationToken ct)
+        async UniTask<bool> RunBody(ForCommandData typed, ICommandRunner runner, CommandContext ctx, CancellationToken ct)
         {
             var result = await runner.ExecuteListAsync(typed.BodyCommands, ctx, ct, ctx.Options);
+            if (result.Status == CommandRunStatus.Break)
+                return true;
             if (result.Status == CommandRunStatus.Canceled)
                 throw new OperationCanceledException();
             if (result.Status == CommandRunStatus.Error)
                 throw new CommandExecutionException(result.FailureKind, result.Message);
+
+            return false;
         }
 
         static void SetCounter(ForCommandData typed, CommandContext ctx, int value)

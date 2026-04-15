@@ -30,17 +30,23 @@ MonoBehaviour:
 
 '
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: 
             Variables: []
           StackDescription:
             Template: 
             Variables: []
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
+        runtimeControlMode: 0
+        condition:
+          _source:
+            rid: 5399842687169593593
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: -2
@@ -98,6 +104,7 @@ MonoBehaviour:
     - rid: 5399842402410692624
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: -704619215
           Name: GameLogic.GameProfile.Base.DebuffBallValue
@@ -124,3 +131,9 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
+        BlockedUsePropagation: 10
+    - rid: 5399842687169593593
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1

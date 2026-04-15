@@ -1,0 +1,10 @@
+OVDF v1.1
+Game.Common.StatusEffectOperationEnabledBoolSource, Assembly-CSharp
+
+# definition
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90
+
+# operationId
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 90

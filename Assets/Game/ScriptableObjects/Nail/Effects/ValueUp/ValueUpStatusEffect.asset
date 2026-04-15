@@ -1603,7 +1603,8 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: "<sprite=10>\u4FA1\u5024 {intensity|sign=always}"
+            Template: "<sprite=10>\u4FA1\u5024 {intensity|sign=always|effect=color_if|cond=value
+              > 0|trueColor=\"#66FF66\"|falseColor=\"#FF6666\"}"
             Variables:
             - _value:
                 _source:

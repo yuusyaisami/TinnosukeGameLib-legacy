@@ -102,6 +102,8 @@ namespace Game.Commands.VNext
                     sourceContext: ctx);
 
                 var result = await runner.ExecuteListAsync(typed.Body, targetCtx, ct, ctx.Options);
+                if (result.Status == CommandRunStatus.Break)
+                    break;
                 if (result.Status == CommandRunStatus.Canceled)
                     throw new OperationCanceledException();
 

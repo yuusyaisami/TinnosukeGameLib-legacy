@@ -124,6 +124,13 @@ namespace Game.Commands.VNext
                 return CommandRunResult.Canceled(lastIndex: 0, errorIndex: 0, outcome.Message, trace.Trace);
             }
 
+            if (outcome.Broken)
+            {
+                trace.CaptureAlways();
+                trace.Pop();
+                return CommandRunResult.Break(0, trace.Trace);
+            }
+
             if (!outcome.Success)
             {
                 trace.CaptureOnFailure();
@@ -288,6 +295,13 @@ namespace Game.Commands.VNext
                     return CommandRunResult.Canceled(lastIndex, i, outcome.Message, trace.Trace);
                 }
 
+                if (outcome.Broken)
+                {
+                    trace.CaptureAlways();
+                    trace.Pop();
+                    return CommandRunResult.Break(lastIndex, trace.Trace);
+                }
+
                 if (!outcome.Success)
                 {
                     trace.CaptureOnFailure();
@@ -382,15 +396,15 @@ namespace Game.Commands.VNext
         CommandContext EnsureContext(CommandContext ctx, CommandRunOptions options)
         {
             if (ctx == null)
-                return new CommandContext(_scope, NullVarStore.Instance, this, _scope, options, _scope, _scope, _scope);
+                return new CommandContext(_scope, NullVarStore.Instance, this, _scope, options, _scope, _scope, _scope).CreateExecutionContext();
 
             if (!ReferenceEquals(ctx.Runner, this))
-                return new CommandContext(ctx.Scope, ctx.Vars, this, ctx.Actor, options, ctx.CommandRootScope, ctx.RootActor, ctx.CallerActor, ctx);
+                return new CommandContext(ctx.Scope, ctx.Vars, this, ctx.Actor, options, ctx.CommandRootScope, ctx.RootActor, ctx.CallerActor, ctx).CreateExecutionContext();
 
             if (!ctx.Options.Equals(options))
-                return ctx.WithOptions(options);
+                return ctx.WithOptions(options).CreateExecutionContext();
 
-            return ctx;
+            return ctx.CreateExecutionContext();
         }
 
         protected virtual void InjectContextVars(CommandContext ctx, IVarStore vars)
@@ -671,6 +685,9 @@ namespace Game.Commands.VNext
                     return ExecutionOutcome.FromFailure(CommandRunFailureKind.ExecutorMissing, "Executor is null.", null);
                 }
 
+                if (ctx.TryConsumeBreakRequest())
+                    return ExecutionOutcome.FromBreak();
+
                 return ExecutionOutcome.FromSuccess();
             }
             catch (OperationCanceledException)
@@ -704,23 +721,26 @@ namespace Game.Commands.VNext
         {
             public readonly bool Success;
             public readonly bool Canceled;
+            public readonly bool Broken;
             public readonly CommandRunFailureKind FailureKind;
             public readonly string Message;
             public readonly CommandExceptionInfo? Exception;
 
-            ExecutionOutcome(bool success, bool canceled, CommandRunFailureKind failureKind, string message, CommandExceptionInfo? exception)
+            ExecutionOutcome(bool success, bool canceled, bool broken, CommandRunFailureKind failureKind, string message, CommandExceptionInfo? exception)
             {
                 Success = success;
                 Canceled = canceled;
+                Broken = broken;
                 FailureKind = failureKind;
                 Message = message ?? string.Empty;
                 Exception = exception;
             }
 
-            public static ExecutionOutcome FromSuccess() => new(true, false, CommandRunFailureKind.None, string.Empty, null);
-            public static ExecutionOutcome FromCanceled(string message) => new(false, true, CommandRunFailureKind.Canceled, message, null);
+            public static ExecutionOutcome FromSuccess() => new(true, false, false, CommandRunFailureKind.None, string.Empty, null);
+            public static ExecutionOutcome FromCanceled(string message) => new(false, true, false, CommandRunFailureKind.Canceled, message, null);
+            public static ExecutionOutcome FromBreak() => new(false, false, true, CommandRunFailureKind.None, string.Empty, null);
             public static ExecutionOutcome FromFailure(CommandRunFailureKind kind, string message, CommandExceptionInfo? exception)
-                => new(false, false, kind, message, exception);
+                => new(false, false, false, kind, message, exception);
         }
 
         readonly struct FailureDecision

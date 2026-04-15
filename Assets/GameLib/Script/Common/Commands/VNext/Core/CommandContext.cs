@@ -9,9 +9,29 @@ namespace Game.Commands.VNext
 {
     public sealed class CommandContext : IDynamicContext
     {
+        internal sealed class CommandExecutionControl
+        {
+            bool _breakRequested;
+
+            public void RequestBreak()
+            {
+                _breakRequested = true;
+            }
+
+            public bool TryConsumeBreakRequest()
+            {
+                if (!_breakRequested)
+                    return false;
+
+                _breakRequested = false;
+                return true;
+            }
+        }
+
         readonly IScopeNode?[] _ltsSlots;
         readonly object _channelExecutionGate;
         readonly List<string> _channelExecutionStack;
+        readonly CommandExecutionControl _executionControl;
 
         public IScopeNode Scope { get; }
         public IObjectResolver Resolver => Scope.Resolver!;
@@ -43,6 +63,21 @@ namespace Game.Commands.VNext
             IScopeNode? rootActor,
             IScopeNode? callerActor = null,
             CommandContext? sourceContext = null)
+            : this(scope, vars, runner, actor, options, commandRootScope, rootActor, callerActor, sourceContext, executionControl: null)
+        {
+        }
+
+        internal CommandContext(
+            IScopeNode scope,
+            IVarStore vars,
+            ICommandRunner runner,
+            IScopeNode? actor,
+            CommandRunOptions options,
+            IScopeNode? commandRootScope,
+            IScopeNode? rootActor,
+            IScopeNode? callerActor,
+            CommandContext? sourceContext,
+            CommandExecutionControl? executionControl)
         {
             Scope = scope ?? throw new System.ArgumentNullException(nameof(scope));
             if (Scope.Resolver == null)
@@ -58,11 +93,13 @@ namespace Game.Commands.VNext
                 System.Array.Copy(sourceContext._ltsSlots, _ltsSlots, _ltsSlots.Length);
                 _channelExecutionGate = sourceContext._channelExecutionGate;
                 _channelExecutionStack = sourceContext._channelExecutionStack;
+                _executionControl = executionControl ?? sourceContext._executionControl;
             }
             else
             {
                 _channelExecutionGate = new object();
                 _channelExecutionStack = new List<string>(4);
+                _executionControl = executionControl ?? new CommandExecutionControl();
             }
 
             SetStoredScope(CommandLtsSlot.Actor, actor ?? scope);
@@ -74,6 +111,21 @@ namespace Game.Commands.VNext
         public CommandContext WithOptions(CommandRunOptions options)
         {
             return new CommandContext(Scope, Vars, Runner, Actor, options, CommandRootScope, RootActor, CallerActor, this);
+        }
+
+        internal CommandContext CreateExecutionContext()
+        {
+            return new CommandContext(Scope, Vars, Runner, Actor, Options, CommandRootScope, RootActor, CallerActor, this, new CommandExecutionControl());
+        }
+
+        internal void RequestBreak()
+        {
+            _executionControl.RequestBreak();
+        }
+
+        internal bool TryConsumeBreakRequest()
+        {
+            return _executionControl.TryConsumeBreakRequest();
         }
 
         public IScopeNode? GetScope(CommandLtsSlot slot)

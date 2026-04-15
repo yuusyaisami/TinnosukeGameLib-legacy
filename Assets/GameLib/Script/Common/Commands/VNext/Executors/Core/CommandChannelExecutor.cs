@@ -81,7 +81,9 @@ namespace Game.Commands.VNext
                 var runTask = ExecuteInternalAsync(hub, typed.Tag, channelCtx, runToken);
                 if (typed.AwaitMode == FlowRunAwaitMode.WaitForCompletion)
                 {
-                    await runTask;
+                    var status = await runTask;
+                    if (status == CommandRunStatus.Break)
+                        break;
                     continue;
                 }
 
@@ -286,7 +288,7 @@ namespace Game.Commands.VNext
             return true;
         }
 
-        static UniTask RunInBackground(UniTask task, string backgroundKey)
+        static UniTask RunInBackground(UniTask<CommandRunStatus> task, string backgroundKey)
         {
             UniTask.Void(async () =>
             {
@@ -337,7 +339,7 @@ namespace Game.Commands.VNext
             }
         }
 
-        static async UniTask ExecuteInternalAsync(
+        static async UniTask<CommandRunStatus> ExecuteInternalAsync(
             ICommandChannelHubService hub,
             string tag,
             CommandContext ctx,
@@ -354,6 +356,8 @@ namespace Game.Commands.VNext
             try
             {
                 var result = await hub.ExecuteAsync(tag, ctx, ct);
+                if (result.Status == CommandRunStatus.Break)
+                    return CommandRunStatus.Break;
                 if (result.Status == CommandRunStatus.Canceled)
                     throw new OperationCanceledException();
 
@@ -362,6 +366,8 @@ namespace Game.Commands.VNext
                     var msg = $"CommandChannel failed for tag='{tag}'. FailureCount={result.FailureCount}, ErrorIndex={result.ErrorIndex}, Message={result.Message}";
                     throw new CommandExecutionException(result.FailureKind, msg);
                 }
+
+                return CommandRunStatus.Completed;
             }
             catch (CommandExecutionException)
             {

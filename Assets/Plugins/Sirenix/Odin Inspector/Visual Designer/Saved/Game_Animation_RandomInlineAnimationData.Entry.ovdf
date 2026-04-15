@@ -1,0 +1,10 @@
+OVDF v1.1
+Game.Animation.RandomInlineAnimationData+Entry, Assembly-CSharp
+
+# inline
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 147.48
+
+# weight
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 40.31

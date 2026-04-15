@@ -169,6 +169,8 @@ namespace Game.Commands.VNext
                         if (typed.AwaitOnSpawnedCommands)
                         {
                             var result = await runner.ExecuteListAsync(onSpawnedCommands!, spawnedCtx, ct, spawnedOptions);
+                            if (result.Status == CommandRunStatus.Break)
+                                break;
                             if (result.Status == CommandRunStatus.Canceled)
                                 throw new OperationCanceledException();
 

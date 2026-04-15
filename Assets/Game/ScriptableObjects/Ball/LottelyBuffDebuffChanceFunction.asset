@@ -51,6 +51,109 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
+    - rid: 5399842685578379492
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842685578379493
+    - rid: 5399842685578379493
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarOps:
+        - Target: 1
+          Key:
+            stableKey: C
+            varId: 228
+          Op: 0
+          StoreMode: 0
+          Value:
+            _source:
+              rid: 5399842685578379494
+        ScalarOps: []
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
+    - rid: 5399842685578379494
+      type: {class: RandomFloatRangeSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        min:
+          _source:
+            rid: 5399842685578379495
+          _defaultValue: 0
+        max:
+          _source:
+            rid: 5399842685578379496
+          _defaultValue: 0
+        useVarianceController: 0
+        varianceKey: 
+        varianceSettings:
+          Strategy: 1
+          HistorySize: 4
+          MinDistance: 0
+          MinDistanceRatio: 0.15
+          MaxRetry: 6
+          Jitter: 0.05
+    - rid: 5399842685578379495
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842685578379496
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052643689169242
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -63,6 +166,7 @@ MonoBehaviour:
           - rid: 5619052643689169245
           - rid: 5619052643689169246
           - rid: 5619052643689169247
+          - rid: 5399842685578379492
           - rid: 5619052643689169248
           - rid: 5619052643689169249
           - rid: 5619052643689169250
@@ -139,6 +243,7 @@ MonoBehaviour:
             stableKey: B
             varId: 227
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052643689169257
@@ -147,6 +252,7 @@ MonoBehaviour:
             stableKey: D
             varId: 229
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052643689169258
@@ -215,6 +321,7 @@ MonoBehaviour:
             stableKey: C
             varId: 228
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052643689169259
@@ -597,6 +704,7 @@ MonoBehaviour:
             stableKey: D
             varId: 229
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052643689169284
@@ -696,6 +804,7 @@ MonoBehaviour:
             stableKey: B
             varId: 227
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052643689169285
@@ -782,6 +891,7 @@ MonoBehaviour:
             stableKey: C
             varId: 228
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052643689169286
@@ -1206,6 +1316,7 @@ MonoBehaviour:
             stableKey: B
             varId: 227
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052643689169299
@@ -1274,6 +1385,7 @@ MonoBehaviour:
             stableKey: D
             varId: 229
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5619052643689169300

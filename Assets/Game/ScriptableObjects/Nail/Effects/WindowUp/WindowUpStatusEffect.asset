@@ -63,7 +63,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expressionX: 0
+        _expressionX: Random(-1, 1)
         _expressionY: 'ForceUp
 
 '
@@ -177,6 +177,18 @@ MonoBehaviour:
         createIfMissing: 0
         baselineValue: 0
         searchIncludeGlobal: 0
+    - rid: 5399842689965884216
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842693069668532
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842693069668533
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -186,7 +198,6 @@ MonoBehaviour:
           DisplayName:
             Template: "\u8DF3\u306D\u8FD4\u3057"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: "\u4E0A\u6607\u901F\u5EA6 +Y:{ForceUp}"
             Variables:
@@ -198,7 +209,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: ' {intensity|sign=always}'
+            Template: '+Y: {intensity|sign=always}'
             Variables:
             - _value:
                 _source:
@@ -207,11 +218,17 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842689965884216
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -223,6 +240,21 @@ MonoBehaviour:
           rid: 5619052465085481674
         operations:
         - rid: 5619052366731149466
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842693069668532
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842693069668533
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
@@ -271,6 +303,7 @@ MonoBehaviour:
     - rid: 5619052366731149466
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: 2032656033
           Name: GameLogic.NailProfile.Effect.ForceUp
@@ -297,6 +330,8 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

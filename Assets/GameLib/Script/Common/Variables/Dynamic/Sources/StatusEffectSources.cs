@@ -224,4 +224,43 @@ namespace Game.Common
             return DynamicVariant.FromBool(service.IsAnyOperationEnabled(filter, resolvedOperationId));
         }
     }
+
+    [Serializable]
+    public sealed class StatusEffectDefinitionExistsBoolSource : IDynamicSource
+    {
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
+        [SerializeField]
+        [Tooltip("IStatusEffectService を解決する対象 Actor を指定します。")]
+        ActorSource targetActorSource = new() { Kind = ActorSourceKind.Current };
+
+        [LabelText("Definition")]
+        [SerializeField]
+        [Tooltip("存在確認する StatusEffect 定義です。DefinitionId で照合します。")]
+        DynamicValue<BaseStatusEffectDefinitionData> definition;
+
+        [NonSerialized]
+        ActorSourceResolveCache _targetActorCache;
+
+        public string SourceTypeName => "StatusEffectDefinitionExists";
+        public string GetDebugData => $"{targetActorSource.Kind} def={definition.SourceDebugData}";
+
+        public DynamicVariant Evaluate(IDynamicContext context)
+        {
+            if (context == null)
+                return DynamicVariant.FromBool(false);
+
+            var resolvedDefinition = definition.GetOrDefault(context, default!);
+            if (resolvedDefinition == null || string.IsNullOrWhiteSpace(resolvedDefinition.DefinitionId))
+                return DynamicVariant.FromBool(false);
+
+            var scope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache);
+            if (scope == null)
+                return DynamicVariant.FromBool(false);
+
+            if (!StatusEffectSourceUtility.TryResolveStatusEffectService(scope, out var service) || service == null)
+                return DynamicVariant.FromBool(false);
+
+            return DynamicVariant.FromBool(service.HasEffect(resolvedDefinition.DefinitionId));
+        }
+    }
 }

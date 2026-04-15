@@ -2371,6 +2371,16 @@ MonoBehaviour:
             _source:
               rid: 5399842671997485342
           IncludeSourceInfo: 1
+        - Label: "Elements\u5185\u306EStatusEffectDefinition"
+          Value:
+            _source:
+              rid: 5399842671997485410
+          IncludeSourceInfo: 1
+        - Label: "Elements\u5185\u306EStatusEffectStack"
+          Value:
+            _source:
+              rid: 5399842671997485418
+          IncludeSourceInfo: 1
     - rid: 5399842670900151046
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -2754,7 +2764,7 @@ MonoBehaviour:
     - rid: 5399842670900151207
       type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        blackboardId: 101048
+        blackboardId: 200008
         readScope: 0
         fallback: 0
         fallbackInitialValue:
@@ -2763,7 +2773,7 @@ MonoBehaviour:
     - rid: 5399842670900151208
       type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        blackboardId: 101048
+        blackboardId: 200007
         readScope: 0
         fallback: 0
         fallbackInitialValue:
@@ -3695,7 +3705,7 @@ MonoBehaviour:
         _sourceMode: 0
         _refKey:
           _source:
-            rid: -2
+            rid: 5399842671997485388
           _defaultValue: 
         _logActorStoresOnWarn: 0
         _maxActorStoreEntries: 16
@@ -4117,6 +4127,22 @@ MonoBehaviour:
         vector3Value: {x: 0, y: 0, z: 0}
         vector4Value: {x: 0, y: 0, z: 0, w: 0}
         colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842671997485388
+      type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 
+    - rid: 5399842671997485410
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StatusEffect
+          varId: 200007
+    - rid: 5399842671997485418
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StackPreset
+          varId: 200008
     - rid: 5619052465085481211
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -5512,8 +5538,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2590575613825976596, guid: 12acb576a8fc3a0479fbdfbd4de2f1c7, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 8330467834569519517, guid: 63fd00c59f6d7404b9d7d5691d217c78, type: 3}
+  m_Color: {r: 0.088050246, g: 0.088050246, b: 0.088050246, a: 0.90588236}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -5637,8 +5663,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4282504269
-  m_fontColor: {r: 0.3024313, g: 0.8301887, b: 0.25323352, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

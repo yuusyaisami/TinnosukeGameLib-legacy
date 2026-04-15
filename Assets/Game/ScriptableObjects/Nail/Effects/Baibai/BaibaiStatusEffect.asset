@@ -84,6 +84,312 @@ MonoBehaviour:
             rid: -2
         createIfMissing: 0
         baselineValue: 0
+    - rid: 5399842689965884019
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842689965884140
+      type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
+      data:
+        Enabled: 1
+        TargetKey:
+          Id: -993477421
+          Name: GameLogic.NailProfile.Effect.ValueMultiply
+        ApplyMode: 10
+        MulPhase: 0
+        ValueMode: 20
+        RuntimeIntensitySlot: 10
+        Value:
+          _source:
+            rid: -2
+          _defaultValue: 0
+        TargetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Layer: 
+        OperationId: 
+        BlockedUsePropagation: 10
+    - rid: 5399842689965884141
+      type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _sourceMode: 0
+        _refKey:
+          _source:
+            rid: -2
+          _defaultValue: 
+        _logActorStoresOnWarn: 0
+        _maxActorStoreEntries: 16
+        _allowImplicitKeys: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842689965884142
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensityA
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842689965884143
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensityB
+          _expectedType: 255
+        _template: "<sprite=10>\u4FA1\u5024 x{intensityA} /\n<sprite=11>\u4E0A\u9650
+          x{intensityB}"
+    - rid: 5399842689965884142
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Stack.intensityA.local
+          varId: 101149
+    - rid: 5399842689965884143
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Stack.intensityB.local
+          varId: 101154
+    - rid: 5399842689965884144
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842689965884145
+    - rid: 5399842689965884145
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5399842689965884147
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5399842689965884152
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842689965884147
+      type: {class: StatusEffectOperationEnabledBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        definition:
+          _source:
+            rid: 5399842689965884150
+        operationId:
+          _source:
+            rid: 5399842689965884149
+          _defaultValue: 
+    - rid: 5399842689965884149
+      type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: MaxValue
+    - rid: 5399842689965884150
+      type: {class: AssetStatusEffectDefinitionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {fileID: 11400000}
+    - rid: 5399842689965884152
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842689965884153
+    - rid: 5399842689965884153
+      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Source:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarOps: []
+        ScalarOps:
+        - Op: 2
+          Key:
+            Id: -1973269918
+            Name: GameLogic.BallProfile.MaxValue
+          Layer: 
+          MulPhase: 1
+          Value:
+            _source:
+              rid: 5399842689965884154
+            _defaultValue: 0
+          DurationSeconds:
+            _source:
+              rid: 5399842689965884155
+            _defaultValue: 0
+          Tag: 
+          StoreHandleVar:
+            stableKey: 
+            varId: 0
+          HandleVar:
+            stableKey: 
+            varId: 0
+          UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
+        DebugMode: 0
+        Debug:
+          LogLevel: 10
+          Prefix: '[WriteDataDebug]'
+          IncludeCommandSummary: 1
+          IncludeOpIndex: 1
+          Vars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeVarKey: 1
+            IncludeScope: 1
+          Scalars:
+            Enabled: 1
+            LogSuccess: 1
+            LogFailure: 1
+            IncludeInputValue: 1
+            IncludeBeforeValue: 1
+            IncludeAfterValue: 1
+            IncludeScalarKey: 1
+            IncludeScope: 1
+            IncludeLayer: 1
+            IncludeDuration: 1
+            IncludeTag: 1
+    - rid: 5399842689965884154
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842689965884156
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842689965884157
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: MaxValue * MaxValueMultiply
+    - rid: 5399842689965884155
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842689965884156
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1973269918
+          Name: GameLogic.BallProfile.MaxValue
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842689965884157
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1923209062
+          Name: GameLogic.NailProfile.Effect.MaxValueMultiply
+        targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 110
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842691240689904
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842691240689905
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -94,7 +400,7 @@ MonoBehaviour:
             Template: "\u500D\u3005"
             Variables: []
           Description:
-            Template: "\u4FA1\u5024 x{ValueMultiply}"
+            Template: "<sprite=10>\u4FA1\u5024 x{ValueMultiply}"
             Variables:
             - _value:
                 _source:
@@ -104,7 +410,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: "\u4FA1\u5024 x{intensity}"
+            Template: <sprite=10> x{intensity}
             Variables:
             - _value:
                 _source:
@@ -113,10 +419,28 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          AdditionalDescriptions: []
+          AdditionalDescriptions:
+          - Condition:
+              ConditionType: 10
+              OperationId: MaxValue
+              BoolValue:
+                _source:
+                  rid: -2
+                _defaultValue: 0
+              CompareMode: 10
+              Expected: 1
+            OverrideDescription: 0
+            Text:
+              _source:
+                rid: 5399842689965884141
+              _defaultValue: 
           Icon: {fileID: 0}
-          SortOrder: 0
+          SortOrder: 1
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842689965884019
+          _defaultValue: 0
         autoGlobalAdvancedOption:
           LifetimeEndAction: 0
           CountExhaustedAction: 0
@@ -131,6 +455,22 @@ MonoBehaviour:
           rid: 5619052465085481674
         operations:
         - rid: 5619052366731149466
+        - rid: 5399842689965884140
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842691240689904
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842691240689905
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
@@ -179,14 +519,14 @@ MonoBehaviour:
     - rid: 5619052366731149466
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
-        Enabled: 1
+        Enabled: 0
         TargetKey:
-          Id: -993477421
-          Name: GameLogic.NailProfile.Effect.ValueMultiply
+          Id: 1923209062
+          Name: GameLogic.NailProfile.Effect.MaxValueMultiply
         ApplyMode: 10
         MulPhase: 0
         ValueMode: 20
-        RuntimeIntensitySlot: 10
+        RuntimeIntensitySlot: 20
         Value:
           _source:
             rid: 5619052366731149676
@@ -206,7 +546,7 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
-        OperationId: 
+        OperationId: MaxValue
         BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -286,6 +626,7 @@ MonoBehaviour:
           _functionName: 
           _commands:
           - rid: 5619052366731149518
+          - rid: 5399842689965884144
     - rid: 5619052366731149518
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:

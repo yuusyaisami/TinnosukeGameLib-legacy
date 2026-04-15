@@ -219,7 +219,7 @@ namespace Game.Targeting
         }
 
         [ShowInInspector]
-        [TableList(IsReadOnly = true, AlwaysExpanded = true)]
+        [TableList(IsReadOnly = true, AlwaysExpanded = true, NumberOfItemsPerPage = 8)]
         [LabelText("Runtime Channel Settings")]
         public List<ChannelRow> Channels
         {
@@ -294,51 +294,106 @@ namespace Game.Targeting
                 {
                     Tag = channel.Tag,
                     Enabled = channel.Enabled,
-                    SearchType = channel.SearchType,
-                    Kind = channel.Kind,
-                    Radius = channel.Radius,
-                    HalfAngleDeg = channel.HalfAngleDeg,
-                    RefreshIntervalFrames = channel.RefreshIntervalFrames,
-                    ExpectedResultCount = channel.ExpectedResultCount,
-                    KindMask = channel.KindMask.ToString(),
-                    FilterId = string.IsNullOrEmpty(channel.FilterId) ? "(empty)" : channel.FilterId,
-                    FilterCategory = string.IsNullOrEmpty(channel.FilterCategory) ? "(empty)" : channel.FilterCategory,
-                    ExcludeSelf = channel.ExcludeSelf,
-                    OriginSource = channel.OriginSource,
-                    ForwardSource = channel.ForwardSource,
-                    ScopeRequireActive = channel.ScopeRequireActive,
-                    MonitorActiveState = channel.MonitorActiveState,
-                    DirectTargetValidDistance = channel.DirectTargetValidDistance,
-                    CollisionRangeSource = channel.CollisionRangeSource,
-                    CollisionAreaTag = string.IsNullOrEmpty(channel.CollisionAreaTag) ? "(empty)" : channel.CollisionAreaTag,
-                    CollisionFilterSummary = string.IsNullOrEmpty(channel.CollisionFilterSummary) ? "(none)" : channel.CollisionFilterSummary,
+                    QuerySummary = BuildQuerySummary(channel),
+                    SettingsSummary = BuildSettingsSummary(channel),
                 });
             }
+        }
+
+        static string BuildQuerySummary(in TargetChannelTelemetrySnapshot channel)
+        {
+            var parts = new List<string>(6);
+
+            if (channel.SearchType == TargetChannelSearchType.DynamicSearch)
+            {
+                parts.Add($"{ShortSearchType(channel.SearchType)}/{channel.Kind}");
+                parts.Add($"R={channel.Radius:0.##}");
+
+                if (channel.Kind == TargetQueryKind.Cone)
+                    parts.Add($"A={channel.HalfAngleDeg:0.##}");
+            }
+            else
+            {
+                parts.Add(ShortSearchType(channel.SearchType));
+            }
+
+            parts.Add($"Refresh={channel.RefreshIntervalFrames}");
+            parts.Add($"Expect={channel.ExpectedResultCount}");
+
+            return string.Join(" ", parts);
+        }
+
+        static string BuildSettingsSummary(in TargetChannelTelemetrySnapshot channel)
+        {
+            var parts = new List<string>(8);
+
+            parts.Add($"Mask={channel.KindMask}");
+
+            if (channel.SearchType == TargetChannelSearchType.DynamicSearch)
+            {
+                parts.Add($"ExSelf={ShortBool(channel.ExcludeSelf)}");
+                parts.Add($"Origin={channel.OriginSource}");
+
+                if (channel.Kind == TargetQueryKind.Cone)
+                    parts.Add($"Fwd={channel.ForwardSource}");
+
+                if (!string.IsNullOrWhiteSpace(channel.FilterId))
+                    parts.Add($"Id={channel.FilterId}");
+
+                if (!string.IsNullOrWhiteSpace(channel.FilterCategory))
+                    parts.Add($"Cat={channel.FilterCategory}");
+            }
+            else if (channel.SearchType == TargetChannelSearchType.ScopeSearch)
+            {
+                parts.Add($"Scope={ShortBool(channel.ScopeRequireActive)}");
+            }
+            else if (channel.SearchType == TargetChannelSearchType.None)
+            {
+                parts.Add($"Monitor={ShortBool(channel.MonitorActiveState)}");
+
+                if (channel.DirectTargetValidDistance > 0f)
+                    parts.Add($"Dist={channel.DirectTargetValidDistance:0.##}");
+            }
+            else if (channel.SearchType == TargetChannelSearchType.CollisionSearch)
+            {
+                parts.Add($"Range={channel.CollisionRangeSource}");
+
+                if (!string.IsNullOrWhiteSpace(channel.CollisionAreaTag))
+                    parts.Add($"Area={channel.CollisionAreaTag}");
+
+                if (!string.IsNullOrWhiteSpace(channel.CollisionFilterSummary))
+                    parts.Add($"Filter={channel.CollisionFilterSummary}");
+            }
+
+            return string.Join(" ", parts);
+        }
+
+        static string ShortSearchType(TargetChannelSearchType searchType)
+        {
+            return searchType switch
+            {
+                TargetChannelSearchType.DynamicSearch => "Dynamic",
+                TargetChannelSearchType.ScopeSearch => "Scope",
+                TargetChannelSearchType.CollisionSearch => "Collision",
+                TargetChannelSearchType.None => "None",
+                _ => searchType.ToString(),
+            };
+        }
+
+        static string ShortBool(bool value)
+        {
+            return value ? "Y" : "N";
         }
 
         [Serializable]
         public sealed class ChannelRow
         {
-            [TableColumnWidth(140)] public string Tag = string.Empty;
+            [TableColumnWidth(120)] public string Tag = string.Empty;
             [TableColumnWidth(60)] public bool Enabled;
-            [TableColumnWidth(90)] public TargetChannelSearchType SearchType;
-            [TableColumnWidth(70)] public TargetQueryKind Kind;
-            [TableColumnWidth(60)] public float Radius;
-            [TableColumnWidth(85)] public float HalfAngleDeg;
-            [TableColumnWidth(80)] public int RefreshIntervalFrames;
-            [TableColumnWidth(70)] public int ExpectedResultCount;
-            [TableColumnWidth(120)] public string KindMask = string.Empty;
-            [TableColumnWidth(100)] public string FilterId = string.Empty;
-            [TableColumnWidth(120)] public string FilterCategory = string.Empty;
-            [TableColumnWidth(70)] public bool ExcludeSelf;
-            [TableColumnWidth(100)] public TargetOriginSource OriginSource;
-            [TableColumnWidth(105)] public TargetForwardSource ForwardSource;
-            [TableColumnWidth(90)] public bool ScopeRequireActive;
-            [TableColumnWidth(110)] public bool MonitorActiveState;
-            [TableColumnWidth(110)] public float DirectTargetValidDistance;
-            [TableColumnWidth(100)] public TargetChannelCollisionRangeSource CollisionRangeSource;
-            [TableColumnWidth(120)] public string CollisionAreaTag = string.Empty;
-            [TableColumnWidth(150)] public string CollisionFilterSummary = string.Empty;
+            [LabelText("Query")]
+            [TableColumnWidth(240)] public string QuerySummary = string.Empty;
+            [LabelText("Settings")]
+            [TableColumnWidth(400)] public string SettingsSummary = string.Empty;
         }
     }
 }

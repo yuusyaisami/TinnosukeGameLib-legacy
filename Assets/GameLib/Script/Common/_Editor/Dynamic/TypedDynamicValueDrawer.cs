@@ -143,6 +143,7 @@ namespace Game.Common.Editor
                 allowedList.Add(typeof(UIModalStackActorMatchSource));
                 allowedList.Add(typeof(DataExistsBoolSource));
                 allowedList.Add(typeof(StatusEffectOperationEnabledBoolSource));
+                allowedList.Add(typeof(StatusEffectDefinitionExistsBoolSource));
             }
             else if (targetType == typeof(int))
             {
@@ -315,6 +316,8 @@ namespace Game.Common.Editor
             if (sourceType == typeof(OtherTableRowCountSource)) return "Table Row Count (Other)";
             if (sourceType == typeof(LiteralTableSource)) return "LiteralTable";
             if (sourceType == typeof(LiteralVarStorePayloadSource)) return "LiteralPayload";
+            if (sourceType == typeof(StatusEffectOperationEnabledBoolSource)) return "StatusEffect Operation Enabled";
+            if (sourceType == typeof(StatusEffectDefinitionExistsBoolSource)) return "StatusEffect Definition Exists";
 
             var name = sourceType.Name;
 

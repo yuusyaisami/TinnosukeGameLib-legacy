@@ -48,5 +48,10 @@ namespace Game.Commands.VNext
         {
             return new CommandRunResult(CommandRunStatus.Canceled, CommandRunFailureKind.Canceled, 1, lastIndex, errorIndex, message, trace, null);
         }
+
+        public static CommandRunResult Break(int lastIndex, IReadOnlyList<CommandRunFrame>? trace)
+        {
+            return new CommandRunResult(CommandRunStatus.Break, CommandRunFailureKind.None, 0, lastIndex, -1, string.Empty, trace, null);
+        }
     }
 }

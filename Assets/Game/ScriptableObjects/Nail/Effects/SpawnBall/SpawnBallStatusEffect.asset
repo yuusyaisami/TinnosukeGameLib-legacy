@@ -55,6 +55,15 @@ MonoBehaviour:
           _source:
             rid: 5399842427028636423
           _defaultValue: {x: 0, y: 0, z: 0}
+        UseHiddenPreSpawn: 0
+        HiddenSpawnOffset:
+          _source:
+            rid: 5399842667066556768
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RevealDelayFrames:
+          _source:
+            rid: 5399842667066556769
+          _defaultValue: 0
         Count:
           _source:
             rid: 5399842431600952227
@@ -393,6 +402,7 @@ MonoBehaviour:
     - rid: 5399842435756196006
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: -1331430205
           Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallCount
@@ -420,6 +430,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5399842435756196007
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -442,6 +453,7 @@ MonoBehaviour:
     - rid: 5399842435756196010
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: 671998101
           Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallValue
@@ -469,6 +481,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5399842435756196011
       type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -577,6 +590,7 @@ MonoBehaviour:
             stableKey: RandomA
             varId: 101187
           Op: 0
+          StoreMode: 0
           Value:
             _source:
               rid: 5399842475666834086
@@ -742,6 +756,26 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
+    - rid: 5399842667066556768
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 100000, y: 100000, z: 100000}
+    - rid: 5399842667066556769
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842671997485427
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -777,7 +811,8 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: <sprite=15> {intensity|percent=1}
+            Template: <sprite=15> {intensity|percent=1effect=color_if|cond=value
+              > 0|trueColor="#66FF66"|falseColor="#FF6666"}
             Variables:
             - _value:
                 _source:
@@ -790,6 +825,13 @@ MonoBehaviour:
           Icon: {fileID: 0}
           SortOrder: 0
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842671997485427
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -851,6 +893,7 @@ MonoBehaviour:
     - rid: 5619052366731149466
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: -2048929054
           Name: GameLogic.NailProfile.Effect.SpawnBall.SpawnBallChance
@@ -878,6 +921,7 @@ MonoBehaviour:
             rid: -2
         Layer: 
         OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

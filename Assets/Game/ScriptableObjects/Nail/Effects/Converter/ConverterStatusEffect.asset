@@ -151,6 +151,10 @@ MonoBehaviour:
         createIfMissing: 0
         baselineValue: 0
         searchIncludeGlobal: 0
+    - rid: 5399842689965883754
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -160,7 +164,6 @@ MonoBehaviour:
           DisplayName:
             Template: "\u30B3\u30F3\u30D0\u30FC\u30BF\u30FC"
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: "\u4FA1\u5024\u304C-\u306E\u3068\u304D x{ConverterM2P}"
             Variables:
@@ -172,7 +175,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: "\u30DE\u30A4\u30CA\u30B9\u4FA1\u5024\u6642 x{intensity}"
+            Template: "\u30DE\u30A4\u30CA\u30B9\u4FA1\u5024\u6642 +{intensity}x"
             Variables:
             - _value:
                 _source:
@@ -181,11 +184,17 @@ MonoBehaviour:
               _useCustomKey: 1
               _customKey: intensity
               _expectedType: 255
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842689965883754
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: 5619052465085481672
@@ -245,6 +254,7 @@ MonoBehaviour:
     - rid: 5619052366731149466
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: -649941756
           Name: GameLogic.NailProfile.Effect.Converter.ConverterM2P
@@ -271,6 +281,8 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5619052366731149468
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

@@ -1485,6 +1485,10 @@ MonoBehaviour:
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
+    - rid: 5399842671997485169
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -1505,7 +1509,8 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: <sprite=9>{intensity|sign=always}s
+            Template: <sprite=9>{intensity|sign=always|suffix="s"|effect=color_if|cond=value
+              > 0|trueColor="#66FF66"|falseColor="#FF6666"}
             Variables:
             - _value:
                 _source:
@@ -1518,6 +1523,13 @@ MonoBehaviour:
           Icon: {fileID: 0}
           SortOrder: 0
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842671997485169
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 1
         durationDefinition:
           rid: 5619052465085481672

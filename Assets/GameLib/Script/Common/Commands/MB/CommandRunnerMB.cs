@@ -123,6 +123,8 @@ namespace Game.Commands
 
                 builder.Register<VNext.WaitExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.BreakExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.AdvanceWaitExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.IfExecutor>(Lifetime.Singleton)

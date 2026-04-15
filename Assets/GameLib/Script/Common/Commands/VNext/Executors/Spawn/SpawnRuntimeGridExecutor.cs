@@ -257,14 +257,20 @@ namespace Game.Commands.VNext
                 if (typed.AwaitOnSpawnedCommands)
                 {
                     if (runCommon)
-                        await RunListOrThrow(runner, onSpawnedCommon!, spawnedCtx, ct, "OnSpawned Common");
+                    {
+                        if (await RunListOrBreak(runner, onSpawnedCommon!, spawnedCtx, ct, "OnSpawned Common"))
+                            break;
+                    }
 
                     if (runConditional)
                     {
                         var cond = typed.SpawnCondition.EvaluateBool(spawnedCtx);
                         var selected = cond ? typed.OnSpawnedWhenTrueCommands : typed.OnSpawnedWhenFalseCommands;
                         if (selected != null && selected.Count > 0)
-                            await RunListOrThrow(runner, selected, spawnedCtx, ct, cond ? "OnSpawned True" : "OnSpawned False");
+                        {
+                            if (await RunListOrBreak(runner, selected, spawnedCtx, ct, cond ? "OnSpawned True" : "OnSpawned False"))
+                                break;
+                        }
                     }
                 }
                 else
@@ -341,9 +347,11 @@ namespace Game.Commands.VNext
             return new Vector2(localX, localY);
         }
 
-        static async UniTask RunListOrThrow(ICommandRunner runner, CommandListData list, CommandContext ctx, CancellationToken ct, string phase)
+        static async UniTask<bool> RunListOrBreak(ICommandRunner runner, CommandListData list, CommandContext ctx, CancellationToken ct, string phase)
         {
             var result = await runner.ExecuteListAsync(list, ctx, ct, ctx.Options);
+            if (result.Status == CommandRunStatus.Break)
+                return true;
             if (result.Status == CommandRunStatus.Canceled)
                 throw new OperationCanceledException();
 
@@ -352,6 +360,8 @@ namespace Game.Commands.VNext
                 var msg = $"{phase} command list failed. FailureCount={result.FailureCount}, ErrorIndex={result.ErrorIndex}, Message={result.Message}";
                 throw new CommandExecutionException(result.FailureKind, msg);
             }
+
+            return false;
         }
 
         static Vector2 ResolveItemSize(BaseRuntimeTemplateSO runtimeTemplate, SpawnRuntimeGridCommandData typed, CommandResolveContext dynCtx)

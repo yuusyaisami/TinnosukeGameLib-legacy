@@ -420,6 +420,15 @@ namespace Game.Common
                     return false;
             }
 
+            if (VarStoreManagedRefTypeValidator.TryGetExpectedType(varId, out var expectedType) && !expectedType.IsInstanceOfType(value))
+            {
+                var keyLabel = VarIdResolver.TryGetStableKey(varId, out var stableKey) && !string.IsNullOrEmpty(stableKey)
+                    ? stableKey
+                    : $"varId={varId}";
+                Debug.LogError($"[VarStore.TrySetManagedRef] varId={varId} key={keyLabel} expects {expectedType.FullName ?? expectedType.Name} but received {value.GetType().FullName ?? value.GetType().Name}. value={ManagedRefDebugTextFormatter.Format(value)}");
+                return false;
+            }
+
             VarSlot slot;
             if (TryGetSlot(varId, out var existing))
             {

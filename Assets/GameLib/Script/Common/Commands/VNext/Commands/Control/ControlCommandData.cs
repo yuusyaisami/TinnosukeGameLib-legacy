@@ -64,6 +64,13 @@ namespace Game.Commands.VNext
     }
 
     [Serializable]
+    public sealed class BreakCommandData : ICommandData
+    {
+        public int CommandId => CommandIds.Break;
+        public string DebugData => "Break";
+    }
+
+    [Serializable]
     public sealed class IfCommandData : ICommandData
     {
         public int CommandId => CommandIds.If;

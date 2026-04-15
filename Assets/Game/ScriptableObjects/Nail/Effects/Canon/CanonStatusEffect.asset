@@ -299,6 +299,18 @@ MonoBehaviour:
             rid: -2
         createIfMissing: 0
         baselineValue: 0
+    - rid: 5399842693069668706
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842693069668707
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842693069668708
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -332,6 +344,10 @@ MonoBehaviour:
           Icon: {fileID: 0}
           SortOrder: 0
         runtimeControlMode: 10
+        condition:
+          _source:
+            rid: 5399842693069668706
+          _defaultValue: 0
         autoGlobalAdvancedOption:
           LifetimeEndAction: 0
           CountExhaustedAction: 0
@@ -346,6 +362,21 @@ MonoBehaviour:
           rid: 5619052465085481674
         operations:
         - rid: 5619052366731149466
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842693069668707
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842693069668708
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
