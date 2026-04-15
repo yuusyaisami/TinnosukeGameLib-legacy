@@ -62,6 +62,12 @@ namespace Game.Common
         /// - 成功した場合は Version/OnVarChanged を更新する
         /// </summary>
         bool TryUnset(int varId);
+
+        /// <summary>
+        /// ストア全体を空にする。
+        /// release/reset 時の一括破棄に使う。
+        /// </summary>
+        void Clear();
     }
 }
 

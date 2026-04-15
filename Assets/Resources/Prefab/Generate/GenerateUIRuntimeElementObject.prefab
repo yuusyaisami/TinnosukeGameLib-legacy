@@ -147,6 +147,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -561,6 +562,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0

@@ -271,13 +271,21 @@ namespace Game.Targeting
         void CollectCollisionHits()
         {
             if (_collisionManager == null || _hitScopeRegistry == null)
+            {
+                LogDebug($"CollisionSearch skipped: dependencies missing (collisionManager={_collisionManager != null}, hitScopeRegistry={_hitScopeRegistry != null})");
                 return;
+            }
 
             if (!TryResolveCollisionRect(out var center, out var size))
+            {
+                LogDebug($"CollisionSearch skipped: area resolution failed (rangeSource={_currentPreset.CollisionRangeSource}, areaTag='{NormalizeTagForLog(_currentPreset.CollisionAreaTag)}')");
                 return;
+            }
 
             size.x = math.max(0.01f, size.x);
             size.y = math.max(0.01f, size.y);
+
+            LogDebug($"CollisionSearch start: areaTag='{NormalizeTagForLog(_currentPreset.CollisionAreaTag)}' center=({center.x:0.##},{center.y:0.##}) size=({size.x:0.##},{size.y:0.##}) hitFilter={DescribeHitFilter(_currentPreset.CollisionHitFilter)} excludeSelf={_currentPreset.ExcludeSelf}");
 
             var overlapFilter = default(ContactFilter2D);
             overlapFilter.useTriggers = true;
@@ -289,7 +297,12 @@ namespace Game.Targeting
                 overlapFilter,
                 _collisionBuffer);
             if (overlapCount <= 0)
+            {
+                LogDebug("CollisionSearch overlap count = 0");
                 return;
+            }
+
+            LogDebug($"CollisionSearch overlap count = {overlapCount}");
 
             if (overlapCount >= _collisionBuffer.Length && _collisionBuffer.Length < MaxCollisionBufferSize)
             {
@@ -301,7 +314,12 @@ namespace Game.Targeting
                     overlapFilter,
                     _collisionBuffer);
                 if (overlapCount <= 0)
+                {
+                    LogDebug("CollisionSearch overlap count became 0 after buffer resize retry");
                     return;
+                }
+
+                LogDebug($"CollisionSearch overlap count after resize retry = {overlapCount}");
             }
 
             var ownerOrigin = ResolveOwnerOrigin();
@@ -311,16 +329,28 @@ namespace Game.Targeting
             {
                 var collider = _collisionBuffer[i];
                 if (collider == null)
+                {
+                    LogDebug($"Overlap[{i}] rejected: collider null");
                     continue;
+                }
 
                 if (!_collisionManager.TryGetDynamicHandle(collider, out var handle) || !handle.IsValid)
+                {
+                    LogDebug($"Overlap[{i}] rejected: no dynamic handle collider={DescribeCollider(collider)}");
                     continue;
+                }
 
                 if (!_collisionManager.TryGetDynamicMetadata(handle, out var metadata))
+                {
+                    LogDebug($"Overlap[{i}] rejected: metadata missing handle={handle.Id}:{handle.Generation} collider={DescribeCollider(collider)}");
                     continue;
+                }
 
                 if (!PassCollisionSetFilters(metadata.SetId))
+                {
+                    LogDebug($"Overlap[{i}] rejected: set filter rejected setId={metadata.SetId} handle={handle.Id}:{handle.Generation} colliderTag='{metadata.ColliderTag}'");
                     continue;
+                }
 
                 var pseudoHit = new CollisionHit
                 {
@@ -333,25 +363,43 @@ namespace Game.Targeting
                 };
 
                 if (!_currentPreset.CollisionHitFilter.Matches(in pseudoHit))
+                {
+                    LogDebug($"Overlap[{i}] rejected: hit filter rejected setId={metadata.SetId} handle={handle.Id}:{handle.Generation} colliderTag='{metadata.ColliderTag}'");
                     continue;
+                }
 
                 if (!_hitScopeRegistry.TryResolve(handle, out var scope) || scope == null)
+                {
+                    LogDebug($"Overlap[{i}] rejected: scope registry could not resolve handle={handle.Id}:{handle.Generation} collider={DescribeCollider(collider)}");
                     continue;
+                }
 
                 if (!_collisionScopeSet.Add(scope))
+                {
+                    LogDebug($"Overlap[{i}] rejected: duplicate scope {DescribeScope(scope)} handle={handle.Id}:{handle.Generation}");
                     continue;
+                }
 
                 var identity = scope.Identity;
                 if (identity == null)
+                {
+                    LogDebug($"Overlap[{i}] rejected: identity missing scope={DescribeScope(scope)} handle={handle.Id}:{handle.Generation}");
                     continue;
+                }
 
                 if (!TryResolveScopePosition(scope, identity, out var pos))
+                {
+                    LogDebug($"Overlap[{i}] rejected: position resolve failed scope={DescribeScope(scope)} identityId='{identity.Id}' kind={identity.Kind} hasSelfTransform={identity.SelfTransform != null}");
                     continue;
+                }
 
                 var delta = pos - ownerOrigin;
                 var distSq = math.dot(delta, delta);
                 _hits.Add(new DynamicSearchHit(scope, identity, distSq, pos));
+                LogDebug($"Overlap[{i}] accepted: scope={DescribeScope(scope)} identityId='{identity.Id}' kind={identity.Kind} pos=({pos.x:0.##},{pos.y:0.##}) dist={math.sqrt(distSq):0.##}");
             }
+
+            LogDebug($"CollisionSearch done: hits={_hits.Count}");
 
             for (var i = 0; i < overlapCount; i++)
                 _collisionBuffer[i] = null!;
@@ -377,25 +425,39 @@ namespace Game.Targeting
 
             var ownerScope = _owner.OwnerScope;
             if (ownerScope == null)
+            {
+                LogDebug("CollisionSearch area resolve failed: owner scope is null");
                 return false;
+            }
 
             var areaScope = VNext.ActorSourceFastResolver.Resolve(ownerScope, _currentPreset.CollisionAreaActorSource);
             if (areaScope == null)
+            {
+                LogDebug($"CollisionSearch area resolve failed: area actor source resolved null (actorSourceKind={_currentPreset.CollisionAreaActorSource.Kind})");
                 return false;
+            }
 
             if (!TryResolveAreaHub(areaScope, out var areaHub) || areaHub == null)
+            {
+                LogDebug($"CollisionSearch area resolve failed: IAreaChannelHubService not found from scope={DescribeScope(areaScope)}");
                 return false;
+            }
 
             var areaTag = string.IsNullOrWhiteSpace(_currentPreset.CollisionAreaTag)
                 ? "default"
                 : _currentPreset.CollisionAreaTag.Trim();
             if (!areaHub.TryGetRectSnapshot(areaTag, out var snapshot))
+            {
+                LogDebug($"CollisionSearch area resolve failed: rect snapshot not found for tag='{areaTag}' scope={DescribeScope(areaScope)}");
                 return false;
+            }
 
             center = snapshot.Plane == AreaPlane.XZ
                 ? new float2(snapshot.Center.x, snapshot.Center.z)
                 : new float2(snapshot.Center.x, snapshot.Center.y);
             size = new float2(snapshot.Size.x, snapshot.Size.y);
+
+            LogDebug($"CollisionSearch area resolved: tag='{areaTag}' plane={snapshot.Plane} center=({center.x:0.##},{center.y:0.##}) size=({size.x:0.##},{size.y:0.##})");
             return true;
         }
 
@@ -689,6 +751,53 @@ namespace Game.Targeting
             }
 
             return NullVarStore.Instance;
+        }
+
+        void LogDebug(string message)
+        {
+            if (!_currentPreset.DebugLogEnabled)
+                return;
+
+            Debug.Log($"[TargetChannel:{Tag} f={Time.frameCount}] {message} owner={DescribeScope(_owner.OwnerScope)}");
+        }
+
+        static string NormalizeTagForLog(string? tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return "(default)";
+
+            return tag.Trim();
+        }
+
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "(null)";
+
+            var identity = scope.Identity;
+            if (identity != null)
+                return $"{identity.Id}:{identity.Kind}";
+
+            if (scope is Component component && component != null)
+                return component.gameObject.name;
+
+            return scope.GetType().Name;
+        }
+
+        static string DescribeCollider(Collider2D collider)
+        {
+            if (collider == null)
+                return "(null)";
+
+            return $"{collider.name} enabled={collider.enabled} trigger={collider.isTrigger} layer={collider.gameObject.layer}";
+        }
+
+        static string DescribeHitFilter(in HitFilter filter)
+        {
+            var mobility = filter.UseMobility ? filter.Mobility.ToString() : "off";
+            var dynamicSet = filter.UseDynamicSet ? filter.DynamicSetId.ToString() : "off";
+            var staticKind = filter.UseStaticKind ? filter.StaticKind.ToString() : "off";
+            return $"mobility={mobility} dynSet={dynamicSet} staticKind={staticKind}";
         }
 
         static bool TryResolveScopePosition(IScopeNode scope, ILTSIdentityService identity, out float2 pos)

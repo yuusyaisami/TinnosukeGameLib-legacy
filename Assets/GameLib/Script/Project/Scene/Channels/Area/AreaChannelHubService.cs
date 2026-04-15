@@ -285,6 +285,7 @@ namespace Game.Channel
         bool TryResolveBasePosition(string tag, AreaChannelDefinition def, out Vector3 basePosition)
         {
             var anchor = def.Anchor;
+
             if (anchor == null)
             {
                 basePosition = default;

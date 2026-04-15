@@ -219,8 +219,15 @@ namespace Game.Targeting
         }
 
         [ShowInInspector]
-        [TableList(IsReadOnly = true, AlwaysExpanded = true, NumberOfItemsPerPage = 8)]
-        [LabelText("Runtime Channel Settings")]
+        [ListDrawerSettings(
+            ShowFoldout = true,
+            DefaultExpandedState = true,
+            DraggableItems = false,
+            IsReadOnly = true,
+            ShowPaging = true,
+            NumberOfItemsPerPage = 6,
+            ListElementLabelName = nameof(ChannelRow.Header))]
+        [LabelText("Runtime Channel Details")]
         public List<ChannelRow> Channels
         {
             get
@@ -262,16 +269,16 @@ namespace Game.Targeting
                 return;
 
             var frame = Time.frameCount;
+            var telemetryVersion = _telemetry.TelemetryVersion;
+            if (telemetryVersion != _lastVersion)
+            {
+                ApplySnapshot(_telemetry.GetTelemetrySnapshot());
+                return;
+            }
+
             var interval = Mathf.Max(1, autoRefreshEveryNFrames);
             if (_lastRefreshFrame >= 0 && frame - _lastRefreshFrame < interval)
                 return;
-
-            var telemetryVersion = _telemetry.TelemetryVersion;
-            if (telemetryVersion == _lastVersion)
-            {
-                _lastRefreshFrame = frame;
-                return;
-            }
 
             ApplySnapshot(_telemetry.GetTelemetrySnapshot());
         }
@@ -290,12 +297,34 @@ namespace Game.Targeting
             for (int i = 0; i < channels.Count; i++)
             {
                 var channel = channels[i];
+                var targetRows = new List<TargetRow>(channel.TargetCount);
+                var targets = channel.Targets;
+                if (targets != null)
+                {
+                    for (int j = 0; j < targets.Count; j++)
+                    {
+                        var target = targets[j];
+                        targetRows.Add(new TargetRow
+                        {
+                            ScopeLabel = target.ScopeLabel,
+                            Kind = target.Kind,
+                            Id = target.Id,
+                            Category = target.Category,
+                            Active = target.IsActive,
+                            Position = target.Position,
+                            Distance = target.Distance,
+                        });
+                    }
+                }
+
                 _rows.Add(new ChannelRow
                 {
                     Tag = channel.Tag,
                     Enabled = channel.Enabled,
+                    TargetCount = channel.TargetCount,
                     QuerySummary = BuildQuerySummary(channel),
                     SettingsSummary = BuildSettingsSummary(channel),
+                    Targets = targetRows,
                 });
             }
         }
@@ -388,12 +417,37 @@ namespace Game.Targeting
         [Serializable]
         public sealed class ChannelRow
         {
-            [TableColumnWidth(120)] public string Tag = string.Empty;
-            [TableColumnWidth(60)] public bool Enabled;
-            [LabelText("Query")]
-            [TableColumnWidth(240)] public string QuerySummary = string.Empty;
-            [LabelText("Settings")]
-            [TableColumnWidth(400)] public string SettingsSummary = string.Empty;
+            public string Tag = string.Empty;
+            public bool Enabled;
+            public int TargetCount;
+            public string QuerySummary = string.Empty;
+            public string SettingsSummary = string.Empty;
+
+            [ListDrawerSettings(
+                ShowFoldout = true,
+                DefaultExpandedState = true,
+                DraggableItems = false,
+                IsReadOnly = true,
+                ShowPaging = true,
+                NumberOfItemsPerPage = 12,
+                ListElementLabelName = nameof(TargetRow.Header))]
+            public List<TargetRow> Targets = new();
+
+            public string Header => $"{Tag} | {(Enabled ? "Enabled" : "Disabled")} | Targets={TargetCount}";
+        }
+
+        [Serializable]
+        public sealed class TargetRow
+        {
+            public string ScopeLabel = string.Empty;
+            public LifetimeScopeKind Kind;
+            public string Id = string.Empty;
+            public string Category = string.Empty;
+            public bool Active;
+            public Vector2 Position;
+            public float Distance;
+
+            public string Header => $"{ScopeLabel} | {Id} | {Kind} | {(Active ? "Active" : "Inactive")}";
         }
     }
 }

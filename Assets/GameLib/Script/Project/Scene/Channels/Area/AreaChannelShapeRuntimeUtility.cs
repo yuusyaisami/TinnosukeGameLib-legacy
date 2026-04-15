@@ -101,6 +101,12 @@ namespace Game.Channel
         {
             switch (shape)
             {
+                case CircleAreaShape circle:
+                    return circle.TryGetRectSnapshot(context, basePosition, plane, out snapshot);
+
+                case DonutAreaShape donut:
+                    return donut.TryGetRectSnapshot(context, basePosition, plane, out snapshot);
+
                 case RectAreaShape rect:
                     return rect.TryGetRectSnapshot(context, basePosition, plane, out snapshot);
 

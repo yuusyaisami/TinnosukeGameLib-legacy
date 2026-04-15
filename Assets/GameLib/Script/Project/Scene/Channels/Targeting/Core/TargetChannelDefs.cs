@@ -221,6 +221,11 @@ namespace Game.Targeting
         [LabelText("Hit Filter")]
         public HitFilter CollisionHitFilter;
 
+        [BoxGroup("Debug")]
+        [LabelText("Debug Log")]
+        [Tooltip("有効なとき、CollisionSearch の各段階で Console に理由を出します。")]
+        public bool DebugLogEnabled = false;
+
         public float CosHalfAngle
         {
             get
@@ -273,6 +278,7 @@ namespace Game.Targeting
                     : Array.Empty<DynamicColliderSetRef>(),
                 CollisionMatchAnyInclude = CollisionMatchAnyInclude,
                 CollisionHitFilter = CollisionHitFilter,
+                DebugLogEnabled = DebugLogEnabled,
             };
         }
 
@@ -332,6 +338,9 @@ namespace Game.Targeting
                 CollisionMatchAnyInclude = mutation.CollisionMatchAnyInclude;
                 CollisionHitFilter = mutation.CollisionHitFilter;
             }
+
+            if (mutation.ApplyDebugLog)
+                DebugLogEnabled = mutation.DebugLogEnabled;
         }
     }
 
@@ -515,6 +524,16 @@ namespace Game.Targeting
         [LabelText("Hit Filter")]
         public HitFilter CollisionHitFilter;
 
+        [BoxGroup("Debug")]
+        [ToggleLeft]
+        [LabelText("Apply Debug Log")]
+        public bool ApplyDebugLog;
+
+        [BoxGroup("Debug")]
+        [ShowIf(nameof(ApplyDebugLog))]
+        [LabelText("Debug Log")]
+        public bool DebugLogEnabled = false;
+
         [BoxGroup("Direct Targets")]
         [ToggleLeft]
         [LabelText("Apply Monitor Active State")]
@@ -527,7 +546,7 @@ namespace Game.Targeting
 
         public bool HasAnyMutation()
         {
-            return ApplyEnabled || ApplySearchType || ApplyDynamicSearch || ApplyScopeSearch || ApplyCollisionSearch || ApplyMonitorActiveState;
+            return ApplyEnabled || ApplySearchType || ApplyDynamicSearch || ApplyScopeSearch || ApplyCollisionSearch || ApplyDebugLog || ApplyMonitorActiveState;
         }
     }
 
@@ -598,6 +617,35 @@ namespace Game.Targeting
         }
     }
 
+    public readonly struct TargetChannelTargetTelemetrySnapshot
+    {
+        public readonly string ScopeLabel;
+        public readonly LifetimeScopeKind Kind;
+        public readonly string Id;
+        public readonly string Category;
+        public readonly bool IsActive;
+        public readonly Vector2 Position;
+        public readonly float Distance;
+
+        public TargetChannelTargetTelemetrySnapshot(
+            string scopeLabel,
+            LifetimeScopeKind kind,
+            string id,
+            string category,
+            bool isActive,
+            Vector2 position,
+            float distance)
+        {
+            ScopeLabel = scopeLabel;
+            Kind = kind;
+            Id = id;
+            Category = category;
+            IsActive = isActive;
+            Position = position;
+            Distance = distance;
+        }
+    }
+
     public readonly struct TargetChannelTelemetrySnapshot
     {
         public readonly string Tag;
@@ -620,6 +668,8 @@ namespace Game.Targeting
         public readonly TargetChannelCollisionRangeSource CollisionRangeSource;
         public readonly string CollisionAreaTag;
         public readonly string CollisionFilterSummary;
+        public readonly int TargetCount;
+        public readonly IReadOnlyList<TargetChannelTargetTelemetrySnapshot> Targets;
 
         public TargetChannelTelemetrySnapshot(
             string tag,
@@ -641,7 +691,9 @@ namespace Game.Targeting
             float directTargetValidDistance,
             TargetChannelCollisionRangeSource collisionRangeSource,
             string collisionAreaTag,
-            string collisionFilterSummary)
+            string collisionFilterSummary,
+            int targetCount,
+            IReadOnlyList<TargetChannelTargetTelemetrySnapshot> targets)
         {
             Tag = tag;
             Enabled = enabled;
@@ -663,6 +715,8 @@ namespace Game.Targeting
             CollisionRangeSource = collisionRangeSource;
             CollisionAreaTag = collisionAreaTag;
             CollisionFilterSummary = collisionFilterSummary;
+            TargetCount = targetCount;
+            Targets = targets;
         }
     }
 

@@ -17,6 +17,7 @@ using Game.Collision;
 using Game.DI;
 using Game.Search;
 using VContainer;
+using VNext = Game.Commands.VNext;
 
 namespace Game.Targeting
 {
@@ -162,9 +163,13 @@ namespace Game.Targeting
             if (_disposed || string.IsNullOrWhiteSpace(tag))
                 return false;
 
-            return _channels.TryGetValue(tag, out var runtime) &&
-                   runtime != null &&
-                   runtime.SetDirectTargets(hits);
+            var changed = _channels.TryGetValue(tag, out var runtime) &&
+                          runtime != null &&
+                          runtime.SetDirectTargets(hits);
+            if (changed)
+                BumpTelemetry();
+
+            return changed;
         }
 
         public bool ClearDirectTargets(string tag)
@@ -174,9 +179,13 @@ namespace Game.Targeting
             if (_disposed || string.IsNullOrWhiteSpace(tag))
                 return false;
 
-            return _channels.TryGetValue(tag, out var runtime) &&
-                   runtime != null &&
-                   runtime.ClearDirectTargets();
+            var changed = _channels.TryGetValue(tag, out var runtime) &&
+                          runtime != null &&
+                          runtime.ClearDirectTargets();
+            if (changed)
+                BumpTelemetry();
+
+            return changed;
         }
 
         public bool Unregister(string tag)
@@ -261,6 +270,11 @@ namespace Game.Targeting
             {
                 var runtime = runtimes[i];
                 var preset = runtime.CurrentPreset;
+                var hits = runtime.Hits;
+                var targets = new List<TargetChannelTargetTelemetrySnapshot>(hits.Count);
+                for (int j = 0; j < hits.Count; j++)
+                    targets.Add(BuildTargetSnapshot(hits[j]));
+
                 var collisionFilterSummary = BuildCollisionFilterSummary(preset);
                 channels.Add(new TargetChannelTelemetrySnapshot(
                     tag: runtime.Tag,
@@ -280,9 +294,11 @@ namespace Game.Targeting
                         scopeRequireActive: preset.ScopeRequireActive,
                     monitorActiveState: preset.MonitorActiveState,
                     directTargetValidDistance: preset.DirectTargetValidDistance,
-                        collisionRangeSource: preset.CollisionRangeSource,
-                        collisionAreaTag: preset.CollisionAreaTag,
-                        collisionFilterSummary: collisionFilterSummary));
+                    collisionRangeSource: preset.CollisionRangeSource,
+                    collisionAreaTag: preset.CollisionAreaTag,
+                    collisionFilterSummary: collisionFilterSummary,
+                    targetCount: hits.Count,
+                    targets: targets));
             }
 
             return new TargetChannelHubTelemetrySnapshot(
@@ -364,6 +380,30 @@ namespace Game.Targeting
                 : 0;
 
             return $"inc:{includeCount} exc:{excludeCount} any:{preset.CollisionMatchAnyInclude}";
+        }
+
+        static TargetChannelTargetTelemetrySnapshot BuildTargetSnapshot(in DynamicSearchHit hit)
+        {
+            var identity = hit.Identity;
+            var position = new Vector2(hit.Position.x, hit.Position.y);
+            var distance = Mathf.Sqrt(Mathf.Max(0f, hit.DistanceSq));
+
+            return new TargetChannelTargetTelemetrySnapshot(
+                scopeLabel: VNext.CommandExecutionTrace.DescribeScope(hit.Scope),
+                kind: identity != null ? identity.Kind : LifetimeScopeKind.None,
+                id: NormalizeText(identity != null ? identity.Id : null),
+                category: NormalizeText(identity != null ? identity.Category : null),
+                isActive: identity != null && identity.IsActive,
+                position: position,
+                distance: distance);
+        }
+
+        static string NormalizeText(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "(none)";
+
+            return value.Trim();
         }
 
         static IVarStore ResolveVars(IScopeNode? scope)
