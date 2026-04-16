@@ -42,9 +42,6 @@ namespace Game.UI
         bool _isAcquired;
         bool _hasLastRect;
         Rect _lastRect;
-        int _suppressInitialOutputUntilFrame = -1;
-        bool _needsInitialChannelOutputApply;
-
         public int ChannelCount => _orderedChannels.Count;
         public bool EnableDebugLog => _mb.HubSettings.EnableDebugLog;
 
@@ -63,10 +60,8 @@ namespace Game.UI
             _activeScope = scope;
             _isAcquired = true;
             _hasLastRect = false;
-            _suppressInitialOutputUntilFrame = Time.frameCount + 1;
-            _needsInitialChannelOutputApply = true;
 
-            Trace($"[Acquire] scope={DescribeScope(scope)} frame={Time.frameCount} executeOnAcquire={_mb.HubSettings.ExecuteOnAcquire} suppressUntil={_suppressInitialOutputUntilFrame} channels={_mb.Channels.Count}");
+            Trace($"[Acquire] scope={DescribeScope(scope)} frame={Time.frameCount} executeOnAcquire={_mb.HubSettings.ExecuteOnAcquire} channels={_mb.Channels.Count}");
 
             ResolveServices(scope);
             RebuildChannels(scope);
@@ -96,8 +91,6 @@ namespace Game.UI
             _orderedChannels.Clear();
             _hasLastRect = false;
             _lastRect = default;
-            _suppressInitialOutputUntilFrame = -1;
-            _needsInitialChannelOutputApply = false;
             _isAcquired = false;
 
             Trace($"[Release] scope={DescribeScope(scope)} frame={Time.frameCount}");
@@ -292,15 +285,13 @@ namespace Game.UI
             var output = _boundsOutput;
             if (output == null || !output.HasBounds)
             {
-                Trace($"[Evaluate] No bounds available. force={force} frame={Time.frameCount} hasLastRect={_hasLastRect} needsInitialApply={_needsInitialChannelOutputApply} suppressUntil={_suppressInitialOutputUntilFrame}");
+                Trace($"[Evaluate] No bounds available. force={force} frame={Time.frameCount} hasLastRect={_hasLastRect}");
                 _hasLastRect = false;
                 return;
             }
 
             var currentRect = output.LocalRect;
             if (!_hasLastRect)
-                force = true;
-            else if (_needsInitialChannelOutputApply && Time.frameCount > _suppressInitialOutputUntilFrame)
                 force = true;
 
             if (!force && !HasMeaningfulChange(_lastRect, currentRect, _mb.HubSettings.PositionEpsilon, _mb.HubSettings.SizeEpsilon))
@@ -314,12 +305,6 @@ namespace Game.UI
             _hasLastRect = true;
 
             ApplyChannels(output);
-
-            if (_needsInitialChannelOutputApply && Time.frameCount > _suppressInitialOutputUntilFrame)
-            {
-                _needsInitialChannelOutputApply = false;
-                Trace("[Evaluate] Initial apply completed.");
-            }
         }
 
         void ApplyChannels(IVisualBoundsOutput output)
@@ -336,16 +321,6 @@ namespace Game.UI
                 var preset = entry.RuntimeOverride ?? entry.SourcePreset;
                 if (preset == null || !preset.Enabled)
                     continue;
-
-                if (Time.frameCount <= _suppressInitialOutputUntilFrame)
-                {
-                    if (preset.Output is VisualBoundsReactiveChannelOutputPreset)
-                        Trace($"Skip channel output on acquire frame. tag={entry.Tag}");
-                    else
-                        Trace($"Skip rect output on acquire frame. tag={entry.Tag}");
-
-                    continue;
-                }
 
                 Trace($"[Channel] tag={entry.Tag} order={entry.Order} preset={DescribePreset(preset)} override={entry.RuntimeOverride != null}");
                 ResolveTarget(scope, preset.Target, ref entry.TargetActorSourceCache, out var resolvedTransform, out var resolvedRect);
