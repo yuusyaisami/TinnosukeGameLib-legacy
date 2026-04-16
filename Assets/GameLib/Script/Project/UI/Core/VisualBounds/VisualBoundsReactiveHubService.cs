@@ -42,10 +42,11 @@ namespace Game.UI
         bool _isAcquired;
         bool _hasLastRect;
         Rect _lastRect;
-        int _suppressChannelOutputUntilFrame = -1;
+        int _suppressInitialOutputUntilFrame = -1;
         bool _needsInitialChannelOutputApply;
 
         public int ChannelCount => _orderedChannels.Count;
+        public bool EnableDebugLog => _mb.HubSettings.EnableDebugLog;
 
         public VisualBoundsReactiveHubService(IScopeNode owner, VisualBoundsReactiveHubMB mb)
         {
@@ -62,14 +63,21 @@ namespace Game.UI
             _activeScope = scope;
             _isAcquired = true;
             _hasLastRect = false;
-            _suppressChannelOutputUntilFrame = Time.frameCount + 1;
+            _suppressInitialOutputUntilFrame = Time.frameCount + 1;
             _needsInitialChannelOutputApply = true;
+
+            Trace($"[Acquire] scope={DescribeScope(scope)} frame={Time.frameCount} executeOnAcquire={_mb.HubSettings.ExecuteOnAcquire} suppressUntil={_suppressInitialOutputUntilFrame} channels={_mb.Channels.Count}");
 
             ResolveServices(scope);
             RebuildChannels(scope);
 
+            Trace($"[Acquire] services boundsService={_boundsService != null} boundsOutput={_boundsOutput != null} spriteHub={_spriteHub != null} transformHub={_transformHub != null} channelCount={_orderedChannels.Count}");
+
             if (_mb.HubSettings.ExecuteOnAcquire)
+            {
+                Trace("[Acquire] ExecuteOnAcquire=true, evaluating immediately.");
                 EvaluateAndApply(force: true);
+            }
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -88,9 +96,11 @@ namespace Game.UI
             _orderedChannels.Clear();
             _hasLastRect = false;
             _lastRect = default;
-            _suppressChannelOutputUntilFrame = -1;
+            _suppressInitialOutputUntilFrame = -1;
             _needsInitialChannelOutputApply = false;
             _isAcquired = false;
+
+            Trace($"[Release] scope={DescribeScope(scope)} frame={Time.frameCount}");
         }
 
         public void LateTick()
@@ -114,10 +124,12 @@ namespace Game.UI
             var normalizedTag = VisualBoundsReactiveTagUtility.Normalize(tag);
             var runtimeCopy = preset.CreateRuntimeCopy();
 
+            Trace($"[RegisterOrReplace] tag={normalizedTag} existing={_channels.ContainsKey(normalizedTag)} preset={DescribePreset(runtimeCopy)} frame={Time.frameCount}");
+
             if (_channels.TryGetValue(normalizedTag, out var existing))
             {
                 existing.RuntimeOverride = runtimeCopy;
-                Trace($"RegisterOrReplace override applied. tag={normalizedTag}");
+                Trace($"[RegisterOrReplace] override applied. tag={normalizedTag} totalChannels={_orderedChannels.Count}");
                 return true;
             }
 
@@ -139,7 +151,7 @@ namespace Game.UI
             _channels.Add(normalizedTag, entry);
             _orderedChannels.Add(entry);
 
-            Trace($"RegisterOrReplace registered new channel. tag={normalizedTag}");
+            Trace($"[RegisterOrReplace] registered new channel. tag={normalizedTag} totalChannels={_orderedChannels.Count}");
             return true;
         }
 
@@ -152,7 +164,7 @@ namespace Game.UI
             _channels.Remove(normalizedTag);
             _orderedChannels.Remove(entry);
             RefreshOrder();
-            Trace($"Unregister channel. tag={normalizedTag}");
+            Trace($"[Unregister] tag={normalizedTag} totalChannels={_orderedChannels.Count}");
             return true;
         }
 
@@ -160,7 +172,7 @@ namespace Game.UI
         {
             _channels.Clear();
             _orderedChannels.Clear();
-            Trace("Clear all channels.");
+            Trace("[Clear] all channels cleared.");
         }
 
         public bool ResetRuntimeOverrides(string tag)
@@ -170,7 +182,7 @@ namespace Game.UI
                 return false;
 
             entry.RuntimeOverride = null;
-            Trace($"Reset runtime override. tag={normalizedTag}");
+            Trace($"[ResetRuntimeOverrides] tag={normalizedTag}");
             return true;
         }
 
@@ -179,7 +191,7 @@ namespace Game.UI
             for (var i = 0; i < _orderedChannels.Count; i++)
                 _orderedChannels[i].RuntimeOverride = null;
 
-            Trace("Reset runtime overrides for all channels.");
+            Trace("[ResetAllRuntimeOverrides] all overrides cleared.");
         }
 
         public void GetTags(List<string> output)
@@ -205,6 +217,8 @@ namespace Game.UI
 
             if (!scope.TryResolveInAncestors<ITransformAnimationHubService>(out _transformHub))
                 scope.Resolver?.TryResolve(out _transformHub);
+
+            Trace($"[ResolveServices] scope={DescribeScope(scope)} boundsService={_boundsService != null} boundsOutput={_boundsOutput != null} spriteHub={_spriteHub != null} transformHub={_transformHub != null}");
         }
 
         void RebuildChannels(IScopeNode scope)
@@ -233,24 +247,32 @@ namespace Game.UI
                     Tag = tag,
                     Order = _orderedChannels.Count,
                     SourceOptions = options,
-                    SourcePreset = ResolveSourcePreset(scope, options),
+                    SourcePreset = ResolveSourcePreset(scope, tag, options),
                     RuntimeOverride = null,
                 };
 
                 _channels.Add(tag, entry);
                 _orderedChannels.Add(entry);
+
+                Trace($"[RebuildChannels] registered tag={tag} order={entry.Order} preset={DescribePreset(entry.SourcePreset)}");
             }
+
+            Trace($"[RebuildChannels] completed. definitions={definitions.Count} channels={_orderedChannels.Count}");
         }
 
-        VisualBoundsReactiveChannelPreset ResolveSourcePreset(IScopeNode scope, VisualBoundsReactiveChannelOptions options)
+        VisualBoundsReactiveChannelPreset ResolveSourcePreset(IScopeNode scope, string tag, VisualBoundsReactiveChannelOptions options)
         {
             var vars = ResolveVars(scope);
             var context = new SimpleDynamicContext(vars, scope);
             if (options.PresetValue.TryGet(context, out VisualBoundsReactiveChannelPreset? preset) && preset != null)
+            {
+                Trace($"[PresetResolve] tag={tag} resolved={DescribePreset(preset)}");
                 return preset.CreateRuntimeCopy();
+            }
 
-            Trace("Preset resolve failed, fallback to default preset.");
-            return new VisualBoundsReactiveChannelPreset();
+            var fallback = new VisualBoundsReactiveChannelPreset();
+            Trace($"[PresetResolve] tag={tag} failed, fallback={DescribePreset(fallback)}");
+            return fallback;
         }
 
         static IVarStore ResolveVars(IScopeNode scope)
@@ -270,6 +292,7 @@ namespace Game.UI
             var output = _boundsOutput;
             if (output == null || !output.HasBounds)
             {
+                Trace($"[Evaluate] No bounds available. force={force} frame={Time.frameCount} hasLastRect={_hasLastRect} needsInitialApply={_needsInitialChannelOutputApply} suppressUntil={_suppressInitialOutputUntilFrame}");
                 _hasLastRect = false;
                 return;
             }
@@ -277,19 +300,26 @@ namespace Game.UI
             var currentRect = output.LocalRect;
             if (!_hasLastRect)
                 force = true;
-            else if (_needsInitialChannelOutputApply && Time.frameCount > _suppressChannelOutputUntilFrame)
+            else if (_needsInitialChannelOutputApply && Time.frameCount > _suppressInitialOutputUntilFrame)
                 force = true;
 
             if (!force && !HasMeaningfulChange(_lastRect, currentRect, _mb.HubSettings.PositionEpsilon, _mb.HubSettings.SizeEpsilon))
+            {
+                Trace($"[Evaluate] Skip no meaningful change. current={DescribeRect(currentRect)} last={DescribeRect(_lastRect)} epsPos={_mb.HubSettings.PositionEpsilon:0.###} epsSize={_mb.HubSettings.SizeEpsilon:0.###}");
                 return;
+            }
 
+            Trace($"[Evaluate] Apply. force={force} frame={Time.frameCount} current={DescribeRect(currentRect)} world={DescribeBounds(output.WorldBounds)} root={DescribeTransform(output.LocalSpaceRoot)}");
             _lastRect = currentRect;
             _hasLastRect = true;
 
             ApplyChannels(output);
 
-            if (_needsInitialChannelOutputApply && Time.frameCount > _suppressChannelOutputUntilFrame)
+            if (_needsInitialChannelOutputApply && Time.frameCount > _suppressInitialOutputUntilFrame)
+            {
                 _needsInitialChannelOutputApply = false;
+                Trace("[Evaluate] Initial apply completed.");
+            }
         }
 
         void ApplyChannels(IVisualBoundsOutput output)
@@ -298,6 +328,8 @@ namespace Game.UI
             if (scope == null)
                 return;
 
+            Trace($"[ApplyChannels] count={_orderedChannels.Count} localRect={DescribeRect(output.LocalRect)} worldBounds={DescribeBounds(output.WorldBounds)} root={DescribeTransform(output.LocalSpaceRoot)} clampHasValue={output.LastClamp.HasValue} clampMaxRate={output.LastClamp.MaxRate:0.###}");
+
             for (var i = 0; i < _orderedChannels.Count; i++)
             {
                 var entry = _orderedChannels[i];
@@ -305,21 +337,28 @@ namespace Game.UI
                 if (preset == null || !preset.Enabled)
                     continue;
 
-                if (preset.Output is VisualBoundsReactiveChannelOutputPreset && Time.frameCount <= _suppressChannelOutputUntilFrame)
+                if (Time.frameCount <= _suppressInitialOutputUntilFrame)
                 {
-                    Trace($"Skip channel output on acquire frame. tag={entry.Tag}");
+                    if (preset.Output is VisualBoundsReactiveChannelOutputPreset)
+                        Trace($"Skip channel output on acquire frame. tag={entry.Tag}");
+                    else
+                        Trace($"Skip rect output on acquire frame. tag={entry.Tag}");
+
                     continue;
                 }
 
+                Trace($"[Channel] tag={entry.Tag} order={entry.Order} preset={DescribePreset(preset)} override={entry.RuntimeOverride != null}");
                 ResolveTarget(scope, preset.Target, ref entry.TargetActorSourceCache, out var resolvedTransform, out var resolvedRect);
                 if (resolvedTransform == null && resolvedRect == null)
                 {
-                    Trace($"Skip channel: target unresolved. tag={entry.Tag}");
+                    Trace($"[Channel] Skip target unresolved. tag={entry.Tag} target={DescribeTargetBinding(preset.Target)}");
                     continue;
                 }
 
                 var localRect = preset.InputEffect.ApplyToLocalRect(output.LocalRect);
                 var worldBounds = preset.InputEffect.ApplyToWorldBounds(output.WorldBounds);
+
+                Trace($"[Channel] targetTransform={DescribeTransform(resolvedTransform)} targetRect={DescribeRectTransform(resolvedRect)} effectedLocalRect={DescribeRect(localRect)} effectedWorldBounds={DescribeBounds(worldBounds)}");
 
                 switch (preset.Output)
                 {
@@ -360,6 +399,8 @@ namespace Game.UI
 
             if (targetRect == null)
                 targetRect = targetTransform as RectTransform;
+
+            Trace($"[TargetResolve] binding={DescribeTargetBinding(targetBinding)} resolvedTransform={DescribeTransform(targetTransform)} resolvedRect={DescribeRectTransform(targetRect)}");
         }
 
         void ApplyRectTransformOutput(
@@ -380,12 +421,14 @@ namespace Game.UI
                 targetRect = fallbackTransform as RectTransform;
                 if (targetRect == null)
                 {
-                    Trace($"Skip rect output: RectTransform target missing. tag={tag}");
+                    Trace($"[RectOutput] Skip target missing. tag={tag} fallbackTransform={DescribeTransform(fallbackTransform)} resolvedRect={DescribeRectTransform(resolvedRect)} presetTarget={DescribeRectTransform(outputPreset.TargetRectTransform)}");
                     return;
                 }
             }
 
             var compatibleWithRoot = IsCompatibleWithBoundsRoot(targetRect.transform, boundsRoot);
+
+            Trace($"[RectOutput] tag={tag} target={DescribeRectTransform(targetRect)} presetTarget={DescribeRectTransform(outputPreset.TargetRectTransform)} boundsRoot={DescribeTransform(boundsRoot)} compatible={compatibleWithRoot} applyPos={outputPreset.ApplyAnchoredPosition} applySize={outputPreset.ApplySizeDelta} local={DescribeRect(effectedLocalRect)} world={DescribeBounds(effectedWorldBounds)}");
 
             if (outputPreset.ApplyAnchoredPosition)
             {
@@ -393,13 +436,19 @@ namespace Game.UI
                 {
                     var desiredAnchored = effectedLocalRect.center;
                     if (targetRect.parent is RectTransform parentRect)
+                    {
                         targetRect.anchoredPosition = desiredAnchored - ResolveAnchorReference(targetRect, parentRect);
+                        Trace($"[RectOutput] anchoredPosition applied (local). target={DescribeRectTransform(targetRect)} desired={desiredAnchored}");
+                    }
                     else
+                    {
                         targetRect.anchoredPosition = desiredAnchored;
+                        Trace($"[RectOutput] anchoredPosition applied (no parent). target={DescribeRectTransform(targetRect)} desired={desiredAnchored}");
+                    }
                 }
                 else if (!TryApplyAnchoredPositionFromWorldCenter(targetRect, effectedWorldBounds.center))
                 {
-                    Trace($"Skip rect anchoredPosition apply: projection failed. tag={tag}");
+                    Trace($"[RectOutput] anchoredPosition projection failed. tag={tag} target={DescribeRectTransform(targetRect)} worldCenter={effectedWorldBounds.center}");
                 }
             }
 
@@ -408,7 +457,7 @@ namespace Game.UI
                 if (_mb.HubSettings.EnableDebugLog)
                 {
                     Trace(
-                        $"Apply rect output done. tag={tag} target={targetRect.name} compatible={compatibleWithRoot} " +
+                        $"[RectOutput] size skipped. tag={tag} target={DescribeRectTransform(targetRect)} compatible={compatibleWithRoot} " +
                         $"anchoredPosition={targetRect.anchoredPosition} sizeDelta={targetRect.sizeDelta} localRect={effectedLocalRect} worldCenter={effectedWorldBounds.center}");
                 }
 
@@ -417,24 +466,24 @@ namespace Game.UI
 
             if (compatibleWithRoot)
             {
-                targetRect.sizeDelta = new Vector2(
-                    Mathf.Max(0f, effectedLocalRect.width),
-                    Mathf.Max(0f, effectedLocalRect.height));
+                ApplyRectTransformSize(targetRect, effectedLocalRect.size);
+                Trace($"[RectOutput] size applied (local). tag={tag} target={DescribeRectTransform(targetRect)} size={effectedLocalRect.size}");
                 return;
             }
 
             if (!TryResolveProjectedSizeDelta(targetRect, effectedWorldBounds, out var projectedSize))
             {
-                Trace($"Skip rect sizeDelta apply: projection failed. tag={tag}");
+                Trace($"[RectOutput] size projection failed. tag={tag} target={DescribeRectTransform(targetRect)} world={DescribeBounds(effectedWorldBounds)}");
                 return;
             }
 
-            targetRect.sizeDelta = projectedSize;
+            ApplyRectTransformSize(targetRect, projectedSize);
+            Trace($"[RectOutput] size applied (projected). tag={tag} target={DescribeRectTransform(targetRect)} size={projectedSize}");
 
             if (_mb.HubSettings.EnableDebugLog)
             {
                 Trace(
-                    $"Apply rect output done. tag={tag} target={targetRect.name} compatible={compatibleWithRoot} " +
+                    $"[RectOutput] done. tag={tag} target={DescribeRectTransform(targetRect)} compatible={compatibleWithRoot} " +
                     $"anchoredPosition={targetRect.anchoredPosition} sizeDelta={targetRect.sizeDelta} localRect={effectedLocalRect} worldCenter={effectedWorldBounds.center}");
             }
         }
@@ -489,6 +538,8 @@ namespace Game.UI
             in Rect effectedLocalRect,
             in Bounds effectedWorldBounds)
         {
+            Trace($"[ChannelOutput] tag={tag} mode={outputPreset.SpriteMode} spriteTag={outputPreset.SpriteChannelTag} transformTag={outputPreset.TransformChannelTag} local={DescribeRect(effectedLocalRect)} world={DescribeBounds(effectedWorldBounds)}");
+
             if (outputPreset.SpriteMode == VisualBoundsReactiveSpriteApplyMode.SpriteOnly ||
                 outputPreset.SpriteMode == VisualBoundsReactiveSpriteApplyMode.Both)
             {
@@ -510,13 +561,13 @@ namespace Game.UI
         {
             if (_spriteHub == null)
             {
-                Trace($"Skip sprite output: sprite hub missing. tag={tag}");
+                Trace($"[ChannelOutput] Skip sprite output: sprite hub missing. tag={tag}");
                 return;
             }
 
             if (!_spriteHub.TryGetPlayer(outputPreset.SpriteChannelTag, out var player) || player == null)
             {
-                Trace($"Skip sprite output: player missing. tag={tag} channel={outputPreset.SpriteChannelTag}");
+                Trace($"[ChannelOutput] Skip sprite output: player missing. tag={tag} channel={outputPreset.SpriteChannelTag}");
                 return;
             }
 
@@ -533,6 +584,7 @@ namespace Game.UI
                     player.SpriteRenderer.size = new Vector2(
                         Mathf.Max(0f, effectedWorldBounds.size.x),
                         Mathf.Max(0f, effectedWorldBounds.size.y));
+                    Trace($"[ChannelOutput] SpriteRenderer size applied. tag={tag} target={player.SpriteRenderer.name} drawMode={player.SpriteRenderer.drawMode} size={player.SpriteRenderer.size}");
                 }
 
                 return;
@@ -540,9 +592,8 @@ namespace Game.UI
 
             if (player.Image?.rectTransform != null)
             {
-                player.Image.rectTransform.sizeDelta = new Vector2(
-                    Mathf.Max(0f, effectedLocalRect.width),
-                    Mathf.Max(0f, effectedLocalRect.height));
+                ApplyRectTransformSize(player.Image.rectTransform, effectedLocalRect.size);
+                Trace($"[ChannelOutput] Image rect size applied. tag={tag} image={player.Image.name} rect={DescribeRectTransform(player.Image.rectTransform)}");
             }
         }
 
@@ -556,13 +607,13 @@ namespace Game.UI
 
             if (_transformHub == null)
             {
-                Trace($"Skip transform output: transform hub missing. tag={tag}");
+                Trace($"[ChannelOutput] Skip transform output: transform hub missing. tag={tag}");
                 return;
             }
 
             if (!_transformHub.TryGetPlayer(outputPreset.TransformChannelTag, out var player) || player == null)
             {
-                Trace($"Skip transform output: player missing. tag={tag} channel={outputPreset.TransformChannelTag}");
+                Trace($"[ChannelOutput] Skip transform output: player missing. tag={tag} channel={outputPreset.TransformChannelTag}");
                 return;
             }
 
@@ -574,6 +625,7 @@ namespace Game.UI
             nextPosition.x = effectedWorldBounds.center.x;
             nextPosition.y = effectedWorldBounds.center.y;
             target.position = nextPosition;
+            Trace($"[ChannelOutput] Transform applied. tag={tag} target={DescribeTransform(target)} position={target.position}");
         }
 
         static bool IsCompatibleWithBoundsRoot(Transform target, Transform? boundsRoot)
@@ -641,6 +693,115 @@ namespace Game.UI
             corners[5] = new Vector3(max.x, min.y, max.z);
             corners[6] = new Vector3(max.x, max.y, max.z);
             corners[7] = new Vector3(min.x, max.y, max.z);
+        }
+
+        static void ApplyRectTransformSize(RectTransform rectTransform, in Vector2 size)
+        {
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(0f, size.x));
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(0f, size.y));
+        }
+
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "<null>";
+
+            var id = scope.Identity?.Id;
+            var identityText = string.IsNullOrWhiteSpace(id) ? "<none>" : id;
+            return $"{scope.Kind} id='{identityText}' transform='{DescribeTransform(scope.Identity?.SelfTransform)}'";
+        }
+
+        static string DescribeTargetBinding(VisualBoundsReactiveTargetBinding? target)
+        {
+            if (target == null)
+                return "<null>";
+
+            return target.UseActorSource
+                ? $"UseActorSource=True actorSource={DescribeActorSource(target.ActorSource)}"
+                : "UseActorSource=False actorSource=Current";
+        }
+
+        static string DescribeActorSource(ActorSource source)
+        {
+            return source.Kind switch
+            {
+                ActorSourceKind.ByIdentity => $"ByIdentity(kind={source.Identity.kind}, id='{source.Identity.id}', category='{source.Identity.category}', requireActive={source.Identity.requireActive}, searchScope={source.Identity.searchScope})",
+                ActorSourceKind.FromUnityObject => source.UnityObject != null ? $"FromUnityObject('{source.UnityObject.name}')" : "FromUnityObject(null)",
+                ActorSourceKind.Shared => source.Shared == null ? "Shared(null)" : $"Shared(tag='{source.Shared.SharedTag}', kind={source.Shared.SharedHubActorSource.Kind})",
+                ActorSourceKind.ContextSlot => $"ContextSlot({source.ContextSlot})",
+                _ => source.Kind.ToString(),
+            };
+        }
+
+        static string DescribePreset(VisualBoundsReactiveChannelPreset? preset)
+        {
+            if (preset == null)
+                return "<null>";
+
+            return $"Enabled={preset.Enabled} Target={DescribeTargetBinding(preset.Target)} Input={DescribeInputEffect(preset.InputEffect)} Output={DescribeOutputPreset(preset.Output)}";
+        }
+
+        static string DescribeInputEffect(VisualBoundsReactiveInputEffectPreset? effect)
+        {
+            if (effect == null)
+                return "<null>";
+
+            return $"Offset={effect.Offset} ExpandL={effect.ExpandLeft:0.###} ExpandR={effect.ExpandRight:0.###} ExpandT={effect.ExpandTop:0.###} ExpandB={effect.ExpandBottom:0.###}";
+        }
+
+        static string DescribeOutputPreset(VisualBoundsReactiveOutputPreset? output)
+        {
+            if (output == null)
+                return "<null>";
+
+            return output switch
+            {
+                VisualBoundsReactiveRectTransformOutputPreset rect => $"RectTransform target={DescribeRectTransform(rect.TargetRectTransform)} applyPos={rect.ApplyAnchoredPosition} applySize={rect.ApplySizeDelta}",
+                VisualBoundsReactiveChannelOutputPreset channel => $"Channel spriteMode={channel.SpriteMode} spriteTag='{channel.SpriteChannelTag}' transformTag='{channel.TransformChannelTag}' forceSliced={channel.ForceSlicedSpriteRenderer} applySpriteSize={channel.ApplySpriteSize} applyTransformPosition={channel.ApplyTransformPosition}",
+                _ => output.GetType().Name,
+            };
+        }
+
+        static string DescribeTransform(Transform? target)
+        {
+            if (target == null)
+                return "<null>";
+
+            return $"{target.name} path='{BuildPath(target)}' local={target.localPosition} world={target.position} scale={target.localScale}";
+        }
+
+        static string DescribeRectTransform(RectTransform? target)
+        {
+            if (target == null)
+                return "<null>";
+
+            return $"{target.name} path='{BuildPath(target)}' rect={target.rect} anchored={target.anchoredPosition3D} sizeDelta={target.sizeDelta} anchorMin={target.anchorMin} anchorMax={target.anchorMax} pivot={target.pivot} scale={target.localScale}";
+        }
+
+        static string DescribeRect(in Rect rect)
+        {
+            return $"x={rect.x:0.###} y={rect.y:0.###} w={rect.width:0.###} h={rect.height:0.###} center={rect.center}";
+        }
+
+        static string DescribeBounds(in Bounds bounds)
+        {
+            return $"center={bounds.center} size={bounds.size}";
+        }
+
+        static string BuildPath(Transform target)
+        {
+            if (target == null)
+                return "<null>";
+
+            var current = target;
+            var path = current.name;
+            while (current.parent != null)
+            {
+                current = current.parent;
+                path = $"{current.name}/{path}";
+            }
+
+            return path;
         }
 
         void RefreshOrder()
