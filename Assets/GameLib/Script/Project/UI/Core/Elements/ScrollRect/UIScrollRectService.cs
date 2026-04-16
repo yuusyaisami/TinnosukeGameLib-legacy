@@ -236,9 +236,9 @@ namespace Game.UI
             _isAcquired = true;
             var contentPosText = _content != null ? _content.anchoredPosition.ToString() : "<null>";
 
-            Debug.Log(
-                $"[UIScrollRect][Acquire] owner='{_owner}' viewport='{DescribeTransform(_viewport)}' content='{DescribeTransform(_content)}' " +
-                $"contentPos={contentPosText}");
+            //Debug.Log(
+            //    $"[UIScrollRect][Acquire] owner='{_owner}' viewport='{DescribeTransform(_viewport)}' content='{DescribeTransform(_content)}' " +
+            //    $"contentPos={contentPosText}");
 
             if (_content != null && _viewport != null)
             {
