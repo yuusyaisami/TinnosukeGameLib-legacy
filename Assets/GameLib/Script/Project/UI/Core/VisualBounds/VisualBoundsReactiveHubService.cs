@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Game.Channel;
 using Game.Commands.VNext;
 using Game.Common;
+using Game.Layout;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -36,6 +37,7 @@ namespace Game.UI
         IScopeNode? _activeScope;
         IVisualBoundsService? _boundsService;
         IVisualBoundsOutput? _boundsOutput;
+        ILayoutSystemService? _layoutSystem;
         IAnimationSpriteHubService? _spriteHub;
         ITransformAnimationHubService? _transformHub;
 
@@ -69,10 +71,7 @@ namespace Game.UI
             Trace($"[Acquire] services boundsService={_boundsService != null} boundsOutput={_boundsOutput != null} spriteHub={_spriteHub != null} transformHub={_transformHub != null} channelCount={_orderedChannels.Count}");
 
             if (_mb.HubSettings.ExecuteOnAcquire)
-            {
-                Trace("[Acquire] ExecuteOnAcquire=true, evaluating immediately.");
-                EvaluateAndApply(force: true);
-            }
+                Trace("[Acquire] ExecuteOnAcquire=true, first evaluation deferred to LateTick.");
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -205,6 +204,9 @@ namespace Game.UI
             if (!scope.TryResolveInAncestors<IVisualBoundsOutput>(out _boundsOutput))
                 scope.Resolver?.TryResolve(out _boundsOutput);
 
+            if (!scope.TryResolveInAncestors<ILayoutSystemService>(out _layoutSystem))
+                scope.Resolver?.TryResolve(out _layoutSystem);
+
             if (!scope.TryResolveInAncestors<IAnimationSpriteHubService>(out _spriteHub))
                 scope.Resolver?.TryResolve(out _spriteHub);
 
@@ -280,7 +282,10 @@ namespace Game.UI
         void EvaluateAndApply(bool force)
         {
             if (_mb.HubSettings.RebuildBeforeEvaluate)
+            {
+                _layoutSystem?.RebuildNow();
                 _boundsService?.RebuildNow();
+            }
 
             var output = _boundsOutput;
             if (output == null || !output.HasBounds)
