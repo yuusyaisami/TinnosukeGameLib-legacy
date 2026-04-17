@@ -500,6 +500,14 @@ namespace Game.Scalar.Generated
                     /// Path: GameLogic/GameProfile/Quota/QuotaIncrementMul
                     /// </remarks>
                     public const string QuotaIncrementMul = "GameLogic.GameProfile.Quota.QuotaIncrementMul";
+
+                    public static partial class SkipQuota
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/Quota/SkipQuota/BonusMul
+                        /// </remarks>
+                        public const string BonusMul = "GameLogic.GameProfile.Quota.SkipQuota.BonusMul";
+                    }
                 }
 
                 public static partial class Sell
@@ -878,6 +886,7 @@ namespace Game.Scalar.Generated
             ScalarKeys.GameLogic.GameProfile.Events.GlobalGravityScale,
             ScalarKeys.GameLogic.GameProfile.Quota.QuotaDecrementMul,
             ScalarKeys.GameLogic.GameProfile.Quota.QuotaIncrementMul,
+            ScalarKeys.GameLogic.GameProfile.Quota.SkipQuota.BonusMul,
             ScalarKeys.GameLogic.GameProfile.Sell.NailSellMul,
             ScalarKeys.GameLogic.GameProfile.Shop.isShopTurnReset,
             ScalarKeys.GameLogic.GameProfile.Shop.ShopItemCount,

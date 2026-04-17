@@ -267,7 +267,7 @@ namespace Game.Commands.VNext
             if (holder == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "TraitHolderService could not be resolved.");
 
-            holder.Clear();
+            holder.Clear(typed.RunOnRemove);
         }
     }
 

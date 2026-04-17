@@ -146,7 +146,7 @@ namespace Game.Commands.VNext
     public sealed class ClearTraitFromHolderCommandData : ICommandData
     {
         public int CommandId => CommandIds.ClearTraitFromHolder;
-        public string DebugData => $"UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
+        public string DebugData => $"UseBound={UseBoundHolder} RunOnRemove={RunOnRemove} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
         public bool UseBoundHolder = true;
@@ -159,6 +159,9 @@ namespace Game.Commands.VNext
         [ShowIf("@!UseBoundHolder")]
         [Tooltip("UseBoundHolder が false のときに使う holder key。clear 対象 holder をこの key で解決します。")]
         public string HolderKey = string.Empty;
+
+        [Tooltip("true のとき trait の OnRemove hook を実行します。false のときは data-only clear として扱います。")]
+        public bool RunOnRemove = true;
     }
 
     public enum UITraitTargetKind

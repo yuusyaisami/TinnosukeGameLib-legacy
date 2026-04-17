@@ -276,17 +276,38 @@ namespace Game.StatusEffect
 
             EnsureGlobalStateInitialized(forceReset: false);
             int count = 0;
+            bool needsGlobalCountConsumption = false;
+            bool needsGlobalCooldownStart = false;
+            var resolvedUserScope = userScope ?? _scope;
+
             foreach (var pair in _effects)
             {
                 var runtime = pair.Value;
-                if (runtime == null || runtime.UsesAnyServiceGlobalUseState || !filter.Matches(runtime))
+                if (runtime == null || !filter.Matches(runtime))
                     continue;
 
-                if (runtime.Use(userScope ?? _scope, sourceContext))
+                if (runtime.UsesAnyServiceGlobalUseState)
+                {
+                    if (runtime.UseViaGlobal(resolvedUserScope, sourceContext))
+                    {
+                        count++;
+                        needsGlobalCountConsumption |= runtime.UsesServiceGlobalCount;
+                        needsGlobalCooldownStart |= runtime.UsesServiceGlobalUseCooldown;
+                    }
+                }
+                else if (runtime.Use(resolvedUserScope, sourceContext))
+                {
                     count++;
+                }
 
                 if (runtime.IsRemoveRequested)
                     _removeQueue.Add(pair.Key);
+            }
+
+            if (count > 0)
+            {
+                ApplyGlobalUseResults(needsGlobalCountConsumption, needsGlobalCooldownStart);
+                SyncAllRuntimeGlobalState(applyActions: true);
             }
 
             ProcessRemoveQueue();
@@ -326,6 +347,15 @@ namespace Game.StatusEffect
                 return 0;
             }
 
+            ApplyGlobalUseResults(needsGlobalCountConsumption, needsGlobalCooldownStart);
+
+            SyncAllRuntimeGlobalState(applyActions: true);
+            ProcessRemoveQueue();
+            return count;
+        }
+
+        void ApplyGlobalUseResults(bool needsGlobalCountConsumption, bool needsGlobalCooldownStart)
+        {
             if (needsGlobalCountConsumption && _globalMaxCount > 0 && _globalCurrentCount > 0)
                 _globalCurrentCount--;
 
@@ -337,10 +367,6 @@ namespace Game.StatusEffect
 
             UpdateGlobalCanUse();
             WriteGlobalStateToBlackboard(force: false);
-
-            SyncAllRuntimeGlobalState(applyActions: true);
-            ProcessRemoveQueue();
-            return count;
         }
 
         public int RestoreState(StatusEffectRuntimeFilter filter, bool restoreGlobalState = false)
@@ -595,12 +621,73 @@ namespace Game.StatusEffect
         public void OnRelease(IScopeNode scope, bool isReset)
         {
             _ = scope;
-            _ = isReset;
             _isActive = false;
+
+            if (isReset)
+            {
+                ResetForScopeReuse();
+                return;
+            }
+
             _blackboardBindingSourceCache = default;
 
             foreach (var runtime in _effects.Values)
                 runtime?.SuspendForScopeRelease();
+        }
+
+        void ResetForScopeReuse()
+        {
+            ClearAll();
+
+            _blackboardBindingSourceCache = default;
+
+            _hasInitializedGlobalState = false;
+            _isGlobalLifetimeEnabled = false;
+            _isGlobalUseCooldownEnabled = false;
+            _isGlobalCountEnabled = false;
+            _globalLifetimeRemaining = -1f;
+            _globalLifetimeTotal = -1f;
+            _skipNextGlobalLifetimeTick = false;
+            _globalCooldownRemaining = 0f;
+            _globalCooldownTotal = 0f;
+            _skipNextGlobalCooldownTick = false;
+            _globalCurrentCount = -1;
+            _globalMaxCount = 0;
+            _globalCanUse = true;
+
+            _hasWrittenGlobalState = false;
+            _lastWrittenGlobalHasInitialized = false;
+            _lastWrittenGlobalLifetimeEnabled = false;
+            _lastWrittenGlobalLifetimeRemaining = 0f;
+            _lastWrittenGlobalLifetimeTotal = 0f;
+            _lastWrittenGlobalLifetimeExpired = false;
+            _lastWrittenGlobalUseCooldownEnabled = false;
+            _lastWrittenGlobalCooldownRemaining = 0f;
+            _lastWrittenGlobalCooldownMax = 0f;
+            _lastWrittenGlobalUseCooldownActive = false;
+            _lastWrittenGlobalCountEnabled = false;
+            _lastWrittenGlobalCurrentCount = 0;
+            _lastWrittenGlobalMaxCount = 0;
+            _lastWrittenGlobalUsedCount = 0;
+            _lastWrittenGlobalCountExhausted = false;
+            _lastWrittenGlobalCanUse = false;
+            _lastWrittenGlobalCanConsumeUse = false;
+
+            _globalLifetimeSettingsOverride = null;
+            _globalUseCooldownSettingsOverride = null;
+            _globalCountSettingsOverride = null;
+            _hasGlobalLifetimeSettingsOverride = false;
+            _hasGlobalUseCooldownSettingsOverride = false;
+            _hasGlobalCountSettingsOverride = false;
+
+            _commandRunner = null;
+            _richTextRefService = null;
+            _mutationService = null;
+            _eventService = null;
+            _blackboardService = null;
+
+            UpdateGlobalCanUse();
+            WriteGlobalStateToBlackboard(force: true);
         }
 
         public void Dispose()

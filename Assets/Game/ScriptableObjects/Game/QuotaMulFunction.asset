@@ -113,7 +113,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: Round(Random(QuotaDecrementMul, QuotaIncrementMul), 1)
+        _expression: Round(Random(-QuotaDecrementMul, QuotaIncrementMul), 1)
     - rid: 5399842404696851066
       type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

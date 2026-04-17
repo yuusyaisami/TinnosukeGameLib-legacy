@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Game.Channel;
@@ -470,6 +471,41 @@ namespace Game.UI
                     slotLookup.Add(slot.Trait, slot);
             }
 
+            var holderTraits = _boundHolder.Traits;
+            var holderTraitCount = holderTraits?.Count ?? 0;
+            var filteredTraitCount = filteredTraits.Count;
+
+            if (mode != TraitListChannelRefreshMode.FullRebuild && holderTraitCount == 0)
+            {
+                if (_instances.Count > 0)
+                    await ClearSpawnedInstancesAsync(ct);
+
+                _isBuilt = true;
+                return true;
+            }
+
+            var missingCount = 0;
+
+            if (mode != TraitListChannelRefreshMode.LayoutOnly)
+            {
+                for (var i = 0; i < _instances.Count; i++)
+                {
+                    var instance = _instances[i];
+                    if (instance == null || instance.Trait == null || !slotLookup.ContainsKey(instance.Trait))
+                        missingCount++;
+                }
+
+                if (missingCount > 0)
+                {
+                    Debug.LogWarning(
+                        $"[TraitListChannel][RefreshMismatch] tag='{Tag}' mode='{mode}' holder='{_resolvedBinding.NormalizedHolderKey}' " +
+                        $"holderCount={holderTraitCount} filteredCount={filteredTraitCount} slotCount={slots.Count} instanceCount={_instances.Count} missingCount={missingCount} " +
+                        $"useRange={_resolvedBinding.UseRange} range='{DescribeRange(_resolvedBinding.Range)}' normalizedRange='{DescribeRange(normalizedRange)}' " +
+                        $"hideVisiblePlacedTraits={_resolvedPlayerPreset.HideVisiblePlacedTraits} runtimeTemplate='{_resolvedRuntimeTemplate?.name ?? "<null>"}' " +
+                        $"filtered='{DescribeTraitList(filteredTraits)}' slots='{DescribeSlotList(slots)}'");
+                }
+            }
+
             if (mode != TraitListChannelRefreshMode.LayoutOnly)
             {
                 for (var i = _instances.Count - 1; i >= 0; i--)
@@ -484,9 +520,26 @@ namespace Game.UI
 
                     if (instance.Trait == null || !slotLookup.ContainsKey(instance.Trait))
                     {
-                        Debug.Log(
-                            $"[TraitListChannel][RemoveMissing] tag='{Tag}' trait='{DescribeTrait(instance.Trait)}' root='{DescribeTransform(instance.Root)}' " +
-                            $"parent='{DescribeTransform(instance.Root.parent)}'");
+                        var holderContainsTrait = TryFindTraitIndex(holderTraits, instance.Trait, out var holderIndex);
+                        var filteredContainsTrait = TryFindTraitIndex(filteredTraits, instance.Trait, out var filteredIndex);
+                        var slotContainsTrait = TryFindSlotIndex(slots, instance.Trait, out var slotIndex);
+                        var removalReason = DescribeRemovalReason(
+                            instance.Trait,
+                            holderContainsTrait,
+                            filteredContainsTrait,
+                            slotContainsTrait,
+                            _resolvedPlayerPreset.HideVisiblePlacedTraits,
+                            _placementService,
+                            _resolvedBinding.NormalizedHolderKey);
+
+                        Debug.LogWarning(
+                            $"[TraitListChannel][RemoveMissing] reason='{removalReason}' tag='{Tag}' trait='{DescribeTrait(instance.Trait)}' " +
+                            $"root='{DescribeTransform(instance.Root)}' parent='{DescribeTransform(instance.Root.parent)}' " +
+                            $"holderCount={holderTraitCount} filteredCount={filteredTraitCount} slotCount={slots.Count} instanceCount={_instances.Count} " +
+                            $"useRange={_resolvedBinding.UseRange} range='{DescribeRange(_resolvedBinding.Range)}' normalizedRange='{DescribeRange(normalizedRange)}' " +
+                            $"hideVisiblePlacedTraits={_resolvedPlayerPreset.HideVisiblePlacedTraits} runtimeTemplate='{_resolvedRuntimeTemplate?.name ?? "<null>"}' " +
+                            $"holderContainsTrait={holderContainsTrait} holderIndex={holderIndex} filteredContainsTrait={filteredContainsTrait} filteredIndex={filteredIndex} " +
+                            $"slotContainsTrait={slotContainsTrait} slotIndex={slotIndex} filtered='{DescribeTraitList(filteredTraits)}' slots='{DescribeSlotList(slots)}'");
                         await TraitListChannelRuntimeHelpers.ReleaseSpawnedInstanceAsync(instance.Root, instance.Scope, instance.Resolver);
                         _instances.RemoveAt(i);
                         if (instance.Trait != null)
@@ -1232,16 +1285,20 @@ namespace Game.UI
 
         void OnTraitsChanged(IReadOnlyList<ITraitInstance> traits)
         {
+            var refreshMode = traits == null || traits.Count == 0
+                ? TraitListChannelRefreshMode.FullRebuild
+                : _resolvedPlayerPreset.RefreshMode;
+
             if (traits == null || traits.Count > 0)
             {
-                QueueRefresh(_resolvedPlayerPreset.RefreshMode);
+                QueueRefresh(refreshMode);
                 return;
             }
 
             Debug.Log(
                 $"[TraitListChannel][OnTraitsChanged] tag='{Tag}' holder='{_resolvedBinding.NormalizedHolderKey}' traitCount={traits?.Count ?? 0} " +
-                $"refreshMode='{_resolvedPlayerPreset.RefreshMode}'");
-            QueueRefresh(_resolvedPlayerPreset.RefreshMode);
+                $"refreshMode='{refreshMode}'");
+            QueueRefresh(refreshMode);
         }
 
         void OnPlacementPresentationStateChanged(TraitRuntimePresentationChange change)
@@ -1446,6 +1503,128 @@ namespace Game.UI
                 ? definition.DefinitionId
                 : trait.Definition?.GetType().Name ?? "<no-definition>";
             return $"{definitionId}/{trait.InstanceId}";
+        }
+
+        static string DescribeTraitList(IReadOnlyList<ITraitInstance>? traits, int maxCount = 8)
+        {
+            if (traits == null)
+                return "<null>";
+
+            if (traits.Count == 0)
+                return "<empty>";
+
+            var builder = new StringBuilder();
+            var count = Mathf.Min(traits.Count, maxCount);
+            for (var i = 0; i < count; i++)
+            {
+                if (i > 0)
+                    builder.Append(", ");
+
+                builder.Append(DescribeTrait(traits[i]));
+            }
+
+            if (traits.Count > count)
+                builder.Append($", ... (+{traits.Count - count})");
+
+            return builder.ToString();
+        }
+
+        static string DescribeSlotList(IReadOnlyList<TraitListChannelSlot>? slots, int maxCount = 8)
+        {
+            if (slots == null)
+                return "<null>";
+
+            if (slots.Count == 0)
+                return "<empty>";
+
+            var builder = new StringBuilder();
+            var count = Mathf.Min(slots.Count, maxCount);
+            for (var i = 0; i < count; i++)
+            {
+                if (i > 0)
+                    builder.Append(", ");
+
+                var slot = slots[i];
+                builder.Append($"[{slot.ListIndex}:{DescribeTrait(slot.Trait)}@{slot.TraitIndex}]");
+            }
+
+            if (slots.Count > count)
+                builder.Append($", ... (+{slots.Count - count})");
+
+            return builder.ToString();
+        }
+
+        static string DescribeRange(TraitListChannelRange range)
+            => $"start={range.StartIndex},count={range.Count}";
+
+        static bool TryFindTraitIndex(IReadOnlyList<ITraitInstance>? traits, ITraitInstance? target, out int index)
+        {
+            index = -1;
+            if (traits == null || target == null)
+                return false;
+
+            for (var i = 0; i < traits.Count; i++)
+            {
+                if (ReferenceEquals(traits[i], target))
+                {
+                    index = i;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static bool TryFindSlotIndex(IReadOnlyList<TraitListChannelSlot>? slots, ITraitInstance? target, out int index)
+        {
+            index = -1;
+            if (slots == null || target == null)
+                return false;
+
+            for (var i = 0; i < slots.Count; i++)
+            {
+                if (ReferenceEquals(slots[i].Trait, target))
+                {
+                    index = i;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static string DescribeRemovalReason(
+            ITraitInstance? trait,
+            bool holderContainsTrait,
+            bool filteredContainsTrait,
+            bool slotContainsTrait,
+            bool hideVisiblePlacedTraits,
+            ITraitPlacementService? placementService,
+            string holderKey)
+        {
+            if (trait == null)
+                return "traitNull";
+
+            if (!holderContainsTrait)
+                return "traitNotInHolder";
+
+            if (filteredContainsTrait && !slotContainsTrait)
+                return "filteredOutByRangeOrCapacity";
+
+            if (!filteredContainsTrait && hideVisiblePlacedTraits && placementService != null &&
+                placementService.TryGetPresentationState(holderKey, trait.InstanceId, out var state) &&
+                state == TraitRuntimePresentationState.Visible)
+            {
+                return "filteredOutByVisiblePlacement";
+            }
+
+            if (!filteredContainsTrait)
+                return "filteredOutBeforeSlotBuild";
+
+            if (!slotContainsTrait)
+                return "slotLookupMiss";
+
+            return "unknownMismatch";
         }
 
         static string DescribeTransform(Transform? target)
