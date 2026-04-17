@@ -134,32 +134,20 @@ MonoBehaviour:
         _variables:
         - _value:
             _source:
-              rid: 5399842689965884142
+              rid: 5399842735333048917
           _useScalarLeafKey: 0
           _useCustomKey: 1
           _customKey: intensityA
           _expectedType: 255
         - _value:
             _source:
-              rid: 5399842689965884143
+              rid: 5399842735333048918
           _useScalarLeafKey: 0
           _useCustomKey: 1
           _customKey: intensityB
           _expectedType: 255
         _template: "<sprite=10>\u4FA1\u5024 x{intensityA} /\n<sprite=11>\u4E0A\u9650
           x{intensityB}"
-    - rid: 5399842689965884142
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: GameLib.Base.StatusEffect.Stack.intensityA.local
-          varId: 101149
-    - rid: 5399842689965884143
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: GameLib.Base.StatusEffect.Stack.intensityB.local
-          varId: 101154
     - rid: 5399842689965884144
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -390,6 +378,52 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
+    - rid: 5399842735333048917
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -993477421
+          Name: GameLogic.NailProfile.Effect.ValueMultiply
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
+    - rid: 5399842735333048918
+      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 1923209062
+          Name: GameLogic.NailProfile.Effect.MaxValueMultiply
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+        searchIncludeGlobal: 0
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -410,7 +444,8 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: <sprite=10> x{intensity}
+            Template: <sprite=10> {intensity|sign=always|suffix="x"|effect=color_if|cond=value
+              > 0|trueColor="#66FF66"|falseColor="#FF6666"}
             Variables:
             - _value:
                 _source:

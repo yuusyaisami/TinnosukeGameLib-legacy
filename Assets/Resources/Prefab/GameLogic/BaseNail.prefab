@@ -102,7 +102,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.614, y: 0.6237}
+  m_AnchoredPosition: {x: 1.614, y: 0.434}
   m_SizeDelta: {x: 1.7681, y: 0.2928}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &7291507367963726180
@@ -499,7 +499,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2.8385, y: -0.4457}
+  m_AnchoredPosition: {x: 2.8385, y: -0.602}
   m_SizeDelta: {x: 4.2685, y: 1.9402}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &5586466364918957254
@@ -2483,7 +2483,7 @@ MonoBehaviour:
   - tag: upgrade
     Enabled: 1
     Anchor: {fileID: 5686801198864803387}
-    CenterOffset: {x: 0, y: 1.1, z: 0}
+    CenterOffset: {x: 0, y: 1.22, z: 0}
     Plane: 0
     Sample:
       SequenceSeed: 0
@@ -2948,7 +2948,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 483
+  _debugLastEnabledChangeFrame: 141
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -20536,7 +20536,7 @@ MonoBehaviour:
         _itemVerticalAlignment: 20
         _areaHorizontalAlignment: 20
         _areaVerticalAlignment: 20
-        _itemOffset: {x: 0, y: 0, z: 0}
+        _itemOffset: {x: 0, y: 0, z: -0.15}
         _spawnAnchorMode: 10
         _fixedAnchorTransform: {fileID: 0}
         _useFixedAnchorActorSource: 0

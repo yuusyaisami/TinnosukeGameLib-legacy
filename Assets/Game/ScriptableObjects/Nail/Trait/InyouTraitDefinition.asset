@@ -3748,7 +3748,7 @@ MonoBehaviour:
         ApplyStackDescriptionOverride: 0
         StackDescriptionOverride:
           _source:
-            rid: -2
+            rid: 5399842735333048764
           _defaultValue: 
     - rid: 5399842511542026466
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -4517,10 +4517,10 @@ MonoBehaviour:
               rid: 5399842687169593744
             _defaultValue: 0
           IgnoreGlobalWhenMinusOne: 0
-        ApplyStackDescriptionOverride: 0
+        ApplyStackDescriptionOverride: 1
         StackDescriptionOverride:
           _source:
-            rid: -2
+            rid: 5399842735333048762
           _defaultValue: 
     - rid: 5399842687169593725
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -4750,7 +4750,7 @@ MonoBehaviour:
     - rid: 5399842687169593747
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.4
+        value: 0.5
     - rid: 5399842687169593748
       type: {class: StatusEffectOperationEnabledBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -5206,6 +5206,58 @@ MonoBehaviour:
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: TimeToValueUp
+    - rid: 5399842735333048762
+      type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _sourceMode: 0
+        _refKey:
+          _source:
+            rid: -2
+          _defaultValue: 
+        _logActorStoresOnWarn: 0
+        _maxActorStoreEntries: 16
+        _allowImplicitKeys: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842735333048766
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensity
+          _expectedType: 255
+        _template: <sprite=9> x {intensity|fixed=2} = <sprite=10>
+    - rid: 5399842735333048764
+      type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _sourceMode: 0
+        _refKey:
+          _source:
+            rid: -2
+          _defaultValue: 
+        _logActorStoresOnWarn: 0
+        _maxActorStoreEntries: 16
+        _allowImplicitKeys: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842735333048765
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensity
+          _expectedType: 255
+        _template: <sprite=9> x {intensity|fixed=2} = <sprite=10>
+    - rid: 5399842735333048765
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Stack.intensityB.local
+          varId: 101154
+    - rid: 5399842735333048766
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Stack.intensityB.local
+          varId: 101154
     - rid: 5619052416848364315
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

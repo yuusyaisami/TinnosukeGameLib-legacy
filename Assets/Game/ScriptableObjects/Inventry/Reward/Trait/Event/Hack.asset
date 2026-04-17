@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Trait.TraitDefinitionSO
   _definitionId: Hack
   _name:
-    Template: "\u6771\u98A8\u685C"
+    Template: "\u30CF\u30C3\u30AF"
     Variables: []
   _description:
-    Template: "\u30B7\u30E7\u30C3\u30D7\u306E\u5728\u5EAB\u30C7\u30FC\u30BF\u3092\u66F8\u304D\u63DB\u3048\u307E\u3057\u305F\u3002\n\u6BCE\u30BF\u30FC\u30F3\u3001\u54C1\u63C3\u3048\u304C\u5F37\u5236\u7684\u306B\u66F4\u65B0\u3055\u308C\u307E\u3059\u3002"
+    Template: "\u30B7\u30E7\u30C3\u30D7\u306E\u5728\u5EAB\u30C7\u30FC\u30BF\u3092\u66F8\u304D\u63DB\u3048\u308B\u3002\n\u6BCE\u30BF\u30FC\u30F3\u3001\u54C1\u63C3\u3048\u304C\u5F37\u5236\u7684\u306B\u66F4\u65B0\u3055\u308C\u307E\u3059\u3002"
     Variables: []
   _weight: 1
   _visualSettings:
@@ -371,9 +371,11 @@ MonoBehaviour:
     entries:
     - VarId: 101127
       Kind: 3
+      StoreMode: 0
       Value:
         _source:
           rid: 5399842402410692822
+    tables: []
   _applyCommonGridTable: 0
   _commonGridTableKeyVarId: 0
   _commonGridTable:

@@ -1473,7 +1473,7 @@ MonoBehaviour:
         OverrideDuration: 0
         DurationOverride:
           _source:
-            rid: -2
+            rid: 5399842735333048755
           _defaultValue: 0
         RuntimeTag: 
         HookMutations:
@@ -4017,6 +4017,10 @@ MonoBehaviour:
         key:
           stableKey: GameLib.Base.StatusEffect.Stack.intensityB.local
           varId: 101154
+    - rid: 5399842735333048755
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052416848364315
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
