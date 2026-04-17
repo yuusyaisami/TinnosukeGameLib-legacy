@@ -82,29 +82,29 @@ namespace Game.Commands.VNext
                     return result;
 
                 case HitColliderRuleSelectMode.ByIndex:
-                {
-                    var index = typed.RuleIndex.GetOrDefault(ctx, 0);
-                    if (index >= 0 && index < rules.Count && rules[index] != null)
-                        result.Add(rules[index]);
-                    return result;
-                }
+                    {
+                        var index = typed.RuleIndex.GetOrDefault(ctx, 0);
+                        if (index >= 0 && index < rules.Count && rules[index] != null)
+                            result.Add(rules[index]);
+                        return result;
+                    }
 
                 default:
-                {
-                    var targetName = typed.RuleName ?? string.Empty;
-                    if (string.IsNullOrEmpty(targetName))
-                        return result;
-
-                    for (int i = 0; i < rules.Count; i++)
                     {
-                        var rule = rules[i];
-                        if (rule == null)
-                            continue;
-                        if (string.Equals(rule.Name, targetName, System.StringComparison.Ordinal))
-                            result.Add(rule);
+                        var targetName = typed.RuleName ?? string.Empty;
+                        if (string.IsNullOrEmpty(targetName))
+                            return result;
+
+                        for (int i = 0; i < rules.Count; i++)
+                        {
+                            var rule = rules[i];
+                            if (rule == null)
+                                continue;
+                            if (string.Equals(rule.Name, targetName, System.StringComparison.Ordinal))
+                                result.Add(rule);
+                        }
+                        return result;
                     }
-                    return result;
-                }
             }
         }
 
@@ -224,6 +224,14 @@ namespace Game.Commands.VNext
                     if (typed.Commands != null && typed.Commands.Count > 0)
                     {
                         list.ApplyRuntimeMutation(CommandListMutationOperation.Append, typed.Commands, mutationService);
+                        mutated = true;
+                    }
+                    break;
+
+                case HitColliderRuleCommandListOperation.Prepend:
+                    if (typed.Commands != null && typed.Commands.Count > 0)
+                    {
+                        list.ApplyRuntimeMutation(CommandListMutationOperation.Prepend, typed.Commands, mutationService);
                         mutated = true;
                     }
                     break;

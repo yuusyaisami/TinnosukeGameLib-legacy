@@ -543,7 +543,19 @@ namespace Game.StatusEffect
             }
 
             var condition = _periodicCommands.Condition;
-            condition.TrySetExternalExpressionVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
+            if (!condition.TryGetSource<IExternalExpressionVariablesReceiver>(out var conditionReceiver))
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            if (conditionReceiver == null)
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            conditionReceiver.SetExternalVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
             if (!condition.GetOrDefault(_conditionEvaluationContext, true))
             {
                 ResetPeriodicCommands();
@@ -551,7 +563,19 @@ namespace Game.StatusEffect
             }
 
             var interval = _periodicCommands.IntervalSeconds;
-            interval.TrySetExternalExpressionVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
+            if (!interval.TryGetSource<IExternalExpressionVariablesReceiver>(out var intervalReceiver))
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            if (intervalReceiver == null)
+            {
+                ResetPeriodicCommands();
+                return;
+            }
+
+            intervalReceiver.SetExternalVariables(StatusEffectExpressionVariables.Variables, includeLocalVariables: true);
             var intervalSeconds = interval.GetOrDefault(_conditionEvaluationContext, 1f);
             if (!(intervalSeconds > 0f))
             {
@@ -1396,13 +1420,8 @@ namespace Game.StatusEffect
 
         void WriteRuntimeGlobalVars()
         {
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining, DynamicVariant.FromFloat(_owner.GlobalLifetimeRemaining));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal, DynamicVariant.FromFloat(_owner.GlobalLifetimeTotal));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining, DynamicVariant.FromFloat(_owner.GlobalCooldownRemaining));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax, DynamicVariant.FromFloat(_owner.GlobalCooldownMax));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount, DynamicVariant.FromInt(_owner.GlobalCurrentCount));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount, DynamicVariant.FromInt(_owner.GlobalMaxCount));
-            _vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse, DynamicVariant.FromBool(_owner.GlobalCanUse));
+            var state = _owner.GetDebugState();
+            StatusEffectGlobalRuntimeStateWriter.Write(_vars, state);
         }
     }
 }

@@ -1121,6 +1121,15 @@ namespace Game.Vars.Generated
                         public static partial class Global
                         {
                             /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/canConsumeUse
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.canConsumeUse
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/canConsumeUse
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.canConsumeUse
+                            /// </remarks>
+                            public const int canConsumeUse = 200011;
+                            /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/canUse
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.canUse
                             /// </remarks>
@@ -1129,6 +1138,15 @@ namespace Game.Vars.Generated
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.canUse
                             /// </remarks>
                             public const int canUse = 101081;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/hasInitialized
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.hasInitialized
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/hasInitialized
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.hasInitialized
+                            /// </remarks>
+                            public const int hasInitialized = 200012;
                             /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownMax
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownMax
@@ -1157,6 +1175,24 @@ namespace Game.Vars.Generated
                             /// </remarks>
                             public const int currentCount = 101051;
                             /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isCountEnabled
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isCountEnabled
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isCountEnabled
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isCountEnabled
+                            /// </remarks>
+                            public const int isCountEnabled = 200013;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isCountExhausted
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isCountExhausted
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isCountExhausted
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isCountExhausted
+                            /// </remarks>
+                            public const int isCountExhausted = 200014;
+                            /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/duration
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.duration
                             /// </remarks>
@@ -1174,6 +1210,42 @@ namespace Game.Vars.Generated
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.intensity
                             /// </remarks>
                             public const int intensity = 101049;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isLifetimeEnabled
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isLifetimeEnabled
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isLifetimeEnabled
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isLifetimeEnabled
+                            /// </remarks>
+                            public const int isLifetimeEnabled = 200015;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isLifetimeExpired
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isLifetimeExpired
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isLifetimeExpired
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isLifetimeExpired
+                            /// </remarks>
+                            public const int isLifetimeExpired = 200016;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isUseCooldownActive
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownActive
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isUseCooldownActive
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownActive
+                            /// </remarks>
+                            public const int isUseCooldownActive = 200017;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isUseCooldownEnabled
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownEnabled
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/isUseCooldownEnabled
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownEnabled
+                            /// </remarks>
+                            public const int isUseCooldownEnabled = 200018;
                             /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/lifetimeRemaining
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining
@@ -1201,6 +1273,15 @@ namespace Game.Vars.Generated
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.maxCount
                             /// </remarks>
                             public const int maxCount = 101052;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/usedCount
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.usedCount
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/usedCount
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.usedCount
+                            /// </remarks>
+                            public const int usedCount = 200019;
                         }
                     }
 
@@ -4258,6 +4339,15 @@ namespace Game.Vars.Generated
                 /// </remarks>
                 public const int InitStack = 101130;
                 /// <remarks>
+                /// Path: GameLogic/NailProfile/isInit
+                /// StableKey: isInit
+                /// </remarks>
+                /// <remarks>
+                /// Path: GameLogic/NailProfile/isInit
+                /// StableKey: isInit
+                /// </remarks>
+                public const int isInit = 200010;
+                /// <remarks>
                 /// Path: GameLogic/NailProfile/isRotate
                 /// StableKey: isRotate
                 /// </remarks>
@@ -4354,6 +4444,15 @@ namespace Game.Vars.Generated
                     /// StableKey: UseSetting
                     /// </remarks>
                     public const int UseSetting = 101133;
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/StatusEffectSetting/UseStack
+                    /// StableKey: UseStack
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/NailProfile/StatusEffectSetting/UseStack
+                    /// StableKey: UseStack
+                    /// </remarks>
+                    public const int UseStack = 200009;
                 }
 
                 public static partial class UpgradePanel
@@ -4610,8 +4709,16 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingUseCount,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.runtimeTag,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.canConsumeUse,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.hasInitialized,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.isCountEnabled,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.isCountExhausted,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.isLifetimeEnabled,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.isLifetimeExpired,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownActive,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownEnabled,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax,
@@ -4622,6 +4729,7 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.usedCount,
             VarIds.GameLib.Base.StatusEffect.Stack.applyCurrentCount,
             VarIds.GameLib.Base.StatusEffect.Stack.applyDuration,
             VarIds.GameLib.Base.StatusEffect.Stack.applyIntensity,
@@ -4919,6 +5027,7 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,
             VarIds.GameLogic.LuckProfile.Public.LuckValueMul,
             VarIds.GameLogic.NailProfile.InitStack,
+            VarIds.GameLogic.NailProfile.isInit,
             VarIds.GameLogic.NailProfile.isRotate,
             VarIds.GameLogic.NailProfile.Price,
             VarIds.GameLogic.NailProfile.Rarity,
@@ -4929,6 +5038,7 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.NailProfile.StatusEffectSetting.CountStack,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.LifetimeSetting,
             VarIds.GameLogic.NailProfile.StatusEffectSetting.UseSetting,
+            VarIds.GameLogic.NailProfile.StatusEffectSetting.UseStack,
             VarIds.GameLogic.NailProfile.UpgradePanel.Condition,
             VarIds.GameLogic.NailProfile.UpgradePanel.CustomPanelCommandList,
             VarIds.GameLogic.NailProfile.UpgradePanel.CustomRuntimeCommandList,

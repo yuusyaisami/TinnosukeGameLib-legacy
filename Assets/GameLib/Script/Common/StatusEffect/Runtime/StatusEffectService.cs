@@ -22,6 +22,7 @@ namespace Game.StatusEffect
     {
         readonly IScopeNode _scope;
         readonly IStatusEffectServiceOptions? _options;
+        readonly IStatusEffectGlobalBlackboardBindingOptions? _blackboardBindingOptions;
         readonly Dictionary<string, StatusEffectRuntime> _effects = new(StringComparer.Ordinal);
         readonly List<string> _removeQueue = new(8);
 
@@ -43,13 +44,22 @@ namespace Game.StatusEffect
         int _globalMaxCount;
         bool _globalCanUse = true;
         bool _hasWrittenGlobalState;
+        bool _lastWrittenGlobalHasInitialized;
+        bool _lastWrittenGlobalLifetimeEnabled;
         float _lastWrittenGlobalLifetimeRemaining;
         float _lastWrittenGlobalLifetimeTotal;
+        bool _lastWrittenGlobalLifetimeExpired;
+        bool _lastWrittenGlobalUseCooldownEnabled;
         float _lastWrittenGlobalCooldownRemaining;
         float _lastWrittenGlobalCooldownMax;
+        bool _lastWrittenGlobalUseCooldownActive;
+        bool _lastWrittenGlobalCountEnabled;
         int _lastWrittenGlobalCurrentCount;
         int _lastWrittenGlobalMaxCount;
+        int _lastWrittenGlobalUsedCount;
+        bool _lastWrittenGlobalCountExhausted;
         bool _lastWrittenGlobalCanUse;
+        bool _lastWrittenGlobalCanConsumeUse;
         StatusEffectGlobalLifetimeSettings? _globalLifetimeSettingsOverride;
         StatusEffectGlobalUseCooldownSettings? _globalUseCooldownSettingsOverride;
         StatusEffectGlobalCountSettings? _globalCountSettingsOverride;
@@ -59,14 +69,19 @@ namespace Game.StatusEffect
         bool _isGlobalLifetimeEnabled;
         bool _isGlobalUseCooldownEnabled;
         bool _isGlobalCountEnabled;
+        ActorSourceResolveCache _blackboardBindingSourceCache;
 
         const string OnEffectAppliedKey = EventKeys.GameLib.StatusEffect.OnApplied;
         const string OnEffectRemovedKey = EventKeys.GameLib.StatusEffect.OnRemoved;
 
-        public StatusEffectService(IScopeNode scope, IStatusEffectServiceOptions? options = null)
+        public StatusEffectService(
+            IScopeNode scope,
+            IStatusEffectServiceOptions? options = null,
+            IStatusEffectGlobalBlackboardBindingOptions? blackboardBindingOptions = null)
         {
             _scope = scope;
             _options = options;
+            _blackboardBindingOptions = blackboardBindingOptions;
         }
 
         internal ICommandRunner? CommandRunner => _commandRunner ??= ResolveOptional<ICommandRunner>();
@@ -468,6 +483,7 @@ namespace Game.StatusEffect
 
         public StatusEffectGlobalRuntimeState GetDebugState()
         {
+            var canConsumeUse = _globalCanUse;
             return new StatusEffectGlobalRuntimeState(
                 _hasInitializedGlobalState,
                 _isGlobalLifetimeEnabled,
@@ -483,7 +499,8 @@ namespace Game.StatusEffect
                 _globalMaxCount,
                 GlobalUsedCount,
                 IsGlobalCountExhausted,
-                _globalCanUse);
+                _globalCanUse,
+                canConsumeUse);
         }
 
         public void Tick()
@@ -580,6 +597,7 @@ namespace Game.StatusEffect
             _ = scope;
             _ = isReset;
             _isActive = false;
+            _blackboardBindingSourceCache = default;
 
             foreach (var runtime in _effects.Values)
                 runtime?.SuspendForScopeRelease();
@@ -599,6 +617,7 @@ namespace Game.StatusEffect
             _mutationService = null;
             _eventService = null;
             _blackboardService = null;
+            _blackboardBindingSourceCache = default;
         }
 
         bool TryBuildRuntime(
@@ -1008,13 +1027,13 @@ namespace Game.StatusEffect
 
         IDynamicContext CreateGlobalSettingsContext()
         {
-            var vars = BlackboardService?.LocalVars ?? NullVarStore.Instance;
+            var vars = TryResolveGlobalBlackboardVars() ?? NullVarStore.Instance;
             return new SimpleDynamicContext(vars, _scope);
         }
 
         void UpdateGlobalCanUse()
         {
-            bool canUse = true;
+            bool canUse = _hasInitializedGlobalState;
 
             if (_globalCooldownRemaining > 0f)
                 canUse = false;
@@ -1030,39 +1049,73 @@ namespace Game.StatusEffect
 
         void WriteGlobalStateToBlackboard(bool force)
         {
-            var vars = BlackboardService?.LocalVars;
+            var vars = TryResolveGlobalBlackboardVars();
             if (vars == null)
                 return;
 
+            var state = GetDebugState();
             if (!force &&
                 _hasWrittenGlobalState &&
-                Mathf.Approximately(_lastWrittenGlobalLifetimeRemaining, _globalLifetimeRemaining) &&
-                Mathf.Approximately(_lastWrittenGlobalLifetimeTotal, _globalLifetimeTotal) &&
-                Mathf.Approximately(_lastWrittenGlobalCooldownRemaining, _globalCooldownRemaining) &&
-                Mathf.Approximately(_lastWrittenGlobalCooldownMax, _globalCooldownTotal) &&
-                _lastWrittenGlobalCurrentCount == _globalCurrentCount &&
-                _lastWrittenGlobalMaxCount == _globalMaxCount &&
-                _lastWrittenGlobalCanUse == _globalCanUse)
+                _lastWrittenGlobalHasInitialized == state.HasInitialized &&
+                _lastWrittenGlobalLifetimeEnabled == state.IsLifetimeEnabled &&
+                Mathf.Approximately(_lastWrittenGlobalLifetimeRemaining, state.LifetimeRemaining) &&
+                Mathf.Approximately(_lastWrittenGlobalLifetimeTotal, state.LifetimeTotal) &&
+                _lastWrittenGlobalLifetimeExpired == state.IsLifetimeExpired &&
+                _lastWrittenGlobalUseCooldownEnabled == state.IsUseCooldownEnabled &&
+                Mathf.Approximately(_lastWrittenGlobalCooldownRemaining, state.UseCooldownRemaining) &&
+                Mathf.Approximately(_lastWrittenGlobalCooldownMax, state.UseCooldownTotal) &&
+                _lastWrittenGlobalUseCooldownActive == state.IsUseCooldownActive &&
+                _lastWrittenGlobalCountEnabled == state.IsCountEnabled &&
+                _lastWrittenGlobalCurrentCount == state.CurrentCount &&
+                _lastWrittenGlobalMaxCount == state.MaxCount &&
+                _lastWrittenGlobalUsedCount == state.UsedCount &&
+                _lastWrittenGlobalCountExhausted == state.IsCountExhausted &&
+                _lastWrittenGlobalCanUse == state.CanUse &&
+                _lastWrittenGlobalCanConsumeUse == state.CanConsumeUse)
             {
                 return;
             }
 
             _hasWrittenGlobalState = true;
-            _lastWrittenGlobalLifetimeRemaining = _globalLifetimeRemaining;
-            _lastWrittenGlobalLifetimeTotal = _globalLifetimeTotal;
-            _lastWrittenGlobalCooldownRemaining = _globalCooldownRemaining;
-            _lastWrittenGlobalCooldownMax = _globalCooldownTotal;
-            _lastWrittenGlobalCurrentCount = _globalCurrentCount;
-            _lastWrittenGlobalMaxCount = _globalMaxCount;
-            _lastWrittenGlobalCanUse = _globalCanUse;
+            _lastWrittenGlobalHasInitialized = state.HasInitialized;
+            _lastWrittenGlobalLifetimeEnabled = state.IsLifetimeEnabled;
+            _lastWrittenGlobalLifetimeRemaining = state.LifetimeRemaining;
+            _lastWrittenGlobalLifetimeTotal = state.LifetimeTotal;
+            _lastWrittenGlobalLifetimeExpired = state.IsLifetimeExpired;
+            _lastWrittenGlobalUseCooldownEnabled = state.IsUseCooldownEnabled;
+            _lastWrittenGlobalCooldownRemaining = state.UseCooldownRemaining;
+            _lastWrittenGlobalCooldownMax = state.UseCooldownTotal;
+            _lastWrittenGlobalUseCooldownActive = state.IsUseCooldownActive;
+            _lastWrittenGlobalCountEnabled = state.IsCountEnabled;
+            _lastWrittenGlobalCurrentCount = state.CurrentCount;
+            _lastWrittenGlobalMaxCount = state.MaxCount;
+            _lastWrittenGlobalUsedCount = state.UsedCount;
+            _lastWrittenGlobalCountExhausted = state.IsCountExhausted;
+            _lastWrittenGlobalCanUse = state.CanUse;
+            _lastWrittenGlobalCanConsumeUse = state.CanConsumeUse;
 
-            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining, DynamicVariant.FromFloat(_globalLifetimeRemaining));
-            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal, DynamicVariant.FromFloat(_globalLifetimeTotal));
-            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining, DynamicVariant.FromFloat(_globalCooldownRemaining));
-            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax, DynamicVariant.FromFloat(_globalCooldownTotal));
-            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount, DynamicVariant.FromInt(_globalCurrentCount));
-            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount, DynamicVariant.FromInt(_globalMaxCount));
-            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse, DynamicVariant.FromBool(_globalCanUse));
+            StatusEffectGlobalRuntimeStateWriter.Write(vars, state);
+        }
+
+        IVarStore? TryResolveGlobalBlackboardVars()
+        {
+            if (_blackboardBindingOptions == null)
+                return BlackboardService?.LocalVars;
+
+            if (!_blackboardBindingOptions.UseBlackboardBinding)
+                return null;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(
+                _scope,
+                _blackboardBindingOptions.BlackboardBindingSource,
+                ref _blackboardBindingSourceCache);
+            if (targetScope?.Resolver == null)
+                return null;
+
+            if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                return null;
+
+            return blackboard.LocalVars;
         }
 
         void SyncAllRuntimeGlobalState(bool applyActions)

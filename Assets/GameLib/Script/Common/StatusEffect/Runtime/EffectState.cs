@@ -1,5 +1,7 @@
 using System;
+using Game.Common;
 using Game.Health;
+using Game.Vars.Generated;
 using UnityEngine;
 
 namespace Game.StatusEffect
@@ -186,6 +188,7 @@ namespace Game.StatusEffect
         public int UsedCount;
         public bool IsCountExhausted;
         public bool CanUse;
+        public bool CanConsumeUse;
         public string StatusText;
 
         public StatusEffectGlobalRuntimeState(
@@ -203,7 +206,8 @@ namespace Game.StatusEffect
             int maxCount,
             int usedCount,
             bool isCountExhausted,
-            bool canUse)
+            bool canUse,
+            bool canConsumeUse)
         {
             HasInitialized = hasInitialized;
             IsLifetimeEnabled = isLifetimeEnabled;
@@ -220,6 +224,7 @@ namespace Game.StatusEffect
             UsedCount = usedCount;
             IsCountExhausted = isCountExhausted;
             CanUse = canUse;
+            CanConsumeUse = canConsumeUse;
             StatusText = BuildStatusText(
                 hasInitialized,
                 isLifetimeEnabled,
@@ -256,6 +261,7 @@ namespace Game.StatusEffect
                 UsedCount = 0,
                 IsCountExhausted = false,
                 CanUse = false,
+                CanConsumeUse = false,
                 StatusText = statusText ?? string.Empty,
             };
         }
@@ -303,6 +309,32 @@ namespace Game.StatusEffect
                 return "Ready";
 
             return "Ready";
+        }
+    }
+
+    internal static class StatusEffectGlobalRuntimeStateWriter
+    {
+        internal static void Write(IVarStore vars, in StatusEffectGlobalRuntimeState state)
+        {
+            if (vars == null)
+                return;
+
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.hasInitialized, DynamicVariant.FromBool(state.HasInitialized));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.isLifetimeEnabled, DynamicVariant.FromBool(state.IsLifetimeEnabled));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining, DynamicVariant.FromFloat(state.LifetimeRemaining));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal, DynamicVariant.FromFloat(state.LifetimeTotal));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.isLifetimeExpired, DynamicVariant.FromBool(state.IsLifetimeExpired));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownEnabled, DynamicVariant.FromBool(state.IsUseCooldownEnabled));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining, DynamicVariant.FromFloat(state.UseCooldownRemaining));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax, DynamicVariant.FromFloat(state.UseCooldownTotal));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownActive, DynamicVariant.FromBool(state.IsUseCooldownActive));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.isCountEnabled, DynamicVariant.FromBool(state.IsCountEnabled));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount, DynamicVariant.FromInt(state.CurrentCount));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount, DynamicVariant.FromInt(state.MaxCount));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.usedCount, DynamicVariant.FromInt(state.UsedCount));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.isCountExhausted, DynamicVariant.FromBool(state.IsCountExhausted));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse, DynamicVariant.FromBool(state.CanUse));
+            vars.TrySetVariant(VarIds.GameLib.Base.StatusEffect.Runtime.Global.canConsumeUse, DynamicVariant.FromBool(state.CanConsumeUse));
         }
     }
 }
