@@ -46,6 +46,48 @@ namespace Game.Channel
 
             var rows = Mathf.Max(1, state.ResolvedLayoutPreset.Rows.GetOrDefault(context.DynamicContext, 1));
             var columns = Mathf.Max(1, state.ResolvedLayoutPreset.Columns.GetOrDefault(context.DynamicContext, 1));
+            var canUseSourceCoordinates = !itemSourceRuntime.PreserveSourceCoordinates &&
+                                          items.Count > 0 &&
+                                          items[0].SourceRow >= 0 &&
+                                          items[0].SourceColumn >= 0;
+
+            int[] candidateRows = Array.Empty<int>();
+            int[] candidateColumns = Array.Empty<int>();
+            Dictionary<int, int>? rowIndexMap = null;
+            Dictionary<int, int>? columnIndexMap = null;
+
+            if (canUseSourceCoordinates)
+            {
+                candidateRows = new int[items.Count];
+                candidateColumns = new int[items.Count];
+
+                var occupiedRows = new List<int>(items.Count);
+                var occupiedColumns = new List<int>(items.Count);
+
+                for (var i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+                    itemSourceRuntime.ResolveSourceLayoutCoordinates(item.SourceRow, item.SourceColumn, out var sourceLayoutRow, out var sourceLayoutColumn);
+
+                    var candidateRow = sourceLayoutRow - itemSourceRuntime.RowOffset;
+                    var candidateColumn = sourceLayoutColumn - itemSourceRuntime.ColumnOffset;
+                    candidateRows[i] = candidateRow;
+                    candidateColumns[i] = candidateColumn;
+
+                    if (candidateRow < 0 || candidateColumn < 0)
+                        continue;
+
+                    occupiedRows.Add(candidateRow);
+                    occupiedColumns.Add(candidateColumn);
+                }
+
+                SortAndDeduplicate(occupiedRows);
+                SortAndDeduplicate(occupiedColumns);
+
+                rowIndexMap = BuildDenseIndexMap(occupiedRows);
+                columnIndexMap = BuildDenseIndexMap(occupiedColumns);
+            }
+
             var writeIndex = 0;
             var filteredByRangeCount = 0;
 
@@ -59,6 +101,19 @@ namespace Game.Channel
                     itemSourceRuntime.ResolveSourceLayoutCoordinates(item.SourceRow, item.SourceColumn, out var sourceLayoutRow, out var sourceLayoutColumn);
                     layoutRow = sourceLayoutRow - itemSourceRuntime.RowOffset;
                     layoutColumn = sourceLayoutColumn - itemSourceRuntime.ColumnOffset;
+                }
+                else if (canUseSourceCoordinates)
+                {
+                    var candidateRow = candidateRows[i];
+                    var candidateColumn = candidateColumns[i];
+                    if (candidateRow < 0 || candidateColumn < 0 ||
+                        rowIndexMap == null || columnIndexMap == null ||
+                        !rowIndexMap.TryGetValue(candidateRow, out layoutRow) ||
+                        !columnIndexMap.TryGetValue(candidateColumn, out layoutColumn))
+                    {
+                        filteredByRangeCount++;
+                        continue;
+                    }
                 }
                 else
                 {
@@ -92,6 +147,35 @@ namespace Game.Channel
             }
 
             return true;
+        }
+
+        static void SortAndDeduplicate(List<int> values)
+        {
+            if (values.Count <= 1)
+                return;
+
+            values.Sort();
+
+            var writeIndex = 1;
+            for (var i = 1; i < values.Count; i++)
+            {
+                if (values[i] == values[writeIndex - 1])
+                    continue;
+
+                values[writeIndex++] = values[i];
+            }
+
+            if (writeIndex < values.Count)
+                values.RemoveRange(writeIndex, values.Count - writeIndex);
+        }
+
+        static Dictionary<int, int> BuildDenseIndexMap(List<int> values)
+        {
+            var map = new Dictionary<int, int>(values.Count);
+            for (var i = 0; i < values.Count; i++)
+                map[values[i]] = i;
+
+            return map;
         }
 
         public void RecalculateItemPositions(GridObjectChannelLayoutPlanContext context, List<GridObjectChannelResolvedItem> items)

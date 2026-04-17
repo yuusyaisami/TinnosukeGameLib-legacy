@@ -553,8 +553,8 @@ MonoBehaviour:
       type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         key:
-          stableKey: UseSetting
-          varId: 101133
+          stableKey: UseStack
+          varId: 200009
     - rid: 5399842689165557839
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

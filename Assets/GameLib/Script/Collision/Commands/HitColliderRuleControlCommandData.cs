@@ -22,6 +22,7 @@ namespace Game.Commands.VNext
         ClearOverride = 3,
         ClearAppended = 4,
         ClearRuntimeMutations = 5,
+        Prepend = 6,
     }
 
     [Serializable]
@@ -262,12 +263,14 @@ namespace Game.Commands.VNext
         bool IsByIndex => SelectMode == HitColliderRuleSelectMode.ByIndex;
 
         bool HasCommandListSlot => CommandListOperation == HitColliderRuleCommandListOperation.Append
+                                   || CommandListOperation == HitColliderRuleCommandListOperation.Prepend
                                    || CommandListOperation == HitColliderRuleCommandListOperation.Override
                                    || CommandListOperation == HitColliderRuleCommandListOperation.ClearOverride
                                    || CommandListOperation == HitColliderRuleCommandListOperation.ClearAppended
                                    || CommandListOperation == HitColliderRuleCommandListOperation.ClearRuntimeMutations;
 
         bool NeedsCommandPayload => CommandListOperation == HitColliderRuleCommandListOperation.Append
+                                    || CommandListOperation == HitColliderRuleCommandListOperation.Prepend
                                     || CommandListOperation == HitColliderRuleCommandListOperation.Override;
     }
 }

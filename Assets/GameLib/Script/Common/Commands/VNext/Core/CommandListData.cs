@@ -25,13 +25,14 @@ namespace Game.Commands.VNext
         ClearAppended = 2,
         ClearOverride = 3,
         ClearAll = 4,
+        Prepend = 5,
     }
 
     [Serializable]
     public sealed class CommandListMutationStep
     {
         [LabelText("Operation")]
-        [Tooltip("Append: runtime の末尾に追加します。Override: runtime 中の表示をこの Commands で置き換えます。ClearAppended: runtime 追加分だけ消します。ClearOverride: Override だけ消します。ClearAll: runtime mutation をすべて消します。Pool / Release 時は、この CommandListData を登録した scope の mutation service により自動で ClearAll されます。")]
+        [Tooltip("Append: runtime の末尾に追加します。Prepend: runtime の先頭に追加します。Override: runtime 中の表示をこの Commands で置き換えます。ClearAppended: runtime 追加分だけ消します。ClearOverride: Override だけ消します。ClearAll: runtime mutation をすべて消します。Pool / Release 時は、この CommandListData を登録した scope の mutation service により自動で ClearAll されます。")]
         public CommandListMutationOperation Operation = CommandListMutationOperation.Append;
 
         [ShowIf(nameof(RequiresCommands))]
@@ -41,6 +42,7 @@ namespace Game.Commands.VNext
 
         public bool RequiresCommands()
             => Operation == CommandListMutationOperation.Append
+            || Operation == CommandListMutationOperation.Prepend
             || Operation == CommandListMutationOperation.Override;
     }
 
@@ -70,6 +72,9 @@ namespace Game.Commands.VNext
         List<ICommandSource>? _runtimeAppendedCommands;
 
         [NonSerialized]
+        List<ICommandSource>? _runtimePrependedCommands;
+
+        [NonSerialized]
         List<ICommandSource>? _runtimeOverrideCommands;
 
         [NonSerialized]
@@ -83,9 +88,10 @@ namespace Game.Commands.VNext
                 if (_hasRuntimeOverride)
                     return _runtimeOverrideCommands?.Count ?? 0;
 
+                var prependedCount = _runtimePrependedCommands?.Count ?? 0;
                 var baseCount = _commands?.Count ?? 0;
                 var appendedCount = _runtimeAppendedCommands?.Count ?? 0;
-                return baseCount + appendedCount;
+                return prependedCount + baseCount + appendedCount;
             }
         }
         public string FunctionName => _functionName;
@@ -99,23 +105,29 @@ namespace Game.Commands.VNext
             {
                 if (_runtimeOverrideCommands == null || index >= _runtimeOverrideCommands.Count)
                     return null;
+
                 return _runtimeOverrideCommands[index];
             }
+
+            var prepended = _runtimePrependedCommands;
+            var prependedCount = prepended?.Count ?? 0;
+            if (index < prependedCount && prepended != null)
+                return prepended[index];
+
+            index -= prependedCount;
 
             var baseCommands = _commands;
             var baseCount = baseCommands?.Count ?? 0;
             if (index < baseCount && baseCommands != null)
                 return baseCommands[index];
 
+            index -= baseCount;
+
             var appended = _runtimeAppendedCommands;
-            if (appended == null || appended.Count == 0)
+            if (appended == null || index < 0 || index >= appended.Count)
                 return null;
 
-            var appendedIndex = index - baseCount;
-            if (appendedIndex < 0 || appendedIndex >= appended.Count)
-                return null;
-
-            return appended[appendedIndex];
+            return appended[index];
         }
 
         public void Add(ICommandSource source)
@@ -133,6 +145,7 @@ namespace Game.Commands.VNext
         {
             _commands = commands ?? new List<ICommandSource>();
         }
+
         public void SetCommands(CommandListData? other)
         {
             if (other == null)
@@ -174,8 +187,35 @@ namespace Game.Commands.VNext
                 var source = other.GetAt(i);
                 if (source == null)
                     continue;
+
                 _runtimeAppendedCommands.Add(source);
             }
+        }
+
+        public void PrependRuntimeCommands(CommandListData? other)
+        {
+            if (other == null)
+                return;
+
+            var count = other.Count;
+            if (count <= 0)
+                return;
+
+            var prependedCommands = new List<ICommandSource>(count);
+            for (int i = 0; i < count; i++)
+            {
+                var source = other.GetAt(i);
+                if (source == null)
+                    continue;
+
+                prependedCommands.Add(source);
+            }
+
+            if (prependedCommands.Count == 0)
+                return;
+
+            _runtimePrependedCommands ??= new List<ICommandSource>(prependedCommands.Count);
+            _runtimePrependedCommands.InsertRange(0, prependedCommands);
         }
 
         public void SetRuntimeOverride(CommandListData? other)
@@ -201,6 +241,7 @@ namespace Game.Commands.VNext
                 var source = other.GetAt(i);
                 if (source == null)
                     continue;
+
                 _runtimeOverrideCommands.Add(source);
             }
         }
@@ -220,6 +261,7 @@ namespace Game.Commands.VNext
         {
             _hasRuntimeOverride = false;
             _runtimeOverrideCommands = null;
+            _runtimePrependedCommands = null;
             _runtimeAppendedCommands = null;
         }
 
@@ -234,6 +276,9 @@ namespace Game.Commands.VNext
 
             if (_runtimeAppendedCommands != null && _runtimeAppendedCommands.Count > 0)
                 copy._runtimeAppendedCommands = new List<ICommandSource>(_runtimeAppendedCommands);
+
+            if (_runtimePrependedCommands != null && _runtimePrependedCommands.Count > 0)
+                copy._runtimePrependedCommands = new List<ICommandSource>(_runtimePrependedCommands);
 
             if (_runtimeOverrideCommands != null && _runtimeOverrideCommands.Count > 0)
                 copy._runtimeOverrideCommands = new List<ICommandSource>(_runtimeOverrideCommands);
@@ -261,6 +306,9 @@ namespace Game.Commands.VNext
             {
                 case CommandListMutationOperation.Append:
                     AddRuntimeCommands(commands);
+                    return true;
+                case CommandListMutationOperation.Prepend:
+                    PrependRuntimeCommands(commands);
                     return true;
                 case CommandListMutationOperation.Override:
                     SetRuntimeOverride(commands);

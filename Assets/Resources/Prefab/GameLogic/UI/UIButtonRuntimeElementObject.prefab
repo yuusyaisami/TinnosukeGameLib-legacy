@@ -230,6 +230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -2186,6 +2187,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   - _channelTag: ShowPlayer
     _presetValue:
       _source:
@@ -2210,6 +2212,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -4699,6 +4702,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552552
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -4716,6 +4720,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552554
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4751,6 +4756,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552558
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -6182,6 +6188,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052637487628725
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -6199,6 +6206,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052637487628727
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -6236,6 +6244,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052637487628857
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -10597,6 +10606,7 @@ MonoBehaviour:
     _functionName: 
     _commands:
     - rid: 5399842505363816967
+    - rid: 5399842728865431992
   runSpawnOnEnd: 0
   spawnOnEndCommands:
     _debugOwner: {fileID: 0}
@@ -10810,6 +10820,545 @@ MonoBehaviour:
       type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: {x: 0, y: 0, z: 0}
+    - rid: 5399842728865431992
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842728865431993
+    - rid: 5399842728865431993
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: back
+        ApplyAnimation: 0
+        AwaitMode: 0
+        WaitForOnceCompletion: 1
+        PresetSource:
+          _source:
+            rid: 5399842728865431994
+          _defaultValue:
+            animationA:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            animationB:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            playMode: 0
+            flipX: 0
+            useClipSwitchFlip: 0
+            switchFlipDuration: 0.2
+            switchFlipFullRotation: 0
+            usePlaybackSpeedMultiplier: 1
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 1
+        MaterialFxSource:
+          _source:
+            rid: 5399842728865431995
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyPlaybackSpeed: 0
+        PlaybackSpeedSource:
+          _source:
+            rid: 5399842728865431996
+          _defaultValue: 0
+        ApplyFlipX: 0
+        FlipXMode: 0
+        FlipXAngleSource:
+          _source:
+            rid: 5399842728865431997
+          _defaultValue: 0
+        ApplySortingOrder: 0
+        SortingOrderSource:
+          _source:
+            rid: 5399842728865431998
+          _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 5399842728865431999
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 5399842728865432000
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 5399842728865432057
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 5399842728865432058
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 5399842728865432059
+            _defaultValue: 0
+    - rid: 5399842728865431994
+      type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          animationA:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          animationB:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          playMode: 0
+          flipX: 0
+          useClipSwitchFlip: 0
+          switchFlipDuration: 0.2
+          switchFlipFullRotation: 0
+          usePlaybackSpeedMultiplier: 1
+          crossFadeProfile:
+            rid: -2
+    - rid: 5399842728865431995
+      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          ContextTag: default
+          ClearContextFirst: 0
+          Priority: 0
+          Entries:
+          - Key: BaseShader/Outline/Enabled
+            Value:
+              Type: 5
+              Float:
+                _source:
+                  rid: 5399842728865432004
+                _defaultValue: 0
+              Int: 1
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842728865432005
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842728865432006
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/Outline/Width
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842728865432007
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842728865432008
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842728865432009
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/Outline/Color
+            Value:
+              Type: 6
+              Float:
+                _source:
+                  rid: 5399842728865432010
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 1, g: 1, b: 1, a: 1}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: -2
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/Outline/AutoColorEnabled
+            Value:
+              Type: 5
+              Float:
+                _source:
+                  rid: 5399842728865432011
+                _defaultValue: 0
+              Int: 1
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842728865432012
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842728865432013
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/Outline/AutoHue
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842728865432014
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842728865432015
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842728865432016
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/Outline/AutoSaturation
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842728865432017
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842728865432018
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842728865432019
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/Outline/AutoLightness
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842728865432020
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 0
+            TargetWeight:
+              _source:
+                rid: 5399842728865432021
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842728865432022
+              _defaultValue: 0
+            FadeEase: 0
+          - Key: BaseShader/Outline/Opacity
+            Value:
+              Type: 0
+              Float:
+                _source:
+                  rid: 5399842728865432023
+                _defaultValue: 0
+              Int: 0
+              Float2: {x: 0, y: 0}
+              Float3: {x: 0, y: 0, z: 0}
+              Float4: {x: 0, y: 0, z: 0, w: 0}
+              Color: {r: 0, g: 0, b: 0, a: 0}
+              Texture: {fileID: 0}
+            BlendMode: 0
+            LifetimeSeconds: 0
+            ApplyWeightFade: 1
+            TargetWeight:
+              _source:
+                rid: 5399842728865432024
+              _defaultValue: 0
+            FadeDuration:
+              _source:
+                rid: 5399842728865432025
+              _defaultValue: 0
+            FadeEase: 1
+    - rid: 5399842728865431996
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842728865431997
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 180
+    - rid: 5399842728865431998
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865431999
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 5399842728865432000
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 5399842728865432004
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432005
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432006
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432007
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842728865432008
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432009
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432010
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432011
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432012
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432013
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432014
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.5
+    - rid: 5399842728865432015
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432016
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432017
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842728865432018
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432019
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432020
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.2
+    - rid: 5399842728865432021
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432022
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432023
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432024
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432025
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.15
+    - rid: 5399842728865432057
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842728865432058
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842728865432059
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
 --- !u!1 &2264479253822188057
 GameObject:
   m_ObjectHideFlags: 0
@@ -11925,6 +12474,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -12158,6 +12708,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -12391,6 +12942,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -12624,6 +13176,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -12857,6 +13410,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0
@@ -13094,6 +13648,7 @@ MonoBehaviour:
         blendColor2DAnimatedGradientHueAmplitude: 0.0025
         blendColor2DAnimatedGradientSaturationAmplitude: 0.008
         blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
         advancedFadeEnabled: 0
         advancedFadeFadeDirection: 0
         advancedFadeFadeAmount: 0

@@ -3250,6 +3250,87 @@ MonoBehaviour:
     stableKey: GameLib.Base.StatusEffect.Runtime.Global.maxCount
     aliases:
     - maxCount
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00001
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: canConsumeUse
+    isFolder: 0
+    description: 
+    varId: 200011
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.canConsumeUse
+    aliases:
+    - canConsumeUse
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00002
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: hasInitialized
+    isFolder: 0
+    description: 
+    varId: 200012
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.hasInitialized
+    aliases:
+    - hasInitialized
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00003
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: isCountEnabled
+    isFolder: 0
+    description: 
+    varId: 200013
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.isCountEnabled
+    aliases:
+    - isCountEnabled
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00004
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: isCountExhausted
+    isFolder: 0
+    description: 
+    varId: 200014
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.isCountExhausted
+    aliases:
+    - isCountExhausted
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00005
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: isLifetimeEnabled
+    isFolder: 0
+    description: 
+    varId: 200015
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.isLifetimeEnabled
+    aliases:
+    - isLifetimeEnabled
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00006
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: isLifetimeExpired
+    isFolder: 0
+    description: 
+    varId: 200016
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.isLifetimeExpired
+    aliases:
+    - isLifetimeExpired
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00007
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: isUseCooldownActive
+    isFolder: 0
+    description: 
+    varId: 200017
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownActive
+    aliases:
+    - isUseCooldownActive
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00008
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: isUseCooldownEnabled
+    isFolder: 0
+    description: 
+    varId: 200018
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownEnabled
+    aliases:
+    - isUseCooldownEnabled
+  - id: 0d14b2a8c4a34f7bb2e7d1c0a1f00009
+    parentId: 7e9a9c5e7e0b4cd5ad0d9f8b0f2b67f1
+    name: usedCount
+    isFolder: 0
+    description: 
+    varId: 200019
+    stableKey: GameLib.Base.StatusEffect.Runtime.Global.usedCount
+    aliases:
+    - usedCount
   - id: 5db38f79f36c4cbeb1f9d0646b2373a4
     parentId: 4af97af0c67c474cb62a2fd74f144aa1
     name: Stack
@@ -4458,80 +4539,6 @@ MonoBehaviour:
     varId: 101185
     stableKey: Level
     aliases: []
-  - id: ccfa7f9a86004733ae585511d3c058c5
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: StatusEffect
-    isFolder: 0
-    description: 
-    varId: 101082
-    stableKey: GameLogic.NailProfile.StatusEffect
-    aliases:
-    - StatusEffect
-  - id: 4a54b61968e245f687f58959a1b07f7a
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: InitStack
-    isFolder: 0
-    description: 
-    varId: 101130
-    stableKey: InitStack
-    aliases: []
-  - id: be487a3998574868b0bd22f10839f504
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: Price
-    isFolder: 0
-    description: 
-    varId: 100121
-    stableKey: Value
-    aliases: []
-  - id: e84759ea46f247a4bff25064706c7bf8
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: UpgradeTable
-    isFolder: 0
-    description: 
-    varId: 100123
-    stableKey: UpgradeTable
-    aliases: []
-  - id: 53ba4ed4154e476fb69d61c27ae5612c
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: isRotate
-    isFolder: 0
-    description: 
-    varId: 101186
-    stableKey: isRotate
-    aliases: []
-  - id: 39d1a4b4b1994adc963e571dc6a3efe7
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: Rarity
-    isFolder: 0
-    description: 
-    varId: 101105
-    stableKey: GameLogic.NailProfile.Rarity
-    aliases:
-    - Rarity
-  - id: b08882a0c8e24de48a4f005e0b281469
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: UpgradePanel
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: 4f4f067cc1974770b91b38703e80941e
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: StatusEffectSetting
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
-  - id: 09358cadb08646dd92518786d5ce9af1
-    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
-    name: Base
-    isFolder: 1
-    description: 
-    varId: 0
-    stableKey: 
-    aliases: []
   - id: 15d2a15772bb4daf8402b52a25eba337
     parentId: 09358cadb08646dd92518786d5ce9af1
     name: RandomA
@@ -4767,7 +4774,97 @@ MonoBehaviour:
     stableKey: GameLogic.NailProfile.UpgradePanel.StatusEffectStackTableFolder.StackPreset
     aliases:
     - StackPreset
-  nextVarId: 200009
+  - id: 84db013772014f92902e0fa66f6efb4f
+    parentId: 4f4f067cc1974770b91b38703e80941e
+    name: UseStack
+    isFolder: 0
+    description: 
+    varId: 200009
+    stableKey: UseStack
+    aliases: []
+  - id: ccfa7f9a86004733ae585511d3c058c5
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: StatusEffect
+    isFolder: 0
+    description: 
+    varId: 101082
+    stableKey: GameLogic.NailProfile.StatusEffect
+    aliases:
+    - StatusEffect
+  - id: 4a54b61968e245f687f58959a1b07f7a
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: InitStack
+    isFolder: 0
+    description: 
+    varId: 101130
+    stableKey: InitStack
+    aliases: []
+  - id: be487a3998574868b0bd22f10839f504
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Price
+    isFolder: 0
+    description: 
+    varId: 100121
+    stableKey: Value
+    aliases: []
+  - id: e84759ea46f247a4bff25064706c7bf8
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: UpgradeTable
+    isFolder: 0
+    description: 
+    varId: 100123
+    stableKey: UpgradeTable
+    aliases: []
+  - id: 53ba4ed4154e476fb69d61c27ae5612c
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: isRotate
+    isFolder: 0
+    description: 
+    varId: 101186
+    stableKey: isRotate
+    aliases: []
+  - id: 006cfa9017364a4caf81c161870f1adc
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: isInit
+    isFolder: 0
+    description: 
+    varId: 200010
+    stableKey: isInit
+    aliases: []
+  - id: 39d1a4b4b1994adc963e571dc6a3efe7
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Rarity
+    isFolder: 0
+    description: 
+    varId: 101105
+    stableKey: GameLogic.NailProfile.Rarity
+    aliases:
+    - Rarity
+  - id: b08882a0c8e24de48a4f005e0b281469
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: UpgradePanel
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 4f4f067cc1974770b91b38703e80941e
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: StatusEffectSetting
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 09358cadb08646dd92518786d5ce9af1
+    parentId: 550c79e9f5644ddbbe60095b28fc9b2b
+    name: Base
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  nextVarId: 200020
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

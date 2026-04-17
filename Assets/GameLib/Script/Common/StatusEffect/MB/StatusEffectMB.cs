@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game.Commands.VNext;
 using Game.Common;
 using Game.Health;
 using Sirenix.OdinInspector;
@@ -14,6 +15,12 @@ namespace Game.StatusEffect
         DynamicValue<StatusEffectGlobalLifetimeSettings> GlobalLifetimeSettingsValue { get; }
         DynamicValue<StatusEffectGlobalUseCooldownSettings> GlobalUseCooldownSettingsValue { get; }
         DynamicValue<StatusEffectGlobalCountSettings> GlobalCountSettingsValue { get; }
+    }
+
+    public interface IStatusEffectGlobalBlackboardBindingOptions
+    {
+        bool UseBlackboardBinding { get; }
+        ActorSource BlackboardBindingSource { get; }
     }
 
     [Serializable]
@@ -109,13 +116,27 @@ namespace Game.StatusEffect
         }
     }
 
+    [Serializable]
+    public sealed class StatusEffectGlobalBlackboardBindingSettings
+    {
+        [LabelText("Enabled")]
+        [Tooltip("有効な場合、StatusEffect の global state を Blackboard に書き込みます。")]
+        public bool Enabled = true;
+
+        [ShowIf(nameof(Enabled))]
+        [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Blackboard Source\", BlackboardBindingSource)")]
+        [Tooltip("global state の読み書き先に使う Blackboard スコープです。Current ならこのコンポーネントの scope を使います。")]
+        public ActorSource BlackboardBindingSource = new() { Kind = ActorSourceKind.Current };
+    }
+
     [DisallowMultipleComponent]
     public sealed class StatusEffectMB :
         MonoBehaviour,
         IFeatureInstaller,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        IStatusEffectServiceOptions
+        IStatusEffectServiceOptions,
+        IStatusEffectGlobalBlackboardBindingOptions
     {
         [Serializable]
         struct EffectDebugEntry
@@ -186,6 +207,11 @@ namespace Game.StatusEffect
             DynamicValue<StatusEffectGlobalCountSettings>.FromSource(
                 new ManagedRefLiteralSource<StatusEffectGlobalCountSettings>(new StatusEffectGlobalCountSettings()));
 
+        [Header("Blackboard Binding")]
+        [SerializeField, InlineProperty]
+        [Tooltip("StatusEffect の global state を書き込む Blackboard のバインディング設定です。")]
+        StatusEffectGlobalBlackboardBindingSettings _globalBlackboardBinding = new();
+
         [Header("Debug Apply")]
         [SerializeField]
         global::Game.StatusEffect.StatusEffectDefinitionSO _debugDefinition;
@@ -250,6 +276,8 @@ namespace Game.StatusEffect
         public DynamicValue<StatusEffectGlobalLifetimeSettings> GlobalLifetimeSettingsValue => _globalLifetimeSettings;
         public DynamicValue<StatusEffectGlobalUseCooldownSettings> GlobalUseCooldownSettingsValue => _globalUseCooldownSettings;
         public DynamicValue<StatusEffectGlobalCountSettings> GlobalCountSettingsValue => _globalCountSettings;
+        public bool UseBlackboardBinding => _globalBlackboardBinding.Enabled;
+        public ActorSource BlackboardBindingSource => _globalBlackboardBinding.BlackboardBindingSource;
 
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
@@ -259,6 +287,7 @@ namespace Game.StatusEffect
                 .As<IScopeReleaseHandler>();
 
             builder.RegisterInstance<IStatusEffectServiceOptions>(this);
+            builder.RegisterInstance<IStatusEffectGlobalBlackboardBindingOptions>(this);
 
             builder.Register<StatusEffectService>(Lifetime.Singleton)
                 .WithParameter(scope)
