@@ -2744,6 +2744,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _sharedLtsChannelHubDebugViewer:
+    autoRefreshEveryNFrames: 1
   _defaultVars:
     entries: []
     tables: []
@@ -2948,7 +2950,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 141
+  _debugLastEnabledChangeFrame: 775
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -4300,6 +4302,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[0].WhileTrueCommands.Commands
@@ -4308,6 +4311,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[0].WhileFalseCommands.Commands
@@ -4384,6 +4388,7 @@ MonoBehaviour:
       - rid: 5619052465085481115
       - rid: 5619052465085481803
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[1].WhileTrueCommands.Commands
@@ -4392,6 +4397,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[1].WhileFalseCommands.Commands
@@ -4513,6 +4519,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[2].WhileTrueCommands.Commands
@@ -4521,6 +4528,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[2].WhileFalseCommands.Commands
@@ -4595,6 +4603,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[3].WhileTrueCommands.Commands
@@ -4603,6 +4612,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[3].WhileFalseCommands.Commands
@@ -4677,6 +4687,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[4].WhileTrueCommands.Commands
@@ -4685,6 +4696,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[4].WhileFalseCommands.Commands
@@ -4759,6 +4771,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[5].WhileTrueCommands.Commands
@@ -4767,6 +4780,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[5].WhileFalseCommands.Commands
@@ -4936,6 +4950,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[6].WhileTrueCommands.Commands
@@ -4944,6 +4959,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[6].WhileFalseCommands.Commands
@@ -5018,6 +5034,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[7].WhileTrueCommands.Commands
@@ -5026,6 +5043,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4030325937083323804}
         _debugFieldPath: _monitorRules[7].WhileFalseCommands.Commands
@@ -22720,7 +22738,6 @@ MonoBehaviour:
           _functionName: 
           _commands:
           - rid: 5399842525030384298
-          - rid: 5399842526980210913
         ElseCommands:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -22806,49 +22823,6 @@ MonoBehaviour:
           ContextSlot: 0
           TargetChannel:
             rid: -2
-    - rid: 5399842526980210913
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842526980210961
-    - rid: 5399842526980210961
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: Runtime
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
     - rid: 5399842528907231342
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:

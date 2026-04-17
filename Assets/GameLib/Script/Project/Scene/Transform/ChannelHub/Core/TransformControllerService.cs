@@ -888,7 +888,8 @@ namespace Game.TransformSystem
             bool applyGravityScale, float gravityScale,
             bool applyFreezeRotation, bool freezeRotation,
             bool applyLinearVelocity, Vector2 linearVelocity,
-            bool applyAngularVelocity, float angularVelocity)
+            bool applyAngularVelocity, float angularVelocity,
+            Rigidbody2DVelocityApplyMode linearVelocityMode = Rigidbody2DVelocityApplyMode.Override)
         {
             if (_config.OutputTarget != TransformOutputTarget.Rigidbody2D)
                 return false;
@@ -915,8 +916,15 @@ namespace Game.TransformSystem
 
             if (applyLinearVelocity)
             {
-                rb.linearVelocity = linearVelocity;
-                PrimeRigidbodyMovementSuppressWindowForVelocityWrite();
+                if (linearVelocityMode == Rigidbody2DVelocityApplyMode.Additive)
+                {
+                    rb.linearVelocity += linearVelocity;
+                }
+                else
+                {
+                    rb.linearVelocity = linearVelocity;
+                    PrimeRigidbodyMovementSuppressWindowForVelocityWrite();
+                }
             }
 
             if (applyAngularVelocity)
@@ -957,9 +965,6 @@ namespace Game.TransformSystem
         void PrimeRigidbodyMovementSuppressWindowForVelocityWrite()
         {
             if (!_config.EnableMovement)
-                return;
-
-            if (_config.Rigidbody2DVelocityMode != Rigidbody2DVelocityApplyMode.Override)
                 return;
 
             var suppressSeconds = Mathf.Max(Time.fixedDeltaTime, 0.02f);

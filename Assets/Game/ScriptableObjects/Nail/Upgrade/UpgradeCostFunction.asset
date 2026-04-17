@@ -29,7 +29,6 @@ MonoBehaviour:
           _functionName: Request Level
           _commands:
           - rid: 5399842452542849144
-          - rid: 5399842735333048499
     - rid: 5399842452542849144
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -470,68 +469,3 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 4
-    - rid: 5399842735333048499
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842735333048500
-    - rid: 5399842735333048500
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: UpgradeCostMul
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches:
-        - Label: Level
-          Value:
-            _source:
-              rid: 5399842735333048501
-          IncludeSourceInfo: 1
-        - Label: Mul
-          Value:
-            _source:
-              rid: 5399842735333048502
-          IncludeSourceInfo: 1
-    - rid: 5399842735333048501
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: Level
-          varId: 101185
-    - rid: 5399842735333048502
-      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        key:
-          stableKey: UpgradeCostMul
-          varId: 101184

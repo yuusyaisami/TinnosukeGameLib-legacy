@@ -56,6 +56,21 @@ MonoBehaviour:
           rid: -2
         operations:
         - rid: 5399842402410692624
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842744310431801
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842744310431802
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
@@ -137,5 +152,13 @@ MonoBehaviour:
         value: 0
     - rid: 5399842687169593591
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842744310431801
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842744310431802
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1

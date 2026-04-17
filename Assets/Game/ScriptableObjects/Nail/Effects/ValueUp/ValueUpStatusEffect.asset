@@ -1478,10 +1478,8 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _template: '<sprite=9> x {TimeToValueUp|fixed=1}({TimeLimitValue*TimeToValueUp|color="#00FF00"|fixed=2})
+        _template: <sprite=9> x {TimeToValueUp|fixed=1}({TimeLimitValue*TimeToValueUp|color="#00FF00"|fixed=2})
           + <sprite=10>{ValueUp} = <sprite=10>({TimeLimitValue*TimeToValueUp+ValueUp|color="#00FF00"|fixed=2})
-
-'
     - rid: 5399842506086809981
       type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

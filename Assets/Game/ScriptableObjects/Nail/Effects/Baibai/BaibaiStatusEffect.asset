@@ -464,7 +464,7 @@ MonoBehaviour:
                 _defaultValue: 0
               CompareMode: 10
               Expected: 1
-            OverrideDescription: 0
+            OverrideDescription: 1
             Text:
               _source:
                 rid: 5399842689965884141

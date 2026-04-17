@@ -501,6 +501,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _sharedLtsChannelHubDebugViewer:
+    autoRefreshEveryNFrames: 1
   _defaultVars:
     entries: []
     tables: []
@@ -881,6 +883,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4230472558901189611}
         _debugFieldPath: _monitorRules[0].WhileTrueCommands.Commands
@@ -889,6 +892,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4230472558901189611}
         _debugFieldPath: _monitorRules[0].WhileFalseCommands.Commands
@@ -963,6 +967,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4230472558901189611}
         _debugFieldPath: _monitorRules[1].WhileTrueCommands.Commands
@@ -971,6 +976,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4230472558901189611}
         _debugFieldPath: _monitorRules[1].WhileFalseCommands.Commands
@@ -1044,6 +1050,7 @@ MonoBehaviour:
       _functionName: MonitorRule.OnExit
       _commands: []
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4230472558901189611}
         _debugFieldPath: _monitorRules[2].WhileTrueCommands.Commands
@@ -1052,6 +1059,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 4230472558901189611}
         _debugFieldPath: _monitorRules[2].WhileFalseCommands.Commands
@@ -1534,7 +1542,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 48122
+  _debugLastEnabledChangeFrame: 450
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &7495427074702374831
@@ -1693,6 +1701,7 @@ MonoBehaviour:
     UsedCount: 0
     IsCountExhausted: 0
     CanUse: 0
+    CanConsumeUse: 0
     StatusText: 
   _activeEffects: []
   _globalLifetimeSettings:
@@ -1722,6 +1731,22 @@ MonoBehaviour:
         _source:
           rid: -2
         _defaultValue: 0
+  _globalBlackboardBinding:
+    Enabled: 1
+    BlackboardBindingSource:
+      Kind: 0
+      Identity:
+        kind: 0
+        id: 
+        category: 
+        requireActive: 0
+        searchScope: 0
+      UnityObject: {fileID: 0}
+      Shared:
+        rid: -2
+      ContextSlot: 0
+      TargetChannel:
+        rid: -2
   _debugDefinition: {fileID: 0}
   _debugIntensityA: 0
   _debugIntensityB: 0

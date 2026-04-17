@@ -1,5 +1,6 @@
 #nullable enable
 using System.Collections.Generic;
+using Game.Movement;
 using UnityEngine;
 
 namespace Game.TransformSystem
@@ -54,7 +55,8 @@ namespace Game.TransformSystem
             bool applyLinearVelocity,
             Vector2 linearVelocity,
             bool applyAngularVelocity,
-            float angularVelocity);
+            float angularVelocity,
+            Rigidbody2DVelocityApplyMode linearVelocityMode = Rigidbody2DVelocityApplyMode.Override);
         bool TryAddForceToRigidbody2D(Vector2 force, ForceMode2D mode = ForceMode2D.Force);
         void ForceStopMovementNow();
         void SetInitialRotation(Quaternion rotation);

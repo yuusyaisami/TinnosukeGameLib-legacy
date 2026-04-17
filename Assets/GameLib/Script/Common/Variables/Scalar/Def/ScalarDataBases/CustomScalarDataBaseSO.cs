@@ -20,7 +20,7 @@ namespace Game.Scalar
             }
 
             // ここにカスタムエントリを追加可能
-            // yield return new ScalarDatabaseEntry { Key = new ScalarKey("CustomKey"), BaseValue = 1.0f, UseEffectMod = true, UseClampMod = false, Clamp = default };
+            // yield return new ScalarDatabaseEntry { Key = new ScalarKey("CustomKey"), BaseValue = 1.0f, UseEffectMod = true, UseRoundMod = false, RoundDigits = 0, UseClampMod = false, Clamp = default };
         }
     }
 }

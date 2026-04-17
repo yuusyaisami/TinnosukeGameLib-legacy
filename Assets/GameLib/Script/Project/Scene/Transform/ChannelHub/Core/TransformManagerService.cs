@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using UnityEngine;
 using VContainer.Unity;
 
@@ -39,6 +40,7 @@ namespace Game.TransformSystem
             int priority,
             TransformChannelGlobalBlendMode blendMode,
             float weight,
+            DynamicValue<bool> condition,
             int version,
             bool oneShot,
             float durationSeconds)
@@ -49,6 +51,7 @@ namespace Game.TransformSystem
             Priority = priority;
             BlendMode = blendMode;
             Weight = Mathf.Max(0f, weight);
+            Condition = condition;
             Version = version;
             OneShot = oneShot;
             DurationSeconds = Mathf.Max(0f, durationSeconds);
@@ -60,6 +63,7 @@ namespace Game.TransformSystem
         public int Priority { get; }
         public TransformChannelGlobalBlendMode BlendMode { get; }
         public float Weight { get; }
+        public DynamicValue<bool> Condition { get; }
         public int Version { get; }
         public bool OneShot { get; }
         public float DurationSeconds { get; }
@@ -149,7 +153,6 @@ namespace Game.TransformSystem
             public TransformManagerMovementEntry Entry;
             public float RemainingSeconds;
         }
-
         struct RotateEntryState
         {
             public TransformManagerRotateEntry Entry;
@@ -176,11 +179,8 @@ namespace Game.TransformSystem
         readonly Dictionary<string, int> _rotateTimedEntryIndices = new(StringComparer.Ordinal);
         readonly Dictionary<string, int> _scaleTimedEntryIndices = new(StringComparer.Ordinal);
 
-        readonly List<string> _removeBuffer = new();
-
         bool _isActive;
         int _runtimeVersion;
-
         public TransformManagerService(TransformManagerMB? source = null)
         {
             _source = source;
@@ -211,7 +211,6 @@ namespace Game.TransformSystem
         {
             if (!_isActive)
                 return;
-
             var deltaTime = Mathf.Max(0f, Time.deltaTime);
             if (deltaTime <= 0f)
                 return;
@@ -264,7 +263,6 @@ namespace Game.TransformSystem
             List<TransformManagerMovementEntry> oneShotOutput)
         {
             PrepareOutputs(continuousOutput, oneShotOutput);
-            _removeBuffer.Clear();
 
             foreach (var kv in _movementEntries)
             {
@@ -275,7 +273,6 @@ namespace Game.TransformSystem
                 if (entry.Settings.OneShot)
                 {
                     oneShotOutput.Add(entry);
-                    _removeBuffer.Add(kv.Key);
                     continue;
                 }
 
@@ -284,9 +281,6 @@ namespace Game.TransformSystem
 
             continuousOutput.Sort(static (a, b) => CompareSettings(a.Settings, b.Settings));
             oneShotOutput.Sort(static (a, b) => CompareSettings(a.Settings, b.Settings));
-
-            for (var i = 0; i < _removeBuffer.Count; i++)
-                RemoveMovement(_removeBuffer[i]);
         }
 
         public bool UpsertRotate(TransformManagerRotateEntry entry)
@@ -332,7 +326,6 @@ namespace Game.TransformSystem
             List<TransformManagerRotateEntry> oneShotOutput)
         {
             PrepareOutputs(continuousOutput, oneShotOutput);
-            _removeBuffer.Clear();
 
             foreach (var kv in _rotateEntries)
             {
@@ -343,7 +336,6 @@ namespace Game.TransformSystem
                 if (entry.Settings.OneShot)
                 {
                     oneShotOutput.Add(entry);
-                    _removeBuffer.Add(kv.Key);
                     continue;
                 }
 
@@ -352,9 +344,6 @@ namespace Game.TransformSystem
 
             continuousOutput.Sort(static (a, b) => CompareSettings(a.Settings, b.Settings));
             oneShotOutput.Sort(static (a, b) => CompareSettings(a.Settings, b.Settings));
-
-            for (var i = 0; i < _removeBuffer.Count; i++)
-                RemoveRotate(_removeBuffer[i]);
         }
 
         public bool UpsertScale(TransformManagerScaleEntry entry)
@@ -400,7 +389,6 @@ namespace Game.TransformSystem
             List<TransformManagerScaleEntry> oneShotOutput)
         {
             PrepareOutputs(continuousOutput, oneShotOutput);
-            _removeBuffer.Clear();
 
             foreach (var kv in _scaleEntries)
             {
@@ -411,7 +399,6 @@ namespace Game.TransformSystem
                 if (entry.Settings.OneShot)
                 {
                     oneShotOutput.Add(entry);
-                    _removeBuffer.Add(kv.Key);
                     continue;
                 }
 
@@ -420,9 +407,6 @@ namespace Game.TransformSystem
 
             continuousOutput.Sort(static (a, b) => CompareSettings(a.Settings, b.Settings));
             oneShotOutput.Sort(static (a, b) => CompareSettings(a.Settings, b.Settings));
-
-            for (var i = 0; i < _removeBuffer.Count; i++)
-                RemoveScale(_removeBuffer[i]);
         }
 
         void TickMovementTimedEntries(float deltaTime)
@@ -511,7 +495,6 @@ namespace Game.TransformSystem
             _rotateTimedEntryIndices.Clear();
             _scaleTimedEntryIndices.Clear();
 
-            _removeBuffer.Clear();
             _runtimeVersion++;
         }
 
@@ -530,6 +513,7 @@ namespace Game.TransformSystem
                 settings.Priority,
                 settings.BlendMode,
                 settings.Weight,
+                settings.Condition,
                 0,
                 settings.OneShot,
                 settings.DurationSeconds);
@@ -563,6 +547,7 @@ namespace Game.TransformSystem
                 settings.Priority,
                 settings.BlendMode,
                 settings.Weight,
+                settings.Condition,
                 Mathf.Max(0, version),
                 settings.OneShot,
                 settings.DurationSeconds);

@@ -144,16 +144,31 @@ namespace Game.Commands
     }
 
     /// <summary>
+    /// While コマンドの再実行方法。
+    /// </summary>
+    public enum MonitorRuleWhileRepeatMode
+    {
+        Interval = 0,
+        AfterAllCompleted = 1,
+    }
+
+    /// <summary>
     /// 設定済みの While コマンド群（true/false それぞれ）
     /// </summary>
     [Serializable]
     public struct MonitorRuleWhileCommandSet
     {
+        [LabelText("Repeat Mode"), LabelWidth(120)]
+        [EnumToggleButtons]
+        [Tooltip("Interval で定期実行するか、前回の実行がすべて完了してから次を開始するかを選びます。")]
+        public MonitorRuleWhileRepeatMode RepeatMode;
+
         [LabelText("Commands"), LabelWidth(120)]
         [VNext.CommandListFunctionName("MonitorRule.While")]
         [Tooltip("条件が維持されている間に interval ごとに実行するコマンド群です。")]
         public VNext.CommandListData Commands;
 
+        [ShowIf("@RepeatMode == MonitorRuleWhileRepeatMode.Interval")]
         [LabelText("Interval (sec)"), LabelWidth(120)]
         [MinValue(0f)]
         [Tooltip("While コマンドを再実行する最小間隔です。0 の場合は評価タイミングごとに実行します。")]

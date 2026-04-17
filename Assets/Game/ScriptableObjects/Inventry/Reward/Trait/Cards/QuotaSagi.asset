@@ -19,7 +19,7 @@ MonoBehaviour:
   _description:
     Template: "\u30CE\u30EB\u30DE\u4E71\u6570\u306E\u78BA\u7ACB\u3092\u5909\u52D5\u3055\u305B\u307E\u3059\u3002
       {QuotaDecrementMul|fixed=1|color=\"#00FF00\"|prefix=\"x\"} ~ {QuotaIncrementMul|fixed=1|color=\"#FF0000\"|prefix=\"x\"}
-      -> {Clamp(QuotaDecrement*0.9, 0, 0.8)|fixed=1|color=\"#00FF00\"|prefix=\"x\"}
+      -> {Clamp(QuotaDecrementMul*0.9, 0, 0.8)|fixed=1|color=\"#00FF00\"|prefix=\"x\"}
       ~ { QuotaIncrementMul*1.1|fixed=1|color=\"#FF0000\"|prefix=\"x\"}"
     Variables:
     - _value:
@@ -389,9 +389,11 @@ MonoBehaviour:
     entries:
     - VarId: 101123
       Kind: 3
+      StoreMode: 0
       Value:
         _source:
           rid: 5399842402410692610
+    tables: []
   _applyCommonGridTable: 0
   _commonGridTableKeyVarId: 0
   _commonGridTable:
@@ -449,6 +451,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -958,6 +961,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 20
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5
@@ -2253,6 +2257,7 @@ MonoBehaviour:
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         Op: 10
+        OperationId: 
         ServiceScope: 20
         TargetActorSource:
           Kind: 5

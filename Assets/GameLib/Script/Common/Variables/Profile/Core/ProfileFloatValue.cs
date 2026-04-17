@@ -45,6 +45,20 @@ namespace Game.Profile
         public bool UseEffectMod;
 
         [FoldoutGroup("$ScalarBindingGroupName")]
+        [LabelText("Use Round Mod")]
+        [Tooltip("Scalar Runtime で RoundMod を使用するか")]
+        [ShowIf(nameof(HasScalarKey))]
+        public bool UseRoundMod;
+
+        [FoldoutGroup("$ScalarBindingGroupName")]
+        [LabelText("Round Digits")]
+        [Tooltip("Scalar Runtime で四捨五入する小数点以下の桁数です。0 の場合は整数に丸めます。")]
+        [ShowIf(nameof(ShowRoundSettings))]
+        [MinValue(0)]
+        [MaxValue(6)]
+        public int RoundDigits;
+
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Clamp Mod")]
         [Tooltip("Scalar Runtime で ClampMod を使用するか")]
         [ShowIf(nameof(HasScalarKey))]
@@ -112,6 +126,7 @@ namespace Game.Profile
 
         bool HasScalarKey => ScalarKeyValue.Id != 0;
         bool HasBlackboardKey => BlackboardVarId != 0;
+        bool ShowRoundSettings => HasScalarKey && UseRoundMod;
         bool ShowClampSettings => HasScalarKey && UseClampMod;
         bool ShowLocalBaseSettings => HasScalarKey && UseLocalBase;
         bool ShowScalarSaveLayer => HasScalarKey && ScalarSaveEnabledValue;
@@ -248,6 +263,8 @@ namespace Game.Profile
             {
                 BaseValue = Value,
                 UseEffectMod = UseEffectMod,
+                UseRoundMod = UseRoundMod,
+                RoundDigits = Mathf.Clamp(RoundDigits, 0, 6),
                 UseClampMod = UseClampMod,
                 Clamp = Clamp
             };
@@ -314,12 +331,16 @@ namespace Game.Profile
             bool useEffectMod = false,
             bool useClampMod = false,
             bool saveEnabled = false,
-            SaveLayer saveLayer = SaveLayer.Global) => new()
+            SaveLayer saveLayer = SaveLayer.Global,
+            bool useRoundMod = false,
+            int roundDigits = 0) => new()
             {
                 Value = value,
                 ScalarKeyValue = key,
                 ScalarPolicyValue = policy,
                 UseEffectMod = useEffectMod,
+                UseRoundMod = useRoundMod,
+                RoundDigits = roundDigits,
                 UseClampMod = useClampMod,
                 Clamp = default,
                 ScalarSaveEnabledValue = saveEnabled,
@@ -355,13 +376,17 @@ namespace Game.Profile
             ScalarKey scalarKey,
             int blackboardVarId,
             ScalarBindPolicy scalarPolicy = ScalarBindPolicy.UpdateBaseline,
-            BlackboardBindPolicy blackboardPolicy = BlackboardBindPolicy.Overwrite) => new()
+            BlackboardBindPolicy blackboardPolicy = BlackboardBindPolicy.Overwrite,
+            bool useRoundMod = false,
+            int roundDigits = 0) => new()
             {
                 Value = value,
                 ScalarKeyValue = scalarKey,
                 ScalarPolicyValue = scalarPolicy,
                 UseEffectMod = false,
                 UseClampMod = false,
+                UseRoundMod = useRoundMod,
+                RoundDigits = roundDigits,
                 Clamp = default,
                 BlackboardVarId = blackboardVarId,
                 BlackboardPolicyValue = blackboardPolicy

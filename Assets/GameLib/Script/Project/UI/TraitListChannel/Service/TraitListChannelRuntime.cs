@@ -667,8 +667,6 @@ namespace Game.UI
             instance.UpdateSlot(slot);
             var payload = BuildPayload(slot);
             var commandVars = ApplyPayloadToBlackboard(instance, payload);
-            TryInvokeLtsInstantiated(instance);
-            await ExecuteSpawnCommandsAsync(slot, instance, commandVars, ct);
             TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
             var startAnchor = ResolveSpawnAnchorLocalPosition(slot);
             var startLocal = TraitListChannelRuntimeHelpers.ResolvePlacementLocalPosition(
@@ -683,7 +681,32 @@ namespace Game.UI
                 slot.ItemVerticalAlignment);
             TraitListChannelRuntimeHelpers.SetLocalPosition(instance, startLocal, _environmentKind);
             TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, true);
+            RunSpawnCommandsDetached(instance, slot, commandVars, ct);
             await AnimateInstanceAsync(instance, targetLocal, _resolvedLayoutPreset.SpawnMotion, ct);
+        }
+
+        void RunSpawnCommandsDetached(
+            TraitListChannelVisualInstance instance,
+            TraitListChannelSlot slot,
+            IVarStore commandVars,
+            CancellationToken ct)
+        {
+            UniTask.Void(async () =>
+            {
+                try
+                {
+                    await UniTask.Yield(PlayerLoopTiming.Update, ct);
+                    TryInvokeLtsInstantiated(instance);
+                    await ExecuteSpawnCommandsAsync(slot, instance, commandVars, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[TraitListChannel] Detached spawn command execution failed. Tag='{Tag}' Message={ex.Message}");
+                }
+            });
         }
 
         async UniTask RelayoutInstanceAsync(
