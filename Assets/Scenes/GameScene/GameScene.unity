@@ -346,6 +346,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -673,6 +674,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -2272,6 +2274,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -4479,6 +4482,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -4956,6 +4960,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -5461,6 +5466,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -6155,6 +6161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -6636,6 +6643,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -8733,6 +8741,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -9075,6 +9084,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -9661,6 +9671,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -10195,6 +10206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -10422,6 +10434,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -11326,6 +11339,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -14774,6 +14788,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -16583,6 +16598,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -17282,6 +17298,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -18207,6 +18224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -19165,6 +19183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -20403,6 +20422,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -20899,6 +20919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -21194,6 +21215,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -21798,6 +21820,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -23421,6 +23444,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -23641,6 +23665,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   - _channelTag: close
     _presetValue:
       _source:
@@ -23665,6 +23690,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -23707,6 +23733,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552354
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -23724,6 +23751,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552356
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -23752,6 +23780,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552360
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -23936,6 +23965,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552370
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -23953,6 +23983,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552372
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -23981,6 +24012,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552376
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -24278,6 +24310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -24506,6 +24539,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -24629,6 +24663,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   - _channelTag: close
     _presetValue:
       _source:
@@ -24653,6 +24688,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -24695,6 +24731,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552354
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -24712,6 +24749,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552356
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -24740,6 +24778,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552360
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -24924,6 +24963,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552370
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -24941,6 +24981,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552372
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -24969,6 +25010,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552376
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -25486,6 +25528,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -26291,6 +26334,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -26956,6 +27000,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -27185,6 +27230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -30546,6 +30592,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -32190,6 +32237,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: Show
         AwaitMode: 1
+        BackgroundCancellationMode: 0
     - rid: 5399842570380247557
       type: {class: CommandChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32225,6 +32273,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: Show
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5399842570380247558
       type: {class: CommandListChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32650,6 +32699,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: Hide
         AwaitMode: 1
+        BackgroundCancellationMode: 0
     - rid: 5399842570380247586
       type: {class: CommandChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32685,6 +32735,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: Hide
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5399842570380247587
       type: {class: TransformAnimationChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -32836,6 +32887,7 @@ MonoBehaviour:
         GridId: 101106
         ElementValues:
           entries: []
+          tables: []
         ColumnRowIndex:
           _source:
             rid: 5399842570380247598
@@ -33300,6 +33352,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -33529,6 +33582,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -34767,6 +34821,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: ResetTimer
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5399842530663334403
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -35482,6 +35537,7 @@ MonoBehaviour:
                 _commands: []
               _selectedVars:
                 entries: []
+                tables: []
             - _displayName: "\u304A\u307E\u3048\u3092\u6BBA\u3059\u305F\u3081\u306B\u4FFA\u306F\u751F\u304D\u3066\u304D\u305F\uFF01"
               _spawnCommands:
                 _debugOwner: {fileID: 0}
@@ -35497,6 +35553,7 @@ MonoBehaviour:
                 _commands: []
               _selectedVars:
                 entries: []
+                tables: []
             _bindRequest:
               _overridePlayerPreset: 0
               _playerPresetValue:
@@ -36319,6 +36376,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: StartTimer
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5619052416848364064
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -36360,6 +36418,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: SpawnBall
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5619052416848364066
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -36401,6 +36460,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: ResetTimer
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5619052451121070201
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -37166,6 +37226,7 @@ MonoBehaviour:
         ExecutionScope: 0
         Tag: ClearBall
         AwaitMode: 0
+        BackgroundCancellationMode: 0
     - rid: 5619052648602796855
       type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -37222,6 +37283,64 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 772173090286207407
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0.2
+        ScalarKeyValue:
+          Id: -799512340
+          Name: GameLogic.GameProfile.Quota.QuotaIncrementMul
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
+    - rid: 772173090286207409
+      type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
+      data:
+        Value: 0.2
+        ScalarKeyValue:
+          Id: 1842802246
+          Name: GameLogic.GameProfile.Quota.QuotaDecrementMul
+        ScalarPolicyValue: 0
+        UseEffectMod: 0
+        UseClampMod: 0
+        UseLocalBase: 0
+        LocalBaseValue: 0
+        Clamp:
+          UseMin: 0
+          Min:
+            _source:
+              rid: -2
+            _defaultValue: 0
+          UseMax: 0
+          Max:
+            _source:
+              rid: -2
+            _defaultValue: 0
+        ScalarSaveEnabledValue: 0
+        ScalarSaveLayerValue: 0
+        BlackboardVarId: 0
+        BlackboardPolicyValue: 0
+        BlackboardSaveEnabledValue: 0
+        BlackboardSaveLayerValue: 0
     - rid: 5399842374860144784
       type: {class: 'ManagedRefLiteralSource`1[[Game.Profile.BaseProfileData, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -37407,6 +37526,8 @@ MonoBehaviour:
         - rid: 5399842460338225776
         - rid: 5399842511542026834
         - rid: 5399842530663334427
+        - rid: 772173090286207407
+        - rid: 772173090286207409
     - rid: 5399842460338225776
       type: {class: ProfileFloatValue, ns: Game.Profile, asm: Assembly-CSharp}
       data:
@@ -39192,55 +39313,11 @@ MonoBehaviour:
       _commands:
       - rid: 5619052416848364036
       - rid: 5619052416848364038
-      - rid: 5399842525030383702
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 5399842525030383702
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5399842525030383703
-    - rid: 5399842525030383703
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Label: ResetTimer
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
     - rid: 5619052416848364028
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -41752,6 +41829,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -42515,6 +42593,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -43404,6 +43483,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -44000,6 +44080,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -44869,6 +44950,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -47056,6 +47138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -48335,6 +48418,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -50634,6 +50718,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -50676,6 +50761,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552340
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -50693,6 +50779,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552342
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -50724,6 +50811,7 @@ MonoBehaviour:
         _autoPlay: 1
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552349
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -51163,6 +51251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -51698,6 +51787,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -52391,6 +52481,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -52514,6 +52605,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -52556,6 +52648,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552340
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -52573,6 +52666,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552342
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -52604,6 +52698,7 @@ MonoBehaviour:
         _autoPlay: 1
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552349
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -53125,6 +53220,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -55375,6 +55471,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -58466,6 +58563,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -58777,6 +58875,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -61055,6 +61154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -63041,6 +63141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -63403,6 +63504,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -65094,6 +65196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -65965,6 +66068,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -66869,6 +66973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -67252,6 +67357,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -67375,6 +67481,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   - _channelTag: close
     _presetValue:
       _source:
@@ -67399,6 +67506,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -67441,6 +67549,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552354
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -67458,6 +67567,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552356
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -67486,6 +67596,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552360
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -67670,6 +67781,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552370
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -67687,6 +67799,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552372
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -67715,6 +67828,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552376
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -68159,6 +68273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -68611,6 +68726,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -69119,6 +69235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -69563,6 +69680,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   - _channelTag: close
     _presetValue:
       _source:
@@ -69587,6 +69705,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -69629,6 +69748,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552354
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -69646,6 +69766,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552356
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -69674,6 +69795,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552360
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -69858,6 +69980,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052617993552370
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -69875,6 +69998,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552372
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -69903,6 +70027,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052617993552376
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -70200,6 +70325,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -70542,6 +70668,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -70923,6 +71050,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5619052672271777952
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -70940,6 +71068,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052672271777954
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -70968,6 +71097,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5619052672271777958
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -71154,6 +71284,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -73021,6 +73152,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -74139,6 +74271,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -74452,6 +74585,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -74666,6 +74800,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -75372,6 +75507,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -75709,6 +75845,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -76684,6 +76821,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -77852,6 +77990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -78592,11 +78731,11 @@ MonoBehaviour:
   _navigationSelectionOrder: 0
   _isSelectable:
     _source:
-      rid: -2
+      rid: 772173090286207410
     _defaultValue: 0
   _isNavigationSelectable:
     _source:
-      rid: -2
+      rid: 772173090286207411
     _defaultValue: 0
   _navigationOverride:
     Up: {fileID: 0}
@@ -78618,8 +78757,14 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 772173090286207410
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 772173090286207411
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
 --- !u!114 &1939669159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78668,6 +78813,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -81584,6 +81730,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -82942,6 +83089,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -84609,11 +84757,11 @@ MonoBehaviour:
   _navigationSelectionOrder: 0
   _isSelectable:
     _source:
-      rid: -2
+      rid: 772173090286207412
     _defaultValue: 0
   _isNavigationSelectable:
     _source:
-      rid: -2
+      rid: 772173090286207413
     _defaultValue: 0
   _navigationOverride:
     Up: {fileID: 0}
@@ -84635,8 +84783,14 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 772173090286207412
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 772173090286207413
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
 --- !u!114 &2031910721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84685,6 +84839,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -85741,7 +85896,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _template: Next Quota is {RequestBaseQuota}  {QuotaMul|effect=color_if|cond=QuotaMul
+        _template: Next Quota is {RequestBaseQuota}  {QuotaMul*RequestBaseQuota|effect=color_if|cond=QuotaMul
           >= 0|trueColor="#00FF00"|falseColor="#84F5F1"|sign=always}
     - rid: 5399842374860145397
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
@@ -86066,7 +86221,7 @@ MonoBehaviour:
           _useCustomKey: 1
           _customKey: QuotaMul
           _expectedType: 255
-        _expression: Round(RequestBaseQuota * QuotaMul)
+        _expression: Round(RequestBaseQuota + RequestBaseQuota*QuotaMul)
     - rid: 5399842374860145421
       type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -86279,6 +86434,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -86905,6 +87061,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []

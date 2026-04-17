@@ -337,6 +337,7 @@ namespace Game.UI
     public interface IVisualBoundsReactiveHubService
     {
         int ChannelCount { get; }
+        bool EnableDebugLog { get; }
         bool Contains(string tag);
         bool RegisterOrReplace(string tag, VisualBoundsReactiveChannelPreset preset);
         bool Unregister(string tag);
