@@ -11,8 +11,15 @@ namespace Game.Commands
     [DisallowMultipleComponent]
     public sealed class CommandRunnerMB : MonoBehaviour, IFeatureInstaller
     {
+        [FoldoutGroup("Debug Viewer")]
+        [LabelText("Monitor Channel Debug Viewer")]
         [SerializeField]
         MonitorChannelHubDebugViewer _monitorHubDebugViewer = new();
+
+        [FoldoutGroup("Debug Viewer")]
+        [LabelText("Shared LTS Channel Debug Viewer")]
+        [SerializeField]
+        SharedLTSChannelHubDebugViewer _sharedLtsChannelHubDebugViewer = new();
 
         [BoxGroup("Runner Vars")]
         [LabelText("Default Vars")]
@@ -36,6 +43,11 @@ namespace Game.Commands
                 if (_monitorHubDebugViewer != null && container.TryResolve<IMonitorChannelHubTelemetry>(out var telemetry))
                 {
                     _monitorHubDebugViewer.Bind(telemetry);
+                }
+
+                if (_sharedLtsChannelHubDebugViewer != null && container.TryResolve<VNext.ISharedLTSChannelHubTelemetry>(out var sharedTelemetry))
+                {
+                    _sharedLtsChannelHubDebugViewer.Bind(sharedTelemetry);
                 }
             });
 
@@ -69,6 +81,7 @@ namespace Game.Commands
 
                 builder.Register<VNext.SharedLTSChannelHub>(Lifetime.Singleton)
                     .As<VNext.ISharedLTSChannelHub>()
+                    .As<VNext.ISharedLTSChannelHubTelemetry>()
                     .As<IScopeReleaseHandler>();
 
                 builder.Register<VNext.WithActorExecutor>(Lifetime.Singleton)

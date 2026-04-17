@@ -59,21 +59,35 @@ namespace Game.Commands.VNext
                 return;
 
             var handled = new HashSet<int>();
-            ApplyChangedIds(before, after, callerVars, handled);
-            ApplyChangedIds(after, before, callerVars, handled);
+            ApplyChangedAndAddedIds(before, after, callerVars, handled);
+            ApplyRemovedIds(before, after, callerVars, handled);
         }
 
-        static void ApplyChangedIds(IVarStore sourceIds, IVarStore compareTo, IVarStore destination, HashSet<int> handled)
+        static void ApplyChangedAndAddedIds(IVarStore before, IVarStore after, IVarStore destination, HashSet<int> handled)
         {
-            foreach (var varId in sourceIds.EnumerateVarIds())
+            foreach (var varId in after.EnumerateVarIds())
             {
                 if (varId == 0 || !handled.Add(varId))
                     continue;
 
-                if (AreSameValue(sourceIds, compareTo, varId))
+                if (AreSameValue(after, before, varId))
                     continue;
 
-                ApplyVarValue(destination, sourceIds, varId);
+                ApplyVarValue(destination, after, varId);
+            }
+        }
+
+        static void ApplyRemovedIds(IVarStore before, IVarStore after, IVarStore destination, HashSet<int> handled)
+        {
+            foreach (var varId in before.EnumerateVarIds())
+            {
+                if (varId == 0 || !handled.Add(varId))
+                    continue;
+
+                if (after.Contains(varId))
+                    continue;
+
+                destination.TryUnset(varId);
             }
         }
 

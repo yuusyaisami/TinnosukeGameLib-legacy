@@ -2810,14 +2810,17 @@ namespace Game.Common
             if (hubOwnerScope == null)
                 return false;
 
-            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache, hubOwnerScope);
-            if (targetScope == null)
+            if (!TryResolveTargetScopes(context, hubOwnerScope, targetActorSource, ref _targetActorCache, out var targetScope, out var targetScopes))
                 return false;
 
             if (string.IsNullOrWhiteSpace(this.tag))
-                return TryFindTagFromSharedHub(hubOwnerScope, targetScope, out tag);
+                return targetScopes != null
+                    ? TryFindTagFromSharedHub(hubOwnerScope, targetScopes, out tag)
+                    : TryFindTagFromSharedHub(hubOwnerScope, targetScope!, out tag);
 
-            return TryMatchTagFromSharedHub(hubOwnerScope, targetScope, this.tag, out tag);
+            return targetScopes != null
+                ? TryMatchTagFromSharedHub(hubOwnerScope, targetScopes, this.tag, out tag)
+                : TryMatchTagFromSharedHub(hubOwnerScope, targetScope!, this.tag, out tag);
         }
 
         internal static bool TryFindTagFromSharedHub(IScopeNode hubOwnerScope, IScopeNode targetScope, out string tag)
@@ -2834,6 +2837,37 @@ namespace Game.Common
 
                 if (hub.TryFindTag(targetScope, out tag))
                     return true;
+
+                return false;
+            }
+
+            return false;
+        }
+
+        internal static bool TryFindTagFromSharedHub(IScopeNode hubOwnerScope, IReadOnlyList<IScopeNode> targetScopes, out string tag)
+        {
+            tag = string.Empty;
+            if (targetScopes == null || targetScopes.Count == 0)
+                return false;
+
+            for (var current = hubOwnerScope; current != null; current = current.Parent)
+            {
+                var resolver = current.Resolver;
+                if (resolver == null)
+                    continue;
+
+                if (!resolver.TryResolve<ISharedLTSChannelHub>(out var hub) || hub == null)
+                    continue;
+
+                for (int i = 0; i < targetScopes.Count; i++)
+                {
+                    var targetScope = targetScopes[i];
+                    if (targetScope == null)
+                        continue;
+
+                    if (hub.TryFindTag(targetScope, out tag))
+                        return true;
+                }
 
                 return false;
             }
@@ -2866,6 +2900,87 @@ namespace Game.Common
                 return true;
             }
 
+            return false;
+        }
+
+        static bool TryMatchTagFromSharedHub(IScopeNode hubOwnerScope, IReadOnlyList<IScopeNode> targetScopes, string expectedTag, out string resolvedTag)
+        {
+            resolvedTag = string.Empty;
+            if (string.IsNullOrWhiteSpace(expectedTag) || targetScopes == null || targetScopes.Count == 0)
+                return false;
+
+            for (var current = hubOwnerScope; current != null; current = current.Parent)
+            {
+                var resolver = current.Resolver;
+                if (resolver == null)
+                    continue;
+
+                if (!resolver.TryResolve<ISharedLTSChannelHub>(out var hub) || hub == null)
+                    continue;
+
+                if (!hub.TryGet(expectedTag, out var registeredScope) || registeredScope == null)
+                    return false;
+
+                for (int i = 0; i < targetScopes.Count; i++)
+                {
+                    var candidate = targetScopes[i];
+                    if (candidate != null && ReferenceEquals(registeredScope, candidate))
+                    {
+                        resolvedTag = expectedTag;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            return false;
+        }
+
+        internal static bool TryResolveTargetScopes(
+            IDynamicContext context,
+            IScopeNode hubOwnerScope,
+            ActorSource source,
+            ref ActorSourceResolveCache cache,
+            out IScopeNode? targetScope,
+            out IReadOnlyList<IScopeNode>? targetScopes)
+        {
+            targetScope = null;
+            targetScopes = null;
+
+            if (source.Kind == ActorSourceKind.ByIdentity &&
+                TryResolveScopeRegistry(hubOwnerScope, out var registry) &&
+                registry != null)
+            {
+                var resolvedScopes = registry.ResolveAll(source.Identity, hubOwnerScope);
+                if (resolvedScopes != null && resolvedScopes.Count > 0)
+                {
+                    targetScope = resolvedScopes[0];
+                    targetScopes = resolvedScopes;
+                    return true;
+                }
+            }
+
+            targetScope = ActorSourceFastResolver.ResolveCached(context, source, ref cache, hubOwnerScope);
+            return targetScope != null;
+        }
+
+        static bool TryResolveScopeRegistry(IScopeNode? origin, out IBaseLifetimeScopeRegistry? registry)
+        {
+            var current = origin;
+            while (current != null)
+            {
+                var resolver = current.Resolver;
+                if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
+                {
+                    registry = resolved;
+                    return true;
+                }
+
+                current = current.Parent;
+            }
+
+            registry = null;
             return false;
         }
     }
@@ -2903,12 +3018,16 @@ namespace Game.Common
             if (hubOwnerScope == null)
                 return DynamicVariant.FromString(string.Empty);
 
-            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActorSource, ref _targetActorCache, hubOwnerScope);
-            if (targetScope == null)
+            if (!SharedActorSourceExistsSource.TryResolveTargetScopes(context, hubOwnerScope, targetActorSource, ref _targetActorCache, out var targetScope, out var targetScopes))
                 return DynamicVariant.FromString(string.Empty);
 
-            return SharedActorSourceExistsSource.TryFindTagFromSharedHub(hubOwnerScope, targetScope, out var tag)
-                ? DynamicVariant.FromString(tag)
+            if (targetScopes != null)
+                return SharedActorSourceExistsSource.TryFindTagFromSharedHub(hubOwnerScope, targetScopes, out var tag)
+                    ? DynamicVariant.FromString(tag)
+                    : DynamicVariant.FromString(string.Empty);
+
+            return SharedActorSourceExistsSource.TryFindTagFromSharedHub(hubOwnerScope, targetScope!, out var singleTag)
+                ? DynamicVariant.FromString(singleTag)
                 : DynamicVariant.FromString(string.Empty);
         }
     }
