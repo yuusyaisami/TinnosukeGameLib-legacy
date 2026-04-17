@@ -67,6 +67,12 @@ namespace Game.Commands.VNext
         [SerializeField]
         public float Weight = 1f;
 
+        [BoxGroup("Entry")]
+        [ShowIf(nameof(UseEntrySettings))]
+        [LabelText("Condition")]
+        [SerializeField]
+        public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
+
         [BoxGroup("Lifetime")]
         [ShowIf(nameof(UseEntrySettings))]
         [LabelText("One Shot")]
@@ -107,6 +113,7 @@ namespace Game.Commands.VNext
                 Priority,
                 BlendMode,
                 Weight,
+                Condition,
                 0,
                 OneShot,
                 DurationSeconds);
@@ -168,6 +175,12 @@ namespace Game.Commands.VNext
         [SerializeField]
         public float Weight = 1f;
 
+        [BoxGroup("Entry")]
+        [ShowIf(nameof(UseEntrySettings))]
+        [LabelText("Condition")]
+        [SerializeField]
+        public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
+
         [BoxGroup("Lifetime")]
         [ShowIf(nameof(UseEntrySettings))]
         [LabelText("One Shot")]
@@ -214,6 +227,7 @@ namespace Game.Commands.VNext
                 Priority,
                 BlendMode,
                 Weight,
+                Condition,
                 0,
                 OneShot,
                 DurationSeconds);
@@ -275,6 +289,12 @@ namespace Game.Commands.VNext
         [SerializeField]
         public float Weight = 1f;
 
+        [BoxGroup("Entry")]
+        [ShowIf(nameof(UseEntrySettings))]
+        [LabelText("Condition")]
+        [SerializeField]
+        public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
+
         [BoxGroup("Lifetime")]
         [ShowIf(nameof(UseEntrySettings))]
         [LabelText("One Shot")]
@@ -315,6 +335,7 @@ namespace Game.Commands.VNext
                 Priority,
                 BlendMode,
                 Weight,
+                Condition,
                 0,
                 OneShot,
                 DurationSeconds);

@@ -36,6 +36,8 @@ namespace Game.Movement
                         Key = key,
                         BaseValue = profile.DefaultSpeedFallback,
                         UseEffectMod = false,
+                        UseRoundMod = false,
+                        RoundDigits = 0,
                         UseClampMod = false,
                         Clamp = default,
                         SaveEnabled = false,

@@ -18,6 +18,12 @@ namespace Game.TransformSystem
         bool _enabled = true;
 
         [BoxGroup("Entry")]
+        [ShowIf(nameof(ShowCondition))]
+        [LabelText("Condition")]
+        [SerializeField]
+        DynamicValue<bool> _condition = DynamicValueExtensions.FromLiteral(true);
+
+        [BoxGroup("Entry")]
         [LabelText("Entry Id")]
         [Tooltip("このグローバルエントリ専用のスロットキーです。同じエントリIDは、同じスロットを更新します。空の場合、カテゴリとリストのインデックスから安定したフォールバックIDが生成されます。")]
         [SerializeField]
@@ -61,7 +67,9 @@ namespace Game.TransformSystem
         [SerializeField]
         float _durationSeconds;
 
-        bool ShowChannelTag => !_applyAllChannels;
+        bool ShowCondition() => _enabled;
+
+        bool ShowChannelTag() => !_applyAllChannels;
 
         public bool TryBuild(string fallbackEntryId, out TransformManagerEntrySettings settings)
         {
@@ -83,6 +91,7 @@ namespace Game.TransformSystem
                 _priority,
                 _blendMode,
                 _weight,
+                _condition.HasSource ? _condition : DynamicValueExtensions.FromLiteral(true),
                 0,
                 _oneShot,
                 _durationSeconds);

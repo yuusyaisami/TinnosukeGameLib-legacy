@@ -169,6 +169,20 @@ namespace Game.Profile
         bool _useEffectMod;
 
         [FoldoutGroup("$ScalarBindingGroupName")]
+        [LabelText("Use Round Mod")]
+        [ShowIf(nameof(ShowScalarSettings))]
+        [SerializeField]
+        bool _useRoundMod;
+
+        [FoldoutGroup("$ScalarBindingGroupName")]
+        [LabelText("Round Digits")]
+        [ShowIf(nameof(ShowRoundSettings))]
+        [MinValue(0)]
+        [MaxValue(6)]
+        [SerializeField]
+        int _roundDigits;
+
+        [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Clamp Mod")]
         [ShowIf(nameof(ShowScalarSettings))]
         [SerializeField]
@@ -239,6 +253,7 @@ namespace Game.Profile
         bool IsUnityObject => _kind == ProfileDynamicValueKind.UnityObject;
         bool CanBindScalar => IsFloat;
         bool ShowScalarSettings => CanBindScalar && HasScalarKey;
+        bool ShowRoundSettings => ShowScalarSettings && _useRoundMod;
         bool ShowClampSettings => ShowScalarSettings && _useClampMod;
         bool ShowLocalBaseSettings => ShowScalarSettings && _useLocalBase;
         bool ShowScalarSaveLayer => ShowScalarSettings && _scalarSaveEnabled;
@@ -397,6 +412,8 @@ namespace Game.Profile
             {
                 BaseValue = _floatValue,
                 UseEffectMod = _useEffectMod,
+                UseRoundMod = _useRoundMod,
+                RoundDigits = Mathf.Clamp(_roundDigits, 0, 6),
                 UseClampMod = _useClampMod,
                 Clamp = _clamp
             };

@@ -90,6 +90,10 @@ namespace Game.Commands
         // ConditionOnly: in EventDriven mode, evaluate at least once to initialize state.
         bool _conditionEvaluatedOnce;
 
+        // While commands are evaluated separately from condition updates so they continue ticking
+        // even when the condition itself is not re-evaluated every frame.
+        bool _suppressWhileCommandsThisTick;
+
         // ValueChanged rule state
         readonly List<ValueChangedWatchState> _valueChangedStates = new(4);
         bool _valueChangedTriggeredThisFrame;
@@ -502,6 +506,7 @@ namespace Game.Commands
             if (_disposed) return;
             if (ct.IsCancellationRequested) return;
             int valueChangedVersionAtStart = _valueChangedVersion;
+            _suppressWhileCommandsThisTick = false;
 
             // イベント駆動ルールの処理
             if (_eventFiredThisFrame)
@@ -538,6 +543,8 @@ namespace Game.Commands
                 }
             }
 
+            TickWhileCommands(ct);
+
             // 完了タスクのクリーンアップ
             CleanupCompletedTasks();
 
@@ -556,6 +563,9 @@ namespace Game.Commands
                 return false;
 
             if (_runningEntries.Count > 0)
+                return true;
+
+            if (HasActiveWhileCommands())
                 return true;
 
             if (_eventFiredThisFrame)
@@ -1205,8 +1215,10 @@ namespace Game.Commands
             if (_disposed) return;
             if (_rule.RuleKind != MonitorRuleKind.ConditionOnly) return;
 
+            _suppressWhileCommandsThisTick = false;
             _conditionEvaluatedOnce = true;
             EvaluateCondition(ct);
+            TickWhileCommands(ct);
             CleanupCompletedTasks();
         }
 
@@ -1224,24 +1236,49 @@ namespace Game.Commands
             else if (_rule.RuleKind == MonitorRuleKind.EventAndCondition)
             {
                 // EventAndCondition: 条件評価して true なら実行
+                bool current;
                 if (!_rule.Condition.HasSource)
                 {
-                    TryExecuteCommands("Enter", _rule.OnEnterCommands, ct);
+                    current = true;
                 }
                 else
                 {
                     try
                     {
                         var ctx = CreateContext();
-                        if (ctx != null && _rule.Condition.EvaluateBool(ctx))
-                        {
-                            TryExecuteCommands("Enter", _rule.OnEnterCommands, ct);
-                        }
+                        if (ctx == null)
+                            return;
+
+                        current = _rule.Condition.EvaluateBool(ctx);
                     }
                     catch (Exception ex)
                     {
                         Debug.LogWarning($"[MonitorChannelRuntime] EventAndCondition evaluation failed for '{_rule.RuleName}': {ex.Message}");
+                        return;
                     }
+                }
+
+                bool hadConditionState = _conditionEvaluatedOnce;
+                bool previous = _previousState;
+                _conditionEvaluatedOnce = true;
+                _previousState = current;
+
+                if (!hadConditionState || previous != current)
+                {
+                    BumpTelemetry();
+                    if (_rule.CancelRunningOnConditionChange)
+                        CancelRunningEntriesOnConditionChange();
+                    ResetWhileTimers();
+                    _suppressWhileCommandsThisTick = true;
+                }
+
+                if (current)
+                {
+                    TryExecuteCommands("Enter", _rule.OnEnterCommands, ct);
+                }
+                else if (hadConditionState && previous && !current)
+                {
+                    TryExecuteCommands("Exit", _rule.OnExitCommands, ct);
                 }
             }
         }
@@ -1280,11 +1317,13 @@ namespace Game.Commands
                 if (current)
                 {
                     ResetWhileTimers();
+                    _suppressWhileCommandsThisTick = true;
                     TryExecuteCommands("Enter", _rule.OnEnterCommands, ct);
                 }
                 else
                 {
                     ResetWhileTimers();
+                    _suppressWhileCommandsThisTick = true;
                     TryExecuteCommands("Exit", _rule.OnExitCommands, ct);
                 }
                 return;
@@ -1299,6 +1338,7 @@ namespace Game.Commands
                 if (_rule.CancelRunningOnConditionChange)
                     CancelRunningEntriesOnConditionChange();
                 ResetWhileTimers();
+                _suppressWhileCommandsThisTick = true;
 
                 // 状態遷移フレームでは Enter / Exit のみを処理し、その評価サイクル中に
                 // WhileTrue / WhileFalse を新規起動しないことを明示する。
@@ -1314,16 +1354,6 @@ namespace Game.Commands
                     return;
                 }
             }
-
-            // WhileTrue: true 維持中
-            if (current)
-            {
-                TryExecuteWhileCommands("WhileTrue", _rule.WhileTrueCommands, ref _lastWhileTrueExecution, ct);
-                return;
-            }
-
-            // WhileFalse: false 維持中
-            TryExecuteWhileCommands("WhileFalse", _rule.WhileFalseCommands, ref _lastWhileFalseExecution, ct);
         }
 
         VNext.CommandContext? CreateContext()
@@ -1337,10 +1367,45 @@ namespace Game.Commands
             _lastWhileFalseExecution = float.NegativeInfinity;
         }
 
+        void TickWhileCommands(CancellationToken ct)
+        {
+            if (_suppressWhileCommandsThisTick)
+                return;
+
+            if (!_conditionEvaluatedOnce)
+                return;
+
+            if (!_rule.Condition.HasSource)
+                return;
+
+            if (_rule.RuleKind != MonitorRuleKind.ConditionOnly && _rule.RuleKind != MonitorRuleKind.EventAndCondition)
+                return;
+
+            if (_previousState)
+            {
+                TryExecuteWhileCommands("WhileTrue", _rule.WhileTrueCommands, ref _lastWhileTrueExecution, ct);
+                return;
+            }
+
+            TryExecuteWhileCommands("WhileFalse", _rule.WhileFalseCommands, ref _lastWhileFalseExecution, ct);
+        }
+
         void TryExecuteWhileCommands(string phase, MonitorRuleWhileCommandSet whileSet, ref float lastExecution, CancellationToken ct)
         {
             var commands = whileSet.Commands;
             if (commands == null || commands.Count == 0) return;
+
+            if (whileSet.RepeatMode == MonitorRuleWhileRepeatMode.AfterAllCompleted)
+            {
+                if (HasRunningEntriesForPhase(phase))
+                    return;
+
+                lastExecution = Time.realtimeSinceStartup;
+                // While commands are still executed through the normal command runner, but the next
+                // pass is deferred until every command in the previous pass is finished.
+                TryExecuteCommands(phase, commands, ct, suppressCancelLog: true);
+                return;
+            }
 
             float interval = whileSet.IntervalSeconds;
             if (interval < 0f) interval = 0f;
@@ -1355,6 +1420,35 @@ namespace Game.Commands
             // While commands are interval-polled and frequently canceled by design.
             // Suppress per-command cancel warnings to avoid noisy logs.
             TryExecuteCommands(phase, commands, ct, suppressCancelLog: true);
+        }
+
+        bool HasRunningEntriesForPhase(string phase)
+        {
+            for (int i = 0; i < _runningEntries.Count; i++)
+            {
+                var entry = _runningEntries[i];
+                if (!entry.Completed && entry.Phase == phase)
+                    return true;
+            }
+
+            return false;
+        }
+
+        bool HasActiveWhileCommands()
+        {
+            if (!_conditionEvaluatedOnce)
+                return false;
+
+            if (!_rule.Condition.HasSource)
+                return false;
+
+            if (_rule.RuleKind != MonitorRuleKind.ConditionOnly && _rule.RuleKind != MonitorRuleKind.EventAndCondition)
+                return false;
+
+            if (_previousState)
+                return _rule.WhileTrueCommands.Commands != null && _rule.WhileTrueCommands.Commands.Count > 0;
+
+            return _rule.WhileFalseCommands.Commands != null && _rule.WhileFalseCommands.Commands.Count > 0;
         }
 
         void CancelRunningEntriesOnConditionChange()

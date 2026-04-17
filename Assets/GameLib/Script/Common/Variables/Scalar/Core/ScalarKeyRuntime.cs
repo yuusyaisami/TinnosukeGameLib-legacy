@@ -54,6 +54,9 @@ namespace Game.Scalar
                 if (config.UseEffectMod)
                     RegisterModifier(new EffectScalarModifier(this, _invalidateCache));
 
+                if (config.UseRoundMod)
+                    RegisterGetModifierBefore(typeof(ClampScalarModifier), new RoundScalarModifier(config.RoundDigits, _invalidateCache));
+
                 if (config.UseClampMod)
                     RegisterModifier(new ClampScalarModifier(config.Clamp, _invalidateCache));
             }
@@ -116,6 +119,23 @@ namespace Game.Scalar
                 RemoveModifier<ClampScalarModifier>();
             }
 
+            // Round modifier handling
+            if (config != null && config.UseRoundMod)
+            {
+                if (ResolveModifier<RoundScalarModifier>() is RoundScalarModifier round)
+                {
+                    round.Digits = config.RoundDigits;
+                }
+                else
+                {
+                    RegisterGetModifierBefore(typeof(ClampScalarModifier), new RoundScalarModifier(config.RoundDigits, _invalidateCache));
+                }
+            }
+            else
+            {
+                RemoveModifier<RoundScalarModifier>();
+            }
+
             // Effect modifier handling
             if (config != null && config.UseEffectMod)
             {
@@ -164,6 +184,29 @@ namespace Game.Scalar
                 _mulModifiers.Add(mul);
             if (mod is IScalarGetModifier get)
                 _getModifiers.Add(get);
+        }
+
+        void RegisterGetModifierBefore(Type beforeType, IScalarGetModifier mod)
+        {
+            if (mod == null)
+                return;
+
+            _modByType[mod.GetType()] = mod;
+
+            if (beforeType != null)
+            {
+                for (int i = 0; i < _getModifiers.Count; i++)
+                {
+                    var existing = _getModifiers[i];
+                    if (existing != null && existing.GetType() == beforeType)
+                    {
+                        _getModifiers.Insert(i, mod);
+                        return;
+                    }
+                }
+            }
+
+            _getModifiers.Add(mod);
         }
 
         public TMod ResolveModifier<TMod>() where TMod : class, IScalarModifier

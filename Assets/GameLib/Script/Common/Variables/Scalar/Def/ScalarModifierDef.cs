@@ -105,6 +105,8 @@ namespace Game.Scalar
     {
         public float BaseValue;
         public bool UseEffectMod;
+        public bool UseRoundMod;
+        public int RoundDigits;
         public bool UseClampMod;
         public ScalarClamp Clamp;
     }
