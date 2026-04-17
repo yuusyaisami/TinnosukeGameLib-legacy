@@ -217,8 +217,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 232
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 181ef0947a12a4847b4312bf5fa1c702, type: 2}
-  m_sharedMaterial: {fileID: -7263849027779879147, guid: 181ef0947a12a4847b4312bf5fa1c702, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
+  m_sharedMaterial: {fileID: 965238318100020341, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -242,7 +242,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14.05
+  m_fontSize: 6.65
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -428,6 +428,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -1490,6 +1491,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
   references:
     version: 2
     RefIds:
@@ -1751,6 +1753,7 @@ MonoBehaviour:
             _autoPlay: 0
             _variables:
               entries: []
+              tables: []
     - rid: 5399842374860144995
       type: {class: CommandListPreset, ns: Game.Commands, asm: Assembly-CSharp}
       data:
@@ -1768,6 +1771,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5399842374860144997
       type: {class: 'ManagedRefLiteralSource`1[[Game.Commands.CommandListPreset, Assembly-CSharp]]', ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1801,6 +1805,7 @@ MonoBehaviour:
         _autoPlay: 0
         _variables:
           entries: []
+          tables: []
     - rid: 5399842374860145001
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -3892,8 +3897,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 232
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 181ef0947a12a4847b4312bf5fa1c702, type: 2}
-  m_sharedMaterial: {fileID: -7263849027779879147, guid: 181ef0947a12a4847b4312bf5fa1c702, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
+  m_sharedMaterial: {fileID: 965238318100020341, guid: 57e9938b3551e5f45bf2de8f5f456642, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

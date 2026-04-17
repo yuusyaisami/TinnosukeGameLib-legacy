@@ -411,7 +411,7 @@ MonoBehaviour:
     _executeOnAcquire: 1
     _positionEpsilon: 0.1
     _sizeEpsilon: 0.1
-    _enableDebugLog: 0
+    _enableDebugLog: 1
   references:
     version: 2
     RefIds:
