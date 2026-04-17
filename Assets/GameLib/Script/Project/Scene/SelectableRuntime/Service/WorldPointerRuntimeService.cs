@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Game.Input;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -46,7 +47,10 @@ namespace Game.SelectRuntime
         readonly HashSet<WorldPointerTargetMB> _targets = new();
         readonly Dictionary<Collider2D, WorldPointerTargetMB> _targetByCollider = new();
         readonly Dictionary<WorldPointerTargetMB, RenderKey> _renderKeyCache = new();
+        readonly List<Transform> _hierarchyPathA = new();
+        readonly List<Transform> _hierarchyPathB = new();
         readonly RaycastHit2D[] _raycastHits = new RaycastHit2D[64];
+        WorldPointerTargetMB? _lastDebugLoggedTarget;
 
         readonly ButtonSession _leftSession = new();
         readonly ButtonSession _rightSession = new();
@@ -88,6 +92,7 @@ namespace Game.SelectRuntime
             ResetState();
             _targets.Clear();
             _targetByCollider.Clear();
+            _lastDebugLoggedTarget = null;
         }
 
         public void RegisterTarget(WorldPointerTargetMB target)
@@ -308,9 +313,20 @@ namespace Game.SelectRuntime
                 _options.HitMask);
 
             if (hitCount <= 0)
-                return new WorldPointerEventData(null, screenPosition, Vector3.zero, Vector3.zero, null);
+            {
+                if (_options.EnableDebugLog)
+                {
+                    var debugBuilder = new StringBuilder(128);
+                    debugBuilder.AppendLine($"[WorldPointerRuntimeService] Raycast screen={screenPosition} hitCount={hitCount} camera={camera.name}");
+                    debugBuilder.AppendLine("[WorldPointerRuntimeService] Final target=(none)");
+                    TryLogDebugTrace(debugBuilder, null);
+                }
 
-            var target = ResolveFrontmostTarget(hitCount);
+                return new WorldPointerEventData(null, screenPosition, Vector3.zero, Vector3.zero, null);
+            }
+
+            var target = ResolveFrontmostTarget(hitCount, _options.EnableDebugLog ? new StringBuilder(512) : null);
+
             if (target.target == null)
                 return new WorldPointerEventData(null, screenPosition, target.hit.point, target.hit.normal, target.hit.collider);
 
@@ -332,7 +348,7 @@ namespace Game.SelectRuntime
             return null;
         }
 
-        (WorldPointerTargetMB? target, RaycastHit2D hit) ResolveFrontmostTarget(int hitCount)
+        (WorldPointerTargetMB? target, RaycastHit2D hit) ResolveFrontmostTarget(int hitCount, StringBuilder? debugBuilder)
         {
             _renderKeyCache.Clear();
 
@@ -340,6 +356,9 @@ namespace Game.SelectRuntime
             RaycastHit2D bestHit = default;
             RenderKey bestKey = default;
             bool hasBest = false;
+
+            if (debugBuilder != null)
+                debugBuilder.AppendLine($"[WorldPointerRuntimeService] Raycast hitCount={hitCount}");
 
             for (var i = 0; i < hitCount; i++)
             {
@@ -352,7 +371,31 @@ namespace Game.SelectRuntime
                     continue;
 
                 var candidateKey = GetRenderKey(target);
-                if (!hasBest || IsFrontOf(candidateKey, hit, target, bestKey, bestHit, bestTarget))
+
+                if (debugBuilder != null)
+                {
+                    if (!hasBest)
+                    {
+                        debugBuilder.AppendLine($"  [{i}] {DescribeTarget(target)} collider={DescribeCollider(hit.collider)} key={DescribeRenderKey(candidateKey)} hit={DescribeHit(hit)} -> FIRST");
+                    }
+                    else
+                    {
+                        var candidateWins = IsFrontOf(candidateKey, hit, target, bestKey, bestHit, bestTarget, out var reason);
+                        debugBuilder.AppendLine($"  [{i}] {DescribeTarget(target)} collider={DescribeCollider(hit.collider)} key={DescribeRenderKey(candidateKey)} hit={DescribeHit(hit)} vs best={DescribeTarget(bestTarget)} bestKey={DescribeRenderKey(bestKey)} bestHit={DescribeHit(bestHit)} => {(candidateWins ? "WIN" : "LOSE")} ({reason})");
+
+                        if (candidateWins)
+                        {
+                            hasBest = true;
+                            bestTarget = target;
+                            bestHit = hit;
+                            bestKey = candidateKey;
+                        }
+
+                        continue;
+                    }
+                }
+
+                if (!hasBest || IsFrontOf(candidateKey, hit, target, bestKey, bestHit, bestTarget, out _))
                 {
                     hasBest = true;
                     bestTarget = target;
@@ -362,30 +405,162 @@ namespace Game.SelectRuntime
             }
 
             _renderKeyCache.Clear();
+
+            if (debugBuilder != null)
+            {
+                if (bestTarget != null)
+                    debugBuilder.AppendLine($"[WorldPointerRuntimeService] Final target={DescribeTarget(bestTarget)} hit={DescribeHit(bestHit)} key={DescribeRenderKey(bestKey)}");
+                else
+                    debugBuilder.AppendLine("[WorldPointerRuntimeService] Final target=(none)");
+
+                TryLogDebugTrace(debugBuilder, bestTarget);
+            }
+
             return (bestTarget, bestHit);
         }
 
-        static bool IsFrontOf(
+        void TryLogDebugTrace(StringBuilder debugBuilder, WorldPointerTargetMB? target)
+        {
+            if (_options.EnableDebugLog == false)
+                return;
+
+            if (target == null && _lastDebugLoggedTarget == null)
+                return;
+
+            if (ReferenceEquals(_lastDebugLoggedTarget, target))
+                return;
+
+            Debug.Log(debugBuilder.ToString());
+            _lastDebugLoggedTarget = target;
+        }
+
+        bool IsFrontOf(
             RenderKey candidateKey,
             RaycastHit2D candidateHit,
             WorldPointerTargetMB candidateTarget,
             RenderKey currentBestKey,
             RaycastHit2D currentBestHit,
-            WorldPointerTargetMB? currentBestTarget)
+            WorldPointerTargetMB? currentBestTarget,
+            out string reason)
         {
+            if (!Mathf.Approximately(candidateKey.Depth, currentBestKey.Depth))
+            {
+                reason = $"depth {candidateKey.Depth:0.###} < {currentBestKey.Depth:0.###}";
+                return candidateKey.Depth < currentBestKey.Depth;
+            }
+
+            var hierarchyCompare = CompareHierarchyFrontToBack(candidateTarget, currentBestTarget);
+            if (hierarchyCompare != 0)
+            {
+                var bestSiblingIndex = currentBestTarget != null ? currentBestTarget.transform.GetSiblingIndex() : 0;
+                reason = hierarchyCompare > 0
+                    ? $"hierarchy front candidateSibling={candidateTarget.transform.GetSiblingIndex()} bestSibling={bestSiblingIndex}"
+                    : $"hierarchy back candidateSibling={candidateTarget.transform.GetSiblingIndex()} bestSibling={bestSiblingIndex}";
+                return hierarchyCompare > 0;
+            }
+
             var compare = candidateKey.CompareTo(currentBestKey);
             if (compare != 0)
+            {
+                reason = compare > 0
+                    ? $"render-key front candidate={DescribeRenderKey(candidateKey)} best={DescribeRenderKey(currentBestKey)}"
+                    : $"render-key back candidate={DescribeRenderKey(candidateKey)} best={DescribeRenderKey(currentBestKey)}";
                 return compare > 0;
+            }
 
             if (!Mathf.Approximately(candidateHit.distance, currentBestHit.distance))
+            {
+                reason = $"hit-distance {candidateHit.distance:0.###} < {currentBestHit.distance:0.###}";
                 return candidateHit.distance < currentBestHit.distance;
+            }
 
+            reason = $"instance-id tie-break {GetStableTieBreaker(candidateTarget)} > {GetStableTieBreaker(currentBestTarget)}";
             return GetStableTieBreaker(candidateTarget) > GetStableTieBreaker(currentBestTarget);
+        }
+
+        int CompareHierarchyFrontToBack(WorldPointerTargetMB candidateTarget, WorldPointerTargetMB? currentBestTarget)
+        {
+            if (currentBestTarget == null)
+                return 1;
+
+            if (candidateTarget == null)
+                return -1;
+
+            if (ReferenceEquals(candidateTarget, currentBestTarget))
+                return 0;
+
+            var candidateTransform = candidateTarget.transform;
+            var currentBestTransform = currentBestTarget.transform;
+            if (candidateTransform == null || currentBestTransform == null)
+                return 0;
+
+            if (candidateTransform.IsChildOf(currentBestTransform))
+                return 1;
+
+            if (currentBestTransform.IsChildOf(candidateTransform))
+                return -1;
+
+            _hierarchyPathA.Clear();
+            _hierarchyPathB.Clear();
+
+            for (var current = candidateTransform; current != null; current = current.parent)
+                _hierarchyPathA.Add(current);
+
+            for (var current = currentBestTransform; current != null; current = current.parent)
+                _hierarchyPathB.Add(current);
+
+            var indexA = _hierarchyPathA.Count - 1;
+            var indexB = _hierarchyPathB.Count - 1;
+            while (indexA >= 0 && indexB >= 0 && ReferenceEquals(_hierarchyPathA[indexA], _hierarchyPathB[indexB]))
+            {
+                indexA--;
+                indexB--;
+            }
+
+            if (indexA < 0 || indexB < 0)
+                return 0;
+
+            var candidateHierarchyTransform = _hierarchyPathA[indexA];
+            var currentBestHierarchyTransform = _hierarchyPathB[indexB];
+            if (candidateHierarchyTransform == null || currentBestHierarchyTransform == null)
+                return 0;
+
+            return candidateHierarchyTransform.GetSiblingIndex().CompareTo(currentBestHierarchyTransform.GetSiblingIndex());
         }
 
         static int GetStableTieBreaker(WorldPointerTargetMB? target)
         {
             return target != null ? target.GetInstanceID() : 0;
+        }
+
+        static string DescribeTarget(WorldPointerTargetMB? target)
+        {
+            if (target == null)
+                return "(none)";
+
+            var transform = target.transform;
+            var siblingIndex = transform != null ? transform.GetSiblingIndex() : 0;
+            var depth = transform != null ? transform.position.z : 0f;
+            return $"{target.name}#{target.GetInstanceID()}(z={depth:0.###}, sibling={siblingIndex})";
+        }
+
+        static string DescribeCollider(Collider2D? collider)
+        {
+            if (collider == null)
+                return "(none)";
+
+            return $"{collider.name}#{collider.GetInstanceID()}";
+        }
+
+        static string DescribeHit(RaycastHit2D hit)
+        {
+            var colliderText = DescribeCollider(hit.collider);
+            return $"collider={colliderText} distance={hit.distance:0.###} point=({hit.point.x:0.###},{hit.point.y:0.###})";
+        }
+
+        static string DescribeRenderKey(RenderKey key)
+        {
+            return $"layer={key.SortingLayerValue} order={key.SortingOrder} queue={key.RenderQueue} depth={key.Depth:0.###} sibling={key.SiblingIndex}";
         }
 
         RenderKey GetRenderKey(WorldPointerTargetMB target)
@@ -396,6 +571,8 @@ namespace Game.SelectRuntime
             if (_renderKeyCache.TryGetValue(target, out var cached))
                 return cached;
 
+            var rootTransform = target.transform;
+            var rootDepth = rootTransform != null ? rootTransform.position.z : 0f;
             var best = default(RenderKey);
             var hasBest = false;
 
@@ -424,7 +601,7 @@ namespace Game.SelectRuntime
                         if (renderer == null || !renderer.enabled)
                             continue;
 
-                        var candidate = FromRenderer(renderer);
+                        var candidate = FromRenderer(renderer, rootDepth);
                         if (!hasBest || candidate.CompareTo(best) > 0)
                         {
                             best = candidate;
@@ -450,25 +627,26 @@ namespace Game.SelectRuntime
                 return best;
             }
 
-            var fallback = FromTransform(target.transform);
+            var fallback = FromTransform(target.transform, rootDepth);
             _renderKeyCache[target] = fallback;
             return fallback;
         }
 
-        static RenderKey FromRenderer(Renderer renderer)
+        static RenderKey FromRenderer(Renderer renderer, float rootDepth)
         {
+            var renderTransform = renderer.transform;
             var sortingLayerValue = SortingLayer.GetLayerValueFromID(renderer.sortingLayerID);
             var sortingOrder = renderer.sortingOrder;
             var renderQueue = renderer.sharedMaterial != null ? renderer.sharedMaterial.renderQueue : 0;
-            var depth = renderer.bounds.center.z;
-            var siblingIndex = renderer.transform.GetSiblingIndex();
+            var depth = rootDepth;
+            var siblingIndex = renderTransform != null ? renderTransform.GetSiblingIndex() : 0;
             return new RenderKey(sortingLayerValue, sortingOrder, renderQueue, depth, siblingIndex);
         }
 
-        static RenderKey FromTransform(Transform transform)
+        static RenderKey FromTransform(Transform transform, float rootDepth)
         {
             var siblingIndex = transform != null ? transform.GetSiblingIndex() : 0;
-            var depth = transform != null ? transform.position.z : 0f;
+            var depth = rootDepth;
             return new RenderKey(0, 0, 0, depth, siblingIndex);
         }
 
@@ -479,6 +657,12 @@ namespace Game.SelectRuntime
             readonly int _renderQueue;
             readonly float _depth;
             readonly int _siblingIndex;
+
+            public int SortingLayerValue => _sortingLayerValue;
+            public int SortingOrder => _sortingOrder;
+            public int RenderQueue => _renderQueue;
+            public float Depth => _depth;
+            public int SiblingIndex => _siblingIndex;
 
             public RenderKey(int sortingLayerValue, int sortingOrder, int renderQueue, float depth, int siblingIndex)
             {
@@ -491,7 +675,11 @@ namespace Game.SelectRuntime
 
             public int CompareTo(RenderKey other)
             {
-                var compare = _sortingLayerValue.CompareTo(other._sortingLayerValue);
+                var compare = other._depth.CompareTo(_depth);
+                if (compare != 0)
+                    return compare;
+
+                compare = _sortingLayerValue.CompareTo(other._sortingLayerValue);
                 if (compare != 0)
                     return compare;
 
@@ -500,10 +688,6 @@ namespace Game.SelectRuntime
                     return compare;
 
                 compare = _renderQueue.CompareTo(other._renderQueue);
-                if (compare != 0)
-                    return compare;
-
-                compare = _depth.CompareTo(other._depth);
                 if (compare != 0)
                     return compare;
 
