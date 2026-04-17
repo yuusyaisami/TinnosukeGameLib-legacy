@@ -20,6 +20,7 @@ namespace Game.SelectRuntime
     public interface IWorldPointerRuntimeOptions
     {
         bool Enabled { get; }
+        bool EnableDebugLog { get; }
         Camera? WorldCamera { get; }
         LayerMask HitMask { get; }
         QueryTriggerInteraction QueryTriggerInteraction { get; }

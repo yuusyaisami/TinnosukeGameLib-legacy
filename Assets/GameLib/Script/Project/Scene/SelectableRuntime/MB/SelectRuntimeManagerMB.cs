@@ -19,6 +19,12 @@ namespace Game.SelectRuntime
         [SerializeField]
         bool _enabled = true;
 
+        [BoxGroup("Pointer")]
+        [LabelText("Debug Mode")]
+        [Tooltip("選択候補の優先順位比較ログを出力します。")]
+        [SerializeField]
+        bool _enableDebugLog;
+
         [BoxGroup("State")]
         [LabelText("Is Enabled")]
         [SerializeField]
@@ -52,6 +58,7 @@ namespace Game.SelectRuntime
         float _shortPressSeconds = 0.15f;
 
         public bool Enabled => _enabled;
+        public bool EnableDebugLog => _enableDebugLog;
         public DynamicValue<bool> IsEnabled => _isEnabled;
         public Camera? WorldCamera => _worldCamera != null ? _worldCamera : Camera.main;
         public LayerMask HitMask => _hitMask;
