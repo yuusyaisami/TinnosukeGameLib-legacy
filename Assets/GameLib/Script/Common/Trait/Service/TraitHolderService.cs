@@ -21,7 +21,7 @@ namespace Game.Trait
         bool TryUse(ITraitInstance? instance);
         bool TryUse(ITraitDefinition? definition);
         bool TryGetInstance(ITraitDefinition? definition, out ITraitInstance? instance);
-        void Clear();
+        void Clear(bool runOnRemove = true);
     }
 
     public partial class TraitHolderService :
@@ -148,7 +148,7 @@ namespace Game.Trait
             return false;
         }
 
-        public void Clear()
+        public void Clear(bool runOnRemove = true)
         {
             if (ShouldLogLifecycle())
             {
@@ -168,7 +168,8 @@ namespace Game.Trait
                 var trait = _traits[i];
                 if (_held.Remove(trait))
                 {
-                    trait.OnRemove();
+                    if (runOnRemove)
+                        trait.OnRemove();
                     ExecuteHolderCommands(trait, _onUnequipCommands, _runOnUnequipCommands);
                 }
 

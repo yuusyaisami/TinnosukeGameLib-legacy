@@ -1050,8 +1050,8 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: "<sprite=22>\u500D\u7387 +{intensity|fixed=1|effect=color_if|cond=value
-              > 0|trueColor=\"#66FF66\"|falseColor=\"#FF6666\"|suffix=\"x\"}"
+            Template: "<sprite=22>\u500D\u7387 {intensity|fixed=1|effect=color_if|cond=value
+              > 0|trueColor=\"#66FF66\"|falseColor=\"#FF6666\"|suffix=\"x\"|sign=always}"
             Variables:
             - _value:
                 _source:

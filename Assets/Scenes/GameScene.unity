@@ -4734,7 +4734,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: rfde
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b0059b6a2950ad34699febf08148d009, type: 2}
   m_sharedMaterial: {fileID: -6419762927213802236, guid: b0059b6a2950ad34699febf08148d009, type: 2}
@@ -4761,7 +4761,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 57.1
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -40523,6 +40523,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Events.GlobalGravityScale
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40556,6 +40558,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.BuffBallChance
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 1
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40593,6 +40597,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.DebuffBallChance
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 1
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40626,6 +40632,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.AllSlotMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40655,6 +40663,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.TurnValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40699,6 +40709,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Sell.NailSellMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40728,6 +40740,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.Quota
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40765,6 +40779,8 @@ MonoBehaviour:
           Name: 
         _scalarPolicy: 0
         _useEffectMod: 0
+        _useRoundMod: 0
+        _roundDigits: 0
         _useClampMod: 0
         _useLocalBase: 0
         _localBaseValue: 0
@@ -40794,6 +40810,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Ball.LeftWindowScale
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40823,6 +40841,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Ball.RightWindowScale
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40852,6 +40872,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Shop.ShopItemCount
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40881,6 +40903,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Shop.isShopTurnReset
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40910,6 +40934,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Quota.QuotaIncrementMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -40939,6 +40965,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Quota.QuotaDecrementMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41003,6 +41031,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.NailValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41032,6 +41062,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.InstanceMoneyValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41077,6 +41109,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.PlayerQuota
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41106,6 +41140,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.TimeLimitValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41135,6 +41171,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.BallCount
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41164,6 +41202,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.LuckValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41193,6 +41233,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.MaxTurnValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41222,6 +41264,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.MaxNail
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41251,6 +41295,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.MaxTimeLimit
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41280,6 +41326,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.MaxBall
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41309,6 +41357,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.ShopPriceMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41338,6 +41388,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.GameStage
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41367,6 +41419,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.NailUpgradePriceMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41396,6 +41450,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.RerollValueMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41425,6 +41481,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.RerollValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41467,6 +41525,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.LuckWayPoint
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41496,6 +41556,8 @@ MonoBehaviour:
           Name: 
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41525,6 +41587,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.LuckUniqueValueMulAdd
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41554,6 +41618,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.MoneyValue
         ScalarPolicyValue: 0
         UseEffectMod: 1
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 1
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41609,6 +41675,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.BuffBallMaxValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41638,6 +41706,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.BuffBallValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41667,6 +41737,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.DebuffBallValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41696,6 +41768,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.DebuffBallMinValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41737,6 +41811,8 @@ MonoBehaviour:
           Name: GameLogic.GateProfile.LeftGate.OpenTime
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41766,6 +41842,8 @@ MonoBehaviour:
           Name: GameLogic.GateProfile.LeftGate.CloseTime
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 1
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41795,6 +41873,8 @@ MonoBehaviour:
           Name: GameLogic.GateProfile.RightGate.CloseTime
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 1
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41824,6 +41904,8 @@ MonoBehaviour:
           Name: GameLogic.GateProfile.RightGate.OpenTime
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 1
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41869,6 +41951,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Ball.BallValueMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41898,6 +41982,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Ball.BallValueAdd
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -41927,6 +42013,8 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Ball.BallGravityScale
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -67475,6 +67563,8 @@ MonoBehaviour:
           Name: GameLogic.SlotProfile.LeftMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -67504,6 +67594,8 @@ MonoBehaviour:
           Name: GameLogic.SlotProfile.CenterMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -67533,6 +67625,8 @@ MonoBehaviour:
           Name: GameLogic.SlotProfile.RightMul
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -89705,7 +89799,7 @@ MonoBehaviour:
         - rid: 5399842374860145410
         - rid: 5399842374860145412
         - rid: 5399842374860145389
-        - rid: 5399842744310431849
+        - rid: 5399842744310432148
       IntervalSeconds: 0.1
     WhileFalseCommands:
       RepeatMode: 0
@@ -90001,7 +90095,7 @@ MonoBehaviour:
           _customKey: 
           _expectedType: 255
         _template: Next Quota is {RequestBaseQuota}  {RequestBaseQuota*QuotaMul|effect=color_if|cond=QuotaMul
-          >= 0|trueColor="#00FF00"|falseColor="#84F5F1"|sign=always}
+          >= 0|trueColor="#00FF00"|falseColor="#FF0000"|sign=always}
     - rid: 5399842374860145397
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -90358,49 +90452,23 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
-    - rid: 5399842744310431849
+    - rid: 5399842744310432148
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
         enabled: 1
         data:
-          rid: 5399842744310431850
-    - rid: 5399842744310431850
-      type: {class: CommandDebugCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+          rid: 5399842744310432149
+    - rid: 5399842744310432149
+      type: {class: WaitCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
-        Label: QuotaMul
-        Message: 
-        LogScopeInfo: 1
-        LogRunnerInfo: 1
-        LogContextSlots: 1
-        LogOptions: 1
-        LogVarStore: 1
-        TargetScope:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        LogTargetScopeInfo: 1
-        LogTargetBlackboard: 1
-        MaxBlackboardEntries: 0
-        LogTargetGridBlackboard: 1
-        MaxGridBlackboardEntries: 0
-        LogTargetScalar: 1
-        MaxScalarEntries: 0
-        LogScalarSnapshots: 1
-        MaxScalarSnapshotsPerKey: 0
-        MaxVarEntries: 64
-        LogWatches: 1
-        MaxWatchEntries: 16
-        Watches: []
+        WaitTime:
+          _source:
+            rid: 5399842744310432150
+          _defaultValue: 0
+    - rid: 5399842744310432150
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0.25
 --- !u!114 &2072806416
 MonoBehaviour:
   m_ObjectHideFlags: 0
