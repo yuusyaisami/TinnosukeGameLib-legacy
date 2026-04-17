@@ -831,7 +831,7 @@ MonoBehaviour:
     - rid: 5399842685578379471
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.5
+        value: 0.7
     - rid: 5399842685578379472
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

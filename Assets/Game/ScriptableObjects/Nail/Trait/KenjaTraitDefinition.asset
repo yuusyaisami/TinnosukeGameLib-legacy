@@ -5763,7 +5763,7 @@ MonoBehaviour:
         IgnoreIfExisting: 0
         ApplyIntensityA: 1
         IntensityA:
-          Operation: 10
+          Operation: 20
           ApplyLocalValue: 1
           LocalValue:
             _source:
@@ -6165,7 +6165,7 @@ MonoBehaviour:
         IgnoreIfExisting: 0
         ApplyIntensityA: 1
         IntensityA:
-          Operation: 10
+          Operation: 20
           ApplyLocalValue: 1
           LocalValue:
             _source:

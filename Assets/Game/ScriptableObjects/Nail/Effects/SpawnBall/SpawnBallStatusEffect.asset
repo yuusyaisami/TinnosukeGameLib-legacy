@@ -776,6 +776,14 @@ MonoBehaviour:
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
+    - rid: 5399842732501369539
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842732501369540
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
@@ -811,7 +819,7 @@ MonoBehaviour:
               _customKey: 
               _expectedType: 255
           StackDescription:
-            Template: <sprite=15> {intensity|percent=1effect=color_if|cond=value
+            Template: <sprite=15> {intensity|percent=1|effect=color_if|cond=value
               > 0|trueColor="#66FF66"|falseColor="#FF6666"}
             Variables:
             - _value:
@@ -845,6 +853,21 @@ MonoBehaviour:
         - rid: 5619052366731149466
         - rid: 5399842435756196006
         - rid: 5399842435756196010
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842732501369539
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842732501369540
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}

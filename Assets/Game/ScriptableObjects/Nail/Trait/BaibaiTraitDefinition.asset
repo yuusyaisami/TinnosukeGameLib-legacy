@@ -952,6 +952,14 @@ MonoBehaviour:
                 _functionName: 
                 _commands: []
               frames:
+              - sprite: {fileID: -4257671388024805894, guid: efbd8f626ae6d7440a3eef2925be4183, type: 3}
+                duration: 1
+                commands:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
               - sprite: {fileID: 8347133245946297397, guid: efbd8f626ae6d7440a3eef2925be4183, type: 3}
                 duration: 0.1
                 commands:
@@ -3643,10 +3651,10 @@ MonoBehaviour:
               rid: 5399842689965884115
             _defaultValue: 0
           IgnoreGlobalWhenMinusOne: 0
-        ApplyStackDescriptionOverride: 0
+        ApplyStackDescriptionOverride: 1
         StackDescriptionOverride:
           _source:
-            rid: -2
+            rid: 5399842735333048915
           _defaultValue: 
     - rid: 5399842689965884076
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
@@ -5030,6 +5038,33 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 2
+    - rid: 5399842735333048915
+      type: {class: RichTextSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _sourceMode: 0
+        _refKey:
+          _source:
+            rid: -2
+          _defaultValue: 
+        _logActorStoresOnWarn: 0
+        _maxActorStoreEntries: 16
+        _allowImplicitKeys: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842735333048916
+          _useScalarLeafKey: 0
+          _useCustomKey: 1
+          _customKey: intensity
+          _expectedType: 255
+        _template: <sprite=11> {intensity|sign=always|suffix="x"|effect=color_if|cond=value
+          > 0|trueColor="#66FF66"|falseColor="#FF6666"}
+    - rid: 5399842735333048916
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: GameLib.Base.StatusEffect.Stack.intensityB.local
+          varId: 101154
     - rid: 5619052416848364315
       type: {class: LiteralRuntimeTemplatePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

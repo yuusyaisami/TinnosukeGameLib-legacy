@@ -97,7 +97,7 @@ MonoBehaviour:
             Template: "\u30A4\u30F3\u30BF\u30FC\u30D0\u30EB"
             Variables: []
           Description:
-            Template: "<sprite=18> \u30A4\u30F3\u30BF\u30FC\u30D0\u30EB {currentCooldown}/{maxCooldown}"
+            Template: "<sprite=18> \u30A4\u30F3\u30BF\u30FC\u30D0\u30EB {currentCooldown}/{maxCooldown|suffix=\"s\"}"
             Variables:
             - _value:
                 _source:
@@ -115,7 +115,7 @@ MonoBehaviour:
               _expectedType: 255
           StackDescription:
             Template: <sprite=18> {intensity|sign=always|effect=color_if|cond=value
-              < 0|trueColor="#66FF66"|falseColor="#FF6666"}
+              < 0|trueColor="#66FF66"|falseColor="#FF6666"|suffix="s"}
             Variables:
             - _value:
                 _source:

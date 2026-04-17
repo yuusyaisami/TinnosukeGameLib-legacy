@@ -391,7 +391,7 @@ MonoBehaviour:
       Value:
         _source:
           rid: 5399842452542849177
-    - VarId: 101131
+    - VarId: 101133
       Kind: 255
       StoreMode: 0
       Value:
@@ -2884,8 +2884,8 @@ MonoBehaviour:
       type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         key:
-          stableKey: GameLib.Base.StatusEffect.Stack.intensityA.local
-          varId: 101149
+          stableKey: GameLib.Base.StatusEffect.Stack.intensityB.local
+          varId: 101154
     - rid: 5399842687169594298
       type: {class: LiteralTableSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4460,8 +4460,8 @@ MonoBehaviour:
               _commands: []
         initialVars:
         - Key:
-            stableKey: UseSetting
-            varId: 101133
+            stableKey: UseStack
+            varId: 200009
           Value:
             _source:
               rid: 5399842689165557816
