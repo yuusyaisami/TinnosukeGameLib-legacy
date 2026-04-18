@@ -118,12 +118,13 @@ namespace Game.TransformSystem
         Rigidbody2D? _targetRigidbody2D;
 
         [BoxGroup("Rigidbody2D")]
-        [LabelText("Velocity Mode")]
+        [LabelText("Velocity Apply Mode")]
         [SerializeField]
         Rigidbody2DVelocityApplyMode _rigidbody2DVelocityMode = Rigidbody2DVelocityApplyMode.Override;
 
         [BoxGroup("Rigidbody2D")]
-        [ShowIf(nameof(UseRigidbody2DAdditiveControl))]
+        [ShowIf(nameof(UseRigidbody2DOverlayControl))]
+        [LabelText("Velocity Overlay Control")]
         [SerializeField, InlineProperty]
         Rigidbody2DAdditiveControlSettings _rigidbody2DAdditiveControl = Rigidbody2DAdditiveControlSettings.Default;
 
@@ -133,9 +134,9 @@ namespace Game.TransformSystem
 
         public override TransformChannelOutputTarget OutputTarget => TransformChannelOutputTarget.Rigidbody2D;
 
-        bool UseRigidbody2DAdditiveControl()
+        bool UseRigidbody2DOverlayControl()
         {
-            return _rigidbody2DVelocityMode == Rigidbody2DVelocityApplyMode.Additive;
+            return _rigidbody2DVelocityMode == Rigidbody2DVelocityApplyMode.Overlay;
         }
 
         public override TransformChannelOutputPreset CreateRuntimeCopy()

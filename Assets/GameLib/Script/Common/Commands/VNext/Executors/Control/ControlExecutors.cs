@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Common;
@@ -547,6 +548,11 @@ namespace Game.Commands.VNext
 
             var value = typed.SwitchValue.Evaluate(ctx);
             CommandListData? matched = null;
+            var matchedIndex = -1;
+            var evaluatedCount = 0;
+            SwitchDebugRuntime? debug = typed.DebugMode
+                ? new SwitchDebugRuntime(value, typed.EvaluateOrder, typed.Cases?.Count ?? 0, typed.DefaultCommands?.Count ?? 0)
+                : null;
 
             if (typed.Cases != null)
             {
@@ -567,21 +573,30 @@ namespace Game.Commands.VNext
                     if (entry == null)
                         continue;
 
-                    if (IsMatched(entry, value, ctx))
+                    evaluatedCount++;
+
+                    var isMatched = TryEvaluateCase(entry, value, ctx, out var conditionText);
+                    debug?.AppendCase(evaluatedCount, i, entry.MatchMode, conditionText, isMatched);
+
+                    if (isMatched)
                     {
                         matched = entry.Commands;
+                        matchedIndex = i;
                         break;
                     }
                 }
             }
 
-            matched ??= typed.DefaultCommands;
-            if (matched == null || matched.Count == 0)
+            var selected = matched ?? typed.DefaultCommands;
+            debug?.AppendSelection(matchedIndex, selected?.Count ?? 0, matched == null, evaluatedCount);
+            debug?.Emit();
+
+            if (selected == null || selected.Count == 0)
                 return;
 
             var result = typed.OnCanceledCommands != null && typed.OnCanceledCommands.Count > 0
-                ? await runner.ExecuteWithCancelAsync(matched, typed.OnCanceledCommands, ctx, ct, ctx.Options)
-                : await runner.ExecuteListAsync(matched, ctx, ct, ctx.Options);
+                ? await runner.ExecuteWithCancelAsync(selected, typed.OnCanceledCommands, ctx, ct, ctx.Options)
+                : await runner.ExecuteListAsync(selected, ctx, ct, ctx.Options);
 
             if (result.Status == CommandRunStatus.Canceled)
                 throw new OperationCanceledException();
@@ -589,15 +604,51 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(result.FailureKind, result.Message);
         }
 
-        static bool IsMatched(SwitchCase entry, DynamicVariant value, CommandContext ctx)
+        static bool TryEvaluateCase(SwitchCase entry, DynamicVariant value, CommandContext ctx, out string conditionText)
         {
             return entry.MatchMode switch
             {
-                SwitchCaseMatchMode.Exact => value.Equals(entry.CaseValue.Evaluate(ctx)),
-                SwitchCaseMatchMode.Compare => EvaluateNumericComparison(value, entry.CompareTarget.Evaluate(ctx), entry.CompareOp),
-                SwitchCaseMatchMode.Condition => entry.Condition.GetOrDefault(ctx, false),
-                _ => false,
+                SwitchCaseMatchMode.Exact => EvaluateExactCase(entry, value, ctx, out conditionText),
+                SwitchCaseMatchMode.Compare => EvaluateCompareCase(entry, value, ctx, out conditionText),
+                SwitchCaseMatchMode.Condition => EvaluateConditionCase(entry, ctx, out conditionText),
+                _ => EvaluateUnknownCase(out conditionText),
             };
+        }
+
+        static bool EvaluateExactCase(SwitchCase entry, DynamicVariant value, CommandContext ctx, out string conditionText)
+        {
+            var caseValue = entry.CaseValue.Evaluate(ctx);
+            conditionText = $"CaseValue={EscapeRichText(DescribeVariant(caseValue))}";
+            return value.Equals(caseValue);
+        }
+
+        static bool EvaluateCompareCase(SwitchCase entry, DynamicVariant value, CommandContext ctx, out string conditionText)
+        {
+            var compareTarget = entry.CompareTarget.Evaluate(ctx);
+            conditionText = $"CompareOp={entry.CompareOp} CompareTarget={EscapeRichText(DescribeVariant(compareTarget))}";
+
+            if (entry.CompareOp is not (SwitchNumericCompareOp.Equal or SwitchNumericCompareOp.NotEqual))
+            {
+                var hasLeftNumeric = TryGetNumeric(value, out _);
+                var hasRightNumeric = TryGetNumeric(compareTarget, out _);
+                if (!hasLeftNumeric || !hasRightNumeric)
+                    conditionText += " NumericCompare=unavailable";
+            }
+
+            return EvaluateNumericComparison(value, compareTarget, entry.CompareOp);
+        }
+
+        static bool EvaluateConditionCase(SwitchCase entry, CommandContext ctx, out string conditionText)
+        {
+            var condition = entry.Condition.GetOrDefault(ctx, false);
+            conditionText = $"Condition={condition.ToString().ToLowerInvariant()}";
+            return condition;
+        }
+
+        static bool EvaluateUnknownCase(out string conditionText)
+        {
+            conditionText = "Condition=<unknown>";
+            return false;
         }
 
         static bool EvaluateNumericComparison(DynamicVariant left, DynamicVariant right, SwitchNumericCompareOp op)
@@ -618,6 +669,97 @@ namespace Game.Commands.VNext
                 SwitchNumericCompareOp.GreaterOrEqual => l >= r,
                 _ => false,
             };
+        }
+
+        static string DescribeVariant(DynamicVariant value)
+        {
+            return value.Kind switch
+            {
+                ValueKind.Null => "Null",
+                ValueKind.Bool => $"Bool:{value}",
+                ValueKind.Int => $"Int:{value}",
+                ValueKind.Float => $"Float:{value}",
+                ValueKind.String => $"String:\"{value}\"",
+                ValueKind.Vector2 => $"Vector2:{value}",
+                ValueKind.Vector3 => $"Vector3:{value}",
+                ValueKind.Vector4 => $"Vector4:{value}",
+                ValueKind.Color => $"Color:{value}",
+                ValueKind.UnityObject => $"UnityObject:{value}",
+                ValueKind.ManagedRef => $"ManagedRef:{ManagedRefDebugTextFormatter.Format(value.AsManagedRef)}",
+                ValueKind.Matrix2x2 => $"Matrix2x2:{value}",
+                _ => value.ToString(),
+            };
+        }
+
+        static string EscapeRichText(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+
+            return value
+                .Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;");
+        }
+
+        sealed class SwitchDebugRuntime
+        {
+            readonly StringBuilder _sb = new(256);
+            readonly string _targetText;
+            readonly int _caseCount;
+
+            public SwitchDebugRuntime(DynamicVariant target, SwitchEvaluateOrder order, int caseCount, int defaultCount)
+            {
+                _targetText = EscapeRichText(DescribeVariant(target));
+                _caseCount = caseCount;
+
+                _sb.Append($"<color=#66CCFF>[SwitchDebug]</color> <b>Resolved</b> <color=#66CCFF>Target</color>=<b>{_targetText}</b> ");
+                _sb.Append($"<color=#66CCFF>Order</color>=<b>{order}</b> ");
+                _sb.Append($"<color=#66CCFF>Cases</color>=<b>{_caseCount}</b> ");
+                _sb.Append($"<color=#66CCFF>Default</color>=<b>{defaultCount}</b>");
+            }
+
+            public void AppendCase(int stepIndex, int caseIndex, SwitchCaseMatchMode matchMode, string conditionText, bool matched)
+            {
+                _sb.AppendLine();
+                _sb.Append("<color=#888888>|</color> ");
+                _sb.Append($"<color=#66CCFF><b>Step {stepIndex}/{_caseCount}</b></color> ");
+                _sb.Append($"Case[{caseIndex}] ");
+                _sb.Append($"<color=#FFD166><b>{matchMode}</b></color> ");
+                _sb.Append($"<color=#66CCFF>Target</color>=<b>{_targetText}</b> ");
+                _sb.Append(conditionText).Append(" => ");
+                _sb.Append(matched
+                    ? "<color=#7FE3A1><b>Match</b></color>"
+                    : "<color=#FF7B7B><b>Miss</b></color>");
+            }
+
+            public void AppendSelection(int matchedIndex, int selectedCommandCount, bool usedDefault, int evaluatedCount)
+            {
+                _sb.AppendLine();
+                _sb.Append("<color=#888888>|</color> ");
+
+                if (usedDefault)
+                {
+                    _sb.Append("<color=#FFCC66><b>Selected</b></color> <color=#FFCC66><b>Default</b></color> ");
+                }
+                else
+                {
+                    _sb.Append("<color=#7FE3A1><b>Selected</b></color> ");
+                    _sb.Append("Case[").Append(matchedIndex).Append("] ");
+                    _sb.Append("MatchedAt=<b>Step ").Append(evaluatedCount).Append("</b> ");
+                }
+
+                _sb.Append("Commands=<b>").Append(selectedCommandCount).Append("</b> ");
+                _sb.Append("Evaluated=<b>").Append(evaluatedCount).Append('/').Append(_caseCount).Append("</b>");
+
+                if (usedDefault)
+                    _sb.Append(" <color=#FFCC66><b>No case matched</b></color>");
+            }
+
+            public void Emit()
+            {
+                Debug.Log(_sb.ToString());
+            }
         }
 
         static bool TryGetNumeric(DynamicVariant value, out double number)

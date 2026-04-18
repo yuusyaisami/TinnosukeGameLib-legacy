@@ -348,7 +348,12 @@ namespace Game.UI
                     element.Container.TryResolve<VNext.ICommandRunner>(out var runner))
                 {
                     // コマンド実行用のVarsを準備
-                    var vars = new VarStore();
+                    IVarStore vars = new VarStore();
+
+                    if (element.Container.TryResolve<IBlackboardService>(out var blackboardService) && blackboardService != null)
+                    {
+                        vars = blackboardService.LocalVars;
+                    }
 
                     // extraVariablesをマージ
                     if (extraVariables != null)

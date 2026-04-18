@@ -1332,13 +1332,19 @@ namespace Game.UI
             if (resolver == null || !resolver.TryResolve<ICommandRunner>(out var runner) || runner == null)
                 return;
 
-            var vars = TooltipChannelHubService.ResolveVars(scope);
+            var vars = BuildExecutionVars(scope);
             var options = CommandRunOptions.Default;
             var context = new CommandContext(scope, vars, runner, scope, options);
             ApplyPresetContextSlots(context, _owner, _currentCommandsPreset);
             var result = await runner.ExecuteListAsync(commands, context, ct, options);
             if (result.Status == CommandRunStatus.Error && !string.IsNullOrEmpty(result.Message))
                 Debug.LogError($"[TooltipChannel] Command execution failed. Tag={_tag} Message={result.Message}");
+        }
+
+        static IVarStore BuildExecutionVars(IScopeNode scope)
+        {
+            var vars = TooltipChannelHubService.ResolveVars(scope);
+            return vars is NullVarStore ? new VarStore() : vars;
         }
 
         void ApplyPresetContextSlots(CommandContext context, IScopeNode tooltipOwner, TooltipCommandsPreset commandsPreset)

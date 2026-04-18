@@ -37,7 +37,7 @@ MonoBehaviour:
           AdditionalDescriptions: []
           Icon: {fileID: 0}
           SortOrder: 0
-        runtimeControlMode: 0
+        runtimeControlMode: 10
         condition:
           _source:
             rid: 5399842687169593591
@@ -123,7 +123,7 @@ MonoBehaviour:
           Name: GameLogic.GameProfile.Base.MaxNail
         ApplyMode: 10
         MulPhase: 0
-        ValueMode: 10
+        ValueMode: 20
         RuntimeIntensitySlot: 10
         Value:
           _source:

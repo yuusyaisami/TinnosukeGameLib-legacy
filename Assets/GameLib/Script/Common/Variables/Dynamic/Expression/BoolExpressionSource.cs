@@ -57,6 +57,10 @@ namespace Game.Common
 
         bool _dirty = true;
         bool _validationIsError;
+
+        public IReadOnlyList<ExpressionVariable> DebugVariables => _variables;
+        public IReadOnlyList<ExpressionVariable> DebugExternalVariables => _externalVariables;
+
         public string GetExpressionVariablesDebugData()
         {
             var local = _variables;

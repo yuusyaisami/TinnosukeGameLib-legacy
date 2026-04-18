@@ -1850,7 +1850,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 317
+  _debugLastEnabledChangeFrame: 286
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &7495427074702374831
@@ -1885,6 +1885,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 226d19e328ab85642baa1d5a8daed72e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.TransformSystem.TransformChannelHub
+  _debugViewer:
+    autoRefreshEveryNFrames: 1
+  _debugGlobalApplyLogs: 0
   _channels:
   - _channelTag: default
     _outputPreset:

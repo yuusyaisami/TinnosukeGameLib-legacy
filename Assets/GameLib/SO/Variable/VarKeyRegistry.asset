@@ -1137,6 +1137,14 @@ MonoBehaviour:
     varId: 101122
     stableKey: GameLib.UI.TraitListChannel.Item.traitInstanceRef
     aliases: []
+  - id: 7d6e0c3f5b7f4abf9f6f4f3d1a2c8e90
+    parentId: 6d54f7fbb9d44761a8fe772d12f6aa8c
+    name: duplicateCount
+    isFolder: 0
+    description: 
+    varId: 101188
+    stableKey: GameLib.UI.TraitListChannel.Item.duplicateCount
+    aliases: []
   - id: 9f1b754cbda84a50b1bbcf5ca5d5db61
     parentId: 5850fabdc6674f12bc9f31b917b8bb40
     name: GridObjectChannel
@@ -4466,6 +4474,38 @@ MonoBehaviour:
     varId: 101126
     stableKey: QuotaMul
     aliases: []
+  - id: 1234567890abcdef1234567890abcdef
+    parentId: da35a1b429744fc8a2c01c9a54c8d1f5
+    name: GameOver
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: abcdefabcdefabcdefabcdefabcdefab
+    parentId: 1234567890abcdef1234567890abcdef
+    name: MaxBallValue
+    isFolder: 0
+    description: 
+    varId: 200023
+    stableKey: MaxBallValue
+    aliases: []
+  - id: fedcbafedcbafedcbafedcbafedcbafe
+    parentId: 1234567890abcdef1234567890abcdef
+    name: MinBallValue
+    isFolder: 0
+    description: 
+    varId: 200024
+    stableKey: MinBallValue
+    aliases: []
+  - id: 0f1e2d3c4b5a69788796a5b4c3d2e1f0
+    parentId: 1234567890abcdef1234567890abcdef
+    name: ScoreTotalValue
+    isFolder: 0
+    description: 
+    varId: 200022
+    stableKey: ScoreTotalValue
+    aliases: []
   - id: 44a749d2134343ce8e84e5a2ee76f521
     parentId: bf9d10780ffd431f9d1fe6f54d629bf6
     name: RewardEventProfile
@@ -4864,7 +4904,31 @@ MonoBehaviour:
     varId: 0
     stableKey: 
     aliases: []
-  nextVarId: 200020
+  - id: e37c863cd5ab484187839a36545a7e6f
+    parentId: f1c4b5286b934bd0b52b416c8464c2b8
+    name: SkipQuota
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: cdf376ef6833469e985a4e2d82c32f9a
+    parentId: e37c863cd5ab484187839a36545a7e6f
+    name: SkipQuotaMul
+    isFolder: 0
+    description: 
+    varId: 200020
+    stableKey: SkipQuotaMul
+    aliases: []
+  - id: f6e5be7138404ec189a3573c06a44f02
+    parentId: e37c863cd5ab484187839a36545a7e6f
+    name: SkipQuotaValue
+    isFolder: 0
+    description: 
+    varId: 200021
+    stableKey: SkipQuotaValue
+    aliases: []
+  nextVarId: 200025
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

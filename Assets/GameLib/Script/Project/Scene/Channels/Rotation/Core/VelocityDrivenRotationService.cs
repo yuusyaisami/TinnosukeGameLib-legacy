@@ -32,7 +32,7 @@ namespace Game.Rotation
 
         Transform? _sourceTransform;
         Rigidbody2D? _sourceRigidbody;
-        ITransformControllerPoseReader? _sourceTransformChannel;
+        ITransformChannelPoseReader? _sourceTransformChannel;
         Transform? _scopeTransform;
 
         float _currentAngularVelocity;
@@ -228,7 +228,7 @@ namespace Game.Rotation
 
             if (_settings.Source == VelocityRotationSourceKind.TransformChannel)
             {
-                _resolver.TryResolve<ITransformControllerPoseReader>(out var poseReader);
+                _resolver.TryResolve<ITransformChannelPoseReader>(out var poseReader);
                 _sourceTransformChannel = poseReader;
                 if (_sourceTransformChannel == null && _sourceTransform != null)
                     _sourceTransformChannel = TryResolveTransformChannelPoseReader(_sourceTransform);
@@ -531,7 +531,7 @@ namespace Game.Rotation
             _lastFlipX = false;
         }
 
-        static ITransformControllerPoseReader? TryResolveTransformChannelPoseReader(Transform transform)
+        static ITransformChannelPoseReader? TryResolveTransformChannelPoseReader(Transform transform)
         {
             for (var current = transform; current != null; current = current.parent)
             {
@@ -539,7 +539,7 @@ namespace Game.Rotation
                 if (scope?.Resolver == null)
                     continue;
 
-                if (scope.Resolver.TryResolve<ITransformControllerPoseReader>(out var poseReader) && poseReader != null)
+                if (scope.Resolver.TryResolve<ITransformChannelPoseReader>(out var poseReader) && poseReader != null)
                     return poseReader;
             }
 

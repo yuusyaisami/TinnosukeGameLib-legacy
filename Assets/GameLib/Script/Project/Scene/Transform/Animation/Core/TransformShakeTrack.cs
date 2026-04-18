@@ -5,7 +5,7 @@ namespace Game.TransformSystem
 {
     /// <summary>
     /// Perlin noise ベースの位置・回転揺れ track。
-    /// LocalPosition / LocalRotation に対して additive 寄与を出す。
+    /// 通常は LocalPosition / LocalRotation、RectTransform では AnchoredPosition / LocalRotation に対して additive 寄与を出す。
     /// </summary>
     public sealed class TransformShakeTrack : ITransformModifierTrack
     {
@@ -16,6 +16,7 @@ namespace Game.TransformSystem
         readonly float _rotationAmplitudeDeg;
         readonly float _duration; // <= 0 で無限
         readonly float _seed;
+        readonly bool _useAnchoredPosition;
 
         float _elapsed;
         float _time;
@@ -30,14 +31,16 @@ namespace Game.TransformSystem
         {
             get
             {
-                var mask = TransformContributionMask.LocalPosition;
+                var mask = _useAnchoredPosition
+                    ? TransformContributionMask.AnchoredPosition
+                    : TransformContributionMask.LocalPosition;
                 if (_enableRotation && _rotationAmplitudeDeg > 0f)
                     mask |= TransformContributionMask.LocalRotation;
                 return mask;
             }
         }
 
-        public TransformShakeTrack(in Channel.TransformShakeSettings settings)
+        public TransformShakeTrack(in Channel.TransformShakeSettings settings, bool useAnchoredPosition)
         {
             _amplitudeX = settings.AmplitudeX;
             _amplitudeY = settings.AmplitudeY;
@@ -46,6 +49,7 @@ namespace Game.TransformSystem
             _rotationAmplitudeDeg = settings.RotationAmplitudeDeg;
             _duration = Mathf.Max(0f, settings.DurationSeconds);
             _seed = Random.value * 1000f;
+            _useAnchoredPosition = useAnchoredPosition;
         }
 
         public void Tick(float deltaTime)
@@ -81,8 +85,16 @@ namespace Game.TransformSystem
 
             if (_positionOffset != Vector3.zero)
             {
-                accumulator.Apply(TransformPoseContribution.LocalPosition(
-                    _positionOffset, TransformComposeMode.Add, Priority));
+                if (_useAnchoredPosition)
+                {
+                    accumulator.Apply(TransformPoseContribution.AnchoredPosition(
+                        new Vector2(_positionOffset.x, _positionOffset.y), TransformComposeMode.Add, Priority));
+                }
+                else
+                {
+                    accumulator.Apply(TransformPoseContribution.LocalPosition(
+                        _positionOffset, TransformComposeMode.Add, Priority));
+                }
             }
 
             if (_enableRotation && !Mathf.Approximately(_rotationOffsetZ, 0f))

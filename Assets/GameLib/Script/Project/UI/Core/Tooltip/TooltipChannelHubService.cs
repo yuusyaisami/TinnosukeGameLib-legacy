@@ -553,8 +553,14 @@ namespace Game.UI
         internal static IVarStore ResolveVars(IScopeNode scope)
         {
             var resolver = scope?.Resolver;
-            if (resolver != null && resolver.TryResolve<IVarStore>(out var vars) && vars != null)
-                return vars;
+            if (resolver != null)
+            {
+                if (resolver.TryResolve<IVarStore>(out var vars) && vars != null)
+                    return vars;
+
+                if (resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard?.LocalVars != null)
+                    return blackboard.LocalVars;
+            }
 
             return NullVarStore.Instance;
         }
