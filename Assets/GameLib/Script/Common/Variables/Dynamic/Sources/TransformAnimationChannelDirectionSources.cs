@@ -394,7 +394,7 @@ namespace Game.Common
                 : transform.localRotation;
         }
 
-        static bool TryResolveControllerPoseReader(Transform transform, out ITransformControllerPoseReader poseReader)
+        static bool TryResolveControllerPoseReader(Transform transform, out ITransformChannelPoseReader poseReader)
         {
             for (var current = transform; current != null; current = current.parent)
             {
@@ -402,7 +402,7 @@ namespace Game.Common
                 if (scope?.Resolver == null)
                     continue;
 
-                if (scope.Resolver.TryResolve<ITransformControllerPoseReader>(out poseReader) && poseReader != null)
+                if (scope.Resolver.TryResolve<ITransformChannelPoseReader>(out poseReader) && poseReader != null)
                     return true;
             }
 

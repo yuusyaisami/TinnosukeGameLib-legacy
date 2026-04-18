@@ -179,6 +179,11 @@ namespace Game.TransformSystem
     [DisallowMultipleComponent]
     public sealed class TransformManagerMB : MonoBehaviour, IFeatureInstaller
     {
+        [FoldoutGroup("Debug Viewer")]
+        [LabelText("Transform Manager Debug Viewer")]
+        [SerializeField]
+        TransformManagerDebugViewer _debugViewer = new();
+
         [BoxGroup("Movement Global")]
         [LabelText("Entries")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
@@ -207,6 +212,13 @@ namespace Game.TransformSystem
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<ITickable>();
+
+            builder.RegisterInstance(_debugViewer);
+            builder.RegisterBuildCallback(container =>
+            {
+                if (_debugViewer != null && container.TryResolve<ITransformManagerService>(out var manager))
+                    _debugViewer.Bind(manager);
+            });
         }
 
         internal void ApplyInitialEntries(ITransformManagerService manager)

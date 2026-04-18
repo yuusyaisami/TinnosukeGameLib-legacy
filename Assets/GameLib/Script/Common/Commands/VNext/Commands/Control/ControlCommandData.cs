@@ -175,7 +175,7 @@ namespace Game.Commands.VNext
                 var cases = Cases?.Count ?? 0;
                 var casePreview = BuildCasePreview(Cases);
                 var defaultCount = DefaultCommands?.Count ?? 0;
-                return $"Switch={switchValue} Cases={cases} [{casePreview}] Default={defaultCount}";
+                return $"Switch={switchValue} Cases={cases} [{casePreview}] Default={defaultCount} Debug={DebugMode}";
             }
         }
 
@@ -203,6 +203,11 @@ namespace Game.Commands.VNext
         [CommandListFunctionName("Control.Switch.OnCanceled")]
         [SerializeField]
         public CommandListData OnCanceledCommands = new();
+
+        [FoldoutGroup("Debug")]
+        [LabelText("Debug Mode")]
+        [SerializeField]
+        public bool DebugMode;
 
         static string BuildCasePreview(List<SwitchCase>? cases, int maxPreviewCount = 3)
         {

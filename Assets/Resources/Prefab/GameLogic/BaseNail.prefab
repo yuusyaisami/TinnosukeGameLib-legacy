@@ -2950,7 +2950,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 775
+  _debugLastEnabledChangeFrame: 3834
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -3028,6 +3028,7 @@ MonoBehaviour:
       _commands:
       - rid: 5619052366731149510
       - rid: 5399842458134380805
+      - rid: 5399842757933269169
     onStayCommandsSelf:
       _debugOwner: {fileID: 8068515378001042025}
       _debugFieldPath: _rules[0].onStayCommandsSelf
@@ -3288,6 +3289,78 @@ MonoBehaviour:
         fallbackInitialValue:
           _source:
             rid: -2
+    - rid: 5399842757933269169
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842757933269170
+    - rid: 5399842757933269170
+      type: {class: AddForceCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        TargetKind: 10
+        Target:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        TransformChannelTag: default
+        ChannelKey: knockback
+        WriteMode: 10
+        Force:
+          _source:
+            rid: 5399842757933269254
+          _defaultValue: {x: 0, y: 0}
+        ForceMode: 0
+    - rid: 5399842757933269254
+      type: {class: ActorDirectionDistance2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        actorA:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        actorB:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        normalize: 1
+        multiplier:
+          _source:
+            rid: 5399842757933269297
+          _defaultValue: 0
+    - rid: 5399842757933269297
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
     - rid: 5619052366731149510
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -3794,6 +3867,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.GlobalMaxCount
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -3823,6 +3898,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.GlobalMaxUseCooldown
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -3852,6 +3929,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.Chain.ChainRadius
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -3896,6 +3975,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.Size.Circle.SizeRadius
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -3925,6 +4006,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.Size.Box.SizeX
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -3954,6 +4037,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.Size.Box.SizeY
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -3983,6 +4068,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.Bounce
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 1
         LocalBaseValue: 0
@@ -4040,6 +4127,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.Size.Circle.SizeScale
         _scalarPolicy: 0
         _useEffectMod: 0
+        _useRoundMod: 0
+        _roundDigits: 0
         _useClampMod: 0
         _useLocalBase: 0
         _localBaseValue: 0
@@ -4079,6 +4168,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Effect.Chain.ChainDuration
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -4139,6 +4230,8 @@ MonoBehaviour:
           Name: GameLogic.NailProfile.Upgrade.LevelValue
         ScalarPolicyValue: 0
         UseEffectMod: 0
+        UseRoundMod: 0
+        RoundDigits: 0
         UseClampMod: 0
         UseLocalBase: 0
         LocalBaseValue: 0
@@ -14321,7 +14414,7 @@ MonoBehaviour:
     - rid: 5399842457152127086
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.75
+        value: 0.8
     - rid: 5399842505363817366
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -16649,7 +16742,7 @@ MonoBehaviour:
         KindMask: 512
         FilterId: 
         FilterCategory: 
-        ExcludeSelf: 0
+        ExcludeSelf: 1
         MonitorActiveState: 0
         DirectTargetValidDistance: 0
         OriginSource: 10
@@ -16696,8 +16789,9 @@ MonoBehaviour:
           _source:
             rid: 5399842432444268792
           _defaultValue: {x: 0, y: 0}
-        CollisionUseIncludeDynamicSets: 0
-        CollisionIncludeDynamicSets: []
+        CollisionUseIncludeDynamicSets: 1
+        CollisionIncludeDynamicSets:
+        - value: 20
         CollisionUseExcludeDynamicSets: 0
         CollisionExcludeDynamicSets: []
         CollisionMatchAnyInclude: 1
@@ -21447,6 +21541,7 @@ MonoBehaviour:
           - rid: 5399842414997799288
           - rid: 5399842667066556816
           - rid: 5399842525030383771
+          - rid: 5399842757933269800
           - rid: 5399842528907231342
         ElseCommands:
           _debugOwner: {fileID: 0}
@@ -22755,8 +22850,8 @@ MonoBehaviour:
       data:
         storeType: 20
         key:
-          stableKey: CustomCommandList
-          varId: 101183
+          stableKey: CustomPanelCommandList
+          varId: 101189
         blackboardReadScope: 0
         targetActorSource:
           Kind: 0
@@ -22799,7 +22894,7 @@ MonoBehaviour:
     - rid: 5399842525030384346
       type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        blackboardId: 101183
+        blackboardId: 101189
         readScope: 0
         fallback: 0
         fallbackInitialValue:
@@ -23654,6 +23749,180 @@ MonoBehaviour:
         key:
           stableKey: UpgradeCostMul
           varId: 101184
+    - rid: 5399842757933269800
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842757933269842
+    - rid: 5399842757933269842
+      type: {class: IfCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Condition:
+          _source:
+            rid: 5399842757933269885
+          _defaultValue: 0
+        ThenCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5399842763271045157
+        ElseCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+        OnCanceledCommands:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands: []
+    - rid: 5399842757933269885
+      type: {class: DataExistsBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        storeType: 20
+        key:
+          stableKey: CustomCommandList
+          varId: 101183
+        blackboardReadScope: 0
+        targetActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: 5399842757933269886
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        scalarKey:
+          Id: 0
+          Name: 
+        searchIncludeGlobal: 0
+        expectedKind: 255
+    - rid: 5399842757933269886
+      type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        SharedTag: Parent
+        SharedHubActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+    - rid: 5399842757933269928
+      type: {class: FunctionCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        function:
+          _source:
+            rid: 5399842757933269929
+          _defaultValue:
+            Commands:
+              _debugOwner: {fileID: 0}
+              _debugFieldPath: 
+              _debugAssetPath: 
+              _functionName: 
+              _commands: []
+        initialVars: []
+    - rid: 5399842757933269929
+      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101183
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+    - rid: 5399842763271045157
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842763271045158
+    - rid: 5399842763271045158
+      type: {class: WithActorCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ActorSource:
+          Kind: 9
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: 5399842763271045241
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        CheckSelfIdentityFilter: 0
+        SelfIdentityFilter:
+          kind: 0
+          id: 
+          category: 
+          requireActive: 0
+          searchScope: 0
+        UseDescendantFilter: 0
+        DescendantFilter:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
+        VarsPolicy: 0
+        AwaitMode: 0
+        ExecutionScope: 0
+        Body:
+          _debugOwner: {fileID: 0}
+          _debugFieldPath: 
+          _debugAssetPath: 
+          _functionName: 
+          _commands:
+          - rid: 5399842757933269928
+    - rid: 5399842763271045241
+      type: {class: SharedActorSourceRef, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        SharedTag: Parent
+        SharedHubActorSource:
+          Kind: 0
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 0
+          TargetChannel:
+            rid: -2
 --- !u!114 &-5838268372193102072
 MonoBehaviour:
   m_ObjectHideFlags: 0

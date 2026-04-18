@@ -14,7 +14,7 @@ namespace Game.Movement
     public enum Rigidbody2DVelocityApplyMode
     {
         Override = 0,
-        Additive = 1,
+        Overlay = 1,
     }
 
     [Serializable]
@@ -141,6 +141,8 @@ namespace Game.Movement
     {
         /// <summary>更新</summary>
         void Tick(float deltaTime);
+
+        void ResetState();
     }
 
     /// <summary>
@@ -159,6 +161,7 @@ namespace Game.Movement
         bool _disposed;
         bool _hasLastVelocity;
         Vector2 _lastVelocity;
+        Vector2 _lastAppliedOverlayVelocity;
         float _lastOverrideSignX;
         float _lastOverrideSignY;
 
@@ -219,8 +222,8 @@ namespace Game.Movement
             if (_disposed || _rb == null) return;
 
             var vel = _output.Value;
-            // In additive mode, tiny Y drift can accumulate into noticeable upward acceleration.
-            // When gravity is active, treat near-zero Y input as zero to avoid runaway.
+            // In overlay mode, tiny Y drift can still accumulate visually if gravity is active.
+            // Treat near-zero Y input as zero to avoid runaway drift.
             if (Mathf.Abs(_rb.gravityScale) > 0.0001f && Mathf.Abs(vel.y) < GravityAxisInputDeadZoneY)
             {
                 vel.y = 0f;
@@ -229,7 +232,7 @@ namespace Game.Movement
             var current = _rb.linearVelocity;
             switch (_applyMode)
             {
-                case Rigidbody2DVelocityApplyMode.Additive:
+                case Rigidbody2DVelocityApplyMode.Overlay:
                     if (_additiveSettings.Enabled)
                     {
                         var accel = ResolveAcceleration(current, deltaTime);
@@ -267,23 +270,29 @@ namespace Game.Movement
                         var scaledAdd = new Vector2(
                             LimitAddByHardCap(current.x, vel.x * scaleX, _additiveSettings.SpeedHardLimitPos.x, _additiveSettings.SpeedHardLimitNeg.x),
                             LimitAddByHardCap(current.y, vel.y * scaleY, _additiveSettings.SpeedHardLimitPos.y, _additiveSettings.SpeedHardLimitNeg.y));
-                        var next = current + scaledAdd;
-                        ApplyAxisOverride(ref next, current, vel, _lastVelocity);
+                        var baseVelocity = current - _lastAppliedOverlayVelocity;
+                        var next = baseVelocity + scaledAdd;
+                        ApplyAxisOverride(ref next, current, scaledAdd, _lastVelocity);
                         if (_additiveSettings.ClampResultToHardLimit)
                         {
                             next.x = ClampAxis(next.x, _additiveSettings.SpeedHardLimitPos.x, _additiveSettings.SpeedHardLimitNeg.x);
                             next.y = ClampAxis(next.y, _additiveSettings.SpeedHardLimitPos.y, _additiveSettings.SpeedHardLimitNeg.y);
                         }
                         _rb.linearVelocity = next;
+                        _lastAppliedOverlayVelocity = next - baseVelocity;
                     }
                     else
                     {
-                        _rb.linearVelocity = current + vel;
+                        var baseVelocity = current - _lastAppliedOverlayVelocity;
+                        var next = baseVelocity + vel;
+                        _rb.linearVelocity = next;
+                        _lastAppliedOverlayVelocity = vel;
                     }
                     break;
 
                 case Rigidbody2DVelocityApplyMode.Override:
                 default:
+                    _lastAppliedOverlayVelocity = Vector2.zero;
                     if (Mathf.Abs(_rb.gravityScale) > 0.0001f)
                     {
                         // Preserve gravity on Y while applying input velocity.
@@ -307,6 +316,15 @@ namespace Game.Movement
 
             _lastVelocity = _rb.linearVelocity;
             _hasLastVelocity = true;
+        }
+
+        public void ResetState()
+        {
+            _hasLastVelocity = false;
+            _lastVelocity = Vector2.zero;
+            _lastAppliedOverlayVelocity = Vector2.zero;
+            _lastOverrideSignX = 0f;
+            _lastOverrideSignY = 0f;
         }
 
         Vector2 ResolveAcceleration(Vector2 current, float deltaTime)
@@ -512,6 +530,10 @@ namespace Game.Movement
         {
             _disposed = true;
         }
+
+        public void ResetState()
+        {
+        }
     }
 
     /// <summary>
@@ -544,6 +566,10 @@ namespace Game.Movement
         public void Dispose()
         {
             _disposed = true;
+        }
+
+        public void ResetState()
+        {
         }
     }
 
@@ -587,6 +613,10 @@ namespace Game.Movement
         public void Dispose()
         {
             _disposed = true;
+        }
+
+        public void ResetState()
+        {
         }
     }
 }

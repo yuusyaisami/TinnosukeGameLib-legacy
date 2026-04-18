@@ -1517,4 +1517,20 @@ MonoBehaviour:
     explicitKey: 
     obsolete: 0
     tags: []
+  - id: 83eeb38e4353410083fa255c54c6234d
+    parentId: 2e8ab9eb37b9488bad206d475b53cca2
+    name: SkipQuota
+    isFolder: 1
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
+  - id: f325acc3ea764b3180ce7f69d741c9b8
+    parentId: 83eeb38e4353410083fa255c54c6234d
+    name: BonusMul
+    isFolder: 0
+    description: 
+    explicitKey: 
+    obsolete: 0
+    tags: []
   csvFile: {fileID: 4900000, guid: 0f8f0a1f52c24534fa42d23481dae4e3, type: 3}

@@ -61,8 +61,8 @@ namespace Game.UI
         readonly TraitListChannelHubMB _mb;
         readonly TraitListChannelDefinition _definition;
         readonly SemaphoreSlim _mutex = new(1, 1);
-        readonly Dictionary<ITraitInstance, TraitListChannelVisualInstance> _lookup =
-            new(global::Game.ReferenceEqualityComparer<ITraitInstance>.Instance);
+        readonly Dictionary<string, TraitListChannelVisualInstance> _lookup =
+            new(StringComparer.Ordinal);
         readonly List<TraitListChannelVisualInstance> _instances = new();
 
         readonly AsyncLocal<int> _operationContextStamp = new();
@@ -90,6 +90,10 @@ namespace Game.UI
         bool _isBuilt;
         bool _isActive;
         bool _queueWorkerActive;
+        bool _bindQueued;
+        bool _bindQueueWorkerActive;
+        TraitListChannelBindRequest _queuedBindRequest = new();
+        bool _queuedBindRebuild;
         bool _refreshQueued;
         TraitListChannelRefreshMode _queuedRefreshMode;
         int _activeOperationStamp;
@@ -157,6 +161,10 @@ namespace Game.UI
             _isActive = false;
             _refreshQueued = false;
             _queueWorkerActive = false;
+            _bindQueued = false;
+            _bindQueueWorkerActive = false;
+            _queuedBindRequest = new TraitListChannelBindRequest();
+            _queuedBindRebuild = false;
 
             if (_boundHolder != null)
                 _boundHolder.OnTraitsChanged -= OnTraitsChanged;
@@ -232,6 +240,12 @@ namespace Game.UI
             using var linkedCts = CreateLinkedTokenSource(ct);
             var linkedToken = linkedCts?.Token ?? ct;
 
+            if (IsReentrantOperationCall())
+            {
+                QueueBind(request, rebuild);
+                return true;
+            }
+
             var lockState = await TryEnterOperationMutexAsync(linkedToken, "Bind");
             if (!lockState.Entered)
                 return false;
@@ -262,6 +276,12 @@ namespace Game.UI
         {
             using var linkedCts = CreateLinkedTokenSource(ct);
             var linkedToken = linkedCts?.Token ?? ct;
+
+            if (IsReentrantOperationCall())
+            {
+                QueueRefresh(mode);
+                return true;
+            }
 
             var lockState = await TryEnterOperationMutexAsync(linkedToken, "Refresh");
             if (!lockState.Entered)
@@ -441,10 +461,11 @@ namespace Game.UI
             if (!TraitListChannelLayoutUtility.TryBuildSlots(
                     filteredTraits,
                     Tag,
-                _resolvedBinding.NormalizedHolderKey,
-                _resolvedBinding.UseRange,
-                _resolvedBinding.Range,
-                _resolvedLayoutPreset,
+                    _resolvedBinding.NormalizedHolderKey,
+                    _resolvedBinding.UseRange,
+                    _resolvedBinding.Range,
+                    _resolvedPlayerPreset.MergeDuplicateTraitDefinitions,
+                    _resolvedLayoutPreset,
                 out var slots,
                 out var normalizedRange,
                 out var error))
@@ -463,12 +484,12 @@ namespace Game.UI
                 return true;
             }
 
-            var slotLookup = new Dictionary<ITraitInstance, TraitListChannelSlot>(global::Game.ReferenceEqualityComparer<ITraitInstance>.Instance);
+            var slotLookup = new Dictionary<string, TraitListChannelSlot>(StringComparer.Ordinal);
             for (var i = 0; i < slots.Count; i++)
             {
                 var slot = slots[i];
-                if (slot.Trait != null && !slotLookup.ContainsKey(slot.Trait))
-                    slotLookup.Add(slot.Trait, slot);
+                if (!string.IsNullOrEmpty(slot.DisplayKey) && !slotLookup.ContainsKey(slot.DisplayKey))
+                    slotLookup.Add(slot.DisplayKey, slot);
             }
 
             var holderTraits = _boundHolder.Traits;
@@ -491,7 +512,7 @@ namespace Game.UI
                 for (var i = 0; i < _instances.Count; i++)
                 {
                     var instance = _instances[i];
-                    if (instance == null || instance.Trait == null || !slotLookup.ContainsKey(instance.Trait))
+                    if (instance == null || string.IsNullOrEmpty(instance.DisplayKey) || !slotLookup.ContainsKey(instance.DisplayKey))
                         missingCount++;
                 }
 
@@ -518,7 +539,7 @@ namespace Game.UI
                         continue;
                     }
 
-                    if (instance.Trait == null || !slotLookup.ContainsKey(instance.Trait))
+                    if (string.IsNullOrEmpty(instance.DisplayKey) || !slotLookup.ContainsKey(instance.DisplayKey))
                     {
                         var holderContainsTrait = TryFindTraitIndex(holderTraits, instance.Trait, out var holderIndex);
                         var filteredContainsTrait = TryFindTraitIndex(filteredTraits, instance.Trait, out var filteredIndex);
@@ -542,8 +563,8 @@ namespace Game.UI
                             $"slotContainsTrait={slotContainsTrait} slotIndex={slotIndex} filtered='{DescribeTraitList(filteredTraits)}' slots='{DescribeSlotList(slots)}'");
                         await TraitListChannelRuntimeHelpers.ReleaseSpawnedInstanceAsync(instance.Root, instance.Scope, instance.Resolver);
                         _instances.RemoveAt(i);
-                        if (instance.Trait != null)
-                            _lookup.Remove(instance.Trait);
+                        if (!string.IsNullOrEmpty(instance.DisplayKey))
+                            _lookup.Remove(instance.DisplayKey);
                     }
                 }
             }
@@ -554,7 +575,7 @@ namespace Game.UI
                 for (var i = 0; i < slots.Count; i++)
                 {
                     var slot = slots[i];
-                    if (slot.Trait != null && !_lookup.ContainsKey(slot.Trait))
+                    if (!string.IsNullOrEmpty(slot.DisplayKey) && !_lookup.ContainsKey(slot.DisplayKey))
                         totalNewlySpawned++;
                 }
             }
@@ -568,7 +589,7 @@ namespace Game.UI
                 if (slot.Trait == null)
                     continue;
 
-                if (!_lookup.TryGetValue(slot.Trait, out var instance) || instance == null)
+                if (string.IsNullOrEmpty(slot.DisplayKey) || !_lookup.TryGetValue(slot.DisplayKey, out var instance) || instance == null)
                 {
                     if (mode == TraitListChannelRefreshMode.LayoutOnly)
                         continue;
@@ -578,7 +599,7 @@ namespace Game.UI
                         continue;
 
                     _instances.Add(spawned);
-                    _lookup[slot.Trait] = spawned;
+                    _lookup[slot.DisplayKey] = spawned;
                     await InitializeSpawnedInstanceAsync(spawned, slot, ct);
                     initializedNewSpawned++;
                     await DelayBetweenNewSpawnsIfNeededAsync(initializedNewSpawned, totalNewlySpawned, ct);
@@ -619,7 +640,7 @@ namespace Game.UI
                     continue;
 
                 _instances.Add(spawned);
-                _lookup[slot.Trait] = spawned;
+                _lookup[slot.DisplayKey] = spawned;
                 await InitializeSpawnedInstanceAsync(spawned, slot, ct);
                 initializedSpawned++;
                 await DelayBetweenNewSpawnsIfNeededAsync(initializedSpawned, totalSpawnCount, ct);
@@ -706,7 +727,7 @@ namespace Game.UI
                 return null;
             }
 
-            var instance = new TraitListChannelVisualInstance(slot.Trait, root, scopeNode, resolver);
+            var instance = new TraitListChannelVisualInstance(slot.DisplayKey, slot.Trait, root, scopeNode, resolver);
             TransformGridSharedUtility.SetUiElementVisible(instance.Resolver, false);
             AttachDebugProbe(instance.Root, slot);
             return instance;
@@ -768,6 +789,7 @@ namespace Game.UI
             CancellationToken ct)
         {
             instance.UpdateSlot(slot);
+            AttachDebugProbe(instance.Root, slot);
             var payload = BuildPayload(slot);
             ApplyPayloadToBlackboard(instance, payload);
             TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
@@ -991,6 +1013,7 @@ namespace Game.UI
             WriteVariant(vars, VarIds.GameLib.UI.TraitListChannel.Item.column, DynamicVariant.FromInt(slot.Column));
             WriteVariant(vars, VarIds.GameLib.UI.TraitListChannel.Item.rangeStart, DynamicVariant.FromInt(slot.RangeStart));
             WriteVariant(vars, VarIds.GameLib.UI.TraitListChannel.Item.rangeCount, DynamicVariant.FromInt(slot.RangeCount));
+            WriteVariant(vars, VarIds.GameLib.UI.TraitListChannel.Item.duplicateCount, DynamicVariant.FromInt(Mathf.Max(1, slot.DuplicateCount)));
 
             var trait = slot.Trait;
             if (trait == null)
@@ -1330,6 +1353,12 @@ namespace Game.UI
                         if (!_refreshQueued)
                             break;
 
+                        if (IsReentrantOperationCall())
+                        {
+                            await UniTask.Yield(PlayerLoopTiming.Update, _lifecycleCts?.Token ?? CancellationToken.None);
+                            continue;
+                        }
+
                         var modeToRun = _queuedRefreshMode;
                         _refreshQueued = false;
                         var debounceFrames = Mathf.Max(0, _resolvedPlayerPreset.DebounceFrames);
@@ -1349,6 +1378,57 @@ namespace Game.UI
                 finally
                 {
                     _queueWorkerActive = false;
+                }
+            });
+        }
+
+        void QueueBind(TraitListChannelBindRequest request, bool rebuild)
+        {
+            if (!_isActive)
+                return;
+
+            _queuedBindRequest = request?.Clone() ?? new TraitListChannelBindRequest();
+            _queuedBindRebuild |= rebuild;
+            _bindQueued = true;
+
+            if (_bindQueueWorkerActive)
+                return;
+
+            _bindQueueWorkerActive = true;
+            UniTask.Void(async () =>
+            {
+                try
+                {
+                    while (_isActive)
+                    {
+                        if (!_bindQueued)
+                            break;
+
+                        if (IsReentrantOperationCall())
+                        {
+                            await UniTask.Yield(PlayerLoopTiming.Update, _lifecycleCts?.Token ?? CancellationToken.None);
+                            continue;
+                        }
+
+                        var requestToRun = _queuedBindRequest.Clone();
+                        var rebuildToRun = _queuedBindRebuild;
+                        _bindQueued = false;
+                        _queuedBindRebuild = false;
+
+                        if (!await BindAsync(requestToRun, rebuildToRun, CancellationToken.None))
+                            return;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[TraitListChannel] Queued bind failed. Tag='{Tag}' Message={ex.Message}");
+                }
+                finally
+                {
+                    _bindQueueWorkerActive = false;
                 }
             });
         }
@@ -1545,7 +1625,10 @@ namespace Game.UI
                     builder.Append(", ");
 
                 var slot = slots[i];
-                builder.Append($"[{slot.ListIndex}:{DescribeTrait(slot.Trait)}@{slot.TraitIndex}]");
+                builder.Append($"[{slot.ListIndex}:{DescribeTrait(slot.Trait)}@{slot.TraitIndex}");
+                if (slot.DuplicateCount > 1)
+                    builder.Append($"x{slot.DuplicateCount}");
+                builder.Append("]");
             }
 
             if (slots.Count > count)

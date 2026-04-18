@@ -85,6 +85,250 @@ MonoBehaviour:
             rid: -2
         createIfMissing: 0
         baselineValue: 0
+    - rid: 5399842730113499835
+      type: {class: LiteralVector3Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 100000, y: 100000, z: 100000}
+    - rid: 5399842730113499836
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 1
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842757933269676
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842757933269677
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842757933269678
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842757933269679
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842757933269680
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842757933269681
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: SlotMul * AllSlotMul * BallValueMul * (Value+BallValueAdd)
+    - rid: 5399842757933269677
+      type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        key:
+          stableKey: SlotMul
+          varId: 101109
+    - rid: 5399842757933269678
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1391682985
+          Name: GameLogic.BallProfile.Value
+        targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842757933269679
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1215990987
+          Name: GameLogic.GameProfile.Ball.BallValueMul
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842757933269680
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -476241549
+          Name: GameLogic.GameProfile.Ball.BallValueAdd
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842757933269681
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: 2064459732
+          Name: GameLogic.GameProfile.Base.AllSlotMul
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842757933269682
+      type: {class: FloatExpressionSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        _allowImplicitVariablesFromContext: 1
+        _variables:
+        - _value:
+            _source:
+              rid: 5399842757933269683
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842757933269684
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        - _value:
+            _source:
+              rid: 5399842757933269685
+          _useScalarLeafKey: 1
+          _useCustomKey: 0
+          _customKey: 
+          _expectedType: 255
+        _expression: BallValueMul * (Value + BallValueAdd)
+    - rid: 5399842757933269683
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1391682985
+          Name: GameLogic.BallProfile.Value
+        targetActorSource:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842757933269684
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -476241549
+          Name: GameLogic.GameProfile.Ball.BallValueAdd
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
+    - rid: 5399842757933269685
+      type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        scalarKey:
+          Id: -1215990987
+          Name: GameLogic.GameProfile.Ball.BallValueMul
+        targetActorSource:
+          Kind: 5
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 100
+          TargetChannel:
+            rid: -2
+        createIfMissing: 0
+        baselineValue: 0
     - rid: 5619052672271777983
       type: {class: CommandFunctionPreset, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -165,7 +409,16 @@ MonoBehaviour:
           ContextSlot: 0
           TargetChannel:
             rid: -2
-        VarOps: []
+        VarOps:
+        - Target: 1
+          Key:
+            stableKey: ScoreTotalValue
+            varId: 200022
+          Op: 0
+          StoreMode: 0
+          Value:
+            _source:
+              rid: 5399842757933269676
         ScalarOps:
         - Op: 2
           Key:
@@ -293,6 +546,15 @@ MonoBehaviour:
           _source:
             rid: 5619052672271778001
           _defaultValue: {x: 0, y: 0, z: 0}
+        UseHiddenPreSpawn: 0
+        HiddenSpawnOffset:
+          _source:
+            rid: 5399842730113499835
+          _defaultValue: {x: 0, y: 0, z: 0}
+        RevealDelayFrames:
+          _source:
+            rid: 5399842730113499836
+          _defaultValue: 0
         Count:
           _source:
             rid: 5619052672271778002
@@ -642,6 +904,18 @@ MonoBehaviour:
           _source:
             rid: 5619052672271778018
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052672271778019
@@ -865,6 +1139,18 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052672271778024
@@ -910,6 +1196,8 @@ MonoBehaviour:
           _source:
             rid: -2
           _defaultValue: 
+        _logActorStoresOnWarn: 0
+        _maxActorStoreEntries: 16
         _allowImplicitKeys: 1
         _variables:
         - _value:
@@ -1195,6 +1483,8 @@ MonoBehaviour:
           ease: 30
           relative: 1
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -1230,6 +1520,8 @@ MonoBehaviour:
           ease: 1
           relative: 0
           fireAndForget: 0
+          scrollSpace: 10
+          scrollUseLocalVelocity: 0
           ensureShortestLocalRotatePath: 0
           vector3:
             _source:
@@ -1426,6 +1718,18 @@ MonoBehaviour:
           _source:
             rid: 5619052672271778056
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 5619052672271778057
@@ -1605,6 +1909,7 @@ MonoBehaviour:
           _source:
             rid: 5619052672271778165
           _defaultValue: 0
+        RowClearMode: 10
         DestinationRowGridActorSource:
           Kind: 0
           Identity:
@@ -1632,24 +1937,29 @@ MonoBehaviour:
           entries:
           - VarId: 101108
             Kind: 255
+            StoreMode: 0
             Value:
               _source:
                 rid: 5619052672271778248
           - VarId: 101107
             Kind: 255
+            StoreMode: 0
             Value:
               _source:
-                rid: 5619052672271778249
+                rid: 5399842757933269682
           - VarId: 101109
             Kind: 255
+            StoreMode: 0
             Value:
               _source:
                 rid: 5619052672271778250
           - VarId: 101110
             Kind: 255
+            StoreMode: 0
             Value:
               _source:
                 rid: 5619052672271778255
+          tables: []
         ColumnRowIndex:
           _source:
             rid: 5619052672271778167
@@ -1726,29 +2036,6 @@ MonoBehaviour:
         scalarKey:
           Id: -1973269918
           Name: GameLogic.BallProfile.MaxValue
-        targetActorSource:
-          Kind: 10
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 100
-          TargetChannel:
-            rid: -2
-        createIfMissing: 0
-        baselineValue: 0
-        searchIncludeGlobal: 0
-    - rid: 5619052672271778249
-      type: {class: SelfScalarSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        scalarKey:
-          Id: -1391682985
-          Name: GameLogic.BallProfile.Value
         targetActorSource:
           Kind: 10
           Identity:

@@ -35,8 +35,8 @@ namespace Game.TransformSystem
     public interface ITransformChannelPoseReader
     {
         Transform TargetTransform { get; }
-        TransformChannelOutputTarget OutputTarget { get; }
         Vector2 CurrentVelocity { get; }
+        Quaternion CurrentWorldRotation { get; }
     }
 
     public interface ITransformChannelRigidbodyControl
@@ -65,6 +65,21 @@ namespace Game.TransformSystem
     public interface ITransformChannelRuntime : ITransformTeleportService, ITransformChannelPoseReader, ITransformChannelRigidbodyControl
     {
         string Tag { get; }
+        TransformChannelOutputTarget OutputTarget { get; }
+    }
+
+    internal interface ITransformChannelRuntimeDebugTelemetry
+    {
+        bool EnableMovement { get; }
+        bool EnableRotation { get; }
+        bool EnableScale { get; }
+        IReadOnlyList<TransformManagerChannelApplyRequest> GlobalApplyRequests { get; }
+        Vector2 RigidbodyLinearVelocity { get; }
+        Vector2 RigidbodyOverlayVelocity { get; }
+        Vector2 LastAppliedGlobalBaseVelocity { get; }
+        Vector2 LastAppliedGlobalVelocityDelta { get; }
+        Vector2 LastAppliedGlobalVelocity { get; }
+        int LastAppliedGlobalFrame { get; }
     }
 
     public interface ITransformChannelHubService

@@ -50,7 +50,7 @@ MonoBehaviour:
           Id: -478819391
           Name: GameLogic.GameProfile.Base.GameStage
         targetActorSource:
-          Kind: 0
+          Kind: 5
           Identity:
             kind: 0
             id: 

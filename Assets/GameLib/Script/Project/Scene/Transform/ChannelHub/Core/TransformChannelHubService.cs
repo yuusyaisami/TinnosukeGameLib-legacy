@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game;
 using Game.Common;
 using Game.Movement;
 using UnityEngine;
@@ -9,7 +10,7 @@ using VContainer.Unity;
 
 namespace Game.TransformSystem
 {
-    internal sealed class TransformChannelRuntime : ITransformChannelRuntime
+    internal sealed class TransformChannelRuntime : ITransformChannelRuntime, ITransformChannelRuntimeDebugTelemetry
     {
         const float Epsilon = 0.00001f;
 
@@ -22,6 +23,11 @@ namespace Game.TransformSystem
         TransformChannelFeaturePreset _featurePreset = new();
         TransformChannelEffectPreset _effectPreset = new();
 
+        Vector2 _lastAppliedGlobalBaseVelocity;
+        Vector2 _lastAppliedGlobalVelocityDelta;
+        Vector2 _lastAppliedGlobalVelocity;
+        int _lastAppliedGlobalFrame = -1;
+
         readonly List<TransformManagerChannelApplyRequest> _globalApplyRequests = new();
         readonly List<TransformManagerMovementEntry> _movementContinuousEntries = new();
         readonly List<TransformManagerMovementEntry> _movementOneShotEntries = new();
@@ -33,6 +39,10 @@ namespace Game.TransformSystem
         readonly Dictionary<string, ConditionEntryState> _movementConditionStates = new(StringComparer.Ordinal);
         readonly Dictionary<string, ConditionEntryState> _rotateConditionStates = new(StringComparer.Ordinal);
         readonly Dictionary<string, ConditionEntryState> _scaleConditionStates = new(StringComparer.Ordinal);
+
+        readonly HashSet<string> _movementAppliedEntryIds = new(StringComparer.Ordinal);
+        readonly HashSet<string> _rotateAppliedEntryIds = new(StringComparer.Ordinal);
+        readonly HashSet<string> _scaleAppliedEntryIds = new(StringComparer.Ordinal);
 
         IDynamicContext? _conditionContext;
         IVarStore? _conditionVars;
@@ -66,8 +76,21 @@ namespace Game.TransformSystem
         public Transform TargetTransform => _service?.TargetTransform ?? _options.OwnerTransform;
         public TransformChannelOutputTarget OutputTarget => _outputTarget;
         public Vector2 CurrentVelocity => _service?.CurrentVelocity ?? Vector2.zero;
+        public Quaternion CurrentWorldRotation => _service?.CurrentWorldRotation ?? Quaternion.identity;
         public TransformChannelFeaturePreset FeaturePreset => _featurePreset;
         public TransformChannelEffectPreset EffectPreset => _effectPreset;
+
+        public bool EnableMovement => _featurePreset.EnableMovement;
+        public bool EnableRotation => _featurePreset.EnableRotation;
+        public bool EnableScale => _featurePreset.EnableScale;
+        public IReadOnlyList<TransformManagerChannelApplyRequest> GlobalApplyRequests => _globalApplyRequests;
+        public Vector2 RigidbodyLinearVelocity => _service?.Rigidbody2DLinearVelocity ?? Vector2.zero;
+        public Vector2 RigidbodyOverlayVelocity => _service?.Rigidbody2DLinearVelocityOverlay ?? Vector2.zero;
+        public Vector2 LastAppliedGlobalBaseVelocity => _lastAppliedGlobalBaseVelocity;
+        public Vector2 LastAppliedGlobalVelocityDelta => _lastAppliedGlobalVelocityDelta;
+        public Vector2 LastAppliedGlobalVelocity => _lastAppliedGlobalVelocity;
+        public int LastAppliedGlobalFrame => _lastAppliedGlobalFrame;
+        bool DebugGlobalApplyLogs => _options.DebugGlobalApplyLogs;
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
@@ -78,6 +101,14 @@ namespace Game.TransformSystem
             RebuildService(scope);
             SubscribeConditionVarChanges();
             _service?.OnAcquire(scope, isReset);
+
+            if (DebugGlobalApplyLogs)
+            {
+                Debug.Log(
+                    $"[TransformChannelHub][Init] frame={Time.frameCount} tag={_tag} owner={DescribeScope(_owner)} target={DescribeTransform(TargetTransform)} " +
+                    $"conditionScope={DescribeScope(_conditionContext?.Scope)} output={_outputTarget} requests={_globalApplyRequests.Count} " +
+                    $"movement={_featurePreset.EnableMovement} rotation={_featurePreset.EnableRotation} scale={_featurePreset.EnableScale}");
+            }
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -202,6 +233,7 @@ namespace Game.TransformSystem
             outputPreset.ApplyToConfig(config, _options.OwnerTransform);
 
             _service = new TransformControllerService(config, _options.OwnerTransform, resolver);
+            _conditionContext = CreateDynamicContext(ResolveConditionScope(config.TargetTransform, _owner));
         }
 
         void SubscribeConditionVarChanges()
@@ -262,26 +294,56 @@ namespace Game.TransformSystem
         void ApplyTransformManagerGlobals()
         {
             if (_service == null)
-                return;
+            {
+                if (DebugGlobalApplyLogs)
+                    Debug.LogWarning($"[TransformChannelHub][Global] frame={Time.frameCount} tag={_tag} skipped: service missing");
 
-            if (_globalApplyRequests.Count == 0)
                 return;
+            }
 
             var target = _service.TargetTransform;
             if (target == null)
+            {
+                if (DebugGlobalApplyLogs)
+                    Debug.LogWarning($"[TransformChannelHub][Global] frame={Time.frameCount} tag={_tag} skipped: target missing owner={DescribeScope(_owner)} output={_service.OutputTarget}");
+
                 return;
+            }
 
             if (!TryResolveTransformManagerService(out var manager) || manager == null)
             {
+                if (DebugGlobalApplyLogs)
+                {
+                    Debug.LogWarning(
+                        $"[TransformChannelHub][Global] frame={Time.frameCount} tag={_tag} manager=missing owner={DescribeScope(_owner)} target={DescribeTransform(target)} " +
+                        $"conditionScope={DescribeScope(_conditionContext?.Scope)} output={_service.OutputTarget} requests={_globalApplyRequests.Count}");
+                }
+
+                RecordMovementTelemetry(_service.CurrentVelocity, _service.CurrentVelocity);
+                ClearRigidbody2DMovementOverlay();
                 RestoreRotationOffsetIfNeeded(target);
                 RestoreScaleIfNeeded(target);
                 return;
             }
 
+            if (DebugGlobalApplyLogs)
+            {
+                Debug.Log(
+                    $"[TransformChannelHub][Global] frame={Time.frameCount} tag={_tag} managerVersion={manager.RuntimeVersion} owner={DescribeScope(_owner)} " +
+                    $"target={DescribeTransform(target)} conditionScope={DescribeScope(_conditionContext?.Scope)} output={_service.OutputTarget} requests={_globalApplyRequests.Count}");
+            }
+
             var deltaTime = ResolveDeltaTime(_service.OutputTarget);
 
             if (_featurePreset.EnableMovement)
+            {
                 ApplyMovementGlobals(manager, target, deltaTime);
+            }
+            else
+            {
+                RecordMovementTelemetry(_service.CurrentVelocity, _service.CurrentVelocity);
+                ClearRigidbody2DMovementOverlay();
+            }
 
             if (_featurePreset.EnableRotation)
                 ApplyRotateGlobals(manager, target, deltaTime);
@@ -297,41 +359,93 @@ namespace Game.TransformSystem
         void ApplyMovementGlobals(ITransformManagerService manager, Transform target, float deltaTime)
         {
             var conditionContext = _conditionContext ?? CreateDynamicContext(_owner);
+            var debugLogs = DebugGlobalApplyLogs;
+            var debugHeader = debugLogs
+                ? $"frame={Time.frameCount} tag={_tag} owner={DescribeScope(_owner)} target={DescribeTransform(target)} conditionScope={DescribeScope(conditionContext.Scope)} managerVersion={manager.RuntimeVersion} output={_service?.OutputTarget}"
+                : string.Empty;
             var baseVelocity = _service?.CurrentVelocity ?? Vector2.zero;
             var composedVelocity = baseVelocity;
+            var hasAnyCollectedEntries = false;
+
+            _movementAppliedEntryIds.Clear();
 
             for (var i = 0; i < _globalApplyRequests.Count; i++)
             {
-                manager.CollectMovementEntries(_globalApplyRequests[i], _movementContinuousEntries, _movementOneShotEntries);
-                ApplyMovementEntries(manager, _movementContinuousEntries, ref composedVelocity, conditionContext, _movementConditionStates, removeAfterApply: false);
-                ApplyMovementEntries(manager, _movementOneShotEntries, ref composedVelocity, conditionContext, _movementConditionStates, removeAfterApply: true);
+                var request = _globalApplyRequests[i];
+                manager.CollectMovementEntries(request, _movementContinuousEntries, _movementOneShotEntries);
+
+                if (_movementContinuousEntries.Count > 0 || _movementOneShotEntries.Count > 0)
+                    hasAnyCollectedEntries = true;
+
+                if (debugLogs)
+                {
+                    Debug.Log(
+                        $"[TransformChannelHub][Movement] {debugHeader} request={DescribeRequest(request)} continuous={_movementContinuousEntries.Count} oneShot={_movementOneShotEntries.Count}");
+
+                    if (_movementContinuousEntries.Count == 0 && _movementOneShotEntries.Count == 0)
+                    {
+                        Debug.LogWarning(
+                            $"[TransformChannelHub][Movement] {debugHeader} request={DescribeRequest(request)} collected no movement entries.");
+                    }
+                }
+
+                ApplyMovementEntries(manager, _movementContinuousEntries, ref composedVelocity, conditionContext, _movementConditionStates, _movementAppliedEntryIds, debugLogs, debugHeader, phase: "continuous", removeAfterApply: false);
+                ApplyMovementEntries(manager, _movementOneShotEntries, ref composedVelocity, conditionContext, _movementConditionStates, _movementAppliedEntryIds, debugLogs, debugHeader, phase: "one-shot", removeAfterApply: true);
             }
 
             var velocityDelta = composedVelocity - baseVelocity;
-            if (velocityDelta.sqrMagnitude <= Epsilon)
-                return;
+            RecordMovementTelemetry(baseVelocity, composedVelocity);
+
+            if (debugLogs)
+            {
+                Debug.Log(
+                    $"[TransformChannelHub][Movement] {debugHeader} base={FormatVector2(baseVelocity)} composed={FormatVector2(composedVelocity)} delta={FormatVector2(velocityDelta)} " +
+                    $"overlayBefore={FormatVector2(_service?.Rigidbody2DLinearVelocityOverlay ?? Vector2.zero)}");
+
+                if (hasAnyCollectedEntries && velocityDelta.sqrMagnitude <= Epsilon)
+                {
+                    Debug.LogWarning(
+                        $"[TransformChannelHub][Movement] {debugHeader} collected entries but final delta stayed zero.");
+                }
+            }
 
             if (_service != null && _service.OutputTarget == TransformOutputTarget.Rigidbody2D)
             {
-                _service.TryApplyRigidbody2DSettings(
-                    applySimulated: false,
-                    simulated: false,
-                    applyGravityScale: false,
-                    gravityScale: 0f,
-                    applyFreezeRotation: false,
-                    freezeRotation: false,
-                    applyLinearVelocity: true,
-                    linearVelocity: velocityDelta,
-                    applyAngularVelocity: false,
-                    angularVelocity: 0f,
-                    linearVelocityMode: Rigidbody2DVelocityApplyMode.Additive);
+                ApplyRigidbody2DMovementOverlay(velocityDelta);
                 return;
             }
+
+            if (velocityDelta.sqrMagnitude <= Epsilon)
+                return;
 
             if (deltaTime <= 0f)
                 return;
 
             target.position += new Vector3(velocityDelta.x, velocityDelta.y, 0f) * deltaTime;
+        }
+
+        void ClearRigidbody2DMovementOverlay()
+        {
+            ApplyRigidbody2DMovementOverlay(Vector2.zero);
+        }
+
+        void ApplyRigidbody2DMovementOverlay(Vector2 linearVelocity)
+        {
+            if (_service == null || _service.OutputTarget != TransformOutputTarget.Rigidbody2D)
+                return;
+
+            _service.TryApplyRigidbody2DSettings(
+                applySimulated: false,
+                simulated: false,
+                applyGravityScale: false,
+                gravityScale: 0f,
+                applyFreezeRotation: false,
+                freezeRotation: false,
+                applyLinearVelocity: true,
+                linearVelocity: linearVelocity,
+                applyAngularVelocity: false,
+                angularVelocity: 0f,
+                linearVelocityMode: Rigidbody2DVelocityApplyMode.Overlay);
         }
 
         void ApplyRotateGlobals(ITransformManagerService manager, Transform target, float deltaTime)
@@ -342,14 +456,16 @@ namespace Game.TransformSystem
             var oneShotOffset = 0f;
             var oneShotAngularVelocity = 0f;
 
+            _rotateAppliedEntryIds.Clear();
+
             for (var i = 0; i < _globalApplyRequests.Count; i++)
             {
                 manager.CollectRotateEntries(_globalApplyRequests[i], _rotateContinuousEntries, _rotateOneShotEntries);
-                ApplyRotateEntries(manager, _rotateContinuousEntries, ref continuousOffset, ref continuousAngularVelocity, conditionContext, _rotateConditionStates, removeAfterApply: false);
+                ApplyRotateEntries(manager, _rotateContinuousEntries, ref continuousOffset, ref continuousAngularVelocity, conditionContext, _rotateConditionStates, _rotateAppliedEntryIds, removeAfterApply: false);
 
                 var oneShotOffsetWork = continuousOffset;
                 var oneShotAngularWork = continuousAngularVelocity;
-                ApplyRotateEntries(manager, _rotateOneShotEntries, ref oneShotOffsetWork, ref oneShotAngularWork, conditionContext, _rotateConditionStates, removeAfterApply: true);
+                ApplyRotateEntries(manager, _rotateOneShotEntries, ref oneShotOffsetWork, ref oneShotAngularWork, conditionContext, _rotateConditionStates, _rotateAppliedEntryIds, removeAfterApply: true);
 
                 oneShotOffset += oneShotOffsetWork - continuousOffset;
                 oneShotAngularVelocity += oneShotAngularWork - continuousAngularVelocity;
@@ -374,6 +490,8 @@ namespace Game.TransformSystem
             var baseScale = RecoverScaleBase(target.localScale);
             var composedScale = baseScale;
 
+            _scaleAppliedEntryIds.Clear();
+
             for (var i = 0; i < _globalApplyRequests.Count; i++)
             {
                 manager.CollectScaleEntries(_globalApplyRequests[i], _scaleContinuousEntries, _scaleOneShotEntries);
@@ -381,8 +499,8 @@ namespace Game.TransformSystem
                 if (_scaleContinuousEntries.Count > 0 || _scaleOneShotEntries.Count > 0)
                     hasAnyScaleEntry = true;
 
-                ApplyScaleEntries(manager, _scaleContinuousEntries, ref composedScale, ref hasOverride, ref affineTrackable, ref affineMultiply, ref affineAdd, conditionContext, _scaleConditionStates, removeAfterApply: false);
-                ApplyScaleEntries(manager, _scaleOneShotEntries, ref composedScale, ref hasOverride, ref affineTrackable, ref affineMultiply, ref affineAdd, conditionContext, _scaleConditionStates, removeAfterApply: true);
+                ApplyScaleEntries(manager, _scaleContinuousEntries, ref composedScale, ref hasOverride, ref affineTrackable, ref affineMultiply, ref affineAdd, conditionContext, _scaleConditionStates, _scaleAppliedEntryIds, removeAfterApply: false);
+                ApplyScaleEntries(manager, _scaleOneShotEntries, ref composedScale, ref hasOverride, ref affineTrackable, ref affineMultiply, ref affineAdd, conditionContext, _scaleConditionStates, _scaleAppliedEntryIds, removeAfterApply: true);
             }
 
             if (!hasAnyScaleEntry)
@@ -457,6 +575,15 @@ namespace Game.TransformSystem
             _appliedRotationOffset = 0f;
             ResetScaleState();
 
+            _lastAppliedGlobalBaseVelocity = Vector2.zero;
+            _lastAppliedGlobalVelocityDelta = Vector2.zero;
+            _lastAppliedGlobalVelocity = Vector2.zero;
+            _lastAppliedGlobalFrame = -1;
+
+            _movementAppliedEntryIds.Clear();
+            _rotateAppliedEntryIds.Clear();
+            _scaleAppliedEntryIds.Clear();
+
             _movementConditionStates.Clear();
             _rotateConditionStates.Clear();
             _scaleConditionStates.Clear();
@@ -467,6 +594,14 @@ namespace Game.TransformSystem
             _rotateOneShotEntries.Clear();
             _scaleContinuousEntries.Clear();
             _scaleOneShotEntries.Clear();
+        }
+
+        void RecordMovementTelemetry(Vector2 baseVelocity, Vector2 composedVelocity)
+        {
+            _lastAppliedGlobalBaseVelocity = baseVelocity;
+            _lastAppliedGlobalVelocity = composedVelocity;
+            _lastAppliedGlobalVelocityDelta = composedVelocity - baseVelocity;
+            _lastAppliedGlobalFrame = Time.frameCount;
         }
 
         void ResetScaleState()
@@ -511,15 +646,40 @@ namespace Game.TransformSystem
             ref Vector2 currentVelocity,
             IDynamicContext context,
             Dictionary<string, ConditionEntryState> conditionStates,
+            HashSet<string> appliedEntryIds,
+            bool debugLogs,
+            string debugHeader,
+            string phase,
             bool removeAfterApply)
         {
             for (var i = 0; i < entries.Count; i++)
             {
                 var entry = entries[i];
-                if (!TryEvaluateCondition(entry.Settings, context, conditionStates, out var enabled) || !enabled)
+                if (!TryEvaluateCondition(entry.Settings, context, conditionStates, out var enabled))
+                {
+                    if (debugLogs)
+                    {
+                        Debug.LogWarning($"[TransformChannelHub][Movement] {debugHeader} phase={phase} entry={DescribeMovementEntry(entry)} condition=no-source scope={DescribeScope(context.Scope)}");
+                    }
+
                     continue;
+                }
+
+                if (!enabled)
+                {
+                    if (debugLogs)
+                    {
+                        Debug.Log($"[TransformChannelHub][Movement] {debugHeader} phase={phase} entry={DescribeMovementEntry(entry)} condition=false scope={DescribeScope(context.Scope)}{DescribeConditionVariables(entry.Settings.Condition, context)}");
+                    }
+
+                    continue;
+                }
 
                 var settings = entry.Settings;
+                if (!appliedEntryIds.Add(settings.EntryId))
+                    continue;
+
+                var beforeVelocity = currentVelocity;
                 var weightedValue = entry.Velocity * Mathf.Max(0f, settings.Weight);
 
                 switch (settings.BlendMode)
@@ -540,6 +700,12 @@ namespace Game.TransformSystem
                     manager.RemoveMovement(settings.EntryId);
                     conditionStates.Remove(settings.EntryId);
                 }
+
+                if (debugLogs)
+                {
+                    Debug.Log(
+                        $"[TransformChannelHub][Movement] {debugHeader} phase={phase} entry={DescribeMovementEntry(entry)} applied before={FormatVector2(beforeVelocity)} after={FormatVector2(currentVelocity)}");
+                }
             }
         }
 
@@ -550,6 +716,7 @@ namespace Game.TransformSystem
             ref float currentAngularVelocity,
             IDynamicContext context,
             Dictionary<string, ConditionEntryState> conditionStates,
+            HashSet<string> appliedEntryIds,
             bool removeAfterApply)
         {
             for (var i = 0; i < entries.Count; i++)
@@ -559,6 +726,9 @@ namespace Game.TransformSystem
                     continue;
 
                 var settings = entry.Settings;
+                if (!appliedEntryIds.Add(settings.EntryId))
+                    continue;
+
                 var weightedOffset = entry.OffsetDegrees * Mathf.Max(0f, settings.Weight);
                 var weightedAngular = entry.AngularVelocity * Mathf.Max(0f, settings.Weight);
 
@@ -596,6 +766,7 @@ namespace Game.TransformSystem
             ref Vector3 affineAdd,
             IDynamicContext context,
             Dictionary<string, ConditionEntryState> conditionStates,
+            HashSet<string> appliedEntryIds,
             bool removeAfterApply)
         {
             for (var i = 0; i < entries.Count; i++)
@@ -605,39 +776,41 @@ namespace Game.TransformSystem
                     continue;
 
                 var settings = entry.Settings;
+                if (!appliedEntryIds.Add(settings.EntryId))
+                    continue;
 
                 switch (settings.BlendMode)
                 {
                     case TransformChannelGlobalBlendMode.Override:
-                    {
-                        var t = Mathf.Clamp01(settings.Weight);
-                        currentScale = Vector3.Lerp(currentScale, entry.LocalScale, t);
-                        hasOverride = true;
-                        affineTrackable = false;
-                        break;
-                    }
+                        {
+                            var t = Mathf.Clamp01(settings.Weight);
+                            currentScale = Vector3.Lerp(currentScale, entry.LocalScale, t);
+                            hasOverride = true;
+                            affineTrackable = false;
+                            break;
+                        }
 
                     case TransformChannelGlobalBlendMode.Additive:
-                    {
-                        var add = entry.LocalScale * Mathf.Max(0f, settings.Weight);
-                        currentScale += add;
-                        if (affineTrackable)
-                            affineAdd += add;
-                        break;
-                    }
+                        {
+                            var add = entry.LocalScale * Mathf.Max(0f, settings.Weight);
+                            currentScale += add;
+                            if (affineTrackable)
+                                affineAdd += add;
+                            break;
+                        }
 
                     case TransformChannelGlobalBlendMode.Multiply:
-                    {
-                        var t = Mathf.Clamp01(settings.Weight);
-                        var multiply = Vector3.Lerp(Vector3.one, entry.LocalScale, t);
-                        currentScale = Vector3.Scale(currentScale, multiply);
-                        if (affineTrackable)
                         {
-                            affineMultiply = Vector3.Scale(affineMultiply, multiply);
-                            affineAdd = Vector3.Scale(affineAdd, multiply);
+                            var t = Mathf.Clamp01(settings.Weight);
+                            var multiply = Vector3.Lerp(Vector3.one, entry.LocalScale, t);
+                            currentScale = Vector3.Scale(currentScale, multiply);
+                            if (affineTrackable)
+                            {
+                                affineMultiply = Vector3.Scale(affineMultiply, multiply);
+                                affineAdd = Vector3.Scale(affineAdd, multiply);
+                            }
+                            break;
                         }
-                        break;
-                    }
                 }
 
                 if (removeAfterApply)
@@ -713,11 +886,64 @@ namespace Game.TransformSystem
                 return Array.Empty<int>();
             }
 
+            if (condition.TryGetSource<BoolExpressionSource>(out var expressionSource) && expressionSource != null)
+            {
+                var collectedIds = new HashSet<int>();
+                var sawVariable = false;
+
+                if (!TryCollectConditionVariableDependencies(expressionSource.DebugExternalVariables, collectedIds, ref sawVariable))
+                    return null;
+
+                if (!TryCollectConditionVariableDependencies(expressionSource.DebugVariables, collectedIds, ref sawVariable))
+                    return null;
+
+                if (!sawVariable)
+                    return Array.Empty<int>();
+
+                if (collectedIds.Count == 0)
+                    return Array.Empty<int>();
+
+                var ids = new int[collectedIds.Count];
+                collectedIds.CopyTo(ids);
+                return ids;
+            }
+
             var dependentKeys = condition.GetDependentKeys();
             if (dependentKeys != null)
                 return ResolveDependentVarIds(dependentKeys);
 
             return null;
+        }
+
+        static bool TryCollectConditionVariableDependencies(IReadOnlyList<ExpressionVariable>? variables, HashSet<int> collectedIds, ref bool sawVariable)
+        {
+            if (variables == null)
+                return true;
+
+            for (var i = 0; i < variables.Count; i++)
+            {
+                var variable = variables[i];
+                if (variable == null || !variable.HasSource)
+                    continue;
+
+                sawVariable = true;
+
+                if (variable.Value.TryGetSource<LiteralSource>(out _))
+                    continue;
+
+                if (variable.Value.TryGetSource<SelfBlackboardSource>(out var selfBlackboard) && selfBlackboard != null)
+                {
+                    if (selfBlackboard.BlackboardVarId <= 0)
+                        return false;
+
+                    collectedIds.Add(selfBlackboard.BlackboardVarId);
+                    continue;
+                }
+
+                return false;
+            }
+
+            return true;
         }
 
         static int[]? ResolveDependentVarIds(IReadOnlyList<string>? dependentKeys)
@@ -733,7 +959,7 @@ namespace Game.TransformSystem
                     continue;
 
                 if (!VarIdResolver.TryResolve(key, out var varId) || varId == 0)
-                    continue;
+                    return null;
 
                 ids.Add(varId);
             }
@@ -747,6 +973,30 @@ namespace Game.TransformSystem
             return new SimpleDynamicContext(vars, scope);
         }
 
+        static IScopeNode ResolveConditionScope(Transform? targetTransform, IScopeNode fallbackScope)
+        {
+            if (targetTransform != null)
+            {
+                for (var current = targetTransform; current != null; current = current.parent)
+                {
+                    if (current.TryGetComponent<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+                        return runtimeScope;
+
+                    if (current.TryGetComponent<BaseLifetimeScope>(out var baseScope) && baseScope != null)
+                        return baseScope;
+
+                    var components = current.GetComponents<Component>();
+                    for (var i = 0; i < components.Length; i++)
+                    {
+                        if (components[i] is IScopeNode node)
+                            return node;
+                    }
+                }
+            }
+
+            return fallbackScope;
+        }
+
         static IVarStore ResolveVars(IScopeNode scope)
         {
             var resolver = scope.Resolver;
@@ -756,12 +1006,88 @@ namespace Game.TransformSystem
             return NullVarStore.Instance;
         }
 
+        static string DescribeScope(IScopeNode? scope)
+        {
+            if (scope == null)
+                return "(null)";
+
+            var identity = scope.Identity?.SelfTransform;
+            var scopeName = identity != null ? identity.name : "(no transform)";
+            return $"{scope.Kind}:{scopeName}";
+        }
+
+        static string DescribeTransform(Transform? transform)
+        {
+            return transform != null ? transform.name : "(null)";
+        }
+
+        static string DescribeRequest(TransformManagerChannelApplyRequest request)
+        {
+            return request.HasChannelTagFilter ? $"Tag={request.ChannelTagFilter}" : "All";
+        }
+
+        static string DescribeMovementEntry(in TransformManagerMovementEntry entry)
+        {
+            var settings = entry.Settings;
+            var channelTag = settings.ApplyAllChannels
+                ? "All"
+                : string.IsNullOrWhiteSpace(settings.ChannelTag)
+                    ? "(empty)"
+                    : settings.ChannelTag;
+
+            return
+                $"id={settings.EntryId} v={settings.Version} blend={settings.BlendMode} weight={settings.Weight:0.###} " +
+                $"applyAll={settings.ApplyAllChannels} tag={channelTag} oneShot={settings.OneShot} duration={settings.DurationSeconds:0.###} " +
+                $"condition={settings.Condition.SourceDebugData} velocity={FormatVector2(entry.Velocity)}";
+        }
+
+        static string DescribeConditionVariables(DynamicValue<bool> condition, IDynamicContext context)
+        {
+            if (!condition.TryGetSource<BoolExpressionSource>(out var expressionSource) || expressionSource == null)
+                return string.Empty;
+
+            var variables = expressionSource.DebugExternalVariables ?? expressionSource.DebugVariables;
+            if (variables == null || variables.Count == 0)
+                return " vars=(none)";
+
+            var segments = new List<string>(variables.Count);
+            for (var i = 0; i < variables.Count; i++)
+            {
+                var variable = variables[i];
+                if (variable == null)
+                    continue;
+
+                var key = string.IsNullOrWhiteSpace(variable.ExpressionKey) ? "(empty)" : variable.ExpressionKey;
+                var sourceType = variable.Value.SourceTypeName;
+                var sourceDebug = string.IsNullOrWhiteSpace(variable.Value.SourceDebugData) ? "(empty)" : variable.Value.SourceDebugData;
+
+                string evaluatedText;
+                try
+                {
+                    evaluatedText = variable.Value.Evaluate(context).ToString();
+                }
+                catch (Exception ex)
+                {
+                    evaluatedText = $"<error:{ex.Message}>";
+                }
+
+                segments.Add($"{key}={evaluatedText}[{sourceType}:{sourceDebug}]");
+            }
+
+            return segments.Count > 0 ? " vars=" + string.Join("; ", segments) : " vars=(none)";
+        }
+
+        static string FormatVector2(Vector2 value)
+        {
+            return $"({value.x:0.###}, {value.y:0.###})";
+        }
+
     }
 
     public sealed class TransformChannelHubService :
         ITransformChannelHubService,
         ITransformTeleportService,
-        ITransformControllerPoseReader,
+        ITransformChannelPoseReader,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
         ITickable
@@ -778,6 +1104,8 @@ namespace Game.TransformSystem
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _mb = mb ?? throw new ArgumentNullException(nameof(mb));
         }
+
+        internal bool DebugGlobalApplyLogs => _mb.DebugGlobalApplyLogs;
 
         public int ChannelCount => _orderedRuntimes.Count;
 
@@ -919,6 +1247,7 @@ namespace Game.TransformSystem
                 }
 
                 var options = definition.CreateOptions(_mb.transform);
+                options.DebugGlobalApplyLogs = _mb.DebugGlobalApplyLogs;
                 var runtime = new TransformChannelRuntime(tag, options, _owner);
                 runtime.OnAcquire(scope, isReset);
                 _runtimeByTag.Add(tag, runtime);

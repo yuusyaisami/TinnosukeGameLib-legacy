@@ -326,6 +326,8 @@ namespace Game.UI
     {
         public ITraitInstance Trait;
         public int TraitIndex;
+        public string DisplayKey;
+        public int DuplicateCount;
         public int ListIndex;
         public int Row;
         public int Column;
@@ -341,11 +343,13 @@ namespace Game.UI
     internal sealed class TraitListChannelVisualInstance
     {
         public TraitListChannelVisualInstance(
+            string displayKey,
             ITraitInstance trait,
             Transform root,
             IScopeNode scope,
             IObjectResolver resolver)
         {
+            DisplayKey = displayKey;
             Trait = trait;
             Root = root;
             RootRect = root as RectTransform;
@@ -353,11 +357,13 @@ namespace Game.UI
             Resolver = resolver;
         }
 
-        public ITraitInstance Trait { get; }
+        public string DisplayKey { get; private set; }
+        public ITraitInstance Trait { get; private set; }
         public Transform Root { get; }
         public RectTransform? RootRect { get; }
         public IScopeNode Scope { get; }
         public IObjectResolver Resolver { get; }
+        public int DuplicateCount { get; private set; }
         public int TraitIndex { get; private set; }
         public int ListIndex { get; private set; }
         public int Row { get; private set; }
@@ -366,6 +372,9 @@ namespace Game.UI
 
         public void UpdateSlot(in TraitListChannelSlot slot)
         {
+            DisplayKey = slot.DisplayKey;
+            Trait = slot.Trait;
+            DuplicateCount = slot.DuplicateCount;
             TraitIndex = slot.TraitIndex;
             ListIndex = slot.ListIndex;
             Row = slot.Row;

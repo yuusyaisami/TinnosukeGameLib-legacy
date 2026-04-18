@@ -30,17 +30,23 @@ MonoBehaviour:
 
 '
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: 
             Variables: []
           StackDescription:
             Template: 
             Variables: []
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
+        runtimeControlMode: 0
+        condition:
+          _source:
+            rid: 5399842757933269082
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: -2
@@ -53,6 +59,21 @@ MonoBehaviour:
         operations:
         - rid: 5399842402410692624
         - rid: 5399842479533719670
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842757933269083
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842757933269084
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
@@ -99,6 +120,7 @@ MonoBehaviour:
     - rid: 5399842402410692624
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: -246769584
           Name: GameLogic.GameProfile.Base.BuffBallChance
@@ -125,9 +147,12 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
+        BlockedUsePropagation: 10
     - rid: 5399842479533719670
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: 1419425966
           Name: GameLogic.GameProfile.Base.DebuffBallChance
@@ -154,3 +179,17 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
+        BlockedUsePropagation: 10
+    - rid: 5399842757933269082
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842757933269083
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842757933269084
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1

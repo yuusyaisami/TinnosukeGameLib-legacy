@@ -22,6 +22,12 @@ namespace Game.UI
         bool _hideVisiblePlacedTraits;
 
         [BoxGroup("Player")]
+        [LabelText("Merge Duplicate Trait Definitions")]
+        [Tooltip("true のとき holder 内で同じ DefinitionId を持つ Trait を 1 つの Runtime としてまとめます。")]
+        [SerializeField]
+        bool _mergeDuplicateTraitDefinitions;
+
+        [BoxGroup("Player")]
         [LabelText("Debounce Frames")]
         [MinValue(0)]
         [Tooltip("holder/placement の連続変化をまとめる待機 frame 数です。0 なら即時更新します。")]
@@ -30,6 +36,7 @@ namespace Game.UI
 
         public TraitListChannelRefreshMode RefreshMode => _refreshMode;
         public bool HideVisiblePlacedTraits => _hideVisiblePlacedTraits;
+        public bool MergeDuplicateTraitDefinitions => _mergeDuplicateTraitDefinitions;
         public int DebounceFrames => Mathf.Max(0, _debounceFrames);
 
         public TraitListChannelPlayerPreset CreateRuntimeCopy()
@@ -38,6 +45,7 @@ namespace Game.UI
             {
                 _refreshMode = _refreshMode,
                 _hideVisiblePlacedTraits = _hideVisiblePlacedTraits,
+                _mergeDuplicateTraitDefinitions = _mergeDuplicateTraitDefinitions,
                 _debounceFrames = _debounceFrames,
             };
         }

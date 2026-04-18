@@ -58,7 +58,7 @@ namespace Game.Scalar
         [LabelText("Use Max")]
         [Tooltip("上限クランプを有効にします。")]
         public bool UseMax;
-        
+
         [ShowIf(nameof(UseMax))]
         [LabelText("Max")]
         [Tooltip("上限値です。DynamicValue を使って動的に決められます。")]

@@ -569,7 +569,7 @@ namespace Game.Channel
             if (scope?.Resolver == null)
                 return false;
 
-            if (!scope.Resolver.TryResolve<ITransformControllerPoseReader>(out var reader) || reader == null)
+            if (!scope.Resolver.TryResolve<ITransformChannelPoseReader>(out var reader) || reader == null)
                 return false;
 
             target = reader.TargetTransform;

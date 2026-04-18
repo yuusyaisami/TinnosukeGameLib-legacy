@@ -26,6 +26,8 @@ namespace Game.TransformSystem
                 new ManagedRefLiteralSource<TransformChannelEffectPreset>(new TransformChannelEffectPreset()));
 
         public Transform OwnerTransform { get; set; } = null!;
+
+        public bool DebugGlobalApplyLogs { get; set; }
     }
 
     [Serializable]
@@ -74,6 +76,15 @@ namespace Game.TransformSystem
     [DisallowMultipleComponent]
     public sealed class TransformChannelHub : MonoBehaviour, IFeatureInstaller
     {
+        [BoxGroup("Debug")]
+        [SerializeField, InlineProperty, HideLabel]
+        TransformChannelHubDebugViewer _debugViewer = new();
+
+        [BoxGroup("Debug")]
+        [LabelText("Debug Global Apply Logs")]
+        [SerializeField]
+        bool _debugGlobalApplyLogs;
+
         [BoxGroup("Channels")]
         [LabelText("Channels")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
@@ -82,6 +93,8 @@ namespace Game.TransformSystem
 
         public IReadOnlyList<TransformChannelDefinition> Channels => _channels;
 
+        internal bool DebugGlobalApplyLogs => _debugGlobalApplyLogs;
+
         public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<TransformChannelHubService>(Lifetime.Singleton)
@@ -89,10 +102,17 @@ namespace Game.TransformSystem
                 .WithParameter(this)
                 .As<ITransformChannelHubService>()
                 .As<ITransformTeleportService>()
-                .As<ITransformControllerPoseReader>()
+                .As<ITransformChannelPoseReader>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<ITickable>();
+
+            builder.RegisterInstance(_debugViewer);
+            builder.RegisterBuildCallback(container =>
+            {
+                if (_debugViewer != null && container.TryResolve<ITransformChannelHubService>(out var hub) && hub != null)
+                    _debugViewer.Bind(hub);
+            });
         }
     }
 }

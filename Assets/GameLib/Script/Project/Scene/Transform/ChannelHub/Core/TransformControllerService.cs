@@ -17,7 +17,7 @@ using Game.Input;
 
 namespace Game.TransformSystem
 {
-    public sealed class TransformControllerService : ITickable, IScopeAcquireHandler, IScopeReleaseHandler, IDisposable, ITransformTeleportService, ITransformAnimationOutputSink, ITransformControllerPoseReader
+    public sealed class TransformControllerService : ITickable, IScopeAcquireHandler, IScopeReleaseHandler, IDisposable, ITransformTeleportService, ITransformAnimationOutputSink, ITransformChannelPoseReader
     {
         readonly TransformControllerConfig _config;
         readonly Transform _ownerTransform;
@@ -42,6 +42,7 @@ namespace Game.TransformSystem
         bool _loggedMissingRigidbody;
         bool _loggedRigidbodySuppressed;
         float _suppressRigidbodyMovementSeconds;
+        Vector2 _rigidbody2DLinearVelocityOverlay;
 
         Transform? _currentTarget;
         Transform? _registeredTarget;
@@ -104,6 +105,17 @@ namespace Game.TransformSystem
                 return rb != null ? rb.rotation : 0f;
             }
         }
+
+        public Vector2 Rigidbody2DLinearVelocity
+        {
+            get
+            {
+                var rb = ResolveTelemetryRigidbody2D();
+                return rb != null ? rb.linearVelocity : Vector2.zero;
+            }
+        }
+
+        public Vector2 Rigidbody2DLinearVelocityOverlay => _rigidbody2DLinearVelocityOverlay;
 
         public TransformControllerService(
             TransformControllerConfig config,
@@ -640,7 +652,10 @@ namespace Game.TransformSystem
 
                         rb.position = new Vector2(worldPosition.x, worldPosition.y);
                         if (resetVelocity)
+                        {
+                            ResetRigidbody2DLinearVelocityOverlayState(resetMovementAdapter: true);
                             rb.linearVelocity = Vector2.zero;
+                        }
                         return true;
                     }
 
@@ -916,12 +931,13 @@ namespace Game.TransformSystem
 
             if (applyLinearVelocity)
             {
-                if (linearVelocityMode == Rigidbody2DVelocityApplyMode.Additive)
+                if (linearVelocityMode == Rigidbody2DVelocityApplyMode.Overlay)
                 {
-                    rb.linearVelocity += linearVelocity;
+                    ApplyRigidbody2DLinearVelocityOverlay(rb, linearVelocity);
                 }
                 else
                 {
+                    ResetRigidbody2DLinearVelocityOverlayState(resetMovementAdapter: true);
                     rb.linearVelocity = linearVelocity;
                     PrimeRigidbodyMovementSuppressWindowForVelocityWrite();
                 }
@@ -971,10 +987,28 @@ namespace Game.TransformSystem
             _suppressRigidbodyMovementSeconds = Mathf.Max(_suppressRigidbodyMovementSeconds, suppressSeconds);
         }
 
+        void ApplyRigidbody2DLinearVelocityOverlay(Rigidbody2D rb, Vector2 linearVelocity)
+        {
+            var current = rb.linearVelocity;
+            var baseVelocity = current - _rigidbody2DLinearVelocityOverlay;
+            rb.linearVelocity = baseVelocity + linearVelocity;
+            _rigidbody2DLinearVelocityOverlay = linearVelocity;
+        }
+
+        void ResetRigidbody2DLinearVelocityOverlayState(bool resetMovementAdapter)
+        {
+            _rigidbody2DLinearVelocityOverlay = Vector2.zero;
+            if (resetMovementAdapter)
+                _movementAdapter?.ResetState();
+        }
+
         public void ForceStopMovementNow()
         {
             if (_movementHub is MovementChannelHubService movementHub)
                 movementHub.ResetAllVelocities();
+
+            ResetRigidbody2DLinearVelocityOverlayState(resetMovementAdapter: true);
+            _suppressRigidbodyMovementSeconds = 0f;
 
             if (_useBulkTransform && _bulkManager != null && _bulkHandle.IsValid)
                 _bulkManager.SetVelocity(_bulkHandle, float3.zero);
@@ -983,7 +1017,9 @@ namespace Game.TransformSystem
             {
                 var rb = ResolveTelemetryRigidbody2D();
                 if (rb != null)
+                {
                     rb.linearVelocity = Vector2.zero;
+                }
             }
         }
 

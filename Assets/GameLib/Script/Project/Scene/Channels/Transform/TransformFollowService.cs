@@ -128,7 +128,7 @@ namespace Game.Channel
         bool _useTransformTarget;
         Vector3 _smoothVelocity;
         Vector3 _currentDirection;
-        ITransformControllerPoseReader? _velocitySource;
+        ITransformChannelPoseReader? _velocitySource;
         Rigidbody2D? _rigidbodyVelocitySource;
 
         public bool UseTransformTarget => _useTransformTarget;
@@ -251,7 +251,7 @@ namespace Game.Channel
             return _targetPosition + options.BaseTargetOffset;
         }
 
-        static ITransformControllerPoseReader? ResolveVelocitySource(Transform target)
+        static ITransformChannelPoseReader? ResolveVelocitySource(Transform target)
         {
             for (var current = target; current != null; current = current.parent)
             {
@@ -259,7 +259,7 @@ namespace Game.Channel
                 if (scope?.Resolver == null)
                     continue;
 
-                if (scope.Resolver.TryResolve<ITransformControllerPoseReader>(out var poseReader) && poseReader != null)
+                if (scope.Resolver.TryResolve<ITransformChannelPoseReader>(out var poseReader) && poseReader != null)
                     return poseReader;
             }
 

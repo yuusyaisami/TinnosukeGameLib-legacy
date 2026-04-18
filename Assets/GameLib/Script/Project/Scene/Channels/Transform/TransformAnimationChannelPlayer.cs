@@ -434,7 +434,7 @@ namespace Game.Channel
             var director = ResolveDirector();
             if (director == null) return;
 
-            var track = new TransformShakeTrack(settings);
+            var track = new TransformShakeTrack(settings, t is RectTransform);
             _shakeTrack = track;
             director.AddTrack(track);
         }

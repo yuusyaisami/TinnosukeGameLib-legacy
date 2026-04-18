@@ -1139,15 +1139,6 @@ namespace Game.Vars.Generated
                             /// </remarks>
                             public const int canUse = 101081;
                             /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/hasInitialized
-                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.hasInitialized
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/hasInitialized
-                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.hasInitialized
-                            /// </remarks>
-                            public const int hasInitialized = 200012;
-                            /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/cooldownMax
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.cooldownMax
                             /// </remarks>
@@ -1175,6 +1166,33 @@ namespace Game.Vars.Generated
                             /// </remarks>
                             public const int currentCount = 101051;
                             /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/duration
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.duration
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/duration
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.duration
+                            /// </remarks>
+                            public const int duration = 101050;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/hasInitialized
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.hasInitialized
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/hasInitialized
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.hasInitialized
+                            /// </remarks>
+                            public const int hasInitialized = 200012;
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/intensity
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.intensity
+                            /// </remarks>
+                            /// <remarks>
+                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/intensity
+                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.intensity
+                            /// </remarks>
+                            public const int intensity = 101049;
+                            /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/isCountEnabled
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isCountEnabled
                             /// </remarks>
@@ -1192,24 +1210,6 @@ namespace Game.Vars.Generated
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isCountExhausted
                             /// </remarks>
                             public const int isCountExhausted = 200014;
-                            /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/duration
-                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.duration
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/duration
-                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.duration
-                            /// </remarks>
-                            public const int duration = 101050;
-                            /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/intensity
-                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.intensity
-                            /// </remarks>
-                            /// <remarks>
-                            /// Path: GameLib/Base/StatusEffect/Runtime/Global/intensity
-                            /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.intensity
-                            /// </remarks>
-                            public const int intensity = 101049;
                             /// <remarks>
                             /// Path: GameLib/Base/StatusEffect/Runtime/Global/isLifetimeEnabled
                             /// StableKey: GameLib.Base.StatusEffect.Runtime.Global.isLifetimeEnabled
@@ -4149,6 +4149,15 @@ namespace Game.Vars.Generated
                         /// StableKey: GameLib.UI.TraitListChannel.Item.traitInstanceRef
                         /// </remarks>
                         public const int traitInstanceRef = 101122;
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/duplicateCount
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.duplicateCount
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/duplicateCount
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.duplicateCount
+                        /// </remarks>
+                        public const int duplicateCount = 101188;
                     }
                 }
             }
@@ -4233,6 +4242,59 @@ namespace Game.Vars.Generated
                     /// StableKey: RequestBaseQuota
                     /// </remarks>
                     public const int RequestBaseQuota = 101124;
+
+                    public static partial class SkipQuota
+                    {
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/Base/SkipQuota/SkipQuotaMul
+                        /// StableKey: SkipQuotaMul
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/Base/SkipQuota/SkipQuotaMul
+                        /// StableKey: SkipQuotaMul
+                        /// </remarks>
+                        public const int SkipQuotaMul = 200020;
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/Base/SkipQuota/SkipQuotaValue
+                        /// StableKey: SkipQuotaValue
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLogic/GameProfile/Base/SkipQuota/SkipQuotaValue
+                        /// StableKey: SkipQuotaValue
+                        /// </remarks>
+                        public const int SkipQuotaValue = 200021;
+                    }
+                }
+
+                public static partial class GameOver
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/GameOver/MaxBallValue
+                    /// StableKey: MaxBallValue
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/GameOver/MaxBallValue
+                    /// StableKey: MaxBallValue
+                    /// </remarks>
+                    public const int MaxBallValue = 200023;
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/GameOver/MinBallValue
+                    /// StableKey: MinBallValue
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/GameOver/MinBallValue
+                    /// StableKey: MinBallValue
+                    /// </remarks>
+                    public const int MinBallValue = 200024;
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/GameOver/ScoreTotalValue
+                    /// StableKey: ScoreTotalValue
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/GameOver/ScoreTotalValue
+                    /// StableKey: ScoreTotalValue
+                    /// </remarks>
+                    public const int ScoreTotalValue = 200022;
                 }
 
                 public static partial class Nail
@@ -4709,23 +4771,23 @@ namespace Game.Vars.Generated
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.remainingUseCount,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.runtimeTag,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.stackCount,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.canConsumeUse,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.totalDuration,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.hasInitialized,
             VarIds.GameLib.Base.StatusEffect.Runtime.Element.usedCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.canConsumeUse,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.duration,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.hasInitialized,
+            VarIds.GameLib.Base.StatusEffect.Runtime.Global.intensity,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.isCountEnabled,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.isCountExhausted,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.isLifetimeEnabled,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.isLifetimeExpired,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownActive,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.isUseCooldownEnabled,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Element.visualData,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.canUse,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownMax,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.cooldownRemaining,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.currentCount,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.duration,
-            VarIds.GameLib.Base.StatusEffect.Runtime.Global.intensity,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeRemaining,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.lifetimeTotal,
             VarIds.GameLib.Base.StatusEffect.Runtime.Global.maxCount,
@@ -5004,6 +5066,7 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitListChannel.Item.column,
             VarIds.GameLib.UI.TraitListChannel.Item.holderKey,
             VarIds.GameLib.UI.TraitListChannel.Item.listIndex,
+            VarIds.GameLib.UI.TraitListChannel.Item.duplicateCount,
             VarIds.GameLib.UI.TraitListChannel.Item.rangeCount,
             VarIds.GameLib.UI.TraitListChannel.Item.rangeStart,
             VarIds.GameLib.UI.TraitListChannel.Item.row,
@@ -5019,6 +5082,11 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.GameProfile.BallTable.Elements.SlotMul,
             VarIds.GameLogic.GameProfile.Base.QuotaMul,
             VarIds.GameLogic.GameProfile.Base.RequestBaseQuota,
+            VarIds.GameLogic.GameProfile.Base.SkipQuota.SkipQuotaMul,
+            VarIds.GameLogic.GameProfile.Base.SkipQuota.SkipQuotaValue,
+            VarIds.GameLogic.GameProfile.GameOver.MaxBallValue,
+            VarIds.GameLogic.GameProfile.GameOver.MinBallValue,
+            VarIds.GameLogic.GameProfile.GameOver.ScoreTotalValue,
             VarIds.GameLogic.GameProfile.Nail.Level,
             VarIds.GameLogic.GameProfile.Nail.UpgradeCostMul,
             VarIds.GameLogic.GameProfile.Shop.RerollBaseValue,
