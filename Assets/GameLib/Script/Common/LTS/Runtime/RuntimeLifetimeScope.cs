@@ -79,7 +79,7 @@ namespace Game
 
         // Registry (for ResolveOtherScope / WithActor ByIdentity)
         IBaseLifetimeScopeRegistry? _scopeRegistry;
-        readonly List<IFeatureInstaller> _ownedFeatureInstallers = new();
+        List<IFeatureInstaller>? _ownedFeatureInstallers;
         bool _ownedFeatureInstallersCached;
         bool _ownedFeatureInstallersIncludeInactive;
 
@@ -577,9 +577,13 @@ namespace Game
                 return;
 
             EnsureOwnedFeatureInstallersCached();
-            for (int i = 0; i < _ownedFeatureInstallers.Count; i++)
+            var cachedInstallers = _ownedFeatureInstallers;
+            if (cachedInstallers == null || cachedInstallers.Count == 0)
+                return;
+
+            for (int i = 0; i < cachedInstallers.Count; i++)
             {
-                var installer = _ownedFeatureInstallers[i];
+                var installer = cachedInstallers[i];
                 if (installer == null)
                     continue;
 
@@ -595,8 +599,8 @@ namespace Game
                 return;
             }
 
-            _ownedFeatureInstallersCached = true;
             _ownedFeatureInstallersIncludeInactive = includeInactiveFeatureInstallers;
+            _ownedFeatureInstallers ??= new List<IFeatureInstaller>(4);
             _ownedFeatureInstallers.Clear();
 
             var installers = ListPool<IFeatureInstaller>.Get();
@@ -623,6 +627,8 @@ namespace Game
             {
                 ListPool<IFeatureInstaller>.Release(installers);
             }
+
+            _ownedFeatureInstallersCached = true;
         }
 
         bool TryResolveProjectResolver(out IObjectResolver? resolver)
