@@ -79,6 +79,9 @@ namespace Game
 
         // Registry (for ResolveOtherScope / WithActor ByIdentity)
         IBaseLifetimeScopeRegistry? _scopeRegistry;
+        List<IFeatureInstaller>? _ownedFeatureInstallers;
+        bool _ownedFeatureInstallersCached;
+        bool _ownedFeatureInstallersIncludeInactive;
 
         // DI Container
         RuntimeResolver? _resolver;
@@ -573,6 +576,33 @@ namespace Game
             if (builder == null)
                 return;
 
+            EnsureOwnedFeatureInstallersCached();
+            var cachedInstallers = _ownedFeatureInstallers;
+            if (cachedInstallers == null || cachedInstallers.Count == 0)
+                return;
+
+            for (int i = 0; i < cachedInstallers.Count; i++)
+            {
+                var installer = cachedInstallers[i];
+                if (installer == null)
+                    continue;
+
+                installer.InstallFeature(builder, this);
+            }
+        }
+
+        void EnsureOwnedFeatureInstallersCached()
+        {
+            if (_ownedFeatureInstallersCached &&
+                _ownedFeatureInstallersIncludeInactive == includeInactiveFeatureInstallers)
+            {
+                return;
+            }
+
+            _ownedFeatureInstallersIncludeInactive = includeInactiveFeatureInstallers;
+            _ownedFeatureInstallers ??= new List<IFeatureInstaller>(4);
+            _ownedFeatureInstallers.Clear();
+
             var installers = ListPool<IFeatureInstaller>.Get();
             try
             {
@@ -589,13 +619,16 @@ namespace Game
                     {
                         continue;
                     }
-                    installer.InstallFeature(builder, this);
+
+                    _ownedFeatureInstallers.Add(installer);
                 }
             }
             finally
             {
                 ListPool<IFeatureInstaller>.Release(installers);
             }
+
+            _ownedFeatureInstallersCached = true;
         }
 
         bool TryResolveProjectResolver(out IObjectResolver? resolver)
@@ -606,44 +639,15 @@ namespace Game
                 return true;
             }
 
-            var projectScopes = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-            if (projectScopes == null || projectScopes.Length == 0)
+            if (ProjectLifetimeScope.TryGetResolver(out var projectResolver) && projectResolver != null)
             {
-                LTSLog.LogWarning("[RuntimeLifetimeScope] ProjectLifetimeScope not found while resolving parent resolver.", this);
-                resolver = null;
-                return false;
-            }
-
-            var project = projectScopes[0];
-            if (project == null)
-            {
-                LTSLog.LogWarning("[RuntimeLifetimeScope] ProjectLifetimeScope was found but is null.", this);
-                resolver = null;
-                return false;
-            }
-
-            if (project.Container == null)
-            {
-                try
-                {
-                    project.EnsureScopeBuilt();
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
-
-            resolver = project.Resolver;
-            if (resolver != null)
-            {
+                resolver = projectResolver;
                 s_fallbackProjectResolver = resolver;
                 return true;
             }
 
-            LTSLog.LogWarning("[RuntimeLifetimeScope] ProjectLifetimeScope resolver is still null after EnsureScopeBuilt.", project);
+            LTSLog.LogWarning("[RuntimeLifetimeScope] ProjectLifetimeScope resolver could not be resolved from static instance.", this);
+            resolver = null;
             return false;
         }
 
@@ -705,20 +709,15 @@ namespace Game
 
             // Last-resort fallback: resolve from ProjectLifetimeScope even when this runtime scope is not under any scope hierarchy.
             // Cache the result to avoid repeated scene searches.
-            var projectScopes = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-            if (projectScopes != null && projectScopes.Length > 0)
+            if (ProjectLifetimeScope.TryGetResolver(out var projectResolver) &&
+                projectResolver != null &&
+                projectResolver.TryResolve<IBaseLifetimeScopeRegistry>(out resolved) &&
+                resolved != null)
             {
-                var project = projectScopes[0];
-                var pr = project != null ? project.Resolver : null;
-                if (pr != null && pr.TryResolve<IBaseLifetimeScopeRegistry>(out resolved) && resolved != null)
-                {
-                    s_fallbackRegistry = resolved;
-                    _scopeRegistry = resolved;
-                    registry = resolved;
-                    return true;
-                }
+                s_fallbackRegistry = resolved;
+                _scopeRegistry = resolved;
+                registry = resolved;
+                return true;
             }
 
             registry = null;
@@ -1007,11 +1006,13 @@ namespace Game
             if (!this)
                 return;
 
+#if UNITY_EDITOR
             var parent = GetParentCached();
             debugParent = ToScopeDebugName(parent);
             debugParentHasResolver = parent?.Resolver != null;
             debugParentBuildStatus = GetParentBuildStatus(parent);
             debugPath = GetPathStringFromRoot(this);
+#endif
 
             if (_destroyed)
                 debugBuildStatus = "Destroyed";
@@ -1023,6 +1024,7 @@ namespace Game
                 debugBuildStatus = "NotBuilt";
         }
 
+#if UNITY_EDITOR
         static string ToScopeDebugName(IScopeNode? node)
         {
             if (node == null)
@@ -1083,6 +1085,7 @@ namespace Game
                 return runtimeScope.IsBuilt ? "Built" : "NotBuilt";
             return "Unknown";
         }
+#endif
 
         static Type? ResolveUnityCollisionManagerType()
         {
@@ -1153,11 +1156,8 @@ namespace Game
             }
 
             // Fallback: hierarchyにスコープが無い場合はProjectを親にする
-            var projectScopes = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-            if (projectScopes != null && projectScopes.Length > 0)
-                return projectScopes[0];
+            if (ProjectLifetimeScope.Instance != null)
+                return ProjectLifetimeScope.Instance;
 
             return null;
         }
