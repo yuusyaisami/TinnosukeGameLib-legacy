@@ -35,6 +35,7 @@ namespace Game
         [SerializeField] bool enableLTSLog = false;
 
         static ProjectLifetimeScope _instance;
+        public static ProjectLifetimeScope? Instance => _instance;
 
         // 協調ビルドに参加しない（VContainerのautoRunでビルド）が、子への通知は行う
         protected override bool UseBuildCoordinator => false;
@@ -54,6 +55,14 @@ namespace Game
             // Initialize default runtime log enabled state
             Game.LTSLog.Enabled = enableLTSLog;
             base.Awake();
+        }
+
+        protected override void OnDestroy()
+        {
+            if (_instance == this)
+                _instance = null;
+
+            base.OnDestroy();
         }
         protected override void AwakeConfigure(IContainerBuilder builder)
         {
@@ -82,6 +91,22 @@ namespace Game
             if (_instance != null)
                 return;
             EnsureInScene();
+        }
+
+        public static bool TryGetResolver(out IObjectResolver? resolver)
+        {
+            var instance = _instance;
+            if (instance == null)
+            {
+                resolver = null;
+                return false;
+            }
+
+            if (instance.Container == null)
+                instance.EnsureScopeBuilt();
+
+            resolver = instance.Resolver;
+            return resolver != null;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
