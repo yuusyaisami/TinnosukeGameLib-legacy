@@ -216,6 +216,9 @@ namespace Game.UI
             Vector3 localPosition,
             TransformGridEnvironmentKind environmentKind)
         {
+            if (root == null)
+                return;
+
             if (environmentKind == TransformGridEnvironmentKind.ScreenUI && rootRect != null)
             {
                 rootRect.anchoredPosition3D = ResolveMotionTargetPosition(rootRect, localPosition, environmentKind);

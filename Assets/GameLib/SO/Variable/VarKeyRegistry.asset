@@ -4936,7 +4936,23 @@ MonoBehaviour:
     varId: 200025
     stableKey: isGameOver
     aliases: []
-  nextVarId: 200026
+  - id: 2beb6b2d8c724066a43facc2d7256b3c
+    parentId: da35a1b429744fc8a2c01c9a54c8d1f5
+    name: State
+    isFolder: 1
+    description: 
+    varId: 0
+    stableKey: 
+    aliases: []
+  - id: 1dab033bfd20468f8f9b74c00175da3d
+    parentId: 2beb6b2d8c724066a43facc2d7256b3c
+    name: isPause
+    isFolder: 0
+    description: 
+    varId: 200026
+    stableKey: isPause
+    aliases: []
+  nextVarId: 200027
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

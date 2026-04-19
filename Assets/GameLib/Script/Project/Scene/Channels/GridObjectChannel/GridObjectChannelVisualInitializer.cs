@@ -39,6 +39,9 @@ namespace Game.Channel
             GridObjectChannelVisualInstance instance,
             GridObjectChannelResolvedItem item)
         {
+            if (instance == null || instance.Root == null)
+                return;
+
             TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
             var startAnchor = ResolveSpawnAnchorLocalPosition(state, item);
             var previewLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
@@ -68,6 +71,9 @@ namespace Game.Channel
             GridObjectChannelVisualInstance instance,
             CancellationToken ct)
         {
+            if (instance == null || instance.Root == null)
+                return;
+
             instance.UpdateFromItem(item);
             var payload = _payloadBuilder.BuildPayload(state, item);
             var commandVars = _payloadBuilder.ApplyPayloadToBlackboard(instance, payload);
@@ -82,6 +88,9 @@ namespace Game.Channel
             }
 
             await ExecuteSpawnCommandsAsync(state, item, instance, commandVars, ct);
+            if (instance.Root == null)
+                return;
+
             TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
 
             if (state.EnableVerboseLayoutLog)
@@ -121,6 +130,9 @@ namespace Game.Channel
                     $"RootBeforeMove={DescribeLocalPosition(instance.Root, instance.RootRect)}",
                     state.ListRoot);
             }
+
+            if (instance.Root == null)
+                return;
 
             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, startLocal, state.EnvironmentKind);
 

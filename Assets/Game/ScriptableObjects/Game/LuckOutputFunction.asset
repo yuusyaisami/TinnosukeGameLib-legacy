@@ -61,8 +61,11 @@ MonoBehaviour:
                 requireActive: 0
                 searchScope: 0
               UnityObject: {fileID: 0}
-              SharedTag: 
+              Shared:
+                rid: -2
               ContextSlot: 0
+              TargetChannel:
+                rid: -2
             Key:
               Id: -545404644
               Name: GameLogic.SlotProfile.LeftMul
@@ -105,8 +108,11 @@ MonoBehaviour:
                 requireActive: 0
                 searchScope: 0
               UnityObject: {fileID: 0}
-              SharedTag: 
+              Shared:
+                rid: -2
               ContextSlot: 0
+              TargetChannel:
+                rid: -2
             Key:
               Id: -354043114
               Name: GameLogic.SlotProfile.CenterMul
@@ -149,8 +155,11 @@ MonoBehaviour:
                 requireActive: 0
                 searchScope: 0
               UnityObject: {fileID: 0}
-              SharedTag: 
+              Shared:
+                rid: -2
               ContextSlot: 0
+              TargetChannel:
+                rid: -2
             Key:
               Id: 2120132904
               Name: GameLogic.SlotProfile.RightMul
@@ -213,8 +222,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
         Target:
           Kind: 3
           Identity:
@@ -224,8 +236,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
         VarOps: []
         ScalarOps:
         - Op: 6
@@ -250,6 +265,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         - Op: 6
           Key:
             Id: -354043114
@@ -272,6 +288,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         - Op: 6
           Key:
             Id: 2120132904
@@ -294,6 +311,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         - Op: 0
           Key:
             Id: -545404644
@@ -316,6 +334,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         - Op: 0
           Key:
             Id: -354043114
@@ -338,6 +357,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         - Op: 0
           Key:
             Id: 2120132904
@@ -360,6 +380,7 @@ MonoBehaviour:
             stableKey: 
             varId: 0
           UnsetAfterDispose: 1
+          KeepLocalBaseOnClearKey: 0
         DebugMode: 0
         Debug:
           LogLevel: 10
@@ -472,7 +493,7 @@ MonoBehaviour:
               rid: 5619052506154533164
           _useScalarLeafKey: 0
           _useCustomKey: 1
-          _customKey: 
+          _customKey: LuckValueMul
           _expectedType: 255
         - _value:
             _source:
@@ -500,8 +521,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
     - rid: 5619052506154533165
       type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -538,8 +562,11 @@ MonoBehaviour:
                 requireActive: 0
                 searchScope: 0
               UnityObject: {fileID: 0}
-              SharedTag: 
+              Shared:
+                rid: -2
               ContextSlot: 0
+              TargetChannel:
+                rid: -2
             Key:
               Id: -545404644
               Name: GameLogic.SlotProfile.LeftMul
@@ -582,8 +609,11 @@ MonoBehaviour:
                 requireActive: 0
                 searchScope: 0
               UnityObject: {fileID: 0}
-              SharedTag: 
+              Shared:
+                rid: -2
               ContextSlot: 0
+              TargetChannel:
+                rid: -2
             Key:
               Id: -354043114
               Name: GameLogic.SlotProfile.CenterMul
@@ -626,8 +656,11 @@ MonoBehaviour:
                 requireActive: 0
                 searchScope: 0
               UnityObject: {fileID: 0}
-              SharedTag: 
+              Shared:
+                rid: -2
               ContextSlot: 0
+              TargetChannel:
+                rid: -2
             Key:
               Id: 2120132904
               Name: GameLogic.SlotProfile.RightMul
@@ -691,8 +724,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052506154533216
@@ -710,8 +746,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052506154533217
@@ -729,8 +768,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 100
+          TargetChannel:
+            rid: -2
         createIfMissing: 0
         baselineValue: 0
     - rid: 5619052506154533218

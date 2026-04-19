@@ -280,6 +280,14 @@ namespace Game.Commands.VNext
 
                         var request = BuildDialogueMessageRequest(messageNode, session.FlowPreset.Settings);
                         var messageResult = await dialogue.ShowMessageAsync(dialogueTag, request, ct);
+                        if (messageResult.Advance.Reason == DialogueAdvanceReason.Canceled)
+                        {
+                            return ConversationNodeExecuteResult.FromCanceled(
+                                string.IsNullOrWhiteSpace(messageResult.Advance.Message)
+                                    ? $"[CONV-271] Dialogue message was canceled. nodeId={messageNode.NodeId}"
+                                    : messageResult.Advance.Message);
+                        }
+
                         if (!messageResult.Success)
                             return ConversationNodeExecuteResult.Failed(
                                 string.IsNullOrWhiteSpace(messageResult.Message)

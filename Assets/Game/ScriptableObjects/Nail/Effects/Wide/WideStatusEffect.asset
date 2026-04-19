@@ -216,8 +216,8 @@ MonoBehaviour:
       data:
         Enabled: 1
         TargetKey:
-          Id: -609973070
-          Name: GameLogic.NailProfile.Effect.Size.SizeScaleX
+          Id: 1772092362
+          Name: GameLogic.NailProfile.Effect.Size.Box.SizeX
         ApplyMode: 10
         MulPhase: 0
         ValueMode: 20
@@ -314,6 +314,8 @@ MonoBehaviour:
         VarsPolicy: 0
         AwaitMode: 0
         ExecutionScope: 0
+        StoreActorToContext: 0
+        ActorContextSlot: 100
         Body:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 

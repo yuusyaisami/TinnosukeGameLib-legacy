@@ -509,6 +509,12 @@ namespace Game.Dialogue
                     $"BindSpawnCommandsAfterAppend={gridChoiceRequest.BindRequest?.SpawnCommands?.Count ?? 0}");
             }
 
+            if (_activeScope == null || !_isActive || ct.IsCancellationRequested)
+            {
+                var canceledMessage = $"[DIALOGUE-204] Dialogue choice was canceled because the channel was released. tag='{_tag}'";
+                return DialogueChoiceResult.Completed(Game.Channel.GridObjectChoiceSessionResult.Canceled(canceledMessage));
+            }
+
             var channelTag = runtimeRequest.UsePresetChannelTag
                 ? _preset.Choice.ChoiceChannelTag
                 : DialogueTagUtility.Normalize(runtimeRequest.ChannelTag);
@@ -528,7 +534,15 @@ namespace Game.Dialogue
             Game.Channel.GridObjectChoiceSessionResult choiceResult;
             try
             {
-                choiceResult = await _choiceHub.ShowChoiceAndWaitAsync(channelTag, gridChoiceRequest, ct);
+                if (_activeScope == null || !_isActive || ct.IsCancellationRequested)
+                {
+                    choiceResult = Game.Channel.GridObjectChoiceSessionResult.Canceled(
+                        $"[DIALOGUE-204] Dialogue choice was canceled because the channel was released. tag='{_tag}'");
+                }
+                else
+                {
+                    choiceResult = await _choiceHub.ShowChoiceAndWaitAsync(channelTag, gridChoiceRequest, ct);
+                }
             }
             finally
             {
