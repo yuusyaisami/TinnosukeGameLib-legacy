@@ -4060,6 +4060,15 @@ namespace Game.Vars.Generated
                         /// </remarks>
                         public const int column = 101112;
                         /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/duplicateCount
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.duplicateCount
+                        /// </remarks>
+                        /// <remarks>
+                        /// Path: GameLib/UI/TraitListChannel/Item/duplicateCount
+                        /// StableKey: GameLib.UI.TraitListChannel.Item.duplicateCount
+                        /// </remarks>
+                        public const int duplicateCount = 101188;
+                        /// <remarks>
                         /// Path: GameLib/UI/TraitListChannel/Item/holderKey
                         /// StableKey: GameLib.UI.TraitListChannel.Item.holderKey
                         /// </remarks>
@@ -4149,15 +4158,6 @@ namespace Game.Vars.Generated
                         /// StableKey: GameLib.UI.TraitListChannel.Item.traitInstanceRef
                         /// </remarks>
                         public const int traitInstanceRef = 101122;
-                        /// <remarks>
-                        /// Path: GameLib/UI/TraitListChannel/Item/duplicateCount
-                        /// StableKey: GameLib.UI.TraitListChannel.Item.duplicateCount
-                        /// </remarks>
-                        /// <remarks>
-                        /// Path: GameLib/UI/TraitListChannel/Item/duplicateCount
-                        /// StableKey: GameLib.UI.TraitListChannel.Item.duplicateCount
-                        /// </remarks>
-                        public const int duplicateCount = 101188;
                     }
                 }
             }
@@ -4268,6 +4268,17 @@ namespace Game.Vars.Generated
 
                 public static partial class GameOver
                 {
+                    /// <summary>ゲームオーバーの画面が完全に処理し終わったtら</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/GameOver/isGameOver
+                    /// StableKey: isGameOver
+                    /// </remarks>
+                    /// <summary>ゲームオーバーの画面が完全に処理し終わったtら</summary>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/GameOver/isGameOver
+                    /// StableKey: isGameOver
+                    /// </remarks>
+                    public const int isGameOver = 200025;
                     /// <remarks>
                     /// Path: GameLogic/GameProfile/GameOver/MaxBallValue
                     /// StableKey: MaxBallValue
@@ -4330,6 +4341,19 @@ namespace Game.Vars.Generated
                     /// StableKey: RerollBaseValue
                     /// </remarks>
                     public const int RerollBaseValue = 101190;
+                }
+
+                public static partial class State
+                {
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/State/isPause
+                    /// StableKey: isPause
+                    /// </remarks>
+                    /// <remarks>
+                    /// Path: GameLogic/GameProfile/State/isPause
+                    /// StableKey: isPause
+                    /// </remarks>
+                    public const int isPause = 200026;
                 }
             }
 
@@ -5064,9 +5088,9 @@ namespace Game.Vars.Generated
             VarIds.GameLib.UI.TraitList.Item.traitInstanceRef,
             VarIds.GameLib.UI.TraitListChannel.Item.channelTag,
             VarIds.GameLib.UI.TraitListChannel.Item.column,
+            VarIds.GameLib.UI.TraitListChannel.Item.duplicateCount,
             VarIds.GameLib.UI.TraitListChannel.Item.holderKey,
             VarIds.GameLib.UI.TraitListChannel.Item.listIndex,
-            VarIds.GameLib.UI.TraitListChannel.Item.duplicateCount,
             VarIds.GameLib.UI.TraitListChannel.Item.rangeCount,
             VarIds.GameLib.UI.TraitListChannel.Item.rangeStart,
             VarIds.GameLib.UI.TraitListChannel.Item.row,
@@ -5084,12 +5108,14 @@ namespace Game.Vars.Generated
             VarIds.GameLogic.GameProfile.Base.RequestBaseQuota,
             VarIds.GameLogic.GameProfile.Base.SkipQuota.SkipQuotaMul,
             VarIds.GameLogic.GameProfile.Base.SkipQuota.SkipQuotaValue,
+            VarIds.GameLogic.GameProfile.GameOver.isGameOver,
             VarIds.GameLogic.GameProfile.GameOver.MaxBallValue,
             VarIds.GameLogic.GameProfile.GameOver.MinBallValue,
             VarIds.GameLogic.GameProfile.GameOver.ScoreTotalValue,
             VarIds.GameLogic.GameProfile.Nail.Level,
             VarIds.GameLogic.GameProfile.Nail.UpgradeCostMul,
             VarIds.GameLogic.GameProfile.Shop.RerollBaseValue,
+            VarIds.GameLogic.GameProfile.State.isPause,
             VarIds.GameLogic.LuckProfile.Private.GlobalMul,
             VarIds.GameLogic.LuckProfile.Private.LocalMulAdd,
             VarIds.GameLogic.LuckProfile.Private.LocalMulCount,

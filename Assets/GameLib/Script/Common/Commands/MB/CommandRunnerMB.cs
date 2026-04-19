@@ -142,6 +142,8 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.IfExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TriggerExecutor>(Lifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.SwitchExecutor>(Lifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.ForExecutor>(Lifetime.Singleton)

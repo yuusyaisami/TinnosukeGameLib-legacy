@@ -1822,7 +1822,7 @@ MonoBehaviour:
         IgnoreIfExisting: 0
         ApplyIntensityA: 1
         IntensityA:
-          Operation: 20
+          Operation: 10
           ApplyLocalValue: 1
           LocalValue:
             _source:

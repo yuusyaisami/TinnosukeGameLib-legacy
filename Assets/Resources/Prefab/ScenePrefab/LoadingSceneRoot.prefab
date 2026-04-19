@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 173, y: -194}
-  m_SizeDelta: {x: 261.0302, y: 33.0349}
+  m_AnchoredPosition: {x: 251.69719, y: -194}
+  m_SizeDelta: {x: 103.6358, y: 33.0349}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6568171514126888478
 CanvasRenderer:
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u30ED\u30FC\u30C9\u4E2D \u3061\u3087\u3063\u3068\u5F85\u3063\u3066\u306D\uFF01"
+  m_text: Loading
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f3f47534e4c6e4b41a88782e897f0651, type: 2}
   m_sharedMaterial: {fileID: -441275764545626051, guid: f3f47534e4c6e4b41a88782e897f0651, type: 2}
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -201,8 +201,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _sharedLtsChannelHubDebugViewer:
+    autoRefreshEveryNFrames: 1
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -220,7 +223,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
   enableDebugView: 0
   _debugView:
-    watchKeys: []
     editKey:
       Id: 0
       Name: 
@@ -258,6 +260,11 @@ MonoBehaviour:
   _hitTestRects:
   - {fileID: 7658923118517046058}
   _selectionOrder: 0
+  _navigationSelectionOrder: 0
+  _isSelectable:
+    _source:
+      rid: -2
+    _defaultValue: 0
   _isNavigationSelectable:
     _source:
       rid: 7292586936938004767
@@ -282,6 +289,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 7292586936938004767
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -305,8 +314,6 @@ MonoBehaviour:
   timeScaleBehavior: 0
   registerToDynamicRegistry: 1
   radius: 0
-  advanceOptions: 0
-  retryIntervalSeconds: 0.5
 --- !u!114 &1805377878543686054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,6 +365,11 @@ MonoBehaviour:
   initializeLocalBlackboard: 0
   reinitializeLocalBlackboardOnAcquire: 1
   localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
   references:
     version: 2
     RefIds: []
@@ -417,8 +429,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _sharedLtsChannelHubDebugViewer:
+    autoRefreshEveryNFrames: 1
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -444,11 +459,19 @@ MonoBehaviour:
       requireActive: 0
       searchScope: 0
     UnityObject: {fileID: 0}
-    SharedTag: 
+    Shared:
+      rid: -2
     ContextSlot: 0
+    TargetChannel:
+      rid: -2
   distanceCullRange: 0
   distanceCullUse2D: 1
   distanceCheckIntervalFrames: 5
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &3303891548751076640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -513,7 +536,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
   enableDebugView: 0
   _debugView:
-    watchKeys: []
     editKey:
       Id: 0
       Name: 
@@ -566,8 +588,6 @@ MonoBehaviour:
   timeScaleBehavior: 0
   registerToDynamicRegistry: 1
   radius: 0
-  advanceOptions: 0
-  retryIntervalSeconds: 0.5
 --- !u!114 &6659213847431057781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -589,6 +609,11 @@ MonoBehaviour:
   initializeLocalBlackboard: 0
   reinitializeLocalBlackboardOnAcquire: 1
   localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
   references:
     version: 2
     RefIds: []
@@ -793,7 +818,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1196423119510083263, guid: e12b71f411fc0e845a96009f3861cad2, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1070,7 +1095,7 @@ MonoBehaviour:
       FadeEase: 0
     - Key: BaseShader/AdvancedFade2D/FadeDirection
       Value:
-        Type: 0
+        Type: 4
         Float:
           _source:
             rid: 5619052366731149597
@@ -1224,7 +1249,7 @@ MonoBehaviour:
       FadeEase: 0
     - Key: BaseShader/AdvancedFade2D/FadeDirection
       Value:
-        Type: 0
+        Type: 4
         Float:
           _source:
             rid: 5619052366731149599
@@ -1252,6 +1277,7 @@ MonoBehaviour:
       assetPreset: {fileID: 0}
       inlinePreset:
         rid: 5619052253730046520
+  replaceWithTransparentOnRelease: 0
   hubTag: default
   references:
     version: 2
@@ -1339,10 +1365,61 @@ MonoBehaviour:
         maskSourceSlotType: 0
         maskSourceChannel: 1
         maskSourceUVSpace: 0
+        outlineEnabled: 0
+        outlineMode: 10
+        outlineColor: {r: 1, g: 1, b: 1, a: 1}
+        outlineDirectionMask: 15
+        outlineAutoColorEnabled: 0
+        outlineAutoColorMode: 0
+        outlineAutoHue: 0
+        outlineAutoSaturation: 0
+        outlineAutoLightness: 0
+        outlineAnimatedGradientEnabled: 0
+        outlineAnimatedGradientPatternType: 10
+        outlineAnimatedGradientMasterStrength: 1
+        outlineAnimatedGradientNoiseScale: 6
+        outlineAnimatedGradientNoiseDirection: {x: 1, y: 0}
+        outlineAnimatedGradientNoiseSpeed: 0.2
+        outlineAnimatedGradientNoiseOffset: {x: 0, y: 0}
+        outlineAnimatedGradientRotationSpeed: 0
+        outlineAnimatedGradientPulseAmplitude: 0
+        outlineAnimatedGradientPulseSpeed: 1
+        outlineAnimatedGradientWarpPatternType: 10
+        outlineAnimatedGradientWarpScale: 2
+        outlineAnimatedGradientWarpStrength: 0.1
+        outlineAnimatedGradientWarpDirection: {x: 0.71, y: 0.43}
+        outlineAnimatedGradientWarpSpeed: 0.35
+        outlineAnimatedGradientLoopSeconds: 0
+        outlineAnimatedGradientOctaves: 4
+        outlineAnimatedGradientLacunarity: 2
+        outlineAnimatedGradientGain: 0.5
+        outlineAnimatedGradientCellSharpness: 1.5
+        outlineAnimatedGradientPatternContrast: 1
+        outlineAnimatedGradientHueAmplitude: 0.0025
+        outlineAnimatedGradientSaturationAmplitude: 0.008
+        outlineAnimatedGradientLightnessAmplitude: 0.015
+        outlineWidth: 1
+        outlineOpacity: 1
+        outlineSoftness: 0
+        outlineBlendMode: 10
+        outlinePixelPerfect: 1
+        outlineWidthUnit: 10
+        outlinePixelStep: 1
+        outlineSamplePattern: 10
+        outlineMaskRespect: 1
+        outlineUseVertexColor: 0
+        outlineUvClampEnabled: 1
+        outlineZTestMode: 10
         textOutlineEnabled: 0
         textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
         textOutlineThickness: 1
         textOutlineSoftness: 0.1
+        textOutlineDirectionMask: 15
+        textOutlineAutoColorEnabled: 0
+        textOutlineAutoColorMode: 0
+        textOutlineAutoHue: 0
+        textOutlineAutoSaturation: 0
+        textOutlineAutoLightness: 0
         textShadowEnabled: 0
         textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
         textShadowOffset: {x: 1, y: -1}
@@ -1351,6 +1428,49 @@ MonoBehaviour:
         textGlowColor: {r: 1, g: 1, b: 1, a: 0.5}
         textGlowThickness: 2
         textGlowSoftness: 0.2
+        blendColor2DEnabled: 0
+        blendColor2DColor: {r: 1, g: 1, b: 1, a: 1}
+        blendColor2DBlendIntensity: 0
+        blendColor2DBlendGradDirection: 0
+        blendColor2DBlendGradationAmount: 0
+        blendColor2DBlendSoftness: 1
+        blendColor2DBlendMode: 0
+        blendColor2DAnimatedGradientEnabled: 0
+        blendColor2DAnimatedGradientPatternType: 10
+        blendColor2DAnimatedGradientMasterStrength: 1
+        blendColor2DAnimatedGradientNoiseScale: 6
+        blendColor2DAnimatedGradientNoiseDirection: {x: 1, y: 0}
+        blendColor2DAnimatedGradientNoiseSpeed: 0.2
+        blendColor2DAnimatedGradientNoiseOffset: {x: 0, y: 0}
+        blendColor2DAnimatedGradientRotationSpeed: 0
+        blendColor2DAnimatedGradientPulseAmplitude: 0
+        blendColor2DAnimatedGradientPulseSpeed: 1
+        blendColor2DAnimatedGradientWarpPatternType: 10
+        blendColor2DAnimatedGradientWarpScale: 2
+        blendColor2DAnimatedGradientWarpStrength: 0.1
+        blendColor2DAnimatedGradientWarpDirection: {x: 0.71, y: 0.43}
+        blendColor2DAnimatedGradientWarpSpeed: 0.35
+        blendColor2DAnimatedGradientLoopSeconds: 0
+        blendColor2DAnimatedGradientOctaves: 4
+        blendColor2DAnimatedGradientLacunarity: 2
+        blendColor2DAnimatedGradientGain: 0.5
+        blendColor2DAnimatedGradientCellSharpness: 1.5
+        blendColor2DAnimatedGradientPatternContrast: 1
+        blendColor2DAnimatedGradientHueAmplitude: 0.0025
+        blendColor2DAnimatedGradientSaturationAmplitude: 0.008
+        blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
+        advancedFadeEnabled: 0
+        advancedFadeFadeDirection: 0
+        advancedFadeFadeAmount: 0
+        advancedFadeSoft: 0.1
+        advancedFadeGlowIntensity: 0
+        advancedFadeGlowRange: 0.05
+        advancedFadeGlowBlendMode: 0
+        advancedFadeWaveParamsA: {x: 0, y: 0, z: 0, w: 0}
+        advancedFadeWaveParamsB: {x: 0, y: 0, z: 0, w: 0}
+        advancedFadeCircleStartAngleDeg: 90
+        advancedFadeCircleClockwise: 1
         rainbowEnabled: 0
         rainbowMode: 0
         rainbowPattern: 0
@@ -1371,6 +1491,25 @@ MonoBehaviour:
         advancedFadeBurnEdgeColor: {r: 1, g: 0.5, b: 0.1, a: 1}
         advancedFadeBurnBlendMode: 0
         advancedFadeBurnInvert: 0
+        advancedFadeBurnAnimatedNoiseEnabled: 0
+        advancedFadeBurnAnimatedNoisePatternType: 10
+        advancedFadeBurnAnimatedNoiseDirection: {x: 1, y: 0}
+        advancedFadeBurnAnimatedNoiseSpeed: 0.2
+        advancedFadeBurnAnimatedNoiseOffset: {x: 0, y: 0}
+        advancedFadeBurnAnimatedNoiseRotationSpeed: 0
+        advancedFadeBurnAnimatedNoisePulseAmplitude: 0
+        advancedFadeBurnAnimatedNoisePulseSpeed: 1
+        advancedFadeBurnAnimatedNoiseWarpPatternType: 10
+        advancedFadeBurnAnimatedNoiseWarpScale: 2
+        advancedFadeBurnAnimatedNoiseWarpStrength: 0.2
+        advancedFadeBurnAnimatedNoiseWarpDirection: {x: 0.71, y: 0.43}
+        advancedFadeBurnAnimatedNoiseWarpSpeed: 0.35
+        advancedFadeBurnAnimatedNoiseLoopSeconds: 0
+        advancedFadeBurnAnimatedNoiseOctaves: 4
+        advancedFadeBurnAnimatedNoiseLacunarity: 2
+        advancedFadeBurnAnimatedNoiseGain: 0.5
+        advancedFadeBurnAnimatedNoiseCellSharpness: 1.5
+        advancedFadeBurnAnimatedNoisePatternContrast: 1
         renderStateBlendPreset: 0
         renderStateUseCustomBlendFactors: 0
         renderStateSrcBlend: 5
@@ -1460,10 +1599,61 @@ MonoBehaviour:
         maskSourceSlotType: 0
         maskSourceChannel: 1
         maskSourceUVSpace: 0
+        outlineEnabled: 0
+        outlineMode: 10
+        outlineColor: {r: 1, g: 1, b: 1, a: 1}
+        outlineDirectionMask: 15
+        outlineAutoColorEnabled: 0
+        outlineAutoColorMode: 0
+        outlineAutoHue: 0
+        outlineAutoSaturation: 0
+        outlineAutoLightness: 0
+        outlineAnimatedGradientEnabled: 0
+        outlineAnimatedGradientPatternType: 10
+        outlineAnimatedGradientMasterStrength: 1
+        outlineAnimatedGradientNoiseScale: 6
+        outlineAnimatedGradientNoiseDirection: {x: 1, y: 0}
+        outlineAnimatedGradientNoiseSpeed: 0.2
+        outlineAnimatedGradientNoiseOffset: {x: 0, y: 0}
+        outlineAnimatedGradientRotationSpeed: 0
+        outlineAnimatedGradientPulseAmplitude: 0
+        outlineAnimatedGradientPulseSpeed: 1
+        outlineAnimatedGradientWarpPatternType: 10
+        outlineAnimatedGradientWarpScale: 2
+        outlineAnimatedGradientWarpStrength: 0.1
+        outlineAnimatedGradientWarpDirection: {x: 0.71, y: 0.43}
+        outlineAnimatedGradientWarpSpeed: 0.35
+        outlineAnimatedGradientLoopSeconds: 0
+        outlineAnimatedGradientOctaves: 4
+        outlineAnimatedGradientLacunarity: 2
+        outlineAnimatedGradientGain: 0.5
+        outlineAnimatedGradientCellSharpness: 1.5
+        outlineAnimatedGradientPatternContrast: 1
+        outlineAnimatedGradientHueAmplitude: 0.0025
+        outlineAnimatedGradientSaturationAmplitude: 0.008
+        outlineAnimatedGradientLightnessAmplitude: 0.015
+        outlineWidth: 1
+        outlineOpacity: 1
+        outlineSoftness: 0
+        outlineBlendMode: 10
+        outlinePixelPerfect: 1
+        outlineWidthUnit: 10
+        outlinePixelStep: 1
+        outlineSamplePattern: 10
+        outlineMaskRespect: 1
+        outlineUseVertexColor: 0
+        outlineUvClampEnabled: 1
+        outlineZTestMode: 10
         textOutlineEnabled: 0
         textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
         textOutlineThickness: 1
         textOutlineSoftness: 0.1
+        textOutlineDirectionMask: 15
+        textOutlineAutoColorEnabled: 0
+        textOutlineAutoColorMode: 0
+        textOutlineAutoHue: 0
+        textOutlineAutoSaturation: 0
+        textOutlineAutoLightness: 0
         textShadowEnabled: 0
         textShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
         textShadowOffset: {x: 1, y: -1}
@@ -1472,6 +1662,49 @@ MonoBehaviour:
         textGlowColor: {r: 1, g: 1, b: 1, a: 0.5}
         textGlowThickness: 2
         textGlowSoftness: 0.2
+        blendColor2DEnabled: 0
+        blendColor2DColor: {r: 1, g: 1, b: 1, a: 1}
+        blendColor2DBlendIntensity: 0
+        blendColor2DBlendGradDirection: 0
+        blendColor2DBlendGradationAmount: 0
+        blendColor2DBlendSoftness: 1
+        blendColor2DBlendMode: 0
+        blendColor2DAnimatedGradientEnabled: 0
+        blendColor2DAnimatedGradientPatternType: 10
+        blendColor2DAnimatedGradientMasterStrength: 1
+        blendColor2DAnimatedGradientNoiseScale: 6
+        blendColor2DAnimatedGradientNoiseDirection: {x: 1, y: 0}
+        blendColor2DAnimatedGradientNoiseSpeed: 0.2
+        blendColor2DAnimatedGradientNoiseOffset: {x: 0, y: 0}
+        blendColor2DAnimatedGradientRotationSpeed: 0
+        blendColor2DAnimatedGradientPulseAmplitude: 0
+        blendColor2DAnimatedGradientPulseSpeed: 1
+        blendColor2DAnimatedGradientWarpPatternType: 10
+        blendColor2DAnimatedGradientWarpScale: 2
+        blendColor2DAnimatedGradientWarpStrength: 0.1
+        blendColor2DAnimatedGradientWarpDirection: {x: 0.71, y: 0.43}
+        blendColor2DAnimatedGradientWarpSpeed: 0.35
+        blendColor2DAnimatedGradientLoopSeconds: 0
+        blendColor2DAnimatedGradientOctaves: 4
+        blendColor2DAnimatedGradientLacunarity: 2
+        blendColor2DAnimatedGradientGain: 0.5
+        blendColor2DAnimatedGradientCellSharpness: 1.5
+        blendColor2DAnimatedGradientPatternContrast: 1
+        blendColor2DAnimatedGradientHueAmplitude: 0.0025
+        blendColor2DAnimatedGradientSaturationAmplitude: 0.008
+        blendColor2DAnimatedGradientLightnessAmplitude: 0.015
+        blendColor2DAnimatedGradientPixelSize: 1
+        advancedFadeEnabled: 0
+        advancedFadeFadeDirection: 0
+        advancedFadeFadeAmount: 0
+        advancedFadeSoft: 0.1
+        advancedFadeGlowIntensity: 0
+        advancedFadeGlowRange: 0.05
+        advancedFadeGlowBlendMode: 0
+        advancedFadeWaveParamsA: {x: 0, y: 0, z: 0, w: 0}
+        advancedFadeWaveParamsB: {x: 0, y: 0, z: 0, w: 0}
+        advancedFadeCircleStartAngleDeg: 90
+        advancedFadeCircleClockwise: 1
         rainbowEnabled: 0
         rainbowMode: 0
         rainbowPattern: 0
@@ -1492,6 +1725,25 @@ MonoBehaviour:
         advancedFadeBurnEdgeColor: {r: 1, g: 0.5, b: 0.1, a: 1}
         advancedFadeBurnBlendMode: 0
         advancedFadeBurnInvert: 0
+        advancedFadeBurnAnimatedNoiseEnabled: 0
+        advancedFadeBurnAnimatedNoisePatternType: 10
+        advancedFadeBurnAnimatedNoiseDirection: {x: 1, y: 0}
+        advancedFadeBurnAnimatedNoiseSpeed: 0.2
+        advancedFadeBurnAnimatedNoiseOffset: {x: 0, y: 0}
+        advancedFadeBurnAnimatedNoiseRotationSpeed: 0
+        advancedFadeBurnAnimatedNoisePulseAmplitude: 0
+        advancedFadeBurnAnimatedNoisePulseSpeed: 1
+        advancedFadeBurnAnimatedNoiseWarpPatternType: 10
+        advancedFadeBurnAnimatedNoiseWarpScale: 2
+        advancedFadeBurnAnimatedNoiseWarpStrength: 0.2
+        advancedFadeBurnAnimatedNoiseWarpDirection: {x: 0.71, y: 0.43}
+        advancedFadeBurnAnimatedNoiseWarpSpeed: 0.35
+        advancedFadeBurnAnimatedNoiseLoopSeconds: 0
+        advancedFadeBurnAnimatedNoiseOctaves: 4
+        advancedFadeBurnAnimatedNoiseLacunarity: 2
+        advancedFadeBurnAnimatedNoiseGain: 0.5
+        advancedFadeBurnAnimatedNoiseCellSharpness: 1.5
+        advancedFadeBurnAnimatedNoisePatternContrast: 1
         renderStateBlendPreset: 0
         renderStateUseCustomBlendFactors: 0
         renderStateSrcBlend: 5
@@ -1591,7 +1843,7 @@ MonoBehaviour:
       FadeEase: 0
     - Key: BaseShader/AdvancedFade2D/FadeDirection
       Value:
-        Type: 0
+        Type: 4
         Float:
           _source:
             rid: 5619052366731149602
@@ -1779,8 +2031,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _sharedLtsChannelHubDebugViewer:
+    autoRefreshEveryNFrames: 1
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -1798,7 +2053,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
   enableDebugView: 0
   _debugView:
-    watchKeys: []
     editKey:
       Id: 0
       Name: 
@@ -1834,6 +2088,9 @@ MonoBehaviour:
   _enableInputLogging: 0
   _blockInputAfterModalActiveRootsChanged: 1
   _blockDurationAfterModalActiveRootsChanged: 0.1
+  _pointerMovePixelThreshold: 1
+  _pointerMoveSampleInterval: 0.02
+  _forcePointerSyncOnPress: 1
 --- !u!114 &7046946651665273126
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1871,7 +2128,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.UI.ModalStackChannelHubMB
   _initialRoot: {fileID: 1805377878543686054}
-  _enableModalStackLogging: 0
   _debugView:
     CurrentInputRoot: (none)
     LastChange: (none)
@@ -1879,6 +2135,14 @@ MonoBehaviour:
     RootCount: 0
     Layers: []
     Roots: []
+  _layers:
+  - LayerKey: default
+    Order: 0
+    TiePolicy: 10
+    AllowSimultaneousInputInSameOrder: 0
+    TopOrderEffect: 0
+    KeepNonActiveInLayerVisible: 0
+    KeepNonActiveInLayerInputActive: 0
 --- !u!114 &4443362442980422187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1897,8 +2161,12 @@ MonoBehaviour:
     Previous: (none)
     Hovered: (none)
     CandidateProvider: (none)
+    NavigationCandidates: []
+    PointerCandidates: []
     NavigationCandidateTexts: []
     PointerCandidateTexts: []
+  _includeGraphicsInDump: 1
+  _includeNodesWithoutUIState: 0
 --- !u!114 &7048127316502053620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1932,8 +2200,6 @@ MonoBehaviour:
   timeScaleBehavior: 0
   registerToDynamicRegistry: 1
   radius: 0
-  advanceOptions: 0
-  retryIntervalSeconds: 0.5
 --- !u!114 &1914040957366266136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2031,6 +2297,11 @@ MonoBehaviour:
   initializeLocalBlackboard: 0
   reinitializeLocalBlackboardOnAcquire: 1
   localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
   references:
     version: 2
     RefIds: []
@@ -2099,8 +2370,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _sharedLtsChannelHubDebugViewer:
+    autoRefreshEveryNFrames: 1
   _defaultVars:
     entries: []
+    tables: []
   references:
     version: 2
     RefIds: []
@@ -2118,7 +2392,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scalar.BaseScalarMB
   enableDebugView: 0
   _debugView:
-    watchKeys: []
     editKey:
       Id: 0
       Name: 
@@ -2156,6 +2429,11 @@ MonoBehaviour:
   _hitTestRects:
   - {fileID: 6349106602665171224}
   _selectionOrder: 0
+  _navigationSelectionOrder: 0
+  _isSelectable:
+    _source:
+      rid: -2
+    _defaultValue: 0
   _isNavigationSelectable:
     _source:
       rid: 7292586936938004766
@@ -2180,6 +2458,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 7292586936938004766
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2203,8 +2483,6 @@ MonoBehaviour:
   timeScaleBehavior: 0
   registerToDynamicRegistry: 1
   radius: 0
-  advanceOptions: 0
-  retryIntervalSeconds: 0.5
 --- !u!114 &4490152577199968758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2260,22 +2538,44 @@ MonoBehaviour:
         requireActive: 0
         searchScope: 0
       UnityObject: {fileID: 0}
-      SharedTag: 
+      Shared:
+        rid: -2
       ContextSlot: 0
+      TargetChannel:
+        rid: -2
     Condition:
       _source:
         rid: 7292586936938004942
       _defaultValue: 0
     ExecuteInitialCondition: 0
-    ValueSource: 0
-    ValueChangeMode: 0
-    VarStoreVarId: 0
-    BlackboardVarId: 0
-    BlackboardReadScope: 0
-    ScalarKey:
-      Id: 0
-      Name: 
-    ChangeEpsilon: 0
+    ValueChangedMode: 0
+    SimpleValueChangedTarget:
+      ValueSource: 0
+      ValueTarget:
+        Kind: 0
+        Identity:
+          kind: 0
+          id: 
+          category: 
+          requireActive: 0
+          searchScope: 0
+        UnityObject: {fileID: 0}
+        Shared:
+          rid: -2
+        ContextSlot: 0
+        TargetChannel:
+          rid: -2
+      ValueChangeMode: 0
+      VarStoreVarId: 0
+      BlackboardVarId: 0
+      BlackboardReadScope: 0
+      ScalarKey:
+        Id: 0
+        Name: 
+      ChangeEpsilon: 0
+    ValueChangedTargets: []
+    ExecuteInitialValueChangedEnter: 0
+    InitialValueChangedEnterDelaySeconds: 0
     OnEnterCommands:
       _debugOwner: {fileID: 6847865917287765053}
       _debugFieldPath: _monitorRules[0].OnEnterCommands
@@ -2289,8 +2589,10 @@ MonoBehaviour:
       _debugFieldPath: _monitorRules[0].OnExitCommands
       _debugAssetPath: 
       _functionName: MonitorRule.OnExit
-      _commands: []
+      _commands:
+      - rid: 5399842768618782894
     WhileTrueCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 6847865917287765053}
         _debugFieldPath: _monitorRules[0].WhileTrueCommands.Commands
@@ -2299,6 +2601,7 @@ MonoBehaviour:
         _commands: []
       IntervalSeconds: 0.25
     WhileFalseCommands:
+      RepeatMode: 0
       Commands:
         _debugOwner: {fileID: 6847865917287765053}
         _debugFieldPath: _monitorRules[0].WhileFalseCommands.Commands
@@ -2315,6 +2618,325 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
+    - rid: 5399842768618782866
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 5399842768618782867
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 5399842768618782891
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842768618782892
+      type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
+    - rid: 5399842768618782893
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842768618782894
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842768618782895
+    - rid: 5399842768618782895
+      type: {class: AnimationSpriteChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        ChannelTag: default
+        ApplyAnimation: 1
+        AwaitMode: 0
+        WaitForOnceCompletion: 1
+        PresetSource:
+          _source:
+            rid: 5399842768618782904
+          _defaultValue:
+            animationA:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            animationB:
+              kind: 0
+              asset: {fileID: 0}
+              inline:
+                animationName: 
+                defaultFrameDuration: 0.1
+                awaitFrameCommands: 0
+                onStart:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onEnd:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                onCanceled:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+                frames: []
+              randomAsset:
+                entries: []
+              randomInline:
+                entries: []
+            playMode: 0
+            flipX: 0
+            useClipSwitchFlip: 0
+            switchFlipDuration: 0.2
+            switchFlipFullRotation: 0
+            usePlaybackSpeedMultiplier: 1
+            crossFadeProfile:
+              rid: -2
+        ApplyMaterialFx: 0
+        MaterialFxSource:
+          _source:
+            rid: -2
+          _defaultValue:
+            ContextTag: default
+            ClearContextFirst: 0
+            Priority: 0
+            Entries: []
+        ApplyPlaybackSpeed: 0
+        PlaybackSpeedSource:
+          _source:
+            rid: 5399842768618782896
+          _defaultValue: 0
+        ApplyFlipX: 0
+        FlipXMode: 0
+        FlipXAngleSource:
+          _source:
+            rid: 5399842768618782897
+          _defaultValue: 0
+        ApplySortingOrder: 0
+        SortingOrderSource:
+          _source:
+            rid: 5399842768618782898
+          _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 5399842768618782899
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 5399842768618782900
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 5399842768618782901
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 5399842768618782902
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 5399842768618782903
+            _defaultValue: 0
+    - rid: 5399842768618782896
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842768618782897
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 180
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842768618782898
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842768618782899
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 1, y: 1}
+    - rid: 5399842768618782900
+      type: {class: LiteralVector2Source, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: {x: 0, y: 0}
+    - rid: 5399842768618782901
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842768618782902
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 0
+        intValue: 0
+        floatValue: 0
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842768618782903
+      type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        type: 1
+        intValue: 0
+        floatValue: 1
+        boolValue: 0
+        stringValue: 
+        vector2Value: {x: 0, y: 0}
+        vector3Value: {x: 0, y: 0, z: 0}
+        vector4Value: {x: 0, y: 0, z: 0, w: 0}
+        colorValue: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 5399842768618782904
+      type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value:
+          animationA:
+            kind: 1
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames:
+              - sprite: {fileID: -4698600402995417950, guid: c4ce9e579dd9eac4caec44774da7f3c1, type: 3}
+                duration: 0.1
+                commands:
+                  _debugOwner: {fileID: 0}
+                  _debugFieldPath: 
+                  _debugAssetPath: 
+                  _functionName: 
+                  _commands: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          animationB:
+            kind: 0
+            asset: {fileID: 0}
+            inline:
+              animationName: 
+              defaultFrameDuration: 0.1
+              awaitFrameCommands: 0
+              onStart:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onEnd:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              onCanceled:
+                _debugOwner: {fileID: 0}
+                _debugFieldPath: 
+                _debugAssetPath: 
+                _functionName: 
+                _commands: []
+              frames: []
+            randomAsset:
+              entries: []
+            randomInline:
+              entries: []
+          playMode: 0
+          flipX: 0
+          useClipSwitchFlip: 0
+          switchFlipDuration: 0.2
+          switchFlipFullRotation: 0
+          usePlaybackSpeedMultiplier: 1
+          crossFadeProfile:
+            rid: -2
     - rid: 5619052366731149583
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2450,6 +3072,18 @@ MonoBehaviour:
           _source:
             rid: 7292586981568020564
           _defaultValue: 0
+        EnableDynamicBind: 0
+        DynamicBindPlayMode: 10
+        DynamicBindCounterSettings:
+          UseCounter: 0
+          CounterEase: 6
+          CounterDurationSeconds: 0.5
+          CounterUseUnscaledTime: 0
+          FixedIntegerDigits: 0
+          DecimalDigits: 0
+          ShowPlusSign: 0
+          UseThousandsSeparator: 0
+          RoundingMode: 0
         Visible: 1
         AnimationPreset:
           rid: 6309418350403912159
@@ -2635,12 +3269,41 @@ MonoBehaviour:
           _source:
             rid: 5619052366731149584
           _defaultValue: 0
+        ApplyVisualType: 0
+        SpriteRendererType:
+          Type: 10
+          SizeSource:
+            _source:
+              rid: 5399842768618782866
+            _defaultValue: {x: 0, y: 0}
+        ImageType:
+          Type: 10
+          PreserveAspect: 0
+          SizeDeltaSource:
+            _source:
+              rid: 5399842768618782867
+            _defaultValue: {x: 0, y: 0}
+          FillCenter: 1
+          PixelsPerUnitMultiplierSource:
+            _source:
+              rid: 5399842768618782891
+            _defaultValue: 0
+          FillMethod: 10
+          FillOriginSource:
+            _source:
+              rid: 5399842768618782892
+            _defaultValue: 0
+          FillClockwise: 1
+          FillAmountSource:
+            _source:
+              rid: 5399842768618782893
+            _defaultValue: 0
     - rid: 7292586936938004941
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value:
           animationA:
-            kind: 0
+            kind: 3
             asset: {fileID: 0}
             inline:
               animationName: 
@@ -2668,7 +3331,319 @@ MonoBehaviour:
             randomAsset:
               entries: []
             randomInline:
-              entries: []
+              entries:
+              - weight: 1
+                inline:
+                  animationName: 
+                  defaultFrameDuration: 0.1
+                  awaitFrameCommands: 0
+                  onStart:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  onEnd:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  onCanceled:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  frames:
+                  - sprite: {fileID: -3909301392405355839, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -5335379392728463960, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -5947484304298824415, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: 7822640182313677972, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -607260031072785559, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -1384237264064475262, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -4270594649291713474, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -213478608014511485, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -7117566059814410026, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -1583508026119200572, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -2558261102363108175, guid: ca3d020a51762734f97ca6eb92dc407d, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+              - weight: 1
+                inline:
+                  animationName: 
+                  defaultFrameDuration: 0.5
+                  awaitFrameCommands: 0
+                  onStart:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  onEnd:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  onCanceled:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  frames:
+                  - sprite: {fileID: 8347133245946297397, guid: efbd8f626ae6d7440a3eef2925be4183, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -4257671388024805894, guid: efbd8f626ae6d7440a3eef2925be4183, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+              - weight: 1
+                inline:
+                  animationName: 
+                  defaultFrameDuration: 0.1
+                  awaitFrameCommands: 0
+                  onStart:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  onEnd:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  onCanceled:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  frames:
+                  - sprite: {fileID: -7817509060435598262, guid: a18025c29b22d924994fe9624981dd73, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -117835284369150061, guid: a18025c29b22d924994fe9624981dd73, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: 8769909783920964636, guid: a18025c29b22d924994fe9624981dd73, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -2792605890861165840, guid: a18025c29b22d924994fe9624981dd73, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -2378231298856889934, guid: a18025c29b22d924994fe9624981dd73, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: 3129298652767671327, guid: a18025c29b22d924994fe9624981dd73, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -2679677873481494280, guid: a18025c29b22d924994fe9624981dd73, type: 3}
+                    duration: 0.1
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+              - weight: 1
+                inline:
+                  animationName: 
+                  defaultFrameDuration: 0.1
+                  awaitFrameCommands: 0
+                  onStart:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  onEnd:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  onCanceled:
+                    _debugOwner: {fileID: 0}
+                    _debugFieldPath: 
+                    _debugAssetPath: 
+                    _functionName: 
+                    _commands: []
+                  frames:
+                  - sprite: {fileID: 422167118143477502, guid: 64ac4c32029fc634ca694aa6bd3d5449, type: 3}
+                    duration: 0
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: 927293392, guid: 64ac4c32029fc634ca694aa6bd3d5449, type: 3}
+                    duration: 0
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: 2089672402, guid: 64ac4c32029fc634ca694aa6bd3d5449, type: 3}
+                    duration: 0
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -1528503030, guid: 64ac4c32029fc634ca694aa6bd3d5449, type: 3}
+                    duration: 0
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -62315271, guid: 64ac4c32029fc634ca694aa6bd3d5449, type: 3}
+                    duration: 0
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: -516001970, guid: 64ac4c32029fc634ca694aa6bd3d5449, type: 3}
+                    duration: 0
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
+                  - sprite: {fileID: 633820562, guid: 64ac4c32029fc634ca694aa6bd3d5449, type: 3}
+                    duration: 0
+                    commands:
+                      _debugOwner: {fileID: 0}
+                      _debugFieldPath: 
+                      _debugAssetPath: 
+                      _functionName: 
+                      _commands: []
           animationB:
             kind: 0
             asset: {fileID: 0}
@@ -2699,8 +3674,8 @@ MonoBehaviour:
               entries: []
             randomInline:
               entries: []
-          playMode: 0
-          flipX: 0
+          playMode: 1
+          flipX: 1
           useClipSwitchFlip: 0
           switchFlipDuration: 0.2
           switchFlipFullRotation: 0
@@ -2725,8 +3700,11 @@ MonoBehaviour:
             requireActive: 0
             searchScope: 0
           UnityObject: {fileID: 0}
-          SharedTag: 
+          Shared:
+            rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
     - rid: 7292586936938004954
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2734,7 +3712,7 @@ MonoBehaviour:
     - rid: 7292586936938004955
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: Loading    Wait! Wait!
+        value: Loading
     - rid: 7292586981568020562
       type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2770,7 +3748,7 @@ MonoBehaviour:
     - rid: 7292586981568020568
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: Loading.   Wait! Wait!
+        value: Loading.
     - rid: 7292586981568020569
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2778,7 +3756,7 @@ MonoBehaviour:
     - rid: 7292586981568020570
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: Loading..  Wait! Wait!
+        value: Loading..
     - rid: 7292586981568020571
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2786,7 +3764,7 @@ MonoBehaviour:
     - rid: 7292586981568020572
       type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: Loading... Wait! Wait!
+        value: Loading...
 --- !u!114 &8502690284873254025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2808,6 +3786,11 @@ MonoBehaviour:
   initializeLocalBlackboard: 0
   reinitializeLocalBlackboardOnAcquire: 1
   localBlackboardInitEntries: []
+  initializeLocalGridBlackboard: 0
+  reinitializeLocalGridBlackboardOnAcquire: 1
+  localGridBlackboardInit:
+    gridId: 0
+    rows: []
   references:
     version: 2
     RefIds: []

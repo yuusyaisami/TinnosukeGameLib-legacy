@@ -28,17 +28,23 @@ MonoBehaviour:
           DisplayName:
             Template: BallBaseValueUp
             Variables: []
-          IconAnimation: {fileID: 0}
           Description:
             Template: 
             Variables: []
           StackDescription:
             Template: 
             Variables: []
-          EffectType: 10
+          AdditionalDescriptions: []
+          Icon: {fileID: 0}
           SortOrder: 0
-          ApplyAnim: {fileID: 0}
-          RemoveAnim: {fileID: 0}
+        runtimeControlMode: 0
+        condition:
+          _source:
+            rid: 5399842768618783360
+          _defaultValue: 0
+        autoGlobalAdvancedOption:
+          LifetimeEndAction: 0
+          CountExhaustedAction: 0
         useDuration: 0
         durationDefinition:
           rid: -2
@@ -50,6 +56,21 @@ MonoBehaviour:
           rid: -2
         operations:
         - rid: 5399842402410692624
+        periodicCommands:
+          Condition:
+            _source:
+              rid: 5399842768618783361
+            _defaultValue: 0
+          IntervalSeconds:
+            _source:
+              rid: 5399842768618783362
+            _defaultValue: 0
+          Commands:
+            _debugOwner: {fileID: 0}
+            _debugFieldPath: 
+            _debugAssetPath: 
+            _functionName: 
+            _commands: []
         defaultHooks:
           OnApply:
             _debugOwner: {fileID: 0}
@@ -96,12 +117,14 @@ MonoBehaviour:
     - rid: 5399842402410692624
       type: {class: ScalarModifierOperationDefinition, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
+        Enabled: 1
         TargetKey:
           Id: -476241549
           Name: GameLogic.GameProfile.Ball.BallValueAdd
         ApplyMode: 10
         MulPhase: 0
         ValueMode: 20
+        RuntimeIntensitySlot: 10
         Value:
           _source:
             rid: -2
@@ -121,3 +144,17 @@ MonoBehaviour:
           TargetChannel:
             rid: -2
         Layer: 
+        OperationId: 
+        BlockedUsePropagation: 10
+    - rid: 5399842768618783360
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842768618783361
+      type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842768618783362
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1

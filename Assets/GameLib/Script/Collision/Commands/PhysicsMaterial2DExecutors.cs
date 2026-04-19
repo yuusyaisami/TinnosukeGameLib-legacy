@@ -46,7 +46,7 @@ namespace Game.Commands.VNext
                 runtimeMaterial.friction = Mathf.Max(0f, typed.Friction.GetOrDefault(ctx, runtimeMaterial.friction));
 
             if (typed.ApplyBounciness)
-                runtimeMaterial.bounciness = Mathf.Clamp01(typed.Bounciness.GetOrDefault(ctx, runtimeMaterial.bounciness));
+                runtimeMaterial.bounciness = Mathf.Max(0f, typed.Bounciness.GetOrDefault(ctx, runtimeMaterial.bounciness));
         }
     }
 

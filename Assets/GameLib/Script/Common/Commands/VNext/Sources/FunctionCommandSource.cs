@@ -38,14 +38,14 @@ namespace Game.Commands.VNext
             var resolved = function.Evaluate(ctx);
             if (!TryResolveFunction(resolved, out var preset))
             {
-                ctx.Logger.LogResolveFailed(this, "CommandFunctionPreset failed to resolve.");
+                ctx.Logger.LogResolveFailed(this, $"CommandFunctionPreset failed to resolve. Resolved={DescribeResolvedValue(resolved)}");
                 return false;
             }
 
             var functionPreset = preset;
             if (functionPreset == null)
             {
-                ctx.Logger.LogResolveFailed(this, "CommandFunctionPreset failed to resolve.");
+                ctx.Logger.LogResolveFailed(this, $"CommandFunctionPreset failed to resolve. Resolved={DescribeResolvedValue(resolved)}");
                 return false;
             }
 
@@ -83,6 +83,35 @@ namespace Game.Commands.VNext
             }
 
             return false;
+        }
+
+        static string DescribeResolvedValue(DynamicVariant resolved)
+        {
+            return resolved.Kind switch
+            {
+                ValueKind.Null => "Null",
+                ValueKind.ManagedRef => resolved.AsManagedRef == null
+                    ? "ManagedRef(null)"
+                    : $"ManagedRef({DescribeManagedRef(resolved.AsManagedRef)})",
+                ValueKind.UnityObject => resolved.AsUnityObject == null
+                    ? "UnityObject(null)"
+                    : $"UnityObject({resolved.AsUnityObject.GetType().Name}: {resolved.AsUnityObject.name})",
+                _ => $"{resolved.Kind}({resolved})",
+            };
+        }
+
+        static string DescribeManagedRef(object managedRef)
+        {
+            if (managedRef == null)
+                return "null";
+
+            if (managedRef is CommandListData commandList)
+                return $"CommandListData(count={commandList.Count})";
+
+            if (managedRef is CommandFunctionPreset functionPreset)
+                return $"CommandFunctionPreset(commands={functionPreset.Commands?.Count ?? 0})";
+
+            return managedRef.GetType().Name;
         }
 
         string BuildDebugName()

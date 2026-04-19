@@ -4928,7 +4928,15 @@ MonoBehaviour:
     varId: 200021
     stableKey: SkipQuotaValue
     aliases: []
-  nextVarId: 200025
+  - id: fe82f477e252484e9851f7b1ae9fb012
+    parentId: 1234567890abcdef1234567890abcdef
+    name: isGameOver
+    isFolder: 0
+    description: "\u30B2\u30FC\u30E0\u30AA\u30FC\u30D0\u30FC\u306E\u753B\u9762\u304C\u5B8C\u5168\u306B\u51E6\u7406\u3057\u7D42\u308F\u3063\u305Ft\u3089"
+    varId: 200025
+    stableKey: isGameOver
+    aliases: []
+  nextVarId: 200026
   tombstones:
   - varId: 58
     stableKey: CurrentNecroCount

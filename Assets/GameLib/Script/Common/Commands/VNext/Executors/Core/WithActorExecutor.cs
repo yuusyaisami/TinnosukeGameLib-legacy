@@ -122,6 +122,9 @@ namespace Game.Commands.VNext
                 callerActor: ctx.Actor,
                 sourceContext: ctx);
 
+            if (typed.StoreActorToContext)
+                actorCtx.SetScope((CommandLtsSlot)typed.ActorContextSlot, ctx.CallerActor);
+
             try
             {
                 var result = await runner.ExecuteListAsync(typed.Body, actorCtx, ct, ctx.Options);

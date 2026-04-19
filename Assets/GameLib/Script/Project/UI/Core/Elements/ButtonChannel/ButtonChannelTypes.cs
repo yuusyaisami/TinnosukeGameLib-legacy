@@ -104,7 +104,7 @@ namespace Game.UI
     public interface IButtonChannelControlService
     {
         bool SwapInputPreset(ButtonInputPresetBase? preset);
-        bool SwapPlayerPreset(ButtonPlayerPreset? preset);
+        bool SwapPlayerPreset(ButtonPlayerPresetBase? preset);
         bool MutateInputSettings(ButtonInputRuntimeMutationBase? mutation, ICommandListRuntimeMutationService? mutationService);
         bool MutatePlayerSettings(ButtonPlayerRuntimeMutation? mutation, ICommandListRuntimeMutationService? mutationService);
         bool AppendDecisionCommands(CommandListData? commands, ICommandListRuntimeMutationService? mutationService);
@@ -143,12 +143,12 @@ namespace Game.UI
         [LabelText("Player Preset")]
         [Tooltip("enabled condition、binding、selection block、command execution guard などの player 側設定です。")]
         [SerializeField]
-        DynamicValue<ButtonPlayerPreset> _playerPreset =
-            DynamicValue<ButtonPlayerPreset>.FromSource(
-                new ManagedRefLiteralSource<ButtonPlayerPreset>(new ButtonPlayerPreset()));
+        DynamicValue<ButtonPlayerPresetBase> _playerPreset =
+            DynamicValue<ButtonPlayerPresetBase>.FromSource(
+                new ManagedRefLiteralSource<ButtonPlayerPresetBase>(new ButtonPlayerPreset()));
 
         public DynamicValue<ButtonInputPresetBase> InputPresetValue => _inputPreset;
-        public DynamicValue<ButtonPlayerPreset> PlayerPresetValue => _playerPreset;
+        public DynamicValue<ButtonPlayerPresetBase> PlayerPresetValue => _playerPreset;
 
         public ButtonChannelPreset CreateRuntimeCopy()
         {
@@ -161,7 +161,7 @@ namespace Game.UI
     }
 
     [Serializable]
-    public sealed class ButtonPlayerPreset : IDynamicManagedRefValue
+    public abstract class ButtonPlayerPresetBase : IDynamicManagedRefValue
     {
         [BoxGroup("State")]
         [LabelText("Enabled Condition")]
@@ -214,18 +214,18 @@ namespace Game.UI
         public bool AllowNavigationSelectionChangeWhileInteracting => _allowNavigationSelectionChangeWhileInteracting;
         public bool AllowPointerSelectionChangeWhileInteracting => _allowPointerSelectionChangeWhileInteracting;
 
-        internal ButtonPlayerPreset CreateRuntimeCopy()
+        protected void CopyCommonTo(ButtonPlayerPresetBase target)
         {
-            return new ButtonPlayerPreset
-            {
-                _enabledCondition = _enabledCondition,
-                _uiTriggerAction = _uiTriggerAction,
-                _worldTriggerButton = _worldTriggerButton,
-                _guardDuringCommandExecution = _guardDuringCommandExecution,
-                _disableSelectionDuringCommandExecution = _disableSelectionDuringCommandExecution,
-                _allowNavigationSelectionChangeWhileInteracting = _allowNavigationSelectionChangeWhileInteracting,
-                _allowPointerSelectionChangeWhileInteracting = _allowPointerSelectionChangeWhileInteracting,
-            };
+            if (target == null)
+                return;
+
+            target._enabledCondition = _enabledCondition;
+            target._uiTriggerAction = _uiTriggerAction;
+            target._worldTriggerButton = _worldTriggerButton;
+            target._guardDuringCommandExecution = _guardDuringCommandExecution;
+            target._disableSelectionDuringCommandExecution = _disableSelectionDuringCommandExecution;
+            target._allowNavigationSelectionChangeWhileInteracting = _allowNavigationSelectionChangeWhileInteracting;
+            target._allowPointerSelectionChangeWhileInteracting = _allowPointerSelectionChangeWhileInteracting;
         }
 
         internal void ApplyMutation(ButtonPlayerRuntimeMutation mutation)
@@ -253,6 +253,41 @@ namespace Game.UI
                 _allowNavigationSelectionChangeWhileInteracting = mutation.AllowNavigationSelectionChangeWhileInteracting;
                 _allowPointerSelectionChangeWhileInteracting = mutation.AllowPointerSelectionChangeWhileInteracting;
             }
+        }
+
+        internal abstract ButtonPlayerPresetBase CreateRuntimeCopy();
+    }
+
+    [Serializable]
+    public sealed class ButtonPlayerPreset : ButtonPlayerPresetBase
+    {
+        internal override ButtonPlayerPresetBase CreateRuntimeCopy()
+        {
+            var copy = new ButtonPlayerPreset();
+            CopyCommonTo(copy);
+            return copy;
+        }
+    }
+
+    [Serializable]
+    public sealed class GameRootPlayerPreset : ButtonPlayerPresetBase
+    {
+        [BoxGroup("GameRoot")]
+        [LabelText("Bypass Modal Stack Guard")]
+        [Tooltip("true のとき、UIInputService の ModalStack 入力ブロックを通らない入力経路を使用します。")]
+        [SerializeField]
+        bool _bypassModalStackGuard = true;
+
+        public bool BypassModalStackGuard => _bypassModalStackGuard;
+
+        internal override ButtonPlayerPresetBase CreateRuntimeCopy()
+        {
+            var copy = new GameRootPlayerPreset
+            {
+                _bypassModalStackGuard = _bypassModalStackGuard,
+            };
+            CopyCommonTo(copy);
+            return copy;
         }
     }
 

@@ -1297,7 +1297,7 @@ MonoBehaviour:
     - rid: 5399842687169594192
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.1
+        value: 0.15
     - rid: 5399842687169594193
       type: {class: AssetStatusEffectDefinitionSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4221,7 +4221,7 @@ MonoBehaviour:
     - rid: 5399842689165557792
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 0.2
+        value: 0.35
     - rid: 5399842689165557793
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -4626,7 +4626,7 @@ MonoBehaviour:
     - rid: 5399842689165557818
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
-        value: 1.5
+        value: 2.5
     - rid: 5399842689165557819
       type: {class: LiteralSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

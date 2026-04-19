@@ -16,6 +16,7 @@ namespace Game.UI
         None = 0,
         UI = 10,
         World = 20,
+        GameRoot = 30,
     }
 
     internal enum ButtonChannelInteractionAction
@@ -84,8 +85,9 @@ namespace Game.UI
         IButtonChannelInteractionAdapter? _adapter;
         ButtonInputPresetBase _baseInputPreset = new InstantButtonInputPreset();
         ButtonInputPresetBase _currentInputPreset = new InstantButtonInputPreset();
-        ButtonPlayerPreset _basePlayerPreset = new();
-        ButtonPlayerPreset _currentPlayerPreset = new();
+        ButtonPlayerPresetBase _basePlayerPreset = new ButtonPlayerPreset();
+        ButtonPlayerPresetBase _currentPlayerPreset = new ButtonPlayerPreset();
+        ButtonPlayerRuntimeBase _playerRuntime = null!;
         ButtonInputProcessorBase _processor = null!;
         IScopeLifecycleService? _lifecycleService;
         IVarStore? _resolvedVarStore;
@@ -119,6 +121,7 @@ namespace Game.UI
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _tag = string.IsNullOrWhiteSpace(tag) ? "default" : tag.Trim();
             _options = options ?? throw new ArgumentNullException(nameof(options));
+            _playerRuntime = CreatePlayerRuntime(_currentPlayerPreset);
             _processor = CreateProcessor(_currentInputPreset);
             _lastSnapshot = BuildSnapshot();
         }
@@ -147,6 +150,7 @@ namespace Game.UI
             _currentInputPreset = new InstantButtonInputPreset();
             _basePlayerPreset = new ButtonPlayerPreset();
             _currentPlayerPreset = new ButtonPlayerPreset();
+            _playerRuntime = CreatePlayerRuntime(_currentPlayerPreset);
             _processor = CreateProcessor(_currentInputPreset);
             _isEnabled = false;
             _isSelected = false;
@@ -181,7 +185,7 @@ namespace Game.UI
             if (!MatchesCurrentBinding(signal.Action))
                 return false;
 
-            if (_currentPlayerPreset.GuardDuringCommandExecution && _isCommandExecuting)
+            if (_playerRuntime.GuardDuringCommandExecution && _isCommandExecuting)
                 return false;
 
             if (signal.Phase == ButtonChannelInteractionSignalPhase.Down && !CanStartInteraction())
@@ -201,12 +205,7 @@ namespace Game.UI
                 if (_adapter == null || _adapter.AdapterKind != ButtonChannelAdapterKind.UI || !IsInteracting)
                     return UISelectionBlockMask.None;
 
-                var mask = UISelectionBlockMask.None;
-                if (!_currentPlayerPreset.AllowNavigationSelectionChangeWhileInteracting)
-                    mask |= UISelectionBlockMask.Navigation;
-                if (!_currentPlayerPreset.AllowPointerSelectionChangeWhileInteracting)
-                    mask |= UISelectionBlockMask.Pointer;
-                return mask;
+                return _playerRuntime.ResolveSelectionBlockMask(_adapter.AdapterKind, IsInteracting);
             }
         }
 
@@ -223,7 +222,7 @@ namespace Game.UI
             return true;
         }
 
-        public bool SwapPlayerPreset(ButtonPlayerPreset? preset)
+        public bool SwapPlayerPreset(ButtonPlayerPresetBase? preset)
         {
             if (preset == null)
                 return false;
@@ -231,6 +230,7 @@ namespace Game.UI
             CancelInteraction();
             _basePlayerPreset = preset.CreateRuntimeCopy();
             _currentPlayerPreset = _basePlayerPreset.CreateRuntimeCopy();
+            _playerRuntime = CreatePlayerRuntime(_currentPlayerPreset);
             RefreshState(forcePublish: true);
             return true;
         }
@@ -253,6 +253,7 @@ namespace Game.UI
                 return false;
 
             _currentPlayerPreset.ApplyMutation(mutation);
+            _playerRuntime = CreatePlayerRuntime(_currentPlayerPreset);
             RefreshState(forcePublish: true);
             return true;
         }
@@ -301,7 +302,10 @@ namespace Game.UI
             }
 
             if (resetPlayer)
+            {
                 _currentPlayerPreset = _basePlayerPreset.CreateRuntimeCopy();
+                _playerRuntime = CreatePlayerRuntime(_currentPlayerPreset);
+            }
 
             RefreshState(forcePublish: true);
             return true;
@@ -324,6 +328,7 @@ namespace Game.UI
             _basePlayerPreset = ResolvePlayerPreset(sourcePreset, context);
             _currentInputPreset = _baseInputPreset.CreateRuntimeCopy();
             _currentPlayerPreset = _basePlayerPreset.CreateRuntimeCopy();
+            _playerRuntime = CreatePlayerRuntime(_currentPlayerPreset);
             _processor = CreateProcessor(_currentInputPreset);
         }
 
@@ -350,12 +355,21 @@ namespace Game.UI
             return new InstantButtonInputPreset();
         }
 
-        static ButtonPlayerPreset ResolvePlayerPreset(ButtonChannelPreset preset, IDynamicContext context)
+        static ButtonPlayerPresetBase ResolvePlayerPreset(ButtonChannelPreset preset, IDynamicContext context)
         {
-            if (preset.PlayerPresetValue.TryGet(context, out ButtonPlayerPreset? playerPreset) && playerPreset != null)
+            if (preset.PlayerPresetValue.TryGet(context, out ButtonPlayerPresetBase? playerPreset) && playerPreset != null)
                 return playerPreset.CreateRuntimeCopy();
 
             return new ButtonPlayerPreset();
+        }
+
+        static ButtonPlayerRuntimeBase CreatePlayerRuntime(ButtonPlayerPresetBase preset)
+        {
+            return preset switch
+            {
+                GameRootPlayerPreset gameRootPreset => new GameRootButtonPlayerRuntime(gameRootPreset),
+                _ => new SelectionBoundButtonPlayerRuntime(preset),
+            };
         }
 
         ButtonInputProcessorBase CreateProcessor(ButtonInputPresetBase preset)
@@ -374,12 +388,7 @@ namespace Game.UI
             if (_adapter == null)
                 return false;
 
-            return _adapter.AdapterKind switch
-            {
-                ButtonChannelAdapterKind.UI => action == ConvertUIAction(_currentPlayerPreset.UITriggerAction),
-                ButtonChannelAdapterKind.World => action == ConvertWorldButton(_currentPlayerPreset.WorldTriggerButton),
-                _ => false,
-            };
+            return _playerRuntime.MatchesBinding(action, _adapter.AdapterKind);
         }
 
         bool CanStartInteraction()
@@ -387,12 +396,11 @@ namespace Game.UI
             if (_adapter == null || !_isEnabled)
                 return false;
 
-            return _adapter.AdapterKind switch
-            {
-                ButtonChannelAdapterKind.UI => _isSelected,
-                ButtonChannelAdapterKind.World => _isHovered || _adapter.AllowsDirectPointerPressWithoutSelection,
-                _ => false,
-            };
+            return _playerRuntime.CanStartInteraction(
+                _adapter.AdapterKind,
+                _isSelected,
+                _isHovered,
+                _adapter.AllowsDirectPointerPressWithoutSelection);
         }
 
         void RefreshState(bool forcePublish)
@@ -438,7 +446,7 @@ namespace Game.UI
                 context = new SimpleDynamicContext(vars, _owner);
                 _stateDynamicContext = context;
             }
-            return _currentPlayerPreset.EnabledCondition.GetOrDefault(context, true);
+            return _playerRuntime.EnabledCondition.GetOrDefault(context, true);
         }
 
         bool ShouldCancelInteraction()
@@ -455,12 +463,7 @@ namespace Game.UI
                 return true;
             }
 
-            return _adapter.AdapterKind switch
-            {
-                ButtonChannelAdapterKind.UI => !_adapter.IsSelected,
-                ButtonChannelAdapterKind.World => !_adapter.IsHovered,
-                _ => true,
-            };
+            return _playerRuntime.ShouldCancelInteraction(_adapter.AdapterKind, _adapter.IsSelected, _adapter.IsHovered);
         }
 
         ButtonChannelOutputSnapshot BuildSnapshot(
@@ -557,14 +560,14 @@ namespace Game.UI
 
         async UniTask ExecuteDecisionCommandsInternalAsync(CommandListData primary, CommandListData? secondary, ButtonChannelPhase phase)
         {
-            if (_currentPlayerPreset.GuardDuringCommandExecution)
+            if (_playerRuntime.GuardDuringCommandExecution)
             {
                 _isCommandExecuting = true;
                 RefreshState(forcePublish: true);
             }
 
             IUIElementStateController? stateController = null;
-            if (_currentPlayerPreset.DisableSelectionDuringCommandExecution &&
+            if (_playerRuntime.DisableSelectionDuringCommandExecution &&
                 _adapter?.ElementState is IUIElementStateController controller)
             {
                 stateController = controller;
@@ -713,6 +716,143 @@ namespace Game.UI
             return button == ButtonChannelWorldTriggerButton.Right
                 ? ButtonChannelInteractionAction.PointerRight
                 : ButtonChannelInteractionAction.PointerLeft;
+        }
+
+        abstract class ButtonPlayerRuntimeBase
+        {
+            protected ButtonPlayerRuntimeBase(ButtonPlayerPresetBase preset)
+            {
+                Preset = preset ?? new ButtonPlayerPreset();
+            }
+
+            protected ButtonPlayerPresetBase Preset { get; }
+
+            public DynamicValue<bool> EnabledCondition => Preset.EnabledCondition;
+            public bool GuardDuringCommandExecution => Preset.GuardDuringCommandExecution;
+            public bool DisableSelectionDuringCommandExecution => Preset.DisableSelectionDuringCommandExecution;
+
+            public bool MatchesBinding(ButtonChannelInteractionAction action, ButtonChannelAdapterKind adapterKind)
+            {
+                return adapterKind switch
+                {
+                    ButtonChannelAdapterKind.UI => action == ConvertUIAction(Preset.UITriggerAction),
+                    ButtonChannelAdapterKind.GameRoot => MatchesGameRootBinding(action),
+                    ButtonChannelAdapterKind.World => action == ConvertWorldButton(Preset.WorldTriggerButton),
+                    _ => false,
+                };
+            }
+
+            public virtual UISelectionBlockMask ResolveSelectionBlockMask(ButtonChannelAdapterKind adapterKind, bool isInteracting)
+            {
+                if (adapterKind != ButtonChannelAdapterKind.UI || !isInteracting)
+                    return UISelectionBlockMask.None;
+
+                var mask = UISelectionBlockMask.None;
+                if (!Preset.AllowNavigationSelectionChangeWhileInteracting)
+                    mask |= UISelectionBlockMask.Navigation;
+                if (!Preset.AllowPointerSelectionChangeWhileInteracting)
+                    mask |= UISelectionBlockMask.Pointer;
+                return mask;
+            }
+
+            protected virtual bool MatchesGameRootBinding(ButtonChannelInteractionAction action)
+            {
+                _ = action;
+                return false;
+            }
+
+            public abstract bool CanStartInteraction(
+                ButtonChannelAdapterKind adapterKind,
+                bool isSelected,
+                bool isHovered,
+                bool allowsDirectPointerPressWithoutSelection);
+
+            public abstract bool ShouldCancelInteraction(ButtonChannelAdapterKind adapterKind, bool isSelected, bool isHovered);
+        }
+
+        sealed class SelectionBoundButtonPlayerRuntime : ButtonPlayerRuntimeBase
+        {
+            public SelectionBoundButtonPlayerRuntime(ButtonPlayerPresetBase preset) : base(preset)
+            {
+            }
+
+            public override bool CanStartInteraction(
+                ButtonChannelAdapterKind adapterKind,
+                bool isSelected,
+                bool isHovered,
+                bool allowsDirectPointerPressWithoutSelection)
+            {
+                _ = isSelected;
+                return adapterKind switch
+                {
+                    ButtonChannelAdapterKind.UI => isSelected,
+                    ButtonChannelAdapterKind.World => isHovered || allowsDirectPointerPressWithoutSelection,
+                    _ => false,
+                };
+            }
+
+            public override bool ShouldCancelInteraction(ButtonChannelAdapterKind adapterKind, bool isSelected, bool isHovered)
+            {
+                return adapterKind switch
+                {
+                    ButtonChannelAdapterKind.UI => !isSelected,
+                    ButtonChannelAdapterKind.World => !isHovered,
+                    _ => true,
+                };
+            }
+        }
+
+        sealed class GameRootButtonPlayerRuntime : ButtonPlayerRuntimeBase
+        {
+            readonly bool _bypassModalStackGuard;
+
+            public GameRootButtonPlayerRuntime(GameRootPlayerPreset preset) : base(preset)
+            {
+                _bypassModalStackGuard = preset.BypassModalStackGuard;
+            }
+
+            protected override bool MatchesGameRootBinding(ButtonChannelInteractionAction action)
+            {
+                if (!_bypassModalStackGuard)
+                    return false;
+
+                return action == ConvertUIAction(Preset.UITriggerAction);
+            }
+
+            public override UISelectionBlockMask ResolveSelectionBlockMask(ButtonChannelAdapterKind adapterKind, bool isInteracting)
+            {
+                _ = adapterKind;
+                _ = isInteracting;
+                return UISelectionBlockMask.None;
+            }
+
+            public override bool CanStartInteraction(
+                ButtonChannelAdapterKind adapterKind,
+                bool isSelected,
+                bool isHovered,
+                bool allowsDirectPointerPressWithoutSelection)
+            {
+                _ = isSelected;
+                return adapterKind switch
+                {
+                    ButtonChannelAdapterKind.UI => true,
+                    ButtonChannelAdapterKind.GameRoot => true,
+                    ButtonChannelAdapterKind.World => isHovered || allowsDirectPointerPressWithoutSelection,
+                    _ => false,
+                };
+            }
+
+            public override bool ShouldCancelInteraction(ButtonChannelAdapterKind adapterKind, bool isSelected, bool isHovered)
+            {
+                _ = isSelected;
+                return adapterKind switch
+                {
+                    ButtonChannelAdapterKind.UI => false,
+                    ButtonChannelAdapterKind.GameRoot => false,
+                    ButtonChannelAdapterKind.World => !isHovered,
+                    _ => true,
+                };
+            }
         }
 
         abstract class ButtonInputProcessorBase

@@ -1850,7 +1850,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 286
+  _debugLastEnabledChangeFrame: 316
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &7495427074702374831
@@ -2251,7 +2251,7 @@ MonoBehaviour:
     - rid: 5399842691240689665
       type: {class: StatusEffectCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
-        Op: 80
+        Op: 50
         OperationId: 
         ServiceScope: 20
         TargetActorSource:

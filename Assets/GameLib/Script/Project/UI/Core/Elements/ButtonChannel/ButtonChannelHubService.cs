@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Common;
+using Game.Input;
 using Game.SelectRuntime;
 using UnityEngine;
 using VContainer.Unity;
@@ -236,6 +237,9 @@ namespace Game.UI
             if (TryCreateWorldAdapter(out var worldAdapter) && worldAdapter != null)
                 return worldAdapter;
 
+            if (TryCreateGameRootAdapter(out var gameRootAdapter) && gameRootAdapter != null)
+                return gameRootAdapter;
+
             return null;
         }
 
@@ -282,6 +286,16 @@ namespace Game.UI
                 return false;
 
             adapter = new WorldButtonChannelInteractionAdapter(_mb.transform, pointerTarget, selectable, DispatchSignal);
+            return true;
+        }
+
+        bool TryCreateGameRootAdapter(out IButtonChannelInteractionAdapter? adapter)
+        {
+            adapter = null;
+            if (!_owner.TryResolveInAncestors<IInputRouter>(out var inputRouter) || inputRouter == null)
+                return false;
+
+            adapter = new GameRootButtonChannelInteractionAdapter(inputRouter, DispatchSignal);
             return true;
         }
 

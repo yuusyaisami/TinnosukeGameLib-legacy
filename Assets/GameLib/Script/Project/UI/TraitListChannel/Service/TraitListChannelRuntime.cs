@@ -458,6 +458,9 @@ namespace Game.UI
                 _placementService,
                 _resolvedPlayerPreset.HideVisiblePlacedTraits);
 
+            var itemSize = ResolvePlanningItemSize();
+            var layoutRect = ResolveLayoutRect();
+
             if (!TraitListChannelLayoutUtility.TryBuildSlots(
                     filteredTraits,
                     Tag,
@@ -466,6 +469,8 @@ namespace Game.UI
                     _resolvedBinding.Range,
                     _resolvedPlayerPreset.MergeDuplicateTraitDefinitions,
                     _resolvedLayoutPreset,
+                    layoutRect,
+                    itemSize,
                 out var slots,
                 out var normalizedRange,
                 out var error))
@@ -479,7 +484,7 @@ namespace Game.UI
             if (mode == TraitListChannelRefreshMode.FullRebuild || !_isBuilt)
             {
                 await ClearSpawnedInstancesAsync(ct);
-                await BuildFromSlotsAsync(slots, ct);
+                await BuildFromSlotsAsync(slots, layoutRect, itemSize, ct);
                 _isBuilt = true;
                 return true;
             }
@@ -581,7 +586,7 @@ namespace Game.UI
             }
 
             var initializedNewSpawned = 0;
-            RecalculateSlotPositions(slots);
+            RecalculateSlotPositions(slots, layoutRect, itemSize);
             for (var i = 0; i < slots.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -614,12 +619,13 @@ namespace Game.UI
             return true;
         }
 
-        async UniTask BuildFromSlotsAsync(List<TraitListChannelSlot> slots, CancellationToken ct)
+        async UniTask BuildFromSlotsAsync(List<TraitListChannelSlot> slots, Rect layoutRect, Vector2 itemSize, CancellationToken ct)
         {
             if (slots == null || slots.Count == 0)
                 return;
 
-            RecalculateSlotPositions(slots);
+            RecalculateSlotPositions(slots, layoutRect, itemSize);
+
             var initializedSpawned = 0;
             var totalSpawnCount = 0;
             for (var i = 0; i < slots.Count; i++)
@@ -649,10 +655,9 @@ namespace Game.UI
             SortInstancesByListIndex();
         }
 
-        void RecalculateSlotPositions(List<TraitListChannelSlot> slots)
+        Rect ResolveLayoutRect()
         {
-            var itemSize = ResolvePlanningItemSize();
-            var layoutRect = TransformGridSharedUtility.ResolveLayoutRect(
+            return TransformGridSharedUtility.ResolveLayoutRect(
                 _listRoot,
                 _layoutReferenceTransform,
                 _layoutRectTransform,
@@ -665,6 +670,10 @@ namespace Game.UI
                 _resolvedLayoutPreset.AreaActorSource,
                 ref _layoutAreaSourceCache,
                 _resolvedLayoutPreset.AreaChannelTag);
+        }
+
+        void RecalculateSlotPositions(List<TraitListChannelSlot> slots, Rect layoutRect, Vector2 itemSize)
+        {
             TraitListChannelLayoutUtility.RecalculateTargetPositions(
                 slots,
                 _resolvedLayoutPreset,

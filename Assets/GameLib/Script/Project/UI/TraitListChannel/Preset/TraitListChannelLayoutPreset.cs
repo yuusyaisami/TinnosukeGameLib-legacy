@@ -81,6 +81,13 @@ namespace Game.UI
         string _areaChannelTag = "default";
 
         [BoxGroup("Layout")]
+        [LabelText("Layout Mode")]
+        [Tooltip("Rows/Columns を固定値で使うか、配置領域に収まるだけ自動で詰めるかを選びます。")]
+        [SerializeField]
+        TraitListChannelLayoutMode _layoutMode = TraitListChannelLayoutMode.FixedGrid;
+
+        [BoxGroup("Layout")]
+        [ShowIf(nameof(UsesFixedGrid))]
         [LabelText("Rows")]
         [MinValue(1)]
         [Tooltip("レイアウトの行数です。Rows x Columns が同時表示 capacity になります。")]
@@ -88,6 +95,7 @@ namespace Game.UI
         int _rows = 1;
 
         [BoxGroup("Layout")]
+        [ShowIf(nameof(UsesFixedGrid))]
         [LabelText("Columns")]
         [MinValue(1)]
         [Tooltip("レイアウトの列数です。Rows x Columns が同時表示 capacity になります。")]
@@ -96,7 +104,7 @@ namespace Game.UI
 
         [BoxGroup("Layout")]
         [LabelText("Order")]
-        [Tooltip("listIndex を row/column に割り当てる順序です。")]
+        [Tooltip("listIndex を row/column に割り当てる順序です。Auto Fit では収まる範囲への詰め順を、Fixed Grid では行列の向きを決めます。")]
         [SerializeField]
         TraitListChannelOrder _order = TraitListChannelOrder.RowMajor;
 
@@ -190,12 +198,14 @@ namespace Game.UI
         TraitListChannelMotionPreset _relayoutMotion = new();
 
         bool UsesAreaChannel() => _rangeSourceMode == TransformGridLayoutRangeSourceMode.AreaChannel;
+        bool UsesFixedGrid() => _layoutMode == TraitListChannelLayoutMode.FixedGrid;
         bool UsesFixedAnchor() => _spawnAnchorMode == TraitListChannelSpawnAnchorMode.FixedAnchor;
         bool ShowsFixedAnchorActorSource() => UsesFixedAnchor() && _useFixedAnchorActorSource;
 
         public TransformGridLayoutRangeSourceMode RangeSourceMode => _rangeSourceMode;
         public ActorSource AreaActorSource => _areaActorSource;
         public string AreaChannelTag => string.IsNullOrWhiteSpace(_areaChannelTag) ? "default" : _areaChannelTag.Trim();
+        public TraitListChannelLayoutMode LayoutMode => _layoutMode;
         public int Rows => Mathf.Max(1, _rows);
         public int Columns => Mathf.Max(1, _columns);
         public TraitListChannelOrder Order => _order;
@@ -221,6 +231,7 @@ namespace Game.UI
                 _rangeSourceMode = _rangeSourceMode,
                 _areaActorSource = _areaActorSource,
                 _areaChannelTag = _areaChannelTag,
+                _layoutMode = _layoutMode,
                 _rows = _rows,
                 _columns = _columns,
                 _order = _order,

@@ -619,15 +619,28 @@ namespace Game.UI
             rect.anchorMin = instance.SizeState.AnchorMin;
             rect.anchorMax = instance.SizeState.AnchorMax;
             rect.pivot = instance.SizeState.Pivot;
+            rect.anchoredPosition3D = instance.SizeState.AnchoredPosition3D;
             rect.localRotation = instance.SizeState.LocalRotation;
             rect.localScale = instance.SizeState.LocalScale;
-            rect.sizeDelta = instance.SizeState.SizeDelta;
 
-            var rootLocalScale = ResolveRootScaleForVisualSize(
-                instance,
+            var desiredParentLocalSize = ResolveCanvasLocalSizeInParentLocal(
                 rangeSnapshot.CanvasRect,
+                instance.RootRect.parent,
                 size);
-            PrepareRootTransform(instance, rootLocalScale);
+
+            PrepareRootTransform(instance, instance.RootState.LocalScale);
+
+            var localScale = rect.localScale;
+            if (Mathf.Abs(localScale.x) > 0.0001f)
+                desiredParentLocalSize.x /= Mathf.Abs(localScale.x);
+            if (Mathf.Abs(localScale.y) > 0.0001f)
+                desiredParentLocalSize.y /= Mathf.Abs(localScale.y);
+
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(0f, desiredParentLocalSize.x));
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(0f, desiredParentLocalSize.y));
+
+            if (TryCaptureVisualGeometry(instance.RootRect, rect, out var visualGeometry))
+                instance.VisualGeometry = visualGeometry;
         }
 
         float ResolveBarSpanScale()
@@ -703,20 +716,6 @@ namespace Game.UI
             rect.localScale = localScale;
         }
 
-        static Vector3 ResolveRootScaleForVisualSize(
-            SliderScreenRuntimeInstance instance,
-            RectTransform canvasRect,
-            Vector2 canvasLocalSize)
-        {
-            var desiredParentLocalSize = ResolveCanvasLocalSizeInParentLocal(canvasRect, instance.RootRect.parent, canvasLocalSize);
-            var baseLocalSize = instance.VisualGeometry.LocalSize;
-            var baseRootScale = instance.RootState.LocalScale;
-            return new Vector3(
-                ResolveScaledAxis(baseRootScale.x, baseLocalSize.x, desiredParentLocalSize.x),
-                ResolveScaledAxis(baseRootScale.y, baseLocalSize.y, desiredParentLocalSize.y),
-                baseRootScale.z);
-        }
-
         static Vector3 ResolveRootLocalPositionForVisualCenter(
             Vector3 desiredCenterParentLocal,
             Quaternion localRotation,
@@ -731,15 +730,6 @@ namespace Game.UI
             var rootLocalPosition = desiredCenterParentLocal - rotatedOffset;
             rootLocalPosition.z = localZ;
             return rootLocalPosition;
-        }
-
-        static float ResolveScaledAxis(float baseRootScaleAxis, float baseVisualSizeAxis, float desiredSizeAxis)
-        {
-            var sign = baseRootScaleAxis < 0f ? -1f : 1f;
-            if (baseVisualSizeAxis <= 0.0001f)
-                return baseRootScaleAxis;
-
-            return sign * (Mathf.Max(0f, desiredSizeAxis) / baseVisualSizeAxis);
         }
 
         static bool TryCaptureVisualGeometry(Transform root, RectTransform visualRect, out SliderScreenVisualGeometry geometry)
@@ -829,8 +819,7 @@ namespace Game.UI
                     out _,
                     out var image) ||
                 visualTargetKind != SliderRuntimeVisualTargetKind.Image ||
-                image?.rectTransform == null ||
-                visualTransform is not RectTransform sizeRect)
+                image?.rectTransform == null)
             {
                 if (unitKind == SliderSpawnUnitKind.Background)
                 {
@@ -850,7 +839,7 @@ namespace Game.UI
                 return null;
             }
 
-            if (!TryCaptureVisualGeometry(root, sizeRect, out var visualGeometry))
+            if (!TryCaptureVisualGeometry(root, rootRect, out var visualGeometry))
             {
                 SliderRuntimeHelpers.ReleaseSpawnedRuntime(resolver);
                 return null;
@@ -864,8 +853,10 @@ namespace Game.UI
                     Scope = scopeNode,
                     Resolver = resolver,
                     BasePose = new SliderTransformPose(root),
-                    VisualTransform = sizeRect,
-                    VisualPose = new SliderTransformPose(sizeRect),
+                    VisualTransform = visualTransform,
+                    VisualPose = visualTransform != null
+                        ? new SliderTransformPose(visualTransform)
+                        : default,
                     VisualTargetKind = SliderRuntimeVisualTargetKind.Image,
                     Image = image,
                     ImageState = new SliderImageRenderState(image),
@@ -878,8 +869,8 @@ namespace Game.UI
                 },
                 RootRect = rootRect,
                 RootState = new SliderRectTransformState(rootRect),
-                SizeRect = sizeRect,
-                SizeState = new SliderRectTransformState(sizeRect),
+                SizeRect = rootRect,
+                SizeState = new SliderRectTransformState(rootRect),
                 VisualGeometry = visualGeometry,
             };
         }

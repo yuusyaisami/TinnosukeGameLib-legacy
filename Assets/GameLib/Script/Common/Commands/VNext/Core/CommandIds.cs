@@ -16,6 +16,7 @@ namespace Game.Commands.VNext
         public const int AdvanceWait = 1009;
         public const int WaitEvent = 1010;
         public const int Break = 1011;
+        public const int Trigger = 1012;
 
         public const int PlayAudio = 1100;
         public const int StopAudio = 1101;
