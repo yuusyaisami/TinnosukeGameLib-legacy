@@ -1395,7 +1395,7 @@ namespace Game
 
             scope.AllowPooling = true;
             go.SetActive(false);
-                if (_poolRoot != null && _poolRoot.gameObject.activeInHierarchy)
+            if (_poolRoot != null && _poolRoot.gameObject.activeInHierarchy)
             {
                 scope.transform.SetParent(_poolRoot, worldPositionStays: false);
             }
