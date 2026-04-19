@@ -630,11 +630,13 @@ namespace Game
             if (!this)
                 return;
 
+#if UNITY_EDITOR
             var parentNode = Parent;
             debugParent = ToScopeDebugName(parentNode);
             debugParentHasResolver = parentNode?.Resolver != null;
             debugParentBuildStatus = GetParentBuildStatus(parentNode);
             debugPath = GetPathStringFromRoot(this);
+#endif
 
             if (_destroyed)
                 debugBuildStatus = "Destroyed";
@@ -644,6 +646,7 @@ namespace Game
                 debugBuildStatus = "NotBuilt";
         }
 
+#if UNITY_EDITOR
         static string ToScopeDebugName(IScopeNode? node)
         {
             if (node == null)
@@ -704,6 +707,7 @@ namespace Game
                 return runtimeScope.IsBuilt ? "Built" : "NotBuilt";
             return "Unknown";
         }
+#endif
 
         // ---- ビルド API ----
 
