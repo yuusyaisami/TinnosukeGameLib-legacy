@@ -24,6 +24,9 @@ namespace Game.Channel
             GridObjectChannelResolvedItem item,
             CancellationToken ct)
         {
+            if (instance == null || instance.Root == null)
+                return;
+
             instance.UpdateFromItem(item);
             TransformGridSharedUtility.RefreshLayoutAndBounds(instance.Resolver);
             var targetLocal = TransformGridSharedUtility.ResolvePlacementLocalPosition(
@@ -43,6 +46,9 @@ namespace Game.Channel
             GridObjectChannelMotionPreset motion,
             CancellationToken ct)
         {
+            if (instance == null || instance.Root == null)
+                return;
+
             if (state.EnableVerboseLayoutLog)
             {
                 Debug.Log(
@@ -54,6 +60,9 @@ namespace Game.Channel
 
             if (motion == null || motion.DurationSeconds <= 0f)
             {
+                if (instance.Root == null)
+                    return;
+
                 TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, targetLocal, state.EnvironmentKind);
 
                 if (state.EnableVerboseLayoutLog)
@@ -111,6 +120,9 @@ namespace Game.Channel
                         try
                         {
                             await player.PlayStepAsync(motionTarget, step);
+                            if (instance.Root == null)
+                                return;
+
                             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, targetLocal, state.EnvironmentKind);
                         }
                         catch (OperationCanceledException)
@@ -144,6 +156,9 @@ namespace Game.Channel
             GridObjectChannelMotionPreset motion,
             CancellationToken ct)
         {
+            if (instance == null || instance.Root == null)
+                return;
+
             var start = instance.RootRect != null && state.EnvironmentKind == TransformGridEnvironmentKind.ScreenUI
                 ? instance.RootRect.anchoredPosition3D
                 : instance.Root.localPosition;
@@ -182,10 +197,16 @@ namespace Game.Channel
             Ease ease,
             CancellationToken ct)
         {
+            if (instance == null || instance.Root == null)
+                return;
+
             var elapsed = 0f;
             while (elapsed < duration)
             {
                 ct.ThrowIfCancellationRequested();
+                if (instance.Root == null)
+                    return;
+
                 elapsed += Time.unscaledDeltaTime;
                 var t = Mathf.Clamp01(elapsed / duration);
                 var eased = DOVirtual.EasedValue(0f, 1f, t, ease);
@@ -194,11 +215,17 @@ namespace Game.Channel
                 await UniTask.Yield(PlayerLoopTiming.Update, ct);
             }
 
+            if (instance.Root == null)
+                return;
+
             TransformGridSharedUtility.SetLocalPosition(instance.Root, instance.RootRect, targetLocal, state.EnvironmentKind);
         }
 
         static string DescribeLocalPosition(Transform root, RectTransform? rootRect)
         {
+            if (root == null)
+                return rootRect != null ? "anchored=(destroyed) local=(destroyed)" : "destroyed";
+
             return rootRect != null
                 ? $"anchored={rootRect.anchoredPosition3D} local={root.localPosition}"
                 : $"local={root.localPosition}";

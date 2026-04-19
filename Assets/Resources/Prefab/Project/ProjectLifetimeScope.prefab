@@ -145,6 +145,7 @@ MonoBehaviour:
     - rid: 5619052203458691773
     - rid: 6309418350403912174
     - rid: 5619052126883283135
+    - rid: 5399842784913653786
   progressCommands:
     _debugOwner: {fileID: 0}
     _debugFieldPath: 
@@ -362,6 +363,50 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0.5
+    - rid: 5399842784913653786
+      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        enabled: 1
+        data:
+          rid: 5399842784913653787
+    - rid: 5399842784913653787
+      type: {class: TimeScaleCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
+      data:
+        Kind: 1
+        Scale:
+          _source:
+            rid: 5399842784913653788
+          _defaultValue: 0
+        Mode: 0
+        Duration:
+          _source:
+            rid: -2
+          _defaultValue: 0
+        Ease: 6
+        UseTemporaryDuration: 0
+        TemporaryDurationSeconds:
+          _source:
+            rid: 5399842784913653789
+          _defaultValue: 0
+        TemporaryRestoreMode: 0
+        TemporaryRestoreTarget: 0
+        TemporaryRestoreScale:
+          _source:
+            rid: -2
+          _defaultValue: 0
+        TemporaryRestoreDurationSeconds:
+          _source:
+            rid: -2
+          _defaultValue: 0
+        TemporaryRestoreEase: 6
+    - rid: 5399842784913653788
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 1
+    - rid: 5399842784913653789
+      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        value: 0
     - rid: 5619052126883283135
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -525,22 +570,6 @@ MonoBehaviour:
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
-    - rid: 5619052366731149560
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052366731149561
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
-    - rid: 5619052366731149562
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 0
-    - rid: 5619052366731149563
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 1
     - rid: 5619052366731149564
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -627,7 +656,6 @@ MonoBehaviour:
           _commands:
           - rid: 6309418350403912176
           - rid: 6309418350403912178
-          - rid: 6309418350403912180
         OnUnmatched:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -912,168 +940,6 @@ MonoBehaviour:
             _source:
               rid: 5399842768618783372
             _defaultValue: 0
-    - rid: 6309418350403912180
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 6309418350403912181
-    - rid: 6309418350403912181
-      type: {class: TextChannelCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        ChannelTag: default
-        Mode: 0
-        AwaitMode: 0
-        Action: 0
-        ApplyText: 0
-        Text:
-          _source:
-            rid: 7292586905691226283
-          _defaultValue: 
-        PlayMode: 0
-        StyleCommand:
-          Enabled: 0
-          Mode: 0
-          Override:
-            ApplyFontStyle: 0
-            FontStyle: 0
-            ApplyFontSize: 0
-            FontSize: 36
-            ApplyVertexColor: 0
-            VertexColor: {r: 1, g: 1, b: 1, a: 1}
-            ApplyColorGradient: 0
-            EnableColorGradient: 0
-            ColorGradientPreset: {fileID: 0}
-            ApplyCharacterSpacing: 0
-            CharacterSpacing: 0
-            ApplyWordSpacing: 0
-            WordSpacing: 0
-            ApplyLineSpacing: 0
-            LineSpacing: 0
-            ApplyParagraphSpacing: 0
-            ParagraphSpacing: 0
-            ApplyAlignment: 0
-            Alignment: 257
-            ApplyWordWrapping: 0
-            EnableWordWrapping: 1
-            ApplyOverflow: 0
-            Overflow: 0
-        WaitForTypewriterComplete: 0
-        ApplyTypewriterEventCommands: 0
-        TypewriterEventCommands:
-          OnTypewriterStart:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnTextShowed:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnTextDisappeared:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnCharacterVisible:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnCharacterWaitStarted:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnCharacterWaitFinished:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-          OnMessage:
-            Apply: 0
-            Operation: 0
-            Commands:
-              _debugOwner: {fileID: 0}
-              _debugFieldPath: 
-              _debugAssetPath: 
-              _functionName: 
-              _commands: []
-        TextSettings:
-          UseCounter: 0
-          CounterEase: 6
-          CounterDurationSeconds: 0.5
-          CounterUseUnscaledTime: 0
-          FixedIntegerDigits: 0
-          DecimalDigits: 0
-          ShowPlusSign: 0
-          UseThousandsSeparator: 0
-          RoundingMode: 0
-        OverrideCountStartValue: 0
-        CountStartValue:
-          _source:
-            rid: -2
-          _defaultValue: 0
-        EnableDynamicBind: 0
-        DynamicBindPlayMode: 10
-        DynamicBindCounterSettings:
-          UseCounter: 0
-          CounterEase: 6
-          CounterDurationSeconds: 0.5
-          CounterUseUnscaledTime: 0
-          FixedIntegerDigits: 0
-          DecimalDigits: 0
-          ShowPlusSign: 0
-          UseThousandsSeparator: 0
-          RoundingMode: 0
-        Visible: 1
-        AnimationPreset:
-          rid: 6309418350403912182
-        ApplyMaterialFx: 1
-        MaterialFxSource:
-          _source:
-            rid: 7292586905691226284
-          _defaultValue:
-            ContextTag: default
-            ClearContextFirst: 0
-            Priority: 0
-            Entries: []
-        ApplyFontSize: 0
-        FontSize:
-          _source:
-            rid: 5619052366731149560
-          _defaultValue: 0
-    - rid: 6309418350403912182
-      type: {class: TextAnimationPreset, ns: Game.Channel, asm: Assembly-CSharp}
-      data:
-        loop: 0
-        loopCount: -1
-        steps: []
     - rid: 6309418350403912183
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -1576,43 +1442,6 @@ MonoBehaviour:
         loop: 0
         loopCount: -1
         steps: []
-    - rid: 7292586905691226283
-      type: {class: LiteralStringSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 
-    - rid: 7292586905691226284
-      type: {class: LiteralMaterialFxPayloadSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value:
-          ContextTag: default
-          ClearContextFirst: 0
-          Priority: 0
-          Entries:
-          - Key: BaseShader/AdvancedFade2D/FadeAmount
-            Value:
-              Type: 0
-              Float:
-                _source:
-                  rid: 5619052366731149561
-                _defaultValue: 0
-              Int: 0
-              Float2: {x: 0, y: 0}
-              Float3: {x: 0, y: 0, z: 0}
-              Float4: {x: 0, y: 0, z: 0, w: 0}
-              Color: {r: 0, g: 0, b: 0, a: 0}
-              Texture: {fileID: 0}
-            BlendMode: 0
-            LifetimeSeconds: 0
-            ApplyWeightFade: 1
-            TargetWeight:
-              _source:
-                rid: 5619052366731149562
-              _defaultValue: 0
-            FadeDuration:
-              _source:
-                rid: 5619052366731149563
-              _defaultValue: 0
-            FadeEase: 3
     - rid: 7292586905691226285
       type: {class: LiteralAnimationSpritePresetSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2222,7 +2051,7 @@ MonoBehaviour:
   id: ProjectLTS
   category: 
   initiallyActive: 1
-  timeScaleBehavior: 0
+  timeScaleBehavior: 1
   registerToDynamicRegistry: 1
   radius: 0
 --- !u!114 &7008618246205835164
@@ -2257,7 +2086,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
-  enableDebugView: 0
+  enableDebugView: 1
   _debugView:
     queryKey: 
     queryVarId: 0
@@ -2505,158 +2334,10 @@ MonoBehaviour:
   adaptiveGpuLowMs: 13.5
   adaptiveScaleStep: 0.05
   adaptiveChangeCooldownSeconds: 0.4
-  customDebugButtons:
-  - binding: 9
-    displayName: SetStartPoint
-    executeCommandOnPress: 1
-    commands:
-      _debugOwner: {fileID: 0}
-      _debugFieldPath: 
-      _debugAssetPath: 
-      _functionName: 
-      _commands:
-      - rid: 5619052253730046474
+  customDebugButtons: []
   references:
     version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 5619052253730046472
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052253730046473
-    - rid: 5619052253730046473
-      type: {class: WriteDataCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        Source:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        Target:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        VarOps:
-        - Target: 1
-          Key:
-            stableKey: startCheckPoint
-            varId: 248
-          Op: 0
-          StoreMode: 0
-          Value:
-            _source:
-              rid: 5619052253730046476
-        ScalarOps: []
-        DebugMode: 0
-        Debug:
-          LogLevel: 10
-          Prefix: '[WriteDataDebug]'
-          IncludeCommandSummary: 1
-          IncludeOpIndex: 1
-          Vars:
-            Enabled: 1
-            LogSuccess: 1
-            LogFailure: 1
-            IncludeInputValue: 1
-            IncludeBeforeValue: 1
-            IncludeAfterValue: 1
-            IncludeVarKey: 1
-            IncludeScope: 1
-          Scalars:
-            Enabled: 1
-            LogSuccess: 1
-            LogFailure: 1
-            IncludeInputValue: 1
-            IncludeBeforeValue: 1
-            IncludeAfterValue: 1
-            IncludeScalarKey: 1
-            IncludeScope: 1
-            IncludeLayer: 1
-            IncludeDuration: 1
-            IncludeTag: 1
-    - rid: 5619052253730046474
-      type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        enabled: 1
-        data:
-          rid: 5619052253730046475
-    - rid: 5619052253730046475
-      type: {class: WithActorCommandData, ns: Game.Commands.VNext, asm: Assembly-CSharp}
-      data:
-        ActorSource:
-          Kind: 3
-          Identity:
-            kind: 3
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        CheckSelfIdentityFilter: 0
-        SelfIdentityFilter:
-          kind: 0
-          id: 
-          category: 
-          requireActive: 0
-          searchScope: 0
-        UseDescendantFilter: 0
-        DescendantFilter:
-          Kind: 0
-          Identity:
-            kind: 0
-            id: 
-            category: 
-            requireActive: 0
-            searchScope: 0
-          UnityObject: {fileID: 0}
-          Shared:
-            rid: -2
-          ContextSlot: 0
-          TargetChannel:
-            rid: -2
-        VarsPolicy: 0
-        AwaitMode: 0
-        ExecutionScope: 0
-        StoreActorToContext: 0
-        ActorContextSlot: 100
-        Body:
-          _debugOwner: {fileID: 0}
-          _debugFieldPath: 
-          _debugAssetPath: 
-          _functionName: 
-          _commands:
-          - rid: 5619052253730046472
-    - rid: 5619052253730046476
-      type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        value: 200
+    RefIds: []
 --- !u!1 &6007509610324035756
 GameObject:
   m_ObjectHideFlags: 0

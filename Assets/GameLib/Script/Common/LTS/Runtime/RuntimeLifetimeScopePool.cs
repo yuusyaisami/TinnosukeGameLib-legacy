@@ -1283,7 +1283,7 @@ namespace Game
                 scope.AllowPooling = true;
 
                 go.SetActive(false);
-                if (_poolRoot != null)
+                if (_poolRoot != null && _poolRoot.gameObject.activeInHierarchy)
                 {
                     scope.transform.SetParent(_poolRoot, worldPositionStays: false);
                 }
@@ -1316,7 +1316,7 @@ namespace Game
                     return;
                 }
 
-                if (_poolRoot != null)
+                if (_poolRoot != null && _poolRoot.gameObject.activeInHierarchy)
                 {
                     // Deactivate first to avoid Unity errors when reparenting during parent activation/deactivation.
                     go.SetActive(false);
@@ -1395,7 +1395,7 @@ namespace Game
 
             scope.AllowPooling = true;
             go.SetActive(false);
-            if (_poolRoot != null)
+                if (_poolRoot != null && _poolRoot.gameObject.activeInHierarchy)
             {
                 scope.transform.SetParent(_poolRoot, worldPositionStays: false);
             }
