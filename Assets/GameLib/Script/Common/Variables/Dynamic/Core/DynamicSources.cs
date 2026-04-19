@@ -1516,7 +1516,15 @@ namespace Game.Common
         public ActorSource TargetActor => targetActor;
 
         public string SourceTypeName => "OtherBlackboard";
-        public string GetDebugData => VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)";
+        public string GetDebugData
+        {
+            get
+            {
+                var keyLabel = VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)";
+                var targetLabel = ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActor);
+                return $"Key={keyLabel} ReadScope={readScope} Target={targetLabel} Fallback={fallback}";
+            }
+        }
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {

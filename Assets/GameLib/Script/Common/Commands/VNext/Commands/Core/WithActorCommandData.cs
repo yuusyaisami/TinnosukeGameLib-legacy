@@ -91,6 +91,14 @@ namespace Game.Commands.VNext
         DescendantsOnly = 2,
     }
 
+    public enum WithActorContextSlot
+    {
+        ContextA = 100,
+        ContextB = 110,
+        ContextC = 120,
+        ContextD = 130,
+    }
+
     public enum VarsPolicy
     {
         Inherit = 0,
@@ -107,7 +115,8 @@ namespace Game.Commands.VNext
             {
                 var actorLabel = ActorSourceOdinLabelHelper.GetLabel("Actor", ActorSource);
                 var bodyCount = Body?.Count ?? 0;
-                return $"{actorLabel} Scope={ExecutionScope} Await={AwaitMode} Body={bodyCount}";
+                var actorContextLabel = StoreActorToContext ? $" CallerCtx={ActorContextSlot}" : string.Empty;
+                return $"{actorLabel} Scope={ExecutionScope} Await={AwaitMode} Body={bodyCount}{actorContextLabel}";
             }
         }
 
@@ -144,6 +153,17 @@ namespace Game.Commands.VNext
         [LabelText("Execution Scope")]
         [EnumToggleButtons]
         public WithActorExecutionScope ExecutionScope = WithActorExecutionScope.ActorOnly;
+
+        [BoxGroup("Context")]
+        [ToggleLeft]
+        [LabelText("Store Caller Actor To Context")]
+        public bool StoreActorToContext;
+
+        [BoxGroup("Context")]
+        [ShowIf(nameof(StoreActorToContext))]
+        [LabelText("Caller Context Slot")]
+        [EnumToggleButtons]
+        public WithActorContextSlot ActorContextSlot = WithActorContextSlot.ContextA;
 
         [LabelText("Body")]
         public CommandListData Body = new();

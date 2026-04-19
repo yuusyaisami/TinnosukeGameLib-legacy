@@ -76,9 +76,9 @@ namespace Game.Commands.VNext
         [ShowIf(nameof(UsesSwapPlayerPreset))]
         [LabelText("Player Preset")]
         [Tooltip("current player preset をこの preset に完全差し替えします。")]
-        public DynamicValue<ButtonPlayerPreset> PlayerPreset =
-            DynamicValue<ButtonPlayerPreset>.FromSource(
-                new ManagedRefLiteralSource<ButtonPlayerPreset>(new ButtonPlayerPreset()));
+        public DynamicValue<ButtonPlayerPresetBase> PlayerPreset =
+            DynamicValue<ButtonPlayerPresetBase>.FromSource(
+                new ManagedRefLiteralSource<ButtonPlayerPresetBase>(new ButtonPlayerPreset()));
 
         [BoxGroup("Mutate Input")]
         [ShowIf(nameof(UsesInputMutation))]

@@ -14,6 +14,12 @@ namespace Game.UI
         ColumnMajor = 20,
     }
 
+    public enum TraitListChannelLayoutMode
+    {
+        FixedGrid = 10,
+        AutoFit = 20,
+    }
+
     public enum TraitListChannelHorizontalAlignment
     {
         Left = 10,

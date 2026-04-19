@@ -404,4 +404,90 @@ namespace Game.UI
             return false;
         }
     }
+
+    internal sealed class GameRootButtonChannelInteractionAdapter : IButtonChannelInteractionAdapter, IInputConsumer
+    {
+        readonly IInputRouter _inputRouter;
+        readonly Func<ButtonChannelInteractionSignal, bool> _dispatch;
+
+        bool _isRegistered;
+
+        public GameRootButtonChannelInteractionAdapter(
+            IInputRouter inputRouter,
+            Func<ButtonChannelInteractionSignal, bool> dispatch)
+        {
+            _inputRouter = inputRouter ?? throw new ArgumentNullException(nameof(inputRouter));
+            _dispatch = dispatch ?? throw new ArgumentNullException(nameof(dispatch));
+        }
+
+        public ButtonChannelAdapterKind AdapterKind => ButtonChannelAdapterKind.GameRoot;
+        public bool IsAvailable => _isRegistered;
+        public bool IsSelected => false;
+        public bool IsHovered => false;
+        public bool AllowsDirectPointerPressWithoutSelection => true;
+        public IUIElementState? ElementState => null;
+        public InputConsumerPriority Priority => InputConsumerPriority.UIOverlay;
+
+        public void OnAcquire(IScopeNode scope, bool isReset)
+        {
+            _ = scope;
+            _ = isReset;
+            if (_isRegistered)
+                return;
+
+            _inputRouter.RegisterConsumer(this);
+            _isRegistered = true;
+        }
+
+        public void OnRelease(IScopeNode scope, bool isReset)
+        {
+            _ = scope;
+            _ = isReset;
+            if (!_isRegistered)
+                return;
+
+            _inputRouter.UnregisterConsumer(this);
+            _isRegistered = false;
+        }
+
+        public void Tick()
+        {
+        }
+
+        public void SetBlockMask(UISelectionBlockMask mask)
+        {
+            _ = mask;
+        }
+
+        public void UpdateInput(ref InputFrame frame)
+        {
+            DispatchButton(frame.Submit, ButtonChannelInteractionAction.UiSubmit, frame.DeltaTime, frame.PointerScreen);
+            DispatchButton(frame.Cancel, ButtonChannelInteractionAction.UiCancel, frame.DeltaTime, frame.PointerScreen);
+            DispatchButton(frame.Attack, ButtonChannelInteractionAction.UiAttack, frame.DeltaTime, frame.PointerScreen);
+            DispatchButton(frame.Interact, ButtonChannelInteractionAction.UiInteract, frame.DeltaTime, frame.PointerScreen);
+            DispatchButton(frame.Pause, ButtonChannelInteractionAction.UiPause, frame.DeltaTime, frame.PointerScreen);
+            DispatchButton(frame.Retry, ButtonChannelInteractionAction.UiRetry, frame.DeltaTime, frame.PointerScreen);
+        }
+
+        void DispatchButton(ButtonState state, ButtonChannelInteractionAction action, float deltaTime, Vector2 pointerPosition)
+        {
+            if (state.Down)
+                _dispatch(new ButtonChannelInteractionSignal(action, ButtonChannelInteractionSignalPhase.Down, deltaTime, pointerPosition));
+
+            if (state.Held)
+                _dispatch(new ButtonChannelInteractionSignal(action, ButtonChannelInteractionSignalPhase.Held, deltaTime, pointerPosition));
+
+            if (state.Up)
+                _dispatch(new ButtonChannelInteractionSignal(action, ButtonChannelInteractionSignalPhase.Up, deltaTime, pointerPosition));
+        }
+
+        public void Dispose()
+        {
+            if (!_isRegistered)
+                return;
+
+            _inputRouter.UnregisterConsumer(this);
+            _isRegistered = false;
+        }
+    }
 }

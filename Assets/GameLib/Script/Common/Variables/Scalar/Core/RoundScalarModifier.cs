@@ -1,4 +1,5 @@
 using System;
+using Game.Common;
 using UnityEngine;
 
 namespace Game.Scalar
@@ -36,7 +37,14 @@ namespace Game.Scalar
 
         public void OnAfterEvaluate(ref ScalarGetContext ctx)
         {
-            ctx.Value = (float)Math.Round(ctx.Value, _digits, MidpointRounding.AwayFromZero);
+            if (_digits <= 0)
+            {
+                ctx.Value = DynamicVariant.NormalizeFloatValue(Mathf.Round(ctx.Value));
+                return;
+            }
+
+            var factor = Mathf.Pow(10f, _digits);
+            ctx.Value = DynamicVariant.NormalizeFloatValue(Mathf.Round(ctx.Value * factor) / factor);
         }
 
         static int NormalizeDigits(int digits)

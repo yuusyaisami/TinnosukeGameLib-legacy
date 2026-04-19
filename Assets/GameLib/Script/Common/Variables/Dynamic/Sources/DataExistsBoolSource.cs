@@ -62,7 +62,18 @@ namespace Game.Common
                 var keyLabel = storeType == DataExistsStoreType.Scalar
                     ? scalarKey.ToString()
                     : GetVarKeyDebugLabel();
-                return $"Store={storeType} Key={keyLabel} Kind={expectedKind}";
+                var debug = $"Store={storeType} Key={keyLabel} Kind={expectedKind}";
+
+                if (UsesBlackboard)
+                {
+                    debug += $" ReadScope={blackboardReadScope} Target={ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)}";
+                }
+                else if (UsesScalar)
+                {
+                    debug += $" SearchGlobal={searchIncludeGlobal} Target={ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)}";
+                }
+
+                return debug;
             }
         }
 

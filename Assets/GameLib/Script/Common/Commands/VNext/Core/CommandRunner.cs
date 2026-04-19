@@ -217,7 +217,8 @@ namespace Game.Commands.VNext
                 catch (Exception ex)
                 {
                     var listInfo = BuildListInfo(i, listLabel, listFunctionName);
-                    _logger.LogResolveFailed(source, $"Command source threw: {ex.GetType().Name} | {listInfo}");
+                    var contextInfo = BuildExecutionContextDescription(effectiveCtx, null, source);
+                    _logger.LogResolveFailed(source, $"Command source threw: {ex.GetType().Name} | {contextInfo} | {listInfo}");
                     var info = CommandExceptionInfo.FromException(ex, includeStackTrace: ShouldIncludeStackTrace(normalized));
                     var fail = HandleFailure(CommandRunFailureKind.Exception, i, ex.Message, info);
                     if (fail.IsTerminated)
@@ -228,7 +229,8 @@ namespace Game.Commands.VNext
                 if (!resolved || data == null)
                 {
                     var listInfo = BuildListInfo(i, listLabel, listFunctionName);
-                    _logger.LogResolveFailed(source, $"Command source failed to resolve. | {listInfo}");
+                    var contextInfo = BuildExecutionContextDescription(effectiveCtx, null, source);
+                    _logger.LogResolveFailed(source, $"Command source failed to resolve. {contextInfo} | {listInfo}");
                     var sourceName = source?.DebugName ?? "<null>";
                     var fail = HandleFailure(
                         CommandRunFailureKind.ResolveFailed,
@@ -457,18 +459,53 @@ namespace Game.Commands.VNext
             _defaultVarsPayload?.ApplyTo(_runnerVars, overwrite: true);
         }
 
-        static string BuildExecutionContextDescription(CommandContext ctx, ICommandData data, ICommandSource? source)
+        static string BuildExecutionContextDescription(CommandContext ctx, ICommandData? data, ICommandSource? source)
         {
             var actor = CommandExecutionTrace.DescribeScope(ctx.Actor);
             var scope = CommandExecutionTrace.DescribeScope(ctx.Scope);
+            var commandRoot = CommandExecutionTrace.DescribeScope(ctx.CommandRootScope);
+            var rootActor = CommandExecutionTrace.DescribeScope(ctx.RootActor);
+            var callerActor = CommandExecutionTrace.DescribeScope(ctx.CallerActor);
             var sourceName = source?.DebugName ?? "<null>";
-            var commandName = GetCommandDisplayName(data);
+            var commandName = data != null ? GetCommandDisplayName(data) : "<unresolved>";
             var commandId = data?.CommandId ?? -1;
             var debugData = data?.DebugData ?? string.Empty;
-            if (string.IsNullOrEmpty(debugData))
-                return $"Actor={actor} Scope={scope} Source={sourceName} Cmd={commandName}(Id={commandId})";
 
-            return $"Actor={actor} Scope={scope} Source={sourceName} Cmd={commandName}(Id={commandId}) CmdData={debugData}";
+            var sb = new StringBuilder();
+            sb.Append($"Actor={actor} Scope={scope} CommandRoot={commandRoot} RootActor={rootActor} CallerActor={callerActor} Source={sourceName} Cmd={commandName}(Id={commandId})");
+
+            if (!string.IsNullOrEmpty(debugData))
+                sb.Append(" CmdData=").Append(debugData);
+
+            var slotsInfo = BuildContextSlotsDescription(ctx);
+            if (!string.IsNullOrEmpty(slotsInfo))
+                sb.Append('\n').Append(slotsInfo);
+
+            return sb.ToString();
+        }
+
+        static string BuildContextSlotsDescription(CommandContext ctx)
+        {
+            var sb = new StringBuilder();
+            AppendContextSlot(sb, ctx, CommandLtsSlot.ContextA);
+            AppendContextSlot(sb, ctx, CommandLtsSlot.ContextB);
+            AppendContextSlot(sb, ctx, CommandLtsSlot.ContextC);
+            AppendContextSlot(sb, ctx, CommandLtsSlot.ContextD);
+
+            if (sb.Length == 0)
+                return string.Empty;
+
+            sb.Insert(0, "ContextSlots:");
+            return sb.ToString();
+        }
+
+        static void AppendContextSlot(StringBuilder sb, CommandContext ctx, CommandLtsSlot slot)
+        {
+            var scope = ctx.GetScope(slot);
+            if (scope == null)
+                return;
+
+            sb.Append(' ').Append(slot).Append('=').Append(CommandExecutionTrace.DescribeScope(scope));
         }
 
         static CommandExecutionTraceSnapshot BuildExecutionTraceSnapshot(

@@ -177,7 +177,7 @@ namespace Game.Commands.VNext
             CommandContext ctx)
         {
             var dynamicContext = new SimpleDynamicContext(ctx.Vars ?? NullVarStore.Instance, targetScope);
-            if (!typed.PlayerPreset.TryGet(dynamicContext, out ButtonPlayerPreset? preset) || preset == null)
+            if (!typed.PlayerPreset.TryGet(dynamicContext, out ButtonPlayerPresetBase? preset) || preset == null)
                 throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "ButtonChannel player preset could not be resolved.");
 
             if (!control.SwapPlayerPreset(preset))

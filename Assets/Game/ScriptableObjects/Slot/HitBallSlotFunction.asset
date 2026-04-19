@@ -141,7 +141,8 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: SlotMul * AllSlotMul * BallValueMul * (Value+BallValueAdd)
+        _expression: Round(SlotMul * AllSlotMul * BallValueMul * (Value+BallValueAdd),
+          2)
     - rid: 5399842757933269677
       type: {class: VarStoreSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -262,7 +263,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: BallValueMul * (Value + BallValueAdd)
+        _expression: Round(BallValueMul * (Value + BallValueAdd), 2)
     - rid: 5399842757933269683
       type: {class: OtherScalarSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -414,7 +415,7 @@ MonoBehaviour:
           Key:
             stableKey: ScoreTotalValue
             varId: 200022
-          Op: 0
+          Op: 2
           StoreMode: 0
           Value:
             _source:
@@ -652,7 +653,8 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: SlotMul * AllSlotMul * BallValueMul * (Value+BallValueAdd)
+        _expression: Round(SlotMul * AllSlotMul * BallValueMul * (Value+BallValueAdd),
+          2)
     - rid: 5619052672271777992
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -705,7 +707,8 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: SlotMul * AllSlotMul * BallValueMul * (Value+BallValueAdd)
+        _expression: Round(SlotMul * AllSlotMul * BallValueMul * (Value+BallValueAdd),
+          2)
     - rid: 5619052672271777996
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -1235,7 +1238,8 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _template: '{SlotMul * BallValueMul * AllSlotMul * (Value+BallValueAdd)|sign=always}'
+        _template: '{Round(SlotMul * BallValueMul * AllSlotMul * (Value+BallValueAdd),
+          2)|sign=always}'
     - rid: 5619052672271778018
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
@@ -2120,7 +2124,7 @@ MonoBehaviour:
           _useCustomKey: 0
           _customKey: 
           _expectedType: 255
-        _expression: SlotMul * BallValueMul * (Value+BallValueAdd)
+        _expression: Round(SlotMul * BallValueMul * (Value+BallValueAdd), 2)
     - rid: 5619052686853013720
       type: {class: LiteralFloatSource, ns: Game.Common, asm: Assembly-CSharp}
       data:

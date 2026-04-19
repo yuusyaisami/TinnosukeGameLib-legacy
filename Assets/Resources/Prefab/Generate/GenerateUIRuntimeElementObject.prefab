@@ -145,6 +145,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2db65ab549f514fa91128d8cedd447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Commands.CommandRunnerMB
+  _sharedLtsChannelHubDebugViewer:
+    autoRefreshEveryNFrames: 1
   _defaultVars:
     entries: []
     tables: []
@@ -249,7 +251,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &5265970239230943650
 GameObject:
   m_ObjectHideFlags: 0

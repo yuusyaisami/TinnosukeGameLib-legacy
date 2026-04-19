@@ -1318,12 +1318,27 @@ namespace Game
 
                 if (_poolRoot != null)
                 {
+                    // Deactivate first to avoid Unity errors when reparenting during parent activation/deactivation.
+                    go.SetActive(false);
+
+                    var currentParent = scope.transform.parent;
+                    if (currentParent != null && !currentParent.gameObject.activeInHierarchy)
+                    {
+                        // The current hierarchy is already shutting down, so keeping the object in place avoids
+                        // Unity's reparent guard. The pool entry will be discarded naturally if the hierarchy is destroyed.
+                        scope.SetExplicitBuildParent(_buildParent);
+                        return;
+                    }
+
                     scope.transform.SetParent(_poolRoot, worldPositionStays: false);
+                }
+                else
+                {
+                    go.SetActive(false);
                 }
 
                 // Reset build parent to default to avoid keeping stale runtime parent links in the pool.
                 scope.SetExplicitBuildParent(_buildParent);
-                go.SetActive(false);
             }
 
             pool = new ObjectPool<RuntimeLifetimeScope>(

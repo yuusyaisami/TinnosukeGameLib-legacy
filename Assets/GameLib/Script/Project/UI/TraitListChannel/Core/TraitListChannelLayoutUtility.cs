@@ -24,12 +24,13 @@ namespace Game.UI
             public string DisplayKey { get; }
         }
 
-        public static int GetCapacity(TraitListChannelLayoutPreset preset)
+        public static int GetCapacity(TraitListChannelLayoutPreset preset, Rect layoutRect, Vector2 itemSize)
         {
             if (preset == null)
                 return 0;
 
-            return Mathf.Max(1, preset.Rows) * Mathf.Max(1, preset.Columns);
+            var (rows, columns) = ResolveLayoutDimensions(preset, layoutRect, itemSize);
+            return rows * columns;
         }
 
         public static bool TryBuildSlots(
@@ -40,6 +41,8 @@ namespace Game.UI
             TraitListChannelRange range,
             bool mergeDuplicateTraitDefinitions,
             TraitListChannelLayoutPreset preset,
+            Rect layoutRect,
+            Vector2 itemSize,
             out List<TraitListChannelSlot> slots,
             out TraitListChannelRange normalizedRange,
             out string? error)
@@ -56,7 +59,8 @@ namespace Game.UI
 
             var displayTraits = BuildDisplayTraits(traits, mergeDuplicateTraitDefinitions);
             var totalCount = displayTraits.Count;
-            var capacity = GetCapacity(preset);
+            var (rows, columns) = ResolveLayoutDimensions(preset, layoutRect, itemSize);
+            var capacity = rows * columns;
             if (capacity <= 0)
             {
                 error = "Layout capacity is 0.";
@@ -92,7 +96,7 @@ namespace Game.UI
                     break;
 
                 var entry = displayTraits[traitIndex];
-                var (row, column) = ResolveRowColumn(preset.Order, listIndex, preset.Rows, preset.Columns);
+                var (row, column) = ResolveRowColumn(preset.Order, listIndex, rows, columns);
                 slots.Add(new TraitListChannelSlot
                 {
                     Trait = entry.Trait,
@@ -113,6 +117,33 @@ namespace Game.UI
             }
 
             return true;
+        }
+
+        static (int rows, int columns) ResolveLayoutDimensions(
+            TraitListChannelLayoutPreset preset,
+            Rect layoutRect,
+            Vector2 itemSize)
+        {
+            if (preset.LayoutMode == TraitListChannelLayoutMode.AutoFit)
+            {
+                var fitColumns = ResolveFitCount(layoutRect.width, itemSize.x, preset.ColumnSpacing);
+                var fitRows = ResolveFitCount(layoutRect.height, itemSize.y, preset.RowSpacing);
+                return (fitRows, fitColumns);
+            }
+
+            return (Mathf.Max(1, preset.Rows), Mathf.Max(1, preset.Columns));
+        }
+
+        static int ResolveFitCount(float availableExtent, float itemExtent, float spacing)
+        {
+            var safeItemExtent = Mathf.Max(0f, itemExtent);
+            var safeSpacing = Mathf.Max(0f, spacing);
+            var step = safeItemExtent + safeSpacing;
+            if (step <= 0f)
+                return 1;
+
+            var count = Mathf.FloorToInt((Mathf.Max(0f, availableExtent) + safeSpacing) / step);
+            return Mathf.Max(1, count);
         }
 
         static List<TraitDisplayEntry> BuildDisplayTraits(IReadOnlyList<ITraitInstance> traits, bool mergeDuplicateTraitDefinitions)

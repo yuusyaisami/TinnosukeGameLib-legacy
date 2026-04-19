@@ -2950,7 +2950,7 @@ MonoBehaviour:
   _debugSetCountPlayerBullet: 0
   _debugSetCountEnemyBullet: 0
   _debugColliderEnabled: 1
-  _debugLastEnabledChangeFrame: 3834
+  _debugLastEnabledChangeFrame: 1025
   _debugLastEnabledChangeReason: CaptureInitialColliderEnabledState
   _debugLastRegistrationEvent: 
 --- !u!114 &6716318532173660140
@@ -23832,7 +23832,7 @@ MonoBehaviour:
         enabled: 1
         function:
           _source:
-            rid: 5399842757933269929
+            rid: 5399842768618783076
           _defaultValue:
             Commands:
               _debugOwner: {fileID: 0}
@@ -23841,15 +23841,6 @@ MonoBehaviour:
               _functionName: 
               _commands: []
         initialVars: []
-    - rid: 5399842757933269929
-      type: {class: SelfBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
-      data:
-        blackboardId: 101183
-        readScope: 0
-        fallback: 0
-        fallbackInitialValue:
-          _source:
-            rid: -2
     - rid: 5399842763271045157
       type: {class: InlineCommandSource, ns: Game.Commands.VNext, asm: Assembly-CSharp}
       data:
@@ -23898,6 +23889,8 @@ MonoBehaviour:
         VarsPolicy: 0
         AwaitMode: 0
         ExecutionScope: 0
+        StoreActorToContext: 1
+        ActorContextSlot: 120
         Body:
           _debugOwner: {fileID: 0}
           _debugFieldPath: 
@@ -23921,6 +23914,29 @@ MonoBehaviour:
           Shared:
             rid: -2
           ContextSlot: 0
+          TargetChannel:
+            rid: -2
+    - rid: 5399842768618783076
+      type: {class: OtherBlackboardSource, ns: Game.Common, asm: Assembly-CSharp}
+      data:
+        blackboardId: 101183
+        readScope: 0
+        fallback: 0
+        fallbackInitialValue:
+          _source:
+            rid: -2
+        targetActor:
+          Kind: 10
+          Identity:
+            kind: 0
+            id: 
+            category: 
+            requireActive: 0
+            searchScope: 0
+          UnityObject: {fileID: 0}
+          Shared:
+            rid: -2
+          ContextSlot: 120
           TargetChannel:
             rid: -2
 --- !u!114 &-5838268372193102072

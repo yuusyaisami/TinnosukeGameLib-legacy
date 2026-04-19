@@ -340,6 +340,16 @@ namespace Game.Common
                 storeValue = coercedValue;
             }
 
+            if (storeValue.Kind == ValueKind.Float ||
+                storeValue.Kind == ValueKind.Vector2 ||
+                storeValue.Kind == ValueKind.Vector3 ||
+                storeValue.Kind == ValueKind.Vector4 ||
+                storeValue.Kind == ValueKind.Color ||
+                storeValue.Kind == ValueKind.Matrix2x2)
+            {
+                storeValue = DynamicVariant.NormalizeValue(storeValue);
+            }
+
             if (hasExpectedKind && expectedKind != storeValue.Kind)
             {
                 Debug.LogError($"[VarStore.TrySetVariant] varId={varId}: CRITICAL! After coercion, expectedKind={expectedKind} but storeValue.Kind={storeValue.Kind}. This should not happen!");

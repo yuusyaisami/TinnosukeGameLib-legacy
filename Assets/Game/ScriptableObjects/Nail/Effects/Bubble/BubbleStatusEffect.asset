@@ -1025,14 +1025,14 @@ MonoBehaviour:
     - rid: 5619052366731149464
       type: {class: ConfigurableStatusEffectDefinitionData, ns: Game.StatusEffect, asm: Assembly-CSharp}
       data:
-        definitionId: Bounce
+        definitionId: Bubble
         defaultRuntimeTag: 
         visualData:
           DisplayName:
             Template: "\u30D0\u30D6\u30EB"
             Variables: []
           Description:
-            Template: "<sprite=22>\u500D\u7387 x{BubbleMul|fixed=1}/\n<sprite=22>\u6642\u9593
+            Template: "<sprite=22>\u500D\u7387 x{BubbleMul|fixed=2}/\n<sprite=22>\u6642\u9593
               {BubbleDuration}s"
             Variables:
             - _value:

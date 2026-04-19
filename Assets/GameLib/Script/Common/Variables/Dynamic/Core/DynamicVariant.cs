@@ -238,6 +238,64 @@ namespace Game.Common
             return new(ValueKind.ManagedRef, 0, null, default, null, value);
         }
 
+        internal static float NormalizeFloatValue(float value)
+        {
+            if (float.IsInfinity(value) || float.IsNaN(value))
+                return value;
+
+            const float threshold = 0.000001f;
+            for (int digits = 0; digits <= 6; digits++)
+            {
+                float factor = Mathf.Pow(10f, digits);
+                float scaled = value * factor;
+                float rounded = Mathf.Round(scaled);
+                if (Mathf.Abs(scaled - rounded) <= threshold)
+                    return rounded / factor;
+            }
+
+            return value;
+        }
+
+        internal static DynamicVariant NormalizeValue(DynamicVariant variant)
+        {
+            switch (variant.Kind)
+            {
+                case ValueKind.Float:
+                    return FromFloat(NormalizeFloatValue(variant.AsFloat));
+                case ValueKind.Vector2:
+                {
+                    var v = variant.AsVector2;
+                    return FromVector2(new Vector2(NormalizeFloatValue(v.x), NormalizeFloatValue(v.y)));
+                }
+                case ValueKind.Vector3:
+                {
+                    var v = variant.AsVector3;
+                    return FromVector3(new Vector3(NormalizeFloatValue(v.x), NormalizeFloatValue(v.y), NormalizeFloatValue(v.z)));
+                }
+                case ValueKind.Vector4:
+                {
+                    var v = variant.AsVector4;
+                    return FromVector4(new Vector4(NormalizeFloatValue(v.x), NormalizeFloatValue(v.y), NormalizeFloatValue(v.z), NormalizeFloatValue(v.w)));
+                }
+                case ValueKind.Color:
+                {
+                    var c = variant.AsColor;
+                    return FromColor(new Color(NormalizeFloatValue(c.r), NormalizeFloatValue(c.g), NormalizeFloatValue(c.b), NormalizeFloatValue(c.a)));
+                }
+                case ValueKind.Matrix2x2:
+                {
+                    var m = variant.AsMatrix2x2;
+                    return FromMatrix2x2(new Matrix2x2(
+                        NormalizeFloatValue(m.M00),
+                        NormalizeFloatValue(m.M01),
+                        NormalizeFloatValue(m.M10),
+                        NormalizeFloatValue(m.M11)));
+                }
+                default:
+                    return variant;
+            }
+        }
+
         /// <summary>
         /// 任意のobjectからDynamicVariantを生成。
         /// 内部使用のみ（デバッグ観測API用）。
