@@ -22,7 +22,7 @@
 # プロジェクト固有の出力（Windows ビルド等）
 /Windows/
 /BuildPlayerData/
-
+/WebGL/
 # ログ類
 *.log
 

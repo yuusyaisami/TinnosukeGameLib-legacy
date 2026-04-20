@@ -134,15 +134,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.System.SceneFlowInstallerMB
   useLoadingScreen: 1
   loadingScenePrefab: {fileID: 2176177557510114179, guid: 0c30b2ba0162bbb4b88006c5b890e28f, type: 3}
-  commandLeadTimeBeforeSceneChangeSeconds: 1
+  commandLeadTimeBeforeSceneChangeSeconds: 0
   showCommands:
     _debugOwner: {fileID: 0}
     _debugFieldPath: 
     _debugAssetPath: 
     _functionName: 
     _commands:
-    - rid: 5619052203458691770
-    - rid: 5619052203458691773
     - rid: 6309418350403912174
     - rid: 5619052126883283135
     - rid: 5399842784913653786
