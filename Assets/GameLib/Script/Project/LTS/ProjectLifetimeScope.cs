@@ -1,6 +1,4 @@
-using UnityEngine;
-using VContainer.Unity;
-using VContainer;
+﻿using UnityEngine;
 using Game.TransformSystem;
 using Game.Input;
 using Game.Scalar;
@@ -28,24 +26,26 @@ namespace Game
     [RequireComponent(typeof(InputMB))] // Movement Channel Hub
     [RequireComponent(typeof(AudioInstallerMB))]
     [RequireComponent(typeof(TimeInstallerMB))]
-    public class ProjectLifetimeScope : BaseLifetimeScope
+    public class ProjectLifetimeScope : RuntimeLifetimeScopeBase
     {
         [Header("Debug")]
         [Tooltip("Enable LTS runtime logs for debugging (set via Project scope).")]
         [SerializeField] bool enableLTSLog = false;
 
         static ProjectLifetimeScope _instance;
-        public static ProjectLifetimeScope? Instance => _instance;
+        public static ProjectLifetimeScope Instance => _instance;
 
-        // 協調ビルドに参加しない（VContainerのautoRunでビルド）が、子への通知は行う
-        protected override bool UseBuildCoordinator => false;
-        protected override bool IsBuildRoot => false;
+        // 蜊碑ｪｿ繝薙Ν繝峨↓蜿ょ刈縺励↑縺・ｼ・Container縺ｮautoRun縺ｧ繝薙Ν繝会ｼ峨′縲∝ｭ舌∈縺ｮ騾夂衍縺ｯ陦後≧
+        protected override bool UseBuildCoordinator => true;
+        protected override bool IsBuildRoot => true;
+        protected override bool AutoBuildOnAwake => true;
+        protected override LifetimeScopeKind RequiredParentKind => LifetimeScopeKind.None;
 
         protected override void Awake()
         {
             if (_instance != null && _instance != this)
             {
-                // 何かの理由で二重生成された場合は自分を消す
+                // 菴輔°縺ｮ逅・罰縺ｧ莠碁㍾逕滓・縺輔ｌ縺溷ｴ蜷医・閾ｪ蛻・ｒ豸医☆
                 Destroy(gameObject);
                 return;
             }
@@ -64,28 +64,28 @@ namespace Game
 
             base.OnDestroy();
         }
-        protected override void AwakeConfigure(IContainerBuilder builder)
+        protected override void AwakeConfigure(IRuntimeContainerBuilder builder)
         {
-            // Project スコープ固有の初期化をここに書く
-            builder.Register<BaseLifetimeScopeRegistry>(Lifetime.Singleton)
+            // Project 繧ｹ繧ｳ繝ｼ繝怜崋譛峨・蛻晄悄蛹悶ｒ縺薙％縺ｫ譖ｸ縺・
+            builder.Register<BaseLifetimeScopeRegistry>(RuntimeLifetime.Singleton)
                 .As<IBaseLifetimeScopeRegistry>();
         }
 
-        protected override void ConfigureBase(IContainerBuilder builder)
+        protected override void ConfigureBase(IRuntimeContainerBuilder builder)
         {
 
-            builder.Register<ScalarBindingManager>(Lifetime.Singleton)
+            builder.Register<ScalarBindingManager>(RuntimeLifetime.Singleton)
                 .As<IScalarBindingManager>()
                 .As<IScalarBindingTelemetry>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
 
-            builder.Register<BaseLifetimeScopeSpawner>(Lifetime.Singleton)
+            builder.Register<BaseLifetimeScopeSpawner>(RuntimeLifetime.Singleton)
                 .As<IScopeSpawner>();
 
             Game.LTSLog.Log("[ProjectLifetimeScope] Configuring Project scoped services.");
         }
 
-        /// <summary>親スコープから呼び出される用。まだ存在しなければ生成する。</summary>
+        /// <summary>隕ｪ繧ｹ繧ｳ繝ｼ繝励°繧牙他縺ｳ蜃ｺ縺輔ｌ繧狗畑縲ゅ∪縺蟄伜惠縺励↑縺代ｌ縺ｰ逕滓・縺吶ｋ縲・/summary>
         public static void EnsureExists()
         {
             if (_instance != null)
@@ -93,7 +93,7 @@ namespace Game
             EnsureInScene();
         }
 
-        public static bool TryGetResolver(out IObjectResolver? resolver)
+        public static bool TryGetResolver(out IRuntimeResolver resolver)
         {
             var instance = _instance;
             if (instance == null)
@@ -102,7 +102,7 @@ namespace Game
                 return false;
             }
 
-            if (instance.Container == null)
+            if (instance.Resolver == null)
                 instance.EnsureScopeBuilt();
 
             resolver = instance.Resolver;
@@ -126,7 +126,7 @@ namespace Game
                 return;
             }
 
-            // Resources/ProjectLifetimeScope.prefab があればそれを使う
+            // Resources/ProjectLifetimeScope.prefab 縺後≠繧後・縺昴ｌ繧剃ｽｿ縺・
             var prefab = Resources.Load<GameObject>("Prefab/Project/ProjectLifetimeScope");
             if (prefab != null)
             {

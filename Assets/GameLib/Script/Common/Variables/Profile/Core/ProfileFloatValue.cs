@@ -1,6 +1,6 @@
-// Game.Profile.ProfileFloatValue.cs
+﻿// Game.Profile.ProfileFloatValue.cs
 //
-// ProfileFloatValue - Scalar と Blackboard 両方にバインド可能な float 値
+// ProfileFloatValue - Scalar 縺ｨ Blackboard 荳｡譁ｹ縺ｫ繝舌う繝ｳ繝牙庄閭ｽ縺ｪ float 蛟､
 
 using System;
 using System.Collections.Generic;
@@ -13,8 +13,8 @@ using Game.Scalar;
 namespace Game.Profile
 {
     /// <summary>
-    /// Scalar と Blackboard 両方にバインド可能な float プロファイル値。
-    /// MovementProfile の DefaultSpeed など、Scalar System で管理する値に使用。
+    /// Scalar 縺ｨ Blackboard 荳｡譁ｹ縺ｫ繝舌う繝ｳ繝牙庄閭ｽ縺ｪ float 繝励Ο繝輔ぃ繧､繝ｫ蛟､縲・
+    /// MovementProfile 縺ｮ DefaultSpeed 縺ｪ縺ｩ縲ヾcalar System 縺ｧ邂｡逅・☆繧句､縺ｫ菴ｿ逕ｨ縲・
     /// </summary>
     [Serializable]
     public sealed class ProfileFloatValue : IProfileValueBinding
@@ -29,30 +29,30 @@ namespace Game.Profile
 
         [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Scalar Key")]
-        [Tooltip("Scalar に登録するキー。default の場合は Scalar にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         public ScalarKey ScalarKeyValue;
 
         [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Policy")]
-        [Tooltip("Scalar への書き込みポリシー")]
+        [Tooltip("Scalar 縺ｸ縺ｮ譖ｸ縺崎ｾｼ縺ｿ繝昴Μ繧ｷ繝ｼ")]
         [ShowIf(nameof(HasScalarKey))]
         public ScalarBindPolicy ScalarPolicyValue;
 
         [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Effect Mod")]
-        [Tooltip("Scalar Runtime で EffectMod を使用するか")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(HasScalarKey))]
         public bool UseEffectMod;
 
         [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Round Mod")]
-        [Tooltip("Scalar Runtime で RoundMod を使用するか")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(HasScalarKey))]
         public bool UseRoundMod;
 
         [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Round Digits")]
-        [Tooltip("Scalar Runtime で四捨五入する小数点以下の桁数です。0 の場合は整数に丸めます。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(ShowRoundSettings))]
         [MinValue(0)]
         [MaxValue(6)]
@@ -60,13 +60,13 @@ namespace Game.Profile
 
         [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Clamp Mod")]
-        [Tooltip("Scalar Runtime で ClampMod を使用するか")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(HasScalarKey))]
         public bool UseClampMod;
 
         [FoldoutGroup("$ScalarBindingGroupName")]
         [LabelText("Use Local Base")]
-        [Tooltip("Scalar Runtime の LocalBase を設定するか")]
+        [Tooltip("Scalar Runtime 縺ｮ LocalBase 繧定ｨｭ螳壹☆繧九°")]
         [ShowIf(nameof(HasScalarKey))]
         public bool UseLocalBase;
 
@@ -82,13 +82,13 @@ namespace Game.Profile
 
         [FoldoutGroup("$ScalarBindingSaveGroupName")]
         [LabelText("Save Enabled")]
-        [Tooltip("Scalar 値を Save 対象にするか")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(HasScalarKey))]
         public bool ScalarSaveEnabledValue;
 
         [FoldoutGroup("$ScalarBindingSaveGroupName")]
         [LabelText("Save Layer")]
-        [Tooltip("Scalar の Save レイヤー")]
+        [Tooltip("Scalar 縺ｮ Save 繝ｬ繧､繝､繝ｼ")]
         [ShowIf(nameof(ShowScalarSaveLayer))]
         public SaveLayer ScalarSaveLayerValue;
 
@@ -98,25 +98,25 @@ namespace Game.Profile
 
         [FoldoutGroup("$BlackboardBindingGroupName")]
         [LabelText("Blackboard VarId")]
-        [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int BlackboardVarId;
 
         [FoldoutGroup("$BlackboardBindingGroupName")]
         [LabelText("Policy")]
-        [Tooltip("Blackboard への書き込みポリシー")]
+        [Tooltip("Blackboard 縺ｸ縺ｮ譖ｸ縺崎ｾｼ縺ｿ繝昴Μ繧ｷ繝ｼ")]
         [ShowIf(nameof(HasBlackboardKey))]
         public BlackboardBindPolicy BlackboardPolicyValue;
 
         [FoldoutGroup("$BlackboardBindingSaveGroupName")]
         [LabelText("Save Enabled")]
-        [Tooltip("Blackboard 値を Save 対象にするか")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(HasBlackboardKey))]
         public bool BlackboardSaveEnabledValue;
 
         [FoldoutGroup("$BlackboardBindingSaveGroupName")]
         [LabelText("Save Layer")]
-        [Tooltip("Blackboard の Save レイヤー")]
+        [Tooltip("Blackboard 縺ｮ Save 繝ｬ繧､繝､繝ｼ")]
         [ShowIf(nameof(ShowBlackboardSaveLayer))]
         public SaveLayer BlackboardSaveLayerValue;
 
@@ -164,7 +164,7 @@ namespace Game.Profile
 
         void IProfileValueBinding.CollectSaveEntries(List<BindingSaveEntry> entries, string scopeIdentity, string profileTypeName)
         {
-            // ScopeIdentity が空の場合は Save 対象外
+            // ScopeIdentity 縺檎ｩｺ縺ｮ蝣ｴ蜷医・ Save 蟇ｾ雎｡螟・
             if (string.IsNullOrEmpty(scopeIdentity))
                 return;
 
@@ -217,7 +217,7 @@ namespace Game.Profile
             switch (ScalarPolicyValue)
             {
                 case ScalarBindPolicy.UpdateBaseline:
-                    // Runtime が存在すれば Baseline のみ更新
+                    // Runtime 縺悟ｭ伜惠縺吶ｌ縺ｰ Baseline 縺ｮ縺ｿ譖ｴ譁ｰ
                     if (scalar.TryGetRuntime(ScalarKeyValue, out var runtime))
                     {
                         runtime.SetBaseline(Value);
@@ -226,7 +226,7 @@ namespace Game.Profile
                     }
                     else
                     {
-                        // Runtime がなければ作成
+                        // Runtime 縺後↑縺代ｌ縺ｰ菴懈・
                         var cfg = CreateRuntimeConfig();
                         scalar.EnsureRuntime(ScalarKeyValue, cfg);
                         if (UseLocalBase && scalar.TryGetRuntime(ScalarKeyValue, out runtime))
@@ -235,7 +235,7 @@ namespace Game.Profile
                     break;
 
                 case ScalarBindPolicy.ReplaceRuntime:
-                    // 常に RuntimeConfig ごと置き換え
+                    // 蟶ｸ縺ｫ RuntimeConfig 縺斐→鄂ｮ縺肴鋤縺・
                     {
                         var cfg = CreateRuntimeConfig();
                         scalar.EnsureRuntime(ScalarKeyValue, cfg);
@@ -245,7 +245,7 @@ namespace Game.Profile
                     break;
 
                 case ScalarBindPolicy.SkipIfExists:
-                    // 既に存在すればスキップ
+                    // 譌｢縺ｫ蟄伜惠縺吶ｌ縺ｰ繧ｹ繧ｭ繝・・
                     if (!scalar.TryGetRuntime(ScalarKeyValue, out _))
                     {
                         var cfg = CreateRuntimeConfig();
@@ -310,7 +310,7 @@ namespace Game.Profile
         // ================================================================
 
         /// <summary>
-        /// 値だけを設定するファクトリ
+        /// 蛟､縺縺代ｒ險ｭ螳壹☆繧九ヵ繧｡繧ｯ繝医Μ
         /// </summary>
         public static ProfileFloatValue WithValue(float value) => new()
         {
@@ -322,7 +322,7 @@ namespace Game.Profile
         };
 
         /// <summary>
-        /// Scalar キーと値を設定するファクトリ
+        /// Scalar 繧ｭ繝ｼ縺ｨ蛟､繧定ｨｭ螳壹☆繧九ヵ繧｡繧ｯ繝医Μ
         /// </summary>
         public static ProfileFloatValue WithScalar(
             float value,
@@ -350,7 +350,7 @@ namespace Game.Profile
             };
 
         /// <summary>
-        /// Blackboard キーと値を設定するファクトリ
+        /// Blackboard 繧ｭ繝ｼ縺ｨ蛟､繧定ｨｭ螳壹☆繧九ヵ繧｡繧ｯ繝医Μ
         /// </summary>
         public static ProfileFloatValue WithBlackboard(
             float value,
@@ -369,7 +369,7 @@ namespace Game.Profile
             };
 
         /// <summary>
-        /// Scalar と Blackboard 両方にバインドするファクトリ
+        /// Scalar 縺ｨ Blackboard 荳｡譁ｹ縺ｫ繝舌う繝ｳ繝峨☆繧九ヵ繧｡繧ｯ繝医Μ
         /// </summary>
         public static ProfileFloatValue WithBoth(
             float value,
@@ -393,7 +393,7 @@ namespace Game.Profile
             };
 
         /// <summary>
-        /// 暗黙的な float からの変換
+        /// 證鈴ｻ咏噪縺ｪ float 縺九ｉ縺ｮ螟画鋤
         /// </summary>
         public static implicit operator float(ProfileFloatValue pv) => pv != null ? pv.Value : default;
     }

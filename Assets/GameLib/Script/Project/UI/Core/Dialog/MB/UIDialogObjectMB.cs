@@ -14,12 +14,12 @@ namespace Game.UI
         [SerializeField]
         UIDialogObjectOptions options = new();
 
-        public void InstallFeature(IContainerBuilder builder, Game.IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, Game.IScopeNode scope)
         {
             options ??= new UIDialogObjectOptions();
             builder.RegisterInstance(options);
 
-            builder.Register<DialogRuntimeObjectService>(Lifetime.Singleton)
+            builder.Register<DialogRuntimeObjectService>(RuntimeLifetime.Singleton)
                 .As<IUIDialogRuntimeService>()
                 .WithParameter(scope);
         }

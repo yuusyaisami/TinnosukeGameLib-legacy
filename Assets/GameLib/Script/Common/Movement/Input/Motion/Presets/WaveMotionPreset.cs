@@ -1,12 +1,12 @@
-#nullable enable
+﻿#nullable enable
 // Game.Movement
 // ================================================================================
-// WaveMotionPreset - 波状移動モーション
+// WaveMotionPreset - 豕｢迥ｶ遘ｻ蜍輔Δ繝ｼ繧ｷ繝ｧ繝ｳ
 // ================================================================================
 //
-// 【概要】
-// 進行方向に対して垂直に正弦波の揺れを加える。
-// 蛇行移動や波打ち移動を表現。
+// 縲先ｦりｦ√・
+// 騾ｲ陦梧婿蜷代↓蟇ｾ縺励※蝙ら峩縺ｫ豁｣蠑ｦ豕｢縺ｮ謠ｺ繧後ｒ蜉縺医ｋ縲・
+// 陋・｡檎ｧｻ蜍輔ｄ豕｢謇薙■遘ｻ蜍輔ｒ陦ｨ迴ｾ縲・
 // ================================================================================
 
 using System;
@@ -16,31 +16,31 @@ using UnityEngine;
 namespace Game.Movement
 {
     /// <summary>
-    /// 波状移動モーション。
-    /// GuidanceDirection に対して垂直に正弦波の速度を加算する。
+    /// 豕｢迥ｶ遘ｻ蜍輔Δ繝ｼ繧ｷ繝ｧ繝ｳ縲・
+    /// GuidanceDirection 縺ｫ蟇ｾ縺励※蝙ら峩縺ｫ豁｣蠑ｦ豕｢縺ｮ騾溷ｺｦ繧貞刈邂励☆繧九・
     /// </summary>
     [Serializable]
     public sealed class WaveMotionPreset : MotionPreset
     {
         [Header("Wave Parameters")]
         [LabelText("Amplitude")]
-        [Tooltip("横方向の振幅（速度）")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float Amplitude = 2f;
 
         [LabelText("Frequency")]
-        [Tooltip("振動周波数（Hz）")]
+        [Tooltip("Inspector setting.")]
         [Min(0.01f)]
         public float Frequency = 1f;
 
         [LabelText("Phase Offset")]
-        [Tooltip("初期位相（ラジアン）")]
+        [Tooltip("Inspector setting.")]
         [Range(-Mathf.PI, Mathf.PI)]
         public float PhaseOffset = 0f;
 
         [Header("Speed Modulation")]
         [LabelText("Speed Multiplier")]
-        [Tooltip("基本速度への倍率")]
+        [Tooltip("蝓ｺ譛ｬ騾溷ｺｦ縺ｸ縺ｮ蛟咲紫")]
         [Min(0f)]
         public float SpeedMultiplier = 1f;
 
@@ -48,7 +48,7 @@ namespace Game.Movement
     }
 
     /// <summary>
-    /// WaveMotion のランタイム。
+    /// WaveMotion 縺ｮ繝ｩ繝ｳ繧ｿ繧､繝縲・
     /// </summary>
     public sealed class WaveMotionRuntime : MotionRuntime
     {
@@ -61,13 +61,13 @@ namespace Game.Movement
 
         protected override MotionOutput OnTick(in MovementGuidanceFrame frame)
         {
-            // 位相を計算
+            // 菴咲嶌繧定ｨ育ｮ・
             float phase = ElapsedTime * _source.Frequency * Mathf.PI * 2f + _source.PhaseOffset;
 
-            // 横方向の速度を計算
+            // 讓ｪ譁ｹ蜷代・騾溷ｺｦ繧定ｨ育ｮ・
             float lateral = Mathf.Sin(phase) * _source.Amplitude;
 
-            // GuidanceDirection に対して垂直な方向を取得
+            // GuidanceDirection 縺ｫ蟇ｾ縺励※蝙ら峩縺ｪ譁ｹ蜷代ｒ蜿門ｾ・
             var guide = frame.GuidanceDirection;
             if (guide.sqrMagnitude < MovementMath.NormalizeEpsilon)
                 guide = Vector2.up;

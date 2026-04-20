@@ -36,42 +36,42 @@ namespace Game.Save
 
         public bool DeleteAllSaveDataBeforeBuild => _debug != null && _debug.DeleteAllSaveDataBeforeBuild;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            // WebGLではFile I/Oの永続化タイミングが不安定になりやすいので、PlayerPrefsベースへ切替
+            // WebGLではFile I/Oの永続化タイミングが不安定になりやすいので、PlayerPrefsベ�Eスへ刁E��
 #if UNITY_WEBGL && !UNITY_EDITOR
-            builder.Register<PlayerPrefsSaveStore>(_ => new PlayerPrefsSaveStore(), Lifetime.Singleton)
+            builder.Register<PlayerPrefsSaveStore>(_ => new PlayerPrefsSaveStore(), RuntimeLifetime.Singleton)
                 .As<ISaveStore>();
 
-            builder.Register<WebGLSavePlatform>(_ => new WebGLSavePlatform(), Lifetime.Singleton)
+            builder.Register<WebGLSavePlatform>(_ => new WebGLSavePlatform(), RuntimeLifetime.Singleton)
                 .As<ISavePlatform>();
 #else
-            builder.Register<FileSaveStore>(_ => new FileSaveStore(string.Empty), Lifetime.Singleton)
+            builder.Register<FileSaveStore>(_ => new FileSaveStore(string.Empty), RuntimeLifetime.Singleton)
                 .As<ISaveStore>();
 
-            builder.Register<UnitySavePlatform>(_ => new UnitySavePlatform(), Lifetime.Singleton)
+            builder.Register<UnitySavePlatform>(_ => new UnitySavePlatform(), RuntimeLifetime.Singleton)
                 .As<ISavePlatform>();
 #endif
 
-            builder.Register<UnityJsonSaveSerializer>(Lifetime.Singleton)
+            builder.Register<UnityJsonSaveSerializer>(RuntimeLifetime.Singleton)
                 .As<ISaveSerializer>();
 
-            builder.Register<UnitySaveLogger>(Lifetime.Singleton)
+            builder.Register<UnitySaveLogger>(RuntimeLifetime.Singleton)
                 .As<ISaveLogger>();
 
-            builder.Register<UnitySaveThreadGuard>(Lifetime.Singleton)
+            builder.Register<UnitySaveThreadGuard>(RuntimeLifetime.Singleton)
                 .As<ISaveThreadGuard>();
 
-            builder.Register<SaveBinderV2>(Lifetime.Singleton)
+            builder.Register<SaveBinderV2>(RuntimeLifetime.Singleton)
                 .As<ISaveBinder>();
 
-            builder.Register<DefaultSaveLayerPolicy>(Lifetime.Singleton)
+            builder.Register<DefaultSaveLayerPolicy>(RuntimeLifetime.Singleton)
                 .As<ISaveLayerPolicy>();
 
-            builder.Register<DefaultSaveBackupPolicy>(Lifetime.Singleton)
+            builder.Register<DefaultSaveBackupPolicy>(RuntimeLifetime.Singleton)
                 .As<ISaveBackupPolicy>();
 
-            builder.Register<SaveManager>(Lifetime.Singleton)
+            builder.Register<SaveManager>(RuntimeLifetime.Singleton)
                 .As<ISaveManager>();
 
             builder.RegisterInstance(_debug);

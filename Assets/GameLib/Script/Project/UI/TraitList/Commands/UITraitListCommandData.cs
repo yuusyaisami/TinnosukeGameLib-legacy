@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Trait;
@@ -24,18 +24,18 @@ namespace Game.Commands.VNext
             }
         }
 
-        [Tooltip("使用する UITraitListProfileSO。Var 参照が有効なら実行時に差し替えられ、無効なら Asset 側をそのまま使います。")]
+        [Tooltip("Inspector setting.")]
         public VarUnityObjectSource<UITraitListProfileSO> ProfileSource = new();
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderHubSource)")]
-        [Tooltip("TraitHolderHubService を持つ Actor。ここから HolderKey を使って表示対象 holder を解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource HolderHubSource;
-        [Tooltip("Build 対象の TraitHolder キー。HolderHubSource 側の TraitHolderHubMB に登録されている key を指定します。")]
+        [Tooltip("Inspector setting.")]
         public string HolderKey = string.Empty;
         [InlineProperty]
-        [Tooltip("今回の Build で表示する範囲。Profile の DefaultRange よりこちらが優先されます。")]
+        [Tooltip("Inspector setting.")]
         public UITraitListRange Range;
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(BuildScope)")]
-        [Tooltip("UITraitListBuilderService を解決する対象 Actor。通常は UITraitListSystemMB が付いている scope を指定します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource BuildScope;
     }
 
@@ -45,7 +45,7 @@ namespace Game.Commands.VNext
         public int CommandId => CommandIds.RefreshUITraitList;
         public string DebugData => $"Mode={RefreshMode}";
 
-        [Tooltip("差分更新にするか、全 rebuild にするかの方針。通常は Incremental、見た目崩れや構成差分が大きい場合は Full が向きます。")]
+        [Tooltip("Inspector setting.")]
         public UITraitListRefreshMode RefreshMode = UITraitListRefreshMode.Incremental;
     }
 
@@ -56,9 +56,9 @@ namespace Game.Commands.VNext
         public string DebugData => $"Start={Range.StartIndex} Count={Range.Count} Rebuild={Rebuild}";
 
         [InlineProperty]
-        [Tooltip("更新後の表示範囲。現在の runtime に対してこの範囲へ切り替えます。")]
+        [Tooltip("Inspector setting.")]
         public UITraitListRange Range;
-        [Tooltip("true の場合、Range 設定後に即 rebuild/refresh を行います。false の場合は範囲だけ変えて描画更新は別タイミングで行います。")]
+        [Tooltip("Inspector setting.")]
         public bool Rebuild = true;
     }
 
@@ -68,7 +68,7 @@ namespace Game.Commands.VNext
         public int CommandId => CommandIds.ClearUITraitList;
         public string DebugData => $"KeepBinding={KeepBinding}";
 
-        [Tooltip("true の場合、表示だけ消して BoundHolder / BoundProfile の紐付けは維持します。false の場合は binding も解除します。")]
+        [Tooltip("Inspector setting.")]
         public bool KeepBinding = false;
     }
 
@@ -79,20 +79,20 @@ namespace Game.Commands.VNext
         public string DebugData => $"UseBound={UseBoundHolder} AutoUseAfterAdd={AutoUseAfterAdd} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [LabelText("Trait")]
-        [Tooltip("追加する Trait。AssetTraitDefinitionSource、Var、Blackboard などから解決する。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<TraitDefinitionSO> TraitDefinition;
-        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
+        [Tooltip("Inspector setting.")]
         public bool UseBoundHolder = true;
-        [Tooltip("true の場合、Trait の追加に成功した直後にその Trait に対して Use を実行します。")]
+        [Tooltip("Inspector setting.")]
         public bool AutoUseAfterAdd = false;
 
         [ShowIf("@!UseBoundHolder")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]
-        [Tooltip("TraitHolder を保有する対象 Actor。ここから TraitHolderHubService を解決して HolderKey を参照する。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
-        [Tooltip("UseBoundHolder が false のときに使う holder key。HolderActorSource 側の TraitHolderHubMB に登録されている key を指定します。")]
+        [Tooltip("Inspector setting.")]
         public string HolderKey = string.Empty;
     }
 
@@ -103,20 +103,20 @@ namespace Game.Commands.VNext
         public string DebugData => $"Selector={Selector.DebugData} UseBound={UseBoundHolder} Holder={TargetHolder.Kind} Key={TargetHolderKey}";
 
         [InlineProperty]
-        [Tooltip("削除対象 Trait の選択条件。DynamicValue の評価元はコマンド実行者側で、Target Holder には引っ張られません。")]
+        [Tooltip("Inspector setting.")]
         public TraitElementSelector Selector;
-        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら TargetHolder/TargetHolderKey は無視されます。")]
+        [Tooltip("Inspector setting.")]
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
         [FormerlySerializedAs("TargetHolderActorSource")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(TargetHolder)")]
-        [Tooltip("Trait を外す先の Target Holder を持つ Actor。Selector の DynamicValue はこの Actor ではなく、コマンド実行者側の文脈で評価されます。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource TargetHolder;
 
         [ShowIf("@!UseBoundHolder")]
         [FormerlySerializedAs("HolderKey")]
-        [Tooltip("UseBoundHolder が false のときに使う Target Holder key。実際に Trait を remove する holder をこの key で解決します。")]
+        [Tooltip("Inspector setting.")]
         public string TargetHolderKey = string.Empty;
     }
 
@@ -127,18 +127,18 @@ namespace Game.Commands.VNext
         public string DebugData => $"Selector={Selector.DebugData} UseBound={UseBoundHolder} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
         [InlineProperty]
-        [Tooltip("使用対象 Trait の選択条件。定義・instanceId・index などから 1 件解決して use を実行します。")]
+        [Tooltip("Inspector setting.")]
         public TraitElementSelector Selector;
-        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
+        [Tooltip("Inspector setting.")]
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]
-        [Tooltip("TraitHolder を保有する対象 Actor。ここから TraitHolderHubService を解決して HolderKey を参照する。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
-        [Tooltip("UseBoundHolder が false のときに使う holder key。使用対象 holder をこの key で解決します。")]
+        [Tooltip("Inspector setting.")]
         public string HolderKey = string.Empty;
     }
 
@@ -148,19 +148,19 @@ namespace Game.Commands.VNext
         public int CommandId => CommandIds.ClearTraitFromHolder;
         public string DebugData => $"UseBound={UseBoundHolder} RunOnRemove={RunOnRemove} Holder={HolderActorSource.Kind} Key={HolderKey}";
 
-        [Tooltip("現在 UITraitList に bind されている holder を使うかどうか。true なら HolderActorSource/HolderKey は無視されます。")]
+        [Tooltip("Inspector setting.")]
         public bool UseBoundHolder = true;
 
         [ShowIf("@!UseBoundHolder")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HolderActorSource)")]
-        [Tooltip("TraitHolder を保有する対象 Actor。ここから TraitHolderHubService を解決して HolderKey を参照します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource HolderActorSource;
 
         [ShowIf("@!UseBoundHolder")]
-        [Tooltip("UseBoundHolder が false のときに使う holder key。clear 対象 holder をこの key で解決します。")]
+        [Tooltip("Inspector setting.")]
         public string HolderKey = string.Empty;
 
-        [Tooltip("true のとき trait の OnRemove hook を実行します。false のときは data-only clear として扱います。")]
+        [Tooltip("Inspector setting.")]
         public bool RunOnRemove = true;
     }
 
@@ -176,28 +176,28 @@ namespace Game.Commands.VNext
     public struct UITraitTarget
     {
         [EnumToggleButtons]
-        [Tooltip("どの方法で UI 上の Trait を特定するか。Definition / InstanceId / Index / Row+Column から選びます。")]
+        [Tooltip("Inspector setting.")]
         public UITraitTargetKind Kind;
 
         [ShowIf("@Kind == UITraitTargetKind.ByDefinition")]
         [LabelText("Definition")]
-        [Tooltip("Kind=ByDefinition のときに使う TraitDefinition。最初に一致したスロットを対象にします。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<TraitDefinitionSO> Definition;
 
         [ShowIf("@Kind == UITraitTargetKind.ByInstanceId")]
-        [Tooltip("Kind=ByInstanceId のときに使う Trait instanceId。完全一致でスロットを探します。")]
+        [Tooltip("Inspector setting.")]
         public string InstanceId;
 
         [ShowIf("@Kind == UITraitTargetKind.ByIndex")]
-        [Tooltip("Kind=ByIndex のときに使う一覧 index。現在の表示範囲内インデックスではなく holder 全体の trait index を想定します。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<int> TraitIndex;
 
         [ShowIf("@Kind == UITraitTargetKind.ByRowAndColumn")]
-        [Tooltip("Kind=ByRowAndColumn のときに使う row 値。現在のレイアウト上の行番号で対象を探します。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<int> Row;
 
         [ShowIf("@Kind == UITraitTargetKind.ByRowAndColumn")]
-        [Tooltip("Kind=ByRowAndColumn のときに使う column 値。Row と組み合わせて現在のレイアウト上のスロットを特定します。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<int> Column;
     }
 }

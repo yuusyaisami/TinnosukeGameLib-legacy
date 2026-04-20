@@ -1,4 +1,4 @@
-// Assets/Game/Script/Systems/ApplicationShutdown/ApplicationShutdownMB.cs
+﻿// Assets/Game/Script/Systems/ApplicationShutdown/ApplicationShutdownMB.cs
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -7,31 +7,31 @@ using VContainer.Unity;
 namespace Game.Project
 {
         /// <summary>
-        /// ApplicationShutdownService の設定・登録を行う軽量 MB。
-        /// 実際のロジックは Service 側に集約する。
+        /// ApplicationShutdownService 縺ｮ險ｭ螳壹・逋ｻ骭ｲ繧定｡後≧霆ｽ驥・MB縲・
+        /// 螳滄圀縺ｮ繝ｭ繧ｸ繝・け縺ｯ Service 蛛ｴ縺ｫ髮・ｴ・☆繧九・
         /// </summary>
         public sealed class ApplicationShutdownMB : MonoBehaviour, IFeatureInstaller, IApplicationShutdownOptions
         {
                 [Header("Automatic Triggers")]
-                [Tooltip("Application.quitting をフックして ShutdownReason.ApplicationQuitting を発行するか。")]
+                [Tooltip("Inspector setting.")]
                 [SerializeField] bool listenToApplicationQuitting = true;
 
-                [Tooltip("AppDomain.ProcessExit をフックして ShutdownReason.ForcedTermination を発行するか。")]
+                [Tooltip("Inspector setting.")]
                 [SerializeField] bool listenToProcessExit = true;
 
-                [Tooltip("UnhandledException をフックして ShutdownReason.UnhandledException を発行するか。")]
+                [Tooltip("Inspector setting.")]
                 [SerializeField] bool listenToUnhandledException = true;
 
 #if UNITY_EDITOR
-                [Tooltip("Editor の終了(エディタ自体の終了)をフックするか。")]
+                [Tooltip("Inspector setting.")]
                 [SerializeField] bool listenToEditorQuitting = true;
 #endif
 
                 [Header("Behavior")]
-                [Tooltip("Shutdown がリクエストされたときに Application.Quit / ExitPlaymode を呼ぶか。")]
+                [Tooltip("Inspector setting.")]
                 [SerializeField] bool exitApplicationOnShutdown = true;
 
-                [Tooltip("シャットダウン要求が発生したときにログを出すか。")]
+                [Tooltip("Inspector setting.")]
                 [SerializeField] bool logShutdownRequests = true;
 
                 // New properties required by ApplicationShutdownService
@@ -48,20 +48,20 @@ namespace Game.Project
                 IApplicationShutdownService _shutdownService = null;
 
 
-                // あなたの IFeatureInstaller が (builder, owner) シグネチャだったのでそれに合わせている
-                public void InstallFeature(IContainerBuilder builder, IScopeNode lts)
+                // 縺ゅ↑縺溘・ IFeatureInstaller 縺・(builder, owner) 繧ｷ繧ｰ繝阪メ繝｣縺縺｣縺溘・縺ｧ縺昴ｌ縺ｫ蜷医ｏ縺帙※縺・ｋ
+                public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode lts)
                 {
-                        // この MB 自身をオプションとしてコンテナに登録
+                        // 縺薙・ MB 閾ｪ霄ｫ繧偵が繝励す繝ｧ繝ｳ縺ｨ縺励※繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ
                         builder.RegisterInstance(this).As<IApplicationShutdownOptions>();
 
-                        // Service 本体を Singleton として登録
-                        builder.Register<IApplicationShutdownService, ApplicationShutdownService>(Lifetime.Singleton);
+                        // Service 譛ｬ菴薙ｒ Singleton 縺ｨ縺励※逋ｻ骭ｲ
+                        builder.Register<IApplicationShutdownService, ApplicationShutdownService>(RuntimeLifetime.Singleton);
                 }
 
                 void OnDestroy()
                 {
-                        // コンテナのライフサイクルと二重になっても害はないよう実装してあるが、
-                        // 気になるならここは消してコンテナ側の Dispose に任せてもいい。
+                        // 繧ｳ繝ｳ繝・リ縺ｮ繝ｩ繧､繝輔し繧､繧ｯ繝ｫ縺ｨ莠碁㍾縺ｫ縺ｪ縺｣縺ｦ繧ょｮｳ縺ｯ縺ｪ縺・ｈ縺・ｮ溯｣・＠縺ｦ縺ゅｋ縺後・
+                        // 豌励↓縺ｪ繧九↑繧峨％縺薙・豸医＠縺ｦ繧ｳ繝ｳ繝・リ蛛ｴ縺ｮ Dispose 縺ｫ莉ｻ縺帙※繧ゅ＞縺・・
                         _shutdownService?.Dispose();
                 }
         }

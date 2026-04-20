@@ -353,7 +353,7 @@ namespace Game.Commands.VNext
             return $"Id={id} Kind={identity.Kind} Category={category} Active={identity.IsActive}";
         }
 
-        static string DescribeResolver(IObjectResolver? resolver)
+        static string DescribeResolver(IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return "<null>";

@@ -87,7 +87,7 @@ namespace Game.Movement
         }
 #endif
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (profile == null)
             {
@@ -101,11 +101,11 @@ namespace Game.Movement
                 resolver.TryResolve(out IActionBlockService? actionBlockSvc);
 
                 return new MoveToInputPointService(profile, scalarService: scalarSvc, actionBlockService: actionBlockSvc);
-            }, Lifetime.Singleton)
+            }, RuntimeLifetime.Singleton)
                 .As<IMoveToInputPointService>()
                 .As<IDisposable>();
 
-            builder.Register<MoveToInputPointEntryPoint>(Lifetime.Singleton)
+            builder.Register<MoveToInputPointEntryPoint>(RuntimeLifetime.Singleton)
                 .WithParameter(transform)
                 .WithParameter(new MoveToInputPointOutputOptions(
                     useSpeedMonitor: useSpeedMonitor,
@@ -121,7 +121,7 @@ namespace Game.Movement
                     directionPriority: directionPriority
                 ))
                 .AsSelf()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<IDisposable>();
@@ -174,12 +174,12 @@ namespace Game.Movement
         }
     }
 
-    public sealed class MoveToInputPointEntryPoint : IScopeAcquireHandler, IScopeReleaseHandler, ITickable, IDisposable
+    public sealed class MoveToInputPointEntryPoint : IScopeAcquireHandler, IScopeReleaseHandler, IScopeTickHandler, IDisposable
     {
         readonly IMoveToInputPointService _service;
         readonly Transform _transform;
         readonly MoveToInputPointOutputOptions _options;
-        readonly IObjectResolver _resolver;
+        readonly IRuntimeResolver _resolver;
 
         IMovementChannelHub? _hub;
         IMovementChannelHandle? _handle;
@@ -199,7 +199,7 @@ namespace Game.Movement
             IMoveToInputPointService service,
             Transform transform,
             MoveToInputPointOutputOptions options,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _transform = transform ? transform : throw new ArgumentNullException(nameof(transform));

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -10,23 +10,23 @@ using UnityEngine;
 namespace Game.AI.Clips
 {
     /// <summary>
-    /// Idle（待機）Clip。移動速度を0にして静止。
+    /// Idle・亥ｾ・ｩ滂ｼ韻lip縲らｧｻ蜍暮溷ｺｦ繧・縺ｫ縺励※髱呎ｭ｢縲・
     /// </summary>
     [CreateAssetMenu(menuName = "Game/AI/Clips/Idle", fileName = "IdleClip")]
     public sealed class IdleClipSO : AIClipSO
     {
         [Header("Movement")]
         [LabelText("Movement Channel Key")]
-        [Tooltip("移動チャネルのキー")]
+        [Tooltip("遘ｻ蜍輔メ繝｣繝阪Ν縺ｮ繧ｭ繝ｼ")]
         public string MovementChannelKey = "ai";
 
         [Header("Commands")]
         [LabelText("On Active Enter")]
-        [Tooltip("Idle が有効状態（Top）になった時に実行")]
+        [Tooltip("Inspector setting.")]
         public VNext.CommandListData OnActiveEnterCommands = new();
 
         [LabelText("On Active Exit")]
-        [Tooltip("Idle が有効状態（Top）から外れた時に実行")]
+        [Tooltip("Inspector setting.")]
         public VNext.CommandListData OnActiveExitCommands = new();
 
         public override AIClipRuntime CreateRuntime(in AIAgentContext ctx)
@@ -52,13 +52,13 @@ namespace Game.AI.Clips
 
         public override void OnEnter(in AIAgentContext ctx)
         {
-            // 移動を停止
+            // 遘ｻ蜍輔ｒ蛛懈ｭ｢
             StopMovement(ctx);
         }
 
         public override void OnResume(in AIAgentContext ctx)
         {
-            // 移動を停止
+            // 遘ｻ蜍輔ｒ蛛懈ｭ｢
             StopMovement(ctx);
             ExecuteCommands(_source.OnActiveEnterCommands, ctx);
         }
@@ -84,7 +84,7 @@ namespace Game.AI.Clips
                 channel.SetImmediateVelocity(Vector2.zero);
             }
 
-            // MoveToInputPoint もクリア
+            // MoveToInputPoint 繧ゅけ繝ｪ繧｢
             ctx.MoveToInputPoint?.ClearTarget();
         }
 

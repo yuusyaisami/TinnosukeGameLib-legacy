@@ -126,7 +126,7 @@ namespace Game.UI.TraitList
         public Transform Root { get; }
         public RectTransform? RootRect { get; }
         public IScopeNode Scope { get; }
-        public IObjectResolver Resolver { get; }
+        public IRuntimeResolver Resolver { get; }
 
         public UITraitListVisualInstance(
             ITraitInstance trait,
@@ -137,7 +137,7 @@ namespace Game.UI.TraitList
             Vector2 anchoredPosition,
             Transform root,
             IScopeNode scope,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             Trait = trait;
             TraitIndex = traitIndex;

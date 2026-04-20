@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using Game.Common;
@@ -117,7 +117,7 @@ namespace Game.Commands.VNext
         [ShowIf(nameof(ShowRowClearMode))]
         [EnumToggleButtons]
         [LabelText("Clear Mode")]
-        [Tooltip("Row Clear 時に、Column 自体を削除するか、Column 内の Var のみを削除するかを選択します。")]
+        [Tooltip("Inspector setting.")]
         public WriteGridDataRowClearMode RowClearMode = WriteGridDataRowClearMode.RemoveColumns;
 
         [BoxGroup("Row Copy")]
@@ -154,7 +154,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Grid Write")]
         [ShowIf(nameof(ShowGridId))]
         [LabelText("Grid Var Id")]
-        [Tooltip("各セルへ書き込む識別 VarId です。Grid / Row / Column の各 mode で、cell が存在する操作に対して書き込みます。0 の場合は Grid Var を書き込みません。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int GridId;
 

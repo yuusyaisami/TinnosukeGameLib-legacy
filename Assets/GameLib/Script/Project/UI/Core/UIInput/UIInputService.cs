@@ -1,7 +1,6 @@
 #nullable enable
 using UnityEngine;
 using Game.Input;
-using VContainer.Unity;
 using System;
 
 namespace Game.UI
@@ -400,7 +399,7 @@ namespace Game.UI
     ///   └─ ProcessScrollInput (スクロール)
     /// ```
     /// </summary>
-    public sealed class UIInputService : IUIInputService, IStartable, IDisposable
+    public sealed class UIInputService : IUIInputService, IScopeAcquireHandler, IScopeReleaseHandler, IDisposable
     {
         // ----------------------------------------------------------------
         // 依存サービス
@@ -495,8 +494,11 @@ namespace Game.UI
         /// 開始時処理。
         /// InputRouterへブリッジを登録し、入力モード変更を購読する。
         /// </summary>
-        public void Start()
+        public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            if (_bridge != null)
+                return;
+
             // InputRouterへブリッジを登録
             // これにより毎フレームUpdateInputが呼ばれるようになる
             _bridge = new UIInputConsumerBridge(this, InputConsumerPriority.UI);
@@ -514,6 +516,9 @@ namespace Game.UI
         /// 破棄時処理。
         /// ブリッジの登録解除とイベント購読解除を行う。
         /// </summary>
+        public void OnRelease(IScopeNode scope, bool isReset)
+            => Dispose();
+
         public void Dispose()
         {
             // ブリッジの登録解除

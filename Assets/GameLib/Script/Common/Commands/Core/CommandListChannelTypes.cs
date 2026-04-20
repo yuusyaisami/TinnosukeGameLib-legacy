@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -110,7 +110,7 @@ namespace Game.Commands
     {
         [LabelText("Commands")]
         [HideLabel]
-        [Tooltip("この preset が保持するコマンド列です。CommandListChannel の 1 step 実行や ExecuteNow の元になります。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("CommandListChannel.Commands")]
         public CommandListData Commands = new();
 
@@ -138,20 +138,20 @@ namespace Game.Commands
     {
         [BoxGroup("Playback")]
         [LabelText("Playback Mode")]
-        [Tooltip("再生方式です。OneShot は末尾で停止、Loop は先頭へ戻り、PingPong は端で折り返します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         CommandListPlaybackMode _playbackMode = CommandListPlaybackMode.OneShot;
 
         [BoxGroup("Playback")]
         [LabelText("Interval Seconds")]
         [MinValue(0d)]
-        [Tooltip("各 step 実行の間隔秒です。Play と AutoPlay の最初の 1 回目は即時実行され、その後この間隔で進みます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _intervalSeconds = 1f;
 
         [BoxGroup("Playback")]
         [LabelText("Auto Play")]
-        [Tooltip("scope acquire 後に自動で再生を開始します。false の場合は外部 command から Play を呼ぶまで待機します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _autoPlay;
 
@@ -159,7 +159,7 @@ namespace Game.Commands
         [LabelText("Variables")]
         [InlineProperty]
         [HideLabel]
-        [Tooltip("再生時に毎回マージされる base variables です。優先順位は caller vars -> preset vars -> runtime vars です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VarStorePayload _variables = new();
 
@@ -185,19 +185,19 @@ namespace Game.Commands
     {
         [BoxGroup("Preset")]
         [LabelText("Command List Preset")]
-        [Tooltip("再生対象の CommandListPreset source です。runtime command による swap/reset の基準にもなります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<CommandListPreset> _commandListPreset =
             DynamicValue<CommandListPreset>.FromSource(
-                new ManagedRefLiteralSource<CommandListPreset>(new CommandListPreset()));
+                new ManagedRefLiteralSource<CommandListPreset>());
 
         [BoxGroup("Preset")]
         [LabelText("Player Preset")]
-        [Tooltip("再生方法と base variables を定義する CommandListPlayerPreset source です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<CommandListPlayerPreset> _playerPreset =
             DynamicValue<CommandListPlayerPreset>.FromSource(
-                new ManagedRefLiteralSource<CommandListPlayerPreset>(new CommandListPlayerPreset()));
+                new ManagedRefLiteralSource<CommandListPlayerPreset>());
 
         public DynamicValue<CommandListPreset> CommandListPresetValue => _commandListPreset;
         public DynamicValue<CommandListPlayerPreset> PlayerPresetValue => _playerPreset;
@@ -216,7 +216,7 @@ namespace Game.Commands
     public sealed class CommandListPresetSO : ScriptableObject, IDynamicValueAsset<CommandListPreset>
     {
         [SerializeReference, InlineProperty, HideLabel]
-        [Tooltip("CommandListChannel 用のコマンド列 preset 本体です。")]
+        [Tooltip("Inspector setting.")]
         CommandListPreset? _preset = new();
 
         public CommandListPreset? Preset
@@ -256,7 +256,7 @@ namespace Game.Commands
     public sealed class CommandListPlayerPresetSO : ScriptableObject, IDynamicValueAsset<CommandListPlayerPreset>
     {
         [SerializeReference, InlineProperty, HideLabel]
-        [Tooltip("CommandListChannel の再生挙動と base variables を定義する preset 本体です。")]
+        [Tooltip("Inspector setting.")]
         CommandListPlayerPreset? _preset = new();
 
         public CommandListPlayerPreset? Preset
@@ -289,7 +289,7 @@ namespace Game.Commands
     public sealed class CommandListChannelPresetSO : ScriptableObject, IDynamicValueAsset<CommandListChannelPreset>
     {
         [SerializeReference, InlineProperty, HideLabel]
-        [Tooltip("CommandListPreset と CommandListPlayerPreset を束ねる top-level preset です。Hub には通常これを渡します。")]
+        [Tooltip("Inspector setting.")]
         CommandListChannelPreset? _preset = new();
 
         public CommandListChannelPreset? Preset

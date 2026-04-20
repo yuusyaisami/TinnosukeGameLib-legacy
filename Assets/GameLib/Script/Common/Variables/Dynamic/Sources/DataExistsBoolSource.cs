@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands.VNext;
 using Game.Scalar;
@@ -47,7 +47,7 @@ namespace Game.Common
 
         [SerializeField]
         [LabelText("Expected Kind")]
-        [Tooltip("TraitDefinition の VarStore Kind と同じ基準です。Auto は値種別を問わず、何かしら値が存在すれば true です。")]
+        [Tooltip("Inspector setting.")]
         VarStorePayload.EntryValueKind expectedKind = VarStorePayload.EntryValueKind.Auto;
 
         [NonSerialized]

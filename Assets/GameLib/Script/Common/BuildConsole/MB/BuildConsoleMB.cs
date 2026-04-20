@@ -129,7 +129,7 @@ namespace Game.BuildConsole
         Texture2D? _searchBackgroundTexture;
         Texture2D? _badgeBackgroundTexture;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ = scope;
 
@@ -149,11 +149,11 @@ namespace Game.BuildConsole
                 DetailFontSize = Mathf.Max(10, detailFontSize),
             });
 
-            builder.Register<BuildConsoleService>(Lifetime.Singleton)
+            builder.Register<BuildConsoleService>(RuntimeLifetime.Singleton)
                 .As<IBuildConsole>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .As<IDisposable>();
 
             builder.RegisterBuildCallback(container =>

@@ -17,10 +17,10 @@ namespace Game.Direction
         [SerializeField, InlineProperty, HideLabel]
         DirectionChannelHubDebugViewer debugViewer = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<IDirectionChannelHub, DirectionChannelHubService>(Lifetime.Singleton)
-                .As<ITickable>()
+            builder.Register<IDirectionChannelHub, DirectionChannelHubService>(RuntimeLifetime.Singleton)
+                .As<IScopeTickHandler>()
                 .As<IDirectionChannelHubTelemetry>()
                 .WithParameter("layerDefs", layerDefs);
 

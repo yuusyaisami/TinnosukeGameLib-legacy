@@ -6,26 +6,26 @@ using VContainer.Unity;
 namespace Game.TransformSystem
 {
     /// <summary>
-    /// BulkTransformManager の MonoBehaviour 実装。
+    /// BulkTransformManager の MonoBehaviour 実裁E��E
     /// </summary>
     public class BulkTransformManagerMB : MonoBehaviour, IFeatureInstaller
     {
         [SerializeField] int _initialCapacity = 8192;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode lifetimeScope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode lifetimeScope)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            builder.Register<BulkTransformManagerWebGL>(Lifetime.Singleton)
+            builder.Register<BulkTransformManagerWebGL>(RuntimeLifetime.Singleton)
                 .As<IBulkTransformManager>()
                 .As<IBulkTransformTransformBridge>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .As<IDisposable>()
                 .WithParameter("maxCapacity", _initialCapacity);
 #else
-            builder.Register<BulkTransformManagerJobs>(Lifetime.Singleton)
+            builder.Register<BulkTransformManagerJobs>(RuntimeLifetime.Singleton)
                 .As<IBulkTransformManager>()
                 .As<IBulkTransformTransformBridge>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .As<IDisposable>()
                 .WithParameter("maxCapacity", _initialCapacity);
 #endif

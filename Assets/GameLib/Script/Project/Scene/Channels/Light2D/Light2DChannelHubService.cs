@@ -11,7 +11,7 @@ namespace Game.Channel
         ILight2DChannelHubService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         readonly Dictionary<string, Light2DChannelDef> _defsByTag = new(StringComparer.Ordinal);
         readonly Dictionary<string, Light2DChannelPlayerRuntime> _playersByTag = new(StringComparer.Ordinal);

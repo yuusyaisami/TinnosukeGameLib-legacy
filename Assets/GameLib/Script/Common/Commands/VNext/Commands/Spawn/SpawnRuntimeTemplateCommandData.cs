@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using Game.DI;
@@ -38,152 +38,152 @@ namespace Game.Commands.VNext
         [Header("Template")]
         [SerializeField, Required]
         [LabelText("Template")]
-        [PropertyTooltip("生成する RuntimeTemplate preset です。実行時に RuntimeTemplateSO へ解決されます。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<BaseRuntimeTemplatePreset> Template;
 
         [Header("Spawner")]
         [SerializeField]
         [EnumToggleButtons]
         [LabelText("Spawner Kind")]
-        [PropertyTooltip("どの種類の spawner を使って生成するかを指定します。通常 UI は RuntimeUIElement、ワールドは RuntimeEntity です。")]
+        [PropertyTooltip("Inspector setting.")]
         public SpawnerKind SpawnerKind = SpawnerKind.RuntimeEntity;
 
         [SerializeField]
         [LabelText("Spawner Tag")]
-        [PropertyTooltip("spawner 解決に使う tag です。空なら tag fallback を許可します。")]
+        [PropertyTooltip("Inspector setting.")]
         public string SpawnerTag = "";
 
         [Header("Transform")]
         [SerializeField]
         [LabelText("World Space")]
-        [PropertyTooltip("true のとき worldSpace spawn を行います。false のとき parent ローカル基準で生成します。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool WorldSpace = true;
 
         [SerializeField]
         [LabelText("Position")]
-        [PropertyTooltip("生成基準座標です。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<Vector3> Position;
 
         [SerializeField]
         [LabelText("Offset")]
-        [PropertyTooltip("Position に加算する追加オフセットです。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<Vector3> Offset;
 
         [SerializeField]
         [LabelText("Rotation Euler")]
-        [PropertyTooltip("生成時の回転です。Euler degree で指定します。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<Vector3> RotationEuler = DynamicValueExtensions.FromLiteral(Vector3.zero);
 
         [SerializeField]
         [LabelText("Scale")]
-        [PropertyTooltip("生成時のローカルスケールです。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<Vector3> Scale = DynamicValueExtensions.FromLiteral(Vector3.one);
 
         [Header("Pre Spawn")]
         [SerializeField]
         [LabelText("Use Hidden Pre Spawn")]
-        [PropertyTooltip("true のとき、まず十分に遠い場所へ spawn してから指定フレーム後に Position へ戻します。RuntimeLTS の初期描画崩れ対策です。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool UseHiddenPreSpawn = false;
 
         [SerializeField, ShowIf(nameof(UseHiddenPreSpawn))]
         [LabelText("Hidden Spawn Offset")]
-        [PropertyTooltip("Hidden Pre Spawn 時に final Position へ足すオフセットです。十分に遠い値を指定してください。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<Vector3> HiddenSpawnOffset = DynamicValueExtensions.FromLiteral(new Vector3(100000f, 100000f, 100000f));
 
         [SerializeField, ShowIf(nameof(UseHiddenPreSpawn))]
         [MinValue(0)]
         [LabelText("Reveal Delay Frames")]
-        [PropertyTooltip("Hidden で spawn してから final Position に戻すまでのフレーム数です。1 か 2 を推奨します。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<int> RevealDelayFrames = DynamicValueExtensions.FromLiteral(1);
 
         [Header("Count")]
         [SerializeField]
         [MinValue(1)]
         [LabelText("Count")]
-        [PropertyTooltip("何体生成するかを指定します。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<int> Count = DynamicValueExtensions.FromLiteral(1);
 
         [Header("Delay Between Spawns")]
         [SerializeField]
         [LabelText("Delay Seconds")]
-        [PropertyTooltip("複数生成時、各 spawn の間に待つ秒数です。0 で連続生成します。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<float> DelayBetweenSpawns = DynamicValueExtensions.FromLiteral(0f);
 
         [Header("Parent")]
         [SerializeField]
         [EnumToggleButtons]
         [LabelText("Transform Parent Policy")]
-        [PropertyTooltip("生成物の transform parent をどの方法で決めるかを指定します。")]
+        [PropertyTooltip("Inspector setting.")]
         public SpawnTransformParentPolicy TransformParentPolicy = SpawnTransformParentPolicy.SpawnerRoot;
 
         [SerializeField, ShowIf(nameof(ShowTransformParent))]
         [LabelText("Transform Parent")]
-        [PropertyTooltip("TransformParentPolicy=UseTransform のときに使う親 Transform です。")]
+        [PropertyTooltip("Inspector setting.")]
         public Transform? TransformParent;
 
         [SerializeField, ShowIf(nameof(ShowTransformParentActorSource))]
         [InlineProperty]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Transform Parent\", TransformParentActorSource)")]
-        [PropertyTooltip("TransformParentPolicy=ActorSource のときに使う親 ActorSource です。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource TransformParentActorSource;
 
         [Header("DI Parent (optional)")]
         [SerializeField]
         [LabelText("Override LifetimeScope Parent")]
-        [PropertyTooltip("true のとき、生成 Runtime の LifetimeScope 親を ActorSource から上書きします。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool OverrideLifetimeScopeParent = false;
 
         [SerializeField, ShowIf(nameof(OverrideLifetimeScopeParent))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"DI Parent\", LifetimeScopeParent)")]
-        [PropertyTooltip("OverrideLifetimeScopeParent=true のときに使う DI 親です。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource LifetimeScopeParent;
 
         [Header("Pooling")]
         [SerializeField]
         [LabelText("Allow Pooling")]
-        [PropertyTooltip("true のとき template 側の pool 設定を使って再利用を許可します。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool AllowPooling = true;
 
         [Header("Context")]
         [SerializeField]
         [LabelText("Write Spawned Scope To Context")]
-        [PropertyTooltip("生成された spawned scope を ContextA-D slot に書き込みます。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool WriteSpawnedScopeToContext = false;
 
         [SerializeField, ShowIf(nameof(WriteSpawnedScopeToContext))]
         [LabelText("Spawned Scope Slot")]
-        [PropertyTooltip("spawned scope を書き込む ContextA-D slot です。")]
+        [PropertyTooltip("Inspector setting.")]
         public CommandLtsSlot SpawnedScopeSlot = CommandLtsSlot.ContextA;
 
         [SerializeField]
         [LabelText("Write Spawner To Context")]
-        [PropertyTooltip("spawn を実行した側の scope を ContextA-D slot に書き込みます。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool WriteSpawnerToContext = false;
 
         [SerializeField, ShowIf(nameof(WriteSpawnerToContext))]
         [LabelText("Spawner Slot")]
-        [PropertyTooltip("spawner scope を書き込む ContextA-D slot です。")]
+        [PropertyTooltip("Inspector setting.")]
         public CommandLtsSlot SpawnerContextSlot = CommandLtsSlot.ContextB;
 
         [Header("After Spawn")]
         [SerializeField]
         [LabelText("Run Commands On Spawned")]
-        [PropertyTooltip("生成後、spawned scope 上で OnSpawnedCommands を実行します。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool RunCommandsOnSpawned = false;
 
         [SerializeField, ShowIf(nameof(RunCommandsOnSpawned))]
         [LabelText("Vars Policy")]
-        [PropertyTooltip("OnSpawnedCommands 実行時に使う vars の参照元です。")]
+        [PropertyTooltip("Inspector setting.")]
         public VarsPolicy VarsPolicy = VarsPolicy.Inherit;
 
         [SerializeField, ShowIf(nameof(RunCommandsOnSpawned))]
         [LabelText("Await OnSpawned Commands")]
-        [PropertyTooltip("true のとき OnSpawnedCommands 完了まで待機します。false のときバックグラウンド実行します。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool AwaitOnSpawnedCommands = true;
 
         [SerializeField, ShowIf(nameof(RunCommandsOnSpawned))]
         [LabelText("On Spawned Commands")]
-        [PropertyTooltip("生成完了後に spawned scope 上で実行する command list です。")]
+        [PropertyTooltip("Inspector setting.")]
         public CommandListData OnSpawnedCommands = new();
 
         bool ShowTransformParent => TransformParentPolicy == SpawnTransformParentPolicy.UseTransform;

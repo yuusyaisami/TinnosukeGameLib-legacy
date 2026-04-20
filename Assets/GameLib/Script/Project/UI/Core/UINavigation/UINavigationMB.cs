@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -6,55 +6,55 @@ using VContainer.Unity;
 namespace Game.UI
 {
     // ================================================================
-    // UINavigationMB: UINavigationServiceのFeatureInstaller
+    // UINavigationMB: UINavigationService縺ｮFeatureInstaller
     // ================================================================
 
     /// <summary>
-    /// UINavigationServiceをDIコンテナに登録するFeatureInstaller。
+    /// UINavigationService繧奪I繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋFeatureInstaller縲・
     /// 
-    /// ## 概要
+    /// ## 讎りｦ・
     /// 
-    /// UINavigationServiceは、UIInputServiceから受け取ったUIInputEventを処理し、
-    /// 現在選択中のUIElementに配信する役割を持つ。
-    /// また、方向キー入力によるナビゲーション（上下左右の選択移動）も担当する。
+    /// UINavigationService縺ｯ縲ゞIInputService縺九ｉ蜿励￠蜿悶▲縺欟IInputEvent繧貞・逅・＠縲・
+    /// 迴ｾ蝨ｨ驕ｸ謚樔ｸｭ縺ｮUIElement縺ｫ驟堺ｿ｡縺吶ｋ蠖ｹ蜑ｲ繧呈戟縺､縲・
+    /// 縺ｾ縺溘∵婿蜷代く繝ｼ蜈･蜉帙↓繧医ｋ繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ・井ｸ贋ｸ句ｷｦ蜿ｳ縺ｮ驕ｸ謚樒ｧｻ蜍包ｼ峨ｂ諡・ｽ薙☆繧九・
     /// 
-    /// ## 主な機能
+    /// ## 荳ｻ縺ｪ讖溯・
     /// 
-    /// 1. **入力イベントの配信**: 現在のSelectにUIInputEventを配信
-    /// 2. **方向ナビゲーション**: 上下左右キーによる選択移動
-    /// 3. **リピート処理**: 方向キー長押し時の連続移動
+    /// 1. **蜈･蜉帙う繝吶Φ繝医・驟堺ｿ｡**: 迴ｾ蝨ｨ縺ｮSelect縺ｫUIInputEvent繧帝・菫｡
+    /// 2. **譁ｹ蜷代リ繝薙ご繝ｼ繧ｷ繝ｧ繝ｳ**: 荳贋ｸ句ｷｦ蜿ｳ繧ｭ繝ｼ縺ｫ繧医ｋ驕ｸ謚樒ｧｻ蜍・
+    /// 3. **繝ｪ繝斐・繝亥・逅・*: 譁ｹ蜷代く繝ｼ髟ｷ謚ｼ縺玲凾縺ｮ騾｣邯夂ｧｻ蜍・
     /// 
-    /// ## 設定項目
+    /// ## 險ｭ螳夐・岼
     /// 
-    /// - ナビゲーションの入力閾値
-    /// - リピート開始までの遅延時間
-    /// - リピート間隔
+    /// - 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｮ蜈･蜉幃明蛟､
+    /// - 繝ｪ繝斐・繝磯幕蟋九∪縺ｧ縺ｮ驕・ｻｶ譎る俣
+    /// - 繝ｪ繝斐・繝磯俣髫・
     /// </summary>
     public sealed class UINavigationMB : MonoBehaviour, IFeatureInstaller
     {
         // ----------------------------------------------------------------
-        // Inspector設定
+        // Inspector險ｭ螳・
         // ----------------------------------------------------------------
 
         [Header("Navigation Threshold")]
-        [Tooltip("方向入力として認識する最小の大きさ（0.0〜1.0）")]
+        [Tooltip("Inspector setting.")]
         [Range(0.1f, 0.9f)]
         [SerializeField]
         float _navigateThreshold = 0.5f;
 
         [Header("Repeat Settings")]
-        [Tooltip("方向キー長押し時、リピートが始まるまでの遅延（秒）")]
+        [Tooltip("Inspector setting.")]
         [Range(0.1f, 1.0f)]
         [SerializeField]
         float _repeatDelay = 0.4f;
 
-        [Tooltip("リピート発火の間隔（秒）")]
+        [Tooltip("Inspector setting.")]
         [Range(0.05f, 0.5f)]
         [SerializeField]
         float _repeatRate = 0.1f;
 
         [Header("Debug")]
-        [Tooltip("ナビゲーションイベントのログを出力するか")]
+        [Tooltip("繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧､繝吶Φ繝医・繝ｭ繧ｰ繧貞・蜉帙☆繧九°")]
         [SerializeField]
         bool _enableNavigationLogging = false;
 
@@ -65,19 +65,19 @@ namespace Game.UI
         UINavigationDebugView _debugView = new UINavigationDebugView();
 
         // ----------------------------------------------------------------
-        // IFeatureInstaller実装
+        // IFeatureInstaller螳溯｣・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// UINavigationServiceをDIコンテナに登録する。
+        /// UINavigationService繧奪I繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// 
-        /// 登録順序の注意:
-        /// - UINavigationServiceはIUISelectionServiceに依存する
-        /// - UISelectionMBが先に登録されている必要がある
+        /// 逋ｻ骭ｲ鬆・ｺ上・豕ｨ諢・
+        /// - UINavigationService縺ｯIUISelectionService縺ｫ萓晏ｭ倥☆繧・
+        /// - UISelectionMB縺悟・縺ｫ逋ｻ骭ｲ縺輔ｌ縺ｦ縺・ｋ蠢・ｦ√′縺ゅｋ
         /// </summary>
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            // ナビゲーション設定を登録
+            // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳壹ｒ逋ｻ骭ｲ
             builder.RegisterInstance(new UINavigationOptions
             {
                 NavigateThreshold = _navigateThreshold,
@@ -86,13 +86,13 @@ namespace Game.UI
                 EnableNavigationLogging = _enableNavigationLogging
             });
 
-            // UINavigationServiceを登録
-            // - IUINavigationService: 公開インターフェース
-            builder.Register<UINavigationService>(Lifetime.Singleton)
+            // UINavigationService繧堤匳骭ｲ
+            // - IUINavigationService: 蜈ｬ髢九う繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ
+            builder.Register<UINavigationService>(RuntimeLifetime.Singleton)
                 .As<IUINavigationService>()
                 .As<IUINavigationTelemetry>();
 
-            builder.Register<UIInputNavigateManagerService>(Lifetime.Singleton)
+            builder.Register<UIInputNavigateManagerService>(RuntimeLifetime.Singleton)
             .As<IUIInputNavigateService>()
             .As<IScopeAcquireHandler>()
             .As<IScopeReleaseHandler>();
@@ -110,25 +110,25 @@ namespace Game.UI
     }
 
     // ================================================================
-    // UINavigationOptions: UINavigationServiceのオプション設定
+    // UINavigationOptions: UINavigationService縺ｮ繧ｪ繝励す繝ｧ繝ｳ險ｭ螳・
     // ================================================================
 
     /// <summary>
-    /// UINavigationServiceのオプション設定。
-    /// MBのInspector設定をServiceに渡すために使用。
+    /// UINavigationService縺ｮ繧ｪ繝励す繝ｧ繝ｳ險ｭ螳壹・
+    /// MB縺ｮInspector險ｭ螳壹ｒService縺ｫ貂｡縺吶◆繧√↓菴ｿ逕ｨ縲・
     /// </summary>
     public sealed class UINavigationOptions
     {
-        /// <summary>方向入力として認識する最小の大きさ</summary>
+        /// <summary>譁ｹ蜷大・蜉帙→縺励※隱崎ｭ倥☆繧区怙蟆上・螟ｧ縺阪＆</summary>
         public float NavigateThreshold { get; set; } = 0.5f;
 
-        /// <summary>リピートが始まるまでの遅延（秒）</summary>
+        /// <summary>繝ｪ繝斐・繝医′蟋九∪繧九∪縺ｧ縺ｮ驕・ｻｶ・育ｧ抵ｼ・/summary>
         public float RepeatDelay { get; set; } = 0.4f;
 
-        /// <summary>リピート発火の間隔（秒）</summary>
+        /// <summary>繝ｪ繝斐・繝育匱轣ｫ縺ｮ髢馴囈・育ｧ抵ｼ・/summary>
         public float RepeatRate { get; set; } = 0.1f;
 
-        /// <summary>ナビゲーションイベントのログを出力するか</summary>
+        /// <summary>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧､繝吶Φ繝医・繝ｭ繧ｰ繧貞・蜉帙☆繧九°</summary>
         public bool EnableNavigationLogging { get; set; }
     }
 }

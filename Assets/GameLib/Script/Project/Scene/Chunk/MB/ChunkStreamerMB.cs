@@ -54,7 +54,7 @@ namespace Game.Chunk
         [BoxGroup(RuntimeGroup)]
         [SerializeField] Transform? chunkParent;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             chunkSettings.EnsureDefaults();
             originSettings.EnsureDefaults();
@@ -76,18 +76,18 @@ namespace Game.Chunk
 
             builder.RegisterInstance(config);
 
-            builder.Register<ChunkViewProviderService>(Lifetime.Singleton)
+            builder.Register<ChunkViewProviderService>(RuntimeLifetime.Singleton)
                 .As<IChunkViewProvider>();
 
-            builder.Register<ChunkFactoryService>(Lifetime.Singleton)
+            builder.Register<ChunkFactoryService>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)
                 .As<IChunkFactory>();
 
-            builder.Register<ChunkStreamerService>(Lifetime.Singleton)
+            builder.Register<ChunkStreamerService>(RuntimeLifetime.Singleton)
                 .As<IChunkStreamer>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
 
 #if UNITY_EDITOR

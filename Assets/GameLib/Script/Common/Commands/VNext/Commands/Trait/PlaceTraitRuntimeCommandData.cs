@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Trait;
@@ -79,13 +79,13 @@ namespace Game.Commands.VNext
 
         [BoxGroup("After Place")]
         [LabelText("Run On Placed")]
-        [Tooltip("PlaceTraitRuntime 実行成功後、spawn された Runtime を actor にして実行します。Trait のデータと spawn 後 Runtime の Blackboard を VarStore にマージした状態で流れます。")]
+        [Tooltip("Inspector setting.")]
         public bool RunOnPlacedCommands;
 
         [BoxGroup("After Place")]
         [ShowIf(nameof(RunOnPlacedCommands))]
         [LabelText("On Placed Commands")]
-        [Tooltip("PlaceTraitRuntime 実行成功後、spawn された Runtime を actor にして実行します。Trait のデータと spawn 後 Runtime の Blackboard を VarStore にマージした状態で流れます。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnPlacedCommands = new();
     }
 }

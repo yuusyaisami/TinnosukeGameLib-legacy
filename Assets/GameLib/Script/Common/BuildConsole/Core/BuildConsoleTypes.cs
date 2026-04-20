@@ -81,6 +81,6 @@ namespace Game.BuildConsole
         void Clear();
         void Log(string message, LogType logType = LogType.Log, string? stackTrace = null);
         void LogScope(IScopeNode? scope, string message, LogType logType = LogType.Log, string? stackTrace = null);
-        void LogResolver(IObjectResolver? resolver, string message, LogType logType = LogType.Log, string? stackTrace = null);
+        void LogResolver(IRuntimeResolver? resolver, string message, LogType logType = LogType.Log, string? stackTrace = null);
     }
 }

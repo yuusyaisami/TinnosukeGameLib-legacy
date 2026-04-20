@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Channel;
 using Game.Common;
@@ -184,7 +184,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Rotate Speed")]
         [LabelText("Damping Rate")]
-        [Tooltip("1 未満で減速、1 より大きい場合は加速します。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Speed")]
         public DynamicValue<float> RotateSpeedDampingRate = DynamicValue<float>.FromSource(new LiteralFloatSource(1f));
 
@@ -195,13 +195,13 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Rotate Angle")]
         [LabelText("Smooth Time")]
-        [Tooltip("0 で即時収束します。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Angle")]
         public DynamicValue<float> RotateAngleSmoothTime = DynamicValue<float>.FromSource(new LiteralFloatSource(0.12f));
 
         [BoxGroup("Rotate Angle")]
         [LabelText("Max Speed")]
-        [Tooltip("0 で上限なし。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf("@Mode == TransformAnimationCommandMode.Rotate && RotateAction == TransformAnimationRotateAction.Angle")]
         public DynamicValue<float> RotateAngleMaxSpeed = DynamicValue<float>.FromSource(new LiteralFloatSource(0f));
 

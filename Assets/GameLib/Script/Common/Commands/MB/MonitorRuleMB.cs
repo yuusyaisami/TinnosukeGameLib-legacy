@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -16,13 +16,13 @@ namespace Game.Commands
     {
         [BoxGroup("Monitor Rules")]
         [LabelText("Monitor Rules")]
-        [Tooltip("この scope に登録する monitor rule 一覧です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         MonitorRule[] _monitorRules = Array.Empty<MonitorRule>();
 
         [BoxGroup("Monitor Rules")]
         [LabelText("Shared Expression Variables")]
-        [Tooltip("各 rule の式 source から共通参照できる expression 変数一覧です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = false)]
         List<ExpressionVariable> _sharedExpressionVariables = new();
@@ -41,10 +41,10 @@ namespace Game.Commands
         }
 #endif
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // Register a scope-aware handler that will add/remove rules when the scope acquires/releases.
-            builder.Register<MonitorRuleService>(Lifetime.Singleton)
+            builder.Register<MonitorRuleService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(_monitorRules)
                 .WithParameter(_sharedExpressionVariables)

@@ -56,9 +56,9 @@ namespace Game.UI
         public VNext.CommandListData OnBecameInactiveInLayer => _onBecameInactiveInLayer;
         public VNext.CommandListData OnBecameSuppressedByOtherLayer => _onBecameSuppressedByOtherLayer;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<ModalStackLayerAffectCommandService>(Lifetime.Singleton)
+            builder.Register<ModalStackLayerAffectCommandService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter<IModalStackLayerAffectCommandOptions>(this)
                 .As<IScopeAcquireHandler>()

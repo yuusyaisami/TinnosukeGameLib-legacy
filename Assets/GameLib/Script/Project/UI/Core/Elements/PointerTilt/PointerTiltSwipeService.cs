@@ -16,7 +16,7 @@ namespace Game.UI
     public sealed class PointerTiltSwipeService :
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable,
+        IScopeTickHandler,
         IUIInputPreviewObserver
     {
         const float Epsilon = 0.0001f;

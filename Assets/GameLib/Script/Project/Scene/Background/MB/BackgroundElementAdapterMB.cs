@@ -43,9 +43,9 @@ namespace Game.Background
         public bool ApplySortingOrder => applySortingOrder;
         public int SortingOrderOffset => sortingOrderOffset;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
-            builder.Register<BackgroundElementAdapterService>(Lifetime.Singleton)
+            builder.Register<BackgroundElementAdapterService>(RuntimeLifetime.Singleton)
                 .WithParameter<IBackgroundElementAdapterOptions>(this)
                 .As<IBackgroundElementAdapter>()
                 .As<IScopeAcquireHandler>()

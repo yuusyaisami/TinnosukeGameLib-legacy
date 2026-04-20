@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using DG.Tweening;
 using UnityEngine;
@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Game.UI
 {
     /// <summary>
-    /// UI表示/非表示のFade設定。
+    /// UI陦ｨ遉ｺ/髱櫁｡ｨ遉ｺ縺ｮFade險ｭ螳壹・
     /// </summary>
     [Serializable]
     public struct UIFadeOptions
@@ -20,13 +20,13 @@ namespace Game.UI
         public Ease FadeInEase;
         public Ease FadeOutEase;
 
-        [Tooltip("UI用途では true 推奨（Time.timeScale の影響を受けない）。")]
+        [Tooltip("Inspector setting.")]
         public bool UseUnscaledTime;
 
-        [Tooltip("Fade中は interactable/blocksRaycasts を false にする。")]
+        [Tooltip("Inspector setting.")]
         public bool DisableInteractionDuringFade;
 
-        [Tooltip("非表示完了時に描画を停止する（Graphic.enabled等）。")]
+        [Tooltip("Inspector setting.")]
         public bool DisableRenderWhenHidden;
 
         public static UIFadeOptions Default => new()

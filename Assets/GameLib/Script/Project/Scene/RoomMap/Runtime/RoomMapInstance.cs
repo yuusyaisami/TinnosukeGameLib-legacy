@@ -17,7 +17,7 @@ namespace Game.RoomMap
             public readonly int TileId;
             public readonly Vector3 WorldPos;
 
-            public readonly IObjectResolver? Resolver;
+            public readonly IRuntimeResolver? Resolver;
             public readonly GameObject? Root;
             public readonly IScopeNode? ScopeNode;
             public readonly RuntimeLifetimeScope? RuntimeScope;
@@ -32,7 +32,7 @@ namespace Game.RoomMap
                 int y,
                 int tileId,
                 Vector3 worldPos,
-                IObjectResolver? resolver,
+                IRuntimeResolver? resolver,
                 GameObject? root,
                 IScopeNode? scopeNode,
                 RuntimeLifetimeScope? runtimeScope,
@@ -74,7 +74,7 @@ namespace Game.RoomMap
             public readonly Vector2Int Cell;
             public readonly Vector3 WorldPos;
 
-            public readonly IObjectResolver? Resolver;
+            public readonly IRuntimeResolver? Resolver;
             public readonly GameObject? Root;
             public readonly IScopeNode? ScopeNode;
             public readonly RuntimeLifetimeScope? RuntimeScope;
@@ -86,7 +86,7 @@ namespace Game.RoomMap
                 int tileId,
                 Vector2Int cell,
                 Vector3 worldPos,
-                IObjectResolver? resolver,
+                IRuntimeResolver? resolver,
                 GameObject? root,
                 IScopeNode? scopeNode,
                 RuntimeLifetimeScope? runtimeScope,

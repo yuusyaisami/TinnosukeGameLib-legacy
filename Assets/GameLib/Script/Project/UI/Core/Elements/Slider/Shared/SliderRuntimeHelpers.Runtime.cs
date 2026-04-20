@@ -90,7 +90,7 @@ namespace Game.UI
                 TrySetFloatVar(vars, VarIds.GameLib.Slider.entryNormalized, instance.EntryNormalized);
         }
 
-        public static async UniTask<IObjectResolver?> SpawnRuntimeAsync(
+        public static async UniTask<IRuntimeResolver?> SpawnRuntimeAsync(
             IAsyncSpawnerService spawner,
             BaseRuntimeTemplateSO template,
             Transform parent,
@@ -113,7 +113,7 @@ namespace Game.UI
         }
 
         public static void ExtractSpawnedInfo(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             out Transform? root,
             out IScopeNode? scopeNode,
             out RuntimeLifetimeScope? runtimeScope)
@@ -165,7 +165,7 @@ namespace Game.UI
             }
         }
 
-        public static void ReleaseSpawnedRuntime(IObjectResolver? resolver)
+        public static void ReleaseSpawnedRuntime(IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return;

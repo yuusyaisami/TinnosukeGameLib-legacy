@@ -1,6 +1,4 @@
-#nullable enable
-using VContainer;
-using VContainer.Unity;
+﻿#nullable enable
 using UnityEngine;
 using Game.Scene;
 using Game.Common;
@@ -8,23 +6,23 @@ using Game.Common;
 namespace Game.UI
 {
     // ================================================================
-    // UILifetimeScope: UI階層のルートとなるLifetimeScope
+    // UILifetimeScope: UI髫主ｱ､縺ｮ繝ｫ繝ｼ繝医→縺ｪ繧記ifetimeScope
     // ================================================================
     //
-    // ## 概要
+    // ## 讎りｦ・
     //
-    // UILifetimeScopeは、UI全体のルートコンテナとして機能し、
-    // UI関連の共通サービスを提供する。
+    // UILifetimeScope縺ｯ縲ゞI蜈ｨ菴薙・繝ｫ繝ｼ繝医さ繝ｳ繝・リ縺ｨ縺励※讖溯・縺励・
+    // UI髢｢騾｣縺ｮ蜈ｱ騾壹し繝ｼ繝薙せ繧呈署萓帙☆繧九・
     //
-    // ## サービス登録
+    // ## 繧ｵ繝ｼ繝薙せ逋ｻ骭ｲ
     //
-    // 以下のサービスがこのスコープで登録される:
-    // - IUIElementLifecycleService: UIElement生成/削除の一元管理
+    // 莉･荳九・繧ｵ繝ｼ繝薙せ縺後％縺ｮ繧ｹ繧ｳ繝ｼ繝励〒逋ｻ骭ｲ縺輔ｌ繧・
+    // - IUIElementLifecycleService: UIElement逕滓・/蜑企勁縺ｮ荳蜈・ｮ｡逅・
     //
-    // ## 配置
+    // ## 驟咲ｽｮ
     //
-    // 通常、シーンのLifetimeScopeの直下に配置される。
-    // UIElementLifetimeScopeはこのスコープの子となる。
+    // 騾壼ｸｸ縲√す繝ｼ繝ｳ縺ｮLifetimeScope縺ｮ逶ｴ荳九↓驟咲ｽｮ縺輔ｌ繧九・
+    // UIElementLifetimeScope縺ｯ縺薙・繧ｹ繧ｳ繝ｼ繝励・蟄舌→縺ｪ繧九・
     //
     // ================================================================
 
@@ -32,38 +30,39 @@ namespace Game.UI
     [RequireComponent(typeof(Game.Scalar.BaseScalarMB))]
     [RequireComponent(typeof(Game.Common.EventMB))]
 
-    // UI専用RequireComponent属性
+    // UI蟆ら畑RequireComponent螻樊ｧ
     [RequireComponent(typeof(UIInputMB))]
     [RequireComponent(typeof(UINavigationMB))]
     [RequireComponent(typeof(ModalStackChannelHubMB))]
     [RequireComponent(typeof(UISelectionMB))]
     [RequireComponent(typeof(UICanvasMB))]
     [RequireComponent(typeof(BlackboardMB))]
-    public class UILifetimeScope : BaseLifetimeScope<SceneLifetimeScope>
+    public class UILifetimeScope : RuntimeLifetimeScopeBase
     {
-        // UI は親(Scene)の下でビルドされるのでルートではない
+        // UI 縺ｯ隕ｪ(Scene)縺ｮ荳九〒繝薙Ν繝峨＆繧後ｋ縺ｮ縺ｧ繝ｫ繝ｼ繝医〒縺ｯ縺ｪ縺・
         protected override bool IsBuildRoot => false;
-        // 協調ビルドには参加させる
+        // 蜊碑ｪｿ繝薙Ν繝峨↓縺ｯ蜿ょ刈縺輔○繧・
         protected override bool UseBuildCoordinator => true;
-        // 自動 Build は不要（親からの協調ビルド or BaseLifetimeScopeSpawner が面倒を見る）
+        // 閾ｪ蜍・Build 縺ｯ荳崎ｦ・ｼ郁ｦｪ縺九ｉ縺ｮ蜊碑ｪｿ繝薙Ν繝・or BaseLifetimeScopeSpawner 縺碁擇蛟偵ｒ隕九ｋ・・
         protected override bool AutoBuildOnAwake => false;
+        protected override LifetimeScopeKind RequiredParentKind => LifetimeScopeKind.Scene;
 
-        protected override void ConfigureBase(IContainerBuilder builder)
+        protected override void ConfigureBase(IRuntimeContainerBuilder builder)
         {
             // ----------------------------------------------------------------
             // UIElementLifecycleService
             // ----------------------------------------------------------------
             //
-            // UI要素の生成・削除を一元的に管理するサービス。
-            // 以下の機能を提供:
-            // - BaseLifetimeScopeSpawner経由のUIElement生成
-            // - IScopeLifecycleServiceを使った安全な削除
-            // - Blackboard/Commandのコンテキスト設定
+            // UI隕∫ｴ縺ｮ逕滓・繝ｻ蜑企勁繧剃ｸ蜈・噪縺ｫ邂｡逅・☆繧九し繝ｼ繝薙せ縲・
+            // 莉･荳九・讖溯・繧呈署萓・
+            // - BaseLifetimeScopeSpawner邨檎罰縺ｮUIElement逕滓・
+            // - IScopeLifecycleService繧剃ｽｿ縺｣縺溷ｮ牙・縺ｪ蜑企勁
+            // - Blackboard/Command縺ｮ繧ｳ繝ｳ繝・く繧ｹ繝郁ｨｭ螳・
             //
-            // このサービスはUILifetimeScopeでグローバルに登録され、
-            // すべての子スコープから利用可能となる。
+            // 縺薙・繧ｵ繝ｼ繝薙せ縺ｯUILifetimeScope縺ｧ繧ｰ繝ｭ繝ｼ繝舌Ν縺ｫ逋ｻ骭ｲ縺輔ｌ縲・
+            // 縺吶∋縺ｦ縺ｮ蟄舌せ繧ｳ繝ｼ繝励°繧牙茜逕ｨ蜿ｯ閭ｽ縺ｨ縺ｪ繧九・
             // ----------------------------------------------------------------
-            builder.Register<UIElementLifecycleService>(Lifetime.Singleton)
+            builder.Register<UIElementLifecycleService>(RuntimeLifetime.Singleton)
                 .As<IUIElementLifecycleService>()
                 .WithParameter<Transform>(transform);
         }

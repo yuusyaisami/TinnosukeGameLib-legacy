@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -149,12 +149,12 @@ namespace Game.Channel
     {
         [BoxGroup("Visual")]
         [LabelText("Enable Visual")]
-        [Tooltip("Mesh 自体の描画を有効にします。Material preset の Enabled とは別で、こちらが false の場合は見た目を描画しません。")]
+        [Tooltip("Inspector setting.")]
         public bool EnableVisual = true;
 
         [BoxGroup("Visual")]
         [LabelText("Default Shader")]
-        [Tooltip("Track material に個別 Material が未指定の場合に使う標準 Shader です。MeshChannel の material 効果を使うには _MeshBaseColor などの MeshChannel property を持つ Shader が必要です。未対応 Shader の場合、runtime では互換 fallback として Game/Mesh/MeshChannelSurface を優先します。")]
+        [Tooltip("Inspector setting.")]
         public Shader? DefaultShader;
 
         [BoxGroup("Visual")]
@@ -199,7 +199,7 @@ namespace Game.Channel
 
         [BoxGroup("Meta")]
         [LabelText("Enabled")]
-        [Tooltip("Track の要求有効状態です。Line preset の Condition と合成されて、runtime の最終 Enabled が決まります。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = true;
 
         [BoxGroup("Visualizer")]
@@ -280,32 +280,32 @@ namespace Game.Channel
     {
         [LabelText("Contour Tolerance")]
         [MinValue(0f)]
-        [Tooltip("Collider 同期時の輪郭近似許容値です。大きいほど頂点数を減らしやすくなりますが、形状精度は下がります。")]
+        [Tooltip("Inspector setting.")]
         public float ContourTolerance = 0.02f;
 
         [LabelText("Max Point Count")]
         [MinValue(3)]
-        [Tooltip("1 path あたりで collider 同期に使う最大頂点数です。上げるほど精密になりますが負荷も増えます。")]
+        [Tooltip("Inspector setting.")]
         public int MaxPointCount = 128;
 
         [LabelText("Min Point Move")]
         [MinValue(0f)]
-        [Tooltip("前回同期から各頂点の移動量がこの値未満なら、path 更新を省略しやすくします。")]
+        [Tooltip("Inspector setting.")]
         public float MinPointMove = 0.01f;
 
         [LabelText("Min Area Delta")]
         [MinValue(0f)]
-        [Tooltip("ポリゴン面積差がこの値未満なら collider 更新を抑制します。微小な揺れを無視したい時に使います。")]
+        [Tooltip("Inspector setting.")]
         public float MinAreaDelta = 0.005f;
 
         [LabelText("Min Angle Delta")]
         [MinValue(0f)]
-        [Tooltip("輪郭角度の変化がこの値未満なら更新を省略しやすくします。細かな法線揺れの同期抑制用です。")]
+        [Tooltip("Inspector setting.")]
         public float MinAngleDelta = 0.5f;
 
         [LabelText("Update Interval Frames")]
         [MinValue(1)]
-        [Tooltip("PolygonCollider2D への同期を行う最短フレーム間隔です。1 なら毎フレーム評価します。")]
+        [Tooltip("Inspector setting.")]
         public int UpdateIntervalFrames = 1;
 
         internal MeshPolygonSyncSettings CreateRuntimeCopy()
@@ -327,12 +327,12 @@ namespace Game.Channel
     {
         [LabelText("Max Samples")]
         [MinValue(4)]
-        [Tooltip("Shader へ送る輪郭サンプル数の上限です。多いほど輪郭距離表現は安定しますが送信コストは増えます。")]
+        [Tooltip("Inspector setting.")]
         public int MaxSamples = 48;
 
         [LabelText("Min Sample Spacing")]
         [MinValue(0.001f)]
-        [Tooltip("輪郭サンプル同士の最小間隔です。小さいほど密に取りますが、近接サンプルが増えます。")]
+        [Tooltip("Inspector setting.")]
         public float MinSampleSpacing = 0.025f;
 
         internal MeshContourSamplingPreset CreateRuntimeCopy()
@@ -349,30 +349,30 @@ namespace Game.Channel
     public sealed class MeshContourGradientMaterialPreset
     {
         [LabelText("Enabled")]
-        [Tooltip("輪郭に近い領域へ追加色を乗せます。輪郭サンプルとの距離を基準に、境界側だけを発光・縁取りのように強調したい時に使います。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = true;
 
         [LabelText("Color")]
-        [Tooltip("輪郭付近へ加算的に混ぜる色です。Base Tint の上から足されるため、明るい色ほど縁取り感が強く出ます。")]
+        [Tooltip("Inspector setting.")]
         public Color Color = new(1f, 0.35f, 0.35f, 1f);
 
         [LabelText("Blend Mode")]
-        [Tooltip("輪郭色の合成方法です。Multiply は下地色を保ちながら色味を乗せ、Add は発光寄り、Override は指定色へ寄せ、Overlay は中間調を保ちながらコントラストを付けます。")]
+        [Tooltip("Inspector setting.")]
         public MeshMaterialBlendMode BlendMode = MeshMaterialBlendMode.Multiply;
 
         [LabelText("Strength")]
         [MinValue(0f)]
-        [Tooltip("輪郭付近へどれだけ強く色を乗せるかです。0 で無効相当、値を上げるほど境界の色づきが強くなります。")]
+        [Tooltip("Inspector setting.")]
         public float Strength = 0.2f;
 
         [LabelText("Range")]
         [MinValue(0.001f)]
-        [Tooltip("輪郭から何距離まで色づきを広げるかです。大きいほど境界色が内側まで広がり、小さいほど細い縁取りになります。")]
+        [Tooltip("Inspector setting.")]
         public float Range = 0.5f;
 
         [LabelText("Falloff")]
         [MinValue(0.001f)]
-        [Tooltip("輪郭から内側へ入るほどどの速さで色を落とすかです。大きいほど輪郭付近に集中し、小さいほど広めに残ります。")]
+        [Tooltip("Inspector setting.")]
         public float Falloff = 1.5f;
 
         internal MeshContourGradientMaterialPreset CreateRuntimeCopy()
@@ -393,26 +393,26 @@ namespace Game.Channel
     public sealed class MeshEdgeAlphaMaterialPreset
     {
         [LabelText("Enabled")]
-        [Tooltip("輪郭側を相対的に濃く見せるため、内側の Alpha を落として境界を立てる効果です。背景との重なりで縁を見せたい時に使います。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = true;
 
         [LabelText("Mode")]
-        [Tooltip("Fade Interior は内側を薄くして輪郭を立てます。Fade Contour は輪郭側を薄くして、中心を残すマスク表現にします。")]
+        [Tooltip("Inspector setting.")]
         public MeshEdgeAlphaMode Mode = MeshEdgeAlphaMode.FadeInterior;
 
         [LabelText("Gain")]
         [MinValue(0f)]
-        [Tooltip("選んだモード側をどれだけ薄くするかです。0 で変化なし、1 に近いほど対象側の Alpha が大きく減ります。")]
+        [Tooltip("Inspector setting.")]
         public float Gain = 0.35f;
 
         [LabelText("Range")]
         [MinValue(0.001f)]
-        [Tooltip("輪郭から何距離まで境界 Alpha 効果を広げるかです。大きいほど内側まで影響し、小さいほど輪郭近くだけに限定されます。")]
+        [Tooltip("Inspector setting.")]
         public float Range = 0.2f;
 
         [LabelText("Softness")]
         [Range(0f, 1f)]
-        [Tooltip("輪郭と内側の Alpha 切り替えの滑らかさです。0 に近いほど輪郭がシャープ、1 に近いほどなだらかに遷移します。")]
+        [Tooltip("Inspector setting.")]
         public float Softness = 0.65f;
 
         internal MeshEdgeAlphaMaterialPreset CreateRuntimeCopy()
@@ -432,30 +432,30 @@ namespace Game.Channel
     public sealed class MeshBandMaterialPreset
     {
         [LabelText("Enabled")]
-        [Tooltip("輪郭距離を段階化して帯模様を入れます。エネルギーラインや等高線のような見た目を作る用途です。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = false;
 
         [LabelText("Count")]
         [MinValue(1)]
-        [Tooltip("帯の本数です。多いほど細かいストライプになります。")]
+        [Tooltip("Inspector setting.")]
         public int Count = 4;
 
         [LabelText("Contrast")]
         [MinValue(0f)]
-        [Tooltip("帯の境界の強さです。大きいほど帯の切り替わりがはっきりし、小さいほど馴染みます。")]
+        [Tooltip("Inspector setting.")]
         public float Contrast = 0.65f;
 
         [LabelText("Color")]
-        [Tooltip("帯へ混ぜる色です。Base Tint の上にこの色を補間します。")]
+        [Tooltip("Inspector setting.")]
         public Color Color = new(0.95f, 0.95f, 1f, 1f);
 
         [LabelText("Blend Mode")]
-        [Tooltip("帯色の合成方法です。Multiply は下地に馴染みやすく、Add は明るく強く、Override は色替え、Overlay はコントラストを保った着色です。")]
+        [Tooltip("Inspector setting.")]
         public MeshMaterialBlendMode BlendMode = MeshMaterialBlendMode.Multiply;
 
         [LabelText("Intensity")]
         [MinValue(0f)]
-        [Tooltip("帯色をどれだけ強く混ぜるかです。0 で実質無効、上げるほど帯模様が目立ちます。")]
+        [Tooltip("Inspector setting.")]
         public float Intensity = 0.25f;
 
         internal MeshBandMaterialPreset CreateRuntimeCopy()
@@ -476,29 +476,29 @@ namespace Game.Channel
     public sealed class MeshEdgeFlowMaterialPreset
     {
         [LabelText("Enabled")]
-        [Tooltip("輪郭沿いに流れるハイライトを表示します。境界に沿って光が走るような演出用です。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = false;
 
         [LabelText("Color")]
-        [Tooltip("流れるハイライトの色です。")]
+        [Tooltip("Inspector setting.")]
         public Color Color = new(1f, 1f, 1f, 1f);
 
         [LabelText("Blend Mode")]
-        [Tooltip("流れ色の合成方法です。Multiply は下地へ馴染み、Add は光の走り、Override は色置換寄り、Overlay は色差を活かした強調になります。")]
+        [Tooltip("Inspector setting.")]
         public MeshMaterialBlendMode BlendMode = MeshMaterialBlendMode.Multiply;
 
         [LabelText("Width")]
         [MinValue(0.001f)]
-        [Tooltip("輪郭から内側へどれだけの幅で流れ表現を出すかです。大きいほど太い帯になります。")]
+        [Tooltip("Inspector setting.")]
         public float Width = 0.12f;
 
         [LabelText("Speed")]
-        [Tooltip("流れアニメーションの速度です。正値で一方向、負値で逆方向へ流れます。")]
+        [Tooltip("Inspector setting.")]
         public float Speed = 1.2f;
 
         [LabelText("Intensity")]
         [MinValue(0f)]
-        [Tooltip("ハイライトの明るさです。大きいほど流れが強く見えます。")]
+        [Tooltip("Inspector setting.")]
         public float Intensity = 0.45f;
 
         internal MeshEdgeFlowMaterialPreset CreateRuntimeCopy()
@@ -519,21 +519,21 @@ namespace Game.Channel
     public sealed class MeshInteriorNoiseMaterialPreset
     {
         [LabelText("Enabled")]
-        [Tooltip("内部にノイズを混ぜて、面の均一さを崩します。揺らぎやざらつきの演出用です。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = false;
 
         [LabelText("Scale")]
         [MinValue(0.001f)]
-        [Tooltip("ノイズの細かさです。大きいほど細かい粒になり、小さいほど大きなムラになります。")]
+        [Tooltip("Inspector setting.")]
         public float Scale = 8f;
 
         [LabelText("Speed")]
-        [Tooltip("ノイズの時間変化速度です。0 なら静止、値を上げるほど模様が流れます。")]
+        [Tooltip("Inspector setting.")]
         public float Speed = 0.5f;
 
         [LabelText("Strength")]
         [MinValue(0f)]
-        [Tooltip("ノイズでどれだけ色を揺らすかです。大きいほど面のムラが強く出ます。")]
+        [Tooltip("Inspector setting.")]
         public float Strength = 0.08f;
 
         internal MeshInteriorNoiseMaterialPreset CreateRuntimeCopy()
@@ -553,25 +553,25 @@ namespace Game.Channel
     {
         [BoxGroup("Base")]
         [LabelText("Enabled")]
-        [Tooltip("false の間は MeshMaterialFx の見た目設定を適用しません。Mesh 自体の描画可否は RenderPipeline の Enable Visual が管理します。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = true;
 
         [BoxGroup("Base")]
         [LabelText("Material")]
         [ShowIf(nameof(Enabled))]
-        [Tooltip("個別に Material を差し替えたい場合だけ指定します。未指定時は互換 fallback Material を生成して使います。MeshChannel 効果を反映したい場合は、_MeshBaseColor などの MeshChannel property を持つ Material/Shader を使ってください。")]
+        [Tooltip("Inspector setting.")]
         public Material? Material;
 
         [BoxGroup("Base")]
         [LabelText("Base Tint")]
         [ShowIf(nameof(Enabled))]
-        [Tooltip("最終色の基礎色です。各 material 効果はこの色を土台に乗ります。まず見た目の全体色を決める項目です。")]
+        [Tooltip("Inspector setting.")]
         public Color BaseTint = Color.white;
 
         [BoxGroup("Base")]
         [LabelText("Sorting Order Offset")]
         [ShowIf(nameof(Enabled))]
-        [Tooltip("RenderPipeline の Sorting Order に加算する値です。同じ MeshChannel 内で前後関係を微調整したい時に使います。")]
+        [Tooltip("Inspector setting.")]
         public int SortingOrderOffset = 0;
 
         [BoxGroup("Contour Input")]
@@ -666,13 +666,13 @@ namespace Game.Channel
     {
         [BoxGroup("Line")]
         [LabelText("Condition")]
-        [Tooltip("Track の最終 Enabled を構成する DynamicValue<bool> です。false のときは RequestedEnabled が true でも track.Enabled は false になります。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
 
         [BoxGroup("Line")]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, DefaultExpandedState = true)]
         [LabelText("Points")]
-        [Tooltip("Line を構成する基準点です。2 点未満しか解決できない場合は line を生成しません。")]
+        [Tooltip("Inspector setting.")]
         public List<DynamicValue<Vector3>> Points = new()
         {
             DynamicValueExtensions.FromLiteral(Vector3.zero),
@@ -681,18 +681,18 @@ namespace Game.Channel
 
         [BoxGroup("Line")]
         [LabelText("Closed")]
-        [Tooltip("有効にすると末尾と先頭を結び、閉じたループとして line を扱います。")]
+        [Tooltip("Inspector setting.")]
         public bool Closed = false;
 
         [BoxGroup("Line")]
         [LabelText("Smooth Path")]
-        [Tooltip("有効時は中間点を補間して折れを滑らかにします。点数が増えるため見た目と負荷の両方に影響します。")]
+        [Tooltip("Inspector setting.")]
         public bool SmoothPath = true;
 
         [BoxGroup("Line")]
         [LabelText("Smoothing Subdivisions")]
         [MinValue(1)]
-        [Tooltip("Smooth Path 使用時の補間分割数です。大きいほど滑らかですが、生成点数も増えます。")]
+        [Tooltip("Inspector setting.")]
         public int SmoothingSubdivisions = 8;
 
         internal override MeshTrackPlayerPresetBase CreateRuntimeCopy()
@@ -785,7 +785,7 @@ namespace Game.Channel
     {
         [BoxGroup("Target Link")]
         [LabelText("Condition")]
-        [Tooltip("Track の最終 Enabled を構成する DynamicValue<bool> です。false のときは RequestedEnabled が true でも track.Enabled は false になります。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
 
         [BoxGroup("Target Link")]
@@ -840,30 +840,30 @@ namespace Game.Channel
         [BoxGroup("Shape")]
         [LabelText("Base Width")]
         [MinValue(0.001f)]
-        [Tooltip("line の基準太さです。Head/Tail taper がない区間ではこの幅が使われます。")]
+        [Tooltip("Inspector setting.")]
         public float BaseWidth = 0.08f;
 
         [BoxGroup("Shape")]
         [LabelText("Head Taper Normalized")]
         [Range(0f, 1f)]
-        [Tooltip("線全長に対して、先頭側を細くする割合です。0.25 なら前方 25% を使って先端へ向かって細くします。")]
+        [Tooltip("Inspector setting.")]
         public float HeadTaperNormalized = 0.1f;
 
         [BoxGroup("Shape")]
         [LabelText("Tail Taper Normalized")]
         [Range(0f, 1f)]
-        [Tooltip("線全長に対して、後端側を細くする割合です。軌道線などで尻尾を細くしたい時に使います。")]
+        [Tooltip("Inspector setting.")]
         public float TailTaperNormalized = 0.1f;
 
         [BoxGroup("Wave")]
         [LabelText("Wave Enabled")]
-        [Tooltip("有効時は center line を法線方向に波打たせます。")]
+        [Tooltip("Inspector setting.")]
         public bool WaveEnabled = true;
 
         [BoxGroup("Wave")]
         [ShowIf(nameof(ShowWaveSettings))]
         [LabelText("Wave Space")]
-        [Tooltip("波長の基準空間です。World はワールド距離、NormalizedLength は線全長 0-1 を基準にします。")]
+        [Tooltip("Inspector setting.")]
         public MeshWaveSpace WaveSpace = MeshWaveSpace.NormalizedLength;
 
         [BoxGroup("Wave")]
@@ -890,32 +890,32 @@ namespace Game.Channel
 
         [BoxGroup("Dash")]
         [LabelText("Dash Enabled")]
-        [Tooltip("有効時は pattern に従って line を visible / gap に分割します。gap は見た目だけでなく collider/hit capture にも反映されます。")]
+        [Tooltip("Inspector setting.")]
         public bool DashEnabled = false;
 
         [BoxGroup("Dash")]
         [ShowIf(nameof(DashEnabled))]
         [LabelText("Dash Space")]
-        [Tooltip("pattern 長さの基準空間です。World はワールド距離、NormalizedLength は線全長 0-1 を基準にします。")]
+        [Tooltip("Inspector setting.")]
         public MeshWaveSpace DashSpace = MeshWaveSpace.World;
 
         [BoxGroup("Dash")]
         [ShowIf(nameof(DashEnabled))]
         [LabelText("Dash Scroll Speed")]
-        [Tooltip("pattern の開始位置を時間で流す速度です。Wave Scroll とは独立して動きます。")]
+        [Tooltip("Inspector setting.")]
         public float DashScrollSpeed = 0f;
 
         [BoxGroup("Dash")]
         [ShowIf(nameof(DashEnabled))]
         [LabelText("Dash Scroll Offset")]
-        [Tooltip("pattern の開始位置を固定オフセットします。")]
+        [Tooltip("Inspector setting.")]
         public float DashScrollOffset = 0f;
 
         [BoxGroup("Dash")]
         [ShowIf(nameof(DashEnabled))]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, DefaultExpandedState = true)]
         [LabelText("Pattern")]
-        [Tooltip("Visible / Gap と長さの繰り返し配列です。点線・破線・一点鎖線をこの組み合わせで表現します。")]
+        [Tooltip("Inspector setting.")]
         public List<MeshLineDashPatternElement> Pattern = new()
         {
             new MeshLineDashPatternElement
@@ -933,13 +933,13 @@ namespace Game.Channel
         [BoxGroup("Sampling")]
         [LabelText("Min Segment Length")]
         [MinValue(0.001f)]
-        [Tooltip("line 再サンプリング時の最小セグメント長です。小さいほど形状追従は上がりますが点数も増えます。")]
+        [Tooltip("Inspector setting.")]
         public float MinSegmentLength = 0.05f;
 
         [BoxGroup("Sampling")]
         [LabelText("Max Point Count")]
         [MinValue(4)]
-        [Tooltip("line 再サンプリング後の最大点数です。滑らかさの上限と負荷上限を兼ねます。")]
+        [Tooltip("Inspector setting.")]
         public int MaxPointCount = 128;
 
         internal override MeshTrackVisualizerPresetBase CreateRuntimeCopy()
@@ -1214,7 +1214,7 @@ namespace Game.Channel
         bool ShowWaveMutationValues => ApplyWave && WaveEnabled;
 
         [LabelText("Replace Preset")]
-        [Tooltip("Visualizer preset 全体を差し替えます。下の Apply 系指定より優先して新 preset が基準になります。")]
+        [Tooltip("Inspector setting.")]
         public bool ReplacePreset = false;
 
         [ShowIf(nameof(ReplacePreset))]
@@ -1231,7 +1231,7 @@ namespace Game.Channel
         public float BaseWidth = 0.08f;
 
         [LabelText("Apply Taper")]
-        [Tooltip("Head/Tail taper を上書きします。線の先端と後端の細り方を変更したい時に使います。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyTaper = false;
 
         [ShowIf(nameof(ApplyTaper))]
@@ -1243,7 +1243,7 @@ namespace Game.Channel
         public float TailTaperNormalized = 0.1f;
 
         [LabelText("Apply Wave")]
-        [Tooltip("波線パラメータを上書きします。Amplitude/Length/Phase/Scroll Speed をまとめて反映します。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyWave = false;
 
         [ShowIf(nameof(ApplyWave))]
@@ -1264,7 +1264,7 @@ namespace Game.Channel
         public float WaveScrollSpeed = 0f;
 
         [LabelText("Apply Dash")]
-        [Tooltip("破線パラメータを上書きします。Pattern / Space / Scroll をまとめて反映します。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyDash = false;
 
         [ShowIf(nameof(ApplyDash))]
@@ -1305,7 +1305,7 @@ namespace Game.Channel
     public sealed class MeshTrackPlayerRuntimeMutation
     {
         [LabelText("Replace Preset")]
-        [Tooltip("Player preset 全体を差し替えます。Line/Trail/AreaFill の種別変更もここで行います。")]
+        [Tooltip("Inspector setting.")]
         public bool ReplacePreset = false;
 
         [ShowIf(nameof(ReplacePreset))]
@@ -1315,15 +1315,15 @@ namespace Game.Channel
             MeshChannelDynamicValueFactory.FromManaged<MeshTrackPlayerPresetBase>(new MeshLineTrackPlayerPreset());
 
         [LabelText("Apply Condition")]
-        [Tooltip("Line preset の DynamicValue<bool> condition を差し替えます。最終的な track.Enabled は RequestedEnabled とこの条件の AND です。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyCondition = false;
 
         [ShowIf(nameof(ApplyCondition))]
-        [Tooltip("Line track の最終 Enabled を構成する DynamicValue<bool> です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
 
         [LabelText("Apply Points")]
-        [Tooltip("Line preset の points を上書きします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyPoints = false;
 
         [ShowIf(nameof(ApplyPoints))]
@@ -1331,7 +1331,7 @@ namespace Game.Channel
         public List<DynamicValue<Vector3>> Points = new();
 
         [LabelText("Apply Trail Config")]
-        [Tooltip("Trail preset の target と sampling 設定をまとめて上書きします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyTrailConfig = false;
 
         [ShowIf(nameof(ApplyTrailConfig))]
@@ -1354,14 +1354,14 @@ namespace Game.Channel
         public int MaxPoints = 64;
 
         [LabelText("Apply Area Tag")]
-        [Tooltip("AreaFill preset が参照する Area Tag を上書きします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyAreaTag = false;
 
         [ShowIf(nameof(ApplyAreaTag))]
         public string AreaTag = "default";
 
         [LabelText("Apply Target Link Config")]
-        [Tooltip("TargetLink preset の参照チャネルとトポロジー設定を上書きします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyTargetLinkConfig = false;
 
         [ShowIf(nameof(ApplyTargetLinkConfig))]
@@ -1388,7 +1388,7 @@ namespace Game.Channel
     public sealed class MeshTrackColliderRuntimeMutation
     {
         [LabelText("Replace Preset")]
-        [Tooltip("Collider preset 全体を差し替えます。")]
+        [Tooltip("Inspector setting.")]
         public bool ReplacePreset = false;
 
         [ShowIf(nameof(ReplacePreset))]
@@ -1398,21 +1398,21 @@ namespace Game.Channel
             MeshChannelDynamicValueFactory.FromManaged<MeshTrackColliderPresetBase>(new MeshPolygonTrackColliderPreset());
 
         [LabelText("Apply Sync Toggle")]
-        [Tooltip("PolygonCollider2D への見た目同期を有効/無効化します。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplySyncToggle = false;
 
         [ShowIf(nameof(ApplySyncToggle))]
         public bool SyncPolygonToCollider = true;
 
         [LabelText("Apply Hit Capture Toggle")]
-        [Tooltip("MeshChannel 内部の hit capture を有効/無効化します。外部の UnityColliderObject 連携とは別です。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyHitCaptureToggle = false;
 
         [ShowIf(nameof(ApplyHitCaptureToggle))]
         public bool EnableHitCapture = true;
 
         [LabelText("Apply Sync Settings")]
-        [Tooltip("Polygon 同期の閾値と更新頻度をまとめて上書きします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplySyncSettings = false;
 
         [ShowIf(nameof(ApplySyncSettings))]
@@ -1429,7 +1429,7 @@ namespace Game.Channel
     public sealed class MeshTrackMaterialRuntimeMutation
     {
         [LabelText("Replace Preset")]
-        [Tooltip("Material preset 全体を差し替えます。")]
+        [Tooltip("Inspector setting.")]
         public bool ReplacePreset = false;
 
         [ShowIf(nameof(ReplacePreset))]
@@ -1439,21 +1439,21 @@ namespace Game.Channel
             MeshChannelDynamicValueFactory.FromManaged(new MeshTrackMaterialPreset());
 
         [LabelText("Apply Enabled")]
-        [Tooltip("MeshMaterialFx の見た目設定を適用するかを上書きします。false の間は material 演出を送信しません。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyEnabled = false;
 
         [ShowIf(nameof(ApplyEnabled))]
         public bool Enabled = true;
 
         [LabelText("Apply Base Tint")]
-        [Tooltip("Material preset の Base Tint を上書きします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyBaseTint = false;
 
         [ShowIf(nameof(ApplyBaseTint))]
         public Color BaseTint = Color.white;
 
         [LabelText("Apply Sorting Order Offset")]
-        [Tooltip("Composite の sorting order に加算するオフセットを上書きします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplySortingOrderOffset = false;
 
         [ShowIf(nameof(ApplySortingOrderOffset))]

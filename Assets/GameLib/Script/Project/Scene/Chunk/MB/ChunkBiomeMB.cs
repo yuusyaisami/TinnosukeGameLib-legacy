@@ -15,12 +15,12 @@ namespace Game.Chunk
         [BoxGroup(BiomeGroup)]
         [SerializeField] ChunkBiomeSettingsSO? settings;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (settings != null)
                 builder.RegisterInstance(settings);
 
-            builder.Register<ChunkBiomeService>(Lifetime.Singleton)
+            builder.Register<ChunkBiomeService>(RuntimeLifetime.Singleton)
                 .As<IChunkBiomeService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();

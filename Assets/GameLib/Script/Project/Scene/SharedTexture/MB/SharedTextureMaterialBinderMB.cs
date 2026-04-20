@@ -14,15 +14,15 @@ namespace Game.SharedTexture
         [BoxGroup("Bindings")]
         [SerializeField] List<SharedTextureBindingDef> bindings = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var options = new SharedTextureBinderOptions(new List<SharedTextureBindingDef>(bindings));
 
-            builder.Register<SharedTextureMaterialBinderService>(Lifetime.Singleton)
+            builder.Register<SharedTextureMaterialBinderService>(RuntimeLifetime.Singleton)
                 .WithParameter(options)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
     }
 }

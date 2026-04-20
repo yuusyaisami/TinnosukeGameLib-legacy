@@ -247,7 +247,7 @@ namespace Game.RoomMap
                 p.LifetimeScopeParent = lifetimeScopeParent;
                 p.AllowPooling = spawnDef.AllowPooling;
 
-                IObjectResolver? resolver = null;
+                IRuntimeResolver? resolver = null;
                 using (var spawnCts = CancellationTokenSource.CreateLinkedTokenSource(ct))
                 {
                     var spawnTask = spawner.SpawnAsync(p, spawnCts.Token);
@@ -301,7 +301,7 @@ namespace Game.RoomMap
         }
 
         static void ExtractSpawnedInfo(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             out GameObject? root,
             out IScopeNode? scopeNode,
             out RuntimeLifetimeScope? runtimeScope,

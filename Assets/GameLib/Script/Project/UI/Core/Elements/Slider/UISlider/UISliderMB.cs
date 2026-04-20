@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -18,7 +18,7 @@ namespace Game.UI
         [Header("Unity Slider (Visual)")]
         [SerializeField] Slider? _unitySlider;
 
-        [Tooltip("独自入力で当たり判定に使うRect。透明Image + RaycastTarget=ON 推奨。未指定ならSliderのContainerを使う。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] RectTransform? _hitTestRect;
 
         [Header("Value")]
@@ -48,14 +48,14 @@ namespace Game.UI
         [ShowIf(nameof(HasInteractiveInput))]
         [SerializeField] float _scrollRepeatInterval = 0.05f;
         [ShowIf(nameof(HasInteractiveInput))]
-        [Tooltip("Unity標準入力を無効化して独自入力だけにしたい場合に使用する。InputMode=None では常に無効。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] bool _disableUnityNativeInput = true;
 
         [Header("Binding")]
         [SerializeField] bool _useScalarBinding;
         [ShowIf(nameof(_useScalarBinding))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Scalar Source\", _scalarBindingSource)")]
-        [Tooltip("ScalarKey を読む/書く先のスコープ。Current ならこの UISlider のスコープを使う。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] ActorSource _scalarBindingSource = new() { Kind = ActorSourceKind.Current };
 
         [ShowIf(nameof(_useScalarBinding))]
@@ -64,7 +64,7 @@ namespace Game.UI
         [SerializeField] bool _useBlackboardBinding;
         [ShowIf(nameof(_useBlackboardBinding))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Blackboard Source\", _blackboardBindingSource)")]
-        [Tooltip("BlackboardKey を読む/書く先のスコープ。Current ならこの UISlider のスコープを使う。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] ActorSource _blackboardBindingSource = new() { Kind = ActorSourceKind.Current };
 
         [ShowIf(nameof(_useBlackboardBinding))]
@@ -74,7 +74,7 @@ namespace Game.UI
         [SerializeField] bool _writeToBothBindings = true;
 
         [Header("Commands")]
-        [Tooltip("スライダーの値が変化したときに実行するコマンド。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [VNext.CommandListFunctionName("UISlider.OnValueChanged")]
         VNext.CommandListData _onValueChangedCommands = new();
@@ -204,12 +204,12 @@ namespace Game.UI
             }
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             ResolveSlider();
             ApplyUnitySliderConfig();
 
-            builder.Register<UISliderService>(Lifetime.Singleton)
+            builder.Register<UISliderService>(RuntimeLifetime.Singleton)
                 .WithParameter<IUISliderValueOptions>(this)
                 .WithParameter<Slider>(UnitySlider)
                 .As<IUISliderController>()
@@ -217,18 +217,18 @@ namespace Game.UI
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
 
-            builder.Register<UISliderTelemetry>(Lifetime.Singleton)
+            builder.Register<UISliderTelemetry>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .As<IUISliderTelemetry>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
 
-            builder.Register<global::Game.UI.UISliderTelemetryInspectorBridge>(Lifetime.Singleton)
+            builder.Register<global::Game.UI.UISliderTelemetryInspectorBridge>(RuntimeLifetime.Singleton)
                 .WithParameter(this)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
 
-            builder.Register<UISliderInput>(Lifetime.Singleton)
+            builder.Register<UISliderInput>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter<IUISliderInputOptions>(this)
                 .WithParameter<IUISliderValueOptions>(this)
@@ -236,7 +236,7 @@ namespace Game.UI
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
 
-            builder.Register<UISliderValueChangedCommandService>(Lifetime.Singleton)
+            builder.Register<UISliderValueChangedCommandService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter<IUISliderValueOptions>(this)
                 .WithParameter(_onValueChangedCommands)

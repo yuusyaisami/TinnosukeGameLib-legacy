@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands.VNext;
 using Game.Common;
@@ -57,11 +57,11 @@ namespace Game.UI
     [Serializable]
     public struct TraitListChannelRange
     {
-        [Tooltip("holder 内 trait 一覧の開始 index。0 から始まります。")]
+        [Tooltip("Inspector setting.")]
         [Min(0)]
         public int StartIndex;
 
-        [Tooltip("表示件数。0 以下の場合は開始位置以降を可能な限り使います。")]
+        [Tooltip("Inspector setting.")]
         [Min(0)]
         public int Count;
 
@@ -98,20 +98,20 @@ namespace Game.UI
     public sealed class TraitListChannelBinding
     {
         [SerializeField]
-        [Tooltip("TraitHolderHubService を解決する対象スコープ。通常は Current のままで使います。")]
+        [Tooltip("Inspector setting.")]
         ActorSource _holderHubSource = new() { Kind = ActorSourceKind.Current };
 
         [SerializeField]
-        [Tooltip("list と同期する TraitHolder の key。TraitHolderHubService に登録された key と一致させます。")]
+        [Tooltip("Inspector setting.")]
         string _holderKey = string.Empty;
 
         [SerializeField]
-        [Tooltip("true のときこの binding で StartIndex / Count による範囲制限を使います。")]
+        [Tooltip("Inspector setting.")]
         bool _useRange;
 
         [SerializeField]
         [Sirenix.OdinInspector.ShowIf(nameof(_useRange))]
-        [Tooltip("表示する trait の開始位置と件数です。UseRange が true のときだけ使われます。")]
+        [Tooltip("Inspector setting.")]
         TraitListChannelRange _range = new(0, 0);
 
         public ActorSource HolderHubSource
@@ -156,66 +156,66 @@ namespace Game.UI
     public sealed class TraitListChannelBindRequest
     {
         [SerializeField]
-        [Tooltip("true のとき bind 時に holder hub source を definition 既定値から上書きします。")]
+        [Tooltip("Inspector setting.")]
         bool _overrideHolderHubSource;
 
         [SerializeField]
         [Sirenix.OdinInspector.ShowIf(nameof(_overrideHolderHubSource))]
-        [Tooltip("OverrideHolderHubSource が true のときに使う TraitHolderHubService 解決元です。")]
+        [Tooltip("Inspector setting.")]
         ActorSource _holderHubSource = new() { Kind = ActorSourceKind.Current };
 
         [SerializeField]
-        [Tooltip("true のとき bind 時に holder key を definition 既定値から上書きします。")]
+        [Tooltip("Inspector setting.")]
         bool _overrideHolderKey;
 
         [SerializeField]
         [Sirenix.OdinInspector.ShowIf(nameof(_overrideHolderKey))]
-        [Tooltip("OverrideHolderKey が true のときに使う TraitHolder key です。")]
+        [Tooltip("Inspector setting.")]
         string _holderKey = string.Empty;
 
         [SerializeField]
-        [Tooltip("true のとき bind 時に range 設定を definition 既定値から上書きします。")]
+        [Tooltip("Inspector setting.")]
         bool _overrideRange;
 
         [SerializeField]
         [Sirenix.OdinInspector.ShowIf(nameof(_overrideRange))]
-        [Tooltip("OverrideRange が true のとき、この bind で範囲制限を使うかどうかを切り替えます。")]
+        [Tooltip("Inspector setting.")]
         bool _useRange;
 
         [SerializeField]
         [Sirenix.OdinInspector.ShowIf(nameof(ShowsRange))]
-        [Tooltip("OverrideRange が true かつ UseRange が true のときに使う範囲です。")]
+        [Tooltip("Inspector setting.")]
         TraitListChannelRange _range = new(0, 0);
 
         [SerializeField]
-        [Tooltip("true のとき player preset を definition 既定値から上書きします。")]
+        [Tooltip("Inspector setting.")]
         bool _overridePlayerPreset;
 
         [SerializeField]
         [Sirenix.OdinInspector.ShowIf(nameof(_overridePlayerPreset))]
-        [Tooltip("OverridePlayerPreset が true のときに使う player preset の DynamicValue です。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<TraitListChannelPlayerPreset> _playerPresetValue =
             DynamicValue<TraitListChannelPlayerPreset>.FromSource(
                 new ManagedRefLiteralSource<TraitListChannelPlayerPreset>(new TraitListChannelPlayerPreset()));
 
         [SerializeField]
-        [Tooltip("true のとき layout preset を definition 既定値から上書きします。")]
+        [Tooltip("Inspector setting.")]
         bool _overrideLayoutPreset;
 
         [SerializeField]
         [Sirenix.OdinInspector.ShowIf(nameof(_overrideLayoutPreset))]
-        [Tooltip("OverrideLayoutPreset が true のときに使う layout preset の DynamicValue です。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<TraitListChannelLayoutPreset> _layoutPresetValue =
             DynamicValue<TraitListChannelLayoutPreset>.FromSource(
                 new ManagedRefLiteralSource<TraitListChannelLayoutPreset>(new TraitListChannelLayoutPreset()));
 
         [SerializeField]
-        [Tooltip("true のとき visualizer preset を definition 既定値から上書きします。")]
+        [Tooltip("Inspector setting.")]
         bool _overrideVisualizerPreset;
 
         [SerializeField]
         [Sirenix.OdinInspector.ShowIf(nameof(_overrideVisualizerPreset))]
-        [Tooltip("OverrideVisualizerPreset が true のときに使う visualizer preset の DynamicValue です。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<TraitListChannelVisualizerPreset> _visualizerPresetValue =
             DynamicValue<TraitListChannelVisualizerPreset>.FromSource(
                 new ManagedRefLiteralSource<TraitListChannelVisualizerPreset>(new TraitListChannelVisualizerPreset()));
@@ -353,7 +353,7 @@ namespace Game.UI
             ITraitInstance trait,
             Transform root,
             IScopeNode scope,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             DisplayKey = displayKey;
             Trait = trait;
@@ -368,7 +368,7 @@ namespace Game.UI
         public Transform Root { get; }
         public RectTransform? RootRect { get; }
         public IScopeNode Scope { get; }
-        public IObjectResolver Resolver { get; }
+        public IRuntimeResolver Resolver { get; }
         public int DuplicateCount { get; private set; }
         public int TraitIndex { get; private set; }
         public int ListIndex { get; private set; }

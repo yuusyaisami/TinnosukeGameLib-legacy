@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -14,19 +14,19 @@ namespace Game.Channel
     {
         [BoxGroup("Channel")]
         [LabelText("Channel Tag")]
-        [Tooltip("hub 内でこの channel を識別する tag です。command からもこの値で指定します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _channelTag = "default";
 
         [BoxGroup("Channel")]
         [LabelText("Auto Build")]
-        [Tooltip("scope acquire 時に自動で bind + full rebuild を行います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _autoBuild;
 
         [BoxGroup("Preset")]
         [LabelText("Player Preset")]
-        [Tooltip("item 群をどう生成するかを決める player preset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<GridObjectChannelPlayerPresetBase> _playerPreset =
             DynamicValue<GridObjectChannelPlayerPresetBase>.FromSource(
@@ -34,7 +34,7 @@ namespace Game.Channel
 
         [BoxGroup("Preset")]
         [LabelText("Layout Preset")]
-        [Tooltip("item の row/column と target 座標をどう計算するかを決める layout preset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<GridObjectChannelLayoutPreset> _layoutPreset =
             DynamicValue<GridObjectChannelLayoutPreset>.FromSource(
@@ -42,7 +42,7 @@ namespace Game.Channel
 
         [BoxGroup("Preset")]
         [LabelText("Visualizer Preset")]
-        [Tooltip("spawn 対象 runtime template や command 実行方法を決める visualizer preset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<GridObjectChannelVisualizerPreset> _visualizerPreset =
             DynamicValue<GridObjectChannelVisualizerPreset>.FromSource(
@@ -50,33 +50,33 @@ namespace Game.Channel
 
         [BoxGroup("Scene")]
         [LabelText("List Root")]
-        [Tooltip("spawn した item の親 Transform です。未設定時は Hub 自身を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? _listRoot;
 
         [BoxGroup("Scene")]
         [LabelText("Layout Rect")]
-        [Tooltip("レイアウト計算の基準 Transform。RectTransform を指定した場合は RectTransform mode の領域として使い、world では AreaChannel の local 変換基準として使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? _layoutRectTransform;
 
         [BoxGroup("Debug")]
         [LabelText("Enable Debug Log")]
-        [Tooltip("true のとき GridObjectChannelRuntime が layout / spawn / blackboard 連携ログを出力します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableDebugLog;
 
         [BoxGroup("Debug")]
         [ShowIf(nameof(_enableDebugLog))]
         [LabelText("Verbose Layout")]
-        [Tooltip("true のとき row / column の詳細ログを追加出力します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableVerboseLayoutLog;
 
         [BoxGroup("Debug")]
         [ShowIf(nameof(_enableDebugLog))]
         [LabelText("Verbose Blackboard")]
-        [Tooltip("true のとき GridBlackboard cell 値や blackboard 連携 payload を詳細出力します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableVerboseBlackboardLog;
 
@@ -98,15 +98,15 @@ namespace Game.Channel
         [BoxGroup("Channels")]
         [LabelText("Channels")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
-        [Tooltip("この hub が管理する GridObjectChannel 定義一覧です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         List<GridObjectChannelDefinition> _channels = new() { new GridObjectChannelDefinition() };
 
         public IReadOnlyList<GridObjectChannelDefinition> Channels => _channels;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<GridObjectChannelHubService>(Lifetime.Singleton)
+            builder.Register<GridObjectChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<IGridObjectChannelHubService>()

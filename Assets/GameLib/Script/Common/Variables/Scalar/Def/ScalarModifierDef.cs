@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Game.Common;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -47,21 +47,21 @@ namespace Game.Scalar
     public struct ScalarClamp
     {
         [LabelText("Use Min")]
-        [Tooltip("下限クランプを有効にします。")]
+        [Tooltip("Inspector setting.")]
         public bool UseMin;
 
         [ShowIf(nameof(UseMin))]
         [LabelText("Min")]
-        [Tooltip("下限値です。DynamicValue を使って動的に決められます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> Min;
 
         [LabelText("Use Max")]
-        [Tooltip("上限クランプを有効にします。")]
+        [Tooltip("Inspector setting.")]
         public bool UseMax;
 
         [ShowIf(nameof(UseMax))]
         [LabelText("Max")]
-        [Tooltip("上限値です。DynamicValue を使って動的に決められます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> Max;
 
         public bool UsesDynamicBounds

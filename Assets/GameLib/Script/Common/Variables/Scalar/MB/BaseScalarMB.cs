@@ -24,12 +24,12 @@ namespace Game.Scalar
         // Whether the debug view has been initialized via DI injection or Start fallback
         bool _debugInitialized = false;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             _owner = owner;
 
             // No baseline/init pipeline here. If you need initial values, use ProfileRegistry.
-            builder.Register<NullScalarRuntimeConfigProvider>(Lifetime.Singleton)
+            builder.Register<NullScalarRuntimeConfigProvider>(RuntimeLifetime.Singleton)
                 .As<IScalarRuntimeConfigProvider>()
                 .As<IScalarBaseline>();
 
@@ -37,101 +37,101 @@ namespace Game.Scalar
             switch (owner.Kind)
             {
                 case LifetimeScopeKind.Project:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<IProjectScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
                 case LifetimeScopeKind.Platform:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<IPlatformScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
                 case LifetimeScopeKind.Global:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<IGlobalScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
                 case LifetimeScopeKind.Scene:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<ISceneScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
                 case LifetimeScopeKind.Field:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<IFieldScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
                 case LifetimeScopeKind.Entity:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<IEntityScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
                 case LifetimeScopeKind.UI:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<IUIScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
                 case LifetimeScopeKind.UIElement:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<IUIElementScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
                 case LifetimeScopeKind.Runtime:
-                    builder.Register<BaseScalarService>(Lifetime.Singleton)
+                    builder.Register<BaseScalarService>(RuntimeLifetime.Singleton)
                            .WithParameter(_owner)
                            .As<IBaseScalarService>()
                            .As<IRuntimeScalarService>()
                            .As<IScalarTelemetry>()
                            .As<IScopeAcquireHandler>()
                            .As<IScopeReleaseHandler>()
-                           .As<ITickable>();
+                           .As<IScopeTickHandler>();
                     break;
             }
             ExtraInstallFeature(builder, owner);
         }
-        protected virtual void ExtraInstallFeature(IContainerBuilder builder, IScopeNode owner)
+        protected virtual void ExtraInstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
-            // 継承先で追加の登録を行う場合にオーバーライドする
+            // 継承先で追加の登録を行う場合にオーバ�EライドすめE
         }
 
         [Inject]

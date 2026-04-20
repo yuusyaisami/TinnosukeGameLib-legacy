@@ -15,16 +15,16 @@ namespace Game.Entity
         [Header("Spawner")]
         [SerializeField] string spawnerTag = "";
 
-        [Tooltip("Spawn parent. Null の場合はこの GameObject 直下に生成")]
+        [Tooltip("Spawn parent. Null の場合�Eこ�E GameObject 直下に生�E")]
         [SerializeField] Transform? root;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance(this);
 
             var resolvedRoot = root != null ? root : transform;
 
-            builder.Register<EntityLifetimeScopeSpawnerService>(Lifetime.Singleton)
+            builder.Register<EntityLifetimeScopeSpawnerService>(RuntimeLifetime.Singleton)
                 .WithParameter(resolvedRoot)
                 .WithParameter(spawnerTag)
                 .AsSelf()
@@ -67,7 +67,7 @@ namespace Game.Entity
             _registry.Register(this);
         }
 
-        public async UniTask<IObjectResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
+        public async UniTask<IRuntimeResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
 

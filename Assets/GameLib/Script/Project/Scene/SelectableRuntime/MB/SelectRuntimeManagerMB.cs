@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using Game;
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -21,7 +21,7 @@ namespace Game.SelectRuntime
 
         [BoxGroup("Pointer")]
         [LabelText("Debug Mode")]
-        [Tooltip("選択候補の優先順位比較ログを出力します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableDebugLog;
 
@@ -66,18 +66,18 @@ namespace Game.SelectRuntime
         public float ShortPressSeconds => Mathf.Max(0.05f, _shortPressSeconds);
         public float LongPressSeconds => Mathf.Max(0.05f, _longPressSeconds);
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IWorldPointerRuntimeOptions>(this);
             builder.RegisterInstance<ISelectRuntimeManagerOptions>(this);
 
-            builder.Register<WorldPointerRuntimeService>(Lifetime.Singleton)
+            builder.Register<WorldPointerRuntimeService>(RuntimeLifetime.Singleton)
                 .As<IWorldPointerRuntimeService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .AsSelf();
 
-            builder.Register<SelectRuntimeManagerService>(Lifetime.Singleton)
+            builder.Register<SelectRuntimeManagerService>(RuntimeLifetime.Singleton)
                 .As<ISelectRuntimeManagerService>()
                 .As<ISelectRuntimeManagerStateProvider>()
                 .As<IScopeAcquireHandler>()
@@ -85,7 +85,7 @@ namespace Game.SelectRuntime
                 .WithParameter(scope)
                 .AsSelf();
 
-            builder.Register<UserMoveRotateRuntimeService>(Lifetime.Singleton)
+            builder.Register<UserMoveRotateRuntimeService>(RuntimeLifetime.Singleton)
                 .As<IUserMoveRotateRuntimeService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()

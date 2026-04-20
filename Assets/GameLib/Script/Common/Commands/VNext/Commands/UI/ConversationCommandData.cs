@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Conversation;
@@ -34,12 +34,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [Tooltip("ConversationChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Conversation Tag")]
-        [Tooltip("操作対象の conversation tag です。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         public string ConversationTag = "default";
 
         [BoxGroup("Target")]
@@ -49,13 +49,13 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Policy")]
         [LabelText("Strict")]
-        [Tooltip("true のとき失敗を command error として扱います。false のとき失敗時も処理を継続します。")]
+        [Tooltip("Inspector setting.")]
         public bool Strict = true;
 
         [BoxGroup("Flow")]
         [ShowIf(nameof(UsesPreset))]
         [LabelText("Flow Preset")]
-        [Tooltip("Run/Start 時に使用する flow preset です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<ConversationFlowPreset> FlowPreset =
             DynamicValue<ConversationFlowPreset>.FromSource(
                 new ManagedRefLiteralSource<ConversationFlowPreset>(new ConversationFlowPreset()));
@@ -63,14 +63,14 @@ namespace Game.Commands.VNext
         [BoxGroup("Flow")]
         [ShowIf(nameof(UsesRunLike))]
         [LabelText("Max Node Steps Override")]
-        [Tooltip("0 より大きいとき、preset の Max Node Steps を上書きします。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(0)]
         public int MaxNodeStepsOverride;
 
         [BoxGroup("End")]
         [ShowIf(nameof(UsesEnd))]
         [LabelText("End Message")]
-        [Tooltip("End 操作時に snapshot へ記録するメッセージです。")]
+        [Tooltip("Inspector setting.")]
         public string EndMessage = string.Empty;
 
         public string NormalizedConversationTag => string.IsNullOrWhiteSpace(ConversationTag) ? "default" : ConversationTag.Trim();
@@ -89,12 +89,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [Tooltip("ConversationChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Conversation Tag")]
-        [Tooltip("操作対象の conversation tag です。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         public string ConversationTag = "default";
 
         [BoxGroup("Target")]
@@ -104,25 +104,25 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Policy")]
         [LabelText("Strict")]
-        [Tooltip("true のとき失敗を command error として扱います。false のとき失敗時も処理を継続します。")]
+        [Tooltip("Inspector setting.")]
         public bool Strict = true;
 
         [BoxGroup("Dialogue")]
         [ShowIf(nameof(UsesDialogueOps))]
         [LabelText("Speaker Slot")]
-        [Tooltip("Conversation slot -> Dialogue tag マップ解決で使うスロットです。")]
+        [Tooltip("Inspector setting.")]
         public ConversationCharacterSlot Slot = ConversationCharacterSlot.Center;
 
         [BoxGroup("Dialogue")]
         [ShowIf(nameof(UsesDialogueOps))]
         [LabelText("Dialogue Tag Override")]
-        [Tooltip("空でない場合、slot マップ解決を上書きしてこの tag を使用します。")]
+        [Tooltip("Inspector setting.")]
         public string DialogueTagOverride = string.Empty;
 
         [BoxGroup("Dialogue")]
         [ShowIf(nameof(UsesDialogueOps))]
         [LabelText("Use Current Node Request")]
-        [Tooltip("true のとき current node に定義された request を使います。")]
+        [Tooltip("Inspector setting.")]
         public bool UseCurrentNodeRequest = true;
 
         [BoxGroup("Message")]
@@ -140,19 +140,19 @@ namespace Game.Commands.VNext
         [BoxGroup("Choice")]
         [ShowIf(nameof(UsesShowChoice))]
         [LabelText("Fail When Not Selected")]
-        [Tooltip("true のとき choice completion が Selected 以外なら command error にします。")]
+        [Tooltip("Inspector setting.")]
         public bool FailWhenChoiceNotSelected = true;
 
         [BoxGroup("Choice")]
         [ShowIf(nameof(UsesShowChoice))]
         [LabelText("Write SelectedIndex To Vars")]
-        [Tooltip("true のとき selected index を SelectedIndexVar へ書き込みます。")]
+        [Tooltip("Inspector setting.")]
         public bool WriteSelectedIndexToVars = true;
 
         [BoxGroup("Choice")]
         [ShowIf("@UsesShowChoice && WriteSelectedIndexToVars")]
         [LabelText("SelectedIndex Var")]
-        [Tooltip("selected index の書き込み先 var です。")]
+        [Tooltip("Inspector setting.")]
         public VarKeyRef SelectedIndexVar = new(VarIds.GameLib.Base.CommandVar.i, "i");
 
         [BoxGroup("Jump")]

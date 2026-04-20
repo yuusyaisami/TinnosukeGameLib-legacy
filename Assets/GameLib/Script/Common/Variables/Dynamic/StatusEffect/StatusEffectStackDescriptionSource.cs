@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -14,11 +14,11 @@ namespace Game.Common
     public sealed class StatusEffectStackDescriptionSource : IDynamicSource
     {
         [LabelText("Definition")]
-        [Tooltip("StackDescription を取得する StatusEffect 定義です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<BaseStatusEffectDefinitionData> Definition;
 
         [LabelText("Stack Preset")]
-        [Tooltip("説明文計算時に Stack var としてマージする preset です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<StatusEffectStackPreset> StackPreset;
 
         [NonSerialized]

@@ -54,7 +54,7 @@ namespace Game.Channel
                 worldSpace: false,
                 allowPooling: state.ResolvedVisualizerPreset.AllowPooling);
 
-            IObjectResolver? resolver = null;
+            IRuntimeResolver? resolver = null;
             try
             {
                 resolver = await spawner.SpawnAsync(spawnParams, ct);

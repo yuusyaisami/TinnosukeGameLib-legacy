@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands.VNext;
 using Game.Common;
@@ -212,7 +212,7 @@ namespace Game.UI
         [BoxGroup("Swipe")]
         [Range(0f, 1f)]
         [LabelText("Over Drag Damping")]
-        [Tooltip("端でオーバーしたときのドラッグ減衰量です。1 に近いほど強く抑制します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _overDragDamping = 0.75f;
 

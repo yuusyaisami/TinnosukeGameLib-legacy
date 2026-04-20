@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -32,7 +32,7 @@ namespace Game.Commands.VNext
     public sealed class CommandListMutationStep
     {
         [LabelText("Operation")]
-        [Tooltip("Append: runtime の末尾に追加します。Prepend: runtime の先頭に追加します。Override: runtime 中の表示をこの Commands で置き換えます。ClearAppended: runtime 追加分だけ消します。ClearOverride: Override だけ消します。ClearAll: runtime mutation をすべて消します。Pool / Release 時は、この CommandListData を登録した scope の mutation service により自動で ClearAll されます。")]
+        [Tooltip("Inspector setting.")]
         public CommandListMutationOperation Operation = CommandListMutationOperation.Append;
 
         [ShowIf(nameof(RequiresCommands))]

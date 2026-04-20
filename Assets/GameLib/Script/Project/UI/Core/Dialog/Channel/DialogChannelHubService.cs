@@ -46,7 +46,7 @@ namespace Game.Dialogue
         IDialogueChannelHubService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         sealed class ChannelEntry
         {

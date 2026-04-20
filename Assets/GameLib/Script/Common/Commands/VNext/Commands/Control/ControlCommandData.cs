@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -291,7 +291,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Loop Settings")]
         [LabelText("Wait For Completion")]
-        [Tooltip("OFF の場合、For の終了を待たずに次のコマンドへ進む。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         public bool WaitForCompletion = true;
 
@@ -302,7 +302,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Loop Settings")]
         [LabelText("Break Switch Var")]
-        [Tooltip("この Var が true または 1 (非0) のとき、ループを抜ける。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         public VarKeyRef BreakSwitchVar;
 

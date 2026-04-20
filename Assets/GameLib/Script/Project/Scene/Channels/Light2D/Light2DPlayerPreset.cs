@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -19,7 +19,7 @@ namespace Game.Channel
         [BoxGroup("Global")]
         [LabelText("Global Intensity")]
         [MinValue(0f)]
-        [Tooltip("この channel 自身が子孫へ伝播させる intensity 乗算値です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _globalIntensity = 1f;
 

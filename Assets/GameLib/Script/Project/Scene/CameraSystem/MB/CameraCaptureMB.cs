@@ -16,16 +16,16 @@ namespace Game.CameraSystem
         [Range(0.1f, 1.0f)]
         [SerializeField] float resolutionScale = 1.0f;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var options = new CameraCaptureOptions(resolutionScale);
 
-            builder.Register<CameraCaptureService>(Lifetime.Singleton)
+            builder.Register<CameraCaptureService>(RuntimeLifetime.Singleton)
                 .WithParameter(options)
                 .As<ICameraCaptureService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
     }
 }

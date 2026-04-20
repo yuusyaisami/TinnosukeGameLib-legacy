@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game;
@@ -117,7 +117,7 @@ namespace Game.Background
         public RuntimeLifetimeScope? RuntimeScope { get; }
         public BaseLifetimeScope? BaseScope { get; }
         public GameObject? Root { get; }
-        public VContainer.IObjectResolver? Resolver { get; }
+        public IRuntimeResolver? Resolver { get; }
         public IBackgroundElementAdapter? Adapter { get; }
 
         public BackgroundElementHandle(
@@ -128,7 +128,7 @@ namespace Game.Background
             RuntimeLifetimeScope? runtimeScope,
             BaseLifetimeScope? baseScope,
             GameObject? root,
-            VContainer.IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             IBackgroundElementAdapter? adapter)
         {
             Coord = coord;

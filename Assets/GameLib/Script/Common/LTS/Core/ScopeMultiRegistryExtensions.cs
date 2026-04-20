@@ -1,29 +1,28 @@
-using System;
-using VContainer;
+﻿using System;
 
 namespace Game
 {
     // ================================================================
-    // ScopeMultiRegistryExtensions - VContainer 拡張メソッド
+    // ScopeMultiRegistryExtensions - VContainer 諡｡蠑ｵ繝｡繧ｽ繝・ラ
     // ================================================================
     //
-    // ## 概要
+    // ## 讎りｦ・
     //
-    // 複数登録サービスを IScopeMultiRegistry に自動登録するための
-    // VContainer 拡張メソッド。
+    // 隍・焚逋ｻ骭ｲ繧ｵ繝ｼ繝薙せ繧・IScopeMultiRegistry 縺ｫ閾ｪ蜍慕匳骭ｲ縺吶ｋ縺溘ａ縺ｮ
+    // VContainer 諡｡蠑ｵ繝｡繧ｽ繝・ラ縲・
     //
-    // ## 使用方法
+    // ## 菴ｿ逕ｨ譁ｹ豕・
     //
-    // ### RegisterAsScopeMulti - DI登録とレジストリ登録を同時に行う
+    // ### RegisterAsScopeMulti - DI逋ｻ骭ｲ縺ｨ繝ｬ繧ｸ繧ｹ繝医Μ逋ｻ骭ｲ繧貞酔譎ゅ↓陦後≧
     //
     // ```csharp
-    // builder.RegisterAsScopeMulti<IChannelHubService, AnimationSpriteHubService>(Lifetime.Singleton)
+    // builder.RegisterAsScopeMulti<IChannelHubService, AnimationSpriteHubService>(RuntimeLifetime.Singleton)
     //        .WithParameter(channels);
     // ```
     //
-    // (removed) AddToScopeMulti は廃止
+    // (removed) AddToScopeMulti 縺ｯ蟒・ｭ｢
     //
-    // ### AddComponentToScopeMulti - コンポーネントをレジストリに追加
+    // ### AddComponentToScopeMulti - 繧ｳ繝ｳ繝昴・繝阪Φ繝医ｒ繝ｬ繧ｸ繧ｹ繝医Μ縺ｫ霑ｽ蜉
     //
     // ```csharp
     // builder.AddComponentToScopeMulti<IMyService>(myComponent);
@@ -32,41 +31,41 @@ namespace Game
     // ================================================================
 
     /// <summary>
-    /// IScopeMultiRegistry 用の VContainer 拡張メソッド。
+    /// IScopeMultiRegistry 逕ｨ縺ｮ VContainer 諡｡蠑ｵ繝｡繧ｽ繝・ラ縲・
     /// </summary>
     public static class ScopeMultiRegistryExtensions
     {
         // ----------------------------------------------------------------
-        // RegisterAsScopeMulti - DI登録 + レジストリ登録
+        // RegisterAsScopeMulti - DI逋ｻ骭ｲ + 繝ｬ繧ｸ繧ｹ繝医Μ逋ｻ骭ｲ
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// TImpl を DI に登録しつつ、ビルド後に IScopeMultiRegistry に登録する。
+        /// TImpl 繧・DI 縺ｫ逋ｻ骭ｲ縺励▽縺､縲√ン繝ｫ繝牙ｾ後↓ IScopeMultiRegistry 縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// 
-        /// ## 重要
+        /// ## 驥崎ｦ・
         /// 
-        /// 内部で AsSelf() を呼び出すため、TImpl で直接 Resolve 可能になる。
-        /// これにより BuildCallback で確実にローカルインスタンスを取得できる。
+        /// 蜀・Κ縺ｧ AsSelf() 繧貞他縺ｳ蜃ｺ縺吶◆繧√ゝImpl 縺ｧ逶ｴ謗･ Resolve 蜿ｯ閭ｽ縺ｫ縺ｪ繧九・
+        /// 縺薙ｌ縺ｫ繧医ｊ BuildCallback 縺ｧ遒ｺ螳溘↓繝ｭ繝ｼ繧ｫ繝ｫ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｹ繧貞叙蠕励〒縺阪ｋ縲・
         /// </summary>
-        /// <typeparam name="TService">サービスのインターフェース型</typeparam>
-        /// <typeparam name="TImpl">実装クラス型</typeparam>
-        /// <param name="builder">IContainerBuilder</param>
-        /// <param name="lifetime">ライフタイム</param>
-        /// <returns>チェーン用の RegistrationBuilder</returns>
-        public static RegistrationBuilder RegisterAsScopeMulti<TService, TImpl>(
-            this IContainerBuilder builder,
-            Lifetime lifetime)
+        /// <typeparam name="TService">繧ｵ繝ｼ繝薙せ縺ｮ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ蝙・/typeparam>
+        /// <typeparam name="TImpl">螳溯｣・け繝ｩ繧ｹ蝙・/typeparam>
+        /// <param name="builder">IRuntimeContainerBuilder</param>
+        /// <param name="RuntimeLifetime">繝ｩ繧､繝輔ち繧､繝</param>
+        /// <returns>繝√ぉ繝ｼ繝ｳ逕ｨ縺ｮ IRuntimeRegistrationBuilder</returns>
+        public static IRuntimeRegistrationBuilder RegisterAsScopeMulti<TService, TImpl>(
+            this IRuntimeContainerBuilder builder,
+            RuntimeLifetime RuntimeLifetime)
             where TService : class
             where TImpl : class, TService
         {
-            var registration = builder.Register<TImpl>(lifetime)
+            var registration = builder.Register<TImpl>(RuntimeLifetime)
                 .As<TService>()
-                .AsSelf(); // 超重要：具体型でローカルに引けるようにする
+                .AsSelf(); // 雜・㍾隕・ｼ壼・菴灘梛縺ｧ繝ｭ繝ｼ繧ｫ繝ｫ縺ｫ蠑輔￠繧九ｈ縺・↓縺吶ｋ
 
             builder.RegisterBuildCallback(resolver =>
             {
                 var registry = resolver.Resolve<IScopeMultiRegistry>();
-                var instance = resolver.Resolve<TImpl>(); // ローカルを確実に取れる
+                var instance = resolver.Resolve<TImpl>(); // 繝ｭ繝ｼ繧ｫ繝ｫ繧堤｢ｺ螳溘↓蜿悶ｌ繧・
                 registry.Add<TService>(instance);
             });
 
@@ -74,19 +73,19 @@ namespace Game
         }
 
         /// <summary>
-        /// TImpl を DI に登録しつつ、複数のサービス型として IScopeMultiRegistry に登録する。
+        /// TImpl 繧・DI 縺ｫ逋ｻ骭ｲ縺励▽縺､縲∬､・焚縺ｮ繧ｵ繝ｼ繝薙せ蝙九→縺励※ IScopeMultiRegistry 縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// </summary>
-        /// <typeparam name="TService1">サービスのインターフェース型1</typeparam>
-        /// <typeparam name="TService2">サービスのインターフェース型2</typeparam>
-        /// <typeparam name="TImpl">実装クラス型</typeparam>
-        public static RegistrationBuilder RegisterAsScopeMulti<TService1, TService2, TImpl>(
-            this IContainerBuilder builder,
-            Lifetime lifetime)
+        /// <typeparam name="TService1">繧ｵ繝ｼ繝薙せ縺ｮ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ蝙・</typeparam>
+        /// <typeparam name="TService2">繧ｵ繝ｼ繝薙せ縺ｮ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ蝙・</typeparam>
+        /// <typeparam name="TImpl">螳溯｣・け繝ｩ繧ｹ蝙・/typeparam>
+        public static IRuntimeRegistrationBuilder RegisterAsScopeMulti<TService1, TService2, TImpl>(
+            this IRuntimeContainerBuilder builder,
+            RuntimeLifetime RuntimeLifetime)
             where TService1 : class
             where TService2 : class
             where TImpl : class, TService1, TService2
         {
-            var registration = builder.Register<TImpl>(lifetime)
+            var registration = builder.Register<TImpl>(RuntimeLifetime)
                 .As<TService1>()
                 .As<TService2>()
                 .AsSelf();
@@ -103,17 +102,17 @@ namespace Game
         }
 
         // ----------------------------------------------------------------
-        // AddComponentToScopeMulti - コンポーネント用
+        // AddComponentToScopeMulti - 繧ｳ繝ｳ繝昴・繝阪Φ繝育畑
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// 既に存在するインスタンス（コンポーネント等）をレジストリに登録する。
+        /// 譌｢縺ｫ蟄伜惠縺吶ｋ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｹ・医さ繝ｳ繝昴・繝阪Φ繝育ｭ会ｼ峨ｒ繝ｬ繧ｸ繧ｹ繝医Μ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// </summary>
-        /// <typeparam name="TService">サービスのインターフェース型</typeparam>
-        /// <param name="builder">IContainerBuilder</param>
-        /// <param name="instance">登録するインスタンス</param>
+        /// <typeparam name="TService">繧ｵ繝ｼ繝薙せ縺ｮ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ蝙・/typeparam>
+        /// <param name="builder">IRuntimeContainerBuilder</param>
+        /// <param name="instance">逋ｻ骭ｲ縺吶ｋ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｹ</param>
         public static void AddComponentToScopeMulti<TService>(
-            this IContainerBuilder builder,
+            this IRuntimeContainerBuilder builder,
             TService instance)
             where TService : class
         {
@@ -128,10 +127,10 @@ namespace Game
         }
 
         /// <summary>
-        /// 既に存在するインスタンスを複数のサービス型としてレジストリに登録する。
+        /// 譌｢縺ｫ蟄伜惠縺吶ｋ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｹ繧定､・焚縺ｮ繧ｵ繝ｼ繝薙せ蝙九→縺励※繝ｬ繧ｸ繧ｹ繝医Μ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// </summary>
         public static void AddComponentToScopeMulti<TService1, TService2>(
-            this IContainerBuilder builder,
+            this IRuntimeContainerBuilder builder,
             object instance)
             where TService1 : class
             where TService2 : class

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -12,92 +12,92 @@ using Game;
 namespace Game.UI
 {
     // ================================================================
-    // UIElementStateService - UIElementの状態と設定を管理するサービス
+    // UIElementStateService - UIElement縺ｮ迥ｶ諷九→險ｭ螳壹ｒ邂｡逅・☆繧九し繝ｼ繝薙せ
     // ================================================================
     //
-    // ## 概要
+    // ## 讎りｦ・
     //
-    // UIElementStateServiceは、UIElementの以下を管理するサービス:
+    // UIElementStateService縺ｯ縲ゞIElement縺ｮ莉･荳九ｒ邂｡逅・☆繧九し繝ｼ繝薙せ:
     //
-    // 1. **Active状態**: UIシステムとしての有効/無効状態
-    // 2. **Visible状態**: UIシステムとしての表示/非表示状態
-    // 3. **当たり判定RectTransform**: ナビゲーション・ポインター選択に使用
-    // 4. **ナビゲーション設定**: 方向オーバーライド、選択可能かどうか
+    // 1. **Active迥ｶ諷・*: UI繧ｷ繧ｹ繝・Β縺ｨ縺励※縺ｮ譛牙柑/辟｡蜉ｹ迥ｶ諷・
+    // 2. **Visible迥ｶ諷・*: UI繧ｷ繧ｹ繝・Β縺ｨ縺励※縺ｮ陦ｨ遉ｺ/髱櫁｡ｨ遉ｺ迥ｶ諷・
+    // 3. **蠖薙◆繧雁愛螳啌ectTransform**: 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繝ｻ繝昴う繝ｳ繧ｿ繝ｼ驕ｸ謚槭↓菴ｿ逕ｨ
+    // 4. **繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳・*: 譁ｹ蜷代が繝ｼ繝舌・繝ｩ繧､繝峨・∈謚槫庄閭ｽ縺九←縺・°
     //
-    // ## 重要な設計思想
+    // ## 驥崎ｦ√↑險ｭ險域晄Φ
     //
-    // UIシステムのActiveはUI側のフラグとスコープActiveの合算。
-    // BaseLifetimeScopeではGameObjectのactive状態がスコープActiveになる。
-    // UI側はActive/Visibleのロジックを保持し、Scopeの状態と合成して判断する。
+    // UI繧ｷ繧ｹ繝・Β縺ｮActive縺ｯUI蛛ｴ縺ｮ繝輔Λ繧ｰ縺ｨ繧ｹ繧ｳ繝ｼ繝輸ctive縺ｮ蜷育ｮ励・
+    // BaseLifetimeScope縺ｧ縺ｯGameObject縺ｮactive迥ｶ諷九′繧ｹ繧ｳ繝ｼ繝輸ctive縺ｫ縺ｪ繧九・
+    // UI蛛ｴ縺ｯActive/Visible縺ｮ繝ｭ繧ｸ繝・け繧剃ｿ晄戟縺励ヾcope縺ｮ迥ｶ諷九→蜷域・縺励※蛻､譁ｭ縺吶ｋ縲・
     //
-    // ## 当たり判定RectTransformについて
+    // ## 蠖薙◆繧雁愛螳啌ectTransform縺ｫ縺､縺・※
     //
-    // UIElementが選択可能かどうかを物理的に判定するために使用。
+    // UIElement縺碁∈謚槫庄閭ｽ縺九←縺・°繧堤黄逅・噪縺ｫ蛻､螳壹☆繧九◆繧√↓菴ｿ逕ｨ縲・
     //
-    // ### ナビゲーション時
-    // - RectTransformの中心位置を基準に方向計算を行う
-    // - RectTransformの領域がMaskで大部分覆われていたら候補から除外
+    // ### 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ譎・
+    // - RectTransform縺ｮ荳ｭ蠢・ｽ咲ｽｮ繧貞渕貅悶↓譁ｹ蜷題ｨ育ｮ励ｒ陦後≧
+    // - RectTransform縺ｮ鬆伜沺縺勲ask縺ｧ螟ｧ驛ｨ蛻・ｦ・ｏ繧後※縺・◆繧牙呵｣懊°繧蛾勁螟・
     //
-    // ### ポインター（マウス）時
-    // - RectTransformの領域内にポインターがあるかで判定
-    // - 複数のRectTransformが設定されている場合、いずれかに含まれていればOK
+    // ### 繝昴う繝ｳ繧ｿ繝ｼ・医・繧ｦ繧ｹ・画凾
+    // - RectTransform縺ｮ鬆伜沺蜀・↓繝昴う繝ｳ繧ｿ繝ｼ縺後≠繧九°縺ｧ蛻､螳・
+    // - 隍・焚縺ｮRectTransform縺瑚ｨｭ螳壹＆繧後※縺・ｋ蝣ｴ蜷医√＞縺壹ｌ縺九↓蜷ｫ縺ｾ繧後※縺・ｌ縺ｰOK
     //
-    // ### なぜリストか
+    // ### 縺ｪ縺懊Μ繧ｹ繝医°
     //
-    // 複雑な形状のUIElementを表現するため。
-    // 例えば、L字型のUIは2つのRectTransformで当たり判定を構成できる。
+    // 隍・尅縺ｪ蠖｢迥ｶ縺ｮUIElement繧定｡ｨ迴ｾ縺吶ｋ縺溘ａ縲・
+    // 萓九∴縺ｰ縲´蟄怜梛縺ｮUI縺ｯ2縺､縺ｮRectTransform縺ｧ蠖薙◆繧雁愛螳壹ｒ讒区・縺ｧ縺阪ｋ縲・
     //
-    // ## ナビゲーション方向オーバーライドについて
+    // ## 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ譁ｹ蜷代が繝ｼ繝舌・繝ｩ繧､繝峨↓縺､縺・※
     //
-    // 通常、ナビゲーションは自動計算されるが、
-    // 明示的に「上を押したらこのUIElementへ」を指定できる。
+    // 騾壼ｸｸ縲√リ繝薙ご繝ｼ繧ｷ繝ｧ繝ｳ縺ｯ閾ｪ蜍戊ｨ育ｮ励＆繧後ｋ縺後・
+    // 譏守､ｺ逧・↓縲御ｸ翫ｒ謚ｼ縺励◆繧峨％縺ｮUIElement縺ｸ縲阪ｒ謖・ｮ壹〒縺阪ｋ縲・
     //
-    // オーバーライドが設定されている方向は自動計算より優先される。
+    // 繧ｪ繝ｼ繝舌・繝ｩ繧､繝峨′險ｭ螳壹＆繧後※縺・ｋ譁ｹ蜷代・閾ｪ蜍戊ｨ育ｮ励ｈ繧雁━蜈医＆繧後ｋ縲・
     //
-    // ## ナビゲーション選択不可について
+    // ## 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚樔ｸ榊庄縺ｫ縺､縺・※
     //
-    // 一部のUIElement（Page、Window、Panelなど）は
-    // ナビゲーションで選択されるべきではない。
+    // 荳驛ｨ縺ｮUIElement・・age縲仝indow縲￣anel縺ｪ縺ｩ・峨・
+    // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｧ驕ｸ謚槭＆繧後ｋ縺ｹ縺阪〒縺ｯ縺ｪ縺・・
     //
-    // これらは他のUIElementを包含するコンテナであり、
-    // 選択単位としては機能しない。
+    // 縺薙ｌ繧峨・莉悶・UIElement繧貞桁蜷ｫ縺吶ｋ繧ｳ繝ｳ繝・リ縺ｧ縺ゅｊ縲・
+    // 驕ｸ謚槫腰菴阪→縺励※縺ｯ讖溯・縺励↑縺・・
     //
     // ================================================================
 
     // ================================================================
-    // UIElementStateChangedArgs: 状態変更イベント引数
+    // UIElementStateChangedArgs: 迥ｶ諷句､画峩繧､繝吶Φ繝亥ｼ墓焚
     // ================================================================
 
     /// <summary>
-    /// UIElement状態変更時のイベント引数。
+    /// UIElement迥ｶ諷句､画峩譎ゅ・繧､繝吶Φ繝亥ｼ墓焚縲・
     /// 
-    /// ## 用途
+    /// ## 逕ｨ騾・
     /// 
-    /// - 外部システムへの状態変更通知
-    /// - アニメーションシステムとの連携
-    /// - デバッグ/ログ出力
+    /// - 螟夜Κ繧ｷ繧ｹ繝・Β縺ｸ縺ｮ迥ｶ諷句､画峩騾夂衍
+    /// - 繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ繧ｷ繧ｹ繝・Β縺ｨ縺ｮ騾｣謳ｺ
+    /// - 繝・ヰ繝・げ/繝ｭ繧ｰ蜃ｺ蜉・
     /// </summary>
     public readonly struct UIElementStateChangedArgs
     {
-        /// <summary>状態を持つUIElement（UIElementLifetimeScope/RuntimeLifetimeScope）</summary>
+        /// <summary>迥ｶ諷九ｒ謖√▽UIElement・・IElementLifetimeScope/RuntimeLifetimeScope・・/summary>
         public IScopeNode Owner { get; }
 
-        /// <summary>変更前のActive状態</summary>
+        /// <summary>螟画峩蜑阪・Active迥ｶ諷・/summary>
         public bool PreviousActive { get; }
 
-        /// <summary>変更後のActive状態</summary>
+        /// <summary>螟画峩蠕後・Active迥ｶ諷・/summary>
         public bool CurrentActive { get; }
 
-        /// <summary>変更前のVisible状態</summary>
+        /// <summary>螟画峩蜑阪・Visible迥ｶ諷・/summary>
         public bool PreviousVisible { get; }
 
-        /// <summary>変更後のVisible状態</summary>
+        /// <summary>螟画峩蠕後・Visible迥ｶ諷・/summary>
         public bool CurrentVisible { get; }
 
-        /// <summary>Active状態が変更されたかどうか</summary>
+        /// <summary>Active迥ｶ諷九′螟画峩縺輔ｌ縺溘°縺ｩ縺・°</summary>
         public bool ActiveChanged => PreviousActive != CurrentActive;
 
-        /// <summary>Visible状態が変更されたかどうか</summary>
+        /// <summary>Visible迥ｶ諷九′螟画峩縺輔ｌ縺溘°縺ｩ縺・°</summary>
         public bool VisibleChanged => PreviousVisible != CurrentVisible;
 
         public UIElementStateChangedArgs(
@@ -116,63 +116,63 @@ namespace Game.UI
     }
 
     // ================================================================
-    // NavigationOverride: ナビゲーション方向のオーバーライド設定
+    // NavigationOverride: 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ譁ｹ蜷代・繧ｪ繝ｼ繝舌・繝ｩ繧､繝芽ｨｭ螳・
     // ================================================================
 
     /// <summary>
-    /// 各方向のナビゲーションオーバーライド設定。
+    /// 蜷・婿蜷代・繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧ｪ繝ｼ繝舌・繝ｩ繧､繝芽ｨｭ螳壹・
     /// 
-    /// ## 用途
+    /// ## 逕ｨ騾・
     /// 
-    /// 自動計算によるナビゲーションを上書きし、
-    /// 明示的に「この方向を押したらこのUIElementへ」を指定する。
+    /// 閾ｪ蜍戊ｨ育ｮ励↓繧医ｋ繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧剃ｸ頑嶌縺阪＠縲・
+    /// 譏守､ｺ逧・↓縲後％縺ｮ譁ｹ蜷代ｒ謚ｼ縺励◆繧峨％縺ｮUIElement縺ｸ縲阪ｒ謖・ｮ壹☆繧九・
     /// 
-    /// ## 設計
+    /// ## 險ｭ險・
     /// 
-    /// nullの場合は自動計算にフォールバック。
-    /// 設定されている場合はその要素への移動を試みる
-    /// （移動先がActive=falseなら移動しない）。
+    /// null縺ｮ蝣ｴ蜷医・閾ｪ蜍戊ｨ育ｮ励↓繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ縲・
+    /// 險ｭ螳壹＆繧後※縺・ｋ蝣ｴ蜷医・縺昴・隕∫ｴ縺ｸ縺ｮ遘ｻ蜍輔ｒ隧ｦ縺ｿ繧・
+    /// ・育ｧｻ蜍募・縺窟ctive=false縺ｪ繧臥ｧｻ蜍輔＠縺ｪ縺・ｼ峨・
     /// </summary>
     [Serializable]
     public sealed class NavigationOverride
     {
         /// <summary>
-        /// 上方向を押したときの移動先。
-        /// nullの場合は自動計算。
-        /// UIElementStateMB を指定する。
+        /// 荳頑婿蜷代ｒ謚ｼ縺励◆縺ｨ縺阪・遘ｻ蜍募・縲・
+        /// null縺ｮ蝣ｴ蜷医・閾ｪ蜍戊ｨ育ｮ励・
+        /// UIElementStateMB 繧呈欠螳壹☆繧九・
         /// </summary>
-        [Tooltip("上入力時の移動先。空なら自動計算。UIElementStateMB を指定する。")]
+        [Tooltip("Inspector setting.")]
         public UIElementStateMB? Up;
 
         /// <summary>
-        /// 下方向を押したときの移動先。
-        /// nullの場合は自動計算。
-        /// UIElementStateMB を指定する。
+        /// 荳区婿蜷代ｒ謚ｼ縺励◆縺ｨ縺阪・遘ｻ蜍募・縲・
+        /// null縺ｮ蝣ｴ蜷医・閾ｪ蜍戊ｨ育ｮ励・
+        /// UIElementStateMB 繧呈欠螳壹☆繧九・
         /// </summary>
-        [Tooltip("下入力時の移動先。空なら自動計算。UIElementStateMB を指定する。")]
+        [Tooltip("Inspector setting.")]
         public UIElementStateMB? Down;
 
         /// <summary>
-        /// 左方向を押したときの移動先。
-        /// nullの場合は自動計算。
-        /// UIElementStateMB を指定する。
+        /// 蟾ｦ譁ｹ蜷代ｒ謚ｼ縺励◆縺ｨ縺阪・遘ｻ蜍募・縲・
+        /// null縺ｮ蝣ｴ蜷医・閾ｪ蜍戊ｨ育ｮ励・
+        /// UIElementStateMB 繧呈欠螳壹☆繧九・
         /// </summary>
-        [Tooltip("左入力時の移動先。空なら自動計算。UIElementStateMB を指定する。")]
+        [Tooltip("Inspector setting.")]
         public UIElementStateMB? Left;
 
         /// <summary>
-        /// 右方向を押したときの移動先。
-        /// nullの場合は自動計算。
-        /// UIElementStateMB を指定する。
+        /// 蜿ｳ譁ｹ蜷代ｒ謚ｼ縺励◆縺ｨ縺阪・遘ｻ蜍募・縲・
+        /// null縺ｮ蝣ｴ蜷医・閾ｪ蜍戊ｨ育ｮ励・
+        /// UIElementStateMB 繧呈欠螳壹☆繧九・
         /// </summary>
-        [Tooltip("右入力時の移動先。空なら自動計算。UIElementStateMB を指定する。")]
+        [Tooltip("Inspector setting.")]
         public UIElementStateMB? Right;
 
         /// <summary>
-        /// 指定方向のオーバーライドを取得する。
+        /// 謖・ｮ壽婿蜷代・繧ｪ繝ｼ繝舌・繝ｩ繧､繝峨ｒ蜿門ｾ励☆繧九・
         /// </summary>
-        /// <param name="direction">取得する方向</param>
-        /// <returns>オーバーライド先。nullの場合は自動計算を使用。</returns>
+        /// <param name="direction">蜿門ｾ励☆繧区婿蜷・/param>
+        /// <returns>繧ｪ繝ｼ繝舌・繝ｩ繧､繝牙・縲Ｏull縺ｮ蝣ｴ蜷医・閾ｪ蜍戊ｨ育ｮ励ｒ菴ｿ逕ｨ縲・/returns>
         public IScopeNode? GetOverride(NavigateDirection direction)
         {
             var target = direction switch
@@ -188,7 +188,7 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// 指定方向にオーバーライドが設定されているかどうか。
+        /// 謖・ｮ壽婿蜷代↓繧ｪ繝ｼ繝舌・繝ｩ繧､繝峨′險ｭ螳壹＆繧後※縺・ｋ縺九←縺・°縲・
         /// </summary>
         public bool HasOverride(NavigateDirection direction)
         {
@@ -208,375 +208,375 @@ namespace Game.UI
     }
 
     // ================================================================
-    // IUIElementState: UIElement状態の読み取りInterface
+    // IUIElementState: UIElement迥ｶ諷九・隱ｭ縺ｿ蜿悶ｊInterface
     // ================================================================
 
     /// <summary>
-    /// UIElementの状態を読み取るインターフェース。
+    /// UIElement縺ｮ迥ｶ諷九ｒ隱ｭ縺ｿ蜿悶ｋ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ縲・
     /// 
-    /// ## 役割
+    /// ## 蠖ｹ蜑ｲ
     /// 
-    /// 外部システムがUIElementの状態を取得するための読み取り専用API。
-    /// 状態の変更はIUIElementStateControllerを通じて行う。
+    /// 螟夜Κ繧ｷ繧ｹ繝・Β縺袈IElement縺ｮ迥ｶ諷九ｒ蜿門ｾ励☆繧九◆繧√・隱ｭ縺ｿ蜿悶ｊ蟆ら畑API縲・
+    /// 迥ｶ諷九・螟画峩縺ｯIUIElementStateController繧帝壹§縺ｦ陦後≧縲・
     /// 
-    /// ## 使用シーン
+    /// ## 菴ｿ逕ｨ繧ｷ繝ｼ繝ｳ
     /// 
-    /// - 選択処理時のフィルタリング
-    /// - ナビゲーション候補の絞り込み
-    /// - 描画システムとの連携
-    /// - 外部システムからの状態確認
+    /// - 驕ｸ謚槫・逅・凾縺ｮ繝輔ぅ繝ｫ繧ｿ繝ｪ繝ｳ繧ｰ
+    /// - 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ蛟呵｣懊・邨槭ｊ霎ｼ縺ｿ
+    /// - 謠冗判繧ｷ繧ｹ繝・Β縺ｨ縺ｮ騾｣謳ｺ
+    /// - 螟夜Κ繧ｷ繧ｹ繝・Β縺九ｉ縺ｮ迥ｶ諷狗｢ｺ隱・
     /// </summary>
     public interface IUIElementState
     {
         // ----------------------------------------------------------------
-        // Active/Visible状態
+        // Active/Visible迥ｶ諷・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// このUIElementがActiveかどうか。
+        /// 縺薙・UIElement縺窟ctive縺九←縺・°縲・
         /// 
-        /// ## Active=falseの場合
+        /// ## Active=false縺ｮ蝣ｴ蜷・
         /// 
-        /// - 選択（Select）対象から除外される
-        /// - ナビゲーション候補から除外される
-        /// - 入力イベントを受け取らない
-        /// - ただし、GameObject自体はactive=trueのまま
+        /// - 驕ｸ謚橸ｼ・elect・牙ｯｾ雎｡縺九ｉ髯､螟悶＆繧後ｋ
+        /// - 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ蛟呵｣懊°繧蛾勁螟悶＆繧後ｋ
+        /// - 蜈･蜉帙う繝吶Φ繝医ｒ蜿励￠蜿悶ｉ縺ｪ縺・
+        /// - 縺溘□縺励；ameObject閾ｪ菴薙・active=true縺ｮ縺ｾ縺ｾ
         /// </summary>
         bool IsActive { get; }
 
         /// <summary>
-        /// このUIElementが表示されるかどうか。
+        /// 縺薙・UIElement縺瑚｡ｨ遉ｺ縺輔ｌ繧九°縺ｩ縺・°縲・
         /// 
-        /// ## Visible=falseの場合
+        /// ## Visible=false縺ｮ蝣ｴ蜷・
         /// 
-        /// - 絶対に描画されない
-        /// - Mask等の他の要因に関係なく非表示
-        /// - Active状態には影響しない
+        /// - 邨ｶ蟇ｾ縺ｫ謠冗判縺輔ｌ縺ｪ縺・
+        /// - Mask遲峨・莉悶・隕∝屏縺ｫ髢｢菫ゅ↑縺城撼陦ｨ遉ｺ
+        /// - Active迥ｶ諷九↓縺ｯ蠖ｱ髻ｿ縺励↑縺・
         /// 
-        /// ## 注意
+        /// ## 豕ｨ諢・
         /// 
-        /// Visible=trueでも他の要因で見えなくなることがある:
-        /// - Maskによる遮蔽
-        /// - Canvas外にいる
-        /// - 他のUIに覆われている
-        /// - アルファが0
+        /// Visible=true縺ｧ繧ゆｻ悶・隕∝屏縺ｧ隕九∴縺ｪ縺上↑繧九％縺ｨ縺後≠繧・
+        /// - Mask縺ｫ繧医ｋ驕ｮ阡ｽ
+        /// - Canvas螟悶↓縺・ｋ
+        /// - 莉悶・UI縺ｫ隕・ｏ繧後※縺・ｋ
+        /// - 繧｢繝ｫ繝輔ぃ縺・
         /// </summary>
         bool IsVisible { get; }
 
         /// <summary>
-        /// このUIElementが実質的にActiveかどうか。
+        /// 縺薙・UIElement縺悟ｮ溯ｳｪ逧・↓Active縺九←縺・°縲・
         /// 
-        /// ## 計算ロジック
+        /// ## 險育ｮ励Ο繧ｸ繝・け
         /// 
-        /// 自身のActive状態に加え、親のActive状態も考慮した結果。
-        /// 親がActive=falseなら、自身がActive=trueでもfalseを返す。
+        /// 閾ｪ霄ｫ縺ｮActive迥ｶ諷九↓蜉縺医∬ｦｪ縺ｮActive迥ｶ諷九ｂ閠・・縺励◆邨先棡縲・
+        /// 隕ｪ縺窟ctive=false縺ｪ繧峨∬・霄ｫ縺窟ctive=true縺ｧ繧Ｇalse繧定ｿ斐☆縲・
         /// 
-        /// ## 用途
+        /// ## 逕ｨ騾・
         /// 
-        /// 選択判定やナビゲーション判定では、このプロパティを使用する。
-        /// 親がActiveでなければ子も実質的にActiveではない。
+        /// 驕ｸ謚槫愛螳壹ｄ繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ蛻､螳壹〒縺ｯ縲√％縺ｮ繝励Ο繝代ユ繧｣繧剃ｽｿ逕ｨ縺吶ｋ縲・
+        /// 隕ｪ縺窟ctive縺ｧ縺ｪ縺代ｌ縺ｰ蟄舌ｂ螳溯ｳｪ逧・↓Active縺ｧ縺ｯ縺ｪ縺・・
         /// </summary>
         bool IsEffectivelyActive { get; }
 
         /// <summary>
-        /// 入力受付可能かどうか。
+        /// 蜈･蜉帛女莉伜庄閭ｽ縺九←縺・°縲・
         ///
-        /// Active/Visible に加えて、Lifecycle の despawn 演出中かも考慮する。
+        /// Active/Visible 縺ｫ蜉縺医※縲´ifecycle 縺ｮ despawn 貍泌・荳ｭ縺九ｂ閠・・縺吶ｋ縲・
         /// </summary>
         bool AcceptsInput { get; }
 
         // ----------------------------------------------------------------
-        // 当たり判定
+        // 蠖薙◆繧雁愛螳・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// 当たり判定に使用するRectTransformのリスト。
+        /// 蠖薙◆繧雁愛螳壹↓菴ｿ逕ｨ縺吶ｋRectTransform縺ｮ繝ｪ繧ｹ繝医・
         /// 
-        /// ## 用途
+        /// ## 逕ｨ騾・
         /// 
-        /// - ナビゲーション時の距離・方向計算
-        /// - ポインター（マウス）ヒットテスト
-        /// - Mask遮蔽率の計算
+        /// - 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ譎ゅ・霍晞屬繝ｻ譁ｹ蜷題ｨ育ｮ・
+        /// - 繝昴う繝ｳ繧ｿ繝ｼ・医・繧ｦ繧ｹ・峨ヲ繝・ヨ繝・せ繝・
+        /// - Mask驕ｮ阡ｽ邇・・險育ｮ・
         /// 
-        /// ## 複数設定の意味
+        /// ## 隍・焚險ｭ螳壹・諢丞袖
         /// 
-        /// 複雑な形状のUIElementを表現するために複数のRectTransformを設定可能。
-        /// いずれかのRectTransformにヒットすれば、そのUIElementにヒットしたとみなす。
+        /// 隍・尅縺ｪ蠖｢迥ｶ縺ｮUIElement繧定｡ｨ迴ｾ縺吶ｋ縺溘ａ縺ｫ隍・焚縺ｮRectTransform繧定ｨｭ螳壼庄閭ｽ縲・
+        /// 縺・★繧後°縺ｮRectTransform縺ｫ繝偵ャ繝医☆繧後・縲√◎縺ｮUIElement縺ｫ繝偵ャ繝医＠縺溘→縺ｿ縺ｪ縺吶・
         /// </summary>
         IReadOnlyList<RectTransform> HitTestRects { get; }
 
 
         /// <summary>
-        /// 選択優先度。
+        /// 驕ｸ謚槫━蜈亥ｺｦ縲・
         /// 
-        /// ## 用途
+        /// ## 逕ｨ騾・
         /// 
-        /// ナビゲーション候補が複数ある場合の優先順位付け。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ蛟呵｣懊′隍・焚縺ゅｋ蝣ｴ蜷医・蜆ｪ蜈磯・ｽ堺ｻ倥￠縲・
         /// 
-        /// ## 数値の意味
+        /// ## 謨ｰ蛟､縺ｮ諢丞袖
         /// 
-        /// 数値が大きいほど優先度が高い。
+        /// 謨ｰ蛟､縺悟､ｧ縺阪＞縺ｻ縺ｩ蜆ｪ蜈亥ｺｦ縺碁ｫ倥＞縲・
         /// 
         int SelectionOrder { get; }
 
         /// <summary>
-        /// ナビゲーション専用の優先度。
-        /// 数値が大きいほど優先される。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ蟆ら畑縺ｮ蜆ｪ蜈亥ｺｦ縲・
+        /// 謨ｰ蛟､縺悟､ｧ縺阪＞縺ｻ縺ｩ蜆ｪ蜈医＆繧後ｋ縲・
         /// </summary>
         int NavigationSelectionOrder { get; }
 
         // ----------------------------------------------------------------
-        // ナビゲーション設定
+        // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// このUIElement自体が選択対象になれる条件。
-        /// false の場合、ポインター/ナビゲーション/直接選択のすべてから除外される。
+        /// 縺薙・UIElement閾ｪ菴薙′驕ｸ謚槫ｯｾ雎｡縺ｫ縺ｪ繧後ｋ譚｡莉ｶ縲・
+        /// false 縺ｮ蝣ｴ蜷医√・繧､繝ｳ繧ｿ繝ｼ/繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ/逶ｴ謗･驕ｸ謚槭・縺吶∋縺ｦ縺九ｉ髯､螟悶＆繧後ｋ縲・
         /// </summary>
         Game.Common.DynamicValue<bool> IsSelectable { get; }
 
         /// <summary>
-        /// ナビゲーション（キーボード/ゲームパッド）選択可能条件（DynamicValue&lt;bool&gt;）。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ・医く繝ｼ繝懊・繝・繧ｲ繝ｼ繝繝代ャ繝会ｼ蛾∈謚槫庄閭ｽ譚｡莉ｶ・・ynamicValue&lt;bool&gt;・峨・
         /// 
-        /// 動的に選択可能性を評価する条件。
-        /// Blackboard、Scalar、VarStore、Expression など複数の値源をサポート。
+        /// 蜍慕噪縺ｫ驕ｸ謚槫庄閭ｽ諤ｧ繧定ｩ穂ｾ｡縺吶ｋ譚｡莉ｶ縲・
+        /// Blackboard縲ヾcalar縲〃arStore縲・xpression 縺ｪ縺ｩ隍・焚縺ｮ蛟､貅舌ｒ繧ｵ繝昴・繝医・
         /// 
-        /// ## falseを返す場合
+        /// ## false繧定ｿ斐☆蝣ｴ蜷・
         /// 
-        /// - ナビゲーションによる選択候補から完全に除外される
-        /// - ポインター（マウス）による選択は可能
-        /// - Active状態とは独立した設定
+        /// - 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｫ繧医ｋ驕ｸ謚槫呵｣懊°繧牙ｮ悟・縺ｫ髯､螟悶＆繧後ｋ
+        /// - 繝昴う繝ｳ繧ｿ繝ｼ・医・繧ｦ繧ｹ・峨↓繧医ｋ驕ｸ謚槭・蜿ｯ閭ｽ
+        /// - Active迥ｶ諷九→縺ｯ迢ｬ遶九＠縺溯ｨｭ螳・
         /// 
-        /// ## 用途
+        /// ## 逕ｨ騾・
         /// 
-        /// Page、Window、Panelなどのコンテナ要素に設定。
-        /// これらはナビゲーションで直接選択されるべきではない。
+        /// Page縲仝indow縲￣anel縺ｪ縺ｩ縺ｮ繧ｳ繝ｳ繝・リ隕∫ｴ縺ｫ險ｭ螳壹・
+        /// 縺薙ｌ繧峨・繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｧ逶ｴ謗･驕ｸ謚槭＆繧後ｋ縺ｹ縺阪〒縺ｯ縺ｪ縺・・
         /// </summary>
         Game.Common.DynamicValue<bool> IsNavigationSelectable { get; }
 
         /// <summary>
-        /// ナビゲーション方向のオーバーライド設定。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ譁ｹ蜷代・繧ｪ繝ｼ繝舌・繝ｩ繧､繝芽ｨｭ螳壹・
         /// 
-        /// ## 用途
+        /// ## 逕ｨ騾・
         /// 
-        /// 自動計算によるナビゲーションを上書きし、
-        /// 明示的な移動先を指定する。
+        /// 閾ｪ蜍戊ｨ育ｮ励↓繧医ｋ繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧剃ｸ頑嶌縺阪＠縲・
+        /// 譏守､ｺ逧・↑遘ｻ蜍募・繧呈欠螳壹☆繧九・
         /// 
-        /// ## nullの場合
+        /// ## null縺ｮ蝣ｴ蜷・
         /// 
-        /// すべての方向で自動計算を使用。
+        /// 縺吶∋縺ｦ縺ｮ譁ｹ蜷代〒閾ｪ蜍戊ｨ育ｮ励ｒ菴ｿ逕ｨ縲・
         /// </summary>
         NavigationOverride? NavigationOverride { get; }
 
         // ----------------------------------------------------------------
-        // ナビゲーション評価メソッド
+        // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ隧穂ｾ｡繝｡繧ｽ繝・ラ
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// ナビゲーション選択可能条件を評価する。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ譚｡莉ｶ繧定ｩ穂ｾ｡縺吶ｋ縲・
         /// </summary>
-        /// <returns>ナビゲーション選択可能な場合true</returns>
+        /// <returns>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ縺ｪ蝣ｴ蜷・rue</returns>
         bool EvaluateIsSelectable();
 
         /// <summary>
-        /// ナビゲーション選択可能条件を評価する。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ譚｡莉ｶ繧定ｩ穂ｾ｡縺吶ｋ縲・
         /// </summary>
-        /// <returns>ナビゲーション選択可能な場合true</returns>
+        /// <returns>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ縺ｪ蝣ｴ蜷・rue</returns>
         bool EvaluateIsNavigationSelectable();
 
         // ----------------------------------------------------------------
-        // 所有者
+        // 謇譛芽・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// このUIElementを所有するIScopeNode。
+        /// 縺薙・UIElement繧呈園譛峨☆繧紀ScopeNode縲・
         /// </summary>
         IScopeNode? Owner { get; }
 
         // ----------------------------------------------------------------
-        // イベント
+        // 繧､繝吶Φ繝・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// 状態が変更されたときに発火するイベント。
+        /// 迥ｶ諷九′螟画峩縺輔ｌ縺溘→縺阪↓逋ｺ轣ｫ縺吶ｋ繧､繝吶Φ繝医・
         /// 
-        /// ## 発火タイミング
+        /// ## 逋ｺ轣ｫ繧ｿ繧､繝溘Φ繧ｰ
         /// 
-        /// - Active状態が変更されたとき
-        /// - Visible状態が変更されたとき
+        /// - Active迥ｶ諷九′螟画峩縺輔ｌ縺溘→縺・
+        /// - Visible迥ｶ諷九′螟画峩縺輔ｌ縺溘→縺・
         /// 
-        /// ## 注意
+        /// ## 豕ｨ諢・
         /// 
-        /// HitTestRectsやNavigationOverrideの変更では発火しない。
+        /// HitTestRects繧НavigationOverride縺ｮ螟画峩縺ｧ縺ｯ逋ｺ轣ｫ縺励↑縺・・
         /// </summary>
         event Action<UIElementStateChangedArgs>? OnStateChanged;
     }
 
     // ================================================================
-    // IUIElementStateController: UIElement状態の制御Interface
+    // IUIElementStateController: UIElement迥ｶ諷九・蛻ｶ蠕｡Interface
     // ================================================================
 
     /// <summary>
-    /// UIElementの状態を制御するインターフェース。
+    /// UIElement縺ｮ迥ｶ諷九ｒ蛻ｶ蠕｡縺吶ｋ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ縲・
     /// 
-    /// ## 役割
+    /// ## 蠖ｹ蜑ｲ
     /// 
-    /// UIElementの状態を変更するためのAPI。
-    /// IUIElementStateを継承し、読み取りと制御の両方を提供。
+    /// UIElement縺ｮ迥ｶ諷九ｒ螟画峩縺吶ｋ縺溘ａ縺ｮAPI縲・
+    /// IUIElementState繧堤ｶ呎価縺励∬ｪｭ縺ｿ蜿悶ｊ縺ｨ蛻ｶ蠕｡縺ｮ荳｡譁ｹ繧呈署萓帙・
     /// 
-    /// ## 設計方針
+    /// ## 險ｭ險域婿驥・
     /// 
-    /// 読み取りと制御を分離することで、
-    /// 外部からの不正な状態変更を防ぐ。
+    /// 隱ｭ縺ｿ蜿悶ｊ縺ｨ蛻ｶ蠕｡繧貞・髮｢縺吶ｋ縺薙→縺ｧ縲・
+    /// 螟夜Κ縺九ｉ縺ｮ荳肴ｭ｣縺ｪ迥ｶ諷句､画峩繧帝亟縺舌・
     /// 
-    /// 通常のシステムはIUIElementStateのみを参照し、
-    /// 状態を変更する必要があるシステムのみがこのインターフェースを使用。
+    /// 騾壼ｸｸ縺ｮ繧ｷ繧ｹ繝・Β縺ｯIUIElementState縺ｮ縺ｿ繧貞盾辣ｧ縺励・
+    /// 迥ｶ諷九ｒ螟画峩縺吶ｋ蠢・ｦ√′縺ゅｋ繧ｷ繧ｹ繝・Β縺ｮ縺ｿ縺後％縺ｮ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ繧剃ｽｿ逕ｨ縲・
     /// </summary>
     public interface IUIElementStateController : IUIElementState
     {
         // ----------------------------------------------------------------
-        // Active/Visible制御
+        // Active/Visible蛻ｶ蠕｡
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// Active状態を設定する。
+        /// Active迥ｶ諷九ｒ險ｭ螳壹☆繧九・
         /// 
-        /// ## 効果
+        /// ## 蜉ｹ譫・
         /// 
-        /// - trueに設定: 選択可能になる、入力を受け付ける
-        /// - falseに設定: 選択不可になる、入力を受け付けない
-        /// - OnStateChangedイベントが発火する
+        /// - true縺ｫ險ｭ螳・ 驕ｸ謚槫庄閭ｽ縺ｫ縺ｪ繧九∝・蜉帙ｒ蜿励￠莉倥￠繧・
+        /// - false縺ｫ險ｭ螳・ 驕ｸ謚樔ｸ榊庄縺ｫ縺ｪ繧九∝・蜉帙ｒ蜿励￠莉倥￠縺ｪ縺・
+        /// - OnStateChanged繧､繝吶Φ繝医′逋ｺ轣ｫ縺吶ｋ
         /// </summary>
-        /// <param name="active">新しいActive状態</param>
+        /// <param name="active">譁ｰ縺励＞Active迥ｶ諷・/param>
         void SetActive(bool active);
 
         /// <summary>
-        /// Visible状態を設定する。
+        /// Visible迥ｶ諷九ｒ險ｭ螳壹☆繧九・
         /// 
-        /// ## 効果
+        /// ## 蜉ｹ譫・
         /// 
-        /// - trueに設定: 描画される可能性がある
-        /// - falseに設定: 絶対に描画されない
-        /// - OnStateChangedイベントが発火する
+        /// - true縺ｫ險ｭ螳・ 謠冗判縺輔ｌ繧句庄閭ｽ諤ｧ縺後≠繧・
+        /// - false縺ｫ險ｭ螳・ 邨ｶ蟇ｾ縺ｫ謠冗判縺輔ｌ縺ｪ縺・
+        /// - OnStateChanged繧､繝吶Φ繝医′逋ｺ轣ｫ縺吶ｋ
         /// </summary>
-        /// <param name="visible">新しいVisible状態</param>
+        /// <param name="visible">譁ｰ縺励＞Visible迥ｶ諷・/param>
         void SetVisible(bool visible);
 
         /// <summary>
-        /// Active状態をトグルする。
+        /// Active迥ｶ諷九ｒ繝医げ繝ｫ縺吶ｋ縲・
         /// </summary>
         void ToggleActive();
 
         /// <summary>
-        /// Visible状態をトグルする。
+        /// Visible迥ｶ諷九ｒ繝医げ繝ｫ縺吶ｋ縲・
         /// </summary>
         void ToggleVisible();
     }
 
     // ================================================================
-    // UIElementStateService: メイン実装
+    // UIElementStateService: 繝｡繧､繝ｳ螳溯｣・
     // ================================================================
 
     /// <summary>
-    /// UIElementの状態を管理するサービス。
+    /// UIElement縺ｮ迥ｶ諷九ｒ邂｡逅・☆繧九し繝ｼ繝薙せ縲・
     /// 
-    /// ## 登録方法
+    /// ## 逋ｻ骭ｲ譁ｹ豕・
     /// 
-    /// UIElementStateMBを通じてLifetimeScopeに登録される。
-    /// UIElementStateMBがFeatureInstallerとして機能し、
-    /// このサービスをDIコンテナに登録する。
+    /// UIElementStateMB繧帝壹§縺ｦLifetimeScope縺ｫ逋ｻ骭ｲ縺輔ｌ繧九・
+    /// UIElementStateMB縺熊eatureInstaller縺ｨ縺励※讖溯・縺励・
+    /// 縺薙・繧ｵ繝ｼ繝薙せ繧奪I繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
     /// 
-    /// ## 責務
+    /// ## 雋ｬ蜍・
     /// 
-    /// 1. Active/Visible状態の保持と変更通知
-    /// 2. IsEffectivelyActiveの計算（親の状態を考慮）
-    /// 3. 当たり判定用RectTransformリストの保持
-    /// 4. ナビゲーション設定の保持
+    /// 1. Active/Visible迥ｶ諷九・菫晄戟縺ｨ螟画峩騾夂衍
+    /// 2. IsEffectivelyActive縺ｮ險育ｮ暦ｼ郁ｦｪ縺ｮ迥ｶ諷九ｒ閠・・・・
+    /// 3. 蠖薙◆繧雁愛螳夂畑RectTransform繝ｪ繧ｹ繝医・菫晄戟
+    /// 4. 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳壹・菫晄戟
     /// 
-    /// ## 依存関係
+    /// ## 萓晏ｭ倬未菫・
     /// 
-    /// このサービスはUIElementStateMBから初期設定を受け取る。
-    /// 設定の変更はUIElementStateMBを通じて行われ、
-    /// このサービスに反映される。
+    /// 縺薙・繧ｵ繝ｼ繝薙せ縺ｯUIElementStateMB縺九ｉ蛻晄悄險ｭ螳壹ｒ蜿励￠蜿悶ｋ縲・
+    /// 險ｭ螳壹・螟画峩縺ｯUIElementStateMB繧帝壹§縺ｦ陦後ｏ繧後・
+    /// 縺薙・繧ｵ繝ｼ繝薙せ縺ｫ蜿肴丐縺輔ｌ繧九・
     /// </summary>
     public sealed class UIElementStateService : IUIElementStateController, IUIModalRoot, IScopeAcquireHandler, IScopeReleaseHandler
     {
         // ----------------------------------------------------------------
-        // フィールド
+        // 繝輔ぅ繝ｼ繝ｫ繝・
         // ----------------------------------------------------------------
 
-        /// <summary>所有者スコープ</summary>
+        /// <summary>謇譛芽・せ繧ｳ繝ｼ繝・/summary>
         readonly IScopeNode _owner;
 
-        /// <summary>Active状態</summary>
+        /// <summary>Active迥ｶ諷・/summary>
         bool _isActive = true;
 
-        /// <summary>Visible状態</summary>
+        /// <summary>Visible迥ｶ諷・/summary>
         bool _isVisible = true;
 
-        /// <summary>当たり判定に使用するRectTransformのリスト</summary>
+        /// <summary>蠖薙◆繧雁愛螳壹↓菴ｿ逕ｨ縺吶ｋRectTransform縺ｮ繝ｪ繧ｹ繝・/summary>
         readonly List<RectTransform> _hitTestRects = new();
 
-        /// <summary>ナビゲーションで選択可能かどうか</summary>
-        /// <summary>このUIElement自体が選択可能かを決める条件（DynamicValue<bool>）</summary>
+        /// <summary>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｧ驕ｸ謚槫庄閭ｽ縺九←縺・°</summary>
+        /// <summary>縺薙・UIElement閾ｪ菴薙′驕ｸ謚槫庄閭ｽ縺九ｒ豎ｺ繧√ｋ譚｡莉ｶ・・ynamicValue<bool>・・/summary>
         Game.Common.DynamicValue<bool> _isSelectableCondition;
 
-        /// <summary>キャッシュされた選択可能フラグ</summary>
+        /// <summary>繧ｭ繝｣繝・す繝･縺輔ｌ縺滄∈謚槫庄閭ｽ繝輔Λ繧ｰ</summary>
         bool _isSelectableCached = true;
 
-        /// <summary>ナビゲーションで選択可能かどうかを決める条件（DynamicValue<bool>）</summary>
-        /// <summary>ナビゲーションで選択可能かを決める条件（DynamicValue<bool>）</summary>
+        /// <summary>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｧ驕ｸ謚槫庄閭ｽ縺九←縺・°繧呈ｱｺ繧√ｋ譚｡莉ｶ・・ynamicValue<bool>・・/summary>
+        /// <summary>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｧ驕ｸ謚槫庄閭ｽ縺九ｒ豎ｺ繧√ｋ譚｡莉ｶ・・ynamicValue<bool>・・/summary>
         Game.Common.DynamicValue<bool> _isNavigationSelectableCondition;
 
-        /// <summary>キャッシュされたナビゲーション選択可能フラグ</summary>
+        /// <summary>繧ｭ繝｣繝・す繝･縺輔ｌ縺溘リ繝薙ご繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ繝輔Λ繧ｰ</summary>
         bool _isNavigationSelectableCached = true;
 
-        /// <summary>ナビゲーション方向のオーバーライド設定</summary>
+        /// <summary>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ譁ｹ蜷代・繧ｪ繝ｼ繝舌・繝ｩ繧､繝芽ｨｭ螳・/summary>
         NavigationOverride? _navigationOverride;
 
-        /// <summary>選択優先度</summary>
+        /// <summary>驕ｸ謚槫━蜈亥ｺｦ</summary>
         int _selectionOrder = 0;
 
-        /// <summary>ナビゲーション専用優先度</summary>
+        /// <summary>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ蟆ら畑蜆ｪ蜈亥ｺｦ</summary>
         int _navigationSelectionOrder = 0;
 
-        /// <summary>選択時に実行するコマンドリスト</summary>
+        /// <summary>驕ｸ謚樊凾縺ｫ螳溯｡後☆繧九さ繝槭Φ繝峨Μ繧ｹ繝・/summary>
         readonly VNext.CommandListData _onSelectedCommands;
 
-        /// <summary>選択解除時に実行するコマンドリスト</summary>
+        /// <summary>驕ｸ謚櫁ｧ｣髯､譎ゅ↓螳溯｡後☆繧九さ繝槭Φ繝峨Μ繧ｹ繝・/summary>
         readonly VNext.CommandListData _onDeselectedCommands;
 
-        /// <summary>UISelectionServiceの参照（選択監視用）</summary>
+        /// <summary>UISelectionService縺ｮ蜿ら・・磯∈謚樒屮隕也畑・・/summary>
         IUISelectionState? _selectionState;
 
-        /// <summary>コマンド実行用Runner</summary>
+        /// <summary>繧ｳ繝槭Φ繝牙ｮ溯｡檎畑Runner</summary>
         VNext.ICommandRunner? _commandRunner;
 
-        /// <summary>前回の選択状態（自分が選択されていたか）</summary>
+        /// <summary>蜑榊屓縺ｮ驕ｸ謚樒憾諷具ｼ郁・蛻・′驕ｸ謚槭＆繧後※縺・◆縺具ｼ・/summary>
         bool _wasSelected;
 
-        /// <summary>コマンド実行用CancellationTokenSource</summary>
+        /// <summary>繧ｳ繝槭Φ繝牙ｮ溯｡檎畑CancellationTokenSource</summary>
         CancellationTokenSource? _commandCts;
 
-        /// <summary>親のUIElementStateキャッシュ（IsEffectivelyActive最適化用）</summary>
+        /// <summary>隕ｪ縺ｮUIElementState繧ｭ繝｣繝・す繝･・・sEffectivelyActive譛驕ｩ蛹也畑・・/summary>
         IUIElementState? _cachedParentState;
         bool _parentStateCacheResolved;
         IScopeNode? _cachedParentScope;
 
-        /// <summary>IsEffectivelyActiveのキャッシュ</summary>
+        /// <summary>IsEffectivelyActive縺ｮ繧ｭ繝｣繝・す繝･</summary>
         bool _cachedEffectivelyActive;
 
-        /// <summary>IsEffectivelyActiveのDirtyフラグ</summary>
+        /// <summary>IsEffectivelyActive縺ｮDirty繝輔Λ繧ｰ</summary>
         bool _effectiveActiveDirty = true;
 
-        /// <summary>OwnerのActive状態キャッシュ</summary>
+        /// <summary>Owner縺ｮActive迥ｶ諷九く繝｣繝・す繝･</summary>
         bool _lastOwnerActive;
 
-        /// <summary>Lifecycle の despawn 状態参照</summary>
+        /// <summary>Lifecycle 縺ｮ despawn 迥ｶ諷句盾辣ｧ</summary>
         IScopeLifecycleService? _lifecycleService;
 
         // ----------------------------------------------------------------
-        // プロパティ - Active/Visible
+        // 繝励Ο繝代ユ繧｣ - Active/Visible
         // ----------------------------------------------------------------
 
         /// <inheritdoc/>
@@ -629,7 +629,7 @@ namespace Game.UI
 
                 var selfActive = _isActive && ownerActive;
 
-                // 自身がActiveでなければfalse
+                // 閾ｪ霄ｫ縺窟ctive縺ｧ縺ｪ縺代ｌ縺ｰfalse
                 if (!selfActive)
                 {
                     _cachedEffectivelyActive = false;
@@ -648,7 +648,7 @@ namespace Game.UI
         }
 
         // ----------------------------------------------------------------
-        // プロパティ - 当たり判定
+        // 繝励Ο繝代ユ繧｣ - 蠖薙◆繧雁愛螳・
         // ----------------------------------------------------------------
 
         /// <inheritdoc/>
@@ -661,7 +661,7 @@ namespace Game.UI
         public int NavigationSelectionOrder => _navigationSelectionOrder;
 
         // ----------------------------------------------------------------
-        // プロパティ - ナビゲーション
+        // 繝励Ο繝代ユ繧｣ - 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ
         // ----------------------------------------------------------------
 
         /// <inheritdoc/>
@@ -674,40 +674,40 @@ namespace Game.UI
         public NavigationOverride? NavigationOverride => _navigationOverride;
 
         // ----------------------------------------------------------------
-        // イベント
+        // 繧､繝吶Φ繝・
         // ----------------------------------------------------------------
 
         /// <inheritdoc/>
         public event Action<UIElementStateChangedArgs>? OnStateChanged;
 
         // ----------------------------------------------------------------
-        // 選択イベントコマンド
+        // 驕ｸ謚槭う繝吶Φ繝医さ繝槭Φ繝・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// 選択時に実行するコマンドリスト。
-        /// Set/Add/Remove/Swap で操作可能。
+        /// 驕ｸ謚樊凾縺ｫ螳溯｡後☆繧九さ繝槭Φ繝峨Μ繧ｹ繝医・
+        /// Set/Add/Remove/Swap 縺ｧ謫堺ｽ懷庄閭ｽ縲・
         /// </summary>
         public VNext.CommandListData OnSelectedCommands => _onSelectedCommands;
 
         /// <summary>
-        /// 選択解除時に実行するコマンドリスト。
-        /// Set/Add/Remove/Swap で操作可能。
+        /// 驕ｸ謚櫁ｧ｣髯､譎ゅ↓螳溯｡後☆繧九さ繝槭Φ繝峨Μ繧ｹ繝医・
+        /// Set/Add/Remove/Swap 縺ｧ謫堺ｽ懷庄閭ｽ縲・
         /// </summary>
         public VNext.CommandListData OnDeselectedCommands => _onDeselectedCommands;
 
         // ----------------------------------------------------------------
-        // コンストラクタ
+        // 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// コンストラクタ。
+        /// 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ縲・
         /// 
-        /// ## パラメータ
+        /// ## 繝代Λ繝｡繝ｼ繧ｿ
         /// 
-        /// owner: このサービスを持つIScopeNode（UIElementLifetimeScope/RuntimeLifetimeScope）
+        /// owner: 縺薙・繧ｵ繝ｼ繝薙せ繧呈戟縺､IScopeNode・・IElementLifetimeScope/RuntimeLifetimeScope・・
         /// </summary>
-        /// <param name="owner">所有者のスコープノード</param>
+        /// <param name="owner">謇譛芽・・繧ｹ繧ｳ繝ｼ繝励ヮ繝ｼ繝・/param>
         public UIElementStateService(IScopeNode owner, IUIElementStateOptions options, IUISelectionState? selectionState, VNext.ICommandRunner commandRunner)
         {
             _owner = owner;
@@ -717,7 +717,7 @@ namespace Game.UI
             _selectionState = selectionState;
             _commandRunner = commandRunner;
 
-            // 初期設定を反映
+            // 蛻晄悄險ｭ螳壹ｒ蜿肴丐
             _isSelectableCondition = options.IsSelectable;
             _isNavigationSelectableCondition = options.IsNavigationSelectable;
             _navigationOverride = options.NavigationOverride;
@@ -742,20 +742,20 @@ namespace Game.UI
                     _selectionState = ss;
             }
 
-            // 初期化処理: 過去の購読を外してから再登録する（多重登録を防ぐ）
+            // 蛻晄悄蛹門・逅・ 驕主悉縺ｮ雉ｼ隱ｭ繧貞､悶＠縺ｦ縺九ｉ蜀咲匳骭ｲ縺吶ｋ・亥､夐㍾逋ｻ骭ｲ繧帝亟縺撰ｼ・
             if (_selectionState != null)
             {
                 _selectionState.OnSelectionChanged -= HandleSelectionChanged;
                 _selectionState.OnSelectionChanged += HandleSelectionChanged;
 
-                // 初期選択状態を反映
+                // 蛻晄悄驕ｸ謚樒憾諷九ｒ蜿肴丐
                 _wasSelected = ReferenceEquals(_selectionState?.CurrentElement, _owner);
             }
         }
 
         public void OnRelease(IScopeNode scope, bool isDestroy)
         {
-            // クリーンアップ処理: 購読を解除
+            // 繧ｯ繝ｪ繝ｼ繝ｳ繧｢繝・・蜃ｦ逅・ 雉ｼ隱ｭ繧定ｧ｣髯､
             if (_selectionState != null)
             {
                 _selectionState.OnSelectionChanged -= HandleSelectionChanged;
@@ -771,15 +771,15 @@ namespace Game.UI
 
 
         /// <summary>
-        /// 選択変更時のハンドラ。
-        /// 自分が選択されたか、選択解除されたかを判定してコマンドを実行する。
+        /// 驕ｸ謚槫､画峩譎ゅ・繝上Φ繝峨Λ縲・
+        /// 閾ｪ蛻・′驕ｸ謚槭＆繧後◆縺九・∈謚櫁ｧ｣髯､縺輔ｌ縺溘°繧貞愛螳壹＠縺ｦ繧ｳ繝槭Φ繝峨ｒ螳溯｡後☆繧九・
         /// </summary>
         void HandleSelectionChanged(IScopeNode? newSelection)
         {
             bool wasSelected = _wasSelected;
             bool isNowSelected = ReferenceEquals(newSelection, _owner);
 
-            // 状態が変化していない場合は何もしない
+            // 迥ｶ諷九′螟牙喧縺励※縺・↑縺・ｴ蜷医・菴輔ｂ縺励↑縺・
             if (wasSelected == isNowSelected)
             {
                 return;
@@ -789,25 +789,25 @@ namespace Game.UI
 
             if (isNowSelected)
             {
-                // 選択された
+                // 驕ｸ謚槭＆繧後◆
                 ExecuteOnSelectedCommands().Forget();
             }
             else
             {
-                // 選択解除された
+                // 驕ｸ謚櫁ｧ｣髯､縺輔ｌ縺・
                 ExecuteOnDeselectedCommands().Forget();
             }
         }
 
         /// <summary>
-        /// 選択時コマンドを実行する。
+        /// 驕ｸ謚樊凾繧ｳ繝槭Φ繝峨ｒ螳溯｡後☆繧九・
         /// </summary>
         async UniTaskVoid ExecuteOnSelectedCommands()
         {
             if (_commandRunner == null) return;
             if (_onSelectedCommands.Count == 0) return;
 
-            // 既存の実行をキャンセル
+            // 譌｢蟄倥・螳溯｡後ｒ繧ｭ繝｣繝ｳ繧ｻ繝ｫ
             _commandCts?.Cancel();
             _commandCts?.Dispose();
             _commandCts = new CancellationTokenSource();
@@ -823,19 +823,19 @@ namespace Game.UI
             }
             catch (OperationCanceledException)
             {
-                // キャンセルは正常終了
+                // 繧ｭ繝｣繝ｳ繧ｻ繝ｫ縺ｯ豁｣蟶ｸ邨ゆｺ・
             }
         }
 
         /// <summary>
-        /// 選択解除時コマンドを実行する。
+        /// 驕ｸ謚櫁ｧ｣髯､譎ゅさ繝槭Φ繝峨ｒ螳溯｡後☆繧九・
         /// </summary>
         async UniTaskVoid ExecuteOnDeselectedCommands()
         {
             if (_commandRunner == null) return;
             if (_onDeselectedCommands.Count == 0) return;
 
-            // 既存の実行をキャンセル
+            // 譌｢蟄倥・螳溯｡後ｒ繧ｭ繝｣繝ｳ繧ｻ繝ｫ
             _commandCts?.Cancel();
             _commandCts?.Dispose();
             _commandCts = new CancellationTokenSource();
@@ -851,12 +851,12 @@ namespace Game.UI
             }
             catch (OperationCanceledException)
             {
-                // キャンセルは正常終了
+                // 繧ｭ繝｣繝ｳ繧ｻ繝ｫ縺ｯ豁｣蟶ｸ邨ゆｺ・
             }
         }
 
         // ----------------------------------------------------------------
-        // Active/Visible制御
+        // Active/Visible蛻ｶ蠕｡
         // ----------------------------------------------------------------
 
         /// <inheritdoc/>
@@ -903,18 +903,18 @@ namespace Game.UI
         }
 
         // ----------------------------------------------------------------
-        // 設定メソッド（MBから呼ばれる）
+        // 險ｭ螳壹Γ繧ｽ繝・ラ・・B縺九ｉ蜻ｼ縺ｰ繧後ｋ・・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// 当たり判定用RectTransformを設定する。
+        /// 蠖薙◆繧雁愛螳夂畑RectTransform繧定ｨｭ螳壹☆繧九・
         /// 
-        /// ## 呼び出し元
+        /// ## 蜻ｼ縺ｳ蜃ｺ縺怜・
         /// 
-        /// UIElementStateMBのInstallFeatureで呼び出される。
-        /// Inspector設定を反映するために使用。
+        /// UIElementStateMB縺ｮInstallFeature縺ｧ蜻ｼ縺ｳ蜃ｺ縺輔ｌ繧九・
+        /// Inspector險ｭ螳壹ｒ蜿肴丐縺吶ｋ縺溘ａ縺ｫ菴ｿ逕ｨ縲・
         /// </summary>
-        /// <param name="rects">当たり判定用RectTransformのリスト</param>
+        /// <param name="rects">蠖薙◆繧雁愛螳夂畑RectTransform縺ｮ繝ｪ繧ｹ繝・/param>
         public void SetHitTestRects(IEnumerable<RectTransform>? rects)
         {
             _hitTestRects.Clear();
@@ -931,10 +931,10 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// ナビゲーション選択可能条件を評価する。
-        /// DynamicValue<bool>の値源に応じて、現在の条件を評価する。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ譚｡莉ｶ繧定ｩ穂ｾ｡縺吶ｋ縲・
+        /// DynamicValue<bool>縺ｮ蛟､貅舌↓蠢懊§縺ｦ縲∫樟蝨ｨ縺ｮ譚｡莉ｶ繧定ｩ穂ｾ｡縺吶ｋ縲・
         /// </summary>
-        /// <returns>ナビゲーション選択可能な場合true</returns>
+        /// <returns>繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ縺ｪ蝣ｴ蜷・rue</returns>
         public bool EvaluateIsSelectable()
         {
             if (IsLifecycleDespawning())
@@ -974,20 +974,20 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// ナビゲーション選択可能フラグをキャッシュする（主にUIElementStateMBから呼ばれる）。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ繝輔Λ繧ｰ繧偵く繝｣繝・す繝･縺吶ｋ・井ｸｻ縺ｫUIElementStateMB縺九ｉ蜻ｼ縺ｰ繧後ｋ・峨・
         /// 
-        /// ## 呼び出し元
+        /// ## 蜻ｼ縺ｳ蜃ｺ縺怜・
         /// 
-        /// UIElementStateMBのInstallFeatureで呼び出される。
+        /// UIElementStateMB縺ｮInstallFeature縺ｧ蜻ｼ縺ｳ蜃ｺ縺輔ｌ繧九・
         /// </summary>
-        [System.Obsolete("DynamicValue<bool> に移行しました。EvaluateIsNavigationSelectable() を使用してください。")]
+        // Removed malformed inspector attribute.
         public void SetNavigationSelectable(bool selectable)
         {
             _isNavigationSelectableCached = selectable;
         }
 
         /// <summary>
-        /// 選択可能条件を設定する。
+        /// 驕ｸ謚槫庄閭ｽ譚｡莉ｶ繧定ｨｭ螳壹☆繧九・
         /// </summary>
         public void SetSelectableCondition(Game.Common.DynamicValue<bool> condition)
         {
@@ -995,7 +995,7 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// ナビゲーション選択可能条件を設定する。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｸ謚槫庄閭ｽ譚｡莉ｶ繧定ｨｭ螳壹☆繧九・
         /// </summary>
         public void SetNavigationSelectableCondition(Game.Common.DynamicValue<bool> condition)
         {
@@ -1003,7 +1003,7 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// 選択優先度を設定する。
+        /// 驕ｸ謚槫━蜈亥ｺｦ繧定ｨｭ螳壹☆繧九・
         /// </summary>
         public void SetSelectionOrder(int selectionOrder)
         {
@@ -1011,7 +1011,7 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// ナビゲーション優先度を設定する。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ蜆ｪ蜈亥ｺｦ繧定ｨｭ螳壹☆繧九・
         /// </summary>
         public void SetNavigationSelectionOrder(int navigationSelectionOrder)
         {
@@ -1019,24 +1019,24 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// ナビゲーションオーバーライドを設定する。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧ｪ繝ｼ繝舌・繝ｩ繧､繝峨ｒ險ｭ螳壹☆繧九・
         /// 
-        /// ## 呼び出し元
+        /// ## 蜻ｼ縺ｳ蜃ｺ縺怜・
         /// 
-        /// UIElementStateMBのInstallFeatureで呼び出される。
+        /// UIElementStateMB縺ｮInstallFeature縺ｧ蜻ｼ縺ｳ蜃ｺ縺輔ｌ繧九・
         /// </summary>
-        /// <param name="override">オーバーライド設定（nullで自動計算を使用）</param>
+        /// <param name="override">繧ｪ繝ｼ繝舌・繝ｩ繧､繝芽ｨｭ螳夲ｼ・ull縺ｧ閾ｪ蜍戊ｨ育ｮ励ｒ菴ｿ逕ｨ・・/param>
         public void SetNavigationOverride(NavigationOverride? @override)
         {
             _navigationOverride = @override;
         }
 
         // ----------------------------------------------------------------
-        // 内部メソッド
+        // 蜀・Κ繝｡繧ｽ繝・ラ
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// 状態変更を通知する。
+        /// 迥ｶ諷句､画峩繧帝夂衍縺吶ｋ縲・
         /// </summary>
         void NotifyStateChanged(bool prevActive, bool currActive, bool prevVisible, bool currVisible)
         {

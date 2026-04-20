@@ -1,12 +1,12 @@
-#nullable enable
+﻿#nullable enable
 // Game.Movement
 // ================================================================================
-// SpiralMotionPreset - 螺旋移動モーション
+// SpiralMotionPreset - 陞ｺ譌狗ｧｻ蜍輔Δ繝ｼ繧ｷ繝ｧ繝ｳ
 // ================================================================================
 //
-// 【概要】
-// 進行方向を時間経過で回転させる。
-// 螺旋状の移動パターンを表現。
+// 縲先ｦりｦ√・
+// 騾ｲ陦梧婿蜷代ｒ譎る俣邨碁℃縺ｧ蝗櫁ｻ｢縺輔○繧九・
+// 陞ｺ譌狗憾縺ｮ遘ｻ蜍輔ヱ繧ｿ繝ｼ繝ｳ繧定｡ｨ迴ｾ縲・
 // ================================================================================
 
 using System;
@@ -16,24 +16,24 @@ using UnityEngine;
 namespace Game.Movement
 {
     /// <summary>
-    /// 螺旋移動モーション。
-    /// GuidanceDirection を時間経過で回転させる。
+    /// 陞ｺ譌狗ｧｻ蜍輔Δ繝ｼ繧ｷ繝ｧ繝ｳ縲・
+    /// GuidanceDirection 繧呈凾髢鍋ｵ碁℃縺ｧ蝗櫁ｻ｢縺輔○繧九・
     /// </summary>
     [Serializable]
     public sealed class SpiralMotionPreset : MotionPreset
     {
         [Header("Spiral Parameters")]
         [LabelText("Rotation Speed")]
-        [Tooltip("回転速度（度/秒）")]
+        [Tooltip("Inspector setting.")]
         public float RotationSpeed = 90f;
 
         [LabelText("Initial Angle")]
-        [Tooltip("初期角度（度）")]
+        [Tooltip("Inspector setting.")]
         public float InitialAngle = 0f;
 
         [Header("Speed Modulation")]
         [LabelText("Speed Multiplier")]
-        [Tooltip("基本速度への倍率")]
+        [Tooltip("蝓ｺ譛ｬ騾溷ｺｦ縺ｸ縺ｮ蛟咲紫")]
         [Min(0f)]
         public float SpeedMultiplier = 1f;
 
@@ -41,7 +41,7 @@ namespace Game.Movement
     }
 
     /// <summary>
-    /// SpiralMotion のランタイム。
+    /// SpiralMotion 縺ｮ繝ｩ繝ｳ繧ｿ繧､繝縲・
     /// </summary>
     public sealed class SpiralMotionRuntime : MotionRuntime
     {
@@ -54,10 +54,10 @@ namespace Game.Movement
 
         protected override MotionOutput OnTick(in MovementGuidanceFrame frame)
         {
-            // 回転角度を計算
+            // 蝗櫁ｻ｢隗貞ｺｦ繧定ｨ育ｮ・
             float angle = _source.InitialAngle + ElapsedTime * _source.RotationSpeed;
 
-            // GuidanceDirection を回転
+            // GuidanceDirection 繧貞屓霆｢
             var guide = frame.GuidanceDirection;
             if (guide.sqrMagnitude < MovementMath.NormalizeEpsilon)
                 guide = Vector2.up;

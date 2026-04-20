@@ -42,9 +42,9 @@ namespace Game.Fire
         bool ShowTargetChannelFields => hitAcquireMode == DynamicSearchHitAcquireMode.TargetChannelHub;
         bool ShowQueryFields => hitAcquireMode == DynamicSearchHitAcquireMode.DynamicSearchQuery;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<FirePatternService>(Lifetime.Singleton)
+            builder.Register<FirePatternService>(RuntimeLifetime.Singleton)
                 .As<IFirePatternService>();
 
             var query = new DynamicSearchHitQuerySettings(
@@ -54,7 +54,7 @@ namespace Game.Fire
                 filterId: queryFilterId,
                 filterCategory: queryFilterCategory);
 
-            builder.Register<SpawnContextToFireAdapter>(Lifetime.Singleton)
+            builder.Register<SpawnContextToFireAdapter>(RuntimeLifetime.Singleton)
                 .As<ISpawnContextConsumer>()
                 .As<IFirePatternOverrideReceiver>()
                 .As<IScopeAcquireHandler>()

@@ -176,7 +176,7 @@ namespace Game.UI
         GUIStyle? _labelStyle;
         readonly Vector3[] _debugCorners = new Vector3[8];
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             var config = new VisualBoundsConfig
             {
@@ -198,7 +198,7 @@ namespace Game.UI
 
             builder.RegisterInstance(config);
 
-            var registration = builder.Register<VisualBoundsService>(Lifetime.Singleton)
+            var registration = builder.Register<VisualBoundsService>(RuntimeLifetime.Singleton)
                 .As<IVisualBoundsService>()
                 .As<IVisualBoundsOutput>()
                 .As<IScopeAcquireHandler>()
@@ -207,9 +207,9 @@ namespace Game.UI
             if (autoRebuild || autoDetectChanges)
             {
                 if (runInLateUpdate)
-                    registration.As<ILateTickable>();
+                    registration.As<IScopeLateTickHandler>();
                 else
-                    registration.As<ITickable>();
+                    registration.As<IScopeTickHandler>();
             }
 
             if (executeOnBoundsChanged)
@@ -227,14 +227,14 @@ namespace Game.UI
 
                 builder.RegisterInstance(commandConfig);
 
-                var commandRegistration = builder.Register<VisualBoundsChangeCommandService>(Lifetime.Singleton)
+                var commandRegistration = builder.Register<VisualBoundsChangeCommandService>(RuntimeLifetime.Singleton)
                     .As<IScopeAcquireHandler>()
                     .As<IScopeReleaseHandler>();
 
                 if (runInLateUpdate)
-                    commandRegistration.As<ILateTickable>();
+                    commandRegistration.As<IScopeLateTickHandler>();
                 else
-                    commandRegistration.As<ITickable>();
+                    commandRegistration.As<IScopeTickHandler>();
             }
 
             builder.RegisterBuildCallback(resolver =>

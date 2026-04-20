@@ -1,6 +1,6 @@
-// Game.Profile.ProfileValue.cs
+﻿// Game.Profile.ProfileValue.cs
 //
-// 汎用 ProfileValue<T> - Blackboard バインディング専用の値ラッパー
+// 豎守畑 ProfileValue<T> - Blackboard 繝舌う繝ｳ繝・ぅ繝ｳ繧ｰ蟆ら畑縺ｮ蛟､繝ｩ繝・ヱ繝ｼ
 
 #nullable enable
 
@@ -15,10 +15,10 @@ using Game.Scalar;
 namespace Game.Profile
 {
     /// <summary>
-    /// Blackboard にバインド可能な汎用プロファイル値。
-    /// Inspector で値と Blackboard キーを一緒に設定できる。
+    /// Blackboard 縺ｫ繝舌う繝ｳ繝牙庄閭ｽ縺ｪ豎守畑繝励Ο繝輔ぃ繧､繝ｫ蛟､縲・
+    /// Inspector 縺ｧ蛟､縺ｨ Blackboard 繧ｭ繝ｼ繧剃ｸ邱偵↓險ｭ螳壹〒縺阪ｋ縲・
     /// </summary>
-    /// <typeparam name="T">値の型（int, float, bool, string, Vector2, Vector3, Color）</typeparam>
+    /// <typeparam name="T">蛟､縺ｮ蝙具ｼ・nt, float, bool, string, Vector2, Vector3, Color・・/typeparam>
     [Serializable]
     public struct ProfileValue<T> : IProfileValueBinding
     {
@@ -28,25 +28,25 @@ namespace Game.Profile
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Blackboard VarId")]
-        [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int BlackboardVarId;
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Policy")]
-        [Tooltip("Blackboard への書き込みポリシー")]
+        [Tooltip("Blackboard 縺ｸ縺ｮ譖ｸ縺崎ｾｼ縺ｿ繝昴Μ繧ｷ繝ｼ")]
         [ShowIf(nameof(HasBlackboardKey))]
         public BlackboardBindPolicy BlackboardPolicyValue;
 
         [FoldoutGroup("Blackboard Binding/Save")]
         [LabelText("Save Enabled")]
-        [Tooltip("Blackboard 値を Save 対象にするか")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(HasBlackboardKey))]
         public bool SaveEnabledValue;
 
         [FoldoutGroup("Blackboard Binding/Save")]
         [LabelText("Save Layer")]
-        [Tooltip("Blackboard の Save レイヤー")]
+        [Tooltip("Blackboard 縺ｮ Save 繝ｬ繧､繝､繝ｼ")]
         [ShowIf(nameof(ShowSaveLayer))]
         public SaveLayer SaveLayerValue;
 
@@ -134,7 +134,7 @@ namespace Game.Profile
 
         void IProfileValueBinding.WriteToScalar(IBaseScalarService scalar)
         {
-            // ProfileValue<T> は Scalar バインディングをサポートしない
+            // ProfileValue<T> 縺ｯ Scalar 繝舌う繝ｳ繝・ぅ繝ｳ繧ｰ繧偵し繝昴・繝医＠縺ｪ縺・
         }
 
         // ================================================================
@@ -166,7 +166,7 @@ namespace Game.Profile
     }
 
     /// <summary>
-    /// ProfileValue&lt;int&gt; 特殊化
+    /// ProfileValue&lt;int&gt; 迚ｹ谿雁喧
     /// </summary>
     [Serializable]
     public sealed class ProfileIntValue : IProfileValueBinding
@@ -251,7 +251,7 @@ namespace Game.Profile
     }
 
     /// <summary>
-    /// ProfileValue&lt;bool&gt; 特殊化
+    /// ProfileValue&lt;bool&gt; 迚ｹ谿雁喧
     /// </summary>
     [Serializable]
     public sealed class ProfileBoolValue : IProfileValueBinding
@@ -336,7 +336,7 @@ namespace Game.Profile
     }
 
     /// <summary>
-    /// ProfileValue&lt;string&gt; 特殊化
+    /// ProfileValue&lt;string&gt; 迚ｹ谿雁喧
     /// </summary>
     [Serializable]
     public sealed class ProfileStringValue : IProfileValueBinding

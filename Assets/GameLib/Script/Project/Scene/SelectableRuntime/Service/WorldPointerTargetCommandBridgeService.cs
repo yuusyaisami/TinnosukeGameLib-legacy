@@ -17,7 +17,7 @@ namespace Game.SelectRuntime
     public sealed class WorldPointerTargetCommandBridgeService :
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         bool EnableShortPressBridgeDebugLog = false;
 

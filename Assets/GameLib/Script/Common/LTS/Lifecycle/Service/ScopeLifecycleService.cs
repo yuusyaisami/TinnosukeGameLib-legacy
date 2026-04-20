@@ -1,13 +1,11 @@
-// Game.Common
+﻿// Game.Common
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using VNext = Game.Commands.VNext;
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 
-// UnityEngine.Time と Game.Time の曖昧さを解決
+// UnityEngine.Time 縺ｨ Game.Time 縺ｮ譖匁乂縺輔ｒ隗｣豎ｺ
 using UnityTime = UnityEngine.Time;
 
 namespace Game.Common
@@ -25,11 +23,11 @@ namespace Game.Common
         UniTask HandleDespawnAsync(CancellationToken ct);
     }
 
-    public sealed class ScopeLifecycleService : IScopeLifecycleService, IScopeLifecycleConditionController, IScopeReleaseHandler, ITickable
+    public sealed class ScopeLifecycleService : IScopeLifecycleService, IScopeLifecycleConditionController, IScopeReleaseHandler, IScopeTickHandler
     {
         readonly IScopeNode _scope;
         readonly ScopeLifecycleConfig _config;
-        readonly IObjectResolver _resolver;
+        readonly IRuntimeResolver _resolver;
 
         CancellationTokenSource _spawnCts;
         CancellationTokenSource _despawnCts;
@@ -47,7 +45,7 @@ namespace Game.Common
         public ScopeLifecycleService(
             IScopeNode scope,
             ScopeLifecycleConfig config,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             _scope = scope;
             _config = config;
@@ -156,7 +154,7 @@ namespace Game.Common
                 {
                 }
 
-                // 既存の Spawn をキャンセルして多重保護する
+                // 譌｢蟄倥・ Spawn 繧偵く繝｣繝ｳ繧ｻ繝ｫ縺励※螟夐㍾菫晁ｭｷ縺吶ｋ
                 _spawnCts?.Cancel();
                 _spawnCts?.Dispose();
                 _spawnCts = new CancellationTokenSource();
@@ -172,7 +170,7 @@ namespace Game.Common
                         variables.TrySetVariant(varId, DynamicVariant.FromFloat(value));
                 }
 
-                // 設定上のスポーンディレイを変数に突っ込む
+                // 險ｭ螳壻ｸ翫・繧ｹ繝昴・繝ｳ繝・ぅ繝ｬ繧､繧貞､画焚縺ｫ遯√▲霎ｼ繧
                 if (_config.SpawnDelaySeconds > 0f)
                 {
                     SetFloat("spawnDelay", _config.SpawnDelaySeconds);
@@ -191,7 +189,7 @@ namespace Game.Common
 
                     token.ThrowIfCancellationRequested();
 
-                    // --- Delay (演出時間としての SpawnDelaySeconds) ---
+                    // --- Delay (貍泌・譎る俣縺ｨ縺励※縺ｮ SpawnDelaySeconds) ---
                     if (_config.SpawnDelaySeconds > 0f)
                     {
                         await UniTask.Delay(
@@ -203,7 +201,7 @@ namespace Game.Common
 
                     token.ThrowIfCancellationRequested();
 
-                    // 実測時間を Duration として設定
+                    // 螳滓ｸｬ譎る俣繧・Duration 縺ｨ縺励※險ｭ螳・
                     var elapsed = (float)(UnityTime.realtimeSinceStartupAsDouble - startTime);
                     SetFloat("spawnDuration", elapsed);
 
@@ -216,7 +214,7 @@ namespace Game.Common
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested)
                 {
-                    // Despawn などでキャンセルされた場合は特に何もしない
+                    // Despawn 縺ｪ縺ｩ縺ｧ繧ｭ繝｣繝ｳ繧ｻ繝ｫ縺輔ｌ縺溷ｴ蜷医・迚ｹ縺ｫ菴輔ｂ縺励↑縺・
                 }
             }
             finally
@@ -234,7 +232,7 @@ namespace Game.Common
             if (_spawnBalance > 0)
                 _spawnBalance -= 1;
 
-            // Despawn 開始時に Spawn フェーズを止めるかは設定で制御
+            // Despawn 髢句ｧ区凾縺ｫ Spawn 繝輔ぉ繝ｼ繧ｺ繧呈ｭ｢繧√ｋ縺九・險ｭ螳壹〒蛻ｶ蠕｡
             if (_config.CancelSpawnOnDespawn)
             {
                 _spawnCts?.Cancel();
@@ -260,7 +258,7 @@ namespace Game.Common
                     variables.TrySetVariant(varId, DynamicVariant.FromFloat(value));
             }
 
-            // 設定上
+            // 險ｭ螳壻ｸ・
             if (_config.DespawnDelaySeconds > 0f)
             {
                 SetFloat("despawnDelay", _config.DespawnDelaySeconds);
@@ -291,7 +289,7 @@ namespace Game.Common
 
                 token.ThrowIfCancellationRequested();
 
-                // 実測時間を Despawn OnStart〜OnEnd を Duration として設定
+                // 螳滓ｸｬ譎る俣繧・Despawn OnStart縲廾nEnd 繧・Duration 縺ｨ縺励※險ｭ螳・
                 var elapsed = (float)(UnityTime.realtimeSinceStartupAsDouble - startTime);
                 SetFloat("despawnDuration", elapsed);
 
@@ -304,12 +302,12 @@ namespace Game.Common
             }
             catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
-                // 外からキャンセル時は Destroy だけに任せる
+                // 螟悶°繧峨く繝｣繝ｳ繧ｻ繝ｫ譎ゅ・ Destroy 縺縺代↓莉ｻ縺帙ｋ
             }
             finally
             {
                 _despawnInProgress = false;
-                // 最終的な Destroy や Registry などは OnDisable/OnDestroy で処理
+                // 譛邨ら噪縺ｪ Destroy 繧・Registry 縺ｪ縺ｩ縺ｯ OnDisable/OnDestroy 縺ｧ蜃ｦ逅・
                 if (_scope is Component c && c && c.gameObject)
                 {
                     UnityEngine.Object.Destroy(c.gameObject);

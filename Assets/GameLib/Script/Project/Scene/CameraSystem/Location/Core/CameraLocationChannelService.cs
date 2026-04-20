@@ -69,7 +69,7 @@ namespace Game.CameraSystem
         }
     }
 
-    public sealed class CameraLocationChannelService : ICameraLocationChannelService, IScopeAcquireHandler, IScopeReleaseHandler, ITickable
+    public sealed class CameraLocationChannelService : ICameraLocationChannelService, IScopeAcquireHandler, IScopeReleaseHandler, IScopeTickHandler
     {
         const string DefaultTag = "default";
         const string MainTag = "main";

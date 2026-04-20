@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -39,7 +39,7 @@ namespace Game.Trait
     {
         public IScopeNode? Scope { get; }
         public Transform? Owner => Scope?.Identity?.SelfTransform;
-        public IObjectResolver? Resolver => Scope?.Resolver;
+        public IRuntimeResolver? Resolver => Scope?.Resolver;
         public VarStore Vars { get; }
 
         public TraitInstanceContext(IScopeNode? scope, VarStore? vars = null)
@@ -52,7 +52,7 @@ namespace Game.Trait
     public class TraitDefinitionSO : ScriptableObject, ITraitDefinition, IRichTextDescribableTrait
     {
         [BoxGroup("Trait Info")]
-        [LabelText("Definition ID")]  // ゲーム内で一意のID
+        [LabelText("Definition ID")]  // 繧ｲ繝ｼ繝蜀・〒荳諢上・ID
         [SerializeField]
         [FormerlySerializedAs("_itemId")]
         string _definitionId = string.Empty;
@@ -69,7 +69,7 @@ namespace Game.Trait
 
         [BoxGroup("Trait Info")]
         [LabelText("Weight")]
-        [Tooltip("Trait 抽選時の選ばれやすさ。0 以下は抽選対象外。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(0f)]
         [SerializeField]
         float _weight = 1f;
@@ -80,7 +80,7 @@ namespace Game.Trait
 
         [BoxGroup("Visual")]
         [LabelText("Trait List Move Preset")]
-        [Tooltip("UITraitList の RelayoutAnimation で使う移動プリセット。各 Trait 側で決める。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TransformAnimationPreset? _traitListMovePreset;
 
@@ -92,7 +92,7 @@ namespace Game.Trait
         [BoxGroup("Commands")]
         [ShowIf(nameof(_runOnAddedCommands))]
         [LabelText("On Added Commands")]
-        [Tooltip("TraitDefinitionSO が Trait を Holder に追加した時に実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onAddedCommands = new();
 
@@ -104,7 +104,7 @@ namespace Game.Trait
         [BoxGroup("Commands")]
         [ShowIf(nameof(_runOnHoldCommands))]
         [LabelText("On Equip Commands")]
-        [Tooltip("TraitDefinitionSO が Trait を Hold した時に実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onHoldCommands = new();
 
@@ -116,7 +116,7 @@ namespace Game.Trait
         [BoxGroup("Commands")]
         [ShowIf(nameof(_runOnUseCommands))]
         [LabelText("On Use Commands")]
-        [Tooltip("TraitDefinitionSO が Trait を Use した時に実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onUseCommands = new();
 
@@ -128,13 +128,13 @@ namespace Game.Trait
         [BoxGroup("Commands")]
         [ShowIf(nameof(_runOnRemoveCommands))]
         [LabelText("On Remove Commands")]
-        [Tooltip("TraitDefinitionSO が Trait を Remove した時に実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onRemoveCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On LTS Instantiated Commands")]
-        [Tooltip("TraitDefinitionSO が Trait の LTS instantiate hook で実行します。実行主体は TraitDefinitionSO で、VarStore には実際の Trait instance データが入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onLtsInstantiatedCommands = new();
 
@@ -146,7 +146,7 @@ namespace Game.Trait
         [BoxGroup("Runtime Commands")]
         [ShowIf(nameof(_runOnRuntimeSpawnCommands))]
         [LabelText("On Runtime Spawn Commands")]
-        [Tooltip("Trait runtime が spawn されたときに実行します。Visible/Hidden とは独立して実行されます。実行主体は spawn 済み RuntimeLTS で、VarStore には runtime blackboard の内容が入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onRuntimeSpawnCommands = new();
 
@@ -158,7 +158,7 @@ namespace Game.Trait
         [BoxGroup("Runtime Commands")]
         [ShowIf(nameof(_runOnRuntimeVisibleCommands))]
         [LabelText("On Runtime Visible Commands")]
-        [Tooltip("Trait runtime が表示状態になったときに実行します。実行主体は spawn 済み RuntimeLTS で、VarStore には runtime blackboard の内容が入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onRuntimeVisibleCommands = new();
 
@@ -170,7 +170,7 @@ namespace Game.Trait
         [BoxGroup("Runtime Commands")]
         [ShowIf(nameof(_runOnRuntimeHiddenCommands))]
         [LabelText("On Runtime Hidden Commands")]
-        [Tooltip("Trait runtime が非表示状態になったときに実行します。実行主体は spawn 済み RuntimeLTS で、VarStore には runtime blackboard の内容が入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onRuntimeHiddenCommands = new();
 
@@ -193,7 +193,7 @@ namespace Game.Trait
         [BoxGroup("VarStore Grid")]
         [ShowIf(nameof(_applyCommonGridTable))]
         [LabelText("Grid Table Key")]
-        [Tooltip("Grid row/column count の参照キーとして各セルに書き込む VarId です。0 の場合は既存のセル VarId のみを書き込みます。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         [SerializeField]
         int _commonGridTableKeyVarId;
@@ -456,8 +456,8 @@ namespace Game.Trait
     }
 
     /// <summary>
-    /// Trait の汎用的な見た目設定。
-    /// 将来的に LTS のインスタンス化時に登録される前提のデータ。
+    /// Trait 縺ｮ豎守畑逧・↑隕九◆逶ｮ險ｭ螳壹・
+    /// 蟆・擂逧・↓ LTS 縺ｮ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｹ蛹匁凾縺ｫ逋ｻ骭ｲ縺輔ｌ繧句燕謠舌・繝・・繧ｿ縲・
     /// </summary>
     [Serializable]
     public sealed class VisualSettings
@@ -477,8 +477,8 @@ namespace Game.Trait
         [LabelText("Disable Anim")]
         public AnimationSpritePreset DisableAnim = new();
         /// <summary>
-        /// LTS によってインスタンス化された直後に呼ばれる想定のフック。
-        /// 現時点では未使用。
+        /// LTS 縺ｫ繧医▲縺ｦ繧､繝ｳ繧ｹ繧ｿ繝ｳ繧ｹ蛹悶＆繧後◆逶ｴ蠕後↓蜻ｼ縺ｰ繧後ｋ諠ｳ螳壹・繝輔ャ繧ｯ縲・
+        /// 迴ｾ譎らせ縺ｧ縺ｯ譛ｪ菴ｿ逕ｨ縲・
         /// </summary>
         public void OnLtsInstantiated(IScopeNode scope)
         {

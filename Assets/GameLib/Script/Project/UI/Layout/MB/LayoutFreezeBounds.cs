@@ -36,25 +36,12 @@ namespace Game.Layout
         {
             _hasFrozen = false;
             _frozenRect = default;
-            NotifyContentDirty();
-        }
-
-        void OnEnable()
-        {
-            NotifyContentDirty();
         }
 
         void OnDisable()
         {
             // When disabling freeze, allow recalculation.
             _hasFrozen = false;
-            NotifyContentDirty();
-        }
-
-        void NotifyContentDirty()
-        {
-            var system = GetComponentInParent<LayoutSystemMB>();
-            system?.MarkContentDirty();
         }
     }
 }

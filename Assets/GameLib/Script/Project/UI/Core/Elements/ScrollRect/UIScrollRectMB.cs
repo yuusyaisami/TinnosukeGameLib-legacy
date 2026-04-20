@@ -38,15 +38,15 @@ namespace Game.UI
         public DynamicValue<UIScrollRectPreset> PresetValue => _presetValue;
         public bool EnableDebugLog => _enableDebugLog;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<UIScrollRectService>(Lifetime.Singleton)
+            builder.Register<UIScrollRectService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<IUIScrollRectService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
     }
 }

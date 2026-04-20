@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -9,46 +9,46 @@ using Sirenix.OdinInspector;
 namespace Game.MaterialFx
 {
     /// <summary>
-    /// プリセット内の 1 エントリ。StableKey + 値 + ブレンドモード。
+    /// 繝励Μ繧ｻ繝・ヨ蜀・・ 1 繧ｨ繝ｳ繝医Μ縲４tableKey + 蛟､ + 繝悶Ξ繝ｳ繝峨Δ繝ｼ繝峨・
     /// </summary>
     [Serializable]
     public struct MaterialFxPresetEntry
     {
         [LabelText("Key")]
-        [Tooltip("StableKey（文字列）")]
+        [Tooltip("Inspector setting.")]
         [MaterialFxPropertyPicker]
         public string Key;
 
         [InlineProperty]
         [HideLabel]
-        [Tooltip("値（シリアライズ用）")]
+        [Tooltip("Inspector setting.")]
         public MaterialFxSerializedValue Value;
 
         [LabelText("Blend Mode")]
-        [Tooltip("ブレンドモード")]
+        [Tooltip("Inspector setting.")]
         public MaterialFxBlendMode BlendMode;
 
         [LabelText("Lifetime Seconds (-1 = Infinite)")]
-        [Tooltip("生存時間（秒）。-1 = 無期限（デフォルト）")]
+        [Tooltip("Inspector setting.")]
         public float LifetimeSeconds;
 
         [LabelText("Apply Weight Fade")]
-        [Tooltip("Weight フェードを適用する")]
+        [Tooltip("Weight 繝輔ぉ繝ｼ繝峨ｒ驕ｩ逕ｨ縺吶ｋ")]
         public bool ApplyWeightFade;
 
         [ShowIf(nameof(ApplyWeightFade))]
         [LabelText("Target Weight")]
-        [Tooltip("フェード先 Weight（0=影響なし, 1=完全適用）")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> TargetWeight;
 
         [ShowIf(nameof(ApplyWeightFade))]
         [LabelText("Fade Duration")]
-        [Tooltip("フェード時間（秒）")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> FadeDuration;
 
         [ShowIf(nameof(ApplyWeightFade))]
         [LabelText("Fade Ease")]
-        [Tooltip("フェードの Ease")]
+        [Tooltip("繝輔ぉ繝ｼ繝峨・ Ease")]
         public Ease FadeEase;
 
         public float ResolveTargetWeight(IDynamicContext? context)
@@ -80,7 +80,7 @@ namespace Game.MaterialFx
     }
 
     /// <summary>
-    /// シリアライズ用の値コンテナ。Inspector で編集可能。
+    /// 繧ｷ繝ｪ繧｢繝ｩ繧､繧ｺ逕ｨ縺ｮ蛟､繧ｳ繝ｳ繝・リ縲・nspector 縺ｧ邱ｨ髮・庄閭ｽ縲・
     /// </summary>
     [Serializable]
     public struct MaterialFxSerializedValue
@@ -172,7 +172,7 @@ namespace Game.MaterialFx
     }
 
     /// <summary>
-    /// MaterialFx プリセット。複数の StableKey + Value ペアを保持。
+    /// MaterialFx 繝励Μ繧ｻ繝・ヨ縲り､・焚縺ｮ StableKey + Value 繝壹い繧剃ｿ晄戟縲・
     /// </summary>
     [CreateAssetMenu(fileName = "MaterialFxPreset", menuName = "Game/MaterialFx/MaterialFxPreset")]
     public sealed class MaterialFxPresetSO : ScriptableObject

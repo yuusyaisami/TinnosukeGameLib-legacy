@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game;
@@ -36,7 +36,7 @@ namespace Game.Collision
     {
         [Header("Self")]
         [SerializeField]
-        [Tooltip("Self(dynamic)として使うColliderObjectMB / UnityColliderObjectMB / Collider2D。未指定の場合は同一GameObjectから自動探索。")]
+        [Tooltip("Inspector setting.")]
         Component? _selfProvider;
 
         [Header("Rules")]
@@ -79,9 +79,9 @@ namespace Game.Collision
         }
 #endif
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<HitColliderControllerService>(Lifetime.Singleton)
+            builder.Register<HitColliderControllerService>(RuntimeLifetime.Singleton)
                 .AsSelf()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
@@ -281,28 +281,28 @@ namespace Game.Collision
         [ShowIf(nameof(useStaleFrameThreshold))]
         [SerializeField]
         [MinValue(0)]
-        [Tooltip(">=1: Exit取りこぼし回復のため、最後に観測したフレームから一定以上経過した接触を自動削除")]
+        [Tooltip(">=1: Exit蜿悶ｊ縺薙⊂縺怜屓蠕ｩ縺ｮ縺溘ａ縲∵怙蠕後↓隕ｳ貂ｬ縺励◆繝輔Ξ繝ｼ繝縺九ｉ荳螳壻ｻ･荳顔ｵ碁℃縺励◆謗･隗ｦ繧定・蜍募炎髯､")]
         int staleFrameThreshold = 2;
 
         [Header("Commands")]
         [SerializeField]
         [LabelText("Command Target")]
-        [Tooltip("Self: 自分のICommandRunnerで実行 / Other: ヒット相手のICommandRunnerで実行 / Both: 両方")]
+        [Tooltip("Self: 閾ｪ蛻・・ICommandRunner縺ｧ螳溯｡・/ Other: 繝偵ャ繝育嶌謇九・ICommandRunner縺ｧ螳溯｡・/ Both: 荳｡譁ｹ")]
         HitColliderCommandTarget commandTarget = HitColliderCommandTarget.Self;
 
         [ShowIf("@commandTarget == HitColliderCommandTarget.Both")]
         [SerializeField]
         [LabelText("Parallel When Both")]
-        [Tooltip("Both のとき Self/Other を同時に開始する。OFFだと Self 完了後に Other を実行。")]
+        [Tooltip("Inspector setting.")]
         bool parallelWhenBoth = true;
 
         [SerializeField]
         [LabelText("Counterpart Context Slot")]
-        [Tooltip("実行主体の相手側LTSを格納するスロットです。Self実行時はOther、Other実行時はSelfが入ります。Bothの場合はSelf側コマンドではOther、Other側コマンドではSelfが入ります。ContextA-D を使用してください。")]
+        [Tooltip("Inspector setting.")]
         VNext.CommandLtsSlot counterpartContextSlot = VNext.CommandLtsSlot.ContextA;
 
         [ShowIf(nameof(HasInvalidCounterpartContextSlot))]
-        [InfoBox("Counterpart Context Slot は ContextA-D を使ってください。Actor / RootActor などを指定した場合、実行時は ContextA にフォールバックします。", InfoMessageType.Warning)]
+        [InfoBox("Inspector info.")]
         [SerializeField, HideInInspector]
         bool _invalidCounterpartContextSlotWarning;
 
@@ -317,14 +317,14 @@ namespace Game.Collision
         [SerializeField]
         [LabelText("Stay Interval Seconds")]
         [MinValue(0f)]
-        [Tooltip("Stay コマンドの実行間隔（秒）。0以下で毎回実行。相手ごとに独立してカウントされます。")]
+        [Tooltip("Inspector setting.")]
         float stayIntervalSeconds = 0f;
 
         [ShowIf("@HasEnter || HasExit")]
         [SerializeField]
         [LabelText("Enter/Exit Duplicate Interval Seconds")]
         [MinValue(0f)]
-        [Tooltip("同じSelf/OtherペアのEnter/Exitが短時間に連続した場合、後続イベントを無視する間隔（秒）。0以下で無効。")]
+        [Tooltip("Inspector setting.")]
         float enterExitDuplicateIntervalSeconds = 0f;
 
         [ShowIf("@HasEnter && commandTarget == HitColliderCommandTarget.Both")]

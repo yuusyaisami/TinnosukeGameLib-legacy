@@ -1,10 +1,10 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using UnityEngine;
 
 namespace Game.SharedTexture
 {
-    // ── SharedTextureBindSlot ───────────────────────────────────
+    // 笏笏 SharedTextureBindSlot 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
     public enum SharedTextureBindSlot
     {
@@ -13,27 +13,27 @@ namespace Game.SharedTexture
         CustomRT = 30,
     }
 
-    // ── SharedTextureBindingDef ─────────────────────────────────
+    // 笏笏 SharedTextureBindingDef 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
     [Serializable]
     public struct SharedTextureBindingDef
     {
-        [Tooltip("対象 Player の tag (AnimationSpriteChannelPlayer 等)")]
+        [Tooltip("蟇ｾ雎｡ Player 縺ｮ tag (AnimationSpriteChannelPlayer 遲・")]
         public string TargetPlayerTag;
 
-        [Tooltip("SharedTextureChannelHub 上のタグ")]
+        [Tooltip("SharedTextureChannelHub 荳翫・繧ｿ繧ｰ")]
         public string SharedTextureTag;
 
-        [Tooltip("BaseShader の外部 Texture スロット")]
+        [Tooltip("BaseShader 縺ｮ螟夜Κ Texture 繧ｹ繝ｭ繝・ヨ")]
         public SharedTextureBindSlot BindSlot;
 
-        [Tooltip("MaterialFx のコンテキストタグ")]
+        [Tooltip("MaterialFx 縺ｮ繧ｳ繝ｳ繝・く繧ｹ繝医ち繧ｰ")]
         public string ContextTag;
 
-        [Tooltip("Binding の優先度")]
+        [Tooltip("Binding 縺ｮ蜆ｪ蜈亥ｺｦ")]
         public int Priority;
 
-        [Tooltip("Texture が見つからないときに明示的にクリアするか")]
+        [Tooltip("Inspector setting.")]
         public bool ClearWhenMissing;
     }
 }

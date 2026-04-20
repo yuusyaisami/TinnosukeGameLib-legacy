@@ -186,7 +186,7 @@ namespace Game.Trait
                 worldSpace: true,
                 allowPooling: true);
 
-            IObjectResolver? resolver;
+            IRuntimeResolver? resolver;
             try
             {
                 resolver = await spawner.SpawnAsync(spawnParams, ct);
@@ -564,7 +564,7 @@ namespace Game.Trait
             return null;
         }
 
-        static RuntimeLifetimeScope? ResolveRuntimeScope(IObjectResolver? resolver)
+        static RuntimeLifetimeScope? ResolveRuntimeScope(IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return null;

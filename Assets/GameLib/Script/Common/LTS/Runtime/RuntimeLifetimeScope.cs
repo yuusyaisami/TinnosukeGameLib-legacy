@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -6,138 +6,286 @@ using Cysharp.Threading.Tasks;
 using Game.Commands;
 using Game.Common;
 using Game.DI;
-using Unity.Collections;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Pool;
-using VContainer;
-using VContainer.Unity;
 
 namespace Game
 {
-    /// <summary>
-    /// RuntimeLifetimeScope: 軽量DIコンテナを使用した高パフォーマンスなスコープ
-    /// 
-    /// VContainerのLifetimeScopeを継承せず、独自の軽量DIシステム(RuntimeResolverHub)を使用。
-    /// これによりパフォーマンスが向上し、プールでの再利用が容易になる。
-    /// 
-    /// サポートする機能:
-    /// - Register, RegisterInstance, As, WithParameter
-    /// - コンストラクタインジェクション
-    /// - 親子階層
-    /// - IScopeAcquireHandler/IScopeReleaseHandler
-    /// - ITickable (RuntimeTickHub経由)
-    /// 
-    /// サポートしない機能:
-    /// - [Inject]属性
-    /// - VContainerのEntryPoint系 (IInitializable等はFeatureInstaller内で手動処理)
-    /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(LTSIdentityMB))]
     [RequireComponent(typeof(RuntimeTickHub))]
-    [RequireComponent(typeof(BlackboardMB))]
-    [RequireComponent(typeof(CommandRunnerMB))]
-    public sealed class RuntimeLifetimeScope : MonoBehaviour, IScopeNode
+    public abstract class RuntimeLifetimeScopeBase : MonoBehaviour, IScopeNode, ICoordinatedBuildScope
     {
-        static IBaseLifetimeScopeRegistry? s_fallbackRegistry;
-        static IObjectResolver? s_fallbackProjectResolver;
-        static Type? s_unityCollisionManagerType;
-        static bool s_unityCollisionManagerTypeResolved;
+        static IBaseLifetimeScopeRegistry? s_cachedRegistry;
 
         [Header("Feature Installers")]
         [SerializeField] bool includeFeatureInstallers = true;
         [SerializeField] bool includeInactiveFeatureInstallers = true;
 
-        // ================================================================
-        // Internal State
-        // ================================================================
+        [Header("Scope State")]
+        [SerializeField] bool initiallyVisible = true;
+
+        [Header("Game Logic Root")]
+        [ToggleLeft]
+        [SerializeField] bool useAsGameLogicRoot = false;
+
         bool _destroyed;
         bool _built;
         bool _acquired;
+        bool _hierarchyRegistered;
+        bool _cachedParentResolved;
+        bool _suppressGameObjectActiveSync;
 
         bool _isVisible = true;
         bool _isActive = true;
 
-        // 親キャッシュ
         IScopeNode? _cachedParent;
-        bool _cachedParentResolved;
         IScopeNode? _explicitBuildParent;
-        bool _hierarchyRegistered;
-
-        // Pooling control: when false, RuntimeLifetimeScopePool should NOT return this instance to its pool
-        // and should instead destroy it on Release.
-        public bool AllowPooling { get; set; } = true;
-
-        // Pooling key (assigned by RuntimeLifetimeScopePool on Acquire).
-        // This is required because pooled instances are now keyed by (Parent Transform, Template),
-        // and Release must return the instance to the exact matching pool.
-        internal RuntimeLifetimeScopePoolKey? PoolKey { get; set; }
-
-        // Identity
-        readonly RuntimeScopeIdentityService _identity = new();
-        BaseRuntimeTemplateSO? _activeTemplate;
-        RuntimeIdentityData _activeIdentity;
-
-        // Registry (for ResolveOtherScope / WithActor ByIdentity)
         IBaseLifetimeScopeRegistry? _scopeRegistry;
         List<IFeatureInstaller>? _ownedFeatureInstallers;
         bool _ownedFeatureInstallersCached;
         bool _ownedFeatureInstallersIncludeInactive;
 
-        // DI Container
+        readonly RuntimeScopeIdentityService _identity = new();
+        RuntimeIdentityData _activeIdentity;
+        BaseRuntimeTemplateSO? _activeTemplate;
+
         RuntimeResolver? _resolver;
         RuntimeAcquireReleaseDispatcher? _dispatcher;
-
-        // Tick
         IRuntimeTickHub? _tickHub;
-        ITickable[]? _tickables;
-        ILateTickable[]? _lateTickables;
-        IFixedTickable[]? _fixedTickables;
-
-        // Build completion
+        IScopeTickHandler[]? _tickHandlers;
+        IScopeLateTickHandler[]? _lateTickHandlers;
+        IScopeFixedTickHandler[]? _fixedTickHandlers;
         UniTaskCompletionSource? _buildCompletionSource;
 
         [Header("Debug Viewer")]
-        [SerializeField, ReadOnly]
-        int debugAwakeFrame = -1;
+        [SerializeField, ReadOnly] int debugAwakeFrame = -1;
+        [SerializeField, ReadOnly] int debugBuildFrame = -1;
+        [SerializeField, ReadOnly] int debugBuildDelayFrames = -1;
+        [SerializeField, ReadOnly] float debugAwakeRealtime = -1f;
+        [SerializeField, ReadOnly] float debugBuildRealtime = -1f;
+        [SerializeField, ReadOnly] string debugParent = "null";
+        [SerializeField, ReadOnly] bool debugParentHasResolver;
+        [SerializeField, ReadOnly] string debugParentBuildStatus = "Unknown";
+        [SerializeField, ReadOnly] string debugPath = string.Empty;
+        [SerializeField, ReadOnly] string debugBuildStatus = "NotBuilt";
 
-        [SerializeField, ReadOnly]
-        int debugBuildFrame = -1;
-
-        [SerializeField, ReadOnly]
-        int debugBuildDelayFrames = -1;
-
-        [SerializeField, ReadOnly]
-        float debugAwakeRealtime = -1f;
-
-        [SerializeField, ReadOnly]
-        float debugBuildRealtime = -1f;
-
-        [SerializeField, ReadOnly]
-        string debugParent = "null";
-
-        [SerializeField, ReadOnly]
-        bool debugParentHasResolver;
-
-        [SerializeField, ReadOnly]
-        string debugParentBuildStatus = "Unknown";
-
-        [SerializeField, ReadOnly]
-        string debugPath = string.Empty;
-
-        [SerializeField, ReadOnly]
-        string debugBuildStatus = "NotBuilt";
-
-        // ================================================================
-        // Public Properties
-        // ================================================================
+        public bool AllowPooling { get; set; } = true;
+        internal RuntimeLifetimeScopePoolKey? PoolKey { get; set; }
 
         public RuntimeScopeIdentityService RuntimeIdentity => _identity;
         public BaseRuntimeTemplateSO? ActiveTemplate => _activeTemplate;
         public bool IsBuilt => _built;
+        public bool IsBuildCompleted => _built;
         public bool IsAcquired => _acquired;
+        public string DebugBuildStatus => debugBuildStatus;
+        public bool UseAsGameLogicRoot => useAsGameLogicRoot;
+        public IRuntimeResolver? Container => _resolver;
 
-        /// <summary>VContainer互換のContainer プロパティ (IObjectResolver)</summary>
-        public IObjectResolver? Container => _resolver?.AsVContainerResolver();
+        public IScopeNode? Parent => GetParentCached();
+        public ILTSIdentityService? Identity => _identity;
+        public LifetimeScopeKind Kind => _identity.Kind;
+        public IRuntimeResolver? Resolver => _resolver;
+        public bool IsVisible => _isVisible;
+        public bool IsActive => _isActive;
+
+        protected virtual bool UseBuildCoordinator => true;
+        protected virtual bool IsBuildRoot => false;
+        protected virtual bool AutoBuildOnAwake => false;
+        protected virtual LifetimeScopeKind RequiredParentKind => LifetimeScopeKind.None;
+        protected virtual bool RequiresParentScope => RequiredParentKind != LifetimeScopeKind.None;
+
+        bool ICoordinatedBuildScope.UseBuildCoordinator => UseBuildCoordinator;
+        bool ICoordinatedBuildScope.IsBuildCompleted => _built;
+
+        protected virtual void Awake()
+        {
+            debugAwakeFrame = Time.frameCount;
+            debugAwakeRealtime = Time.realtimeSinceStartup;
+
+            _isVisible = initiallyVisible;
+            ApplyIdentityFromComponent();
+            _tickHub = GetComponent<IRuntimeTickHub>();
+
+            if (UseBuildCoordinator)
+                ScopeBuildCoordinator.Register(this, IsBuildRoot && AutoBuildOnAwake);
+
+            RegisterInHierarchy();
+            RefreshDebugViewer();
+        }
+
+        protected virtual void Start()
+        {
+            if (!_acquired)
+            {
+                UniTask.Void(async () =>
+                {
+                    await UniTask.Yield(PlayerLoopTiming.Update);
+                    if (_destroyed || _acquired)
+                        return;
+
+                    if (!_hierarchyRegistered)
+                        RegisterInHierarchy();
+
+                    await AcquireAsync(template: null, identity: null);
+                });
+            }
+        }
+
+        protected virtual void OnEnable()
+        {
+            if (_destroyed || _suppressGameObjectActiveSync)
+                return;
+
+            if (_built && _isActive)
+                AcquireIfNeeded();
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (_destroyed || _suppressGameObjectActiveSync)
+                return;
+
+            ReleaseIfNeeded();
+        }
+
+        protected virtual void OnTransformParentChanged()
+        {
+            if (_destroyed || _explicitBuildParent != null)
+                return;
+
+            _cachedParentResolved = false;
+            _cachedParent = null;
+            RegisterInHierarchy();
+            RefreshDebugViewer();
+        }
+
+        protected virtual void OnDestroy()
+        {
+            _destroyed = true;
+            RefreshDebugViewer();
+
+            if (UseBuildCoordinator)
+                ScopeBuildCoordinator.Unregister(this);
+
+            ReleaseIfNeeded();
+            UnregisterFromScopeRegistryIfNeeded();
+            UnregisterFromHierarchy();
+
+            _resolver?.Dispose();
+            _resolver = null;
+            _dispatcher = null;
+        }
+
+        public bool TrySetVisible(bool visible, bool isReset = false)
+        {
+            _isVisible = visible;
+            return true;
+        }
+
+        public bool TrySetActive(bool active, bool isReset = false)
+        {
+            if (_destroyed)
+                return false;
+
+            UniTask.Void(async () => await SetActiveAsync(active, isReset, CancellationToken.None));
+            return true;
+        }
+
+        public UniTask SetActiveAsync(bool active, bool isReset = false, CancellationToken ct = default)
+        {
+            if (_destroyed || ct.IsCancellationRequested)
+                return UniTask.CompletedTask;
+
+            if (active)
+                EnsureScopeBuilt();
+
+            _isActive = active;
+            _identity.IsActive = active;
+            RefreshScopeRegistryRegistrationIfPossible();
+
+            if (active)
+            {
+                if (!gameObject.activeSelf)
+                {
+                    _suppressGameObjectActiveSync = true;
+                    gameObject.SetActive(true);
+                    _suppressGameObjectActiveSync = false;
+                }
+
+                AcquireIfNeeded();
+            }
+            else
+            {
+                ReleaseIfNeeded();
+
+                if (gameObject.activeSelf)
+                {
+                    _suppressGameObjectActiveSync = true;
+                    gameObject.SetActive(false);
+                    _suppressGameObjectActiveSync = false;
+                }
+            }
+
+            RefreshDebugViewer();
+            return UniTask.CompletedTask;
+        }
+
+        public IReadOnlyList<IScopeNode>? GetPathFromRoot()
+        {
+            var stack = new Stack<IScopeNode>();
+            IScopeNode? current = this;
+            while (current != null)
+            {
+                stack.Push(current);
+                current = current.Parent;
+            }
+
+            if (stack.Count == 0)
+                return null;
+
+            var list = new List<IScopeNode>(stack.Count);
+            while (stack.Count > 0)
+                list.Add(stack.Pop());
+            return list;
+        }
+
+        public void EnsureScopeBuilt()
+        {
+            if (_built || _destroyed)
+                return;
+
+            var parent = GetParentCached();
+            if (parent is RuntimeLifetimeScopeBase runtimeParent && !ReferenceEquals(runtimeParent, this))
+            {
+                runtimeParent.EnsureScopeBuilt();
+            }
+            else if (parent is ICoordinatedBuildScope coordinatedParent && coordinatedParent.Resolver == null && !coordinatedParent.IsBuildCompleted)
+            {
+                coordinatedParent.ExecuteBuildForCoordinator();
+            }
+
+            if (RequiresParentScope && parent == null)
+                throw new InvalidOperationException($"[{GetType().Name}] Required parent scope '{RequiredParentKind}' was not found for '{name}'.");
+
+            if (parent != null && parent.Resolver == null)
+                throw new InvalidOperationException($"[{GetType().Name}] Parent scope '{parent.GetType().Name}' has no resolver when building '{name}'.");
+
+            Build();
+        }
+
+        public UniTask WhenBuiltAsync(CancellationToken ct = default)
+        {
+            if (_built || _destroyed)
+                return UniTask.CompletedTask;
+
+            _buildCompletionSource ??= new UniTaskCompletionSource();
+            EnsureScopeBuilt();
+            return ct.CanBeCanceled
+                ? _buildCompletionSource.Task.AttachExternalCancellation(ct)
+                : _buildCompletionSource.Task;
+        }
 
         public bool TryResolveLocal<T>(out T instance)
         {
@@ -162,614 +310,6 @@ namespace Game
             return _resolver.TryResolveLocal(type, out instance);
         }
 
-        // ================================================================
-        // IScopeNode Implementation
-        // ================================================================
-
-        public IScopeNode? Parent => GetParentCached();
-        public ILTSIdentityService? Identity => _identity;
-        public LifetimeScopeKind Kind => _identity.Kind;
-        public IObjectResolver? Resolver => _resolver?.AsVContainerResolver();
-
-        public bool IsVisible => _isVisible;
-
-        public bool IsActive => _isActive;
-
-        public bool TrySetVisible(bool visible, bool isReset = false)
-        {
-            _isVisible = visible;
-            return true;
-        }
-
-        public bool TrySetActive(bool active, bool isReset = false)
-        {
-            _isActive = active;
-            _identity.IsActive = active;
-
-            UniTask.Void(async () => await SetActiveAsync(active, isReset, CancellationToken.None));
-            return true;
-        }
-
-        public UniTask SetActiveAsync(bool active, bool isReset = false, CancellationToken ct = default)
-        {
-            if (_destroyed)
-                return UniTask.CompletedTask;
-
-            if (ct.IsCancellationRequested)
-                return UniTask.CompletedTask;
-
-            if (active && !_built)
-            {
-                EnsureScopeBuilt();
-            }
-
-            // Apply active state
-            _isActive = active;
-            _identity.IsActive = active;
-
-            RefreshScopeRegistryRegistrationIfPossible();
-
-            if (active)
-            {
-                if (!gameObject.activeSelf)
-                {
-                    gameObject.SetActive(true);
-                }
-
-                if (!_acquired)
-                {
-                    AcquireInternal(isReset);
-                }
-            }
-            else
-            {
-                if (_acquired)
-                {
-                    ReleaseInternal(isReset);
-                }
-
-                if (gameObject.activeSelf)
-                {
-                    gameObject.SetActive(false);
-                }
-            }
-
-            return UniTask.CompletedTask;
-        }
-
-        IReadOnlyList<IScopeNode>? IScopeNode.GetPathFromRoot()
-        {
-            var stack = new Stack<IScopeNode>();
-            IScopeNode? current = this;
-            while (current != null)
-            {
-                stack.Push(current);
-                current = current.Parent;
-            }
-
-            if (stack.Count == 0)
-                return null;
-
-            var list = new List<IScopeNode>(stack.Count);
-            while (stack.Count > 0)
-            {
-                list.Add(stack.Pop());
-            }
-            return list;
-        }
-
-        // ================================================================
-        // Unity Lifecycle
-        // ================================================================
-
-        void Awake()
-        {
-            debugAwakeFrame = Time.frameCount;
-            debugAwakeRealtime = Time.realtimeSinceStartup;
-
-            // Identity初期化
-            // Default: newly created runtime scopes are active.
-            _isVisible = true;
-            _isActive = true;
-
-
-            var identityMb = GetComponent<LTSIdentityMB>();
-            if (identityMb != null)
-            {
-                _activeIdentity = new RuntimeIdentityData
-                {
-                    Id = identityMb.id,
-                    Category = identityMb.category,
-                    Kind = identityMb.kind,
-                    TimeScaleBehavior = identityMb.timeScaleBehavior,
-                    InitiallyActive = identityMb.initiallyActive,
-                    SelfTransform = transform,
-                };
-                _identity.Apply(_activeIdentity);
-
-                // Keep identity active in sync with scope active.
-                _identity.IsActive = _isActive;
-            }
-
-            // TickHub取得
-            _tickHub = GetComponent<IRuntimeTickHub>();
-
-            // 親子関係登録
-            RegisterInHierarchy();
-
-            RefreshScopeRegistryRegistrationIfPossible();
-            RefreshDebugViewer();
-        }
-
-        void Start()
-        {
-            // シーンに配置されたRuntimeLifetimeScopeは自動的にAcquireを行う
-            // Spawnerから生成された場合はAcquireAsyncが外部から呼ばれるため、ここでは何もしない
-            if (!_acquired)
-            {
-                UniTask.Void(async () =>
-                {
-                    if (_destroyed)
-                        return;
-
-                    // 親スコープのビルドを待つために1フレーム待機
-                    await UniTask.Yield(PlayerLoopTiming.Update);
-
-                    if (_destroyed || _acquired)
-                        return;
-
-                    // 親が後から確定するケースの再登録
-                    if (!_hierarchyRegistered)
-                    {
-                        RegisterInHierarchy();
-                    }
-
-                    await AcquireAsync(template: null, identity: null);
-                });
-            }
-
-            // Runtime scopes can be instantiated outside any BaseLifetimeScope hierarchy.
-            // Retry registry registration after startup when ProjectLifetimeScope is expected to exist and be built.
-            UniTask.Void(async () =>
-            {
-                if (_destroyed)
-                    return;
-
-                // A few frames are enough for Project/Scene scopes to build and expose IBaseLifetimeScopeRegistry.
-                for (int i = 0; i < 5; i++)
-                    await UniTask.Yield(PlayerLoopTiming.Update);
-
-                if (_destroyed || !this)
-                    return;
-
-                RefreshScopeRegistryRegistrationIfPossible();
-                RefreshDebugViewer();
-            });
-        }
-
-        void OnTransformParentChanged()
-        {
-            if (_destroyed)
-                return;
-
-            // 親が付け替えられた場合にHierarchy登録を更新
-            var parent = GetParentCached();
-            if (parent == null)
-            {
-                if (_hierarchyRegistered)
-                {
-                    ScopeNodeHierarchy.Unregister(this);
-                    _hierarchyRegistered = false;
-                }
-                RefreshDebugViewer();
-                return;
-            }
-
-            _hierarchyRegistered = true;
-            ScopeNodeHierarchy.Register(this, parent);
-            RefreshDebugViewer();
-        }
-
-        void OnDestroy()
-        {
-            _destroyed = true;
-            RefreshDebugViewer();
-
-            // Release if acquired
-            if (_acquired)
-            {
-                ReleaseToPool();
-            }
-
-            // Hierarchy登録解除
-            UnregisterFromHierarchy();
-
-            // Registry 登録解除
-            UnregisterFromScopeRegistryIfNeeded();
-
-            // Resolver破棄
-            _resolver?.Dispose();
-            _resolver = null;
-            _dispatcher = null;
-        }
-
-        // ================================================================
-        // Build
-        // ================================================================
-
-        /// <summary>
-        /// スコープをビルドする。親が未ビルドなら先にビルドする。
-        /// </summary>
-        public void EnsureScopeBuilt()
-        {
-            if (_built || _destroyed) return;
-
-            // 親を先にビルド
-            var parent = GetParentCached();
-            if (parent is RuntimeLifetimeScope parentRuntime && parentRuntime != this)
-            {
-                parentRuntime.EnsureScopeBuilt();
-            }
-            else if (parent is BaseLifetimeScope parentBase && parentBase != this)
-            {
-                parentBase.EnsureScopeBuilt();
-            }
-
-            Build();
-        }
-
-        public UniTask WhenBuiltAsync(CancellationToken ct = default)
-        {
-            if (_built || _destroyed)
-                return UniTask.CompletedTask;
-
-            _buildCompletionSource ??= new UniTaskCompletionSource();
-
-            EnsureScopeBuilt();
-
-            if (ct.IsCancellationRequested)
-                return UniTask.CompletedTask;
-
-            return ct.CanBeCanceled
-                ? _buildCompletionSource.Task.AttachExternalCancellation(ct)
-                : _buildCompletionSource.Task;
-        }
-
-        void Build()
-        {
-            if (_built || _destroyed) return;
-
-            var builder = new RuntimeContainerBuilder();
-
-            // 親のResolverを設定
-            var parent = GetParentCached();
-            if (parent is RuntimeLifetimeScope parentRuntime && parentRuntime._resolver != null)
-            {
-                builder.SetParentResolver(parentRuntime._resolver);
-                builder.SetParentVContainerResolver(parentRuntime._resolver.AsVContainerResolver());
-            }
-            else if (parent?.Resolver is IRuntimeResolver parentResolver)
-            {
-                builder.SetParentResolver(parentResolver);
-                builder.SetParentVContainerResolver(parentResolver.AsVContainerResolver());
-            }
-            else if (parent?.Resolver is IObjectResolver parentContainer)
-            {
-                builder.SetParentVContainerResolver(parentContainer);
-            }
-
-            // Fallback: if no parent VContainer resolver is available, try ProjectLifetimeScope.
-            if (builder.ParentVContainerResolver == null &&
-                TryResolveProjectResolver(out var projectResolver) &&
-                projectResolver != null)
-            {
-                builder.SetParentVContainerResolver(projectResolver);
-            }
-
-            // Host scope を設定（Unity コンポーネント解決に利用）
-            builder.SetHostScope(this);
-
-            LogBuildContext(builder, parent);
-
-            // Core registrations
-            ConfigureCore(builder);
-
-            // Feature Installers
-            if (includeFeatureInstallers)
-            {
-                InstallFeatures(builder);
-            }
-
-            // Build
-            try
-            {
-                _resolver = (RuntimeResolver)builder.Build();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[RuntimeLifetimeScope] Build: Failed to build resolver for {gameObject.name}: {ex.Message}");
-                Debug.LogException(ex);
-                debugBuildStatus = "BuildFailed";
-                RefreshDebugViewer();
-                return;
-            }
-
-            try
-            {
-                _dispatcher = new RuntimeAcquireReleaseDispatcher(_resolver);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[RuntimeLifetimeScope] Build: Failed to create dispatcher for {gameObject.name}: {ex.Message}");
-                Debug.LogException(ex);
-            }
-
-            // Tickables キャッシュ
-            try
-            {
-                _tickables = _resolver.GetTickables();
-                _lateTickables = _resolver.GetLateTickables();
-                _fixedTickables = _resolver.GetFixedTickables();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[RuntimeLifetimeScope] Build: Failed to get tickables for {gameObject.name}: {ex.Message}");
-                Debug.LogException(ex);
-            }
-
-            _built = true;
-            debugBuildFrame = Time.frameCount;
-            debugBuildRealtime = Time.realtimeSinceStartup;
-            debugBuildDelayFrames = debugAwakeFrame >= 0 ? debugBuildFrame - debugAwakeFrame : -1;
-            debugBuildStatus = "Built";
-            RefreshDebugViewer();
-            _buildCompletionSource?.TrySetResult();
-        }
-
-        void ConfigureCore(RuntimeContainerBuilder builder)
-        {
-            if (builder == null)
-                return;
-
-            // Scope-local multi registry
-            builder.Register<ScopeMultiRegistry>(Lifetime.Singleton)
-                .As<IScopeMultiRegistry>();
-
-            // Identity service for runtime scopes
-            builder.RegisterInstance(_identity)
-                .As<ILTSIdentityService>()
-                .AsSelf();
-
-            // Scope instance
-            builder.RegisterInstance(this)
-                .As<IScopeNode>()
-                .AsSelf();
-
-            // Tick hub (required component)
-            if (_tickHub == null)
-                _tickHub = GetComponent<IRuntimeTickHub>();
-            if (_tickHub != null)
-            {
-                builder.RegisterInstance(_tickHub)
-                    .As<IRuntimeTickHub>();
-            }
-
-            // Common controllers (matching BaseLifetimeScope)
-            builder.RegisterInstance(new Game.Common.RandomVarianceControllerOptions(
-                    512,
-                    Game.Common.VarianceSettings.Default))
-                .AsSelf();
-
-            builder.Register<Game.Common.RandomVarianceController>(Lifetime.Singleton)
-                .As<Game.Common.IRandomVarianceController>()
-                .As<IScopeAcquireHandler>()
-                .As<IScopeReleaseHandler>();
-
-            builder.Register<Game.Common.DynamicCounterController>(Lifetime.Singleton)
-                .As<Game.Common.IDynamicCounterController>()
-                .As<IScopeAcquireHandler>()
-                .As<IScopeReleaseHandler>();
-        }
-
-        void InstallFeatures(RuntimeContainerBuilder builder)
-        {
-            if (builder == null)
-                return;
-
-            EnsureOwnedFeatureInstallersCached();
-            var cachedInstallers = _ownedFeatureInstallers;
-            if (cachedInstallers == null || cachedInstallers.Count == 0)
-                return;
-
-            for (int i = 0; i < cachedInstallers.Count; i++)
-            {
-                var installer = cachedInstallers[i];
-                if (installer == null)
-                    continue;
-
-                installer.InstallFeature(builder, this);
-            }
-        }
-
-        void EnsureOwnedFeatureInstallersCached()
-        {
-            if (_ownedFeatureInstallersCached &&
-                _ownedFeatureInstallersIncludeInactive == includeInactiveFeatureInstallers)
-            {
-                return;
-            }
-
-            _ownedFeatureInstallersIncludeInactive = includeInactiveFeatureInstallers;
-            _ownedFeatureInstallers ??= new List<IFeatureInstaller>(4);
-            _ownedFeatureInstallers.Clear();
-
-            var installers = ListPool<IFeatureInstaller>.Get();
-            try
-            {
-                GetComponentsInChildren(includeInactiveFeatureInstallers, installers);
-                for (int i = 0; i < installers.Count; i++)
-                {
-                    var installer = installers[i];
-                    if (installer is not Component component)
-                        continue;
-
-                    if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(component, includeInactiveFeatureInstallers, out var owner) ||
-                        owner == null ||
-                        !ReferenceEquals(owner, this))
-                    {
-                        continue;
-                    }
-
-                    _ownedFeatureInstallers.Add(installer);
-                }
-            }
-            finally
-            {
-                ListPool<IFeatureInstaller>.Release(installers);
-            }
-
-            _ownedFeatureInstallersCached = true;
-        }
-
-        bool TryResolveProjectResolver(out IObjectResolver? resolver)
-        {
-            if (s_fallbackProjectResolver != null)
-            {
-                resolver = s_fallbackProjectResolver;
-                return true;
-            }
-
-            if (ProjectLifetimeScope.TryGetResolver(out var projectResolver) && projectResolver != null)
-            {
-                resolver = projectResolver;
-                s_fallbackProjectResolver = resolver;
-                return true;
-            }
-
-            LTSLog.LogWarning("[RuntimeLifetimeScope] ProjectLifetimeScope resolver could not be resolved from static instance.", this);
-            resolver = null;
-            return false;
-        }
-
-        void RefreshScopeRegistryRegistrationIfPossible()
-        {
-            if (_destroyed) return;
-
-            if (!TryEnsureScopeRegistryResolved(out var registry) || registry == null)
-                return;
-
-            if (_isActive)
-            {
-                TryRegisterInScopeRegistry(registry);
-            }
-            else
-            {
-                TryUnregisterFromScopeRegistry(registry);
-            }
-        }
-
-        bool TryEnsureScopeRegistryResolved(out IBaseLifetimeScopeRegistry? registry)
-        {
-            if (_scopeRegistry != null)
-            {
-                registry = _scopeRegistry;
-                return true;
-            }
-
-            // Fast-path: cached project/global registry.
-            if (s_fallbackRegistry != null)
-            {
-                _scopeRegistry = s_fallbackRegistry;
-                registry = s_fallbackRegistry;
-                return true;
-            }
-
-            // Prefer own resolver (after Build) because it should chain to parent resolver.
-            var localResolver = Resolver;
-            if (localResolver != null && localResolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
-            {
-                _scopeRegistry = resolved;
-                registry = resolved;
-                return true;
-            }
-
-            // Fallback: walk up the scope parent chain.
-            var current = GetParentCached();
-            while (current != null)
-            {
-                var r = current.Resolver;
-                if (r != null && r.TryResolve<IBaseLifetimeScopeRegistry>(out resolved) && resolved != null)
-                {
-                    _scopeRegistry = resolved;
-                    registry = resolved;
-                    return true;
-                }
-                current = current.Parent;
-            }
-
-            // Last-resort fallback: resolve from ProjectLifetimeScope even when this runtime scope is not under any scope hierarchy.
-            // Cache the result to avoid repeated scene searches.
-            if (ProjectLifetimeScope.TryGetResolver(out var projectResolver) &&
-                projectResolver != null &&
-                projectResolver.TryResolve<IBaseLifetimeScopeRegistry>(out resolved) &&
-                resolved != null)
-            {
-                s_fallbackRegistry = resolved;
-                _scopeRegistry = resolved;
-                registry = resolved;
-                return true;
-            }
-
-            registry = null;
-            return false;
-        }
-
-        bool TryRegisterInScopeRegistry(IBaseLifetimeScopeRegistry registry)
-        {
-            if (registry == null)
-                return false;
-
-            var identity = Identity;
-            if (identity == null)
-                return false;
-
-            registry.RegisterScope(this, identity);
-            return true;
-        }
-
-        bool TryUnregisterFromScopeRegistry(IBaseLifetimeScopeRegistry registry)
-        {
-            if (registry == null)
-                return false;
-
-            registry.UnregisterScope(this);
-            return true;
-        }
-
-        void UnregisterFromScopeRegistryIfNeeded()
-        {
-            if (_scopeRegistry != null)
-            {
-                _scopeRegistry.UnregisterScope(this);
-                return;
-            }
-
-            if (s_fallbackRegistry != null)
-            {
-                s_fallbackRegistry.UnregisterScope(this);
-                return;
-            }
-
-            if (TryEnsureScopeRegistryResolved(out var registry) && registry != null)
-            {
-                registry.UnregisterScope(this);
-            }
-        }
-
-        // ================================================================
-        // Acquire / Release
-        // ================================================================
-
         public void ConfigureForAcquire(BaseRuntimeTemplateSO? template, RuntimeIdentityData? identity, bool ensureBuilt)
         {
             _activeTemplate = template;
@@ -792,344 +332,263 @@ namespace Game
 
             _activeIdentity = data;
             _identity.Apply(_activeIdentity);
+            _isActive = data.InitiallyActive;
             _identity.IsActive = _isActive;
 
             if (ensureBuilt)
-            {
                 EnsureScopeBuilt();
-            }
         }
 
         public async UniTask AcquireAsync(BaseRuntimeTemplateSO? template, RuntimeIdentityData? identity, CancellationToken ct = default)
         {
-            if (_destroyed)
-                return;
-
-            if (ct.IsCancellationRequested)
+            if (_destroyed || ct.IsCancellationRequested)
                 return;
 
             ConfigureForAcquire(template, identity, ensureBuilt: false);
-
             EnsureScopeBuilt();
 
-            // Determine initial active state
             var desiredActive = identity?.InitiallyActive ?? _activeIdentity.InitiallyActive;
-
             await SetActiveAsync(desiredActive, isReset: false, ct);
-
             if (!desiredActive)
                 return;
 
             if (TryResolveLocal<IScopeLifecycleService>(out var lifecycle) && lifecycle != null)
-            {
-                try
-                {
-                    await lifecycle.HandleSpawnAsync(ct);
-                }
-                catch (OperationCanceledException) when (ct.IsCancellationRequested)
-                {
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+                await lifecycle.HandleSpawnAsync(ct);
         }
 
         public async UniTask HandleSpawnAsync(CancellationToken ct = default)
         {
-            if (_destroyed)
-                return;
-
-            if (ct.IsCancellationRequested)
+            if (_destroyed || ct.IsCancellationRequested)
                 return;
 
             EnsureScopeBuilt();
-
-            await SetActiveAsync(active: true, isReset: false, ct);
+            await SetActiveAsync(true, isReset: false, ct);
 
             if (TryResolveLocal<IScopeLifecycleService>(out var lifecycle) && lifecycle != null)
-            {
-                try
-                {
-                    await lifecycle.HandleSpawnAsync(ct);
-                }
-                catch (OperationCanceledException) when (ct.IsCancellationRequested)
-                {
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+                await lifecycle.HandleSpawnAsync(ct);
         }
 
-        void ReleaseToPool()
+        public void AcquireIfNeeded()
         {
-            _isActive = false;
-            _identity.IsActive = false;
-            ReleaseInternal(isReset: true);
-        }
-
-        void AcquireInternal(bool isReset)
-        {
-            if (_resolver == null)
-            {
-                _acquired = false;
+            if (_destroyed || _acquired || !_isActive)
                 return;
-            }
 
-            if (_dispatcher == null)
-            {
-                try
-                {
-                    _dispatcher = new RuntimeAcquireReleaseDispatcher(_resolver);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                    _acquired = false;
-                    return;
-                }
-            }
+            if (_resolver == null)
+                EnsureScopeBuilt();
 
+            if (_resolver == null)
+                return;
+
+            _dispatcher ??= new RuntimeAcquireReleaseDispatcher(_resolver);
+            _dispatcher.Acquire(this, isReset: false);
             _acquired = true;
 
-            _dispatcher?.Acquire(this, isReset);
-
-            if (_tickables != null && _tickHub != null)
+            if (_tickHub != null)
             {
-                _tickHub.RegisterRange(_tickables);
+                if (_tickHandlers != null)
+                    _tickHub.RegisterRange(_tickHandlers);
+                if (_lateTickHandlers != null)
+                    _tickHub.RegisterLateRange(_lateTickHandlers);
+                if (_fixedTickHandlers != null)
+                    _tickHub.RegisterFixedRange(_fixedTickHandlers);
             }
 
-            if (_lateTickables != null && _tickHub != null)
-            {
-                _tickHub.RegisterLateRange(_lateTickables);
-            }
-
-            if (_fixedTickables != null && _tickHub != null)
-            {
-                _tickHub.RegisterFixedRange(_fixedTickables);
-            }
-
-            if (_activeTemplate != null)
-            {
-                try
-                {
-                    _activeTemplate.OnAcquire(this, _activeIdentity);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            _activeTemplate?.OnAcquire(this, _activeIdentity);
         }
 
-        void ReleaseInternal(bool isReset)
+        public void ReleaseIfNeeded()
         {
-            if (_resolver == null)
-            {
-                _acquired = false;
+            if (!_acquired)
                 return;
-            }
 
-            if (_activeTemplate != null)
+            if (_tickHub != null)
             {
-                try
-                {
-                    _activeTemplate.OnRelease(this);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
+                if (_tickHandlers != null)
+                    _tickHub.UnregisterRange(_tickHandlers);
+                if (_lateTickHandlers != null)
+                    _tickHub.UnregisterLateRange(_lateTickHandlers);
+                if (_fixedTickHandlers != null)
+                    _tickHub.UnregisterFixedRange(_fixedTickHandlers);
             }
 
-            if (_tickables != null && _tickHub != null)
-            {
-                _tickHub.UnregisterRange(_tickables);
-            }
-
-            if (_lateTickables != null && _tickHub != null)
-            {
-                _tickHub.UnregisterLateRange(_lateTickables);
-            }
-
-            if (_fixedTickables != null && _tickHub != null)
-            {
-                _tickHub.UnregisterFixedRange(_fixedTickables);
-            }
-
-            _dispatcher?.Release(this, isReset);
+            _activeTemplate?.OnRelease(this);
+            _dispatcher?.Release(this, isReset: false);
             _acquired = false;
         }
 
-        void LogBuildContext(RuntimeContainerBuilder builder, IScopeNode? parent)
+        public void SetExplicitBuildParent(IScopeNode? parent)
         {
-            if (!LTSLog.Enabled)
+            if (ReferenceEquals(_explicitBuildParent, parent))
                 return;
 
-            string parentInfo = parent is Component pc
-                ? $"{parent.GetType().Name}({pc.gameObject.name})"
-                : parent != null
-                    ? parent.GetType().Name
-                    : "null";
-
-            string parentVContainerInfo = builder.ParentVContainerResolver != null
-                ? builder.ParentVContainerResolver.GetType().Name
-                : "null";
-
-            LTSLog.Log(
-                $"[RuntimeLifetimeScope] Build scope='{gameObject.name}' parent={parentInfo} parentVContainer={parentVContainerInfo}",
-                this);
-
-            var collisionType = ResolveUnityCollisionManagerType();
-            if (collisionType == null)
-                return;
-
-            if (builder.ParentVContainerResolver == null)
-            {
-                LTSLog.LogWarning(
-                    $"[RuntimeLifetimeScope] Parent VContainer resolver is null. {collisionType.Name} cannot be resolved from parent.",
-                    this);
-                return;
-            }
-
-            var ok = builder.ParentVContainerResolver.TryResolve(collisionType, out var _);
-            LTSLog.Log(
-                $"[RuntimeLifetimeScope] Parent VContainer resolve {collisionType.Name} => {ok}",
-                this);
+            _explicitBuildParent = parent;
+            _cachedParentResolved = false;
+            _cachedParent = null;
+            RegisterInHierarchy();
+            RefreshDebugViewer();
         }
 
-        void RefreshDebugViewer()
+        public UniTask DespawnAsync(CancellationToken ct = default)
+            => ScopeDespawnCoordinator.DespawnAsync(this, ct);
+
+        protected virtual void AwakeConfigure(IRuntimeContainerBuilder builder)
         {
-            if (!this)
+        }
+
+        protected virtual void ConfigureBase(IRuntimeContainerBuilder builder)
+        {
+        }
+
+        void Build()
+        {
+            if (_built || _destroyed)
                 return;
 
-#if UNITY_EDITOR
+            var builder = new RuntimeContainerBuilder();
             var parent = GetParentCached();
-            debugParent = ToScopeDebugName(parent);
-            debugParentHasResolver = parent?.Resolver != null;
-            debugParentBuildStatus = GetParentBuildStatus(parent);
-            debugPath = GetPathStringFromRoot(this);
-#endif
+            if (parent?.Resolver != null)
+                builder.SetParentResolver(parent.Resolver);
+            builder.SetHostScope(this);
 
-            if (_destroyed)
-                debugBuildStatus = "Destroyed";
-            else if (_built)
-                debugBuildStatus = "Built";
-            else if (string.Equals(debugBuildStatus, "BuildFailed", StringComparison.Ordinal))
-                debugBuildStatus = "BuildFailed";
-            else
-                debugBuildStatus = "NotBuilt";
+            ConfigureCore(builder);
+            AwakeConfigure(builder);
+
+            if (includeFeatureInstallers)
+                InstallFeatures(builder);
+
+            ConfigureBase(builder);
+
+            _resolver = (RuntimeResolver)builder.Build();
+            _dispatcher = new RuntimeAcquireReleaseDispatcher(_resolver);
+            _tickHandlers = _resolver.GetTickHandlers();
+            _lateTickHandlers = _resolver.GetLateTickHandlers();
+            _fixedTickHandlers = _resolver.GetFixedTickHandlers();
+
+            _built = true;
+            debugBuildFrame = Time.frameCount;
+            debugBuildRealtime = Time.realtimeSinceStartup;
+            debugBuildDelayFrames = debugAwakeFrame >= 0 ? debugBuildFrame - debugAwakeFrame : -1;
+            debugBuildStatus = "Built";
+
+            RefreshScopeRegistryRegistrationIfPossible();
+            RefreshDebugViewer();
+            _buildCompletionSource?.TrySetResult();
+            ScopeBuildCoordinator.NotifyBuilt(this);
+
+            if (_isActive)
+                AcquireIfNeeded();
         }
 
-#if UNITY_EDITOR
-        static string ToScopeDebugName(IScopeNode? node)
+        void ConfigureCore(IRuntimeContainerBuilder builder)
         {
-            if (node == null)
-                return "null";
+            builder.Register<ScopeMultiRegistry>(RuntimeLifetime.Singleton)
+                .As<IScopeMultiRegistry>();
 
-            if (node is Component component)
-            {
-                if (!component)
-                    return $"{node.GetType().Name}(Destroyed)";
+            builder.Register<ScopeAcquireReleaseDispatcher>(RuntimeLifetime.Singleton)
+                .As<IScopeAcquireReleaseDispatcher>();
 
-                var go = component.gameObject;
-                return go != null
-                    ? $"{node.GetType().Name}({go.name})"
-                    : $"{node.GetType().Name}(Destroyed)";
-            }
+            builder.RegisterInstance(_identity)
+                .As<ILTSIdentityService>()
+                .AsSelf();
 
-            return node.GetType().Name;
+            builder.RegisterInstance(this)
+                .As<IScopeNode>()
+                .AsSelf();
+
+            if (_tickHub == null)
+                _tickHub = GetComponent<IRuntimeTickHub>();
+            if (_tickHub != null)
+                builder.RegisterInstance(_tickHub).As<IRuntimeTickHub>();
+
+            builder.RegisterInstance(new Game.Common.RandomVarianceControllerOptions(
+                    512,
+                    Game.Common.VarianceSettings.Default))
+                .AsSelf();
+
+            builder.Register<Game.Common.RandomVarianceController>(RuntimeLifetime.Singleton)
+                .As<Game.Common.IRandomVarianceController>()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
+
+            builder.Register<Game.Common.DynamicCounterController>(RuntimeLifetime.Singleton)
+                .As<Game.Common.IDynamicCounterController>()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
         }
 
-        static string GetPathStringFromRoot(IScopeNode? node)
+        void InstallFeatures(IRuntimeContainerBuilder builder)
         {
-            if (node is Component owner && !owner)
-                return "Destroyed";
+            CacheOwnedFeatureInstallers(includeInactiveFeatureInstallers);
+            if (_ownedFeatureInstallers == null)
+                return;
 
-            var path = node?.GetPathFromRoot();
-            if (path == null || path.Count == 0)
-                return string.Empty;
-
-            var names = new List<string>(path.Count);
-            for (int i = 0; i < path.Count; i++)
-            {
-                var p = path[i];
-                if (p is Component c)
-                {
-                    if (!c)
-                    {
-                        names.Add("Destroyed");
-                        continue;
-                    }
-
-                    var go = c.gameObject;
-                    names.Add(go != null ? go.name : "Destroyed");
-                }
-                else
-                    names.Add(p.GetType().Name);
-            }
-
-            return string.Join(" / ", names);
+            for (int i = 0; i < _ownedFeatureInstallers.Count; i++)
+                _ownedFeatureInstallers[i].InstallFeature(builder, this);
         }
 
-        static string GetParentBuildStatus(IScopeNode? node)
+        void CacheOwnedFeatureInstallers(bool includeInactive)
         {
-            if (node == null)
-                return "None";
-            if (node is BaseLifetimeScope baseScope)
-                return baseScope.IsBuildCompleted ? "Built" : "NotBuilt";
-            if (node is RuntimeLifetimeScope runtimeScope)
-                return runtimeScope.IsBuilt ? "Built" : "NotBuilt";
-            return "Unknown";
-        }
-#endif
+            if (_ownedFeatureInstallersCached && _ownedFeatureInstallersIncludeInactive == includeInactive)
+                return;
 
-        static Type? ResolveUnityCollisionManagerType()
-        {
-            if (s_unityCollisionManagerTypeResolved)
-                return s_unityCollisionManagerType;
+            _ownedFeatureInstallersIncludeInactive = includeInactive;
+            _ownedFeatureInstallers ??= new List<IFeatureInstaller>(16);
+            _ownedFeatureInstallers.Clear();
 
-            s_unityCollisionManagerTypeResolved = true;
+            var installers = ListPool<IFeatureInstaller>.Get();
             try
             {
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                for (int i = 0; i < assemblies.Length; i++)
+                GetComponentsInChildren(includeInactive, installers);
+                for (int i = 0; i < installers.Count; i++)
                 {
-                    var type = assemblies[i].GetType("Game.Collision.IUnityCollisionManager", throwOnError: false);
-                    if (type != null)
-                    {
-                        s_unityCollisionManagerType = type;
-                        break;
-                    }
+                    var installer = installers[i];
+                    if (installer is not Component component)
+                        continue;
+
+                    if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(component, includeInactive, out var owner) || !ReferenceEquals(owner, this))
+                        continue;
+
+                    _ownedFeatureInstallers.Add(installer);
                 }
             }
-            catch
+            finally
             {
+                ListPool<IFeatureInstaller>.Release(installers);
             }
 
-            return s_unityCollisionManagerType;
+            _ownedFeatureInstallersCached = true;
         }
 
-        // ================================================================
-        // Parent Resolution
-        // ================================================================
+        void ApplyIdentityFromComponent()
+        {
+            var identityMb = GetComponent<LTSIdentityMB>();
+            if (identityMb != null)
+            {
+                _activeIdentity = new RuntimeIdentityData
+                {
+                    Id = identityMb.id,
+                    Category = identityMb.category,
+                    Kind = identityMb.kind == LifetimeScopeKind.None ? LifetimeScopeKind.Runtime : identityMb.kind,
+                    TimeScaleBehavior = identityMb.timeScaleBehavior,
+                    InitiallyActive = identityMb.initiallyActive,
+                    SelfTransform = transform,
+                    Radius = identityMb.Radius,
+                };
+            }
+            else
+            {
+                _activeIdentity = RuntimeIdentityData.CreateDefault(transform);
+            }
+
+            _isActive = _activeIdentity.InitiallyActive;
+            _identity.Apply(_activeIdentity);
+            _identity.IsActive = _isActive;
+        }
 
         IScopeNode? GetParentCached()
         {
             if (_cachedParentResolved)
-            {
-                // 生成直後に親が未確定だった場合の再評価
-                if (_cachedParent == null && _explicitBuildParent == null && transform.parent != null)
-                {
-                    var resolved = ResolveParentCore();
-                    if (resolved != null)
-                        _cachedParent = resolved;
-                }
                 return _cachedParent;
-            }
 
             _cachedParentResolved = true;
             _cachedParent = _explicitBuildParent ?? ResolveParentCore();
@@ -1138,83 +597,32 @@ namespace Game
 
         IScopeNode? ResolveParentCore()
         {
-            // Transformヒエラルキーを辿って最も近いスコープを探す
             var current = transform.parent;
             while (current != null)
             {
-                // RuntimeLifetimeScope を優先
-                var runtimeScope = current.GetComponent<RuntimeLifetimeScope>();
-                if (runtimeScope != null && runtimeScope != this)
-                    return runtimeScope;
-
-                // BaseLifetimeScope もサポート
-                var baseScope = current.GetComponent<BaseLifetimeScope>();
-                if (baseScope != null)
-                    return baseScope;
+                var scope = current.GetComponent<RuntimeLifetimeScopeBase>();
+                if (scope != null && scope != this && MatchesRequiredParent(scope))
+                    return scope;
 
                 current = current.parent;
             }
 
-            // Fallback: hierarchyにスコープが無い場合はProjectを親にする
-            if (ProjectLifetimeScope.Instance != null)
-                return ProjectLifetimeScope.Instance;
-
             return null;
         }
 
-        /// <summary>
-        /// 親スコープを明示的に設定する（プール用）
-        /// </summary>
-        public void SetExplicitBuildParent(IScopeNode? parent)
+        bool MatchesRequiredParent(IScopeNode node)
         {
-            if (ReferenceEquals(_explicitBuildParent, parent))
-                return; // ここ超重要。プールで無駄撃ちしてるなら即効く
-
-            _explicitBuildParent = parent;
-            _cachedParentResolved = false;
-            _cachedParent = null;
-
-            if (parent == null)
-            {
-                if (_hierarchyRegistered)
-                {
-                    ScopeNodeHierarchy.Unregister(this);
-                    _hierarchyRegistered = false;
-                }
-                RefreshDebugViewer();
-                return;
-            }
-
-            // Unregister→Register をやめる。Register が移動/デタッチまで処理する。
-            ScopeNodeHierarchy.Register(this, parent);
-            _hierarchyRegistered = true;
-            RefreshDebugViewer();
-        }
-
-
-        /// <summary>
-        /// VContainer互換: LifetimeScopeを親として設定
-        /// </summary>
-        public void SetExplicitBuildParent(LifetimeScope? parent)
-        {
-            SetExplicitBuildParent(parent as IScopeNode);
+            if (RequiredParentKind == LifetimeScopeKind.None)
+                return true;
+            return node.Kind == RequiredParentKind;
         }
 
         void RegisterInHierarchy()
         {
             var parent = GetParentCached();
-            if (parent == null)
-            {
-                _hierarchyRegistered = false;
-                RefreshDebugViewer();
-                return;
-            }
-
-            _hierarchyRegistered = true;
             ScopeNodeHierarchy.Register(this, parent);
-            RefreshDebugViewer();
+            _hierarchyRegistered = true;
         }
-
 
         void UnregisterFromHierarchy()
         {
@@ -1223,7 +631,161 @@ namespace Game
 
             ScopeNodeHierarchy.Unregister(this);
             _hierarchyRegistered = false;
-            RefreshDebugViewer();
         }
+
+        void RefreshScopeRegistryRegistrationIfPossible()
+        {
+            if (_destroyed)
+                return;
+
+            if (!TryEnsureScopeRegistryResolved(out var registry) || registry == null)
+                return;
+
+            if (_isActive)
+                registry.RegisterScope(this, _identity);
+            else
+                registry.UnregisterScope(this);
+        }
+
+        bool TryEnsureScopeRegistryResolved(out IBaseLifetimeScopeRegistry? registry)
+        {
+            if (_scopeRegistry != null)
+            {
+                registry = _scopeRegistry;
+                return true;
+            }
+
+            var current = (IScopeNode?)this;
+            while (current != null)
+            {
+                var resolver = current.Resolver;
+                if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
+                {
+                    _scopeRegistry = resolved;
+                    s_cachedRegistry = resolved;
+                    registry = resolved;
+                    return true;
+                }
+                current = current.Parent;
+            }
+
+            if (s_cachedRegistry != null)
+            {
+                _scopeRegistry = s_cachedRegistry;
+                registry = s_cachedRegistry;
+                return true;
+            }
+
+            registry = null;
+            return false;
+        }
+
+        void UnregisterFromScopeRegistryIfNeeded()
+        {
+            if (_scopeRegistry != null)
+            {
+                _scopeRegistry.UnregisterScope(this);
+                return;
+            }
+
+            if (s_cachedRegistry != null)
+                s_cachedRegistry.UnregisterScope(this);
+        }
+
+        async UniTask ICoordinatedBuildScope.WaitForParentForBuildAsync()
+        {
+            var parent = GetParentCached();
+            if (parent is ICoordinatedBuildScope coordinated && !ReferenceEquals(parent, this))
+                await ScopeBuildCoordinator.WaitUntilBuiltAsync(coordinated, CancellationToken.None);
+        }
+
+        void ICoordinatedBuildScope.ExecuteBuildForCoordinator()
+        {
+            EnsureScopeBuilt();
+        }
+
+        void RefreshDebugViewer()
+        {
+            if (!this)
+                return;
+
+            var parent = _cachedParentResolved ? _cachedParent : null;
+            debugParent = ToScopeDebugName(parent);
+            debugParentHasResolver = parent?.Resolver != null;
+            debugParentBuildStatus = GetParentBuildStatus(parent);
+            debugPath = GetPathStringFromRoot(this);
+
+            if (_destroyed)
+                debugBuildStatus = "Destroyed";
+            else if (_built)
+                debugBuildStatus = "Built";
+            else
+                debugBuildStatus = "NotBuilt";
+        }
+
+        static string ToScopeDebugName(IScopeNode? node)
+        {
+            if (node == null)
+                return "null";
+
+            if (node is Component component)
+                return component ? $"{node.GetType().Name}({component.gameObject.name})" : $"{node.GetType().Name}(Destroyed)";
+
+            return node.GetType().Name;
+        }
+
+        static string GetParentBuildStatus(IScopeNode? node)
+        {
+            if (node == null)
+                return "None";
+            if (node is ICoordinatedBuildScope coordinated)
+                return coordinated.IsBuildCompleted ? "Built" : "NotBuilt";
+            return node.Resolver != null ? "Built" : "Unknown";
+        }
+
+        static string GetPathStringFromRoot(IScopeNode node)
+        {
+            var path = node.GetPathFromRoot();
+            if (path == null || path.Count == 0)
+                return string.Empty;
+
+            var names = new List<string>(path.Count);
+            for (int i = 0; i < path.Count; i++)
+            {
+                if (path[i] is Component component)
+                    names.Add(component ? component.gameObject.name : "Destroyed");
+                else
+                    names.Add(path[i].GetType().Name);
+            }
+            return string.Join(" / ", names);
+        }
+
+        static class ScopeDespawnCoordinator
+        {
+            public static async UniTask DespawnAsync(RuntimeLifetimeScopeBase scope, CancellationToken ct)
+            {
+                if (!scope)
+                    return;
+
+                if (scope.TryResolveLocal<IScopeLifecycleService>(out var lifecycle) && lifecycle != null)
+                {
+                    await lifecycle.HandleDespawnAsync(ct);
+                    return;
+                }
+
+                scope.ReleaseIfNeeded();
+                if (scope && scope.gameObject)
+                    Destroy(scope.gameObject);
+            }
+        }
+    }
+
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(LTSIdentityMB))]
+    [RequireComponent(typeof(RuntimeTickHub))]
+    [RequireComponent(typeof(BlackboardMB))]
+    [RequireComponent(typeof(CommandRunnerMB))]
+    public class RuntimeLifetimeScope : RuntimeLifetimeScopeBase
+    {
     }
 }

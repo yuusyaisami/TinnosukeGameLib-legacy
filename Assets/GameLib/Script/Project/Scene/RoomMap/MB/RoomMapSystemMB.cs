@@ -18,16 +18,16 @@ namespace Game.RoomMap
         [SerializeField] string _runtimeSpawnerTag = "";
         public Transform RoomMapParentTransform => _roomMapParentTransform;
         public string RuntimeSpawnerTag => _runtimeSpawnerTag;
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance<IRoomMapSystemOptions>(this);
-            builder.Register<RoomMapBuilder>(Lifetime.Singleton)
+            builder.Register<RoomMapBuilder>(RuntimeLifetime.Singleton)
                 .As<IRoomMapBuilder>();
 
-            builder.Register<RoomMapVisualizer>(Lifetime.Singleton)
+            builder.Register<RoomMapVisualizer>(RuntimeLifetime.Singleton)
                 .As<IRoomMapVisualizer>();
 
-            builder.Register<RoomMapSystemService>(Lifetime.Singleton)
+            builder.Register<RoomMapSystemService>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)
                 .As<IRoomMapSystemService>()
                 .As<IScopeAcquireHandler>()

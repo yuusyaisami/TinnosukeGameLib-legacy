@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Audio;
 using Game.Common;
@@ -109,7 +109,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Playback Speed")]
         [LabelText("Apply Speed To Pitch")]
-        [Tooltip("Unity 標準 AudioSource では OFF の場合、再生速度変更自体も適用されません。")]
+        [Tooltip("Inspector setting.")]
         [EnableIf(nameof(OverrideApplyPlaybackSpeedToPitch))]
         [SerializeField]
         public bool ApplyPlaybackSpeedToPitch = true;

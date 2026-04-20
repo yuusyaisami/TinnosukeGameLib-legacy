@@ -13,7 +13,7 @@ namespace Game.UI
         IButtonChannelHubService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         sealed class ChannelEntry
         {

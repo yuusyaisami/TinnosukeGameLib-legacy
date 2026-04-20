@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -14,7 +14,7 @@ namespace Game.StatusEffect
         [SerializeReference]
         [HideLabel]
         [InlineProperty]
-        [Tooltip("ScriptableObject が保持する StatusEffect 定義本体です。")]
+        [Tooltip("Inspector setting.")]
         BaseStatusEffectDefinitionData? preset;
 
         public BaseStatusEffectDefinitionData? Preset => preset;

@@ -58,7 +58,7 @@ namespace Game.Chunk
             p.WorldSpace = true;
             p.LifetimeScopeParent = _owner;
 
-            IObjectResolver? resolver = null;
+            IRuntimeResolver? resolver = null;
             try
             {
                 resolver = await spawner.SpawnAsync(p, ct);
@@ -181,7 +181,7 @@ namespace Game.Chunk
         }
 
         static void ExtractSpawnedInfo(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             out GameObject? root,
             out IScopeNode? scopeNode,
             out RuntimeLifetimeScope? runtimeScope,

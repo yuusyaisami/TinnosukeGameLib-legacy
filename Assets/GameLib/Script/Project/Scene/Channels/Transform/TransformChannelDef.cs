@@ -1,27 +1,27 @@
-using System;
+﻿using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Game.Channel
 {
     // ================================================================
-    // InitialTransformSettings - 初期 Transform 設定
+    // InitialTransformSettings - 蛻晄悄 Transform 險ｭ螳・
     // ================================================================
     //
-    // Prefab 生成時に DI よりも先に Transform を設定するための構造体。
-    // Awake のタイミングで即座に適用され、1 frame の遅延を防ぐ。
+    // Prefab 逕滓・譎ゅ↓ DI 繧医ｊ繧ょ・縺ｫ Transform 繧定ｨｭ螳壹☆繧九◆繧√・讒矩菴薙・
+    // Awake 縺ｮ繧ｿ繧､繝溘Φ繧ｰ縺ｧ蜊ｳ蠎ｧ縺ｫ驕ｩ逕ｨ縺輔ｌ縲・ frame 縺ｮ驕・ｻｶ繧帝亟縺舌・
     //
     // ================================================================
 
     /// <summary>
-    /// Transform の初期設定。
+    /// Transform 縺ｮ蛻晄悄險ｭ螳壹・
     /// </summary>
     [Serializable]
     public sealed class InitialTransformSettings
     {
         [FoldoutGroup("Initial Transform")]
         [LabelText("Apply on Awake")]
-        [Tooltip("Awake 時に Transform を即座に適用するか")]
+        [Tooltip("Inspector setting.")]
         public bool applyOnAwake;
 
         [FoldoutGroup("Initial Transform")]
@@ -56,14 +56,14 @@ namespace Game.Channel
     }
 
     /// <summary>
-    /// RectTransform の初期設定（Transform 設定に加えて）。
+    /// RectTransform 縺ｮ蛻晄悄險ｭ螳夲ｼ・ransform 險ｭ螳壹↓蜉縺医※・峨・
     /// </summary>
     [Serializable]
     public sealed class InitialRectTransformSettings
     {
         [FoldoutGroup("Initial RectTransform")]
         [LabelText("Apply on Awake")]
-        [Tooltip("Awake 時に RectTransform を即座に適用するか")]
+        [Tooltip("Inspector setting.")]
         public bool applyOnAwake;
 
         [FoldoutGroup("Initial RectTransform")]
@@ -118,8 +118,8 @@ namespace Game.Channel
     }
 
     /// <summary>
-    /// Transform / RectTransform 用チャネル定義。
-    /// AnimationTransformHub 用。
+    /// Transform / RectTransform 逕ｨ繝√Ε繝阪Ν螳夂ｾｩ縲・
+    /// AnimationTransformHub 逕ｨ縲・
     /// </summary>
     [Serializable]
     public sealed class TransformChannelDef : ChannelDefBase, IChannelTransform
@@ -132,7 +132,7 @@ namespace Game.Channel
         [SerializeField] bool playOnSpawnPreset;
         [SerializeField, ShowIf(nameof(isShowPlayOnSpawnPreset)), MinValue(0f)]
         [LabelText("Play On Spawn Delay Seconds")]
-        [Tooltip("スポーン時再生までの待機秒数。0 で即時再生。")]
+        [Tooltip("Inspector setting.")]
         float playOnSpawnDelaySeconds;
         [SerializeField, ShowIf("isShowPlayOnSpawnPreset"), InlineProperty, HideLabel]
         TransformAnimationPreset transformPreset = new();
@@ -181,15 +181,15 @@ namespace Game.Channel
         }
 
         /// <summary>
-        /// 初期 Transform 設定を即座に適用する。
-        /// Awake のタイミングで呼び出される。
+        /// 蛻晄悄 Transform 險ｭ螳壹ｒ蜊ｳ蠎ｧ縺ｫ驕ｩ逕ｨ縺吶ｋ縲・
+        /// Awake 縺ｮ繧ｿ繧､繝溘Φ繧ｰ縺ｧ蜻ｼ縺ｳ蜃ｺ縺輔ｌ繧九・
         /// </summary>
         public void ApplyInitialTransform()
         {
             var t = rectTransform != null ? (Transform)rectTransform : target;
             if (t == null) return;
 
-            // Transform 共通設定
+            // Transform 蜈ｱ騾夊ｨｭ螳・
             if (initialTransform != null && initialTransform.applyOnAwake)
             {
                 if (initialTransform.applyLocalPosition)
@@ -202,14 +202,14 @@ namespace Game.Channel
                     t.localScale = initialTransform.localScale;
             }
 
-            // RectTransform 専用設定
+            // RectTransform 蟆ら畑險ｭ螳・
             var rect = t as RectTransform;
             if (rect == null) rect = rectTransform;
             if (rect == null) return;
 
             if (initialRectTransform != null && initialRectTransform.applyOnAwake)
             {
-                // Pivot を先に設定（位置に影響するため）
+                // Pivot 繧貞・縺ｫ險ｭ螳夲ｼ井ｽ咲ｽｮ縺ｫ蠖ｱ髻ｿ縺吶ｋ縺溘ａ・・
                 if (initialRectTransform.applyPivot)
                     SetPivotWithPositionPreserved(rect, initialRectTransform.pivot);
 
@@ -228,7 +228,7 @@ namespace Game.Channel
         }
 
         /// <summary>
-        /// Pivot を変更しても表示位置が変わらないように anchoredPosition を補正して設定する。
+        /// Pivot 繧貞､画峩縺励※繧り｡ｨ遉ｺ菴咲ｽｮ縺悟､峨ｏ繧峨↑縺・ｈ縺・↓ anchoredPosition 繧定｣懈ｭ｣縺励※險ｭ螳壹☆繧九・
         /// </summary>
         static void SetPivotWithPositionPreserved(RectTransform rect, Vector2 newPivot)
         {

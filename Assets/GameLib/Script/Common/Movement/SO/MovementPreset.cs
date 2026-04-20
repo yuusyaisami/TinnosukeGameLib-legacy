@@ -1,4 +1,4 @@
-// Game.Movement.MovementPreset
+﻿// Game.Movement.MovementPreset
 using System;
 using Game.Profile;
 using Game.Scalar;
@@ -13,7 +13,7 @@ namespace Game.Movement
     {
         [BoxGroup("Default Speed")]
         [LabelText("Default Speed")]
-        [Tooltip("デフォルト移動速度。Scalar に自動登録される。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ProfileFloatValue _defaultSpeed = new()
         {
@@ -26,7 +26,7 @@ namespace Game.Movement
 
         [BoxGroup("Default Multiplier")]
         [LabelText("Default Multiplier")]
-        [Tooltip("デフォルト速度に乗算される倍率。Scalar に自動登録される。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ProfileFloatValue _defaultMultiplier = new()
         {

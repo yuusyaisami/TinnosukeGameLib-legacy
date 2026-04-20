@@ -1,34 +1,34 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEngine;
 
 namespace Game.Editor.CodeGen
 {
     // ================================================================
-    // CodeGenSettingsBase - コード生成設定の基底クラス
+    // CodeGenSettingsBase - 繧ｳ繝ｼ繝臥函謌占ｨｭ螳壹・蝓ｺ蠎輔け繝ｩ繧ｹ
     // ================================================================
 
     /// <summary>
-    /// コード生成設定の基底クラス。
-    /// ICodeGenSettings を実装した ScriptableObject。
+    /// 繧ｳ繝ｼ繝臥函謌占ｨｭ螳壹・蝓ｺ蠎輔け繝ｩ繧ｹ縲・
+    /// ICodeGenSettings 繧貞ｮ溯｣・＠縺・ScriptableObject縲・
     /// 
-    /// ## 使用方法
+    /// ## 菴ｿ逕ｨ譁ｹ豕・
     /// 
-    /// 各ジェネレーター用の設定クラスはこのクラスを継承し、
-    /// 必要に応じて追加フィールドを定義する。
+    /// 蜷・ず繧ｧ繝阪Ξ繝ｼ繧ｿ繝ｼ逕ｨ縺ｮ險ｭ螳壹け繝ｩ繧ｹ縺ｯ縺薙・繧ｯ繝ｩ繧ｹ繧堤ｶ呎価縺励・
+    /// 蠢・ｦ√↓蠢懊§縺ｦ霑ｽ蜉繝輔ぅ繝ｼ繝ｫ繝峨ｒ螳夂ｾｩ縺吶ｋ縲・
     /// </summary>
     public abstract class CodeGenSettingsBase : ScriptableObject, ICodeGenSettings
     {
         [Header("Code Generation")]
-        [Tooltip("生成されるコードの名前空間")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         protected string namespaceName = "Game.Generated";
 
-        [Tooltip("生成されるルートクラス名")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         protected string rootClassName = "GeneratedKeys";
 
         [Header("Output")]
-        [Tooltip("出力ファイルパス（Assets からの相対パス）")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         protected string outputPath = "Assets/GameLib/Script/Generated/Keys.g.cs";
 

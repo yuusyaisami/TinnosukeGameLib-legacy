@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -199,7 +199,7 @@ namespace Game.Conversation
 
         [BoxGroup("Runtime")]
         [LabelText("Runtime Template")]
-        [Tooltip("Character runtime を構築する Runtime template preset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<BaseRuntimeTemplatePreset> _runtimeTemplateValue =
             DynamicValue<BaseRuntimeTemplatePreset>.FromSource(
@@ -212,13 +212,13 @@ namespace Game.Conversation
 
         [BoxGroup("Runtime")]
         [LabelText("Persistent Runtime")]
-        [Tooltip("true のとき会話間で runtime binding を保持します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _persistentRuntime = true;
 
         [BoxGroup("Modules")]
         [LabelText("Runtime Modules")]
-        [Tooltip("キャラクター固有拡張の module preset 群です。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true, DraggableItems = true)]
         [SerializeReference]
         List<CharacterRuntimeModulePreset> _modules =

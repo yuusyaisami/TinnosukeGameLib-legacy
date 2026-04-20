@@ -12,7 +12,7 @@ namespace Game.UI
         [SerializeField]
         UISelectionDebugView _debug = new UISelectionDebugView();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance(_debug);
             builder.RegisterBuildCallback(container =>

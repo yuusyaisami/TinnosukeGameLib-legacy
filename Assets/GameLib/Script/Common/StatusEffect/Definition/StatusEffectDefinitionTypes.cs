@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -62,12 +62,12 @@ namespace Game.StatusEffect
     {
         [LabelText("Lifetime End Action")]
         [EnumToggleButtons]
-        [Tooltip("AutoGlobal の lifetime 期限切れ時に行う特別動作です。None が既定です。")]
+        [Tooltip("Inspector setting.")]
         public EffectLifetimeEndAction LifetimeEndAction = EffectLifetimeEndAction.None;
 
         [LabelText("Count Exhausted Action")]
         [EnumToggleButtons]
-        [Tooltip("AutoGlobal の count 枯渇時に行う特別動作です。None が既定です。")]
+        [Tooltip("Inspector setting.")]
         public EffectCountExhaustedAction CountExhaustedAction = EffectCountExhaustedAction.None;
     }
 
@@ -98,12 +98,12 @@ namespace Game.StatusEffect
     public struct StatusEffectRuntimeFilter : IEquatable<StatusEffectRuntimeFilter>
     {
         [EnumToggleButtons]
-        [Tooltip("どの条件で effect を絞り込むかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public StatusEffectRuntimeFilterMode Mode;
 
         [ShowIf(nameof(UsesTextValue))]
         [LabelText("Value")]
-        [Tooltip("Mode に応じて definitionId、runtimeTag、instanceId を入力します。")]
+        [Tooltip("Inspector setting.")]
         public string Value;
 
         public StatusEffectRuntimeFilter(StatusEffectRuntimeFilterMode mode, string value)
@@ -171,31 +171,31 @@ namespace Game.StatusEffect
     public sealed class StatusEffectHookSet
     {
         [CommandListFunctionName("StatusEffect.OnApply")]
-        [Tooltip("effect が最初に適用されたときに実行する command です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnApply = new();
 
         [CommandListFunctionName("StatusEffect.OnRemove")]
-        [Tooltip("effect が完全に削除されたときに実行する command です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnRemove = new();
 
         [CommandListFunctionName("StatusEffect.OnEnable")]
-        [Tooltip("一時的に無効だった effect が再度有効化されたときに実行する command です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnEnable = new();
 
         [CommandListFunctionName("StatusEffect.OnDisable")]
-        [Tooltip("effect が一時的に無効化されたときに実行する command です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnDisable = new();
 
         [CommandListFunctionName("StatusEffect.OnUse")]
-        [Tooltip("Use が実行されたときに呼ばれる command です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnUse = new();
 
         [CommandListFunctionName("StatusEffect.OnStackIntensity")]
-        [Tooltip("スタックで intensity が変化したときに実行する command です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnStackIntensity = new();
 
         [CommandListFunctionName("StatusEffect.OnStackDuration")]
-        [Tooltip("スタックで duration が変化したときに実行する command です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnStackDuration = new();
 
         public StatusEffectHookSet Clone()
@@ -244,19 +244,19 @@ namespace Game.StatusEffect
     [Serializable]
     public sealed class StatusEffectHookMutationSet
     {
-        [Tooltip("Apply 時に OnApply をどう変更するかの指定です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListMutationStep OnApply = new();
-        [Tooltip("Apply 時に OnRemove をどう変更するかの指定です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListMutationStep OnRemove = new();
-        [Tooltip("Apply 時に OnEnable をどう変更するかの指定です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListMutationStep OnEnable = new();
-        [Tooltip("Apply 時に OnDisable をどう変更するかの指定です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListMutationStep OnDisable = new();
-        [Tooltip("Apply 時に OnUse をどう変更するかの指定です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListMutationStep OnUse = new();
-        [Tooltip("Apply 時に OnStackIntensity をどう変更するかの指定です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListMutationStep OnStackIntensity = new();
-        [Tooltip("Apply 時に OnStackDuration をどう変更するかの指定です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListMutationStep OnStackDuration = new();
     }
 
@@ -264,16 +264,16 @@ namespace Game.StatusEffect
     public sealed class StatusEffectPeriodicCommandSet
     {
         [LabelText("Condition")]
-        [Tooltip("true のときだけ Commands を実行します。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
 
         [LabelText("Interval")]
-        [Tooltip("Condition が true の間に Commands を再実行する間隔です。0 以下なら毎 Tick 実行します。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntervalSeconds = DynamicValueExtensions.FromLiteral(1f);
 
         [LabelText("Commands")]
         [CommandListFunctionName("StatusEffect.Commands")]
-        [Tooltip("StatusEffect が有効で、Condition が true の間に interval ごとに実行する command 群です。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData Commands = new();
     }
 
@@ -281,57 +281,57 @@ namespace Game.StatusEffect
     public sealed class StatusEffectApplyRequest
     {
         [LabelText("Definition")]
-        [Tooltip("付与する effect 定義です。DynamicValue で asset や inline を切り替えられます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<BaseStatusEffectDefinitionData> Definition;
 
         [LabelText("Stack Preset")]
-        [Tooltip("同じ slot に既存 effect がある場合の重ね処理 preset です。未指定時は DurationRefresh 相当の既定 preset を使います。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<StatusEffectStackPreset> StackPreset;
 
         [LabelText("Intensity A")]
-        [Tooltip("RuntimeIntensity A を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntensityA;
 
         [LabelText("Intensity B")]
-        [Tooltip("RuntimeIntensity B を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntensityB;
 
         [LabelText("Intensity C")]
-        [Tooltip("RuntimeIntensity C を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntensityC;
 
         [LabelText("Intensity D")]
-        [Tooltip("RuntimeIntensity D を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntensityD;
 
         [LabelText("Intensity E")]
-        [Tooltip("RuntimeIntensity E を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntensityE;
 
         [LabelText("Intensity F")]
-        [Tooltip("RuntimeIntensity F を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntensityF;
 
         [LabelText("Intensity G")]
-        [Tooltip("RuntimeIntensity G を利用する operation に渡す強度値です。未指定時は 0 です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntensityG;
 
         [LabelText("Override Duration")]
-        [Tooltip("definition 側の duration を無視して、この request 側の duration を使います。")]
+        [Tooltip("Inspector setting.")]
         public bool OverrideDuration;
 
         [ShowIf(nameof(OverrideDuration))]
         [LabelText("Duration Override")]
-        [Tooltip("Override Duration が有効なときに使う持続時間です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> DurationOverride;
 
         [LabelText("Runtime Tag")]
-        [Tooltip("同じ definition を複数共存させたいときの slot 識別タグです。")]
+        [Tooltip("Inspector setting.")]
         public string RuntimeTag = string.Empty;
 
         [LabelText("Hook Mutations")]
         [InlineProperty]
-        [Tooltip("Apply 時に hook command を append / replace / clear するための変更セットです。")]
+        [Tooltip("Inspector setting.")]
         public StatusEffectHookMutationSet HookMutations = new();
 
         public StatusEffectResolvedIntensities ResolveIntensities(IDynamicContext evaluationContext)
@@ -404,33 +404,33 @@ namespace Game.StatusEffect
         [BoxGroup("Identity")]
         [LabelText("Definition Id")]
         [SerializeField]
-        [Tooltip("この effect 定義を一意に識別する固定 ID です。")]
+        [Tooltip("Inspector setting.")]
         string definitionId = string.Empty;
 
         [BoxGroup("Identity")]
         [LabelText("Default Runtime Tag")]
         [SerializeField]
-        [Tooltip("Apply 時に runtimeTag が空だった場合に使う既定値です。")]
+        [Tooltip("Inspector setting.")]
         string defaultRuntimeTag = string.Empty;
 
         [BoxGroup("Presentation")]
         [InlineProperty]
         [HideLabel]
         [SerializeField]
-        [Tooltip("UI やログで見せる表示データです。")]
+        [Tooltip("Inspector setting.")]
         EffectVisualData visualData = new();
 
         [BoxGroup("Runtime")]
         [LabelText("Runtime Control")]
         [EnumToggleButtons]
         [SerializeField]
-        [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲し、AdvancedOption で lifetime/count の終了時動作だけ調整できます。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectRuntimeControlMode runtimeControlMode = StatusEffectRuntimeControlMode.Custom;
 
         [BoxGroup("Runtime")]
         [LabelText("Condition")]
         [SerializeField]
-        [Tooltip("true のとき effect を active 扱いにします。TraitRuntime の Visible/Hidden などの blackboard 値を参照できます。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<bool> condition = DynamicValueExtensions.FromLiteral(true);
 
         [FoldoutGroup("AdvancedOption", Expanded = true)]
@@ -438,67 +438,67 @@ namespace Game.StatusEffect
         [InlineProperty]
         [HideLabel]
         [SerializeField]
-        [Tooltip("AutoGlobal 用の追加設定です。None が既定です。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectAutoGlobalAdvancedOption autoGlobalAdvancedOption = new();
 
         [BoxGroup("Runtime")]
         [LabelText("Use Lifetime")]
         [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
-        [Tooltip("effect の登録時から進む lifetime timer を使う場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         bool useDuration;
 
         [BoxGroup("Runtime")]
         [ShowIf(nameof(ShowDurationDefinition))]
         [SerializeReference]
-        [Tooltip("lifetime timer の生成方法です。Use Lifetime が有効なときだけ参照されます。")]
+        [Tooltip("Inspector setting.")]
         IStatusEffectDurationDefinition? durationDefinition;
 
         [BoxGroup("Runtime")]
         [LabelText("Use Cooldown")]
         [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
-        [Tooltip("Use 実行後に始まる cooldown timer を使う場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         bool useUseCooldown;
 
         [BoxGroup("Runtime")]
         [ShowIf(nameof(ShowUseCooldownDefinition))]
         [SerializeReference]
-        [Tooltip("Use 後の cooldown の生成方法です。Use Cooldown が有効なときだけ参照されます。")]
+        [Tooltip("Inspector setting.")]
         IStatusEffectUseCooldownDefinition? useCooldownDefinition;
 
         [BoxGroup("Runtime")]
         [LabelText("Use Count")]
         [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
-        [Tooltip("Use 回数システムを使う effect の場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         bool useCount;
 
         [BoxGroup("Runtime")]
         [ShowIf(nameof(ShowCountDefinition))]
         [SerializeReference]
-        [Tooltip("回数上限や回数切れ時の挙動を指定します。")]
+        [Tooltip("Inspector setting.")]
         IStatusEffectCountDefinition? countDefinition;
 
         [BoxGroup("Operations")]
         [LabelText("Operations")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = false, ShowFoldout = true)]
         [SerializeReference]
-        [Tooltip("effect の本体処理です。複数の operation を並べて構成できます。")]
+        [Tooltip("Inspector setting.")]
         List<IStatusEffectOperationDefinition> operations = new();
 
         [BoxGroup("Commands")]
         [InlineProperty]
         [HideLabel]
         [SerializeField]
-        [Tooltip("StatusEffect が有効で、Condition が true の間に interval ごとに実行する command 群です。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectPeriodicCommandSet periodicCommands = new();
 
         [BoxGroup("Hooks")]
         [InlineProperty]
         [HideLabel]
         [SerializeField]
-        [Tooltip("Apply / Remove / Use などの各タイミングで挟む command 群です。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectHookSet defaultHooks = new();
 
         public override string DefinitionId => definitionId;
@@ -548,54 +548,54 @@ namespace Game.StatusEffect
     public sealed class ScalarModifierOperationDefinition : IStatusEffectOperationDefinition
     {
         [LabelText("Enabled")]
-        [Tooltip("定義登録時の初期有効状態です。false の場合でも operation runtime は生成されますが、最初は無効です。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = true;
 
         [LabelText("Target Key")]
-        [Tooltip("変更対象の scalar key です。")]
+        [Tooltip("Inspector setting.")]
         public ScalarKey TargetKey;
 
         [LabelText("Apply Mode")]
         [EnumToggleButtons]
-        [Tooltip("加算で入れるか、乗算で入れるかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public ScalarModifierApplyMode ApplyMode = ScalarModifierApplyMode.Add;
 
         [ShowIf(nameof(UsesMulPhase))]
         [LabelText("Mul Phase")]
-        [Tooltip("乗算 modifier をどの計算段階に入れるかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public ScalarMulPhase MulPhase = ScalarMulPhase.PreAdd;
 
         [LabelText("Value Mode")]
         [EnumToggleButtons]
-        [Tooltip("Intensity をそのまま使うか、StatusEffect Runtime の VarStore を含む DynamicValue 評価で決めるかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public StatusEffectScalarValueMode ValueMode = StatusEffectScalarValueMode.RuntimeIntensity;
 
         [ShowIf(nameof(UsesRuntimeIntensity))]
         [LabelText("Runtime Intensity Slot")]
         [EnumToggleButtons]
-        [Tooltip("RuntimeIntensity 参照時にどのスロット（A〜G）を読むかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public StatusEffectRuntimeIntensityReference RuntimeIntensitySlot = StatusEffectRuntimeIntensityReference.A;
 
         [ShowIf(nameof(UsesDynamicValue))]
         [LabelText("Value")]
-        [Tooltip("Value Mode が DynamicValue のときに使う値です。StatusEffect の intensity など runtime vars を参照できます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> Value;
 
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(TargetActorSource)")]
-        [Tooltip("どの Actor の ScalarService を変更するかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource TargetActorSource;
 
         [LabelText("Layer")]
-        [Tooltip("modifier を積む layer 名です。空文字でも使用できます。")]
+        [Tooltip("Inspector setting.")]
         public string Layer = string.Empty;
 
         [LabelText("Operation Id")]
-        [Tooltip("外部から個別に Enable/Disable 制御するための ID です。同一 ID を複数 operation に設定できます。")]
+        [Tooltip("Inspector setting.")]
         public string OperationId = string.Empty;
 
         [LabelText("Blocked Use Propagation")]
         [EnumToggleButtons]
-        [Tooltip("Count/Cooldown で Use が block 中の operation 挙動です。Continue は継続、Suspend は block 中のみ停止し解除時に再開します。")]
+        [Tooltip("Inspector setting.")]
         public StatusEffectBlockedUsePropagationMode BlockedUsePropagation = StatusEffectBlockedUsePropagationMode.Continue;
 
         bool UsesMulPhase() => ApplyMode == ScalarModifierApplyMode.Mul;
@@ -682,7 +682,7 @@ namespace Game.StatusEffect
         {
             var variables = new List<ExpressionVariable>(Variables);
 
-            // Condition は IsActive の自己参照を避けるため、isActive を外した変数群で評価する。
+            // Condition 縺ｯ IsActive 縺ｮ閾ｪ蟾ｱ蜿ら・繧帝∩縺代ｋ縺溘ａ縲（sActive 繧貞､悶＠縺溷､画焚鄒､縺ｧ隧穂ｾ｡縺吶ｋ縲・
             variables.RemoveAll(v => string.Equals(v.ExpressionKey, "isActive", StringComparison.Ordinal));
             return variables;
         }
@@ -758,17 +758,17 @@ namespace Game.StatusEffect
     public sealed class FixedDurationStatusEffectDefinition : IStatusEffectDurationDefinition
     {
         [LabelText("Sync With Global Lifetime")]
-        [Tooltip("有効な場合、この runtime は service-global lifetime を参照します。Duration の値は local では使いません。")]
+        [Tooltip("Inspector setting.")]
         public bool SyncWithGlobalLifetime;
 
         [LabelText("Duration")]
         [ShowIf("@!SyncWithGlobalLifetime")]
-        [Tooltip("effect の持続時間です。-1 を返すと無期限になります。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> Duration;
 
         [LabelText("Expire Action")]
         [EnumToggleButtons]
-        [Tooltip("持続時間が切れたときに Disable するか Remove するかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public EffectLifetimeEndAction EndAction = EffectLifetimeEndAction.Remove;
 
         bool IStatusEffectDurationDefinition.SyncWithGlobalLifetime => SyncWithGlobalLifetime;
@@ -793,12 +793,12 @@ namespace Game.StatusEffect
     public sealed class FixedUseCooldownStatusEffectDefinition : IStatusEffectUseCooldownDefinition
     {
         [LabelText("Sync With Global Cooldown")]
-        [Tooltip("有効な場合、この runtime は service-global use cooldown を参照します。Duration の値は local では使いません。")]
+        [Tooltip("Inspector setting.")]
         public bool SyncWithGlobalUseCooldown;
 
         [LabelText("Duration")]
         [ShowIf("@!SyncWithGlobalUseCooldown")]
-        [Tooltip("Use 実行後に再使用可能になるまでの cooldown 秒数です。0 以下なら cooldown は発生しません。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> Duration;
 
         bool IStatusEffectUseCooldownDefinition.SyncWithGlobalUseCooldown => SyncWithGlobalUseCooldown;
@@ -819,22 +819,22 @@ namespace Game.StatusEffect
     public sealed class DynamicCountStatusEffectDefinition : IStatusEffectCountDefinition
     {
         [LabelText("Sync With Global Count")]
-        [Tooltip("有効な場合、この runtime は service-global count を参照します。Max Count は local では使いません。")]
+        [Tooltip("Inspector setting.")]
         public bool SyncWithGlobalCount;
 
         [LabelText("Max Count")]
         [ShowIf("@!SyncWithGlobalCount")]
-        [Tooltip("Use 可能な最大回数です。0 以下なら無制限です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<int> MaxCount;
 
         [LabelText("Exhausted Action")]
         [EnumToggleButtons]
-        [Tooltip("Use 回数が尽きたときに effect をどう扱うかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public EffectCountExhaustedAction ExhaustedAction = EffectCountExhaustedAction.Disable;
 
         [LabelText("Active Policy")]
         [EnumToggleButtons]
-        [Tooltip("一時的に無効でも Active 扱いにするかを指定します。")]
+        [Tooltip("Inspector setting.")]
         public StatusEffectActivePolicy ActivePolicy = StatusEffectActivePolicy.RegisteredEvenIfDisabled;
 
         bool IStatusEffectCountDefinition.SyncWithGlobalCount => SyncWithGlobalCount;

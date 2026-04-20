@@ -18,25 +18,25 @@ namespace Game.Entity.Search
 
         [SerializeField] List<DynamicObjectDebugEntry> debugEntries = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterComponent(this);
 
-            builder.Register<DynamicObjectRegistryService>(Lifetime.Singleton)
+            builder.Register<DynamicObjectRegistryService>(RuntimeLifetime.Singleton)
                 .As<IDynamicObjectRegistryService>()
                 .As<IDynamicSearchService>()
                 .As<IDynamicObjectDebugSource>();
 
             if (enableDebugView)
             {
-                builder.Register<DynamicObjectRegistryDebugUpdater>(Lifetime.Singleton)
+                builder.Register<DynamicObjectRegistryDebugUpdater>(RuntimeLifetime.Singleton)
                     .WithParameter(this)
                     .WithParameter(debugRefreshIntervalSeconds)
-                    .As<ITickable>();
+                    .As<IScopeTickHandler>();
             }
         }
 
-        sealed class DynamicObjectRegistryDebugUpdater : ITickable
+        sealed class DynamicObjectRegistryDebugUpdater : IScopeTickHandler
         {
             readonly DynamicObjectRegistryMB _mb;
             readonly IDynamicObjectDebugSource _source;

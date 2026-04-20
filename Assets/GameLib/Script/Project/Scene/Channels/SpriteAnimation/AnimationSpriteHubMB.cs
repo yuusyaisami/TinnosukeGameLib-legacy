@@ -1,4 +1,4 @@
-// Game.Channel.AnimationSpriteHubMB.cs
+﻿// Game.Channel.AnimationSpriteHubMB.cs
 
 using System;
 using Game;
@@ -16,14 +16,14 @@ namespace Game.Channel
         AnimationSpriteChannelDef[] channels = Array.Empty<AnimationSpriteChannelDef>();
 
         [SerializeField]
-        [Tooltip("Release 時に各 AnimationSpriteChannel を透明アニメーションでクリアするか")]
+        [Tooltip("Inspector setting.")]
         bool replaceWithTransparentOnRelease = false;
 
         [SerializeField]
-        [Tooltip("VisualSystem selector 用の HubTag")]
+        [Tooltip("VisualSystem selector 逕ｨ縺ｮ HubTag")]
         string hubTag = "default";
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             //Debug.Log($"[AnimationSpriteHub] Installing AnimationSpriteHubService. {channels.Length} channels.");
             if (channels != null)
@@ -34,12 +34,12 @@ namespace Game.Channel
                 }
             }
 
-            builder.Register<AnimationSpriteHubService>(Lifetime.Singleton)
+            builder.Register<AnimationSpriteHubService>(RuntimeLifetime.Singleton)
                     .As<IAnimationSpriteHubService>()
                     .As<ITaggedMaterialFxProvider>()
                     .As<IScopeAcquireHandler>()
                     .As<IScopeReleaseHandler>()
-                    .As<ITickable>()
+                    .As<IScopeTickHandler>()
                     .AsSelf()
                     .WithParameter(channels)
                     .WithParameter(scope)

@@ -34,7 +34,7 @@ namespace Game.Commands.VNext
         readonly CommandExecutionControl _executionControl;
 
         public IScopeNode Scope { get; }
-        public IObjectResolver Resolver => Scope.Resolver!;
+        public IRuntimeResolver Resolver => Scope.Resolver!;
         public IVarStore Vars { get; }
         public ICommandRunner Runner { get; }
         public IScopeNode? Actor => GetScope(CommandLtsSlot.Actor) ?? Scope;

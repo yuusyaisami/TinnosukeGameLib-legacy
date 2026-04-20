@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -10,8 +10,6 @@ using Game.DI;
 using Game.Spawn;
 using UnityEngine;
 using UnityEngine.Pool;
-using VContainer;
-using VContainer.Unity;
 
 namespace Game
 {
@@ -201,7 +199,7 @@ namespace Game
             new(MaxRecentTelemetryEvents);
 
         readonly Transform? _poolRoot;
-        readonly LifetimeScope? _buildParent;
+        readonly IScopeNode? _buildParent;
         readonly double _telemetryStartRealtime;
         readonly int _telemetryStartFrame;
 
@@ -212,7 +210,7 @@ namespace Game
         int _peakGlobalAliveCount;
         long _telemetrySequence;
 
-        public RuntimeLifetimeScopePool(LifetimeScope? buildParent, Transform? poolRoot = null)
+        public RuntimeLifetimeScopePool(IScopeNode? buildParent, Transform? poolRoot = null)
         {
             _buildParent = buildParent;
             _poolRoot = poolRoot;
@@ -326,8 +324,8 @@ namespace Game
             // If no suitable parent is available, warmup becomes a no-op to avoid mismatching pools.
             var warmupParent = _poolRoot != null
                 ? _poolRoot
-                : _buildParent != null
-                    ? _buildParent.transform
+                : _buildParent is Component buildParentComponent
+                    ? buildParentComponent.transform
                     : null;
             if (warmupParent == null)
                 return UniTask.CompletedTask;
@@ -1426,29 +1424,13 @@ namespace Game
 
             // Build/DI parent should follow the nearest scope in the transform hierarchy.
             // This enables RuntimeLifetimeScope -> RuntimeLifetimeScope parenting (e.g., spawned units under an emitter runtime).
-            RuntimeLifetimeScope? runtimeParent = null;
-            BaseLifetimeScope? baseParent = null;
-            try
-            {
-                runtimeParent = parent.GetComponentInParent<RuntimeLifetimeScope>(includeInactive: true);
-                if (runtimeParent == scope)
-                    runtimeParent = null;
-
-                if (runtimeParent == null)
-                    baseParent = parent.GetComponentInParent<BaseLifetimeScope>(includeInactive: true);
-            }
-            catch
-            {
-                // ignore
-            }
+            var runtimeParent = parent.GetComponentInParent<RuntimeLifetimeScopeBase>(includeInactive: true);
+            if (runtimeParent == scope)
+                runtimeParent = null;
 
             if (runtimeParent != null)
             {
                 scope.SetExplicitBuildParent(runtimeParent);
-            }
-            else if (baseParent != null)
-            {
-                scope.SetExplicitBuildParent((IScopeNode?)baseParent);
             }
             else
             {

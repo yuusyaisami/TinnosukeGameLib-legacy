@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Commands.VNext;
@@ -41,13 +41,13 @@ namespace Game.UI
     {
         [BoxGroup("Runtime")]
         [LabelText("Runtime Template")]
-        [Tooltip("Tooltip 本体として spawn する RuntimeTemplate preset の既定値です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<BaseRuntimeTemplatePreset> _runtimeTemplatePreset;
 
         [BoxGroup("Runtime")]
         [LabelText("Spawner Tag")]
-        [Tooltip("Tooltip を spawn するときに使う既定 spawner tag です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _spawnerTag = string.Empty;
 
@@ -69,34 +69,34 @@ namespace Game.UI
     {
         [BoxGroup("Input")]
         [LabelText("Enable Pointer Hover")]
-        [Tooltip("pointer hover による auto trigger の既定値です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enablePointerHover = true;
 
         [BoxGroup("Input")]
         [LabelText("Enable Selection Hover")]
-        [Tooltip("selection hover による auto trigger の既定値です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableSelectionHover = true;
 
         [BoxGroup("Input")]
         [LabelText("Hover Delay Seconds")]
         [MinValue(0d)]
-        [Tooltip("pointer hover から表示開始までの既定待機秒です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _hoverDelaySeconds = 0.4f;
 
         [BoxGroup("Input")]
         [LabelText("Selection Delay Seconds")]
         [MinValue(0d)]
-        [Tooltip("selection hover から表示開始までの既定待機秒です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _selectionDelaySeconds = 0.3f;
 
         [BoxGroup("Input")]
         [LabelText("Pointer Move Threshold")]
         [MinValue(0d)]
-        [Tooltip("hover delay 計測中に pointer がこの距離以上動いたら待機をやり直す既定距離です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _pointerMoveThreshold = 2f;
 
@@ -124,46 +124,46 @@ namespace Game.UI
     {
         [BoxGroup("Placement")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Anchor Actor\", _anchorActorSource)")]
-        [Tooltip("FixedOffset の基準位置に使う既定 actor です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _anchorActorSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Placement")]
         [LabelText("Spawn Mode")]
-        [Tooltip("Tooltip の既定 spawn mode です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelSpawnMode _spawnMode = TooltipChannelSpawnMode.FollowPointer;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(IsFollowPointer))]
         [LabelText("Follow Pointer Direction Offset")]
-        [Tooltip("FollowPointer の既定方向オフセットです。UI では TooltipRoot 基準の anchored/local 座標、World では world 座標です。X/Y は最終 anchor 方向に応じて符号が決まり、Z は固定加算です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector3 _followPointerDirectionOffset = Vector3.zero;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(IsFollowPointer))]
         [LabelText("Follow Pointer Move Scale")]
-        [Tooltip("FollowPointer の既定追従スケールです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector2 _followPointerMoveScale = Vector2.one;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(IsFixedOffset))]
         [LabelText("Fixed Direction Offset")]
-        [Tooltip("FixedOffset の既定方向オフセットです。UI では TooltipRoot 基準の anchored/local 座標、World では world 座標です。X/Y は最終 anchor 方向に応じて符号が決まり、Z は固定加算です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector3 _fixedDirectionOffset = Vector3.zero;
 
         [BoxGroup("Placement")]
         [LabelText("Anchor X")]
-        [Tooltip("Tooltip 矩形の横方向既定アンカーです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelAnchorX _anchorX = TooltipChannelAnchorX.Right;
 
         [BoxGroup("Placement")]
         [LabelText("Anchor Y")]
-        [Tooltip("Tooltip 矩形の縦方向既定アンカーです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelAnchorY _anchorY = TooltipChannelAnchorY.Up;
 

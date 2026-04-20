@@ -11,7 +11,7 @@ using VContainer;
 namespace Game.UI
 {
     // ================================================================
-    // UIElementSpawner - BaseLifetimeScopeSpawner経由のUIElement生成
+    // UIElementSpawner - BaseLifetimeScopeSpawner経由のUIElement生�E
     // ================================================================
 
     public interface IUIElementSpawnerService : IAsyncSpawnerService
@@ -41,7 +41,7 @@ namespace Game.UI
 
         }
 
-        public async UniTask<IObjectResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
+        public async UniTask<IRuntimeResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -105,7 +105,7 @@ namespace Game.UI
             //try { Debug.Log($"[MataUIElementRuntimeSpawnerService] Registered RuntimeUIElement spawner (Tag='{Tag}')"); } catch { }
         }
 
-        public UniTask<IObjectResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
+        public UniTask<IRuntimeResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
         {
             if (p.TransformParent == null)
                 p.TransformParent = _root;

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Game.Channel;
 using Game.Commands.VNext;
 using Game.Common;
-using Game.Layout;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -16,7 +15,7 @@ namespace Game.UI
         IVisualBoundsReactiveHubService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ILateTickable
+        IScopeLateTickHandler
     {
         sealed class ChannelEntry
         {
@@ -37,7 +36,6 @@ namespace Game.UI
         IScopeNode? _activeScope;
         IVisualBoundsService? _boundsService;
         IVisualBoundsOutput? _boundsOutput;
-        ILayoutSystemService? _layoutSystem;
         IAnimationSpriteHubService? _spriteHub;
         ITransformAnimationHubService? _transformHub;
 
@@ -204,9 +202,6 @@ namespace Game.UI
             if (!scope.TryResolveInAncestors<IVisualBoundsOutput>(out _boundsOutput))
                 scope.Resolver?.TryResolve(out _boundsOutput);
 
-            if (!scope.TryResolveInAncestors<ILayoutSystemService>(out _layoutSystem))
-                scope.Resolver?.TryResolve(out _layoutSystem);
-
             if (!scope.TryResolveInAncestors<IAnimationSpriteHubService>(out _spriteHub))
                 scope.Resolver?.TryResolve(out _spriteHub);
 
@@ -283,7 +278,6 @@ namespace Game.UI
         {
             if (_mb.HubSettings.RebuildBeforeEvaluate)
             {
-                _layoutSystem?.RebuildNow();
                 _boundsService?.RebuildNow();
             }
 

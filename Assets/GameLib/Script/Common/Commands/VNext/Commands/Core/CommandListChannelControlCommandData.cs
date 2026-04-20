@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands;
 using Game.Common;
@@ -14,12 +14,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [PropertyTooltip("CommandListChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [PropertyTooltip("操作対象の channel tag です。空白の場合は default を使用します。")]
+        [PropertyTooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -30,10 +30,10 @@ namespace Game.Commands.VNext
         [BoxGroup("Preset")]
         [ShowIf(nameof(UsesPreset))]
         [LabelText("Preset")]
-        [PropertyTooltip("register/replace 時に channel へ設定する source preset です。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<CommandListChannelPreset> Preset =
             DynamicValue<CommandListChannelPreset>.FromSource(
-                new ManagedRefLiteralSource<CommandListChannelPreset>(new CommandListChannelPreset()));
+                new ManagedRefLiteralSource<CommandListChannelPreset>());
 
         public string NormalizedChannelTag => string.IsNullOrWhiteSpace(ChannelTag) ? "default" : ChannelTag.Trim();
 
@@ -48,12 +48,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [PropertyTooltip("CommandListChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [PropertyTooltip("操作対象の channel tag です。空白の場合は default を使用します。")]
+        [PropertyTooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -64,7 +64,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Execution")]
         [ShowIf(nameof(UsesAwaitMode))]
         [LabelText("Await Mode")]
-        [PropertyTooltip("WaitForCompletion はこの command で直後に開始された execution の完了だけ待機します。Loop/PingPong の以後の周期実行までは待ちません。")]
+        [PropertyTooltip("Inspector setting.")]
         public FlowRunAwaitMode AwaitMode = FlowRunAwaitMode.WaitForCompletion;
 
         public string NormalizedChannelTag => string.IsNullOrWhiteSpace(ChannelTag) ? "default" : ChannelTag.Trim();
@@ -83,12 +83,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [PropertyTooltip("CommandListChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [PropertyTooltip("操作対象の channel tag です。空白の場合は default を使用します。")]
+        [PropertyTooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -99,18 +99,18 @@ namespace Game.Commands.VNext
         [BoxGroup("CommandListPreset")]
         [ShowIf(nameof(UsesCommandListPreset))]
         [LabelText("Command List Preset")]
-        [PropertyTooltip("current command list preset をこの preset に完全差し替えします。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<CommandListPreset> CommandListPreset =
             DynamicValue<CommandListPreset>.FromSource(
-                new ManagedRefLiteralSource<CommandListPreset>(new CommandListPreset()));
+                new ManagedRefLiteralSource<CommandListPreset>());
 
         [BoxGroup("PlayerPreset")]
         [ShowIf(nameof(UsesPlayerPreset))]
         [LabelText("Player Preset")]
-        [PropertyTooltip("current player preset をこの preset に完全差し替えします。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<CommandListPlayerPreset> PlayerPreset =
             DynamicValue<CommandListPlayerPreset>.FromSource(
-                new ManagedRefLiteralSource<CommandListPlayerPreset>(new CommandListPlayerPreset()));
+                new ManagedRefLiteralSource<CommandListPlayerPreset>());
 
         [BoxGroup("Mutate")]
         [ShowIf(nameof(UsesMutation))]
@@ -129,7 +129,7 @@ namespace Game.Commands.VNext
         [HideLabel]
         public DynamicValue<CommandListData> MutationCommands =
             DynamicValue<CommandListData>.FromSource(
-                new ManagedRefLiteralSource<CommandListData>(new CommandListData()));
+                new ManagedRefLiteralSource<CommandListData>());
 
         [BoxGroup("Vars")]
         [ShowIf(nameof(UsesRuntimeVars))]

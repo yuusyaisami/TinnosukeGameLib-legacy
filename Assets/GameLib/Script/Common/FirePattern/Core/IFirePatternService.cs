@@ -16,7 +16,7 @@ namespace Game.Fire
             System.Collections.Generic.IReadOnlyList<DynamicSearchHit> targetHits,
             CancellationToken ct = default);
 
-        UniTask<IObjectResolver?> SpawnAndDeliverAsync(
+        UniTask<IRuntimeResolver?> SpawnAndDeliverAsync(
             BaseFirePattern pattern,
             FireContext context,
             CancellationToken ct = default);

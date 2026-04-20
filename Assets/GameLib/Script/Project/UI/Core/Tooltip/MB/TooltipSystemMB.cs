@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using Game;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -19,31 +19,31 @@ namespace Game.UI
         [BoxGroup(RootsGroup)]
         [LabelText("Tooltip Root")]
         [Required]
-        [Tooltip("UI space tooltip の既定 spawn parent です。TooltipChannelHub が個別 override しない場合はここを使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         RectTransform tooltipRoot = null!;
 
         [BoxGroup(RootsGroup)]
         [LabelText("World Root")]
-        [Tooltip("World space tooltip の既定 spawn parent です。未指定なら spawner 側の既定 root を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? worldRoot;
 
         [BoxGroup(RootsGroup)]
         [LabelText("Clamp Area")]
-        [Tooltip("UI tooltip の既定 clamp 領域です。未指定時は screen 全体を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         RectTransform? clampArea;
 
         [BoxGroup(InputGroup)]
         [LabelText("Input Mode")]
-        [Tooltip("Tooltip 共通の既定 input mode です。hub 側が AutoByInputService の場合の fallback として使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelInputMode inputMode = TooltipChannelInputMode.PointerNavigation;
 
         [BoxGroup(ClampGroup)]
         [LabelText("Enable Clamp")]
-        [Tooltip("Tooltip 共通の既定 clamp 設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool enableClamp = true;
 
@@ -51,7 +51,7 @@ namespace Game.UI
         [ShowIf(nameof(enableClamp))]
         [LabelText("Flip Threshold X")]
         [MinValue(0d)]
-        [Tooltip("左右 overflow 比率がこの値を超えたら X anchor を反転する既定値です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float flipThresholdX = 0.2f;
 
@@ -59,14 +59,14 @@ namespace Game.UI
         [ShowIf(nameof(enableClamp))]
         [LabelText("Flip Threshold Y")]
         [MinValue(0d)]
-        [Tooltip("上下 overflow 比率がこの値を超えたら Y anchor を反転する既定値です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float flipThresholdY = 0.2f;
 
         [BoxGroup(SpawnGroup)]
         [LabelText("Spawn Warmup Frames")]
         [MinValue(0)]
-        [Tooltip("Tooltip 共通の既定 warmup frame 数です。hub 側が 0 のときの fallback に使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int spawnWarmupFrames = 2;
 
@@ -76,7 +76,7 @@ namespace Game.UI
         [SerializeField]
         TooltipSystemSharedDefaults sharedDefaults = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             var resolvedTooltipRoot = tooltipRoot != null ? tooltipRoot : GetComponent<RectTransform>();
             if (resolvedTooltipRoot == null)
@@ -98,9 +98,9 @@ namespace Game.UI
             };
 
             builder.RegisterInstance(config);
-            builder.Register<ScreenClampService>(Lifetime.Singleton)
+            builder.Register<ScreenClampService>(RuntimeLifetime.Singleton)
                 .As<IScreenClampService>();
-            builder.Register<TooltipSystemService>(Lifetime.Singleton)
+            builder.Register<TooltipSystemService>(RuntimeLifetime.Singleton)
                 .As<ITooltipSystemService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();

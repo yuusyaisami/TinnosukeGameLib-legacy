@@ -23,7 +23,7 @@ namespace Game.Channel
         [SerializeField, InlineProperty, HideLabel]
         ParallaxChannelHubDebugViewer debugViewer = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (channels == null)
                 channels = Array.Empty<ParallaxChannelDef>();
@@ -35,11 +35,11 @@ namespace Game.Channel
                 channels[i]?.EnsureIntegrity(this);
             }
 
-            builder.Register<ParallaxChannelHubService>(Lifetime.Singleton)
+            builder.Register<ParallaxChannelHubService>(RuntimeLifetime.Singleton)
                 .As<IParallaxChannelHubService>()
                 .As<IChannelHubService>()
-                .As<ITickable>()
-                .As<ILateTickable>()
+                .As<IScopeTickHandler>()
+                .As<IScopeLateTickHandler>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .AsSelf()

@@ -122,7 +122,7 @@ namespace Game.MapNode
 
                 if (hasLineSpawnParams)
                 {
-                    IObjectResolver? lineResolver = null;
+                    IRuntimeResolver? lineResolver = null;
                     try
                     {
                         lineResolver = await lineSpawner.SpawnAsync(lineSpawnParams, ct);
@@ -219,7 +219,7 @@ namespace Game.MapNode
                         allowPooling: settings.AllowPooling);
                 }
 
-                IObjectResolver? spawnedResolver = null;
+                IRuntimeResolver? spawnedResolver = null;
                 try
                 {
                     spawnedResolver = await spawner.SpawnAsync(spawnParams, ct);
@@ -742,7 +742,7 @@ namespace Game.MapNode
         }
 
         static void ExtractSpawnedInfo(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             out Transform? root,
             out IScopeNode? scopeNode,
             out RuntimeLifetimeScope? runtimeScope,

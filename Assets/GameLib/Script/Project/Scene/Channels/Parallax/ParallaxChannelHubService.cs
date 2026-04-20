@@ -15,8 +15,8 @@ namespace Game.Channel
 
     public sealed class ParallaxChannelHubService :
         IParallaxChannelHubService,
-        ITickable,
-        ILateTickable,
+        IScopeTickHandler,
+        IScopeLateTickHandler,
         IScopeAcquireHandler,
         IScopeReleaseHandler
     {

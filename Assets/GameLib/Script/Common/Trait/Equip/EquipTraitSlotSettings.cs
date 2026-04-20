@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -7,22 +7,21 @@ using VNext = Game.Commands.VNext;
 namespace Game.Trait
 {
     /// <summary>
-    /// Inspector 上で EquipTraitSlotRuntime を設定するためのデータ。
-    /// TraitHolderSettings と対をなす。
+    /// Inspector 荳翫〒 EquipTraitSlotRuntime 繧定ｨｭ螳壹☆繧九◆繧√・繝・・繧ｿ縲・
+    /// TraitHolderSettings 縺ｨ蟇ｾ繧偵↑縺吶・
     /// </summary>
     [Serializable]
     public sealed class EquipTraitSlotSettings
     {
         [BoxGroup("Slot")]
         [LabelText("Slot Key")]
-        [Tooltip("このスロットを識別するキー（EquipTraitHolderHub 内で一意）。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _slotKey = string.Empty;
 
         [BoxGroup("Slot")]
         [LabelText("Holder Key")]
-        [Tooltip("対応する TraitHolderHubService の HolderKey。" +
-            "この Holder がスロットの Trait 供給源となる。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _holderKey = string.Empty;
 

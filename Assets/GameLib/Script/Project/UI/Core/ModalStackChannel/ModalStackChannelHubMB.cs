@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ namespace Game.UI
     public sealed class ModalStackChannelHubMB : MonoBehaviour, IFeatureInstaller
     {
         [Header("Initial Root")]
-        [Tooltip("起動時に ModalStackChannel の default layer に設定する UIElement。空なら owner scope か子孫から探索します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         UIElementLifetimeScope? _initialRoot;
 
@@ -77,11 +77,11 @@ namespace Game.UI
 
         IScopeNode? _ownerScope;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ownerScope = scope;
 
-            builder.Register<ModalStackChannelHubService>(Lifetime.Singleton)
+            builder.Register<ModalStackChannelHubService>(RuntimeLifetime.Singleton)
                 .As<IModalStackChannelHubService>()
                 .As<IModalStackChannelTelemetry>();
 

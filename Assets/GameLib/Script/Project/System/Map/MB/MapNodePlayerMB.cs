@@ -92,13 +92,13 @@ namespace Game.MapNode
             _onSelectedNodeChangedCommands?.BindDebugOwner(this, nameof(_onSelectedNodeChangedCommands));
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IMapNodePlayerOptions>(this);
 
             // MapNode player commands
 
-            builder.Register<MapNodePlayerService>(Lifetime.Singleton)
+            builder.Register<MapNodePlayerService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .As<IMapNodePlayerService>()
                 .As<IScopeAcquireHandler>()

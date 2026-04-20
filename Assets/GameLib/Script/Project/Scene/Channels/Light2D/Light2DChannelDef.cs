@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -24,7 +24,7 @@ namespace Game.Channel
 
         [BoxGroup("Global")]
         [LabelText("Global Link Key")]
-        [Tooltip("一致した ancestor の primary global provider から intensity を継承します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _globalLinkKey = string.Empty;
 

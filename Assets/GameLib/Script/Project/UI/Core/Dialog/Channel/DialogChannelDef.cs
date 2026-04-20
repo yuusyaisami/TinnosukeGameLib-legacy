@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -36,13 +36,13 @@ namespace Game.Dialogue
     {
         [BoxGroup("Channel")]
         [LabelText("Channel Tag")]
-        [Tooltip("DialogueChannelHub 内で参照する識別タグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _channelTag = "default";
 
         [BoxGroup("Preset")]
         [LabelText("Preset")]
-        [Tooltip("この channel のルート preset です。Input/Text/Choice/Character/Layout/State をまとめて管理します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<DialogueChannelPreset> _presetValue =
             DynamicValue<DialogueChannelPreset>.FromSource(
@@ -66,7 +66,7 @@ namespace Game.Dialogue
     {
         [BoxGroup("Preset")]
         [LabelText("Input")]
-        [Tooltip("入力受付・モーダル制御・進行キーの設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<DialogueInputPreset> _inputPresetValue =
             DynamicValue<DialogueInputPreset>.FromSource(
@@ -74,7 +74,7 @@ namespace Game.Dialogue
 
         [BoxGroup("Preset")]
         [LabelText("Text")]
-        [Tooltip("メッセージ本文・名前・タイプライター・カウント表示の設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<DialogueTextPreset> _textPresetValue =
             DynamicValue<DialogueTextPreset>.FromSource(
@@ -82,7 +82,7 @@ namespace Game.Dialogue
 
         [BoxGroup("Preset")]
         [LabelText("Choice")]
-        [Tooltip("選択肢表示を GridObject 系へ委譲するための設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<DialogueChoicePreset> _choicePresetValue =
             DynamicValue<DialogueChoicePreset>.FromSource(
@@ -90,7 +90,7 @@ namespace Game.Dialogue
 
         [BoxGroup("Preset")]
         [LabelText("Character")]
-        [Tooltip("キャラクターのスポーン/既存利用、名前表示、ポートレート再生、CharacterLayout の設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<DialogueCharacterPresetBase> _characterPresetValue =
             DynamicValue<DialogueCharacterPresetBase>.FromSource(
@@ -98,7 +98,7 @@ namespace Game.Dialogue
 
         [BoxGroup("Preset")]
         [LabelText("Layout")]
-        [Tooltip("ダイアログ本体の root 移動、または command-only layout の設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<DialogueLayoutPresetBase> _layoutPresetValue =
             DynamicValue<DialogueLayoutPresetBase>.FromSource(
@@ -106,7 +106,7 @@ namespace Game.Dialogue
 
         [BoxGroup("Preset")]
         [LabelText("State")]
-        [Tooltip("可視/アクティブ切り替えや、状態遷移時のコマンドフックです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<DialogueStatePreset> _statePresetValue =
             DynamicValue<DialogueStatePreset>.FromSource(
@@ -164,49 +164,49 @@ namespace Game.Dialogue
     {
         [BoxGroup("Input")]
         [LabelText("Enable Input")]
-        [Tooltip("true のとき ButtonChannel 由来の入力でメッセージ進行を受け付けます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableInput = true;
 
         [BoxGroup("Input")]
         [ShowIf(nameof(UsesInputSettings))]
         [LabelText("Button Channel Tag")]
-        [Tooltip("進行入力を監視する ButtonChannel のタグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _buttonChannelTag = "default";
 
         [BoxGroup("Input")]
         [ShowIf(nameof(UsesInputSettings))]
         [LabelText("Advance Phase")]
-        [Tooltip("この phase に入った瞬間を進行入力として扱います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ButtonChannelPhase _advancePhase = ButtonChannelPhase.Pressed;
 
         [BoxGroup("Input")]
         [ShowIf(nameof(UsesInputSettings))]
         [LabelText("Require Phase Transition")]
-        [Tooltip("true のとき、前回と異なる phase に変化した瞬間だけを進行入力として扱います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _requirePhaseTransition = true;
 
         [BoxGroup("Modal")]
         [ShowIf(nameof(UsesInputSettings))]
         [LabelText("Auto Push Modal")]
-        [Tooltip("true のとき、ダイアログ表示中にモーダル層へ自動登録します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _autoPushModalLayer = true;
 
         [BoxGroup("Modal")]
         [ShowIf(nameof(UsesModalSettings))]
         [LabelText("Modal Layer Key")]
-        [Tooltip("登録先の modal layer key です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _modalLayerKey = "default";
 
         [BoxGroup("Modal")]
         [ShowIf(nameof(UsesModalSettings))]
         [LabelText("Modal Options")]
-        [Tooltip("モーダル stack へ登録するときの追加オプションです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ModalOptions _modalOptions = ModalOptions.Default;
 
@@ -241,28 +241,28 @@ namespace Game.Dialogue
     {
         [BoxGroup("Layout")]
         [LabelText("On None")]
-        [Tooltip("Anchor が None のときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.CharacterLayout.OnNone")]
         [SerializeField]
         CommandListData _onNone = new();
 
         [BoxGroup("Layout")]
         [LabelText("On Left")]
-        [Tooltip("Anchor が Left のときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.CharacterLayout.OnLeft")]
         [SerializeField]
         CommandListData _onLeft = new();
 
         [BoxGroup("Layout")]
         [LabelText("On Center")]
-        [Tooltip("Anchor が Center のときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.CharacterLayout.OnCenter")]
         [SerializeField]
         CommandListData _onCenter = new();
 
         [BoxGroup("Layout")]
         [LabelText("On Right")]
-        [Tooltip("Anchor が Right のときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.CharacterLayout.OnRight")]
         [SerializeField]
         CommandListData _onRight = new();
@@ -295,20 +295,20 @@ namespace Game.Dialogue
     {
         [BoxGroup("Character")]
         [LabelText("Character Layout")]
-        [Tooltip("anchor 変化後に実行する command list の束です。")]
+        [Tooltip("Inspector setting.")]
         [InlineProperty]
         [SerializeField]
         DialogueCharacterLayoutPreset _characterLayout = new();
 
         [BoxGroup("Character")]
         [LabelText("Default Name Channel Tag")]
-        [Tooltip("名前表示に使う TextChannel の既定タグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _defaultNameChannelTag = "default";
 
         [BoxGroup("Character")]
         [LabelText("Default Sprite Channel Tag")]
-        [Tooltip("ポートレート表示に使う SpriteChannel の既定タグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _defaultSpriteChannelTag = "default";
 
@@ -336,19 +336,19 @@ namespace Game.Dialogue
     {
         [BoxGroup("Spawn")]
         [LabelText("Runtime Parent")]
-        [Tooltip("spawn した character runtime の親 transform です。空なら owner を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? _runtimeParent;
 
         [BoxGroup("Spawn")]
         [LabelText("Release Spawned On End")]
-        [Tooltip("true のとき、終了時に spawn した runtime を解放します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _releaseSpawnedOnEnd = true;
 
         [BoxGroup("Spawn")]
         [LabelText("Runtime Identity Category")]
-        [Tooltip("spawn した runtime identity の category です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _runtimeIdentityCategory = "DialogueCharacter";
 
@@ -376,25 +376,25 @@ namespace Game.Dialogue
     {
         [BoxGroup("Spawn")]
         [LabelText("Enable Runtime Spawn")]
-        [Tooltip("旧シーン互換用の設定です。Runtime spawn を有効にするかどうかを保持します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableRuntimeSpawn = true;
 
         [BoxGroup("Spawn")]
         [LabelText("Runtime Parent")]
-        [Tooltip("旧シーン互換用の設定です。spawn した character runtime の親 transform です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? _runtimeParent;
 
         [BoxGroup("Spawn")]
         [LabelText("Release Spawned On End")]
-        [Tooltip("旧シーン互換用の設定です。true のとき、終了時に spawn した runtime を解放します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _releaseSpawnedOnEnd = true;
 
         [BoxGroup("Spawn")]
         [LabelText("Runtime Identity Category")]
-        [Tooltip("旧シーン互換用の設定です。spawn した runtime identity の category です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _runtimeIdentityCategory = "DialogueCharacter";
 
@@ -434,35 +434,35 @@ namespace Game.Dialogue
     {
         [BoxGroup("Layout")]
         [LabelText("Enable")]
-        [Tooltip("true のとき、VisualBounds を使った layout refresh を有効にします。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableLayout = true;
 
         [BoxGroup("Layout")]
         [ShowIf(nameof(UsesLayout))]
         [LabelText("Root Position")]
-        [Tooltip("VisualBounds のどの辺を基準に root を置くかを選びます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DialogueRootPosition _rootPosition = DialogueRootPosition.Bottom;
 
         [BoxGroup("Layout")]
         [ShowIf(nameof(UsesLayout))]
         [LabelText("Refresh On Setup")]
-        [Tooltip("Setup 時に layout を再計算するかどうかです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _refreshOnSetup = true;
 
         [BoxGroup("Layout")]
         [ShowIf(nameof(UsesLayout))]
         [LabelText("Refresh On Message")]
-        [Tooltip("Message 表示のたびに layout を再計算するかどうかです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _refreshOnMessage = false;
 
         [BoxGroup("Layout")]
         [ShowIf(nameof(UsesLayout))]
         [LabelText("Refresh On Character Update")]
-        [Tooltip("Character frame 更新のたびに layout を再計算するかどうかです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _refreshOnCharacterUpdate = true;
 
@@ -495,28 +495,28 @@ namespace Game.Dialogue
         [BoxGroup("Layout")]
         [ShowIf(nameof(UsesLayout))]
         [LabelText("Root Transform Channel Tag")]
-        [Tooltip("root の移動を委譲する TransformAnimationChannel のタグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _rootTransformChannelTag = "default";
 
         [BoxGroup("Layout")]
         [ShowIf(nameof(UsesLayout))]
         [LabelText("Root Margin")]
-        [Tooltip("VisualBounds の端から root をどれだけ離すかを表す余白です。座標ではなく距離です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<float> _rootMargin = DynamicValueExtensions.FromLiteral(32f);
 
         [BoxGroup("Motion")]
         [ShowIf(nameof(UsesLayout))]
         [LabelText("Move Duration")]
-        [Tooltip("root を移動するときの補間時間です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<float> _moveDurationSeconds = DynamicValueExtensions.FromLiteral(0f);
 
         [BoxGroup("Motion")]
         [ShowIf(nameof(UsesLayout))]
         [LabelText("Move Ease")]
-        [Tooltip("root 移動の easing です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Ease _moveEase = Ease.Linear;
 
@@ -545,7 +545,7 @@ namespace Game.Dialogue
     {
         [BoxGroup("Hooks")]
         [LabelText("Commands")]
-        [Tooltip("layout refresh 時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.Layout.CommandOnly")]
         [SerializeField]
         CommandListData _commands = new();
@@ -569,19 +569,19 @@ namespace Game.Dialogue
     {
         [BoxGroup("Binding")]
         [LabelText("Dialogue Tag")]
-        [Tooltip("DialogueMessageLine.DialogueTag と照合する識別子です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _dialogueTag = "default";
 
         [BoxGroup("Binding")]
         [LabelText("Text Channel Tag")]
-        [Tooltip("実際に文字を流し込む TextChannel のタグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _textChannelTag = "default";
 
         [BoxGroup("Binding")]
         [LabelText("Transform Animation Tag")]
-        [Tooltip("必要なら文字表示と同期して動かす TransformAnimation のタグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _transformAnimationTag = string.Empty;
 
@@ -605,56 +605,56 @@ namespace Game.Dialogue
     {
         [BoxGroup("Default")]
         [LabelText("Default Body Tag")]
-        [Tooltip("DialogueMessageLine.ChannelTag が空のときに使う本文用 TextChannel タグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _defaultBodyChannelTag = "default";
 
         [BoxGroup("Default")]
         [LabelText("Default Name Tag")]
-        [Tooltip("DialogueMessageLine.ChannelTag が空のときに使う名前用 TextChannel タグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _defaultNameChannelTag = "default";
 
         [BoxGroup("Default")]
         [LabelText("Default Play Mode")]
-        [Tooltip("Explicit mode を指定しないときに使う既定の表示モードです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TextPlayMode _defaultPlayMode = TextPlayMode.Typewriter;
 
         [BoxGroup("Default")]
         [LabelText("Default Text Settings")]
-        [Tooltip("本文/名前に共通で使う文字設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         SetTextSettings _defaultTextSettings = SetTextSettings.Default;
 
         [BoxGroup("Typewriter")]
         [LabelText("Wait Before Advance")]
-        [Tooltip("true のとき、Typewriter 完了まで進行待ちします。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _waitForTypewriterBeforeAdvance = true;
 
         [BoxGroup("Typewriter")]
         [LabelText("Allow Skip By Input")]
-        [Tooltip("true のとき、進行入力でタイプライターをスキップできます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _allowSkipTypewriterByInput = true;
 
         [BoxGroup("Typewriter")]
         [LabelText("Auto Advance When Input Disabled")]
-        [Tooltip("入力を待てないときに自動で次へ進めるかどうかです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _autoAdvanceWhenInputDisabled = true;
 
         [BoxGroup("Channels")]
         [LabelText("Body Channels")]
-        [Tooltip("本文用の DialogueTag → TextChannel / TransformAnimation の対応表です。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true)]
         [SerializeField]
         List<DialogueTextChannelBinding> _bodyChannels = new() { new DialogueTextChannelBinding() };
 
         [BoxGroup("Channels")]
         [LabelText("Name Channels")]
-        [Tooltip("名前用の DialogueTag → TextChannel / TransformAnimation の対応表です。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true)]
         [SerializeField]
         List<DialogueTextChannelBinding> _nameChannels = new() { new DialogueTextChannelBinding() };
@@ -707,31 +707,31 @@ namespace Game.Dialogue
     {
         [BoxGroup("Choice")]
         [LabelText("Grid Choice Channel Tag")]
-        [Tooltip("選択肢表示を委譲する GridObjectChannel のタグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _choiceChannelTag = "default";
 
         [BoxGroup("Choice")]
         [LabelText("Keep Text Visible")]
-        [Tooltip("true のとき、選択肢表示中も本文を消さずに残します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _keepTextVisibleDuringChoice = true;
 
         [BoxGroup("Choice")]
         [LabelText("Lock Dialogue Input")]
-        [Tooltip("true のとき、選択肢表示中はダイアログ進行入力をロックします。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _lockDialogueInputDuringChoice = true;
 
         [BoxGroup("Choice")]
         [LabelText("Cancel Active Choice On End")]
-        [Tooltip("true のとき、チャネル終了時に開いている選択肢をキャンセルします。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _cancelChoiceOnEnd = true;
 
         [BoxGroup("Commands")]
         [LabelText("Spawn Commands")]
-        [Tooltip("選択肢表示の spawn 時に共通で実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("DialogueChannel.Choice.OnSpawn")]
         CommandListData _spawnCommands = new();
@@ -768,102 +768,102 @@ namespace Game.Dialogue
     {
         [BoxGroup("End")]
         [LabelText("Reset Visible On End")]
-        [Tooltip("終了時に Visible を false に戻します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _resetVisibleOnEnd = true;
 
         [BoxGroup("End")]
         [LabelText("Reset Active On End")]
-        [Tooltip("終了時に Active を false に戻します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _resetActiveOnEnd = true;
 
         [BoxGroup("End")]
         [LabelText("Reset Dialogue Count On End")]
-        [Tooltip("終了時に会話回数を初期化します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _resetDialogueCountOnEnd = true;
 
         [BoxGroup("Hooks")]
         [LabelText("On Session Opened")]
-        [Tooltip("最初の dialogue step が開いたときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnSessionOpened")]
         [SerializeField]
         CommandListData _onSessionOpened = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Session Continued")]
-        [Tooltip("すでに表示中の dialogue をさらに進めたときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnSessionContinued")]
         [SerializeField]
         CommandListData _onSessionContinued = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Session Ended")]
-        [Tooltip("channel の終了時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnSessionEnded")]
         [SerializeField]
         CommandListData _onSessionEnded = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Visible True")]
-        [Tooltip("Visible が true になった瞬間に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnVisibleTrue")]
         [SerializeField]
         CommandListData _onVisibleTrue = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Visible False")]
-        [Tooltip("Visible が false になった瞬間に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnVisibleFalse")]
         [SerializeField]
         CommandListData _onVisibleFalse = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Active True")]
-        [Tooltip("Active が true になった瞬間に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnActiveTrue")]
         [SerializeField]
         CommandListData _onActiveTrue = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Active False")]
-        [Tooltip("Active が false になった瞬間に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnActiveFalse")]
         [SerializeField]
         CommandListData _onActiveFalse = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Message Started")]
-        [Tooltip("メッセージ表示開始時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnMessageStarted")]
         [SerializeField]
         CommandListData _onMessageStarted = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Message Completed")]
-        [Tooltip("メッセージ表示完了時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnMessageCompleted")]
         [SerializeField]
         CommandListData _onMessageCompleted = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Typewriter Skipped")]
-        [Tooltip("進行入力で typewriter をスキップしたときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnTypewriterSkipped")]
         [SerializeField]
         CommandListData _onTypewriterSkipped = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Choice Started")]
-        [Tooltip("選択肢の表示を開始したときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnChoiceStarted")]
         [SerializeField]
         CommandListData _onChoiceStarted = new();
 
         [BoxGroup("Hooks")]
         [LabelText("On Choice Completed")]
-        [Tooltip("選択肢の表示を終えたときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("DialogueChannel.State.OnChoiceCompleted")]
         [SerializeField]
         CommandListData _onChoiceCompleted = new();
@@ -912,40 +912,40 @@ namespace Game.Dialogue
     {
         [BoxGroup("Setup")]
         [LabelText("Set Visible")]
-        [Tooltip("true のとき、setup 時に Visible を更新します。")]
+        [Tooltip("Inspector setting.")]
         public bool SetVisible = true;
 
         [BoxGroup("Setup")]
         [ShowIf(nameof(SetVisible))]
         [LabelText("Visible")]
-        [Tooltip("Set Visible が true のときに設定する Visible 値です。")]
+        [Tooltip("Inspector setting.")]
         public bool Visible = true;
 
         [BoxGroup("Setup")]
         [LabelText("Set Active")]
-        [Tooltip("true のとき、setup 時に Active を更新します。")]
+        [Tooltip("Inspector setting.")]
         public bool SetActive = true;
 
         [BoxGroup("Setup")]
         [ShowIf(nameof(SetActive))]
         [LabelText("Active")]
-        [Tooltip("Set Active が true のときに設定する Active 値です。")]
+        [Tooltip("Inspector setting.")]
         public bool Active = true;
 
         [BoxGroup("Setup")]
         [LabelText("Begin Dialogue Step")]
-        [Tooltip("true のとき、setup を dialogue step の開始として扱います。")]
+        [Tooltip("Inspector setting.")]
         public bool BeginDialogueStep = true;
 
         [BoxGroup("Setup")]
         [ShowIf(nameof(BeginDialogueStep))]
         [LabelText("Increment If Already Visible")]
-        [Tooltip("既に表示中なら dialogue count を進めるかどうかです。")]
+        [Tooltip("Inspector setting.")]
         public bool IncrementIfAlreadyVisible = true;
 
         [BoxGroup("Setup")]
         [LabelText("Apply Layout")]
-        [Tooltip("true のとき、setup 後に layout を再適用します。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyLayout = true;
 
         public DialogueSetupRequest CreateRuntimeCopy()
@@ -968,22 +968,22 @@ namespace Game.Dialogue
     {
         [BoxGroup("End")]
         [LabelText("Reset Visible")]
-        [Tooltip("true のとき、終了時に Visible を false に戻します。")]
+        [Tooltip("Inspector setting.")]
         public bool ResetVisible = true;
 
         [BoxGroup("End")]
         [LabelText("Reset Active")]
-        [Tooltip("true のとき、終了時に Active を false に戻します。")]
+        [Tooltip("Inspector setting.")]
         public bool ResetActive = true;
 
         [BoxGroup("End")]
         [LabelText("Reset Dialogue Count")]
-        [Tooltip("true のとき、終了時に dialogue count を初期化します。")]
+        [Tooltip("Inspector setting.")]
         public bool ResetDialogueCount = true;
 
         [BoxGroup("End")]
         [LabelText("Release Spawned Characters")]
-        [Tooltip("true のとき、spawn したキャラクター runtime を解放します。")]
+        [Tooltip("Inspector setting.")]
         public bool ReleaseSpawnedCharacters = true;
 
         public DialogueEndRequest CreateRuntimeCopy()
@@ -1003,18 +1003,18 @@ namespace Game.Dialogue
     {
         [BoxGroup("Layout")]
         [LabelText("Force")]
-        [Tooltip("true のとき、差分がなくても layout refresh を実行します。")]
+        [Tooltip("Inspector setting.")]
         public bool Force = true;
 
         [BoxGroup("Layout")]
         [LabelText("Override Root Position")]
-        [Tooltip("true のとき、preset の RootPosition をこの request で上書きします。")]
+        [Tooltip("Inspector setting.")]
         public bool OverrideRootPosition;
 
         [BoxGroup("Layout")]
         [ShowIf(nameof(OverrideRootPosition))]
         [LabelText("Root Position")]
-        [Tooltip("Override Root Position が true のときに使う VisualBounds 基準の位置です。")]
+        [Tooltip("Inspector setting.")]
         public DialogueRootPosition RootPosition = DialogueRootPosition.Bottom;
 
         public DialogueLayoutRefreshRequest CreateRuntimeCopy()
@@ -1033,17 +1033,17 @@ namespace Game.Dialogue
     {
         [BoxGroup("Line")]
         [LabelText("Dialogue Tag")]
-        [Tooltip("どの DialogueTag の表示として扱うかを表す識別子です。")]
+        [Tooltip("Inspector setting.")]
         public string DialogueTag = "default";
 
         [BoxGroup("Line")]
         [LabelText("Channel Tag")]
-        [Tooltip("明示的に TextChannel を上書きしたいときのタグです。空なら preset の既定を使います。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Line")]
         [LabelText("Text")]
-        [Tooltip("この行に表示する文字列です。DynamicValue で外部参照できます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<string> Text = DynamicValueExtensions.FromLiteral(string.Empty);
 
         public DialogueMessageLine CreateRuntimeCopy()
@@ -1062,63 +1062,63 @@ namespace Game.Dialogue
     {
         [BoxGroup("Message")]
         [LabelText("Body Lines")]
-        [Tooltip("本文として表示する行です。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true)]
         public List<DialogueMessageLine> BodyLines = new();
 
         [BoxGroup("Playback")]
         [LabelText("Use Preset Play Mode")]
-        [Tooltip("true のとき、preset 側の DefaultPlayMode を使います。false のときは下の Play Mode を使います。")]
+        [Tooltip("Inspector setting.")]
         public bool UsePresetPlayMode = true;
 
         [BoxGroup("Playback")]
         [ShowIf(nameof(UsesExplicitPlayMode))]
         [LabelText("Play Mode")]
-        [Tooltip("Use Preset Play Mode が false のときに使う表示モードです。")]
+        [Tooltip("Inspector setting.")]
         public TextPlayMode PlayMode = TextPlayMode.Typewriter;
 
         [BoxGroup("Playback")]
         [LabelText("Text Settings")]
-        [Tooltip("本文や名前に適用する文字設定です。")]
+        [Tooltip("Inspector setting.")]
         public SetTextSettings TextSettings = SetTextSettings.Default;
 
         [BoxGroup("Playback")]
         [LabelText("Wait Typewriter Complete")]
         [ShowIf(nameof(UsesTypewriterOptions))]
-        [Tooltip("true のとき、Typewriter 完了まで message の完了を待ちます。")]
+        [Tooltip("Inspector setting.")]
         public bool WaitForTypewriterComplete = true;
 
         [BoxGroup("Advance")]
         [LabelText("Await Input")]
-        [Tooltip("true のとき、次の進行を入力待ちにします。false のときは自動進行に寄せます。")]
+        [Tooltip("Inspector setting.")]
         public bool AwaitInput = true;
 
         [BoxGroup("Advance")]
         [LabelText("Allow Typewriter Skip By Input")]
         [ShowIf(nameof(UsesTypewriterOptions))]
-        [Tooltip("true のとき、進行入力で Typewriter を即スキップできます。")]
+        [Tooltip("Inspector setting.")]
         public bool AllowTypewriterSkipByInput = true;
 
         [BoxGroup("Advance")]
         [LabelText("Use Auto Advance Delay")]
-        [Tooltip("true のとき、Await Input が false の場合に遅延進行します。")]
+        [Tooltip("Inspector setting.")]
         public bool UseAutoAdvanceDelay;
 
         [BoxGroup("Advance")]
         [ShowIf(nameof(UseAutoAdvanceDelay))]
         [LabelText("Auto Advance Delay")]
-        [Tooltip("自動進行までの待ち時間です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> AutoAdvanceDelaySeconds = DynamicValueExtensions.FromLiteral(0f);
 
         [BoxGroup("Setup")]
         [LabelText("Auto Setup If Hidden")]
-        [Tooltip("true のとき、未表示のまま message を呼んでも自動で setup します。")]
+        [Tooltip("Inspector setting.")]
         public bool AutoSetupIfHidden = true;
 
         [BoxGroup("Setup")]
         [ShowIf(nameof(AutoSetupIfHidden))]
         [LabelText("Auto Setup")]
-        [Tooltip("Auto Setup If Hidden が true のときに使う setup request です。")]
+        [Tooltip("Inspector setting.")]
         [InlineProperty]
         public DialogueSetupRequest AutoSetup = new();
 
@@ -1157,40 +1157,40 @@ namespace Game.Dialogue
     {
         [BoxGroup("Choice")]
         [LabelText("Use Preset Channel Tag")]
-        [Tooltip("true のとき、preset 側の ChoiceChannelTag を使います。false のときは下の Channel Tag を使います。")]
+        [Tooltip("Inspector setting.")]
         public bool UsePresetChannelTag = true;
 
         [BoxGroup("Choice")]
         [ShowIf("@!UsePresetChannelTag")]
         [LabelText("Channel Tag")]
-        [Tooltip("Use Preset Channel Tag が false のときに使う channel tag です。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Choice")]
         [LabelText("Use Preset Input Lock")]
-        [Tooltip("true のとき、preset 側の lock 設定を使います。false のときは下の Lock Dialogue Input を使います。")]
+        [Tooltip("Inspector setting.")]
         public bool UsePresetInputLock = true;
 
         [BoxGroup("Choice")]
         [ShowIf("@!UsePresetInputLock")]
         [LabelText("Lock Dialogue Input")]
-        [Tooltip("Use Preset Input Lock が false のときに使う入力ロック設定です。")]
+        [Tooltip("Inspector setting.")]
         public bool LockDialogueInput = true;
 
         [BoxGroup("Choice")]
         [LabelText("Play Pre Message")]
-        [Tooltip("true のとき、選択肢の前に補助メッセージを表示します。")]
+        [Tooltip("Inspector setting.")]
         public bool PlayPreMessage;
 
         [BoxGroup("Choice")]
         [ShowIf(nameof(PlayPreMessage))]
         [LabelText("Pre Message")]
-        [Tooltip("選択肢の前に表示する補助メッセージです。")]
+        [Tooltip("Inspector setting.")]
         public DialogueMessageRequest PreMessage = new();
 
         [BoxGroup("Choice")]
         [LabelText("Grid Choice Request")]
-        [Tooltip("GridObject 系へ委譲する選択肢リクエストです。")]
+        [Tooltip("Inspector setting.")]
         [InlineProperty]
         public GridObjectChoiceRequest GridChoiceRequest = new();
 
@@ -1214,78 +1214,78 @@ namespace Game.Dialogue
     {
         [BoxGroup("Character")]
         [LabelText("Character Id")]
-        [Tooltip("キャラクター単位の識別子です。runtime spawn の再利用やポートレート管理に使います。")]
+        [Tooltip("Inspector setting.")]
         public string CharacterId = string.Empty;
 
         [BoxGroup("CharacterDataBase")]
         [LabelText("Character Data Id")]
-        [Tooltip("CharacterDataBase 解決に使う ID です。0 以下の場合は Stable Key を使います。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(0)]
         public int CharacterDataId;
 
         [BoxGroup("CharacterDataBase")]
         [ShowIf(nameof(UsesStableKeyLookup))]
         [LabelText("Character Stable Key")]
-        [Tooltip("CharacterDataBase 解決に使う stable key です。")]
+        [Tooltip("Inspector setting.")]
         public string CharacterStableKey = string.Empty;
 
         [BoxGroup("Character")]
         [LabelText("Anchor")]
-        [Tooltip("レイアウト上での基準アンカーです。")]
+        [Tooltip("Inspector setting.")]
         public DialogueCharacterAnchor Anchor = DialogueCharacterAnchor.None;
 
         [BoxGroup("Character")]
         [LabelText("Display Name")]
-        [Tooltip("名前表示用の文字列です。DynamicValue で外部参照できます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<string> DisplayName = DynamicValueExtensions.FromLiteral(string.Empty);
 
         [BoxGroup("Character")]
         [LabelText("Name Channel Tag")]
-        [Tooltip("名前表示に使う TextChannel の上書きタグです。空なら preset 既定を使います。")]
+        [Tooltip("Inspector setting.")]
         public string NameChannelTag = string.Empty;
 
         [BoxGroup("Character")]
         [LabelText("Sprite Channel Tag")]
-        [Tooltip("ポートレート表示に使う SpriteChannel の上書きタグです。空なら preset 既定を使います。")]
+        [Tooltip("Inspector setting.")]
         public string SpriteChannelTag = string.Empty;
 
         [BoxGroup("Character")]
         [LabelText("Spawn If Needed")]
-        [Tooltip("true のとき、RuntimeTemplatePreset を使ってキャラクター runtime を必要に応じて spawn します。")]
+        [Tooltip("Inspector setting.")]
         public bool SpawnIfNeeded = true;
 
         [BoxGroup("Character")]
         [ShowIf(nameof(SpawnIfNeeded))]
         [LabelText("Runtime Template Preset")]
-        [Tooltip("spawn に使う Runtime template preset です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<BaseRuntimeTemplatePreset> RuntimeTemplate =
             DynamicValue<BaseRuntimeTemplatePreset>.FromSource(
                 new ManagedRefLiteralSource<BaseRuntimeTemplatePreset>(new BaseRuntimeTemplatePreset()));
 
         [BoxGroup("Character")]
         [LabelText("Expression Key")]
-        [Tooltip("Character Expression module から表情を解決するキーです。")]
+        [Tooltip("Inspector setting.")]
         public string ExpressionKey = string.Empty;
 
         [BoxGroup("Character")]
         [LabelText("Use Default Image Fallback")]
-        [Tooltip("表情アニメーションが未指定/未解決のとき DefaultImage module をフォールバック利用します。")]
+        [Tooltip("Inspector setting.")]
         public bool UseDefaultImageFallback = true;
 
         [BoxGroup("Character")]
         [ShowIf(nameof(SpawnIfNeeded))]
         [LabelText("Spawn Local Position")]
-        [Tooltip("spawn 時に使う local 位置です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<Vector3> SpawnLocalPosition = DynamicValueExtensions.FromLiteral(Vector3.zero);
 
         [BoxGroup("Character")]
         [LabelText("Portrait Animation")]
-        [Tooltip("ポートレート用のアニメーションソースです。")]
+        [Tooltip("Inspector setting.")]
         public AnimationDataSource PortraitAnimation = new();
 
         [BoxGroup("Character")]
         [LabelText("Portrait Play Mode")]
-        [Tooltip("ポートレート再生のモードです。")]
+        [Tooltip("Inspector setting.")]
         public ChannelAnimationPlayMode PortraitPlayMode = ChannelAnimationPlayMode.Once;
 
         bool UsesStableKeyLookup => CharacterDataId <= 0;

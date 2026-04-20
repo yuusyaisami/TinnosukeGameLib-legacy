@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.UI;
@@ -16,12 +16,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [Tooltip("ButtonChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [Tooltip("操作対象の channel tag です。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -32,7 +32,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Preset")]
         [ShowIf(nameof(UsesPreset))]
         [LabelText("Preset")]
-        [Tooltip("register/replace 時に channel へ設定する source preset です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<ButtonChannelPreset> Preset =
             DynamicValue<ButtonChannelPreset>.FromSource(
                 new ManagedRefLiteralSource<ButtonChannelPreset>(new ButtonChannelPreset()));
@@ -51,12 +51,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [Tooltip("ButtonChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [Tooltip("操作対象の channel tag です。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -67,7 +67,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Swap Input")]
         [ShowIf(nameof(UsesSwapInputPreset))]
         [LabelText("Input Preset")]
-        [Tooltip("current input preset をこの preset に完全差し替えします。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<ButtonInputPresetBase> InputPreset =
             DynamicValue<ButtonInputPresetBase>.FromSource(
                 new ManagedRefLiteralSource<ButtonInputPresetBase>(new InstantButtonInputPreset()));
@@ -75,7 +75,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Swap Player")]
         [ShowIf(nameof(UsesSwapPlayerPreset))]
         [LabelText("Player Preset")]
-        [Tooltip("current player preset をこの preset に完全差し替えします。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<ButtonPlayerPresetBase> PlayerPreset =
             DynamicValue<ButtonPlayerPresetBase>.FromSource(
                 new ManagedRefLiteralSource<ButtonPlayerPresetBase>(new ButtonPlayerPreset()));
@@ -85,14 +85,14 @@ namespace Game.Commands.VNext
         [SerializeReference]
         [InlineProperty]
         [HideLabel]
-        [Tooltip("current input preset に対する runtime mutation です。現在の preset kind と一致する mutation を指定します。")]
+        [Tooltip("Inspector setting.")]
         public ButtonInputRuntimeMutationBase InputMutation = new InstantButtonInputRuntimeMutation();
 
         [BoxGroup("Mutate Player")]
         [ShowIf(nameof(UsesPlayerMutation))]
         [InlineProperty]
         [HideLabel]
-        [Tooltip("current player preset に対する runtime mutation です。")]
+        [Tooltip("Inspector setting.")]
         public ButtonPlayerRuntimeMutation PlayerMutation = new();
 
         [BoxGroup("Reset")]

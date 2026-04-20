@@ -14,7 +14,7 @@ namespace Game.Channel
         IMeshMaterialFxControlService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable,
+        IScopeTickHandler,
         IDisposable
     {
         readonly Dictionary<string, MeshChannelPlayerRuntime> _playersByTag = new(StringComparer.Ordinal);

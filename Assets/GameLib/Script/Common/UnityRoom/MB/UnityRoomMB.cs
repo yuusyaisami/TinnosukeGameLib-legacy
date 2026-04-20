@@ -21,7 +21,7 @@ namespace Game.UnityRoom
         [SerializeField]
         int scoreboardId = 1;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ = scope;
 
@@ -31,7 +31,7 @@ namespace Game.UnityRoom
                 ScoreboardId = Mathf.Max(0, scoreboardId),
             });
 
-            builder.Register<UnityRoomService>(Lifetime.Singleton)
+            builder.Register<UnityRoomService>(RuntimeLifetime.Singleton)
                 .As<IUnityRoomService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()

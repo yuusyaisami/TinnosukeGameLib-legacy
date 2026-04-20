@@ -1,13 +1,13 @@
-#nullable enable
+﻿#nullable enable
 // Game.Movement
 // ================================================================================
-// GravityPullMotionPreset - 重力で落ちていくモーション
+// GravityPullMotionPreset - 驥榊鴨縺ｧ關ｽ縺｡縺ｦ縺・￥繝｢繝ｼ繧ｷ繝ｧ繝ｳ
 // ================================================================================
 //
-// 【概要】
-// - 初期角度（InitialAngle）で進み始め、時間とともに重力で下へ引っ張られる。
-// - GuidanceDirection は「初期の前方向」の基準として使い、そこから角度オフセットを与える。
-// - 出力は BaseVelocity（direction*speedBase*speedMul）+ 重力による AdditiveVelocity。
+// 縲先ｦりｦ√・
+// - 蛻晄悄隗貞ｺｦ・・nitialAngle・峨〒騾ｲ縺ｿ蟋九ａ縲∵凾髢薙→縺ｨ繧ゅ↓驥榊鴨縺ｧ荳九∈蠑輔▲蠑ｵ繧峨ｌ繧九・
+// - GuidanceDirection 縺ｯ縲悟・譛溘・蜑肴婿蜷代阪・蝓ｺ貅悶→縺励※菴ｿ縺・√◎縺薙°繧芽ｧ貞ｺｦ繧ｪ繝輔そ繝・ヨ繧剃ｸ弱∴繧九・
+// - 蜃ｺ蜉帙・ BaseVelocity・・irection*speedBase*speedMul・・ 驥榊鴨縺ｫ繧医ｋ AdditiveVelocity縲・
 // ================================================================================
 
 using System;
@@ -21,23 +21,23 @@ namespace Game.Movement
     {
         [Header("Direction")]
         [LabelText("Initial Angle")]
-        [Tooltip("初期角度オフセット（度）。GuidanceDirection をこの角度だけ回転して初期の進行方向にする。")]
+        [Tooltip("Inspector setting.")]
         public float InitialAngle = 0f;
 
         [Header("Gravity")]
         [LabelText("Gravity")]
-        [Tooltip("重力加速度（下方向）。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float Gravity = 25f;
 
         [LabelText("Air Drag")]
-        [Tooltip("重力成分に対する空気抵抗（1/秒）。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float AirDrag = 0.2f;
 
         [Header("Speed Modulation")]
         [LabelText("Speed Multiplier")]
-        [Tooltip("基本速度への倍率")]
+        [Tooltip("蝓ｺ譛ｬ騾溷ｺｦ縺ｸ縺ｮ蛟咲紫")]
         [Min(0f)]
         public float SpeedMultiplier = 1f;
 
@@ -88,9 +88,9 @@ namespace Game.Movement
             if (dt <= 0f)
                 return MotionOutput.Default(frame.GuidanceDirection);
 
-            // 初期方向は最初に有効だった GuidanceDirection を固定値として使う。
-            // Guidance が未設定の場合は BaseDirection を使い、それも未設定なら
-            // 「推進なし（重力のみ）」にする。
+            // 蛻晄悄譁ｹ蜷代・譛蛻昴↓譛牙柑縺縺｣縺・GuidanceDirection 繧貞崋螳壼､縺ｨ縺励※菴ｿ縺・・
+            // Guidance 縺梧悴險ｭ螳壹・蝣ｴ蜷医・ BaseDirection 繧剃ｽｿ縺・√◎繧後ｂ譛ｪ險ｭ螳壹↑繧・
+            // 縲梧耳騾ｲ縺ｪ縺暦ｼ磯㍾蜉帙・縺ｿ・峨阪↓縺吶ｋ縲・
             if (!_hasInitialDirection && frame.GuidanceDirection.sqrMagnitude >= MovementMath.NormalizeEpsilon)
             {
                 _initialDirection = MovementMath.NormalizeDirection(frame.GuidanceDirection);
@@ -111,10 +111,10 @@ namespace Game.Movement
             else
                 dir = Vector2.zero;
 
-            // 重力速度を積分
+            // 驥榊鴨騾溷ｺｦ繧堤ｩ榊・
             _gravityVelocity += Vector2.down * Mathf.Max(0f, _source.Gravity) * dt;
 
-            // 空気抵抗（指数減衰）
+            // 遨ｺ豌玲慣謚暦ｼ域欠謨ｰ貂幄｡ｰ・・
             float drag = Mathf.Max(0f, _source.AirDrag);
             if (drag > 0f)
             {

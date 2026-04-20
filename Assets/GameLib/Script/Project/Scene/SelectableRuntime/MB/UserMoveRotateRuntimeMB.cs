@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System.Collections.Generic;
 using Game;
 using Game.Channel;
@@ -41,14 +41,14 @@ namespace Game.SelectRuntime
 
         [BoxGroup("Input")]
         [LabelText("Editor Condition")]
-        [Tooltip("true のときのみ Editor モードへ入る/維持する。LongPress 中に false になった場合は cancel になります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<bool> _editorCondition = DynamicValueExtensions.FromLiteral(true);
 
         [BoxGroup("Input")]
         [ShowIf("@_editorEntrySource != Game.SelectRuntime.UserMoveRotateEditorEntrySource.SelectableLongPress")]
         [LabelText("Long Press Entry Progress")]
-        [Tooltip("LongPress 進捗がこの値以上になったとき On LongPress Entry コマンドを実行します。0-1 範囲。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(0f)]
         [MaxValue(1f)]
         [SerializeField]
@@ -78,21 +78,21 @@ namespace Game.SelectRuntime
 
         [BoxGroup("Override")]
         [LabelText("Apply Override Target Transform")]
-        [Tooltip("true の場合、Move と Rotate で実際に触る Transform を個別に指定します。false の場合は Runtime Scope の SelfTransform を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _applyOverrideTargetTransform;
 
         [BoxGroup("Override")]
         [ShowIf(nameof(_applyOverrideTargetTransform))]
         [LabelText("Move Target Transform")]
-        [Tooltip("Move が実際に position を変更する Transform。未指定なら Runtime Scope の SelfTransform を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? _moveTargetTransform;
 
         [BoxGroup("Override")]
         [ShowIf(nameof(_applyOverrideTargetTransform))]
         [LabelText("Rotate Target Transform")]
-        [Tooltip("Rotate が実際に rotation を変更する Transform。未指定なら Runtime Scope の SelfTransform を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? _rotateTargetTransform;
 
@@ -251,9 +251,9 @@ namespace Game.SelectRuntime
             NotifyBridgeRefresh();
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<UserMoveRotateRuntimeBridgeService>(Lifetime.Singleton)
+            builder.Register<UserMoveRotateRuntimeBridgeService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .WithParameter(this);

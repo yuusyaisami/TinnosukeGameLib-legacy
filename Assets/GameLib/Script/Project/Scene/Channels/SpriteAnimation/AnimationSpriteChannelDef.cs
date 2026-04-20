@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -7,8 +7,8 @@ using Game.MaterialFx;
 namespace Game.Channel
 {
     /// <summary>
-    /// Sprite/Image + BodyFx を扱うチャネル定義。
-    /// AnimationSpriteHub 用。
+    /// Sprite/Image + BodyFx 繧呈桶縺・メ繝｣繝阪Ν螳夂ｾｩ縲・
+    /// AnimationSpriteHub 逕ｨ縲・
     /// </summary>
     [Serializable]
     public sealed class AnimationSpriteChannelDef : ChannelDefBase, IChannelSprite, IChannelMaterialFx
@@ -18,14 +18,14 @@ namespace Game.Channel
         [SerializeField][ShowIf("@isShowImage()")] UnityEngine.UI.Image image;
 
         [Header("Lifecycle")]
-        [Tooltip("Spawn 時にSpritePresetを自動再生するか")]
+        [Tooltip("Spawn 譎ゅ↓SpritePreset繧定・蜍募・逕溘☆繧九°")]
         public bool playOnSpawn;
         [Header("Presets"), ShowIf(nameof(playOnSpawn))]
         [SerializeField] AnimationSpritePreset spritePreset;
         [SerializeField, Sirenix.OdinInspector.ListDrawerSettings(ShowPaging = false, ShowFoldout = true, ListElementLabelName = nameof(MaterialFxPresetEntry.Key))]
         public List<MaterialFxPresetEntry> materialFxPresetEntries = new();
         [SerializeField]
-        [Tooltip("起動時に適用する BaseShader のプリセット。")]
+        [Tooltip("Inspector setting.")]
         [InlineProperty]
         BaseShaderFxPresetReference baseShaderPreset = new();
 
@@ -52,7 +52,7 @@ namespace Game.Channel
                 image = owner.GetComponentInChildren<UnityEngine.UI.Image>(true);
             }
 
-            // 両方 null でも一旦許す（純 BodyFx チャネルなどもありうる）
+            // 荳｡譁ｹ null 縺ｧ繧ゆｸ譌ｦ險ｱ縺呻ｼ育ｴ・BodyFx 繝√Ε繝阪Ν縺ｪ縺ｩ繧ゅ≠繧翫≧繧具ｼ・
         }
     }
 }

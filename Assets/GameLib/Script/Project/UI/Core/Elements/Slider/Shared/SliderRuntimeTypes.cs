@@ -132,7 +132,7 @@ namespace Game.UI
     {
         public Transform Root = null!;
         public IScopeNode? Scope;
-        public IObjectResolver Resolver = null!;
+        public IRuntimeResolver Resolver = null!;
         public SliderTransformPose BasePose;
         public Transform? VisualTransform;
         public SliderTransformPose VisualPose;

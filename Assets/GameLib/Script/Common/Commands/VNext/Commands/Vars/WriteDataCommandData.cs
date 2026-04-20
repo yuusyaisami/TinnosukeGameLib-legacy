@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -198,7 +198,7 @@ namespace Game.Commands.VNext
 
         [ShowIf("@Op == ScalarWriteOpKind.ClearKey")]
         [LabelText("Keep LocalBase")]
-        [Tooltip("ClearKey 実行後も、そのキーの LocalBase だけを残します。Add/Mul や他の runtime 状態は消えます。")]
+        [Tooltip("Inspector setting.")]
         public bool KeepLocalBaseOnClearKey;
     }
 

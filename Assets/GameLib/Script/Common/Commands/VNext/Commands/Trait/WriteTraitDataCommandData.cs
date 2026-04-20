@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Trait;
@@ -28,13 +28,13 @@ namespace Game.Commands.VNext
         [BoxGroup("Source Direct Definition")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteTraitDataSourceMode.DirectDefinition")]
         [LabelText("Trait")]
-        [Tooltip("書き出す Trait。AssetTraitDefinitionSource、Var、Blackboard などから解決する。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<TraitDefinitionSO> TraitSource;
 
         [BoxGroup("Source Holder Selector")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteTraitDataSourceMode.HolderSelector")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(HubActorSource)")]
-        [Tooltip("TraitHolderHubService を解決するスコープ。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource HubActorSource;
 
         [BoxGroup("Source Holder Selector")]

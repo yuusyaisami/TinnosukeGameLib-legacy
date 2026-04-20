@@ -8,8 +8,8 @@ using VContainer;
 namespace Game.Trait
 {
     /// <summary>
-    /// EquipTraitHolder の FeatureInstaller。
-    /// TraitHolderHubMB と同じ LifetimeScope に配置して使用する。
+    /// EquipTraitHolder の FeatureInstaller、E
+    /// TraitHolderHubMB と同じ LifetimeScope に配置して使用する、E
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class EquipTraitHolderHubMB : MonoBehaviour, IFeatureInstaller
@@ -23,7 +23,7 @@ namespace Game.Trait
 
         public IEquipTraitHolderHubService? Hub => _hub;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var slotCount = _slots?.Count ?? 0;
             var settings = new List<EquipTraitSlotSettings>(slotCount);
@@ -36,7 +36,7 @@ namespace Game.Trait
                 settings.Add(slot.Clone());
             }
 
-            builder.Register<EquipTraitHolderHubService>(Lifetime.Singleton)
+            builder.Register<EquipTraitHolderHubService>(RuntimeLifetime.Singleton)
                 .AsSelf()
                 .As<IEquipTraitHolderHubService>()
                 .As<IScopeAcquireHandler>()

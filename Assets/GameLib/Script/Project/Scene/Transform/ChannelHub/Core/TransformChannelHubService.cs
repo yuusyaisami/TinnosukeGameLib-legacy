@@ -1090,7 +1090,7 @@ namespace Game.TransformSystem
         ITransformChannelPoseReader,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         readonly IScopeNode _owner;
         readonly TransformChannelHub _mb;

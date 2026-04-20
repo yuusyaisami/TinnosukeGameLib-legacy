@@ -1,7 +1,5 @@
-// Game.Common
+﻿// Game.Common
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 using Sirenix.OdinInspector;
 using VNext = Game.Commands.VNext;
 using Game;
@@ -17,7 +15,7 @@ namespace Game.Common
         public bool RunSpawnOnEnd;
         public VNext.CommandListData SpawnOnEndCommands = new();
 
-        public float SpawnDelaySeconds; // ★ 追加
+        public float SpawnDelaySeconds; // 笘・霑ｽ蜉
 
         // Despawn
         public bool RunDespawnOnStart;
@@ -49,13 +47,13 @@ namespace Game.Common
     {
         [Header("Spawn")]
         [SerializeField] bool runSpawnOnStart;
-        [ShowIf(nameof(runSpawnOnStart))] // もし最初からスポーンしている場合は, スポーンコマンドを実行する
+        [ShowIf(nameof(runSpawnOnStart))] // 繧ゅ＠譛蛻昴°繧峨せ繝昴・繝ｳ縺励※縺・ｋ蝣ｴ蜷医・, 繧ｹ繝昴・繝ｳ繧ｳ繝槭Φ繝峨ｒ螳溯｡後☆繧・
         [SerializeField] VNext.CommandListData spawnOnStartCommands = new();
         [SerializeField] bool runSpawnOnEnd;
         [ShowIf(nameof(runSpawnOnEnd))]
         [SerializeField] VNext.CommandListData spawnOnEndCommands = new();
         [ShowIf("@runSpawnOnStart || runSpawnOnEnd")]
-        [SerializeField] float spawnDelaySeconds;  // ★ 追加
+        [SerializeField] float spawnDelaySeconds;  // 笘・霑ｽ蜉
 
         [Header("Despawn")]
         [SerializeField] bool runDespawnOnStart;
@@ -77,7 +75,7 @@ namespace Game.Common
         [ShowIf(nameof(autoDespawnWhenConditionFalse))]
         [SerializeField] DynamicValue<bool> autoDespawnCondition = DynamicValueExtensions.FromLiteral(true);
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var config = new ScopeLifecycleConfig
             {
@@ -101,21 +99,21 @@ namespace Game.Common
 
             if (scope is RuntimeLifetimeScope runtime)
             {
-                builder.Register<RuntimeScopeLifecycleService>(Lifetime.Singleton)
+                builder.Register<RuntimeScopeLifecycleService>(RuntimeLifetime.Singleton)
                     .WithParameter(runtime)
                     .As<IScopeLifecycleService>()
                     .As<IScopeLifecycleConditionController>()
                     .As<IScopeReleaseHandler>()
-                    .As<ITickable>();
+                    .As<IScopeTickHandler>();
                 return;
             }
 
             // Register as scope-multi so BaseLifetimeScope can resolve lifecycle locally without parent fallback.
-            builder.RegisterAsScopeMulti<IScopeLifecycleService, ScopeLifecycleService>(Lifetime.Singleton)
+            builder.RegisterAsScopeMulti<IScopeLifecycleService, ScopeLifecycleService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .As<IScopeLifecycleConditionController>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
     }
 }

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 // Game.Common.BlackboardInstallerMB.cs
 using Sirenix.OdinInspector;
@@ -28,7 +28,7 @@ namespace Game.Common
         public sealed class LocalGridBlackboardInit
         {
             [LabelText("Grid Id")]
-            [Tooltip("各セルへ書き込む識別 VarId です。0 の場合は Grid Id を書き込みません。")]
+            [Tooltip("Inspector setting.")]
             [VarIdDropdown]
             [SerializeField] int gridId;
 
@@ -107,7 +107,7 @@ namespace Game.Common
 
         [BoxGroup("Local Blackboard Init")]
         [LabelText("Reinitialize On Acquire")]
-        [Tooltip("有効化（Acquire）時に Local Blackboard Init を再適用して既定値へ戻します")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(initializeLocalBlackboard))]
         [SerializeField] bool reinitializeLocalBlackboardOnAcquire = true;
 
@@ -123,13 +123,13 @@ namespace Game.Common
 
         [BoxGroup("Local Grid Blackboard Init")]
         [LabelText("Reinitialize On Acquire")]
-        [Tooltip("有効化（Acquire）時に Local Grid Blackboard Init を再適用して既定値へ戻します")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(initializeLocalGridBlackboard))]
         [SerializeField] bool reinitializeLocalGridBlackboardOnAcquire = true;
 
         [BoxGroup("Local Grid Blackboard Init")]
         [LabelText("Grid Definition")]
-        [Tooltip("Row -> Column -> VarStore の順で初期値を定義します。Column は複数の Var を持てます。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(initializeLocalGridBlackboard))]
         [InlineProperty]
         [SerializeField] LocalGridBlackboardInit localGridBlackboardInit = new();
@@ -137,11 +137,11 @@ namespace Game.Common
         IScopeNode? _owner;
         bool _debugInitialized;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _owner = scope;
             LifetimeScopeKind kind = scope.Kind;
-            RegistrationBuilder blackboard = builder.Register<IBlackboardService, BlackboardService>(Lifetime.Singleton).WithParameter(scope);
+            IRuntimeRegistrationBuilder blackboard = builder.Register<IBlackboardService, BlackboardService>(RuntimeLifetime.Singleton).WithParameter(scope);
             switch (kind)
             {
                 case LifetimeScopeKind.Project:
@@ -176,7 +176,7 @@ namespace Game.Common
                     break;
             }
 
-            builder.Register<IGridBlackboardService, GridBlackboardService>(Lifetime.Singleton)
+            builder.Register<IGridBlackboardService, GridBlackboardService>(RuntimeLifetime.Singleton)
                 .As<IGridBlackboardService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
@@ -191,9 +191,9 @@ namespace Game.Common
 
             if (autoWriteTransformVars)
             {
-                builder.Register<TransformVarAutoWriterService>(Lifetime.Singleton)
+                builder.Register<TransformVarAutoWriterService>(RuntimeLifetime.Singleton)
                     .WithParameter(transform)
-                    .As<ITickable>()
+                    .As<IScopeTickHandler>()
                     .As<IScopeAcquireHandler>()
                     .As<IScopeReleaseHandler>();
             }

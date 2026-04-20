@@ -20,7 +20,7 @@ namespace Game.Channel
         [LabelText("Channels")]
         [SerializeField] AutoSpawnChannelDefinition[] channels = Array.Empty<AutoSpawnChannelDefinition>();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (channels == null)
                 channels = Array.Empty<AutoSpawnChannelDefinition>();
@@ -35,11 +35,11 @@ namespace Game.Channel
                     IAreaChannelHubService? areaHub = null;
                     resolver.TryResolve(out areaHub);
                     return new AutoSpawnChannelHubService(channels, areaHub, runInLateUpdate, forceTickInRuntime);
-                }, Lifetime.Singleton)
+                }, RuntimeLifetime.Singleton)
                 .As<IAutoSpawnChannelHubService>()
                 .As<IChannelHubService>()
-                .As<ITickable>()
-                .As<ILateTickable>()
+                .As<IScopeTickHandler>()
+                .As<IScopeLateTickHandler>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .AsSelf();

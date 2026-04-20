@@ -36,7 +36,7 @@ namespace Game.Channel
         [LabelText("Channels")]
         [SerializeField] ScrollChannelDefinition[] channels = Array.Empty<ScrollChannelDefinition>();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (channels == null)
                 channels = Array.Empty<ScrollChannelDefinition>();
@@ -57,11 +57,11 @@ namespace Game.Channel
                         viewMarginTiles,
                         runInLateUpdate,
                         forceTickInRuntime);
-                }, Lifetime.Singleton)
+                }, RuntimeLifetime.Singleton)
                 .As<IScrollChannelHubService>()
                 .As<IChannelHubService>()
-                .As<ITickable>()
-                .As<ILateTickable>()
+                .As<IScopeTickHandler>()
+                .As<IScopeLateTickHandler>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .AsSelf();

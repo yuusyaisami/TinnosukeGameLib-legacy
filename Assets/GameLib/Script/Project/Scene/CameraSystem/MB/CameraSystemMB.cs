@@ -57,7 +57,7 @@ namespace Game.CameraSystem
         [MinValue(0.001f)]
         [SerializeField] float zoomMaxSize = 20f;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             ResolveReferences();
 
@@ -81,23 +81,23 @@ namespace Game.CameraSystem
             var renderContext = new CameraRenderContext(camera, camTransform, fx, cameraTag);
             builder.RegisterInstance<ICameraRenderContext>(renderContext);
 
-            builder.Register<CameraZoomService>(Lifetime.Singleton)
+            builder.Register<CameraZoomService>(RuntimeLifetime.Singleton)
                 .WithParameter(camera.orthographicSize)
                 .WithParameter(zoomMinSize)
                 .WithParameter(zoomMaxSize)
                 .AsSelf()
                 .As<ICameraZoomService>();
 
-            builder.Register<CameraPostProcessService>(Lifetime.Singleton)
+            builder.Register<CameraPostProcessService>(RuntimeLifetime.Singleton)
                 .WithParameter(vol)
                 .AsSelf()
                 .As<ICameraPostProcessService>();
 
-            builder.Register<CameraFxService>(Lifetime.Singleton)
+            builder.Register<CameraFxService>(RuntimeLifetime.Singleton)
                 .AsSelf()
                 .As<ICameraFxService>();
 
-            var registration = builder.Register<CameraSystemService>(Lifetime.Singleton)
+            var registration = builder.Register<CameraSystemService>(RuntimeLifetime.Singleton)
                 .WithParameter(fx)
                 .WithParameter(camTransform)
                 .WithParameter(camera)
@@ -109,15 +109,15 @@ namespace Game.CameraSystem
 
             if (scope != null && scope.Kind == LifetimeScopeKind.Runtime)
             {
-                registration.As<ITickable>();
+                registration.As<IScopeTickHandler>();
             }
             else if (runInLateUpdate)
             {
-                registration.As<ILateTickable>();
+                registration.As<IScopeLateTickHandler>();
             }
             else
             {
-                registration.As<ITickable>();
+                registration.As<IScopeTickHandler>();
             }
         }
 

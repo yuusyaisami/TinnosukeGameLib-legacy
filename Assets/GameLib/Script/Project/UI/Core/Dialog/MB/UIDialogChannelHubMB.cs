@@ -30,17 +30,17 @@ namespace Game.Dialogue
         public bool EnableDebugLog => _enableDebugLog;
         public IDialogueChannelHubService? Hub => _hub;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<DialogueChannelHubService>(Lifetime.Singleton)
+            builder.Register<DialogueChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<IDialogueChannelHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
 
-            builder.Register<DialogueService>(Lifetime.Singleton)
+            builder.Register<DialogueService>(RuntimeLifetime.Singleton)
                 .As<IDialogueService>();
 
             builder.RegisterBuildCallback(resolver =>

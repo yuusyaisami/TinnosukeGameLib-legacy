@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.StateMachine.Editor;
 using Sirenix.OdinInspector;
@@ -66,7 +66,7 @@ namespace Game.Commands.VNext
         [ShowIf("@Action == StateMachineAction.SetGlobalOption || Action == StateMachineAction.SetLocalOption")]
         [BoxGroup("Option Set")]
         [LabelText("Option Value")]
-        [Tooltip("設定する OptionValue (例: Movement.Direction.Left)")]
+        [Tooltip("險ｭ螳壹☆繧・OptionValue (萓・ Movement.Direction.Left)")]
         [SerializeField]
         [OptionKeyPicker]
         public string? OptionValue;
@@ -74,14 +74,14 @@ namespace Game.Commands.VNext
         [ShowIf("@Action == StateMachineAction.SetLocalOption || Action == StateMachineAction.ReleaseLocalOption")]
         [BoxGroup("Option Local")]
         [LabelText("Layer Key")]
-        [Tooltip("対象 LayerKey。空の場合は CurrentLayer を使用。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         public string? LocalOptionLayerKey;
 
         [ShowIf("@Action == StateMachineAction.ReleaseGlobalOption || Action == StateMachineAction.ReleaseLocalOption")]
         [BoxGroup("Option Release")]
         [LabelText("Option Key")]
-        [Tooltip("解除する OptionKey (例: Movement.Direction)")]
+        [Tooltip("隗｣髯､縺吶ｋ OptionKey (萓・ Movement.Direction)")]
         [SerializeField]
         [OptionKeyPicker]
         public string? OptionKey;

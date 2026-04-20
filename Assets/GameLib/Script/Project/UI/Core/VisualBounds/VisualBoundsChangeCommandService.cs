@@ -24,8 +24,8 @@ namespace Game.UI
     }
 
     public sealed class VisualBoundsChangeCommandService :
-        ITickable,
-        ILateTickable,
+        IScopeTickHandler,
+        IScopeLateTickHandler,
         ITickPhase,
         IScopeAcquireHandler,
         IScopeReleaseHandler

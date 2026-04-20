@@ -12,20 +12,20 @@ namespace Game.Channel
         [SerializeField]
         MeshChannelEntry[] _entries = Array.Empty<MeshChannelEntry>();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<MeshChannelHubService>(resolver =>
                 new MeshChannelHubService(
                     _entries ?? Array.Empty<MeshChannelEntry>(),
                     scope,
                     transform),
-                Lifetime.Singleton)
+                RuntimeLifetime.Singleton)
                 .As<IMeshChannelHubService>()
                 .As<IMeshChannelControlService>()
                 .As<IMeshMaterialFxControlService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .AsSelf();
         }
     }

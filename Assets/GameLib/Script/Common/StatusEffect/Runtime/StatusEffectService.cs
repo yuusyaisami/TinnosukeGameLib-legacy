@@ -15,7 +15,7 @@ namespace Game.StatusEffect
 {
     public sealed class StatusEffectService :
         IStatusEffectService,
-        ITickable,
+        IScopeTickHandler,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
         IDisposable

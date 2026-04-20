@@ -23,15 +23,15 @@ namespace Game.Rotation
         [ShowInInspector, ReadOnly, InlineProperty, HideLabel]
         VelocityDrivenRotationDebugView debugView = new VelocityDrivenRotationDebugView();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode _)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode _)
         {
-            builder.Register<VelocityDrivenRotationService>(Lifetime.Singleton)
+            builder.Register<VelocityDrivenRotationService>(RuntimeLifetime.Singleton)
                 .AsSelf()
                 .As<IVelocityRotationSettingsAdapter>()
                 .As<IVelocityDrivenRotationTelemetry>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .WithParameter(settings);
 
             if (!enableDebugView)

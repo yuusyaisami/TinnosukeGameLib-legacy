@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using UnityEngine;
 using VContainer;
 using System.Collections.Generic;
@@ -9,46 +9,46 @@ using VNext = Game.Commands.VNext;
 namespace Game.UI
 {
     // ================================================================
-    // UIElementStateMB - UIElementの状態設定用MonoBehaviour
+    // UIElementStateMB - UIElement縺ｮ迥ｶ諷玖ｨｭ螳夂畑MonoBehaviour
     // ================================================================
     //
-    // ## 概要
+    // ## 讎りｦ・
     //
-    // UIElementStateMBは、UIElementの状態と設定を管理するMonoBehaviour。
-    // IScopeNode（BaseLifetimeScope/RuntimeLifetimeScope）配下で動作し、以下の機能を提供する:
+    // UIElementStateMB縺ｯ縲ゞIElement縺ｮ迥ｶ諷九→險ｭ螳壹ｒ邂｡逅・☆繧貴onoBehaviour縲・
+    // IScopeNode・・aseLifetimeScope/RuntimeLifetimeScope・蛾・荳九〒蜍穂ｽ懊＠縲∽ｻ･荳九・讖溯・繧呈署萓帙☆繧・
     //
-    // 1. **Inspector設定**: Active/Visible、当たり判定、ナビゲーション設定
-    // 2. **DIコンテナ登録**: UIElementStateServiceをスコープに登録
-    // 3. **実行時設定変更**: Inspectorの変更をServiceに反映
+    // 1. **Inspector險ｭ螳・*: Active/Visible縲∝ｽ薙◆繧雁愛螳壹√リ繝薙ご繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳・
+    // 2. **DI繧ｳ繝ｳ繝・リ逋ｻ骭ｲ**: UIElementStateService繧偵せ繧ｳ繝ｼ繝励↓逋ｻ骭ｲ
+    // 3. **螳溯｡梧凾險ｭ螳壼､画峩**: Inspector縺ｮ螟画峩繧担ervice縺ｫ蜿肴丐
     //
-    // ## 当たり判定RectTransformについて
+    // ## 蠖薙◆繧雁愛螳啌ectTransform縺ｫ縺､縺・※
     //
-    // ナビゲーションやポインター選択時に、このUIElementの物理的な領域を
-    // 定義するために使用される。
+    // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繧・・繧､繝ｳ繧ｿ繝ｼ驕ｸ謚樊凾縺ｫ縲√％縺ｮUIElement縺ｮ迚ｩ逅・噪縺ｪ鬆伜沺繧・
+    // 螳夂ｾｩ縺吶ｋ縺溘ａ縺ｫ菴ｿ逕ｨ縺輔ｌ繧九・
     //
-    // ### デフォルト動作
+    // ### 繝・ヵ繧ｩ繝ｫ繝亥虚菴・
     //
-    // このMBがアタッチされたGameObjectにRectTransformがある場合、
-    // 自動的にそれが当たり判定として設定される。
+    // 縺薙・MB縺後い繧ｿ繝・メ縺輔ｌ縺檬ameObject縺ｫRectTransform縺後≠繧句ｴ蜷医・
+    // 閾ｪ蜍慕噪縺ｫ縺昴ｌ縺悟ｽ薙◆繧雁愛螳壹→縺励※險ｭ螳壹＆繧後ｋ縲・
     //
-    // ### 複数設定
+    // ### 隍・焚險ｭ螳・
     //
-    // 複雑な形状のUIElement（L字型など）では、複数のRectTransformを
-    // 設定して当たり判定領域を構成できる。
+    // 隍・尅縺ｪ蠖｢迥ｶ縺ｮUIElement・・蟄怜梛縺ｪ縺ｩ・峨〒縺ｯ縲∬､・焚縺ｮRectTransform繧・
+    // 險ｭ螳壹＠縺ｦ蠖薙◆繧雁愛螳夐伜沺繧呈ｧ区・縺ｧ縺阪ｋ縲・
     //
-    // ## ナビゲーション設定について
+    // ## 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳壹↓縺､縺・※
     //
     // ### IsNavigationSelectable
     //
-    // falseに設定すると、キーボード/ゲームパッドによるナビゲーションで
-    /// このUIElementは選択候補から除外される。
+    // false縺ｫ險ｭ螳壹☆繧九→縲√く繝ｼ繝懊・繝・繧ｲ繝ｼ繝繝代ャ繝峨↓繧医ｋ繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｧ
+    /// 縺薙・UIElement縺ｯ驕ｸ謚槫呵｣懊°繧蛾勁螟悶＆繧後ｋ縲・
     ///
-    /// 用途: Page、Window、Panel等のコンテナ要素
+    /// 逕ｨ騾・ Page縲仝indow縲￣anel遲峨・繧ｳ繝ｳ繝・リ隕∫ｴ
     ///
     /// ### NavigationOverride
     ///
-    /// 各方向（上下左右）の移動先を明示的に指定できる。
-    /// 設定されていない方向は自動計算される。
+    /// 蜷・婿蜷托ｼ井ｸ贋ｸ句ｷｦ蜿ｳ・峨・遘ｻ蜍募・繧呈・遉ｺ逧・↓謖・ｮ壹〒縺阪ｋ縲・
+    /// 險ｭ螳壹＆繧後※縺・↑縺・婿蜷代・閾ｪ蜍戊ｨ育ｮ励＆繧後ｋ縲・
     ///
     // ================================================================
 
@@ -65,178 +65,168 @@ namespace Game.UI
     }
 
     /// <summary>
-    /// UIElementの状態設定用MonoBehaviour。
+    /// UIElement縺ｮ迥ｶ諷玖ｨｭ螳夂畑MonoBehaviour縲・
     /// 
     /// ## RequireComponent
     /// 
-    /// UIElementLifetimeScopeにRequireComponentで強制されるが、
-    /// RuntimeLifetimeScope配下でも同様に動作する。
+    /// UIElementLifetimeScope縺ｫRequireComponent縺ｧ蠑ｷ蛻ｶ縺輔ｌ繧九′縲・
+    /// RuntimeLifetimeScope驟堺ｸ九〒繧ょ酔讒倥↓蜍穂ｽ懊☆繧九・
     /// 
     /// ## IFeatureInstaller
     /// 
-    /// このMBはIFeatureInstallerを実装し、
-    /// UIElementStateServiceをDIコンテナに登録する。
+    /// 縺薙・MB縺ｯIFeatureInstaller繧貞ｮ溯｣・＠縲・
+    /// UIElementStateService繧奪I繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
     /// </summary>
     public sealed class UIElementStateMB : MonoBehaviour, IFeatureInstaller, IUIElementStateOptions, IScopeAcquireHandler, IScopeReleaseHandler
     {
         // ================================================================
-        // Inspector設定 - 基本状態
+        // Inspector險ｭ螳・- 蝓ｺ譛ｬ迥ｶ諷・
         // ================================================================
 
-        [Header("基本状態")]
-        [Tooltip("UIシステムとしてのActive状態。falseの場合、選択不可・入力不可になる。\n" +
-                 "注意: ScopeのActive（BaseLifetimeScopeならGameObjectのActive）と合算される。")]
+        [Header("Inspector")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _initialActive = true;
 
-        [Tooltip("UIシステムとしてのVisible状態。falseの場合、絶対に描画されない。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _initialVisible = true;
 
         // ================================================================
-        // Inspector設定 - 当たり判定
+        // Inspector險ｭ螳・- 蠖薙◆繧雁愛螳・
         // ================================================================
 
-        [Header("当たり判定")]
-        [Tooltip("ナビゲーション・ポインター選択の当たり判定に使用するRectTransform。\n" +
-                 "空の場合、このGameObjectのRectTransformが自動で追加される。\n" +
-                 "複数設定することで複雑な形状の当たり判定を構成できる。")]
+        [Header("Inspector")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         List<RectTransform> _hitTestRects = new();
 
-        [Tooltip("ポインター選択や汎用選択の優先度。\n" +
-                 "数値が大きいほど優先される。\n" +
-                 "同値なら見た目上前に描画されている要素が優先される。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _selectionOrder = 0;
 
-        [Tooltip("方向ナビゲーション専用の優先度。\n" +
-                 "数値が大きいほど優先される。\n" +
-                 "Selection Order とは別に、上下左右移動だけで使われる。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _navigationSelectionOrder = 0;
         // ================================================================
-        // Inspector設定 - ナビゲーション
+        // Inspector險ｭ螳・- 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ
         // ================================================================
 
-        [Header("ナビゲーション設定")]
-        [Tooltip("このUI自体を選択対象に含めるか。\n" +
-                 "false ならポインター・直接選択・ナビゲーションの全部で選ばれない。")]
+        [Header("Inspector")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [DynamicValueDefaultLiteral(true)]
         Game.Common.DynamicValue<bool> _isSelectable = new Game.Common.DynamicValue<bool>();
 
-        [Tooltip("方向ナビゲーションでだけ選択対象に含めるか。\n" +
-                 "Is Selectable が true でも、ここが false ならクリックはできるがナビゲーションでは止まらない。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [DynamicValueDefaultLiteral(true)]
         Game.Common.DynamicValue<bool> _isNavigationSelectable = new Game.Common.DynamicValue<bool>();
 
-        [Tooltip("方向ごとの移動先を明示指定する。\n" +
-                 "設定した方向は自動計算より優先される。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         NavigationOverride? _navigationOverride;
 
 
         // ================================================================
-        // Inspector設定 - 選択イベントコマンド
+        // Inspector險ｭ螳・- 驕ｸ謚槭う繝吶Φ繝医さ繝槭Φ繝・
         // ================================================================
 
-        [Header("選択イベント")]
-        [Tooltip("このUIElementが選択されたときに実行するコマンド。")]
+        [Header("Inspector")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [VNext.CommandListFunctionName("UIElementState.OnSelected")]
         VNext.CommandListData _onSelectedCommands = new();
 
-        [Tooltip("このUIElementの選択が解除されたときに実行するコマンド。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [VNext.CommandListFunctionName("UIElementState.OnDeselected")]
         VNext.CommandListData _onDeselectedCommands = new();
 
         // ================================================================
-        // キャッシュ
+        // 繧ｭ繝｣繝・す繝･
         // ================================================================
 
-        /// <summary>登録されたService（ランタイム参照用）</summary>
+        /// <summary>逋ｻ骭ｲ縺輔ｌ縺欖ervice・医Λ繝ｳ繧ｿ繧､繝蜿ら・逕ｨ・・/summary>
         UIElementStateService? _service;
 
-        /// <summary>所有者スコープ</summary>
+        /// <summary>謇譛芽・せ繧ｳ繝ｼ繝・/summary>
         IScopeNode? _ownerScope;
 
-        /// <summary>VarStore キャッシュ</summary>
+        /// <summary>VarStore 繧ｭ繝｣繝・す繝･</summary>
         VarStore? _varStore;
 
         // ================================================================
-        // プロパティ
+        // 繝励Ο繝代ユ繧｣
         // ================================================================
 
         /// <summary>
-        /// 当たり判定用RectTransformのリスト。
+        /// 蠖薙◆繧雁愛螳夂畑RectTransform縺ｮ繝ｪ繧ｹ繝医・
         /// </summary>
         public IReadOnlyList<RectTransform> HitTestRects => _hitTestRects;
 
         /// <summary>
-        /// 選択順序。
+        /// 驕ｸ謚樣・ｺ上・
         /// </summary>
         public int SelectionOrder => _selectionOrder;
 
         /// <summary>
-        /// ナビゲーション専用の優先度。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ蟆ら畑縺ｮ蜆ｪ蜈亥ｺｦ縲・
         /// </summary>
         public int NavigationSelectionOrder => _navigationSelectionOrder;
 
         /// <summary>
-        /// このUIElement自体が選択対象になれるかを決める条件。
+        /// 縺薙・UIElement閾ｪ菴薙′驕ｸ謚槫ｯｾ雎｡縺ｫ縺ｪ繧後ｋ縺九ｒ豎ｺ繧√ｋ譚｡莉ｶ縲・
         /// </summary>
         public Game.Common.DynamicValue<bool> IsSelectable => _isSelectable;
 
         /// <summary>
-        /// ナビゲーションで選択可能かを決める条件（DynamicValue<bool>）。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ縺ｧ驕ｸ謚槫庄閭ｽ縺九ｒ豎ｺ繧√ｋ譚｡莉ｶ・・ynamicValue<bool>・峨・
         /// </summary>
         public Game.Common.DynamicValue<bool> IsNavigationSelectable => _isNavigationSelectable;
 
         /// <summary>
-        /// ナビゲーション方向のオーバーライド設定。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ譁ｹ蜷代・繧ｪ繝ｼ繝舌・繝ｩ繧､繝芽ｨｭ螳壹・
         /// </summary>
         public NavigationOverride? NavigationOverride => _navigationOverride;
 
         /// <summary>
-        /// 選択時コマンドリスト。
+        /// 驕ｸ謚樊凾繧ｳ繝槭Φ繝峨Μ繧ｹ繝医・
         /// </summary>
         public VNext.CommandListData OnSelectedCommands => _onSelectedCommands;
 
         /// <summary>
-        /// 選択解除時コマンドリスト。
+        /// 驕ｸ謚櫁ｧ｣髯､譎ゅさ繝槭Φ繝峨Μ繧ｹ繝医・
         /// </summary>
         public VNext.CommandListData OnDeselectedCommands => _onDeselectedCommands;
 
         // ================================================================
-        // IFeatureInstaller実装
+        // IFeatureInstaller螳溯｣・
         // ================================================================
 
         /// <summary>
-        /// UIElementStateServiceをDIコンテナに登録する。
+        /// UIElementStateService繧奪I繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// 
-        /// ## 処理内容
+        /// ## 蜃ｦ逅・・螳ｹ
         /// 
-        /// 1. UIElementStateServiceをSingletonで登録
-        /// 2. IUIElementStateとIUIElementStateControllerの両方で公開
-        /// 3. BuildCallback内でInspector設定をServiceに反映
+        /// 1. UIElementStateService繧担ingleton縺ｧ逋ｻ骭ｲ
+        /// 2. IUIElementState縺ｨIUIElementStateController縺ｮ荳｡譁ｹ縺ｧ蜈ｬ髢・
+        /// 3. BuildCallback蜀・〒Inspector險ｭ螳壹ｒService縺ｫ蜿肴丐
         /// 
-        /// ## 呼び出しタイミング
+        /// ## 蜻ｼ縺ｳ蜃ｺ縺励ち繧､繝溘Φ繧ｰ
         /// 
-        /// UIElementLifetimeScopeのConfigure時に呼び出される。
+        /// UIElementLifetimeScope縺ｮConfigure譎ゅ↓蜻ｼ縺ｳ蜃ｺ縺輔ｌ繧九・
         /// </summary>
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ownerScope = scope;
 
-            // 当たり判定用RectTransformのデフォルト設定
-            // リストが空の場合、このGameObjectのRectTransformを自動追加
+            // 蠖薙◆繧雁愛螳夂畑RectTransform縺ｮ繝・ヵ繧ｩ繝ｫ繝郁ｨｭ螳・
+            // 繝ｪ繧ｹ繝医′遨ｺ縺ｮ蝣ｴ蜷医√％縺ｮGameObject縺ｮRectTransform繧定・蜍戊ｿｽ蜉
             EnsureDefaultHitTestRect();
 
-            // UIElementStateServiceを登録
-            builder.Register<UIElementStateService>(Lifetime.Singleton)
+            // UIElementStateService繧堤匳骭ｲ
+            builder.Register<UIElementStateService>(RuntimeLifetime.Singleton)
                 .WithParameter<IScopeNode>(scope)
                 .WithParameter<IUIElementStateOptions>(this)
                 .As<IScopeAcquireHandler>()
@@ -245,9 +235,9 @@ namespace Game.UI
                 .As<IUIElementStateController>()
                 .As<IUIModalRoot>();
 
-            // IUIInputConsumerHubを登録
-            // 各FeatureInstaller（ボタン、スクロール等）はこのHubにConsumerを登録する
-            builder.Register<UIInputConsumerHub>(Lifetime.Singleton)
+            // IUIInputConsumerHub繧堤匳骭ｲ
+            // 蜷ЁeatureInstaller・医・繧ｿ繝ｳ縲√せ繧ｯ繝ｭ繝ｼ繝ｫ遲会ｼ峨・縺薙・Hub縺ｫConsumer繧堤匳骭ｲ縺吶ｋ
+            builder.Register<UIInputConsumerHub>(RuntimeLifetime.Singleton)
                 .As<IUIInputConsumerHub>();
 
             // Apply initial state and inspector settings to the created UIElementStateService
@@ -255,7 +245,7 @@ namespace Game.UI
             {
                 if (container.TryResolve<UIElementStateService>(out var service))
                 {
-                    _service = service;  // _service をキャッシュ
+                    _service = service;  // _service 繧偵く繝｣繝・す繝･
                     service.SetHitTestRects(_hitTestRects);
                     service.SetSelectionOrder(_selectionOrder);
                     service.SetNavigationSelectionOrder(_navigationSelectionOrder);
@@ -271,7 +261,7 @@ namespace Game.UI
         }
 
         // ================================================================
-        // MonoBehaviourライフサイクル
+        // MonoBehaviour繝ｩ繧､繝輔し繧､繧ｯ繝ｫ
         // ================================================================
         void Awake()
         {
@@ -279,8 +269,8 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// Resetはエディタでコンポーネント追加時に呼ばれる。
-        /// デフォルトで自身のRectTransformを当たり判定に追加する。
+        /// Reset縺ｯ繧ｨ繝・ぅ繧ｿ縺ｧ繧ｳ繝ｳ繝昴・繝阪Φ繝郁ｿｽ蜉譎ゅ↓蜻ｼ縺ｰ繧後ｋ縲・
+        /// 繝・ヵ繧ｩ繝ｫ繝医〒閾ｪ霄ｫ縺ｮRectTransform繧貞ｽ薙◆繧雁愛螳壹↓霑ｽ蜉縺吶ｋ縲・
         /// </summary>
         void Reset()
         {
@@ -288,34 +278,34 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// OnValidateはInspector値変更時に呼ばれる（エディタのみ）。
-        /// 実行時にServiceが存在すれば設定を反映する。
+        /// OnValidate縺ｯInspector蛟､螟画峩譎ゅ↓蜻ｼ縺ｰ繧後ｋ・医お繝・ぅ繧ｿ縺ｮ縺ｿ・峨・
+        /// 螳溯｡梧凾縺ｫService縺悟ｭ伜惠縺吶ｌ縺ｰ險ｭ螳壹ｒ蜿肴丐縺吶ｋ縲・
         /// </summary>
         void OnValidate()
         {
             BindDebugOwners();
-            // 実行時のみ
+            // 螳溯｡梧凾縺ｮ縺ｿ
             if (!Application.isPlaying) return;
 
-            // Serviceが登録済みなら設定を反映
+            // Service縺檎匳骭ｲ貂医∩縺ｪ繧芽ｨｭ螳壹ｒ蜿肴丐
             if (_service != null)
             {
-                // OnValidateでは選択監視の初期化は行わない（既に初期化済み）
+                // OnValidate縺ｧ縺ｯ驕ｸ謚樒屮隕悶・蛻晄悄蛹悶・陦後ｏ縺ｪ縺・ｼ域里縺ｫ蛻晄悄蛹匁ｸ医∩・・
                 ApplyInspectorSettingsWithoutInitialize(_service);
             }
         }
 
         // ================================================================
-        // IScopeAcquireHandler / IScopeReleaseHandler実装
+        // IScopeAcquireHandler / IScopeReleaseHandler螳溯｣・
         // ================================================================
 
         /// <summary>
-        /// スコープ獲得時の初期化処理。
-        /// VarStore から IsNavigationSelectable の変更を購読する。
+        /// 繧ｹ繧ｳ繝ｼ繝礼佐蠕玲凾縺ｮ蛻晄悄蛹門・逅・・
+        /// VarStore 縺九ｉ IsNavigationSelectable 縺ｮ螟画峩繧定ｳｼ隱ｭ縺吶ｋ縲・
         /// </summary>
         void IScopeAcquireHandler.OnAcquire(IScopeNode scope, bool isReset)
         {
-            // VarStore を取得（ローカルから検索開始）
+            // VarStore 繧貞叙蠕暦ｼ医Ο繝ｼ繧ｫ繝ｫ縺九ｉ讀懃ｴ｢髢句ｧ具ｼ・
             if (_varStore == null && scope?.Resolver != null)
             {
                 scope.Resolver.TryResolve<VarStore>(out _varStore);
@@ -323,24 +313,24 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// スコープ解放時のクリーンアップ処理。
+        /// 繧ｹ繧ｳ繝ｼ繝苓ｧ｣謾ｾ譎ゅ・繧ｯ繝ｪ繝ｼ繝ｳ繧｢繝・・蜃ｦ逅・・
         /// </summary>
         void IScopeReleaseHandler.OnRelease(IScopeNode scope, bool isReset)
         {
-            // VarStore への購読は不要（VarStore 側で参照が解放される）
+            // VarStore 縺ｸ縺ｮ雉ｼ隱ｭ縺ｯ荳崎ｦ・ｼ・arStore 蛛ｴ縺ｧ蜿ら・縺瑚ｧ｣謾ｾ縺輔ｌ繧具ｼ・
             _varStore = null;
         }
 
         // ================================================================
-        // 内部メソッド
+        // 蜀・Κ繝｡繧ｽ繝・ラ
         // ================================================================
 
         /// <summary>
-        /// デフォルトの当たり判定RectTransformを設定する。
+        /// 繝・ヵ繧ｩ繝ｫ繝医・蠖薙◆繧雁愛螳啌ectTransform繧定ｨｭ螳壹☆繧九・
         /// 
-        /// ## 処理
+        /// ## 蜃ｦ逅・
         /// 
-        /// _hitTestRectsが空の場合、自身のRectTransformを追加する。
+        /// _hitTestRects縺檎ｩｺ縺ｮ蝣ｴ蜷医∬・霄ｫ縺ｮRectTransform繧定ｿｽ蜉縺吶ｋ縲・
         /// </summary>
         void EnsureDefaultHitTestRect()
         {
@@ -361,22 +351,22 @@ namespace Game.UI
 
 
         /// <summary>
-        /// Inspector設定をServiceに反映する（初期化なし）。
-        /// OnValidateから呼ばれる。
+        /// Inspector險ｭ螳壹ｒService縺ｫ蜿肴丐縺吶ｋ・亥・譛溷喧縺ｪ縺暦ｼ峨・
+        /// OnValidate縺九ｉ蜻ｼ縺ｰ繧後ｋ縲・
         /// </summary>
         void ApplyInspectorSettingsWithoutInitialize(UIElementStateService service)
         {
-            // 当たり判定
+            // 蠖薙◆繧雁愛螳・
             service.SetHitTestRects(_hitTestRects);
 
-            // ナビゲーション設定
+            // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳・
             service.SetSelectionOrder(_selectionOrder);
             service.SetNavigationSelectionOrder(_navigationSelectionOrder);
             service.SetSelectableCondition(_isSelectable);
             service.SetNavigationSelectableCondition(_isNavigationSelectable);
             service.SetNavigationOverride(_navigationOverride);
 
-            // 選択イベントコマンド
+            // 驕ｸ謚槭う繝吶Φ繝医さ繝槭Φ繝・
             service.OnSelectedCommands.SetCommands(_onSelectedCommands);
             service.OnDeselectedCommands.SetCommands(_onDeselectedCommands);
         }

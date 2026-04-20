@@ -14,7 +14,7 @@ namespace Game.Conversation
         public string StableKey { get; }
         public CharacterDataBaseDefinition Definition { get; }
         public IScopeNode Scope { get; }
-        public IObjectResolver Resolver { get; }
+        public IRuntimeResolver Resolver { get; }
         public Transform? SelfTransform => Scope.Identity?.SelfTransform;
 
         public CharacterRuntimeBinding(
@@ -22,7 +22,7 @@ namespace Game.Conversation
             string stableKey,
             CharacterDataBaseDefinition definition,
             IScopeNode scope,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             CharacterId = characterId;
             StableKey = stableKey ?? string.Empty;
@@ -44,7 +44,7 @@ namespace Game.Conversation
         bool RegisterOrReplace(CharacterDataBaseDefinition definition);
         bool Unregister(int characterId);
 
-        bool TryBindRuntime(int characterId, IScopeNode scope, IObjectResolver resolver);
+        bool TryBindRuntime(int characterId, IScopeNode scope, IRuntimeResolver resolver);
         bool TryGetRuntime(int characterId, out CharacterRuntimeBinding? binding);
         bool TryReleaseRuntime(int characterId);
         void ReleaseAllRuntimes();
@@ -166,7 +166,7 @@ namespace Game.Conversation
             return true;
         }
 
-        public bool TryBindRuntime(int characterId, IScopeNode scope, IObjectResolver resolver)
+        public bool TryBindRuntime(int characterId, IScopeNode scope, IRuntimeResolver resolver)
         {
             if (!_isAcquired)
                 return false;

@@ -146,7 +146,7 @@ namespace Game.TransformSystem
         ITransformManagerService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         struct MovementEntryState
         {

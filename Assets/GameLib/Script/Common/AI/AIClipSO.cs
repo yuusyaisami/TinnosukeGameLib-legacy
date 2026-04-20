@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -6,18 +6,18 @@ using UnityEngine;
 namespace Game.AI
 {
     /// <summary>
-    /// AI Clip の基底クラス。派生で振る舞いを定義。
+    /// AI Clip 縺ｮ蝓ｺ蠎輔け繝ｩ繧ｹ縲よｴｾ逕溘〒謖ｯ繧玖・縺・ｒ螳夂ｾｩ縲・
     /// </summary>
     public abstract class AIClipSO : ScriptableObject
     {
         [Header("Identification")]
         [LabelText("Stable Key")]
-        [Tooltip("永続ID。ログ・デバッグ用。名前依存禁止")]
+        [Tooltip("豌ｸ邯唔D縲ゅΟ繧ｰ繝ｻ繝・ヰ繝・げ逕ｨ縲ょ錐蜑堺ｾ晏ｭ倡ｦ∵ｭ｢")]
         public string StableKey = "";
 
         [Header("Priority & Timing")]
         [LabelText("Priority")]
-        [Tooltip("割り込み競合時の優先度。高いほど優先")]
+        [Tooltip("Inspector setting.")]
         public int Priority = 0;
 
         [LabelText("Update Mode")]
@@ -30,7 +30,7 @@ namespace Game.AI
 
         [Header("Behavior")]
         [LabelText("Allow Reenter")]
-        [Tooltip("同じ Clip の連続 Push を許可するか")]
+        [Tooltip("Inspector setting.")]
         public bool AllowReenter = false;
 
         [Header("Interrupts")]
@@ -38,7 +38,7 @@ namespace Game.AI
         [ListDrawerSettings(ShowFoldout = true)]
         public List<InterruptRule> InterruptRules = new();
 
-        /// <summary>Runtime を生成（派生でオーバーライド）</summary>
+        /// <summary>Runtime 繧堤函謌撰ｼ域ｴｾ逕溘〒繧ｪ繝ｼ繝舌・繝ｩ繧､繝会ｼ・/summary>
         public abstract AIClipRuntime CreateRuntime(in AIAgentContext ctx);
     }
 }

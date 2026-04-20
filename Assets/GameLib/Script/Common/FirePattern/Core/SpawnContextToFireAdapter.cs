@@ -78,7 +78,7 @@ namespace Game.Fire
             _targetChannelTag = targetChannelTag ?? "";
             _query = query;
             // Do NOT resolve optional services in constructor. They will be TryResolve'd
-            // from the scope's resolver during OnAcquire via EnsureServicesResolved(IObjectResolver?).
+            // from the scope's resolver during OnAcquire via EnsureServicesResolved(IRuntimeResolver?).
         }
 
         public void SetOverridePattern(BaseFirePattern? pattern)
@@ -223,7 +223,7 @@ namespace Game.Fire
             return _queryBuffer;
         }
 
-        static Vector3 ResolveUnitPosition(IObjectResolver resolver, Vector3 fallback)
+        static Vector3 ResolveUnitPosition(IRuntimeResolver resolver, Vector3 fallback)
         {
             if (resolver != null)
             {
@@ -237,7 +237,7 @@ namespace Game.Fire
             return fallback;
         }
 
-        void EnsureServicesResolved(IObjectResolver? resolver)
+        void EnsureServicesResolved(IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return;

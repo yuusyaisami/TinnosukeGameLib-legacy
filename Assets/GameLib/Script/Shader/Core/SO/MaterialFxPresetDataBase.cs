@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -15,13 +15,13 @@ namespace Game.MaterialFx
     public abstract class MaterialFxPresetDataBase
     {
         [TitleGroup("Custom Entries")]
-        [InfoBox("開発者が自由に編集できるエントリ。AutoEntries より後に適用されます。")]
-        [Tooltip("カスタムエントリ。AutoEntries を上書きできます。")]
+        [InfoBox("Inspector info.")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, ListElementLabelName = nameof(MaterialFxPresetEntry.Key))]
         public List<MaterialFxPresetEntry> CustomEntries = new();
 
         [TitleGroup("Auto Entries (Read Only)")]
-        [InfoBox("フィールドから自動生成されたエントリ。直接編集不可。")]
+        [InfoBox("Inspector info.")]
         [SerializeField, ReadOnly]
         [ListDrawerSettings(ShowFoldout = true, IsReadOnly = true, ListElementLabelName = nameof(MaterialFxPresetEntry.Key))]
         protected List<MaterialFxPresetEntry> AutoEntries = new();

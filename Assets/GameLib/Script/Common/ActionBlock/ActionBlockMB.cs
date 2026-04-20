@@ -9,9 +9,9 @@ namespace Game.Input
     /// </summary>
     public sealed class ActionBlockMB : MonoBehaviour, IFeatureInstaller
     {
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<ActionBlockService>(Lifetime.Singleton)
+            builder.Register<ActionBlockService>(RuntimeLifetime.Singleton)
                 .As<IActionBlockService>();
         }
     }

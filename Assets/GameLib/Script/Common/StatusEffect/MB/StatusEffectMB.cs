@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
 using Game.Common;
@@ -27,12 +27,12 @@ namespace Game.StatusEffect
     public sealed class StatusEffectGlobalLifetimeSettings : IDynamicManagedRefValue
     {
         [LabelText("Enabled")]
-        [Tooltip("有効な場合、この service は shared lifetime timer を保持します。global lifetime sync runtime はこの値を参照します。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled;
 
         [ShowIf(nameof(Enabled))]
         [LabelText("Duration")]
-        [Tooltip("service acquire/reset 時に初期化される global lifetime 秒数です。-1 なら無期限です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> Duration;
 
         public StatusEffectGlobalLifetimeSettings CreateRuntimeCopy()
@@ -58,12 +58,12 @@ namespace Game.StatusEffect
     public sealed class StatusEffectGlobalUseCooldownSettings : IDynamicManagedRefValue
     {
         [LabelText("Enabled")]
-        [Tooltip("有効な場合、この service は shared use cooldown を保持します。UseGlobal 実行時に開始されます。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled;
 
         [ShowIf(nameof(Enabled))]
         [LabelText("Duration")]
-        [Tooltip("UseGlobal 実行後に再使用可能になるまでの shared cooldown 秒数です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> Duration;
 
         public StatusEffectGlobalUseCooldownSettings CreateRuntimeCopy()
@@ -89,12 +89,12 @@ namespace Game.StatusEffect
     public sealed class StatusEffectGlobalCountSettings : IDynamicManagedRefValue
     {
         [LabelText("Enabled")]
-        [Tooltip("有効な場合、この service は shared count を保持します。UseGlobal 実行で 1 減少します。0 以下なら無制限です。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled;
 
         [ShowIf(nameof(Enabled))]
         [LabelText("Max Count")]
-        [Tooltip("service acquire/reset 時に初期化する shared count 上限です。0 以下なら無制限です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<int> MaxCount;
 
         public StatusEffectGlobalCountSettings CreateRuntimeCopy()
@@ -120,12 +120,12 @@ namespace Game.StatusEffect
     public sealed class StatusEffectGlobalBlackboardBindingSettings
     {
         [LabelText("Enabled")]
-        [Tooltip("有効な場合、StatusEffect の global state を Blackboard に書き込みます。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled = true;
 
         [ShowIf(nameof(Enabled))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Blackboard Source\", BlackboardBindingSource)")]
-        [Tooltip("global state の読み書き先に使う Blackboard スコープです。Current ならこのコンポーネントの scope を使います。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource BlackboardBindingSource = new() { Kind = ActorSourceKind.Current };
     }
 
@@ -190,26 +190,26 @@ namespace Game.StatusEffect
 
         [Header("Global Runtime")]
         [SerializeField, InlineProperty]
-        [Tooltip("service 全体で共有する lifetime timer 設定です。global lifetime sync runtime が参照します。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<StatusEffectGlobalLifetimeSettings> _globalLifetimeSettings =
             DynamicValue<StatusEffectGlobalLifetimeSettings>.FromSource(
                 new ManagedRefLiteralSource<StatusEffectGlobalLifetimeSettings>(new StatusEffectGlobalLifetimeSettings()));
 
         [SerializeField, InlineProperty]
-        [Tooltip("service 全体で共有する use cooldown 設定です。UseGlobal 実行時に開始されます。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<StatusEffectGlobalUseCooldownSettings> _globalUseCooldownSettings =
             DynamicValue<StatusEffectGlobalUseCooldownSettings>.FromSource(
                 new ManagedRefLiteralSource<StatusEffectGlobalUseCooldownSettings>(new StatusEffectGlobalUseCooldownSettings()));
 
         [SerializeField, InlineProperty]
-        [Tooltip("service 全体で共有する count 設定です。UseGlobal 実行で消費されます。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<StatusEffectGlobalCountSettings> _globalCountSettings =
             DynamicValue<StatusEffectGlobalCountSettings>.FromSource(
                 new ManagedRefLiteralSource<StatusEffectGlobalCountSettings>(new StatusEffectGlobalCountSettings()));
 
         [Header("Blackboard Binding")]
         [SerializeField, InlineProperty]
-        [Tooltip("StatusEffect の global state を書き込む Blackboard のバインディング設定です。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectGlobalBlackboardBindingSettings _globalBlackboardBinding = new();
 
         [Header("Debug Apply")]
@@ -279,7 +279,7 @@ namespace Game.StatusEffect
         public bool UseBlackboardBinding => _globalBlackboardBinding.Enabled;
         public ActorSource BlackboardBindingSource => _globalBlackboardBinding.BlackboardBindingSource;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterComponent(this)
                 .AsSelf()
@@ -289,10 +289,10 @@ namespace Game.StatusEffect
             builder.RegisterInstance<IStatusEffectServiceOptions>(this);
             builder.RegisterInstance<IStatusEffectGlobalBlackboardBindingOptions>(this);
 
-            builder.Register<StatusEffectService>(Lifetime.Singleton)
+            builder.Register<StatusEffectService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .As<IStatusEffectService>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
         }

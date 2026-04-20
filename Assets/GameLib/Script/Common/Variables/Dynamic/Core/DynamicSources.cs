@@ -1,15 +1,15 @@
-// Game.Common.DynamicSources.cs
+﻿// Game.Common.DynamicSources.cs
 //
-// 各種 IDynamicSource 実装
+// 蜷・ｨｮ IDynamicSource 螳溯｣・
 //
-// 設計決定:
-// - Literal: 定数値（非ジェネリック、Type選択あり）
-// - Literal<T>: 型固定の定数値（ジェネリック、Type選択なし）
-// - LiteralToVariable: 定数値 + VarStore への書き込み副作用（旧互換名）
-// - VarStore: VarStore からの読み取り（varId ベース）
-// - SelfScalar/OtherScalar: ScalarService からの読み取り（float のみ）
-// - SelfBlackboard/OtherBlackboard: Blackboard からの読み取り
-// - UnityObjectRef: Unity Object 参照
+// 險ｭ險域ｱｺ螳・
+// - Literal: 螳壽焚蛟､・磯撼繧ｸ繧ｧ繝阪Μ繝・け縲ゝype驕ｸ謚槭≠繧奇ｼ・
+// - Literal<T>: 蝙句崋螳壹・螳壽焚蛟､・医ず繧ｧ繝阪Μ繝・け縲ゝype驕ｸ謚槭↑縺暦ｼ・
+// - LiteralToVariable: 螳壽焚蛟､ + VarStore 縺ｸ縺ｮ譖ｸ縺崎ｾｼ縺ｿ蜑ｯ菴懃畑・域立莠呈鋤蜷搾ｼ・
+// - VarStore: VarStore 縺九ｉ縺ｮ隱ｭ縺ｿ蜿悶ｊ・・arId 繝吶・繧ｹ・・
+// - SelfScalar/OtherScalar: ScalarService 縺九ｉ縺ｮ隱ｭ縺ｿ蜿悶ｊ・・loat 縺ｮ縺ｿ・・
+// - SelfBlackboard/OtherBlackboard: Blackboard 縺九ｉ縺ｮ隱ｭ縺ｿ蜿悶ｊ
+// - UnityObjectRef: Unity Object 蜿ら・
 
 #nullable enable
 
@@ -51,12 +51,12 @@ namespace Game.Common
     }
 
     // ================================================================
-    // Literal Source（非ジェネリック、Type選択あり）
+    // Literal Source・磯撼繧ｸ繧ｧ繝阪Μ繝・け縲ゝype驕ｸ謚槭≠繧奇ｼ・
     // ================================================================
 
     /// <summary>
-    /// 定数値ソース（int/float/bool/string/Vector/Color）。
-    /// DynamicValue（非ジェネリック）で使用。
+    /// 螳壽焚蛟､繧ｽ繝ｼ繧ｹ・・nt/float/bool/string/Vector/Color・峨・
+    /// DynamicValue・磯撼繧ｸ繧ｧ繝阪Μ繝・け・峨〒菴ｿ逕ｨ縲・
     /// </summary>
     [Serializable]
     public sealed class LiteralSource : IDynamicSource
@@ -119,7 +119,7 @@ namespace Game.Common
             };
         }
 
-        // ファクトリ
+        // 繝輔ぃ繧ｯ繝医Μ
         public static LiteralSource FromInt(int value) => new() { type = LiteralType.Int, intValue = value };
         public static LiteralSource FromFloat(float value) => new() { type = LiteralType.Float, floatValue = value };
         public static LiteralSource FromBool(bool value) => new() { type = LiteralType.Bool, boolValue = value };
@@ -129,10 +129,10 @@ namespace Game.Common
     }
 
     // ================================================================
-    // 型固定 Literal Sources（DynamicValue<T> 用）
+    // 蝙句崋螳・Literal Sources・・ynamicValue<T> 逕ｨ・・
     // ================================================================
 
-    /// <summary>int 固定リテラル</summary>
+    /// <summary>int 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralIntSource : IDynamicSource
     {
@@ -151,7 +151,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>float 固定リテラル</summary>
+    /// <summary>float 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralFloatSource : IDynamicSource
     {
@@ -170,7 +170,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>bool 固定リテラル</summary>
+    /// <summary>bool 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralBoolSource : IDynamicSource
     {
@@ -189,7 +189,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>string 固定リテラル</summary>
+    /// <summary>string 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralStringSource : IDynamicSource
     {
@@ -208,7 +208,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>Vector2 固定リテラル</summary>
+    /// <summary>Vector2 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralVector2Source : IDynamicSource
     {
@@ -227,7 +227,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>Vector3 固定リテラル</summary>
+    /// <summary>Vector3 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralVector3Source : IDynamicSource
     {
@@ -246,7 +246,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>Vector4 固定リテラル</summary>
+    /// <summary>Vector4 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralVector4Source : IDynamicSource
     {
@@ -265,7 +265,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>Color 固定リテラル</summary>
+    /// <summary>Color 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralColorSource : IDynamicSource
     {
@@ -284,7 +284,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>AnimationSpritePreset 固定リテラル</summary>
+    /// <summary>AnimationSpritePreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralAnimationSpritePresetSource : IDynamicSource
     {
@@ -296,7 +296,7 @@ namespace Game.Common
         public DynamicVariant Evaluate(IDynamicContext context) => DynamicVariant.FromManagedRef(value);
     }
 
-    /// <summary>AnimationSpritePreset アセット参照</summary>
+    /// <summary>AnimationSpritePreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetAnimationSpritePresetSource : IDynamicSource
     {
@@ -311,7 +311,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>StateMachinePreset 固定リテラル</summary>
+    /// <summary>StateMachinePreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralStateMachinePresetSource : IDynamicSource
     {
@@ -333,7 +333,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>StateMachinePreset アセット参照</summary>
+    /// <summary>StateMachinePreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetStateMachinePresetSource : IDynamicSource
     {
@@ -359,7 +359,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>StateAnimationPreset 固定リテラル</summary>
+    /// <summary>StateAnimationPreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralStateAnimationPresetSource : IDynamicSource
     {
@@ -381,7 +381,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>StateAnimationPreset アセット参照</summary>
+    /// <summary>StateAnimationPreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetStateAnimationPresetSource : IDynamicSource
     {
@@ -407,7 +407,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>HealthPreset 固定リテラル</summary>
+    /// <summary>HealthPreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralHealthPresetSource : IDynamicSource
     {
@@ -429,7 +429,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>HealthPreset アセット参照</summary>
+    /// <summary>HealthPreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetHealthPresetSource : IDynamicSource
     {
@@ -458,7 +458,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>MotionPreset 固定リテラル</summary>
+    /// <summary>MotionPreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralMotionPresetSource : IDynamicSource
     {
@@ -471,7 +471,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>MotionPreset アセット参照</summary>
+    /// <summary>MotionPreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetMotionPresetSource : IDynamicSource
     {
@@ -486,7 +486,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>TransformAnimationPreset 固定リテラル</summary>
+    /// <summary>TransformAnimationPreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralTransformAnimationPresetSource : IDynamicSource
     {
@@ -499,7 +499,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>CommandListData 固定リテラル</summary>
+    /// <summary>CommandListData 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralCommandListDataSource : IDynamicSource
     {
@@ -522,7 +522,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>Table 固定リテラル</summary>
+    /// <summary>Table 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralTableSource : IDynamicSource
     {
@@ -577,7 +577,7 @@ namespace Game.Common
         }
     }
 
-    /// <summary>VarStorePayload 固定リテラル（互換用）</summary>
+    /// <summary>VarStorePayload 蝗ｺ螳壹Μ繝・Λ繝ｫ・井ｺ呈鋤逕ｨ・・/summary>
     [Serializable]
     public sealed class LiteralVarStorePayloadSource : IDynamicSource
     {
@@ -600,7 +600,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>BaseStatusEffectDefinitionData 固定リテラル</summary>
+    /// <summary>BaseStatusEffectDefinitionData 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralStatusEffectDefinitionSource : IDynamicSource
     {
@@ -614,7 +614,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>BaseStatusEffectDefinitionData アセット参照</summary>
+    /// <summary>BaseStatusEffectDefinitionData 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetStatusEffectDefinitionSource : IDynamicSource
     {
@@ -630,7 +630,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>StatusEffectStackPreset 固定リテラル</summary>
+    /// <summary>StatusEffectStackPreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralStatusEffectStackPresetSource : IDynamicSource
     {
@@ -644,7 +644,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>StatusEffectStackPreset アセット参照</summary>
+    /// <summary>StatusEffectStackPreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetStatusEffectStackPresetSource : IDynamicSource
     {
@@ -660,7 +660,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>StatusEffectGlobalLifetimeSettings 固定リテラル</summary>
+    /// <summary>StatusEffectGlobalLifetimeSettings 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralStatusEffectGlobalLifetimeSettingsSource : IDynamicSource
     {
@@ -674,7 +674,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>StatusEffectGlobalLifetimeSettings アセット参照</summary>
+    /// <summary>StatusEffectGlobalLifetimeSettings 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetStatusEffectGlobalLifetimeSettingsSource : IDynamicSource
     {
@@ -690,7 +690,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>StatusEffectGlobalUseCooldownSettings 固定リテラル</summary>
+    /// <summary>StatusEffectGlobalUseCooldownSettings 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralStatusEffectGlobalUseCooldownSettingsSource : IDynamicSource
     {
@@ -704,7 +704,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>StatusEffectGlobalUseCooldownSettings アセット参照</summary>
+    /// <summary>StatusEffectGlobalUseCooldownSettings 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetStatusEffectGlobalUseCooldownSettingsSource : IDynamicSource
     {
@@ -720,7 +720,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>StatusEffectGlobalCountSettings 固定リテラル</summary>
+    /// <summary>StatusEffectGlobalCountSettings 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralStatusEffectGlobalCountSettingsSource : IDynamicSource
     {
@@ -734,7 +734,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>StatusEffectGlobalCountSettings アセット参照</summary>
+    /// <summary>StatusEffectGlobalCountSettings 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetStatusEffectGlobalCountSettingsSource : IDynamicSource
     {
@@ -750,7 +750,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>BaseRuntimeTemplatePreset 固定リテラル</summary>
+    /// <summary>BaseRuntimeTemplatePreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralRuntimeTemplatePresetSource : IDynamicSource
     {
@@ -763,7 +763,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>BaseRuntimeTemplatePreset アセット参照</summary>
+    /// <summary>BaseRuntimeTemplatePreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetRuntimeTemplatePresetSource : IDynamicSource
     {
@@ -778,7 +778,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>ParticleRuntimeTemplatePreset 固定リテラル</summary>
+    /// <summary>ParticleRuntimeTemplatePreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralParticleRuntimeTemplatePresetSource : IDynamicSource
     {
@@ -791,7 +791,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>ParticleRuntimeTemplatePreset アセット参照</summary>
+    /// <summary>ParticleRuntimeTemplatePreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetParticleRuntimeTemplatePresetSource : IDynamicSource
     {
@@ -806,7 +806,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>FirePatternRuntimeTemplatePreset 固定リテラル</summary>
+    /// <summary>FirePatternRuntimeTemplatePreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralFirePatternRuntimeTemplatePresetSource : IDynamicSource
     {
@@ -819,7 +819,7 @@ namespace Game.Common
             => value != null ? DynamicVariant.FromManagedRef(value) : DynamicVariant.Null;
     }
 
-    /// <summary>FirePatternRuntimeTemplatePreset アセット参照</summary>
+    /// <summary>FirePatternRuntimeTemplatePreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetFirePatternRuntimeTemplatePresetSource : IDynamicSource
     {
@@ -834,7 +834,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>SpawnPatternRuntimeTemplatePreset 固定リテラル</summary>
+    /// <summary>SpawnPatternRuntimeTemplatePreset 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralSpawnPatternRuntimeTemplatePresetSource : IDynamicSource
     {
@@ -849,7 +849,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>SpawnPatternRuntimeTemplatePreset アセット参照</summary>
+    /// <summary>SpawnPatternRuntimeTemplatePreset 繧｢繧ｻ繝・ヨ蜿ら・</summary>
     [Serializable]
     public sealed class AssetSpawnPatternRuntimeTemplatePresetSource : IDynamicSource
     {
@@ -864,7 +864,7 @@ namespace Game.Common
                 : DynamicVariant.Null;
     }
 
-    /// <summary>MaterialFxPayload 固定リテラル</summary>
+    /// <summary>MaterialFxPayload 蝗ｺ螳壹Μ繝・Λ繝ｫ</summary>
     [Serializable]
     public sealed class LiteralMaterialFxPayloadSource : IDynamicSource
     {
@@ -881,7 +881,7 @@ namespace Game.Common
     // ================================================================
 
     /// <summary>
-    /// Unity Object 参照ソース（非ジェネリック）。
+    /// Unity Object 蜿ら・繧ｽ繝ｼ繧ｹ・磯撼繧ｸ繧ｧ繝阪Μ繝・け・峨・
     /// </summary>
     [Serializable]
     public sealed class UnityObjectRefSource : IDynamicSource
@@ -901,8 +901,8 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// 型指定の Unity Object 参照ソース。
-    /// DynamicValue&lt;AnimationData&gt; などで使用。
+    /// 蝙区欠螳壹・ Unity Object 蜿ら・繧ｽ繝ｼ繧ｹ縲・
+    /// DynamicValue&lt;AnimationData&gt; 縺ｪ縺ｩ縺ｧ菴ｿ逕ｨ縲・
     /// </summary>
     [Serializable]
     public sealed class UnityObjectRefSource<T> : IDynamicSource where T : Object
@@ -922,8 +922,8 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// TraitDefinitionSO 専用の asset 参照ソース。
-    /// DynamicValue&lt;TraitDefinitionSO&gt; での authoring 意図を明確にする。
+    /// TraitDefinitionSO 蟆ら畑縺ｮ asset 蜿ら・繧ｽ繝ｼ繧ｹ縲・
+    /// DynamicValue&lt;TraitDefinitionSO&gt; 縺ｧ縺ｮ authoring 諢丞峙繧呈・遒ｺ縺ｫ縺吶ｋ縲・
     /// </summary>
     [Serializable]
     public sealed class AssetTraitDefinitionSource : IDynamicSource
@@ -948,8 +948,8 @@ namespace Game.Common
     // ================================================================
 
     /// <summary>
-    /// 定数値を返しつつ、VarStore にも書き込むソース。
-    /// （後方互換のためクラス名は維持）
+    /// 螳壽焚蛟､繧定ｿ斐＠縺､縺､縲〃arStore 縺ｫ繧よ嶌縺崎ｾｼ繧繧ｽ繝ｼ繧ｹ縲・
+    /// ・亥ｾ梧婿莠呈鋤縺ｮ縺溘ａ繧ｯ繝ｩ繧ｹ蜷阪・邯ｭ謖・ｼ・
     /// </summary>
     [Serializable]
     public sealed class LiteralToVariableSource : IDynamicSource
@@ -1019,7 +1019,7 @@ namespace Game.Common
                 _ => DynamicVariant.Null
             };
 
-            // 副作用: VarStore に書き込み（旧互換）
+            // 蜑ｯ菴懃畑: VarStore 縺ｫ譖ｸ縺崎ｾｼ縺ｿ・域立莠呈鋤・・
             if (context?.Vars != null && !string.IsNullOrEmpty(variableKey))
             {
                 if (VarIdResolver.TryResolve(variableKey, out var varId) && varId != 0)
@@ -1037,8 +1037,8 @@ namespace Game.Common
     // ================================================================
 
     /// <summary>
-    /// VarStore(IVarStore) から値を読み取るソース（varId ベース）。
-    /// Variant / ManagedRef 両方をサポート。
+    /// VarStore(IVarStore) 縺九ｉ蛟､繧定ｪｭ縺ｿ蜿悶ｋ繧ｽ繝ｼ繧ｹ・・arId 繝吶・繧ｹ・峨・
+    /// Variant / ManagedRef 荳｡譁ｹ繧偵し繝昴・繝医・
     /// </summary>
     [Serializable]
     public sealed class VarStoreSource : IDynamicSource
@@ -1065,7 +1065,7 @@ namespace Game.Common
 
             if (vars.GetVarKind(varId) == ValueKind.ManagedRef)
             {
-                // ManagedRef として取得（非UnityEngine.Object のクラスもサポート）
+                // ManagedRef 縺ｨ縺励※蜿門ｾ暦ｼ磯撼UnityEngine.Object 縺ｮ繧ｯ繝ｩ繧ｹ繧ゅし繝昴・繝茨ｼ・
                 if (vars.TryGetManagedRef(varId, out var managed) && managed != null)
                 {
                     if (DeferredDynamicVarResolver.TryResolve(managed, context, $"VarStore:{varId}", out var deferred))
@@ -1075,7 +1075,7 @@ namespace Game.Common
                 return DynamicVariant.Null;
             }
 
-            // Variant として取得を試みる
+            // Variant 縺ｨ縺励※蜿門ｾ励ｒ隧ｦ縺ｿ繧・
             if (vars.TryGetVariant(varId, out var v))
                 return v;
 
@@ -1097,8 +1097,8 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// 定数値を返しつつ、VarStore に副作用で書き込むソース。
-    /// 多用するとデバッグ性が落ちるため、運用は原則禁止寄り。
+    /// 螳壽焚蛟､繧定ｿ斐＠縺､縺､縲〃arStore 縺ｫ蜑ｯ菴懃畑縺ｧ譖ｸ縺崎ｾｼ繧繧ｽ繝ｼ繧ｹ縲・
+    /// 螟夂畑縺吶ｋ縺ｨ繝・ヰ繝・げ諤ｧ縺瑚誠縺｡繧九◆繧√・°逕ｨ縺ｯ蜴溷援遖∵ｭ｢蟇・ｊ縲・
     /// </summary>
     [Serializable]
     public sealed class LiteralToVarStoreSource : IDynamicSource
@@ -1174,7 +1174,7 @@ namespace Game.Common
     // ================================================================
 
     /// <summary>
-    /// 自スコープの ScalarService から値を読み取るソース。
+    /// 閾ｪ繧ｹ繧ｳ繝ｼ繝励・ ScalarService 縺九ｉ蛟､繧定ｪｭ縺ｿ蜿悶ｋ繧ｽ繝ｼ繧ｹ縲・
     /// </summary>
     [Serializable]
     public sealed class SelfScalarSource : IDynamicSource
@@ -1267,7 +1267,7 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// 他スコープの ScalarService から値を読み取るソース。
+    /// 莉悶せ繧ｳ繝ｼ繝励・ ScalarService 縺九ｉ蛟､繧定ｪｭ縺ｿ蜿悶ｋ繧ｽ繝ｼ繧ｹ縲・
     /// </summary>
     [Serializable]
     public sealed class OtherScalarSource : IDynamicSource
@@ -1358,7 +1358,7 @@ namespace Game.Common
     // ================================================================
 
     /// <summary>
-    /// 自スコープの Blackboard から値を読み取るソース。
+    /// 閾ｪ繧ｹ繧ｳ繝ｼ繝励・ Blackboard 縺九ｉ蛟､繧定ｪｭ縺ｿ蜿悶ｋ繧ｽ繝ｼ繧ｹ縲・
     /// </summary>
     [Serializable]
     public sealed class SelfBlackboardSource : IDynamicSource
@@ -1488,7 +1488,7 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// 他スコープの Blackboard から値を読み取るソース。
+    /// 莉悶せ繧ｳ繝ｼ繝励・ Blackboard 縺九ｉ蛟､繧定ｪｭ縺ｿ蜿悶ｋ繧ｽ繝ｼ繧ｹ縲・
     /// </summary>
     [Serializable]
     public sealed class OtherBlackboardSource : IDynamicSource
@@ -1638,14 +1638,14 @@ namespace Game.Common
     [Serializable]
     public sealed class SelfGridBlackboardSource : IDynamicSource
     {
-        [SerializeField, LabelText("Var Keyで絞り込む")]
+        [SerializeField, LabelText("Var Key縺ｧ邨槭ｊ霎ｼ繧")]
         bool useVarKeyFilter = true;
 
         [SerializeField, ShowIf(nameof(useVarKeyFilter)), LabelText("Var Key"), VarIdDropdown]
         [FormerlySerializedAs("gridVarId")]
         int varIdFilter;
 
-        [SerializeField, LabelText("参照スコープ")]
+        // Removed malformed inspector attribute.
         BlackboardReadScope readScope = BlackboardReadScope.Local;
 
         [SerializeField, LabelText("Row")]
@@ -2523,9 +2523,9 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// ActorSource の存在判定ソース。
-    /// - ResolveOnly: 指定 ActorSource が解決できるかを判定する
-    /// - SearchRelation: 指定 ActorSource を起点に、親/子方向へ別 ActorSource を探索する
+    /// ActorSource 縺ｮ蟄伜惠蛻､螳壹た繝ｼ繧ｹ縲・
+    /// - ResolveOnly: 謖・ｮ・ActorSource 縺瑚ｧ｣豎ｺ縺ｧ縺阪ｋ縺九ｒ蛻､螳壹☆繧・
+    /// - SearchRelation: 謖・ｮ・ActorSource 繧定ｵｷ轤ｹ縺ｫ縲∬ｦｪ/蟄先婿蜷代∈蛻･ ActorSource 繧呈爾邏｢縺吶ｋ
     /// </summary>
     [Serializable]
     public sealed class ActorSourceExistsSource : IDynamicSource
@@ -2775,7 +2775,7 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// 指定した Shared hub 内に対象 ActorSource が登録されているかを判定するソース。
+    /// 謖・ｮ壹＠縺・Shared hub 蜀・↓蟇ｾ雎｡ ActorSource 縺檎匳骭ｲ縺輔ｌ縺ｦ縺・ｋ縺九ｒ蛻､螳壹☆繧九た繝ｼ繧ｹ縲・
     /// </summary>
     [Serializable]
     public sealed class SharedActorSourceExistsSource : IDynamicSource
@@ -2994,8 +2994,8 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// 指定した Shared hub 内で対象 ActorSource に対応する shared tag 名を返すソース。
-    /// 見つからない場合は空文字列を返す。
+    /// 謖・ｮ壹＠縺・Shared hub 蜀・〒蟇ｾ雎｡ ActorSource 縺ｫ蟇ｾ蠢懊☆繧・shared tag 蜷阪ｒ霑斐☆繧ｽ繝ｼ繧ｹ縲・
+    /// 隕九▽縺九ｉ縺ｪ縺・ｴ蜷医・遨ｺ譁・ｭ怜・繧定ｿ斐☆縲・
     /// </summary>
     [Serializable]
     public sealed class SharedActorSourceTagSource : IDynamicSource
@@ -3041,8 +3041,8 @@ namespace Game.Common
     }
 
     /// <summary>
-    /// 指定した UI LTS の ModalStack で現在アクティブな root、またはその影響範囲に
-    /// 比較対象 ActorSource が含まれているかを判定する。
+    /// 謖・ｮ壹＠縺・UI LTS 縺ｮ ModalStack 縺ｧ迴ｾ蝨ｨ繧｢繧ｯ繝・ぅ繝悶↑ root縲√∪縺溘・縺昴・蠖ｱ髻ｿ遽・峇縺ｫ
+    /// 豈碑ｼ・ｯｾ雎｡ ActorSource 縺悟性縺ｾ繧後※縺・ｋ縺九ｒ蛻､螳壹☆繧九・
     /// </summary>
     [Serializable]
     public sealed class UIModalStackActorMatchSource : IDynamicSource
@@ -3216,9 +3216,9 @@ namespace Game.Common
     // ================================================================
 
     /// <summary>
-    /// インラインで任意の参照型（非UnityEngine.Object）を格納するソース。
-    /// SerializeReference を使用し、[Serializable] なクラスを直接格納可能。
-    /// DynamicValue&lt;T&gt; と組み合わせて使用。
+    /// 繧､繝ｳ繝ｩ繧､繝ｳ縺ｧ莉ｻ諢上・蜿ら・蝙具ｼ磯撼UnityEngine.Object・峨ｒ譬ｼ邏阪☆繧九た繝ｼ繧ｹ縲・
+    /// SerializeReference 繧剃ｽｿ逕ｨ縺励ーSerializable] 縺ｪ繧ｯ繝ｩ繧ｹ繧堤峩謗･譬ｼ邏榊庄閭ｽ縲・
+    /// DynamicValue&lt;T&gt; 縺ｨ邨・∩蜷医ｏ縺帙※菴ｿ逕ｨ縲・
     /// </summary>
     [Serializable]
     public sealed class ManagedRefSource : IDynamicSource
@@ -3237,7 +3237,7 @@ namespace Game.Common
         }
 
         /// <summary>
-        /// ファクトリメソッド。
+        /// 繝輔ぃ繧ｯ繝医Μ繝｡繧ｽ繝・ラ縲・
         /// </summary>
         public static ManagedRefSource FromValue(object? obj) => new() { value = obj };
     }

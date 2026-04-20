@@ -9,7 +9,7 @@ namespace Game.Collision
     [DisallowMultipleComponent]
     public sealed class HitColliderChannelHubMB : MonoBehaviour, IFeatureInstaller
     {
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<HitColliderChannelHub>(resolver =>
                 {
@@ -18,7 +18,7 @@ namespace Game.Collision
 
                     Debug.LogWarning("[HitColliderChannelHubMB] IHitColliderChannelRouter was not resolved. Using no-op router.");
                     return new HitColliderChannelHub(NullHitColliderChannelRouter.Instance);
-                }, Lifetime.Singleton)
+                }, RuntimeLifetime.Singleton)
                 .As<IHitColliderChannelHub>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();

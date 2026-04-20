@@ -9,14 +9,14 @@ using VContainer.Unity;
 namespace Game.SharedTexture
 {
     /// <summary>
-    /// SharedTextureChannelHub の Texture を MaterialFx 経由で BaseShader に流す binder。
-    /// ITaggedMaterialFxProvider から対象 Player を tag で解決し、
-    /// ISharedTextureChannelHub から Texture を取得して MaterialFx キーへ流す。
+    /// SharedTextureChannelHub の Texture めEMaterialFx 経由で BaseShader に流す binder、E
+    /// ITaggedMaterialFxProvider から対象 Player めEtag で解決し、E
+    /// ISharedTextureChannelHub から Texture を取得して MaterialFx キーへ流す、E
     /// </summary>
     public sealed class SharedTextureMaterialBinderService
         : IScopeAcquireHandler,
           IScopeReleaseHandler,
-          ITickable,
+          IScopeTickHandler,
           IDisposable
     {
         // MaterialFx key constants (BaseShader/ExternalTextures)

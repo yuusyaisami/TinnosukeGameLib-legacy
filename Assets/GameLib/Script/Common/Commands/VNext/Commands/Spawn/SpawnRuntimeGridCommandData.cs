@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -127,48 +127,48 @@ namespace Game.Commands.VNext
         [SerializeField]
         [LabelText("Enable GridBlackboard Link")]
         [FormerlySerializedAs("LinkToGridBlackboard")]
-        [PropertyTooltip("有効時、各スポーン結果を計算された row/column に基づいて GridBlackboard へ書き込みます。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool EnabledGridBlackboardLink = false;
 
         [SerializeField, ShowIf(nameof(ShowGridBlackboardLinkFields))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Grid Blackboard Scope\", GridBlackboardActorSource)")]
-        [PropertyTooltip("IGridBlackboardService を解決するスコープです。通常は Current を使います。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource GridBlackboardActorSource = new() { Kind = ActorSourceKind.Current };
 
         [SerializeField, ShowIf(nameof(ShowGridBlackboardLinkFields))]
         [LabelText("Grid Row Offset")]
-        [PropertyTooltip("スポーン計算された row に加算するオフセットです。例: 3 なら 3 行目から書き込みます。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<int> GridLinkRowOffset = DynamicValueExtensions.FromLiteral(0);
 
         [SerializeField, ShowIf(nameof(ShowGridBlackboardLinkFields))]
         [LabelText("Grid Column Offset")]
-        [PropertyTooltip("スポーン計算された column に加算するオフセットです。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<int> GridLinkColumnOffset = DynamicValueExtensions.FromLiteral(0);
 
         [SerializeField, ShowIf(nameof(ShowGridBlackboardLinkFields))]
         [LabelText("Write Spawned Scope Ref")]
-        [PropertyTooltip("生成された IScopeNode 参照を ManagedRef として GridBlackboard に書き込みます。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool WriteSpawnedScopeRefToGrid;
 
         [SerializeField, ShowIf(nameof(ShowGridBlackboardLinkFields))]
         [LabelText("Use Grid Key Filter")]
-        [PropertyTooltip("有効時は指定 Grid Key を持つセルだけをリンク対象にします。未指定でも Count/Columns が GridBlackboardColumnCountSource の場合は Grid Key / Row を自動推論して利用します。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool UseGridKeyFilter = false;
 
         [SerializeField, ShowIf(nameof(ShowGridKeyFilter))]
         [LabelText("Grid Key")]
-        [PropertyTooltip("リンク対象グリッドを識別する VarKey です。WriteGridData の GridId と同じキーを指定します。")]
+        [PropertyTooltip("Inspector setting.")]
         public VarKeyRef GridKey = new();
 
         [SerializeField, ShowIf(nameof(ShowGridSpawnedScopeVar))]
         [LabelText("Spawned Scope Var")]
-        [PropertyTooltip("生成Scope参照を書き込む先の VarKey です。")]
+        [PropertyTooltip("Inspector setting.")]
         public VarKeyRef GridSpawnedScopeVar = new();
 
         [SerializeField, ShowIf(nameof(ShowGridBlackboardLinkFields))]
         [LabelText("Copy Vars From Command Vars")]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
-        [PropertyTooltip("指定した VarKey を現在の Command Vars から取得し、同じグリッドセルへコピーします。")]
+        [PropertyTooltip("Inspector setting.")]
         public List<VarKeyRef> GridLinkVarKeys = new();
 
         [Header("Delay Between Spawns")]

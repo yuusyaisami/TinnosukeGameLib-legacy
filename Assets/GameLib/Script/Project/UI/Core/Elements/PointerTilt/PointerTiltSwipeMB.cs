@@ -212,13 +212,13 @@ namespace Game.UI
             BindDebugOwners();
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<PointerTiltSwipeService>(Lifetime.Singleton)
+            builder.Register<PointerTiltSwipeService>(RuntimeLifetime.Singleton)
                 .AsSelf()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .WithParameter(scope)
                 .WithParameter(this);
         }

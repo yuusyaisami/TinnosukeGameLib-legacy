@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Scalar;
 using Game.Scalar.Generated;
@@ -9,11 +9,11 @@ namespace Game.Rotation
 {
     public enum VelocityRotationMode
     {
-        /// <summary>速度に応じてオブジェクトを傾ける回転モード</summary>
+        /// <summary>騾溷ｺｦ縺ｫ蠢懊§縺ｦ繧ｪ繝悶ず繧ｧ繧ｯ繝医ｒ蛯ｾ縺代ｋ蝗櫁ｻ｢繝｢繝ｼ繝・/summary>
         Tilt = 0,
-        /// <summary>速度に応じてオブジェクトをスピン（回転）させるモード</summary>
+        /// <summary>騾溷ｺｦ縺ｫ蠢懊§縺ｦ繧ｪ繝悶ず繧ｧ繧ｯ繝医ｒ繧ｹ繝斐Φ・亥屓霆｢・峨＆縺帙ｋ繝｢繝ｼ繝・/summary>
         Spin = 1,
-        /// <summary>速度の方向に向くようにオブジェクトを回転させるモード</summary>
+        /// <summary>騾溷ｺｦ縺ｮ譁ｹ蜷代↓蜷代￥繧医≧縺ｫ繧ｪ繝悶ず繧ｧ繧ｯ繝医ｒ蝗櫁ｻ｢縺輔○繧九Δ繝ｼ繝・/summary>
         Facing = 2,
     }
 
@@ -38,7 +38,7 @@ namespace Game.Rotation
         [LabelText("Axis Weight +")] public Vector2 AxisWeightPos;
         [LabelText("Axis Weight -")] public Vector2 AxisWeightNeg;
 
-        [LabelText("Max Tilt Angle"), Tooltip("負値を入れると傾き方向を反転します。絶対値が角度上限として使われます。")] public float MaxTiltAngle;
+        [LabelText("Max Tilt Angle"), MinValue(0f)] public float MaxTiltAngle;
         [LabelText("Speed To Tilt"), MinValue(0f)] public float SpeedToTilt;
 
         [LabelText("Lerp Speed"), MinValue(0f)] public float LerpSpeed;

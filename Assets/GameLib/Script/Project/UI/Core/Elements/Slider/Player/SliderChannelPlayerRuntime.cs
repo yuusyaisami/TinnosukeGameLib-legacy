@@ -17,7 +17,7 @@ namespace Game.UI
         ISliderPlayerRuntime,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         readonly IScopeNode _owner;
         readonly ISliderOptions _options;

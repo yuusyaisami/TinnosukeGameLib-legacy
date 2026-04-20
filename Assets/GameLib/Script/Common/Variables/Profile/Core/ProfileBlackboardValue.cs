@@ -1,4 +1,4 @@
-// Game.Profile.ProfileBlackboardValue.cs
+﻿// Game.Profile.ProfileBlackboardValue.cs
 //
 // Helper structs that specialize in Blackboard-only bindings for types not covered by
 // ProfileFloatValue (Vector/Color/UnityObject). Each struct mirrors the binding
@@ -21,7 +21,7 @@ namespace Game.Profile
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Blackboard VarId")]
-        [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int BlackboardVarId = 0;
 
@@ -108,7 +108,7 @@ namespace Game.Profile
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Blackboard VarId")]
-        [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int BlackboardVarId;
 
@@ -191,7 +191,7 @@ namespace Game.Profile
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Blackboard VarId")]
-        [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int BlackboardVarId;
 
@@ -274,7 +274,7 @@ namespace Game.Profile
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Blackboard VarId")]
-        [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int BlackboardVarId;
 
@@ -357,7 +357,7 @@ namespace Game.Profile
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Blackboard VarId")]
-        [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int BlackboardVarId;
 
@@ -440,7 +440,7 @@ namespace Game.Profile
 
         [FoldoutGroup("Blackboard Binding")]
         [LabelText("Blackboard VarId")]
-        [Tooltip("Blackboard に登録する VarId。0 の場合は Blackboard にバインドしない。")]
+        [Tooltip("Inspector setting.")]
         [VarIdDropdown]
         public int BlackboardVarId;
 

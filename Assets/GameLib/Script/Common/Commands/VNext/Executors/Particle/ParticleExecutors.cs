@@ -296,10 +296,10 @@ namespace Game.Commands.VNext
         readonly struct SpawnEmitterResult
         {
             public readonly bool Success;
-            public readonly IObjectResolver? Resolver;
+            public readonly IRuntimeResolver? Resolver;
             public readonly RuntimeLifetimeScope? Scope;
 
-            public SpawnEmitterResult(bool success, IObjectResolver? resolver, RuntimeLifetimeScope? scope)
+            public SpawnEmitterResult(bool success, IRuntimeResolver? resolver, RuntimeLifetimeScope? scope)
             {
                 Success = success;
                 Resolver = resolver;
@@ -352,7 +352,7 @@ namespace Game.Commands.VNext
 
         static void NotifyDirectSpawn(
             IEmitterService emitterService,
-            IObjectResolver unitResolver,
+            IRuntimeResolver unitResolver,
             SpawnParams spawnParams,
             Vector3 position,
             Quaternion rotation,

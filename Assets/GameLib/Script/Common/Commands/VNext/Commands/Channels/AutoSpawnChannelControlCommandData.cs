@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Channel;
 using Game.Common;
@@ -32,7 +32,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("Tag")]
-        [Tooltip("操作対象の AutoSpawnChannel tag。空白時は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         public string Tag = "default";
 
         [BoxGroup("Mutation")]
@@ -44,19 +44,19 @@ namespace Game.Commands.VNext
         [BoxGroup("Spawn")]
         [ShowIf(nameof(UsesSpawn))]
         [LabelText("Count")]
-        [Tooltip("外部 Spawn の実行個数。0 以下の場合は何もしません。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<int> Count = DynamicValueExtensions.FromLiteral(1);
 
         [BoxGroup("Spawn")]
         [ShowIf(nameof(UsesSpawn))]
         [LabelText("Interval Sec")]
-        [Tooltip("外部 Spawn の 1 回ごとの待機秒数。0 の場合は連続で Spawn します。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> IntervalSeconds = DynamicValueExtensions.FromLiteral(0f);
 
         [BoxGroup("Spawn")]
         [ShowIf(nameof(UsesSpawn))]
         [LabelText("Await Mode")]
-        [PropertyTooltip("WaitForCompletion は SpawnExternal の完了まで待機します。RunInBackground は背景実行して次の command へ進みます。")]
+        [PropertyTooltip("Inspector setting.")]
         public FlowRunAwaitMode AwaitMode = FlowRunAwaitMode.WaitForCompletion;
 
         public string NormalizedTag => string.IsNullOrWhiteSpace(Tag) ? "default" : Tag.Trim();

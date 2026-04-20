@@ -17,13 +17,13 @@ namespace Game.Rotation
     public sealed class VelocityDrivenRotationService :
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable,
+        IScopeTickHandler,
         IDisposable,
         IVelocityRotationSettingsAdapter,
         IVelocityDrivenRotationTelemetry
     {
         readonly IRotateChannelHub _rotateHub;
-        readonly IObjectResolver _resolver;
+        readonly IRuntimeResolver _resolver;
         readonly IBaseScalarService? _scalarService;
         IMaterialFxServiceFactory? _materialFxFactory;
 
@@ -73,7 +73,7 @@ namespace Game.Rotation
 
         public VelocityDrivenRotationService(
             IRotateChannelHub rotateHub,
-            IObjectResolver resolver,
+            IRuntimeResolver resolver,
             VelocityRotationSettings settings)
         {
             _rotateHub = rotateHub;

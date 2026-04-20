@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using Game.Common;
@@ -17,9 +17,9 @@ namespace Game.Channel
         LocalScale = 4,
         AnchoredPosition = 5,   // RectTransform.anchoredPosition
         DeltaSize = 6,          // RectTransform.sizeDelta
-        Pivot = 7,              // RectTransform.pivot (UI専用、表示位置は維持される)
-        Command = 8,            // Step到達時にコマンド実行
-        Scroll = 9,             // Velocity で duration 秒移動
+        Pivot = 7,              // RectTransform.pivot (UI蟆ら畑縲∬｡ｨ遉ｺ菴咲ｽｮ縺ｯ邯ｭ謖√＆繧後ｋ)
+        Command = 8,            // Step蛻ｰ驕疲凾縺ｫ繧ｳ繝槭Φ繝牙ｮ溯｡・
+        Scroll = 9,             // Velocity 縺ｧ duration 遘堤ｧｻ蜍・
     }
 
     public enum AnchoredPositionInputMode
@@ -91,11 +91,11 @@ namespace Game.Channel
     public sealed class TransformAnimationPreset : ITransformAnimationPreset
     {
         [Header("Loop")]
-        [Tooltip("シーケンス全体をループするか")]
+        [Tooltip("繧ｷ繝ｼ繧ｱ繝ｳ繧ｹ蜈ｨ菴薙ｒ繝ｫ繝ｼ繝励☆繧九°")]
         public bool loop;
 
         [ShowIf(nameof(loop))]
-        [Tooltip("-1 で無限ループ")]
+        [Tooltip("Inspector setting.")]
         [MinValue(-1)]
         public int loopCount = -1;
 
@@ -145,12 +145,12 @@ namespace Game.Channel
 
         [ShowIf(nameof(UsesWorldScroll))]
         [LabelText("Use Local Velocity")]
-        [Tooltip("WorldPosition Scroll のときのみ有効です。true の場合は target の local 軸速度として解釈します。")]
+        [Tooltip("Inspector setting.")]
         public bool scrollUseLocalVelocity;
 
         [ShowIf(nameof(UsesLocalRotate))]
         [LabelText("Shortest Path")]
-        [Tooltip("LocalRotate 時のみ有効。true のとき、現在角度から目標角度へ最短経路で回転します。")]
+        [Tooltip("Inspector setting.")]
         public bool ensureShortestLocalRotatePath;
 
         [ShowIf(nameof(UsesVector3))]

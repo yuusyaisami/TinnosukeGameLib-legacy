@@ -1,13 +1,13 @@
-#nullable enable
+﻿#nullable enable
 // Game.Movement
 // ================================================================================
-// ArcMotionPreset - 弧状移動モーション
+// ArcMotionPreset - 蠑ｧ迥ｶ遘ｻ蜍輔Δ繝ｼ繧ｷ繝ｧ繝ｳ
 // ================================================================================
 //
-// 【概要】
-// 進行方向に対して弧を描くような横方向成分を加える。
-// 一定方向へ曲がりながら進む移動パターンを表現。
-// 波と違い、一定の横方向バイアスを持つ。
+// 縲先ｦりｦ√・
+// 騾ｲ陦梧婿蜷代↓蟇ｾ縺励※蠑ｧ繧呈緒縺上ｈ縺・↑讓ｪ譁ｹ蜷第・蛻・ｒ蜉縺医ｋ縲・
+// 荳螳壽婿蜷代∈譖ｲ縺後ｊ縺ｪ縺後ｉ騾ｲ繧遘ｻ蜍輔ヱ繧ｿ繝ｼ繝ｳ繧定｡ｨ迴ｾ縲・
+// 豕｢縺ｨ驕輔＞縲∽ｸ螳壹・讓ｪ譁ｹ蜷代ヰ繧､繧｢繧ｹ繧呈戟縺､縲・
 // ================================================================================
 
 using System;
@@ -17,35 +17,35 @@ using UnityEngine;
 namespace Game.Movement
 {
     /// <summary>
-    /// 弧状移動モーション。
-    /// GuidanceDirection に対して横方向のバイアス速度を加算する。
+    /// 蠑ｧ迥ｶ遘ｻ蜍輔Δ繝ｼ繧ｷ繝ｧ繝ｳ縲・
+    /// GuidanceDirection 縺ｫ蟇ｾ縺励※讓ｪ譁ｹ蜷代・繝舌う繧｢繧ｹ騾溷ｺｦ繧貞刈邂励☆繧九・
     /// </summary>
     [Serializable]
     public sealed class ArcMotionPreset : MotionPreset
     {
         [Header("Arc Parameters")]
         [LabelText("Lateral Bias")]
-        [Tooltip("横方向のバイアス速度（正=左、負=右）")]
+        [Tooltip("Inspector setting.")]
         public float LateralBias = 1f;
 
         [LabelText("Use Curve")]
-        [Tooltip("時間経過でバイアスを変化させるか")]
+        [Tooltip("譎る俣邨碁℃縺ｧ繝舌う繧｢繧ｹ繧貞､牙喧縺輔○繧九°")]
         public bool UseCurve = false;
 
         [LabelText("Bias Curve")]
-        [Tooltip("時間→バイアス倍率のカーブ（0..1）")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UseCurve))]
         public AnimationCurve BiasCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
 
         [LabelText("Curve Duration")]
-        [Tooltip("カーブの再生時間（秒）")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UseCurve))]
         [Min(0.01f)]
         public float CurveDuration = 1f;
 
         [Header("Speed Modulation")]
         [LabelText("Speed Multiplier")]
-        [Tooltip("基本速度への倍率")]
+        [Tooltip("蝓ｺ譛ｬ騾溷ｺｦ縺ｸ縺ｮ蛟咲紫")]
         [Min(0f)]
         public float SpeedMultiplier = 1f;
 
@@ -53,7 +53,7 @@ namespace Game.Movement
     }
 
     /// <summary>
-    /// ArcMotion のランタイム。
+    /// ArcMotion 縺ｮ繝ｩ繝ｳ繧ｿ繧､繝縲・
     /// </summary>
     public sealed class ArcMotionRuntime : MotionRuntime
     {
@@ -66,18 +66,18 @@ namespace Game.Movement
 
         protected override MotionOutput OnTick(in MovementGuidanceFrame frame)
         {
-            // バイアス値を計算
+            // 繝舌う繧｢繧ｹ蛟､繧定ｨ育ｮ・
             float bias = _source.LateralBias;
 
             if (_source.UseCurve && _source.BiasCurve != null)
             {
-                // カーブから倍率を取得（ループせず clamp）
+                // 繧ｫ繝ｼ繝悶°繧牙咲紫繧貞叙蠕暦ｼ医Ν繝ｼ繝励○縺・clamp・・
                 float normalizedTime = Mathf.Clamp01(ElapsedTime / _source.CurveDuration);
                 float curveValue = _source.BiasCurve.Evaluate(normalizedTime);
                 bias *= curveValue;
             }
 
-            // GuidanceDirection に対して垂直な方向を取得
+            // GuidanceDirection 縺ｫ蟇ｾ縺励※蝙ら峩縺ｪ譁ｹ蜷代ｒ蜿門ｾ・
             var guide = frame.GuidanceDirection;
             if (guide.sqrMagnitude < MovementMath.NormalizeEpsilon)
                 guide = Vector2.up;

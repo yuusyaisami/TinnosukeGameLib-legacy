@@ -7,20 +7,19 @@ using Cysharp.Threading.Tasks;
 using Game.Commands.VNext;
 using Game.DI;
 using UnityEngine;
-using VContainer;
 
 namespace Game.Spawn
 {
     /// <summary>
-    /// エミッターサービスの実装。
-    /// EntityLifetimeScope または RuntimeResolverMB 内のサービスとして動作。
+    /// 繧ｨ繝溘ャ繧ｿ繝ｼ繧ｵ繝ｼ繝薙せ縺ｮ螳溯｣・・
+    /// EntityLifetimeScope 縺ｾ縺溘・ RuntimeResolverMB 蜀・・繧ｵ繝ｼ繝薙せ縺ｨ縺励※蜍穂ｽ懊・
     /// </summary>
     public sealed class EmitterService : IEmitterService, IDisposable, IScopeReleaseHandler
     {
         readonly Transform _transform;
-        readonly IObjectResolver _ownerResolver;
+        readonly IRuntimeResolver _ownerResolver;
         readonly IScopeNode _ownerNode;
-        readonly BaseLifetimeScope? _ownerScope;
+        readonly RuntimeLifetimeScopeBase? _ownerScope;
         readonly ISceneSpawnerRegistry _spawnerRegistry;
 
 
@@ -36,17 +35,17 @@ namespace Game.Spawn
 
         public Vector3 Origin => _transform.position;
         public Quaternion Rotation => _transform.rotation;
-        public IObjectResolver OwnerResolver => _ownerResolver;
+        public IRuntimeResolver OwnerResolver => _ownerResolver;
         public IScopeNode OwnerNode => _ownerNode;
-        public BaseLifetimeScope? OwnerScope => _ownerScope;
+        public RuntimeLifetimeScopeBase? OwnerScope => _ownerScope;
         public ISceneSpawnerRegistry SpawnerRegistry => _spawnerRegistry;
 
         public EmitterService(
             Transform transform,
-            IObjectResolver ownerResolver,
+            IRuntimeResolver ownerResolver,
             ISceneSpawnerRegistry spawnerRegistry,
             IScopeNode ownerNode,
-            BaseLifetimeScope? ownerScope = null)
+            RuntimeLifetimeScopeBase? ownerScope = null)
         {
             _transform = transform ? transform : throw new ArgumentNullException(nameof(transform));
             _ownerResolver = ownerResolver ?? throw new ArgumentNullException(nameof(ownerResolver));
@@ -135,7 +134,7 @@ namespace Game.Spawn
         {
             var spawner = _spawnerRegistry.Get<IAsyncSpawnerService>(pattern.SpawnerKind, pattern.SpawnerTag);
             var spawnedResolvers = pattern.AutoDespawnSpawnedUnitsAfterComplete
-                ? new List<IObjectResolver>(Mathf.Max(4, contexts.Length))
+                ? new List<IRuntimeResolver>(Mathf.Max(4, contexts.Length))
                 : null;
 
             float startTime = Time.time;
@@ -153,7 +152,7 @@ namespace Game.Spawn
                 if (waitTime > 0f)
                     await UniTask.Delay(TimeSpan.FromSeconds(waitTime), cancellationToken: ct);
 
-                var taskBuffer = new List<UniTask<IObjectResolver?>>(8);
+                var taskBuffer = new List<UniTask<IRuntimeResolver?>>(8);
 
                 while (cursor < contexts.Length)
                 {
@@ -193,7 +192,7 @@ namespace Game.Spawn
             }
         }
 
-        public void NotifySpawnedUnit(IObjectResolver unitResolver, in SpawnContext context, int waveIndex)
+        public void NotifySpawnedUnit(IRuntimeResolver unitResolver, in SpawnContext context, int waveIndex)
         {
             if (unitResolver == null)
                 return;
@@ -209,7 +208,7 @@ namespace Game.Spawn
             UnregisterTransientConsumers(unitScope);
         }
 
-        async UniTask<IObjectResolver?> SpawnSingleUnit(IAsyncSpawnerService spawner, SpawnContext ctx, int waveIndex, CancellationToken ct)
+        async UniTask<IRuntimeResolver?> SpawnSingleUnit(IAsyncSpawnerService spawner, SpawnContext ctx, int waveIndex, CancellationToken ct)
         {
             Vector3 finalPosition = ctx.Data.ApplyRandomOffset(ctx.Position, ctx.TangentDirection);
 
@@ -252,7 +251,7 @@ namespace Game.Spawn
             return unitResolver;
         }
 
-        static async UniTask DespawnLikeSelfDespawnAsync(IObjectResolver resolver, CancellationToken ct)
+        static async UniTask DespawnLikeSelfDespawnAsync(IRuntimeResolver resolver, CancellationToken ct)
         {
             if (resolver == null)
                 return;
@@ -269,11 +268,11 @@ namespace Game.Spawn
                 return;
             }
 
-            if (resolver.TryResolve<BaseLifetimeScope>(out var baseScope) &&
-                baseScope != null &&
-                !IsDestroyed(baseScope))
+            if (resolver.TryResolve<RuntimeLifetimeScopeBase>(out var runtimeBaseScope) &&
+                runtimeBaseScope != null &&
+                !IsDestroyed(runtimeBaseScope))
             {
-                await baseScope.DespawnAsync(ct);
+                await runtimeBaseScope.DespawnAsync(ct);
                 return;
             }
 
@@ -295,7 +294,7 @@ namespace Game.Spawn
             }
         }
 
-        static async UniTask WaitUntilScopeCommandsIdleAsync(IObjectResolver resolver, CancellationToken ct)
+        static async UniTask WaitUntilScopeCommandsIdleAsync(IRuntimeResolver resolver, CancellationToken ct)
         {
             if (resolver == null)
                 return;
@@ -320,7 +319,7 @@ namespace Game.Spawn
             return !unityObj;
         }
 
-        void RegisterTransientConsumersFromUnitResolver(IObjectResolver unitResolver, IScopeNode? unitScope)
+        void RegisterTransientConsumersFromUnitResolver(IRuntimeResolver unitResolver, IScopeNode? unitScope)
         {
             if (unitScope == null)
                 return;
@@ -366,7 +365,7 @@ namespace Game.Spawn
             _transientRegistered.Clear();
         }
 
-        void NotifyConsumers(IObjectResolver resolver, in UnitSpawnContext unitCtx)
+        void NotifyConsumers(IRuntimeResolver resolver, in UnitSpawnContext unitCtx)
         {
 
             if (!TryGetUnitScopeNode(resolver, out var unitScope) || unitScope == null)
@@ -394,20 +393,20 @@ namespace Game.Spawn
             _notifyBuffer.Clear();
         }
 
-        static bool TryGetUnitScopeNode(IObjectResolver resolver, out IScopeNode? node)
+        static bool TryGetUnitScopeNode(IRuntimeResolver resolver, out IScopeNode? node)
         {
             node = null;
             if (resolver == null) return false;
 
-            // RuntimeResolver: Template 側で RuntimeResolverMB を登録している場合がある
+            // RuntimeResolver: Template 蛛ｴ縺ｧ RuntimeResolverMB 繧堤匳骭ｲ縺励※縺・ｋ蝣ｴ蜷医′縺ゅｋ
             if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
             {
                 node = runtimeScope;
                 return true;
             }
 
-            // LTS: Scope を登録している場合がある
-            if (resolver.TryResolve<BaseLifetimeScope>(out var scope) && scope != null)
+            // LTS: Scope 繧堤匳骭ｲ縺励※縺・ｋ蝣ｴ蜷医′縺ゅｋ
+            if (resolver.TryResolve<RuntimeLifetimeScopeBase>(out var scope) && scope != null)
             {
                 node = scope;
                 return true;

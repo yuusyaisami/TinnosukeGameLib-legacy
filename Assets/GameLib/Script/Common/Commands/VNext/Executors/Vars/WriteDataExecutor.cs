@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -502,7 +502,7 @@ namespace Game.Commands.VNext
             return defaultValue;
         }
 
-        static void ApplyScalarOps(List<ScalarWriteOp> ops, CommandContext ctx, IScopeNode? serviceScope, VContainer.IObjectResolver? resolver, WriteDataDebugRuntime debug)
+        static void ApplyScalarOps(List<ScalarWriteOp> ops, CommandContext ctx, IScopeNode? serviceScope, IRuntimeResolver? resolver, WriteDataDebugRuntime debug)
         {
             if (ops == null || ops.Count == 0)
                 return;

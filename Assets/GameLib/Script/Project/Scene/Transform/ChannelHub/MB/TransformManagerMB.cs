@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -25,7 +25,7 @@ namespace Game.TransformSystem
 
         [BoxGroup("Entry")]
         [LabelText("Entry Id")]
-        [Tooltip("このグローバルエントリ専用のスロットキーです。同じエントリIDは、同じスロットを更新します。空の場合、カテゴリとリストのインデックスから安定したフォールバックIDが生成されます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _entryId = string.Empty;
 
@@ -202,16 +202,16 @@ namespace Game.TransformSystem
         [SerializeField]
         List<TransformManagerScaleGlobalValue> _scaleGlobals = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ = scope;
 
-            builder.Register<TransformManagerService>(Lifetime.Singleton)
+            builder.Register<TransformManagerService>(RuntimeLifetime.Singleton)
                 .WithParameter(this)
                 .As<ITransformManagerService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
 
             builder.RegisterInstance(_debugViewer);
             builder.RegisterBuildCallback(container =>

@@ -1,7 +1,6 @@
-#nullable enable
+﻿#nullable enable
 using System.Collections.Generic;
 using Game.UI;
-using VContainer;
 
 namespace Game
 {
@@ -41,7 +40,7 @@ namespace Game
             if (node == null)
                 return false;
 
-            // GCアロケーションを回避するため、EnumerateAncestors を使わず直接ループ
+            // GC繧｢繝ｭ繧ｱ繝ｼ繧ｷ繝ｧ繝ｳ繧貞屓驕ｿ縺吶ｋ縺溘ａ縲・numerateAncestors 繧剃ｽｿ繧上★逶ｴ謗･繝ｫ繝ｼ繝・
             var current = node;
             while (current != null)
             {

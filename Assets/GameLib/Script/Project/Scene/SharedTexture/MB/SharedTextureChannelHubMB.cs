@@ -8,9 +8,9 @@ namespace Game.SharedTexture
     [DisallowMultipleComponent]
     public sealed class SharedTextureChannelHubMB : MonoBehaviour, IFeatureInstaller
     {
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<SharedTextureChannelHubService>(Lifetime.Singleton)
+            builder.Register<SharedTextureChannelHubService>(RuntimeLifetime.Singleton)
                 .As<ISharedTextureChannelHub>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -10,7 +10,7 @@ namespace Game.StateMachine
     public sealed class StateAnimationPreset
     {
         [Title("Animation Rules")]
-        [Tooltip("アニメーションルールリスト（優先度順に評価）。クリックで各ルールを展開できます。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(
             ShowFoldout = true,
             DefaultExpandedState = false,

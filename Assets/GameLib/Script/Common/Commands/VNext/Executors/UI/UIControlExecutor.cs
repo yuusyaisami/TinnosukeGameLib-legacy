@@ -499,7 +499,7 @@ namespace Game.Commands.VNext
             if (scope == null)
                 return;
 
-            if (scope is BaseLifetimeScope baseScope && !baseScope.IsBuildCompleted)
+            if (scope is RuntimeLifetimeScopeBase baseScope && !baseScope.IsBuildCompleted)
             {
                 await baseScope.WhenBuiltAsync(ct);
                 return;

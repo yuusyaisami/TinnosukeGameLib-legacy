@@ -1,19 +1,19 @@
-#nullable enable
+﻿#nullable enable
 // Game.Movement
 // ================================================================================
-// BounceToTargetMotionPreset - バウンドしてターゲット位置で停止するモーション
+// BounceToTargetMotionPreset - 繝舌え繝ｳ繝峨＠縺ｦ繧ｿ繝ｼ繧ｲ繝・ヨ菴咲ｽｮ縺ｧ蛛懈ｭ｢縺吶ｋ繝｢繝ｼ繧ｷ繝ｧ繝ｳ
 // ================================================================================
 //
-// 【概要】
-// - ターゲット座標へ向かって擬似2Dバウンドし、最終的に制止する。
-// - 重力は下方向。
-// - InitialAngle は GuidanceDirection に対する初期発射角のオフセット（度）。
+// 縲先ｦりｦ√・
+// - 繧ｿ繝ｼ繧ｲ繝・ヨ蠎ｧ讓吶∈蜷代°縺｣縺ｦ謫ｬ莨ｼ2D繝舌え繝ｳ繝峨＠縲∵怙邨ら噪縺ｫ蛻ｶ豁｢縺吶ｋ縲・
+// - 驥榊鴨縺ｯ荳区婿蜷代・
+// - InitialAngle 縺ｯ GuidanceDirection 縺ｫ蟇ｾ縺吶ｋ蛻晄悄逋ｺ蟆・ｧ偵・繧ｪ繝輔そ繝・ヨ・亥ｺｦ・峨・
 //
-// 【実装方針】
-// - 速度を内部状態として積分し、出力は AdditiveVelocity で“最終速度そのもの”を返す。
-// - ヒット床は TargetPosition.y を基準にした水平面として扱い、反発係数で跳ね返る。
-// - X 方向はターゲットに吸い寄せる（バウンド中に自然に寄る）
-// - 近傍 + 低速で停止。
+// 縲仙ｮ溯｣・婿驥昴・
+// - 騾溷ｺｦ繧貞・驛ｨ迥ｶ諷九→縺励※遨榊・縺励∝・蜉帙・ AdditiveVelocity 縺ｧ窶懈怙邨る溷ｺｦ縺昴・繧ゅ・窶昴ｒ霑斐☆縲・
+// - 繝偵ャ繝亥ｺ翫・ TargetPosition.y 繧貞渕貅悶↓縺励◆豌ｴ蟷ｳ髱｢縺ｨ縺励※謇ｱ縺・∝渚逋ｺ菫よ焚縺ｧ霍ｳ縺ｭ霑斐ｋ縲・
+// - X 譁ｹ蜷代・繧ｿ繝ｼ繧ｲ繝・ヨ縺ｫ蜷ｸ縺・ｯ・○繧具ｼ医ヰ繧ｦ繝ｳ繝我ｸｭ縺ｫ閾ｪ辟ｶ縺ｫ蟇・ｋ・・
+// - 霑大ｍ + 菴朱溘〒蛛懈ｭ｢縲・
 // ================================================================================
 
 using System;
@@ -27,60 +27,60 @@ namespace Game.Movement
     {
         [Header("Launch")]
         [LabelText("Initial Angle")]
-        [Tooltip("初期角度オフセット（度）。GuidanceDirection をこの角度だけ回転して初速方向にする。")]
+        [Tooltip("Inspector setting.")]
         public float InitialAngle = 0f;
 
         [LabelText("Initial Speed Multiplier")]
-        [Tooltip("初速 = SpeedBase * この倍率")]
+        [Tooltip("蛻晞・= SpeedBase * 縺薙・蛟咲紫")]
         [Min(0f)]
         public float InitialSpeedMultiplier = 1f;
 
         [Header("Gravity")]
         [LabelText("Gravity")]
-        [Tooltip("重力加速度（下方向）。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float Gravity = 30f;
 
         [LabelText("Air Drag")]
-        [Tooltip("空気抵抗（1/秒）。大きいほど早く減速する。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float AirDrag = 0.5f;
 
         [Header("Bounce")]
         [LabelText("Restitution")]
-        [Tooltip("反発係数（0..1）。大きいほどよく跳ねる。")]
+        [Tooltip("Inspector setting.")]
         [Range(0f, 1f)]
         public float Restitution = 0.6f;
 
         [LabelText("Restitution Decay")]
-        [Tooltip("バウンドのたびに Restitution に掛ける減衰（0..1）。")]
+        [Tooltip("Inspector setting.")]
         [Range(0f, 1f)]
         public float RestitutionDecay = 0.85f;
 
         [LabelText("Bounce Friction")]
-        [Tooltip("接地バウンド時の水平摩擦（0..1）。X 速度に (1-friction) を掛ける。")]
+        [Tooltip("Inspector setting.")]
         [Range(0f, 1f)]
         public float BounceFriction = 0.15f;
 
         [Header("Attraction (Horizontal)")]
         [LabelText("Attraction")]
-        [Tooltip("ターゲットXへの吸引（加速度係数）。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float HorizontalAttraction = 20f;
 
         [LabelText("Damping")]
-        [Tooltip("ターゲットXへの吸引の減衰（速度係数）。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float HorizontalDamping = 6f;
 
         [Header("Stop")]
         [LabelText("Stop Distance")]
-        [Tooltip("ターゲットに十分近いとみなす距離。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float StopDistance = 0.05f;
 
         [LabelText("Stop Speed")]
-        [Tooltip("十分に遅いとみなす速度。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float StopSpeed = 0.05f;
 
@@ -126,7 +126,7 @@ namespace Game.Movement
             Vector2 ownerPos = frame.Target.OwnerPosition;
             Vector2 targetPos = frame.Target.TargetPosition;
 
-            // 初速
+            // 蛻晞・
             if (!_hasInitialVelocity)
             {
                 var guide = frame.GuidanceDirection;
@@ -141,15 +141,15 @@ namespace Game.Movement
                 _hasInitialVelocity = true;
             }
 
-            // X 方向はターゲットへ吸い寄せる（自然に“寄っていく”ため）
+            // X 譁ｹ蜷代・繧ｿ繝ｼ繧ｲ繝・ヨ縺ｸ蜷ｸ縺・ｯ・○繧具ｼ郁・辟ｶ縺ｫ窶懷ｯ・▲縺ｦ縺・￥窶昴◆繧・ｼ・
             float dx = targetPos.x - ownerPos.x;
             float ax = _source.HorizontalAttraction * dx - _source.HorizontalDamping * _velocity.x;
 
-            // 重力
+            // 驥榊鴨
             Vector2 accel = new(ax, -_source.Gravity);
             _velocity += accel * dt;
 
-            // 空気抵抗（指数減衰で dt に安定）
+            // 遨ｺ豌玲慣謚暦ｼ域欠謨ｰ貂幄｡ｰ縺ｧ dt 縺ｫ螳牙ｮ夲ｼ・
             float drag = Mathf.Max(0f, _source.AirDrag);
             if (drag > 0f)
             {
@@ -157,7 +157,7 @@ namespace Game.Movement
                 _velocity *= damp;
             }
 
-            // 擬似床（targetY）でバウンド
+            // 謫ｬ莨ｼ蠎奇ｼ・argetY・峨〒繝舌え繝ｳ繝・
             float groundY = targetPos.y;
             float nextY = ownerPos.y + _velocity.y * dt;
             bool willCrossGround = ownerPos.y > groundY && nextY <= groundY;
@@ -165,18 +165,18 @@ namespace Game.Movement
 
             if ((_velocity.y < 0f) && (willCrossGround || alreadyBelow))
             {
-                // 反射
+                // 蜿榊ｰ・
                 _velocity.y = -_velocity.y * _restitution;
 
-                // 摩擦
+                // 鞫ｩ謫ｦ
                 float friction = Mathf.Clamp01(_source.BounceFriction);
                 _velocity.x *= (1f - friction);
 
-                // バウンドごとに弱く
+                // 繝舌え繝ｳ繝峨＃縺ｨ縺ｫ蠑ｱ縺・
                 _restitution *= Mathf.Clamp01(_source.RestitutionDecay);
             }
 
-            // 停止判定（近傍 + 低速）
+            // 蛛懈ｭ｢蛻､螳夲ｼ郁ｿ大ｍ + 菴朱滂ｼ・
             float stopDist = Mathf.Max(0f, _source.StopDistance);
             float stopSpeed = Mathf.Max(0f, _source.StopSpeed);
 
@@ -187,7 +187,7 @@ namespace Game.Movement
                 return MotionOutput.Zero;
             }
 
-            // AdditiveVelocity として“最終速度そのもの”を出す
+            // AdditiveVelocity 縺ｨ縺励※窶懈怙邨る溷ｺｦ縺昴・繧ゅ・窶昴ｒ蜃ｺ縺・
             return new MotionOutput(
                 direction: Vector2.zero,
                 speedMul: 0f,

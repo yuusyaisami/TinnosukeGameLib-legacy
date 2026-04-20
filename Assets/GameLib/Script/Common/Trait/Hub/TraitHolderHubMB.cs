@@ -20,7 +20,7 @@ namespace Game.Trait
 
         public ITraitHolderHubService? Hub => _hub;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var holderCount = _holders?.Count ?? 0;
             var settings = new List<TraitHolderSettings>(holderCount);
@@ -33,7 +33,7 @@ namespace Game.Trait
                 settings.Add(holder.Clone());
             }
 
-            builder.Register<TraitHolderHubService>(Lifetime.Singleton)
+            builder.Register<TraitHolderHubService>(RuntimeLifetime.Singleton)
                 .AsSelf()
                 .As<ITraitHolderHubService>()
                 .As<IScopeAcquireHandler>()
@@ -42,7 +42,7 @@ namespace Game.Trait
                 // NOTE: Explicit interface typing avoids settings injection being missed by VContainer.
                 .WithParameter<IReadOnlyList<TraitHolderSettings>>(settings);
 
-            builder.Register<TraitPlacementService>(Lifetime.Singleton)
+            builder.Register<TraitPlacementService>(RuntimeLifetime.Singleton)
                 .AsSelf()
                 .As<ITraitPlacementService>()
                 .As<IScopeAcquireHandler>()

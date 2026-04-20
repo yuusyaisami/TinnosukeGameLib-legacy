@@ -1,4 +1,4 @@
-// Game.StateMachine.StateAnimationRule.cs
+﻿// Game.StateMachine.StateAnimationRule.cs
 
 using System;
 using System.Collections.Generic;
@@ -11,8 +11,8 @@ using Game.StateMachine.Editor;
 namespace Game.StateMachine
 {
     /// <summary>
-    /// StateAnimation のルール定義。
-    /// State の条件にマッチした場合に再生するアニメーションを指定する。
+    /// StateAnimation 縺ｮ繝ｫ繝ｼ繝ｫ螳夂ｾｩ縲・
+    /// State 縺ｮ譚｡莉ｶ縺ｫ繝槭ャ繝√＠縺溷ｴ蜷医↓蜀咲函縺吶ｋ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ繧呈欠螳壹☆繧九・
     /// </summary>
     [Serializable]
     public sealed class StateAnimationRule
@@ -24,89 +24,89 @@ namespace Game.StateMachine
                 var layerPart = string.IsNullOrWhiteSpace(LayerKey) ? "Any Layer" : LayerKey;
                 var statePart = string.IsNullOrWhiteSpace(StateKey) ? "Any State" : StateKey;
                 var channelPart = string.IsNullOrWhiteSpace(ChannelTag) ? "default" : ChannelTag;
-                return $"{statePart} @ {layerPart} → {channelPart}";
+                return $"{statePart} @ {layerPart} 竊・{channelPart}";
             }
         }
-        // ────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         //  Condition
-        // ────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [TitleGroup("Condition")]
-        [Tooltip("対象の StateKey（空なら全 State にマッチ）")]
+        [Tooltip("Inspector setting.")]
         [LabelText("State")]
         [StateKeyPicker]
         public string StateKey;
 
         [TitleGroup("Condition")]
-        [Tooltip("対象の LayerKey（空なら全 Layer にマッチ）")]
+        [Tooltip("Inspector setting.")]
         [LabelText("Layer")]
         public string LayerKey;
 
         [TitleGroup("Condition")]
-        [Tooltip("条件判定のモード。Legacy は既存の OptionConditions(AND/OR)、DynamicBool は DynamicValue<bool> を使用します。")]
+        [Tooltip("Inspector setting.")]
         [EnumToggleButtons]
         [LabelText("Condition Mode")]
         public StateAnimationConditionMode ConditionMode = StateAnimationConditionMode.LegacyOptionConditions;
 
         [TitleGroup("Condition")]
-        [Tooltip("Option 条件の判定方法")]
+        [Tooltip("Inspector setting.")]
         [EnumToggleButtons]
-        [LabelText("Optionロジック")]
+        [LabelText("Option繝ｭ繧ｸ繝・け")]
         [ShowIf(nameof(UseLegacyOptionConditions))]
         public OptionConditionEvaluationMode OptionLogic = OptionConditionEvaluationMode.All;
 
         [TitleGroup("Condition")]
-        [InfoBox("OptionCondition は OptionKey が現在立っているかどうかだけを見ます。Value は不要です。", InfoMessageType.Info)]
+        [InfoBox("Inspector info.")]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false, DraggableItems = true, ShowPaging = false)]
         [ShowIf(nameof(UseLegacyOptionConditions))]
         public List<OptionCondition> OptionConditions = new();
 
         [TitleGroup("Condition")]
-        [InfoBox("DynamicBool では DynamicValue<bool> の評価結果で条件判定します。BoolExpression 等を使用できます。", InfoMessageType.Info)]
+        [InfoBox("Inspector info.")]
         [ShowIf(nameof(UseDynamicBoolCondition))]
         [LabelText("Dynamic Option Condition")]
         [InlineProperty]
         [HideLabel]
         public DynamicValue<bool> DynamicOptionCondition = DynamicValueExtensions.FromLiteral(true);
 
-        // ────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         //  Animation
-        // ────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         [TitleGroup("Animation")]
         [InlineProperty]
         [HideLabel]
-        [Tooltip("再生設定は AnimationSpritePreset と同一構造で統一。")]
+        [Tooltip("Inspector setting.")]
         public AnimationSpritePreset Preset = new();
 
         [TitleGroup("Animation")]
-        [Tooltip("送信先チャネルタグ")]
+        [Tooltip("騾∽ｿ｡蜈医メ繝｣繝阪Ν繧ｿ繧ｰ")]
         public string ChannelTag = "default";
 
-        // ────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         //  FlipX
-        // ────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [TitleGroup("FlipX")]
-        [Tooltip("FlipX を適用するか")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyFlipX;
 
         [TitleGroup("FlipX")]
         [ShowIf("ApplyFlipX")]
-        [Tooltip("FlipX = true となる OptionValue（空なら無条件 FlipX=true）")]
-        [InfoBox("OptionValue を指定（例: Movement.Direction.Left）。\n対応する OptionKey は自動導出され、Local→Global の順で解決されます。")]
+        [Tooltip("Inspector setting.")]
+        [InfoBox("Inspector info.")]
         [OptionKeyPicker]
         public string FlipXTrueOptionValue;
 
-        // ────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         //  Priority & Restart
-        // ────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [TitleGroup("Priority & Restart")]
-        [Tooltip("ルール優先度（高いほど優先）")]
+        [Tooltip("Inspector setting.")]
         public int Priority;
 
         [TitleGroup("Priority & Restart")]
-        [Tooltip("再開始モード")]
+        [Tooltip("Inspector setting.")]
         public AnimationRestartMode RestartMode = AnimationRestartMode.OnEnterOnly;
 
         public AnimationSpritePreset GetAnimationPreset()
@@ -129,58 +129,58 @@ namespace Game.StateMachine
     }
 
     /// <summary>
-    /// Option 条件エントリ。
+    /// Option 譚｡莉ｶ繧ｨ繝ｳ繝医Μ縲・
     /// </summary>
     [Serializable]
     public sealed class OptionCondition
     {
         [HorizontalGroup("Row"), LabelWidth(90)]
-        [Tooltip("OptionKey (例: Movement.Direction)")]
+        [Tooltip("OptionKey (萓・ Movement.Direction)")]
         [OptionKeyPicker]
         public string OptionKey;
 
         [HorizontalGroup("Row"), LabelWidth(90)]
-        [Tooltip("OptionKey が立っている/立っていないのどちらを要求するか")]
-        [LabelText("状態要求")]
+        [Tooltip("OptionKey 縺檎ｫ九▲縺ｦ縺・ｋ/遶九▲縺ｦ縺・↑縺・・縺ｩ縺｡繧峨ｒ隕∵ｱゅ☆繧九°")]
+        [LabelText("Field")]
         public OptionConditionPresence Presence = OptionConditionPresence.IsSet;
     }
 
     /// <summary>
-    /// Option 条件リストの評価ロジック。
+    /// Option 譚｡莉ｶ繝ｪ繧ｹ繝医・隧穂ｾ｡繝ｭ繧ｸ繝・け縲・
     /// </summary>
     public enum OptionConditionEvaluationMode
     {
-        [LabelText("AND (すべて true)")]
+        [LabelText("AND (縺吶∋縺ｦ true)")]
         All,
 
-        [LabelText("OR (いずれか true)")]
+        [LabelText("OR (縺・★繧後° true)")]
         Any,
     }
 
     /// <summary>
-    /// OptionKey の存在チェック。
+    /// OptionKey 縺ｮ蟄伜惠繝√ぉ繝・け縲・
     /// </summary>
     public enum OptionConditionPresence
     {
-        [LabelText("Option が set になっているとき")]
+        [LabelText("Field")]
         IsSet,
 
-        [LabelText("Option が clear もしくは unset のとき")]
+        [LabelText("Field")]
         IsNotSet,
     }
 
     /// <summary>
-    /// アニメーション再開始モード。
+    /// 繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ蜀埼幕蟋九Δ繝ｼ繝峨・
     /// </summary>
     public enum AnimationRestartMode
     {
-        /// <summary>State 進入時のみ再開始</summary>
+        /// <summary>State 騾ｲ蜈･譎ゅ・縺ｿ蜀埼幕蟋・/summary>
         OnEnterOnly,
 
-        /// <summary>Pulse 発火時も再開始</summary>
+        /// <summary>Pulse 逋ｺ轣ｫ譎ゅｂ蜀埼幕蟋・/summary>
         OnPulse,
 
-        /// <summary>再開始しない（既に再生中なら継続）</summary>
+        /// <summary>蜀埼幕蟋九＠縺ｪ縺・ｼ域里縺ｫ蜀咲函荳ｭ縺ｪ繧臥ｶ咏ｶ夲ｼ・/summary>
         Never,
     }
 }

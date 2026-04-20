@@ -12,7 +12,7 @@ namespace Game.UI
         ISliderChannelHubService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         readonly IScopeNode _owner;
         readonly SliderChannelHubMB _mb;

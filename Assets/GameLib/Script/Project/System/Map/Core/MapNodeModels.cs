@@ -47,10 +47,10 @@ namespace Game.MapNode
         public int NodeId;
         public Transform Root;
         public IScopeNode Scope;
-        public IObjectResolver Resolver;
+        public IRuntimeResolver Resolver;
         public Vector3 WorldPos;
 
-        public MapNodeInstance(int nodeId, Transform root, IScopeNode scope, IObjectResolver resolver, Vector3 worldPos)
+        public MapNodeInstance(int nodeId, Transform root, IScopeNode scope, IRuntimeResolver resolver, Vector3 worldPos)
         {
             NodeId = nodeId;
             Root = root;
@@ -64,9 +64,9 @@ namespace Game.MapNode
     {
         public Transform Root;
         public IScopeNode Scope;
-        public IObjectResolver Resolver;
+        public IRuntimeResolver Resolver;
 
-        public MapNodeLineInstance(Transform root, IScopeNode scope, IObjectResolver resolver)
+        public MapNodeLineInstance(Transform root, IScopeNode scope, IRuntimeResolver resolver)
         {
             Root = root;
             Scope = scope;

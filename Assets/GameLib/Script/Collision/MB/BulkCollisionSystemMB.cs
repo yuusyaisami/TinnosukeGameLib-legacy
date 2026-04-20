@@ -26,7 +26,7 @@ namespace Game.Collision
         IBulkCollisionManager _manager;
         CollisionHitRouter _router;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var kind = scope.Kind;
             if (kind != LifetimeScopeKind.Project)
@@ -82,7 +82,7 @@ namespace Game.Collision
 #endif
                 }
                 return _manager;
-            }, Lifetime.Singleton);
+            }, RuntimeLifetime.Singleton);
 
             builder.Register<IHitColliderChannelRouter>(c =>
             {
@@ -92,13 +92,13 @@ namespace Game.Collision
                     _router = new CollisionHitRouter(eventBus);
                 }
                 return _router;
-            }, Lifetime.Singleton);
+            }, RuntimeLifetime.Singleton);
 
-            builder.Register<HitColliderScopeRegistry>(Lifetime.Singleton)
+            builder.Register<HitColliderScopeRegistry>(RuntimeLifetime.Singleton)
                 .As<IHitColliderScopeRegistry>();
 
             // Collision API (no RegisterEntryPoint; logic lives in ColliderObjectService)
-            builder.Register<CollisionService>(Lifetime.Singleton)
+            builder.Register<CollisionService>(RuntimeLifetime.Singleton)
                 .As<ICollisionService>();
         }
 

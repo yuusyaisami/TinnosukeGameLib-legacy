@@ -17,8 +17,8 @@ namespace Game.Channel
 {
     public sealed class AutoSpawnChannelHubService :
         IAutoSpawnChannelHubService,
-        ITickable,
-        ILateTickable,
+        IScopeTickHandler,
+        IScopeLateTickHandler,
         ITickPhase,
         IScopeAcquireHandler,
         IScopeReleaseHandler
@@ -434,7 +434,7 @@ namespace Game.Channel
                         worldSpace: true,
                         allowPooling: player.Definition.AllowPooling);
 
-                    IObjectResolver? spawnedResolver = null;
+                    IRuntimeResolver? spawnedResolver = null;
                     try
                     {
                         spawnedResolver = await spawner.SpawnAsync(spawnParams, ct);
@@ -500,7 +500,7 @@ namespace Game.Channel
             return spawnedCount;
         }
 
-        async UniTask RunOnSpawnedCommandsAsync(AutoSpawnChannelMappingEntry mapping, IObjectResolver resolver, CancellationToken ct)
+        async UniTask RunOnSpawnedCommandsAsync(AutoSpawnChannelMappingEntry mapping, IRuntimeResolver resolver, CancellationToken ct)
         {
             if (mapping.OnSpawnedCommands == null || mapping.OnSpawnedCommands.Count == 0)
                 return;
@@ -775,20 +775,20 @@ namespace Game.Channel
             return changed;
         }
 
-        static void RegisterManagedResolver(AutoSpawnChannelRuntimePlayer player, IObjectResolver resolver)
+        static void RegisterManagedResolver(AutoSpawnChannelRuntimePlayer player, IRuntimeResolver resolver)
         {
             lock (player.ManagedSpawnedResolversLock)
                 player.ManagedSpawnedResolvers.Add(resolver);
         }
 
-        static List<IObjectResolver> DrainManagedResolvers(AutoSpawnChannelRuntimePlayer player)
+        static List<IRuntimeResolver> DrainManagedResolvers(AutoSpawnChannelRuntimePlayer player)
         {
             lock (player.ManagedSpawnedResolversLock)
             {
                 if (player.ManagedSpawnedResolvers.Count == 0)
-                    return new List<IObjectResolver>(0);
+                    return new List<IRuntimeResolver>(0);
 
-                var drained = new List<IObjectResolver>(player.ManagedSpawnedResolvers);
+                var drained = new List<IRuntimeResolver>(player.ManagedSpawnedResolvers);
                 player.ManagedSpawnedResolvers.Clear();
                 return drained;
             }
@@ -803,7 +803,7 @@ namespace Game.Channel
             UniTask.Void(async () => await ReleaseManagedResolversAsync(drainedResolvers, CancellationToken.None));
         }
 
-        async UniTask<int> ReleaseManagedResolversAsync(List<IObjectResolver> resolvers, CancellationToken ct)
+        async UniTask<int> ReleaseManagedResolversAsync(List<IRuntimeResolver> resolvers, CancellationToken ct)
         {
             if (resolvers == null || resolvers.Count == 0)
                 return 0;
@@ -833,7 +833,7 @@ namespace Game.Channel
             return releasedCount;
         }
 
-        static async UniTask<bool> ReleaseSpawnedResolverAsync(IObjectResolver resolver, CancellationToken ct)
+        static async UniTask<bool> ReleaseSpawnedResolverAsync(IRuntimeResolver resolver, CancellationToken ct)
         {
             if (resolver == null)
                 return false;

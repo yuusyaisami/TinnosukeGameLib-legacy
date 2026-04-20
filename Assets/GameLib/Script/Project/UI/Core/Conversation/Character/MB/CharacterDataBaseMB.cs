@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -13,7 +13,7 @@ namespace Game.Conversation
     {
         [BoxGroup("CharacterDataBase")]
         [LabelText("Scope Mode")]
-        [Tooltip("CharacterDataBase の想定運用スコープです。既定は Scene。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         CharacterDataBaseScopeMode _scopeMode = CharacterDataBaseScopeMode.Scene;
 
@@ -29,9 +29,9 @@ namespace Game.Conversation
         public IReadOnlyList<CharacterDataBaseDefinition> Definitions => _definitions;
         public ICharacterDataBaseService? Service => _service;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<CharacterDataBaseService>(Lifetime.Singleton)
+            builder.Register<CharacterDataBaseService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<ICharacterDataBaseService>()

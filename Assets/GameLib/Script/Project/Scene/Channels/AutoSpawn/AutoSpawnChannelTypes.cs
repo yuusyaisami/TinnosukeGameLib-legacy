@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -140,7 +140,7 @@ namespace Game.Channel
         public bool AllowPooling = true;
 
         [LabelText("Allow External Spawn")]
-        [Tooltip("外部コマンドからの Spawn 指示を受け付けるかどうか。Enabled が false でも true の場合は外部 Spawn は実行できます。")]
+        [Tooltip("Inspector setting.")]
         public bool AllowExternalSpawn = true;
 
         [LabelText("Transform Parent")]
@@ -191,7 +191,7 @@ namespace Game.Channel
         [BoxGroup("Frequency")]
         [ShowIf(nameof(ApplySpawnIntervalSeconds))]
         [LabelText("Spawn Interval (Sec)")]
-        [Tooltip("-1 は初回のみ(定期スポーン無効)です。")]
+        [Tooltip("Inspector setting.")]
         public float SpawnIntervalSeconds = 1f;
 
         [BoxGroup("Frequency")]

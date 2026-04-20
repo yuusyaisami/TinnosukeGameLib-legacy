@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
@@ -91,20 +91,20 @@ namespace Game.UI
 
         [BoxGroup("Debug")]
         [LabelText("Enable Coordinate Debug Log")]
-        [Tooltip("true のとき、座標系 / range / geometry のログを出します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableDebugLog;
 
         [BoxGroup("Debug")]
         [LabelText("Enable Player Debug Log")]
-        [Tooltip("true のとき、binding 変数 / state / bar count のログを出します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableBindingDebugLog;
 
         [BoxGroup("Debug")]
         [ShowIf(nameof(HasAnyDebugLogEnabled))]
         [LabelText("Debug Log Channel Tag Filter")]
-        [Tooltip("空白なら全チャネル。Tag を指定すると一致した SliderChannel だけログを出します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _debugLogChannelTagFilter = string.Empty;
 
@@ -151,20 +151,20 @@ namespace Game.UI
 
         [BoxGroup("Debug")]
         [LabelText("Enable Coordinate Debug Log")]
-        [Tooltip("true のとき、指定した Tag の SliderChannel の座標系ログを出します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableDebugLog;
 
         [BoxGroup("Debug")]
         [LabelText("Enable Player Debug Log")]
-        [Tooltip("true のとき、指定した Tag の SliderChannel の Player ログを出します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableBindingDebugLog;
 
         [BoxGroup("Debug")]
         [ShowIf(nameof(HasAnyDebugLogEnabled))]
         [LabelText("Debug Log Channel Tag Filter")]
-        [Tooltip("空白なら全チャネル。Tag を指定すると一致した SliderChannel だけログを出します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _debugLogChannelTagFilter = string.Empty;
 
@@ -175,15 +175,15 @@ namespace Game.UI
 
         bool HasAnyDebugLogEnabled() => _enableDebugLog || _enableBindingDebugLog;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<SliderChannelHubService>(Lifetime.Singleton)
+            builder.Register<SliderChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<ISliderChannelHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
     }
 }

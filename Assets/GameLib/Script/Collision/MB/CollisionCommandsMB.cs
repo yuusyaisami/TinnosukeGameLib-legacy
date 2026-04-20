@@ -11,7 +11,7 @@ namespace Game.Collision
     [DisallowMultipleComponent]
     public sealed class CollisionCommandsMB : MonoBehaviour, IFeatureInstaller
     {
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (owner.Kind != LifetimeScopeKind.Project
                 && owner.Kind != LifetimeScopeKind.Scene
@@ -19,13 +19,13 @@ namespace Game.Collision
                 && owner.Kind != LifetimeScopeKind.Entity)
                 return;
 
-            builder.Register<global::Game.Commands.VNext.SetCollisionEnabledExecutor>(Lifetime.Singleton)
+            builder.Register<global::Game.Commands.VNext.SetCollisionEnabledExecutor>(RuntimeLifetime.Singleton)
                 .As<global::Game.Commands.VNext.ICommandExecutor>();
-            builder.Register<global::Game.Commands.VNext.SetUnityColliderExecutor>(Lifetime.Singleton)
+            builder.Register<global::Game.Commands.VNext.SetUnityColliderExecutor>(RuntimeLifetime.Singleton)
                 .As<global::Game.Commands.VNext.ICommandExecutor>();
-            builder.Register<global::Game.Commands.VNext.HitColliderRuleControlExecutor>(Lifetime.Singleton)
+            builder.Register<global::Game.Commands.VNext.HitColliderRuleControlExecutor>(RuntimeLifetime.Singleton)
                 .As<global::Game.Commands.VNext.ICommandExecutor>();
-            builder.Register<global::Game.Commands.VNext.WithHitColliderTargetsExecutor>(Lifetime.Singleton)
+            builder.Register<global::Game.Commands.VNext.WithHitColliderTargetsExecutor>(RuntimeLifetime.Singleton)
                 .As<global::Game.Commands.VNext.ICommandExecutor>();
         }
     }

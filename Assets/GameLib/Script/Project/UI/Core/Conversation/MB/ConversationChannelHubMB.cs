@@ -28,9 +28,9 @@ namespace Game.Conversation
         public bool EnableDebugLog => _enableDebugLog;
         public IConversationChannelHubService? Hub => _hub;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<ConversationChannelHubService>(Lifetime.Singleton)
+            builder.Register<ConversationChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<IConversationChannelHubService>()

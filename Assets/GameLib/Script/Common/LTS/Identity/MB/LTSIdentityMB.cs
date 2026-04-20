@@ -1,7 +1,5 @@
-// Assets/Game/Script/Core/Identity/LTSIdentityMB.cs
+﻿// Assets/Game/Script/Core/Identity/LTSIdentityMB.cs
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 using Sirenix.OdinInspector;
 using Game.Commands; // LifetimeScopeKind, CommandTargetIdentityFilter
 using Game.DI;
@@ -20,12 +18,12 @@ namespace Game
         Transform SelfTransform { get; }
 
         /// <summary>
-        /// DynamicObject として扱うときの「自身のサイズ」。検索半径ではなく、当たり判定の半径。
+        /// DynamicObject 縺ｨ縺励※謇ｱ縺・→縺阪・縲瑚・霄ｫ縺ｮ繧ｵ繧､繧ｺ縲阪よ､懃ｴ｢蜊雁ｾ・〒縺ｯ縺ｪ縺上∝ｽ薙◆繧雁愛螳壹・蜊雁ｾ・・
         /// </summary>
         float Radius { get; }
 
         /// <summary>
-        /// この LTS 配下のコンポーネントが TimeScale の影響を受けるか。
+        /// 縺薙・ LTS 驟堺ｸ九・繧ｳ繝ｳ繝昴・繝阪Φ繝医′ TimeScale 縺ｮ蠖ｱ髻ｿ繧貞女縺代ｋ縺九・
         /// </summary>
         TimeScaleBehavior TimeScaleBehavior { get; }
     }
@@ -54,7 +52,7 @@ namespace Game
 
         [BoxGroup("TimeScale")]
         [LabelText("TimeScale Behavior")]
-        [Tooltip("Scaled: Time.timeScale の影響を受ける（DOTween, UniTask, TextAnimator 等）\nUnscaled: Time.timeScale を無視する（ポーズ中も動く UI 等）")]
+        [Tooltip("Inspector setting.")]
         public TimeScaleBehavior timeScaleBehavior = TimeScaleBehavior.Scaled;
 
         [BoxGroup("DynamicObject")]
@@ -65,7 +63,7 @@ namespace Game
 
         [BoxGroup("DynamicObject")]
         [LabelText("Radius")]
-        [Tooltip("DynamicObject として検索に使う『自身のサイズ』。検索半径ではありません。\n検索時は distance <= searchRadius + targetRadius でヒット判定します。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(ShowDynamicRadiusOptions))]
         [MinValue(0f)]
         [SerializeField]
@@ -198,19 +196,14 @@ namespace Game
 
         LifetimeScopeKind GuessKind()
         {
-            // 自分自身を含めて、Transform 階層の最も近い scope を優先して判定する。
-            // RuntimeLifetimeScope は LifetimeScope を継承しないため、個別に探索する。
+            // 閾ｪ蛻・・霄ｫ繧貞性繧√※縲ゝransform 髫主ｱ､縺ｮ譛繧りｿ代＞ scope 繧貞━蜈医＠縺ｦ蛻､螳壹☆繧九・
+            // RuntimeLifetimeScope 縺ｯ LifetimeScope 繧堤ｶ呎価縺励↑縺・◆繧√∝句挨縺ｫ謗｢邏｢縺吶ｋ縲・
             var current = transform;
             while (current != null)
             {
-                if (current.TryGetComponent<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+                if (current.TryGetComponent<RuntimeLifetimeScopeBase>(out var runtimeScope) && runtimeScope != null)
                 {
-                    return LifetimeScopeKind.Runtime;
-                }
-
-                if (current.TryGetComponent<LifetimeScope>(out var scope) && scope != null)
-                {
-                    return PredictKindFromType(scope.GetType(), kind);
+                    return PredictKindFromType(runtimeScope.GetType(), kind);
                 }
 
                 current = current.parent;
@@ -219,7 +212,7 @@ namespace Game
             return kind;
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             // Only register this component instance when it is attached to the same GameObject
             // that represents the scope (prevents multiple child LTSIdentityMB components from
@@ -235,19 +228,20 @@ namespace Game
 
             // RuntimeLifetimeScope owns and registers its own RuntimeScopeIdentityService during ConfigureCore,
             // so avoid registering an ILTSIdentityService instance here for runtime scopes.
-            if (owner is not RuntimeLifetimeScope)
+            if (owner is not RuntimeLifetimeScopeBase)
             {
-                builder.Register<LTSIdentityService>(Lifetime.Singleton)
+                builder.Register<LTSIdentityService>(RuntimeLifetime.Singleton)
                        .As<ILTSIdentityService>()
                        .AsSelf()
-                       .As<IStartable>()  // 登録
-                       .As<IDisposable>() // 解除
+                       .As<IScopeAcquireHandler>()
+                       .As<IScopeReleaseHandler>()
+                       .As<IDisposable>()
                        .WithParameter(owner);
             }
 
             if (registerToDynamicRegistry && (kind == LifetimeScopeKind.Entity || kind == LifetimeScopeKind.Runtime))
             {
-                builder.Register<DynamicObjectAutoRegistrar>(Lifetime.Singleton)
+                builder.Register<DynamicObjectAutoRegistrar>(RuntimeLifetime.Singleton)
                     .As<IScopeAcquireHandler>()
                     .As<IScopeReleaseHandler>()
                     .As<IDisposable>();

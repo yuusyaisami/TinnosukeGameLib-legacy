@@ -1,12 +1,12 @@
-#nullable enable
+﻿#nullable enable
 // Game.Movement
 // ================================================================================
-// OrbitApproachMotionPreset - ターゲットを周回しつつ近づくモーション
+// OrbitApproachMotionPreset - 繧ｿ繝ｼ繧ｲ繝・ヨ繧貞捉蝗槭＠縺､縺､霑代▼縺上Δ繝ｼ繧ｷ繝ｧ繝ｳ
 // ================================================================================
 //
-// 【用途】
-// - 敵/弾がターゲットを“美しく回り込みながら”近づく。
-// - 数学的に単純で安定（接線方向 + 半径方向のブレンド）。
+// 縲千畑騾斐・
+// - 謨ｵ/蠑ｾ縺後ち繝ｼ繧ｲ繝・ヨ繧停懃ｾ弱＠縺丞屓繧願ｾｼ縺ｿ縺ｪ縺後ｉ窶晁ｿ代▼縺上・
+// - 謨ｰ蟄ｦ逧・↓蜊倡ｴ斐〒螳牙ｮ夲ｼ域磁邱壽婿蜷・+ 蜊雁ｾ・婿蜷代・繝悶Ξ繝ｳ繝会ｼ峨・
 // ================================================================================
 
 using System;
@@ -20,28 +20,28 @@ namespace Game.Movement
     {
         [Header("Orbit")]
         [LabelText("Clockwise")]
-        [Tooltip("true: 時計回り / false: 反時計回り")]
+        [Tooltip("Inspector setting.")]
         public bool Clockwise = false;
 
         [LabelText("Approach")]
-        [Tooltip("接線(周回)→半径(接近)のブレンド。0=周回、1=直線接近")]
+        [Tooltip("Inspector setting.")]
         [Range(0f, 1f)]
         public float Approach = 0.35f;
 
         [Header("Wobble (Optional)")]
         [LabelText("Wobble Angle")]
-        [Tooltip("微小な角度ゆらぎ（度）。0 で無効。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float WobbleAngle = 0f;
 
         [LabelText("Wobble Frequency")]
-        [Tooltip("ゆらぎ周波数（Hz）。")]
+        [Tooltip("Inspector setting.")]
         [Min(0f)]
         public float WobbleFrequency = 1.2f;
 
         [Header("Speed Modulation")]
         [LabelText("Speed Multiplier")]
-        [Tooltip("基本速度への倍率")]
+        [Tooltip("蝓ｺ譛ｬ騾溷ｺｦ縺ｸ縺ｮ蛟咲紫")]
         [Min(0f)]
         public float SpeedMultiplier = 1f;
 
@@ -75,7 +75,7 @@ namespace Game.Movement
             var blended = (tangent * (1f - a)) + (radial * a);
             blended = MovementMath.NormalizeDirection(blended);
 
-            // 微小な角度ゆらぎ（任意）
+            // 蠕ｮ蟆上↑隗貞ｺｦ繧・ｉ縺趣ｼ井ｻｻ諢擾ｼ・
             float wobbleAngle = Mathf.Max(0f, _source.WobbleAngle);
             if (wobbleAngle > 0f && _source.WobbleFrequency > 0f)
             {

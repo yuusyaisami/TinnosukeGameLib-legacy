@@ -1,10 +1,10 @@
-// Game.Health.CustomHealthModifierSO.cs
+﻿// Game.Health.CustomHealthModifierSO.cs
 //
-// 汎用式ベースの HealthModifier SO (v0.2)
-// - DynamicValue<float> による式評価
-// - Extrapayload サポート
-// - Tick 処理（Interval ベース）
-// - CommandListData (vNext) 実行
+// 豎守畑蠑上・繝ｼ繧ｹ縺ｮ HealthModifier SO (v0.2)
+// - DynamicValue<float> 縺ｫ繧医ｋ蠑剰ｩ穂ｾ｡
+// - Extrapayload 繧ｵ繝昴・繝・
+// - Tick 蜃ｦ逅・ｼ・nterval 繝吶・繧ｹ・・
+// - CommandListData (vNext) 螳溯｡・
 
 using System;
 using System.Collections.Generic;
@@ -20,8 +20,8 @@ using Game.Vars.Generated;
 namespace Game.Health
 {
     /// <summary>
-    /// 汎用式ベースの HealthModifier SO。
-    /// DynamicValue<float> で式評価、Extrapayload で追加データ注入。
+    /// 豎守畑蠑上・繝ｼ繧ｹ縺ｮ HealthModifier SO縲・
+    /// DynamicValue<float> 縺ｧ蠑剰ｩ穂ｾ｡縲・xtrapayload 縺ｧ霑ｽ蜉繝・・繧ｿ豕ｨ蜈･縲・
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Health/CustomHealthModifier", fileName = "CustomHealthModifier")]
     public sealed class CustomHealthModifierSO : BaseHealthModifierSO
@@ -38,7 +38,7 @@ namespace Game.Health
         [BoxGroup("Damage")]
         [ShowIf(nameof(_enableDamageModifier))]
         [LabelText("Damage Expression")]
-        [Tooltip("式で BaseDamage を再計算。変数: BaseDamage, IsCritical, DamageType, etc.")]
+        [Tooltip("蠑上〒 BaseDamage 繧貞・險育ｮ励ょ､画焚: BaseDamage, IsCritical, DamageType, etc.")]
         [SerializeField]
         DynamicValue<float> _damageExpression;
 
@@ -100,14 +100,14 @@ namespace Game.Health
         [BoxGroup("Tick")]
         [ShowIf(nameof(_enableTick))]
         [LabelText("Tick Interval")]
-        [Tooltip("Tick 間隔（秒）。DynamicValue で動的に変更可能。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<float> _tickInterval;
 
         [BoxGroup("Tick")]
         [ShowIf(nameof(_enableTick))]
         [LabelText("Tick Expression")]
-        [Tooltip("Tick 時に適用するダメージ/回復量。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<float> _tickExpression;
 
@@ -146,13 +146,13 @@ namespace Game.Health
             if (!_enableDamageModifier)
                 return true;
 
-            // Vars を作成し、Context の値を格納
+            // Vars 繧剃ｽ懈・縺励，ontext 縺ｮ蛟､繧呈ｼ邏・
             var temp = CreateDamageVars(ref context);
 
-            // Extrapayload を注入
+            // Extrapayload 繧呈ｳｨ蜈･
             InjectExtrapayload(temp, _damageExtrapayload, runtime);
 
-            // 式を評価して BaseDamage を更新
+            // 蠑上ｒ隧穂ｾ｡縺励※ BaseDamage 繧呈峩譁ｰ
             if (_damageExpression.HasSource)
             {
                 var dynCtx = new SimpleDynamicContext(temp, runtime.Context.Scope);
@@ -160,7 +160,7 @@ namespace Game.Health
                 context.BaseDamage = newDamage;
             }
 
-            // コマンド実行
+            // 繧ｳ繝槭Φ繝牙ｮ溯｡・
             runtime.ExecuteCommands(_onDamageCommands, temp);
 
             return true;
@@ -191,16 +191,16 @@ namespace Game.Health
             if (!_enableTick)
                 return;
 
-            // Tick 間隔を取得
+            // Tick 髢馴囈繧貞叙蠕・
             var dynCtx = new SimpleDynamicContext(NullVarStore.Instance, runtime.Context.Scope);
             float interval = _tickInterval.GetOrDefault(dynCtx, 1f);
             if (interval <= 0f)
                 interval = 1f;
 
-            // 経過時間を加算
+            // 邨碁℃譎る俣繧貞刈邂・
             runtime.ElapsedTime += deltaTime;
 
-            // Tick 間隔に達したら処理
+            // Tick 髢馴囈縺ｫ驕斐＠縺溘ｉ蜃ｦ逅・
             while (runtime.ElapsedTime >= interval)
             {
                 runtime.ElapsedTime -= interval;
@@ -218,7 +218,7 @@ namespace Game.Health
 
             if (tickValue <= 0f)
             {
-                // コマンドのみ実行
+                // 繧ｳ繝槭Φ繝峨・縺ｿ螳溯｡・
                 runtime.ExecuteCommands(_onTickCommands, temp);
                 return;
             }
@@ -296,7 +296,7 @@ namespace Game.Health
     }
 
     /// <summary>
-    /// Tick モード（Damage or Heal）
+    /// Tick 繝｢繝ｼ繝会ｼ・amage or Heal・・
     /// </summary>
     public enum TickMode
     {
@@ -305,7 +305,7 @@ namespace Game.Health
     }
 
     /// <summary>
-    /// Extrapayload エントリ（キーと DynamicValue<string>）
+    /// Extrapayload 繧ｨ繝ｳ繝医Μ・医く繝ｼ縺ｨ DynamicValue<string>・・
     /// </summary>
     [Serializable]
     public struct ExtrapayloadEntry

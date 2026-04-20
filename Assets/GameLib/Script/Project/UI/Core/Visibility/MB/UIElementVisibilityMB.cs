@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,19 +7,19 @@ using VContainer;
 namespace Game.UI
 {
     /// <summary>
-    /// UI要素に付与するVisibility(Fade)登録用FeatureInstaller。
-    /// - IUIElementStateController.SetVisible(true/false) のみで FadeIn/FadeOut を行う
-    /// - GameObject.SetActive(false) は使用しない
+    /// UI隕∫ｴ縺ｫ莉倅ｸ弱☆繧儀isibility(Fade)逋ｻ骭ｲ逕ｨFeatureInstaller縲・
+    /// - IUIElementStateController.SetVisible(true/false) 縺ｮ縺ｿ縺ｧ FadeIn/FadeOut 繧定｡後≧
+    /// - GameObject.SetActive(false) 縺ｯ菴ｿ逕ｨ縺励↑縺・
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class UIElementVisibilityMB : MonoBehaviour, IFeatureInstaller
     {
         [Header("Adapter (CanvasGroup)")]
-        [Tooltip("未設定の場合、このGameObjectから自動取得/自動追加する。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         CanvasGroup? canvasGroup;
 
-        [Tooltip("Render停止対象のルート。未設定の場合 transform を使用する。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? graphicsRoot;
 
@@ -29,7 +29,7 @@ namespace Game.UI
         [SerializeField]
         UIFadeOptions fadeOptions = UIFadeOptions.Default;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var group = ResolveCanvasGroup();
             var root = graphicsRoot != null ? graphicsRoot : transform;
@@ -40,7 +40,7 @@ namespace Game.UI
             builder.RegisterInstance(fadeOptions);
             builder.RegisterInstance<IUIVisibilityAdapter>(adapter);
 
-            builder.Register<UIElementFadeService>(Lifetime.Singleton)
+            builder.Register<UIElementFadeService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
         }

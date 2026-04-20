@@ -1,4 +1,4 @@
-// Game.Health.HealthModifierPreset
+﻿// Game.Health.HealthModifierPreset
 using System;
 using Game.Common;
 using Game.Profile;
@@ -14,7 +14,7 @@ namespace Game.Health
     {
         [BoxGroup("Poison")]
         [LabelText("Damage Per Second")]
-        [Tooltip("毒状態の秒間ダメージ")]
+        [Tooltip("豈堤憾諷九・遘帝俣繝繝｡繝ｼ繧ｸ")]
         [SerializeField]
         ProfileFloatValue _poisonDamagePerSecond = new()
         {
@@ -28,7 +28,7 @@ namespace Game.Health
 
         [BoxGroup("Poison")]
         [LabelText("Tick Interval")]
-        [Tooltip("毒ダメージの適用間隔（秒）")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ProfileFloatValue _poisonTickInterval = new()
         {
@@ -41,7 +41,7 @@ namespace Game.Health
 
         [BoxGroup("DamageReduction")]
         [LabelText("Reduction Rate")]
-        [Tooltip("ダメージ軽減率 (0.0 - 1.0)")]
+        [Tooltip("繝繝｡繝ｼ繧ｸ霆ｽ貂帷紫 (0.0 - 1.0)")]
         [SerializeField]
         ProfileFloatValue _damageReductionRate = new()
         {
@@ -61,7 +61,7 @@ namespace Game.Health
 
         [BoxGroup("HealBoost")]
         [LabelText("Boost Rate")]
-        [Tooltip("回復量増加率 (1.0 = 100% 増加)")]
+        [Tooltip("蝗槫ｾｩ驥丞｢怜刈邇・(1.0 = 100% 蠅怜刈)")]
         [SerializeField]
         ProfileFloatValue _healBoostRate = new()
         {
@@ -75,7 +75,7 @@ namespace Game.Health
 
         [BoxGroup("Critical")]
         [LabelText("Critical Multiplier")]
-        [Tooltip("クリティカル時のダメージ倍率")]
+        [Tooltip("繧ｯ繝ｪ繝・ぅ繧ｫ繝ｫ譎ゅ・繝繝｡繝ｼ繧ｸ蛟咲紫")]
         [SerializeField]
         ProfileFloatValue _criticalIncomingMultiplier = new()
         {
@@ -89,7 +89,7 @@ namespace Game.Health
 
         [BoxGroup("Critical")]
         [LabelText("Incoming Critical Chance")]
-        [Tooltip("被クリティカル率 (0.0 - 1.0)")]
+        [Tooltip("陲ｫ繧ｯ繝ｪ繝・ぅ繧ｫ繝ｫ邇・(0.0 - 1.0)")]
         [SerializeField]
         ProfileFloatValue _criticalIncomingChance = new()
         {
@@ -109,7 +109,7 @@ namespace Game.Health
 
         [BoxGroup("Critical")]
         [LabelText("Outgoing Critical Multiplier")]
-        [Tooltip("与クリティカル時のダメージ倍率")]
+        [Tooltip("荳弱け繝ｪ繝・ぅ繧ｫ繝ｫ譎ゅ・繝繝｡繝ｼ繧ｸ蛟咲紫")]
         [SerializeField]
         ProfileFloatValue _criticalOutgoingMultiplier = new()
         {
@@ -123,7 +123,7 @@ namespace Game.Health
 
         [BoxGroup("Critical")]
         [LabelText("Outgoing Critical Chance")]
-        [Tooltip("与クリティカル率 (0.0 - 1.0)")]
+        [Tooltip("荳弱け繝ｪ繝・ぅ繧ｫ繝ｫ邇・(0.0 - 1.0)")]
         [SerializeField]
         ProfileFloatValue _criticalOutgoingChance = new()
         {

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -10,18 +10,18 @@ namespace Game.Health
     public sealed class HealthAcquireReviveSettings
     {
         [LabelText("Revive If Dead On Acquire")]
-        [Tooltip("Acquire 時に死亡状態なら復活します。")]
+        [Tooltip("Inspector setting.")]
         public bool ReviveIfDeadOnAcquire = true;
 
         [LabelText("Only On Reset Acquire")]
         [ShowIf(nameof(ReviveIfDeadOnAcquire))]
-        [Tooltip("isReset=true の Acquire のときのみ復活します。")]
+        [Tooltip("Inspector setting.")]
         public bool OnlyOnResetAcquire = true;
 
         [LabelText("Revive HP Ratio")]
         [ShowIf(nameof(ReviveIfDeadOnAcquire))]
         [Range(0f, 1f)]
-        [Tooltip("復活時の HP 割合です。")]
+        [Tooltip("Inspector setting.")]
         public float ReviveHPRatio = 1f;
     }
 

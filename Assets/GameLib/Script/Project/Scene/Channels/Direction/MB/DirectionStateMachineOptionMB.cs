@@ -108,7 +108,7 @@ namespace Game.Direction
                 downHalfRangeDeg: downHalfRangeDeg);
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var config = new DirectionStateMachineOptionConfig(
                 activationThreshold: activationThreshold,
@@ -120,9 +120,9 @@ namespace Game.Direction
                 cardinalAngleConfig: BuildCardinalAngleConfig());
 
             builder.RegisterInstance(config);
-            builder.Register<DirectionStateMachineOptionService>(Lifetime.Singleton)
+            builder.Register<DirectionStateMachineOptionService>(RuntimeLifetime.Singleton)
                 .AsSelf()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
         }

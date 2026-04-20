@@ -1,4 +1,4 @@
-// Game.Animation.Presets
+﻿// Game.Animation.Presets
 
 using System;
 using UnityEngine;
@@ -31,29 +31,29 @@ namespace Game.Channel
         public bool flipX;
 
         [LabelText("Use Clip Switch Flip")]
-        [Tooltip("アニメーション切替時に専用フリップアニメーションを再生する。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         public bool useClipSwitchFlip = false;
 
         [ShowIf(nameof(useClipSwitchFlip))]
         [LabelText("Switch Flip Duration")]
-        [Tooltip("切替フリップ全体時間（秒）。90度到達まで前半、残りを後半として使用。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField, MinValue(0.01f)]
         public float switchFlipDuration = 0.2f;
 
         [ShowIf(nameof(useClipSwitchFlip))]
         [LabelText("Switch Flip Full Rotation")]
-        [Tooltip("true: 90度到達後に1周して戻る。false: 90度到達後にそのまま戻る（半周相当）。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         public bool switchFlipFullRotation = false;
 
         [LabelText("Use Playback Speed Multiplier")]
-        [Tooltip("true: チャネルの再生速度倍率(0=停止,1=通常,2=倍速)の影響を受ける。false: 常に等倍再生。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         public bool usePlaybackSpeedMultiplier = true;
 
         [Header("CrossFade")]
-        [Tooltip("CrossFade モード用のトランジション設定。null ならデフォルト挙動。")]
+        [Tooltip("Inspector setting.")]
         [SerializeReference]
         [InlineProperty]
         public ITransitionProfile crossFadeProfile;

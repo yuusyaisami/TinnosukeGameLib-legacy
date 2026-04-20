@@ -17,7 +17,7 @@ namespace Game.UI
         ITooltipChannelHubService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         sealed class ChannelEntry
         {

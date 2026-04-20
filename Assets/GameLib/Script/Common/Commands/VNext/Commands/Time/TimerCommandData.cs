@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -56,13 +56,13 @@ namespace Game.Commands.VNext
         [BoxGroup("Add Current")]
         [ShowIf(nameof(ShowAddCurrent))]
         [LabelText("Add Value")]
-        [Tooltip("再生中の timer current に加算する値です。負の値で減算できます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<float> AddValue;
 
         [BoxGroup("Reset")]
         [ShowIf(nameof(ShowResetRestart))]
         [LabelText("Restart After Reset")]
-        [Tooltip("Reset で初期時刻に戻した後、そのまま再スタートするかどうか。true の場合は Reset 後に Start を呼びます。")]
+        [Tooltip("Inspector setting.")]
         public bool RestartAfterReset;
 
         [BoxGroup("Get Time")]

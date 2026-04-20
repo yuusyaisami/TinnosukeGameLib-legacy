@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
@@ -29,11 +29,11 @@ namespace Game.Channel
     public sealed class TextAnimationPreset : ITextAnimationPreset
     {
         [Header("Loop")]
-        [Tooltip("シーケンス全体をループするか")]
+        [Tooltip("繧ｷ繝ｼ繧ｱ繝ｳ繧ｹ蜈ｨ菴薙ｒ繝ｫ繝ｼ繝励☆繧九°")]
         public bool loop;
 
         [ShowIf(nameof(loop))]
-        [Tooltip("-1 で無限ループ")]
+        [Tooltip("Inspector setting.")]
         [MinValue(-1)]
         public int loopCount = -1;
 

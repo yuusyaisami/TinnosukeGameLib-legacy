@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.UI;
@@ -14,12 +14,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [PropertyTooltip("TooltipChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [PropertyTooltip("register/replace/unregister の対象 channel tag です。空白の場合は default を使用します。")]
+        [PropertyTooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -30,7 +30,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Preset")]
         [ShowIf(nameof(UsesPlayerPreset))]
         [LabelText("Player Preset")]
-        [PropertyTooltip("register/replace 時に channel へ設定する player preset です。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<TooltipPlayerPreset> PlayerPreset =
             DynamicValue<TooltipPlayerPreset>.FromSource(
                 new ManagedRefLiteralSource<TooltipPlayerPreset>(new TooltipPlayerPreset()));
@@ -38,7 +38,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Preset")]
         [ShowIf(nameof(UsesHubPreset))]
         [LabelText("Hub Preset")]
-        [PropertyTooltip("hub 全体の current hub preset をこの preset に差し替えます。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<TooltipHubPreset> HubPreset =
             DynamicValue<TooltipHubPreset>.FromSource(
                 new ManagedRefLiteralSource<TooltipHubPreset>(new TooltipHubPreset()));
@@ -57,12 +57,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [PropertyTooltip("TooltipChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [PropertyTooltip("操作対象の channel tag です。空白の場合は default を使用します。")]
+        [PropertyTooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -81,12 +81,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [PropertyTooltip("TooltipChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [PropertyTooltip("操作対象の channel tag です。空白の場合は default を使用します。")]
+        [PropertyTooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -97,7 +97,7 @@ namespace Game.Commands.VNext
         [BoxGroup("PlayerPreset")]
         [ShowIf(nameof(UsesPlayerPreset))]
         [LabelText("Player Preset")]
-        [PropertyTooltip("current player preset をこの preset に完全差し替えします。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<TooltipPlayerPreset> PlayerPreset =
             DynamicValue<TooltipPlayerPreset>.FromSource(
                 new ManagedRefLiteralSource<TooltipPlayerPreset>(new TooltipPlayerPreset()));
@@ -105,7 +105,7 @@ namespace Game.Commands.VNext
         [BoxGroup("CommandsPreset")]
         [ShowIf(nameof(UsesCommandsPreset))]
         [LabelText("Commands Preset")]
-        [PropertyTooltip("current commands preset をこの preset に完全差し替えします。")]
+        [PropertyTooltip("Inspector setting.")]
         public DynamicValue<TooltipCommandsPreset> CommandsPreset =
             DynamicValue<TooltipCommandsPreset>.FromSource(
                 new ManagedRefLiteralSource<TooltipCommandsPreset>(new TooltipCommandsPreset()));

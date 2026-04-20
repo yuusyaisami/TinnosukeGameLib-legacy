@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -17,7 +17,7 @@ namespace Game.Health
     public sealed class HealthEventCommandBinding
     {
         [LabelText("Condition")]
-        [Tooltip("true のとき Commands を実行します。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<bool> Condition = DynamicValueExtensions.FromLiteral(true);
 
         [LabelText("Commands")]
@@ -31,32 +31,32 @@ namespace Game.Health
         [Title("Health Event Commands")]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
         [LabelText("On Damaged")]
-        [Tooltip("ダメージ適用後に評価/実行されるコマンド。")]
+        [Tooltip("Inspector setting.")]
         public List<HealthEventCommandBinding> OnDamaged = new();
 
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
         [LabelText("On Healed")]
-        [Tooltip("回復適用後に評価/実行されるコマンド。")]
+        [Tooltip("Inspector setting.")]
         public List<HealthEventCommandBinding> OnHealed = new();
 
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
         [LabelText("On Died")]
-        [Tooltip("死亡時に評価/実行されるコマンド。")]
+        [Tooltip("Inspector setting.")]
         public List<HealthEventCommandBinding> OnDied = new();
 
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
         [LabelText("On Revived")]
-        [Tooltip("復活時に評価/実行されるコマンド。")]
+        [Tooltip("Inspector setting.")]
         public List<HealthEventCommandBinding> OnRevived = new();
 
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
         [LabelText("On Invincible Started")]
-        [Tooltip("無敵状態への遷移時に評価/実行されるコマンド。")]
+        [Tooltip("Inspector setting.")]
         public List<HealthEventCommandBinding> OnInvincibleStarted = new();
 
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
         [LabelText("On Invincible Ended")]
-        [Tooltip("無敵状態の終了時に評価/実行されるコマンド。")]
+        [Tooltip("Inspector setting.")]
         public List<HealthEventCommandBinding> OnInvincibleEnded = new();
     }
 

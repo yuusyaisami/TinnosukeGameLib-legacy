@@ -1,4 +1,4 @@
-// Assets/GameLib/Script/Common/LTS/Core/ScopeNodeHierarchy.cs
+﻿// Assets/GameLib/Script/Common/LTS/Core/ScopeNodeHierarchy.cs
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace Game
         {
             public readonly List<IScopeNode> List = new(4);
 
-            // child -> index (swap-back remove 用)
+            // child -> index (swap-back remove 逕ｨ)
             public readonly Dictionary<IScopeNode, int> Index =
                 new(ReferenceEqualityComparer<IScopeNode>.Instance);
         }
@@ -20,7 +20,7 @@ namespace Game
         static readonly Dictionary<IScopeNode, ChildBucket> Children =
             new(ReferenceEqualityComparer<IScopeNode>.Instance);
 
-        // child -> parent (Unregister を O(1) にする核心)
+        // child -> parent (Unregister 繧・O(1) 縺ｫ縺吶ｋ譬ｸ蠢・
         static readonly Dictionary<IScopeNode, IScopeNode?> ParentMap =
             new(ReferenceEqualityComparer<IScopeNode>.Instance);
 
@@ -29,16 +29,16 @@ namespace Game
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
 
-            // 元コードは「return」して終わり（＝古い登録が残り得る）
-            // ここは正しさ優先で「デタッチ扱い」にしている。
-            if (parent == null || ReferenceEquals(parent, node))
+            // 蜈・さ繝ｼ繝峨・縲罫eturn縲阪＠縺ｦ邨ゅｏ繧奇ｼ茨ｼ晏商縺・匳骭ｲ縺梧ｮ九ｊ蠕励ｋ・・
+            // 縺薙％縺ｯ豁｣縺励＆蜆ｪ蜈医〒縲後ョ繧ｿ繝・メ謇ｱ縺・阪↓縺励※縺・ｋ縲・
+            if (ReferenceEquals(parent, node))
             {
-                // ↓ 元の挙動を厳密に維持したいなら、この2行を消して return に戻す
+                // 竊・蜈・・謖吝虚繧貞宍蟇・↓邯ｭ謖√＠縺溘＞縺ｪ繧峨√％縺ｮ2陦後ｒ豸医＠縺ｦ return 縺ｫ謌ｻ縺・
                 Unregister(node);
                 return;
             }
 
-            // 既登録なら「親が変わった時だけ」付け替え
+            // 譌｢逋ｻ骭ｲ縺ｪ繧峨瑚ｦｪ縺悟､峨ｏ縺｣縺滓凾縺縺代堺ｻ倥￠譖ｿ縺・
             if (ParentMap.TryGetValue(node, out var oldParent))
             {
                 if (ReferenceEquals(oldParent, parent))
@@ -54,7 +54,8 @@ namespace Game
                 ParentMap.Add(node, parent);
             }
 
-            AddChild(parent, node);
+            if (parent != null)
+                AddChild(parent, node);
         }
 
         public static void Unregister(IScopeNode node)
@@ -62,7 +63,7 @@ namespace Game
             if (node == null)
                 return;
 
-            // (1) 自分が「子」である関係を外す（全探索しない）
+            // (1) 閾ｪ蛻・′縲悟ｭ舌阪〒縺ゅｋ髢｢菫ゅｒ螟悶☆・亥・謗｢邏｢縺励↑縺・ｼ・
             if (ParentMap.TryGetValue(node, out var parent))
             {
                 if (parent != null)
@@ -71,8 +72,8 @@ namespace Game
                 ParentMap.Remove(node);
             }
 
-            // (2) 自分が「親」として持っている子リストを消す（元コード Children.Remove(node) 相当）
-            //     ついでに ParentMap 側の参照も掃除しておく（幽霊参照/メモリ保持を避ける）
+            // (2) 閾ｪ蛻・′縲瑚ｦｪ縲阪→縺励※謖√▲縺ｦ縺・ｋ蟄舌Μ繧ｹ繝医ｒ豸医☆・亥・繧ｳ繝ｼ繝・Children.Remove(node) 逶ｸ蠖難ｼ・
+            //     縺､縺・〒縺ｫ ParentMap 蛛ｴ縺ｮ蜿ら・繧よ祉髯､縺励※縺翫￥・亥ｹｽ髴雁盾辣ｧ/繝｡繝｢繝ｪ菫晄戟繧帝∩縺代ｋ・・
             if (Children.TryGetValue(node, out var bucket))
             {
                 var list = bucket.List;
@@ -87,8 +88,8 @@ namespace Game
             }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // 保険：もしバグで「複数親のリストに入る」状態が発生してた場合の掃除。
-            // （本来は起きない設計だが、移行期の安全弁として）
+            // 菫晞匱・壹ｂ縺励ヰ繧ｰ縺ｧ縲瑚､・焚隕ｪ縺ｮ繝ｪ繧ｹ繝医↓蜈･繧九咲憾諷九′逋ｺ逕溘＠縺ｦ縺溷ｴ蜷医・謗・勁縲・
+            // ・域悽譚･縺ｯ襍ｷ縺阪↑縺・ｨｭ險医□縺後∫ｧｻ陦梧悄縺ｮ螳牙・蠑√→縺励※・・
             foreach (var kv in Children)
             {
                 RemoveChildIfPresent(kv.Value, node);
@@ -172,7 +173,7 @@ namespace Game
             var current = includeSelf ? origin : origin?.Parent;
             while (current != null)
             {
-                if (current is BaseLifetimeScope baseScope && baseScope.UseAsGameLogicRoot)
+                if (current is RuntimeLifetimeScopeBase runtimeScope && runtimeScope.UseAsGameLogicRoot)
                     return current;
 
                 current = current.Parent;

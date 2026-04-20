@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands.VNext;
 using Game.Trait;
@@ -16,17 +16,17 @@ namespace Game.Common
     public sealed class HolderTraitDefinitionSource : IDynamicSource
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(hubActorSource)")]
-        [Tooltip("TraitHolderHubService を解決する対象スコープです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource hubActorSource = new() { Kind = ActorSourceKind.Current };
 
         [LabelText("Holder Key")]
-        [Tooltip("TraitDefinition を取得したい TraitHolder の key です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string holderKey = string.Empty;
 
         [LabelText("Selector")]
-        [Tooltip("holder 内から対象 trait instance を 1 件選択する条件です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitElementSelector selector;
 

@@ -26,13 +26,13 @@ namespace Game.Times
         public TimerChannelDef[] Timers => timers;
         public bool AutoInitializeOnStart => autoInitializeOnStart;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance<ITimerHubSettings>(this);
 
-            builder.Register<TimerHubService>(Lifetime.Singleton)
+            builder.Register<TimerHubService>(RuntimeLifetime.Singleton)
                 .As<ITimerHubService>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .WithParameter(enableDebugLog)

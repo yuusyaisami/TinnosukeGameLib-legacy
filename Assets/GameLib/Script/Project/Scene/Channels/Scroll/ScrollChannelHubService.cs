@@ -17,8 +17,8 @@ namespace Game.Channel
 {
     public sealed class ScrollChannelHubService :
         IScrollChannelHubService,
-        ITickable,
-        ILateTickable,
+        IScopeTickHandler,
+        IScopeLateTickHandler,
         ITickPhase,
         IScopeAcquireHandler,
         IScopeReleaseHandler
@@ -360,7 +360,7 @@ namespace Game.Channel
                 worldSpace: true,
                 allowPooling: player.Definition.AllowPooling);
 
-            IObjectResolver? resolver = null;
+            IRuntimeResolver? resolver = null;
             try
             {
                 resolver = await spawner.SpawnAsync(spawnParams, ct);
@@ -655,7 +655,7 @@ namespace Game.Channel
         }
 
         static void ExtractSpawnedInfo(
-            IObjectResolver resolver,
+            IRuntimeResolver resolver,
             out GameObject? root,
             out IScopeNode? scopeNode,
             out RuntimeLifetimeScope? runtimeScope,

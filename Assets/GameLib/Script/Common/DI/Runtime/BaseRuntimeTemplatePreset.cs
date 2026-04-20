@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -11,12 +11,12 @@ namespace Game.DI
     {
         [Header("Prefab")]
         [SerializeField]
-        [Tooltip("RuntimeLifetimeScope を持つ prefab。")]
+        [Tooltip("Inspector setting.")]
         GameObject? prefab;
 
         [Header("Pooling")]
         [SerializeField]
-        [Tooltip("false ならプールを使わず都度生成/破棄する。")]
+        [Tooltip("Inspector setting.")]
         bool usePooling = true;
 
         [Header("Identity Settings")]

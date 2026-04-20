@@ -1,4 +1,4 @@
-// Assets/Game/Script/Flow/SceneFlowInstallerMB.cs
+﻿// Assets/Game/Script/Flow/SceneFlowInstallerMB.cs
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -23,13 +23,13 @@ namespace Game.Project
         VarKeyRef ProgressVar { get; }
     }
     /// <summary>
-    /// ProjectLifetimeScope と同じ GameObject にアタッチして、
-    /// シーン遷移サービスとローディングサービスを登録するインストーラ。
+    /// ProjectLifetimeScope 縺ｨ蜷後§ GameObject 縺ｫ繧｢繧ｿ繝・メ縺励※縲・
+    /// 繧ｷ繝ｼ繝ｳ驕ｷ遘ｻ繧ｵ繝ｼ繝薙せ縺ｨ繝ｭ繝ｼ繝・ぅ繝ｳ繧ｰ繧ｵ繝ｼ繝薙せ繧堤匳骭ｲ縺吶ｋ繧､繝ｳ繧ｹ繝医・繝ｩ縲・
     /// </summary>
     public sealed class SceneFlowInstallerMB : MonoBehaviour, IFeatureInstaller, ILoadingScreenConfig
     {
         [Header("Loading Screen")]
-        [Tooltip("ロード画面を使用するか。false ならプレハブが null になり、LoadingScreenService は no-op になる。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] bool useLoadingScreen = true;
 
 
@@ -37,7 +37,7 @@ namespace Game.Project
         [SerializeField] SceneLifetimeScope loadingScenePrefab;
 
         [BoxGroup("Commands"), LabelText("Delay"), ShowIf(nameof(useLoadingScreen))]
-        // // Showコマンドが実行されてからUnityのシーン変更が実行されるまでの遅延時間（秒）
+        // // Show繧ｳ繝槭Φ繝峨′螳溯｡後＆繧後※縺九ｉUnity縺ｮ繧ｷ繝ｼ繝ｳ螟画峩縺悟ｮ溯｡後＆繧後ｋ縺ｾ縺ｧ縺ｮ驕・ｻｶ譎る俣・育ｧ抵ｼ・
         [SerializeField, Min(0f)] float commandLeadTimeBeforeSceneChangeSeconds = 0f;
 
         [BoxGroup("Commands"), LabelText("Show"), ShowIf(nameof(useLoadingScreen))]
@@ -59,29 +59,29 @@ namespace Game.Project
         public VarKeyRef MessageVar => messageVar;
         public VarKeyRef ProgressVar => progressVar;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode lts)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode lts)
         {
-            // プレハブは null でもよい。その場合ローディング自体は全て no-op。
+            // 繝励Ξ繝上ヶ縺ｯ null 縺ｧ繧ゅｈ縺・ゅ◎縺ｮ蝣ｴ蜷医Ο繝ｼ繝・ぅ繝ｳ繧ｰ閾ｪ菴薙・蜈ｨ縺ｦ no-op縲・
             if (useLoadingScreen && loadingScenePrefab != null)
             {
                 builder.RegisterInstance<ILoadingScreenConfig>(this);
             }
             else
             {
-                // null の場合は NullLoadingScreenMB を登録（no-op実装）
-                builder.Register<NullLoadingScreenMB>(Lifetime.Singleton)
+                // null 縺ｮ蝣ｴ蜷医・ NullLoadingScreenMB 繧堤匳骭ｲ・・o-op螳溯｣・ｼ・
+                builder.Register<NullLoadingScreenMB>(RuntimeLifetime.Singleton)
                        .As<ILoadingScreenConfig>();
             }
 
-            builder.Register<LoadingScreenService>(Lifetime.Singleton)
+            builder.Register<LoadingScreenService>(RuntimeLifetime.Singleton)
                    .As<ILoadingScreenService>()
                    .As<IScopeAcquireHandler>()
                    .As<IScopeReleaseHandler>();
 
-            builder.Register<SceneService>(Lifetime.Singleton)
+            builder.Register<SceneService>(RuntimeLifetime.Singleton)
                 .As<ISceneService>();
 
-            builder.Register<SceneFlowBlackboardInitializer>(Lifetime.Singleton)
+            builder.Register<SceneFlowBlackboardInitializer>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
         }

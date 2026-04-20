@@ -15,7 +15,7 @@ namespace Game.Channel
         public RuntimeLifetimeScope? RuntimeScope;
         public BaseLifetimeScope? BaseScope;
         public GameObject? Root;
-        public IObjectResolver? Resolver;
+        public IRuntimeResolver? Resolver;
 
         public ScrollTileHandle(
             ScrollTileCoord coord,
@@ -25,7 +25,7 @@ namespace Game.Channel
             RuntimeLifetimeScope? runtimeScope,
             BaseLifetimeScope? baseScope,
             GameObject? root,
-            IObjectResolver? resolver)
+            IRuntimeResolver? resolver)
         {
             Coord = coord;
             Transform = transform;

@@ -21,8 +21,8 @@ namespace Game.Background
         IBackgroundSystem,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable,
-        ILateTickable
+        IScopeTickHandler,
+        IScopeLateTickHandler
     {
         sealed class BackgroundLayerRuntime
         {
@@ -473,7 +473,7 @@ namespace Game.Background
                 worldSpace: worldSpace,
                 allowPooling: allowPooling);
 
-            IObjectResolver? resolver = null;
+            IRuntimeResolver? resolver = null;
             try
             {
                 resolver = await spawner.SpawnAsync(p, ct);
@@ -655,7 +655,7 @@ namespace Game.Background
         }
 
         static void ExtractSpawnedInfo(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             out GameObject? root,
             out IScopeNode? scopeNode,
             out RuntimeLifetimeScope? runtimeScope,

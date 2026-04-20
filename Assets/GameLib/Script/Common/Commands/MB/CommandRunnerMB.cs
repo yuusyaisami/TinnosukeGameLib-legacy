@@ -29,15 +29,15 @@ namespace Game.Commands
         [SerializeField]
         VarStorePayload _defaultVars = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
-            // MonitorChannelHub は各スコープで共有のシングルトンとして登録
-            builder.RegisterAsScopeMulti<IMonitorChannelHub, MonitorChannelHub>(Lifetime.Singleton)
+            // MonitorChannelHub は吁E��コープで共有�Eシングルトンとして登録
+            builder.RegisterAsScopeMulti<IMonitorChannelHub, MonitorChannelHub>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .As<IMonitorChannelHubTelemetry>();
 
-            // DebugViewer にテレメトリをバインド
+            // DebugViewer にチE��メトリをバインチE
             builder.RegisterBuildCallback(container =>
             {
                 if (_monitorHubDebugViewer != null && container.TryResolve<IMonitorChannelHubTelemetry>(out var telemetry))
@@ -52,13 +52,13 @@ namespace Game.Commands
             });
 
             // Shared executors (available in all scopes that host a CommandRunner)
-            builder.Register<VNext.TransformAnimationChannelExecutor>(Lifetime.Singleton)
+            builder.Register<VNext.TransformAnimationChannelExecutor>(RuntimeLifetime.Singleton)
                 .As<VNext.ICommandExecutor>();
 
-            builder.Register<VNext.ParallaxChannelExecutor>(Lifetime.Singleton)
+            builder.Register<VNext.ParallaxChannelExecutor>(RuntimeLifetime.Singleton)
                 .As<VNext.ICommandExecutor>();
 
-            builder.Register<VNext.CommandListRuntimeMutationService>(Lifetime.Singleton)
+            builder.Register<VNext.CommandListRuntimeMutationService>(RuntimeLifetime.Singleton)
                 .As<VNext.ICommandListRuntimeMutationService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
@@ -66,366 +66,366 @@ namespace Game.Commands
             // vNext core services (Project scope only)
             if (owner.Kind == LifetimeScopeKind.Project)
             {
-                builder.Register<VNext.CommandKeyResolver>(Lifetime.Singleton)
+                builder.Register<VNext.CommandKeyResolver>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandKeyResolver>()
                     .As<IScopeAcquireHandler>()
                     .As<IScopeReleaseHandler>();
 
-                builder.Register<VNext.CommandCatalogService>(Lifetime.Singleton)
+                builder.Register<VNext.CommandCatalogService>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandCatalog>()
                     .As<IScopeAcquireHandler>()
                     .As<IScopeReleaseHandler>();
 
-                builder.Register<VNext.UnityCommandResolveLogger>(Lifetime.Singleton)
+                builder.Register<VNext.UnityCommandResolveLogger>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandResolveLogger>();
 
-                builder.Register<VNext.SharedLTSChannelHub>(Lifetime.Singleton)
+                builder.Register<VNext.SharedLTSChannelHub>(RuntimeLifetime.Singleton)
                     .As<VNext.ISharedLTSChannelHub>()
                     .As<VNext.ISharedLTSChannelHubTelemetry>()
                     .As<IScopeReleaseHandler>();
 
-                builder.Register<VNext.WithActorExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.WithActorExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.WithActorDescendantRouterExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.WithActorDescendantRouterExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.WithPlayerExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.WithPlayerExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.WithTargetChannelExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.WithTargetChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.CommandChannelExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.CommandChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.CommandChannelControlExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.CommandChannelControlExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.CommandListChannelHubControlExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.CommandListChannelHubControlExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.CommandListChannelExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.CommandListChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.CommandListChannelPlayerControlExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.CommandListChannelPlayerControlExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.SetContextSlotExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SetContextSlotExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.FunctionExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.FunctionExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.HostCallExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.HostCallExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.CommandDebugExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.CommandDebugExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.LifetimeScopeStateExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.LifetimeScopeStateExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ScopeLifecycleConditionExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.ScopeLifecycleConditionExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.MonitorChannelRuleControlExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.MonitorChannelRuleControlExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.StatusEffectExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.StatusEffectExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SharedLTSChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-
-                builder.Register<VNext.WaitExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.BreakExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.AdvanceWaitExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.IfExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TriggerExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SwitchExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ForExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SequenceExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SharedLTSChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.ActionBlockExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.WaitExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ForgetExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.BreakExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.DelayExecutorExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.AdvanceWaitExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-
-                builder.Register<VNext.PlayAudioExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.IfExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-
-                builder.Register<VNext.StopAudioExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.TriggerExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-
-                builder.Register<VNext.SetVelocityExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SwitchExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.AddForceExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.ForExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SetChannelEnabledExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SetAllChannelsEnabledExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SetChannelInfluenceExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ResetAllVelocitiesExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.CreateMovementChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.RemoveMovementChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SetMovementModuleExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SetInputMovementExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.MoveToPointsExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TeleportExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TransformChannelRigidbody2DExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TransformManagerMovementExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TransformManagerRotateExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TransformManagerScaleExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.HealthApplyDamageExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.HealthApplyHealExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.HealthControlExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SequenceExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.SelfDespawnExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.ActionBlockExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SpawnParticleExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.ForgetExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SpawnRuntimeTemplateExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SpawnRuntimeGridExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.RuntimeAllDeleteExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.StateMachineExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SetDirectionExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SetTimeScaleExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TimerControlExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.DelayExecutorExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.UIControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.VisualBoundsReactiveHubControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ButtonChannelHubControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ButtonChannelPlayerControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.SliderControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.DialogueChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ConversationFlowExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ConversationInFlowExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.WorldPointerTargetControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.UserMoveRotateRuntimeControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TargetChannelControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.AreaChannelControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.AutoSpawnChannelControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ShowTooltipExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.HideTooltipExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TooltipChannelHubControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TooltipChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TooltipChannelPlayerControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ShowToastExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.PlayAudioExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.RunFlowExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.TextChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.VelocityDrivenRotationExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.AnimationSpriteChannelExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.Light2DChannelHubControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.Light2DChannelPlayerControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.MeshChannelControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.MeshMaterialFxControlExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.PublishEventExecutor>(Lifetime.Singleton)
-                    .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.WaitEventExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.StopAudioExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<VNext.VisualSetStateExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SetVelocityExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.VisualBroadcastExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.AddForceExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SetChannelEnabledExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SetAllChannelsEnabledExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SetChannelInfluenceExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.ResetAllVelocitiesExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.CreateMovementChannelExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.RemoveMovementChannelExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SetMovementModuleExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SetInputMovementExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.MoveToPointsExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TeleportExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TransformChannelRigidbody2DExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TransformManagerMovementExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TransformManagerRotateExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TransformManagerScaleExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.HealthApplyDamageExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.HealthApplyHealExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.HealthControlExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<global::Game.Commands.VNext.WriteDataExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SelfDespawnExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.WriteGridDataExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SpawnParticleExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.WriteTableDataExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SpawnRuntimeTemplateExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.WithTableElementsExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SpawnRuntimeGridExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.WriteStatusEffectDataExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.RuntimeAllDeleteExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.LotteryExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.StateMachineExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SetDirectionExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SetTimeScaleExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TimerControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
+                builder.Register<VNext.UIControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.VisualBoundsReactiveHubControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.ButtonChannelHubControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.ButtonChannelPlayerControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.SliderControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.DialogueChannelExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.ConversationFlowExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.ConversationInFlowExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.WorldPointerTargetControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.UserMoveRotateRuntimeControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TargetChannelControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.AreaChannelControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.AutoSpawnChannelControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.ShowTooltipExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.HideTooltipExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TooltipChannelHubControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TooltipChannelExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TooltipChannelPlayerControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.ShowToastExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
+                builder.Register<VNext.RunFlowExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.TextChannelExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.VelocityDrivenRotationExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.AnimationSpriteChannelExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.Light2DChannelHubControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.Light2DChannelPlayerControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.MeshChannelControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.MeshMaterialFxControlExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.PublishEventExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.WaitEventExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
+                builder.Register<VNext.VisualSetStateExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.VisualBroadcastExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+
+                builder.Register<global::Game.Commands.VNext.WriteDataExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.WriteGridDataExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.WriteTableDataExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.WithTableElementsExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.WriteStatusEffectDataExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<global::Game.Commands.VNext.LotteryExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
 
-                builder.Register<VNext.SetFootTransformOffsetZExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SetFootTransformOffsetZExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<global::Game.Commands.VNext.CameraPostProcessExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.CameraPostProcessExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.CameraShakeExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.CameraShakeExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.CameraZoomExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.CameraZoomExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SetStateAnimationProfileExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SetStateAnimationProfileExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SceneChangeExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SceneChangeExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
 
-                builder.Register<global::Game.Commands.VNext.BuildMapNodeExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.BuildMapNodeExecutor>(RuntimeLifetime.Singleton)
                 .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.MoveMapNodeExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.MoveMapNodeExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.RunMapNodeCommandsExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.RunMapNodeCommandsExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.RefreshMapNodeStateExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.RefreshMapNodeStateExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.WriteMapNodePlayerStateExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.WriteMapNodePlayerStateExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.BuildRoomMapExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.BuildRoomMapExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.ClearRoomMapExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.ClearRoomMapExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.RemoveRoomMapRectExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.RemoveRoomMapRectExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.ApplyRoomMapVisualExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.ApplyRoomMapVisualExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.GetRoomMapCenterExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.GetRoomMapCenterExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.BuildUITraitListExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.BuildUITraitListExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.RefreshUITraitListExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.RefreshUITraitListExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SetUITraitListRangeExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SetUITraitListRangeExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.ClearUITraitListExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.ClearUITraitListExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.AddTraitToHolderExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.AddTraitToHolderExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.RemoveTraitFromHolderExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.RemoveTraitFromHolderExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.UseTraitFromHolderExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.UseTraitFromHolderExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.ClearTraitFromHolderExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.ClearTraitFromHolderExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.BindTraitListChannelExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.BindTraitListChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.RefreshTraitListChannelExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.RefreshTraitListChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SetTraitListChannelRangeExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SetTraitListChannelRangeExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.ClearTraitListChannelExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.ClearTraitListChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.BindGridObjectChannelExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.BindGridObjectChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.RefreshGridObjectChannelExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.RefreshGridObjectChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.ClearGridObjectChannelExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.ClearGridObjectChannelExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.ShowGridObjectChoiceAndWaitExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.ShowGridObjectChoiceAndWaitExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
 
-                builder.Register<global::Game.Commands.VNext.EquipTraitExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.EquipTraitExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.WriteTraitDataExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.WriteTraitDataExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Trait.TraitLotteryService>(Lifetime.Singleton)
+                builder.Register<global::Game.Trait.TraitLotteryService>(RuntimeLifetime.Singleton)
                     .As<global::Game.Trait.ITraitLotteryService>();
-                builder.Register<global::Game.Commands.VNext.TraitLotteryExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.TraitLotteryExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.PlaceTraitRuntimeExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.PlaceTraitRuntimeExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.RuntimeTraitPresentationCommandMutationExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.RuntimeTraitPresentationCommandMutationExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
 
-                builder.Register<VNext.BackgroundLayerExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.BackgroundLayerExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
 
-                builder.Register<ChangeGameStateExecutor>(Lifetime.Singleton)
+                builder.Register<ChangeGameStateExecutor>(RuntimeLifetime.Singleton)
                     .As<ICommandExecutor>();
 
 
 
                 // Collision commands: enable/disable collision on actor/targets
-                builder.Register<global::Game.Commands.VNext.SetCollisionEnabledExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SetCollisionEnabledExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SetUnityColliderExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SetUnityColliderExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SetColliderSharedMaterialExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SetColliderSharedMaterialExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SetColliderPhysicsMaterialValuesExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SetColliderPhysicsMaterialValuesExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.SetGlobalPhysics2DExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.SetGlobalPhysics2DExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.HitColliderRuleControlExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.HitColliderRuleControlExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.WithHitColliderTargetsExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.WithHitColliderTargetsExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
-                builder.Register<global::Game.Commands.VNext.UnityRoomSendScoreExecutor>(Lifetime.Singleton)
+                builder.Register<global::Game.Commands.VNext.UnityRoomSendScoreExecutor>(RuntimeLifetime.Singleton)
                     .As<global::Game.Commands.VNext.ICommandExecutor>();
 
                 // Save commands: SaveProfile, LoadProfile, ClearProfile, ProfileChange, DeleteAllSaveData
-                builder.Register<VNext.SaveProfileCommandExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.SaveProfileCommandExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.LoadProfileCommandExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.LoadProfileCommandExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ClearProfileCommandExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.ClearProfileCommandExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.ProfileChangeCommandExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.ProfileChangeCommandExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
-                builder.Register<VNext.DeleteAllSaveDataCommandExecutor>(Lifetime.Singleton)
+                builder.Register<VNext.DeleteAllSaveDataCommandExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
             }
 
-            builder.Register<VNext.CommandExecutorRegistry>(Lifetime.Singleton);
+            builder.Register<VNext.CommandExecutorRegistry>(RuntimeLifetime.Singleton);
 
             switch (owner.Kind)
             {
                 case LifetimeScopeKind.Project:
-                    builder.Register<VNext.CommandRunner>(Lifetime.Singleton)
+                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
                         .As<VNext.IProjectCommandRunner>()
@@ -435,7 +435,7 @@ namespace Game.Commands
                         .WithParameter(_defaultVars);
                     break;
                 case LifetimeScopeKind.Platform:
-                    builder.Register<VNext.CommandRunner>(Lifetime.Singleton)
+                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
                         .As<VNext.IPlatformCommandRunner>()
@@ -445,7 +445,7 @@ namespace Game.Commands
                         .WithParameter(_defaultVars);
                     break;
                 case LifetimeScopeKind.Global:
-                    builder.Register<VNext.CommandRunner>(Lifetime.Singleton)
+                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
                         .As<VNext.IGlobalCommandRunner>()
@@ -455,7 +455,7 @@ namespace Game.Commands
                         .WithParameter(_defaultVars);
                     break;
                 case LifetimeScopeKind.Scene:
-                    builder.Register<VNext.CommandRunner>(Lifetime.Singleton)
+                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
                         .As<VNext.ISceneCommandRunner>()
@@ -465,7 +465,7 @@ namespace Game.Commands
                         .WithParameter(_defaultVars);
                     break;
                 case LifetimeScopeKind.Field:
-                    builder.Register<VNext.CommandRunner>(Lifetime.Singleton)
+                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
                         .As<VNext.IFieldCommandRunner>()
@@ -475,7 +475,7 @@ namespace Game.Commands
                         .WithParameter(_defaultVars);
                     break;
                 case LifetimeScopeKind.Entity:
-                    builder.Register<VNext.CommandRunner>(Lifetime.Singleton)
+                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
                         .As<VNext.IEntityCommandRunner>()
@@ -485,7 +485,7 @@ namespace Game.Commands
                         .WithParameter(_defaultVars);
                     break;
                 case LifetimeScopeKind.UI:
-                    builder.Register<VNext.CommandRunner>(Lifetime.Singleton)
+                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
                         .As<VNext.IUICommandRunner>()
@@ -495,7 +495,7 @@ namespace Game.Commands
                         .WithParameter(_defaultVars);
                     break;
                 case LifetimeScopeKind.UIElement:
-                    builder.Register<VNext.UIElementCommandRunner>(Lifetime.Singleton)
+                    builder.Register<VNext.UIElementCommandRunner>(RuntimeLifetime.Singleton)
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
                         .As<VNext.IUIElementCommandRunner>()

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -28,13 +28,13 @@ namespace Game.RoomMap
         [ShowIf("@source == RoomMapSpawnSource.RuntimeTemplate")]
         [SerializeField, InlineProperty, HideLabel] DynamicValue<BaseRuntimeTemplatePreset> templatePreset;
 
-        [Tooltip("v0.1: Entity / RuntimeEntity のみに限定")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] SpawnerKind kind = SpawnerKind.Entity;
 
-        [Tooltip("null/空白/'default' は '' に正規化")]
+        [Tooltip("null/遨ｺ逋ｽ/'default' 縺ｯ '' 縺ｫ豁｣隕丞喧")]
         [SerializeField] string spawnerTag = string.Empty;
 
-        [Tooltip("v0.1推奨: RuntimeTemplate は false（Pooling 成立条件が厳しい）")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] bool allowPooling;
 
         public RoomMapSpawnSource Source => source;

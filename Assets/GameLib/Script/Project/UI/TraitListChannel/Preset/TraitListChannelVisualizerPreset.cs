@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
@@ -15,14 +15,14 @@ namespace Game.UI
     public sealed class TraitListChannelDefinitionCommand
     {
         [LabelText("Definition")]
-        [Tooltip("この entry が適用される TraitDefinitionSO。list item の trait 定義ごとに個別 command を差し替えます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitDefinitionSO? _definition;
 
         [LabelText("Commands")]
         [SerializeField]
         [CommandListFunctionName("TraitListChannel.Item.ByDefinition.OnSpawn")]
-        [Tooltip("指定 TraitDefinition の item spawn 時に追加で流す command 群です。")]
+        [Tooltip("Inspector setting.")]
         CommandListData _commands = new();
 
         public TraitDefinitionSO? Definition => _definition;
@@ -51,32 +51,32 @@ namespace Game.UI
     {
         [BoxGroup("Visual")]
         [LabelText("Runtime Template")]
-        [Tooltip("各 list item に生成する RuntimeTemplatePreset です。RuntimeTemplateSO へ解決できる必要があります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<BaseRuntimeTemplatePreset> _runtimeTemplatePreset;
 
         [BoxGroup("Visual")]
         [LabelText("Allow Pooling")]
-        [Tooltip("true のとき生成済み runtime を pool に返して再利用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _allowPooling = true;
 
         [BoxGroup("Visual")]
         [LabelText("Size Source")]
-        [Tooltip("layout 計算に使う item size の取得元です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelVisualizerSizeSource _sizeSource = TraitListChannelVisualizerSizeSource.VisualBounds;
 
         [BoxGroup("Visual")]
         [ShowIf(nameof(UsesFixedSize))]
         [LabelText("Fixed Size")]
-        [Tooltip("Size Source が Fixed のときに使う item size です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector2 _fixedSize = new(100f, 100f);
 
         [BoxGroup("Visual")]
         [LabelText("Delay Between Spawns")]
-        [Tooltip("新規 item の spawn 間で待機する秒数です。relayout のみでは使用しません。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<float> _delayBetweenSpawns = DynamicValueExtensions.FromLiteral(0f);
 
@@ -84,32 +84,32 @@ namespace Game.UI
         [LabelText("Spawn Commands")]
         [SerializeField]
         [CommandListFunctionName("TraitListChannel.Item.OnSpawn")]
-        [Tooltip("すべての item spawn 時に共通で流す command 群です。")]
+        [Tooltip("Inspector setting.")]
         CommandListData _spawnCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("By Definition")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
-        [Tooltip("TraitDefinition ごとの差し替え spawn command 設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         List<TraitListChannelDefinitionCommand> _byDefinition = new();
 
         [BoxGroup("Commands")]
         [LabelText("Counter Var")]
-        [Tooltip("spawn command 実行時に現在 item index を書き込む VarKey です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VarKeyRef _counterVar = new(VarIds.GameLib.Base.CommandVar.i, "i");
 
         [BoxGroup("Commands")]
         [LabelText("Write Spawner To Context")]
-        [Tooltip("true のとき channel owner scope を Context slot へ積んでから spawn command を実行します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _writeSpawnerToContext;
 
         [BoxGroup("Commands")]
         [ShowIf(nameof(_writeSpawnerToContext))]
         [LabelText("Spawner Context Slot")]
-        [Tooltip("WriteSpawnerToContext が true のときに使う context slot です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         CommandLtsSlot _spawnerContextSlot = CommandLtsSlot.ContextA;
 
@@ -178,7 +178,7 @@ namespace Game.UI
     public sealed class TraitListChannelVisualizerPresetSO : ScriptableObject, IDynamicValueAsset<TraitListChannelVisualizerPreset>
     {
         [SerializeReference, InlineProperty, HideLabel]
-        [Tooltip("SO 内に保持する TraitListChannelVisualizerPreset 本体です。")]
+        [Tooltip("Inspector setting.")]
         TraitListChannelVisualizerPreset? _preset = new();
 
         public TraitListChannelVisualizerPreset? Preset

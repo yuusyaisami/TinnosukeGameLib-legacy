@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using VContainer.Unity;
 using Game.TransformSystem;
 using Game.Commands.VNext;
 
@@ -10,12 +9,12 @@ namespace Game
 {
     public interface IRuntimeTickHub
     {
-        void RegisterRange(ITickable[] tickables);
-        void UnregisterRange(ITickable[] tickables);
-        void RegisterLateRange(ILateTickable[] lateTickables);
-        void UnregisterLateRange(ILateTickable[] lateTickables);
-        void RegisterFixedRange(IFixedTickable[] tickables);
-        void UnregisterFixedRange(IFixedTickable[] tickables);
+        void RegisterRange(IScopeTickHandler[] tickables);
+        void UnregisterRange(IScopeTickHandler[] tickables);
+        void RegisterLateRange(IScopeLateTickHandler[] lateTickables);
+        void UnregisterLateRange(IScopeLateTickHandler[] lateTickables);
+        void RegisterFixedRange(IScopeFixedTickHandler[] tickables);
+        void UnregisterFixedRange(IScopeFixedTickHandler[] tickables);
     }
 
     [DefaultExecutionOrder(10000)]
@@ -47,27 +46,27 @@ namespace Game
         [SerializeField, MinValue(0)] int distanceCheckIntervalFrames = 5;
 
         // Split lists so we can control execution phase (Pre / Default / Late)
-        readonly List<ITickable> _preTickables = new(64);
-        readonly Dictionary<ITickable, int> _preIndices = new(64);
+        readonly List<IScopeTickHandler> _preTickables = new(64);
+        readonly Dictionary<IScopeTickHandler, int> _preIndices = new(64);
 
-        readonly List<ITickable> _defaultTickables = new(256);
-        readonly Dictionary<ITickable, int> _defaultIndices = new(256);
+        readonly List<IScopeTickHandler> _defaultTickables = new(256);
+        readonly Dictionary<IScopeTickHandler, int> _defaultIndices = new(256);
 
-        readonly List<ITickable> _lateTickables = new(64);
-        readonly Dictionary<ITickable, int> _lateIndices = new(64);
+        readonly List<IScopeTickHandler> _lateTickables = new(64);
+        readonly Dictionary<IScopeTickHandler, int> _lateIndices = new(64);
 
-        readonly List<ITickable> _pendingAdd = new(64);
-        readonly List<ITickable> _pendingRemove = new(64);
-        readonly List<ILateTickable> _lateOnlyTickables = new(64);
-        readonly Dictionary<ILateTickable, int> _lateOnlyIndices = new(64);
-        readonly List<ILateTickable> _pendingLateAdd = new(32);
-        readonly List<ILateTickable> _pendingLateRemove = new(32);
+        readonly List<IScopeTickHandler> _pendingAdd = new(64);
+        readonly List<IScopeTickHandler> _pendingRemove = new(64);
+        readonly List<IScopeLateTickHandler> _lateOnlyTickables = new(64);
+        readonly Dictionary<IScopeLateTickHandler, int> _lateOnlyIndices = new(64);
+        readonly List<IScopeLateTickHandler> _pendingLateAdd = new(32);
+        readonly List<IScopeLateTickHandler> _pendingLateRemove = new(32);
         bool _iterating;
 
-        readonly List<IFixedTickable> _fixedTickables = new(64);
-        readonly Dictionary<IFixedTickable, int> _fixedIndices = new(64);
-        readonly List<IFixedTickable> _pendingFixedAdd = new(64);
-        readonly List<IFixedTickable> _pendingFixedRemove = new(64);
+        readonly List<IScopeFixedTickHandler> _fixedTickables = new(64);
+        readonly Dictionary<IScopeFixedTickHandler, int> _fixedIndices = new(64);
+        readonly List<IScopeFixedTickHandler> _pendingFixedAdd = new(64);
+        readonly List<IScopeFixedTickHandler> _pendingFixedRemove = new(64);
 
         IScopeNode? _originScope;
         Transform? _originTransform;
@@ -93,25 +92,25 @@ namespace Game
         }
 #endif
 
-        public void RegisterRange(ITickable[] tickables)
+        public void RegisterRange(IScopeTickHandler[] tickables)
             => RegisterRangeInternal(tickables);
 
-        public void UnregisterRange(ITickable[] tickables)
+        public void UnregisterRange(IScopeTickHandler[] tickables)
             => UnregisterRangeInternal(tickables);
 
-        public void RegisterFixedRange(IFixedTickable[] tickables)
+        public void RegisterFixedRange(IScopeFixedTickHandler[] tickables)
             => RegisterFixedRangeInternal(tickables);
 
-        public void UnregisterFixedRange(IFixedTickable[] tickables)
+        public void UnregisterFixedRange(IScopeFixedTickHandler[] tickables)
             => UnregisterFixedRangeInternal(tickables);
 
-        public void RegisterLateRange(ILateTickable[] lateTickables)
+        public void RegisterLateRange(IScopeLateTickHandler[] lateTickables)
             => RegisterLateRangeInternal(lateTickables);
 
-        public void UnregisterLateRange(ILateTickable[] lateTickables)
+        public void UnregisterLateRange(IScopeLateTickHandler[] lateTickables)
             => UnregisterLateRangeInternal(lateTickables);
 
-        void RegisterRangeInternal(ITickable[] tickables)
+        void RegisterRangeInternal(IScopeTickHandler[] tickables)
         {
             if (_iterating)
             {
@@ -153,7 +152,7 @@ namespace Game
             }
         }
 
-        void UnregisterRangeInternal(ITickable[] tickables)
+        void UnregisterRangeInternal(IScopeTickHandler[] tickables)
         {
             if (_iterating)
             {
@@ -175,7 +174,7 @@ namespace Game
             }
         }
 
-        void RegisterFixedRangeInternal(IFixedTickable[] tickables)
+        void RegisterFixedRangeInternal(IScopeFixedTickHandler[] tickables)
         {
             if (_iterating)
             {
@@ -201,7 +200,7 @@ namespace Game
             }
         }
 
-        void RegisterLateRangeInternal(ILateTickable[] lateTickables)
+        void RegisterLateRangeInternal(IScopeLateTickHandler[] lateTickables)
         {
             if (_iterating)
             {
@@ -227,7 +226,7 @@ namespace Game
             }
         }
 
-        void UnregisterLateRangeInternal(ILateTickable[] lateTickables)
+        void UnregisterLateRangeInternal(IScopeLateTickHandler[] lateTickables)
         {
             if (_iterating)
             {
@@ -249,7 +248,7 @@ namespace Game
             }
         }
 
-        void UnregisterFixedRangeInternal(IFixedTickable[] tickables)
+        void UnregisterFixedRangeInternal(IScopeFixedTickHandler[] tickables)
         {
             if (_iterating)
             {
@@ -271,7 +270,7 @@ namespace Game
             }
         }
 
-        void RemoveInternal(ITickable t)
+        void RemoveInternal(IScopeTickHandler t)
         {
             // remove from whichever list it belongs to
             if (_preIndices.TryGetValue(t, out var pIndex))
@@ -308,7 +307,7 @@ namespace Game
             }
         }
 
-        void RemoveFixedInternal(IFixedTickable t)
+        void RemoveFixedInternal(IScopeFixedTickHandler t)
         {
             if (_fixedIndices.TryGetValue(t, out var index))
             {
@@ -321,7 +320,7 @@ namespace Game
             }
         }
 
-        void RemoveLateInternal(ILateTickable t)
+        void RemoveLateInternal(IScopeLateTickHandler t)
         {
             if (_lateOnlyIndices.TryGetValue(t, out var index))
             {
@@ -475,7 +474,7 @@ namespace Game
             }
         }
 
-        static TickPhase GetPhase(ITickable t)
+        static TickPhase GetPhase(IScopeTickHandler t)
         {
             if (t is ITickPhase p) return p.Phase;
             return TickPhase.Default;
@@ -546,19 +545,11 @@ namespace Game
             if (_originScope != null && _originTransform != null)
                 return;
 
-            var runtimeScope = GetComponent<RuntimeLifetimeScope>();
+            var runtimeScope = GetComponent<RuntimeLifetimeScopeBase>();
             if (runtimeScope != null)
             {
                 _originScope = runtimeScope;
                 _originTransform = runtimeScope.Identity?.SelfTransform;
-                return;
-            }
-
-            var baseScope = GetComponent<BaseLifetimeScope>();
-            if (baseScope != null)
-            {
-                _originScope = baseScope;
-                _originTransform = baseScope.Identity?.SelfTransform;
                 return;
             }
 

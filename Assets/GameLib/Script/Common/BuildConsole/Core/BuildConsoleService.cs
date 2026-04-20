@@ -10,7 +10,7 @@ using VContainer.Unity;
 
 namespace Game.BuildConsole
 {
-    public sealed class BuildConsoleService : IBuildConsole, IScopeAcquireHandler, IScopeReleaseHandler, ITickable, IDisposable
+    public sealed class BuildConsoleService : IBuildConsole, IScopeAcquireHandler, IScopeReleaseHandler, IScopeTickHandler, IDisposable
     {
         readonly BuildConsoleOptions _options;
         readonly List<BuildConsoleEntry> _entries;
@@ -95,7 +95,7 @@ namespace Game.BuildConsole
             AppendEntry(scope, message, logType, stackTrace, BuildConsoleEntrySource.BuildConsole);
         }
 
-        public void LogResolver(IObjectResolver? resolver, string message, LogType logType = LogType.Log, string? stackTrace = null)
+        public void LogResolver(IRuntimeResolver? resolver, string message, LogType logType = LogType.Log, string? stackTrace = null)
         {
             if (resolver != null &&
                 resolver.TryResolve<IScopeNode>(out var scope) &&

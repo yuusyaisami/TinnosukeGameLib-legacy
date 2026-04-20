@@ -8,7 +8,7 @@ using Sirenix.OdinInspector;
 
 namespace Game.Common
 {
-    /// <summary>LifetimeScopeKind ごとに EventService を登録する MB。</summary>
+    /// <summary>LifetimeScopeKind ごとに EventService を登録する MB、E/summary>
     public sealed class EventMB : MonoBehaviour, IFeatureInstaller
     {
 
@@ -23,7 +23,7 @@ namespace Game.Common
 
         EventLogStore? _eventLogStore;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var logStore = new EventLogStore(_logCapacity);
             logStore.Enabled = _captureEventLog;
@@ -37,44 +37,44 @@ namespace Game.Common
             {
                 case LifetimeScopeKind.Project:
                     // Register legacy (async) EventService as IEventService for compatibility
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton)
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton)
                         .As<IProjectEventService>();
 
                     // Register the typed-only SyncEventBus for high-performance events (Collision, etc.)
                     // MaxEventIdExclusive should match generated event IDs range
-                    builder.Register<ISyncEventBus>(c => new SyncEventBus(ProjectEventIds.MaxEventIdExclusive), Lifetime.Singleton)
+                    builder.Register<ISyncEventBus>(c => new SyncEventBus(ProjectEventIds.MaxEventIdExclusive), RuntimeLifetime.Singleton)
                         .As<ISyncEventBus>();
                     break;
                 case LifetimeScopeKind.Platform:
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton)
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton)
                            .As<IPlatformEventService>();
                     break;
                 case LifetimeScopeKind.Global:
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton)
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton)
                            .As<IGlobalEventService>();
                     break;
                 case LifetimeScopeKind.Scene:
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton)
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton)
                            .As<ISceneEventService>();
                     break;
                 case LifetimeScopeKind.Field:
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton)
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton)
                            .As<IFieldEventService>();
                     break;
                 case LifetimeScopeKind.Entity:
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton)
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton)
                            .As<IEntityEventService>();
                     break;
                 case LifetimeScopeKind.UI:
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton)
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton)
                            .As<IUIEventService>();
                     break;
                 case LifetimeScopeKind.UIElement:
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton)
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton)
                            .As<IUIElementEventService>();
                     break;
                 case LifetimeScopeKind.Runtime:
-                    builder.Register<IEventService, EventService>(Lifetime.Singleton);
+                    builder.Register<IEventService, EventService>(RuntimeLifetime.Singleton);
                     break;
                 default:
                     Debug.LogWarning($"[EventMB] Unhandled LifetimeScopeKind: {kind}");

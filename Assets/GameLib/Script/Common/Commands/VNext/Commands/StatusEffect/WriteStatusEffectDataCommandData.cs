@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using Game.Common;
@@ -29,13 +29,13 @@ namespace Game.Commands.VNext
         [BoxGroup("Source Definition")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteStatusEffectDataSourceMode.Definition")]
         [LabelText("Definition")]
-        [Tooltip("StatusEffectDefinitionSO などから解決した定義データを書き込みます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<BaseStatusEffectDefinitionData> DefinitionSource;
 
         [BoxGroup("Source Runtime")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteStatusEffectDataSourceMode.Runtime")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(ServiceActorSource)")]
-        [Tooltip("IStatusEffectService を解決するスコープです。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource ServiceActorSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Source Runtime")]
@@ -46,7 +46,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Source StackPreset")]
         [ShowIf("@SourceMode == Game.Commands.VNext.WriteStatusEffectDataSourceMode.StackPreset")]
         [LabelText("Stack Preset")]
-        [Tooltip("StackPreset データを書き込みます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<StatusEffectStackPreset> StackPresetSource;
 
         [BoxGroup("Target")]

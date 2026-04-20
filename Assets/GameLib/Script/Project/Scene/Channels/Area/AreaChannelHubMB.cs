@@ -31,7 +31,7 @@ namespace Game.Channel
 
         IScopeNode? _ownerScope;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             _ownerScope = owner;
 
@@ -43,7 +43,7 @@ namespace Game.Channel
                 channels[i]?.EnsureIntegrity(this);
             }
 
-            builder.Register<AreaChannelHubService>(Lifetime.Singleton)
+            builder.Register<AreaChannelHubService>(RuntimeLifetime.Singleton)
                 .As<IAreaChannelHubService>()
                 .As<IChannelHubService>()
                 .As<IScopeAcquireHandler>()

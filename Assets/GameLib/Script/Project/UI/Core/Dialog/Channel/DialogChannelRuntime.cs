@@ -35,7 +35,7 @@ namespace Game.Dialogue
         {
             public string CharacterId = string.Empty;
             public int CharacterDataId;
-            public IObjectResolver? Resolver;
+            public IRuntimeResolver? Resolver;
             public RuntimeLifetimeScope? RuntimeScope;
             public Transform? Root;
             public IScopeNode? Scope;
@@ -1254,7 +1254,7 @@ namespace Game.Dialogue
             }
         }
 
-        void ResolveSpawnedIdentity(CharacterRuntimeRecord record, IObjectResolver resolver)
+        void ResolveSpawnedIdentity(CharacterRuntimeRecord record, IRuntimeResolver resolver)
         {
             if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
             {

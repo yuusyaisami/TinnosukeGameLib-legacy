@@ -34,16 +34,6 @@ namespace Game.Layout
             targetText = GetComponent<TMP_Text>();
         }
 
-        void OnEnable()
-        {
-            NotifyMembershipDirty();
-        }
-
-        void OnDisable()
-        {
-            NotifyMembershipDirty();
-        }
-
         public void SetFullText(string fullText)
         {
             fullText ??= string.Empty;
@@ -70,12 +60,6 @@ namespace Game.Layout
 
             // Do NOT mutate targetText.text (keeps Typewriter/animation responsibilities separate).
             return targetText.GetPreferredValues(layoutText, width, 0f);
-        }
-
-        void NotifyMembershipDirty()
-        {
-            var system = GetComponentInParent<LayoutSystemMB>();
-            system?.MarkMembershipDirty();
         }
 
 #if UNITY_EDITOR

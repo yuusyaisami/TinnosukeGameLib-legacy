@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Channel;
@@ -43,11 +43,11 @@ namespace Game.Commands.VNext
     public sealed class AnimationSpriteRendererTypePayload
     {
         [LabelText("Renderer Type")]
-        [Tooltip("SpriteRenderer.drawMode に適用する type です。")]
+        [Tooltip("Inspector setting.")]
         public AnimationSpriteRendererTypeMode Type = AnimationSpriteRendererTypeMode.Simple;
 
         [LabelText("Size")]
-        [Tooltip("Renderer Type が Sliced または Tiled のときに適用する SpriteRenderer.size です。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UsesRendererSize))]
         public DynamicValue<Vector2> SizeSource = DynamicValueExtensions.FromLiteral(Vector2.one);
 
@@ -62,45 +62,45 @@ namespace Game.Commands.VNext
     public sealed class AnimationSpriteImageTypePayload
     {
         [LabelText("Image Type")]
-        [Tooltip("UnityEngine.UI.Image.type に適用する type です。")]
+        [Tooltip("Inspector setting.")]
         public AnimationSpriteImageTypeMode Type = AnimationSpriteImageTypeMode.Simple;
 
         [LabelText("Preserve Aspect")]
-        [Tooltip("Image.preserveAspect を更新します。")]
+        [Tooltip("Inspector setting.")]
         public bool PreserveAspect;
 
         [LabelText("Size Delta")]
-        [Tooltip("Simple / Sliced / Tiled のときに RectTransform.sizeDelta へ適用するサイズです。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UsesRectSize))]
         public DynamicValue<Vector2> SizeDeltaSource = DynamicValueExtensions.FromLiteral(Vector2.zero);
 
         [LabelText("Fill Center")]
-        [Tooltip("Sliced / Tiled のときに Image.fillCenter へ適用します。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UsesSlicedOrTiled))]
         public bool FillCenter = true;
 
         [LabelText("Pixels Per Unit")]
-        [Tooltip("Sliced / Tiled のときに Image.pixelsPerUnitMultiplier へ適用します。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UsesSlicedOrTiled))]
         public DynamicValue<float> PixelsPerUnitMultiplierSource = DynamicValueExtensions.FromLiteral(1f);
 
         [LabelText("Fill Method")]
-        [Tooltip("Filled のときに使う fill method です。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UsesFilled))]
         public AnimationSpriteImageFillMethodMode FillMethod = AnimationSpriteImageFillMethodMode.Horizontal;
 
         [LabelText("Fill Origin")]
-        [Tooltip("Filled のときに使う fill origin の整数値です。method に応じて有効範囲が変わります。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UsesFilled))]
         public DynamicValue<int> FillOriginSource = DynamicValueExtensions.FromLiteral(0);
 
         [LabelText("Fill Clockwise")]
-        [Tooltip("Radial 系 fill の回転方向です。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UsesFilled))]
         public bool FillClockwise = true;
 
         [LabelText("Fill Amount")]
-        [Tooltip("Filled のときに使う 0..1 の fill amount です。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UsesFilled))]
         public DynamicValue<float> FillAmountSource = DynamicValueExtensions.FromLiteral(1f);
 
@@ -220,7 +220,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Visual Type")]
         [LabelText("Apply Visual Type")]
-        [Tooltip("SpriteRenderer.drawMode / size または Image.type / size / fill 設定を適用します。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyVisualType;
 
         [BoxGroup("Visual Type")]

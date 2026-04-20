@@ -37,10 +37,10 @@ namespace Game.Movement
         InputDirectionDebugView _debugView = new InputDirectionDebugView();
 
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var sources = BuildSources();
-            builder.Register<UserInputAdapter>(Lifetime.Singleton)
+            builder.Register<UserInputAdapter>(RuntimeLifetime.Singleton)
                 .As<IUserInputAdapter>()
                 .As<IInputDirectionAdapter>()
                 .As<IInputMovementAdapter>()

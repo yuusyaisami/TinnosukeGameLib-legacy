@@ -1,7 +1,7 @@
-// Game.Profile.ScopeBindingRegistryMB.cs
+﻿// Game.Profile.ScopeBindingRegistryMB.cs
 //
-// ScopeBindingRegistryService の DI 登録と、Inspector からの初期 Profile 設定を行う。
-// Pool(RuntimeLifetimeScope) での再利用ロジックは ScopeBindingRegistryInstallService が担当する。
+// ScopeBindingRegistryService 縺ｮ DI 逋ｻ骭ｲ縺ｨ縲！nspector 縺九ｉ縺ｮ蛻晄悄 Profile 險ｭ螳壹ｒ陦後≧縲・
+// Pool(RuntimeLifetimeScope) 縺ｧ縺ｮ蜀榊茜逕ｨ繝ｭ繧ｸ繝・け縺ｯ ScopeBindingRegistryInstallService 縺梧球蠖薙☆繧九・
 
 using System;
 using System.Collections.Generic;
@@ -19,23 +19,23 @@ namespace Game.Profile
     public sealed class ScopeBindingRegistryMB : MonoBehaviour, IFeatureInstaller
     {
         [Header("Profiles")]
-        [Tooltip("登録する Profile Preset。Literal (inline) または Asset (SO参照) で指定可能。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, ShowPaging = false, CustomAddFunction = nameof(AddProfileInternal))]
         [SerializeField]
         List<DynamicValue<BaseProfileData>> _profiles = new();
 
         [Header("Pool / Runtime")]
-        [Tooltip("RuntimeLifetimeScope(Pool) の Acquire 時に Registry をリセットして再登録する")]
+        [Tooltip("RuntimeLifetimeScope(Pool) 縺ｮ Acquire 譎ゅ↓ Registry 繧偵Μ繧ｻ繝・ヨ縺励※蜀咲匳骭ｲ縺吶ｋ")]
         [SerializeField] bool _resetOnAcquire = true;
 
-        [Tooltip("RuntimeLifetimeScope(Pool) の Release 時に Registry をクリアする")]
+        [Tooltip("RuntimeLifetimeScope(Pool) 縺ｮ Release 譎ゅ↓ Registry 繧偵け繝ｪ繧｢縺吶ｋ")]
         [SerializeField] bool _clearOnRelease = true;
 
         [Header("Scope Identity")]
-        [Tooltip("RuntimeLifetimeScope でも Scope ID を設定して Save 対象にする（非推奨）")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] bool _enableSaveInRuntimeScope = false;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var isRuntime = scope.Kind == LifetimeScopeKind.Runtime;
 
@@ -74,7 +74,7 @@ namespace Game.Profile
                 }
 
                 return new ScopeBindingRegistryService(blackboard, scalar, scopeIdentity, scope);
-            }, Lifetime.Singleton)
+            }, RuntimeLifetime.Singleton)
                 .As<IScopeBindingRegistry>()
                 .As<ScopeBindingRegistryService>();
 
@@ -95,7 +95,7 @@ namespace Game.Profile
 
             builder.RegisterInstance(options);
 
-            builder.Register<ScopeBindingRegistryInstallService>(Lifetime.Singleton)
+            builder.Register<ScopeBindingRegistryInstallService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .As<IScopeBindingRegistryConfigurator>()
                 .As<IScopeAcquireHandler>()
@@ -109,7 +109,7 @@ namespace Game.Profile
                 var gridBlackboard = resolver.TryResolve<IGridBlackboardService>(out var gb) ? gb : null;
                 var scalar = resolver.TryResolve<Game.Scalar.IBaseScalarService>(out var s) ? s : null;
                 return new SaveScopeRegistrationService(profiles, blackboard, gridBlackboard, scalar, scope);
-            }, Lifetime.Transient)
+            }, RuntimeLifetime.Transient)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
 

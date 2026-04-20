@@ -6,9 +6,9 @@ namespace Game.Common
     [DisallowMultipleComponent]
     public sealed class RichTextRefServiceMB : MonoBehaviour, IFeatureInstaller
     {
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<RichTextRefService>(Lifetime.Singleton)
+            builder.Register<RichTextRefService>(RuntimeLifetime.Singleton)
                 .As<IRichTextRefService>();
         }
     }

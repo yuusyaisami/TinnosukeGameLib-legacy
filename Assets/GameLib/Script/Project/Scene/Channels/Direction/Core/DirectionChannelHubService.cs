@@ -6,7 +6,7 @@ using VContainer.Unity;
 
 namespace Game.Direction
 {
-    public sealed class DirectionChannelHubService : IDirectionChannelHub, ITickable, IDirectionChannelHubTelemetry
+    public sealed class DirectionChannelHubService : IDirectionChannelHub, IScopeTickHandler, IDirectionChannelHubTelemetry
     {
         const float DefaultRiseSpeed = 3.5f;
         const float DefaultFallSpeed = 7f;

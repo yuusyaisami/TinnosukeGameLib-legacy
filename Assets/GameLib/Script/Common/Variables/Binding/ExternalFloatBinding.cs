@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands.VNext;
 using Game.Scalar;
@@ -34,7 +34,7 @@ namespace Game.Common
 
         [ShowIf(nameof(_useScalarBinding))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Scalar Source\", _scalarBindingSource)")]
-        [Tooltip("ScalarKey を読む/書く先のスコープ。Current ならこのコンポーネントのスコープを使う。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _scalarBindingSource = new() { Kind = ActorSourceKind.Current };
 
@@ -47,7 +47,7 @@ namespace Game.Common
 
         [ShowIf(nameof(_useBlackboardBinding))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Blackboard Source\", _blackboardBindingSource)")]
-        [Tooltip("BlackboardKey を読む/書く先のスコープ。Current ならこのコンポーネントのスコープを使う。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _blackboardBindingSource = new() { Kind = ActorSourceKind.Current };
 

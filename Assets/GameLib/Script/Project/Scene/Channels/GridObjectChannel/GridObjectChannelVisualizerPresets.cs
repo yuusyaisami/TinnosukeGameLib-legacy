@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands.VNext;
 using Game.Common;
@@ -15,85 +15,85 @@ namespace Game.Channel
     {
         [BoxGroup("Visual")]
         [LabelText("Runtime Template")]
-        [Tooltip("各 item に生成する RuntimeTemplatePreset です。RuntimeTemplateSO へ解決できる必要があります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<BaseRuntimeTemplatePreset> _runtimeTemplatePreset;
 
         [BoxGroup("Visual")]
         [LabelText("Allow Pooling")]
-        [Tooltip("true のとき生成済み runtime を pool に返して再利用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _allowPooling = true;
 
         [BoxGroup("Visual")]
         [LabelText("Size Source")]
-        [Tooltip("layout 計算に使う item size の取得元です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChannelVisualizerSizeSource _sizeSource = GridObjectChannelVisualizerSizeSource.VisualBounds;
 
         [BoxGroup("Visual")]
         [ShowIf(nameof(UsesFixedSize))]
         [LabelText("Fixed Size")]
-        [Tooltip("Size Source が Fixed のときに使う item size です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector2 _fixedSize = new(100f, 100f);
 
         [BoxGroup("Visual")]
         [LabelText("Delay Between Spawns")]
-        [Tooltip("新規 item の spawn 間で待機する秒数です。relayout のみでは使用しません。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<float> _delayBetweenSpawns = DynamicValueExtensions.FromLiteral(0f);
 
         [BoxGroup("Commands")]
         [LabelText("Spawn Commands")]
-        [Tooltip("各 item spawn 時に共通で流す command 群です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("GridObjectChannel.Item.OnSpawn")]
         CommandListData _spawnCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("Counter Var")]
-        [Tooltip("spawn command 実行時に現在 item index を書き込む VarKey です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VarKeyRef _counterVar = new(VarIds.GameLib.Base.CommandVar.i, "i");
 
         [BoxGroup("Commands")]
         [LabelText("Write Spawner To Context")]
-        [Tooltip("true のとき channel owner scope を Context slot へ積んでから spawn command を実行します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _writeSpawnerToContext;
 
         [BoxGroup("Commands")]
         [ShowIf(nameof(_writeSpawnerToContext))]
         [LabelText("Spawner Context Slot")]
-        [Tooltip("Write Spawner To Context が true のときに使う context slot です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         CommandLtsSlot _spawnerContextSlot = CommandLtsSlot.ContextA;
 
         [BoxGroup("Choice")]
         [LabelText("Enable Choice Input")]
-        [Tooltip("true のとき GridObjectChoice の選択待機入力をこの preset から解決します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableChoiceInput;
 
         [BoxGroup("Choice")]
         [ShowIf(nameof(_enableChoiceInput))]
         [LabelText("Choice Button Tag")]
-        [Tooltip("各選択肢 RuntimeLTS 内の ButtonChannel tag です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _choiceButtonChannelTag = "default";
 
         [BoxGroup("Choice")]
         [ShowIf(nameof(_enableChoiceInput))]
         [LabelText("Decision Phase")]
-        [Tooltip("ButtonChannel のどの phase を選択確定として扱うかを指定します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChoiceDecisionPhase _choiceDecisionPhase = GridObjectChoiceDecisionPhase.CompletedWaitingRelease;
 
         [BoxGroup("Choice")]
         [ShowIf(nameof(_enableChoiceInput))]
         [LabelText("Require Phase Transition")]
-        [Tooltip("true のとき、同一 phase の連続更新ではなく phase 遷移時のみ決定判定します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _choiceRequirePhaseTransition = true;
 
@@ -186,7 +186,7 @@ namespace Game.Channel
     public sealed class GridObjectChannelVisualizerPresetSO : ScriptableObject, IDynamicValueAsset<GridObjectChannelVisualizerPreset>
     {
         [SerializeReference, InlineProperty, HideLabel]
-        [Tooltip("SO 内に保持する GridObjectChannelVisualizerPreset 本体です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChannelVisualizerPreset? _preset = new();
 

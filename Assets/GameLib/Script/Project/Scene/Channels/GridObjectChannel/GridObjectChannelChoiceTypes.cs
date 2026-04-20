@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
@@ -14,27 +14,27 @@ namespace Game.Channel
     {
         [BoxGroup("Entry")]
         [LabelText("Display Name")]
-        [Tooltip("選択肢表示用の任意名称です。未使用でも問題ありません。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _displayName = string.Empty;
 
         [BoxGroup("Commands")]
         [LabelText("On Spawn Commands")]
-        [Tooltip("この entry の RuntimeLTS 生成直後に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("GridObjectChannel.Choice.Entry.OnSpawn")]
         CommandListData _spawnCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On Selected Commands")]
-        [Tooltip("この entry が選択確定したときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("GridObjectChannel.Choice.Entry.OnSelected")]
         CommandListData _selectedCommands = new();
 
         [BoxGroup("Vars")]
         [LabelText("On Selected Vars")]
-        [Tooltip("この entry が選択確定したときに CommandContext.Vars へ反映する payload です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VarStorePayload _selectedVars = new();
 
@@ -68,33 +68,33 @@ namespace Game.Channel
     {
         [BoxGroup("Wait")]
         [LabelText("Allow Cancel")]
-        [Tooltip("true のとき cancel 完了を成功扱いで返します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _allowCancel = true;
 
         [BoxGroup("Wait")]
         [LabelText("Use Timeout")]
-        [Tooltip("true のとき timeout 秒数を監視します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _useTimeout;
 
         [BoxGroup("Wait")]
         [ShowIf(nameof(_useTimeout))]
         [LabelText("Timeout Seconds")]
-        [Tooltip("選択待機の timeout 秒数です。0 以下なら timeout 無効扱いになります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [MinValue(0f)]
         DynamicValue<float> _timeoutSeconds = DynamicValueExtensions.FromLiteral(0f);
 
         [BoxGroup("Wait")]
         [LabelText("Concurrency Policy")]
-        [Tooltip("同一 channel で選択待機中に新規要求が来たときの挙動です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChoiceConcurrencyPolicy _concurrencyPolicy = GridObjectChoiceConcurrencyPolicy.ErrorIfActive;
 
         [BoxGroup("Wait")]
         [LabelText("Keep Alive")]
-        [Tooltip("true のとき選択完了後も生成済み選択肢を clear しません。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _keepAliveAfterCompletion;
 
@@ -130,7 +130,7 @@ namespace Game.Channel
     {
         [BoxGroup("Choice")]
         [LabelText("Entries")]
-        [Tooltip("表示する選択肢 entry 群です。List index が選択結果 index になります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
         List<GridObjectChoiceEntry> _entries = new();
@@ -138,14 +138,14 @@ namespace Game.Channel
         [BoxGroup("Choice")]
         [LabelText("Bind Overrides")]
         [InlineProperty]
-        [Tooltip("choice 実行時だけ有効にする preset override です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChannelBindRequest _bindRequest = new();
 
         [BoxGroup("Choice")]
         [LabelText("Wait Options")]
         [InlineProperty]
-        [Tooltip("選択待機時の timeout / 並行制御などのオプションです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChoiceWaitOptions _waitOptions = new();
 

@@ -8,8 +8,8 @@ namespace Game.CameraSystem
 {
     public sealed class CameraSystemService
         : ICameraSystemService,
-          ITickable,
-          ILateTickable,
+          IScopeTickHandler,
+          IScopeLateTickHandler,
           ITickPhase,
           IScopeAcquireHandler,
           IScopeReleaseHandler

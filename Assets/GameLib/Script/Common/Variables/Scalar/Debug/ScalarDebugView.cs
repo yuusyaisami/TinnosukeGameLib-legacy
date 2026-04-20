@@ -1,4 +1,4 @@
-// Binding-less scalar debug viewer: shows values and modifiers for the attached scalar service.
+﻿// Binding-less scalar debug viewer: shows values and modifiers for the attached scalar service.
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -20,7 +20,7 @@ namespace Game.Scalar
         [FoldoutGroup("Edit"), LabelText("Set LocalBase")]
         public float editLocalBase;
 
-        [FoldoutGroup("Edit"), LabelText("Add Δ")]
+        [FoldoutGroup("Group")]
         public float editAddDelta;
 
         [FoldoutGroup("Edit"), LabelText("Mul Factor")]
@@ -208,12 +208,12 @@ namespace Game.Scalar
                 Tag = s.Tag ?? string.Empty;
                 Id = s.Id;
 
-                // Build a compact human readable summary e.g. "[Add] +5.0 · src=State(tag:state) · remain=2.4s"
+                // Build a compact human readable summary e.g. "[Add] +5.0 ﾂｷ src=State(tag:state) ﾂｷ remain=2.4s"
                 var kindLabel = Kind == ScalarModKind.Add ? "Add" : "Mul";
                 var valueText = Kind == ScalarModKind.Mul ? $"x{Value:0.##}" : $"{(Value >= 0 ? "+" : string.Empty)}{Value:0.##}";
                 var tagText = string.IsNullOrEmpty(Tag) ? string.Empty : $" (tag:{Tag})";
                 var srcText = string.IsNullOrEmpty(Source) ? string.Empty : $" src={Source}";
-                var remainText = Remain < 0 ? string.Empty : $" · remain={Remain:0.##}s";
+                var remainText = Remain < 0 ? string.Empty : $" ﾂｷ remain={Remain:0.##}s";
 
                 Summary = $"[{kindLabel}] {valueText}{srcText}{tagText}{remainText}";
             }

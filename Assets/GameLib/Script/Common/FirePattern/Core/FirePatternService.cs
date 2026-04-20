@@ -33,7 +33,7 @@ namespace Game.Fire
 
             var scheduled = new List<(BaseFirePattern Pattern, FireContext Context, int PatternIndex, int ContextIndex)>(64);
             float startTime = Time.time;
-            var spawnedResolvers = new List<IObjectResolver>(32);
+            var spawnedResolvers = new List<IRuntimeResolver>(32);
 
             for (int p = 0; p < patterns.Length; p++)
             {
@@ -88,7 +88,7 @@ namespace Game.Fire
                 if (waitTime > 0f)
                     await UniTask.Delay(TimeSpan.FromSeconds(waitTime), cancellationToken: ct);
 
-                var taskBuffer = new List<UniTask<IObjectResolver?>>(8);
+                var taskBuffer = new List<UniTask<IRuntimeResolver?>>(8);
                 var autoDespawnFlags = new List<bool>(8);
 
                 while (cursor < scheduled.Count)
@@ -122,7 +122,7 @@ namespace Game.Fire
         }
 
 
-        public async UniTask<IObjectResolver?> SpawnAndDeliverAsync(
+        public async UniTask<IRuntimeResolver?> SpawnAndDeliverAsync(
             BaseFirePattern pattern,
             FireContext context,
             CancellationToken ct = default)
@@ -178,7 +178,7 @@ namespace Game.Fire
             return outputResolver;
         }
 
-        static bool TrySetInitialRotation(IObjectResolver resolver, Quaternion rotation)
+        static bool TrySetInitialRotation(IRuntimeResolver resolver, Quaternion rotation)
         {
             if (resolver == null)
                 return false;
@@ -210,7 +210,7 @@ namespace Game.Fire
             return false;
         }
 
-        static async UniTask DespawnLikeSelfDespawnAsync(IObjectResolver resolver, CancellationToken ct)
+        static async UniTask DespawnLikeSelfDespawnAsync(IRuntimeResolver resolver, CancellationToken ct)
         {
             if (resolver == null)
                 return;
@@ -253,7 +253,7 @@ namespace Game.Fire
             }
         }
 
-        static async UniTask WaitUntilScopeCommandsIdleAsync(IObjectResolver resolver, CancellationToken ct)
+        static async UniTask WaitUntilScopeCommandsIdleAsync(IRuntimeResolver resolver, CancellationToken ct)
         {
             if (resolver == null)
                 return;

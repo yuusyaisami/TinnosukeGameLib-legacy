@@ -5,7 +5,7 @@ using VContainer.Unity;
 
 namespace Game.Common
 {
-    public sealed class TransformVarAutoWriterService : ITickable, IScopeAcquireHandler, IScopeReleaseHandler
+    public sealed class TransformVarAutoWriterService : IScopeTickHandler, IScopeAcquireHandler, IScopeReleaseHandler
     {
         readonly IBlackboardService _blackboard;
         readonly Transform _target;

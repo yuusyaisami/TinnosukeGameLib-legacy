@@ -1,112 +1,111 @@
-#nullable enable
+﻿#nullable enable
 using UnityEngine;
 using VContainer;
 
 namespace Game.UI
 {
     // ================================================================
-    // UIRectMaskMB - UIRectMaskService 登録用 MonoBehaviour
+    // UIRectMaskMB - UIRectMaskService 逋ｻ骭ｲ逕ｨ MonoBehaviour
     // ================================================================
     //
-    // ╔════════════════════════════════════════════════════════════════╗
-    // ║ 【重要】配置ルール                                             ║
-    // ║                                                                ║
-    // ║ このコンポーネントは必ず UIElementLifetimeScope と            ║
-    // ║ 【同じ GameObject】に配置すること！                            ║
-    // ║                                                                ║
-    // ║ 正しい配置例:                                                  ║
-    // ║   └─ ScrollView (GameObject)                                   ║
-    // ║       ├─ UIElementLifetimeScope  ← 必須                        ║
-    // ║       ├─ UIRectMaskMB            ← このコンポーネント          ║
-    // ║       ├─ Unity Mask              ← Unity 標準の Mask           ║
-    // ║       ├─ Image                   ← Mask の形状を決める         ║
-    // ║       └─ Content (子)                                          ║
-    // ║           └─ 子 UIElement...     ← Mask の影響を受ける         ║
-    // ║                                                                ║
-    // ║ ※ Unity 標準の Mask または RectMask2D と併用する              ║
-    // ║ ※ Mask の形状は同じ GameObject の Image で決まる              ║
-    // ╚════════════════════════════════════════════════════════════════╝
+    // 笊披武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶風
+    // 笊・縲宣㍾隕√鷹・鄂ｮ繝ｫ繝ｼ繝ｫ                                             笊・
+    // 笊・                                                               笊・
+    // 笊・縺薙・繧ｳ繝ｳ繝昴・繝阪Φ繝医・蠢・★ UIElementLifetimeScope 縺ｨ            笊・
+    // 笊・縲仙酔縺・GameObject縲代↓驟咲ｽｮ縺吶ｋ縺薙→・・                           笊・
+    // 笊・                                                               笊・
+    // 笊・豁｣縺励＞驟咲ｽｮ萓・                                                  笊・
+    // 笊・  笏披楳 ScrollView (GameObject)                                   笊・
+    // 笊・      笏懌楳 UIElementLifetimeScope  竊・蠢・・                       笊・
+    // 笊・      笏懌楳 UIRectMaskMB            竊・縺薙・繧ｳ繝ｳ繝昴・繝阪Φ繝・         笊・
+    // 笊・      笏懌楳 Unity Mask              竊・Unity 讓呎ｺ悶・ Mask           笊・
+    // 笊・      笏懌楳 Image                   竊・Mask 縺ｮ蠖｢迥ｶ繧呈ｱｺ繧√ｋ         笊・
+    // 笊・      笏披楳 Content (蟄・                                          笊・
+    // 笊・          笏披楳 蟄・UIElement...     竊・Mask 縺ｮ蠖ｱ髻ｿ繧貞女縺代ｋ         笊・
+    // 笊・                                                               笊・
+    // 笊・窶ｻ Unity 讓呎ｺ悶・ Mask 縺ｾ縺溘・ RectMask2D 縺ｨ菴ｵ逕ｨ縺吶ｋ              笊・
+    // 笊・窶ｻ Mask 縺ｮ蠖｢迥ｶ縺ｯ蜷後§ GameObject 縺ｮ Image 縺ｧ豎ｺ縺ｾ繧・             笊・
+    // 笊壺武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶幅
     //
-    // ## 役割
+    // ## 蠖ｹ蜑ｲ
     //
-    // 1. **UIRectMaskService の DI 登録**: IFeatureInstaller として登録
-    // 2. **設定フィールドの提供**: ナビゲーション遮蔽閾値などの設定
+    // 1. **UIRectMaskService 縺ｮ DI 逋ｻ骭ｲ**: IFeatureInstaller 縺ｨ縺励※逋ｻ骭ｲ
+    // 2. **險ｭ螳壹ヵ繧｣繝ｼ繝ｫ繝峨・謠蝉ｾ・*: 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｮ阡ｽ髢ｾ蛟､縺ｪ縺ｩ縺ｮ險ｭ螳・
     //
-    // ## 設計方針
+    // ## 險ｭ險域婿驥・
     //
-    // - Mask 判定ロジックは UIRectMaskService に集約
-    // - このコンポーネントは DI 登録と設定のみを担当
-    // - 実際の Mask コンポーネント（Unity Mask / RectMask2D）は別途必要
+    // - Mask 蛻､螳壹Ο繧ｸ繝・け縺ｯ UIRectMaskService 縺ｫ髮・ｴ・
+    // - 縺薙・繧ｳ繝ｳ繝昴・繝阪Φ繝医・ DI 逋ｻ骭ｲ縺ｨ險ｭ螳壹・縺ｿ繧呈球蠖・
+    // - 螳滄圀縺ｮ Mask 繧ｳ繝ｳ繝昴・繝阪Φ繝茨ｼ・nity Mask / RectMask2D・峨・蛻･騾泌ｿ・ｦ・
     //
-    // ## 使用の流れ
+    // ## 菴ｿ逕ｨ縺ｮ豬√ｌ
     //
-    // 1. UIRectMaskMB を UIElementLifetimeScope と同じ GameObject に追加
-    // 2. Unity の Mask または RectMask2D を同じ GameObject に追加
-    // 3. Image を追加して Mask の形状を定義
-    // 4. 子の UIElement は自動的に Mask の影響を受ける
+    // 1. UIRectMaskMB 繧・UIElementLifetimeScope 縺ｨ蜷後§ GameObject 縺ｫ霑ｽ蜉
+    // 2. Unity 縺ｮ Mask 縺ｾ縺溘・ RectMask2D 繧貞酔縺・GameObject 縺ｫ霑ｽ蜉
+    // 3. Image 繧定ｿｽ蜉縺励※ Mask 縺ｮ蠖｢迥ｶ繧貞ｮ夂ｾｩ
+    // 4. 蟄舌・ UIElement 縺ｯ閾ｪ蜍慕噪縺ｫ Mask 縺ｮ蠖ｱ髻ｿ繧貞女縺代ｋ
     //
     // ================================================================
 
     /// <summary>
-    /// UIRectMaskService を DI 登録する FeatureInstaller。
+    /// UIRectMaskService 繧・DI 逋ｻ骭ｲ縺吶ｋ FeatureInstaller縲・
     /// 
-    /// ## 概要
+    /// ## 讎りｦ・
     /// 
-    /// このコンポーネントは UIRectMaskService をコンテナに登録し、
-    /// SelectCandidateProviderScreen から Mask 判定を利用可能にする。
+    /// 縺薙・繧ｳ繝ｳ繝昴・繝阪Φ繝医・ UIRectMaskService 繧偵さ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺励・
+    /// SelectCandidateProviderScreen 縺九ｉ Mask 蛻､螳壹ｒ蛻ｩ逕ｨ蜿ｯ閭ｽ縺ｫ縺吶ｋ縲・
     /// 
-    /// ## 配置ルール
+    /// ## 驟咲ｽｮ繝ｫ繝ｼ繝ｫ
     /// 
-    /// 必ず UIElementLifetimeScope と同じ GameObject に配置すること。
-    /// Unity の Mask/RectMask2D コンポーネントと併用する。
+    /// 蠢・★ UIElementLifetimeScope 縺ｨ蜷後§ GameObject 縺ｫ驟咲ｽｮ縺吶ｋ縺薙→縲・
+    /// Unity 縺ｮ Mask/RectMask2D 繧ｳ繝ｳ繝昴・繝阪Φ繝医→菴ｵ逕ｨ縺吶ｋ縲・
     /// </summary>
     public sealed class UIRectMaskMB : MonoBehaviour, IFeatureInstaller
     {
         // ----------------------------------------------------------------
-        // Inspector設定
+        // Inspector險ｭ螳・
         // ----------------------------------------------------------------
 
         [Header("Mask Settings")]
-        [Tooltip("ナビゲーション時の遮蔽閾値（0.0〜1.0）。\n" +
-                 "この割合以上 Mask で隠れている候補は選択不可となる。")]
+        [Tooltip("Inspector setting.")]
         [Range(0f, 1f)]
         [SerializeField]
         float _navigationOcclusionThreshold = 0.5f;
 
         [Header("Debug")]
-        [Tooltip("デバッグログを出力するか")]
+        [Tooltip("繝・ヰ繝・げ繝ｭ繧ｰ繧貞・蜉帙☆繧九°")]
         [SerializeField]
         bool _enableDebugLog = false;
 
         // ----------------------------------------------------------------
-        // プロパティ
+        // 繝励Ο繝代ユ繧｣
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// ナビゲーション時の遮蔽閾値。
+        /// 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ譎ゅ・驕ｮ阡ｽ髢ｾ蛟､縲・
         /// </summary>
         public float NavigationOcclusionThreshold => _navigationOcclusionThreshold;
 
         /// <summary>
-        /// デバッグログを出力するか。
+        /// 繝・ヰ繝・げ繝ｭ繧ｰ繧貞・蜉帙☆繧九°縲・
         /// </summary>
         public bool EnableDebugLog => _enableDebugLog;
 
         // ----------------------------------------------------------------
-        // IFeatureInstaller 実装
+        // IFeatureInstaller 螳溯｣・
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// UIRectMaskService を DI コンテナに登録する。
+        /// UIRectMaskService 繧・DI 繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// </summary>
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            // UIRectMaskService を Singleton で登録
-            // 自分自身の GameObject を MaskOwner として渡す
+            // UIRectMaskService 繧・Singleton 縺ｧ逋ｻ骭ｲ
+            // 閾ｪ蛻・・霄ｫ縺ｮ GameObject 繧・MaskOwner 縺ｨ縺励※貂｡縺・
             var maskOwner = gameObject;
             var threshold = _navigationOcclusionThreshold;
 
-            builder.Register<UIRectMaskService>(Lifetime.Singleton)
+            builder.Register<UIRectMaskService>(RuntimeLifetime.Singleton)
                 .WithParameter(typeof(GameObject), maskOwner)
                 .WithParameter(typeof(float), threshold)
                 .As<IUIRectMaskService>();
@@ -121,30 +120,28 @@ namespace Game.UI
         }
 
         // ----------------------------------------------------------------
-        // エディタ用
+        // 繧ｨ繝・ぅ繧ｿ逕ｨ
         // ----------------------------------------------------------------
 
 #if UNITY_EDITOR
         void OnValidate()
         {
-            // 配置ルールの警告
+            // 驟咲ｽｮ繝ｫ繝ｼ繝ｫ縺ｮ隴ｦ蜻・
             var scope = GetComponent<UIElementLifetimeScope>();
             if (scope == null)
             {
                 Debug.LogWarning(
-                    $"[UIRectMaskMB] '{name}' には UIElementLifetimeScope がありません。\n" +
-                    "UIRectMaskMB は必ず UIElementLifetimeScope と同じ GameObject に配置してください。",
+                    $"[UIRectMaskMB] '{name}' requires UIElementLifetimeScope on the same GameObject.",
                     this);
             }
 
-            // Unity Mask の確認
+            // Unity Mask 縺ｮ遒ｺ隱・
             var mask = GetComponent<UnityEngine.UI.Mask>();
             var rectMask2D = GetComponent<UnityEngine.UI.RectMask2D>();
             if (mask == null && rectMask2D == null)
             {
                 Debug.LogWarning(
-                    $"[UIRectMaskMB] '{name}' には Unity の Mask/RectMask2D がありません。\n" +
-                    "Mask 機能を使用するには Unity の Mask または RectMask2D を追加してください。",
+                    $"[UIRectMaskMB] '{name}' requires Unity Mask or RectMask2D.",
                     this);
             }
         }

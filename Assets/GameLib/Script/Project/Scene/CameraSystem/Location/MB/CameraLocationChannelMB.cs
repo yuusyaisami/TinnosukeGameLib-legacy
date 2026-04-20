@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -13,7 +13,7 @@ namespace Game.CameraSystem
     {
         [BoxGroup("Channel")]
         [LabelText("Channel Tag")]
-        [Tooltip("CameraLocation の識別タグです。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] string channelTag = "default";
 
         [BoxGroup("Channel")]
@@ -42,17 +42,17 @@ namespace Game.CameraSystem
 
         public IReadOnlyList<CameraLocationChannelDefinition> Channels => channels;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             EnsureChannels();
 
-            builder.Register<CameraLocationChannelService>(Lifetime.Singleton)
+            builder.Register<CameraLocationChannelService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<ICameraLocationChannelService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .AsSelf();
         }
 

@@ -1,11 +1,11 @@
-// Game.Collision.ColliderObjectMB.cs
+﻿// Game.Collision.ColliderObjectMB.cs
 //
 // Authoring/Installer MonoBehaviour for CollisionSystem colliders.
 //
-// 方針:
-// - MB は「設定」と「DI登録(FeatureInstaller)」だけを持つ
-// - 実行時ロジック(登録/解除/毎フレーム同期)は ColliderObjectService に集約
-// - [Inject] は使わない（RuntimeLifetimeScope 互換）
+// 譁ｹ驥・
+// - MB 縺ｯ縲瑚ｨｭ螳壹阪→縲轡I逋ｻ骭ｲ(FeatureInstaller)縲阪□縺代ｒ謖√▽
+// - 螳溯｡梧凾繝ｭ繧ｸ繝・け(逋ｻ骭ｲ/隗｣髯､/豈弱ヵ繝ｬ繝ｼ繝蜷梧悄)縺ｯ ColliderObjectService 縺ｫ髮・ｴ・
+// - [Inject] 縺ｯ菴ｿ繧上↑縺・ｼ・untimeLifetimeScope 莠呈鋤・・
 
 #nullable enable
 using System;
@@ -36,12 +36,12 @@ namespace Game.Collision
     }
 
     /// <summary>
-    /// 1つの GameObject に Collider を付与するための MB。
+    /// 1縺､縺ｮ GameObject 縺ｫ Collider 繧剃ｻ倅ｸ弱☆繧九◆繧√・ MB縲・
     ///
-    /// 使い方:
-    /// - Entity/Field など任意のスコープ配下に配置
-    /// - 同スコープに CommandRunnerMB を入れて ICommandRunner を登録（コマンド実行する場合）
-    /// - Hit を拾う場合は同スコープに HitColliderChannelHubMB を入れて Hub を登録
+    /// 菴ｿ縺・婿:
+    /// - Entity/Field 縺ｪ縺ｩ莉ｻ諢上・繧ｹ繧ｳ繝ｼ繝鈴・荳九↓驟咲ｽｮ
+    /// - 蜷後せ繧ｳ繝ｼ繝励↓ CommandRunnerMB 繧貞・繧後※ ICommandRunner 繧堤匳骭ｲ・医さ繝槭Φ繝牙ｮ溯｡後☆繧句ｴ蜷茨ｼ・
+    /// - Hit 繧呈鏡縺・ｴ蜷医・蜷後せ繧ｳ繝ｼ繝励↓ HitColliderChannelHubMB 繧貞・繧後※ Hub 繧堤匳骭ｲ
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class ColliderObjectMB : MonoBehaviour, IFeatureInstaller
@@ -73,8 +73,8 @@ namespace Game.Collision
         [SerializeField] int _userData = 0;
 
         [Header("Advanced Settings")]
-        // もしLifetimeScopeがReleaseを打っても、当たり判定は残す場合は true にする。
-        [SerializeField, Tooltip("trueの場合、LifetimeScopeが解放されてもコライダーは残存する。")]
+        // 繧ゅ＠LifetimeScope縺軍elease繧呈遠縺｣縺ｦ繧ゅ∝ｽ薙◆繧雁愛螳壹・谿九☆蝣ｴ蜷医・ true 縺ｫ縺吶ｋ縲・
+        // Removed malformed inspector attribute.
         bool _retainOnScopeRelease = false;
 
         [Header("Runtime (ReadOnly)")]
@@ -135,16 +135,16 @@ namespace Game.Collision
         // IFeatureInstaller
         // ================================================================
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (!CollisionPipelineModeResolver.IsEnabled(scope, CollisionPipelineKind.Custom, this))
                 return;
 
-            // この MB に紐づくサービス（メインロジック）
-            builder.Register<ColliderObjectService>(Lifetime.Singleton)
+            // 縺薙・ MB 縺ｫ邏舌▼縺上し繝ｼ繝薙せ・医Γ繧､繝ｳ繝ｭ繧ｸ繝・け・・
+            builder.Register<ColliderObjectService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .WithParameter(this)
                 .WithParameter(scope);
         }

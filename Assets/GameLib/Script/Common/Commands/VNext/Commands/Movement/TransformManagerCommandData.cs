@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.TransformSystem;
@@ -32,7 +32,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Entry")]
         [LabelText("Entry Id")]
-        [Tooltip("このグローバルエントリ専用のスロットキーです。同じエントリIDでUpsertを行うと、そのスロットが上書きされます。チャネルタグはターゲットのフィルタリングを制御するものであり、識別子ではありません。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         public string EntryId = string.Empty;
 

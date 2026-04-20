@@ -8,8 +8,8 @@ using VContainer.Unity;
 namespace Game.Collision
 {
     /// <summary>
-    /// Projectスコープに UnityCollider 版 CollisionSystem をインストールする。
-    /// v0.1: BulkCollisionSystemMB と同時に有効化しない（Frameイベント多重発火を避ける）。
+    /// Projectスコープに UnityCollider 牁ECollisionSystem をインスト�Eルする、E
+    /// v0.1: BulkCollisionSystemMB と同時に有効化しなぁE��Erameイベント多重発火を避ける�E�、E
     /// </summary>
     public sealed class UnityCollisionSystemMB : MonoBehaviour, IFeatureInstaller
     {
@@ -22,7 +22,7 @@ namespace Game.Collision
         UnityCollisionManager? _manager;
         CollisionHitRouter? _router;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var kind = scope.Kind;
             if (kind != LifetimeScopeKind.Project)
@@ -65,7 +65,7 @@ namespace Game.Collision
                     _manager = new UnityCollisionManager(eventBus, _profile);
                 }
                 return _manager;
-            }, Lifetime.Singleton);
+            }, RuntimeLifetime.Singleton);
 
             builder.Register<IHitColliderChannelRouter>(c =>
             {
@@ -75,18 +75,18 @@ namespace Game.Collision
                     _router = new CollisionHitRouter(eventBus);
                 }
                 return _router;
-            }, Lifetime.Singleton);
+            }, RuntimeLifetime.Singleton);
 
-            builder.Register<HitColliderScopeRegistry>(Lifetime.Singleton)
+            builder.Register<HitColliderScopeRegistry>(RuntimeLifetime.Singleton)
                 .As<IHitColliderScopeRegistry>();
 
-            builder.Register<UnityCollisionServiceAdapter>(Lifetime.Singleton)
+            builder.Register<UnityCollisionServiceAdapter>(RuntimeLifetime.Singleton)
                 .As<ICollisionService>()
                 .AsSelf();
 
-            builder.Register<UnityCollisionDispatchService>(Lifetime.Singleton)
+            builder.Register<UnityCollisionDispatchService>(RuntimeLifetime.Singleton)
                 .AsSelf()
-                .As<ILateTickable>()
+                .As<IScopeLateTickHandler>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .WithParameter(this);
@@ -111,7 +111,7 @@ namespace Game.Collision
             _debugView?.OnPostDispatch(_manager.LastFrameHitCount);
         }
 
-        sealed class UnityCollisionDispatchService : ILateTickable, IScopeAcquireHandler, IScopeReleaseHandler
+        sealed class UnityCollisionDispatchService : IScopeLateTickHandler, IScopeAcquireHandler, IScopeReleaseHandler
         {
             readonly UnityCollisionSystemMB _owner;
 

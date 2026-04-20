@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -436,7 +436,7 @@ namespace Game.Common.Editor
             public IScopeNode Parent => null;
             public ILTSIdentityService Identity => null;
             public LifetimeScopeKind Kind => LifetimeScopeKind.None;
-            public VContainer.IObjectResolver Resolver => null;
+            public IRuntimeResolver Resolver => null;
             public bool IsVisible => false;
             public bool IsActive => false;
 

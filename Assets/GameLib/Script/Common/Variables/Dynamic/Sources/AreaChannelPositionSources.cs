@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using Game.Channel;
@@ -40,7 +40,7 @@ namespace Game.Common
 
         [SerializeField, LabelText("On Resolve Failed")]
         [EnumToggleButtons]
-        [Tooltip("Area の actor / hub / player / sample 解決に失敗したときの挙動です。ReturnNull は null、ReturnFallback は Fallback 値、Fail はコマンド中なら ResolveFailed を投げ、それ以外ではエラーログを出して null を返します。")]
+        [Tooltip("Inspector setting.")]
         AreaChannelResolveFailureBehavior failureBehavior = AreaChannelResolveFailureBehavior.ReturnFallback;
 
         [SerializeField, LabelText("Fallback")]

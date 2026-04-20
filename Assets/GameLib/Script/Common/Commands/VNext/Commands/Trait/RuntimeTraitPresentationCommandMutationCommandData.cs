@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Trait;
@@ -16,7 +16,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(TargetActorSource)")]
-        [PropertyTooltip("RuntimeTraitMB を持つ RuntimeScope を指定します。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource TargetActorSource;
 
         [BoxGroup("Target")]

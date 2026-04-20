@@ -14,7 +14,7 @@ namespace Game.Channel
         public bool LoggedMapping;
         public bool LoggedArea;
         public bool InitialSpawnDone;
-        public readonly List<IObjectResolver> ManagedSpawnedResolvers = new();
+        public readonly List<IRuntimeResolver> ManagedSpawnedResolvers = new();
         public readonly object ManagedSpawnedResolversLock = new();
 
         public AutoSpawnChannelRuntimePlayer(AutoSpawnChannelDefinition definition)

@@ -14,23 +14,23 @@ namespace Game.TextureEffect
         [BoxGroup("Initial Layers")]
         [SerializeField] List<TextureEffectLayerDef> initialLayers = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // Register individual effects
-            builder.Register<BlurEffect>(Lifetime.Singleton).As<ITextureEffect>();
-            builder.Register<MosaicEffect>(Lifetime.Singleton).As<ITextureEffect>();
-            builder.Register<DistortEffect>(Lifetime.Singleton).As<ITextureEffect>();
-            builder.Register<ColorShiftEffect>(Lifetime.Singleton).As<ITextureEffect>();
+            builder.Register<BlurEffect>(RuntimeLifetime.Singleton).As<ITextureEffect>();
+            builder.Register<MosaicEffect>(RuntimeLifetime.Singleton).As<ITextureEffect>();
+            builder.Register<DistortEffect>(RuntimeLifetime.Singleton).As<ITextureEffect>();
+            builder.Register<ColorShiftEffect>(RuntimeLifetime.Singleton).As<ITextureEffect>();
 
             var layersCopy = new List<TextureEffectLayerDef>(initialLayers);
 
-            builder.Register<TextureEffectPipelineService>(Lifetime.Singleton)
+            builder.Register<TextureEffectPipelineService>(RuntimeLifetime.Singleton)
                 .As<ITextureEffectPipeline>()
                 .As<ITextureEffectLayerRegistry>()
                 .As<ITextureEffectMaskRegistry>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
 
             // Register initial layers after build
             builder.RegisterBuildCallback(resolver =>

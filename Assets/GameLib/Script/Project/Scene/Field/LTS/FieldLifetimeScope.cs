@@ -1,6 +1,4 @@
-using VContainer;
-using VContainer.Unity;
-using UnityEngine;
+﻿using UnityEngine;
 using Game.Common;
 namespace Game.Field
 {
@@ -9,17 +7,18 @@ namespace Game.Field
     [RequireComponent(typeof(Game.Scalar.BaseScalarMB))]
     [RequireComponent(typeof(Game.Common.EventMB))]
     [RequireComponent(typeof(BlackboardMB))]
-    public class FieldLifetimeScope : BaseLifetimeScope
+    public class FieldLifetimeScope : RuntimeLifetimeScopeBase
     {
-        // Field は親(Scene)の下でビルドされるのでルートではない
+        // Field 縺ｯ隕ｪ(Scene)縺ｮ荳九〒繝薙Ν繝峨＆繧後ｋ縺ｮ縺ｧ繝ｫ繝ｼ繝医〒縺ｯ縺ｪ縺・
         protected override bool IsBuildRoot => false;
 
-        // 協調ビルドには参加させる
+        // 蜊碑ｪｿ繝薙Ν繝峨↓縺ｯ蜿ょ刈縺輔○繧・
         protected override bool UseBuildCoordinator => true;
 
-        // 自動 Build は不要（親からの協調ビルド or Spawner が面倒を見る）
+        // 閾ｪ蜍・Build 縺ｯ荳崎ｦ・ｼ郁ｦｪ縺九ｉ縺ｮ蜊碑ｪｿ繝薙Ν繝・or Spawner 縺碁擇蛟偵ｒ隕九ｋ・・
         protected override bool AutoBuildOnAwake => false;
-        protected override void ConfigureBase(IContainerBuilder builder)
+        protected override LifetimeScopeKind RequiredParentKind => LifetimeScopeKind.Scene;
+        protected override void ConfigureBase(IRuntimeContainerBuilder builder)
         {
         }
     }

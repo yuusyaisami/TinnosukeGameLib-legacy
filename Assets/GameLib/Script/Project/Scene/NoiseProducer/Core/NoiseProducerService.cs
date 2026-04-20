@@ -12,7 +12,7 @@ namespace Game.NoiseProducer
         : INoiseProducerService,
           IScopeAcquireHandler,
           IScopeReleaseHandler,
-          ITickable,
+          IScopeTickHandler,
           IDisposable
     {
         const int MaxActiveChannels = 8;

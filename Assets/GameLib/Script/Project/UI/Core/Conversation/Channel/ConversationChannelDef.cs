@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -54,19 +54,19 @@ namespace Game.Conversation
     {
         [BoxGroup("Channel")]
         [LabelText("Channel Tag")]
-        [Tooltip("ConversationChannelHub 内で参照する識別タグです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _channelTag = "default";
 
         [BoxGroup("Dialogue Link")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Dialogue Channel\", _dialogueChannelSource)")]
-        [Tooltip("リンク先の IDialogueService を持つ scope です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _dialogueChannelSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Dialogue Link")]
         [LabelText("Dialogue Channel Tag")]
-        [Tooltip("リンク時に使用する DialogueChannel の tag です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _dialogueChannelTag = "default";
 
@@ -90,21 +90,21 @@ namespace Game.Conversation
     {
         [BoxGroup("Flow")]
         [LabelText("Entry Node Id")]
-        [Tooltip("会話開始時に最初に実行するノード ID です。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(1)]
         [SerializeField]
         int _entryNodeId = 1;
 
         [BoxGroup("Flow")]
         [LabelText("Max Node Steps")]
-        [Tooltip("1 回の run で実行できる最大ノード数です。ループ暴走を防ぎます。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(1)]
         [SerializeField]
         int _maxNodeSteps = 1024;
 
         [BoxGroup("Flow")]
         [LabelText("Nodes")]
-        [Tooltip("会話ノード定義です。NodeId は flow 内で一意にします。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(DefaultExpandedState = true, ShowFoldout = true, DraggableItems = true, CustomAddFunction = nameof(AddNodeInternal), ListElementLabelName = nameof(ConversationNodePresetBase.ListLabel))]
         [SerializeReference]
         List<ConversationNodePresetBase> _nodes = new() { new ConversationStartNodePreset() };
@@ -117,7 +117,7 @@ namespace Game.Conversation
 
         [BoxGroup("Flow")]
         [LabelText("Dialogue Routing Overrides")]
-        [Tooltip("必要なら slot ごとの Dialogue Channel Tag を上書きします。未設定なら Conversation Channel の Dialogue Channel Tag を使います。")]
+        [Tooltip("Inspector setting.")]
         [InlineProperty]
         [SerializeField]
         ConversationDialogueRoutingPreset _dialogueRouting = new();
@@ -759,14 +759,14 @@ namespace Game.Conversation
         [BoxGroup("Node")]
         [ShowIf(nameof(UsesSpeakerSlot))]
         [LabelText("Speaker Slot")]
-        [Tooltip("Conversation slot -> Dialogue tag ルーティングで使用する話者スロットです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ConversationCharacterSlot _slot = ConversationCharacterSlot.Center;
 
         [BoxGroup("Node")]
         [ShowIf(nameof(UsesDialogueTagOverride))]
         [LabelText("Dialogue Tag Override")]
-        [Tooltip("空でない場合、slot ルーティングより優先してこの Dialogue tag を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _dialogueTagOverride = string.Empty;
 
@@ -929,7 +929,7 @@ namespace Game.Conversation
 
         [BoxGroup("Joint")]
         [LabelText("Branch Key")]
-        [Tooltip("Choice/Switch 判定で使うキーです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _branchKey;
 
@@ -1063,7 +1063,7 @@ namespace Game.Conversation
     {
         [BoxGroup("Message")]
         [LabelText("Character Data Id")]
-        [Tooltip("発話者の CharacterDataBase ID です。0 のときは話者未指定になります。")]
+        [Tooltip("Inspector setting.")]
         [ValueDropdown(nameof(GetCharacterDataIdDropdownItems))]
         [MinValue(0)]
         [SerializeField]
@@ -1078,7 +1078,7 @@ namespace Game.Conversation
         [BoxGroup("Character Modules")]
         [ShowIf(nameof(UsesCharacterBinding))]
         [LabelText("Expression Key")]
-        [Tooltip("Expression module があるキャラクターで使用する表情キーです。")]
+        [Tooltip("Inspector setting.")]
         [ValueDropdown(nameof(GetExpressionKeyDropdownItems))]
         [SerializeField]
         string _expressionKey = string.Empty;

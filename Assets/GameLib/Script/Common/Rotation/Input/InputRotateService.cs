@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.ActionBlock.Keys;
@@ -7,8 +7,6 @@ using Game.Common;
 using Game.Scalar;
 using Game.DI;
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 using Game.Input;
 
 namespace Game.Rotation
@@ -16,7 +14,7 @@ namespace Game.Rotation
     /// <summary>
     /// Rotation service that gathers rotation input (user input or external) and writes angular velocity into a rotation channel.
     /// </summary>
-    public sealed class InputRotateService : IStartable, IDisposable, IActionBlockable, IResettableService, IEnabledService
+    public sealed class InputRotateService : IScopeAcquireHandler, IScopeReleaseHandler, IDisposable, IActionBlockable, IResettableService, IEnabledService
     {
         // ================================================================
         // Dependencies
@@ -37,9 +35,10 @@ namespace Game.Rotation
         IRotateChannelHandle? _channel;
         readonly List<IInputRotationAdapter> _rotationAdapters = new();
         bool _disposed;
+        bool _acquired;
         bool _sortDirty;
 
-        // 回転状態
+        // 蝗櫁ｻ｢迥ｶ諷・
         float _currentAngularVelocity;
 
         // ================================================================
@@ -55,7 +54,7 @@ namespace Game.Rotation
         /// <inheritdoc/>
         public BoolLayer BlockLayer { get; } = new();
 
-        /// <summary>現在の角速度（degrees/sec）</summary>
+        /// <summary>迴ｾ蝨ｨ縺ｮ隗帝溷ｺｦ・・egrees/sec・・/summary>
         public float CurrentAngularVelocity => _currentAngularVelocity;
 
         /// <inheritdoc/>
@@ -69,7 +68,7 @@ namespace Game.Rotation
             IRotateChannelHub channelHub,
             IActionBlockService? actionBlockService,
             InputRotateOptions options,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             _channelHub = channelHub;
             _actionBlockService = actionBlockService;
@@ -78,23 +77,31 @@ namespace Game.Rotation
             resolver.TryResolve(out IBaseScalarService? scalarSvc);
             _scalar = scalarSvc;
 
-            // Owner Transform を取得（BaseLifetimeScope から）
-            if (resolver.TryResolve(out BaseLifetimeScope? scope) && scope != null)
+            // Owner Transform 繧貞叙蠕暦ｼ・aseLifetimeScope 縺九ｉ・・
+            if (resolver.TryResolve(out IScopeNode? scope) && scope is Component component)
             {
-                _ownerTransform = scope.transform;
+                _ownerTransform = component.transform;
             }
         }
 
         // ================================================================
-        // IStartable
+        // Scope lifecycle
         // ================================================================
 
-        public void Start()
+        public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            if (_acquired)
+                return;
+
+            _disposed = false;
+            _acquired = true;
             RegisterChannel();
             _actionBlockService?.RegisterBlockable(this);
             ApplyRotationFromAdapters();
         }
+
+        public void OnRelease(IScopeNode scope, bool isReset)
+            => Dispose();
 
         // ================================================================
         // IDisposable
@@ -106,6 +113,7 @@ namespace Game.Rotation
                 return;
 
             _disposed = true;
+            _acquired = false;
             _actionBlockService?.UnregisterBlockable(this);
             _channel = null;
         }
@@ -129,7 +137,7 @@ namespace Game.Rotation
         // ================================================================
 
         /// <summary>
-        /// 回転アダプタを登録。
+        /// 蝗櫁ｻ｢繧｢繝繝励ち繧堤匳骭ｲ縲・
         /// </summary>
         public void RegisterAdapter(IInputRotationAdapter adapter)
         {
@@ -144,7 +152,7 @@ namespace Game.Rotation
         }
 
         /// <summary>
-        /// 回転アダプタを解除。
+        /// 蝗櫁ｻ｢繧｢繝繝励ち繧定ｧ｣髯､縲・
         /// </summary>
         public void UnregisterAdapter(IInputRotationAdapter adapter)
         {
@@ -155,7 +163,7 @@ namespace Game.Rotation
         }
 
         /// <summary>
-        /// 回転が更新されたことを通知。
+        /// 蝗櫁ｻ｢縺梧峩譁ｰ縺輔ｌ縺溘％縺ｨ繧帝夂衍縲・
         /// </summary>
         public void NotifyRotationUpdated()
         {
@@ -210,7 +218,7 @@ namespace Game.Rotation
             if (_channel == null)
                 return;
 
-            // Block 判定
+            // Block 蛻､螳・
             if (!IsEnabled || IsBlocked() || !hasRotation)
             {
                 _channel.AngularVelocity = 0f;
@@ -218,7 +226,7 @@ namespace Game.Rotation
                 return;
             }
 
-            // スカラー倍率を適用
+            // 繧ｹ繧ｫ繝ｩ繝ｼ蛟咲紫繧帝←逕ｨ
             float speedMul = 1f;
             if (_scalar != null && _options.SpeedScalarKey.HasValue && _scalar.GlobalTryGet(_options.SpeedScalarKey.Value, out float mul))
             {
@@ -242,6 +250,7 @@ namespace Game.Rotation
         public void Reset()
         {
             _disposed = false;
+            _acquired = false;
             _enabled = true;
             _currentAngularVelocity = 0f;
             _sortDirty = false;
@@ -266,7 +275,7 @@ namespace Game.Rotation
     }
 
     /// <summary>
-    /// InputRotateService のオプション。
+    /// InputRotateService 縺ｮ繧ｪ繝励す繝ｧ繝ｳ縲・
     /// </summary>
     public sealed class InputRotateOptions
     {
@@ -276,23 +285,23 @@ namespace Game.Rotation
 
         public string BlockableId { get; set; } = nameof(InputRotateService);
 
-        /// <summary>角速度にかける倍率を取得するスカラーキー</summary>
+        /// <summary>隗帝溷ｺｦ縺ｫ縺九￠繧句咲紫繧貞叙蠕励☆繧九せ繧ｫ繝ｩ繝ｼ繧ｭ繝ｼ</summary>
         public Game.Scalar.ScalarKey? SpeedScalarKey { get; set; } = null;
     }
 
     /// <summary>
-    /// 回転入力アダプタのインターフェース。
+    /// 蝗櫁ｻ｢蜈･蜉帙い繝繝励ち縺ｮ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ縲・
     /// </summary>
     public interface IInputRotationAdapter
     {
-        /// <summary>優先度（高いほど優先）</summary>
+        /// <summary>蜆ｪ蜈亥ｺｦ・磯ｫ倥＞縺ｻ縺ｩ蜆ｪ蜈茨ｼ・/summary>
         int RotationPriority { get; }
 
         /// <summary>
-        /// 角速度を取得。
+        /// 隗帝溷ｺｦ繧貞叙蠕励・
         /// </summary>
         /// <param name="angularVelocity">degrees/sec</param>
-        /// <returns>有効な回転があれば true</returns>
+        /// <returns>譛牙柑縺ｪ蝗櫁ｻ｢縺後≠繧後・ true</returns>
         bool TryGetAngularVelocity(out float angularVelocity);
     }
 }

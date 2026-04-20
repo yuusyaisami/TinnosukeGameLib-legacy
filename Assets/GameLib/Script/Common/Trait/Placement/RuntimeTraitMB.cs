@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using Game;
 using Game.Commands.VNext;
 using Game.Common;
@@ -16,17 +16,17 @@ namespace Game.Trait
 
         [BoxGroup("Blackboard")]
         [LabelText("Write Trait Data On Link")]
-        [Tooltip("Trait が配線された時に、Trait の CommonVars と基本データを Blackboard に書き込みます。WriteTraitData と同等のキーで書き込みます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] bool _writeTraitDataOnLink = true;
 
         [BoxGroup("Presentation")]
         [LabelText("Condition")]
-        [Tooltip("右クリックで Hidden を適用するかを判定する条件です。DynamicValue<bool> なので Blackboard や式を参照できます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] DynamicValue<bool> _condition = DynamicValueExtensions.FromLiteral(true);
 
         [BoxGroup("Blackboard")]
         [LabelText("Presentation State Key")]
-        [Tooltip("現在の Hidden / Visible 状態を書き込む VarKey です。既定は traitRuntime.presentationState です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] VarKeyRef _presentationStateKey = new(0, TraitRuntimeLinkVarKeys.PresentationState);
 
         [BoxGroup("Presentation Commands")]
@@ -114,19 +114,19 @@ namespace Game.Trait
             return false;
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<RuntimeTraitBridgeService>(Lifetime.Singleton)
+            builder.Register<RuntimeTraitBridgeService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .WithParameter(this);
 
-            builder.Register<RuntimeTraitPresentationBridgeService>(Lifetime.Singleton)
+            builder.Register<RuntimeTraitPresentationBridgeService>(RuntimeLifetime.Singleton)
                 .As<IRuntimeTraitPresentationCommandMutationService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .WithParameter(this);
         }
     }

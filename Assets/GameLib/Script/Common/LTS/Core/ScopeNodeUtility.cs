@@ -3,12 +3,12 @@ namespace Game
 {
     public static class ScopeNodeUtility
     {
-        public static BaseLifetimeScope? FindNearestBaseLifetimeScope(IScopeNode? node)
+        public static RuntimeLifetimeScopeBase? FindNearestRuntimeLifetimeScope(IScopeNode? node)
         {
             while (node != null)
             {
-                if (node is BaseLifetimeScope baseScope)
-                    return baseScope;
+                if (node is RuntimeLifetimeScopeBase runtimeScope)
+                    return runtimeScope;
 
                 node = node.Parent;
             }

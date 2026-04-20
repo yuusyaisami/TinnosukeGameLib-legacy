@@ -2,7 +2,6 @@
 using Game.Commands.VNext;
 using Game.Channel;
 using Game.Common;
-using Game.Layout;
 using UnityEngine;
 using VContainer;
 
@@ -91,13 +90,13 @@ namespace Game.UI
             return TransformGridEnvironmentKind.World;
         }
 
-        public static bool TryResolveVisualBounds(IObjectResolver? resolver, out VisualBoundsOutput output)
+        public static bool TryResolveVisualBounds(IRuntimeResolver? resolver, out VisualBoundsOutput output)
         {
             return TryResolveVisualBounds(resolver, expectedRoot: null, expectedRootRect: null, out output);
         }
 
         public static bool TryResolveVisualBounds(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             Transform? expectedRoot,
             RectTransform? expectedRootRect,
             out VisualBoundsOutput output)
@@ -122,7 +121,7 @@ namespace Game.UI
         }
 
         public static bool TryResolveLayoutElementSize(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             Transform? root,
             RectTransform? rootRect,
             int sizeSource,
@@ -180,7 +179,7 @@ namespace Game.UI
         }
 
         public static Vector3 ResolvePlacementLocalPosition(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             Transform? root,
             RectTransform? rootRect,
             Vector3 targetLocalPosition,
@@ -248,7 +247,7 @@ namespace Game.UI
                 localPosition.z);
         }
 
-        public static void SetUiElementVisible(IObjectResolver? resolver, bool visible)
+        public static void SetUiElementVisible(IRuntimeResolver? resolver, bool visible)
         {
             if (resolver == null)
                 return;
@@ -324,7 +323,7 @@ namespace Game.UI
         }
 
         public static bool TryResolveTransformAnimationPlayer(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             string channelTag,
             out ITransformAnimationChannelPlayer? player)
         {
@@ -338,13 +337,10 @@ namespace Game.UI
             return hub.TryGetPlayer(channelTag, out player) && player != null;
         }
 
-        public static void RefreshLayoutAndBounds(IObjectResolver? resolver)
+        public static void RefreshLayoutAndBounds(IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return;
-
-            if (resolver.TryResolve<ILayoutSystemService>(out var layoutService) && layoutService != null)
-                layoutService.RebuildNow();
 
             if (resolver.TryResolve<IVisualBoundsService>(out var boundsService) && boundsService != null)
             {
@@ -354,7 +350,7 @@ namespace Game.UI
         }
 
         static bool IsVisualBoundsRootCompatible(
-            IObjectResolver resolver,
+            IRuntimeResolver resolver,
             IVisualBoundsService boundsService,
             Transform? expectedRoot,
             RectTransform? expectedRootRect)

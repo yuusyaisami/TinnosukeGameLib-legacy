@@ -8,14 +8,14 @@ namespace Game.Rotation
     {
         [SerializeField] List<RotateChannelDef> channelDefs = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode baseLTS)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
         {
             if (channelDefs == null)
                 channelDefs = new List<RotateChannelDef>();
 
             builder.RegisterInstance(channelDefs);
 
-            builder.Register<IRotateChannelHub, RotateChannelHubService>(Lifetime.Singleton)
+            builder.Register<IRotateChannelHub, RotateChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter("channelDefs", channelDefs);
         }
     }

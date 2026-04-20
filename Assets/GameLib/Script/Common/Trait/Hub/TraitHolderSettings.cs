@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -33,13 +33,13 @@ namespace Game.Trait
         VNext.ActorSource _parentActorSource;
 
         [LabelText("Run On Placed")]
-        [Tooltip("PlaceTraitRuntime 実行成功時に走ります。実行主体は PlaceTraitRuntimeExecutor で、actor は spawn 後の RuntimeLTS、VarStore には配置対象 Trait のデータと spawn 後 Runtime の blackboard が入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _runOnPlacedCommands;
 
         [ShowIf(nameof(_runOnPlacedCommands))]
         [LabelText("On Placed Commands")]
-        [Tooltip("PlaceTraitRuntime 実行成功時に走ります。実行主体は PlaceTraitRuntimeExecutor で、actor は spawn 後の RuntimeLTS、VarStore には配置対象 Trait のデータと spawn 後 Runtime の blackboard が入ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VNext.CommandListData _onPlacedCommands = new();
 
@@ -91,7 +91,7 @@ namespace Game.Trait
         [LabelText("Holder ID")]
         [Tooltip("Optional. Used as a namespace segment for trait rich-text keys (e.g., prefix:holderId:definitionId:instanceId).")]
         [SerializeField]
-        // RichText参照キーに含めるための識別子（Holderごとの名前空間）
+        // RichText蜿ら・繧ｭ繝ｼ縺ｫ蜷ｫ繧√ｋ縺溘ａ縺ｮ隴伜挨蟄撰ｼ・older縺斐→縺ｮ蜷榊燕遨ｺ髢難ｼ・
         string _holderId = string.Empty;
 
         [BoxGroup("Holder")]
@@ -103,7 +103,7 @@ namespace Game.Trait
 
         [BoxGroup("Holder")]
         [LabelText("Allow Duplicate Definitions")]
-        [Tooltip("OFF の場合、同じ TraitDefinitionSO は 1 holder 内に 1 つだけ保持します。ON の場合、同じ definition から複数 instance を保持できます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _allowDuplicateDefinitions;
 

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System.Collections.Generic;
 using Game;
 using Game.Commands;
@@ -104,7 +104,7 @@ namespace Game.SelectRuntime
 
         [BoxGroup("Commands")]
         [LabelText("Command Overlap Behavior")]
-        [Tooltip("同一ターゲットで前回のコマンド実行が残っている時の挙動です。SkipIfRunning=新規を無視, CancelAndRun=前回を停止して新規実行, AllowConcurrent=並列実行")]
+        [Tooltip("Inspector setting.")]
         [EnumToggleButtons]
         [SerializeField]
         ExecutionBehavior _commandOverlapBehavior = ExecutionBehavior.AllowConcurrent;
@@ -182,9 +182,9 @@ namespace Game.SelectRuntime
             BindDebugOwners();
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<WorldPointerTargetBridgeService>(Lifetime.Singleton)
+            builder.Register<WorldPointerTargetBridgeService>(RuntimeLifetime.Singleton)
                 .AsSelf()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()

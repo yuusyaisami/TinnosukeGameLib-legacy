@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -36,12 +36,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Payload")]
         [LabelText("Use Command Vars As Source")]
-        [Tooltip("true: CommandContext.Vars を DamageContext.Source に渡す")]
+        [Tooltip("Inspector setting.")]
         public bool UseCommandVarsAsSource = true;
 
         [BoxGroup("Payload")]
         [LabelText("Use Command Vars As Extra Payload")]
-        [Tooltip("true: CommandContext.Vars を DamageContext.ExtraPayload に渡す")]
+        [Tooltip("Inspector setting.")]
         public bool UseCommandVarsAsExtraPayload;
     }
 
@@ -128,7 +128,7 @@ namespace Game.Commands.VNext
         [ShowIf(nameof(ShouldShowCreateIfMissing))]
         [ToggleLeft]
         [LabelText("Create Binding If Missing")]
-        [Tooltip("対象バインディングが存在しない場合に新規作成します。")]
+        [Tooltip("Inspector setting.")]
         public bool CreateBindingIfMissing = true;
 
         [LabelText("Mutation")]

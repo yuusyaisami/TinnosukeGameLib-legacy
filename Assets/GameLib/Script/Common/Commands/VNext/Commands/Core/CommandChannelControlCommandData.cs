@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -25,7 +25,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(ActorSource)")]
-        [PropertyTooltip("CommandChannelHub を所有するスコープ。")]
+        [PropertyTooltip("Inspector setting.")]
         public ActorSource ActorSource;
 
         [BoxGroup("Target")]

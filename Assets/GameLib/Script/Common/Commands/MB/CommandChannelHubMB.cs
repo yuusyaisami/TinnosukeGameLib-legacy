@@ -16,12 +16,12 @@ namespace Game.Commands
 
         public CommandChannelEntry[] Entries => _entries;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             _ = owner;
 
             builder.RegisterInstance<ICommandChannelHubSettings>(this);
-            builder.Register<CommandChannelHubService>(Lifetime.Singleton)
+            builder.Register<CommandChannelHubService>(RuntimeLifetime.Singleton)
                 .As<ICommandChannelHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();

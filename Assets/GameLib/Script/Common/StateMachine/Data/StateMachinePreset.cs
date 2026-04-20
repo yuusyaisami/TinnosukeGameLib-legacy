@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -12,29 +12,29 @@ namespace Game.StateMachine
     public sealed class StateMachinePreset
     {
         [TitleGroup("Default Priorities")]
-        [Tooltip("未登録 Layer のデフォルト優先度")]
+        [Tooltip("譛ｪ逋ｻ骭ｲ Layer 縺ｮ繝・ヵ繧ｩ繝ｫ繝亥━蜈亥ｺｦ")]
         [SerializeField]
         int defaultLayerPriority = 0;
 
         [TitleGroup("Default Priorities")]
-        [Tooltip("未登録 State のデフォルト優先度")]
+        [Tooltip("譛ｪ逋ｻ骭ｲ State 縺ｮ繝・ヵ繧ｩ繝ｫ繝亥━蜈亥ｺｦ")]
         [SerializeField]
         int defaultStatePriority = 0;
 
         [TitleGroup("Layer Priority Overrides")]
-        [Tooltip("Layer ごとの優先度上書き。高い値ほど優先。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(ShowIndexLabels = true, DraggableItems = true)]
         [SerializeField]
         List<LayerPriorityEntry> layerPriorityOverrides = new();
 
         [TitleGroup("State Priority Overrides")]
-        [Tooltip("State ごとの優先度上書き（Layer 内での優先度）。高い値ほど優先。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(ShowIndexLabels = true, DraggableItems = true)]
         [SerializeField]
         List<StatePriorityEntry> statePriorityOverrides = new();
 
         [TitleGroup("Global Options")]
-        [Tooltip("GlobalOption のデフォルト値")]
+        [Tooltip("GlobalOption 縺ｮ繝・ヵ繧ｩ繝ｫ繝亥､")]
         [ListDrawerSettings(ShowIndexLabels = true, DraggableItems = true)]
         [SerializeField]
         List<GlobalOptionDefault> globalOptionDefaults = new();
@@ -122,7 +122,7 @@ namespace Game.StateMachine
         public string LayerKey = string.Empty;
 
         [HorizontalGroup, LabelWidth(60)]
-        [Tooltip("Layer 優先度（高いほど優先）")]
+        [Tooltip("Inspector setting.")]
         public int Priority;
     }
 
@@ -135,7 +135,7 @@ namespace Game.StateMachine
         public string StateKey = string.Empty;
 
         [HorizontalGroup, LabelWidth(60)]
-        [Tooltip("Layer 内優先度（高いほど優先）")]
+        [Tooltip("Inspector setting.")]
         public int Priority;
     }
 
@@ -148,7 +148,7 @@ namespace Game.StateMachine
         public string OptionKey = string.Empty;
 
         [HorizontalGroup, LabelWidth(100)]
-        [Tooltip("デフォルト OptionValue (e.g. Movement.Direction.Right)")]
+        [Tooltip("繝・ヵ繧ｩ繝ｫ繝・OptionValue (e.g. Movement.Direction.Right)")]
         public string DefaultValue = string.Empty;
     }
 }

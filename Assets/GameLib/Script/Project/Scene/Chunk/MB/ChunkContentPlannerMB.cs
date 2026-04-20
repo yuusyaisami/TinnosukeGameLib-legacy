@@ -20,7 +20,7 @@ namespace Game.Chunk
         [BoxGroup(PlanGroup)]
         [SerializeField] ChunkRuleSetSO? ruleSet;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             var config = new ChunkPlannerConfig
             {
@@ -31,7 +31,7 @@ namespace Game.Chunk
 
             builder.RegisterInstance(config);
 
-            builder.Register<ChunkContentPlannerService>(Lifetime.Singleton)
+            builder.Register<ChunkContentPlannerService>(RuntimeLifetime.Singleton)
                 .As<IChunkContentPlanner>();
         }
     }

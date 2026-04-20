@@ -1,73 +1,73 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace Game.Audio
 {
     // ================================================================
-    // AudioBusConfig - バス設定
+    // AudioBusConfig - 繝舌せ險ｭ螳・
     // ================================================================
     //
-    // ## 概要
+    // ## 讎りｦ・
     //
-    // 各オーディオバスの設定を定義する。
-    // AudioInstallerMB の Inspector で設定可能。
+    // 蜷・が繝ｼ繝・ぅ繧ｪ繝舌せ縺ｮ險ｭ螳壹ｒ螳夂ｾｩ縺吶ｋ縲・
+    // AudioInstallerMB 縺ｮ Inspector 縺ｧ險ｭ螳壼庄閭ｽ縲・
     //
     // ================================================================
 
     /// <summary>
-    /// オーディオバスの設定。
+    /// 繧ｪ繝ｼ繝・ぅ繧ｪ繝舌せ縺ｮ險ｭ螳壹・
     /// </summary>
     [Serializable]
     public struct AudioBusConfig
     {
-        /// <summary>対象バス</summary>
+        /// <summary>蟇ｾ雎｡繝舌せ</summary>
         public AudioBusKind Bus;
 
         // ----------------------------------------------------------------
-        // プール設定
+        // 繝励・繝ｫ險ｭ螳・
         // ----------------------------------------------------------------
 
         [Header("Pooling")]
-        [Tooltip("初期プールサイズ")]
+        [Tooltip("蛻晄悄繝励・繝ｫ繧ｵ繧､繧ｺ")]
         public int InitialPoolSize;
 
         // ----------------------------------------------------------------
-        // 同時再生制御
+        // 蜷梧凾蜀咲函蛻ｶ蠕｡
         // ----------------------------------------------------------------
 
         [Header("Concurrency")]
-        [Tooltip("タグ単位で1つに制限（BGM向け）")]
+        [Tooltip("Inspector setting.")]
         public bool SingleInstanceByTag;
 
         // ----------------------------------------------------------------
-        // フェード設定
+        // 繝輔ぉ繝ｼ繝芽ｨｭ螳・
         // ----------------------------------------------------------------
 
         [Header("Fade Defaults")]
-        [Tooltip("デフォルトのフェードアウト時間（秒）")]
+        [Tooltip("Inspector setting.")]
         public float DefaultFadeOutSeconds;
 
         // ----------------------------------------------------------------
-        // TimeScale 連携
+        // TimeScale 騾｣謳ｺ
         // ----------------------------------------------------------------
 
         [Header("TimeScale Sync")]
-        [Tooltip("TimeService / Time.timeScale 変化時に再生速度へ影響を与えるか")]
+        [Tooltip("TimeService / Time.timeScale 螟牙喧譎ゅ↓蜀咲函騾溷ｺｦ縺ｸ蠖ｱ髻ｿ繧剃ｸ弱∴繧九°")]
         public bool ApplyTimeScaleToPlaybackSpeed;
 
-        [Tooltip("TimeService / Time.timeScale 変化時にピッチに影響を与えるか")]
+        [Tooltip("TimeService / Time.timeScale 螟牙喧譎ゅ↓繝斐ャ繝√↓蠖ｱ髻ｿ繧剃ｸ弱∴繧九°")]
         public bool AffectedByTimeScale;
 
-        [Tooltip("ピッチへの影響度（0=無影響, 1=フル影響）")]
+        [Tooltip("Inspector setting.")]
         [Range(0f, 1f)]
         public float PitchInfluence;
 
         // ----------------------------------------------------------------
-        // デフォルト値
+        // 繝・ヵ繧ｩ繝ｫ繝亥､
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// バス種別に応じたデフォルト設定を生成。
+        /// 繝舌せ遞ｮ蛻･縺ｫ蠢懊§縺溘ョ繝輔か繝ｫ繝郁ｨｭ螳壹ｒ逕滓・縲・
         /// </summary>
         public static AudioBusConfig Default(AudioBusKind bus)
         {
@@ -79,7 +79,7 @@ namespace Game.Audio
                 DefaultFadeOutSeconds = bus == AudioBusKind.Bgm ? 0.5f : 0.1f,
                 ApplyTimeScaleToPlaybackSpeed = false,
                 AffectedByTimeScale = true,
-                PitchInfluence = 0f, // 既定：無影響
+                PitchInfluence = 0f, // 譌｢螳夲ｼ夂┌蠖ｱ髻ｿ
             };
         }
     }

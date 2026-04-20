@@ -1,4 +1,4 @@
-// Game.StateMachine.StateMachineMB.cs
+﻿// Game.StateMachine.StateMachineMB.cs
 
 using System;
 using System.Collections.Generic;
@@ -11,39 +11,39 @@ using VContainer.Unity;
 namespace Game.StateMachine
 {
     /// <summary>
-    /// StateMachine の FeatureInstaller + Debug Viewer。
-    /// LifetimeScope 配下に配置して使用する。
+    /// StateMachine 縺ｮ FeatureInstaller + Debug Viewer縲・
+    /// LifetimeScope 驟堺ｸ九↓驟咲ｽｮ縺励※菴ｿ逕ｨ縺吶ｋ縲・
     /// </summary>
     public sealed class StateMachineMB : MonoBehaviour, IFeatureInstaller
     {
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Inspector Fields
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         [Header("Profile")]
-        [Tooltip("StateMachinePreset。Inline か Asset のどちらでも指定できます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField, InlineProperty, HideLabel]
         DynamicValue<StateMachinePreset> _preset;
 
         [SerializeField, HideInInspector]
         StateMachineProfileSO _profile;
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Runtime References
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         StateMachineService _serviceRef;
         uint _lastDebugRevision;
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Debug View - Current State
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         [FoldoutGroup("Debug View")]
         [Title("Current State")]
         [ShowInInspector, ReadOnly]
         [LabelText("Current State")]
-        [InfoBox("全 Layer を通じた最終選択 State", InfoMessageType.None)]
+        [InfoBox("蜈ｨ Layer 繧帝壹§縺滓怙邨る∈謚・State", InfoMessageType.None)]
         string DebugCurrentState => _serviceRef?.CurrentState ?? "(none)";
 
         [FoldoutGroup("Debug View")]
@@ -56,9 +56,9 @@ namespace Game.StateMachine
         [LabelText("Machine Revision")]
         uint DebugMachineRevision => _serviceRef?.MachineRevision ?? 0;
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Debug View - Global Options
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         [FoldoutGroup("Debug View/Global Options")]
         [ShowInInspector, ReadOnly]
@@ -77,9 +77,9 @@ namespace Game.StateMachine
             public string Value = "";
         }
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Debug View - Layers & States
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         [FoldoutGroup("Debug View/Layers & States")]
         [ShowInInspector, ReadOnly]
@@ -150,40 +150,40 @@ namespace Game.StateMachine
             public string Value = "";
         }
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  IFeatureInstaller
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode baseLTS)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
         {
             EnsurePresetMigrated();
             var dynamicContext = new SimpleDynamicContext(NullVarStore.Instance, baseLTS);
             var preset = _preset.GetOrDefault(dynamicContext, null);
 
-            // StateMachineService 登録
-            builder.Register<StateMachineService>(Lifetime.Singleton)
+            // StateMachineService 逋ｻ骭ｲ
+            builder.Register<StateMachineService>(RuntimeLifetime.Singleton)
                 .WithParameter("profile", preset)
                 .AsSelf()
                 .As<IStateMachine>()
                 .As<IStateMachineReadOnly>();
 
-            // Debug View 用に参照を取得
+            // Debug View 逕ｨ縺ｫ蜿ら・繧貞叙蠕・
             builder.RegisterBuildCallback(container =>
             {
                 _serviceRef = container.Resolve<StateMachineService>();
             });
         }
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Public API - Profile Hot-Swap
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         /// <summary>
-        /// Profile を動的に差し替える。
+        /// Profile 繧貞虚逧・↓蟾ｮ縺玲崛縺医ｋ縲・
         /// </summary>
-        /// <param name="profile">新しいプロファイル</param>
-        /// <param name="applyGlobalDefaults">GlobalOptionDefaults を適用するか</param>
-        /// <param name="overwriteExistingGlobals">既存の GlobalOption を上書きするか</param>
+        /// <param name="profile">譁ｰ縺励＞繝励Ο繝輔ぃ繧､繝ｫ</param>
+        /// <param name="applyGlobalDefaults">GlobalOptionDefaults 繧帝←逕ｨ縺吶ｋ縺・/param>
+        /// <param name="overwriteExistingGlobals">譌｢蟄倥・ GlobalOption 繧剃ｸ頑嶌縺阪☆繧九°</param>
         public void SetProfile(StateMachineProfileSO profile, bool applyGlobalDefaults = true, bool overwriteExistingGlobals = false)
         {
             _profile = profile;
@@ -216,18 +216,18 @@ namespace Game.StateMachine
             _preset = DynamicValue<StateMachinePreset>.FromSource(AssetStateMachinePresetSource.FromAsset(_profile));
         }
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Debug View Update
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
 #if UNITY_EDITOR
         void Update()
         {
-            // Editor でのみ Debug View を更新
+            // Editor 縺ｧ縺ｮ縺ｿ Debug View 繧呈峩譁ｰ
             if (_serviceRef == null)
                 return;
 
-            // Revision が変化した場合のみ更新（パフォーマンス考慮）
+            // Revision 縺悟､牙喧縺励◆蝣ｴ蜷医・縺ｿ譖ｴ譁ｰ・医ヱ繝輔か繝ｼ繝槭Φ繧ｹ閠・・・・
             var currentRevision = _serviceRef.MachineRevision;
             if (currentRevision == _lastDebugRevision)
                 return;
@@ -241,10 +241,10 @@ namespace Game.StateMachine
             if (_serviceRef == null)
                 return;
 
-            // Global Options 更新
+            // Global Options 譖ｴ譁ｰ
             RefreshGlobalOptionsDebug();
 
-            // Layers & States 更新
+            // Layers & States 譖ｴ譁ｰ
             RefreshLayersDebug();
         }
 
@@ -252,8 +252,8 @@ namespace Game.StateMachine
         {
             _globalOptionsDebug.Clear();
 
-            // Service の内部状態にアクセスするため、Reflection を使用
-            // （パフォーマンスよりデバッグのしやすさを優先）
+            // Service 縺ｮ蜀・Κ迥ｶ諷九↓繧｢繧ｯ繧ｻ繧ｹ縺吶ｋ縺溘ａ縲ヽeflection 繧剃ｽｿ逕ｨ
+            // ・医ヱ繝輔か繝ｼ繝槭Φ繧ｹ繧医ｊ繝・ヰ繝・げ縺ｮ縺励ｄ縺吶＆繧貞━蜈茨ｼ・
             var globalOptionsField = typeof(StateMachineService)
                 .GetField("_globalOptions", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
@@ -274,7 +274,7 @@ namespace Game.StateMachine
         {
             _layersDebug.Clear();
 
-            // Service の内部状態にアクセス
+            // Service 縺ｮ蜀・Κ迥ｶ諷九↓繧｢繧ｯ繧ｻ繧ｹ
             var layersField = typeof(StateMachineService)
                 .GetField("_layers", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 

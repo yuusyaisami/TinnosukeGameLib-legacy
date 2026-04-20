@@ -11,13 +11,13 @@ namespace Game.Search
         IDisposable
     {
         readonly LTSIdentityMB _identityMb;
-        readonly IObjectResolver _resolver;
+        readonly IRuntimeResolver _resolver;
 
         IDynamicObjectRegistryService? _registry;
         IScopeNode? _scope;
         bool _registered;
 
-        public DynamicObjectAutoRegistrar(LTSIdentityMB identityMb, IObjectResolver resolver)
+        public DynamicObjectAutoRegistrar(LTSIdentityMB identityMb, IRuntimeResolver resolver)
         {
             _identityMb = identityMb;
             _resolver = resolver;

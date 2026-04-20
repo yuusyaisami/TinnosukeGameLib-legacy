@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using Game.Common;
@@ -225,7 +225,7 @@ namespace Game.StatusEffect
     public sealed class StatusEffectStackPreset : IDynamicManagedRefValue
     {
         [LabelText("Ignore If Existing")]
-        [Tooltip("同じ slot に既存 effect がある場合、この preset 適用をスキップします。")]
+        [Tooltip("Inspector setting.")]
         public bool IgnoreIfExisting;
 
         [BoxGroup("Rules")]
@@ -334,7 +334,7 @@ namespace Game.StatusEffect
 
         [BoxGroup("Description")]
         [LabelText("Override Stack Description")]
-        [Tooltip("設定されている場合、Definition の StackDescription より優先して使用されます。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(ApplyStackDescriptionOverride))]
         public DynamicValue<string> StackDescriptionOverride;
 

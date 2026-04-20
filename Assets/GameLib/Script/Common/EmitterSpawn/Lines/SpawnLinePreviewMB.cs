@@ -98,7 +98,7 @@ namespace Game.Spawn
             public IScopeNode? Parent => null;
             public ILTSIdentityService? Identity => null;
             public LifetimeScopeKind Kind => LifetimeScopeKind.None;
-            public IObjectResolver? Resolver => null;
+            public IRuntimeResolver? Resolver => null;
             public bool IsVisible => true;
             public bool IsActive => true;
 

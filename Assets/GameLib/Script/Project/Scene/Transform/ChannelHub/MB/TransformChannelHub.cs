@@ -95,9 +95,9 @@ namespace Game.TransformSystem
 
         internal bool DebugGlobalApplyLogs => _debugGlobalApplyLogs;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<TransformChannelHubService>(Lifetime.Singleton)
+            builder.Register<TransformChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<ITransformChannelHubService>()
@@ -105,7 +105,7 @@ namespace Game.TransformSystem
                 .As<ITransformChannelPoseReader>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
 
             builder.RegisterInstance(_debugViewer);
             builder.RegisterBuildCallback(container =>

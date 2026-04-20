@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -11,7 +11,7 @@ using UnityEngine;
 namespace Game.Spawn
 {
     /// <summary>
-    /// 生成パターンの基底クラス。
+    /// 逕滓・繝代ち繝ｼ繝ｳ縺ｮ蝓ｺ蠎輔け繝ｩ繧ｹ縲・
     /// </summary>
     [Serializable]
     public abstract class BaseSpawnPattern : ISpawnPattern
@@ -63,7 +63,7 @@ namespace Game.Spawn
         [SerializeField] int _emitRepeatCount = 1;
 
         [SerializeField]
-        [Tooltip("true の場合、このパターンで生成されたユニットを全スポーン完了後に SelfDespawn 相当で自動破棄します。")]
+        [Tooltip("Inspector setting.")]
         bool _autoDespawnSpawnedUnitsAfterComplete = true;
 
         // ================================================================================
@@ -118,7 +118,7 @@ namespace Game.Spawn
             if (_lineDefinition == null)
                 return UniTask.FromResult(Array.Empty<SpawnContext>());
 
-            // 事前にポイント数を推測できないので List でまとめる
+            // 莠句燕縺ｫ繝昴う繝ｳ繝域焚繧呈耳貂ｬ縺ｧ縺阪↑縺・・縺ｧ List 縺ｧ縺ｾ縺ｨ繧√ｋ
             var all = new System.Collections.Generic.List<SpawnContext>(64);
 
             for (int emitIndex = 0; emitIndex < emitCount; emitIndex++)
@@ -193,7 +193,7 @@ namespace Game.Spawn
         {
             if (line.NormalizedPositions == null || line.NormalizedPositions.Length != line.Points.Length)
             {
-                // フォールバック: 0..1 を等間隔
+                // 繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ: 0..1 繧堤ｭ蛾俣髫・
                 int n = line.Points.Length;
                 var norm = new float[n];
                 for (int i = 0; i < n; i++)

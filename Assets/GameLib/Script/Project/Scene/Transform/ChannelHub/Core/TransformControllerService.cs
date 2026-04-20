@@ -17,11 +17,11 @@ using Game.Input;
 
 namespace Game.TransformSystem
 {
-    public sealed class TransformControllerService : ITickable, IScopeAcquireHandler, IScopeReleaseHandler, IDisposable, ITransformTeleportService, ITransformAnimationOutputSink, ITransformChannelPoseReader
+    public sealed class TransformControllerService : IScopeTickHandler, IScopeAcquireHandler, IScopeReleaseHandler, IDisposable, ITransformTeleportService, ITransformAnimationOutputSink, ITransformChannelPoseReader
     {
         readonly TransformControllerConfig _config;
         readonly Transform _ownerTransform;
-        readonly IObjectResolver _resolver;
+        readonly IRuntimeResolver _resolver;
 
         IMovementChannelHub? _movementHub;
         IRotateChannelHub? _rotateHub;
@@ -120,7 +120,7 @@ namespace Game.TransformSystem
         public TransformControllerService(
             TransformControllerConfig config,
             Transform ownerTransform,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _ownerTransform = ownerTransform != null ? ownerTransform : throw new ArgumentNullException(nameof(ownerTransform));

@@ -38,18 +38,18 @@ namespace Game.MapNode
         public bool AutoBuildOnAcquire => _autoBuildOnAcquire;
         public Transform DefaultParentTransform => _defaultParentTransform != null ? _defaultParentTransform : transform;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IMapNodeSystemOptions>(this);
 
-            builder.Register<MapNodeGenerator>(Lifetime.Singleton);
-            builder.Register<MapNodeVisualizer>(Lifetime.Singleton)
+            builder.Register<MapNodeGenerator>(RuntimeLifetime.Singleton);
+            builder.Register<MapNodeVisualizer>(RuntimeLifetime.Singleton)
                 .As<IMapNodeVisualizer>();
-            builder.Register<MapNodeBuilder>(Lifetime.Singleton)
+            builder.Register<MapNodeBuilder>(RuntimeLifetime.Singleton)
                 .As<IMapNodeBuilder>();
-            builder.Register<MapNodeManager>(Lifetime.Singleton);
+            builder.Register<MapNodeManager>(RuntimeLifetime.Singleton);
 
-            builder.Register<MapNodeSystemService>(Lifetime.Singleton)
+            builder.Register<MapNodeSystemService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .As<IMapNodeSystemService>()
                 .As<IScopeAcquireHandler>()

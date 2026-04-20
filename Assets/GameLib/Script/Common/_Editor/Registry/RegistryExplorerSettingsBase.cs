@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using Game.Editor.CodeGen;
 using Game.Editor.Foundation;
 using UnityEngine;
@@ -7,24 +7,24 @@ using UnityEditor;
 namespace Game.Editor.Registry
 {
     // ================================================================
-    // RegistrySettingsBase - Registry の Explorer / CodeGen 統合設定 SO の基底クラス
+    // RegistrySettingsBase - Registry 縺ｮ Explorer / CodeGen 邨ｱ蜷郁ｨｭ螳・SO 縺ｮ蝓ｺ蠎輔け繝ｩ繧ｹ
     // ================================================================
     //
-    // ## 概要
+    // ## 讎りｦ・
     //
-    // 各 Registry の Explorer Window と CodeGenerator の設定を
-    // 1つの ScriptableObject で管理する基底クラス。
+    // 蜷・Registry 縺ｮ Explorer Window 縺ｨ CodeGenerator 縺ｮ險ｭ螳壹ｒ
+    // 1縺､縺ｮ ScriptableObject 縺ｧ邂｡逅・☆繧句渕蠎輔け繝ｩ繧ｹ縲・
     //
-    // ## 設定項目
+    // ## 險ｭ螳夐・岼
     //
-    // - Explorer 設定: windowTitle, minSize, folderIcon, leafIcon
-    // - Tree 設定: treeVisual (RowHeight, IndentWidth, IconSizeRatio など)
-    // - CodeGen 設定: namespaceName, rootClassName, outputPath
+    // - Explorer 險ｭ螳・ windowTitle, minSize, folderIcon, leafIcon
+    // - Tree 險ｭ螳・ treeVisual (RowHeight, IndentWidth, IconSizeRatio 縺ｪ縺ｩ)
+    // - CodeGen 險ｭ螳・ namespaceName, rootClassName, outputPath
     //
     // ================================================================
 
     /// <summary>
-    /// Registry の Explorer / CodeGen 統合設定 SO の基底クラス。
+    /// Registry 縺ｮ Explorer / CodeGen 邨ｱ蜷郁ｨｭ螳・SO 縺ｮ蝓ｺ蠎輔け繝ｩ繧ｹ縲・
     /// </summary>
     public abstract class RegistrySettingsBase : ScriptableObject, ICodeGenSettings
     {
@@ -35,7 +35,7 @@ namespace Game.Editor.Registry
         [SerializeField] protected Texture2D leafIcon;
 
         [Header("Tree Behavior")]
-        [Tooltip("ツリー表示時にノードをソートするか（フォルダ優先・名前順）")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] protected bool enableTreeSort = false;
 
         [Header("Tree Visual Settings")]
@@ -47,46 +47,46 @@ namespace Game.Editor.Registry
         [SerializeField] protected string outputPath = "Assets/Game/Script/Generated/Keys.g.cs";
 
         // ------------------------------------------------------------
-        // Explorer 設定
+        // Explorer 險ｭ螳・
         // ------------------------------------------------------------
 
-        /// <summary>ウィンドウタイトル</summary>
+        /// <summary>繧ｦ繧｣繝ｳ繝峨え繧ｿ繧､繝医Ν</summary>
         public string WindowTitle => windowTitle;
 
-        /// <summary>ウィンドウ最小サイズ</summary>
+        /// <summary>繧ｦ繧｣繝ｳ繝峨え譛蟆上し繧､繧ｺ</summary>
         public Vector2 MinSize => minSize;
 
-        /// <summary>フォルダアイコン</summary>
+        /// <summary>繝輔か繝ｫ繝繧｢繧､繧ｳ繝ｳ</summary>
         public Texture2D FolderIcon => folderIcon;
 
-        /// <summary>リーフアイコン</summary>
+        /// <summary>繝ｪ繝ｼ繝輔い繧､繧ｳ繝ｳ</summary>
         public Texture2D LeafIcon => leafIcon;
 
-        /// <summary>ツリー表示時にソートを行うか</summary>
+        /// <summary>繝・Μ繝ｼ陦ｨ遉ｺ譎ゅ↓繧ｽ繝ｼ繝医ｒ陦後≧縺・/summary>
         public bool EnableTreeSort => enableTreeSort;
 
-        /// <summary>ツリー表示設定</summary>
+        /// <summary>繝・Μ繝ｼ陦ｨ遉ｺ險ｭ螳・/summary>
         public TreeVisualSettings TreeVisual => treeVisual;
 
         // ------------------------------------------------------------
-        // CodeGen 設定 (ICodeGenSettings)
+        // CodeGen 險ｭ螳・(ICodeGenSettings)
         // ------------------------------------------------------------
 
-        /// <summary>コード生成名前空間</summary>
+        /// <summary>繧ｳ繝ｼ繝臥函謌仙錐蜑咲ｩｺ髢・/summary>
         public string NamespaceName => namespaceName;
 
-        /// <summary>コード生成クラス名</summary>
+        /// <summary>繧ｳ繝ｼ繝臥函謌舌け繝ｩ繧ｹ蜷・/summary>
         public string RootClassName => rootClassName;
 
-        /// <summary>コード生成出力パス</summary>
+        /// <summary>繧ｳ繝ｼ繝臥函謌仙・蜉帙ヱ繧ｹ</summary>
         public string OutputPath => outputPath;
 
         // ------------------------------------------------------------
-        // アイコン取得ヘルパー
+        // 繧｢繧､繧ｳ繝ｳ蜿門ｾ励・繝ｫ繝代・
         // ------------------------------------------------------------
 
         /// <summary>
-        /// フォルダアイコンを取得（設定がなければデフォルト）
+        /// 繝輔か繝ｫ繝繧｢繧､繧ｳ繝ｳ繧貞叙蠕暦ｼ郁ｨｭ螳壹′縺ｪ縺代ｌ縺ｰ繝・ヵ繧ｩ繝ｫ繝茨ｼ・
         /// </summary>
         public Texture2D GetFolderIcon()
         {
@@ -94,7 +94,7 @@ namespace Game.Editor.Registry
         }
 
         /// <summary>
-        /// リーフアイコンを取得（設定がなければデフォルト）
+        /// 繝ｪ繝ｼ繝輔い繧､繧ｳ繝ｳ繧貞叙蠕暦ｼ郁ｨｭ螳壹′縺ｪ縺代ｌ縺ｰ繝・ヵ繧ｩ繝ｫ繝茨ｼ・
         /// </summary>
         public Texture2D GetLeafIcon()
         {

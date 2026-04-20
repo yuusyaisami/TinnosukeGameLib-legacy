@@ -117,7 +117,7 @@ namespace Game.UI
         [BoxGroup(DebugGroup), LabelText("Debug Log Capacity"), MinValue(16)]
         [SerializeField] int debugLogCapacity = 128;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var resolvedRoot = toastRoot != null ? toastRoot : GetComponent<RectTransform>();
             if (resolvedRoot == null)
@@ -163,7 +163,7 @@ namespace Game.UI
             };
 
             builder.RegisterInstance(config);
-            builder.RegisterAsScopeMulti<IToastSystemService, ToastSystemService>(Lifetime.Singleton)
+            builder.RegisterAsScopeMulti<IToastSystemService, ToastSystemService>(RuntimeLifetime.Singleton)
                 .As<IToastSystemDebugTelemetry>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()

@@ -89,7 +89,7 @@ namespace Game.SelectRuntime
     public sealed class WorldPointerTargetBridgeService :
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         readonly WorldPointerTargetMB _owner;
         readonly WorldPointerTargetCommandBridgeService _commandBridge;
@@ -287,7 +287,7 @@ namespace Game.SelectRuntime
     public sealed class SelectableRuntimeBridgeService :
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         readonly SelectableRuntimeMB _owner;
         SelectRuntimeManagerMB? _manager;
@@ -358,7 +358,7 @@ namespace Game.SelectRuntime
     public sealed class UserMoveRotateRuntimeBridgeService :
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         readonly UserMoveRotateRuntimeMB _owner;
         SelectRuntimeManagerMB? _manager;

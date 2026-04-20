@@ -1,18 +1,18 @@
-using System;
+﻿using System;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
 namespace Game.Audio
 {
     /// <summary>
-    /// シンプルな AudioCue 実装。ランダム/単一クリップ、Odin で分かりやすく設定可。
+    /// 繧ｷ繝ｳ繝励Ν縺ｪ AudioCue 螳溯｣・ゅΛ繝ｳ繝繝/蜊倅ｸ繧ｯ繝ｪ繝・・縲＾din 縺ｧ蛻・°繧翫ｄ縺吶￥險ｭ螳壼庄縲・
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Audio/Simple Audio Cue", fileName = "SimpleAudioCue")]
     public sealed class SimpleAudioCueSO : ScriptableObject, IAudioCue
     {
         [BoxGroup("Cue")]
         [LabelText("Default Tag")]
-        [Tooltip("再生タグ。空なら自動でキーを生成します")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _defaultTag = "sfx";
 
@@ -56,7 +56,7 @@ namespace Game.Audio
 
         [BoxGroup("Volume & Pitch")]
         [LabelText("Apply Playback Speed To Pitch")]
-        [Tooltip("Unity 標準 AudioSource では再生速度変更が pitch 経由のため、OFF の場合は再生速度変更自体を適用しません。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _applyPlaybackSpeedToPitch = true;
 
@@ -92,7 +92,7 @@ namespace Game.Audio
 
         [BoxGroup("Spatial")]
         [LabelText("Spatialize")]
-        [Tooltip("Unity の空間化 / パンニングを有効にする。距離減衰自体は local playback ならこの設定に関係なく適用される。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _spatialize = false;
 
@@ -104,14 +104,14 @@ namespace Game.Audio
 
         [BoxGroup("Spatial")]
         [LabelText("Min Distance")]
-        [Tooltip("local playback 時、この距離までは最大音量で再生される。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(0f)]
         [SerializeField]
         float _minDistance = 1f;
 
         [BoxGroup("Spatial")]
         [LabelText("Max Distance")]
-        [Tooltip("local playback 時、この距離以上では無音になる。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(0.1f)]
         [SerializeField]
         float _maxDistance = 20f;
@@ -171,8 +171,8 @@ namespace Game.Audio
                 return;
             }
 
-            // Editor 再生用の一時 AudioSource を生成して、再生が終わるまで Polling して破棄する。
-            // 既に同名の Preview がある場合は先に破棄してから新しく作る
+            // Editor 蜀咲函逕ｨ縺ｮ荳譎・AudioSource 繧堤函謌舌＠縺ｦ縲∝・逕溘′邨ゅｏ繧九∪縺ｧ Polling 縺励※遐ｴ譽・☆繧九・
+            // 譌｢縺ｫ蜷悟錐縺ｮ Preview 縺後≠繧句ｴ蜷医・蜈医↓遐ｴ譽・＠縺ｦ縺九ｉ譁ｰ縺励￥菴懊ｋ
             var existing = UnityEngine.GameObject.Find("[Preview] " + name);
             if (existing != null)
             {
@@ -197,7 +197,7 @@ namespace Game.Audio
 
             src.Play();
 
-            // EditorApplication.update で監視し、再生が終わったら破棄する
+            // EditorApplication.update 縺ｧ逶｣隕悶＠縲∝・逕溘′邨ゅｏ縺｣縺溘ｉ遐ｴ譽・☆繧・
             void OnUpdate()
             {
                 try
@@ -209,7 +209,7 @@ namespace Game.Audio
                         return;
                     }
 
-                    // isPlaying は Editor プレビューでも有効
+                    // isPlaying 縺ｯ Editor 繝励Ξ繝薙Η繝ｼ縺ｧ繧よ怏蜉ｹ
                     if (!src.isPlaying)
                     {
                         UnityEditor.EditorApplication.update -= OnUpdate;

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -22,13 +22,13 @@ namespace Game.UI
     {
         [BoxGroup("Channel")]
         [LabelText("Channel Tag")]
-        [Tooltip("TooltipChannel の識別タグです。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _channelTag = "default";
 
         [BoxGroup("Preset")]
         [LabelText("Player Preset")]
-        [Tooltip("この channel の source player preset です。runtime override reset 時はここへ戻ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<TooltipPlayerPreset> _presetValue =
             DynamicValue<TooltipPlayerPreset>.FromSource(
@@ -62,33 +62,33 @@ namespace Game.UI
 
         [BoxGroup(SpaceGroup)]
         [LabelText("Space Kind")]
-        [Tooltip("この hub が扱う tooltip 空間です。Editor では初期値を自動推論しますが、runtime 中はこの値を固定で使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelSpaceKind _spaceKind = TooltipChannelSpaceKind.Unknown;
 
         [BoxGroup(RootsGroup)]
         [LabelText("Apply Tooltip Root Override")]
-        [Tooltip("true のときだけ TooltipSystem の TooltipRoot を上書きして、この hub 専用の UI spawn parent を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _applyTooltipRootOverride;
 
         [BoxGroup(RootsGroup)]
         [ShowIf(nameof(ShowsTooltipRootOverride))]
         [LabelText("Tooltip Root Override")]
-        [Tooltip("UI hub のときにだけ使う個別 TooltipRoot override です。未指定時はこの GameObject の RectTransform を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         RectTransform? _tooltipRootOverride;
 
         [BoxGroup(PresetGroup)]
         [LabelText("Apply Hub Preset Override")]
-        [Tooltip("true のときだけ TooltipSystem の shared hub preset を上書きします。false のときは TooltipSystem 側の default を使用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _applyHubPresetOverride;
 
         [BoxGroup(PresetGroup)]
         [ShowIf(nameof(_applyHubPresetOverride))]
         [LabelText("Hub Preset")]
-        [Tooltip("camera tag、default hit test、stack/clamp 設定など hub 共通設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<TooltipHubPreset> _hubPresetValue =
             DynamicValue<TooltipHubPreset>.FromSource(
@@ -96,13 +96,13 @@ namespace Game.UI
 
         [BoxGroup(DebugGroup)]
         [LabelText("Enable Debug Log")]
-        [Tooltip("true のとき TooltipChannel の acquire/hit test/spawn/close ログを出力します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableDebugLog;
 
         [BoxGroup(ChannelsGroup)]
         [LabelText("Channels")]
-        [Tooltip("必要になったタイミングで動的追加できます。0件のままでも問題ありません。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
         [SerializeField]
         List<TooltipChannelDefinition> _channels = new();
@@ -115,17 +115,17 @@ namespace Game.UI
         public RectTransform? TooltipRootOverride => _tooltipRootOverride != null ? _tooltipRootOverride : GetComponent<RectTransform>();
         public bool EnableDebugLog => _enableDebugLog;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             EnsureDefaults();
 
-            builder.Register<TooltipChannelHubService>(Lifetime.Singleton)
+            builder.Register<TooltipChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<ITooltipChannelHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
 
         void Reset()

@@ -23,7 +23,7 @@ namespace Game.Spawn
 
     public interface IAsyncSpawnerService : ISpawnerService
     {
-        UniTask<IObjectResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default);
+        UniTask<IRuntimeResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default);
         UniTask WarmupAsync<T>(T template, int count, CancellationToken ct = default)
             where T : BaseRuntimeTemplateSO;
     }

@@ -5,7 +5,7 @@ using VContainer.Unity;
 
 namespace Game.AI
 {
-    public sealed class AIAgentDebugService : ITickable, IDisposable
+    public sealed class AIAgentDebugService : IScopeTickHandler, IDisposable
     {
         readonly AIAgentMB _mb;
         readonly AIStateDebugViewer _viewer;

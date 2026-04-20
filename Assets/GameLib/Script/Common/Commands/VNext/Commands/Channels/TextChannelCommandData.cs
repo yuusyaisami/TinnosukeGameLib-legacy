@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Channel;
 using Game.Common;
@@ -109,19 +109,19 @@ namespace Game.Commands.VNext
         [BoxGroup("Dynamic Bind")]
         [ShowIf(nameof(ShouldShowDynamicBindToggle))]
         [LabelText("Enable")]
-        [PropertyTooltip("SetText 実行後に Text DynamicValue<string> の継続監視を登録します。次の SetText/Append/Clear で解除されます。")]
+        [PropertyTooltip("Inspector setting.")]
         public bool EnableDynamicBind;
 
         [BoxGroup("Dynamic Bind")]
         [ShowIf(nameof(ShouldShowDynamicBindMode))]
         [LabelText("Update Play Mode")]
-        [PropertyTooltip("バインド更新時に使う再生モード。Typewriter は非対応です。")]
+        [PropertyTooltip("Inspector setting.")]
         public TextDynamicBindingPlayMode DynamicBindPlayMode = TextDynamicBindingPlayMode.Instant;
 
         [BoxGroup("Dynamic Bind")]
         [ShowIf(nameof(ShouldShowDynamicBindCounterSettings))]
         [LabelText("Counter Settings")]
-        [PropertyTooltip("Update Play Mode=Counter のときに使用するカウンター設定です。")]
+        [PropertyTooltip("Inspector setting.")]
         public SetTextSettings DynamicBindCounterSettings = SetTextSettings.Default;
 
         [BoxGroup("Visibility")]

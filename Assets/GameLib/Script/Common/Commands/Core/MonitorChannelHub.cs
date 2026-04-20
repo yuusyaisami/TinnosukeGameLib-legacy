@@ -1,16 +1,16 @@
-// MonitorChannelHub.cs
+﻿// MonitorChannelHub.cs
 // 
 // MonitorChannelHub v2.0
-// ルール監視システムのハブ。
-// Runtime のライフサイクル管理、VarStore 管理、Tick の委譲を担当。
-// 実際の条件評価・コマンド実行は MonitorChannelRuntime が担当。
+// 繝ｫ繝ｼ繝ｫ逶｣隕悶す繧ｹ繝・Β縺ｮ繝上ヶ縲・
+// Runtime 縺ｮ繝ｩ繧､繝輔し繧､繧ｯ繝ｫ邂｡逅・〃arStore 邂｡逅・ゝick 縺ｮ蟋碑ｭｲ繧呈球蠖薙・
+// 螳滄圀縺ｮ譚｡莉ｶ隧穂ｾ｡繝ｻ繧ｳ繝槭Φ繝牙ｮ溯｡後・ MonitorChannelRuntime 縺梧球蠖薙・
 //
-// 設計決定:
-// - Hub: Tick、VarStore 管理、Runtime ライフサイクル管理のみ
-// - Runtime: 条件評価、状態遷移、コマンド実行、イベント処理
-// - fire-and-forget 禁止（必ず await, タスク追跡＋例外ログ）
-// - IL2CPP / WebGL 対応（record/required 禁止）
-// - GC最小化（リストキャッシュ、Clear再利用）
+// 險ｭ險域ｱｺ螳・
+// - Hub: Tick縲〃arStore 邂｡逅・ヽuntime 繝ｩ繧､繝輔し繧､繧ｯ繝ｫ邂｡逅・・縺ｿ
+// - Runtime: 譚｡莉ｶ隧穂ｾ｡縲∫憾諷矩・遘ｻ縲√さ繝槭Φ繝牙ｮ溯｡後√う繝吶Φ繝亥・逅・
+// - fire-and-forget 遖∵ｭ｢・亥ｿ・★ await, 繧ｿ繧ｹ繧ｯ霑ｽ霍｡・倶ｾ句､悶Ο繧ｰ・・
+// - IL2CPP / WebGL 蟇ｾ蠢懶ｼ・ecord/required 遖∵ｭ｢・・
+// - GC譛蟆丞喧・医Μ繧ｹ繝医く繝｣繝・す繝･縲，lear蜀榊茜逕ｨ・・
 
 #nullable enable
 using Sirenix.OdinInspector;
@@ -29,41 +29,41 @@ using VNext = Game.Commands.VNext;
 namespace Game.Commands
 {
     /// <summary>
-    /// 評価モード。
+    /// 隧穂ｾ｡繝｢繝ｼ繝峨・
     /// </summary>
     public enum MonitorEvaluationMode
     {
-        /// <summary>毎フレーム条件を評価。</summary>
+        /// <summary>豈弱ヵ繝ｬ繝ｼ繝譚｡莉ｶ繧定ｩ穂ｾ｡縲・/summary>
         Polling = 0,
-        /// <summary>依存キー変更時のみ評価。</summary>
+        /// <summary>萓晏ｭ倥く繝ｼ螟画峩譎ゅ・縺ｿ隧穂ｾ｡縲・/summary>
         EventDriven = 1,
-        /// <summary>外部から明示的に評価を呼ぶ。</summary>
+        /// <summary>螟夜Κ縺九ｉ譏守､ｺ逧・↓隧穂ｾ｡繧貞他縺ｶ縲・/summary>
         Manual = 2,
     }
 
     /// <summary>
-    /// ルールの評価方式。
+    /// 繝ｫ繝ｼ繝ｫ縺ｮ隧穂ｾ｡譁ｹ蠑上・
     /// </summary>
     public enum MonitorRuleKind
     {
         /// <summary>
-        /// 条件のみで評価。Enter/Exit/WhileTrue を条件遷移で発火。
+        /// 譚｡莉ｶ縺ｮ縺ｿ縺ｧ隧穂ｾ｡縲・nter/Exit/WhileTrue 繧呈擅莉ｶ驕ｷ遘ｻ縺ｧ逋ｺ轣ｫ縲・
         /// </summary>
         ConditionOnly = 0,
 
         /// <summary>
-        /// イベントのみで発火。条件は無視し、外部イベント（NotifyEvent）で即時実行。
+        /// 繧､繝吶Φ繝医・縺ｿ縺ｧ逋ｺ轣ｫ縲よ擅莉ｶ縺ｯ辟｡隕悶＠縲∝､夜Κ繧､繝吶Φ繝茨ｼ・otifyEvent・峨〒蜊ｳ譎ょｮ溯｡後・
         /// </summary>
         EventOnly = 1,
 
         /// <summary>
-        /// イベント＋条件。イベント受信時に条件を評価し、true なら実行。
+        /// 繧､繝吶Φ繝茨ｼ区擅莉ｶ縲ゅう繝吶Φ繝亥女菫｡譎ゅ↓譚｡莉ｶ繧定ｩ穂ｾ｡縺励》rue 縺ｪ繧牙ｮ溯｡後・
         /// </summary>
         EventAndCondition = 2,
 
         /// <summary>
-        /// 特定の値が変化した時に実行。
-        /// VarStore / Blackboard / Scalar のみ対応。
+        /// 迚ｹ螳壹・蛟､縺悟､牙喧縺励◆譎ゅ↓螳溯｡後・
+        /// VarStore / Blackboard / Scalar 縺ｮ縺ｿ蟇ｾ蠢懊・
         /// </summary>
         ValueChanged = 3,
     }
@@ -134,7 +134,7 @@ namespace Game.Commands
     }
 
     /// <summary>
-    /// Command 実行のポリシー（WhileTrue の挙動など）。
+    /// Command 螳溯｡後・繝昴Μ繧ｷ繝ｼ・・hileTrue 縺ｮ謖吝虚縺ｪ縺ｩ・峨・
     /// </summary>
     public enum ExecutionBehavior
     {
@@ -144,7 +144,7 @@ namespace Game.Commands
     }
 
     /// <summary>
-    /// While コマンドの再実行方法。
+    /// While 繧ｳ繝槭Φ繝峨・蜀榊ｮ溯｡梧婿豕輔・
     /// </summary>
     public enum MonitorRuleWhileRepeatMode
     {
@@ -153,76 +153,76 @@ namespace Game.Commands
     }
 
     /// <summary>
-    /// 設定済みの While コマンド群（true/false それぞれ）
+    /// 險ｭ螳壽ｸ医∩縺ｮ While 繧ｳ繝槭Φ繝臥ｾ､・・rue/false 縺昴ｌ縺槭ｌ・・
     /// </summary>
     [Serializable]
     public struct MonitorRuleWhileCommandSet
     {
         [LabelText("Repeat Mode"), LabelWidth(120)]
         [EnumToggleButtons]
-        [Tooltip("Interval で定期実行するか、前回の実行がすべて完了してから次を開始するかを選びます。")]
+        [Tooltip("Inspector setting.")]
         public MonitorRuleWhileRepeatMode RepeatMode;
 
         [LabelText("Commands"), LabelWidth(120)]
         [VNext.CommandListFunctionName("MonitorRule.While")]
-        [Tooltip("条件が維持されている間に interval ごとに実行するコマンド群です。")]
+        [Tooltip("Inspector setting.")]
         public VNext.CommandListData Commands;
 
         [ShowIf("@RepeatMode == MonitorRuleWhileRepeatMode.Interval")]
         [LabelText("Interval (sec)"), LabelWidth(120)]
         [MinValue(0f)]
-        [Tooltip("While コマンドを再実行する最小間隔です。0 の場合は評価タイミングごとに実行します。")]
+        [Tooltip("Inspector setting.")]
         public float IntervalSeconds;
     }
 
     /// <summary>
-    /// ルール定義（Enter/Exit/While）。
-    /// IL2CPP 対応のため record struct 不使用。
+    /// 繝ｫ繝ｼ繝ｫ螳夂ｾｩ・・nter/Exit/While・峨・
+    /// IL2CPP 蟇ｾ蠢懊・縺溘ａ record struct 荳堺ｽｿ逕ｨ縲・
     /// </summary>
     [Serializable]
     public struct MonitorRule
     {
         [PropertyOrder(0)]
         [LabelText("Rule Key")]
-        [Tooltip("MonitorChannelHub 内でこの rule を識別するキーです。空欄時は実行時に自動生成されます。")]
+        [Tooltip("Inspector setting.")]
         public string RuleName;
 
         [PropertyOrder(10)]
         [LabelText("Rule Kind")]
         [EnumToggleButtons]
-        [Tooltip("イベント監視、条件監視、値変化監視のどれで動かすかを選びます。")]
+        [Tooltip("Inspector setting.")]
         public MonitorRuleKind RuleKind;
 
         [PropertyOrder(20)]
         [ShowIf("@RuleKind == MonitorRuleKind.EventOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [EventKeyDropdown]
         [LabelText("Event Name")]
-        [Tooltip("EventOnly / EventAndCondition で監視する event key です。")]
+        [Tooltip("Inspector setting.")]
         public string EventName;
 
         [PropertyOrder(21)]
         [ShowIf("@RuleKind == MonitorRuleKind.EventOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Event Target\", EventTarget)")]
-        [Tooltip("event を購読する対象スコープです。未設定時は current 相当のスコープで解決されます。")]
+        [Tooltip("Inspector setting.")]
         public VNext.ActorSource EventTarget;
 
         [PropertyOrder(30)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("Condition")]
-        [Tooltip("true / false を判定する DynamicValue<bool> 条件です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<bool> Condition;
 
         [PropertyOrder(40)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly")]
         [LabelText("Execute Initial Condition")]
-        [Tooltip("OnAcquire時に条件を評価し、条件に合ったコマンド（OnEnter/OnExit相当）を一度だけ実行します。")]
+        [Tooltip("Inspector setting.")]
         public bool ExecuteInitialCondition;
 
         [PropertyOrder(40)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
         [LabelText("Value Changed Mode")]
         [EnumToggleButtons]
-        [Tooltip("単一 target を見るか、複数 target のどれかの変化を拾うかを選びます。")]
+        [Tooltip("Inspector setting.")]
         public MonitorValueChangedMode ValueChangedMode;
 
         [PropertyOrder(41)]
@@ -231,20 +231,20 @@ namespace Game.Commands
         [HideLabel]
         [LabelText("Simple Target")]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueChangedMode == MonitorValueChangedMode.Simple")]
-        [Tooltip("ValueChangedMode=Simple のときに監視する単一 target です。")]
+        [Tooltip("Inspector setting.")]
         public MonitorValueChangedTarget SimpleValueChangedTarget;
 
         [PropertyOrder(42)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged && ValueChangedMode == MonitorValueChangedMode.AnyTarget")]
         [LabelText("Value Targets")]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = false, DefaultExpandedState = true)]
-        [Tooltip("ValueChangedMode=AnyTarget のときに監視する target 一覧です。どれか 1 つでも変化すると発火します。")]
+        [Tooltip("Inspector setting.")]
         public List<MonitorValueChangedTarget> ValueChangedTargets;
 
         [PropertyOrder(48)]
         [ShowIf("@RuleKind == MonitorRuleKind.ValueChanged")]
         [LabelText("Execute Initial Enter")]
-        [Tooltip("OnAcquire時に OnEnter Commands を一度だけ実行します。Value監視の初期化順序をずらしたい場合は Delay を併用します。")]
+        [Tooltip("Inspector setting.")]
         public bool ExecuteInitialValueChangedEnter;
 
         [PropertyOrder(49)]
@@ -256,34 +256,34 @@ namespace Game.Commands
         [PropertyOrder(100)]
         [LabelText("On Enter Commands")]
         [VNext.CommandListFunctionName("MonitorRule.OnEnter")]
-        [Tooltip("条件が false から true に遷移したとき、または event 条件を満たしたときに実行するコマンド群です。")]
+        [Tooltip("Inspector setting.")]
         public VNext.CommandListData OnEnterCommands;
 
         [PropertyOrder(110)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("On Exit Commands")]
         [VNext.CommandListFunctionName("MonitorRule.OnExit")]
-        [Tooltip("条件が true から false に遷移したときに実行するコマンド群です。")]
+        [Tooltip("Inspector setting.")]
         public VNext.CommandListData OnExitCommands;
 
         [PropertyOrder(120)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("While True Commands")]
         [InlineProperty]
-        [Tooltip("条件が true のまま維持されている間、interval ごとに実行するコマンド群です。")]
+        [Tooltip("Inspector setting.")]
         public MonitorRuleWhileCommandSet WhileTrueCommands;
 
         [PropertyOrder(130)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("While False Commands")]
         [InlineProperty]
-        [Tooltip("条件が false のまま維持されている間、interval ごとに実行するコマンド群です。")]
+        [Tooltip("Inspector setting.")]
         public MonitorRuleWhileCommandSet WhileFalseCommands;
 
         [PropertyOrder(135)]
         [ShowIf("@RuleKind == MonitorRuleKind.ConditionOnly || RuleKind == MonitorRuleKind.EventAndCondition")]
         [LabelText("Cancel Running On Change")]
-        [Tooltip("条件変化時に実行中の Enter/Exit/While コマンドをキャンセルしてから新しい phase を開始します。")]
+        [Tooltip("Inspector setting.")]
         public bool CancelRunningOnConditionChange;
 
         [HideInInspector]
@@ -291,7 +291,7 @@ namespace Game.Commands
 
         [PropertyOrder(140)]
         [LabelText("Execution Behavior")]
-        [Tooltip("同じ phase のコマンドが重なったときの扱いです。SkipIfRunning は無視、CancelAndRun は旧実行を止めて再実行します。")]
+        [Tooltip("Inspector setting.")]
         public ExecutionBehavior Behavior;
 
         public void EnsureDefaults()
@@ -334,7 +334,7 @@ namespace Game.Commands
     }
 
     /// <summary>
-    /// 実行中タスク情報（参照型）。
+    /// 螳溯｡御ｸｭ繧ｿ繧ｹ繧ｯ諠・ｱ・亥盾辣ｧ蝙具ｼ峨・
     /// </summary>
     public sealed class RunningEntry
     {
@@ -370,7 +370,7 @@ namespace Game.Commands
         }
     }
 
-    /// <summary>Rule snapshot for telemetry (後方互換用).</summary>
+    /// <summary>Rule snapshot for telemetry (蠕梧婿莠呈鋤逕ｨ).</summary>
     public readonly struct MonitorRuleSnapshot
     {
         public readonly string RuleName;
@@ -448,7 +448,7 @@ namespace Game.Commands
     }
 
     /// <summary>
-    /// MonitorChannelHub インターフェース。
+    /// MonitorChannelHub 繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ縲・
     /// </summary>
     public interface IMonitorChannelHub : IDisposable
     {
@@ -469,50 +469,50 @@ namespace Game.Commands
         void SetVariable<T>(string key, T value);
 
         /// <summary>
-        /// 全 Runtime の実行中タスクを取得
+        /// 蜈ｨ Runtime 縺ｮ螳溯｡御ｸｭ繧ｿ繧ｹ繧ｯ繧貞叙蠕・
         /// </summary>
         IReadOnlyList<RunningEntry> GetAllRunningEntries();
     }
 
     /// <summary>
-    /// MonitorChannelHub - Runtime のライフサイクル管理と Tick 委譲のみを担当。
-    /// 実際の監視・コマンド実行は MonitorChannelRuntime が行う。
+    /// MonitorChannelHub - Runtime 縺ｮ繝ｩ繧､繝輔し繧､繧ｯ繝ｫ邂｡逅・→ Tick 蟋碑ｭｲ縺ｮ縺ｿ繧呈球蠖薙・
+    /// 螳滄圀縺ｮ逶｣隕悶・繧ｳ繝槭Φ繝牙ｮ溯｡後・ MonitorChannelRuntime 縺瑚｡後≧縲・
     /// </summary>
-    public sealed class MonitorChannelHub : IMonitorChannelHub, ITickable, IMonitorChannelHubTelemetry
+    public sealed class MonitorChannelHub : IMonitorChannelHub, IScopeTickHandler, IMonitorChannelHubTelemetry
     {
         // ================================================================
-        // 定数
+        // 螳壽焚
         // ================================================================
 
         const int InitialRuntimeCapacity = 8;
 
         // ================================================================
-        // DI 依存
+        // DI 萓晏ｭ・
         // ================================================================
 
         readonly IScopeNode _scope;
         readonly VNext.ICommandRunner _runner;
 
         // ================================================================
-        // フィールド
+        // 繝輔ぅ繝ｼ繝ｫ繝・
         // ================================================================
 
-        /// <summary>Runtime リスト</summary>
+        /// <summary>Runtime 繝ｪ繧ｹ繝・/summary>
         readonly List<MonitorChannelRuntime> _runtimes = new(InitialRuntimeCapacity);
 
-        /// <summary>追加待ちルール</summary>
+        /// <summary>霑ｽ蜉蠕・■繝ｫ繝ｼ繝ｫ</summary>
         readonly List<MonitorRule> _pendingAdds = new(4);
 
-        /// <summary>削除待ちルール名</summary>
+        /// <summary>蜑企勁蠕・■繝ｫ繝ｼ繝ｫ蜷・/summary>
         readonly List<string> _pendingRemoves = new(4);
 
-        /// <summary>Vars（Hub が管理）</summary>
+        /// <summary>Vars・・ub 縺檎ｮ｡逅・ｼ・/summary>
         IVarStore? _vars;
 
         // Scalar -> VarStore bridge subscriptions (scope chain)
         readonly List<IDisposable> _scalarBridgeSubscriptions = new(2);
 
-        /// <summary>内部 CTS</summary>
+        /// <summary>蜀・Κ CTS</summary>
         CancellationTokenSource? _cts;
         readonly Dictionary<string, ScalarBridgeCacheEntry> _scalarBridgeCache = new(StringComparer.Ordinal);
 
@@ -538,7 +538,7 @@ namespace Game.Commands
         }
 
         // ================================================================
-        // プロパティ
+        // 繝励Ο繝代ユ繧｣
         // ================================================================
 
         public MonitorEvaluationMode EvaluationMode
@@ -566,7 +566,7 @@ namespace Game.Commands
         public IVarStore? CurrentVarStore => _vars;
 
         // ================================================================
-        // コンストラクタ
+        // 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ
         // ================================================================
 
         public MonitorChannelHub(IScopeNode scope, VNext.ICommandRunner runner)
@@ -590,10 +590,10 @@ namespace Game.Commands
         }
 
         // ================================================================
-        // ITickable（VContainer が毎フレーム呼び出す）
+        // IScopeTickHandler・・Container 縺梧ｯ弱ヵ繝ｬ繝ｼ繝蜻ｼ縺ｳ蜃ｺ縺呻ｼ・
         // ================================================================
 
-        void ITickable.Tick()
+        void IScopeTickHandler.Tick()
         {
             if (_disposed) return;
             if (_cts == null) return;
@@ -605,17 +605,17 @@ namespace Game.Commands
         {
             if (ct.IsCancellationRequested) return;
 
-            // ランタイムも保留もない場合は早期リターン
+            // 繝ｩ繝ｳ繧ｿ繧､繝繧ゆｿ晉蕗繧ゅ↑縺・ｴ蜷医・譌ｩ譛溘Μ繧ｿ繝ｼ繝ｳ
             if (_runtimes.Count == 0 && _pendingAdds.Count == 0 && _pendingRemoves.Count == 0)
                 return;
 
             _isTicking = true;
             try
             {
-                // Pending 処理
+                // Pending 蜃ｦ逅・
                 ApplyPending();
 
-                // 全 Runtime の Tick
+                // 蜈ｨ Runtime 縺ｮ Tick
                 for (int i = 0; i < _runtimes.Count; i++)
                 {
                     if (!_runtimes[i].RequiresTick(_evaluationMode))
@@ -631,7 +631,7 @@ namespace Game.Commands
         }
 
         // ================================================================
-        // ルール管理
+        // 繝ｫ繝ｼ繝ｫ邂｡逅・
         // ================================================================
 
         public void AddRule(MonitorRule rule)
@@ -648,7 +648,7 @@ namespace Game.Commands
             _pendingAdds.Add(rule);
 
             // Apply immediately so rules become active even if the first tick already happened
-            // (Acquire handlers can run after ITickable order depending on dispatcher timing).
+            // (Acquire handlers can run after IScopeTickHandler order depending on dispatcher timing).
             if (!_isTicking)
                 ApplyPending();
         }
@@ -663,7 +663,7 @@ namespace Game.Commands
             if (!_pendingRemoves.Contains(ruleName))
                 _pendingRemoves.Add(ruleName);
 
-            // pendingAdds からも削除
+            // pendingAdds 縺九ｉ繧ょ炎髯､
             for (int i = _pendingAdds.Count - 1; i >= 0; i--)
             {
                 if (_pendingAdds[i].RuleName == ruleName)
@@ -700,7 +700,7 @@ namespace Game.Commands
 
             try
             {
-                // 削除処理
+                // 蜑企勁蜃ｦ逅・
                 if (_pendingRemoves.Count > 0)
                 {
                     for (int r = 0; r < _pendingRemoves.Count; r++)
@@ -723,7 +723,7 @@ namespace Game.Commands
                     _pendingRemoves.Clear();
                 }
 
-                // 追加処理
+                // 霑ｽ蜉蜃ｦ逅・
                 if (_pendingAdds.Count > 0)
                 {
                     for (int a = 0; a < _pendingAdds.Count; a++)
@@ -776,7 +776,7 @@ namespace Game.Commands
         }
 
         // ================================================================
-        // Vars 管理
+        // Vars 邂｡逅・
         // ================================================================
 
         public void AttachToVars(IVarStore vars)
@@ -930,7 +930,7 @@ namespace Game.Commands
         }
 
         // ================================================================
-        // イベント通知
+        // 繧､繝吶Φ繝磯夂衍
         // ================================================================
 
         public void NotifyEvent(string eventName)
@@ -940,7 +940,7 @@ namespace Game.Commands
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             //Debug.Log($"[MonitorChannelHub] NotifyEvent: '{eventName}' Scope={DescribeScope(_scope)} Runtimes={_runtimes.Count}");
 #endif
-            // 全 Runtime にイベントを通知
+            // 蜈ｨ Runtime 縺ｫ繧､繝吶Φ繝医ｒ騾夂衍
             for (int i = 0; i < _runtimes.Count; i++)
             {
                 _runtimes[i].NotifyEvent(eventName);
@@ -950,7 +950,7 @@ namespace Game.Commands
         }
 
         // ================================================================
-        // 変数設定（旧互換 string key 経由）
+        // 螟画焚險ｭ螳夲ｼ域立莠呈鋤 string key 邨檎罰・・
         // ================================================================
 
         public void SetVariable<T>(string key, T value)
@@ -965,8 +965,8 @@ namespace Game.Commands
             if (!VarIdResolver.TryResolve(key, out var varId) || varId == 0)
                 return;
 
-            // IL2CPP/JIT はここの typeof(T) 比較をコンパイル時定数に変換する
-            // Unsafe.As でボクシングを完全に回避
+            // IL2CPP/JIT 縺ｯ縺薙％縺ｮ typeof(T) 豈碑ｼ・ｒ繧ｳ繝ｳ繝代う繝ｫ譎ょｮ壽焚縺ｫ螟画鋤縺吶ｋ
+            // Unsafe.As 縺ｧ繝懊け繧ｷ繝ｳ繧ｰ繧貞ｮ悟・縺ｫ蝗樣∩
             if (typeof(T) == typeof(int)) { _vars.TrySetVariant(varId, DynamicVariant.FromInt(Unsafe.As<T, int>(ref value))); return; }
             if (typeof(T) == typeof(float)) { _vars.TrySetVariant(varId, DynamicVariant.FromFloat(Unsafe.As<T, float>(ref value))); return; }
             if (typeof(T) == typeof(bool)) { _vars.TrySetVariant(varId, DynamicVariant.FromBool(Unsafe.As<T, bool>(ref value))); return; }
@@ -976,7 +976,7 @@ namespace Game.Commands
             if (typeof(T) == typeof(Vector4)) { _vars.TrySetVariant(varId, DynamicVariant.FromVector4(Unsafe.As<T, Vector4>(ref value))); return; }
             if (typeof(T) == typeof(Color)) { _vars.TrySetVariant(varId, DynamicVariant.FromColor(Unsafe.As<T, Color>(ref value))); return; }
 
-            // 参照型のフォールバック（ボクシング不可避）
+            // 蜿ら・蝙九・繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ・医・繧ｯ繧ｷ繝ｳ繧ｰ荳榊庄驕ｿ・・
             object boxed = value!;
             if (boxed is UnityEngine.Object uo) { _vars.TrySetVariant(varId, DynamicVariant.FromUnityObject(uo)); return; }
 
@@ -984,7 +984,7 @@ namespace Game.Commands
         }
 
         // ================================================================
-        // 実行中タスク取得
+        // 螳溯｡御ｸｭ繧ｿ繧ｹ繧ｯ蜿門ｾ・
         // ================================================================
 
         public IReadOnlyList<RunningEntry> GetAllRunningEntries()
@@ -1002,7 +1002,7 @@ namespace Game.Commands
         }
 
         // ================================================================
-        // テレメトリ
+        // 繝・Ξ繝｡繝医Μ
         // ================================================================
 
         void BumpTelemetry()
@@ -1012,7 +1012,7 @@ namespace Game.Commands
 
         public MonitorHubSnapshot GetSnapshot()
         {
-            // 旧 API 互換: RuntimeSnapshot から RuleSnapshot と RunningSnapshot を構築
+            // 譌ｧ API 莠呈鋤: RuntimeSnapshot 縺九ｉ RuleSnapshot 縺ｨ RunningSnapshot 繧呈ｧ狗ｯ・
             var ruleSnapshots = new List<MonitorRuleSnapshot>(_runtimes.Count);
             var runningSnapshots = new List<MonitorRunningSnapshot>();
 
@@ -1021,7 +1021,7 @@ namespace Game.Commands
                 var runtime = _runtimes[i];
                 var runtimeSnapshot = runtime.GetSnapshot();
 
-                // RuleSnapshot を構築
+                // RuleSnapshot 繧呈ｧ狗ｯ・
                 ruleSnapshots.Add(new MonitorRuleSnapshot(
                     runtimeSnapshot.RuleName,
                     runtimeSnapshot.IsTrue,
@@ -1030,7 +1030,7 @@ namespace Game.Commands
                     runtimeSnapshot.Condition,
                     runtimeSnapshot.DependentKeys));
 
-                // RunningSnapshot を追加
+                // RunningSnapshot 繧定ｿｽ蜉
                 if (runtimeSnapshot.RunningEntries != null)
                 {
                     for (int j = 0; j < runtimeSnapshot.RunningEntries.Count; j++)
@@ -1091,7 +1091,7 @@ namespace Game.Commands
 #endif
             DisposeScalarBridge();
 
-            // CTS キャンセル
+            // CTS 繧ｭ繝｣繝ｳ繧ｻ繝ｫ
             try
             {
                 _cts?.Cancel();
@@ -1110,16 +1110,16 @@ namespace Game.Commands
             }
             _cts = null;
 
-            // Vars を直接クリーンアップ（DetachFromVars は新 VarStore を作成し
-            // runtime に SetVars を呼び直すため、Dispose 中に破棄済みスコープで
-            // サービス解決を試みてフリーズする可能性がある）
+            // Vars 繧堤峩謗･繧ｯ繝ｪ繝ｼ繝ｳ繧｢繝・・・・etachFromVars 縺ｯ譁ｰ VarStore 繧剃ｽ懈・縺・
+            // runtime 縺ｫ SetVars 繧貞他縺ｳ逶ｴ縺吶◆繧√．ispose 荳ｭ縺ｫ遐ｴ譽・ｸ医∩繧ｹ繧ｳ繝ｼ繝励〒
+            // 繧ｵ繝ｼ繝薙せ隗｣豎ｺ繧定ｩｦ縺ｿ縺ｦ繝輔Μ繝ｼ繧ｺ縺吶ｋ蜿ｯ閭ｽ諤ｧ縺後≠繧具ｼ・
             if (_vars != null)
             {
                 try { _vars.OnVarChanged -= OnVarChanged; } catch { }
                 _vars = null;
             }
 
-            // 全 Runtime を Dispose
+            // 蜈ｨ Runtime 繧・Dispose
             for (int i = _runtimes.Count - 1; i >= 0; i--)
             {
                 try { _runtimes[i].Dispose(); } catch (Exception ex) { Debug.LogException(ex); }

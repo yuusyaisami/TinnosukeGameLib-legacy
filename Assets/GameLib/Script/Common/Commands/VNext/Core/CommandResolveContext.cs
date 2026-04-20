@@ -10,7 +10,7 @@ namespace Game.Commands.VNext
         public IScopeNode Scope { get; }
         public IVarStore Vars { get; }
         public IScopeNode? CommandRootScope { get; }
-        public IObjectResolver? Resolver { get; }
+        public IRuntimeResolver? Resolver { get; }
         public ICommandCatalog Catalog { get; }
         public ICommandKeyResolver KeyResolver { get; }
         public ICommandResolveLogger Logger { get; }
@@ -21,7 +21,7 @@ namespace Game.Commands.VNext
             IScopeNode scope,
             IVarStore vars,
             IScopeNode? commandRootScope,
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             ICommandCatalog catalog,
             ICommandKeyResolver keyResolver,
             ICommandResolveLogger logger,

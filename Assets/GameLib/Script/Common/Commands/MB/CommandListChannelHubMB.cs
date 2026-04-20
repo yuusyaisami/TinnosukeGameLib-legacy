@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -14,7 +14,7 @@ namespace Game.Commands
     {
         public DynamicValue<CommandListChannelPreset> PresetValue { get; set; } =
             DynamicValue<CommandListChannelPreset>.FromSource(
-                new ManagedRefLiteralSource<CommandListChannelPreset>(new CommandListChannelPreset()));
+                new ManagedRefLiteralSource<CommandListChannelPreset>());
     }
 
     [Serializable]
@@ -22,17 +22,17 @@ namespace Game.Commands
     {
         [BoxGroup("Channel")]
         [LabelText("Channel Tag")]
-        [Tooltip("CommandListChannel の識別タグです。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _channelTag = "default";
 
         [BoxGroup("Preset")]
         [LabelText("Preset")]
-        [Tooltip("この channel の source preset です。runtime override reset 時はここへ戻ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<CommandListChannelPreset> _presetValue =
             DynamicValue<CommandListChannelPreset>.FromSource(
-                new ManagedRefLiteralSource<CommandListChannelPreset>(new CommandListChannelPreset()));
+                new ManagedRefLiteralSource<CommandListChannelPreset>());
 
         public string ChannelTag => string.IsNullOrWhiteSpace(_channelTag) ? "default" : _channelTag.Trim();
 
@@ -56,15 +56,15 @@ namespace Game.Commands
 
         public IReadOnlyList<CommandListChannelDefinition> Channels => _channels;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<CommandListChannelHubService>(Lifetime.Singleton)
+            builder.Register<CommandListChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<ICommandListChannelHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
     }
 }

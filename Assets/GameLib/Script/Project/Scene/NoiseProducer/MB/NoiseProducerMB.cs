@@ -13,7 +13,7 @@ namespace Game.NoiseProducer
         [ListDrawerSettings(ShowFoldout = true)]
         List<NoiseChannelDefinitionSO> _channelDefinitions = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var definitions = new List<NoiseChannelDefinition>(_channelDefinitions.Count);
             for (int i = 0; i < _channelDefinitions.Count; i++)
@@ -22,12 +22,12 @@ namespace Game.NoiseProducer
                     definitions.Add(_channelDefinitions[i].Definition);
             }
 
-            builder.Register<NoiseProducerService>(Lifetime.Singleton)
+            builder.Register<NoiseProducerService>(RuntimeLifetime.Singleton)
                 .WithParameter("initialDefinitions", definitions)
                 .As<INoiseProducerService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<VContainer.Unity.ITickable>()
+                .As<Game.IScopeTickHandler>()
                 .As<System.IDisposable>();
         }
     }

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -16,7 +16,7 @@ namespace Game.UI
 
         [BoxGroup("Scene")]
         [LabelText("Handle Rect")]
-        [Tooltip("ButtonChannelHubMB はこの RectTransform の GameObject に配置します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         RectTransform? _handleRect;
 
@@ -29,9 +29,9 @@ namespace Game.UI
         public RectTransform? HandleRect => _handleRect;
         public GameObject? VisibilityRoot => _visibilityRoot != null ? _visibilityRoot : gameObject;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<UIScrollBarBindingService>(Lifetime.Singleton)
+            builder.Register<UIScrollBarBindingService>(RuntimeLifetime.Singleton)
                 .WithParameter(this)
                 .As<IUIScrollBarBindingService>()
                 .As<IScopeAcquireHandler>()
@@ -77,8 +77,8 @@ namespace Game.UI
             _ = isReset;
             _buttonChannelHub = null;
 
-            // VisibilityRoot が ScrollBar 自身の場合は scope 自体を無効化してしまうため、
-            // 自動非表示は行わない。
+            // VisibilityRoot 縺・ScrollBar 閾ｪ霄ｫ縺ｮ蝣ｴ蜷医・ scope 閾ｪ菴薙ｒ辟｡蜉ｹ蛹悶＠縺ｦ縺励∪縺・◆繧√・
+            // 閾ｪ蜍暮撼陦ｨ遉ｺ縺ｯ陦後ｏ縺ｪ縺・・
             if (_mb.VisibilityRoot != null &&
                 _mb.VisibilityRoot.activeSelf &&
                 !ReferenceEquals(_mb.VisibilityRoot, _mb.gameObject))

@@ -78,7 +78,7 @@ namespace Game.Commands.VNext
                 runtime.ForceStopMovementNow();
         }
 
-        static bool TryResolveRuntime(IObjectResolver resolver, string channelTag, out ITransformChannelRuntime? runtime)
+        static bool TryResolveRuntime(IRuntimeResolver resolver, string channelTag, out ITransformChannelRuntime? runtime)
         {
             runtime = null;
             if (resolver == null)

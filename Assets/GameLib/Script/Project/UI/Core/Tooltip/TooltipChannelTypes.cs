@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
@@ -160,14 +160,14 @@ namespace Game.UI
     {
         [BoxGroup("Target")]
         [LabelText("Kind")]
-        [Tooltip("Owner の RectTransform/SpriteRenderer を使うか、ActorSource から別 scope を解決して使うかを選びます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipHitTestTargetKind _kind = TooltipHitTestTargetKind.OwnerRectTransform;
 
         [BoxGroup("Target")]
         [ShowIf(nameof(UsesActorSource))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Actor Source\", _actorSource)")]
-        [Tooltip("Actor 系 target を使うときの解決先です。RectTransform/SpriteRenderer/WorldPointerTarget はその scope の SelfTransform から取得します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _actorSource = new() { Kind = ActorSourceKind.Current };
 
@@ -203,7 +203,7 @@ namespace Game.UI
     {
         [BoxGroup("Hit Test")]
         [LabelText("Targets")]
-        [Tooltip("auto trigger 判定に使う hit target 群です。空なら player 側では未指定扱いになり、hub default hit test を使用します。")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(DefaultExpandedState = true, DraggableItems = true, ShowFoldout = true)]
         [SerializeField]
         List<TooltipHitTestTarget> _targets = new();
@@ -240,34 +240,34 @@ namespace Game.UI
     {
         [BoxGroup("Context")]
         [LabelText("Write Tooltip Owner To Context")]
-        [Tooltip("true のとき、tooltip を生成した owner scope を command context slot へ書き込みます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _writeTooltipOwnerToContext = true;
 
         [BoxGroup("Context")]
         [ShowIf(nameof(_writeTooltipOwnerToContext))]
         [LabelText("Tooltip Owner Context Slot")]
-        [Tooltip("tooltip 生成者 owner を書き込む ContextA-D slot です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         CommandLtsSlot _tooltipOwnerContextSlot = CommandLtsSlot.ContextA;
 
         [BoxGroup("Commands")]
         [LabelText("Show Commands")]
-        [Tooltip("spawn 完了直後に tooltip runtime 側で実行する commands です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("Tooltip.Channel.Show")]
         [SerializeField]
         CommandListData _showCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("Hide Commands")]
-        [Tooltip("close 開始時に tooltip runtime 側で実行する commands です。")]
+        [Tooltip("Inspector setting.")]
         [CommandListFunctionName("Tooltip.Channel.Hide")]
         [SerializeField]
         CommandListData _hideCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("Self Despawn")]
-        [Tooltip("hide commands の最後に実行する self despawn command です。")]
+        [Tooltip("Inspector setting.")]
         [InlineProperty]
         [HideLabel]
         [SerializeField]
@@ -326,66 +326,66 @@ namespace Game.UI
     {
         [BoxGroup("State")]
         [LabelText("Condition")]
-        [Tooltip("true のときだけ auto trigger 対象になります。false のときは force show がない限り表示しません。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<bool> _condition = DynamicValueExtensions.FromLiteral(true);
 
         [BoxGroup("State")]
         [LabelText("Priority")]
-        [Tooltip("複数 tooltip が同時可視になったときの stack/placement 優先度です。高いほど先に配置されます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _priority;
 
         [BoxGroup("Placement")]
         [LabelText("Apply Placement Override")]
-        [Tooltip("true のときだけ Placement 設定をこの preset で上書きします。false のときは TooltipSystem の defaults を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _applyPlacementOverride;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsPlacementOverrideFields))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Anchor Actor\", _anchorActorSource)")]
-        [Tooltip("FixedOffset の基準位置に使う actor です。Current の場合は owner の SelfTransform を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _anchorActorSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Runtime")]
         [LabelText("Apply Runtime Override")]
-        [Tooltip("true のときだけ Runtime 設定をこの preset で上書きします。false のときは TooltipSystem の defaults を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _applyRuntimeOverride;
 
         [BoxGroup("Runtime")]
         [ShowIf(nameof(ShowsRuntimeOverrideFields))]
         [LabelText("Runtime Template")]
-        [Tooltip("tooltip 本体として spawn する RuntimeTemplate preset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<BaseRuntimeTemplatePreset> _runtimeTemplatePreset;
 
         [BoxGroup("Runtime")]
         [ShowIf(nameof(ShowsRuntimeOverrideFields))]
         [LabelText("Spawner Tag")]
-        [Tooltip("spawn に使う spawner tag です。空なら tag fallback を許可します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _spawnerTag = string.Empty;
 
         [BoxGroup("Input")]
         [LabelText("Apply Input Override")]
-        [Tooltip("true のときだけ Input 設定をこの preset で上書きします。false のときは TooltipSystem の defaults を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _applyInputOverride;
 
         [BoxGroup("Input")]
         [ShowIf(nameof(ShowsInputOverrideFields))]
         [LabelText("Enable Pointer Hover")]
-        [Tooltip("pointer hover による auto trigger を許可します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enablePointerHover = true;
 
         [BoxGroup("Input")]
         [ShowIf(nameof(ShowsInputOverrideFields))]
         [LabelText("Enable Selection Hover")]
-        [Tooltip("UI selection による auto trigger を許可します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableSelectionHover = true;
 
@@ -393,7 +393,7 @@ namespace Game.UI
         [ShowIf(nameof(ShowsInputOverrideFields))]
         [LabelText("Hover Delay Seconds")]
         [MinValue(0d)]
-        [Tooltip("pointer hover から表示開始までの待機秒です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _hoverDelaySeconds = 0.4f;
 
@@ -401,7 +401,7 @@ namespace Game.UI
         [ShowIf(nameof(ShowsInputOverrideFields))]
         [LabelText("Selection Delay Seconds")]
         [MinValue(0d)]
-        [Tooltip("selection hover から表示開始までの待機秒です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _selectionDelaySeconds = 0.3f;
 
@@ -409,55 +409,55 @@ namespace Game.UI
         [ShowIf(nameof(ShowsInputOverrideFields))]
         [LabelText("Pointer Move Threshold")]
         [MinValue(0d)]
-        [Tooltip("hover delay 計測中に pointer がこの距離以上動いたら待機をやり直します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _pointerMoveThreshold = 2f;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsPlacementOverrideFields))]
         [LabelText("Spawn Mode")]
-        [Tooltip("pointer follow で出すか、anchor + fixed offset で出すかを選びます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelSpawnMode _spawnMode = TooltipChannelSpawnMode.FollowPointer;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsFollowPointerFields))]
         [LabelText("Follow Pointer Direction Offset")]
-        [Tooltip("pointer follow の基準方向オフセットです。UI では TooltipRoot 基準の anchored/local 座標、World では world 座標です。X/Y は最終 anchor 方向に応じて符号が決まり、Z は固定加算です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector3 _followPointerDirectionOffset = Vector3.zero;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsFollowPointerFields))]
         [LabelText("Follow Pointer Move Scale")]
-        [Tooltip("spawn 後に pointer が動いたとき、その追従量をスケールします。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector2 _followPointerMoveScale = Vector2.one;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsFixedOffsetFields))]
         [LabelText("Fixed Direction Offset")]
-        [Tooltip("anchor actor からの固定方向オフセットです。UI では TooltipRoot 基準の anchored/local 座標、World では world 座標です。X/Y は最終 anchor 方向に応じて符号が決まり、Z は固定加算です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector3 _fixedDirectionOffset = Vector3.zero;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsPlacementOverrideFields))]
         [LabelText("Anchor X")]
-        [Tooltip("tooltip 矩形の横方向アンカーです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelAnchorX _anchorX = TooltipChannelAnchorX.Right;
 
         [BoxGroup("Placement")]
         [ShowIf(nameof(ShowsPlacementOverrideFields))]
         [LabelText("Anchor Y")]
-        [Tooltip("tooltip 矩形の縦方向アンカーです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelAnchorY _anchorY = TooltipChannelAnchorY.Up;
 
         [BoxGroup("Hit Test")]
         [LabelText("Hit Test")]
-        [Tooltip("player 個別 hit test preset です。空なら hub default hit test を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<TooltipHitTestPreset> _hitTestValue =
             DynamicValue<TooltipHitTestPreset>.FromSource(
@@ -465,7 +465,7 @@ namespace Game.UI
 
         [BoxGroup("Commands")]
         [LabelText("Commands Preset")]
-        [Tooltip("show/hide/self-despawn を束ねた commands bundle preset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<TooltipCommandsPreset> _commandsPresetValue =
             DynamicValue<TooltipCommandsPreset>.FromSource(
@@ -533,25 +533,25 @@ namespace Game.UI
     {
         [BoxGroup("Render")]
         [LabelText("Render Space")]
-        [Tooltip("tooltip を実際に spawn / placement する空間です。Trigger の hit test 空間とは別です。既定は UIScreen です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelRenderSpaceKind _renderSpace = TooltipChannelRenderSpaceKind.UIScreen;
 
         [BoxGroup("Camera")]
         [LabelText("Camera Location Tag")]
-        [Tooltip("camera 解決に使う CameraLocation tag です。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _cameraLocationTag = "default";
 
         [BoxGroup("Input")]
         [LabelText("Input Mode")]
-        [Tooltip("tooltip の auto trigger 判定に使う入力モードです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelInputMode _inputMode = TooltipChannelInputMode.PointerNavigation;
 
         [BoxGroup("Hit Test")]
         [LabelText("Default Hit Test")]
-        [Tooltip("player 側 hit test が空のときに使う既定 hit test です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<TooltipHitTestPreset> _defaultHitTestValue =
             DynamicValue<TooltipHitTestPreset>.FromSource(
@@ -559,20 +559,20 @@ namespace Game.UI
 
         [BoxGroup("Stack")]
         [LabelText("Stack Direction")]
-        [Tooltip("重なり回避時にずらす方向です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TooltipChannelStackDirection _stackDirection = TooltipChannelStackDirection.Up;
 
         [BoxGroup("Stack")]
         [LabelText("Stack Gap")]
         [MinValue(0d)]
-        [Tooltip("重なり回避時の各 tooltip 間隔です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _stackGap = 8f;
 
         [BoxGroup("Clamp")]
         [LabelText("Enable Clamp")]
-        [Tooltip("画面外へ出ないよう配置を clamp します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enableClamp = true;
 
@@ -580,7 +580,7 @@ namespace Game.UI
         [ShowIf(nameof(_enableClamp))]
         [LabelText("Flip Threshold X")]
         [MinValue(0d)]
-        [Tooltip("左右 overflow 比率がこの値を超えたら AnchorX を反転します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _flipThresholdX = 0.2f;
 
@@ -588,14 +588,14 @@ namespace Game.UI
         [ShowIf(nameof(_enableClamp))]
         [LabelText("Flip Threshold Y")]
         [MinValue(0d)]
-        [Tooltip("上下 overflow 比率がこの値を超えたら AnchorY を反転します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _flipThresholdY = 0.2f;
 
         [BoxGroup("Spawn")]
         [LabelText("Spawn Warmup Frames")]
         [MinValue(0)]
-        [Tooltip("spawn 後に VisualBounds を安定させるため、画面外退避したまま待つフレーム数です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _spawnWarmupFrames = 2;
 

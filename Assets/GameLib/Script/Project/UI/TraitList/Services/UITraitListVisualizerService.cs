@@ -149,7 +149,7 @@ namespace Game.UI.TraitList
 
             await UniTask.SwitchToMainThread();
 
-            IObjectResolver? resolver = null;
+            IRuntimeResolver? resolver = null;
             try
             {
                 resolver = await spawner.SpawnAsync(spawnParams, ct);
@@ -615,7 +615,7 @@ namespace Game.UI.TraitList
 
         async UniTask<ITraitHolderHubService?> ResolveHolderHubAsync(
             IScopeNode scopeParent,
-            IObjectResolver resolver,
+            IRuntimeResolver resolver,
             ICommandRunner fallback,
             CancellationToken ct)
         {
@@ -761,7 +761,7 @@ namespace Game.UI.TraitList
             return null;
         }
 
-        static bool TryResolveRunner(IObjectResolver resolver, ICommandRunner fallback, out ICommandRunner runner)
+        static bool TryResolveRunner(IRuntimeResolver resolver, ICommandRunner fallback, out ICommandRunner runner)
         {
             runner = null!;
             if (resolver.TryResolve<ICommandRunner>(out var resolved) && resolved != null)
@@ -820,7 +820,7 @@ namespace Game.UI.TraitList
         static async UniTask ReleaseSpawnedInstanceAsync(
             Transform? root,
             IScopeNode? scope,
-            IObjectResolver? resolver)
+            IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return;
@@ -862,7 +862,7 @@ namespace Game.UI.TraitList
         }
 
         static void ExtractSpawnedInfo(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             out Transform? root,
             out IScopeNode? scopeNode,
             out RuntimeLifetimeScope? runtimeScope,

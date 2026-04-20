@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Channel;
 using Game.Common;
@@ -15,18 +15,18 @@ namespace Game.Commands.VNext
         public string DebugData => $"Tag={ChannelTag} Rebuild={Rebuild}";
 
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
-        [Tooltip("GridObjectChannelHubMB を持つ対象スコープ。ここから ChannelTag に一致する channel を解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
-        [Tooltip("操作対象の GridObjectChannel tag。GridObjectChannelHubMB 内の Channel Tag と一致させます。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
-        [Tooltip("true のとき bind 後に即座に build/refresh を実行します。false の場合は binding だけ保持します。")]
+        [Tooltip("Inspector setting.")]
         public bool Rebuild = true;
 
         [InlineProperty]
         [HideLabel]
-        [Tooltip("player/layout/visualizer preset override をまとめた bind 設定です。")]
+        [Tooltip("Inspector setting.")]
         public GridObjectChannelBindRequest Request = new();
     }
 
@@ -37,13 +37,13 @@ namespace Game.Commands.VNext
         public string DebugData => $"Tag={ChannelTag} Mode={RefreshMode}";
 
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
-        [Tooltip("GridObjectChannelHubMB を持つ対象スコープ。ここから ChannelTag に一致する channel を解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
-        [Tooltip("更新対象の GridObjectChannel tag。GridObjectChannelHubMB 内の Channel Tag と一致させます。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
-        [Tooltip("FullRebuild は全再生成、Incremental は差分更新、LayoutOnly は配置更新のみを行います。")]
+        [Tooltip("Inspector setting.")]
         public GridObjectChannelRefreshMode RefreshMode = GridObjectChannelRefreshMode.Incremental;
     }
 
@@ -54,13 +54,13 @@ namespace Game.Commands.VNext
         public string DebugData => $"Tag={ChannelTag} KeepBinding={KeepBinding}";
 
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
-        [Tooltip("GridObjectChannelHubMB を持つ対象スコープ。ここから ChannelTag に一致する channel を解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
-        [Tooltip("clear 対象の GridObjectChannel tag。GridObjectChannelHubMB 内の Channel Tag と一致させます。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
-        [Tooltip("true のとき current binding を保持したまま生成済み要素だけを破棄します。")]
+        [Tooltip("Inspector setting.")]
         public bool KeepBinding;
     }
 
@@ -72,46 +72,46 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(Target)")]
-        [Tooltip("GridObjectChannelHubMB を持つ対象スコープ。ここから ChannelTag に一致する channel を解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [Tooltip("操作対象の GridObjectChannel tag。GridObjectChannelHubMB 内の Channel Tag と一致させます。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Choice")]
         [LabelText("Request")]
         [InlineProperty]
-        [Tooltip("表示する entry / bind override / wait option をまとめた choice request です。")]
+        [Tooltip("Inspector setting.")]
         public GridObjectChoiceRequest Request = new();
 
         [BoxGroup("Result")]
         [LabelText("Write SelectedIndex")]
-        [Tooltip("true のとき selected index を SelectedIndexVar へ書き込みます。")]
+        [Tooltip("Inspector setting.")]
         public bool WriteSelectedIndexToVars = true;
 
         [BoxGroup("Result")]
         [ShowIf(nameof(WriteSelectedIndexToVars))]
         [LabelText("SelectedIndex Var")]
-        [Tooltip("選択確定時に selected index を書き込む var です。")]
+        [Tooltip("Inspector setting.")]
         public VarKeyRef SelectedIndexVar = new(VarIds.GameLib.Base.CommandVar.i, "i");
 
         [BoxGroup("Canceled")]
         [LabelText("Treat Replaced As Canceled")]
-        [Tooltip("true のとき ConcurrencyPolicy=CancelAndReplace で置換された結果を canceled 分岐として扱います。")]
+        [Tooltip("Inspector setting.")]
         public bool TreatReplacedAsCanceled = true;
 
         [BoxGroup("Canceled")]
         [LabelText("On Canceled Commands")]
         [CommandListFunctionName("GridObjectChannel.Choice.OnCanceled")]
-        [Tooltip("cancel 完了時に実行する command list です。成功扱いで続行します。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnCanceledCommands = new();
 
         [BoxGroup("Timeout")]
         [LabelText("On Timeout Commands")]
         [CommandListFunctionName("GridObjectChannel.Choice.OnTimeout")]
-        [Tooltip("timeout 完了時に実行する command list です。成功扱いで続行します。")]
+        [Tooltip("Inspector setting.")]
         public CommandListData OnTimeoutCommands = new();
     }
 }

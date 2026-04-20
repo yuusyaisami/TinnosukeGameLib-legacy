@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -11,17 +11,17 @@ using Sirenix.OdinInspector;
 namespace Game.Audio
 {
     // ================================================================
-    // AudioInstallerMB - AudioService の DI 登録
+    // AudioInstallerMB - AudioService 縺ｮ DI 逋ｻ骭ｲ
     // ================================================================
     //
-    // ## 概要
+    // ## 讎りｦ・
     //
-    // IFeatureInstaller として AudioService を DI コンテナに登録する。
-    // Inspector でバス設定とボリュームプロバイダを設定可能。
+    // IFeatureInstaller 縺ｨ縺励※ AudioService 繧・DI 繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
+    // Inspector 縺ｧ繝舌せ險ｭ螳壹→繝懊Μ繝･繝ｼ繝繝励Ο繝舌う繝繧定ｨｭ螳壼庄閭ｽ縲・
     //
-    // ## 配置
+    // ## 驟咲ｽｮ
     //
-    // 通常は GameLifetimeScope に配置。
+    // 騾壼ｸｸ縺ｯ GameLifetimeScope 縺ｫ驟咲ｽｮ縲・
     //
     // ================================================================
 
@@ -29,18 +29,18 @@ namespace Game.Audio
     public sealed class AudioInstallerMB : MonoBehaviour, IFeatureInstaller
     {
         // ----------------------------------------------------------------
-        // Inspector 設定
+        // Inspector 險ｭ螳・
         // ----------------------------------------------------------------
 
         [BoxGroup("Buses")]
         [LabelText("Bus Configs")]
-        [Tooltip("バス設定。未設定のバスはデフォルト値で生成される。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         List<AudioBusConfig> busConfigs = new();
 
         [BoxGroup("Volume")]
         [LabelText("Use Constant Volume Provider")]
-        [Tooltip("Scalar 連携を使用しない場合は true")]
+        [Tooltip("Scalar 騾｣謳ｺ繧剃ｽｿ逕ｨ縺励↑縺・ｴ蜷医・ true")]
         [SerializeField]
         bool useConstantVolumeProvider = true;
 
@@ -58,20 +58,20 @@ namespace Game.Audio
 
         [BoxGroup("Listener")]
         [LabelText("Use Custom Listener Target")]
-        [Tooltip("OFF の場合はシーン上の有効な AudioListener を使用する。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool useCustomListenerTarget = false;
 
         [BoxGroup("Listener")]
         [EnableIf(nameof(useCustomListenerTarget))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(customListenerTarget)")]
-        [Tooltip("距離減衰の基準にする対象。Player などへ差し替え可能。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource customListenerTarget = new() { Kind = ActorSourceKind.Player };
 
         [BoxGroup("Listener")]
         [LabelText("Use 2D Distance (XY)")]
-        [Tooltip("ON の場合は XY 距離のみで減衰する。3D 運用時は OFF にする。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool use2DDistanceAttenuation = true;
 
@@ -79,9 +79,9 @@ namespace Game.Audio
         // IFeatureInstaller
         // ----------------------------------------------------------------
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            // ボリュームプロバイダの登録
+            // 繝懊Μ繝･繝ｼ繝繝励Ο繝舌う繝縺ｮ逋ｻ骭ｲ
             if (useConstantVolumeProvider)
             {
                 builder.RegisterInstance<IAudioVolumeProvider>(
@@ -89,21 +89,21 @@ namespace Game.Audio
             }
             else
             {
-                builder.Register<ScalarAudioVolumeProvider>(Lifetime.Singleton)
+                builder.Register<ScalarAudioVolumeProvider>(RuntimeLifetime.Singleton)
                        .As<IAudioVolumeProvider>();
             }
-            // Scalar 連携を使う場合は ScalarAudioVolumeProvider を別途登録
+            // Scalar 騾｣謳ｺ繧剃ｽｿ縺・ｴ蜷医・ ScalarAudioVolumeProvider 繧貞挨騾皮匳骭ｲ
 
-            // AudioService の登録
-            builder.Register<AudioService>(Lifetime.Singleton)
+            // AudioService 縺ｮ逋ｻ骭ｲ
+            builder.Register<AudioService>(RuntimeLifetime.Singleton)
                    .As<IAudioService>()
-                   .As<ITickable>()
+                   .As<IScopeTickHandler>()
                    .As<IDisposable>()
                    .As<IScopeAcquireHandler>()
                    .As<IScopeReleaseHandler>()
                    .AsSelf();
 
-            // バス設定の適用（Build 後）
+            // 繝舌せ險ｭ螳壹・驕ｩ逕ｨ・・uild 蠕鯉ｼ・
             builder.RegisterBuildCallback(resolver =>
             {
                 var svc = resolver.Resolve<AudioService>();

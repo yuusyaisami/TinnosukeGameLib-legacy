@@ -11,7 +11,7 @@ namespace Game.CameraSystem
         : ICameraCaptureService,
           IScopeAcquireHandler,
           IScopeReleaseHandler,
-          ITickable
+          IScopeTickHandler
     {
         readonly ICameraRenderContext _renderContext;
         readonly ISharedTextureChannelHub _hub;

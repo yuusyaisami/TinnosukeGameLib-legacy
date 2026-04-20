@@ -10,9 +10,9 @@ namespace Game.Fire
         [SerializeField] int directionPriority = InputDirectionAdapterPriority.Dynamic;
         [SerializeField] bool enableDebugLog = false;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<FireOutputDirectionAdapter>(Lifetime.Singleton)
+            builder.Register<FireOutputDirectionAdapter>(RuntimeLifetime.Singleton)
                 .As<IOutputFirePattern>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()

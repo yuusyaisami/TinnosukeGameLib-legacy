@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Trait;
@@ -7,8 +7,8 @@ using UnityEngine;
 namespace Game.Commands.VNext
 {
     /// <summary>
-    /// EquipTraitHolder の Equip/Unequip コマンドデータ。
-    /// 単一コマンドで Op (Equip / Unequip) を切り替える。
+    /// EquipTraitHolder 縺ｮ Equip/Unequip 繧ｳ繝槭Φ繝峨ョ繝ｼ繧ｿ縲・
+    /// 蜊倅ｸ繧ｳ繝槭Φ繝峨〒 Op (Equip / Unequip) 繧貞・繧頑崛縺医ｋ縲・
     /// </summary>
     [Serializable]
     public sealed class EquipTraitCommandData : ICommandData
@@ -23,14 +23,14 @@ namespace Game.Commands.VNext
         [LabelText("Op")]
         public EquipTraitOp Op = EquipTraitOp.Equip;
 
-        // ───────────────── Slot Specification ─────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏 Slot Specification 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [BoxGroup("Slot")]
         [LabelText("Slot Key")]
-        [Tooltip("EquipTraitHolderHub 内のスロットキー。")]
+        [Tooltip("Inspector setting.")]
         public string SlotKey = string.Empty;
 
-        // ───────────────── Target (Equip only) ─────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏 Target (Equip only) 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [BoxGroup("Target")]
         [ShowIf(nameof(IsEquip))]
@@ -41,7 +41,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Target")]
         [ShowIf("@IsEquip && TargetKind == Game.Trait.EquipTraitTargetKind.ByDefinition")]
         [LabelText("Definition")]
-        [Tooltip("装備対象の Trait。AssetTraitDefinitionSource、Var、Blackboard などから解決する。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<TraitDefinitionSO> DefinitionSource;
 
         [BoxGroup("Target")]
@@ -54,18 +54,18 @@ namespace Game.Commands.VNext
         [LabelText("Index")]
         public DynamicValue<int> TargetIndex;
 
-        // ───────────────── Equip Options ─────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏 Equip Options 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [BoxGroup("Options")]
         [ShowIf(nameof(IsEquip))]
         [LabelText("Await Unequip")]
-        [Tooltip("Equip 前に既存装備の Unequip コマンド完了を待つ。")]
+        [Tooltip("Inspector setting.")]
         public bool AwaitUnequip = true;
 
         [BoxGroup("Options")]
         [ShowIf(nameof(IsEquip))]
         [LabelText("Apply Payload")]
-        [Tooltip("Equip 時に追加変数を SlotVars にマージする。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyPayload;
 
         [BoxGroup("Options")]
@@ -73,11 +73,11 @@ namespace Game.Commands.VNext
         [LabelText("Payload")]
         public VarStorePayload Payload = new();
 
-        // ───────────────── Hub Source ─────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏 Hub Source 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [BoxGroup("Source")]
         [LabelText("Use Self Scope")]
-        [Tooltip("true = ctx.Scope から EquipTraitHolderHub を解決。\nfalse = ActorSource で指定。")]
+        [Tooltip("Inspector setting.")]
         public bool UseSelfScope = true;
 
         [BoxGroup("Source")]

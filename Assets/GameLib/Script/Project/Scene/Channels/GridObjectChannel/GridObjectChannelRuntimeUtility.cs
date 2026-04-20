@@ -80,7 +80,7 @@ namespace Game.Channel
         public static async UniTask ReleaseSpawnedInstanceAsync(
             Transform? root,
             IScopeNode? scope,
-            IObjectResolver? resolver)
+            IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return;
@@ -121,7 +121,7 @@ namespace Game.Channel
             }
         }
 
-        public static void ExtractSpawnedInfo(IObjectResolver? resolver, out Transform? root, out IScopeNode? scopeNode)
+        public static void ExtractSpawnedInfo(IRuntimeResolver? resolver, out Transform? root, out IScopeNode? scopeNode)
         {
             root = null;
             scopeNode = null;

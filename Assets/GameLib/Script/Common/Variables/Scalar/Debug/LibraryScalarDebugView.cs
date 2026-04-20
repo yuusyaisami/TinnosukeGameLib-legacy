@@ -1,4 +1,4 @@
-// Assets/Game/Script/Projects/Scalar/LibraryScalarDebugView.cs
+﻿// Assets/Game/Script/Projects/Scalar/LibraryScalarDebugView.cs
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -16,13 +16,13 @@ namespace Game.Scalar
 
         bool _initialized;
 
-        // ===== 設定：監視したいキー一覧 =====
+        // ===== 險ｭ螳夲ｼ夂屮隕悶＠縺溘＞繧ｭ繝ｼ荳隕ｧ =====
 
         [LabelText("Watch Keys")]
-        [Tooltip("ここに監視したい ScalarKey を登録すると、現在値と修正値一覧が表示されます。")]
+        [Tooltip("Inspector setting.")]
         public List<ScalarKey> watchKeys = new List<ScalarKey>();
 
-        // ===== 単発編集用エディタ =====
+        // ===== 蜊倡匱邱ｨ髮・畑繧ｨ繝・ぅ繧ｿ =====
 
         [FoldoutGroup("Edit"), LabelText("Key Name")]
         public string editKeyName;
@@ -30,7 +30,7 @@ namespace Game.Scalar
         [FoldoutGroup("Edit"), LabelText("Set LocalBase")]
         public float editLocalBase;
 
-        [FoldoutGroup("Edit"), LabelText("Add Δ")]
+        [FoldoutGroup("Group")]
         public float editAddDelta;
 
         [FoldoutGroup("Edit"), LabelText("Mul Factor")]
@@ -61,7 +61,7 @@ namespace Game.Scalar
             _initialized = scalar != null && telemetry != null;
         }
 
-        // ===== Edit 操作 =====
+        // ===== Edit 謫堺ｽ・=====
 
         [FoldoutGroup("Edit")]
         [Button(ButtonSizes.Medium)]
@@ -114,7 +114,7 @@ namespace Game.Scalar
             }
         }
 
-        // ===== WatchKeys の現在値＋Mods 表示 =====
+        // ===== WatchKeys 縺ｮ迴ｾ蝨ｨ蛟､・貴ods 陦ｨ遉ｺ =====
 
         [FoldoutGroup("Watch"), ShowInInspector, ReadOnly]
         [LabelText("Watched Scalars")]
@@ -235,13 +235,13 @@ namespace Game.Scalar
                 var valueText = Kind == ScalarModKind.Mul ? $"x{Value:0.##}" : $"{(Value >= 0 ? "+" : string.Empty)}{Value:0.##}";
                 var tagText = string.IsNullOrEmpty(Tag) ? string.Empty : $" (tag:{Tag})";
                 var srcText = string.IsNullOrEmpty(Source) ? string.Empty : $" src={Source}";
-                var remainText = Remain < 0 ? string.Empty : $" · remain={Remain:0.##}s";
+                var remainText = Remain < 0 ? string.Empty : $" ﾂｷ remain={Remain:0.##}s";
 
                 Summary = $"[{kindLabel}] {valueText}{srcText}{tagText}{remainText}";
             }
         }
 
-        // ===== Binding 一覧表示 =====
+        // ===== Binding 荳隕ｧ陦ｨ遉ｺ =====
 
         [FoldoutGroup("Bindings"), ShowInInspector, ReadOnly]
         [LabelText("Active Bindings")]

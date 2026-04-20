@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Channel;
 using Game.Common;
@@ -29,17 +29,17 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Hub Source\", HubSource)")]
-        [Tooltip("MeshChannelHub を解決する ActorSource です。Current の場合は現在の scope から hub を探します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource HubSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [Tooltip("操作対象の MeshChannel tag です。Hub 内で player runtime を引くキーになります。")]
+        [Tooltip("Inspector setting.")]
         public string Tag = "default";
 
         [BoxGroup("Operation")]
         [EnumToggleButtons]
-        [Tooltip("実行する MeshChannel 制御の種類です。Track 定義差し替え、mutation、enabled 切り替えなどを選びます。")]
+        [Tooltip("Inspector setting.")]
         public MeshChannelControlOperation Operation = MeshChannelControlOperation.SwapTrackDefinition;
 
         [BoxGroup("Root")]
@@ -52,7 +52,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Track")]
         [ShowIf(nameof(UsesTrackKey))]
         [LabelText("Track Key")]
-        [Tooltip("操作対象の track key です。same-tag blend 用の Tag ではなく、track 自体の識別子を指定します。")]
+        [Tooltip("Inspector setting.")]
         public string TrackKey = string.Empty;
 
         [BoxGroup("Track")]

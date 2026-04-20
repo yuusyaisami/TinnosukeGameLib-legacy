@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using DG.Tweening;
 using Game.Commands.VNext;
@@ -13,28 +13,28 @@ namespace Game.UI
     {
         [LabelText("Duration Seconds")]
         [MinValue(0f)]
-        [Tooltip("この移動演出にかける秒数です。0 の場合は即時に target 位置へ反映します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _durationSeconds = 0.2f;
 
         [LabelText("Ease")]
-        [Tooltip("fallback tween や transform animation に渡す easing 種別です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Ease _ease = Ease.OutCubic;
 
         [LabelText("Use Transform Animation")]
-        [Tooltip("true のとき TransformAnimationChannel を優先して移動演出を行います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _useTransformAnimation;
 
         [ShowIf(nameof(_useTransformAnimation))]
         [LabelText("Transform Animation Channel Tag")]
-        [Tooltip("Use Transform Animation が true のときに連携する TransformAnimationChannel の tag です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _transformAnimationChannelTag = "default";
 
         [LabelText("Wait For Completion")]
-        [Tooltip("true のとき移動演出の完了を待ってから次の処理へ進みます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _waitForCompletion = true;
 
@@ -62,27 +62,27 @@ namespace Game.UI
     {
         [BoxGroup("Range")]
         [LabelText("Range Source Mode")]
-        [Tooltip("配置領域を Scene の RectTransform から取るか、AreaChannel から取るかを選びます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TransformGridLayoutRangeSourceMode _rangeSourceMode = TransformGridLayoutRangeSourceMode.RectTransform;
 
         [BoxGroup("Range")]
         [ShowIf(nameof(UsesAreaChannel))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Area Source\", _areaActorSource)")]
-        [Tooltip("AreaChannel を解決する対象 scope です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _areaActorSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Range")]
         [ShowIf(nameof(UsesAreaChannel))]
         [LabelText("Area Channel Tag")]
-        [Tooltip("Range Source Mode が AreaChannel のときに使う channel tag です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _areaChannelTag = "default";
 
         [BoxGroup("Layout")]
         [LabelText("Layout Mode")]
-        [Tooltip("Rows/Columns を固定値で使うか、配置領域に収まるだけ自動で詰めるかを選びます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelLayoutMode _layoutMode = TraitListChannelLayoutMode.FixedGrid;
 
@@ -90,7 +90,7 @@ namespace Game.UI
         [ShowIf(nameof(UsesFixedGrid))]
         [LabelText("Rows")]
         [MinValue(1)]
-        [Tooltip("レイアウトの行数です。Rows x Columns が同時表示 capacity になります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _rows = 1;
 
@@ -98,102 +98,102 @@ namespace Game.UI
         [ShowIf(nameof(UsesFixedGrid))]
         [LabelText("Columns")]
         [MinValue(1)]
-        [Tooltip("レイアウトの列数です。Rows x Columns が同時表示 capacity になります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _columns = 1;
 
         [BoxGroup("Layout")]
         [LabelText("Order")]
-        [Tooltip("listIndex を row/column に割り当てる順序です。Auto Fit では収まる範囲への詰め順を、Fixed Grid では行列の向きを決めます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelOrder _order = TraitListChannelOrder.RowMajor;
 
         [BoxGroup("Layout")]
         [LabelText("Row Spacing")]
-        [Tooltip("行ごとの間隔です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _rowSpacing;
 
         [BoxGroup("Layout")]
         [LabelText("Column Spacing")]
-        [Tooltip("列ごとの間隔です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float _columnSpacing;
 
         [BoxGroup("Layout")]
         [LabelText("Item Horizontal Align")]
-        [Tooltip("各 item の visual bounds を target 位置のどこに合わせるかを決めます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelHorizontalAlignment _itemHorizontalAlignment = TraitListChannelHorizontalAlignment.Left;
 
         [BoxGroup("Layout")]
         [LabelText("Item Vertical Align")]
-        [Tooltip("各 item の visual bounds を target 位置のどこに合わせるかを決めます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelVerticalAlignment _itemVerticalAlignment = TraitListChannelVerticalAlignment.Top;
 
         [BoxGroup("Layout")]
         [LabelText("Area Horizontal Align")]
-        [Tooltip("使用行列全体を layout 領域の横方向どこに寄せるかを決めます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelHorizontalAlignment _areaHorizontalAlignment = TraitListChannelHorizontalAlignment.Left;
 
         [BoxGroup("Layout")]
         [LabelText("Area Vertical Align")]
-        [Tooltip("使用行列全体を layout 領域の縦方向どこに寄せるかを決めます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelVerticalAlignment _areaVerticalAlignment = TraitListChannelVerticalAlignment.Top;
 
         [BoxGroup("Layout")]
         [LabelText("Item Offset")]
-        [Tooltip("計算された各 target 位置へ加算する共通 offset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector3 _itemOffset = Vector3.zero;
 
         [BoxGroup("Spawn")]
         [LabelText("Spawn Anchor Mode")]
-        [Tooltip("新規 spawn 時の開始位置を layout target から取るか、固定 anchor から取るかを選びます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelSpawnAnchorMode _spawnAnchorMode = TraitListChannelSpawnAnchorMode.LayoutTarget;
 
         [BoxGroup("Spawn")]
         [ShowIf(nameof(UsesFixedAnchor))]
         [LabelText("Fixed Anchor Transform")]
-        [Tooltip("FixedAnchor 使用時の開始位置基準 Transform。未設定時は ActorSource か list root local zero を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Transform? _fixedAnchorTransform;
 
         [BoxGroup("Spawn")]
         [ShowIf(nameof(UsesFixedAnchor))]
         [LabelText("Use Fixed Anchor Actor Source")]
-        [Tooltip("true のとき Fixed Anchor Transform の代わりに ActorSource から anchor transform を解決します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _useFixedAnchorActorSource;
 
         [BoxGroup("Spawn")]
         [ShowIf(nameof(ShowsFixedAnchorActorSource))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Fixed Anchor Source\", _fixedAnchorActorSource)")]
-        [Tooltip("Fixed Anchor Transform を使わない場合の anchor 解決元です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _fixedAnchorActorSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Spawn")]
         [LabelText("Spawn Offset")]
-        [Tooltip("spawn 開始位置に加算する offset です。最終的な layout target には必ず移動します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         Vector3 _spawnOffset = Vector3.zero;
 
         [BoxGroup("Motion Spawn")]
         [LabelText("Spawn Motion")]
         [InlineProperty]
-        [Tooltip("新規生成 item が開始位置から layout target へ移動するときの演出です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelMotionPreset _spawnMotion = new();
 
         [BoxGroup("Motion Relayout")]
         [LabelText("Relayout Motion")]
         [InlineProperty]
-        [Tooltip("既存 item が現在位置から新しい layout target へ移動するときの演出です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelMotionPreset _relayoutMotion = new();
 
@@ -259,7 +259,7 @@ namespace Game.UI
     public sealed class TraitListChannelLayoutPresetSO : ScriptableObject, IDynamicValueAsset<TraitListChannelLayoutPreset>
     {
         [SerializeReference, InlineProperty, HideLabel]
-        [Tooltip("SO 内に保持する TraitListChannelLayoutPreset 本体です。")]
+        [Tooltip("Inspector setting.")]
         TraitListChannelLayoutPreset? _preset = new();
 
         public TraitListChannelLayoutPreset? Preset

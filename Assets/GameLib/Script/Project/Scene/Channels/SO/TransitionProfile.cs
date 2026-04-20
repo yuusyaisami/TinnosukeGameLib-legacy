@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using DG.Tweening;
 using Game.MaterialFx;
 using Game.MaterialFx.Generated;
@@ -30,11 +30,11 @@ namespace Game.Channel
         public const string DefaultLayerName = "Transition";
 
         [Header("Timing")]
-        [Tooltip("トランジション全体の秒数")]
+        [Tooltip("繝医Λ繝ｳ繧ｸ繧ｷ繝ｧ繝ｳ蜈ｨ菴薙・遘呈焚")]
         [Min(0.001f)]
         public float duration = 0.3f;
 
-        [Tooltip("イージング関数")]
+        [Tooltip("繧､繝ｼ繧ｸ繝ｳ繧ｰ髢｢謨ｰ")]
         public Ease ease = Ease.OutQuad;
 
         [Header("Blend Settings")]
@@ -45,7 +45,7 @@ namespace Game.Channel
         public Vector4 transitionParams = new(0.1f, 0.05f, 1f, 0f);
 
         [Header("Layer")]
-        [Tooltip("MaterialFx に設定するレイヤー名")]
+        [Tooltip("Inspector setting.")]
         public string layerName = DefaultLayerName;
 
         float ITransitionProfile.Duration => duration;

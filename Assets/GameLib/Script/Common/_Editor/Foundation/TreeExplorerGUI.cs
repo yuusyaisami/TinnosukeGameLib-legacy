@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -13,72 +13,72 @@ namespace Game.Editor.Foundation
         After
     }
 
-    /// <summary>ツリー表示のビジュアル設定。</summary>
+    /// <summary>繝・Μ繝ｼ陦ｨ遉ｺ縺ｮ繝薙ず繝･繧｢繝ｫ險ｭ螳壹・/summary>
     [Serializable]
     public class TreeVisualSettings
     {
-        [Tooltip("行の高さ")]
+        [Tooltip("陦後・鬮倥＆")]
         public float RowHeight = 18f;
 
-        [Tooltip("インデントの幅")]
+        [Tooltip("Inspector setting.")]
         public float IndentWidth = 16f;
 
-        [Tooltip("アイコンサイズの比率 (RowHeight に対する倍率)")]
+        [Tooltip("繧｢繧､繧ｳ繝ｳ繧ｵ繧､繧ｺ縺ｮ豈皮紫 (RowHeight 縺ｫ蟇ｾ縺吶ｋ蛟咲紫)")]
         [Range(0.5f, 1f)]
         public float IconSizeRatio = 0.78f;
 
-        [Tooltip("ドラッグ開始までの長押し時間（秒）")]
+        [Tooltip("Inspector setting.")]
         public float DragHoldSeconds = 0.25f;
 
-        [Tooltip("選択行の背景色")]
+        [Tooltip("驕ｸ謚櫁｡後・閭梧勹濶ｲ")]
         public Color SelectionColor = new(0.24f, 0.48f, 0.90f, 0.45f);
 
-        [Tooltip("ドロップハイライトの背景色")]
+        [Tooltip("繝峨Ο繝・・繝上う繝ｩ繧､繝医・閭梧勹濶ｲ")]
         public Color DropHighlightColor = new(0.35f, 0.55f, 0.95f, 0.32f);
 
-        [Tooltip("ドロップラインの色")]
+        [Tooltip("繝峨Ο繝・・繝ｩ繧､繝ｳ縺ｮ濶ｲ")]
         public Color DropLineColor = new(0.35f, 0.75f, 1f, 0.8f);
 
-        /// <summary>計算済みのアイコンサイズ</summary>
+        /// <summary>險育ｮ玲ｸ医∩縺ｮ繧｢繧､繧ｳ繝ｳ繧ｵ繧､繧ｺ</summary>
         public float IconSize => RowHeight * IconSizeRatio;
 
-        /// <summary>Foldout の幅</summary>
+        /// <summary>Foldout 縺ｮ蟷・/summary>
         public float FoldoutWidth => 12f;
 
-        /// <summary>Foldout とアイコンの間隔</summary>
+        /// <summary>Foldout 縺ｨ繧｢繧､繧ｳ繝ｳ縺ｮ髢馴囈</summary>
         public float IconPadding => 4f;
 
-        /// <summary>デフォルト設定を返す</summary>
+        /// <summary>繝・ヵ繧ｩ繝ｫ繝郁ｨｭ螳壹ｒ霑斐☆</summary>
         public static TreeVisualSettings Default => new();
     }
 
     public sealed class TreeExplorerConfig<TEntry>
     {
-        // ビジュアル設定
+        // 繝薙ず繝･繧｢繝ｫ險ｭ螳・
         public TreeVisualSettings Visual = new();
 
-        // ラベル・アイコン取得
+        // 繝ｩ繝吶Ν繝ｻ繧｢繧､繧ｳ繝ｳ蜿門ｾ・
         public Func<PathTreeNode<TEntry>, string> GetLabel;
         public Func<PathTreeNode<TEntry>, string> GetTooltip;
         public Func<PathTreeNode<TEntry>, bool> IsContainer;
         public Func<PathTreeNode<TEntry>, Texture> GetIcon;
         public Func<PathTreeNode<TEntry>, string, bool> MatchesSearch;
 
-        // 行の背景色（null ならなし）
+        // 陦後・閭梧勹濶ｲ・・ull 縺ｪ繧峨↑縺暦ｼ・
         public Func<PathTreeNode<TEntry>, Color?> GetRowBackground;
 
-        // イベントコールバック
+        // 繧､繝吶Φ繝医さ繝ｼ繝ｫ繝舌ャ繧ｯ
         public Action<PathTreeNode<TEntry>> OnSelected;
         public Action<PathTreeNode<TEntry>> OnDoubleClick;
         public Action<PathTreeNode<TEntry>, Vector2> OnContextClick;
 
-        // ドラッグ＆ドロップ
+        // 繝峨Λ繝・げ・・ラ繝ｭ繝・・
         public Func<PathTreeNode<TEntry>, bool> CanDrag;
         public Func<PathTreeNode<TEntry>, PathTreeNode<TEntry>, TreeDropPosition, bool> CanDrop;
         public Action<PathTreeNode<TEntry>, PathTreeNode<TEntry>, TreeDropPosition> OnDrop;
     }
 
-    /// <summary>汎用ツリービューの IMGUI 実装。</summary>
+    /// <summary>豎守畑繝・Μ繝ｼ繝薙Η繝ｼ縺ｮ IMGUI 螳溯｣・・/summary>
     public static class TreeExplorerGUI
     {
         struct Row<TEntry>
@@ -137,7 +137,7 @@ namespace Game.Editor.Foundation
                 bool isCollapsed = state.IsCollapsed(node.FullPath);
                 bool isSelected = string.Equals(state.SelectedPath, node.FullPath, StringComparison.Ordinal);
 
-                // 行背景（選択より先に描く）
+                // 陦瑚レ譎ｯ・磯∈謚槭ｈ繧雁・縺ｫ謠上￥・・
                 var bg = config.GetRowBackground?.Invoke(node);
                 if (bg.HasValue)
                     EditorGUI.DrawRect(rowRect, bg.Value);
@@ -145,7 +145,7 @@ namespace Game.Editor.Foundation
                 float x = row.Indent * v.IndentWidth;
                 Rect foldRect = default;
 
-                // Foldoutクリックを先に処理（行選択より優先）
+                // Foldout繧ｯ繝ｪ繝・け繧貞・縺ｫ蜃ｦ逅・ｼ郁｡碁∈謚槭ｈ繧雁━蜈茨ｼ・
                 if (isContainer)
                 {
                     foldRect = new Rect(x, rowRect.y, v.FoldoutWidth, rowRect.height);
@@ -183,7 +183,7 @@ namespace Game.Editor.Foundation
                     }
                 }
 
-                // 長押しドラッグの開始判定
+                // 髟ｷ謚ｼ縺励ラ繝ｩ繝・げ縺ｮ髢句ｧ句愛螳・
                 if (e.type == EventType.MouseDrag &&
                     string.IsNullOrEmpty(state.DraggingPath) &&
                     !string.IsNullOrEmpty(state.PendingDragPath) &&
@@ -208,7 +208,7 @@ namespace Game.Editor.Foundation
                     EditorGUI.Foldout(foldRect, !isCollapsed, GUIContent.none);
                 }
 
-                // Foldout(あるいは折り畳みの空き幅) + 少しの余白を進め、三角とアイコンの距離を揃える
+                // Foldout(縺ゅｋ縺・・謚倥ｊ逡ｳ縺ｿ縺ｮ遨ｺ縺榊ｹ・ + 蟆代＠縺ｮ菴咏區繧帝ｲ繧√∽ｸ芽ｧ偵→繧｢繧､繧ｳ繝ｳ縺ｮ霍晞屬繧呈純縺医ｋ
                 x += v.FoldoutWidth + v.IconPadding;
 
                 Texture icon = config.GetIcon?.Invoke(node);
@@ -230,7 +230,7 @@ namespace Game.Editor.Foundation
                 var content = string.IsNullOrEmpty(tooltip) ? new GUIContent(label) : new GUIContent(label, tooltip);
                 EditorGUI.LabelField(labelRect, content);
 
-                // ドロップ対象ハイライトを記録 (行の上/中/下で挿入位置を判断)
+                // 繝峨Ο繝・・蟇ｾ雎｡繝上う繝ｩ繧､繝医ｒ險倬鹸 (陦後・荳・荳ｭ/荳九〒謖ｿ蜈･菴咲ｽｮ繧貞愛譁ｭ)
                 if (!string.IsNullOrEmpty(state.DraggingPath) &&
                     draggingNode != null &&
                     rowRect.Contains(e.mousePosition))
@@ -253,7 +253,7 @@ namespace Game.Editor.Foundation
 
             GUI.EndScrollView();
 
-            // ドロップ処理
+            // 繝峨Ο繝・・蜃ｦ逅・
             if (e.type == EventType.MouseUp && e.button == 0 && !string.IsNullOrEmpty(state.DraggingPath))
             {
                 nodeLookup.TryGetValue(state.DraggingPath, out draggingNode);

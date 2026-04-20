@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -8,38 +8,38 @@ using UnityEngine;
 namespace Game.MaterialFx
 {
     /// <summary>
-    /// MaterialFx プリセットの基底クラス。
-    /// CustomEntries と AutoEntries を合成した Entries を提供。
+    /// MaterialFx 繝励Μ繧ｻ繝・ヨ縺ｮ蝓ｺ蠎輔け繝ｩ繧ｹ縲・
+    /// CustomEntries 縺ｨ AutoEntries 繧貞粋謌舌＠縺・Entries 繧呈署萓帙・
     /// </summary>
     public abstract class MaterialFxPresetSOBase : ScriptableObject
     {
-        // ─────────────────────────────────────────────────────────────────────
-        // Custom Entries（開発者が自由に編集）
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+        // Custom Entries・磯幕逋ｺ閠・′閾ｪ逕ｱ縺ｫ邱ｨ髮・ｼ・
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [TitleGroup("Custom Entries")]
-        [InfoBox("開発者が自由に編集できるエントリ。AutoEntries より後に適用されます。")]
-        [Tooltip("カスタムエントリ。AutoEntries を上書きできます。")]
+        [InfoBox("Inspector info.")]
+        [Tooltip("Inspector setting.")]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, ListElementLabelName = nameof(MaterialFxPresetEntry.Key))]
         public List<MaterialFxPresetEntry> CustomEntries = new();
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Auto Entries（派生クラスで自動生成）
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+        // Auto Entries・域ｴｾ逕溘け繝ｩ繧ｹ縺ｧ閾ｪ蜍慕函謌撰ｼ・
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         [TitleGroup("Auto Entries (Read Only)")]
-        [InfoBox("フィールドから自動生成されたエントリ。直接編集不可。")]
+        [InfoBox("Inspector info.")]
         [SerializeField, ReadOnly]
         [ListDrawerSettings(ShowFoldout = true, IsReadOnly = true, ListElementLabelName = nameof(MaterialFxPresetEntry.Key))]
         protected List<MaterialFxPresetEntry> AutoEntries = new();
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Combined Entries（外部向け）
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+        // Combined Entries・亥､夜Κ蜷代￠・・
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         /// <summary>
-        /// AutoEntries + CustomEntries を合成したエントリリスト。
-        /// CustomEntries が後なので、同じ Key があれば Custom が優先される。
+        /// AutoEntries + CustomEntries 繧貞粋謌舌＠縺溘お繝ｳ繝医Μ繝ｪ繧ｹ繝医・
+        /// CustomEntries 縺悟ｾ後↑縺ｮ縺ｧ縲∝酔縺・Key 縺後≠繧後・ Custom 縺悟━蜈医＆繧後ｋ縲・
         /// </summary>
         public IReadOnlyList<MaterialFxPresetEntry> Entries
         {
@@ -56,12 +56,12 @@ namespace Game.MaterialFx
         [NonSerialized]
         bool _entriesDirty = true;
 
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         // Public API
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         /// <summary>
-        /// エントリを強制更新。
+        /// 繧ｨ繝ｳ繝医Μ繧貞ｼｷ蛻ｶ譖ｴ譁ｰ縲・
         /// </summary>
         [TitleGroup("Actions")]
         [Button("Refresh Entries", ButtonSizes.Medium)]
@@ -73,24 +73,24 @@ namespace Game.MaterialFx
         }
 
         /// <summary>
-        /// エントリを汚れた状態にマーク（次回アクセス時に更新）。
+        /// 繧ｨ繝ｳ繝医Μ繧呈ｱ壹ｌ縺溽憾諷九↓繝槭・繧ｯ・域ｬ｡蝗槭い繧ｯ繧ｻ繧ｹ譎ゅ↓譖ｴ譁ｰ・峨・
         /// </summary>
         public void MarkEntriesDirty()
         {
             _entriesDirty = true;
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         // Protected API
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         /// <summary>
-        /// AutoEntries を更新するための派生クラス実装。
+        /// AutoEntries 繧呈峩譁ｰ縺吶ｋ縺溘ａ縺ｮ豢ｾ逕溘け繝ｩ繧ｹ螳溯｣・・
         /// </summary>
         protected abstract void OnRefreshAutoEntries();
 
         /// <summary>
-        /// AutoEntry を設定または更新。
+        /// AutoEntry 繧定ｨｭ螳壹∪縺溘・譖ｴ譁ｰ縲・
         /// </summary>
         protected void SetAutoEntry(string key, MaterialFxSerializedValue value, MaterialFxBlendMode blendMode = MaterialFxBlendMode.Override)
         {
@@ -115,7 +115,7 @@ namespace Game.MaterialFx
         }
 
         /// <summary>
-        /// AutoEntry を削除。
+        /// AutoEntry 繧貞炎髯､縲・
         /// </summary>
         protected void RemoveAutoEntry(string key)
         {
@@ -130,16 +130,16 @@ namespace Game.MaterialFx
         }
 
         /// <summary>
-        /// AutoEntries をクリア。
+        /// AutoEntries 繧偵け繝ｪ繧｢縲・
         /// </summary>
         protected void ClearAutoEntries()
         {
             AutoEntries.Clear();
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         // Internal
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         void RefreshEntriesIfNeeded()
         {
@@ -153,13 +153,13 @@ namespace Game.MaterialFx
         {
             _combinedEntries.Clear();
 
-            // AutoEntries を先に追加
+            // AutoEntries 繧貞・縺ｫ霑ｽ蜉
             foreach (var entry in AutoEntries)
             {
                 _combinedEntries.Add(entry);
             }
 
-            // CustomEntries を追加（同じ Key があれば上書き）
+            // CustomEntries 繧定ｿｽ蜉・亥酔縺・Key 縺後≠繧後・荳頑嶌縺搾ｼ・
             foreach (var customEntry in CustomEntries)
             {
                 bool found = false;
@@ -180,9 +180,9 @@ namespace Game.MaterialFx
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         // Unity Callbacks
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         protected virtual void OnEnable()
         {
@@ -194,9 +194,9 @@ namespace Game.MaterialFx
             _entriesDirty = true;
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
         // Helper Methods for Value Creation
-        // ─────────────────────────────────────────────────────────────────────
+        // 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 
         protected static MaterialFxSerializedValue MakeFloat(float v) => new() { Type = ValueKind.Float, Float = DynamicValueExtensions.FromLiteral(v) };
         protected static MaterialFxSerializedValue MakeInt(int v) => new() { Type = ValueKind.Int, Int = v };

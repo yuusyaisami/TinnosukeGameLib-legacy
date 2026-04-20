@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -12,14 +12,14 @@ using UnityEngine;
 namespace Game.AI.Clips
 {
     /// <summary>
-    /// Chase（追跡）Clip。ターゲットを追跡して移動。
+    /// Chase・郁ｿｽ霍｡・韻lip縲ゅち繝ｼ繧ｲ繝・ヨ繧定ｿｽ霍｡縺励※遘ｻ蜍輔・
     /// </summary>
     [CreateAssetMenu(menuName = "Game/AI/Clips/Chase", fileName = "ChaseClip")]
     public sealed class ChaseClipSO : AIClipSO
     {
         [Header("Targeting")]
         [LabelText("Target Channel Tag")]
-        [Tooltip("追跡対象のターゲットチャネルタグ")]
+        [Tooltip("霑ｽ霍｡蟇ｾ雎｡縺ｮ繧ｿ繝ｼ繧ｲ繝・ヨ繝√Ε繝阪Ν繧ｿ繧ｰ")]
         public string TargetChannelTag = "enemy";
 
         [Header("Movement")]
@@ -32,30 +32,30 @@ namespace Game.AI.Clips
         public float ArrivalDistance = 1f;
 
         [LabelText("Movement Input Type")]
-        [Tooltip("移動のブロック判定に使用する入力タイプ")]
+        [Tooltip("Inspector setting.")]
         public MovementInputType MovementInputType = MovementInputType.AI;
 
         [LabelText("Start Move Delay Seconds")]
-        [Tooltip("Chase が有効化されてから実際に移動を開始するまでの待機秒数")]
+        [Tooltip("Chase 縺梧怏蜉ｹ蛹悶＆繧後※縺九ｉ螳滄圀縺ｫ遘ｻ蜍輔ｒ髢句ｧ九☆繧九∪縺ｧ縺ｮ蠕・ｩ溽ｧ呈焚")]
         [MinValue(0f)]
         public float StartMoveDelaySeconds = 0f;
 
         [Header("Commands")]
         [LabelText("On Active Enter")]
-        [Tooltip("Chase が有効状態（Top）になった時に実行")]
+        [Tooltip("Inspector setting.")]
         public VNext.CommandListData OnActiveEnterCommands = new();
 
         [LabelText("On Active Exit")]
-        [Tooltip("Chase が有効状態（Top）から外れた時に実行")]
+        [Tooltip("Inspector setting.")]
         public VNext.CommandListData OnActiveExitCommands = new();
 
         [Header("Behavior")]
         [LabelText("Pop On No Target")]
-        [Tooltip("ターゲットがいなくなったら自動で Pop するか")]
+        [Tooltip("Inspector setting.")]
         public bool PopOnNoTarget = true;
 
         [LabelText("Pop On Arrival")]
-        [Tooltip("到着したら自動で Pop するか")]
+        [Tooltip("Inspector setting.")]
         public bool PopOnArrival = true;
 
         public override AIClipRuntime CreateRuntime(in AIAgentContext ctx)
@@ -81,7 +81,7 @@ namespace Game.AI.Clips
 
         protected override void OnInitialize(in AIAgentContext ctx)
         {
-            // MoveToPointRequest を事前生成（GC 回避）
+            // MoveToPointRequest 繧剃ｺ句燕逕滓・・・C 蝗樣∩・・
             _request = new MoveToInputPointRequest(
                 speed: _source.ChaseSpeed,
                 arrivalDistance: _source.ArrivalDistance,
@@ -107,7 +107,7 @@ namespace Game.AI.Clips
 
         public override void OnSuspend(in AIAgentContext ctx)
         {
-            // 移動をクリア
+            // 遘ｻ蜍輔ｒ繧ｯ繝ｪ繧｢
             ctx.MoveToInputPoint?.ClearTarget();
             LogStatus(ctx, "suspend", "Chase suspend", LogType.Log, force: true);
             ExecuteCommands(_source.OnActiveExitCommands, ctx);
@@ -136,7 +136,7 @@ namespace Game.AI.Clips
             var hits = _targetChannel.Hits;
             if (hits == null || hits.Count == 0)
             {
-                // ターゲットなし
+                // 繧ｿ繝ｼ繧ｲ繝・ヨ縺ｪ縺・
                 ctx.MoveToInputPoint?.ClearTarget();
                 LogStatus(ctx, "no-hits",
                     $"Chase no target hits | Tag={_source.TargetChannelTag}",
@@ -165,7 +165,7 @@ namespace Game.AI.Clips
                 return;
             }
 
-            // 最初のターゲットを追跡
+            // 譛蛻昴・繧ｿ繝ｼ繧ｲ繝・ヨ繧定ｿｽ霍｡
             var target = hits[0];
             var targetPos = target.Position;
             var currentPos = ctx.Transform != null ? (Vector2)ctx.Transform.position : Vector2.zero;
@@ -180,10 +180,10 @@ namespace Game.AI.Clips
                     force: true);
             }
 
-            // MoveToPoint に目標を設定
+            // MoveToPoint 縺ｫ逶ｮ讓吶ｒ險ｭ螳・
             ctx.MoveToInputPoint.SetTarget(targetPos, _request);
 
-            // 到着判定
+            // 蛻ｰ逹蛻､螳・
             if (_source.PopOnArrival)
             {
                 if (distance <= _source.ArrivalDistance)

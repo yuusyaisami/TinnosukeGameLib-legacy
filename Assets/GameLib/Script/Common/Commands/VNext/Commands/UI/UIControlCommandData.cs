@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands;
 using Game.UI;
@@ -63,7 +63,7 @@ namespace Game.Commands.VNext
         public ActorSource Target;
 
         [LabelText("UI LTS Id")]
-        [Tooltip("ModalPush/ModalPop 系では UI サービスの対象 LTS を指定します。ModalClearAll ではこれが唯一の対象指定です。")]
+        [Tooltip("Inspector setting.")]
         public string UILifetimeScopeId = string.Empty;
 
         [LabelText("Operation")]

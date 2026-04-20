@@ -1,21 +1,19 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using VNext = Game.Commands.VNext;
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 
 using UnityTime = UnityEngine.Time;
 
 namespace Game.Common
 {
-    public sealed class RuntimeScopeLifecycleService : IScopeLifecycleService, IScopeLifecycleConditionController, IScopeReleaseHandler, ITickable
+    public sealed class RuntimeScopeLifecycleService : IScopeLifecycleService, IScopeLifecycleConditionController, IScopeReleaseHandler, IScopeTickHandler
     {
         readonly RuntimeLifetimeScope _scope;
         readonly ScopeLifecycleConfig _config;
-        readonly IObjectResolver _resolver;
+        readonly IRuntimeResolver _resolver;
 
         CancellationTokenSource? _spawnCts;
         CancellationTokenSource? _despawnCts;
@@ -28,7 +26,7 @@ namespace Game.Common
         public RuntimeScopeLifecycleService(
             RuntimeLifetimeScope scope,
             ScopeLifecycleConfig config,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             _scope = scope;
             _config = config;

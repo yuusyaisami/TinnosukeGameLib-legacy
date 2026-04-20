@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game;
@@ -129,7 +129,7 @@ namespace Game.Chunk
         public readonly RuntimeLifetimeScope? RuntimeScope;
         public readonly BaseLifetimeScope? BaseScope;
         public readonly UnityEngine.GameObject? Root;
-        public readonly VContainer.IObjectResolver? Resolver;
+        public readonly IRuntimeResolver? Resolver;
 
         public ChunkHandle(
             ChunkCoord coord,
@@ -138,7 +138,7 @@ namespace Game.Chunk
             RuntimeLifetimeScope? runtimeScope,
             BaseLifetimeScope? baseScope,
             UnityEngine.GameObject? root,
-            VContainer.IObjectResolver? resolver)
+            IRuntimeResolver? resolver)
         {
             Coord = coord;
             WorldBounds = worldBounds;

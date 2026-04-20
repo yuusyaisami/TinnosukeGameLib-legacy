@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Commands.VNext;
@@ -11,13 +11,13 @@ namespace Game.Channel
     public sealed class GridObjectChannelElementCondition
     {
         [LabelText("Enabled")]
-        [Tooltip("true のとき、各 element の VarStore から指定 VarKey の bool を見て表示可否を判定します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _enabled;
 
         [ShowIf(nameof(_enabled))]
         [LabelText("Var Key")]
-        [Tooltip("各 element の VarStore から解決する判定キーです。キーがない場合は true 扱いです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VarKeyRef _key = new();
 
@@ -39,14 +39,14 @@ namespace Game.Channel
     {
         [BoxGroup("Player")]
         [LabelText("Refresh Mode")]
-        [Tooltip("player 側の変化を受けたときに channel をどの粒度で更新するかを決めます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChannelRefreshMode _refreshMode = GridObjectChannelRefreshMode.Incremental;
 
         [BoxGroup("Player")]
         [LabelText("Debounce Frames")]
         [MinValue(0)]
-        [Tooltip("変更通知を受けてから実際に refresh を走らせるまで待つ frame 数です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _debounceFrames = 1;
 
@@ -67,7 +67,7 @@ namespace Game.Channel
     {
         [BoxGroup("Player")]
         [LabelText("Count")]
-        [Tooltip("standalone mode で生成する item 数です。0 から Count-1 の dense item を作ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<int> _count = DynamicValueExtensions.FromLiteral(0);
 
@@ -97,51 +97,51 @@ namespace Game.Channel
     {
         [BoxGroup("Grid")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Grid Blackboard Source\", _gridBlackboardActorSource)")]
-        [Tooltip("参照する GridBlackboard を持つ scope の取得元です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ActorSource _gridBlackboardActorSource = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Grid")]
         [LabelText("Row Offset")]
-        [Tooltip("GridBlackboard の row を layout row へ変換するときに加算する offset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<int> _rowOffset = DynamicValueExtensions.FromLiteral(0);
 
         [BoxGroup("Grid")]
         [LabelText("Column Offset")]
-        [Tooltip("GridBlackboard の column を layout column へ変換するときに加算する offset です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<int> _columnOffset = DynamicValueExtensions.FromLiteral(0);
 
         [BoxGroup("Grid")]
         [LabelText("Use Grid Key Filter")]
-        [Tooltip("true のとき指定した Grid Key を持つ cell のみを item 化します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _useGridKeyFilter;
 
         [BoxGroup("Grid")]
         [ShowIf(nameof(_useGridKeyFilter))]
         [LabelText("Grid Key")]
-        [Tooltip("Use Grid Key Filter が true のときに参照する GridBlackboard の var key です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         VarKeyRef _gridKey = new();
 
         [BoxGroup("Grid")]
         [LabelText("Element Condition")]
         [InlineProperty]
-        [Tooltip("各 element の表示可否を、その element 自身の VarStore 内 bool で判定します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChannelElementCondition _elementCondition = new();
 
         [BoxGroup("Grid")]
         [LabelText("Sparse Layout Mode")]
-        [Tooltip("空き cell をそのまま座標に反映するか、occupied cell だけを詰めて並べるかを決めます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChannelSparseLayoutMode _sparseLayoutMode = GridObjectChannelSparseLayoutMode.PreserveSparseCoordinates;
 
         [BoxGroup("Grid")]
         [LabelText("Swap Row / Column")]
-        [Tooltip("true のとき GridBlackboard の row/column 解釈を入れ替えて layout row/column へ反映します。Column に並んだ cell を縦表示したい場合に使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _swapRowAndColumn;
 
@@ -178,7 +178,7 @@ namespace Game.Channel
     public sealed class GridObjectChannelPlayerPresetSO : ScriptableObject, IDynamicValueAsset<GridObjectChannelPlayerPresetBase>
     {
         [SerializeReference, InlineProperty, HideLabel]
-        [Tooltip("SO 内に保持する GridObjectChannelPlayerPreset 本体です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         GridObjectChannelPlayerPresetBase? _preset = new GridObjectChannelStandalonePlayerPreset();
 

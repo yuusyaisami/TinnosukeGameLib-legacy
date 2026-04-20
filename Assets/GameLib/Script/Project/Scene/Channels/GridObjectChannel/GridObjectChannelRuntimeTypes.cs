@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
@@ -13,48 +13,48 @@ namespace Game.Channel
     public sealed class GridObjectChannelBindRequest
     {
         [LabelText("Override Player Preset")]
-        [Tooltip("true のとき hub 側 default player preset の代わりにここで指定した player preset を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _overridePlayerPreset;
 
         [SerializeField]
         [ShowIf(nameof(_overridePlayerPreset))]
-        [Tooltip("bind 時に差し替える player preset です。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<GridObjectChannelPlayerPresetBase> _playerPresetValue =
             DynamicValue<GridObjectChannelPlayerPresetBase>.FromSource(
                 new ManagedRefLiteralSource<GridObjectChannelPlayerPresetBase>(new GridObjectChannelStandalonePlayerPreset()));
 
         [LabelText("Override Layout Preset")]
-        [Tooltip("true のとき hub 側 default layout preset の代わりにここで指定した layout preset を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _overrideLayoutPreset;
 
         [SerializeField]
         [ShowIf(nameof(_overrideLayoutPreset))]
-        [Tooltip("bind 時に差し替える layout preset です。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<GridObjectChannelLayoutPreset> _layoutPresetValue =
             DynamicValue<GridObjectChannelLayoutPreset>.FromSource(
                 new ManagedRefLiteralSource<GridObjectChannelLayoutPreset>(new GridObjectChannelLayoutPreset()));
 
         [LabelText("Override Visualizer Preset")]
-        [Tooltip("true のとき hub 側 default visualizer preset の代わりにここで指定した visualizer preset を使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _overrideVisualizerPreset;
 
         [SerializeField]
         [ShowIf(nameof(_overrideVisualizerPreset))]
-        [Tooltip("bind 時に差し替える visualizer preset です。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<GridObjectChannelVisualizerPreset> _visualizerPresetValue =
             DynamicValue<GridObjectChannelVisualizerPreset>.FromSource(
                 new ManagedRefLiteralSource<GridObjectChannelVisualizerPreset>(new GridObjectChannelVisualizerPreset()));
 
         [LabelText("Force Choice Compatible")]
-        [Tooltip("true のとき choice session 用に visualizer preset の choice input を有効化します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _forceChoiceCompatible;
 
         [LabelText("Spawn Commands")]
-        [Tooltip("bind 実行時に visualizer preset の SpawnCommands へ追加する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("GridObjectChannel.Bind.OnSpawn")]
         CommandListData _spawnCommands = new();
@@ -185,7 +185,7 @@ namespace Game.Channel
             GridObjectChannelItemKey key,
             Transform root,
             IScopeNode scope,
-            IObjectResolver resolver)
+            IRuntimeResolver resolver)
         {
             Key = key;
             Root = root;
@@ -198,7 +198,7 @@ namespace Game.Channel
         public Transform Root { get; }
         public RectTransform? RootRect { get; }
         public IScopeNode Scope { get; }
-        public IObjectResolver Resolver { get; }
+        public IRuntimeResolver Resolver { get; }
         public int ListIndex { get; private set; }
         public int Row { get; private set; }
         public int Column { get; private set; }

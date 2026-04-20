@@ -16,7 +16,7 @@ namespace Game.Channel
         [SerializeField]
         Light2DChannelDef[] _channels = Array.Empty<Light2DChannelDef>();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (_channels != null)
             {
@@ -24,14 +24,14 @@ namespace Game.Channel
                     _channels[i]?.EnsureIntegrity(this);
             }
 
-            builder.Register<Light2DChannelHubService>(Lifetime.Singleton)
+            builder.Register<Light2DChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(_channels)
                 .WithParameter(scope)
                 .As<ILight2DChannelHubService>()
                 .As<IChannelHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
         }
 
 #if UNITY_EDITOR

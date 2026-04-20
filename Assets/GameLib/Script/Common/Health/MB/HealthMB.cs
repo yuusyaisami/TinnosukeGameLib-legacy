@@ -1,8 +1,8 @@
-// Game.Health.HealthMB.cs
+﻿// Game.Health.HealthMB.cs
 //
-// Health 管理用の MonoBehaviour (v0.2)
-// - FixedHealthModifierRegistrySO から固定 Modifier を登録
-// - ローカル Modifier リストを登録
+// Health 邂｡逅・畑縺ｮ MonoBehaviour (v0.2)
+// - FixedHealthModifierRegistrySO 縺九ｉ蝗ｺ螳・Modifier 繧堤匳骭ｲ
+// - 繝ｭ繝ｼ繧ｫ繝ｫ Modifier 繝ｪ繧ｹ繝医ｒ逋ｻ骭ｲ
 
 using System;
 using System.Collections.Generic;
@@ -18,21 +18,21 @@ using VContainer.Unity;
 namespace Game.Health
 {
     /// <summary>
-    /// Health 管理用の MonoBehaviour (v0.2)。
-    /// Entity に配置して IHealthService を DI 登録する。
+    /// Health 邂｡逅・畑縺ｮ MonoBehaviour (v0.2)縲・
+    /// Entity 縺ｫ驟咲ｽｮ縺励※ IHealthService 繧・DI 逋ｻ骭ｲ縺吶ｋ縲・
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class HealthMB : MonoBehaviour, IFeatureInstaller, IDisposable
     {
         [Header("Profile")]
-        [Tooltip("HealthPreset。Inline か Asset のどちらでも指定できます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [InlineProperty, HideLabel]
         DynamicValue<HealthPreset> _preset;
 
         [Header("Local Modifiers")]
         [LabelText("Local Modifiers")]
-        [Tooltip("この Entity にのみ適用される Modifier リスト")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         List<BaseHealthModifierSO> _localModifiers = new();
 
@@ -69,9 +69,9 @@ namespace Game.Health
 
         public IHealthService HealthService => _healthService;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            // HealthService を登録（RuntimeLTS では IEntityEventService 未登録のケースがあるためフォールバック解決）
+            // HealthService 繧堤匳骭ｲ・・untimeLTS 縺ｧ縺ｯ IEntityEventService 譛ｪ逋ｻ骭ｲ縺ｮ繧ｱ繝ｼ繧ｹ縺後≠繧九◆繧√ヵ繧ｩ繝ｼ繝ｫ繝舌ャ繧ｯ隗｣豎ｺ・・
             builder.Register<HealthService>(resolver =>
                 {
                     var scalarService = ResolveScalarService(scope, resolver);
@@ -87,19 +87,19 @@ namespace Game.Health
                         resolver.Resolve<Game.Commands.VNext.ICommandRunner>(),
                         transform);
                 },
-                Lifetime.Singleton)
+                RuntimeLifetime.Singleton)
                 .As<IHealthService>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
 
             builder.RegisterInstance(_eventCommandSettings ?? new HealthEventCommandSettings());
-            builder.Register<HealthEventCommandHookService>(Lifetime.Singleton)
+            builder.Register<HealthEventCommandHookService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<IDisposable>();
 
             builder.RegisterInstance(_acquireReviveSettings ?? new HealthAcquireReviveSettings());
-            builder.Register<HealthAcquireReviveOnAcquireService>(Lifetime.Singleton)
+            builder.Register<HealthAcquireReviveOnAcquireService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
@@ -202,7 +202,7 @@ namespace Game.Health
             }
         }
 
-        IBaseScalarService ResolveScalarService(IScopeNode scope, IObjectResolver resolver)
+        IBaseScalarService ResolveScalarService(IScopeNode scope, IRuntimeResolver resolver)
         {
             if (TryResolveOwnedService(scope, resolver, out IBaseScalarService scalarService))
                 return scalarService;
@@ -211,7 +211,7 @@ namespace Game.Health
             return _fallbackScalarService;
         }
 
-        IBlackboardService ResolveBlackboardService(IScopeNode scope, IObjectResolver resolver)
+        IBlackboardService ResolveBlackboardService(IScopeNode scope, IRuntimeResolver resolver)
         {
             if (TryResolveOwnedService(scope, resolver, out IBlackboardService blackboardService))
                 return blackboardService;
@@ -221,7 +221,7 @@ namespace Game.Health
 
         IScopeBindingRegistry ResolveProfileRegistry(
             IScopeNode scope,
-            IObjectResolver resolver,
+            IRuntimeResolver resolver,
             IBlackboardService blackboardService,
             IBaseScalarService scalarService)
         {
@@ -252,7 +252,7 @@ namespace Game.Health
             return _preset.GetOrDefault(dynamicContext, null);
         }
 
-        static bool TryResolveOwnedService<T>(IScopeNode scope, IObjectResolver resolver, out T service) where T : class
+        static bool TryResolveOwnedService<T>(IScopeNode scope, IRuntimeResolver resolver, out T service) where T : class
         {
             service = null;
             if (scope is RuntimeLifetimeScope runtimeScope)
@@ -289,7 +289,7 @@ namespace Game.Health
             return false;
         }
 
-        static IEntityEventService ResolveEntityEventService(IObjectResolver resolver)
+        static IEntityEventService ResolveEntityEventService(IRuntimeResolver resolver)
         {
             if (resolver.TryResolve<IEntityEventService>(out var entityEventService) && entityEventService != null)
                 return entityEventService;

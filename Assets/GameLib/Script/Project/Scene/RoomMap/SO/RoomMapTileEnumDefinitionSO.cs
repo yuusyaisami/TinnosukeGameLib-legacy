@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.EnumLike;
@@ -42,11 +42,11 @@ namespace Game.RoomMap
     public sealed class RoomMapTileEnumDefinitionSO : BaseEnumDefinitionSO<RoomMapTileEnumEntry>
     {
         [Header("RoomMap Stability")]
-        [Tooltip("Player でも検証可能な安定 GUID（Asset GUID ではない）")]
+        [Tooltip("Inspector setting.")]
         [SerializeField, ReadOnly]
         string stableGuid = string.Empty;
 
-        [Tooltip("entries[].StableKey の配列順（=index順）から計算された schema hash")]
+        [Tooltip("entries[].StableKey 縺ｮ驟榊・鬆・ｼ・index鬆・ｼ峨°繧芽ｨ育ｮ励＆繧後◆ schema hash")]
         [SerializeField, ReadOnly]
         ulong schemaHash;
 

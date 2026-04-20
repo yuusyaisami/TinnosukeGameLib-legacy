@@ -45,7 +45,7 @@ namespace Game.BuildConsole
             return console != null;
         }
 
-        public static bool TryResolve(IObjectResolver? resolver, out IBuildConsole? console)
+        public static bool TryResolve(IRuntimeResolver? resolver, out IBuildConsole? console)
         {
             if (resolver != null &&
                 resolver.TryResolve<IBuildConsole>(out var resolved) &&
@@ -82,7 +82,7 @@ namespace Game.BuildConsole
             }
         }
 
-        public static void Resolver(IObjectResolver? resolver, string message, LogType logType = LogType.Log, string? stackTrace = null)
+        public static void Resolver(IRuntimeResolver? resolver, string message, LogType logType = LogType.Log, string? stackTrace = null)
         {
             if (TryResolve(resolver, out var console) && console != null)
             {
@@ -98,7 +98,7 @@ namespace Game.BuildConsole
             BuildConsoleLog.Scope(scope, message, logType, stackTrace);
         }
 
-        public static void LogToConsole(this IObjectResolver? resolver, string message, LogType logType = LogType.Log, string? stackTrace = null)
+        public static void LogToConsole(this IRuntimeResolver? resolver, string message, LogType logType = LogType.Log, string? stackTrace = null)
         {
             BuildConsoleLog.Resolver(resolver, message, logType, stackTrace);
         }

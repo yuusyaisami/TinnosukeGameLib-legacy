@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -125,7 +125,7 @@ namespace Game.Targeting
         [BoxGroup("Filters")]
         [ShowIf(nameof(IsNoneSearch))]
         [LabelText("Valid Distance")]
-        [Tooltip("0以下で無効。指定距離より離れると direct target を自動で切断します。")]
+        [Tooltip("Inspector setting.")]
         [MinValue(0f)]
         public float DirectTargetValidDistance = 0f;
 
@@ -223,7 +223,7 @@ namespace Game.Targeting
 
         [BoxGroup("Debug")]
         [LabelText("Debug Log")]
-        [Tooltip("有効なとき、CollisionSearch の各段階で Console に理由を出します。")]
+        [Tooltip("Inspector setting.")]
         public bool DebugLogEnabled = false;
 
         public float CosHalfAngle

@@ -602,7 +602,7 @@ namespace Game.UI
         }
 
         public static bool TryResolveRuntimeVisualTarget(
-            IObjectResolver resolver,
+            IRuntimeResolver resolver,
             Transform root,
             string channelTag,
             out SliderRuntimeVisualTargetKind visualTargetKind,

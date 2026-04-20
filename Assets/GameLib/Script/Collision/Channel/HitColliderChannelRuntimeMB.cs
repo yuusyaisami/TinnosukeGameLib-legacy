@@ -18,10 +18,10 @@ namespace Game.Collision
     [DisallowMultipleComponent]
     public sealed class HitColliderChannelRuntimeMB : MonoBehaviour, IFeatureInstaller
     {
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // Register the new Hub so old scenes don't break immediately.
-            builder.Register<IHitColliderChannelHub, HitColliderChannelHub>(Lifetime.Singleton)
+            builder.Register<IHitColliderChannelHub, HitColliderChannelHub>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
         }

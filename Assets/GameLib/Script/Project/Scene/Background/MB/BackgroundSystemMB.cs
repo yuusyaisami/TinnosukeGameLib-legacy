@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System.Collections.Generic;
 using Game;
 using Game.Commands.VNext;
@@ -75,7 +75,7 @@ namespace Game.Background
 
         [BoxGroup(UpdateGroup)]
         [LabelText("Preload Outside View (Tiles)")]
-        [Tooltip("画面外を先行生成する追加マージン。画面に入る前にタイルを生成してポップインを減らします。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField] Vector2Int preloadOutsideViewTiles = Vector2Int.zero;
 
         [BoxGroup(UpdateGroup)]
@@ -98,7 +98,7 @@ namespace Game.Background
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
         [SerializeField] List<BackgroundLayerDefinition> layers = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             EnsureDefaults();
 
@@ -127,16 +127,16 @@ namespace Game.Background
 
             builder.RegisterInstance(config);
 
-            var registration = builder.Register<BackgroundSystemService>(Lifetime.Singleton)
+            var registration = builder.Register<BackgroundSystemService>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)
                 .As<IBackgroundSystem>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
 
             if (runInLateUpdate)
-                registration.As<ILateTickable>();
+                registration.As<IScopeLateTickHandler>();
             else
-                registration.As<ITickable>();
+                registration.As<IScopeTickHandler>();
         }
 
         void Reset()

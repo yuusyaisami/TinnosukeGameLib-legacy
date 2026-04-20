@@ -713,7 +713,7 @@ namespace Game.UI
                 worldSpace: false,
                 allowPooling: _resolvedVisualizerPreset.AllowPooling);
 
-            IObjectResolver? resolver = null;
+            IRuntimeResolver? resolver = null;
             try
             {
                 resolver = await spawner.SpawnAsync(spawnParams, ct);

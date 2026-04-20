@@ -17,7 +17,7 @@ namespace Game.Fire
     {
         const string RotateChannelKey = "pattern";
         readonly IInputMovementService _movementService;
-        readonly IObjectResolver _resolver;
+        readonly IRuntimeResolver _resolver;
         readonly int _directionPriority;
         readonly bool _enableDebugLog;
 
@@ -35,7 +35,7 @@ namespace Game.Fire
 
         public FireOutputDirectionAdapter(
             IInputMovementService movementService,
-            IObjectResolver resolver,
+            IRuntimeResolver resolver,
             int directionPriority = InputDirectionAdapterPriority.Dynamic,
             bool enableDebugLog = false)
         {

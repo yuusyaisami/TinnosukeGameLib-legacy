@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -18,40 +18,40 @@ namespace Game.StatusEffect
         [BoxGroup("Identity")]
         [LabelText("Definition Id")]
         [SerializeField]
-        [Tooltip("この effect を一意に識別する固定 ID です。通常は StatusEffect.GameLogic.* の形式で付けます。")]
+        [Tooltip("Inspector setting.")]
         string definitionId = string.Empty;
 
         [BoxGroup("Identity")]
         [LabelText("Default Runtime Tag")]
         [SerializeField]
-        [Tooltip("付与時にタグが省略された場合に使う既定の runtimeTag です。")]
+        [Tooltip("Inspector setting.")]
         string defaultRuntimeTag = string.Empty;
 
         [BoxGroup("Presentation")]
         [SerializeField]
         [InlineProperty]
         [HideLabel]
-        [Tooltip("UI やログに見せる名前・説明・分類などの表示データです。")]
+        [Tooltip("Inspector setting.")]
         EffectVisualData visualData = new();
 
         [BoxGroup("Operation")]
         [SerializeField]
         [InlineProperty]
         [HideLabel]
-        [Tooltip("この effect が実際に変更する scalar の内容です。")]
+        [Tooltip("Inspector setting.")]
         ScalarModifierOperationDefinition scalarOperation = CreateDefaultOperation();
 
         [BoxGroup("Runtime")]
         [LabelText("Runtime Control")]
         [EnumToggleButtons]
         [SerializeField]
-        [Tooltip("Custom は definition 個別設定を使用します。AutoGlobal は Use/Cooldown/Count/Lifetime の利用判定を StatusEffectService の Global 設定に完全委譲し、AdvancedOption で lifetime/count の終了時動作だけ調整できます。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectRuntimeControlMode runtimeControlMode = StatusEffectRuntimeControlMode.Custom;
 
         [BoxGroup("Runtime")]
         [LabelText("Condition")]
         [SerializeField]
-        [Tooltip("true のとき effect を active 扱いにします。TraitRuntime の Visible/Hidden などの blackboard 値を参照できます。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<bool> condition = DynamicValueExtensions.FromLiteral(true);
 
         [FoldoutGroup("AdvancedOption", Expanded = true)]
@@ -59,60 +59,60 @@ namespace Game.StatusEffect
         [InlineProperty]
         [HideLabel]
         [SerializeField]
-        [Tooltip("AutoGlobal 用の追加設定です。None が既定です。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectAutoGlobalAdvancedOption autoGlobalAdvancedOption = new();
 
         [BoxGroup("Duration")]
         [LabelText("Use Lifetime")]
         [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
-        [Tooltip("effect 登録時から進む lifetime timer を使う場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         bool useDuration;
 
         [BoxGroup("Duration")]
         [ShowIf(nameof(ShowDurationDefinition))]
         [SerializeReference]
-        [Tooltip("lifetime timer の計算方法です。Use Lifetime が有効なときだけ使われます。")]
+        [Tooltip("Inspector setting.")]
         IStatusEffectDurationDefinition? durationDefinition;
 
         [BoxGroup("Cooldown")]
         [LabelText("Use Cooldown")]
         [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
-        [Tooltip("Use 実行後に始まる cooldown timer を使う場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         bool useUseCooldown;
 
         [BoxGroup("Cooldown")]
         [ShowIf(nameof(ShowUseCooldownDefinition))]
         [SerializeReference]
-        [Tooltip("Use 実行後の cooldown の計算方法です。")]
+        [Tooltip("Inspector setting.")]
         IStatusEffectUseCooldownDefinition? useCooldownDefinition;
 
         [BoxGroup("Count")]
         [LabelText("Use Count")]
         [ShowIf(nameof(UsesCustomRuntimeSettings))]
         [SerializeField]
-        [Tooltip("Use 回数システムを使う effect の場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         bool useCount;
 
         [BoxGroup("Count")]
         [ShowIf(nameof(ShowCountDefinition))]
         [SerializeReference]
-        [Tooltip("Use 回数の上限や切れたときの挙動です。既定では Nail の MaxHitCount を参照します。")]
+        [Tooltip("Inspector setting.")]
         IStatusEffectCountDefinition? countDefinition = CreateDefaultCountDefinition();
 
         [BoxGroup("Hooks")]
         [SerializeField]
         [InlineProperty]
         [HideLabel]
-        [Tooltip("Apply / Remove / Use など各タイミングで挟む command 群です。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectHookSet defaultHooks = new();
 
         [BoxGroup("Commands")]
         [SerializeField]
         [InlineProperty]
         [HideLabel]
-        [Tooltip("StatusEffect が有効で、Condition が true の間に interval ごとに実行する command 群です。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectPeriodicCommandSet periodicCommands = new();
 
         [NonSerialized]

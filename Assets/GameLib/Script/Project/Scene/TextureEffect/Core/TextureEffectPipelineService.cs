@@ -15,7 +15,7 @@ namespace Game.TextureEffect
           ITextureEffectMaskRegistry,
           IScopeAcquireHandler,
           IScopeReleaseHandler,
-          ITickable,
+          IScopeTickHandler,
           IDisposable
     {
         readonly ISharedTextureChannelHub _hub;
@@ -274,7 +274,7 @@ namespace Game.TextureEffect
             if (camInfo.CaptureCamera == null)
                 return;
 
-            // Renderer 形状ベースの mask 描画:
+            // Renderer 形状ベ�Eスの mask 描画:
             // capture camera と同じ projection で対象 Renderer だけを mask RT へ描く
             EnsureMaskMaterial();
             if (s_MaskMaterial == null)

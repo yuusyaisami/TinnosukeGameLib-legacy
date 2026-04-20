@@ -1,107 +1,107 @@
-#nullable enable
+﻿#nullable enable
 using UnityEngine;
 using VContainer;
 
 namespace Game.UI
 {
     // ================================================================
-    // UICanvasMB - UIキャンバス設定用MonoBehaviour
+    // UICanvasMB - UI繧ｭ繝｣繝ｳ繝舌せ險ｭ螳夂畑MonoBehaviour
     // ================================================================
     //
-    // ## 概要
+    // ## 讎りｦ・
     //
-    // UICanvasMBは、UIのキャンバス設定を管理するMonoBehaviour。
-    // 通常、UIシステムのルートとなるUIElementにアタッチされる。
+    // UICanvasMB縺ｯ縲ゞI縺ｮ繧ｭ繝｣繝ｳ繝舌せ險ｭ螳壹ｒ邂｡逅・☆繧貴onoBehaviour縲・
+    // 騾壼ｸｸ縲ゞI繧ｷ繧ｹ繝・Β縺ｮ繝ｫ繝ｼ繝医→縺ｪ繧偽IElement縺ｫ繧｢繧ｿ繝・メ縺輔ｌ繧九・
     //
-    // ## 主な役割
+    // ## 荳ｻ縺ｪ蠖ｹ蜑ｲ
     //
-    // 1. **Canvas参照の提供**: UIシステムがCanvas情報にアクセスするための窓口
-    // 2. **キャンバスタイプの判定**: Screen/World Canvasの自動判定
-    // 3. **座標変換のサポート**: Screen座標⇔Local座標の変換
-    // 4. **将来の拡張ポイント**: UI全体の設定を追加する場所
+    // 1. **Canvas蜿ら・縺ｮ謠蝉ｾ・*: UI繧ｷ繧ｹ繝・Β縺靴anvas諠・ｱ縺ｫ繧｢繧ｯ繧ｻ繧ｹ縺吶ｋ縺溘ａ縺ｮ遯灘哨
+    // 2. **繧ｭ繝｣繝ｳ繝舌せ繧ｿ繧､繝励・蛻､螳・*: Screen/World Canvas縺ｮ閾ｪ蜍募愛螳・
+    // 3. **蠎ｧ讓吝､画鋤縺ｮ繧ｵ繝昴・繝・*: Screen蠎ｧ讓吮∑Local蠎ｧ讓吶・螟画鋤
+    // 4. **蟆・擂縺ｮ諡｡蠑ｵ繝昴う繝ｳ繝・*: UI蜈ｨ菴薙・險ｭ螳壹ｒ霑ｽ蜉縺吶ｋ蝣ｴ謇
     //
-    // ## 設計方針
+    // ## 險ｭ險域婿驥・
     //
-    // このコンポーネントは最小限の機能から始め、
-    // 必要に応じてフィールドを追加していく。
+    // 縺薙・繧ｳ繝ｳ繝昴・繝阪Φ繝医・譛蟆城剞縺ｮ讖溯・縺九ｉ蟋九ａ縲・
+    // 蠢・ｦ√↓蠢懊§縺ｦ繝輔ぅ繝ｼ繝ｫ繝峨ｒ霑ｽ蜉縺励※縺・￥縲・
     //
-    // 現在は以下のみを管理:
-    // - Canvas参照
-    // - キャンバスタイプ（自動判定）
+    // 迴ｾ蝨ｨ縺ｯ莉･荳九・縺ｿ繧堤ｮ｡逅・
+    // - Canvas蜿ら・
+    // - 繧ｭ繝｣繝ｳ繝舌せ繧ｿ繧､繝暦ｼ郁・蜍募愛螳夲ｼ・
     //
-    // 将来追加予定の設定例:
-    // - デフォルトのアニメーション設定
-    // - サウンド設定
-    // - テーマ/スキン設定
-    // - レイアウト設定
+    // 蟆・擂霑ｽ蜉莠亥ｮ壹・險ｭ螳壻ｾ・
+    // - 繝・ヵ繧ｩ繝ｫ繝医・繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳・
+    // - 繧ｵ繧ｦ繝ｳ繝芽ｨｭ螳・
+    // - 繝・・繝・繧ｹ繧ｭ繝ｳ險ｭ螳・
+    // - 繝ｬ繧､繧｢繧ｦ繝郁ｨｭ螳・
     //
     // ================================================================
 
     /// <summary>
-    /// UIキャンバス設定用MonoBehaviour。
+    /// UI繧ｭ繝｣繝ｳ繝舌せ險ｭ螳夂畑MonoBehaviour縲・
     /// 
-    /// ## 使用方法
+    /// ## 菴ｿ逕ｨ譁ｹ豕・
     /// 
-    /// 1. UIシステムのルートUIElementにアタッチ
-    /// 2. Canvas参照を設定（または自動取得）
-    /// 3. IFeatureInstallerとしてUICanvasServiceを登録
+    /// 1. UI繧ｷ繧ｹ繝・Β縺ｮ繝ｫ繝ｼ繝・IElement縺ｫ繧｢繧ｿ繝・メ
+    /// 2. Canvas蜿ら・繧定ｨｭ螳夲ｼ医∪縺溘・閾ｪ蜍募叙蠕暦ｼ・
+    /// 3. IFeatureInstaller縺ｨ縺励※UICanvasService繧堤匳骭ｲ
     /// 
-    /// ## 自動取得
+    /// ## 閾ｪ蜍募叙蠕・
     /// 
-    /// Canvasが設定されていない場合、親階層からCanvasを自動取得する。
+    /// Canvas縺瑚ｨｭ螳壹＆繧後※縺・↑縺・ｴ蜷医∬ｦｪ髫主ｱ､縺九ｉCanvas繧定・蜍募叙蠕励☆繧九・
     /// </summary>
     public sealed class UICanvasMB : MonoBehaviour, IFeatureInstaller
     {
         // ================================================================
-        // Inspector設定
+        // Inspector險ｭ螳・
         // ================================================================
 
-        [Header("Canvas設定")]
-        [Tooltip("このUIが属するCanvas。空の場合、親階層から自動取得する。")]
+        [Header("Inspector")]
+        // [Tooltip("Inspector setting.")]
         [SerializeField]
         Canvas? _canvas;
 
-        [Header("デバッグ")]
-        [Tooltip("起動時にCanvas情報をログ出力する")]
+        [Header("繝・ヰ繝・げ")]
+        // [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _logOnStart = false;
 
         // ================================================================
-        // 将来の拡張用フィールド（コメントで予約）
+        // 蟆・擂縺ｮ諡｡蠑ｵ逕ｨ繝輔ぅ繝ｼ繝ｫ繝会ｼ医さ繝｡繝ｳ繝医〒莠育ｴ・ｼ・
         // ================================================================
 
-        // [Header("アニメーション設定")]
-        // [Tooltip("UI要素のデフォルトアニメーション設定")]
+        // [Header("繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳・)]
+        // [Tooltip("Inspector setting.")]
         // [SerializeField]
         // UIAnimationSettings? _defaultAnimationSettings;
 
-        // [Header("サウンド設定")]
-        // [Tooltip("UI操作時のデフォルトサウンド設定")]
+        // [Header("繧ｵ繧ｦ繝ｳ繝芽ｨｭ螳・)]
+        // [Tooltip("Inspector setting.")]
         // [SerializeField]
         // UISoundSettings? _defaultSoundSettings;
 
-        // [Header("テーマ設定")]
-        // [Tooltip("UIのテーマ/スキン設定")]
+        // [Header("繝・・繝櫁ｨｭ螳・)]
+        // [Tooltip("Inspector setting.")]
         // [SerializeField]
         // UIThemeSettings? _themeSettings;
 
         // ================================================================
-        // キャッシュ
+        // 繧ｭ繝｣繝・す繝･
         // ================================================================
 
-        /// <summary>登録されたService</summary>
+        /// <summary>逋ｻ骭ｲ縺輔ｌ縺欖ervice</summary>
         UICanvasServiceCore? _service;
 
-        /// <summary>解決済みのCanvas</summary>
+        /// <summary>隗｣豎ｺ貂医∩縺ｮCanvas</summary>
         Canvas? _resolvedCanvas;
 
         // ================================================================
-        // プロパティ
+        // 繝励Ο繝代ユ繧｣
         // ================================================================
 
         /// <summary>
-        /// このMBが管理するCanvas。
-        /// Inspector設定または自動取得されたもの。
+        /// 縺薙・MB縺檎ｮ｡逅・☆繧気anvas縲・
+        /// Inspector險ｭ螳壹∪縺溘・閾ｪ蜍募叙蠕励＆繧後◆繧ゅ・縲・
         /// </summary>
         public Canvas? Canvas
         {
@@ -116,7 +116,7 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// キャンバスの種類（自動判定）。
+        /// 繧ｭ繝｣繝ｳ繝舌せ縺ｮ遞ｮ鬘橸ｼ郁・蜍募愛螳夲ｼ峨・
         /// </summary>
         public UICanvasType CanvasType
         {
@@ -136,21 +136,21 @@ namespace Game.UI
         }
 
         // ================================================================
-        // IFeatureInstaller実装
+        // IFeatureInstaller螳溯｣・
         // ================================================================
 
         /// <summary>
-        /// UICanvasServiceCoreをDIコンテナに登録する。
+        /// UICanvasServiceCore繧奪I繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// 
-        /// ## 処理内容
+        /// ## 蜃ｦ逅・・螳ｹ
         /// 
-        /// 1. Canvasを解決（Inspector設定または自動取得）
-        /// 2. UICanvasServiceCoreをSingletonで登録
-        /// 3. IUICanvasServiceとして公開
+        /// 1. Canvas繧定ｧ｣豎ｺ・・nspector險ｭ螳壹∪縺溘・閾ｪ蜍募叙蠕暦ｼ・
+        /// 2. UICanvasServiceCore繧担ingleton縺ｧ逋ｻ骭ｲ
+        /// 3. IUICanvasService縺ｨ縺励※蜈ｬ髢・
         /// </summary>
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            // Canvasを解決
+            // Canvas繧定ｧ｣豎ｺ
             _resolvedCanvas = ResolveCanvas();
 
             if (_resolvedCanvas == null)
@@ -159,19 +159,19 @@ namespace Game.UI
                                "Please set Canvas in Inspector or ensure parent has Canvas.");
             }
 
-            // UICanvasServiceCoreを登録
-            builder.Register<UICanvasServiceCore>(Lifetime.Singleton)
+            // UICanvasServiceCore繧堤匳骭ｲ
+            builder.Register<UICanvasServiceCore>(RuntimeLifetime.Singleton)
                 .WithParameter(typeof(Canvas), _resolvedCanvas)
                 .As<IUICanvasService>();
 
-            // CandidateProvider登録（World/Screen両対応）
+            // CandidateProvider逋ｻ骭ｲ・・orld/Screen荳｡蟇ｾ蠢懶ｼ・
             builder.Register<ISelectCandidateProvider>(c =>
             {
                 var cs = c.Resolve<IUICanvasService>();
                 return CanvasType == UICanvasType.World
                     ? new SelectCandidateProviderWorld(cs)
                     : new SelectCandidateProviderScreen(cs);
-            }, Lifetime.Singleton)
+            }, RuntimeLifetime.Singleton)
             .As<ISelectCandidateProvider>();
 
             // Ensure the service gets the provider injected when built
@@ -183,7 +183,7 @@ namespace Game.UI
                 }
             });
 
-            // BuildCallback内でServiceをキャッシュ　ー　自身がビルドされたときに自身の範囲内で呼び出す
+            // BuildCallback蜀・〒Service繧偵く繝｣繝・す繝･縲繝ｼ縲閾ｪ霄ｫ縺後ン繝ｫ繝峨＆繧後◆縺ｨ縺阪↓閾ｪ霄ｫ縺ｮ遽・峇蜀・〒蜻ｼ縺ｳ蜃ｺ縺・
             builder.RegisterBuildCallback(container =>
             {
                 if (container.TryResolve<UICanvasServiceCore>(out var service))
@@ -199,32 +199,32 @@ namespace Game.UI
         }
 
         // ================================================================
-        // MonoBehaviourライフサイクル
+        // MonoBehaviour繝ｩ繧､繝輔し繧､繧ｯ繝ｫ
         // ================================================================
 
         void Reset()
         {
-            // エディタでアタッチ時、親のCanvasを自動設定
+            // 繧ｨ繝・ぅ繧ｿ縺ｧ繧｢繧ｿ繝・メ譎ゅ∬ｦｪ縺ｮCanvas繧定・蜍戊ｨｭ螳・
             _canvas = GetComponentInParent<Canvas>();
         }
 
         void OnValidate()
         {
-            // Inspector変更時にキャッシュをクリア
+            // Inspector螟画峩譎ゅ↓繧ｭ繝｣繝・す繝･繧偵け繝ｪ繧｢
             _resolvedCanvas = null;
         }
 
         // ================================================================
-        // 内部メソッド
+        // 蜀・Κ繝｡繧ｽ繝・ラ
         // ================================================================
 
         /// <summary>
-        /// Canvasを解決する。
+        /// Canvas繧定ｧ｣豎ｺ縺吶ｋ縲・
         /// 
-        /// ## 解決順序
+        /// ## 隗｣豎ｺ鬆・ｺ・
         /// 
-        /// 1. Inspector設定があればそれを使用
-        /// 2. なければ親階層から自動取得
+        /// 1. Inspector險ｭ螳壹′縺ゅｌ縺ｰ縺昴ｌ繧剃ｽｿ逕ｨ
+        /// 2. 縺ｪ縺代ｌ縺ｰ隕ｪ髫主ｱ､縺九ｉ閾ｪ蜍募叙蠕・
         /// </summary>
         Canvas? ResolveCanvas()
         {
@@ -237,7 +237,7 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// Canvas情報をログ出力する（デバッグ用）。
+        /// Canvas諠・ｱ繧偵Ο繧ｰ蜃ｺ蜉帙☆繧具ｼ医ョ繝舌ャ繧ｰ逕ｨ・峨・
         /// </summary>
         void LogCanvasInfo()
         {
@@ -255,38 +255,38 @@ namespace Game.UI
     }
 
     // ================================================================
-    // UICanvasServiceCore - キャンバス情報サービス（シンプル版）
+    // UICanvasServiceCore - 繧ｭ繝｣繝ｳ繝舌せ諠・ｱ繧ｵ繝ｼ繝薙せ・医す繝ｳ繝励Ν迚茨ｼ・
     // ================================================================
 
     /// <summary>
-    /// キャンバス情報を管理するサービスのコア実装。
+    /// 繧ｭ繝｣繝ｳ繝舌せ諠・ｱ繧堤ｮ｡逅・☆繧九し繝ｼ繝薙せ縺ｮ繧ｳ繧｢螳溯｣・・
     /// 
-    /// ## 役割
+    /// ## 蠖ｹ蜑ｲ
     /// 
-    /// - Canvas参照の保持
-    /// - キャンバスタイプの判定
-    /// - 座標変換ユーティリティ
+    /// - Canvas蜿ら・縺ｮ菫晄戟
+    /// - 繧ｭ繝｣繝ｳ繝舌せ繧ｿ繧､繝励・蛻､螳・
+    /// - 蠎ｧ讓吝､画鋤繝ｦ繝ｼ繝・ぅ繝ｪ繝・ぅ
     /// 
-    /// ## 設計
+    /// ## 險ｭ險・
     /// 
-    /// CandidateProvider関連は別クラス（SelectCandidateProviderScreen等）に分離。
-    /// このサービスは純粋なCanvas情報の提供に専念する。
+    /// CandidateProvider髢｢騾｣縺ｯ蛻･繧ｯ繝ｩ繧ｹ・・electCandidateProviderScreen遲会ｼ峨↓蛻・屬縲・
+    /// 縺薙・繧ｵ繝ｼ繝薙せ縺ｯ邏皮ｲ九↑Canvas諠・ｱ縺ｮ謠蝉ｾ帙↓蟆ょｿｵ縺吶ｋ縲・
     /// </summary>
     public sealed class UICanvasServiceCore : IUICanvasService
     {
         // ----------------------------------------------------------------
-        // フィールド
+        // 繝輔ぅ繝ｼ繝ｫ繝・
         // ----------------------------------------------------------------
 
         readonly Canvas? _canvas;
         readonly Camera? _uiCamera;
         readonly UICanvasType _canvasType;
 
-        // 注意: CandidateProviderは別途設定される
+        // 豕ｨ諢・ CandidateProvider縺ｯ蛻･騾碑ｨｭ螳壹＆繧後ｋ
         ISelectCandidateProvider? _candidateProvider;
 
         // ----------------------------------------------------------------
-        // プロパティ
+        // 繝励Ο繝代ユ繧｣
         // ----------------------------------------------------------------
 
         /// <inheritdoc/>
@@ -314,13 +314,13 @@ namespace Game.UI
         }
 
         // ----------------------------------------------------------------
-        // コンストラクタ
+        // 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// コンストラクタ。
+        /// 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ縲・
         /// </summary>
-        /// <param name="canvas">管理対象のCanvas</param>
+        /// <param name="canvas">邂｡逅・ｯｾ雎｡縺ｮCanvas</param>
         public UICanvasServiceCore(Canvas? canvas)
         {
             _canvas = canvas;
@@ -345,16 +345,16 @@ namespace Game.UI
         }
 
         // ----------------------------------------------------------------
-        // 設定メソッド
+        // 險ｭ螳壹Γ繧ｽ繝・ラ
         // ----------------------------------------------------------------
 
         /// <summary>
-        /// CandidateProviderを設定する。
+        /// CandidateProvider繧定ｨｭ螳壹☆繧九・
         /// 
-        /// ## 用途
+        /// ## 逕ｨ騾・
         /// 
-        /// 外部からCandidateProviderを注入する場合に使用。
-        /// 例: WorldCanvasでは専用のProviderを設定する。
+        /// 螟夜Κ縺九ｉCandidateProvider繧呈ｳｨ蜈･縺吶ｋ蝣ｴ蜷医↓菴ｿ逕ｨ縲・
+        /// 萓・ WorldCanvas縺ｧ縺ｯ蟆ら畑縺ｮProvider繧定ｨｭ螳壹☆繧九・
         /// </summary>
         public void SetCandidateProvider(ISelectCandidateProvider? provider)
         {
@@ -362,7 +362,7 @@ namespace Game.UI
         }
 
         // ----------------------------------------------------------------
-        // 座標変換
+        // 蠎ｧ讓吝､画鋤
         // ----------------------------------------------------------------
 
         /// <inheritdoc/>
@@ -403,10 +403,10 @@ namespace Game.UI
                 return localPosition;
             }
 
-            // ローカル座標をワールド座標に変換
+            // 繝ｭ繝ｼ繧ｫ繝ｫ蠎ｧ讓吶ｒ繝ｯ繝ｼ繝ｫ繝牙ｺｧ讓吶↓螟画鋤
             var worldPos = rectTransform.TransformPoint(localPosition);
 
-            // ワールド座標をスクリーン座標に変換
+            // 繝ｯ繝ｼ繝ｫ繝牙ｺｧ讓吶ｒ繧ｹ繧ｯ繝ｪ繝ｼ繝ｳ蠎ｧ讓吶↓螟画鋤
             var camera = _canvasType == UICanvasType.ScreenOverlay ? null : _uiCamera;
             if (camera != null)
             {

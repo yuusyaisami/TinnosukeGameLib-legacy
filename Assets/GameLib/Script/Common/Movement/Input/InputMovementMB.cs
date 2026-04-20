@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands;
@@ -15,7 +15,7 @@ namespace Game.Movement
 {
     /// <summary>
     /// Feature installer that registers <see cref="InputMovementService"/>.
-    /// v0.2: Homing/Motion モジュールに対応。
+    /// v0.2: Homing/Motion 繝｢繧ｸ繝･繝ｼ繝ｫ縺ｫ蟇ｾ蠢懊・
     /// </summary>
     public sealed class InputMovementMB : MonoBehaviour, IFeatureInstaller
     {
@@ -30,17 +30,17 @@ namespace Game.Movement
 
         [FoldoutGroup("General")]
         [SerializeField]
-        [Tooltip("移動方向に応じて、DirectionHubに打つかどうか")]
+        [Tooltip("遘ｻ蜍墓婿蜷代↓蠢懊§縺ｦ縲．irectionHub縺ｫ謇薙▽縺九←縺・°")]
         bool _outputDirection = false;
 
         [FoldoutGroup("General")]
         [SerializeField, ShowIf("_outputDirection")]
-        [Tooltip("移動方向に応じて、Directionhub に打つオプションキー")]
+        [Tooltip("遘ｻ蜍墓婿蜷代↓蠢懊§縺ｦ縲．irectionhub 縺ｫ謇薙▽繧ｪ繝励す繝ｧ繝ｳ繧ｭ繝ｼ")]
         string _directionKey = InputMovementOptions.DefaultDirectionKey;
 
         [FoldoutGroup("General")]
         [SerializeField]
-        [Tooltip("Movement チャネルの速度を滑らかに遷移させるラムダ（0 なら即時切り替え）")]
+        [Tooltip("Inspector setting.")]
         float _smoothingLambda = 0f;
 
         // ================================================================
@@ -49,17 +49,17 @@ namespace Game.Movement
 
         [FoldoutGroup("Acceleration")]
         [SerializeField]
-        [Tooltip("加速/減速を有効化")]
+        [Tooltip("Inspector setting.")]
         bool _enableAcceleration = false;
 
         [FoldoutGroup("Acceleration")]
         [SerializeField, ShowIf("_enableAcceleration"), Min(0f)]
-        [Tooltip("加速レート")]
+        [Tooltip("Inspector setting.")]
         float _accel = 0f;
 
         [FoldoutGroup("Acceleration")]
         [SerializeField, ShowIf("_enableAcceleration"), Min(0f)]
-        [Tooltip("減速レート")]
+        [Tooltip("Inspector setting.")]
         float _decel = 0f;
 
         // ================================================================
@@ -68,12 +68,12 @@ namespace Game.Movement
 
         [FoldoutGroup("Speed Commands")]
         [SerializeField]
-        [Tooltip("移動速度に応じて、打つコマンドを変えられます")]
+        [Tooltip("Inspector setting.")]
         bool _useSpeedBasedCommands = false;
 
         [FoldoutGroup("Speed Commands")]
         [SerializeField, ShowIf("_useSpeedBasedCommands")]
-        [Tooltip("MonitorChannelHub に登録するルール群。速度キーを参照する式にすること")]
+        [Tooltip("MonitorChannelHub 縺ｫ逋ｻ骭ｲ縺吶ｋ繝ｫ繝ｼ繝ｫ鄒､縲る溷ｺｦ繧ｭ繝ｼ繧貞盾辣ｧ縺吶ｋ蠑上↓縺吶ｋ縺薙→")]
         MonitorRule[] _monitorRules = Array.Empty<MonitorRule>();
 
         [FoldoutGroup("Speed Commands")]
@@ -84,7 +84,7 @@ namespace Game.Movement
 
         [FoldoutGroup("Speed Commands")]
         [SerializeField, ShowIf("_useSpeedBasedCommands")]
-        [Tooltip("MonitorChannelHub の評価モード。EventDriven 推奨")]
+        [Tooltip("MonitorChannelHub 縺ｮ隧穂ｾ｡繝｢繝ｼ繝峨・ventDriven 謗ｨ螂ｨ")]
         MonitorEvaluationMode _evaluationMode = MonitorEvaluationMode.EventDriven;
 
 
@@ -94,22 +94,22 @@ namespace Game.Movement
 
         [FoldoutGroup("Homing")]
         [SerializeField]
-        [Tooltip("ホーミング（ターゲット追尾）機能を有効化")]
+        [Tooltip("Inspector setting.")]
         bool _enableHoming = false;
 
         [FoldoutGroup("Homing")]
         [SerializeField, ShowIf("_enableHoming")]
-        [Tooltip("ターゲット取得に使用するチャンネルタグ")]
+        [Tooltip("繧ｿ繝ｼ繧ｲ繝・ヨ蜿門ｾ励↓菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν繧ｿ繧ｰ")]
         string _targetChannelTag = "default";
 
         [FoldoutGroup("Homing")]
         [SerializeField, ShowIf("_enableHoming")]
-        [Tooltip("ホーミングのブレンドパラメータ")]
+        [Tooltip("繝帙・繝溘Φ繧ｰ縺ｮ繝悶Ξ繝ｳ繝峨ヱ繝ｩ繝｡繝ｼ繧ｿ")]
         HomingBlendParams _homingBlendParams = HomingBlendParams.Default;
 
         [FoldoutGroup("Homing")]
         [SerializeField, ShowIf("_enableHoming")]
-        [Tooltip("初期状態でホーミングを有効化するか")]
+        [Tooltip("蛻晄悄迥ｶ諷九〒繝帙・繝溘Φ繧ｰ繧呈怏蜉ｹ蛹悶☆繧九°")]
         bool _homingEnabledByDefault = true;
 
         // ================================================================
@@ -118,12 +118,12 @@ namespace Game.Movement
 
         [FoldoutGroup("Motion")]
         [SerializeField]
-        [Tooltip("モーション（進行方向変調）機能を有効化")]
+        [Tooltip("Inspector setting.")]
         bool _enableMotion = false;
 
         [FoldoutGroup("Motion")]
         [SerializeField, ShowIf("_enableMotion")]
-        [Tooltip("初期モーション（null の場合は空でスタート）")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<MotionPreset> _initialMotion = new();
 
         [FoldoutGroup("Debug")]
@@ -149,7 +149,7 @@ namespace Game.Movement
         // IFeatureInstaller
         // ================================================================
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (_debugView == null)
                 _debugView = new InputMovementDebugView();
@@ -182,7 +182,7 @@ namespace Game.Movement
                     enabledByDefault: _homingEnabledByDefault
                 );
                 builder.RegisterInstance(homingOptions);
-                builder.Register<HomingMovementService>(Lifetime.Singleton)
+                builder.Register<HomingMovementService>(RuntimeLifetime.Singleton)
                     .WithParameter(typeof(Game.Targeting.ITargetChannelHub), _ => (object?)null)
                     .As<IHomingMovement>()
                     .As<IHomingMovementConfigurable>()
@@ -200,21 +200,21 @@ namespace Game.Movement
                     initialMotion: initialMotion
                 );
                 builder.RegisterInstance(motionOptions);
-                builder.Register<MotionMovementService>(Lifetime.Singleton)
+                builder.Register<MotionMovementService>(RuntimeLifetime.Singleton)
                     .As<IMotionMovement>()
                     .As<IEnabledService>()
                     .As<IResettableService>();
             }
 
             // InputMovementService
-            builder.Register<InputMovementService>(Lifetime.Singleton)
+            builder.Register<InputMovementService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .As<IDisposable>()
                 .As<IInputMovementService>()
                 .As<IInputMovementTelemetry>()
                 .As<IEnabledService>()
-                .As<ITickable>()
+                .As<IScopeTickHandler>()
                 .WithParameter(scope);
 
             builder.RegisterInstance(_debugView);

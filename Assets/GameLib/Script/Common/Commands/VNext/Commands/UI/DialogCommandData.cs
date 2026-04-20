@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Game.Dialogue;
@@ -33,12 +33,12 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Target\", Target)")]
-        [Tooltip("DialogueChannelHub を持つ target scope です。空なら current scope から解決します。")]
+        [Tooltip("Inspector setting.")]
         public ActorSource Target = new() { Kind = ActorSourceKind.Current };
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        [Tooltip("操作対象の dialogue channel tag です。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         public string ChannelTag = "default";
 
         [BoxGroup("Target")]
@@ -48,7 +48,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Policy")]
         [LabelText("Strict")]
-        [Tooltip("true のとき操作失敗を command error として扱います。false のとき未解決を成功扱いでスキップします。")]
+        [Tooltip("Inspector setting.")]
         public bool Strict = true;
 
         [BoxGroup("Setup")]
@@ -72,7 +72,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Choice")]
         [ShowIf(nameof(UsesShowChoice))]
         [LabelText("Fail When Not Selected")]
-        [Tooltip("true のとき choice completion が Selected 以外 (Canceled/Timeout/Replaced) なら command error にします。")]
+        [Tooltip("Inspector setting.")]
         public bool FailWhenChoiceNotSelected;
 
         [BoxGroup("Choice")]
@@ -134,7 +134,7 @@ namespace Game.Commands.VNext
         [BoxGroup("Registry")]
         [ShowIf(nameof(UsesRegisterOrReplaceChannel))]
         [LabelText("Preset")]
-        [Tooltip("register/replace 時に channel へ設定する source preset です。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<DialogueChannelPreset> RegisterPreset =
             DynamicValue<DialogueChannelPreset>.FromSource(
                 new ManagedRefLiteralSource<DialogueChannelPreset>(new DialogueChannelPreset()));

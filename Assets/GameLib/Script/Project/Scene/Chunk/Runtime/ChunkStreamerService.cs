@@ -12,7 +12,7 @@ namespace Game.Chunk
         IChunkStreamer,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable
+        IScopeTickHandler
     {
         readonly ChunkStreamerConfig _config;
         readonly IChunkFactory _factory;

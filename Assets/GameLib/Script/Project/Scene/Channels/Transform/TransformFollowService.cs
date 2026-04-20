@@ -1,9 +1,9 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.TransformSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using VContainer; // これを消さないでください resolver.TryResolve 用
+using VContainer; // 縺薙ｌ繧呈ｶ医＆縺ｪ縺・〒縺上□縺輔＞ resolver.TryResolve 逕ｨ
 namespace Game.Channel
 {
     [Serializable]
@@ -34,7 +34,7 @@ namespace Game.Channel
         public bool UseVelocityOffset;
 
         [LabelText("Base Target Offset")]
-        [Tooltip("追従ターゲットの基準位置に常に加算する固定オフセットです。速度に依存せず常時適用されます。")]
+        [Tooltip("Inspector setting.")]
         public Vector3 BaseTargetOffset;
 
         [LabelText("Velocity Offset Scale")]
@@ -42,7 +42,7 @@ namespace Game.Channel
         public Vector2 VelocityOffsetScale;
 
         [LabelText("Velocity Offset Weight By Speed")]
-        [Tooltip("速度に応じて、Velocity Offset の寄与率を軸/方向ごとに補正します。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(UseVelocityOffset))]
         [InlineProperty]
         public TransformFollowVelocityWeightSettings VelocityWeight;
@@ -64,46 +64,46 @@ namespace Game.Channel
     public struct TransformFollowVelocityWeightSettings
     {
         [LabelText("Enable Speed-Based Weight")]
-        [Tooltip("有効時のみ、速度に応じて Offset Weight を補正します。無効時は常に Weight=1 です。")]
+        [Tooltip("Inspector setting.")]
         public bool Enabled;
 
         [LabelText("+ Soft Speed Limit (X,Y)")]
-        [Tooltip("+方向(+X,+Y)の速度がこの値以下なら Min Weight を使用します。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(Enabled))]
         public Vector2 SoftLimitPos;
 
         [LabelText("+ Hard Speed Limit (X,Y)")]
-        [Tooltip("+方向(+X,+Y)の速度がこの値以上なら Max Weight を使用します。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(Enabled))]
         public Vector2 HardLimitPos;
 
         [LabelText("- Soft Speed Limit (X,Y)")]
-        [Tooltip("-方向(-X,-Y)の速度がこの値以下なら Min Weight を使用します。符号は自動で絶対値化されます。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(Enabled))]
         public Vector2 SoftLimitNeg;
 
         [LabelText("- Hard Speed Limit (X,Y)")]
-        [Tooltip("-方向(-X,-Y)の速度がこの値以上なら Max Weight を使用します。符号は自動で絶対値化されます。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(Enabled))]
         public Vector2 HardLimitNeg;
 
         [LabelText("+ Min Weight (X,Y)")]
-        [Tooltip("+方向(+X,+Y)の低速時に使う Weight。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(Enabled))]
         public Vector2 MinWeightPos;
 
         [LabelText("+ Max Weight (X,Y)")]
-        [Tooltip("+方向(+X,+Y)の高速時に使う Weight。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(Enabled))]
         public Vector2 MaxWeightPos;
 
         [LabelText("- Min Weight (X,Y)")]
-        [Tooltip("-方向(-X,-Y)の低速時に使う Weight。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(Enabled))]
         public Vector2 MinWeightNeg;
 
         [LabelText("- Max Weight (X,Y)")]
-        [Tooltip("-方向(-X,-Y)の高速時に使う Weight。")]
+        [Tooltip("Inspector setting.")]
         [ShowIf(nameof(Enabled))]
         public Vector2 MaxWeightNeg;
 

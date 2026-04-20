@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,16 +8,16 @@ namespace Game.UI
     [Serializable]
     public struct ModalOptions
     {
-        [Tooltip("モーダルがPopされたときに、自動的に前回の選択にフォールバックするか")]
+        [Tooltip("Inspector setting.")]
         public bool AutoFallbackOnPop;
 
-        [Tooltip("このモーダル内でのデフォルト選択対象UIElement")]
+        [Tooltip("縺薙・繝｢繝ｼ繝繝ｫ蜀・〒縺ｮ繝・ヵ繧ｩ繝ｫ繝磯∈謚槫ｯｾ雎｡UIElement")]
         public IScopeNode? DefaultSelectedElement;
 
-        [Tooltip("背景クリックでモーダルを閉じるか")]
+        [Tooltip("Inspector setting.")]
         public bool CloseOnBackgroundClick;
 
-        [Tooltip("キャンセルボタンでモーダルを閉じるか")]
+        [Tooltip("Inspector setting.")]
         public bool CloseOnCancel;
 
         public static ModalOptions Default => new()

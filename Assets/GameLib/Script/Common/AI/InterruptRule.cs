@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Commands;
 using Game.Common;
@@ -8,17 +8,17 @@ using UnityEngine;
 namespace Game.AI
 {
     /// <summary>
-    /// 割り込みルール定義（SO 内に保持）
+    /// 蜑ｲ繧願ｾｼ縺ｿ繝ｫ繝ｼ繝ｫ螳夂ｾｩ・・O 蜀・↓菫晄戟・・
     /// </summary>
     [Serializable]
     public sealed class InterruptRule
     {
         [LabelText("Condition")]
-        [Tooltip("DynamicValue<bool> ベースの条件")]
+        [Tooltip("DynamicValue<bool> 繝吶・繧ｹ縺ｮ譚｡莉ｶ")]
         public DynamicValue<bool> Condition;
 
         [LabelText("Target Clip")]
-        [Tooltip("条件成立時に遷移する Clip")]
+        [Tooltip("譚｡莉ｶ謌千ｫ区凾縺ｫ驕ｷ遘ｻ縺吶ｋ Clip")]
         [AssetOrInternal]
         public AIClipSO? TargetClip;
 
@@ -26,16 +26,16 @@ namespace Game.AI
         public InterruptPolicy Policy = InterruptPolicy.Push;
 
         [LabelText("Priority Override")]
-        [Tooltip("-1 で TargetClip.Priority を使用")]
+        [Tooltip("-1 縺ｧ TargetClip.Priority 繧剃ｽｿ逕ｨ")]
         public int PriorityOverride = -1;
 
         [LabelText("Cooldown Frames")]
-        [Tooltip("発火後のクールダウン（フレーム）")]
+        [Tooltip("Inspector setting.")]
         [MinValue(0)]
         public int CooldownFrames = 0;
 
         [LabelText("Min True Frames")]
-        [Tooltip("条件が連続で true になる必要があるフレーム数")]
+        [Tooltip("譚｡莉ｶ縺碁｣邯壹〒 true 縺ｫ縺ｪ繧句ｿ・ｦ√′縺ゅｋ繝輔Ξ繝ｼ繝謨ｰ")]
         [MinValue(1)]
         public int MinTrueFrames = 1;
 
@@ -48,7 +48,7 @@ namespace Game.AI
     }
 
     /// <summary>
-    /// 割り込みルールの実行時状態
+    /// 蜑ｲ繧願ｾｼ縺ｿ繝ｫ繝ｼ繝ｫ縺ｮ螳溯｡梧凾迥ｶ諷・
     /// </summary>
     public sealed class InterruptRuleRuntime
     {
@@ -72,12 +72,12 @@ namespace Game.AI
 
         public bool Evaluate(in AIAgentContext ctx)
         {
-            // 同一フレームでの重複評価を防止
+            // 蜷御ｸ繝輔Ξ繝ｼ繝縺ｧ縺ｮ驥崎､・ｩ穂ｾ｡繧帝亟豁｢
             if (ctx.FrameCount == _lastEvalFrame)
                 return false;
             _lastEvalFrame = ctx.FrameCount;
 
-            // クールダウン中
+            // 繧ｯ繝ｼ繝ｫ繝繧ｦ繝ｳ荳ｭ
             if (_cooldownRemaining > 0)
             {
                 _cooldownRemaining--;
@@ -85,7 +85,7 @@ namespace Game.AI
                 return false;
             }
 
-            // 条件評価
+            // 譚｡莉ｶ隧穂ｾ｡
             bool result = _rule.Condition.EvaluateBool(_evalContext);
 
             if (result)
@@ -93,7 +93,7 @@ namespace Game.AI
                 _trueContinuousFrames++;
                 if (_trueContinuousFrames >= _rule.MinTrueFrames)
                 {
-                    // 発火！クールダウン開始
+                    // 逋ｺ轣ｫ・√け繝ｼ繝ｫ繝繧ｦ繝ｳ髢句ｧ・
                     _cooldownRemaining = _rule.CooldownFrames;
                     _trueContinuousFrames = 0;
                     return true;

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
@@ -133,7 +133,7 @@ namespace Game.UI
     {
         [BoxGroup("Preset")]
         [LabelText("Input Preset")]
-        [Tooltip("押下シーケンスの解釈方法です。Instant / Hold / ShortLong などの入力系 preset を指定します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<ButtonInputPresetBase> _inputPreset =
             DynamicValue<ButtonInputPresetBase>.FromSource(
@@ -141,7 +141,7 @@ namespace Game.UI
 
         [BoxGroup("Preset")]
         [LabelText("Player Preset")]
-        [Tooltip("enabled condition、binding、selection block、command execution guard などの player 側設定です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<ButtonPlayerPresetBase> _playerPreset =
             DynamicValue<ButtonPlayerPresetBase>.FromSource(
@@ -165,44 +165,44 @@ namespace Game.UI
     {
         [BoxGroup("State")]
         [LabelText("Enabled Condition")]
-        [Tooltip("true のときだけこの channel は入力を受け付けます。interaction 中に false へ落ちた場合は自動 cancel します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<bool> _enabledCondition = DynamicValueExtensions.FromLiteral(true);
 
         [BoxGroup("Binding UI")]
         [LabelText("UI Trigger Action")]
-        [Tooltip("UI adapter 使用時にこの channel を起動する入力アクションです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         UIInputAction _uiTriggerAction = UIInputAction.Submit;
 
         [BoxGroup("Binding World")]
         [LabelText("World Trigger Button")]
-        [Tooltip("World adapter 使用時にこの channel を起動する pointer button です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ButtonChannelWorldTriggerButton _worldTriggerButton = ButtonChannelWorldTriggerButton.Left;
 
         [BoxGroup("Guard Execution")]
         [LabelText("Guard During Command Execution")]
-        [Tooltip("決定 command 実行中は新しい入力を受け付けないようにします。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _guardDuringCommandExecution = true;
 
         [BoxGroup("Guard Execution")]
         [ShowIf(nameof(_guardDuringCommandExecution))]
         [LabelText("Disable Selection During Command Execution")]
-        [Tooltip("決定 command 実行中に UIElement を一時的に非選択にします。UI adapter のときだけ有効です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _disableSelectionDuringCommandExecution;
 
         [BoxGroup("Guard Interaction")]
         [LabelText("Allow Navigation Selection Change While Interacting")]
-        [Tooltip("interaction 中に navigation による selection 変更を許可するかどうかです。false の場合は block を取得して変更を防ぎます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _allowNavigationSelectionChangeWhileInteracting;
 
         [BoxGroup("Guard Interaction")]
         [LabelText("Allow Pointer Selection Change While Interacting")]
-        [Tooltip("interaction 中に pointer による selection / hover 変更を許可するかどうかです。false の場合は block を取得して変更を防ぎます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _allowPointerSelectionChangeWhileInteracting;
 
@@ -274,7 +274,7 @@ namespace Game.UI
     {
         [BoxGroup("GameRoot")]
         [LabelText("Bypass Modal Stack Guard")]
-        [Tooltip("true のとき、UIInputService の ModalStack 入力ブロックを通らない入力経路を使用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _bypassModalStackGuard = true;
 
@@ -297,19 +297,19 @@ namespace Game.UI
         [BoxGroup("State")]
         [ToggleLeft]
         [LabelText("Apply Enabled Condition")]
-        [Tooltip("enabled condition を runtime override する場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyEnabledCondition;
 
         [BoxGroup("State")]
         [ShowIf(nameof(ApplyEnabledCondition))]
         [LabelText("Enabled Condition")]
-        [Tooltip("true のときだけ channel は入力を受け付けます。")]
+        [Tooltip("Inspector setting.")]
         public DynamicValue<bool> EnabledCondition = DynamicValueExtensions.FromLiteral(true);
 
         [BoxGroup("Binding UI")]
         [ToggleLeft]
         [LabelText("Apply UI Trigger Action")]
-        [Tooltip("UI adapter 使用時の trigger action を runtime override する場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyUITriggerAction;
 
         [BoxGroup("Binding UI")]
@@ -320,7 +320,7 @@ namespace Game.UI
         [BoxGroup("Binding World")]
         [ToggleLeft]
         [LabelText("Apply World Trigger Button")]
-        [Tooltip("World adapter 使用時の pointer button を runtime override する場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyWorldTriggerButton;
 
         [BoxGroup("Binding World")]
@@ -331,7 +331,7 @@ namespace Game.UI
         [BoxGroup("Guard Execution")]
         [ToggleLeft]
         [LabelText("Apply Execution Guards")]
-        [Tooltip("command execution guard と selection disable を runtime override する場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyExecutionGuards;
 
         [BoxGroup("Guard Execution")]
@@ -347,7 +347,7 @@ namespace Game.UI
         [BoxGroup("Guard Interaction")]
         [ToggleLeft]
         [LabelText("Apply Interaction Selection Policy")]
-        [Tooltip("interaction 中の navigation / pointer selection change 許可設定を runtime override する場合に有効にします。")]
+        [Tooltip("Inspector setting.")]
         public bool ApplyInteractionSelectionPolicy;
 
         [BoxGroup("Guard Interaction")]
@@ -390,21 +390,21 @@ namespace Game.UI
     {
         [BoxGroup("Commands")]
         [LabelText("On Down")]
-        [Tooltip("trigger down 時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.Instant.OnDown")]
         CommandListData _onDownCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On Up")]
-        [Tooltip("trigger up 時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.Instant.OnUp")]
         CommandListData _onUpCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On Cancel")]
-        [Tooltip("down 後に決定前 cancel になったときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.Instant.OnCancel")]
         CommandListData _onCancelCommands = new();
@@ -445,55 +445,55 @@ namespace Game.UI
     {
         [BoxGroup("Timing")]
         [LabelText("Hold Time")]
-        [Tooltip("hold 到達までに必要な時間です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [MinValue(0.01f)]
         float _holdTime = 1f;
 
         [BoxGroup("Timing")]
         [LabelText("Auto Decide On Hold Reached")]
-        [Tooltip("hold 到達時に自動で決定するかどうかです。false の場合は到達後の up で決定します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _autoDecideOnHoldReached;
 
         [BoxGroup("Timing")]
         [LabelText("Hold Interval")]
-        [Tooltip("hold 中に interval command を実行する間隔です。0 以下の場合は interval 実行を無効扱いにします。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [MinValue(0f)]
         float _holdInterval = 0.1f;
 
         [BoxGroup("Commands")]
         [LabelText("On Down")]
-        [Tooltip("hold 開始時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.Hold.OnDown")]
         CommandListData _onDownCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On Hold Reached")]
-        [Tooltip("hold 到達時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.Hold.OnReached")]
         CommandListData _onHoldReachedCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On Decision Up")]
-        [Tooltip("hold 到達後、up で決定したときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.Hold.OnDecisionUp")]
         CommandListData _onDecisionUpCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On Cancel")]
-        [Tooltip("hold 到達前に cancel されたときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.Hold.OnCancel")]
         CommandListData _onCancelCommands = new();
 
         [BoxGroup("Commands")]
         [LabelText("On Interval")]
-        [Tooltip("hold 中、interval ごとに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.Hold.OnInterval")]
         CommandListData _onIntervalCommands = new();
@@ -557,76 +557,76 @@ namespace Game.UI
     {
         [BoxGroup("Timing")]
         [LabelText("Short Duration")]
-        [Tooltip("Short から Long に移るまでの時間です。短押しから長押しへ遷移する境界時間として使います。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [MinValue(0.01f)]
         float _shortDuration = 1f;
 
         [BoxGroup("Timing")]
         [LabelText("Long Max Duration")]
-        [Tooltip("Long 開始後、LongMax に到達するまでの追加時間です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [MinValue(0.01f)]
         float _longMaxDuration = 1f;
 
         [BoxGroup("Timing")]
         [LabelText("Auto Decide On Long Max")]
-        [Tooltip("LongMax 到達時に自動で決定するかどうかです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _autoDecideOnLongMax;
 
         [BoxGroup("Commands Start")]
         [LabelText("On Generic Start")]
-        [Tooltip("押下開始時に必ず実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.ShortLong.OnGenericStart")]
         CommandListData _onGenericStartCommands = new();
 
         [BoxGroup("Commands Start")]
         [LabelText("On Short Start")]
-        [Tooltip("Short 開始時に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.ShortLong.OnShortStart")]
         CommandListData _onShortStartCommands = new();
 
         [BoxGroup("Commands Start")]
         [LabelText("On Long Start")]
-        [Tooltip("Short を超えて Long に入った瞬間に実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.ShortLong.OnLongStart")]
         CommandListData _onLongStartCommands = new();
 
         [BoxGroup("Commands Decision")]
         [LabelText("On Generic Decision")]
-        [Tooltip("決定時に必ず実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.ShortLong.OnGenericDecision")]
         CommandListData _onGenericDecisionCommands = new();
 
         [BoxGroup("Commands Decision")]
         [LabelText("On Short Decision")]
-        [Tooltip("Short のまま離したときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.ShortLong.OnShortDecision")]
         CommandListData _onShortDecisionCommands = new();
 
         [BoxGroup("Commands Decision")]
         [LabelText("On Long Decision")]
-        [Tooltip("Long 状態で離したときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.ShortLong.OnLongDecision")]
         CommandListData _onLongDecisionCommands = new();
 
         [BoxGroup("Commands Decision")]
         [LabelText("On Long Max Decision")]
-        [Tooltip("LongMax 状態で決定したときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.ShortLong.OnLongMaxDecision")]
         CommandListData _onLongMaxDecisionCommands = new();
 
         [BoxGroup("Commands Decision")]
         [LabelText("On Cancel")]
-        [Tooltip("入力途中で cancel されたときに実行する command list です。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         [CommandListFunctionName("ButtonChannel.ShortLong.OnCancel")]
         CommandListData _onCancelCommands = new();

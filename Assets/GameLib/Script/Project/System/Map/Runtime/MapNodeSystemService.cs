@@ -252,7 +252,7 @@ namespace Game.MapNode
             await ReleaseSpawnedInstanceAsync(instance.Root, instance.Scope, instance.Resolver);
         }
 
-        static async UniTask ReleaseSpawnedInstanceAsync(Transform? root, IScopeNode? scope, IObjectResolver? resolver)
+        static async UniTask ReleaseSpawnedInstanceAsync(Transform? root, IScopeNode? scope, IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return;

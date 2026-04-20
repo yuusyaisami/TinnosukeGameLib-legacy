@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Channel;
@@ -18,7 +19,7 @@ namespace Game.UI
         IUIScrollRectService,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
-        ITickable,
+        IScopeTickHandler,
         IUIInputPreviewObserver,
         IUIInputBubbleConsumer
     {
@@ -38,7 +39,7 @@ namespace Game.UI
             public ActorSourceResolveCache AreaSourceCache;
             public IUIScrollBarBindingService? Binding;
             public IScopeNode? BindingScope;
-            public IObjectResolver? SpawnedResolver;
+            public IRuntimeResolver? SpawnedResolver;
 
             public float ViewSize;
             public float ContentSize;
@@ -142,11 +143,63 @@ namespace Game.UI
             }
         }
 
+        readonly struct RectTransformSnapshot
+        {
+            public readonly Vector2 AnchoredPosition;
+            public readonly Vector3 LocalScale;
+            public readonly Quaternion LocalRotation;
+            public readonly Vector2 AnchorMin;
+            public readonly Vector2 AnchorMax;
+            public readonly Vector2 SizeDelta;
+            public readonly Vector2 Pivot;
+
+            public RectTransformSnapshot(RectTransform rect)
+            {
+                AnchoredPosition = rect.anchoredPosition;
+                LocalScale = rect.localScale;
+                LocalRotation = rect.localRotation;
+                AnchorMin = rect.anchorMin;
+                AnchorMax = rect.anchorMax;
+                SizeDelta = rect.sizeDelta;
+                Pivot = rect.pivot;
+            }
+
+            public bool Matches(RectTransform rect)
+            {
+                return AnchoredPosition == rect.anchoredPosition &&
+                       LocalScale == rect.localScale &&
+                       LocalRotation == rect.localRotation &&
+                       AnchorMin == rect.anchorMin &&
+                       AnchorMax == rect.anchorMax &&
+                       SizeDelta == rect.sizeDelta &&
+                       Pivot == rect.pivot;
+            }
+
+            public bool MatchesExceptAnchoredPosition(RectTransform rect)
+            {
+                return LocalScale == rect.localScale &&
+                       LocalRotation == rect.localRotation &&
+                       AnchorMin == rect.anchorMin &&
+                       AnchorMax == rect.anchorMax &&
+                       SizeDelta == rect.sizeDelta &&
+                       Pivot == rect.pivot;
+            }
+        }
+
+        struct TrackedContentRectState
+        {
+            public Transform Transform;
+            public RectTransform? Rect;
+            public int ChildCount;
+            public bool ActiveInHierarchy;
+        }
+
         readonly IScopeNode _owner;
         readonly UIScrollRectMB _mb;
         readonly AxisState _horizontal;
         readonly AxisState _vertical;
         readonly Vector3[] _rectCorners = new Vector3[4];
+        readonly List<TrackedContentRectState> _trackedContentRects = new();
 
         IScopeNode? _activeScope;
         RectTransform? _viewport;
@@ -169,6 +222,7 @@ namespace Game.UI
         Bounds _viewBounds;
         Bounds _contentBounds;
         Vector2 _velocity;
+        Vector2 _pendingContentTranslation;
         Vector2 _lastContentPosition;
         TimeScaleBehavior _timeScaleBehavior = TimeScaleBehavior.Scaled;
 
@@ -176,6 +230,14 @@ namespace Game.UI
         bool _contentDragActive;
         bool _hasLastContentPosition;
         bool _boundsValid;
+        bool _contentStateDirty = true;
+        bool _contentHierarchyDirty = true;
+        bool _contentFullRebuildRequired = true;
+        bool _hasContentSnapshot;
+        bool _hasContentRootState;
+        int _contentRootChildCount = -1;
+        bool _contentRootActiveInHierarchy;
+        RectTransformSnapshot _contentSnapshot;
         int _acquireFrame = -1;
 
         public UIScrollRectSnapshot Snapshot => _snapshot;
@@ -1115,9 +1177,8 @@ namespace Game.UI
             if (_content == null || _viewport == null)
                 return;
 
-            _viewBounds = new Bounds(_viewport.rect.center, _viewport.rect.size);
-            _contentBounds = CalculateContentBounds();
-            _boundsValid = true;
+            if (!RefreshContentBoundsState())
+                return;
 
             UpdateAxisMetrics(_horizontal);
             UpdateAxisMetrics(_vertical);
@@ -1133,16 +1194,63 @@ namespace Game.UI
                 _vertical.Visible);
         }
 
+        bool RefreshContentBoundsState()
+        {
+            if (_content == null || _viewport == null)
+                return false;
+
+            DetectContentTransformChanges();
+
+            if (!_contentStateDirty && _boundsValid)
+                return false;
+
+            _viewBounds = new Bounds(_viewport.rect.center, _viewport.rect.size);
+
+            if (_contentFullRebuildRequired || !_boundsValid)
+            {
+                EnsureTrackedContentRects();
+                _contentBounds = CalculateContentBounds();
+                _contentFullRebuildRequired = false;
+            }
+            else if (_pendingContentTranslation.sqrMagnitude > Epsilon * Epsilon)
+            {
+                TranslateContentBounds(_pendingContentTranslation);
+            }
+            else
+            {
+                EnsureTrackedContentRects();
+                _contentBounds = CalculateContentBounds();
+            }
+
+            _pendingContentTranslation = Vector2.zero;
+            _contentStateDirty = false;
+            _boundsValid = true;
+
+            CaptureContentSnapshot();
+            return true;
+        }
+
         Bounds CalculateContentBounds()
         {
             if (_content == null || _viewport == null)
                 return default;
 
+            EnsureTrackedContentRects();
+
             var min = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
             var max = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
             var hasBounds = false;
 
-            CollectChildBounds(_content, ref hasBounds, ref min, ref max);
+            for (var i = 0; i < _trackedContentRects.Count; i++)
+            {
+                var tracked = _trackedContentRects[i];
+                var rect = tracked.Rect;
+                if (rect == null || !rect.gameObject.activeInHierarchy)
+                    continue;
+
+                AccumulateRectBounds(rect, ref hasBounds, ref min, ref max);
+            }
+
             if (!hasBounds)
                 AccumulateRectBounds(_content, ref hasBounds, ref min, ref max);
 
@@ -1150,21 +1258,6 @@ namespace Game.UI
                 return new Bounds(_viewBounds.center, Vector3.zero);
 
             return new Bounds((min + max) * 0.5f, max - min);
-        }
-
-        void CollectChildBounds(Transform root, ref bool hasBounds, ref Vector3 min, ref Vector3 max)
-        {
-            for (var i = 0; i < root.childCount; i++)
-            {
-                var child = root.GetChild(i);
-                if (child == null || !child.gameObject.activeInHierarchy)
-                    continue;
-
-                if (child is RectTransform rect)
-                    AccumulateRectBounds(rect, ref hasBounds, ref min, ref max);
-
-                CollectChildBounds(child, ref hasBounds, ref min, ref max);
-            }
         }
 
         void AccumulateRectBounds(RectTransform rect, ref bool hasBounds, ref Vector3 min, ref Vector3 max)
@@ -1348,6 +1441,198 @@ namespace Game.UI
             _horizontal.ResetInteraction();
             _vertical.ResetInteraction();
             _hasLastContentPosition = false;
+            _pendingContentTranslation = Vector2.zero;
+            _contentStateDirty = true;
+            _contentHierarchyDirty = true;
+            _contentFullRebuildRequired = true;
+            _hasContentSnapshot = false;
+            _hasContentRootState = false;
+            _contentRootChildCount = -1;
+            _contentRootActiveInHierarchy = false;
+            _trackedContentRects.Clear();
+        }
+
+        void MarkContentTranslationDirty(Vector2 anchoredPositionDelta)
+        {
+            var viewportDelta = ConvertContentTranslationToViewportDelta(anchoredPositionDelta);
+            if (viewportDelta.sqrMagnitude <= Epsilon * Epsilon)
+                return;
+
+            _pendingContentTranslation += viewportDelta;
+            _contentStateDirty = true;
+        }
+
+        Vector2 ConvertContentTranslationToViewportDelta(Vector2 localDelta)
+        {
+            if (_content == null || _viewport == null)
+                return localDelta;
+
+            var localDelta3 = new Vector3(localDelta.x, localDelta.y, 0f);
+            var worldDelta = _content.parent != null ? _content.parent.TransformVector(localDelta3) : localDelta3;
+            var viewportDelta = _viewport.InverseTransformVector(worldDelta);
+            return new Vector2(viewportDelta.x, viewportDelta.y);
+        }
+
+        void CaptureContentSnapshot()
+        {
+            if (_content == null)
+            {
+                _hasContentSnapshot = false;
+                _hasContentRootState = false;
+                return;
+            }
+
+            _contentSnapshot = new RectTransformSnapshot(_content);
+            _hasContentSnapshot = true;
+            _contentRootChildCount = _content.childCount;
+            _contentRootActiveInHierarchy = _content.gameObject.activeInHierarchy;
+            _hasContentRootState = true;
+        }
+
+        bool DetectContentTransformChanges()
+        {
+            if (_content == null)
+                return false;
+
+            var changed = false;
+
+            var rootChildCount = _content.childCount;
+            var rootActiveInHierarchy = _content.gameObject.activeInHierarchy;
+            if (!_hasContentRootState ||
+                _contentRootChildCount != rootChildCount ||
+                _contentRootActiveInHierarchy != rootActiveInHierarchy)
+            {
+                _contentRootChildCount = rootChildCount;
+                _contentRootActiveInHierarchy = rootActiveInHierarchy;
+                _hasContentRootState = true;
+                _contentHierarchyDirty = true;
+                _contentFullRebuildRequired = true;
+                _contentStateDirty = true;
+                changed = true;
+            }
+
+            if (_content.hasChanged)
+            {
+                _content.hasChanged = false;
+
+                if (!_hasContentSnapshot)
+                {
+                    _contentFullRebuildRequired = true;
+                    _contentStateDirty = true;
+                    CaptureContentSnapshot();
+                }
+                else if (_contentSnapshot.Matches(_content))
+                {
+                    // Already accounted for by the last write from this service.
+                }
+                else if (_contentSnapshot.MatchesExceptAnchoredPosition(_content))
+                {
+                    var anchoredDelta = _content.anchoredPosition - _contentSnapshot.AnchoredPosition;
+                    if (anchoredDelta.sqrMagnitude > Epsilon * Epsilon)
+                    {
+                        MarkContentTranslationDirty(anchoredDelta);
+                        CaptureContentSnapshot();
+                    }
+                }
+                else
+                {
+                    _contentFullRebuildRequired = true;
+                    _contentStateDirty = true;
+                    CaptureContentSnapshot();
+                }
+                changed = true;
+            }
+
+            if (_viewport != null && _viewport.hasChanged)
+            {
+                _viewport.hasChanged = false;
+                _contentFullRebuildRequired = true;
+                _contentStateDirty = true;
+                changed = true;
+            }
+
+            for (var i = 0; i < _trackedContentRects.Count; i++)
+            {
+                var tracked = _trackedContentRects[i];
+                var transform = tracked.Transform;
+                if (transform == null)
+                {
+                    _contentHierarchyDirty = true;
+                    _contentFullRebuildRequired = true;
+                    _contentStateDirty = true;
+                    changed = true;
+                    continue;
+                }
+
+                var activeInHierarchy = transform.gameObject.activeInHierarchy;
+                var childCount = transform.childCount;
+
+                if (transform.hasChanged)
+                {
+                    transform.hasChanged = false;
+                    _contentFullRebuildRequired = true;
+                    _contentStateDirty = true;
+                    changed = true;
+                }
+
+                if (tracked.ActiveInHierarchy != activeInHierarchy || tracked.ChildCount != childCount)
+                {
+                    tracked.ActiveInHierarchy = activeInHierarchy;
+                    tracked.ChildCount = childCount;
+                    _trackedContentRects[i] = tracked;
+                    _contentHierarchyDirty = true;
+                    _contentFullRebuildRequired = true;
+                    _contentStateDirty = true;
+                    changed = true;
+                }
+            }
+
+            return changed;
+        }
+
+        void EnsureTrackedContentRects()
+        {
+            if (!_contentHierarchyDirty && _trackedContentRects.Count > 0)
+                return;
+
+            _trackedContentRects.Clear();
+
+            if (_content == null)
+            {
+                _contentHierarchyDirty = false;
+                return;
+            }
+
+            CollectTrackedContentRects(_content);
+            _contentHierarchyDirty = false;
+        }
+
+        void CollectTrackedContentRects(Transform root)
+        {
+            for (var i = 0; i < root.childCount; i++)
+            {
+                var child = root.GetChild(i);
+                if (child == null)
+                    continue;
+
+                _trackedContentRects.Add(new TrackedContentRectState
+                {
+                    Transform = child,
+                    Rect = child as RectTransform,
+                    ChildCount = child.childCount,
+                    ActiveInHierarchy = child.gameObject.activeInHierarchy
+                });
+
+                CollectTrackedContentRects(child);
+            }
+        }
+
+        void TranslateContentBounds(Vector2 delta)
+        {
+            if (delta.sqrMagnitude <= Epsilon * Epsilon)
+                return;
+
+            _contentBounds.center += new Vector3(delta.x, delta.y, 0f);
         }
 
         void CancelBindTask()
@@ -1402,10 +1687,13 @@ namespace Game.UI
             if (_content == null)
                 return false;
 
-            if ((_content.anchoredPosition - position).sqrMagnitude <= Epsilon * Epsilon)
+            var currentPosition = _content.anchoredPosition;
+            if ((currentPosition - position).sqrMagnitude <= Epsilon * Epsilon)
                 return false;
 
+            MarkContentTranslationDirty(position - currentPosition);
             _content.anchoredPosition = position;
+            CaptureContentSnapshot();
             return true;
         }
 

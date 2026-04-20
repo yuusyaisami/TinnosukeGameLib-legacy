@@ -1,4 +1,4 @@
-// Game.StateMachine.StateAnimationMB.cs
+﻿// Game.StateMachine.StateAnimationMB.cs
 
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -9,18 +9,18 @@ using VContainer.Unity;
 namespace Game.StateMachine
 {
     /// <summary>
-    /// StateAnimationController の FeatureInstaller + Debug Viewer。
-    /// LifetimeScope 配下に配置して使用する。
+    /// StateAnimationController 縺ｮ FeatureInstaller + Debug Viewer縲・
+    /// LifetimeScope 驟堺ｸ九↓驟咲ｽｮ縺励※菴ｿ逕ｨ縺吶ｋ縲・
     /// </summary>
     [RequireComponent(typeof(StateMachineMB))]
     public sealed class StateAnimationMB : MonoBehaviour, IFeatureInstaller
     {
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Inspector Fields
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         [Header("Profile")]
-        [Tooltip("StateAnimationPreset。Inline か Asset のどちらでも指定できます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField, InlineProperty, HideLabel]
         DynamicValue<StateAnimationPreset> _preset;
 
@@ -31,31 +31,31 @@ namespace Game.StateMachine
         [SerializeField, InlineProperty, HideLabel]
         StateAnimationDebugViewer debugViewer = new();
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Runtime References
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         StateAnimationController _controllerRef;
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  IFeatureInstaller
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode baseLTS)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
         {
             EnsurePresetMigrated();
             var dynamicContext = new SimpleDynamicContext(NullVarStore.Instance, baseLTS);
             var preset = _preset.GetOrDefault(dynamicContext, null);
 
-            // StateAnimationController 登録
-            builder.Register<StateAnimationController>(Lifetime.Singleton)
-                .As<ITickable>()
+            // StateAnimationController 逋ｻ骭ｲ
+            builder.Register<StateAnimationController>(RuntimeLifetime.Singleton)
+                .As<IScopeTickHandler>()
                 .As<IStateAnimationTelemetry>()
                 .AsSelf()
                 .WithParameter("ownerScope", baseLTS)
                 .WithParameter("profile", preset);
 
-            // Debug View 用に参照を取得
+            // Debug View 逕ｨ縺ｫ蜿ら・繧貞叙蠕・
             builder.RegisterBuildCallback(container =>
             {
                 _controllerRef = container.Resolve<StateAnimationController>();
@@ -64,15 +64,15 @@ namespace Game.StateMachine
             });
         }
 
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Public API - Profile Hot-Swap
-        // ════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
         /// <summary>
-        /// Profile を動的に差し替える。
+        /// Profile 繧貞虚逧・↓蟾ｮ縺玲崛縺医ｋ縲・
         /// </summary>
-        /// <param name="profile">新しいプロファイル</param>
-        /// <param name="restartImmediately">true の場合、現在の StateMachine 状態に対して即座に再生を開始</param>
+        /// <param name="profile">譁ｰ縺励＞繝励Ο繝輔ぃ繧､繝ｫ</param>
+        /// <param name="restartImmediately">true 縺ｮ蝣ｴ蜷医∫樟蝨ｨ縺ｮ StateMachine 迥ｶ諷九↓蟇ｾ縺励※蜊ｳ蠎ｧ縺ｫ蜀咲函繧帝幕蟋・/param>
         public void SetProfile(StateAnimationProfileSO profile, bool restartImmediately = true)
         {
             _profile = profile;

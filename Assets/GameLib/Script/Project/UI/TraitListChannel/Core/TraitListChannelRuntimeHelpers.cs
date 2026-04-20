@@ -90,7 +90,7 @@ namespace Game.UI
         public static async UniTask ReleaseSpawnedInstanceAsync(
             Transform? root,
             IScopeNode? scope,
-            IObjectResolver? resolver)
+            IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return;
@@ -135,7 +135,7 @@ namespace Game.UI
         }
 
         public static void ExtractSpawnedInfo(
-            IObjectResolver? resolver,
+            IRuntimeResolver? resolver,
             out Transform? root,
             out IScopeNode? scopeNode)
         {

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -59,7 +59,7 @@ namespace Game.Fire
         int _fireEmitRepeatCount = 1;
 
         [SerializeField]
-        [Tooltip("true の場合、このパターンで生成されたユニットを全スポーン完了後に SelfDespawn 相当で自動破棄します。")]
+        [Tooltip("Inspector setting.")]
         bool _autoDespawnSpawnedUnitsAfterComplete = true;
 
         public string PatternId => _patternId;

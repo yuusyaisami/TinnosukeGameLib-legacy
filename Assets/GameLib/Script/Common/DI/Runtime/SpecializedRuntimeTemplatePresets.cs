@@ -117,7 +117,7 @@ namespace Game.DI
                 TryRunCommands(scope, resolver);
         }
 
-        void TryRunCommands(IScopeNode scope, IObjectResolver resolver)
+        void TryRunCommands(IScopeNode scope, IRuntimeResolver resolver)
         {
             if (onAcquireCommands == null || onAcquireCommands.Count == 0)
                 return;
@@ -203,7 +203,7 @@ namespace Game.DI
                 TryRunCommands(scope, resolver);
         }
 
-        void TryRunCommands(IScopeNode scope, IObjectResolver resolver)
+        void TryRunCommands(IScopeNode scope, IRuntimeResolver resolver)
         {
             if (onAcquireCommands == null || onAcquireCommands.Count == 0)
                 return;

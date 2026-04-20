@@ -4,27 +4,26 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.DI;
 using UnityEngine;
-using VContainer;
 
 namespace Game.Spawn
 {
     /// <summary>
-    /// エミッターサービスのインターフェース。
-    /// SpawnPattern の実行と管理を担当。
+    /// 繧ｨ繝溘ャ繧ｿ繝ｼ繧ｵ繝ｼ繝薙せ縺ｮ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ縲・
+    /// SpawnPattern 縺ｮ螳溯｡後→邂｡逅・ｒ諡・ｽ薙・
     /// </summary>
     public interface IEmitterService
     {
         Vector3 Origin { get; }
         Quaternion Rotation { get; }
 
-        /// <summary>エミッターの親（生成者）の Resolver</summary>
-        IObjectResolver OwnerResolver { get; }
+        /// <summary>繧ｨ繝溘ャ繧ｿ繝ｼ縺ｮ隕ｪ・育函謌占・ｼ峨・ Resolver</summary>
+        IRuntimeResolver OwnerResolver { get; }
 
-        /// <summary>エミッターの親（生成者）の ScopeNode</summary>
+        /// <summary>繧ｨ繝溘ャ繧ｿ繝ｼ縺ｮ隕ｪ・育函謌占・ｼ峨・ ScopeNode</summary>
         IScopeNode OwnerNode { get; }
 
-        /// <summary>エミッターの親（生成者）の Scope（RuntimeResolver の場合は null）</summary>
-        BaseLifetimeScope? OwnerScope { get; }
+        /// <summary>繧ｨ繝溘ャ繧ｿ繝ｼ縺ｮ隕ｪ・育函謌占・ｼ峨・ Scope・・untimeResolver 縺ｮ蝣ｴ蜷医・ null・・/summary>
+        RuntimeLifetimeScopeBase? OwnerScope { get; }
 
         /// <summary>SceneSpawnerRegistry</summary>
         ISceneSpawnerRegistry SpawnerRegistry { get; }
@@ -47,6 +46,6 @@ namespace Game.Spawn
         /// Notify spawn-context consumers for a directly spawned unit.
         /// Intended for non-pattern spawns that still need FirePattern execution.
         /// </summary>
-        void NotifySpawnedUnit(IObjectResolver unitResolver, in SpawnContext context, int waveIndex);
+        void NotifySpawnedUnit(IRuntimeResolver unitResolver, in SpawnContext context, int waveIndex);
     }
 }

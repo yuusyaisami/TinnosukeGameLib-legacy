@@ -67,15 +67,15 @@ namespace Game.UI
         public IReadOnlyList<VisualBoundsReactiveChannelDefinition> Channels => _channels;
         public Settings HubSettings => _settings;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
-            builder.Register<VisualBoundsReactiveHubService>(Lifetime.Singleton)
+            builder.Register<VisualBoundsReactiveHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)
                 .WithParameter(this)
                 .As<IVisualBoundsReactiveHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ILateTickable>();
+                .As<IScopeLateTickHandler>();
         }
     }
 }

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
@@ -8,8 +8,6 @@ using Game.DI;
 using Game.Spawn;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 
 namespace Game.Project.Scene.Runtime
 {
@@ -40,7 +38,7 @@ namespace Game.Project.Scene.Runtime
         [Header("Spawner")]
         [SerializeField] string spawnerTag = "";
 
-        [Tooltip("Runtime spawn parent. Nullの場合はこのGameObject直下に生成")]
+        [Tooltip("Runtime spawn parent. Null縺ｮ蝣ｴ蜷医・縺薙・GameObject逶ｴ荳九↓逕滓・")]
         [SerializeField] Transform? root;
 
         [Header("Warmup")]
@@ -50,7 +48,7 @@ namespace Game.Project.Scene.Runtime
         [SerializeField, InlineProperty, HideLabel]
         RuntimeManagerPoolDebugViewer debugViewer = new();
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             // Only register this instance if the underlying Unity object is alive. When InstallFeature
             // runs during scope build, it's possible components were destroyed or are in an invalid state.
@@ -69,15 +67,15 @@ namespace Game.Project.Scene.Runtime
             }
 
             var resolvedRoot = root != null ? root : transform;
-            var buildParent = owner as LifetimeScope;
+            var buildParent = owner;
 
-            builder.Register<RuntimeLifetimeScopePool>(Lifetime.Singleton)
+            builder.Register<RuntimeLifetimeScopePool>(RuntimeLifetime.Singleton)
                 .WithParameter(buildParent)
                 .WithParameter(resolvedRoot)
                 .As<IRuntimeLifetimeScopePool>()
                 .As<IRuntimeLifetimeScopePoolTelemetry>();
 
-            builder.Register<RuntimeLifetimeScopeSpawnerService>(Lifetime.Singleton)
+            builder.Register<RuntimeLifetimeScopeSpawnerService>(RuntimeLifetime.Singleton)
                 .WithParameter(resolvedRoot)
                 .WithParameter(spawnerTag)
                 .AsSelf()
@@ -659,7 +657,7 @@ namespace Game.Project.Scene.Runtime
             _registry.Register(this);
         }
 
-        public async UniTask<IObjectResolver?> SpawnAsync(SpawnParams p, System.Threading.CancellationToken ct = default)
+        public async UniTask<IRuntimeResolver?> SpawnAsync(SpawnParams p, System.Threading.CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -704,7 +702,7 @@ namespace Game.Project.Scene.Runtime
                 }
                 else
                 {
-                    var runtimeParent = transformParent.GetComponentInParent<RuntimeLifetimeScope>(includeInactive: true);
+                    var runtimeParent = transformParent.GetComponentInParent<RuntimeLifetimeScopeBase>(includeInactive: true);
                     if (runtimeParent == scope)
                         runtimeParent = null;
 
@@ -714,11 +712,7 @@ namespace Game.Project.Scene.Runtime
                     }
                     else
                     {
-                        var baseParent = transformParent.GetComponentInParent<BaseLifetimeScope>(includeInactive: true);
-                        if (baseParent != null)
-                            scope.SetExplicitBuildParent((IScopeNode?)baseParent);
-                        else
-                            scope.SetExplicitBuildParent((IScopeNode?)null);
+                        scope.SetExplicitBuildParent((IScopeNode?)null);
                     }
                 }
 

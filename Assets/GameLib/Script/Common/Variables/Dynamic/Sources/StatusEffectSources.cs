@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -39,19 +39,19 @@ namespace Game.Common
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(actorSource)")]
         [SerializeField]
-        [Tooltip("説明文を取得する対象 Actor を指定します。")]
+        [Tooltip("Inspector setting.")]
         ActorSource actorSource;
 
         [LabelText("Separator")]
         [EnumToggleButtons]
         [SerializeField]
-        [Tooltip("複数の説明文を連結するときの区切り文字です。")]
+        [Tooltip("Inspector setting.")]
         StatusEffectDescriptionSeparator separator = StatusEffectDescriptionSeparator.NewLine;
 
         [LabelText("Exclude Effect Ids")]
         [ListDrawerSettings(ShowFoldout = true, DraggableItems = false, DefaultExpandedState = true)]
         [SerializeField]
-        [Tooltip("ここに入れた definitionId は連結対象から除外します。空ならすべて対象です。")]
+        [Tooltip("Inspector setting.")]
         List<string> excludedDefinitionIds = new();
 
         [NonSerialized]
@@ -181,17 +181,17 @@ namespace Game.Common
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
         [SerializeField]
-        [Tooltip("IStatusEffectService を解決する対象 Actor を指定します。")]
+        [Tooltip("Inspector setting.")]
         ActorSource targetActorSource = new() { Kind = ActorSourceKind.Current };
 
         [LabelText("Definition")]
         [SerializeField]
-        [Tooltip("対象の StatusEffect 定義です。DefinitionId で runtime を照合します。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<BaseStatusEffectDefinitionData> definition;
 
         [LabelText("Operation Id")]
         [SerializeField]
-        [Tooltip("有効状態を確認する operationId です。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<string> operationId;
 
         [NonSerialized]
@@ -230,12 +230,12 @@ namespace Game.Common
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(targetActorSource)")]
         [SerializeField]
-        [Tooltip("IStatusEffectService を解決する対象 Actor を指定します。")]
+        [Tooltip("Inspector setting.")]
         ActorSource targetActorSource = new() { Kind = ActorSourceKind.Current };
 
         [LabelText("Definition")]
         [SerializeField]
-        [Tooltip("存在確認する StatusEffect 定義です。DefinitionId で照合します。")]
+        [Tooltip("Inspector setting.")]
         DynamicValue<BaseStatusEffectDefinitionData> definition;
 
         [NonSerialized]

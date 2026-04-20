@@ -1,6 +1,6 @@
-// Game.Health.HealthPreset.cs
+﻿// Game.Health.HealthPreset.cs
 //
-// Health 関連の設定を保持する inline preset。
+// Health 髢｢騾｣縺ｮ險ｭ螳壹ｒ菫晄戟縺吶ｋ inline preset縲・
 
 #nullable enable
 
@@ -19,13 +19,13 @@ namespace Game.Health
     {
         [BoxGroup("Health")]
         [LabelText("Max HP")]
-        [Tooltip("最大体力。Scalar に自動登録される。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         ProfileFloatValue maxHP = CreateDefaultMaxHP();
 
         [BoxGroup("Health")]
         [LabelText("Initial HP Mode")]
-        [Tooltip("初期HPを割合で指定するか、固定値で指定するか。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         HealthInitialHPMode initialHPMode = HealthInitialHPMode.InitialHPRatio;
 
@@ -33,7 +33,7 @@ namespace Game.Health
         [LabelText("Initial HP Ratio")]
         [ShowIf(nameof(ShowInitialHPRatio))]
         [Range(0f, 1f)]
-        [Tooltip("スポーン時の HP 割合 (0.0 - 1.0)")]
+        [Tooltip("繧ｹ繝昴・繝ｳ譎ゅ・ HP 蜑ｲ蜷・(0.0 - 1.0)")]
         [SerializeField]
         float initialHPRatio = 1f;
 
@@ -41,19 +41,19 @@ namespace Game.Health
         [LabelText("Initial HP Value")]
         [ShowIf(nameof(ShowInitialHPValue))]
         [MinValue(0f)]
-        [Tooltip("スポーン時の初期HP固定値。最大HPを超える場合は最大HPに丸める。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float initialHPValue = 100f;
 
         [BoxGroup("Spawn")]
         [LabelText("Invincible Duration On Spawn")]
-        [Tooltip("スポーン時の無敵時間（秒）。0 で無効。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float invincibleDurationOnSpawn = 0f;
 
         [BoxGroup("Damage Invincible")]
         [LabelText("Enable On Damaged")]
-        [Tooltip("ダメージ適用時に一定時間無敵を付与します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool enableInvincibleOnDamaged;
 
@@ -61,13 +61,13 @@ namespace Game.Health
         [ShowIf(nameof(enableInvincibleOnDamaged))]
         [LabelText("Duration")]
         [MinValue(0f)]
-        [Tooltip("被弾時に付与する無敵時間（秒）。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float invincibleDurationOnDamaged = 0.1f;
 
         [BoxGroup("Death")]
         [LabelText("Death Delay")]
-        [Tooltip("死亡判定後、OnDeath イベント発行までの遅延（秒）")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         float deathDelay = 0f;
 

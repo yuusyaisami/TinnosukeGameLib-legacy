@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -24,13 +24,13 @@ namespace Game.UI
     {
         [BoxGroup("Channel")]
         [LabelText("Channel Tag")]
-        [Tooltip("ButtonChannel の識別タグです。空白の場合は default を使用します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         string _channelTag = "default";
 
         [BoxGroup("Preset")]
         [LabelText("Preset")]
-        [Tooltip("この channel の source preset です。reset runtime override 時はここへ戻ります。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         DynamicValue<ButtonChannelPreset> _presetValue =
             DynamicValue<ButtonChannelPreset>.FromSource(
@@ -62,15 +62,15 @@ namespace Game.UI
         public IReadOnlyList<ButtonChannelDefinition> Channels => _channels;
         public IButtonChannelHubService? Hub => _hub;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<ButtonChannelHubService>(Lifetime.Singleton)
+            builder.Register<ButtonChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
                 .WithParameter(this)
                 .As<IButtonChannelHubService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
-                .As<ITickable>();
+                .As<IScopeTickHandler>();
 
             builder.RegisterBuildCallback(resolver =>
             {

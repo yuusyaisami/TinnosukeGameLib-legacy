@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.MaterialFx.Generated;
@@ -42,20 +42,20 @@ namespace Game.MaterialFx
     }
 
     /// <summary>
-    /// BaseShader 専用の MaterialFx プリセット。
-    /// Inspector で BaseShader の全プロパティを編集可能。
-    /// フィールド変更時に AutoEntries を自動更新。
+    /// BaseShader 蟆ら畑縺ｮ MaterialFx 繝励Μ繧ｻ繝・ヨ縲・
+    /// Inspector 縺ｧ BaseShader 縺ｮ蜈ｨ繝励Ο繝代ユ繧｣繧堤ｷｨ髮・庄閭ｽ縲・
+    /// 繝輔ぅ繝ｼ繝ｫ繝牙､画峩譎ゅ↓ AutoEntries 繧定・蜍墓峩譁ｰ縲・
     /// 
-    /// ## 概要
-    /// このSOは、BaseShader の CompositeSystem プロパティを Inspector 上で
-    /// 直感的に編集できるようにしたプリセットです。
-    /// 各エフェクトの有効/無効を切り替え、パラメータを調整することで
-    /// マテリアルエフェクトの組み合わせを保存・再利用できます。
+    /// ## 讎りｦ・
+    /// 縺薙・SO縺ｯ縲。aseShader 縺ｮ CompositeSystem 繝励Ο繝代ユ繧｣繧・Inspector 荳翫〒
+    /// 逶ｴ諢溽噪縺ｫ邱ｨ髮・〒縺阪ｋ繧医≧縺ｫ縺励◆繝励Μ繧ｻ繝・ヨ縺ｧ縺吶・
+    /// 蜷・お繝輔ぉ繧ｯ繝医・譛牙柑/辟｡蜉ｹ繧貞・繧頑崛縺医√ヱ繝ｩ繝｡繝ｼ繧ｿ繧定ｪｿ謨ｴ縺吶ｋ縺薙→縺ｧ
+    /// 繝槭ユ繝ｪ繧｢繝ｫ繧ｨ繝輔ぉ繧ｯ繝医・邨・∩蜷医ｏ縺帙ｒ菫晏ｭ倥・蜀榊茜逕ｨ縺ｧ縺阪∪縺吶・
     /// 
-    /// ## テクスチャソース設定について
-    /// - SlotType: テクスチャを取得するスロット (5=ExternalA, 6=ExternalB, 7=CustomRT)
-    /// - Channel: 使用するチャンネル (R/G/B/A)
-    /// - UVSpace: UV座標系 (0=SpriteLocal, 1=Screen, 2=TextureRaw, 3=WorldXY)
+    /// ## 繝・け繧ｹ繝√Ε繧ｽ繝ｼ繧ｹ險ｭ螳壹↓縺､縺・※
+    /// - SlotType: 繝・け繧ｹ繝√Ε繧貞叙蠕励☆繧九せ繝ｭ繝・ヨ (5=ExternalA, 6=ExternalB, 7=CustomRT)
+    /// - Channel: 菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν (R/G/B/A)
+    /// - UVSpace: UV蠎ｧ讓咏ｳｻ (0=SpriteLocal, 1=Screen, 2=TextureRaw, 3=WorldXY)
     /// </summary>
     [Serializable]
     public sealed class BaseShaderFxPreset : MaterialFxPresetDataBase
@@ -68,548 +68,548 @@ namespace Game.MaterialFx
             Premultiply = 3,
         }
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Dissolve (ディゾルブ効果)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Dissolve (繝・ぅ繧ｾ繝ｫ繝門柑譫・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Dissolve", "テクスチャパターンに基づいてスプライトを徐々に消失させるエフェクト")]
+        [TitleGroup("Inspector")]
         [ToggleLeft]
-        [Tooltip("ディゾルブエフェクトを有効にする")]
+        [Tooltip("繝・ぅ繧ｾ繝ｫ繝悶お繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool dissolveEnabled = false;
 
         [TitleGroup("Dissolve")]
         [ShowIf(nameof(dissolveEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("消失の進行度。0=完全に表示、1=完全に消失")]
+        [Tooltip("豸亥､ｱ縺ｮ騾ｲ陦悟ｺｦ縲・=螳悟・縺ｫ陦ｨ遉ｺ縲・=螳悟・縺ｫ豸亥､ｱ")]
         public float dissolveThreshold = 0f;
 
         [TitleGroup("Dissolve")]
         [ShowIf(nameof(dissolveEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("消失エッジの幅。大きいほどグラデーションが広くなる")]
+        [Tooltip("Inspector setting.")]
         public float dissolveEdgeWidth = 0.1f;
 
         [TitleGroup("Dissolve")]
         [ShowIf(nameof(dissolveEnabled))]
-        [Tooltip("消失エッジの発光色")]
+        [Tooltip("豸亥､ｱ繧ｨ繝・ず縺ｮ逋ｺ蜈芽牡")]
         public Color dissolveEdgeColor = Color.white;
 
-        [TitleGroup("Dissolve/Source", "ディゾルブパターンを取得するテクスチャソース設定")]
+        [TitleGroup("Inspector")]
         [ShowIf(nameof(dissolveEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ (ExtA/ExtB/CustomRT)")]
         public int dissolveSourceSlotType = 5;
 
         [TitleGroup("Dissolve/Source")]
         [ShowIf(nameof(dissolveEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル (R/G/B/A)")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν (R/G/B/A)")]
         public int dissolveSourceChannel = 1;
 
         [TitleGroup("Dissolve/Source")]
         [ShowIf(nameof(dissolveEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int dissolveSourceUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Flow Warp (フロー歪み効果)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Flow Warp (繝輔Ο繝ｼ豁ｪ縺ｿ蜉ｹ譫・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Flow Warp", "テクスチャに基づいてUVを歪ませる水面・熱気流のようなエフェクト")]
+        [TitleGroup("Inspector")]
         [ToggleLeft]
-        [Tooltip("フローワープエフェクトを有効にする")]
+        [Tooltip("繝輔Ο繝ｼ繝ｯ繝ｼ繝励お繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool flowWarpEnabled = false;
 
         [TitleGroup("Flow Warp")]
         [ShowIf(nameof(flowWarpEnabled))]
-        [Tooltip("歪みの強度 (X, Y)。値が大きいほど歪みが強くなる")]
+        [Tooltip("Inspector setting.")]
         public Vector2 flowWarpStrength = new Vector2(0.1f, 0.1f);
 
         [TitleGroup("Flow Warp")]
         [ShowIf(nameof(flowWarpEnabled))]
-        [Tooltip("歪みアニメーションの速度")]
+        [Tooltip("豁ｪ縺ｿ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ縺ｮ騾溷ｺｦ")]
         public float flowWarpSpeed = 1f;
 
-        [TitleGroup("Flow Warp/Source", "歪みパターンを取得するテクスチャソース設定")]
+        [TitleGroup("Inspector")]
         [ShowIf(nameof(flowWarpEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ (ExtA/ExtB/CustomRT)")]
         public int flowWarpSourceSlotType = 5;
 
         [TitleGroup("Flow Warp/Source")]
         [ShowIf(nameof(flowWarpEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル (R/G/B/A)")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν (R/G/B/A)")]
         public int flowWarpSourceChannel = 1;
 
         [TitleGroup("Flow Warp/Source")]
         [ShowIf(nameof(flowWarpEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int flowWarpSourceUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Color Overlay (カラーオーバーレイ)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Color Overlay (繧ｫ繝ｩ繝ｼ繧ｪ繝ｼ繝舌・繝ｬ繧､)
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Color Overlay", "テクスチャマスクに基づいて色を重ねるエフェクト")]
+        [TitleGroup("Inspector")]
         [ToggleLeft]
-        [Tooltip("カラーオーバーレイを有効にする")]
+        [Tooltip("繧ｫ繝ｩ繝ｼ繧ｪ繝ｼ繝舌・繝ｬ繧､繧呈怏蜉ｹ縺ｫ縺吶ｋ")]
         public bool colorOverlayEnabled = false;
 
         [TitleGroup("Color Overlay")]
         [ShowIf(nameof(colorOverlayEnabled))]
-        [Tooltip("オーバーレイする色")]
+        [Tooltip("繧ｪ繝ｼ繝舌・繝ｬ繧､縺吶ｋ濶ｲ")]
         public Color colorOverlayColor = Color.white;
 
         [TitleGroup("Color Overlay")]
         [ShowIf(nameof(colorOverlayEnabled))]
         [ValueDropdown(nameof(GetBlendModeOptions))]
-        [Tooltip("ブレンドモード (Normal/Multiply/Screen/Overlay/Add/SoftLight等)")]
+        [Tooltip("繝悶Ξ繝ｳ繝峨Δ繝ｼ繝・(Normal/Multiply/Screen/Overlay/Add/SoftLight遲・")]
         public int colorOverlayBlendMode = 0;
 
         [TitleGroup("Color Overlay")]
         [ShowIf(nameof(colorOverlayEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("エフェクトの強度。0=無効、1=最大")]
+        [Tooltip("繧ｨ繝輔ぉ繧ｯ繝医・蠑ｷ蠎ｦ縲・=辟｡蜉ｹ縲・=譛螟ｧ")]
         public float colorOverlayIntensity = 1f;
 
-        [TitleGroup("Color Overlay/Source", "オーバーレイマスクを取得するテクスチャソース設定")]
+        [TitleGroup("Inspector")]
         [ShowIf(nameof(colorOverlayEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ (ExtA/ExtB/CustomRT)")]
         public int colorOverlaySourceSlotType = 5;
 
         [TitleGroup("Color Overlay/Source")]
         [ShowIf(nameof(colorOverlayEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル (R/G/B/A)")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν (R/G/B/A)")]
         public int colorOverlaySourceChannel = 1;
 
         [TitleGroup("Color Overlay/Source")]
         [ShowIf(nameof(colorOverlayEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int colorOverlaySourceUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Color Ramp (カラーランプ)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Color Ramp (繧ｫ繝ｩ繝ｼ繝ｩ繝ｳ繝・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Color Ramp", "グレースケール値を元にカラーランプテクスチャで色を置換するエフェクト")]
+        [TitleGroup("Inspector")]
         [ToggleLeft]
-        [Tooltip("カラーランプエフェクトを有効にする")]
+        [Tooltip("繧ｫ繝ｩ繝ｼ繝ｩ繝ｳ繝励お繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool colorRampEnabled = false;
 
         [TitleGroup("Color Ramp")]
         [ShowIf(nameof(colorRampEnabled))]
-        [Tooltip("カラーランプテクスチャ (1Dまたは横方向のグラデーション)")]
+        [Tooltip("繧ｫ繝ｩ繝ｼ繝ｩ繝ｳ繝励ユ繧ｯ繧ｹ繝√Ε (1D縺ｾ縺溘・讓ｪ譁ｹ蜷代・繧ｰ繝ｩ繝・・繧ｷ繝ｧ繝ｳ)")]
         public Texture? colorRampTexture;
 
         [TitleGroup("Color Ramp")]
         [ShowIf(nameof(colorRampEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("エフェクトの強度")]
+        [Tooltip("繧ｨ繝輔ぉ繧ｯ繝医・蠑ｷ蠎ｦ")]
         public float colorRampIntensity = 1f;
 
         [TitleGroup("Color Ramp")]
         [ShowIf(nameof(colorRampEnabled))]
         [ToggleLeft]
-        [Tooltip("元のアルファ値を保持する")]
+        [Tooltip("蜈・・繧｢繝ｫ繝輔ぃ蛟､繧剃ｿ晄戟縺吶ｋ")]
         public bool colorRampPreserveAlpha = true;
 
-        [TitleGroup("Color Ramp/Source", "ランプ参照値を取得するテクスチャソース設定")]
+        [TitleGroup("Inspector")]
         [ShowIf(nameof(colorRampEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ (ExtA/ExtB/CustomRT)")]
         public int colorRampSourceSlotType = 5;
 
         [TitleGroup("Color Ramp/Source")]
         [ShowIf(nameof(colorRampEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル (R/G/B/A)")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν (R/G/B/A)")]
         public int colorRampSourceChannel = 1;
 
         [TitleGroup("Color Ramp/Source")]
         [ShowIf(nameof(colorRampEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int colorRampSourceUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Refraction (屈折効果)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Refraction (螻域釜蜉ｹ譫・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Refraction", "背景を歪ませる屈折エフェクト (ガラス、水、熱気楼など)")]
+        [TitleGroup("Refraction", "閭梧勹繧呈ｭｪ縺ｾ縺帙ｋ螻域釜繧ｨ繝輔ぉ繧ｯ繝・(繧ｬ繝ｩ繧ｹ縲∵ｰｴ縲∫・豌玲･ｼ縺ｪ縺ｩ)")]
         [ToggleLeft]
-        [Tooltip("屈折エフェクトを有効にする")]
+        [Tooltip("螻域釜繧ｨ繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool refractionEnabled = false;
 
         [TitleGroup("Refraction")]
         [ShowIf(nameof(refractionEnabled))]
-        [Tooltip("屈折の強度 (X, Y)")]
+        [Tooltip("螻域釜縺ｮ蠑ｷ蠎ｦ (X, Y)")]
         public Vector2 refractionStrength = new Vector2(0.1f, 0.1f);
 
         [TitleGroup("Refraction")]
         [ShowIf(nameof(refractionEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("色収差の強度。プリズム効果を追加")]
+        [Tooltip("濶ｲ蜿主ｷｮ縺ｮ蠑ｷ蠎ｦ縲ゅ・繝ｪ繧ｺ繝蜉ｹ譫懊ｒ霑ｽ蜉")]
         public float refractionChromaticAberration = 0f;
 
-        [TitleGroup("Refraction/Source", "屈折パターンを取得するテクスチャソース設定")]
+        [TitleGroup("Inspector")]
         [ShowIf(nameof(refractionEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット (ExtA/ExtB/CustomRT)")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ (ExtA/ExtB/CustomRT)")]
         public int refractionSourceSlotType = 5;
 
         [TitleGroup("Refraction/Source")]
         [ShowIf(nameof(refractionEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル (R/G/B/A)")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν (R/G/B/A)")]
         public int refractionSourceChannel = 1;
 
         [TitleGroup("Refraction/Source")]
         [ShowIf(nameof(refractionEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系 (SpriteLocal/Screen/TextureRaw/WorldXY)")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ (SpriteLocal/Screen/TextureRaw/WorldXY)")]
         public int refractionSourceUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Caustics (コースティクス/水面の光屈折模様)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Caustics (繧ｳ繝ｼ繧ｹ繝・ぅ繧ｯ繧ｹ/豌ｴ髱｢縺ｮ蜈牙ｱ域釜讓｡讒・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Caustics", "水面を通した光の屈折パターンを描画するエフェクト")]
+        [TitleGroup("Inspector")]
         [ToggleLeft]
-        [Tooltip("コースティクスエフェクトを有効にする")]
+        [Tooltip("繧ｳ繝ｼ繧ｹ繝・ぅ繧ｯ繧ｹ繧ｨ繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool causticsEnabled = false;
 
         [TitleGroup("Caustics")]
         [ShowIf(nameof(causticsEnabled))]
-        [Tooltip("コースティクスの発光色")]
+        [Tooltip("繧ｳ繝ｼ繧ｹ繝・ぅ繧ｯ繧ｹ縺ｮ逋ｺ蜈芽牡")]
         public Color causticsColor = Color.white;
 
         [TitleGroup("Caustics")]
         [ShowIf(nameof(causticsEnabled))]
         [Range(0f, 5f)]
-        [Tooltip("発光の強度")]
+        [Tooltip("逋ｺ蜈峨・蠑ｷ蠎ｦ")]
         public float causticsIntensity = 1f;
 
         [TitleGroup("Caustics")]
         [ShowIf(nameof(causticsEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("パターンが表示されるしきい値")]
+        [Tooltip("繝代ち繝ｼ繝ｳ縺瑚｡ｨ遉ｺ縺輔ｌ繧九＠縺阪＞蛟､")]
         public float causticsThreshold = 0.5f;
 
         [TitleGroup("Caustics")]
         [ShowIf(nameof(causticsEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("エッジのぼかし具合")]
+        [Tooltip("Inspector setting.")]
         public float causticsSoftness = 0.1f;
 
         [TitleGroup("Caustics")]
         [ShowIf(nameof(causticsEnabled))]
-        [Tooltip("パターンAのスクロール速度 (X, Y)")]
+        [Tooltip("繝代ち繝ｼ繝ｳA縺ｮ繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ騾溷ｺｦ (X, Y)")]
         public Vector2 causticsScrollA = new Vector2(0.1f, 0.1f);
 
         [TitleGroup("Caustics")]
         [ShowIf(nameof(causticsEnabled))]
-        [Tooltip("パターンBのスクロール速度 (X, Y)。Aと異なる方向にすると自然な動きになる")]
+        [Tooltip("Inspector setting.")]
         public Vector2 causticsScrollB = new Vector2(-0.1f, 0.05f);
 
-        [TitleGroup("Caustics/Source A", "コースティクスパターンA のテクスチャソース")]
+        [TitleGroup("Caustics/Source A", "繧ｳ繝ｼ繧ｹ繝・ぅ繧ｯ繧ｹ繝代ち繝ｼ繝ｳA 縺ｮ繝・け繧ｹ繝√Ε繧ｽ繝ｼ繧ｹ")]
         [ShowIf(nameof(causticsEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ")]
         public int causticsSourceASlotType = 5;
 
         [TitleGroup("Caustics/Source A")]
         [ShowIf(nameof(causticsEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν")]
         public int causticsSourceAChannel = 0;
 
         [TitleGroup("Caustics/Source A")]
         [ShowIf(nameof(causticsEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ")]
         public int causticsSourceAUVSpace = 0;
 
-        [TitleGroup("Caustics/Source B", "コースティクスパターンB のテクスチャソース (AとBが乗算される)")]
+        [TitleGroup("Caustics/Source B", "繧ｳ繝ｼ繧ｹ繝・ぅ繧ｯ繧ｹ繝代ち繝ｼ繝ｳB 縺ｮ繝・け繧ｹ繝√Ε繧ｽ繝ｼ繧ｹ (A縺ｨB縺御ｹ礼ｮ励＆繧後ｋ)")]
         [ShowIf(nameof(causticsEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ")]
         public int causticsSourceBSlotType = 6;
 
         [TitleGroup("Caustics/Source B")]
         [ShowIf(nameof(causticsEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν")]
         public int causticsSourceBChannel = 0;
 
         [TitleGroup("Caustics/Source B")]
         [ShowIf(nameof(causticsEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ")]
         public int causticsSourceBUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Ripple (波紋効果)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Ripple (豕｢邏句柑譫・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Ripple", "中心から広がる波紋エフェクト")]
+        [TitleGroup("Inspector")]
         [ToggleLeft]
-        [Tooltip("波紋エフェクトを有効にする")]
+        [Tooltip("豕｢邏九お繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool rippleEnabled = false;
 
         [TitleGroup("Ripple")]
         [ShowIf(nameof(rippleEnabled))]
-        [Tooltip("波紋の中心座標 (UV空間: 0-1)")]
+        [Tooltip("豕｢邏九・荳ｭ蠢・ｺｧ讓・(UV遨ｺ髢・ 0-1)")]
         public Vector2 rippleCenter = new Vector2(0.5f, 0.5f);
 
         [TitleGroup("Ripple")]
         [ShowIf(nameof(rippleEnabled))]
-        [Tooltip("波のパラメータ: X=周波数, Y=振幅, Z=減衰, W=速度")]
+        [Tooltip("豕｢縺ｮ繝代Λ繝｡繝ｼ繧ｿ: X=蜻ｨ豕｢謨ｰ, Y=謖ｯ蟷・ Z=貂幄｡ｰ, W=騾溷ｺｦ")]
         public Vector4 rippleWaveParams = new Vector4(10f, 0.05f, 2f, 5f);
 
         [TitleGroup("Ripple")]
         [ShowIf(nameof(rippleEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("波紋の振幅 (歪みの強さ)")]
+        [Tooltip("豕｢邏九・謖ｯ蟷・(豁ｪ縺ｿ縺ｮ蠑ｷ縺・")]
         public float rippleAmplitude = 0.1f;
 
         [TitleGroup("Ripple")]
         [ShowIf(nameof(rippleEnabled))]
-        [Tooltip("波紋のフェーズオフセット (アニメーション制御用)")]
+        [Tooltip("豕｢邏九・繝輔ぉ繝ｼ繧ｺ繧ｪ繝輔そ繝・ヨ (繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ蛻ｶ蠕｡逕ｨ)")]
         public float ripplePhase = 0f;
 
         [TitleGroup("Ripple")]
         [ShowIf(nameof(rippleEnabled))]
         [ToggleLeft]
-        [Tooltip("UVを歪ませる (無効にすると色のみ変化)")]
+        [Tooltip("UV繧呈ｭｪ縺ｾ縺帙ｋ (辟｡蜉ｹ縺ｫ縺吶ｋ縺ｨ濶ｲ縺ｮ縺ｿ螟牙喧)")]
         public bool rippleDistortUV = true;
 
         [TitleGroup("Ripple")]
         [ShowIf(nameof(rippleEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("波紋色のブレンド量")]
+        [Tooltip("豕｢邏玖牡縺ｮ繝悶Ξ繝ｳ繝蛾㍼")]
         public float rippleColorBlend = 0f;
 
         [TitleGroup("Ripple")]
         [ShowIf(nameof(rippleEnabled))]
-        [Tooltip("波紋のハイライト色")]
+        [Tooltip("豕｢邏九・繝上う繝ｩ繧､繝郁牡")]
         public Color rippleColor = Color.white;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Hue Shift (色相シフト)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Hue Shift (濶ｲ逶ｸ繧ｷ繝輔ヨ)
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Hue Shift", "色相・彩度・明度を調整するエフェクト")]
+        [TitleGroup("Inspector")]
         [ToggleLeft]
-        [Tooltip("色相シフトエフェクトを有効にする")]
+        [Tooltip("濶ｲ逶ｸ繧ｷ繝輔ヨ繧ｨ繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool hueShiftEnabled = false;
 
         [TitleGroup("Hue Shift")]
         [ShowIf(nameof(hueShiftEnabled))]
         [Range(-1f, 1f)]
-        [Tooltip("色相のシフト量 (-1 ~ 1で色相環を一周)")]
+        [Tooltip("濶ｲ逶ｸ縺ｮ繧ｷ繝輔ヨ驥・(-1 ~ 1縺ｧ濶ｲ逶ｸ迺ｰ繧剃ｸ蜻ｨ)")]
         public float hueShiftAmount = 0f;
 
         [TitleGroup("Hue Shift")]
         [ShowIf(nameof(hueShiftEnabled))]
         [Range(-1f, 1f)]
-        [Tooltip("彩度の調整量 (-1=モノクロ, 0=変化なし, 1=最大彩度)")]
+        [Tooltip("蠖ｩ蠎ｦ縺ｮ隱ｿ謨ｴ驥・(-1=繝｢繝弱け繝ｭ, 0=螟牙喧縺ｪ縺・ 1=譛螟ｧ蠖ｩ蠎ｦ)")]
         public float hueSaturationMod = 0f;
 
         [TitleGroup("Hue Shift")]
         [ShowIf(nameof(hueShiftEnabled))]
         [Range(-1f, 1f)]
-        [Tooltip("明度の調整量 (-1=真っ黒, 0=変化なし, 1=真っ白)")]
+        [Tooltip("譏主ｺｦ縺ｮ隱ｿ謨ｴ驥・(-1=逵溘▲鮟・ 0=螟牙喧縺ｪ縺・ 1=逵溘▲逋ｽ)")]
         public float hueValueMod = 0f;
 
-        [TitleGroup("Hue Shift/Mask Source", "色相シフトの適用範囲を制御するマスクテクスチャ")]
+        [TitleGroup("Hue Shift/Mask Source", "濶ｲ逶ｸ繧ｷ繝輔ヨ縺ｮ驕ｩ逕ｨ遽・峇繧貞宛蠕｡縺吶ｋ繝槭せ繧ｯ繝・け繧ｹ繝√Ε")]
         [ShowIf(nameof(hueShiftEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ")]
         public int hueShiftMaskSlotType = 0;
 
         [TitleGroup("Hue Shift/Mask Source")]
         [ShowIf(nameof(hueShiftEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν")]
         public int hueShiftMaskChannel = 0;
 
         [TitleGroup("Hue Shift/Mask Source")]
         [ShowIf(nameof(hueShiftEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ")]
         public int hueShiftMaskUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Normal Map (ノーマルマップ)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Normal Map (繝弱・繝槭Ν繝槭ャ繝・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Normal Map", "擬似的な立体感を与えるノーマルマップライティング")]
+        [TitleGroup("Normal Map", "謫ｬ莨ｼ逧・↑遶倶ｽ捺─繧剃ｸ弱∴繧九ヮ繝ｼ繝槭Ν繝槭ャ繝励Λ繧､繝・ぅ繝ｳ繧ｰ")]
         [ToggleLeft]
-        [Tooltip("ノーマルマップエフェクトを有効にする")]
+        [Tooltip("繝弱・繝槭Ν繝槭ャ繝励お繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool normalMapEnabled = false;
 
         [TitleGroup("Normal Map")]
         [ShowIf(nameof(normalMapEnabled))]
         [Range(0f, 2f)]
-        [Tooltip("ノーマルマップの強度")]
+        [Tooltip("繝弱・繝槭Ν繝槭ャ繝励・蠑ｷ蠎ｦ")]
         public float normalMapStrength = 1f;
 
         [TitleGroup("Normal Map")]
         [ShowIf(nameof(normalMapEnabled))]
-        [Tooltip("ライトの方向ベクトル (正規化推奨)")]
+        [Tooltip("繝ｩ繧､繝医・譁ｹ蜷代・繧ｯ繝医Ν (豁｣隕丞喧謗ｨ螂ｨ)")]
         public Vector3 normalMapLightDir = new Vector3(0f, 0f, 1f);
 
-        [TitleGroup("Normal Map/Source", "ノーマルマップテクスチャのソース")]
+        [TitleGroup("Normal Map/Source", "繝弱・繝槭Ν繝槭ャ繝励ユ繧ｯ繧ｹ繝√Ε縺ｮ繧ｽ繝ｼ繧ｹ")]
         [ShowIf(nameof(normalMapEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ")]
         public int normalMapSourceSlotType = 5;
 
         [TitleGroup("Normal Map/Source")]
         [ShowIf(nameof(normalMapEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν")]
         public int normalMapSourceChannel = 1;
 
         [TitleGroup("Normal Map/Source")]
         [ShowIf(nameof(normalMapEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ")]
         public int normalMapSourceUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Emission (発光)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Emission (逋ｺ蜈・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Emission", "スプライトに発光効果を追加")]
+        [TitleGroup("Emission", "繧ｹ繝励Λ繧､繝医↓逋ｺ蜈牙柑譫懊ｒ霑ｽ蜉")]
         [ToggleLeft]
-        [Tooltip("発光エフェクトを有効にする")]
+        [Tooltip("逋ｺ蜈峨お繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool emissionEnabled = false;
 
         [TitleGroup("Emission")]
         [ShowIf(nameof(emissionEnabled))]
-        [Tooltip("発光色 (HDRカラー推奨)")]
+        [Tooltip("逋ｺ蜈芽牡 (HDR繧ｫ繝ｩ繝ｼ謗ｨ螂ｨ)")]
         public Color emissionColor = Color.white;
 
         [TitleGroup("Emission")]
         [ShowIf(nameof(emissionEnabled))]
         [Range(0f, 10f)]
-        [Tooltip("発光の強度")]
+        [Tooltip("逋ｺ蜈峨・蠑ｷ蠎ｦ")]
         public float emissionIntensity = 1f;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Mask (マスク)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Mask (繝槭せ繧ｯ)
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Mask", "テクスチャベースのアルファマスク")]
+        [TitleGroup("Mask", "繝・け繧ｹ繝√Ε繝吶・繧ｹ縺ｮ繧｢繝ｫ繝輔ぃ繝槭せ繧ｯ")]
         [ToggleLeft]
-        [Tooltip("マスクエフェクトを有効にする")]
+        [Tooltip("繝槭せ繧ｯ繧ｨ繝輔ぉ繧ｯ繝医ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool maskEnabled = false;
 
         [TitleGroup("Mask")]
         [ShowIf(nameof(maskEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("マスクのしきい値。この値より高いマスク値の部分が表示される")]
+        [Tooltip("Inspector setting.")]
         public float maskThreshold = 0.5f;
 
         [TitleGroup("Mask")]
         [ShowIf(nameof(maskEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("マスク境界のソフトネス。0=ハードエッジ、1=フルソフト")]
+        [Tooltip("繝槭せ繧ｯ蠅・阜縺ｮ繧ｽ繝輔ヨ繝阪せ縲・=繝上・繝峨お繝・ず縲・=繝輔Ν繧ｽ繝輔ヨ")]
         public float maskSoftness = 0.1f;
 
-        [TitleGroup("Mask/Source", "マスクテクスチャのソース")]
+        [TitleGroup("Mask/Source", "繝槭せ繧ｯ繝・け繧ｹ繝√Ε縺ｮ繧ｽ繝ｼ繧ｹ")]
         [ShowIf(nameof(maskEnabled))]
         [ValueDropdown(nameof(GetSlotTypeOptions))]
-        [Tooltip("テクスチャスロット")]
+        [Tooltip("繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ")]
         public int maskSourceSlotType = 5;
 
         [TitleGroup("Mask/Source")]
         [ShowIf(nameof(maskEnabled))]
         [ValueDropdown(nameof(GetChannelOptions))]
-        [Tooltip("使用するチャンネル")]
+        [Tooltip("菴ｿ逕ｨ縺吶ｋ繝√Ε繝ｳ繝阪Ν")]
         public int maskSourceChannel = 1;
 
         [TitleGroup("Mask/Source")]
         [ShowIf(nameof(maskEnabled))]
         [ValueDropdown(nameof(GetUVSpaceOptions))]
-        [Tooltip("UV座標系")]
+        [Tooltip("UV蠎ｧ讓咏ｳｻ")]
         public int maskSourceUVSpace = 0;
 
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
         // Outline 2D
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Outline", "通常のアウトラインエフェクト")]
+        [TitleGroup("Inspector")]
         [ToggleLeft]
-        [Tooltip("通常アウトラインを有効にする")]
+        [Tooltip("騾壼ｸｸ繧｢繧ｦ繝医Λ繧､繝ｳ繧呈怏蜉ｹ縺ｫ縺吶ｋ")]
         public bool outlineEnabled = false;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [LabelText("Mode")]
         [ValueDropdown(nameof(GetOutlineModeOptions))]
-        [Tooltip("Outside は外側、Inside は内側へ描画します")]
+        [Tooltip("Inspector setting.")]
         public int outlineMode = 10;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
-        [Tooltip("アウトライン色。Auto Color 有効時は最終アウトライン色への Tint として扱います")]
+        [Tooltip("Inspector setting.")]
         public Color outlineColor = Color.white;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [LabelText("Direction")]
         [EnumToggleButtons]
-        [Tooltip("アウトラインを出す方向。複数選択可。上下左右をすべて選ぶと全方位になります")]
+        [Tooltip("Inspector setting.")]
         public OutlineDirectionMask outlineDirectionMask = OutlineDirectionMask.All;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [LabelText("Auto Color")]
         [ToggleLeft]
-        [Tooltip("現在の最終色からアウトライン色を自動計算します。Outline Color は Tint として残ります")]
+        [Tooltip("Inspector setting.")]
         public bool outlineAutoColorEnabled = false;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(ShowOutlineAutoColorSettings))]
         [LabelText("Mode")]
         [EnumToggleButtons]
-        [Tooltip("HSL は通常の加算オフセット、HSL+ は現在値の残り幅へ押し込む調整です")]
+        [Tooltip("Inspector setting.")]
         public OutlineAutoColorMode outlineAutoColorMode = OutlineAutoColorMode.Hsl;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(ShowOutlineAutoColorSettings))]
         [LabelText("H")]
         [Range(-1f, 1f)]
-        [Tooltip("自動計算色に対する Hue オフセットです。0 がデフォルトで、1 または -1 で 1 周します")]
+        [Tooltip("Inspector setting.")]
         public float outlineAutoHue = 0f;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(ShowOutlineAutoColorSettings))]
         [LabelText("S")]
         [Range(-1f, 1f)]
-        [Tooltip("自動計算色に対する Saturation 調整です。0 がデフォルトです")]
+        [Tooltip("Inspector setting.")]
         public float outlineAutoSaturation = 0f;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(ShowOutlineAutoColorSettings))]
         [LabelText("L")]
         [Range(-1f, 1f)]
-        [Tooltip("自動計算色に対する Lightness 調整です。0 がデフォルトです")]
+        [Tooltip("Inspector setting.")]
         public float outlineAutoLightness = 0f;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [LabelText("Animated Gradient")]
         [ToggleLeft]
-        [Tooltip("アウトライン色を最終色近傍で滑らかに揺らします")]
+        [Tooltip("Inspector setting.")]
         public bool outlineAnimatedGradientEnabled = false;
 
         [TitleGroup("Outline")]
@@ -747,200 +747,200 @@ namespace Game.MaterialFx
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [Min(0f)]
-        [Tooltip("アウトラインの太さ")]
+        [Tooltip("Inspector setting.")]
         public float outlineWidth = 1f;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("アウトラインの不透明度")]
+        [Tooltip("繧｢繧ｦ繝医Λ繧､繝ｳ縺ｮ荳埼乗・蠎ｦ")]
         public float outlineOpacity = 1f;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("アウトラインのソフトネス")]
+        [Tooltip("繧｢繧ｦ繝医Λ繧､繝ｳ縺ｮ繧ｽ繝輔ヨ繝阪せ")]
         public float outlineSoftness = 0f;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [LabelText("Blend Mode")]
         [ValueDropdown(nameof(GetOutlineBlendModeOptions))]
-        [Tooltip("アウトラインの合成方法です")]
+        [Tooltip("Inspector setting.")]
         public int outlineBlendMode = 10;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [ToggleLeft]
-        [Tooltip("アウトライン幅をピクセルステップ単位に量子化します")]
+        [Tooltip("Inspector setting.")]
         public bool outlinePixelPerfect = true;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [LabelText("Width Unit")]
         [ValueDropdown(nameof(GetOutlineWidthUnitOptions))]
-        [Tooltip("太さの単位です。Texel はテクスチャ基準、Screen Pixel は画面ピクセル基準です")]
+        [Tooltip("Inspector setting.")]
         public int outlineWidthUnit = 10;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [Min(0.0001f)]
-        [Tooltip("Pixel Perfect 有効時の量子化ステップです")]
+        [Tooltip("Inspector setting.")]
         public float outlinePixelStep = 1f;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [LabelText("Sample Pattern")]
         [ValueDropdown(nameof(GetOutlineSamplePatternOptions))]
-        [Tooltip("サンプリングパターンです。Direction と組み合わせた場合、選択方向だけで評価します")]
+        [Tooltip("Inspector setting.")]
         public int outlineSamplePattern = 10;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [ToggleLeft]
-        [Tooltip("マスクや alpha factor を尊重してアウトライン alpha を計算します")]
+        [Tooltip("Inspector setting.")]
         public bool outlineMaskRespect = true;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [ToggleLeft]
-        [Tooltip("Auto Color 無効時のみ、現在色をアウトライン色へ乗算します")]
+        [Tooltip("Inspector setting.")]
         public bool outlineUseVertexColor = false;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [ToggleLeft]
-        [Tooltip("サンプルUVを sprite rect 内へ clamp します")]
+        [Tooltip("Inspector setting.")]
         public bool outlineUvClampEnabled = true;
 
         [TitleGroup("Outline")]
         [ShowIf(nameof(outlineEnabled))]
         [LabelText("ZTest Mode")]
         [ValueDropdown(nameof(GetOutlineZTestModeOptions))]
-        [Tooltip("予約フィールドです。現在は描画条件の指定に使います")]
+        [Tooltip("Inspector setting.")]
         public int outlineZTestMode = 10;
 
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
         // Text FX (Outline / Shadow)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Text Fx", "Text向けアウトライン/影エフェクト")]
+        [TitleGroup("Inspector")]
         [TitleGroup("Text Fx/Outline")]
         [ToggleLeft]
-        [Tooltip("テキストアウトラインを有効にする")]
+        [Tooltip("繝・く繧ｹ繝医い繧ｦ繝医Λ繧､繝ｳ繧呈怏蜉ｹ縺ｫ縺吶ｋ")]
         public bool textOutlineEnabled = false;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(textOutlineEnabled))]
-        [Tooltip("アウトライン色。Auto Color 有効時は最終アウトライン色への Tint として扱います")]
+        [Tooltip("Inspector setting.")]
         public Color textOutlineColor = Color.black;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(textOutlineEnabled))]
         [Min(0f)]
-        [Tooltip("アウトラインの太さ (px)")]
+        [Tooltip("繧｢繧ｦ繝医Λ繧､繝ｳ縺ｮ螟ｪ縺・(px)")]
         public float textOutlineThickness = 1f;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(textOutlineEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("アウトラインのソフトネス")]
+        [Tooltip("繧｢繧ｦ繝医Λ繧､繝ｳ縺ｮ繧ｽ繝輔ヨ繝阪せ")]
         public float textOutlineSoftness = 0.1f;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(textOutlineEnabled))]
         [LabelText("Direction")]
         [EnumToggleButtons]
-        [Tooltip("アウトラインを出す方向。複数選択可。上下左右をすべて選ぶと全方位になります")]
+        [Tooltip("Inspector setting.")]
         public TextOutlineDirectionMask textOutlineDirectionMask = TextOutlineDirectionMask.All;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(textOutlineEnabled))]
         [LabelText("Auto Color")]
         [ToggleLeft]
-        [Tooltip("現在のテキスト最終色からアウトライン色を自動計算します。Outline Color は Tint として残ります")]
+        [Tooltip("Inspector setting.")]
         public bool textOutlineAutoColorEnabled = false;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(ShowTextOutlineAutoColorSettings))]
         [LabelText("Mode")]
         [EnumToggleButtons]
-        [Tooltip("HSL は通常の加算オフセット、HSL+ は現在値の残り幅へ押し込む調整です")]
+        [Tooltip("Inspector setting.")]
         public TextOutlineAutoColorMode textOutlineAutoColorMode = TextOutlineAutoColorMode.Hsl;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(ShowTextOutlineAutoColorSettings))]
         [LabelText("H")]
         [Range(-1f, 1f)]
-        [Tooltip("自動計算色に対する Hue オフセットです。0 がデフォルトで、1 または -1 で 1 周します")]
+        [Tooltip("Inspector setting.")]
         public float textOutlineAutoHue = 0f;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(ShowTextOutlineAutoColorSettings))]
         [LabelText("S")]
         [Range(-1f, 1f)]
-        [Tooltip("自動計算色に対する Saturation 調整です。0 がデフォルトです")]
+        [Tooltip("Inspector setting.")]
         public float textOutlineAutoSaturation = 0f;
 
         [TitleGroup("Text Fx/Outline")]
         [ShowIf(nameof(ShowTextOutlineAutoColorSettings))]
         [LabelText("L")]
         [Range(-1f, 1f)]
-        [Tooltip("自動計算色に対する Lightness 調整です。0 がデフォルトです")]
+        [Tooltip("Inspector setting.")]
         public float textOutlineAutoLightness = 0f;
 
         [TitleGroup("Text Fx/Shadow")]
         [ToggleLeft]
-        [Tooltip("テキストシャドウを有効にする")]
+        [Tooltip("繝・く繧ｹ繝医す繝｣繝峨え繧呈怏蜉ｹ縺ｫ縺吶ｋ")]
         public bool textShadowEnabled = false;
 
         [TitleGroup("Text Fx/Shadow")]
         [ShowIf(nameof(textShadowEnabled))]
-        [Tooltip("シャドウ色")]
+        [Tooltip("繧ｷ繝｣繝峨え濶ｲ")]
         public Color textShadowColor = new Color(0, 0, 0, 0.5f);
 
         [TitleGroup("Text Fx/Shadow")]
         [ShowIf(nameof(textShadowEnabled))]
-        [Tooltip("シャドウのオフセット (px)")]
+        [Tooltip("繧ｷ繝｣繝峨え縺ｮ繧ｪ繝輔そ繝・ヨ (px)")]
         public Vector2 textShadowOffset = new Vector2(1f, -1f);
 
         [TitleGroup("Text Fx/Shadow")]
         [ShowIf(nameof(textShadowEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("シャドウのソフトネス")]
+        [Tooltip("繧ｷ繝｣繝峨え縺ｮ繧ｽ繝輔ヨ繝阪せ")]
         public float textShadowSoftness = 0.1f;
 
         [TitleGroup("Text Fx/Glow")]
         [ToggleLeft]
-        [Tooltip("テキストグローを有効にする")]
+        [Tooltip("繝・く繧ｹ繝医げ繝ｭ繝ｼ繧呈怏蜉ｹ縺ｫ縺吶ｋ")]
         public bool textGlowEnabled = false;
 
         [TitleGroup("Text Fx/Glow")]
         [ShowIf(nameof(textGlowEnabled))]
-        [Tooltip("グロー色")]
+        [Tooltip("繧ｰ繝ｭ繝ｼ濶ｲ")]
         public Color textGlowColor = new Color(1f, 1f, 1f, 0.5f);
 
         [TitleGroup("Text Fx/Glow")]
         [ShowIf(nameof(textGlowEnabled))]
         [Min(0f)]
-        [Tooltip("グローの太さ")]
+        [Tooltip("Inspector setting.")]
         public float textGlowThickness = 2f;
 
         [TitleGroup("Text Fx/Glow")]
         [ShowIf(nameof(textGlowEnabled))]
         [Range(0f, 1f)]
-        [Tooltip("グローのソフトネス")]
+        [Tooltip("繧ｰ繝ｭ繝ｼ縺ｮ繧ｽ繝輔ヨ繝阪せ")]
         public float textGlowSoftness = 0.2f;
 
         // --- BlendColor2D ---
-        [TitleGroup("Blend Color", "方向グラデーション付きブレンドカラー")]
+        [TitleGroup("Blend Color", "譁ｹ蜷代げ繝ｩ繝・・繧ｷ繝ｧ繝ｳ莉倥″繝悶Ξ繝ｳ繝峨き繝ｩ繝ｼ")]
         [ToggleLeft]
-        [Tooltip("BlendColor2D を有効にする")]
+        [Tooltip("BlendColor2D 繧呈怏蜉ｹ縺ｫ縺吶ｋ")]
         public bool blendColor2DEnabled = false;
 
         [TitleGroup("Blend Color")]
         [ShowIf(nameof(blendColor2DEnabled))]
-        [Tooltip("ブレンドに使う基準色。Animated Gradient 有効時はこの色近傍で揺れます")]
+        [Tooltip("Inspector setting.")]
         public Color blendColor2DColor = Color.white;
 
         [TitleGroup("Blend Color")]
@@ -977,7 +977,7 @@ namespace Game.MaterialFx
         [ShowIf(nameof(blendColor2DEnabled))]
         [LabelText("Animated Gradient")]
         [ToggleLeft]
-        [Tooltip("BlendColor の基準色を最終色近傍で滑らかに揺らします")]
+        [Tooltip("Inspector setting.")]
         public bool blendColor2DAnimatedGradientEnabled = false;
 
         [TitleGroup("Blend Color")]
@@ -1119,9 +1119,9 @@ namespace Game.MaterialFx
         public float blendColor2DAnimatedGradientPixelSize = 1f;
 
         // --- AdvancedFade2D ---
-        [TitleGroup("AdvancedFade", "ワイプ / 境界グロー / Burn")]
+        [TitleGroup("AdvancedFade", "繝ｯ繧､繝・/ 蠅・阜繧ｰ繝ｭ繝ｼ / Burn")]
         [ToggleLeft]
-        [Tooltip("AdvancedFade2D のフェード本体を有効にする")]
+        [Tooltip("AdvancedFade2D 縺ｮ繝輔ぉ繝ｼ繝画悽菴薙ｒ譛牙柑縺ｫ縺吶ｋ")]
         public bool advancedFadeEnabled = false;
 
         [TitleGroup("AdvancedFade")]
@@ -1182,7 +1182,7 @@ namespace Game.MaterialFx
         public bool advancedFadeCircleClockwise = true;
 
         // --- Rainbow2D ---
-        [TitleGroup("Rainbow", "虹色演出")]
+        [TitleGroup("Rainbow", "陌ｹ濶ｲ貍泌・")]
         [ToggleLeft]
         public bool rainbowEnabled = false;
 
@@ -1227,7 +1227,7 @@ namespace Game.MaterialFx
         public int rainbowBlendMode = 1;
 
         // --- AdvancedFade2D Burn ---
-        [TitleGroup("AdvancedFade", "焼け消え(Noise)")]
+        [TitleGroup("AdvancedFade", "辟ｼ縺第ｶ医∴(Noise)")]
         [TitleGroup("AdvancedFade/Burn")]
         [ToggleLeft]
         public bool advancedFadeBurnEnabled = false;
@@ -1381,58 +1381,58 @@ namespace Game.MaterialFx
         [Min(0f)]
         public float advancedFadeBurnAnimatedNoisePatternContrast = 1f;
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // Render State (MeshRenderer/SpriteRenderer 共通)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // Render State (MeshRenderer/SpriteRenderer 蜈ｱ騾・
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
-        [TitleGroup("Render State", "描画ブレンド/カリング/ZWrite/Queueを制御。MeshRendererの加算演出に利用")]
-        [Tooltip("全体の合成方式プリセット。通常表示は Alpha、光線や発光演出は Additive 系を選択します。")]
+        [TitleGroup("Render State", "謠冗判繝悶Ξ繝ｳ繝・繧ｫ繝ｪ繝ｳ繧ｰ/ZWrite/Queue繧貞宛蠕｡縲・eshRenderer縺ｮ蜉邂玲ｼ泌・縺ｫ蛻ｩ逕ｨ")]
+        [Tooltip("Inspector setting.")]
         [ValueDropdown(nameof(GetRenderStateBlendPresetOptions))]
         public BaseShaderRenderBlendPreset renderStateBlendPreset = BaseShaderRenderBlendPreset.Alpha;
 
         [TitleGroup("Render State")]
         [ToggleLeft]
-        [Tooltip("有効にすると Src/Dst Blend を直接指定します。無効時は Preset から自動決定します。")]
+        [Tooltip("Inspector setting.")]
         public bool renderStateUseCustomBlendFactors = false;
 
         [TitleGroup("Render State")]
         [ShowIf(nameof(renderStateUseCustomBlendFactors))]
         [LabelText("Src Blend")]
-        [Tooltip("ソース側係数。通常は SrcAlpha、純加算なら One を使います。")]
+        [Tooltip("Inspector setting.")]
         [ValueDropdown(nameof(GetRenderStateBlendFactorOptions))]
         public int renderStateSrcBlend = 5; // SrcAlpha
 
         [TitleGroup("Render State")]
         [ShowIf(nameof(renderStateUseCustomBlendFactors))]
         [LabelText("Dst Blend")]
-        [Tooltip("デスティネーション側係数。通常は OneMinusSrcAlpha、純加算なら One を使います。")]
+        [Tooltip("Inspector setting.")]
         [ValueDropdown(nameof(GetRenderStateBlendFactorOptions))]
         public int renderStateDstBlend = 10; // OneMinusSrcAlpha
 
         [TitleGroup("Render State")]
         [ToggleLeft]
-        [Tooltip("通常はオフ。体積表現や遮蔽が必要な場合のみオン。")]
+        [Tooltip("Inspector setting.")]
         public bool renderStateZWrite = false;
 
         [TitleGroup("Render State")]
         [ValueDropdown(nameof(GetRenderStateCullOptions))]
-        [Tooltip("ポリゴン面の描画対象。板ポリのビーム演出では Off 推奨、片面メッシュでは Back が一般的です。")]
+        [Tooltip("Inspector setting.")]
         public int renderStateCull = 0; // Off
 
         [TitleGroup("Render State")]
         [MinValue(-200)]
         [MaxValue(200)]
-        [Tooltip("Transparent キュー基準の相対値。大きいほど後描画。重なり順を微調整します。")]
+        [Tooltip("Inspector setting.")]
         public int renderStateQueueOffset = 0;
 
         [TitleGroup("Render State")]
         [Range(0f, 1f)]
-        [Tooltip("最終出力の強度。加算が強すぎる場合に 0-1 で抑えます。")]
+        [Tooltip("Inspector setting.")]
         public float renderStateBlendIntensity = 1f;
 
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
         // Auto Entries Generation
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
         protected override void OnRefreshAutoEntries()
         {
@@ -1489,7 +1489,7 @@ namespace Game.MaterialFx
             SetAutoEntry(MaterialFxKeys.BaseShader.CompositeSystems.ColorRamp.Enabled, MakeBool(colorRampEnabled));
             if (colorRampEnabled)
             {
-                // Guard against unassigned texture — avoid sending null textures that may be invalid for this feature.
+                // Guard against unassigned texture 窶・avoid sending null textures that may be invalid for this feature.
                 if (colorRampTexture == null)
                 {
                 }
@@ -1574,8 +1574,8 @@ namespace Game.MaterialFx
             SetAutoEntry(MaterialFxKeys.BaseShader.Emission.Enabled, MakeBool(emissionEnabled));
             if (emissionEnabled)
             {
-                // ★修正: emissionColorのRGBとemissionIntensityを結合してColor(r,g,b,intensity)として設定
-                // シェーダー側の_EmissionColorは rgb=color, a=intensity として扱われる
+                // 笘・ｿｮ豁｣: emissionColor縺ｮRGB縺ｨemissionIntensity繧堤ｵ仙粋縺励※Color(r,g,b,intensity)縺ｨ縺励※險ｭ螳・
+                // 繧ｷ繧ｧ繝ｼ繝繝ｼ蛛ｴ縺ｮ_EmissionColor縺ｯ rgb=color, a=intensity 縺ｨ縺励※謇ｱ繧上ｌ繧・
                 var combinedEmissionColor = new Color(emissionColor.r, emissionColor.g, emissionColor.b, emissionIntensity);
                 SetAutoEntry(MaterialFxKeys.BaseShader.Emission.Color, MakeColor(combinedEmissionColor));
             }
@@ -1784,12 +1784,12 @@ namespace Game.MaterialFx
             }
         }
 
-        // ═══════════════════════════════════════════════════════════════════════════
-        // ValueDropdown Options (Odin Inspector用)
-        // ═══════════════════════════════════════════════════════════════════════════
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
+        // ValueDropdown Options (Odin Inspector逕ｨ)
+        // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
 
         /// <summary>
-        /// テクスチャスロットタイプのドロップダウンオプション
+        /// 繝・け繧ｹ繝√Ε繧ｹ繝ｭ繝・ヨ繧ｿ繧､繝励・繝峨Ο繝・・繝繧ｦ繝ｳ繧ｪ繝励す繝ｧ繝ｳ
         /// </summary>
         static ValueDropdownList<int> GetSlotTypeOptions()
         {
@@ -1802,8 +1802,8 @@ namespace Game.MaterialFx
         }
 
         /// <summary>
-        /// チャンネル選択のドロップダウンオプション
-        /// ★修正: シェーダー側の CHANNEL_* 定義はビットマスク (R=1, G=2, B=4, A=8)
+        /// 繝√Ε繝ｳ繝阪Ν驕ｸ謚槭・繝峨Ο繝・・繝繧ｦ繝ｳ繧ｪ繝励す繝ｧ繝ｳ
+        /// 笘・ｿｮ豁｣: 繧ｷ繧ｧ繝ｼ繝繝ｼ蛛ｴ縺ｮ CHANNEL_* 螳夂ｾｩ縺ｯ繝薙ャ繝医・繧ｹ繧ｯ (R=1, G=2, B=4, A=8)
         /// </summary>
         static ValueDropdownList<int> GetChannelOptions()
         {
@@ -1944,7 +1944,7 @@ namespace Game.MaterialFx
         }
 
         /// <summary>
-        /// UV空間のドロップダウンオプション
+        /// UV遨ｺ髢薙・繝峨Ο繝・・繝繧ｦ繝ｳ繧ｪ繝励す繝ｧ繝ｳ
         /// </summary>
         static ValueDropdownList<int> GetUVSpaceOptions()
         {
@@ -1958,7 +1958,7 @@ namespace Game.MaterialFx
         }
 
         /// <summary>
-        /// ブレンドモードのドロップダウンオプション
+        /// 繝悶Ξ繝ｳ繝峨Δ繝ｼ繝峨・繝峨Ο繝・・繝繧ｦ繝ｳ繧ｪ繝励す繝ｧ繝ｳ
         /// </summary>
         static ValueDropdownList<int> GetBlendModeOptions()
         {

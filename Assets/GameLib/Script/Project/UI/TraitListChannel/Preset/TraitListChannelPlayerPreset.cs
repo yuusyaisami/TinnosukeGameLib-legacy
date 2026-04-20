@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -11,26 +11,26 @@ namespace Game.UI
     {
         [BoxGroup("Player")]
         [LabelText("Refresh Mode")]
-        [Tooltip("TraitHolder 変更時の更新方式。FullRebuild は全再生成、Incremental は差分更新、LayoutOnly は配置更新のみです。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         TraitListChannelRefreshMode _refreshMode = TraitListChannelRefreshMode.Incremental;
 
         [BoxGroup("Player")]
         [LabelText("Hide Visible Placed Traits")]
-        [Tooltip("true のとき placement 上で可視扱いの trait を list 表示から除外します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _hideVisiblePlacedTraits;
 
         [BoxGroup("Player")]
         [LabelText("Merge Duplicate Trait Definitions")]
-        [Tooltip("true のとき holder 内で同じ DefinitionId を持つ Trait を 1 つの Runtime としてまとめます。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         bool _mergeDuplicateTraitDefinitions;
 
         [BoxGroup("Player")]
         [LabelText("Debounce Frames")]
         [MinValue(0)]
-        [Tooltip("holder/placement の連続変化をまとめる待機 frame 数です。0 なら即時更新します。")]
+        [Tooltip("Inspector setting.")]
         [SerializeField]
         int _debounceFrames = 1;
 
@@ -57,7 +57,7 @@ namespace Game.UI
     public sealed class TraitListChannelPlayerPresetSO : ScriptableObject, IDynamicValueAsset<TraitListChannelPlayerPreset>
     {
         [SerializeReference, InlineProperty, HideLabel]
-        [Tooltip("SO 内に保持する TraitListChannelPlayerPreset 本体です。")]
+        [Tooltip("Inspector setting.")]
         TraitListChannelPlayerPreset? _preset = new();
 
         public TraitListChannelPlayerPreset? Preset

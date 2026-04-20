@@ -64,9 +64,9 @@ namespace Game.SelectRuntime
             NotifyBridgeRefresh();
         }
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            builder.Register<SelectableRuntimeBridgeService>(Lifetime.Singleton)
+            builder.Register<SelectableRuntimeBridgeService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()
                 .WithParameter(this);
