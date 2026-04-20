@@ -1,5 +1,4 @@
 using UnityEngine;
-using VContainer;
 using Sirenix.OdinInspector;
 using VNext = Game.Commands.VNext;
 /*
@@ -41,10 +40,10 @@ namespace Game.Actions
         public VNext.CommandListData BuildGageCommands => _buildGageCommands;
         public VNext.CommandListData StopGageSectorCommands => _stopGageSectorCommands;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IPlayerGameActionSettings>(this);
-            builder.Register<IPlayerGameActionService, PlayerGameActionService>(Lifetime.Singleton);
+            builder.Register<IPlayerGameActionService, PlayerGameActionService>(RuntimeLifetime.Singleton);
         }
     }
 }

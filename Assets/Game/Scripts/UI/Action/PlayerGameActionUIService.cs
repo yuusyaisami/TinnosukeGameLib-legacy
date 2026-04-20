@@ -7,7 +7,6 @@ using Game.Spawn;
 using Game.UI;
 using Game.Vars.Generated;
 using UnityEngine;
-using VContainer;
 using VNext = Game.Commands.VNext;
 /*
 namespace Game.Actions
@@ -686,7 +685,7 @@ namespace Game.Actions
             return rect != null;
         }
 
-        static RuntimeLifetimeScope ResolveRuntimeScope(IObjectResolver resolver)
+        static RuntimeLifetimeScope ResolveRuntimeScope(IRuntimeResolver resolver)
         {
             if (resolver == null)
                 return null;

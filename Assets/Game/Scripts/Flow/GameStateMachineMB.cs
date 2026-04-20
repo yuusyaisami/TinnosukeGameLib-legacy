@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using VContainer;
 using VNext = Game.Commands.VNext;
 
 namespace Game.Actions
@@ -63,11 +62,11 @@ namespace Game.Actions
         public bool ExecuteInitialStateCommandsOnAcquire => _executeInitialStateCommandsOnAcquire;
         public int InitialStateCommandDelayFramesOnAcquire => _initialStateCommandDelayFramesOnAcquire;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance<IGameStateMachineSettings>(this);
 
-            builder.Register<GameStateMachineService>(Lifetime.Singleton)
+            builder.Register<GameStateMachineService>(RuntimeLifetime.Singleton)
                 .As<IGameStateMachineService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()

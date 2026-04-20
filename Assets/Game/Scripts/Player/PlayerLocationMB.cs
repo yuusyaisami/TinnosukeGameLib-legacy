@@ -1,7 +1,5 @@
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using UnityEngine;
-using VContainer;
-using VContainer.Unity;
 using Game.Commands;
 
 namespace Game
@@ -51,10 +49,10 @@ namespace Game
         public bool RequireActive => _requireActive;
         public CommandTargetSearchScope SearchScope => _searchScope;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scope)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IPlayerLocationSettings>(this);
-            builder.Register<PlayerLocationService>(Lifetime.Singleton)
+            builder.Register<PlayerLocationService>(RuntimeLifetime.Singleton)
                 .As<IPlayerLocationService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()

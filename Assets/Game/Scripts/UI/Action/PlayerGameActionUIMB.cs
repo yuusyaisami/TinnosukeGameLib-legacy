@@ -2,7 +2,6 @@ using System;
 using Game.DI;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using VContainer;
 using VNext = Game.Commands.VNext;
 /*
 namespace Game.Actions
@@ -71,10 +70,10 @@ namespace Game.Actions
         public VNext.CommandListData HideActionBarCommands => _hideActionBarCommands;
         public VNext.CommandListData StopSelectorCommands => _stopSelectorCommands;
 
-        public void InstallFeature(IContainerBuilder builder, IScopeNode scopeNode)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scopeNode)
         {
             builder.RegisterInstance<IPlayerGameActionUISettings>(this);
-            builder.Register<PlayerGameActionUIService>(Lifetime.Singleton)
+            builder.Register<PlayerGameActionUIService>(RuntimeLifetime.Singleton)
                 .As<IPlayerGameActionUIService>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>()

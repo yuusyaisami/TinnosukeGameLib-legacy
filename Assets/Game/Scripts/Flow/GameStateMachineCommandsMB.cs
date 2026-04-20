@@ -1,7 +1,6 @@
-#nullable enable
+﻿#nullable enable
 using Game;
 using UnityEngine;
-using VContainer;
 
 namespace Game.Actions
 {
@@ -12,14 +11,14 @@ namespace Game.Actions
     [DisallowMultipleComponent]
     public sealed class GameStateMachineCommandsMB : MonoBehaviour, IFeatureInstaller
     {
-        public void InstallFeature(IContainerBuilder builder, IScopeNode owner)
+        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (owner.Kind != LifetimeScopeKind.Project &&
                 owner.Kind != LifetimeScopeKind.Scene &&
                 owner.Kind != LifetimeScopeKind.Field)
                 return;
 
-            builder.Register<global::Game.Commands.VNext.ChangeGameStateExecutor>(Lifetime.Singleton)
+            builder.Register<global::Game.Commands.VNext.ChangeGameStateExecutor>(RuntimeLifetime.Singleton)
                 .As<global::Game.Commands.VNext.ICommandExecutor>();
         }
     }
