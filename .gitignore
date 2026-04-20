@@ -19,6 +19,9 @@
 # ビルド成果物（通常は出力先を別にする。リポに入れるなら例外運用）
 /[Bb]uild/
 /[Bb]uilds/
+# プロジェクト固有の出力（Windows ビルド等）
+/Windows/
+/BuildPlayerData/
 
 # ログ類
 *.log
