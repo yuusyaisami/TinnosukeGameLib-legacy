@@ -147,6 +147,16 @@ namespace Game.Kernel.Diagnostics
         {
             return Value.ToString();
         }
+
+        public static bool operator ==(DiagnosticEventId left, DiagnosticEventId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(DiagnosticEventId left, DiagnosticEventId right)
+        {
+            return !left.Equals(right);
+        }
     }
 
     public readonly struct DiagnosticCorrelationId : IEquatable<DiagnosticCorrelationId>
@@ -177,6 +187,16 @@ namespace Game.Kernel.Diagnostics
         {
             return Value.ToString();
         }
+
+        public static bool operator ==(DiagnosticCorrelationId left, DiagnosticCorrelationId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(DiagnosticCorrelationId left, DiagnosticCorrelationId right)
+        {
+            return !left.Equals(right);
+        }
     }
 
     public readonly struct DiagnosticSessionId : IEquatable<DiagnosticSessionId>
@@ -206,6 +226,16 @@ namespace Game.Kernel.Diagnostics
         public override string ToString()
         {
             return Value.ToString();
+        }
+
+        public static bool operator ==(DiagnosticSessionId left, DiagnosticSessionId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(DiagnosticSessionId left, DiagnosticSessionId right)
+        {
+            return !left.Equals(right);
         }
     }
 
@@ -238,6 +268,16 @@ namespace Game.Kernel.Diagnostics
         public override string ToString()
         {
             return Value.ToString();
+        }
+
+        public static bool operator ==(ModuleIdentityRef left, ModuleIdentityRef right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ModuleIdentityRef left, ModuleIdentityRef right)
+        {
+            return !left.Equals(right);
         }
     }
 
@@ -283,6 +323,16 @@ namespace Game.Kernel.Diagnostics
                 ? Kind + ":" + Value + "@" + Generation
                 : Kind + ":" + Value;
         }
+
+        public static bool operator ==(RuntimeIdentityRef left, RuntimeIdentityRef right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(RuntimeIdentityRef left, RuntimeIdentityRef right)
+        {
+            return !left.Equals(right);
+        }
     }
 
     public readonly struct SourceLocationRef : IEquatable<SourceLocationRef>
@@ -312,6 +362,16 @@ namespace Game.Kernel.Diagnostics
         public override string ToString()
         {
             return Value.ToString();
+        }
+
+        public static bool operator ==(SourceLocationRef left, SourceLocationRef right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(SourceLocationRef left, SourceLocationRef right)
+        {
+            return !left.Equals(right);
         }
     }
 
@@ -349,6 +409,16 @@ namespace Game.Kernel.Diagnostics
             return GeneratedArtifactId != 0
                 ? ArtifactSetId + ":" + GeneratedArtifactId
                 : ArtifactSetId.ToString();
+        }
+
+        public static bool operator ==(ArtifactIdentityRef left, ArtifactIdentityRef right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ArtifactIdentityRef left, ArtifactIdentityRef right)
+        {
+            return !left.Equals(right);
         }
     }
 

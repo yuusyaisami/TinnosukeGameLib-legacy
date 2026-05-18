@@ -39,8 +39,6 @@ namespace Game.Kernel.Diagnostics
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
-            bool enableTestSink = options.ProfileKind == DiagnosticProfileKind.Test;
-
             if (options.EnableInMemorySink)
             {
                 builder.Register<InMemoryDiagnosticSink>(resolver => new InMemoryDiagnosticSink(options.InMemoryCapacity), RuntimeLifetime.Singleton)
@@ -53,12 +51,6 @@ namespace Game.Kernel.Diagnostics
                     .AsSelf();
             }
 
-            if (enableTestSink)
-            {
-                builder.Register<TestDiagnosticSink>(RuntimeLifetime.Singleton)
-                    .AsSelf();
-            }
-
             builder.Register<IKernelDiagnosticService>(resolver =>
             {
                 int additionalCount = additionalSinks != null ? additionalSinks.Length : 0;
@@ -66,8 +58,6 @@ namespace Game.Kernel.Diagnostics
                 if (options.EnableInMemorySink)
                     sinkCount++;
                 if (options.EnableUnityLogSink)
-                    sinkCount++;
-                if (enableTestSink)
                     sinkCount++;
                 var sinks = new IKernelDiagnosticSink[sinkCount];
                 int index = 0;
@@ -80,11 +70,6 @@ namespace Game.Kernel.Diagnostics
                 if (options.EnableUnityLogSink)
                 {
                     sinks[index++] = resolver.Resolve<UnityLogDiagnosticSink>();
-                }
-
-                if (enableTestSink)
-                {
-                    sinks[index++] = resolver.Resolve<TestDiagnosticSink>();
                 }
 
                 for (int i = 0; i < additionalCount; i++)

@@ -16,7 +16,6 @@
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using UnityEngine;
 using Game.Common;
@@ -965,19 +964,16 @@ namespace Game.Commands
             if (!VarIdResolver.TryResolve(key, out var varId) || varId == 0)
                 return;
 
-            // IL2CPP/JIT 縺ｯ縺薙％縺ｮ typeof(T) 豈碑ｼ・ｒ繧ｳ繝ｳ繝代う繝ｫ譎ょｮ壽焚縺ｫ螟画鋤縺吶ｋ
-            // Unsafe.As 縺ｧ繝懊け繧ｷ繝ｳ繧ｰ繧貞ｮ悟・縺ｫ蝗樣∩
-            if (typeof(T) == typeof(int)) { _vars.TrySetVariant(varId, DynamicVariant.FromInt(Unsafe.As<T, int>(ref value))); return; }
-            if (typeof(T) == typeof(float)) { _vars.TrySetVariant(varId, DynamicVariant.FromFloat(Unsafe.As<T, float>(ref value))); return; }
-            if (typeof(T) == typeof(bool)) { _vars.TrySetVariant(varId, DynamicVariant.FromBool(Unsafe.As<T, bool>(ref value))); return; }
-            if (typeof(T) == typeof(string)) { _vars.TrySetVariant(varId, DynamicVariant.FromString(Unsafe.As<T, string>(ref value))); return; }
-            if (typeof(T) == typeof(Vector2)) { _vars.TrySetVariant(varId, DynamicVariant.FromVector2(Unsafe.As<T, Vector2>(ref value))); return; }
-            if (typeof(T) == typeof(Vector3)) { _vars.TrySetVariant(varId, DynamicVariant.FromVector3(Unsafe.As<T, Vector3>(ref value))); return; }
-            if (typeof(T) == typeof(Vector4)) { _vars.TrySetVariant(varId, DynamicVariant.FromVector4(Unsafe.As<T, Vector4>(ref value))); return; }
-            if (typeof(T) == typeof(Color)) { _vars.TrySetVariant(varId, DynamicVariant.FromColor(Unsafe.As<T, Color>(ref value))); return; }
+            object? boxed = value;
+            if (boxed is int intValue) { _vars.TrySetVariant(varId, DynamicVariant.FromInt(intValue)); return; }
+            if (boxed is float floatValue) { _vars.TrySetVariant(varId, DynamicVariant.FromFloat(floatValue)); return; }
+            if (boxed is bool boolValue) { _vars.TrySetVariant(varId, DynamicVariant.FromBool(boolValue)); return; }
+            if (boxed is string stringValue) { _vars.TrySetVariant(varId, DynamicVariant.FromString(stringValue)); return; }
+            if (boxed is Vector2 vector2Value) { _vars.TrySetVariant(varId, DynamicVariant.FromVector2(vector2Value)); return; }
+            if (boxed is Vector3 vector3Value) { _vars.TrySetVariant(varId, DynamicVariant.FromVector3(vector3Value)); return; }
+            if (boxed is Vector4 vector4Value) { _vars.TrySetVariant(varId, DynamicVariant.FromVector4(vector4Value)); return; }
+            if (boxed is Color colorValue) { _vars.TrySetVariant(varId, DynamicVariant.FromColor(colorValue)); return; }
 
-            // 蜿ら・蝙九・繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ・医・繧ｯ繧ｷ繝ｳ繧ｰ荳榊庄驕ｿ・・
-            object boxed = value!;
             if (boxed is UnityEngine.Object uo) { _vars.TrySetVariant(varId, DynamicVariant.FromUnityObject(uo)); return; }
 
             _vars.TrySetManagedRef(varId, boxed);

@@ -40,11 +40,19 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("Identifier Kind"));
             Assert.That(content, Does.Contain("COMMAND_EXECUTOR_MISSING"));
             Assert.That(content, Does.Contain("DIAG_SINK_EMIT_FAILED"));
+            Assert.That(content, Does.Contain("ModuleId"));
+            Assert.That(content, Does.Contain("SourceLocationId"));
+            Assert.That(content, Does.Contain("SourceLocationIR"));
+            Assert.That(content, Does.Contain("UnitySourceLocation"));
+            Assert.That(content, Does.Contain("LegacySourceLocation"));
+            Assert.That(content, Does.Contain("GeneratedSourceLocation"));
             Assert.That(content, Does.Contain("STATIC_RULE_DEBUG_LOG_OUTSIDE_SINK"));
             Assert.That(content, Does.Contain("STATIC_RULE_DEBUG_LOG_ERROR_OUTSIDE_SINK"));
             Assert.That(content, Does.Contain("STATIC_RULE_TRANSFORM_PARENT_SCOPE_INFERENCE_IN_KERNEL_RUNTIME"));
             Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsGetComponentsInChildrenCalls"));
             Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsTransformParentScopeInferenceCalls"));
+            Assert.That(content, Does.Contain("KernelIRIdentitiesTests.TypedIdentityPrimitives_PreserveValueEqualityAndHashCode"));
+            Assert.That(content, Does.Contain("KernelIRSourceLocationTests.SourceLocationIR_PreservesUnityVariantEqualityAndHashCode"));
         }
 
         [Test]
@@ -182,6 +190,22 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("TC-01-03"));
             Assert.That(content, Does.Contain("TC-01-04"));
             Assert.That(content, Does.Contain("TC-01-05"));
+        }
+
+        [Test]
+        public void KernelIRSpec_ContainsCurrentM22SourceLocationAnchors()
+        {
+            string kernelIrContent = ReadDoc(Path.Combine("Docs", "v2", "01_KernelIRSpec.md"));
+            string unityBridgeContent = ReadDoc(Path.Combine("Docs", "v2", "12_UnityAuthoringBridgeSpec.md"));
+            string milestoneContent = ReadDoc(Path.Combine("Docs", "v2", "16_ImplementationMilestoneOrderSpec.md"));
+
+            Assert.That(kernelIrContent, Does.Contain("SourceLocationIR"));
+            Assert.That(kernelIrContent, Does.Contain("legacy migration origin"));
+            Assert.That(kernelIrContent, Does.Contain("generated source reference"));
+            Assert.That(unityBridgeContent, Does.Contain("UnitySourceLocation"));
+            Assert.That(unityBridgeContent, Does.Contain("GameObjectPath"));
+            Assert.That(milestoneContent, Does.Contain("LegacySourceLocation"));
+            Assert.That(milestoneContent, Does.Contain("GeneratedSourceLocation"));
         }
 
         [Test]

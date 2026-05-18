@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +8,7 @@ using UnityEngine;
 
 namespace TinnosukeGameLib.Tests.Editor
 {
-    internal sealed class ForbiddenPatternRule
+    public sealed class ForbiddenPatternRule
     {
         public ForbiddenPatternRule(string ruleId, string description, string token, Regex matcher, Func<string, int, string, string, bool>? allowMatch = null)
         {
@@ -84,7 +85,7 @@ namespace TinnosukeGameLib.Tests.Editor
 
         public static string KernelRootPath => Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel");
 
-        public static string ApprovedUnityLogSinkPath => Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "Diagnostics", "Sinks", "UnityLogDiagnosticSink.cs");
+        public static string ApprovedUnityLogSinkPath => Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "Diagnostics", "Unity", "UnityLogDiagnosticSink.cs");
 
         public static ForbiddenPatternRule[] CreateDefaultRules()
         {
@@ -120,9 +121,10 @@ namespace TinnosukeGameLib.Tests.Editor
                     IsAllowedUnityDiagnosticSinkMatch),
                 new ForbiddenPatternRule(
                     "STATIC_RULE_DEBUG_LOG_EXCEPTION_OUTSIDE_SINK",
-                    "Debug.LogException must not be used in Kernel code paths.",
+                    "Debug.LogException must not be used outside the approved Unity diagnostic sink.",
                     "Debug.LogException",
-                    new Regex(@"\bDebug\s*\.\s*LogException\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                    new Regex(@"\bDebug\s*\.\s*LogException\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+                    IsAllowedUnityDiagnosticSinkMatch),
             };
         }
 
@@ -294,8 +296,6 @@ namespace TinnosukeGameLib.Tests.Editor
             }
 
             return string.Equals(compactLine, string.Concat(debugMethodName, "(", expectedArgumentName, ");"), PathComparison);
-
-            return false;
         }
 
         static DebugImportContext ParseDebugImportContext(string sourceText)

@@ -1,0 +1,16 @@
+{
+  "name": "GameLib.Kernel.Diagnostics.Unity",
+  "rootNamespace": "Game.Kernel.Diagnostics",
+  "references": [
+    "GameLib.Kernel.Diagnostics"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

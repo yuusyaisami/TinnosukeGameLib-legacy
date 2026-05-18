@@ -23,7 +23,7 @@ namespace Sample
     {
         public void Run()
         {
-            string text = \"Debug.LogError(fake)\";
+            string text = ""Debug.LogError(fake)"";
             // Debug.LogError(fake);
             /* Debug.LogError(fake); */
         }
@@ -44,15 +44,15 @@ namespace Sample
                 "Resources.Load",
                 new System.Text.RegularExpressions.Regex(@"\bResources\s*\.\s*Load(?:Async)?\s*(?:<[^>]+>)?\s*\(", System.Text.RegularExpressions.RegexOptions.CultureInvariant));
 
-            string source = @"
-using UnityEngine;
+            string source =
+@"using UnityEngine;
 
 namespace Sample
 {
     public sealed class Demo
     {
         public string A = @""Resources.Load<GameObject>(""""Demo"""")"";
-        public string B = """Resources.Load<GameObject>(\"Demo\")""";
+        public string B = " + "\"\"\"Resources.Load<GameObject>(\\\"Demo\\\")\\\"\"\"" + @";
     }
 }";
 
@@ -80,7 +80,7 @@ namespace Game.Kernel.Diagnostics
     }
 }";
 
-            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Diagnostics/Sinks/UnityLogDiagnosticSink.cs", source, rule);
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Diagnostics/Unity/UnityLogDiagnosticSink.cs", source, rule);
 
             Assert.That(violations, Is.Empty);
         }
@@ -104,7 +104,7 @@ namespace Game.Kernel.Diagnostics
     }
 }";
 
-            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Diagnostics/Sinks/UnityLogDiagnosticSink.cs", source, rule);
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Diagnostics/Unity/UnityLogDiagnosticSink.cs", source, rule);
 
             Assert.That(violations, Has.Length.EqualTo(1));
             Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_DEBUG_LOG_ERROR_OUTSIDE_SINK"));
@@ -124,7 +124,7 @@ namespace Game.Kernel.Sample
     {
         public void Run()
         {
-            var asset = Resources.Load<GameObject>(\"Demo\");
+            var asset = Resources.Load<GameObject>(""Demo"");
         }
     }
 }";
@@ -257,7 +257,7 @@ namespace Game.Kernel.Diagnostics
     }
 }";
 
-            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Diagnostics/Sinks/UnityLogDiagnosticSink.cs", source, rule);
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Diagnostics/Unity/UnityLogDiagnosticSink.cs", source, rule);
 
             Assert.That(violations, Is.Empty);
         }
@@ -359,7 +359,7 @@ namespace Game.Kernel.Diagnostics
     }
 }";
 
-            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Diagnostics/Sinks/UnityLogDiagnosticSink.cs", source, rule);
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Diagnostics/Unity/UnityLogDiagnosticSink.cs", source, rule);
 
             Assert.That(violations, Is.Empty);
         }

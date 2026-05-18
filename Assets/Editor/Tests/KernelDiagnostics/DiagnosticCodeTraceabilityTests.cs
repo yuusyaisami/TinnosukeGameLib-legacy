@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ namespace TinnosukeGameLib.Tests.Editor
     {
         static readonly Regex DiagnosticCodePattern = new Regex("new\\s+DiagnosticCode\\(\\\"(?<code>[A-Z0-9_]+)\\\"\\)", RegexOptions.CultureInvariant);
         static readonly Regex StaticRulePattern = new Regex("\\\"(?<code>STATIC_RULE_[A-Z0-9_]+)\\\"", RegexOptions.CultureInvariant);
+        static readonly Regex TypedIdentityPattern = new Regex("public\\s+readonly\\s+struct\\s+(?<code>(?:ModuleId|ServiceId|ScopeAuthoringId|ScopePlanId|CommandTypeId|CommandExecutorId|CommandPayloadSchemaId|ValueKeyId|ValueSchemaId|LifecycleStepId|RuntimeQueryId|SourceLocationId))\\b", RegexOptions.CultureInvariant);
+        static readonly Regex SourceLocationModelPattern = new Regex("public\\s+readonly\\s+struct\\s+(?<code>(?:SourceLocationIR|UnitySourceLocation|LegacySourceLocation|GeneratedSourceLocation))\\b", RegexOptions.CultureInvariant);
 
         static readonly string[] ExplicitNonCatalogCodes =
         {
@@ -59,12 +62,22 @@ namespace TinnosukeGameLib.Tests.Editor
         public void TraceabilityCatalog_IdentifierKindsMatchCurrentImplementationForms()
         {
             TraceabilityEntry[] entries = LoadEntries();
+            ISet<string> typedIdentities = CollectTypedIdentityNames(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "IR", "KernelIRIdentities.cs"));
+            ISet<string> sourceLocationModels = CollectSourceLocationModelNames(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "IR", "KernelIRSourceLocations.cs"));
 
             for (int i = 0; i < entries.Length; i++)
             {
                 if (entries[i].Identifier.StartsWith("STATIC_RULE_", StringComparison.Ordinal))
                 {
                     Assert.That(entries[i].IdentifierKind, Is.EqualTo("StaticRuleId"), "Static rule identifiers must declare StaticRuleId kind: " + entries[i].Identifier);
+                }
+                else if (typedIdentities.Contains(entries[i].Identifier))
+                {
+                    Assert.That(entries[i].IdentifierKind, Is.EqualTo("TypedIdentityPrimitive"), "Typed identity primitives must declare TypedIdentityPrimitive kind: " + entries[i].Identifier);
+                }
+                else if (sourceLocationModels.Contains(entries[i].Identifier))
+                {
+                    Assert.That(entries[i].IdentifierKind, Is.EqualTo("SourceLocationModel"), "Source location models must declare SourceLocationModel kind: " + entries[i].Identifier);
                 }
                 else
                 {
@@ -209,10 +222,12 @@ namespace TinnosukeGameLib.Tests.Editor
         {
             SortedSet<string> identifiers = new SortedSet<string>(StringComparer.Ordinal);
 
-            CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "Diagnostics", "Service", "KernelDiagnosticService.cs"), identifiers);
-            CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelDiagnosticsModelTests.cs"), identifiers);
-            CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelTestArtifactWriterTests.cs"), identifiers);
-            CollectStaticRuleIds(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelForbiddenPatternScanner.cs"), identifiers);
+            CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "Diagnostics", "Core", "Service", "KernelDiagnosticService.cs"), identifiers);
+            CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelDiagnostics", "KernelDiagnosticsModelTests.cs"), identifiers);
+            CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelDiagnostics", "KernelTestArtifactWriterTests.cs"), identifiers);
+            CollectStaticRuleIds(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelDiagnostics", "KernelForbiddenPatternScanner.cs"), identifiers);
+            CollectTypedIdentityIds(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "IR", "KernelIRIdentities.cs"), identifiers);
+            CollectSourceLocationModelIds(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "IR", "KernelIRSourceLocations.cs"), identifiers);
 
             for (int i = 0; i < ExplicitNonCatalogCodes.Length; i++)
             {
@@ -242,6 +257,40 @@ namespace TinnosukeGameLib.Tests.Editor
             }
         }
 
+        static void CollectTypedIdentityIds(string filePath, ISet<string> identifiers)
+        {
+            string content = File.ReadAllText(filePath);
+            MatchCollection matches = TypedIdentityPattern.Matches(content);
+            for (int i = 0; i < matches.Count; i++)
+            {
+                identifiers.Add(matches[i].Groups["code"].Value);
+            }
+        }
+
+        static ISet<string> CollectTypedIdentityNames(string filePath)
+        {
+            SortedSet<string> identifiers = new SortedSet<string>(StringComparer.Ordinal);
+            CollectTypedIdentityIds(filePath, identifiers);
+            return identifiers;
+        }
+
+        static void CollectSourceLocationModelIds(string filePath, ISet<string> identifiers)
+        {
+            string content = File.ReadAllText(filePath);
+            MatchCollection matches = SourceLocationModelPattern.Matches(content);
+            for (int i = 0; i < matches.Count; i++)
+            {
+                identifiers.Add(matches[i].Groups["code"].Value);
+            }
+        }
+
+        static ISet<string> CollectSourceLocationModelNames(string filePath)
+        {
+            SortedSet<string> identifiers = new SortedSet<string>(StringComparer.Ordinal);
+            CollectSourceLocationModelIds(filePath, identifiers);
+            return identifiers;
+        }
+
         static bool TestAnchorExists(string anchor)
         {
             int separatorIndex = anchor.IndexOf('.');
@@ -250,17 +299,35 @@ namespace TinnosukeGameLib.Tests.Editor
 
             string fixtureName = anchor.Substring(0, separatorIndex);
             string methodName = anchor.Substring(separatorIndex + 1);
-            Assembly assembly = typeof(DiagnosticCodeTraceabilityTests).Assembly;
-            Type[] types = assembly.GetTypes();
-
-            for (int i = 0; i < types.Length; i++)
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            for (int assemblyIndex = 0; assemblyIndex < assemblies.Length; assemblyIndex++)
             {
-                if (!string.Equals(types[i].Name, fixtureName, StringComparison.Ordinal))
-                    continue;
+                Type[] types;
+                try
+                {
+                    types = assemblies[assemblyIndex].GetTypes();
+                }
+                catch (ReflectionTypeLoadException exception)
+                {
+                    List<Type> loadedTypes = new List<Type>(exception.Types.Length);
+                    for (int typeIndex = 0; typeIndex < exception.Types.Length; typeIndex++)
+                    {
+                        if (exception.Types[typeIndex] != null)
+                            loadedTypes.Add(exception.Types[typeIndex]!);
+                    }
 
-                MethodInfo? method = types[i].GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                if (method != null)
-                    return true;
+                    types = loadedTypes.ToArray();
+                }
+
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if (!string.Equals(types[i].Name, fixtureName, StringComparison.Ordinal))
+                        continue;
+
+                    MethodInfo? method = types[i].GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                    if (method != null)
+                        return true;
+                }
             }
 
             return false;

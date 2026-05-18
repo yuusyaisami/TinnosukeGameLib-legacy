@@ -26,7 +26,6 @@ namespace Game.Kernel.Diagnostics
         public void Report(in KernelDiagnostic diagnostic)
         {
             KernelDiagnostic effectiveDiagnostic = ApplyCurrentSession(in diagnostic);
-            KernelTestArtifactCollector.RecordDiagnostic(in effectiveDiagnostic);
             List<SinkFailure>? failures = null;
 
             for (int i = 0; i < _sinks.Length; i++)

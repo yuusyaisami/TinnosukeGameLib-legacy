@@ -119,6 +119,43 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void KernelTestArtifactSink_RecordsDiagnosticsThroughTestSideSink()
+        {
+            string runDirectory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "KernelTestArtifactSink_" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                KernelTestArtifactCollector.Configure(new KernelTestRunMetadata
+                {
+                    RunId = "artifact-sink",
+                    Platform = "EditMode",
+                    TestFilter = nameof(KernelTestArtifactSink_RecordsDiagnosticsThroughTestSideSink),
+                    Target = nameof(KernelTestArtifactSink_RecordsDiagnosticsThroughTestSideSink),
+                    FixtureIdentity = nameof(KernelDiagnosticServiceTests),
+                    ProfileIdentity = "Test",
+                    RunDirectory = runDirectory,
+                    GeneratedAtUtc = DateTime.UtcNow.ToString("O"),
+                });
+
+                KernelDiagnosticService service = new KernelDiagnosticService(new IKernelDiagnosticSink[]
+                {
+                    new KernelTestArtifactSink(),
+                });
+
+                service.Report(CreateDiagnostic("DIAG_ARTIFACT_SINK"));
+
+                KernelDiagnostic[] diagnostics = KernelTestArtifactCollector.SnapshotDiagnostics();
+                Assert.That(diagnostics, Has.Length.EqualTo(1));
+                Assert.That(diagnostics[0].Code.Value, Is.EqualTo("DIAG_ARTIFACT_SINK"));
+            }
+            finally
+            {
+                KernelTestArtifactCollector.Reset();
+                if (System.IO.Directory.Exists(runDirectory))
+                    System.IO.Directory.Delete(runDirectory, true);
+            }
+        }
+
+        [Test]
         public void UnityLogDiagnosticSink_MapsSeverityThroughSingleOutputPolicy()
         {
             FakeUnityDiagnosticLogTarget target = new FakeUnityDiagnosticLogTarget();
@@ -188,15 +225,11 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
-        public void RegistrationOptions_EnableTestSinkForTestProfile_WithoutForcingInMemorySink()
+        public void DiagnosticProfileKind_ExposesStableTestProfileValue()
         {
-            KernelDiagnosticsRegistrationOptions options = new KernelDiagnosticsRegistrationOptions(
-                DiagnosticProfileKind.Test,
-                enableUnityLogSink: false,
-                enableInMemorySink: false);
-
-            Assert.That(options.ProfileKind, Is.EqualTo(DiagnosticProfileKind.Test));
-            Assert.That(options.EnableInMemorySink, Is.False);
+            Assert.That((int)DiagnosticProfileKind.Development, Is.EqualTo(10));
+            Assert.That((int)DiagnosticProfileKind.Release, Is.EqualTo(20));
+            Assert.That((int)DiagnosticProfileKind.Test, Is.EqualTo(30));
         }
 
         static KernelDiagnostic CreateDiagnostic(string code, DiagnosticSeverity severity = DiagnosticSeverity.Error)
