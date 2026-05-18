@@ -170,7 +170,7 @@ Generation must accept only immutable, verified inputs.
 
 Required inputs:
 
-- validated KernelIR
+- KernelIR that already passed the 04-defined dependency validation gates for the selected profile
 - generator version
 - target profile
 - target platform or build family when relevant
@@ -229,7 +229,7 @@ Outputs from different runs must never be merged into a single trusted artifact 
 
 The generator must verify that:
 
-- KernelIR is validated and format-compatible
+- KernelIR already passed the 04-defined dependency validation gates for the selected profile and is format-compatible
 - generator version is supported
 - required schema versions are available
 - required input references are present
@@ -248,6 +248,7 @@ This stage must:
 - preserve profile availability
 - preserve identity domain boundaries
 - preserve dependency references for later validation handoff
+- preserve the provenance and identity coverage required for 04 post-generation dependency validation
 
 This stage must not:
 
@@ -272,7 +273,7 @@ Hash assembly must cover semantic content only.
 
 ### 5. Post-Generation Consistency Check
 
-The generator must verify that the emitted artifact set is internally consistent.
+The generator must verify that the emitted artifact set is internally consistent and still preserves the dependency references and provenance required by 04.
 
 If the artifact set is not consistent, the generation run fails and the staged outputs are not committed as trusted artifacts.
 
@@ -471,12 +472,14 @@ Generation-time checks include:
 
 04_DependencyValidationSpec.md owns:
 
+- pre-generation dependency validation over normalized KernelIR
+- post-generation dependency consistency validation over staged projections
 - dependency cycle detection
 - phase-aware dependency rules
 - cross-graph dependency severity policy
 - detailed dependency conflict classification
 
-03 must provide enough structure and metadata for 04 to validate the generated outputs without reconstructing missing provenance.
+03 must provide enough structure and metadata for 04 to validate both the normalized inputs and the generated outputs without reconstructing missing provenance.
 
 ---
 
@@ -560,7 +563,7 @@ The target architecture may reuse ideas from these systems, but it must not reus
 
 | Test Case | Purpose | Verification |
 |---|---|---|
-| TC-03-01 | Confirm preflight fails closed on unsupported versions or incomplete inputs. | The preflight stage must require validated KernelIR, generator version, schema compatibility, and target profile. |
+| TC-03-01 | Confirm preflight fails closed on unsupported versions or incomplete inputs. | The preflight stage must require KernelIR that already passed 04-defined dependency validation, generator version, schema compatibility, and target profile. |
 | TC-03-02 | Confirm artifact sets are all-or-nothing. | The artifact set and consistency model must require the whole set to share the same source state. |
 | TC-03-03 | Confirm the same inputs produce deterministic hashes across hosts. | The deterministic generation section must forbid time, path, order, and random dependence. |
 | TC-03-04 | Confirm DebugMap matches the same ID space as the verified plan. | The DebugMap generation section must preserve provenance and coverage. |
