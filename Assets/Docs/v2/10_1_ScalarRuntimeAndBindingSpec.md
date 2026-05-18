@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Document ID: `10_1_ScalarRuntimeAndBindingSpec`
+- Document ID: 10_1_ScalarRuntimeAndBindingSpec
 - Status: Draft
 - Role: defines the float-specialized scalar runtime contract, modifier pipeline, binding semantics, telemetry boundary, diagnostics, and migration direction for Kernel v2
 - Depends on:
@@ -154,6 +154,22 @@ It defines the scalar-specialized runtime layer that sits on top of verified val
 | [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) | Will isolate any temporary adapters needed to bridge current `BaseScalarMB` and related legacy paths. |
 | [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | Will budget scalar read, write, binding, and timed-update hot paths. |
 | [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | Will turn the required scalar tests in this document into executable validation and CI coverage. |
+
+---
+
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for this subsystem is `GameLib.Kernel.Value.Scalar`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 10-1:
+
+- `GameLib.Kernel.Value.Scalar` must remain a leaf specialization over generic value runtime rather than a parallel value system
+- scalar runtime must not pull feature-specific bindings, Unity authoring components, or legacy scalar services into the scalar core assembly
+- scope-aware scalar behavior may depend on public ScopeGraph contracts, but must not back-reference command, feature, or legacy implementations
+- profile authoring bridges and Unity-facing scalar components must stay outside scalar runtime core
+
+If scalar runtime cannot compile without feature code, Unity authoring code, or legacy `BaseScalar` fallback paths, the 10-1 boundary has been violated.
 
 ---
 

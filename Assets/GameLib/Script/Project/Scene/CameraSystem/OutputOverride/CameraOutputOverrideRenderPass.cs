@@ -1,17 +1,21 @@
 #nullable enable
-using System;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
 
 namespace Game.CameraSystem
 {
     /// <summary>
-    /// Camera の最終出力を SharedTexture で差し替える Render Pass。
-    /// CameraOutputOverrideRegistry から差し替え Texture を取得する。
+    /// Camera output override texture to active color target bridge.
     /// </summary>
     public sealed class CameraOutputOverrideRenderPass : ScriptableRenderPass
     {
+        sealed class PassData
+        {
+            public TextureHandle Source;
+        }
+
         RTHandle? _cachedHandle;
         Texture? _cachedTexture;
 
@@ -20,10 +24,11 @@ namespace Game.CameraSystem
             renderPassEvent = RenderPassEvent.AfterRendering;
         }
 
-        [Obsolete]
-        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
-            var camera = renderingData.cameraData.camera;
+            var cameraData = frameData.Get<UniversalCameraData>();
+            var resourceData = frameData.Get<UniversalResourceData>();
+            var camera = cameraData.camera;
             if (camera == null)
                 return;
 
@@ -31,7 +36,6 @@ namespace Game.CameraSystem
             if (overrideTex == null)
                 return;
 
-            // Cache RTHandle to avoid per-frame allocation
             if (_cachedTexture != overrideTex)
             {
                 _cachedHandle?.Release();
@@ -42,13 +46,21 @@ namespace Game.CameraSystem
             if (_cachedHandle == null)
                 return;
 
-            var cmd = CommandBufferPool.Get("CameraOutputOverride");
-            var cameraColorHandle = renderingData.cameraData.renderer.cameraColorTargetHandle;
+            var source = renderGraph.ImportTexture(_cachedHandle);
 
-            Blitter.BlitCameraTexture(cmd, _cachedHandle, cameraColorHandle);
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("CameraOutputOverride", out var passData))
+            {
+                passData.Source = source;
 
-            context.ExecuteCommandBuffer(cmd);
-            CommandBufferPool.Release(cmd);
+                builder.UseTexture(passData.Source);
+                builder.SetRenderAttachment(resourceData.activeColorTexture, 0);
+                builder.AllowPassCulling(false);
+
+                builder.SetRenderFunc(static (PassData data, RasterGraphContext context) =>
+                {
+                    Blitter.BlitTexture(context.cmd, data.Source, new Vector4(1f, 1f, 0f, 0f), 0f, false);
+                });
+            }
         }
     }
 
@@ -70,7 +82,6 @@ namespace Game.CameraSystem
             if (cameraData.renderType == CameraRenderType.Overlay)
                 return;
 
-            // Only add pass if there's an override registered for this camera
             if (!CameraOutputOverrideRegistry.HasOverride(cameraData.camera))
                 return;
 

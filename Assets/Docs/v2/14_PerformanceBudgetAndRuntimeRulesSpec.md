@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Document ID: `14_PerformanceBudgetAndRuntimeRulesSpec`
+- Document ID: 14_PerformanceBudgetAndRuntimeRulesSpec
 - Status: Draft
 - Role: defines runtime path classification, performance budgets, forbidden runtime operations, profiler marker policy, and regression rules for Kernel v2
 - Depends on:
@@ -131,6 +131,22 @@ It defines the minimum rules that runtime architecture must satisfy before imple
 
 14 owns performance rules, not subsystem meaning.
 It must measure and constrain the runtime architecture without stealing semantic ownership from the domain specs.
+
+---
+
+## Assembly Definition and Compile Boundary Expectations
+
+14 is cross-cutting, but its enforcement still depends on explicit assembly boundaries.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 14:
+
+- hot-path production assemblies must not gain test-only, editor-only, or legacy-only references just to support measurement
+- profiler integration and Unity-facing markers may live in Unity-capable runtime bridge assemblies, but performance policy itself must not force Unity dependencies into pure core assemblies
+- forbidden-pattern scanners, benchmark fixtures, and regression gates belong in `GameLib.Tests.*` or editor test assemblies rather than in production runtime assemblies
+- package spread for measurement utilities must not undermine the low-volatility kernel core graph
+
+If a performance gate can only be implemented by making kernel core depend on UnityEditor, test frameworks, or legacy assemblies, the 14 boundary has been violated.
 
 ---
 

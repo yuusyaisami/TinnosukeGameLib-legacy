@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Document ID: `12_UnityAuthoringBridgeSpec`
+- Document ID: 12_UnityAuthoringBridgeSpec
 - Status: Draft
 - Role: defines the Unity authoring bridge, authoring identity, source location, extraction, normalization, validation, and direct-play authoring boundary for Kernel v2
 - Depends on:
@@ -170,6 +170,28 @@ It defines the kernel-facing authoring contract.
 
 12 is the authoring-entry contract for the kernel pipeline.
 It must not leave Unity-facing identity, extraction, or direct-play rules ownerless.
+
+---
+
+## Assembly Definition and Compile Boundary Expectations
+
+Unity authoring bridge intentionally spans multiple assemblies:
+
+- `GameLib.Kernel.Authoring`
+- `GameLib.Kernel.Authoring.Editor`
+- `GameLib.Kernel.Unity`
+- `GameLib.Kernel.Boot.Unity` where boot-entry glue is required
+
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 12:
+
+- serialized declaration components and authoring-side data contracts belong in `GameLib.Kernel.Authoring`
+- extraction, normalization, direct-play preparation, asset refresh, and editor validation belong in `GameLib.Kernel.Authoring.Editor`
+- runtime MonoBehaviour bridge code belongs in `GameLib.Kernel.Unity`, not in authoring editor assemblies
+- authoring assemblies must not mutate runtime builders or pull feature internals into kernel core assemblies
+
+If Unity authoring logic cannot be placed into an authoring, editor, or Unity bridge assembly without back-referencing kernel internals or legacy fallback code, the 12 boundary has been violated.
 
 ---
 

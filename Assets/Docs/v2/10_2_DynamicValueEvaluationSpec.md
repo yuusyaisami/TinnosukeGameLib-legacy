@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Document ID: `10_2_DynamicValueEvaluationSpec`
+- Document ID: 10_2_DynamicValueEvaluationSpec
 - Status: Draft
 - Role: defines the DynamicValue authoring/runtime wrapper contract, DynamicEvaluation and ReactiveEvaluation plan semantics, evaluation tracking, cache, invalidation, and evaluation diagnostics for Kernel v2
 - Depends on:
@@ -164,6 +164,22 @@ It defines the evaluation layer contract.
 
 10-2 is the owner of DynamicValue evaluation semantics.
 It must not leave tracker, cache, or invalidation policy ownerless.
+
+---
+
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for this subsystem is `GameLib.Kernel.Value.Dynamic`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 10-2:
+
+- `GameLib.Kernel.Value.Dynamic` must remain a leaf specialization over generic value runtime and runtime query contracts
+- dynamic evaluation core must not be collapsed back into `GameLib.Kernel.Value` or into Unity authoring assemblies
+- tracker, cache, and invalidation logic must not depend on feature implementations, legacy wrappers, or runtime scene search helpers
+- authoring-side expression assets, editor tooling, and migration adapters must stay outside the dynamic runtime core assembly
+
+If dynamic evaluation cannot compile without Unity authoring code, feature-specific evaluators, or legacy runtime fallback helpers, the 10-2 boundary has been violated.
 
 ---
 

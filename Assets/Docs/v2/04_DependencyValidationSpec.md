@@ -108,6 +108,22 @@ This specification does not redefine the canonical meaning or wire shape of Kern
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for dependency validation is `GameLib.Kernel.Validation`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 04:
+
+- `GameLib.Kernel.Validation` must remain separate from runtime mutation code and runtime subsystem implementations
+- the validation core should remain Unity-free and use `noEngineReferences: true`
+- validation helpers may be exercised by `GameLib.Tests.*` and authoring editor assemblies, but production validation core must not reference test or editor packages
+- legacy repair code, fallback lookup helpers, and runtime discovery utilities must not be pulled into the validation assembly
+
+If validation correctness depends on runtime side effects or Editor-only APIs in the core assembly, the 04 boundary has been violated.
+
+---
+
 ## Current Validation Observations
 
 Current dependency validation observations must remain traceable to source code, design review notes, or migration evidence.

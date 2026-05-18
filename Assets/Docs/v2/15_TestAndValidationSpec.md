@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Document ID: `15_TestAndValidationSpec`
+- Document ID: 15_TestAndValidationSpec
 - Status: Draft
 - Role: defines executable validation, test-layer policy, regression gates, fixture and artifact rules, and CI or CLI acceptance policy for Kernel v2
 - Depends on:
@@ -194,6 +194,22 @@ It defines the minimum executable protection required for the plan-first kernel.
 
 15 is the proof layer for the rest of the architecture.
 It must not weaken or reinterpret lower-spec meaning in order to make tests easier to pass.
+
+---
+
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly family for executable architecture protection is `GameLib.Tests.*`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 15:
+
+- production assemblies must not depend on `GameLib.Tests.*`
+- EditMode and PlayMode test code must stay in test assemblies or editor-only assemblies rather than in production runtime code
+- static scanners, doc gates, diagnostics snapshots, and artifact-writing test helpers belong in test assemblies, even when they consume kernel production contracts
+- test-only packages and NUnit or Unity Test Framework references must not leak into kernel production asmdefs
+
+If architecture protection requires production runtime assemblies to reference test frameworks or test helpers directly, the 15 boundary has been violated.
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Document ID: `10_ValueSchemaAndStoreSpec`
+- Document ID: 10_ValueSchemaAndStoreSpec
 - Status: Draft
 - Role: defines abstract value identity, schema, runtime value storage, initialization plans, generic value-state boundaries, save metadata boundaries, and value diagnostics for Kernel v2; scalar runtime and binding semantics are delegated to 10-1
 - Depends on:
@@ -157,6 +157,21 @@ This specification must not turn `ValueStore` into Blackboard v2.
 | 13 | Defines the limited legacy boundary for Blackboard and VarStore migration |
 | 14 | Defines hot-path budgets for value access, initialization, and dirty signaling |
 | 15 | Turns required value tests into executable validation and CI coverage |
+
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for generic value schema and store runtime is `GameLib.Kernel.Value`.
+Scalar specialization and dynamic evaluation belong in their own leaf assemblies defined by 10-1 and 10-2.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 10:
+
+- `GameLib.Kernel.Value` must remain separate from feature assemblies, legacy Blackboard or VarStore code, and concrete command implementations
+- value core should remain Unity-free and use `noEngineReferences: true`
+- dynamic evaluation logic, tracker logic, and scalar-specialized binding logic must not be collapsed back into the generic value assembly
+- save payload formatting, Unity authoring extraction, and runtime object lookup helpers must stay outside generic value core
+
+If value storage cannot compile without Unity APIs, legacy fallback helpers, or feature-specific runtime code, the 10 boundary has been violated.
 
 ## Current Value Debt Observations
 

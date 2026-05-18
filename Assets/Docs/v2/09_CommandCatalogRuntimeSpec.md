@@ -176,6 +176,22 @@ This specification must not turn CommandCatalog into:
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for this subsystem is `GameLib.Kernel.Command`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 09:
+
+- `GameLib.Kernel.Command` must remain separate from feature executor implementations, legacy command runners, and Unity authoring extraction code
+- command runtime core should depend only on lower kernel assemblies and explicit public contracts from Runtime, ServiceGraph, ScopeGraph, and RuntimeQuery
+- command executor discovery by service collection, installer mutation, or feature back-reference must not be compiled into `GameLib.Kernel.Command`
+- Unity-specific command triggers, MonoBehaviour bridges, and feature command leaves must stay outside the command core assembly
+
+If verified command dispatch cannot compile without feature executors, legacy runner code, or runtime string-key lookup helpers, the 09 boundary has been violated.
+
+---
+
 ## Current Command Debt Observations
 
 Current command runtime mixes command discovery, runner creation, catalog lookup, lifecycle enrollment, key resolution, fallback behavior, and diagnostics binding.

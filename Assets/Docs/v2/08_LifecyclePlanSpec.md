@@ -157,6 +157,22 @@ It must not discover lifecycle structure from service registrations, component s
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for this subsystem is `GameLib.Kernel.Lifecycle`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 08:
+
+- `GameLib.Kernel.Lifecycle` must remain separate from feature assemblies, legacy handler implementations, and authoring extraction code
+- lifecycle core should depend only on lower kernel assemblies plus the explicit runtime contracts provided by Runtime, ServiceGraph, and ScopeGraph
+- interface-scan helpers, registration-scan helpers, and legacy dispatcher code must not be pulled into the Lifecycle assembly
+- Unity player loop hookup or MonoBehaviour bridge code must stay in Unity-facing leaf assemblies rather than in lifecycle core
+
+If lifecycle dispatch cannot compile without registration discovery, Unity hierarchy helpers, or feature-specific handler code, the 08 boundary has been violated.
+
+---
+
 ## Current Lifecycle Debt Observations
 
 ### Observation Traceability

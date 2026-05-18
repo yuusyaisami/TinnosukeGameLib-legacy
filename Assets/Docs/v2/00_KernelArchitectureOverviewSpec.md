@@ -97,6 +97,23 @@ If a lower specification needs to violate one of these constraints, it must expl
 
 ---
 
+## Assembly Definition and Compile Boundary Principle
+
+Detailed asmdef topology is owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+This overview owns the root rule that every lower spec must remain placeable inside that topology without ambiguity.
+
+Required root constraints:
+
+- every lower runtime-facing spec must state its intended assembly residence or assembly family
+- low-volatility kernel contracts must stay in low-volatility assemblies rather than in feature or legacy leaves
+- runtime core, Unity runtime bridge, Unity editor tooling, feature leaves, and legacy quarantine must remain separate compile units
+- if a design requires a kernel core assembly to reference feature internals, Editor-only APIs, or legacy fallback code, the architecture has regressed
+
+Asmdef is not optional implementation garnish.
+It is part of how the target kernel preserves explicit runtime authority, diagnostics visibility, and one-way dependency direction.
+
+---
+
 ## Current Architecture Observations
 
 この節は現行コードベースの観測結果を要約する。

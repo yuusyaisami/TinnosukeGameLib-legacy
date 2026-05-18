@@ -165,9 +165,11 @@ function Get-RunClassification(
 }
 
 function Write-RunSummary(
-    [string]$SummaryPath,
+    [string[]]$SummaryPaths,
+    [string]$RunId,
     [string]$Platform,
     [string]$TestFilter,
+    [string]$Target,
     [string]$CommandLine,
     [string]$RunDirectory,
     [string]$LogPath,
@@ -182,8 +184,12 @@ function Write-RunSummary(
 
     $lines = @(
         "Test target",
+        "- RunId: $RunId",
         "- Platform: $Platform",
         "- Filter: $TestFilter",
+        "- Target: $Target",
+        "- FixtureIdentity: $Target",
+        "- ProfileIdentity: Test",
         "Command",
         "- $CommandLine",
         "Output",
@@ -213,7 +219,138 @@ function Write-RunSummary(
         $lines += "- Message: $($Classification.FailureMessage.Trim())"
     }
 
-    Set-Content -LiteralPath $SummaryPath -Value $lines -Encoding utf8
+    foreach ($summaryPath in $SummaryPaths) {
+        Set-Content -LiteralPath $summaryPath -Value $lines -Encoding utf8
+    }
+}
+
+function Write-RunSummaryJson(
+    [string]$SummaryJsonPath,
+    [string]$RunId,
+    [string]$Platform,
+    [string]$TestFilter,
+    [string]$Target,
+    [string]$RunDirectory,
+    [string]$LogPath,
+    [string]$ResultsPath,
+    [pscustomobject]$Classification,
+    [int]$ExitCode
+) {
+    $report = [ordered]@{
+        SchemaVersion = "1"
+        ReportKind = "TestRunSummary"
+        Run = [ordered]@{
+            RunId = $RunId
+            Platform = $Platform
+            TestFilter = $TestFilter
+            Target = $Target
+            FixtureIdentity = $Target
+            ProfileIdentity = "Test"
+        }
+        Transient = [ordered]@{
+            RunDirectory = $RunDirectory
+            GeneratedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+        }
+        Status = $Classification.Status
+        ExitCode = $ExitCode
+        XmlExists = $Classification.XmlExists
+        ResultDetail = $Classification.ResultDetail
+        TestCaseCount = $Classification.TestCaseCount
+        Total = $Classification.Total
+        Passed = $Classification.Passed
+        Failed = $Classification.Failed
+        FailedTest = $Classification.FailedTest
+        FailureMessage = $Classification.FailureMessage
+        LogPath = $LogPath
+        ResultsPath = $ResultsPath
+    }
+
+    $json = $report | ConvertTo-Json -Depth 8
+    Set-Content -LiteralPath $SummaryJsonPath -Value $json -Encoding utf8
+}
+
+function Ensure-JsonArtifactFile(
+    [string]$Path,
+    [string]$ReportKind,
+    [string]$RunId,
+    [string]$Platform,
+    [string]$TestFilter,
+    [string]$Target,
+    [string]$RunDirectory
+) {
+    if (Test-Path -LiteralPath $Path) {
+        return $false
+    }
+
+    $report = [ordered]@{
+        Header = [ordered]@{
+            SchemaVersion = "1"
+            ReportKind = $ReportKind
+            IsPlaceholder = $true
+            Run = [ordered]@{
+                RunId = $RunId
+                Platform = $Platform
+                TestFilter = $TestFilter
+                Target = $Target
+                FixtureIdentity = $Target
+                ProfileIdentity = "Test"
+            }
+            Transient = [ordered]@{
+                RunDirectory = $RunDirectory
+                GeneratedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+            }
+        }
+        TotalCount = 0
+        Notes = @()
+        FailureKind = "InfrastructureFailure"
+    }
+
+    if ($ReportKind -eq "DiagnosticsReport") {
+        $report = [ordered]@{
+            Header = [ordered]@{
+                SchemaVersion = "1"
+                ReportKind = $ReportKind
+                IsPlaceholder = $true
+                Run = [ordered]@{
+                    RunId = $RunId
+                    Platform = $Platform
+                    TestFilter = $TestFilter
+                    Target = $Target
+                    FixtureIdentity = $Target
+                    ProfileIdentity = "Test"
+                }
+                Transient = [ordered]@{
+                    RunDirectory = $RunDirectory
+                    GeneratedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+                }
+            }
+            TotalCount = 0
+            CountBySeverity = @()
+            CountByDomain = @()
+            Records = @()
+                FailureKind = "InfrastructureFailure"
+        }
+    }
+
+    $json = $report | ConvertTo-Json -Depth 8
+    Set-Content -LiteralPath $Path -Value $json -Encoding utf8
+        return $true
+    }
+
+    function Register-ArtifactFallbackFailure(
+        [pscustomobject]$Classification,
+        [string[]]$FallbackArtifacts
+    ) {
+        if ($null -eq $FallbackArtifacts -or $FallbackArtifacts.Length -eq 0) {
+            return
+        }
+
+        $detail = "artifact fallback generated"
+        $message = "Required structured artifacts were missing and placeholder files were generated: " + ($FallbackArtifacts -join ", ")
+
+        $Classification.Status = "failed"
+        $Classification.ResultDetail = if ([string]::IsNullOrWhiteSpace($Classification.ResultDetail)) { $detail } else { $Classification.ResultDetail + "; " + $detail }
+        $Classification.FailureMessage = if ([string]::IsNullOrWhiteSpace($Classification.FailureMessage)) { $message } else { $Classification.FailureMessage + " " + $message }
 }
 
 $resolvedProjectPath = (Resolve-Path -LiteralPath $ProjectPath).Path
@@ -242,7 +379,9 @@ New-Item -ItemType Directory -Path $runDir -Force | Out-Null
 
 $logPath = Join-Path $runDir "unity.log"
 $resultsPath = Join-Path $runDir "TestResults.xml"
-$summaryPath = Join-Path $runDir "summary.md"
+$summaryPath = Join-Path $runDir "TestRunSummary.md"
+$legacySummaryPath = Join-Path $runDir "summary.md"
+$summaryJsonPath = Join-Path $runDir "TestRunSummary.json"
 
 $argumentList = @(
     "-batchmode",
@@ -271,6 +410,12 @@ $commandLine = Format-CommandLine -FilePath $UnityPath -Arguments $argumentList
 Write-Output ("RunDir=" + $runDir)
 Write-Output ("Log=" + $logPath)
 Write-Output ("Results=" + $resultsPath)
+
+$env:KERNEL_TEST_RUN_DIRECTORY = $runDir
+$env:KERNEL_TEST_RUN_ID = $runId
+$env:KERNEL_TEST_PLATFORM = $Platform
+$env:KERNEL_TEST_FILTER = $TestFilter
+$env:KERNEL_TEST_TARGET = $targetName
 
 $process = Start-Process -FilePath $UnityPath -ArgumentList $argumentList -PassThru
 $startedAt = Get-Date
@@ -327,7 +472,20 @@ else {
 }
 
 $classification = Get-RunClassification -ResultsPath $resultsPath -ExitCode $exitCode -TimedOut:$timedOut
-Write-RunSummary -SummaryPath $summaryPath -Platform $Platform -TestFilter $TestFilter -CommandLine $commandLine -RunDirectory $runDir -LogPath $logPath -ResultsPath $resultsPath -Classification $classification -ExitCode $exitCode
+$fallbackArtifacts = @()
+if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "DiagnosticsReport.json") -ReportKind "DiagnosticsReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "DiagnosticsReport.json" }
+if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "ValidationReport.json") -ReportKind "ValidationReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "ValidationReport.json" }
+if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "GenerationReport.json") -ReportKind "GenerationReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "GenerationReport.json" }
+if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "PerformanceReport.json") -ReportKind "PerformanceReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "PerformanceReport.json" }
+Register-ArtifactFallbackFailure -Classification $classification -FallbackArtifacts $fallbackArtifacts
+Write-RunSummary -SummaryPaths @($summaryPath, $legacySummaryPath) -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -CommandLine $commandLine -RunDirectory $runDir -LogPath $logPath -ResultsPath $resultsPath -Classification $classification -ExitCode $exitCode
+Write-RunSummaryJson -SummaryJsonPath $summaryJsonPath -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir -LogPath $logPath -ResultsPath $resultsPath -Classification $classification -ExitCode $exitCode
+
+Remove-Item Env:KERNEL_TEST_RUN_DIRECTORY -ErrorAction SilentlyContinue
+Remove-Item Env:KERNEL_TEST_RUN_ID -ErrorAction SilentlyContinue
+Remove-Item Env:KERNEL_TEST_PLATFORM -ErrorAction SilentlyContinue
+Remove-Item Env:KERNEL_TEST_FILTER -ErrorAction SilentlyContinue
+Remove-Item Env:KERNEL_TEST_TARGET -ErrorAction SilentlyContinue
 
 if ($classification.Status -ne "passed") {
     if (Test-Path -LiteralPath $logPath) {
@@ -347,6 +505,8 @@ if ($classification.Status -ne "passed") {
     RunId = $runId
     RunDirectory = $runDir
     SummaryPath = $summaryPath
+    LegacySummaryPath = $legacySummaryPath
+    SummaryJsonPath = $summaryJsonPath
     ExitCode = $exitCode
     XmlExists = $classification.XmlExists
     LogPath = $logPath

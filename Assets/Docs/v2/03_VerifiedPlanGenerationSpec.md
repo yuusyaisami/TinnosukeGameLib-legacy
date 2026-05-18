@@ -4,84 +4,6 @@
 
 - Document ID: 03_VerifiedPlanGenerationSpec
 - Status: Draft
-- Role: generation contract from validated KernelIR to VerifiedKernelPlan and generated artifacts
-- Depends on:
-  - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
-  - [01_KernelIRSpec.md](01_KernelIRSpec.md)
-- Provides foundation for:
-  - 04_DependencyValidationSpec.md
-  - 05_BootManifestAndProfileSpec.md
-  - 06_ServiceGraphRuntimeSpec.md
-  - 07_ScopeGraphRuntimeSpec.md
-  - 08_LifecyclePlanSpec.md
-  - 09_CommandCatalogRuntimeSpec.md
-  - 10_ValueSchemaAndStoreSpec.md
-  - 11_DebugMapAndDiagnosticsSpec.md
-
-### Ownership
-
-This document owns the verified plan generation pipeline, artifact set contract, hash and version policy, deterministic generation rules, DebugMap generation contract, generated code / asset split, and post-generation consistency requirements.
-
-This document does not own dependency validation algorithms, runtime storage layout, boot manifest schema, or runtime execution behavior.
-
----
-
-## Purpose
-
-This specification defines how validated KernelIR is transformed into VerifiedKernelPlan and its generated artifact set.
-
-03 is the generation trust boundary.
-It is responsible for ensuring that generated runtime artifacts are derived from a validated KernelIR, are internally consistent, and can be verified against hash and version metadata before any runtime boot attempt.
-
-KernelIR is the normalized authority.
-VerifiedKernelPlan is the runtime execution input.
-Generated artifacts are projections, not source of truth.
-
-This specification exists to prevent the following failure modes:
-
-- partial artifact sets being treated as valid
-- generated output being trusted without hash/version compatibility checks
-- editor and CLI generation producing divergent outputs
-- stale artifacts surviving after source changes
-- runtime fallback being used to repair generation failures
-
-If a runtime plan cannot be traced back to validated KernelIR through this generation contract, it is not a valid target-kernel artifact.
-
----
-
-## Scope
-
-This specification defines:
-
-- generation inputs and context
-- generation pipeline stages
-- VerifiedKernelPlan output contract
-- artifact set composition
-- plan header semantics
-- hash and version policy
-- deterministic generation requirements
-- DebugMap generation requirements
-- generated code / generated asset split
-- post-generation consistency checks
-- editor / CLI / CI parity requirements
-- failure policy for generation
-
-This specification intentionally does not define:
-
-- dependency validation algorithms
-- phase-aware cycle detection
-- runtime service cache layout
-- scope handle memory layout
-- command execution algorithm
-- value store storage layout
-- boot manifest schema
-- runtime boot policy details
-# Verified Plan Generation Specification
-
-## Document Status
-
-- Document ID: 03_VerifiedPlanGenerationSpec
-- Status: Draft
 - Role: defines how validated KernelIR and module-derived inputs become VerifiedKernelPlan and verified runtime artifact sets
 - Depends on:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
@@ -99,6 +21,12 @@ This specification intentionally does not define:
   - 11_DebugMapAndDiagnosticsSpec.md
   - 14_PerformanceBudgetAndRuntimeRulesSpec.md
   - 15_TestAndValidationSpec.md
+
+### Revision Note
+
+This revision consolidates the duplicated status, purpose, and scope blocks that had diverged at the top of 03.
+
+It preserves one authoritative metadata section for the generation trust boundary and keeps the broader dependency and artifact-consistency contract as the normative version.
 
 ### Ownership
 
@@ -149,6 +77,8 @@ This specification defines the process that turns validated KernelIR into Verifi
 
 Generated does not mean verified.
 Only a plan that passes all required generation gates may be used by the target runtime.
+
+03 is the generation trust boundary.
 
 KernelIR is the normalized authority.
 VerifiedKernelPlan is the runtime execution input.
@@ -234,6 +164,23 @@ This specification must not define runtime fallback behavior as a substitute for
 
 03 receives validated inputs and produces verified outputs.
 Lower specs must consume the outputs defined here rather than reconstructing them from runtime behavior.
+
+---
+
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for verified plan generation is `GameLib.Kernel.Generation`.
+Editor-only generated file writing and regeneration tooling belong in `GameLib.Kernel.Generation.Editor`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 03:
+
+- `GameLib.Kernel.Generation` must remain separate from runtime subsystem implementations
+- the generation core should remain Unity-free and use `noEngineReferences: true`
+- deterministic artifact generation logic must not depend on MonoBehaviour, ScriptableObject, or Unity scene traversal
+- file-system write paths, asset refresh hooks, and editor regeneration commands belong in editor-only assemblies, not in generation core
+
+If generation logic cannot be expressed without Unity runtime or editor objects in the core assembly, the 03 boundary has been violated.
 
 ---
 

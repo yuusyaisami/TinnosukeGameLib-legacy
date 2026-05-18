@@ -1,0 +1,11 @@
+<Project>
+  <Target Name="GameLibRemoveMissingAnalyzers"
+          BeforeTargets="CoreCompile"
+          Condition="'$(GameLibRemoveMissingAnalyzers)' == 'true'">
+    <ItemGroup>
+      <!-- Keep repo-side builds portable when a generated analyzer path is absent. -->
+      <_GameLibMissingAnalyzer Include="@(Analyzer)" Condition="!Exists('%(Identity)')" />
+      <Analyzer Remove="@(_GameLibMissingAnalyzer)" />
+    </ItemGroup>
+  </Target>
+</Project>

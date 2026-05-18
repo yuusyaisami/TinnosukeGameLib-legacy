@@ -154,6 +154,22 @@ It must not derive scope structure from Transform hierarchy, scene search, or se
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for this subsystem is `GameLib.Kernel.ScopeGraph`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 07:
+
+- `GameLib.Kernel.ScopeGraph` must remain separate from Unity authoring assemblies, feature leaves, and legacy scope implementations
+- ScopeGraph core should depend only on lower kernel assemblies such as Foundation, Diagnostics, Abstractions, and Runtime
+- Transform hierarchy helpers, scene object ownership inference, and MonoBehaviour authoring utilities must stay outside the ScopeGraph assembly
+- runtime scope truth must not be reconstructed by reaching back into ServiceGraph, feature installers, or legacy LifetimeScope code
+
+If explicit scope runtime cannot compile without Unity hierarchy truth or legacy scope back-references, the 07 boundary has been violated.
+
+---
+
 ## Current Runtime Observations
 
 ### Observation Traceability

@@ -168,6 +168,22 @@ It must not derive service truth from registrations, scene search, ancestor trav
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for this subsystem is `GameLib.Kernel.ServiceGraph`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 06:
+
+- `GameLib.Kernel.ServiceGraph` must remain separate from feature assemblies, legacy assemblies, and command executor implementations
+- ServiceGraph core should depend only on lower kernel assemblies such as Foundation, Diagnostics, Abstractions, and Runtime
+- Unity object search helpers, scene binding code, and authoring extraction must stay outside the ServiceGraph assembly
+- installer-style registration mutation, ancestor resolver fallback, and broad runtime discovery must not be pulled into `GameLib.Kernel.ServiceGraph`
+
+If service resolution logic requires feature internals, Editor APIs, or legacy resolver fallback to compile, the 06 boundary has been violated.
+
+---
+
 ## Current Service Debt Observations
 
 ### Observation Traceability

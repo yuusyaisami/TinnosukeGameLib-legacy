@@ -104,6 +104,22 @@ Lower specs must reference the concepts defined here rather than redefining them
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for the normalized IR model is `GameLib.Kernel.IR`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 01:
+
+- `GameLib.Kernel.IR` must remain Unity-free and Editor-free
+- `GameLib.Kernel.IR` should use `noEngineReferences: true`
+- runtime execution logic, feature implementations, and legacy adapters must not be colocated in the IR assembly
+- authoring extraction may feed IR from `GameLib.Kernel.Authoring.Editor`, but IR itself remains a normalized core assembly
+
+If an IR type cannot live in a Unity-free core assembly, it does not belong in 01.
+
+---
+
 ## IR Pipeline Position
 
 ```text

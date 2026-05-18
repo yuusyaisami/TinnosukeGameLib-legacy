@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Unity-generated csproj files may include machine-local analyzer paths. -->
+    <GameLibRemoveMissingAnalyzers Condition="'$(GameLibRemoveMissingAnalyzers)' == ''">true</GameLibRemoveMissingAnalyzers>
+  </PropertyGroup>
+</Project>

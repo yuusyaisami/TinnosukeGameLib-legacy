@@ -160,6 +160,22 @@ It is the execution-order contract that prevents the lower specs from being impl
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+Implementation order must treat asmdef work as architecture work, not as late cleanup.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required sequencing rules for 16:
+
+- each runtime-facing milestone must identify the target assembly or assembly family before substantial implementation expands
+- milestone completion is incomplete if code exists but still resides in an invalid monolithic compile unit that hides forbidden dependency direction
+- compile-boundary tests and asmdef graph verification must appear early enough to stop later milestones from reintroducing feature, editor, or legacy back-references
+- subsystem migration work must follow the low-volatility-first split order rather than starting with feature leaves
+
+If a milestone claims completion without a credible asmdef residence and compile-boundary story, the 16 execution order has been violated.
+
+---
+
 ## Implementation Ordering Principles
 
 ### 1. Proof Before Richness
@@ -258,8 +274,8 @@ Required outputs:
 - M0.1 Spec hygiene pass across 00 through 15 and 10-1 / 10-2
 - M0.2 Cross-spec concept map document at `Assets/Docs/v2/Index/KernelV2ConceptMap.md`
 - M0.3 Forbidden pattern registry document at `Assets/Docs/v2/Index/ForbiddenPatternRegistry.md`
-- M0.4 Cross-spec dependency matrix
-- M0.5 Existing anchor inventory tied to current code locations
+- M0.4 Cross-spec dependency matrix document at `Assets/Docs/v2/Index/CrossSpecDependencyMatrix.md`
+- M0.5 Existing anchor inventory document at `Assets/Docs/v2/Index/ExistingAnchorInventory.md`
 
 M0 concept map must cover at least the following terms without duplicated ownership:
 

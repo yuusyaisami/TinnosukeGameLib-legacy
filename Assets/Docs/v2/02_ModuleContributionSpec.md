@@ -107,6 +107,22 @@ Lower specs must reference the concepts defined here rather than rediscovering m
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for declarative module contribution contracts is `GameLib.Kernel.Contributions`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 02:
+
+- `GameLib.Kernel.Contributions` must stay separate from runtime service, scope, lifecycle, command, and value implementation assemblies
+- contribution collection contracts should remain Unity-free in the core assembly, while Unity extraction belongs to `GameLib.Kernel.Authoring` or `GameLib.Kernel.Authoring.Editor`
+- installer-style runtime builder mutation must not be reintroduced by placing runtime registration helpers inside the contribution assembly
+- legacy installer migration code must remain in quarantine assemblies rather than in `GameLib.Kernel.Contributions`
+
+If a contribution type needs runtime builder access or Unity scene search to exist, it belongs outside 02.
+
+---
+
 ## Current Architecture Observations
 
 この節は現行コードベースの観測結果を要約する。

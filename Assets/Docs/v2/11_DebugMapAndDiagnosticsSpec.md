@@ -175,6 +175,27 @@ It must not re-own domain semantics already owned elsewhere.
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+Diagnostics is intentionally split across multiple assemblies:
+
+- `GameLib.Kernel.Diagnostics`
+- `GameLib.Kernel.Diagnostics.Unity`
+- `GameLib.Kernel.Diagnostics.Editor`
+
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 11:
+
+- `GameLib.Kernel.Diagnostics` owns the structured record model, diagnostic service contracts, and non-Unity sinks, and should remain Unity-free
+- `GameLib.Kernel.Diagnostics.Unity` is the only legal assembly for direct Unity `Debug.Log*` emission in target kernel paths
+- editor-facing diagnostics browsing, source navigation, and authoring tooling must stay in `GameLib.Kernel.Diagnostics.Editor`
+- subsystem-specific final loggers, legacy direct log wrappers, and feature-specific log sinks must not be compiled into diagnostics core
+
+If structured diagnostics cannot compile without Unity logging APIs in core or without feature-specific formatting code, the 11 boundary has been violated.
+
+---
+
 ## Current Diagnostics Debt Observations
 
 この節は現行コードベースの diagnostics 負債の観測結果をまとめる。

@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Document ID: `13_LegacyCompatBoundarySpec`
+- Document ID: 13_LegacyCompatBoundarySpec
 - Status: Draft
 - Role: defines the quarantine boundary where legacy compatibility may remain visible, the allowed adapter shapes, profile constraints, diagnostics visibility, and removal rules for Kernel v2
 - Depends on:
@@ -146,6 +146,22 @@ This specification does not define:
 
 13 is the isolation contract for migration.
 It must not duplicate domain ownership already fixed by the lower subsystem specs.
+
+---
+
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly family for migration-only compatibility is `GameLib.Legacy.*`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 13:
+
+- legacy adapters must live in explicit quarantine assemblies rather than in `GameLib.Kernel.*` assemblies
+- dependency direction is one-way: `GameLib.Legacy.*` may depend on public kernel APIs, but `GameLib.Kernel.*` must not depend on legacy assemblies
+- migration helpers for installers, resolvers, Blackboard, command runners, or scope bridges must not be colocated inside kernel core assemblies
+- temporary compatibility code must remain removable by deleting quarantine assemblies rather than by surgically untangling kernel core
+
+If a new compatibility path requires a kernel assembly to reference legacy internals directly, the 13 boundary has been violated.
 
 ---
 

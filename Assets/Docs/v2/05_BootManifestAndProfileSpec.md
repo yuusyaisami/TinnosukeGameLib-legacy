@@ -108,6 +108,23 @@ This specification must not turn BootManifest into a global settings registry.
 
 ---
 
+## Assembly Definition and Compile Boundary Expectations
+
+The intended assembly home for verified boot policy is `GameLib.Kernel.Boot`.
+Unity-facing boot entry glue belongs in `GameLib.Kernel.Boot.Unity`.
+Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+
+Required compile-boundary rules for 05:
+
+- `GameLib.Kernel.Boot` must remain separate from feature assemblies, legacy assemblies, and authoring extraction assemblies
+- boot core should remain Unity-free and use `noEngineReferences: true`
+- `GameLib.Kernel.Boot.Unity` is the legal place for Unity-specific boot assets, startup hooks, and engine glue
+- boot acceptance logic must not depend on scene discovery helpers, feature installers, or legacy fallback services
+
+If verified boot requires feature back-references or Unity scene traversal in boot core, the 05 boundary has been violated.
+
+---
+
 ## Current Boot Observations
 
 Current boot observations must remain traceable to source code, migration notes, or profiling evidence.
