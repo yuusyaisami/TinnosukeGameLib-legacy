@@ -395,12 +395,16 @@ Validation must reject:
 
 Validation must check:
 
-- every lifecycle target service exists
+- every lifecycle target reference is valid for its declared target kind
+- every lifecycle target service exists when the target kind is `Service`
+- every lifecycle target scope exists when the target kind is `Scope`
+- every lifecycle target runtime query exists when the target kind is `RuntimeQuery`
+- every lifecycle target local owner reference is explicit and valid when the target kind is `ValueStore`, `RuntimeObjectOwner`, or `LegacyAdapter`
 - lifecycle phase declarations are valid
 - lifecycle step order is deterministic
 - source location exists for lifecycle plans and steps
 - lifecycle dependencies do not introduce invalid phase cycles
-- the target service is available in the required scope and profile
+- the target reference is available in the required scope and profile
 
 Participation must be represented by `LifecycleIR`.
 Interface implementation alone is not lifecycle enrollment.
@@ -410,6 +414,9 @@ Validation must reject:
 - interface-only lifecycle discovery assumptions
 - lifecycle participation derived from registration scanning
 - lifecycle steps targeting missing services
+- lifecycle steps targeting missing scopes
+- lifecycle steps targeting missing runtime queries
+- lifecycle steps targeting invalid local owner references
 - non-deterministic lifecycle ordering within the same phase
 - lifecycle dependencies that create invalid Build, Generate, Boot, or Acquire cycles
 
@@ -935,6 +942,19 @@ Profile:
 Expected:
 - Status: Failed
 - Diagnostic: DEP_CYCLE_ACQUIRE
+
+#### TC_DEP_LIFECYCLE_004_TargetValidatedByKind
+
+Input:
+- Lifecycle step target kind is `RuntimeQuery`
+- Referenced runtime query is absent
+
+Profile:
+- Development
+
+Expected:
+- Status: Failed
+- Diagnostic: DEP_LIFECYCLE_TARGET_INVALID
 
 ### E. Command Dependency Tests
 

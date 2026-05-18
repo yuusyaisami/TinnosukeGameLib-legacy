@@ -489,7 +489,7 @@ public sealed class LifecycleStepIR
     public LifecyclePhase Phase;
     public int Order;
 
-    public ServiceId TargetService;
+    public LifecycleTargetRefIR Target;
     public LifecycleActionKind Action;
     public DependencyEdgeId[] Dependencies;
 
@@ -503,6 +503,41 @@ Participation must be represented by LifecycleIR.
 LifecycleIR must not be derived from registration scanning at runtime.
 
 Lifecycle ordering is explicit data, not emergent behavior.
+
+Lifecycle targets are explicit and typed.
+LifecycleIR must not assume that every lifecycle step targets only a service.
+
+```csharp
+public sealed class LifecycleTargetRefIR
+{
+    public LifecycleTargetKind Kind;
+
+    public ServiceId TargetService;
+    public ScopePlanId TargetScope;
+    public RuntimeQueryId TargetRuntimeQuery;
+    public string TargetLocalRef;
+}
+```
+
+```csharp
+public enum LifecycleTargetKind
+{
+    Service = 10,
+    Scope = 20,
+    ValueStore = 30,
+    RuntimeQuery = 40,
+    RuntimeObjectOwner = 50,
+    LegacyAdapter = 90,
+}
+```
+
+`TargetLocalRef` is not a generic runtime search key.
+It exists only for lower-spec verified local references such as a ValueStore boundary role or a runtime-object-owner slot inside an explicit owner namespace.
+
+Only the field required by the selected `LifecycleTargetKind` is meaningful.
+
+Lower specs define the concrete runtime realization of each target kind.
+01 defines only the normalized target boundary.
 
 ---
 
@@ -797,6 +832,7 @@ The following are intentionally deferred:
 - IR identity model
 - source location model
 - root IR node categories
+- lifecycle explicit target model
 - dependency edge model
 - normalization rules
 - deterministic ordering rules
@@ -816,7 +852,8 @@ The following are intentionally deferred:
 | TC-01-02 | Confirm normalization removes runtime-order dependence. | The normalization and deterministic ordering sections must forbid reliance on enumeration order, reflection order, and other runtime artifacts. |
 | TC-01-03 | Confirm hash inputs exclude non-semantic data. | The hash input rules section must forbid timestamps, absolute paths, and runtime instance identity. |
 | TC-01-04 | Confirm DebugMap coverage is mandatory for runtime-facing IDs. | The diagnostics and debug map requirements section must remain present and specific. |
-| TC-01-05 | Confirm validation handoff stays outside the IR contract. | The validation handoff section must not absorb dependency validation algorithms. |
+| TC-01-05 | Confirm lifecycle targets are explicit and typed. | The LifecycleIR section must define lifecycle target identity without falling back to interface or registration discovery. |
+| TC-01-06 | Confirm validation handoff stays outside the IR contract. | The validation handoff section must not absorb dependency validation algorithms. |
 
 ---
 
