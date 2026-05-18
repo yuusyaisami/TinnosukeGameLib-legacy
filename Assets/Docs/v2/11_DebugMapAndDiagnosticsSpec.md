@@ -168,7 +168,7 @@ It defines runtime contract and structured reporting requirements, not stylistic
 | 12_UnityAuthoringBridgeSpec.md | Will consume DebugMap source mapping and diagnostics contracts for editor-facing authoring diagnostics. |
 | 13_LegacyCompatBoundarySpec.md | Will define bounded legacy adapters that may forward legacy errors into the 11 diagnostics pipeline. |
 | 14_PerformanceBudgetAndRuntimeRulesSpec.md | Will budget diagnostics emission and formatting costs using the rules defined here. |
-| 15_TestAndValidationSpec.md | Will turn this specification into executable diagnostics validation, snapshots, analyzer checks, and CI coverage. |
+| 15_TestAndValidationSpec.md | Implements executable diagnostics snapshots, analyzer gates, and CI coverage using the diagnostics contracts defined here. It does not redefine `KernelDiagnostic`, `DiagnosticCode`, severity, or sink ownership. |
 
 11 is the shared diagnostics substrate.
 It must not re-own domain semantics already owned elsewhere.

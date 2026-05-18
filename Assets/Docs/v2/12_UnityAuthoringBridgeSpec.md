@@ -166,7 +166,7 @@ It defines the kernel-facing authoring contract.
 | [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | Owns the shared diagnostics substrate; 12 defines the authoring-side source fields and failure contexts emitted through that substrate. |
 | [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) | Will define the only legal boundary where legacy authoring adapters may remain visible. |
 | [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | Will budget extraction, normalization, direct-play preparation, and authoring diagnostics costs defined here. |
-| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | Will turn the rules and required tests in this document into executable validation and CI coverage. |
+| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | Implements executable tests for authoring extraction determinism, direct-play input correctness, identity stability, and CI coverage using the rules defined here. It does not redefine authoring roles or extraction semantics. |
 
 12 is the authoring-entry contract for the kernel pipeline.
 It must not leave Unity-facing identity, extraction, or direct-play rules ownerless.
@@ -877,7 +877,7 @@ Performance optimization must not skip:
 - duplicate detection
 - identity normalization
 
-Suggested measurable editor cost categories for downstream budgeting include:
+Suggested measurable editor cost categories for downstream budgeting defined by 14 include:
 
 - `AuthoringBridge.CollectRoots`
 - `AuthoringBridge.Extract`

@@ -73,7 +73,7 @@ Lower specifications and implementation code must not violate the following 00-l
 - generated artifacts must not be trusted without validation and hash/version compatibility checks
 - ID/Handle based runtime paths must preserve diagnostics through DebugMap or equivalent metadata
 - subsystems must emit structured diagnostics through the shared diagnostics pipeline, and Unity Debug APIs must be reserved for approved central sinks
-- legacy compatibility must remain outside the new kernel core
+- legacy compatibility must remain outside the new kernel core and must not repair missing target-kernel data
 
 If a lower specification needs to violate one of these constraints, it must explicitly define:
 
@@ -758,11 +758,22 @@ New Kernel -> LegacyCompat is forbidden
 ```
 
 移行期間中の temporary allowance は 13 に明示する。
+
+Core rule:
+
+```text
+Legacy compatibility is a quarantine boundary, not an extension point.
+
+Legacy may call into v2 through explicit adapters.
+v2 core must not call back into legacy as fallback.
+```
+
 00 で固定するのは次の原則だけである。
 
-- legacy fallback must be observable
-- legacy fallback must not be silent in release
+- legacy compatibility must be explicit, diagnostic-visible, profile-scoped, and removable
+- legacy fallback must be forbidden in all profiles
 - new kernel core must not depend on legacy runtime APIs
+- Development and Test may increase legacy visibility, but they must not make invalid target data valid through legacy fallback
 
 ### Legacy Growth Control
 
@@ -775,8 +786,10 @@ The following are forbidden:
 - allowing target kernel core to reference legacy runtime types
 - using legacy resolver paths for new service discovery
 - using legacy command registration for new command executors
+- using legacy fallback to repair missing target-kernel data
 
 Legacy usage must be measurable.
+Legacy usage must not make invalid target data valid.
 
 Each legacy bridge must report:
 
@@ -840,7 +853,9 @@ Lower spec 14 must define profiler markers and budget categories for at least:
 - ValueStore.ApplyInitPlan
 - RuntimeQuery.Lookup
 
-The target architecture should distinguish:
+Spec 14 owns the exact marker taxonomy, budget ranges, profile-specific caps, and regression rules for these categories.
+
+The target architecture must distinguish:
 
 - structural cost: cost of loading and validating plan metadata
 - activation cost: cost of constructing required runtime services
@@ -940,7 +955,8 @@ Lower specs and tests must provide verification through at least one of:
 | hash mismatch detected | boot failure test |
 | dependency cycle detected | validation test |
 | ID failure is human-readable | diagnostics snapshot test |
-| legacy usage observable | legacy usage report test |
+| legacy usage observable and removable | legacy usage report test + removal policy validation |
+| legacy fallback rejected in all profiles | profile validation test + boot or operation failure test |
 
 ---
 
@@ -957,8 +973,8 @@ Lower specs and tests must provide verification through at least one of:
 - generated data の hash mismatch が検出される
 - graph dependency cycle が validation で検出される
 - ID / Handle failure が human-readable diagnostics になる
-- legacy usage が観測可能である
-- release build で silent fallback がない
+- legacy usage が観測可能で removal target を持つ
+- legacy fallback が全 profile で禁止される
 
 ### Minimum Definition of Done
 
@@ -973,6 +989,7 @@ They are only complete when each criterion has a corresponding verification meth
 | TC-00-02 | Confirm KernelIR and VerifiedKernelPlan are the trust boundary. | The trust boundary and core concepts sections must name both explicitly. |
 | TC-00-03 | Confirm the specification split keeps 01 and 04 ahead of runtime specs. | The split order and dependency order sections must state that runtime specs depend on validated IR and validation rules. |
 | TC-00-04 | Confirm every success criterion maps to a verification method. | The verification matrix must remain present and reference lower specs or tests. |
+| TC-00-05 | Confirm legacy compatibility is one-way and not a fallback path. | The legacy boundary section must preserve `LegacyCompat -> New Kernel`, forbid reverse fallback, and reject legacy fallback in all profiles. |
 
 ---
 
@@ -990,6 +1007,7 @@ Validation, hash checks, DebugMap, diagnostics, and tests are what make the pipe
 Runtime must execute only verified inputs.
 Editor / CI / Test must prove that those inputs are valid.
 DebugMap and diagnostics preserve traceability for an ID / Handle based architecture.
-Legacy compatibility remains isolated for migration only.
+Legacy compatibility remains isolated for migration only as an explicit, removable quarantine boundary.
+It must not repair missing target data.
 
 この設計により、現行の runtime 探索、eager 初期化、registration 肥大化を抑制しつつ、generated data 不整合による新しい破綻も防ぐ。

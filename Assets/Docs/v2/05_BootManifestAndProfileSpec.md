@@ -600,6 +600,9 @@ Boot must expose profiler markers for at least:
 - `KernelBoot.CreateRootScopes`
 - `KernelBoot.RunBootLifecycle`
 
+These are the minimum required boot markers.
+Spec 14 defines the full marker taxonomy, budget ranges, profile-specific caps, and regression rules that consume this boot path.
+
 Boot performance must not be optimized by skipping validation or DebugMap consistency checks.
 
 Command executor count may increase structural metadata size.

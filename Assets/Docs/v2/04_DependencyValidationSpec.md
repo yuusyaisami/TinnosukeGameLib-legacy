@@ -102,7 +102,7 @@ This specification does not redefine the canonical meaning or wire shape of Kern
 | 11_DebugMapAndDiagnosticsSpec.md | Consumes validation diagnostics, source provenance, and debug coverage requirements defined here. |
 | 12_UnityAuthoringBridgeSpec.md | Produces authoring inputs whose normalized dependency declarations must survive validation before acceptance. |
 | 13_LegacyCompatBoundarySpec.md | Defines the only legal boundary where legacy usage may remain observable and controlled. |
-| 15_TestAndValidationSpec.md | Turns the validation model and required cases in this document into executable test and CI coverage. |
+| 15_TestAndValidationSpec.md | Converts the validation fixtures and required cases defined here into executable tests and CI gates. It does not redefine validation semantics, severity meaning, or diagnostics-code intent. |
 
 04 is the dependency firewall between declarative architecture and runtime execution.
 
