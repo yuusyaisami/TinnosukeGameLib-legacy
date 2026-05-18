@@ -205,6 +205,10 @@ Typed identity domains owned by KernelIR include at minimum:
 - ScopePlanId
 - ServiceId
 - CommandTypeId
+- CommandCategoryId
+- CommandPayloadSchemaId
+- CommandExecutorId
+- CommandAuthoringKeyId
 - ValueKeyId
 - LifecycleStepId
 - RuntimeQueryId
@@ -412,6 +416,7 @@ public sealed class CommandIR
     public CommandTypeId TypeId;
     public string RuntimeName;
     public string AuthoringKey;
+    public CommandCategoryId CategoryId;
     public ModuleId OwnerModule;
 
     public CommandPayloadSchemaRefIR PayloadSchema;
@@ -432,6 +437,7 @@ Conversion from authoring key to runtime identity happens during normalization o
 CommandIR must be able to represent both the current ID-based executor path and the authoring-key-based catalog path if the migration layer needs that information.
 
 CommandIR does not define executor construction policy.
+09 defines the final runtime command catalog, payload validation, executor lifetime, command category, and authoring-key boundary policy.
 
 ---
 

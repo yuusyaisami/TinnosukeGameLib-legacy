@@ -429,17 +429,24 @@ Validation must check:
 - every `CommandTypeId` exists
 - every command executor reference exists
 - every payload schema reference exists
+- every command payload field reference is compatible with its payload schema
 - required service, value, and runtime query dependencies exist
 - runtime dispatch identity is not satisfied by a raw authoring key
+- command executor availability is not satisfied by ServiceGraph bulk discovery
+- control-flow child command references are valid
+- command runner domain and cardinality are valid where declared
 - command-level module dependencies are declared where required
 
 Validation must reject:
 
 - missing command executors
 - missing payload schemas
+- payload fields missing required schema metadata
+- payload field type mismatches
 - use of authoring keys as runtime dispatch identity
 - command dependencies satisfied only by bulk DI discovery
 - command dependencies on missing values or runtime queries
+- command runner cardinality that scales with mass entity count without explicit budget
 
 ---
 
