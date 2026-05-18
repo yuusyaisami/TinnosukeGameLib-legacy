@@ -457,19 +457,34 @@ Validation must check:
 - every `ValueKeyId` exists
 - stable keys are unique where required
 - every schema reference exists
+- every required `ValueSchemaPlan` projection exists
 - every init plan target exists
+- every init plan target schema exists
 - init value type is compatible with schema
+- duplicate init entries have explicit deterministic overwrite or merge policy
 - save policy references are valid
+- save policy metadata is compatible with schema and profile
 - dynamic or reactive evaluation dependencies are explicit
+- dynamic evaluation inputs are declared and valid for the target phase
+- table, record, and cell schema references are valid
+- command read/write access declarations reference valid `ValueKeyId` values and store scopes
 - runtime stable-key fallback is not required for target-kernel correctness
+- runtime-only negative value IDs are absent
 
 Validation must reject:
 
 - duplicate value IDs or stable keys
+- missing `ValueSchemaPlan` projection
 - init plans that target missing keys
 - type-mismatched initialization
+- duplicate init entries resolved by collection order
 - implicit dynamic dependencies hidden inside generic initialization
+- hidden DynamicValue or deferred dynamic dependencies without explicit evaluation plan
+- table or cell payloads without schema
+- invalid save policy metadata
+- command value access without declared access policy
 - value access that requires runtime stable-key lookup fallback
+- runtime-only negative value IDs
 
 ---
 

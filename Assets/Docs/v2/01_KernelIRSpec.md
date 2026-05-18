@@ -210,6 +210,11 @@ Typed identity domains owned by KernelIR include at minimum:
 - CommandExecutorId
 - CommandAuthoringKeyId
 - ValueKeyId
+- ValueSchemaId
+- ValueStoreId
+- ValueStoreScopeId
+- ValueInitPlanId
+- ValueFieldId
 - LifecycleStepId
 - RuntimeQueryId
 - DependencyNodeId
@@ -467,6 +472,9 @@ Runtime access must use ValueKeyId or verified generated accessors.
 
 ValueKeyIR defines what values may exist.
 It does not define runtime storage layout.
+
+ValueKeyIR does not own ValueStore storage, initialization ordering, dynamic evaluation, reactive invalidation, CommandLocal lifetime, or save payload format.
+10 defines the value schema, runtime store, init plan, evaluation boundary, command-local boundary, and save metadata policy.
 
 ValueKeyIR should not contain initial values directly unless a lower spec explicitly defines that a value key can own a default value and explain why that does not blur schema and initialization responsibility.
 
