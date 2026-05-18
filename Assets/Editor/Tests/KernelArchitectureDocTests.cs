@@ -24,6 +24,7 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("TC-README-02"));
             Assert.That(content, Does.Contain("02_ModuleContributionSpec.md"));
             Assert.That(content, Does.Contain("07_ScopeGraphRuntimeSpec.md"));
+            Assert.That(content, Does.Contain("16_ImplementationMilestoneOrderSpec.md"));
             Assert.That(content, Does.Contain("Run-UnityTests.ps1"));
         }
 
@@ -103,6 +104,22 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("TC-07-04"));
             Assert.That(content, Does.Contain("TC-07-05"));
             Assert.That(content, Does.Contain("TC-07-06"));
+        }
+
+        [Test]
+        public void ImplementationMilestoneSpec_ContainsOrderingRulesAndTestCases()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "16_ImplementationMilestoneOrderSpec.md"));
+
+            Assert.That(content, Does.Contain("## Test Cases"));
+            Assert.That(content, Does.Contain("TC-16-01"));
+            Assert.That(content, Does.Contain("TC-16-02"));
+            Assert.That(content, Does.Contain("TC-16-03"));
+            Assert.That(content, Does.Contain("TC-16-04"));
+            Assert.That(content, Does.Contain("TC-16-05"));
+            Assert.That(content, Does.Contain("M1"));
+            Assert.That(content, Does.Contain("M6"));
+            Assert.That(content, Does.Contain("M15"));
         }
     }
 }
