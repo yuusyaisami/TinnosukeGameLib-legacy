@@ -4,7 +4,7 @@
 
 - Document ID: `10_ValueSchemaAndStoreSpec`
 - Status: Draft
-- Role: defines value schema, runtime value storage, initialization plans, value evaluation boundaries, save metadata boundaries, and value diagnostics for Kernel v2
+- Role: defines abstract value identity, schema, runtime value storage, initialization plans, generic value-state boundaries, save metadata boundaries, and value diagnostics for Kernel v2; scalar runtime and binding semantics are delegated to 10-1
 - Depends on:
 - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
 - [01_KernelIRSpec.md](01_KernelIRSpec.md)
@@ -17,6 +17,7 @@
 - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
 - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
 - Provides foundation for:
+- [10_1_ScalarRuntimeAndBindingSpec.md](10_1_ScalarRuntimeAndBindingSpec.md)
 - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
 - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
 - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
@@ -39,7 +40,8 @@ This specification owns:
 - `ValueStoreInitPlan` behavior
 - initialization ordering and overwrite policy
 - value read/write access policy
-- scalar, record, record list, table, and layered numeric policy
+- abstract value kind and generic storage policy
+- record, record list, table, and layered numeric state policy
 - revision and dirty signaling requirements
 - DynamicEvaluation boundary
 - ReactiveEvaluation boundary
@@ -54,6 +56,7 @@ This specification owns:
 
 This specification does not own:
 
+- final scalar modifier, binding, or telemetry runtime contract
 - final ReactiveResolver graph implementation
 - final CommandCatalog dispatch implementation
 - final SaveSystem payload format
@@ -75,6 +78,7 @@ Core position:
 ValueSchema defines what values may exist.
 ValueStore stores runtime state.
 ValueStoreInitPlan defines initial writes.
+Float-specialized scalar runtime and binding semantics are defined in 10-1.
 Dynamic / Reactive evaluation is not hidden inside generic initialization.
 Runtime stable-key fallback is forbidden in target kernel paths.
 ```
@@ -146,6 +150,7 @@ This specification must not turn `ValueStore` into Blackboard v2.
 | 07 | Owns scope lifetime and may reference scope-local value store boundaries without becoming a value store |
 | 08 | Executes explicit lifecycle steps that may initialize stores, but does not infer value initialization |
 | 09 | Declares command read/write access to `ValueKeyId` and owns CommandLocal execution context |
+| 10-1 | Owns float-specialized scalar runtime, modifier, binding, telemetry, and failure semantics layered on top of verified numeric definitions from 10 |
 | 10-2 | Owns `DynamicValue`, `DynamicEvaluationPlan`, `ReactiveEvaluationPlan`, tracker, cache, invalidation, and nested dependency capture semantics; 10 owns only the value-state boundary and revision signals consumed by that layer |
 | 11 | Owns the shared structured diagnostics substrate and DebugMap runtime contract used by value runtime; 10 defines required value provenance fields, init or table diagnostics context, and failure behavior |
 | 12 | Produces authoring inputs that normalize stable keys into `ValueKeyId` before runtime |
@@ -218,6 +223,8 @@ Target value architecture is split into four concepts:
 4. `EvaluationPlan` defines dynamic, reactive, or computed evaluation and is owned in detail by 10-2.
 
 These concepts must not be collapsed into a single component, service, MonoBehaviour, or Blackboard facade.
+
+10-1 defines the float-specialized scalar runtime and binding layer that consumes these verified value contracts without re-owning schema, save policy, or dynamic evaluation internals.
 
 Pipeline:
 
@@ -964,6 +971,8 @@ Target requirements:
 - table access must define sparse or dense performance expectations
 - dirty signal emission must avoid unbounded allocation
 
+Scalar-specific hot-path, binding, and handle-lifetime budgets are defined in 10-1.
+
 Entity-level value data must use compact storage.
 Creating heavy dictionary-backed stores per entity is forbidden by default.
 
@@ -1344,7 +1353,7 @@ Expected:
 
 This specification is complete when it defines:
 
-- value architecture split between Schema, Store, InitPlan, and Evaluation
+- value architecture split between Schema, Store, InitPlan, and Evaluation, with scalar runtime delegated to 10-1
 - `ValueKeyId` identity model
 - `StableKey` boundary
 - `ValueSchema` model

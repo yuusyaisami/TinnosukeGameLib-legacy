@@ -14,6 +14,7 @@
 - [08 Lifecycle Plan Specification](08_LifecyclePlanSpec.md)
 - [09 Command Catalog Runtime Specification](09_CommandCatalogRuntimeSpec.md)
 - [10 Value Schema and Store Specification](10_ValueSchemaAndStoreSpec.md)
+- [10-1 Scalar Runtime and Binding Specification](10_1_ScalarRuntimeAndBindingSpec.md)
 - [10-2 DynamicValue Evaluation Specification](10_2_DynamicValueEvaluationSpec.md)
 - [11 DebugMap and Diagnostics Specification](11_DebugMapAndDiagnosticsSpec.md)
 - [12 Unity Authoring Bridge Specification](12_UnityAuthoringBridgeSpec.md)
@@ -25,7 +26,7 @@
 
 | Test Case | Purpose | Execution Note |
 |---|---|---|
-| TC-README-01 | Confirm the docs index exposes the review memo and created specs. | This file must link to 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 10-2, 11, and 12. |
+| TC-README-01 | Confirm the docs index exposes the review memo and created specs. | This file must link to 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 10-1, 10-2, 11, and 12. |
 | TC-README-02 | Confirm the shared test runner is documented. | Use [Run-UnityTests.ps1](../../../Tools/Run-UnityTests.ps1) for EditMode checks. |
 
 These cases are validated by the EditMode doc tests in the workspace.

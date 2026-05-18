@@ -671,7 +671,7 @@ Conversion from authoring key to runtime identity happens before runtime executi
 ### Value Schema and Store
 
 value runtime は schema-driven である。
-現在分離している Blackboard、Var registry、dynamic evaluation の責務は 10 と 10-2 で整理する。
+現在分離している Blackboard、Var registry、scalar、dynamic evaluation の責務は 10、10-1、10-2 で整理する。
 00 の時点では、string stable key を runtime truth にしないことだけを固定する。
 
 00 fixes the following value boundaries:
@@ -683,7 +683,8 @@ value runtime は schema-driven である。
 - Save metadata must be attached to schema or explicit save plan, not inferred from runtime store contents.
 - Runtime value creation outside schema is forbidden in target kernel paths.
 
-Lower spec 10 defines concrete storage layout, revision model, table/record representation, and save integration.
+Lower spec 10 defines generic value identity, schema/store contract, revision model, table/record representation, layered numeric state, and save integration.
+Lower spec 10-1 defines float-specialized scalar runtime, modifier, binding, telemetry, and failure semantics.
 Lower spec 10-2 defines DynamicValue evaluation, tracking, cache, invalidation, and nested dependency semantics.
 
 ### Debug and Diagnostics
@@ -866,6 +867,7 @@ Command executor count may increase structural metadata size, but must not force
 08_LifecyclePlanSpec.md
 09_CommandCatalogRuntimeSpec.md
 10_ValueSchemaAndStoreSpec.md
+10_1_ScalarRuntimeAndBindingSpec.md
 10_2_DynamicValueEvaluationSpec.md
 11_DebugMapAndDiagnosticsSpec.md
 12_UnityAuthoringBridgeSpec.md
@@ -893,6 +895,7 @@ The following concepts are owned by specific specs:
 | Lifecycle ordering | 08 |
 | Command identity and payload | 09 |
 | Value schema and store | 10 |
+| Scalar runtime and binding | 10-1 |
 | Dynamic evaluation and reactive tracking | 10-2 |
 | DebugMap and diagnostics | 11 |
 | Unity authoring bridge | 12 |
