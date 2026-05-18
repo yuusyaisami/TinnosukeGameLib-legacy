@@ -143,7 +143,7 @@ This specification must not become a generic hierarchy service specification.
 | 06_ServiceGraphRuntimeSpec.md | Defines service runtime; 07 owns only the scope-local service lifetime boundary |
 | 08_LifecyclePlanSpec.md | Defines lifecycle steps; 07 provides scope state boundaries and lifecycle request points |
 | 10_ValueSchemaAndStoreSpec.md | Defines ValueStore; 07 owns only the scope-local lifetime boundary |
-| 11_DebugMapAndDiagnosticsSpec.md | Defines DebugMap and diagnostics presentation for scope failures |
+| 11_DebugMapAndDiagnosticsSpec.md | Owns the shared structured diagnostics substrate and DebugMap runtime contract; 07 defines required scope runtime provenance fields and failure behavior. |
 | 12_UnityAuthoringBridgeSpec.md | Defines Unity authoring bridge and object linkage details |
 | 13_LegacyCompatBoundarySpec.md | Defines legacy LifetimeScope compatibility boundary |
 | 14_PerformanceBudgetAndRuntimeRulesSpec.md | Defines performance budgets for ScopeGraph operations |

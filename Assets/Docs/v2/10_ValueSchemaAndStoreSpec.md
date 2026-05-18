@@ -145,7 +145,7 @@ This specification must not turn `ValueStore` into Blackboard v2.
 | 07 | Owns scope lifetime and may reference scope-local value store boundaries without becoming a value store |
 | 08 | Executes explicit lifecycle steps that may initialize stores, but does not infer value initialization |
 | 09 | Declares command read/write access to `ValueKeyId` and owns CommandLocal execution context |
-| 11 | Requires DebugMap coverage for value schema, init entries, store failures, and source mapping |
+| 11 | Owns the shared structured diagnostics substrate and DebugMap runtime contract used by value runtime; 10 defines required value provenance fields, init or table diagnostics context, and failure behavior |
 | 12 | Produces authoring inputs that normalize stable keys into `ValueKeyId` before runtime |
 | 13 | Defines the limited legacy boundary for Blackboard and VarStore migration |
 | 14 | Defines hot-path budgets for value access, initialization, and dirty signaling |

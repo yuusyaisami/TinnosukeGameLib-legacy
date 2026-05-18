@@ -72,6 +72,7 @@ Lower specifications and implementation code must not violate the following 00-l
 - runtime stable-key fallback must not be part of the target kernel
 - generated artifacts must not be trusted without validation and hash/version compatibility checks
 - ID/Handle based runtime paths must preserve diagnostics through DebugMap or equivalent metadata
+- subsystems must emit structured diagnostics through the shared diagnostics pipeline, and Unity Debug APIs must be reserved for approved central sinks
 - legacy compatibility must remain outside the new kernel core
 
 If a lower specification needs to violate one of these constraints, it must explicitly define:
@@ -687,6 +688,10 @@ Lower spec 10 defines concrete storage layout, revision model, table/record repr
 ### Debug and Diagnostics
 
 debug map と structured diagnostics は optional tooling ではなく runtime contract の一部である。
+
+Subsystems must not own final Unity log emission.
+Subsystems emit structured diagnostics.
+Only the central Unity diagnostic sink defined by 11 may call Unity Debug APIs in target-kernel paths.
 
 ---
 

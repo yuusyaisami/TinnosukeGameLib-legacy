@@ -146,7 +146,7 @@ This specification must not turn lifecycle into:
 | [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | Owns scope state and requests lifecycle dispatch at state boundaries; 08 owns step execution and dispatch policy. |
 | 09_CommandCatalogRuntimeSpec.md | Owns command dispatch; 08 only defines lifecycle boundaries around command-related services or adapters. |
 | 10_ValueSchemaAndStoreSpec.md | Owns values and dynamic evaluation; 08 only defines lifecycle boundaries around value-related targets. |
-| 11_DebugMapAndDiagnosticsSpec.md | Owns diagnostics presentation; 08 defines required lifecycle runtime provenance fields. |
+| 11_DebugMapAndDiagnosticsSpec.md | Owns the shared structured diagnostics substrate and DebugMap runtime contract; 08 defines required lifecycle runtime provenance fields and failure behavior. |
 | 12_UnityAuthoringBridgeSpec.md | Owns authoring-side lifecycle contribution sources and Unity binding generation. |
 | 13_LegacyCompatBoundarySpec.md | Owns migration-only lifecycle adapters and their removal boundary. |
 | 14_PerformanceBudgetAndRuntimeRulesSpec.md | Owns measurable lifecycle budgets and runtime markers referenced here. |

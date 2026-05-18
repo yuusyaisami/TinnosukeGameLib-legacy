@@ -14,6 +14,7 @@
 - [08 Lifecycle Plan Specification](08_LifecyclePlanSpec.md)
 - [09 Command Catalog Runtime Specification](09_CommandCatalogRuntimeSpec.md)
 - [10 Value Schema and Store Specification](10_ValueSchemaAndStoreSpec.md)
+- [11 DebugMap and Diagnostics Specification](11_DebugMapAndDiagnosticsSpec.md)
 
 初回の v2 文書では、現行実装の観測結果と移行先の target policy を分離することを最優先にしています。
 特に、KernelIR と ModuleContribution と DependencyValidation と BootManifest/Profile policy を下位仕様の先頭に置く方針を固定します。
@@ -22,7 +23,7 @@
 
 | Test Case | Purpose | Execution Note |
 |---|---|---|
-| TC-README-01 | Confirm the docs index exposes the review memo and created specs. | This file must link to 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, and 10. |
+| TC-README-01 | Confirm the docs index exposes the review memo and created specs. | This file must link to 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, and 11. |
 | TC-README-02 | Confirm the shared test runner is documented. | Use [Run-UnityTests.ps1](../../../Tools/Run-UnityTests.ps1) for EditMode checks. |
 
 These cases are validated by the EditMode doc tests in the workspace.

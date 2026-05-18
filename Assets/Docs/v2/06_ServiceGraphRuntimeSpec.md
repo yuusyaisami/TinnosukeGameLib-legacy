@@ -157,7 +157,7 @@ This specification must not turn ServiceGraph into:
 | 08_LifecyclePlanSpec.md | Owns lifecycle participation and step execution; 06 only defines service participation boundaries. |
 | 09_CommandCatalogRuntimeSpec.md | Owns command discovery, dispatch, and executor routing; 06 only defines command-related service boundaries. |
 | 10_ValueSchemaAndStoreSpec.md | Owns value schemas, storage, and dynamic evaluation; 06 only defines value-related service boundaries. |
-| 11_DebugMapAndDiagnosticsSpec.md | Owns diagnostics presentation; 06 defines required service runtime diagnostics fields and failure provenance. |
+| 11_DebugMapAndDiagnosticsSpec.md | Owns the shared structured diagnostics substrate and DebugMap runtime contract; 06 defines required service runtime provenance fields and failure behavior. |
 | 12_UnityAuthoringBridgeSpec.md | Owns authoring-side service bindings and Unity linkage generation inputs. |
 | 13_LegacyCompatBoundarySpec.md | Owns where legacy resolver and installer compatibility may remain visible. |
 | 14_PerformanceBudgetAndRuntimeRulesSpec.md | Owns measurable runtime budgets that consume the performance rules declared here. |

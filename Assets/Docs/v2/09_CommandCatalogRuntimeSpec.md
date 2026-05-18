@@ -168,7 +168,7 @@ This specification must not turn CommandCatalog into:
 | [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | Provides explicit scope handles and scope state boundaries used by command context and target references. |
 | [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | Owns lifecycle participation; CommandRunner may be a lifecycle target, but command execution does not enroll lifecycle steps. |
 | 10_ValueSchemaAndStoreSpec.md | Owns value schema and storage; commands only access values through verified ValueKeyId and declared access policy. |
-| 11_DebugMapAndDiagnosticsSpec.md | Consumes command diagnostics requirements and maps CommandTypeId, payload schema, executor, and source location. |
+| 11_DebugMapAndDiagnosticsSpec.md | Owns the shared structured diagnostics substrate and DebugMap runtime contract used by command runtime; 09 defines required command provenance fields, payload-related diagnostics context, and failure behavior. |
 | 12_UnityAuthoringBridgeSpec.md | Normalizes command authoring objects, command keys, and payload authoring into CommandContribution/CommandIR. |
 | 13_LegacyCompatBoundarySpec.md | Defines allowed legacy command adapters and migration boundary. |
 | 14_PerformanceBudgetAndRuntimeRulesSpec.md | Defines command dispatch budgets, allocation rules, and profiler marker requirements. |
