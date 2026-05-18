@@ -671,7 +671,7 @@ Conversion from authoring key to runtime identity happens before runtime executi
 ### Value Schema and Store
 
 value runtime は schema-driven である。
-現在分離している Blackboard、Var registry、dynamic evaluation の責務は 10 で整理する。
+現在分離している Blackboard、Var registry、dynamic evaluation の責務は 10 と 10-2 で整理する。
 00 の時点では、string stable key を runtime truth にしないことだけを固定する。
 
 00 fixes the following value boundaries:
@@ -684,6 +684,7 @@ value runtime は schema-driven である。
 - Runtime value creation outside schema is forbidden in target kernel paths.
 
 Lower spec 10 defines concrete storage layout, revision model, table/record representation, and save integration.
+Lower spec 10-2 defines DynamicValue evaluation, tracking, cache, invalidation, and nested dependency semantics.
 
 ### Debug and Diagnostics
 
@@ -706,6 +707,16 @@ authoring bridge が担う責務:
 - authoring validation
 - bake or normalize inputs の供給
 - editor-facing diagnostics
+
+Core rule:
+
+```text
+Unity authoring describes runtime structure.
+It does not build runtime structure.
+
+MonoBehaviour and ScriptableObject may provide declaration data.
+They must not directly build runtime service graphs, command catalogs, lifecycle tables, or value stores.
+```
 
 00 では、ScopeAuthoringLink や KernelRoot の exact component schema は固定しない。
 それらは 12 で確定する。
@@ -855,6 +866,7 @@ Command executor count may increase structural metadata size, but must not force
 08_LifecyclePlanSpec.md
 09_CommandCatalogRuntimeSpec.md
 10_ValueSchemaAndStoreSpec.md
+10_2_DynamicValueEvaluationSpec.md
 11_DebugMapAndDiagnosticsSpec.md
 12_UnityAuthoringBridgeSpec.md
 13_LegacyCompatBoundarySpec.md
@@ -881,6 +893,7 @@ The following concepts are owned by specific specs:
 | Lifecycle ordering | 08 |
 | Command identity and payload | 09 |
 | Value schema and store | 10 |
+| Dynamic evaluation and reactive tracking | 10-2 |
 | DebugMap and diagnostics | 11 |
 | Unity authoring bridge | 12 |
 | Legacy boundary | 13 |

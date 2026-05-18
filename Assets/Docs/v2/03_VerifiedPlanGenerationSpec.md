@@ -95,6 +95,7 @@ This specification intentionally does not define:
   - 08_LifecyclePlanSpec.md
   - 09_CommandCatalogRuntimeSpec.md
   - 10_ValueSchemaAndStoreSpec.md
+  - 10_2_DynamicValueEvaluationSpec.md
   - 11_DebugMapAndDiagnosticsSpec.md
   - 14_PerformanceBudgetAndRuntimeRulesSpec.md
   - 15_TestAndValidationSpec.md
@@ -226,6 +227,7 @@ This specification must not define runtime fallback behavior as a substitute for
 | 08_LifecyclePlanSpec.md | Consumes LifecyclePlan generated under this specification |
 | 09_CommandCatalogRuntimeSpec.md | Consumes CommandCatalogPlan generated under this specification |
 | 10_ValueSchemaAndStoreSpec.md | Consumes ValueSchemaPlan and ValueInitPlan generated under this specification |
+| 10_2_DynamicValueEvaluationSpec.md | Consumes DynamicEvaluationPlan and ReactiveEvaluationPlan generated under this specification |
 | 11_DebugMapAndDiagnosticsSpec.md | Defines the runtime-facing diagnostics contract for DebugMap generated under this specification |
 | 14_PerformanceBudgetAndRuntimeRulesSpec.md | Defines generation and runtime-loading budgets that consume this pipeline's outputs |
 | 15_TestAndValidationSpec.md | Defines tests and CI gates that prove generation correctness |
@@ -421,6 +423,8 @@ An artifact set may include:
 - CommandCatalogPlan
 - ValueSchemaPlan
 - ValueInitPlan
+- DynamicEvaluationPlan
+- ReactiveEvaluationPlan
 - RuntimeQueryPlan
 - KernelDebugMap
 - generated C# files
@@ -493,6 +497,8 @@ Required projections include:
 - CommandCatalogPlan
 - ValueSchemaPlan
 - ValueInitPlan
+- DynamicEvaluationPlan
+- ReactiveEvaluationPlan
 - RuntimeQueryPlan
 - DebugMap source data
 
@@ -537,6 +543,8 @@ It must check at least:
 - every required command payload schema reference is represented in generated command metadata
 - every required ValueKeyIR is represented in ValueSchemaPlan
 - every required value initialization entry is represented in ValueInitPlan
+- every required dynamic evaluation entry is represented in DynamicEvaluationPlan
+- every required reactive evaluation entry is represented in ReactiveEvaluationPlan
 - every required ScopeIR reference is represented in ScopeGraphPlan
 - every required RuntimeQueryIR is represented in RuntimeQueryPlan
 - every runtime-facing ID has DebugMap coverage at the required profile level

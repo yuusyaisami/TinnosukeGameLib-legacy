@@ -17,6 +17,7 @@
   - 08_LifecyclePlanSpec.md
   - 09_CommandCatalogRuntimeSpec.md
   - 10_ValueSchemaAndStoreSpec.md
+  - 10_2_DynamicValueEvaluationSpec.md
   - 11_DebugMapAndDiagnosticsSpec.md
   - 12_UnityAuthoringBridgeSpec.md
 
@@ -97,6 +98,7 @@ It is a declarative module contract, not a replacement runtime system.
 | 08_LifecyclePlanSpec.md | Consumes lifecycle step declarations projected from KernelIR |
 | 09_CommandCatalogRuntimeSpec.md | Consumes command-related contributions projected from KernelIR |
 | 10_ValueSchemaAndStoreSpec.md | Consumes value and init contributions projected from KernelIR |
+| 10_2_DynamicValueEvaluationSpec.md | Consumes dynamic and reactive evaluation contributions projected from KernelIR |
 | 11_DebugMapAndDiagnosticsSpec.md | Consumes source/debug metadata contributed here |
 | 12_UnityAuthoringBridgeSpec.md | Produces authoring inputs that become module contribution sources |
 
@@ -249,6 +251,8 @@ Each kind is a declaration shape, not an execution mechanism.
 | CommandContribution | Command identity, authoring key mapping, payload schema, executor metadata | Bulk register executors or resolve executor identity from arbitrary strings | 03, 09, 11 |
 | ValueContribution | Value identity, schema requirements, persistence metadata | Infer schema from the runtime store or create ad-hoc runtime keys | 03, 10, 11 |
 | ValueInitContribution | Initial writes, default values, ordering hints | Hide reactive evaluation inside generic initialization | 03, 10 |
+| DynamicEvaluationContribution | One-shot or phase-bound dynamic evaluation, output target, fallback policy, and declared inputs | Hide DynamicValue evaluation inside `ValueInitContribution` or generic getters | 03, 10_2, 11 |
+| ReactiveEvaluationContribution | Tracked recomputation, cache policy, invalidation policy, and scheduling | Rely on source-local ad hoc version checks or hidden poll loops as the architecture contract | 03, 10_2, 11 |
 | ScopeContribution | Authored scope identity, parent constraints, ownership, attach/detach constraints | Infer scope from transform hierarchy or nearest scope ownership | 03, 07, 11 |
 | LifecycleContribution | Explicit lifecycle step plan, phase ordering, dependencies | Auto-collect interface implementations or registration scans | 03, 08, 11 |
 | RuntimeQueryContribution | Queryable runtime identity fields, categories, index requirements, ambiguity rules | Implement generic DI lookup or scene search as query semantics | 03, 07, 11 |
@@ -311,6 +315,37 @@ It may describe:
 - profile-dependent defaults
 
 It must not hide reactive evaluation or dynamic computation inside the same declaration.
+Those behaviors belong to `DynamicEvaluationContribution` and `ReactiveEvaluationContribution`.
+
+### DynamicEvaluationContribution
+
+DynamicEvaluationContribution declares one-shot or phase-bound evaluation.
+
+It may describe:
+
+- root source reference
+- output target
+- target store scope
+- phase
+- fallback policy
+- declared runtime inputs
+
+It must not be collapsed into generic init data or hidden getter logic.
+
+### ReactiveEvaluationContribution
+
+ReactiveEvaluationContribution declares tracked recomputation and shared-cache behavior.
+
+It may describe:
+
+- root source reference
+- computed target or cached result target
+- dependency declaration mode
+- invalidation policy
+- scheduling policy
+- cache policy
+
+It must not rely on source-local ad hoc caches or scattered version checks as the architecture contract.
 
 ### ScopeContribution
 
@@ -554,7 +589,7 @@ If a module needs a new identity domain, that identity must be declared here and
 |---|---|---|
 | TC-02-01 | Confirm module contribution is declarative and does not accept runtime builder mutation. | The purpose and contribution pipeline sections must forbid builder access, live service resolution, and runtime state mutation. |
 | TC-02-02 | Confirm module identity is explicit and source-backed. | The module authority section must define ModuleId, ModuleKind, ModuleVersion, Ownership, and Availability without deriving them from paths or hierarchy. |
-| TC-02-03 | Confirm all required contribution kinds are represented. | The contribution kinds section must cover service, command, value, scope, lifecycle, runtime query, diagnostics, asset binding, and code generation. |
+| TC-02-03 | Confirm all required contribution kinds are represented. | The contribution kinds section must cover service, command, value, value init, dynamic evaluation, reactive evaluation, scope, lifecycle, runtime query, diagnostics, asset binding, and code generation. |
 | TC-02-04 | Confirm dependency and availability are declared, not inferred. | The dependency and availability rules section must forbid hidden static access, runtime expression fallback, and scene discovery. |
 | TC-02-05 | Confirm conflict policy fails closed. | The conflict policy section must reject last-write-wins, silent override, and implicit merge behavior. |
 | TC-02-06 | Confirm legacy installer behavior is treated as migration-only. | The legacy installer rejection and migration mapping sections must describe old patterns as adapters, not target behavior. |

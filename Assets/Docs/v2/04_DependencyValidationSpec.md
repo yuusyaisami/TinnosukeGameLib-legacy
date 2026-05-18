@@ -17,6 +17,7 @@
   - 08_LifecyclePlanSpec.md
   - 09_CommandCatalogRuntimeSpec.md
   - 10_ValueSchemaAndStoreSpec.md
+  - 10_2_DynamicValueEvaluationSpec.md
   - 11_DebugMapAndDiagnosticsSpec.md
   - 12_UnityAuthoringBridgeSpec.md
   - 13_LegacyCompatBoundarySpec.md
@@ -96,7 +97,8 @@ This specification does not redefine the canonical meaning or wire shape of Kern
 | 07_ScopeGraphRuntimeSpec.md | Consumes validated scope parentage, runtime query rules, and explicit graph boundaries. |
 | 08_LifecyclePlanSpec.md | Consumes validated lifecycle participation, ordering, and phase dependencies. |
 | 09_CommandCatalogRuntimeSpec.md | Consumes validated command identity, executor, payload, and runtime query dependencies. |
-| 10_ValueSchemaAndStoreSpec.md | Consumes validated value schema, init, save, and dynamic dependency rules. |
+| 10_ValueSchemaAndStoreSpec.md | Consumes validated value schema, init, save, and value-state boundary rules. |
+| 10_2_DynamicValueEvaluationSpec.md | Consumes validated dynamic and reactive evaluation dependencies, phase legality, and invalidation declarations. |
 | 11_DebugMapAndDiagnosticsSpec.md | Consumes validation diagnostics, source provenance, and debug coverage requirements defined here. |
 | 12_UnityAuthoringBridgeSpec.md | Produces authoring inputs whose normalized dependency declarations must survive validation before acceptance. |
 | 13_LegacyCompatBoundarySpec.md | Defines the only legal boundary where legacy usage may remain observable and controlled. |
@@ -465,6 +467,10 @@ Validation must check:
 - save policy references are valid
 - save policy metadata is compatible with schema and profile
 - dynamic or reactive evaluation dependencies are explicit
+- every required `DynamicEvaluationPlan` projection exists
+- every required `ReactiveEvaluationPlan` projection exists
+- every dynamic evaluation output target exists and is legal for the declared phase
+- every reactive evaluation plan declares dependency-discovery mode and invalidation policy
 - dynamic evaluation inputs are declared and valid for the target phase
 - table, record, and cell schema references are valid
 - command read/write access declarations reference valid `ValueKeyId` values and store scopes
@@ -480,6 +486,7 @@ Validation must reject:
 - duplicate init entries resolved by collection order
 - implicit dynamic dependencies hidden inside generic initialization
 - hidden DynamicValue or deferred dynamic dependencies without explicit evaluation plan
+- reactive evaluation that depends on hidden source-local version checks rather than declared invalidation policy
 - table or cell payloads without schema
 - invalid save policy metadata
 - command value access without declared access policy

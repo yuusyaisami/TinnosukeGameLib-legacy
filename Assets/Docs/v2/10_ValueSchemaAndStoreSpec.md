@@ -17,6 +17,7 @@
 - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
 - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
 - Provides foundation for:
+- [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
 - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
 - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
 - [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md)
@@ -145,6 +146,7 @@ This specification must not turn `ValueStore` into Blackboard v2.
 | 07 | Owns scope lifetime and may reference scope-local value store boundaries without becoming a value store |
 | 08 | Executes explicit lifecycle steps that may initialize stores, but does not infer value initialization |
 | 09 | Declares command read/write access to `ValueKeyId` and owns CommandLocal execution context |
+| 10-2 | Owns `DynamicValue`, `DynamicEvaluationPlan`, `ReactiveEvaluationPlan`, tracker, cache, invalidation, and nested dependency capture semantics; 10 owns only the value-state boundary and revision signals consumed by that layer |
 | 11 | Owns the shared structured diagnostics substrate and DebugMap runtime contract used by value runtime; 10 defines required value provenance fields, init or table diagnostics context, and failure behavior |
 | 12 | Produces authoring inputs that normalize stable keys into `ValueKeyId` before runtime |
 | 13 | Defines the limited legacy boundary for Blackboard and VarStore migration |
@@ -213,7 +215,7 @@ Target value architecture is split into four concepts:
 1. `ValueSchema` defines what values may exist.
 2. `ValueStore` stores runtime value state.
 3. `ValueStoreInitPlan` defines initial writes and default state.
-4. `EvaluationPlan` defines dynamic, reactive, or computed evaluation.
+4. `EvaluationPlan` defines dynamic, reactive, or computed evaluation and is owned in detail by 10-2.
 
 These concepts must not be collapsed into a single component, service, MonoBehaviour, or Blackboard facade.
 
@@ -232,6 +234,7 @@ Dynamic / Reactive Contribution
 
 Runtime:
   ValueStore consumes ValueSchemaPlan and ValueStoreInitPlan
+  Evaluation runtime semantics are owned by 10-2
 ```
 
 `ValueStore` must not become the owner of schema generation, dynamic evaluation graph construction, save file writing, command execution, or runtime object lookup.
@@ -686,6 +689,9 @@ Reactive graph ownership belongs outside `ValueStore`.
 
 ## DynamicEvaluation Boundary
 
+10 owns only the boundary between `ValueStore` initialization and dynamic evaluation.
+Concrete `DynamicValue`, tracker, cache, invalidation, and nested dependency semantics are owned by 10-2.
+
 DynamicValue-style evaluation must not be hidden inside `ValueStore` initialization.
 
 If an initial value depends on runtime context, the dependency must be explicit.
@@ -718,7 +724,12 @@ DynamicEvaluationPlan
 Deferred dynamic value writes are not generic init entries.
 They must be represented as dynamic evaluation plans or rejected.
 
+Detailed source contract, tracked dependency capture, shared cache ownership, and invalidation policy belong to 10-2.
+
 ## ReactiveEvaluation Boundary
+
+10 owns only the boundary between `ValueStore` revisions or dirty signals and reactive evaluation.
+Concrete tracked evaluation, cached computed value policy, invalidation rules, and scheduling semantics are owned by 10-2.
 
 Reactive evaluation is not owned by `ValueStore`.
 
@@ -740,6 +751,7 @@ Reactive evaluation owns:
 `ValueStore` must not become `ReactiveResolver`.
 
 Reactive dependencies must reference `ValueKeyId`, store scope, and runtime query inputs explicitly.
+The detailed tracker and reactive cache model belong to 10-2.
 
 ## CommandLocal Boundary
 

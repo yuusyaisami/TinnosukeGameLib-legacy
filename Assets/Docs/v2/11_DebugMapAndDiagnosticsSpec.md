@@ -17,6 +17,7 @@
   - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
   - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
   - [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md)
+    - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
 - Provides foundation for:
   - 12_UnityAuthoringBridgeSpec.md
   - 13_LegacyCompatBoundarySpec.md
@@ -66,7 +67,7 @@ This specification does not own:
 - boot acceptance policy owned by 05
 
 11 defines the shared diagnostics substrate.
-06, 07, 08, 09, and 10 continue to own their domain-specific failure behavior and minimum provenance fields.
+06, 07, 08, 09, 10, and 10-2 continue to own their domain-specific failure behavior and minimum provenance fields.
 
 03 continues to own DebugMap generation.
 04 continues to own validation semantics.
@@ -162,7 +163,8 @@ It defines runtime contract and structured reporting requirements, not stylistic
 | [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | 07 defines scope failure provenance and behavior; 11 defines the shared diagnostics substrate and DebugMap runtime contract used to emit those failures. |
 | [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | 08 defines lifecycle provenance fields and failure behavior; 11 defines the shared diagnostics substrate and central logging policy. |
 | [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | 09 defines command-local diagnostics requirements and failure behavior; 11 defines the shared diagnostic record, sink routing, and Unity output policy used by command runtime. |
-| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | 10 defines value-specific provenance, access, and failure behavior; 11 defines the shared diagnostics and DebugMap contract used to emit value failures. |
+| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | 10 defines value-state provenance, access, and failure behavior; 11 defines the shared diagnostics and DebugMap contract used to emit value failures. |
+| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | 10-2 defines evaluation-specific provenance, cache or tracker degradation meaning, and failure behavior; 11 defines the shared record, routing, and Unity output policy used to emit those failures. |
 | 12_UnityAuthoringBridgeSpec.md | Will consume DebugMap source mapping and diagnostics contracts for editor-facing authoring diagnostics. |
 | 13_LegacyCompatBoundarySpec.md | Will define bounded legacy adapters that may forward legacy errors into the 11 diagnostics pipeline. |
 | 14_PerformanceBudgetAndRuntimeRulesSpec.md | Will budget diagnostics emission and formatting costs using the rules defined here. |
