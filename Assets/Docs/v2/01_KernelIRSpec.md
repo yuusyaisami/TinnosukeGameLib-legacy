@@ -808,6 +808,16 @@ The following are intentionally deferred:
 
 01 is not complete if any runtime execution detail, storage layout detail, or validation algorithm detail has escaped into the specification.
 
+## Test Cases
+
+| Test Case | Purpose | Verification |
+|---|---|---|
+| TC-01-01 | Confirm KernelIR identity is stable, explicit, and source-backed. | The IR identity model and source location model sections must define stable IDs, owner module, and source provenance. |
+| TC-01-02 | Confirm normalization removes runtime-order dependence. | The normalization and deterministic ordering sections must forbid reliance on enumeration order, reflection order, and other runtime artifacts. |
+| TC-01-03 | Confirm hash inputs exclude non-semantic data. | The hash input rules section must forbid timestamps, absolute paths, and runtime instance identity. |
+| TC-01-04 | Confirm DebugMap coverage is mandatory for runtime-facing IDs. | The diagnostics and debug map requirements section must remain present and specific. |
+| TC-01-05 | Confirm validation handoff stays outside the IR contract. | The validation handoff section must not absorb dependency validation algorithms. |
+
 ---
 
 ## Final Position

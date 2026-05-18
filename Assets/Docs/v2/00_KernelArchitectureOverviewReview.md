@@ -28,6 +28,14 @@ The most important correction is to split 00 into two explicit layers:
 - current architecture observations grounded in the codebase
 - v2 target policies that describe what the new kernel must guarantee
 
+## Test Cases
+
+| Test Case | Purpose | Execution Note |
+|---|---|---|
+| TC-RV-01 | Confirm each high-severity finding is anchored to concrete code or design evidence. | The anchor list under each finding must remain source-grounded. |
+| TC-RV-02 | Confirm current observations and v2 target policy stay separated. | The memo must not collapse fact review and target policy into one section. |
+| TC-RV-03 | Confirm the recommended rewrite strategy keeps final API shape deferred. | Final runtime details must remain in the lower specs. |
+
 ---
 
 ## High Severity Findings

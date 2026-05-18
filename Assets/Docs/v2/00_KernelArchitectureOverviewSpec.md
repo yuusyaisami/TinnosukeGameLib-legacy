@@ -944,6 +944,15 @@ Lower specs and tests must provide verification through at least one of:
 The success criteria above are not merely state descriptions.
 They are only complete when each criterion has a corresponding verification method in lower specs or tests.
 
+## Test Cases
+
+| Test Case | Purpose | Verification |
+|---|---|---|
+| TC-00-01 | Confirm runtime discovery is not the composition mechanism for the target kernel. | The v2 target principles section must forbid broad discovery, transform inference, and registration scans. |
+| TC-00-02 | Confirm KernelIR and VerifiedKernelPlan are the trust boundary. | The trust boundary and core concepts sections must name both explicitly. |
+| TC-00-03 | Confirm the specification split keeps 01 and 04 ahead of runtime specs. | The split order and dependency order sections must state that runtime specs depend on validated IR and validation rules. |
+| TC-00-04 | Confirm every success criterion maps to a verification method. | The verification matrix must remain present and reference lower specs or tests. |
+
 ---
 
 ## Final Position
