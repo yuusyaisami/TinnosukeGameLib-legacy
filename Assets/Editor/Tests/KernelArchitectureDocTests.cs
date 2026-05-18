@@ -23,6 +23,7 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("TC-README-01"));
             Assert.That(content, Does.Contain("TC-README-02"));
             Assert.That(content, Does.Contain("02_ModuleContributionSpec.md"));
+            Assert.That(content, Does.Contain("07_ScopeGraphRuntimeSpec.md"));
             Assert.That(content, Does.Contain("Run-UnityTests.ps1"));
         }
 
@@ -88,6 +89,20 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("TC-03-04"));
             Assert.That(content, Does.Contain("TC-03-05"));
             Assert.That(content, Does.Contain("TC-03-06"));
+        }
+
+        [Test]
+        public void ScopeGraphRuntimeSpec_ContainsScopeLevelTestCases()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "07_ScopeGraphRuntimeSpec.md"));
+
+            Assert.That(content, Does.Contain("## Test Cases"));
+            Assert.That(content, Does.Contain("TC-07-01"));
+            Assert.That(content, Does.Contain("TC-07-02"));
+            Assert.That(content, Does.Contain("TC-07-03"));
+            Assert.That(content, Does.Contain("TC-07-04"));
+            Assert.That(content, Does.Contain("TC-07-05"));
+            Assert.That(content, Does.Contain("TC-07-06"));
         }
     }
 }
