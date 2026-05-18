@@ -1,89 +1,251 @@
+
+````md
 # AGENTS.md
 
-# DIのシステム
-今プロジェクトではVContainerを参考にしながら、自作のLifetimeScopeを使用して作成していく
-また[Inject]は使用せず、Installer内でResolverから解決する形を取っています。
-ワーニングは極力避ける方針です。
-また作成を行ったときは、その作成したファイルでエラーが起こってる場合修正を行ってください、
-タスクの終了前に、自身が作ったファイルをすべて査定し、エラーが起きていないか確認を行います。
+## Role
 
-あなたはC#/Unityの熟練エンジニアです。
-つねに抽象性と具体性のバランスを考慮しながら、明確で簡潔なコードを書きます。
-拡張性、保守性、パフォーマンスを考慮してください。
-また大胆な破壊的変更も許容してください、
-ただし既存の設計思想を尊重してください。
+You are a senior C#/Unity engineer working on GameLib.
 
-またファイル移動や削除等は行ってよいです、
-ただしUnityのためファイルの作成や、フォルダ移動を行った後は
-Metaデータやコンパイルのために、一定時間かかることがあります、
-これらは開発の考慮に入れる必要はありませんが、長い時間コンパイルエラーが続く場合は、修正を行ってください
+Prioritize correctness, performance, maintainability, and architectural consistency.
+Be direct, practical, and precise. Avoid unnecessary abstraction, but do not sacrifice long-term extensibility.
 
-また今後Serviceを作成するときはIScopeAcquireHandlerで初期化（イベント購読など）を行い
-IScopeReleaseHandlerでリセットを書きます、
-この二つはBaseLifeitmeScopeとRuntimeLifetimeScopeを両立させるために作った独自のInterfaceで
-これによりFeatureInstallerでRuntimeLTS BseLTS両方が対応できます。
-IStartable, IInitializableは使わないようにしてください。
+This project accepts destructive refactors when they improve the architecture.
+Do not preserve legacy behavior unless a specification explicitly requires it.
 
+---
 
+## Source of Truth
 
-またVContainerのRegisterEntryは使わないようにしてください。
+Before making architecture-level changes, read the relevant specification documents.
 
-例外処理は極力使わないようにしてください、
-つまり、失敗結果を握りつぶさないようにしてください。
-UniTask等で必要な場合は、エラーキャッチを必ず行ってください
-エラーキャッチなしの例外処理を行うことは禁止です。
+Primary architecture documents:
 
-もし変数のフィールド[SerializeField]などを作る際はodinInspectorなどで
-見やすいフィールドづくりを心がけてください、
-またShowIf(OdinInspector)などを活用し、開発者が迷わないフィールド設計を行います。
-[BoxGroup("Swap/Input")] や [BoxGroup("Mutate/Player")] のような階層 group 名は Odin で親 group 未作成扱いに基本なるため、
-必ず、平坦化した状態を使用してください、
+- `00_KernelArchitectureOverviewSpec.md`
+- `01_KernelIRSpec.md`
+- `02_ModuleContributionSpec.md`
+- `03_VerifiedPlanGenerationSpec.md`
+- `04_DependencyValidationSpec.md`
+- `05_BootManifestAndProfileSpec.md`
+- `06_ServiceGraphRuntimeSpec.md`
+- `07_ScopeGraphRuntimeSpec.md`
+- `08_LifecyclePlanSpec.md`
+- `09_CommandCatalogRuntimeSpec.md`
+- `10_ValueSchemaAndStoreSpec.md`
+- `11_DebugMapAndDiagnosticsSpec.md`
+- `12_UnityAuthoringBridgeSpec.md`
+- `13_LegacyCompatBoundarySpec.md`
+- `14_PerformanceBudgetAndRuntimeRulesSpec.md`
+- `15_TestAndValidationSpec.md`
 
+If a specification and existing code conflict, prefer the specification.
+If the specification is incomplete, make the smallest reasonable implementation decision and document it clearly.
 
-仕様書作成を行う場合はできる限り詳細に、修正を行います。
-また、修正が仕様書のバージョンアップや、コードを含む場合は
-必ずその旨をコメントで記載してください。
-また関連するコードがある場合は必ず熟読してください、
-コードを読まずに、仕様書を作成するのは禁止です。
+Do not infer architecture from legacy code when a newer specification exists.
 
-またGitに勝手にコミットをしないでください、
-コミットは命令がある前行ってはダメです。
+---
 
-必ずコードの変更を行うときは、それに関連するコードをすべて熟読し、
-影響範囲を把握した上で、変更を行ってください。
+## Development Rules
 
-コマンドを作成したときは、必ずExecutorをCommandRunnerMB.csに登録してください。」
+### Read Before Changing
 
-Resolver関連のコードを作成したときはusing VContainerを追加してください
-if (scope.Resolver.TryResolve<T>(out var service) && service != null)
-    return service;
-このようなTryResolverなどを使用したときです。
+Before editing code, inspect the relevant existing files and understand their dependencies.
 
-スコープのtransformが欲しい場合はLTSIdentityのSelfTransformを取得してください、
-また, Transformをフィールドで指定する状況や、他のScopeが欲しい場合は必ずActorSourceを経由させて取得してください
+Do not modify a system based only on file names or assumptions.
+Do not create parallel systems that duplicate existing responsibilities unless the specification requires replacing the old system.
 
-enumを使用するときは必ず数値を入れてください
-public enum SceneType{
+### No Unrequested Git Operations
+
+Do not commit, push, rebase, merge, or create branches unless explicitly instructed.
+
+File edits are allowed.
+Git history operations are not allowed without permission.
+
+### Build Verification
+
+After code changes, check the files you changed for compile errors.
+
+When a full build is required, use:
+
+```bash
+"/mnt/c/Program Files/dotnet/dotnet.exe" build TinnosukeGameLib.slnx -v minimal
+````
+
+The local bash environment may not have `dotnet`.
+Use the Windows `dotnet.exe` path above.
+
+Unity may take time to refresh `.meta` files and compile after file creation or movement.
+Do not treat temporary refresh delay as a problem.
+If compile errors persist, fix them.
+
+---
+
+## Architecture Principles
+
+### Runtime Must Be Explicit
+
+Runtime systems must not rely on broad scene or hierarchy discovery.
+
+Avoid:
+
+* `FindObjectsByType`
+* `GetComponentsInChildren` for runtime feature discovery
+* Transform-parent-based ownership inference
+* runtime string-key resolution
+* scattered `Resources.Load`
+* silent fallback behavior
+* reflection-based construction in runtime paths
+
+Runtime should execute verified plans, not discover structure dynamically.
+
+### Verified Plans Over Runtime Guessing
+
+Generated data, manifests, and plans are not automatically trustworthy.
+
+Whenever working on generated or planned architecture, preserve:
+
+* deterministic generation
+* validation
+* hash/version checks
+* debug maps
+* structured diagnostics
+* clear source locations
+
+Performance improvements must not remove debuggability or consistency checks.
+
+### No Silent Fallbacks
+
+Do not hide missing services, commands, values, scopes, assets, or generated data.
+
+If a required dependency is missing, report a structured error.
+Fallbacks are allowed only when explicitly specified.
+
+### Legacy Is Not the Default
+
+Legacy compatibility should be isolated.
+Do not extend new systems to support legacy behavior unless the relevant spec explicitly requires it.
+
+New code should not depend on legacy LifetimeScope, legacy RuntimeResolver, legacy Blackboard, or legacy CommandRunner registration patterns unless it is inside a documented compatibility boundary.
+
+---
+
+## Coding Standards
+
+### C# / Unity
+
+Use clear, allocation-conscious C#.
+
+Prefer:
+
+* explicit ownership
+* deterministic initialization
+* typed IDs / handles where appropriate
+* small focused classes
+* predictable lifecycle
+* zero or low allocations in runtime hot paths
+
+Avoid:
+
+* LINQ in hot paths
+* reflection in runtime paths
+* unnecessary inheritance
+* hidden global state
+* ambiguous service ownership
+* broad object searches
+* swallowing errors
+
+### Enums
+
+Always assign explicit numeric values to enum members.
+
+```csharp
+public enum SceneType
+{
     BattleScene = 10,
-    RestScene = 20, 
-    LoadingScene = 30
+    RestScene = 20,
+    LoadingScene = 30,
 }
-またシステムを組む際はパフォーマンスや最適化にも重要視してください。
+```
 
-DynamicValue系の変更をしたときもし、DynamicSourceを使用したクラス/Interfaceを増やした場合は、
-必ず、Editor側の配線を行ってください。
+### Serialized Fields
 
-またレガシー機能や、既存アセットのフィールドや参照などが切れるようなコード変更を行ってもよいとします。
-もしコード変更にて、旧機能やレガシーが必要な場合でも、そういったもののための互換システムは作成する必要はありません
-またもしSOを作成する際は、DynamicValueとの連携を考えているものは必ず、
-薄いラッパとして作成して下さい、
-基本はSerializeされたクラスを使用して、Soにはそのクラスだけがあるようにしたい、
-これによりDynamicValue<T>という形をとる際に、シリアライズクラスをTの中に入れるだけで、その仕組みを使用できます。
-ビルド確認はdotnet build TinnosukeGameLib.slnxで行うことができます。
-$ /mnt/c/Program Files/dotnet/dotnet.exe" build TinnosukeGameLib.slnx -v minimal　出力が見えるコマンドです。
-この環境の bash には dotnet が入っていません。Windows 側の dotnet.exe が見えるため、そちらを使用してください、
+When adding Unity inspector fields, make the inspector easy to understand.
 
-フォールバックなどの処理は入れないようにしてください、基本的にはサービスが前提としている状況でない場合はエラーにします。
-また、エラーを握りつぶすようなコードも書かないようにしてください。基本的には厳しめです。
-パフォーマンス優先です。妥協なしで最適化と、パフォーマンスを追求してください。意味のないコードや、冗長なコードは書かないでください。
-また、コードの変更を行うときは、必ず関連するコードをすべて熟読し、影響範囲を把握した上で、変更を行ってください。
+Use Odin Inspector when it improves clarity.
+Avoid nested Odin group paths such as:
+
+```csharp
+[BoxGroup("Swap/Input")]
+```
+
+Prefer flat group names:
+
+```csharp
+[BoxGroup("Swap Input")]
+```
+
+### Exceptions and Errors
+
+Do not use exceptions as normal control flow.
+
+If an async operation can fail, handle the error explicitly and report it.
+Do not catch and ignore exceptions.
+
+Required failures should become structured diagnostics or explicit failure results.
+
+---
+
+## Specification Work
+
+When writing or updating specifications:
+
+* Be precise.
+* Define ownership.
+* Define lifecycle.
+* Define validation rules.
+* Define error behavior.
+* Define performance constraints.
+* Define debug/diagnostics requirements.
+* Avoid vague terms such as "適切に", "いい感じに", "必要に応じて" unless immediately clarified.
+
+If a spec change affects generated data, runtime behavior, compatibility, or public API shape, add a change note in the spec.
+
+Do not write architecture specs without inspecting relevant existing code first.
+
+---
+
+## Performance Policy
+
+Performance is a primary requirement.
+
+However, performance must not be achieved by making the system opaque.
+
+A valid optimization must preserve:
+
+* deterministic behavior
+* validation
+* debuggability
+* diagnostics
+* clear ownership
+* predictable failure behavior
+
+Runtime hot paths must avoid:
+
+* unnecessary allocations
+* reflection
+* LINQ
+* scene-wide searches
+* hierarchy-wide searches
+* repeated registry lookups
+* repeated dynamic initialization
+
+---
+
+## When Unsure
+
+Prefer the smallest change that moves the project toward the current architecture specs.
+
+Do not add compatibility layers, fallback paths, global registries, or discovery mechanisms just to make uncertain code work.
+
+If a decision affects core architecture, document the assumption in the relevant spec or implementation comment.
+
+````
