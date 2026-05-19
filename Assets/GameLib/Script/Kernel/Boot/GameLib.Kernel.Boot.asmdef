@@ -1,0 +1,20 @@
+{
+  "name": "GameLib.Kernel.Boot",
+  "rootNamespace": "Game.Kernel.Boot",
+  "references": [
+    "GameLib.Kernel.Abstractions",
+    "GameLib.Kernel.Diagnostics",
+    "GameLib.Kernel.IR",
+    "GameLib.Kernel.Generation",
+    "GameLib.Kernel.Validation"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

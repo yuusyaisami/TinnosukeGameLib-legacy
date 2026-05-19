@@ -62,6 +62,7 @@ namespace Game.Kernel.Diagnostics
         RuntimeQuery = 130,
         ArtifactSet = 140,
         GeneratedArtifact = 150,
+        DiagnosticSeed = 160,
     }
 
     public enum DiagnosticPayloadValueKind

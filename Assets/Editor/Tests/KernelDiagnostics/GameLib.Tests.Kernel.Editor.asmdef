@@ -3,7 +3,11 @@
   "rootNamespace": "TinnosukeGameLib.Tests.Editor",
   "references": [
     "GameLib.Kernel.Diagnostics",
-    "GameLib.Kernel.Diagnostics.Unity"
+    "GameLib.Kernel.Diagnostics.Unity",
+    "GameLib.Kernel.IR",
+    "GameLib.Kernel.Generation",
+    "GameLib.Kernel.Validation",
+    "GameLib.Tests.Kernel.Support.Editor"
   ],
   "includePlatforms": [
     "Editor"

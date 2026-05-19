@@ -72,7 +72,7 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(context.ProfileId, Is.EqualTo(7));
             Assert.That(context.CorrelationId.Value, Is.EqualTo(101));
             Assert.That(context.Phase, Is.EqualTo("Dispatch"));
-            Assert.That(context.RuntimeIdentities, Has.Length.EqualTo(2));
+            Assert.That(context.RuntimeIdentities, Has.Count.EqualTo(2));
             Assert.That(context.RuntimeIdentities[0].Kind, Is.EqualTo(RuntimeIdentityKind.ScopeHandle));
             Assert.That(context.RuntimeIdentities[0].Generation, Is.EqualTo(2));
         }

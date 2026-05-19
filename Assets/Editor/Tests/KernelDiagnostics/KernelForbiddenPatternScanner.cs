@@ -141,7 +141,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     "STATIC_RULE_FIND_OBJECTS_BY_TYPE_IN_KERNEL_RUNTIME",
                     "FindObjectsByType must not be used in Kernel code paths.",
                     "FindObjectsByType",
-                    new Regex(@"\b(?:[A-Za-z_][A-Za-z0-9_]*\s*\.\s*)*FindObjectsByType\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                    new Regex(@"\b(?:[A-Za-z_][A-Za-z0-9_]*\s*\.\s*)*FindObjectsByType(?:<[^>]+>)?\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
                 new ForbiddenPatternRule(
                     "STATIC_RULE_GET_COMPONENTS_IN_CHILDREN_IN_KERNEL_RUNTIME",
                     "GetComponentsInChildren must not be used in Kernel code paths.",
@@ -352,6 +352,10 @@ namespace TinnosukeGameLib.Tests.Editor
         {
             if (token == null)
                 return null;
+
+            token = token.Trim();
+            if (token.EndsWith("(", PathComparison))
+                token = token.Substring(0, token.Length - 1);
 
             if (token.EndsWith("Debug.Log", PathComparison) || token.EndsWith("Log", PathComparison))
                 return "Log";

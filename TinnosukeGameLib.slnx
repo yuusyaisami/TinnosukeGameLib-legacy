@@ -3,16 +3,26 @@
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="VFolders.csproj" />
   <Project Path="SingularityGroup.HotReload.Editor.csproj" />
+  <Project Path="GameLib.Tests.Kernel.Boot.Editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="SingularityGroup.HotReload.Runtime.csproj" />
   <Project Path="VHierarchy.csproj" />
   <Project Path="Febucci.TextAnimatorForUnity.Runtime.csproj" />
+  <Project Path="GameLib.Kernel.Boot.csproj" />
+  <Project Path="GameLib.Kernel.IR.csproj" />
   <Project Path="Assembly-CSharp-Editor-firstpass.csproj" />
   <Project Path="VInspector.csproj" />
+  <Project Path="GameLib.Kernel.Generation.csproj" />
   <Project Path="SingularityGroup.HotReload.Runtime.Public.csproj" />
   <Project Path="Febucci.TextAnimatorForUnity.UITk.Runtime.csproj" />
+  <Project Path="GameLib.Tests.Kernel.Editor.csproj" />
   <Project Path="Febucci.TextAnimatorForUnity.TMP.Runtime.csproj" />
+  <Project Path="GameLib.Kernel.Validation.csproj" />
+  <Project Path="GameLib.Tests.Kernel.Support.Editor.csproj" />
   <Project Path="Febucci.Attributes.Runtime.csproj" />
+  <Project Path="GameLib.Kernel.Diagnostics.Unity.csproj" />
   <Project Path="Febucci.TextAnimatorForUnity.Input.Runtime.csproj" />
+  <Project Path="GameLib.Kernel.Diagnostics.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
+  <Project Path="GameLib.Kernel.Abstractions.csproj" />
 </Solution>

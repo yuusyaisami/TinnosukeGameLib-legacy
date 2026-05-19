@@ -59,9 +59,11 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(second.CorrelationId.Value, Is.EqualTo(5));
             Assert.That(service.ActiveSessionCount, Is.EqualTo(2));
 
-            service.EndSession(first);
-
+            service.EndSession(second);
             Assert.That(service.ActiveSessionCount, Is.EqualTo(1));
+
+            service.EndSession(first);
+            Assert.That(service.ActiveSessionCount, Is.EqualTo(0));
             Assert.That(() => service.EndSession(first), Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -72,7 +74,7 @@ namespace TinnosukeGameLib.Tests.Editor
             KernelDiagnosticService service = new KernelDiagnosticService(new IKernelDiagnosticSink[] { sink });
             DiagnosticSessionHandle session = service.BeginSession(new DiagnosticSessionInfo("validation", "module validation", new DiagnosticCorrelationId(55)));
 
-            service.Report(CreateDiagnostic("DIAG_SESSION_BIND"));
+            service.Report(CreateDiagnostic("DIAG_SESSION_BIND", contextCorrelationId: default));
 
             Assert.That(sink.Diagnostics, Has.Count.EqualTo(1));
             Assert.That(sink.Diagnostics[0].SessionId, Is.EqualTo(session.SessionId));
@@ -232,7 +234,10 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That((int)DiagnosticProfileKind.Test, Is.EqualTo(30));
         }
 
-        static KernelDiagnostic CreateDiagnostic(string code, DiagnosticSeverity severity = DiagnosticSeverity.Error)
+        static KernelDiagnostic CreateDiagnostic(
+            string code,
+            DiagnosticSeverity severity = DiagnosticSeverity.Error,
+            DiagnosticCorrelationId contextCorrelationId = default)
         {
             return new KernelDiagnostic(
                 new DiagnosticCode(code),
@@ -246,7 +251,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     source: new SourceLocationRef(3),
                     artifact: new ArtifactIdentityRef(4, 5),
                     profileId: 6,
-                    correlationId: new DiagnosticCorrelationId(7),
+                    correlationId: contextCorrelationId,
                     phase: "phase"),
                 payload: new DiagnosticPayload(new[]
                 {

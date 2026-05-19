@@ -1,0 +1,17 @@
+{
+  "name": "GameLib.Kernel.Validation",
+  "rootNamespace": "Game.Kernel.Validation",
+  "references": [
+    "GameLib.Kernel.IR",
+    "GameLib.Kernel.Diagnostics"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

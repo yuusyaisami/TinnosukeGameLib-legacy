@@ -1,0 +1,14 @@
+{
+  "name": "GameLib.Kernel.IR",
+  "rootNamespace": "Game.Kernel.IR",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

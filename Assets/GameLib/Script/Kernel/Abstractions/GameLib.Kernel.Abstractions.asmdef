@@ -1,0 +1,14 @@
+{
+  "name": "GameLib.Kernel.Abstractions",
+  "rootNamespace": "Game.Kernel.Abstractions",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}
