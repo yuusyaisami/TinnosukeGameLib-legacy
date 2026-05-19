@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Diagnostics;
+using Game.Kernel.Generation;
+using Game.Kernel.IR;
 
 namespace Game.Kernel.Boot
 {
@@ -16,7 +18,8 @@ namespace Game.Kernel.Boot
 
             Manifest = context.Manifest;
             SelectedProfile = context.SelectedProfile;
-            Diagnostics = new KernelRuntimeDiagnostics(context.ValidationReport, context.Manifest.ArtifactSet.DebugMapHash);
+            DebugMap = CreateDebugMap(context.Manifest);
+            Diagnostics = new KernelRuntimeDiagnostics(context.ValidationReport, DebugMap);
             ServiceGraph = new KernelRuntimeServiceGraph(context.Input.RootState.AvailableRootServices);
             RootScopeGraph = new KernelRuntimeScopeGraph(context.Input.RootState.AvailableRootScopes);
         }
@@ -27,19 +30,48 @@ namespace Game.Kernel.Boot
 
         public KernelRuntimeDiagnostics Diagnostics { get; }
 
+        public KernelDebugMap DebugMap { get; }
+
         public KernelRuntimeServiceGraph ServiceGraph { get; }
 
         public KernelRuntimeScopeGraph RootScopeGraph { get; }
+
+        static KernelDebugMap CreateDebugMap(KernelBootManifest manifest)
+        {
+            if (manifest == null)
+                throw new ArgumentNullException(nameof(manifest));
+
+            Hash128 emptyContentHash = VerifiedArtifactHeaderHashing.ComputeGeneratedHash(Array.Empty<string>());
+            Hash128 sourceHash = Hash128Serialization.Parse(manifest.ArtifactSet.KernelIRHash);
+            Hash128 profileHash = Hash128Serialization.Parse(manifest.ArtifactSet.ProfileHash);
+            Hash128 registryHash = manifest.ArtifactSet.RegistryHash == null ? default : Hash128Serialization.Parse(manifest.ArtifactSet.RegistryHash);
+
+            VerifiedArtifactHeader header = new VerifiedArtifactHeader(
+                new PlanId(manifest.ArtifactSet.PlanId.Value),
+                new ArtifactSetId(manifest.ArtifactSet.ArtifactSetId.Value),
+                new ArtifactId(1),
+                ArtifactKind.KernelDebugMap,
+                manifest.ArtifactSet.FormatVersion,
+                sourceHash,
+                registryHash,
+                profileHash,
+                emptyContentHash,
+                emptyContentHash,
+                "KernelBootBoundary");
+
+            return new KernelDebugMap(header, Array.Empty<KernelDebugMapEntry>());
+        }
     }
 
     public sealed class KernelRuntimeDiagnostics
     {
         readonly ReadOnlyCollection<KernelDiagnostic> diagnostics;
 
-        public KernelRuntimeDiagnostics(BootValidationReport validationReport, string? debugMapHash)
+        public KernelRuntimeDiagnostics(BootValidationReport validationReport, KernelDebugMap debugMap)
         {
             ValidationReport = validationReport ?? throw new ArgumentNullException(nameof(validationReport));
-            DebugMapHash = debugMapHash;
+            DebugMap = debugMap ?? throw new ArgumentNullException(nameof(debugMap));
+            DebugMapHash = debugMap.ContentHash.ToString();
 
             KernelDiagnostic[] snapshot = validationReport.Issues.Count == 0
                 ? Array.Empty<KernelDiagnostic>()
@@ -50,7 +82,9 @@ namespace Game.Kernel.Boot
 
         public BootValidationReport ValidationReport { get; }
 
-        public string? DebugMapHash { get; }
+        public KernelDebugMap DebugMap { get; }
+
+        public string DebugMapHash { get; }
 
         public IReadOnlyList<KernelDiagnostic> Diagnostics => diagnostics;
 

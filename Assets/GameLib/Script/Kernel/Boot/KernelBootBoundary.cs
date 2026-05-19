@@ -183,10 +183,11 @@ namespace Game.Kernel.Boot
                 throw new ArgumentNullException(nameof(runtimeFactory));
 
             BootValidationReport validationReport = BootValidator.Validate(input);
-            List<KernelDiagnostic> diagnostics = BuildValidationDiagnostics(validationReport);
+            BootDiagnosticsPolicy? diagnosticsPolicy = validationReport.Manifest?.DiagnosticsPolicy;
+            List<KernelDiagnostic> diagnostics = BuildValidationDiagnostics(validationReport, diagnosticsPolicy);
 
             if (validationReport.HasBlockingIssues)
-                return KernelBootBoundaryResult.Failed(validationReport, KernelBootBoundaryFailureKind.ValidationBlocked, diagnostics);
+                return KernelBootBoundaryResult.Failed(validationReport, KernelBootBoundaryFailureKind.ValidationBlocked, FinalizeDiagnostics(diagnostics, diagnosticsPolicy));
 
             KernelBootBoundaryContext context = new KernelBootBoundaryContext(input, validationReport);
 
@@ -195,29 +196,71 @@ namespace Game.Kernel.Boot
                 IKernelBootRuntimeSurface runtimeSurface = runtimeFactory.Create(context);
                 if (runtimeSurface == null)
                 {
-                    diagnostics.Add(CreateRuntimeSurfaceMissingDiagnostic(context));
-                    return KernelBootBoundaryResult.Failed(validationReport, KernelBootBoundaryFailureKind.RuntimeSurfaceMissing, diagnostics, context);
+                    diagnostics.Add(CreateRuntimeSurfaceMissingDiagnostic(context, context.Manifest.DiagnosticsPolicy));
+                    return KernelBootBoundaryResult.Failed(validationReport, KernelBootBoundaryFailureKind.RuntimeSurfaceMissing, FinalizeDiagnostics(diagnostics, diagnosticsPolicy), context);
                 }
 
-                return KernelBootBoundaryResult.Ready(context, runtimeSurface, diagnostics);
+                return KernelBootBoundaryResult.Ready(context, runtimeSurface, FinalizeDiagnostics(diagnostics, diagnosticsPolicy));
             }
             catch (Exception exception)
             {
-                diagnostics.Add(CreateRuntimeConstructionFailedDiagnostic(context, exception));
-                return KernelBootBoundaryResult.Failed(validationReport, KernelBootBoundaryFailureKind.RuntimeConstructionFailed, diagnostics, context);
+                diagnostics.Add(CreateRuntimeConstructionFailedDiagnostic(context, exception, context.Manifest.DiagnosticsPolicy));
+                return KernelBootBoundaryResult.Failed(validationReport, KernelBootBoundaryFailureKind.RuntimeConstructionFailed, FinalizeDiagnostics(diagnostics, diagnosticsPolicy), context);
             }
         }
 
-        static List<KernelDiagnostic> BuildValidationDiagnostics(BootValidationReport validationReport)
+        static List<KernelDiagnostic> BuildValidationDiagnostics(BootValidationReport validationReport, BootDiagnosticsPolicy? diagnosticsPolicy)
         {
             List<KernelDiagnostic> diagnostics = new List<KernelDiagnostic>(validationReport.Issues.Count);
             for (int index = 0; index < validationReport.Issues.Count; index++)
-                diagnostics.Add(validationReport.Issues[index].ToKernelDiagnostic(validationReport.Manifest, validationReport.SelectedProfile));
+                diagnostics.Add(validationReport.Issues[index].ToKernelDiagnostic(validationReport.Manifest, validationReport.SelectedProfile, diagnosticsPolicy));
 
             return diagnostics;
         }
 
-        static KernelDiagnostic CreateRuntimeSurfaceMissingDiagnostic(KernelBootBoundaryContext context)
+        static List<KernelDiagnostic> FinalizeDiagnostics(List<KernelDiagnostic> diagnostics, BootDiagnosticsPolicy? diagnosticsPolicy)
+        {
+            if (diagnostics == null)
+                throw new ArgumentNullException(nameof(diagnostics));
+
+            if (diagnosticsPolicy != null && diagnosticsPolicy.FailureBoundaryBehavior == BootDiagnosticsFailureBoundaryBehavior.BlockWithoutDiagnostics)
+                return new List<KernelDiagnostic>(0);
+
+            if (diagnostics.Count <= 1)
+                return diagnostics;
+
+            if (diagnosticsPolicy == null || diagnosticsPolicy.TestDeterminismMode != BootDiagnosticsDeterminismMode.Enabled)
+                return diagnostics;
+
+            diagnostics.Sort(CompareDiagnosticsForDeterminism);
+
+            return diagnostics;
+        }
+
+        static int CompareDiagnosticsForDeterminism(KernelDiagnostic left, KernelDiagnostic right)
+        {
+            if (left == null)
+                throw new ArgumentNullException(nameof(left));
+
+            if (right == null)
+                throw new ArgumentNullException(nameof(right));
+
+            int comparison = StringComparer.Ordinal.Compare(left.Code.Value, right.Code.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.Severity.CompareTo(right.Severity);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.FailureBoundary.CompareTo(right.FailureBoundary);
+            if (comparison != 0)
+                return comparison;
+
+            return StringComparer.Ordinal.Compare(left.Message ?? string.Empty, right.Message ?? string.Empty);
+        }
+
+        static KernelDiagnostic CreateRuntimeSurfaceMissingDiagnostic(KernelBootBoundaryContext context, BootDiagnosticsPolicy diagnosticsPolicy)
         {
             DiagnosticContext diagnosticContext = new DiagnosticContext(
                 artifact: new ArtifactIdentityRef(context.Manifest.ArtifactSet.ArtifactSetId.Value),
@@ -235,6 +278,8 @@ namespace Game.Kernel.Boot
                 new DiagnosticPayloadEntry("SuggestedFix", DiagnosticPayloadValue.FromString("Return a non-null runtime surface from the boot factory after validation passes.")),
             });
 
+            BootDiagnosticsPayloadBuilder.AppendPolicyEntries(payloadEntries, diagnosticsPolicy);
+
             return new KernelDiagnostic(
                 new DiagnosticCode(KernelBootBoundaryCodes.RuntimeSurfaceMissing),
                 DiagnosticSeverity.Fatal,
@@ -245,7 +290,7 @@ namespace Game.Kernel.Boot
                 payload);
         }
 
-        static KernelDiagnostic CreateRuntimeConstructionFailedDiagnostic(KernelBootBoundaryContext context, Exception exception)
+            static KernelDiagnostic CreateRuntimeConstructionFailedDiagnostic(KernelBootBoundaryContext context, Exception exception, BootDiagnosticsPolicy diagnosticsPolicy)
         {
             DiagnosticContext diagnosticContext = new DiagnosticContext(
                 artifact: new ArtifactIdentityRef(context.Manifest.ArtifactSet.ArtifactSetId.Value),
@@ -263,6 +308,8 @@ namespace Game.Kernel.Boot
                 new DiagnosticPayloadEntry("SuggestedFix", DiagnosticPayloadValue.FromString("Ensure boot runtime construction is deterministic and side-effect free after validation passes.")),
             });
 
+            BootDiagnosticsPayloadBuilder.AppendPolicyEntries(payloadEntries, diagnosticsPolicy);
+
             return new KernelDiagnostic(
                 new DiagnosticCode(KernelBootBoundaryCodes.RuntimeConstructionFailed),
                 DiagnosticSeverity.Fatal,
@@ -271,7 +318,9 @@ namespace Game.Kernel.Boot
                 "Boot runtime construction failed after validation succeeded.",
                 diagnosticContext,
                 payload,
-                DiagnosticExceptionInfo.FromException(exception));
+                diagnosticsPolicy.DiagnosticsDetail == KernelProfileDiagnosticsDetail.MinimalRequired
+                    ? new DiagnosticExceptionInfo(exception.GetType().FullName ?? exception.GetType().Name, exception.Message)
+                    : DiagnosticExceptionInfo.FromException(exception));
         }
     }
 }

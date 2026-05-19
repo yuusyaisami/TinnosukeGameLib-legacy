@@ -3,6 +3,7 @@ using System;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Boot;
 using Game.Kernel.Diagnostics;
+using Game.Kernel.Generation;
 using NUnit.Framework;
 
 namespace TinnosukeGameLib.Tests.Editor
@@ -257,6 +258,31 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void BootValidationIssue_ToKernelDiagnostic_IncludesBootDiagnosticsPolicyMetadata()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Development);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Development);
+
+            BootValidationIssue issue = new BootValidationIssue(
+                BootValidationCodes.ProfileMismatch,
+                ValidationSeverity.Error,
+                BootValidationGateKind.ProfileMismatch,
+                "Boot profile mismatch.",
+                "Regenerate the boot manifest for the selected profile.",
+                ServiceIdentity(11),
+                "Development",
+                "Release");
+
+            KernelDiagnostic diagnostic = issue.ToKernelDiagnostic(manifest, profile, manifest.DiagnosticsPolicy);
+
+            AssertPayloadEntry(diagnostic, "BootDiagnosticsPolicyKind", KernelProfileKind.Development.ToString());
+            AssertPayloadEntry(diagnostic, "BootDiagnosticsFailureBoundaryBehavior", BootDiagnosticsFailureBoundaryBehavior.ReportAndBlock.ToString());
+            AssertPayloadEntry(diagnostic, "BootDiagnosticsDetail", KernelProfileDiagnosticsDetail.Full.ToString());
+            AssertPayloadEntry(diagnostic, "BootDiagnosticsInspectionMode", BootDiagnosticsInspectionMode.Enabled.ToString());
+            AssertPayloadEntry(diagnostic, "BootDiagnosticsDeterminismMode", BootDiagnosticsDeterminismMode.Disabled.ToString());
+        }
+
+        [Test]
         public void BootRootValidationState_RejectsDuplicateRootEntries()
         {
             Assert.That(() => new BootRootValidationState(
@@ -290,6 +316,8 @@ namespace TinnosukeGameLib.Tests.Editor
 
         static KernelBootManifest CreateManifest(KernelProfileId profileId, KernelProfileKind profileKind)
         {
+            string debugMapHash = EmptyDebugMapHash();
+
             VerifiedArtifactSetRef artifactSet = new VerifiedArtifactSetRef(
                 new ArtifactSetId(11),
                 new PlanId(31),
@@ -297,7 +325,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 new UnityEngine.Hash128(5, 6, 7, 8).ToString(),
                 11,
                 new UnityEngine.Hash128(9, 9, 9, 9).ToString(),
-                new UnityEngine.Hash128(10, 10, 10, 10).ToString());
+                debugMapHash);
 
             return new KernelBootManifest(
                 new ManifestId(5),
@@ -315,6 +343,25 @@ namespace TinnosukeGameLib.Tests.Editor
         static RuntimeIdentityRef ScopeIdentity(int value)
         {
             return new RuntimeIdentityRef(RuntimeIdentityKind.ScopePlan, value);
+        }
+
+        static string EmptyDebugMapHash()
+        {
+            return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(Array.Empty<string>()).ToString();
+        }
+
+        static void AssertPayloadEntry(KernelDiagnostic diagnostic, string key, string expectedValue)
+        {
+            for (int index = 0; index < diagnostic.Payload.Entries.Count; index++)
+            {
+                if (diagnostic.Payload.Entries[index].Key != key)
+                    continue;
+
+                Assert.That(diagnostic.Payload.Entries[index].Value.ToString(), Is.EqualTo(expectedValue), key);
+                return;
+            }
+
+            Assert.Fail("Missing payload entry: " + key);
         }
     }
 }

@@ -328,22 +328,10 @@ namespace Game.Kernel.Validation
                 if (mappedSources.Contains(sourceIdentity))
                     continue;
 
-                if (!ProjectionValidationHelpersBridge.TryCreateFallbackMapping(context, sourceIdentity, out ProjectionMappingIR fallbackMapping, out ModuleId ownerModule))
-                {
-                    issues.Add(ProjectionValidationHelpersBridge.CreateSourceLocationMissingIssue(
-                        context.Input.SelectedProfile,
-                        sourceIdentity,
-                        ownerModule));
-                    continue;
-                }
-
-                issues.Add(ProjectionValidationHelpersBridge.CreateIssue(
-                    context.Input.SelectedProfile,
-                    fallbackMapping,
+                issues.Add(ProjectionValidationHelpersBridge.CreateMissingProjectionIssue(
+                    context,
                     sourceIdentity,
-                    ProjectionValidationRuleHelpers.GetMissingProjectionCode(sourceIdentity.Kind),
-                    "Generated projection omitted a required source identity.",
-                    "Emit the projection mapping for this source identity or mark the source as intentionally excluded."));
+                    context.Input.SelectedProfile));
             }
         }
     }
@@ -642,23 +630,94 @@ namespace Game.Kernel.Validation
             return ProjectionValidationIssueFactory.CreateIssue(selectedProfile, mapping, identity, code, message, suggestedFix);
         }
 
-        public static bool TryCreateFallbackMapping(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity, out ProjectionMappingIR mapping, out ModuleId ownerModule)
+        public static DependencyValidationIssue CreateMissingProjectionIssue(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity, string selectedProfile)
         {
-            int ownerModuleValue = FindOwnerModule(context, sourceIdentity);
-            int sourceLocationValue = FindSourceLocation(context, sourceIdentity);
-            ownerModule = ownerModuleValue == 0 ? default : new ModuleId(ownerModuleValue);
+            ModuleId ownerModule = ResolveOwnerModule(context, sourceIdentity);
+            SourceLocationId sourceLocation = ResolveSourceLocation(context, sourceIdentity);
+            DependencyNodeIR representativeNode = CreateRepresentativeNode(context, sourceIdentity, ownerModule);
 
-            if (ownerModuleValue == 0 || sourceLocationValue == 0)
-            {
-                mapping = default;
-                return false;
-            }
-
-            mapping = new ProjectionMappingIR(sourceIdentity, sourceIdentity, ownerModule, new SourceLocationId(sourceLocationValue));
-            return true;
+            return new DependencyValidationIssue(
+                ProjectionValidationRuleHelpers.GetMissingProjectionCode(sourceIdentity.Kind),
+                ValidationSeverity.Error,
+                ValidationIssueCategory.Projection,
+                representativeNode,
+                null,
+                ValidationPhase.Generate,
+                ownerModule,
+                sourceLocation,
+                selectedProfile,
+                "Generated projection omitted a required source identity.",
+                "Emit the projection mapping for this source identity or mark the source as intentionally excluded.");
         }
 
-        static int FindOwnerModule(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity)
+        static DependencyNodeIR CreateRepresentativeNode(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity, ModuleId ownerModule)
+        {
+            KernelIR kernelIR = context.Input.SourceKernelIR;
+
+            switch (sourceIdentity.Kind)
+            {
+                case RuntimeIdentityKind.Module:
+                    return new DependencyNodeIR(new ModuleId(sourceIdentity.Value));
+                case RuntimeIdentityKind.Service:
+                    return new DependencyNodeIR(new ServiceId(sourceIdentity.Value));
+                case RuntimeIdentityKind.ScopeAuthoring:
+                    return ResolveScopeRepresentativeNode(kernelIR.Scopes, sourceIdentity.Value, ownerModule);
+                case RuntimeIdentityKind.ScopePlan:
+                    return new DependencyNodeIR(new ScopePlanId(sourceIdentity.Value));
+                case RuntimeIdentityKind.CommandType:
+                    return new DependencyNodeIR(new CommandTypeId(sourceIdentity.Value));
+                case RuntimeIdentityKind.CommandExecutor:
+                case RuntimeIdentityKind.CommandPayloadSchema:
+                    return ResolveCommandRepresentativeNode(kernelIR.Commands, sourceIdentity.Value, ownerModule);
+                case RuntimeIdentityKind.ValueKey:
+                    return new DependencyNodeIR(new ValueKeyId(sourceIdentity.Value));
+                case RuntimeIdentityKind.ValueSchema:
+                    return ResolveValueSchemaRepresentativeNode(kernelIR.ValueKeys, sourceIdentity.Value, ownerModule);
+                case RuntimeIdentityKind.LifecyclePlan:
+                    return new DependencyNodeIR(ownerModule);
+                case RuntimeIdentityKind.LifecycleStep:
+                    return new DependencyNodeIR(new LifecycleStepId(sourceIdentity.Value));
+                case RuntimeIdentityKind.RuntimeQuery:
+                    return new DependencyNodeIR(new RuntimeQueryId(sourceIdentity.Value));
+                default:
+                    return new DependencyNodeIR(ownerModule);
+            }
+        }
+
+        static DependencyNodeIR ResolveScopeRepresentativeNode(ReadOnlySpan<ScopeIR> scopes, int authoringId, ModuleId ownerModule)
+        {
+            for (int index = 0; index < scopes.Length; index++)
+            {
+                if (scopes[index].AuthoringId.Value == authoringId)
+                    return new DependencyNodeIR(scopes[index].PlanId);
+            }
+
+            return new DependencyNodeIR(ownerModule);
+        }
+
+        static DependencyNodeIR ResolveCommandRepresentativeNode(ReadOnlySpan<CommandIR> commands, int identityValue, ModuleId ownerModule)
+        {
+            for (int index = 0; index < commands.Length; index++)
+            {
+                if (commands[index].Executor.Id.Value == identityValue || commands[index].PayloadSchema.Id.Value == identityValue)
+                    return new DependencyNodeIR(commands[index].TypeId);
+            }
+
+            return new DependencyNodeIR(ownerModule);
+        }
+
+        static DependencyNodeIR ResolveValueSchemaRepresentativeNode(ReadOnlySpan<ValueKeyIR> valueKeys, int schemaId, ModuleId ownerModule)
+        {
+            for (int index = 0; index < valueKeys.Length; index++)
+            {
+                if (valueKeys[index].Schema.Id.Value == schemaId)
+                    return new DependencyNodeIR(valueKeys[index].Id);
+            }
+
+            return new DependencyNodeIR(ownerModule);
+        }
+
+        static ModuleId ResolveOwnerModule(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity)
         {
             KernelIR kernelIR = context.Input.SourceKernelIR;
 
@@ -666,60 +725,60 @@ namespace Game.Kernel.Validation
             for (int index = 0; index < modules.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.Module && modules[index].Id.Value == sourceIdentity.Value)
-                    return modules[index].Id.Value;
+                    return new ModuleId(modules[index].Id.Value);
             }
 
             ReadOnlySpan<ServiceIR> services = kernelIR.Services;
             for (int index = 0; index < services.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.Service && services[index].Id.Value == sourceIdentity.Value)
-                    return services[index].OwnerModule.Value;
+                    return new ModuleId(services[index].OwnerModule.Value);
             }
 
             ReadOnlySpan<ScopeIR> scopes = kernelIR.Scopes;
             for (int index = 0; index < scopes.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ScopeAuthoring && scopes[index].AuthoringId.Value == sourceIdentity.Value)
-                    return scopes[index].OwnerModule.Value;
+                    return new ModuleId(scopes[index].OwnerModule.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ScopePlan && scopes[index].PlanId.Value == sourceIdentity.Value)
-                    return scopes[index].OwnerModule.Value;
+                    return new ModuleId(scopes[index].OwnerModule.Value);
             }
 
             ReadOnlySpan<CommandIR> commands = kernelIR.Commands;
             for (int index = 0; index < commands.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandType && commands[index].TypeId.Value == sourceIdentity.Value)
-                    return commands[index].OwnerModule.Value;
+                    return new ModuleId(commands[index].OwnerModule.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandExecutor && commands[index].Executor.Id.Value == sourceIdentity.Value)
-                    return commands[index].OwnerModule.Value;
+                    return new ModuleId(commands[index].OwnerModule.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandPayloadSchema && commands[index].PayloadSchema.Id.Value == sourceIdentity.Value)
-                    return commands[index].OwnerModule.Value;
+                    return new ModuleId(commands[index].OwnerModule.Value);
             }
 
             ReadOnlySpan<ValueKeyIR> valueKeys = kernelIR.ValueKeys;
             for (int index = 0; index < valueKeys.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ValueKey && valueKeys[index].Id.Value == sourceIdentity.Value)
-                    return valueKeys[index].OwnerModule.Value;
+                    return new ModuleId(valueKeys[index].OwnerModule.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ValueSchema && valueKeys[index].Schema.Id.Value == sourceIdentity.Value)
-                    return valueKeys[index].OwnerModule.Value;
+                    return new ModuleId(valueKeys[index].OwnerModule.Value);
             }
 
             ReadOnlySpan<LifecycleIR> lifecycles = kernelIR.Lifecycles;
             for (int index = 0; index < lifecycles.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.LifecyclePlan && lifecycles[index].PlanId.Value == sourceIdentity.Value)
-                    return lifecycles[index].OwnerModule.Value;
+                    return new ModuleId(lifecycles[index].OwnerModule.Value);
 
                 ReadOnlySpan<LifecycleStepIR> steps = lifecycles[index].Steps;
                 for (int stepIndex = 0; stepIndex < steps.Length; stepIndex++)
                 {
                     if (sourceIdentity.Kind == RuntimeIdentityKind.LifecycleStep && steps[stepIndex].Id.Value == sourceIdentity.Value)
-                        return lifecycles[index].OwnerModule.Value;
+                        return new ModuleId(lifecycles[index].OwnerModule.Value);
                 }
             }
 
@@ -727,12 +786,13 @@ namespace Game.Kernel.Validation
             for (int index = 0; index < runtimeQueries.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.RuntimeQuery && runtimeQueries[index].Id.Value == sourceIdentity.Value)
-                    return runtimeQueries[index].OwnerModule.Value;
+                    return new ModuleId(runtimeQueries[index].OwnerModule.Value);
             }
-            return 0;
+
+            throw new InvalidOperationException("Projection validation could not resolve an owner module for a required source identity.");
         }
 
-        static int FindSourceLocation(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity)
+        static SourceLocationId ResolveSourceLocation(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity)
         {
             KernelIR kernelIR = context.Input.SourceKernelIR;
 
@@ -740,60 +800,60 @@ namespace Game.Kernel.Validation
             for (int index = 0; index < modules.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.Module && modules[index].Id.Value == sourceIdentity.Value)
-                    return modules[index].Source.Value;
+                    return new SourceLocationId(modules[index].Source.Value);
             }
 
             ReadOnlySpan<ServiceIR> services = kernelIR.Services;
             for (int index = 0; index < services.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.Service && services[index].Id.Value == sourceIdentity.Value)
-                    return services[index].Source.Value;
+                    return new SourceLocationId(services[index].Source.Value);
             }
 
             ReadOnlySpan<ScopeIR> scopes = kernelIR.Scopes;
             for (int index = 0; index < scopes.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ScopeAuthoring && scopes[index].AuthoringId.Value == sourceIdentity.Value)
-                    return scopes[index].Source.Value;
+                    return new SourceLocationId(scopes[index].Source.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ScopePlan && scopes[index].PlanId.Value == sourceIdentity.Value)
-                    return scopes[index].Source.Value;
+                    return new SourceLocationId(scopes[index].Source.Value);
             }
 
             ReadOnlySpan<CommandIR> commands = kernelIR.Commands;
             for (int index = 0; index < commands.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandType && commands[index].TypeId.Value == sourceIdentity.Value)
-                    return commands[index].Source.Value;
+                    return new SourceLocationId(commands[index].Source.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandExecutor && commands[index].Executor.Id.Value == sourceIdentity.Value)
-                    return commands[index].Executor.Source.Value;
+                    return new SourceLocationId(commands[index].Executor.Source.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandPayloadSchema && commands[index].PayloadSchema.Id.Value == sourceIdentity.Value)
-                    return commands[index].PayloadSchema.Source.Value;
+                    return new SourceLocationId(commands[index].PayloadSchema.Source.Value);
             }
 
             ReadOnlySpan<ValueKeyIR> valueKeys = kernelIR.ValueKeys;
             for (int index = 0; index < valueKeys.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ValueKey && valueKeys[index].Id.Value == sourceIdentity.Value)
-                    return valueKeys[index].Source.Value;
+                    return new SourceLocationId(valueKeys[index].Source.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ValueSchema && valueKeys[index].Schema.Id.Value == sourceIdentity.Value)
-                    return valueKeys[index].Schema.Source.Value;
+                    return new SourceLocationId(valueKeys[index].Schema.Source.Value);
             }
 
             ReadOnlySpan<LifecycleIR> lifecycles = kernelIR.Lifecycles;
             for (int index = 0; index < lifecycles.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.LifecyclePlan && lifecycles[index].PlanId.Value == sourceIdentity.Value)
-                    return lifecycles[index].Source.Value;
+                    return new SourceLocationId(lifecycles[index].Source.Value);
 
                 ReadOnlySpan<LifecycleStepIR> steps = lifecycles[index].Steps;
                 for (int stepIndex = 0; stepIndex < steps.Length; stepIndex++)
                 {
                     if (sourceIdentity.Kind == RuntimeIdentityKind.LifecycleStep && steps[stepIndex].Id.Value == sourceIdentity.Value)
-                        return steps[stepIndex].Source.Value;
+                        return new SourceLocationId(steps[stepIndex].Source.Value);
                 }
             }
 
@@ -801,10 +861,10 @@ namespace Game.Kernel.Validation
             for (int index = 0; index < runtimeQueries.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.RuntimeQuery && runtimeQueries[index].Id.Value == sourceIdentity.Value)
-                    return runtimeQueries[index].Source.Value;
+                    return new SourceLocationId(runtimeQueries[index].Source.Value);
             }
 
-            return 0;
+            throw new InvalidOperationException("Projection validation could not resolve a source location for a required source identity.");
         }
     }
 
@@ -955,23 +1015,105 @@ namespace Game.Kernel.Validation
             return ProjectionValidationIssueFactory.CreateSourceLocationMissingIssue(selectedProfile, identity, ownerModule);
         }
 
-        public static bool TryCreateFallbackMapping(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity, out ProjectionMappingIR mapping, out ModuleId ownerModule)
+        public static DependencyValidationIssue CreateMissingProjectionIssue(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity, string selectedProfile)
         {
-            int ownerModuleValue = FindOwnerModule(context, sourceIdentity);
-            int sourceLocation = FindSourceLocation(context, sourceIdentity);
-            ownerModule = ownerModuleValue == 0 ? default : new ModuleId(ownerModuleValue);
+            ModuleId ownerModule = ResolveOwnerModule(context, sourceIdentity);
+            SourceLocationId sourceLocation = ResolveSourceLocation(context, sourceIdentity);
+            DependencyNodeIR representativeNode = CreateRepresentativeNode(context, sourceIdentity, ownerModule);
 
-            if (ownerModuleValue == 0 || sourceLocation == 0)
-            {
-                mapping = default;
-                return false;
-            }
-
-            mapping = new ProjectionMappingIR(sourceIdentity, sourceIdentity, ownerModule, new SourceLocationId(sourceLocation));
-            return true;
+            return new DependencyValidationIssue(
+                ProjectionValidationRuleHelpers.GetMissingProjectionCode(sourceIdentity.Kind),
+                ValidationSeverity.Error,
+                ValidationIssueCategory.Projection,
+                representativeNode,
+                null,
+                ValidationPhase.Generate,
+                ownerModule,
+                sourceLocation,
+                selectedProfile,
+                "Generated projection omitted a required source identity.",
+                "Emit the projection mapping for this source identity or mark the source as intentionally excluded.");
         }
 
-        static int FindOwnerModule(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity)
+        static DependencyNodeIR CreateRepresentativeNode(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity, ModuleId ownerModule)
+        {
+            KernelIR kernelIR = context.Input.SourceKernelIR;
+
+            switch (sourceIdentity.Kind)
+            {
+                case RuntimeIdentityKind.Module:
+                    return new DependencyNodeIR(new ModuleId(sourceIdentity.Value));
+
+                case RuntimeIdentityKind.Service:
+                    return new DependencyNodeIR(new ServiceId(sourceIdentity.Value));
+
+                case RuntimeIdentityKind.ScopeAuthoring:
+                    return ResolveScopeRepresentativeNode(kernelIR.Scopes, sourceIdentity.Value, ownerModule);
+
+                case RuntimeIdentityKind.ScopePlan:
+                    return new DependencyNodeIR(new ScopePlanId(sourceIdentity.Value));
+
+                case RuntimeIdentityKind.CommandType:
+                    return new DependencyNodeIR(new CommandTypeId(sourceIdentity.Value));
+
+                case RuntimeIdentityKind.CommandExecutor:
+                case RuntimeIdentityKind.CommandPayloadSchema:
+                    return ResolveCommandRepresentativeNode(kernelIR.Commands, sourceIdentity.Value, ownerModule);
+
+                case RuntimeIdentityKind.ValueKey:
+                    return new DependencyNodeIR(new ValueKeyId(sourceIdentity.Value));
+
+                case RuntimeIdentityKind.ValueSchema:
+                    return ResolveValueSchemaRepresentativeNode(kernelIR.ValueKeys, sourceIdentity.Value, ownerModule);
+
+                case RuntimeIdentityKind.LifecyclePlan:
+                    return new DependencyNodeIR(ownerModule);
+
+                case RuntimeIdentityKind.LifecycleStep:
+                    return new DependencyNodeIR(new LifecycleStepId(sourceIdentity.Value));
+
+                case RuntimeIdentityKind.RuntimeQuery:
+                    return new DependencyNodeIR(new RuntimeQueryId(sourceIdentity.Value));
+
+                default:
+                    return new DependencyNodeIR(ownerModule);
+            }
+        }
+
+        static DependencyNodeIR ResolveScopeRepresentativeNode(ReadOnlySpan<ScopeIR> scopes, int authoringId, ModuleId ownerModule)
+        {
+            for (int index = 0; index < scopes.Length; index++)
+            {
+                if (scopes[index].AuthoringId.Value == authoringId)
+                    return new DependencyNodeIR(scopes[index].PlanId);
+            }
+
+            return new DependencyNodeIR(ownerModule);
+        }
+
+        static DependencyNodeIR ResolveCommandRepresentativeNode(ReadOnlySpan<CommandIR> commands, int identityValue, ModuleId ownerModule)
+        {
+            for (int index = 0; index < commands.Length; index++)
+            {
+                if (commands[index].Executor.Id.Value == identityValue || commands[index].PayloadSchema.Id.Value == identityValue)
+                    return new DependencyNodeIR(commands[index].TypeId);
+            }
+
+            return new DependencyNodeIR(ownerModule);
+        }
+
+        static DependencyNodeIR ResolveValueSchemaRepresentativeNode(ReadOnlySpan<ValueKeyIR> valueKeys, int schemaId, ModuleId ownerModule)
+        {
+            for (int index = 0; index < valueKeys.Length; index++)
+            {
+                if (valueKeys[index].Schema.Id.Value == schemaId)
+                    return new DependencyNodeIR(valueKeys[index].Id);
+            }
+
+            return new DependencyNodeIR(ownerModule);
+        }
+
+        static ModuleId ResolveOwnerModule(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity)
         {
             KernelIR kernelIR = context.Input.SourceKernelIR;
 
@@ -979,60 +1121,60 @@ namespace Game.Kernel.Validation
             for (int index = 0; index < modules.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.Module && modules[index].Id.Value == sourceIdentity.Value)
-                    return modules[index].Id.Value;
+                    return new ModuleId(modules[index].Id.Value);
             }
 
             ReadOnlySpan<ServiceIR> services = kernelIR.Services;
             for (int index = 0; index < services.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.Service && services[index].Id.Value == sourceIdentity.Value)
-                    return services[index].OwnerModule.Value;
+                    return new ModuleId(services[index].OwnerModule.Value);
             }
 
             ReadOnlySpan<ScopeIR> scopes = kernelIR.Scopes;
             for (int index = 0; index < scopes.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ScopeAuthoring && scopes[index].AuthoringId.Value == sourceIdentity.Value)
-                    return scopes[index].OwnerModule.Value;
+                    return new ModuleId(scopes[index].OwnerModule.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ScopePlan && scopes[index].PlanId.Value == sourceIdentity.Value)
-                    return scopes[index].OwnerModule.Value;
+                    return new ModuleId(scopes[index].OwnerModule.Value);
             }
 
             ReadOnlySpan<CommandIR> commands = kernelIR.Commands;
             for (int index = 0; index < commands.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandType && commands[index].TypeId.Value == sourceIdentity.Value)
-                    return commands[index].OwnerModule.Value;
+                    return new ModuleId(commands[index].OwnerModule.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandExecutor && commands[index].Executor.Id.Value == sourceIdentity.Value)
-                    return commands[index].OwnerModule.Value;
+                    return new ModuleId(commands[index].OwnerModule.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandPayloadSchema && commands[index].PayloadSchema.Id.Value == sourceIdentity.Value)
-                    return commands[index].OwnerModule.Value;
+                    return new ModuleId(commands[index].OwnerModule.Value);
             }
 
             ReadOnlySpan<ValueKeyIR> valueKeys = kernelIR.ValueKeys;
             for (int index = 0; index < valueKeys.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ValueKey && valueKeys[index].Id.Value == sourceIdentity.Value)
-                    return valueKeys[index].OwnerModule.Value;
+                    return new ModuleId(valueKeys[index].OwnerModule.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ValueSchema && valueKeys[index].Schema.Id.Value == sourceIdentity.Value)
-                    return valueKeys[index].OwnerModule.Value;
+                    return new ModuleId(valueKeys[index].OwnerModule.Value);
             }
 
             ReadOnlySpan<LifecycleIR> lifecycles = kernelIR.Lifecycles;
             for (int index = 0; index < lifecycles.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.LifecyclePlan && lifecycles[index].PlanId.Value == sourceIdentity.Value)
-                    return lifecycles[index].OwnerModule.Value;
+                    return new ModuleId(lifecycles[index].OwnerModule.Value);
 
                 ReadOnlySpan<LifecycleStepIR> steps = lifecycles[index].Steps;
                 for (int stepIndex = 0; stepIndex < steps.Length; stepIndex++)
                 {
                     if (sourceIdentity.Kind == RuntimeIdentityKind.LifecycleStep && steps[stepIndex].Id.Value == sourceIdentity.Value)
-                        return lifecycles[index].OwnerModule.Value;
+                        return new ModuleId(lifecycles[index].OwnerModule.Value);
                 }
             }
 
@@ -1040,12 +1182,13 @@ namespace Game.Kernel.Validation
             for (int index = 0; index < runtimeQueries.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.RuntimeQuery && runtimeQueries[index].Id.Value == sourceIdentity.Value)
-                    return runtimeQueries[index].OwnerModule.Value;
+                    return new ModuleId(runtimeQueries[index].OwnerModule.Value);
             }
-            return 0;
+
+            throw new InvalidOperationException("Projection validation could not resolve an owner module for a required source identity.");
         }
 
-        static int FindSourceLocation(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity)
+        static SourceLocationId ResolveSourceLocation(ProjectionValidationContext context, RuntimeIdentityRef sourceIdentity)
         {
             KernelIR kernelIR = context.Input.SourceKernelIR;
 
@@ -1053,60 +1196,60 @@ namespace Game.Kernel.Validation
             for (int index = 0; index < modules.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.Module && modules[index].Id.Value == sourceIdentity.Value)
-                    return modules[index].Source.Value;
+                    return new SourceLocationId(modules[index].Source.Value);
             }
 
             ReadOnlySpan<ServiceIR> services = kernelIR.Services;
             for (int index = 0; index < services.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.Service && services[index].Id.Value == sourceIdentity.Value)
-                    return services[index].Source.Value;
+                    return new SourceLocationId(services[index].Source.Value);
             }
 
             ReadOnlySpan<ScopeIR> scopes = kernelIR.Scopes;
             for (int index = 0; index < scopes.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ScopeAuthoring && scopes[index].AuthoringId.Value == sourceIdentity.Value)
-                    return scopes[index].Source.Value;
+                    return new SourceLocationId(scopes[index].Source.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ScopePlan && scopes[index].PlanId.Value == sourceIdentity.Value)
-                    return scopes[index].Source.Value;
+                    return new SourceLocationId(scopes[index].Source.Value);
             }
 
             ReadOnlySpan<CommandIR> commands = kernelIR.Commands;
             for (int index = 0; index < commands.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandType && commands[index].TypeId.Value == sourceIdentity.Value)
-                    return commands[index].Source.Value;
+                    return new SourceLocationId(commands[index].Source.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandExecutor && commands[index].Executor.Id.Value == sourceIdentity.Value)
-                    return commands[index].Executor.Source.Value;
+                    return new SourceLocationId(commands[index].Executor.Source.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.CommandPayloadSchema && commands[index].PayloadSchema.Id.Value == sourceIdentity.Value)
-                    return commands[index].PayloadSchema.Source.Value;
+                    return new SourceLocationId(commands[index].PayloadSchema.Source.Value);
             }
 
             ReadOnlySpan<ValueKeyIR> valueKeys = kernelIR.ValueKeys;
             for (int index = 0; index < valueKeys.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ValueKey && valueKeys[index].Id.Value == sourceIdentity.Value)
-                    return valueKeys[index].Source.Value;
+                    return new SourceLocationId(valueKeys[index].Source.Value);
 
                 if (sourceIdentity.Kind == RuntimeIdentityKind.ValueSchema && valueKeys[index].Schema.Id.Value == sourceIdentity.Value)
-                    return valueKeys[index].Schema.Source.Value;
+                    return new SourceLocationId(valueKeys[index].Schema.Source.Value);
             }
 
             ReadOnlySpan<LifecycleIR> lifecycles = kernelIR.Lifecycles;
             for (int index = 0; index < lifecycles.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.LifecyclePlan && lifecycles[index].PlanId.Value == sourceIdentity.Value)
-                    return lifecycles[index].Source.Value;
+                    return new SourceLocationId(lifecycles[index].Source.Value);
 
                 ReadOnlySpan<LifecycleStepIR> steps = lifecycles[index].Steps;
                 for (int stepIndex = 0; stepIndex < steps.Length; stepIndex++)
                 {
                     if (sourceIdentity.Kind == RuntimeIdentityKind.LifecycleStep && steps[stepIndex].Id.Value == sourceIdentity.Value)
-                        return steps[stepIndex].Source.Value;
+                        return new SourceLocationId(steps[stepIndex].Source.Value);
                 }
             }
 
@@ -1114,10 +1257,10 @@ namespace Game.Kernel.Validation
             for (int index = 0; index < runtimeQueries.Length; index++)
             {
                 if (sourceIdentity.Kind == RuntimeIdentityKind.RuntimeQuery && runtimeQueries[index].Id.Value == sourceIdentity.Value)
-                    return runtimeQueries[index].Source.Value;
+                    return runtimeQueries[index].Source;
             }
 
-            return 0;
+            throw new InvalidOperationException("Projection validation could not resolve a source location for a required source identity.");
         }
     }
 }

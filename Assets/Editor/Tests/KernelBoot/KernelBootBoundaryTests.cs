@@ -3,6 +3,7 @@ using System;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Boot;
 using Game.Kernel.Diagnostics;
+using Game.Kernel.Generation;
 using Game.Kernel.Validation;
 using NUnit.Framework;
 
@@ -35,6 +36,9 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(runtimeSurface.Runtime.SelectedProfile, Is.EqualTo(profile));
             Assert.That(runtimeSurface.Runtime.Diagnostics.ValidationReport, Is.EqualTo(success.Context.ValidationReport));
             Assert.That(runtimeSurface.Runtime.Diagnostics.DebugMapHash, Is.EqualTo(manifest.ArtifactSet.DebugMapHash));
+            Assert.That(runtimeSurface.Runtime.DebugMap, Is.Not.Null);
+            Assert.That(runtimeSurface.Runtime.DebugMap.ContentHash.ToString(), Is.EqualTo(manifest.ArtifactSet.DebugMapHash));
+            Assert.That(runtimeSurface.Runtime.DebugMap.Entries.Length, Is.EqualTo(0));
             Assert.That(runtimeSurface.Runtime.Diagnostics.HasDiagnostics, Is.False);
             Assert.That(runtimeSurface.Runtime.ServiceGraph.IsEmpty, Is.False);
             Assert.That(runtimeSurface.Runtime.RootScopeGraph.IsEmpty, Is.False);
@@ -57,6 +61,9 @@ namespace TinnosukeGameLib.Tests.Editor
 
             Assert.That(runtimeSurface.Runtime.Diagnostics.ValidationReport.HasBlockingIssues, Is.False);
             Assert.That(runtimeSurface.Runtime.Diagnostics.Diagnostics, Is.Empty);
+            Assert.That(runtimeSurface.Runtime.DebugMap, Is.Not.Null);
+            Assert.That(runtimeSurface.Runtime.DebugMap.ContentHash.ToString(), Is.EqualTo(manifest.ArtifactSet.DebugMapHash));
+            Assert.That(runtimeSurface.Runtime.DebugMap.Entries.Length, Is.EqualTo(0));
             Assert.That(runtimeSurface.Runtime.ServiceGraph.RootServiceCount, Is.EqualTo(0));
             Assert.That(runtimeSurface.Runtime.RootScopeGraph.RootScopeCount, Is.EqualTo(0));
             Assert.That(runtimeSurface.Runtime.ServiceGraph.IsEmpty, Is.True);
@@ -122,6 +129,48 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(result.Diagnostics[0].Context.Artifact.Value, Is.EqualTo(manifest.ArtifactSet.ArtifactSetId.Value));
             Assert.That(result.Diagnostics[0].Exception, Is.Not.Null);
             Assert.That(result.Diagnostics[0].Exception!.Type, Does.Contain(nameof(InvalidOperationException)));
+            Assert.That(result.Diagnostics[0].Exception!.StackTrace, Is.Null);
+            AssertPayloadEntry(result.Diagnostics[0], "BootDiagnosticsDetail", KernelProfileDiagnosticsDetail.MinimalRequired.ToString());
+        }
+
+        [Test]
+        public void Execute_ConvertsRuntimeConstructionExceptionIntoCapturedDiagnostic_ForTestProfile()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Test);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Test);
+            BootValidationInput input = CreatePassingInput(manifest, profile);
+
+            KernelBootBoundaryResult result = KernelBootBoundary.Execute(input, new DelegatingRuntimeSurfaceFactory(_ =>
+            {
+                throw new InvalidOperationException("runtime factory failed");
+            }));
+
+            Assert.That(result.Status, Is.EqualTo(KernelBootBoundaryStatus.Failed));
+            Assert.That(result, Is.InstanceOf<KernelBootBoundaryResult.Failure>());
+
+            KernelBootBoundaryResult.Failure failure = (KernelBootBoundaryResult.Failure)result;
+            Assert.That(failure.FailureKind, Is.EqualTo(KernelBootBoundaryFailureKind.RuntimeConstructionFailed));
+            Assert.That(result.Diagnostics.Count, Is.EqualTo(1));
+            Assert.That(result.Diagnostics[0].Exception, Is.Not.Null);
+            Assert.That(result.Diagnostics[0].Exception!.StackTrace, Is.Not.Null.And.Not.Empty);
+            AssertPayloadEntry(result.Diagnostics[0], "BootDiagnosticsDetail", KernelProfileDiagnosticsDetail.FullCaptured.ToString());
+        }
+
+        [Test]
+        public void Execute_SortsDiagnosticsDeterministically_ForTestProfileValidationFailures()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Test);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Test);
+            BootValidationInput input = CreateMismatchedArtifactInput(manifest, profile);
+
+            KernelBootBoundaryResult result = KernelBootBoundary.Execute(input);
+
+            Assert.That(result.Status, Is.EqualTo(KernelBootBoundaryStatus.Failed));
+            Assert.That(result.Diagnostics.Count, Is.EqualTo(4));
+            Assert.That(result.Diagnostics[0].Code.Value, Is.EqualTo(BootValidationCodes.DebugMapHashMismatch));
+            Assert.That(result.Diagnostics[1].Code.Value, Is.EqualTo(BootValidationCodes.KernelIRHashMismatch));
+            Assert.That(result.Diagnostics[2].Code.Value, Is.EqualTo(BootValidationCodes.ProfileHashMismatch));
+            Assert.That(result.Diagnostics[3].Code.Value, Is.EqualTo(BootValidationCodes.RegistryHashMismatch));
         }
 
         [Test]
@@ -192,8 +241,34 @@ namespace TinnosukeGameLib.Tests.Editor
                 fallbackState: new BootFallbackValidationState(false, false, false, false, false, false));
         }
 
+        static BootValidationInput CreateMismatchedArtifactInput(KernelBootManifest manifest, KernelProfile profile)
+        {
+            return new BootValidationInput(
+                manifest,
+                profile,
+                artifactSetReferencePresent: true,
+                dependencyValidationStatus: ValidationResultStatus.Passed,
+                artifactState: new BootArtifactValidationState(
+                    artifactSetComplete: true,
+                    artifactHeadersCompatible: true,
+                    artifactStale: false,
+                    debugMapRequired: true,
+                    kernelIRHash: new UnityEngine.Hash128(9, 9, 9, 9).ToString(),
+                    registryHash: new UnityEngine.Hash128(8, 8, 8, 8).ToString(),
+                    profileHash: new UnityEngine.Hash128(7, 7, 7, 7).ToString(),
+                    debugMapHash: new UnityEngine.Hash128(6, 6, 6, 6).ToString()),
+                rootState: new BootRootValidationState(
+                    new[] { ServiceIdentity(11) },
+                    new[] { ServiceIdentity(11) },
+                    new[] { ScopeIdentity(21) },
+                    new[] { ScopeIdentity(21) }),
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false));
+        }
+
         static KernelBootManifest CreateManifest(KernelProfileId profileId, KernelProfileKind profileKind)
         {
+            string debugMapHash = EmptyDebugMapHash();
+
             VerifiedArtifactSetRef artifactSet = new VerifiedArtifactSetRef(
                 new ArtifactSetId(11),
                 new PlanId(31),
@@ -201,7 +276,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 new UnityEngine.Hash128(5, 6, 7, 8).ToString(),
                 11,
                 new UnityEngine.Hash128(9, 9, 9, 9).ToString(),
-                new UnityEngine.Hash128(10, 10, 10, 10).ToString());
+                debugMapHash);
 
             return new KernelBootManifest(
                 new ManifestId(5),
@@ -219,6 +294,25 @@ namespace TinnosukeGameLib.Tests.Editor
         static RuntimeIdentityRef ScopeIdentity(int value)
         {
             return new RuntimeIdentityRef(RuntimeIdentityKind.ScopePlan, value);
+        }
+
+        static string EmptyDebugMapHash()
+        {
+            return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(Array.Empty<string>()).ToString();
+        }
+
+        static void AssertPayloadEntry(KernelDiagnostic diagnostic, string key, string expectedValue)
+        {
+            for (int index = 0; index < diagnostic.Payload.Entries.Count; index++)
+            {
+                if (diagnostic.Payload.Entries[index].Key != key)
+                    continue;
+
+                Assert.That(diagnostic.Payload.Entries[index].Value.ToString(), Is.EqualTo(expectedValue), key);
+                return;
+            }
+
+            Assert.Fail("Missing payload entry: " + key);
         }
 
         sealed class TestRuntimeSurface : IKernelBootRuntimeSurface

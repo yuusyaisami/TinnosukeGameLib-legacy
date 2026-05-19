@@ -58,6 +58,24 @@ namespace Game.Kernel.Boot
         public const string DuplicateRootCleanupForbidden = "BOOT_DUPLICATE_ROOT_CLEANUP_FORBIDDEN";
     }
 
+    static class BootDiagnosticsPayloadBuilder
+    {
+        public static void AppendPolicyEntries(List<DiagnosticPayloadEntry> payloadEntries, BootDiagnosticsPolicy diagnosticsPolicy)
+        {
+            if (payloadEntries == null)
+                throw new ArgumentNullException(nameof(payloadEntries));
+
+            if (diagnosticsPolicy == null)
+                throw new ArgumentNullException(nameof(diagnosticsPolicy));
+
+            payloadEntries.Add(new DiagnosticPayloadEntry("BootDiagnosticsPolicyKind", DiagnosticPayloadValue.FromString(diagnosticsPolicy.Kind.ToString())));
+            payloadEntries.Add(new DiagnosticPayloadEntry("BootDiagnosticsFailureBoundaryBehavior", DiagnosticPayloadValue.FromString(diagnosticsPolicy.FailureBoundaryBehavior.ToString())));
+            payloadEntries.Add(new DiagnosticPayloadEntry("BootDiagnosticsDetail", DiagnosticPayloadValue.FromString(diagnosticsPolicy.DiagnosticsDetail.ToString())));
+            payloadEntries.Add(new DiagnosticPayloadEntry("BootDiagnosticsInspectionMode", DiagnosticPayloadValue.FromString(diagnosticsPolicy.EditorInspectionMode.ToString())));
+            payloadEntries.Add(new DiagnosticPayloadEntry("BootDiagnosticsDeterminismMode", DiagnosticPayloadValue.FromString(diagnosticsPolicy.TestDeterminismMode.ToString())));
+        }
+    }
+
     public sealed class BootValidationIssue
     {
         public BootValidationIssue(
@@ -117,7 +135,7 @@ namespace Game.Kernel.Boot
 
         public string? ActualValue { get; }
 
-        public KernelDiagnostic ToKernelDiagnostic(KernelBootManifest? manifest = null, KernelProfile? selectedProfile = null)
+        public KernelDiagnostic ToKernelDiagnostic(KernelBootManifest? manifest = null, KernelProfile? selectedProfile = null, BootDiagnosticsPolicy? diagnosticsPolicy = null)
         {
             List<RuntimeIdentityRef> runtimeIdentities = new List<RuntimeIdentityRef>(2);
             if (SubjectIdentity.HasValue)
@@ -143,6 +161,9 @@ namespace Game.Kernel.Boot
 
             if (selectedProfile != null)
                 payloadEntries.Add(new DiagnosticPayloadEntry("SelectedProfileId", DiagnosticPayloadValue.FromInt32(selectedProfile.Id.Value)));
+
+            if (diagnosticsPolicy != null)
+                BootDiagnosticsPayloadBuilder.AppendPolicyEntries(payloadEntries, diagnosticsPolicy);
 
             if (ExpectedValue != null)
                 payloadEntries.Add(new DiagnosticPayloadEntry("ExpectedValue", DiagnosticPayloadValue.FromString(ExpectedValue)));

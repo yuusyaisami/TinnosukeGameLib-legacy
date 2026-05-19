@@ -213,6 +213,25 @@ namespace Game.Kernel.Generation
         public ReadOnlySpan<KernelDebugMapEntry> Entries => entries;
 
         public Hash128 ContentHash { get; }
+
+        public bool TryGetSourceLocation(RuntimeIdentityRef identity, out SourceLocationRef sourceLocation)
+        {
+            if (identity.IsEmpty)
+                throw new ArgumentException("Debug map lookups require a fully specified identity.", nameof(identity));
+
+            for (int index = 0; index < entries.Length; index++)
+            {
+                KernelDebugMapEntry entry = entries[index];
+                if (entry.Identity != identity)
+                    continue;
+
+                sourceLocation = new SourceLocationRef(entry.Source.Value);
+                return true;
+            }
+
+            sourceLocation = default;
+            return false;
+        }
     }
 
     public sealed class GenerationReport
