@@ -218,6 +218,7 @@ namespace Game.Scalar
         {
             _owner = owner;
             Id = id;
+            _owner?.RegisterHandle(this);
         }
 
         public bool IsValid => _owner != null;
@@ -230,6 +231,11 @@ namespace Game.Scalar
 
             _owner = null;
             owner.RemoveHandle(this);
+        }
+
+        internal void Invalidate()
+        {
+            _owner = null;
         }
 
         /// <summary>

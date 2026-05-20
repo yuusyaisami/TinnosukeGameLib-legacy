@@ -31,13 +31,13 @@ namespace Game.Commands
 
         public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
-            // MonitorChannelHub は吁E��コープで共有�Eシングルトンとして登録
+            // MonitorChannelHub は吁E��コープで共有�Eシングルトンとして登録
             builder.RegisterAsScopeMulti<IMonitorChannelHub, MonitorChannelHub>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)
                 .As<IScopeTickHandler>()
                 .As<IMonitorChannelHubTelemetry>();
 
-            // DebugViewer にチE��メトリをバインチE
+            // DebugViewer にチE��メトリをバインチE
             builder.RegisterBuildCallback(container =>
             {
                 if (_monitorHubDebugViewer != null && container.TryResolve<IMonitorChannelHubTelemetry>(out var telemetry))
@@ -137,6 +137,8 @@ namespace Game.Commands
                 builder.Register<VNext.WaitExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.BreakExecutor>(RuntimeLifetime.Singleton)
+                    .As<VNext.ICommandExecutor>();
+                builder.Register<VNext.CancelExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
                 builder.Register<VNext.AdvanceWaitExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
@@ -420,7 +422,11 @@ namespace Game.Commands
                     .As<VNext.ICommandExecutor>();
             }
 
-            builder.Register<VNext.CommandExecutorRegistry>(RuntimeLifetime.Singleton);
+            builder.Register<VNext.CommandExecutorCatalog>(RuntimeLifetime.Singleton)
+                .As<VNext.ICommandExecutorCatalog>();
+
+            builder.RegisterInstance<VNext.ICommandPayloadFieldReaderProvider>(new VNext.CommandPayloadFieldReaderProvider());
+            builder.RegisterInstance<VNext.ICommandPayloadReferenceValidator>(VNext.MissingCommandPayloadReferenceValidator.Instance);
 
             switch (owner.Kind)
             {

@@ -31,7 +31,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class TransformAnimationChannelDirection2Source : IDynamicSource
+    public sealed class TransformAnimationChannelDirection2Source : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(actorSource)")]
         [SerializeField]
@@ -81,6 +81,7 @@ namespace Game.Common
         public string SourceTypeName => "TransformChannelDir";
         public string GetDebugData =>
             $"{actorSource.Kind}:{channelTag} [{targetSelectMode}] ({space},{directionAxis},{outputPlane},Vector2)";
+        public bool AllowTrackedEvaluation => false;
 
         bool ShowChildPathField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildPath;
         bool ShowChildNameField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildName;
@@ -132,7 +133,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class TransformAnimationChannelDirection3Source : IDynamicSource
+    public sealed class TransformAnimationChannelDirection3Source : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(actorSource)")]
         [SerializeField]
@@ -179,6 +180,7 @@ namespace Game.Common
         public string SourceTypeName => "TransformChannelDir";
         public string GetDebugData =>
             $"{actorSource.Kind}:{channelTag} [{targetSelectMode}] ({space},{directionAxis},Vector3)";
+        public bool AllowTrackedEvaluation => false;
 
         bool ShowChildPathField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildPath;
         bool ShowChildNameField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildName;
@@ -229,7 +231,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class TransformAnimationChannelAngleSource : IDynamicSource
+    public sealed class TransformAnimationChannelAngleSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(actorSource)")]
         [SerializeField]
@@ -282,6 +284,7 @@ namespace Game.Common
         public string SourceTypeName => "TransformChannelAngle";
         public string GetDebugData =>
             $"{actorSource.Kind}:{channelTag} [{targetSelectMode}] ({space},{directionAxis},{projectionPlane},{angleUnit})";
+        public bool AllowTrackedEvaluation => false;
 
         bool ShowChildPathField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildPath;
         bool ShowChildNameField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildName;

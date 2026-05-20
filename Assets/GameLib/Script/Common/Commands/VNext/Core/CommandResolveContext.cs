@@ -5,7 +5,7 @@ using VContainer;
 
 namespace Game.Commands.VNext
 {
-    public readonly struct CommandResolveContext : IDynamicContext
+    public readonly struct CommandResolveContext : IDynamicContext, IDynamicDependencyTokenSource, IDynamicEvaluationOriginProvider
     {
         public IScopeNode Scope { get; }
         public IVarStore Vars { get; }
@@ -48,6 +48,22 @@ namespace Game.Commands.VNext
                 return null!;
 
             return registry.Resolve(filter, Scope);
+        }
+
+        public DynamicDependencyTokenSet GetDynamicDependencyTokens()
+        {
+            if (RuntimeContext is IDynamicDependencyTokenSource tokenSource)
+                return tokenSource.GetDynamicDependencyTokens();
+
+            return default;
+        }
+
+        public DynamicEvaluationOrigin GetDynamicEvaluationOrigin()
+        {
+            if (RuntimeContext is IDynamicEvaluationOriginProvider originProvider)
+                return originProvider.GetDynamicEvaluationOrigin();
+
+            return DynamicEvaluationOrigin.FromScopeNodes(Scope, CommandRootScope);
         }
     }
 }

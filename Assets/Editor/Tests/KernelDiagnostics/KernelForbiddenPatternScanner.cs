@@ -85,6 +85,8 @@ namespace TinnosukeGameLib.Tests.Editor
 
         public static string KernelRootPath => Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel");
 
+        public static IReadOnlyList<string> DefaultTargetRuntimeRoots => new[] { KernelRootPath };
+
         public static string ApprovedUnityLogSinkPath => Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "Diagnostics", "Unity", "UnityLogDiagnosticSink.cs");
 
         public static ForbiddenPatternRule[] CreateDefaultRules()
@@ -160,22 +162,49 @@ namespace TinnosukeGameLib.Tests.Editor
             if (rule == null)
                 throw new ArgumentNullException(nameof(rule));
 
-            string kernelRootPath = KernelRootPath;
-            string[] filePaths = Directory.GetFiles(kernelRootPath, "*.cs", SearchOption.AllDirectories);
-            return ScanFiles(filePaths, rule);
+            return ScanTargetRuntimeRoots(DefaultTargetRuntimeRoots, rule);
+        }
+
+        public static ForbiddenPatternViolation[] ScanTargetRuntimeRoots(IEnumerable<string> rootPaths, ForbiddenPatternRule rule)
+        {
+            if (rootPaths == null)
+                throw new ArgumentNullException(nameof(rootPaths));
+            if (rule == null)
+                throw new ArgumentNullException(nameof(rule));
+
+            List<string> filePaths = new List<string>();
+            foreach (string rootPath in rootPaths)
+            {
+                if (string.IsNullOrWhiteSpace(rootPath))
+                    throw new ArgumentException("Target runtime roots must not be blank.", nameof(rootPaths));
+
+                if (!Directory.Exists(rootPath))
+                    continue;
+
+                filePaths.AddRange(Directory.GetFiles(rootPath, "*.cs", SearchOption.AllDirectories));
+            }
+
+            return ScanFiles(filePaths, rule, rootPaths);
         }
 
         public static ForbiddenPatternViolation[] ScanFiles(IEnumerable<string> filePaths, ForbiddenPatternRule rule)
+        {
+            return ScanFiles(filePaths, rule, DefaultTargetRuntimeRoots);
+        }
+
+        public static ForbiddenPatternViolation[] ScanFiles(IEnumerable<string> filePaths, ForbiddenPatternRule rule, IEnumerable<string> allowedRoots)
         {
             if (filePaths == null)
                 throw new ArgumentNullException(nameof(filePaths));
             if (rule == null)
                 throw new ArgumentNullException(nameof(rule));
+            if (allowedRoots == null)
+                throw new ArgumentNullException(nameof(allowedRoots));
 
             List<ForbiddenPatternViolation> violations = new List<ForbiddenPatternViolation>();
             foreach (string filePath in filePaths)
             {
-                if (!ShouldScanFile(filePath))
+                if (!ShouldScanFile(filePath, allowedRoots))
                     continue;
 
                 violations.AddRange(ScanFile(filePath, rule));
@@ -257,7 +286,7 @@ namespace TinnosukeGameLib.Tests.Editor
             return ScanText(relativePath, sourceText, rule);
         }
 
-        static bool ShouldScanFile(string filePath)
+        static bool ShouldScanFile(string filePath, IEnumerable<string> allowedRoots)
         {
             string normalizedPath = Path.GetFullPath(filePath).Replace('\\', '/');
             if (!normalizedPath.EndsWith(".cs", PathComparison))
@@ -266,7 +295,15 @@ namespace TinnosukeGameLib.Tests.Editor
                 return false;
             if (normalizedPath.Contains("/Tests/", PathComparison))
                 return false;
-            return normalizedPath.StartsWith(KernelRootPath.Replace('\\', '/'), PathComparison);
+
+            foreach (string allowedRoot in allowedRoots)
+            {
+                string normalizedRoot = NormalizePath(Path.GetFullPath(allowedRoot)).TrimEnd('/');
+                if (normalizedPath.Equals(normalizedRoot, PathComparison) || normalizedPath.StartsWith(normalizedRoot + "/", PathComparison))
+                    return true;
+            }
+
+            return false;
         }
 
         static bool IsAllowedUnityDiagnosticSinkMatch(string filePath, int lineNumber, string lineText, string matchedToken)

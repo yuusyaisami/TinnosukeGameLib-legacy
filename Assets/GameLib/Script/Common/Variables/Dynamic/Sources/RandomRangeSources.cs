@@ -8,7 +8,7 @@ using VContainer;
 namespace Game.Common
 {
     [Serializable]
-    public sealed class RandomIntRangeSource : IDynamicSource
+    public sealed class RandomIntRangeSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField]
         DynamicValue<int> minInclusive = DynamicValueExtensions.FromLiteral(0);
@@ -30,6 +30,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => $"int [{minInclusive.SourceDebugData}, {maxExclusive.SourceDebugData})";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -58,7 +59,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class RandomFloatRangeSource : IDynamicSource
+    public sealed class RandomFloatRangeSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField]
         DynamicValue<float> min = DynamicValueExtensions.FromLiteral(0f);
@@ -80,6 +81,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => $"float [{min.SourceDebugData}, {max.SourceDebugData}]";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -105,13 +107,14 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class RandomBoolSource : IDynamicSource
+    public sealed class RandomBoolSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField, Range(0f, 1f)]
         DynamicValue<float> trueProbability = DynamicValueExtensions.FromLiteral(0.5f);
 
         public string SourceTypeName => "Random";
         public string GetDebugData => $"bool p={trueProbability.SourceDebugData}";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -121,7 +124,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class RandomVector2RangeSource : IDynamicSource
+    public sealed class RandomVector2RangeSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         public enum Vector2RandomMode
         {
@@ -183,6 +186,7 @@ namespace Game.Common
         public string GetDebugData => mode == Vector2RandomMode.Simple
             ? $"Vector2[{mode}] [{min.SourceDebugData}..{max.SourceDebugData}]"
             : $"Vector2[{mode}] Layers={coneLayers?.Count ?? 0}";
+        public bool AllowTrackedEvaluation => false;
 
         bool IsSimpleMode => mode == Vector2RandomMode.Simple;
         bool IsConeMode => mode == Vector2RandomMode.ConeLayered;

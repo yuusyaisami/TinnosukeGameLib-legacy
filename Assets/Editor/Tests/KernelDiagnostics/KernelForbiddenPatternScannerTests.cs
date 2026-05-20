@@ -1,3 +1,4 @@
+using System.IO;
 using NUnit.Framework;
 
 namespace TinnosukeGameLib.Tests.Editor
@@ -500,6 +501,32 @@ namespace Game.Kernel.Sample
             ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
 
             Assert.That(violations, Is.Empty);
+        }
+
+        [Test]
+        public void ScanFiles_AllowsCustomTargetRuntimeRoots()
+        {
+            ForbiddenPatternRule rule = KernelForbiddenPatternScanner.CreateDebugRules()[0];
+            string rootPath = Path.Combine(Path.GetTempPath(), "KernelForbiddenPatternScannerTests_" + System.Guid.NewGuid().ToString("N"));
+            string filePath = Path.Combine(rootPath, "Runtime", "Sample.cs");
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+            File.WriteAllText(filePath, "using UnityEngine;\npublic sealed class Sample { public void Run() { Debug.Log(\"x\"); } }");
+
+            try
+            {
+                ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanFiles(new[] { filePath }, rule, new[] { rootPath });
+
+                Assert.That(violations, Has.Length.EqualTo(1));
+                Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_DEBUG_LOG_OUTSIDE_SINK"));
+            }
+            finally
+            {
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
+
+                if (Directory.Exists(rootPath))
+                    Directory.Delete(rootPath, true);
+            }
         }
     }
 }

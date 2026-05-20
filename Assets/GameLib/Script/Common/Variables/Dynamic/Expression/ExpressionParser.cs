@@ -17,16 +17,19 @@ namespace Game.Common
         readonly List<ExprToken> _tokens;
         readonly Dictionary<string, ValueKind> _types;
         readonly HashSet<string> _usedIdentifiers;
+        readonly HashSet<string> _usedFunctions;
         int _pos;
 
         public ExpressionParser(
             List<ExprToken> tokens,
             Dictionary<string, ValueKind> types,
-            HashSet<string> usedIdentifiers)
+            HashSet<string> usedIdentifiers,
+            HashSet<string> usedFunctions = null)
         {
             _tokens = tokens;
             _types = types ?? new Dictionary<string, ValueKind>(System.StringComparer.Ordinal);
             _usedIdentifiers = usedIdentifiers ?? new HashSet<string>(System.StringComparer.Ordinal);
+            _usedFunctions = usedFunctions;
         }
 
         /// <summary>
@@ -188,6 +191,7 @@ namespace Game.Common
                 // Function call: Name(...)
                 if (Match(ExprTokenKind.LParen))
                 {
+                    _usedFunctions?.Add(key);
                     var args = new List<ExpressionNode>(4);
 
                     // Zero-arg

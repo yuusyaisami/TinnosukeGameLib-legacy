@@ -12,7 +12,7 @@ using UnityEngine;
 namespace Game.Common
 {
     [Serializable]
-    public sealed class Vector3ExpressionSource : IDynamicSource, IExpressionSource, IExternalExpressionVariablesReceiver
+    public sealed class Vector3ExpressionSource : IDynamicSource, IExpressionSource, IExternalExpressionVariablesReceiver, IDynamicTrackedEvaluationPolicyProvider, IDynamicSourceConfigurationRevisionProvider, IDynamicSourceDependencyRevisionProvider
     {
         [LabelText("Allow Implicit Keys")]
         [SerializeField]
@@ -52,9 +52,41 @@ namespace Game.Common
 
         bool _dirty = true;
         bool _validationIsError;
+        int _configurationRevision;
+        bool _allowTrackedEvaluation;
 
         public string SourceTypeName => "Vector3Expression";
         public string GetDebugData => string.IsNullOrEmpty(_expression) ? "(empty)" : _expression;
+        public int GetSourceConfigurationRevision() => _configurationRevision;
+        public bool AllowTrackedEvaluation => _allowTrackedEvaluation;
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = 0;
+            if (_externalVariables != null)
+            {
+                foreach (var variable in _externalVariables)
+                {
+                    if (variable == null)
+                        continue;
+
+                    revision = unchecked((revision * 397) ^ variable.GetSourceDependencyRevision(context));
+                }
+            }
+
+            if (_variables != null && (_includeLocalVariablesWithExternal || _externalVariables == null))
+            {
+                foreach (var variable in _variables)
+                {
+                    if (variable == null)
+                        continue;
+
+                    revision = unchecked((revision * 397) ^ variable.GetSourceDependencyRevision(context));
+                }
+            }
+
+            return revision;
+        }
 
         string ExpressionFunctionTooltip => ExpressionFunctionRegistry.GetInspectorFunctionTooltip();
 
@@ -163,6 +195,7 @@ namespace Game.Common
             message = null;
             _dirty = false;
             _validationIsError = false;
+            _allowTrackedEvaluation = false;
 
             if (!BuildCaches(out message))
             {
@@ -188,17 +221,20 @@ namespace Game.Common
                     _compiled = null;
                     message = lexError;
                     _validationIsError = true;
+                    _allowTrackedEvaluation = false;
                     return false;
                 }
 
                 var usedIdentifiers = new HashSet<string>(StringComparer.Ordinal);
-                var parser = new ExpressionParser(tokens, _typeMap, usedIdentifiers);
+                var usedFunctions = new HashSet<string>(StringComparer.Ordinal);
+                var parser = new ExpressionParser(tokens, _typeMap, usedIdentifiers, usedFunctions);
                 var node = parser.ParseExpression(out var parseError);
                 if (parseError != null)
                 {
                     _compiled = null;
                     message = parseError;
                     _validationIsError = true;
+                    _allowTrackedEvaluation = false;
                     return false;
                 }
 
@@ -208,12 +244,14 @@ namespace Game.Common
                     {
                         _compiled = null;
                         _validationIsError = true;
+                        _allowTrackedEvaluation = false;
                         return false;
                     }
                 }
 
                 _usedIdentifiers = usedIdentifiers;
                 _compiled = node;
+                _allowTrackedEvaluation = !ContainsNondeterministicFunctions(usedFunctions);
                 message = "OK";
                 _validationIsError = false;
                 return true;
@@ -223,6 +261,7 @@ namespace Game.Common
                 _compiled = null;
                 message = $"Compile error: {ex.Message}";
                 _validationIsError = true;
+                _allowTrackedEvaluation = false;
                 return false;
             }
         }
@@ -370,6 +409,8 @@ namespace Game.Common
 
         void MarkDirty()
         {
+            _allowTrackedEvaluation = false;
+            _configurationRevision++;
             _dirty = true;
             _compiled = null;
         }
@@ -404,10 +445,24 @@ namespace Game.Common
             _includeLocalVariablesWithExternal = false;
             MarkDirty();
         }
+
+        static bool ContainsNondeterministicFunctions(HashSet<string> usedFunctions)
+        {
+            if (usedFunctions == null || usedFunctions.Count == 0)
+                return false;
+
+            foreach (var functionName in usedFunctions)
+            {
+                if (ExpressionFunctionRegistry.IsNondeterministicFunction(functionName))
+                    return true;
+            }
+
+            return false;
+        }
     }
 
     [Serializable]
-    public sealed class Vector3XYZExpressionSource : IDynamicSource, IExpressionSource, IExternalExpressionVariablesReceiver
+    public sealed class Vector3XYZExpressionSource : IDynamicSource, IExpressionSource, IExternalExpressionVariablesReceiver, IDynamicTrackedEvaluationPolicyProvider, IDynamicSourceConfigurationRevisionProvider, IDynamicSourceDependencyRevisionProvider
     {
         [LabelText("Allow Implicit Keys")]
         [SerializeField]
@@ -463,9 +518,41 @@ namespace Game.Common
 
         bool _dirty = true;
         bool _validationIsError;
+        int _configurationRevision;
+        bool _allowTrackedEvaluation;
 
         public string SourceTypeName => "Vector3XYZExpression";
         public string GetDebugData => $"x={_expressionX}; y={_expressionY}; z={_expressionZ}";
+        public int GetSourceConfigurationRevision() => _configurationRevision;
+        public bool AllowTrackedEvaluation => _allowTrackedEvaluation;
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = 0;
+            if (_externalVariables != null)
+            {
+                foreach (var variable in _externalVariables)
+                {
+                    if (variable == null)
+                        continue;
+
+                    revision = unchecked((revision * 397) ^ variable.GetSourceDependencyRevision(context));
+                }
+            }
+
+            if (_variables != null && (_includeLocalVariablesWithExternal || _externalVariables == null))
+            {
+                foreach (var variable in _variables)
+                {
+                    if (variable == null)
+                        continue;
+
+                    revision = unchecked((revision * 397) ^ variable.GetSourceDependencyRevision(context));
+                }
+            }
+
+            return revision;
+        }
 
         string ExpressionFunctionTooltip => ExpressionFunctionRegistry.GetInspectorFunctionTooltip();
 
@@ -576,6 +663,7 @@ namespace Game.Common
             message = null;
             _dirty = false;
             _validationIsError = false;
+            _allowTrackedEvaluation = false;
 
             if (!BuildCaches(out message))
             {
@@ -583,6 +671,7 @@ namespace Game.Common
                 _compiledX = null;
                 _compiledY = null;
                 _compiledZ = null;
+                    _allowTrackedEvaluation = false;
                 return false;
             }
 
@@ -593,34 +682,39 @@ namespace Game.Common
                 _compiledX = null;
                 _compiledY = null;
                 _compiledZ = null;
+                    _allowTrackedEvaluation = false;
                 return false;
             }
 
             try
             {
                 var usedIdentifiers = new HashSet<string>(StringComparer.Ordinal);
+                var usedFunctions = new HashSet<string>(StringComparer.Ordinal);
 
-                if (!TryParse(_expressionX, "X", usedIdentifiers, out _compiledX, out message))
+                if (!TryParse(_expressionX, "X", usedIdentifiers, usedFunctions, out _compiledX, out message))
                 {
                     _validationIsError = true;
                     _compiledY = null;
                     _compiledZ = null;
+                    _allowTrackedEvaluation = false;
                     return false;
                 }
 
-                if (!TryParse(_expressionY, "Y", usedIdentifiers, out _compiledY, out message))
+                if (!TryParse(_expressionY, "Y", usedIdentifiers, usedFunctions, out _compiledY, out message))
                 {
                     _validationIsError = true;
                     _compiledX = null;
                     _compiledZ = null;
+                    _allowTrackedEvaluation = false;
                     return false;
                 }
 
-                if (!TryParse(_expressionZ, "Z", usedIdentifiers, out _compiledZ, out message))
+                if (!TryParse(_expressionZ, "Z", usedIdentifiers, usedFunctions, out _compiledZ, out message))
                 {
                     _validationIsError = true;
                     _compiledX = null;
                     _compiledY = null;
+                    _allowTrackedEvaluation = false;
                     return false;
                 }
 
@@ -632,11 +726,13 @@ namespace Game.Common
                         _compiledY = null;
                         _compiledZ = null;
                         _validationIsError = true;
+                        _allowTrackedEvaluation = false;
                         return false;
                     }
                 }
 
                 _usedIdentifiers = usedIdentifiers;
+                _allowTrackedEvaluation = !ContainsNondeterministicFunctions(usedFunctions);
                 message = "OK";
                 _validationIsError = false;
                 return true;
@@ -648,11 +744,12 @@ namespace Game.Common
                 _compiledZ = null;
                 message = $"Compile error: {ex.Message}";
                 _validationIsError = true;
+                _allowTrackedEvaluation = false;
                 return false;
             }
         }
 
-        bool TryParse(string expression, string axisName, HashSet<string> usedIdentifiers, out ExpressionNode node, out string message)
+        bool TryParse(string expression, string axisName, HashSet<string> usedIdentifiers, HashSet<string> usedFunctions, out ExpressionNode node, out string message)
         {
             node = null;
             message = null;
@@ -665,7 +762,7 @@ namespace Game.Common
                 return false;
             }
 
-            var parser = new ExpressionParser(tokens, _typeMap, usedIdentifiers);
+            var parser = new ExpressionParser(tokens, _typeMap, usedIdentifiers, usedFunctions);
             node = parser.ParseExpression(out var parseError);
             if (parseError != null)
             {
@@ -819,6 +916,8 @@ namespace Game.Common
 
         void MarkDirty()
         {
+            _allowTrackedEvaluation = false;
+            _configurationRevision++;
             _dirty = true;
             _compiledX = null;
             _compiledY = null;
@@ -854,6 +953,20 @@ namespace Game.Common
             _externalVariables = null;
             _includeLocalVariablesWithExternal = false;
             MarkDirty();
+        }
+
+        static bool ContainsNondeterministicFunctions(HashSet<string> usedFunctions)
+        {
+            if (usedFunctions == null || usedFunctions.Count == 0)
+                return false;
+
+            foreach (var functionName in usedFunctions)
+            {
+                if (ExpressionFunctionRegistry.IsNondeterministicFunction(functionName))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

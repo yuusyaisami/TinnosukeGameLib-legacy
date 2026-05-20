@@ -148,10 +148,10 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
-        public void Verification_RejectsZeroGeneratedHashAndNullPlan()
+        public void VerifiedArtifactHeader_RejectsZeroGeneratedHash_AndKernelPlanVerificationRejectsNullPlan()
         {
             KernelIR kernelIR = CreateKernelIR();
-            VerifiedArtifactHeader invalidHeader = new VerifiedArtifactHeader(
+            Assert.That(() => new VerifiedArtifactHeader(
                 new PlanId(101),
                 new ArtifactSetId(202),
                 new ArtifactId(10),
@@ -162,24 +162,8 @@ namespace TinnosukeGameLib.Tests.Editor
                 VerifiedArtifactHeaderHashing.ComputeGeneratedHash(new[] { "Profile" }),
                 VerifiedArtifactHeaderHashing.ComputeGeneratedHash(new[] { "DebugMap" }),
                 default,
-                "1.0.0");
+                "1.0.0"), Throws.ArgumentException);
 
-            KernelPlanHeader header = new KernelPlanHeader(
-                new PlanId(101),
-                new ArtifactSetId(202),
-                4,
-                "1.0.0",
-                new[] { ArtifactKind.ServiceGraph },
-                invalidHeader.SourceHash,
-                invalidHeader.RegistryHash,
-                invalidHeader.ProfileHash,
-                invalidHeader.DebugMapHash,
-                default);
-
-            KernelPlanVerificationResult result = KernelPlanVerification.Verify(new GeneratedKernelPlan(header, new[] { invalidHeader }));
-
-            Assert.That(result.IsVerified, Is.False);
-            Assert.That(result.Issues, Has.Some.Matches<KernelPlanVerificationIssue>(issue => issue.Code == "M4_2_GENERATED_HASH_MISSING" || issue.Code == "M4_2_CONSISTENCY_HASH_MISMATCH"));
             Assert.That(KernelPlanVerification.Verify(null).IsVerified, Is.False);
         }
 

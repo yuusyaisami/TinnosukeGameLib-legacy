@@ -71,6 +71,13 @@ namespace Game.Commands.VNext
     }
 
     [Serializable]
+    public sealed class CancelCommandData : ICommandData
+    {
+        public int CommandId => CommandIds.Cancel;
+        public string DebugData => "Cancel";
+    }
+
+    [Serializable]
     public sealed class IfCommandData : ICommandData
     {
         public int CommandId => CommandIds.If;

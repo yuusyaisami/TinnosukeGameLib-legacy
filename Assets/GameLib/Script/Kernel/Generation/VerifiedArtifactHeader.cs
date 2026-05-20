@@ -172,6 +172,21 @@ namespace Game.Kernel.Generation
             if (formatVersion <= 0)
                 throw new ArgumentOutOfRangeException(nameof(formatVersion), formatVersion, "Artifact headers must provide a positive format version.");
 
+            if (sourceHash.IsZero)
+                throw new ArgumentException("Artifact headers must provide a non-zero source hash.", nameof(sourceHash));
+
+            if (registryHash.IsZero)
+                throw new ArgumentException("Artifact headers must provide a non-zero registry hash.", nameof(registryHash));
+
+            if (profileHash.IsZero)
+                throw new ArgumentException("Artifact headers must provide a non-zero profile hash.", nameof(profileHash));
+
+            if (debugMapHash.IsZero)
+                throw new ArgumentException("Artifact headers must provide a non-zero debug map hash.", nameof(debugMapHash));
+
+            if (generatedHash.IsZero)
+                throw new ArgumentException("Artifact headers must provide a non-zero generated hash.", nameof(generatedHash));
+
             if (string.IsNullOrWhiteSpace(generatorVersion))
                 throw new ArgumentException("Artifact headers must provide a generator version.", nameof(generatorVersion));
 

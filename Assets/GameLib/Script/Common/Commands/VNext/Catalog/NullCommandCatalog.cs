@@ -25,5 +25,11 @@ namespace Game.Commands.VNext
             meta = null!;
             return false;
         }
+
+        public bool TryGetPayloadSchema(int commandId, out CommandPayloadSchema schema)
+        {
+            schema = null!;
+            return false;
+        }
     }
 }

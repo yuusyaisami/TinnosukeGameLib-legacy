@@ -28,6 +28,8 @@ namespace Game.Common
         public IEnumerable<int> EnumerateTableVarIds() => Array.Empty<int>();
         public bool ContainsTable(int tableVarId) => false;
         public int GetTableVersion(int tableVarId) => 0;
+        public bool TryGetTableRowVersion(int tableVarId, int rowIndex, out int rowVersion) { rowVersion = 0; return false; }
+        public bool TryGetTableCellVersion(int tableVarId, int rowIndex, int columnIndex, out int cellVersion) { cellVersion = 0; return false; }
         public bool TryGetTableRowCount(int tableVarId, out int rowCount) { rowCount = 0; return false; }
         public bool TryGetTableColumnCount(int tableVarId, int rowIndex, out int columnCount) { columnCount = 0; return false; }
         public bool TryHasTableCell(int tableVarId, int rowIndex, int columnIndex) => false;

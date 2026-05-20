@@ -332,7 +332,25 @@ namespace Game.Commands.VNext
 
         static string DescribeScalarSnapshot(ScalarSnapshot snapshot)
         {
-            var kindLabel = snapshot.Kind == ScalarModKind.Add ? "Add" : "Mul";
+            var laneLabel = snapshot.Lane switch
+            {
+                LayeredNumericLaneKind.Base => "Base",
+                LayeredNumericLaneKind.PrefixMul => "PrefixMul",
+                LayeredNumericLaneKind.Add => "Add",
+                LayeredNumericLaneKind.SuffixMul => "SuffixMul",
+                LayeredNumericLaneKind.FinalClamp => "FinalClamp",
+                LayeredNumericLaneKind.Effective => "Effective",
+                _ => "Unknown",
+            };
+
+            var kindLabel = snapshot.Kind switch
+            {
+                ScalarModKind.Add => "Add",
+                ScalarModKind.Mul => "Mul",
+                ScalarModKind.Clamp => "Clamp",
+                _ => "Unknown",
+            };
+
             var valueText = snapshot.Kind == ScalarModKind.Mul
                 ? $"x{snapshot.Value:0.##}"
                 : $"{(snapshot.Value >= 0 ? "+" : string.Empty)}{snapshot.Value:0.##}";
@@ -340,7 +358,8 @@ namespace Game.Commands.VNext
             var tagText = string.IsNullOrWhiteSpace(snapshot.Tag) ? string.Empty : $" tag={snapshot.Tag}";
             var layerText = string.IsNullOrWhiteSpace(snapshot.Layer) ? string.Empty : $" layer={snapshot.Layer}";
             var remainText = snapshot.Remain < 0 ? string.Empty : $" remain={snapshot.Remain:0.##}s";
-            return $"[{kindLabel}] {valueText}{sourceText}{tagText}{layerText}{remainText}";
+            var revisionText = $" rev={snapshot.Revision}";
+            return $"[{laneLabel}/{kindLabel}] {valueText}{sourceText}{tagText}{layerText}{remainText}{revisionText}";
         }
 
         static string DescribeIdentity(ILTSIdentityService? identity)

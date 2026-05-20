@@ -27,6 +27,7 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("07_ScopeGraphRuntimeSpec.md"));
             Assert.That(content, Does.Contain("16_ImplementationMilestoneOrderSpec.md"));
             Assert.That(content, Does.Contain("17_AssemblyDefinitionAndCompileBoundarySpec.md"));
+            Assert.That(content, Does.Contain("Index/HubClassificationInventory.md"));
             Assert.That(content, Does.Contain("DiagnosticCodeTraceabilityCatalog.md"));
             Assert.That(content, Does.Contain("Run-UnityTests.ps1"));
         }
@@ -80,6 +81,40 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("DiagnosticCode"));
             Assert.That(content, Does.Contain("BootManifest"));
             Assert.That(content, Does.Contain("RuntimePathKind"));
+        }
+
+        [Test]
+        public void ServiceGraphSpec_ContainsM67HubClassificationTable()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "06_ServiceGraphRuntimeSpec.md"));
+
+            Assert.That(content, Does.Contain("### M6.7 Hub / Channel / Player Classification"));
+            Assert.That(content, Does.Contain("HubClassificationInventory.md"));
+            Assert.That(content, Does.Contain("| Runtime concept | Default classification | Notes |"));
+            Assert.That(content, Does.Contain("ModalStackChannelHubService"));
+            Assert.That(content, Does.Contain("TooltipChannelHubService"));
+            Assert.That(content, Does.Contain("MeshChannelHubService"));
+            Assert.That(content, Does.Contain("AnimationSpriteHubService"));
+            Assert.That(content, Does.Contain("Hub-owned runtime object"));
+            Assert.That(content, Does.Contain("mixed boundary"));
+            Assert.That(content, Does.Contain("Service candidate"));
+        }
+
+        [Test]
+        public void HubClassificationInventory_ContainsCanonicalRows()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "Index", "HubClassificationInventory.md"));
+
+            Assert.That(content, Does.Contain("## Document Status"));
+            Assert.That(content, Does.Contain("machine-readable inventory of the current M6.7 hub classification decisions"));
+            Assert.That(content, Does.Contain("ModalStackChannelHubService.cs"));
+            Assert.That(content, Does.Contain("TooltipChannelHubService.cs"));
+            Assert.That(content, Does.Contain("MeshChannelHubService.cs"));
+            Assert.That(content, Does.Contain("AnimationSpriteHubService.cs"));
+            Assert.That(content, Does.Contain("service candidate"));
+            Assert.That(content, Does.Contain("mixed boundary"));
+            Assert.That(content, Does.Contain("hub-owned runtime object"));
+            Assert.That(content, Does.Contain("Eligible for ServiceGraph"));
         }
 
         [Test]

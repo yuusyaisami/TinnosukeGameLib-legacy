@@ -20,20 +20,23 @@ namespace Game.Commands.VNext
         IUICommandRunner,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
+        ICommandDetachedRunner,
         ICommandRunnerDefaultVarsProvider,
         ICommandRunnerActivity
     {
         readonly IScopeNode _scope;
-        readonly CommandExecutorRegistry _registry;
+        readonly ICommandExecutorCatalog _executorCatalog;
         readonly ICommandCatalog _catalog;
         readonly ICommandKeyResolver _keyResolver;
         readonly ICommandResolveLogger _logger;
+        readonly CommandPayloadValidationContext _payloadValidationContext;
         readonly VarStorePayload? _defaultVarsPayload;
         protected readonly VarStore _runnerVars = new();
         readonly Dictionary<IScopeNode, int> _runningByScope = new();
         readonly Dictionary<IScopeNode, UniTaskCompletionSource> _scopeIdleWaiters = new();
         UniTaskCompletionSource? _idleWaiter;
         int _runningExecutionCount;
+        int _nextFrameId;
 
         public IScopeNode Scope => _scope;
         public int RunningExecutionCount => _runningExecutionCount;
@@ -41,17 +44,23 @@ namespace Game.Commands.VNext
 
         public CommandRunner(
             IScopeNode scope,
-            CommandExecutorRegistry registry,
+            ICommandExecutorCatalog executorCatalog,
             ICommandCatalog catalog,
             ICommandKeyResolver keyResolver,
             ICommandResolveLogger logger,
+            ICommandPayloadFieldReaderProvider payloadFieldReaderProvider,
+            ICommandPayloadReferenceValidator payloadReferenceValidator,
             VarStorePayload? defaultVars = null)
         {
             _scope = scope ?? throw new ArgumentNullException(nameof(scope));
-            _registry = registry ?? throw new ArgumentNullException(nameof(registry));
+            _executorCatalog = executorCatalog ?? throw new ArgumentNullException(nameof(executorCatalog));
             _catalog = catalog ?? NullCommandCatalog.Instance;
             _keyResolver = keyResolver ?? NullCommandKeyResolver.Instance;
             _logger = logger ?? NullCommandResolveLogger.Instance;
+            _payloadValidationContext = new CommandPayloadValidationContext(
+                _catalog,
+                payloadFieldReaderProvider ?? SelfCommandPayloadFieldReaderProvider.Instance,
+                payloadReferenceValidator ?? MissingCommandPayloadReferenceValidator.Instance);
             _defaultVarsPayload = defaultVars;
             ApplyDefaultRunnerVars();
         }
@@ -88,59 +97,79 @@ namespace Game.Commands.VNext
             if (data == null)
             {
                 trace.CaptureOnFailure();
-                return CommandRunResult.Error(lastIndex: -1, errorIndex: 0, CommandRunFailureKind.ResolveFailed, "Command data is null.", trace.Trace, null);
+                return new CommandRunResult(CommandRunStatus.Error, CommandRunFailureKind.ResolveFailed, 1, -1, 0, "Command data is null.", trace.Trace, null, effectiveCtx.CurrentFrame, normalized.FailureBoundary);
             }
 
             if (data.CommandId <= 0)
             {
                 trace.CaptureOnFailure();
-                return CommandRunResult.Error(lastIndex: 0, errorIndex: 0, CommandRunFailureKind.InvalidArgs, "CommandId is invalid.", trace.Trace, null);
+                return new CommandRunResult(CommandRunStatus.Error, CommandRunFailureKind.InvalidArgs, 1, 0, 0, "CommandId is invalid.", trace.Trace, null, effectiveCtx.CurrentFrame, normalized.FailureBoundary);
             }
 
-            if (!_registry.TryGet(data.CommandId, out var executor) || executor == null)
+            if (!_executorCatalog.TryGet(data.CommandId, out var executor) || executor == null)
             {
                 var contextInfo = BuildExecutionContextDescription(effectiveCtx, data, source: null);
                 _logger.LogExecutorMissing(data.CommandId, $"Executor is missing. {contextInfo}");
                 trace.CaptureOnFailure();
-                return CommandRunResult.Error(lastIndex: 0, errorIndex: 0, CommandRunFailureKind.ExecutorMissing, $"Executor not found for CommandId={data.CommandId}. CmdData={data.DebugData}", trace.Trace, null);
+                return new CommandRunResult(CommandRunStatus.Error, CommandRunFailureKind.ExecutorMissing, 1, 0, 0, $"Executor not found for CommandId={data.CommandId}. CmdData={data.DebugData}", trace.Trace, null, effectiveCtx.CurrentFrame, normalized.FailureBoundary);
             }
 
-            var frame = new CommandRunFrame(0, data.CommandId, "Direct", data.GetType().Name, data.DebugData);
+            CommandPayloadValidationResult payloadValidation = CommandPayloadValidator.Validate(data, _payloadValidationContext);
+            if (!payloadValidation.IsValid)
+            {
+                var contextInfo = BuildExecutionContextDescription(effectiveCtx, data, source: null);
+                string validationMessage = BuildPayloadValidationMessage(contextInfo, payloadValidation, listInfo: string.Empty);
+                _logger.LogPayloadInvalid(data.CommandId, validationMessage);
+                trace.CaptureOnFailure();
+                return new CommandRunResult(CommandRunStatus.Error, CommandRunFailureKind.PayloadInvalid, 1, 0, 0, payloadValidation.Message, trace.Trace, null, effectiveCtx.CurrentFrame, normalized.FailureBoundary);
+            }
+
+            var frameCancellationSource = CreateFrameCancellationSource(ct);
+            var commandFrame = CreateFrame(effectiveCtx, commandIndex: 0, data, sourceType: "Direct", dataType: data.GetType().Name, debugData: data.DebugData, frameCancellationSource, normalized, CommandLocalScope.Frame);
+            var frameCtx = effectiveCtx.AttachFrame(commandFrame, normalized.FailureBoundary, isDetached: false, isTimedOut: false);
+            var frame = new CommandRunFrame(commandFrame.ToSnapshot(normalized.FailureBoundary, isDetached: false, isTimedOut: false));
             trace.Push(frame);
             using var runtimeTrace = CommandExecutionTrace.Push(
                 BuildExecutionTraceSnapshot(
-                    effectiveCtx,
+                    frameCtx,
                     data,
                     source: null,
                     commandIndex: 0,
                     listLabel: "Direct",
                     listFunctionName: null));
-            var outcome = await ExecuteDataAsync(executor, data, effectiveCtx, ct, normalized);
-
-            if (outcome.Canceled)
+            try
             {
-                trace.CaptureOnFailure();
-                trace.Pop();
-                return CommandRunResult.Canceled(lastIndex: 0, errorIndex: 0, outcome.Message, trace.Trace);
-            }
+                var outcome = await ExecuteDataAsync(executor, data, frameCtx, commandFrame.CancellationToken, normalized);
 
-            if (outcome.Broken)
-            {
+                if (outcome.Canceled)
+                {
+                    trace.CaptureOnFailure();
+                    trace.Pop();
+                    return new CommandRunResult(CommandRunStatus.Canceled, CommandRunFailureKind.Canceled, 1, 0, 0, outcome.Message, trace.Trace, null, frameCtx.CurrentFrame, normalized.FailureBoundary, outcome.TimedOut);
+                }
+
+                if (outcome.Broken)
+                {
+                    trace.CaptureAlways();
+                    trace.Pop();
+                    return new CommandRunResult(CommandRunStatus.Break, CommandRunFailureKind.None, 0, 0, -1, string.Empty, trace.Trace, null, frameCtx.CurrentFrame, normalized.FailureBoundary);
+                }
+
+                if (!outcome.Success)
+                {
+                    trace.CaptureOnFailure();
+                    trace.Pop();
+                    return new CommandRunResult(CommandRunStatus.Error, outcome.FailureKind, 1, 0, 0, outcome.Message, trace.Trace, outcome.Exception, frameCtx.CurrentFrame, normalized.FailureBoundary, outcome.TimedOut);
+                }
+
                 trace.CaptureAlways();
                 trace.Pop();
-                return CommandRunResult.Break(0, trace.Trace);
+                return new CommandRunResult(CommandRunStatus.Completed, CommandRunFailureKind.None, 0, 0, -1, string.Empty, trace.Trace, null, frameCtx.CurrentFrame, normalized.FailureBoundary);
             }
-
-            if (!outcome.Success)
+            finally
             {
-                trace.CaptureOnFailure();
-                trace.Pop();
-                return new CommandRunResult(CommandRunStatus.Error, outcome.FailureKind, 1, 0, 0, outcome.Message, trace.Trace, outcome.Exception);
+                frameCtx.Local.Dispose();
             }
-
-            trace.CaptureAlways();
-            trace.Pop();
-            return CommandRunResult.Completed(0, 0, CommandRunFailureKind.None, -1, string.Empty, trace.Trace, null);
         }
 
         public async UniTask<CommandRunResult> ExecuteListAsync(CommandListData list, CommandContext ctx, CancellationToken ct, CommandRunOptions options)
@@ -153,7 +182,7 @@ namespace Game.Commands.VNext
 
             var commandList = list;
             if (commandList == null || commandList.Count == 0)
-                return CommandRunResult.Completed(-1, 0, CommandRunFailureKind.None, -1, string.Empty, null, null);
+                return new CommandRunResult(CommandRunStatus.Completed, CommandRunFailureKind.None, 0, -1, -1, string.Empty, null, null, effectiveCtx.CurrentFrame, normalized.FailureBoundary);
 
             var listLabel = commandList.GetDebugLabel();
             var listFunctionName = commandList.FunctionName;
@@ -191,7 +220,7 @@ namespace Game.Commands.VNext
                     }
 #endif
                     trace.CaptureOnFailure();
-                    return CommandRunResult.Canceled(lastIndex, i, "Canceled.", trace.Trace);
+                    return new CommandRunResult(CommandRunStatus.Canceled, CommandRunFailureKind.Canceled, 1, lastIndex, i, "Canceled.", trace.Trace, null, effectiveCtx.CurrentFrame, normalized.FailureBoundary);
                 }
 
                 var source = commandList.GetAt(i);
@@ -199,7 +228,7 @@ namespace Game.Commands.VNext
                 {
                     var fail = HandleFailure(CommandRunFailureKind.ResolveFailed, i, "Command source is null.");
                     if (fail.IsTerminated)
-                        return fail.Result;
+                        return new CommandRunResult(fail.Result.Status, fail.Result.FailureKind, fail.Result.FailureCount, fail.Result.LastIndex, fail.Result.ErrorIndex, fail.Result.Message, fail.Result.Trace, fail.Result.Exception, effectiveCtx.CurrentFrame, normalized.FailureBoundary, fail.Result.TimedOut);
                     continue;
                 }
 
@@ -222,7 +251,7 @@ namespace Game.Commands.VNext
                     var info = CommandExceptionInfo.FromException(ex, includeStackTrace: ShouldIncludeStackTrace(normalized));
                     var fail = HandleFailure(CommandRunFailureKind.Exception, i, ex.Message, info);
                     if (fail.IsTerminated)
-                        return fail.Result;
+                        return new CommandRunResult(fail.Result.Status, fail.Result.FailureKind, fail.Result.FailureCount, fail.Result.LastIndex, fail.Result.ErrorIndex, fail.Result.Message, fail.Result.Trace, fail.Result.Exception, effectiveCtx.CurrentFrame, normalized.FailureBoundary, fail.Result.TimedOut);
                     continue;
                 }
 
@@ -237,7 +266,7 @@ namespace Game.Commands.VNext
                         i,
                         $"Command source failed to resolve. Source={sourceName} {listInfo}");
                     if (fail.IsTerminated)
-                        return fail.Result;
+                        return new CommandRunResult(fail.Result.Status, fail.Result.FailureKind, fail.Result.FailureCount, fail.Result.LastIndex, fail.Result.ErrorIndex, fail.Result.Message, fail.Result.Trace, fail.Result.Exception, effectiveCtx.CurrentFrame, normalized.FailureBoundary, fail.Result.TimedOut);
                     continue;
                 }
 
@@ -254,36 +283,49 @@ namespace Game.Commands.VNext
                 {
                     var fail = HandleFailure(CommandRunFailureKind.InvalidArgs, i, "CommandId is invalid.");
                     if (fail.IsTerminated)
-                        return fail.Result;
+                        return new CommandRunResult(fail.Result.Status, fail.Result.FailureKind, fail.Result.FailureCount, fail.Result.LastIndex, fail.Result.ErrorIndex, fail.Result.Message, fail.Result.Trace, fail.Result.Exception, effectiveCtx.CurrentFrame, normalized.FailureBoundary, fail.Result.TimedOut);
                     continue;
                 }
 
-                if (!_registry.TryGet(data.CommandId, out var executor) || executor == null)
+                if (!_executorCatalog.TryGet(data.CommandId, out var executor) || executor == null)
                 {
                     var listInfo = BuildListInfo(i, listLabel, listFunctionName);
                     var contextInfo = BuildExecutionContextDescription(effectiveCtx, data, source);
                     _logger.LogExecutorMissing(data.CommandId, $"Executor is missing. {contextInfo} | {listInfo}");
-                    var fail = HandleFailure(CommandRunFailureKind.ExecutorMissing, i, $"Executor not found for CommandId={data.CommandId}. CmdData={data.DebugData}: これが出力される場合、CommandExecutorRegistryに該当のコマンドExecutorが登録されていない可能性があります。");
+                    var fail = HandleFailure(CommandRunFailureKind.ExecutorMissing, i, $"Executor not found for CommandId={data.CommandId}. CmdData={data.DebugData}: これが出力される場合、CommandExecutorCatalogに該当のコマンドExecutorが登録されていない可能性があります。");
                     if (fail.IsTerminated)
-                        return fail.Result;
+                        return new CommandRunResult(fail.Result.Status, fail.Result.FailureKind, fail.Result.FailureCount, fail.Result.LastIndex, fail.Result.ErrorIndex, fail.Result.Message, fail.Result.Trace, fail.Result.Exception, effectiveCtx.CurrentFrame, normalized.FailureBoundary, fail.Result.TimedOut);
                     continue;
                 }
 
-                var frame = new CommandRunFrame(i, data.CommandId, source?.DebugName ?? "<null>", GetCommandDisplayName(data), data.DebugData);
+                CommandPayloadValidationResult payloadValidation = CommandPayloadValidator.Validate(data, _payloadValidationContext);
+                if (!payloadValidation.IsValid)
+                {
+                    var listInfo = BuildListInfo(i, listLabel, listFunctionName);
+                    var contextInfo = BuildExecutionContextDescription(effectiveCtx, data, source);
+                    string validationMessage = BuildPayloadValidationMessage(contextInfo, payloadValidation, listInfo);
+                    _logger.LogPayloadInvalid(data.CommandId, validationMessage);
+                    var fail = HandleFailure(CommandRunFailureKind.PayloadInvalid, i, payloadValidation.Message);
+                    if (fail.IsTerminated)
+                        return new CommandRunResult(fail.Result.Status, fail.Result.FailureKind, fail.Result.FailureCount, fail.Result.LastIndex, fail.Result.ErrorIndex, fail.Result.Message, fail.Result.Trace, fail.Result.Exception, effectiveCtx.CurrentFrame, normalized.FailureBoundary, fail.Result.TimedOut);
+                    continue;
+                }
+
+                using var frameCancellationSource = CreateFrameCancellationSource(ct);
+                var commandFrame = CreateFrame(effectiveCtx, i, data, source?.DebugName ?? "<null>", GetCommandDisplayName(data), data.DebugData, frameCancellationSource, normalized, CommandLocalScope.Frame);
+                var frameCtx = effectiveCtx.AttachFrame(commandFrame, normalized.FailureBoundary, isDetached: false, isTimedOut: false);
+                var frame = new CommandRunFrame(commandFrame.ToSnapshot(normalized.FailureBoundary, isDetached: false, isTimedOut: false));
                 trace.Push(frame);
                 using var runtimeTrace = CommandExecutionTrace.Push(
                     BuildExecutionTraceSnapshot(
-                        effectiveCtx,
+                    frameCtx,
                         data,
                         source,
                         commandIndex: i,
                         listLabel,
                         listFunctionName));
 
-                // 各コマンドごとに独立したリンク付きトークンを作成し、連鎖的なキャンセルを防止する
-                // これにより、リスト内の1つのコマンドのキャンセルが他のコマンドに影響を与えないようにする
-                using var commandCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                var outcome = await ExecuteDataAsync(executor, data, effectiveCtx, commandCts.Token, normalized);
+                var outcome = await ExecuteDataAsync(executor, data, frameCtx, commandFrame.CancellationToken, normalized);
 
                 if (outcome.Canceled)
                 {
@@ -294,14 +336,14 @@ namespace Game.Commands.VNext
                     }
                     trace.CaptureOnFailure();
                     trace.Pop();
-                    return CommandRunResult.Canceled(lastIndex, i, outcome.Message, trace.Trace);
+                    return new CommandRunResult(CommandRunStatus.Canceled, CommandRunFailureKind.Canceled, 1, lastIndex, i, outcome.Message, trace.Trace, null, frameCtx.CurrentFrame, normalized.FailureBoundary);
                 }
 
                 if (outcome.Broken)
                 {
                     trace.CaptureAlways();
                     trace.Pop();
-                    return CommandRunResult.Break(lastIndex, trace.Trace);
+                    return new CommandRunResult(CommandRunStatus.Break, CommandRunFailureKind.None, 0, lastIndex, -1, string.Empty, trace.Trace, null, frameCtx.CurrentFrame, normalized.FailureBoundary);
                 }
 
                 if (!outcome.Success)
@@ -314,7 +356,7 @@ namespace Game.Commands.VNext
                     var fail = HandleFailure(outcome.FailureKind, i, outcome.Message ?? string.Empty, outcome.Exception);
                     trace.Pop();
                     if (fail.IsTerminated)
-                        return fail.Result;
+                        return new CommandRunResult(fail.Result.Status, fail.Result.FailureKind, fail.Result.FailureCount, fail.Result.LastIndex, fail.Result.ErrorIndex, fail.Result.Message, fail.Result.Trace, fail.Result.Exception, effectiveCtx.CurrentFrame, normalized.FailureBoundary, fail.Result.TimedOut);
                     continue;
                 }
 
@@ -322,7 +364,7 @@ namespace Game.Commands.VNext
                 trace.Pop();
             }
 
-            return CommandRunResult.Completed(lastIndex, failureCount, failureKind, errorIndex, message, trace.Trace, exceptionInfo);
+            return new CommandRunResult(CommandRunStatus.Completed, failureKind, failureCount, lastIndex, errorIndex, message, trace.Trace, exceptionInfo, effectiveCtx.CurrentFrame, normalized.FailureBoundary);
 
             static string BuildListInfo(int index, string label, string functionName)
             {
@@ -346,7 +388,7 @@ namespace Game.Commands.VNext
 
                 if (normalized.FailurePolicy == CommandFailurePolicy.FailFast)
                 {
-                    return FailureDecision.Terminate(new CommandRunResult(CommandRunStatus.Error, kind, failureCount, lastIndex, index, reason ?? string.Empty, trace.Trace, exception));
+                    return FailureDecision.Terminate(new CommandRunResult(CommandRunStatus.Error, kind, failureCount, lastIndex, index, reason ?? string.Empty, trace.Trace, exception, effectiveCtx.CurrentFrame, normalized.FailureBoundary));
                 }
 
                 return FailureDecision.Continue();
@@ -361,10 +403,122 @@ namespace Game.Commands.VNext
 
             if (onCanceled != null && onCanceled.Count > 0)
             {
-                _ = await ExecuteListAsync(onCanceled, ctx, CancellationToken.None, options);
+                using var cleanupCts = options.TimeoutMilliseconds > 0
+                    ? new CancellationTokenSource(options.TimeoutMilliseconds)
+                    : null;
+                var cleanupToken = cleanupCts != null ? cleanupCts.Token : CancellationToken.None;
+                _ = await ExecuteListAsync(onCanceled, ctx, cleanupToken, options);
             }
 
             return result;
+        }
+
+        public CommandRunResult StartDetached(
+            CommandContext ctx,
+            CommandDetachedExecutionPolicy policy,
+            CancellationToken callerToken,
+            Func<CommandContext, CancellationToken, UniTask<CommandRunResult>> work)
+        {
+            var effectiveCtx = EnsureContext(ctx, ctx?.Options ?? CommandRunOptions.Default);
+
+            if (!policy.IsAllowed || !policy.OwnerFrameId.IsValid || work == null)
+            {
+                return new CommandRunResult(
+                    CommandRunStatus.Error,
+                    CommandRunFailureKind.DetachedPolicyMissing,
+                    1,
+                    -1,
+                    -1,
+                    "Detached execution policy is missing or invalid.",
+                    null,
+                    null,
+                    effectiveCtx.CurrentFrame,
+                    effectiveCtx.Options.FailureBoundary,
+                    detachedFailure: true);
+            }
+            if (!effectiveCtx.Options.AllowDetachedExecution)
+            {
+                return new CommandRunResult(
+                    CommandRunStatus.Error,
+                    CommandRunFailureKind.DetachedPolicyMissing,
+                    1,
+                    -1,
+                    -1,
+                    "Detached execution is not enabled for this command.",
+                    null,
+                    null,
+                    effectiveCtx.CurrentFrame,
+                    effectiveCtx.Options.FailureBoundary,
+                    detachedFailure: true);
+            }
+
+            var detachedToken = policy.CancellationMode == CommandDetachedCancellationMode.DetachFromCaller
+                ? CancellationToken.None
+                : callerToken;
+            RunDetachedAsync(effectiveCtx, policy, work, detachedToken).Forget();
+
+            return new CommandRunResult(
+                CommandRunStatus.Completed,
+                CommandRunFailureKind.None,
+                0,
+                -1,
+                -1,
+                string.Empty,
+                null,
+                null,
+                effectiveCtx.CurrentFrame,
+                effectiveCtx.Options.FailureBoundary,
+                timedOut: false,
+                detachedFailure: false);
+        }
+
+        public CommandRunResult StartDetachedList(
+            CommandListData list,
+            CommandListData onCanceled,
+            CommandContext ctx,
+            CommandDetachedExecutionPolicy policy,
+            CancellationToken callerToken,
+            CommandRunOptions options)
+        {
+            var detachedOptions = CommandRunOptions.ResolveOrDefault(options).WithDetachedExecution(true, policy.CancellationMode);
+            return StartDetached(
+                ctx.WithOptions(detachedOptions),
+                policy,
+                callerToken,
+                (detachedCtx, detachedCt) => onCanceled != null && onCanceled.Count > 0
+                    ? ExecuteWithCancelAsync(list, onCanceled, detachedCtx, detachedCt, detachedOptions)
+                    : ExecuteListAsync(list, detachedCtx, detachedCt, detachedOptions));
+        }
+
+        async UniTaskVoid RunDetachedAsync(
+            CommandContext ctx,
+            CommandDetachedExecutionPolicy policy,
+            Func<CommandContext, CancellationToken, UniTask<CommandRunResult>> work,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await work(ctx, cancellationToken);
+                if (result.Status == CommandRunStatus.Error)
+                {
+                    var commandId = ctx.CurrentFrame.CommandId;
+                    var message = $"Detached command failed. OwnerFrame={policy.OwnerFrameId.Value} Destination={policy.DiagnosticDestination} Debug={policy.DebugName} Failure={result.FailureKind} Message={result.Message}";
+                    _logger.LogExecutionFailed(commandId, message);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                if (!ctx.Options.SuppressCancelLog)
+                {
+                    var commandId = ctx.CurrentFrame.CommandId;
+                    _logger.LogExecutionCanceled(commandId, $"Detached command canceled. OwnerFrame={policy.OwnerFrameId.Value} Debug={policy.DebugName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                var commandId = ctx.CurrentFrame.CommandId;
+                _logger.LogExecutionFailed(commandId, $"Detached command threw. OwnerFrame={policy.OwnerFrameId.Value} Debug={policy.DebugName} Exception={ex.GetType().Name}: {ex.Message}");
+            }
         }
 
         public UniTask WaitUntilIdleAsync(CancellationToken ct = default)
@@ -407,6 +561,56 @@ namespace Game.Commands.VNext
                 return ctx.WithOptions(options).CreateExecutionContext();
 
             return ctx.CreateExecutionContext();
+        }
+
+        static CancellationTokenSource CreateFrameCancellationSource(CancellationToken cancellationToken)
+        {
+            return cancellationToken.CanBeCanceled
+                ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
+                : new CancellationTokenSource();
+        }
+
+        CommandFrame CreateFrame(
+            CommandContext ctx,
+            int commandIndex,
+            ICommandData data,
+            string sourceType,
+            string dataType,
+            string debugData,
+            CancellationTokenSource cancellationSource,
+            CommandRunOptions options,
+            CommandLocalScope localScope)
+        {
+            var frameId = new CommandFrameId(Interlocked.Increment(ref _nextFrameId));
+            var parentFrameId = ctx.CurrentFrame.FrameId;
+            var local = new CommandLocal(localScope, frameId, ctx.Local, cancellationSource);
+            return new CommandFrame(
+                frameId,
+                parentFrameId,
+                options.ExecutionDomain,
+                commandIndex,
+                data?.CommandId ?? -1,
+                GetPayloadSchemaId(data?.CommandId ?? -1),
+                sourceType,
+                dataType,
+                debugData,
+                ctx.Scope,
+                ctx.Actor,
+                ctx.CommandRootScope,
+                ctx.RootActor,
+                ctx.CallerActor,
+                cancellationSource.Token,
+                local);
+        }
+
+        int GetPayloadSchemaId(int commandId)
+        {
+            if (commandId <= 0)
+                return 0;
+
+            return _catalog.TryGetPayloadSchema(commandId, out var schema) && schema != null
+                ? schema.SchemaId
+                : 0;
         }
 
         protected virtual void InjectContextVars(CommandContext ctx, IVarStore vars)
@@ -562,6 +766,21 @@ namespace Game.Commands.VNext
             return sb.ToString();
         }
 
+        static string BuildPayloadValidationMessage(string contextInfo, CommandPayloadValidationResult result, string listInfo)
+        {
+            var sb = new StringBuilder(contextInfo);
+            if (!string.IsNullOrEmpty(listInfo))
+                sb.Append(" | ").Append(listInfo);
+
+            sb.Append("\nDetail: ").Append(result.Message);
+            sb.Append("\nPayloadSchemaId: ").Append(result.SchemaId);
+            if (!string.IsNullOrEmpty(result.FieldPath))
+                sb.Append("\nField: ").Append(result.FieldPath);
+            sb.Append("\nExpectedKind: ").Append(result.ExpectedKind);
+            sb.Append("\nActualKind: ").Append(result.ActualKind);
+            return sb.ToString();
+        }
+
         static string BuildFailureLogMessage(
             string contextInfo,
             string? detailMessage,
@@ -602,7 +821,16 @@ namespace Game.Commands.VNext
                         .Append(frame.DataType)
                         .Append("(Id=")
                         .Append(frame.CommandId)
-                        .Append(")");
+                        .Append(") FrameId=")
+                        .Append(frame.FrameId.Value)
+                        .Append(" Parent=")
+                        .Append(frame.ParentFrameId.Value)
+                        .Append(" Domain=")
+                        .Append(frame.Domain)
+                        .Append(" Boundary=")
+                        .Append(frame.FailureBoundary)
+                        .Append(" Local=")
+                        .Append(frame.LocalScope);
                     if (!string.IsNullOrEmpty(frame.DebugData))
                         sb.Append(" CmdData=").Append(frame.DebugData);
                     sb.Append(" Source=")
@@ -701,6 +929,15 @@ namespace Game.Commands.VNext
             if (commandId <= 0)
                 return ExecutionOutcome.FromFailure(CommandRunFailureKind.InvalidArgs, "CommandId is invalid.", null);
 
+            CancellationTokenSource? timeoutCts = null;
+            var executionToken = ct;
+            if (options.TimeoutMilliseconds > 0)
+            {
+                timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                timeoutCts.CancelAfter(options.TimeoutMilliseconds);
+                executionToken = timeoutCts.Token;
+            }
+
             try
             {
                 // Scopeが既に破棄されている場合はキャンセル扱いにする
@@ -710,22 +947,29 @@ namespace Game.Commands.VNext
                 if (ctx.Actor is UnityEngine.Object actorObj && !actorObj)
                     throw new OperationCanceledException("Actor has been destroyed.");
 
-                if (ct.IsCancellationRequested)
+                if (executionToken.IsCancellationRequested)
                     return ExecutionOutcome.FromCanceled("Canceled.");
 
                 if (executor != null)
                 {
-                    await executor.Execute(data, ctx, ct);
+                    await executor.Execute(data, ctx, executionToken);
                 }
                 else
                 {
                     return ExecutionOutcome.FromFailure(CommandRunFailureKind.ExecutorMissing, "Executor is null.", null);
                 }
 
+                if (ctx.TryConsumeCancelRequest())
+                    return ExecutionOutcome.FromCanceled("Canceled by command.");
+
                 if (ctx.TryConsumeBreakRequest())
                     return ExecutionOutcome.FromBreak();
 
                 return ExecutionOutcome.FromSuccess();
+            }
+            catch (OperationCanceledException) when (timeoutCts != null && timeoutCts.IsCancellationRequested && !ct.IsCancellationRequested)
+            {
+                return ExecutionOutcome.FromTimeout($"Timeout. TimeoutMilliseconds={options.TimeoutMilliseconds}.");
             }
             catch (OperationCanceledException)
             {
@@ -740,6 +984,10 @@ namespace Game.Commands.VNext
             {
                 var info = CommandExceptionInfo.FromException(ex, includeStackTrace: ShouldIncludeStackTrace(options));
                 return ExecutionOutcome.FromFailure(CommandRunFailureKind.Exception, ex.Message, info);
+            }
+            finally
+            {
+                timeoutCts?.Dispose();
             }
         }
 
@@ -759,25 +1007,28 @@ namespace Game.Commands.VNext
             public readonly bool Success;
             public readonly bool Canceled;
             public readonly bool Broken;
+            public readonly bool TimedOut;
             public readonly CommandRunFailureKind FailureKind;
             public readonly string Message;
             public readonly CommandExceptionInfo? Exception;
 
-            ExecutionOutcome(bool success, bool canceled, bool broken, CommandRunFailureKind failureKind, string message, CommandExceptionInfo? exception)
+            ExecutionOutcome(bool success, bool canceled, bool broken, bool timedOut, CommandRunFailureKind failureKind, string message, CommandExceptionInfo? exception)
             {
                 Success = success;
                 Canceled = canceled;
                 Broken = broken;
+                TimedOut = timedOut;
                 FailureKind = failureKind;
                 Message = message ?? string.Empty;
                 Exception = exception;
             }
 
-            public static ExecutionOutcome FromSuccess() => new(true, false, false, CommandRunFailureKind.None, string.Empty, null);
-            public static ExecutionOutcome FromCanceled(string message) => new(false, true, false, CommandRunFailureKind.Canceled, message, null);
-            public static ExecutionOutcome FromBreak() => new(false, false, true, CommandRunFailureKind.None, string.Empty, null);
+            public static ExecutionOutcome FromSuccess() => new(true, false, false, false, CommandRunFailureKind.None, string.Empty, null);
+            public static ExecutionOutcome FromCanceled(string message) => new(false, true, false, false, CommandRunFailureKind.Canceled, message, null);
+            public static ExecutionOutcome FromTimeout(string message) => new(false, false, false, true, CommandRunFailureKind.Timeout, message, null);
+            public static ExecutionOutcome FromBreak() => new(false, false, true, false, CommandRunFailureKind.None, string.Empty, null);
             public static ExecutionOutcome FromFailure(CommandRunFailureKind kind, string message, CommandExceptionInfo? exception)
-                => new(false, false, false, kind, message, exception);
+                => new(false, false, false, false, kind, message, exception);
         }
 
         readonly struct FailureDecision

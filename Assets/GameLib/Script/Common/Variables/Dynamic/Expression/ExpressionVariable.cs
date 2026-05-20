@@ -75,6 +75,9 @@ namespace Game.Common
         /// </summary>
         public DynamicValue Value => _value;
 
+        public int GetSourceDependencyRevision(IDynamicContext context)
+            => _value.GetSourceDependencyRevision(context);
+
 
 
         /// <summary>

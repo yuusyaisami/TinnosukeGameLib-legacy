@@ -283,6 +283,46 @@ namespace Game.Kernel.IR
         }
     }
 
+    public readonly struct CommandAuthoringKeyId : IEquatable<CommandAuthoringKeyId>
+    {
+        public CommandAuthoringKeyId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(CommandAuthoringKeyId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is CommandAuthoringKeyId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "CommandAuthoringKeyId(" + Value + ")";
+        }
+
+        public static bool operator ==(CommandAuthoringKeyId left, CommandAuthoringKeyId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(CommandAuthoringKeyId left, CommandAuthoringKeyId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
     public readonly struct ValueKeyId : IEquatable<ValueKeyId>
     {
         public ValueKeyId(int value)
@@ -358,6 +398,326 @@ namespace Game.Kernel.IR
         }
 
         public static bool operator !=(ValueSchemaId left, ValueSchemaId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    public readonly struct TableId : IEquatable<TableId>
+    {
+        public TableId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(TableId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is TableId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "TableId(" + Value + ")";
+        }
+
+        public static bool operator ==(TableId left, TableId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TableId left, TableId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    public readonly struct TableRowId : IEquatable<TableRowId>
+    {
+        public TableRowId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(TableRowId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is TableRowId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "TableRowId(" + Value + ")";
+        }
+
+        public static bool operator ==(TableRowId left, TableRowId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TableRowId left, TableRowId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    public readonly struct TableColumnId : IEquatable<TableColumnId>
+    {
+        public TableColumnId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(TableColumnId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is TableColumnId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "TableColumnId(" + Value + ")";
+        }
+
+        public static bool operator ==(TableColumnId left, TableColumnId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TableColumnId left, TableColumnId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    public readonly struct TableCellId : IEquatable<TableCellId>
+    {
+        public TableCellId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(TableCellId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is TableCellId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "TableCellId(" + Value + ")";
+        }
+
+        public static bool operator ==(TableCellId left, TableCellId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(TableCellId left, TableCellId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    public readonly struct RecordId : IEquatable<RecordId>
+    {
+        public RecordId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(RecordId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is RecordId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "RecordId(" + Value + ")";
+        }
+
+        public static bool operator ==(RecordId left, RecordId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(RecordId left, RecordId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    public readonly struct RecordFieldId : IEquatable<RecordFieldId>
+    {
+        public RecordFieldId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(RecordFieldId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is RecordFieldId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "RecordFieldId(" + Value + ")";
+        }
+
+        public static bool operator ==(RecordFieldId left, RecordFieldId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(RecordFieldId left, RecordFieldId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    public readonly struct RecordListId : IEquatable<RecordListId>
+    {
+        public RecordListId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(RecordListId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is RecordListId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "RecordListId(" + Value + ")";
+        }
+
+        public static bool operator ==(RecordListId left, RecordListId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(RecordListId left, RecordListId right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    public readonly struct RecordListElementId : IEquatable<RecordListElementId>
+    {
+        public RecordListElementId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(RecordListElementId other)
+        {
+            return Value == other.Value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is RecordListElementId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value;
+        }
+
+        public override string ToString()
+        {
+            return "RecordListElementId(" + Value + ")";
+        }
+
+        public static bool operator ==(RecordListElementId left, RecordListElementId right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(RecordListElementId left, RecordListElementId right)
         {
             return !left.Equals(right);
         }

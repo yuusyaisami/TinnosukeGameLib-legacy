@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
+using System.Threading.Tasks;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.Validation;
@@ -29,6 +31,13 @@ namespace Game.Kernel.Boot
 
     public interface IKernelBootRuntimeSurface
     {
+        KernelLifecycleDispatcher? LifecycleDispatcher { get; }
+
+        ILifecyclePlanResolver LifecyclePlanResolver { get; }
+
+        Task<LifecycleDispatchResult> DispatchAllLifecycleAsync(IAsyncLifecycleDispatchExecutor executor, CancellationToken cancellationToken = default);
+
+        Task<LifecycleDispatchResult> DispatchPhaseLifecycleAsync(LifecyclePhase phase, IAsyncLifecycleDispatchExecutor executor, CancellationToken cancellationToken = default);
     }
 
     public interface IKernelBootRuntimeSurfaceFactory
@@ -48,6 +57,7 @@ namespace Game.Kernel.Boot
 
             Manifest = ValidationReport.Manifest ?? throw new ArgumentException("Kernel boot boundary context requires a validated boot manifest.", nameof(validationReport));
             SelectedProfile = ValidationReport.SelectedProfile ?? throw new ArgumentException("Kernel boot boundary context requires a validated selected profile.", nameof(validationReport));
+            LifecyclePlan = Input.LifecyclePlan;
         }
 
         public BootValidationInput Input { get; }
@@ -57,6 +67,8 @@ namespace Game.Kernel.Boot
         public KernelBootManifest Manifest { get; }
 
         public KernelProfile SelectedProfile { get; }
+
+        public LifecyclePlan? LifecyclePlan { get; }
     }
 
     public abstract class KernelBootBoundaryResult
@@ -290,7 +302,7 @@ namespace Game.Kernel.Boot
                 payload);
         }
 
-            static KernelDiagnostic CreateRuntimeConstructionFailedDiagnostic(KernelBootBoundaryContext context, Exception exception, BootDiagnosticsPolicy diagnosticsPolicy)
+        static KernelDiagnostic CreateRuntimeConstructionFailedDiagnostic(KernelBootBoundaryContext context, Exception exception, BootDiagnosticsPolicy diagnosticsPolicy)
         {
             DiagnosticContext diagnosticContext = new DiagnosticContext(
                 artifact: new ArtifactIdentityRef(context.Manifest.ArtifactSet.ArtifactSetId.Value),

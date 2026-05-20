@@ -15,6 +15,11 @@ namespace Game.Common
 {
     public static class ExpressionFunctionRegistry
     {
+        static readonly HashSet<string> NondeterministicFunctions = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "Random",
+        };
+
         public readonly struct FunctionDef
         {
             public readonly int MinArgs;
@@ -388,6 +393,11 @@ namespace Game.Common
 
                 return DynamicVariant.FromFloat(Vector2.SignedAngle(from, to));
             });
+        }
+
+        public static bool IsNondeterministicFunction(string name)
+        {
+            return !string.IsNullOrEmpty(name) && NondeterministicFunctions.Contains(name);
         }
 
         public static void Register(string name, int minArgs, int maxArgs, Func<DynamicVariant[], DynamicVariant> impl)

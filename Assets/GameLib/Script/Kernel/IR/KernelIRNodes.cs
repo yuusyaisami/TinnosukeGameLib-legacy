@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 
 namespace Game.Kernel.IR
 {
@@ -241,6 +242,46 @@ namespace Game.Kernel.IR
         public SourceLocationId Source { get; }
     }
 
+    public sealed class ScopeServiceBoundaryIR
+    {
+        public ScopeServiceBoundaryIR(ScopeServiceBoundaryKind kind, int expectedInstanceCount, SourceLocationId source)
+        {
+            if (kind == ScopeServiceBoundaryKind.Unknown)
+                throw new ArgumentException("Scope service boundaries must provide a boundary kind.", nameof(kind));
+
+            if (expectedInstanceCount < 0)
+                throw new ArgumentOutOfRangeException(nameof(expectedInstanceCount), expectedInstanceCount, "Scope service boundaries must provide a non-negative expected instance count.");
+
+            if (source.Value == 0)
+                throw new ArgumentException("Scope service boundaries must provide a non-zero source location identity.", nameof(source));
+
+            if (kind == ScopeServiceBoundaryKind.Detached && expectedInstanceCount != 0)
+                throw new ArgumentException("Detached scope service boundaries must not expect service graph instances.", nameof(expectedInstanceCount));
+
+            if (kind == ScopeServiceBoundaryKind.OwnedLocal && expectedInstanceCount <= 0)
+                throw new ArgumentException("Owned local scope service boundaries must expect at least one service graph instance.", nameof(expectedInstanceCount));
+
+            if (kind == ScopeServiceBoundaryKind.ReferencesParent && expectedInstanceCount != 0)
+                throw new ArgumentException("Parent-referencing scope service boundaries must not expect local service graph instances.", nameof(expectedInstanceCount));
+
+            Kind = kind;
+            ExpectedInstanceCount = expectedInstanceCount;
+            Source = source;
+        }
+
+        public ScopeServiceBoundaryKind Kind { get; }
+
+        public int ExpectedInstanceCount { get; }
+
+        public SourceLocationId Source { get; }
+
+        public bool OwnsLocalServiceGraph => Kind == ScopeServiceBoundaryKind.OwnedLocal;
+
+        public bool ReferencesParentServiceGraph => Kind == ScopeServiceBoundaryKind.ReferencesParent;
+
+        public bool IsDetached => Kind == ScopeServiceBoundaryKind.Detached;
+    }
+
     public sealed class ScopeValueInitRefIR
     {
         public ScopeValueInitRefIR(ValueInitPlanId planId, SourceLocationId source)
@@ -256,6 +297,252 @@ namespace Game.Kernel.IR
         }
 
         public ValueInitPlanId PlanId { get; }
+
+        public SourceLocationId Source { get; }
+    }
+
+    public sealed class ValueInitEntryIR
+    {
+        public ValueInitEntryIR(
+            ValueKeyId keyId,
+            ValueInitEntrySourceKind sourceKind,
+            ValueKind valueKind,
+            int order,
+            ValueInitOverwritePolicy overwritePolicy,
+            SourceLocationId source,
+            string? serializedValue = null,
+            string? evaluationLocalRef = null)
+        {
+            if (keyId.Value == 0)
+                throw new ArgumentException("Value init entries must provide a non-zero value key identity.", nameof(keyId));
+
+            if (!ValueInitEntrySourceKindUtilities.IsDefined(sourceKind))
+                throw new ArgumentOutOfRangeException(nameof(sourceKind), sourceKind, "Value init entries must provide a defined source kind.");
+
+            if (!ValueInitOverwritePolicyUtilities.IsDefined(overwritePolicy))
+                throw new ArgumentOutOfRangeException(nameof(overwritePolicy), overwritePolicy, "Value init entries must provide a defined overwrite policy.");
+
+            if (order < 0)
+                throw new ArgumentOutOfRangeException(nameof(order), order, "Value init entries must provide a non-negative execution order.");
+
+            if (source.Value == 0)
+                throw new ArgumentException("Value init entries must provide a non-zero source location identity.", nameof(source));
+
+            ValidatePayloadShape(sourceKind, valueKind, serializedValue, evaluationLocalRef);
+
+            KeyId = keyId;
+            SourceKind = sourceKind;
+            ValueKind = valueKind;
+            Order = order;
+            OverwritePolicy = overwritePolicy;
+            SerializedValue = string.IsNullOrWhiteSpace(serializedValue) ? null : serializedValue.Trim();
+            EvaluationLocalRef = string.IsNullOrWhiteSpace(evaluationLocalRef) ? null : evaluationLocalRef.Trim();
+            Source = source;
+        }
+
+        public ValueKeyId KeyId { get; }
+
+        public ValueInitEntrySourceKind SourceKind { get; }
+
+        public ValueKind ValueKind { get; }
+
+        public int Order { get; }
+
+        public ValueInitOverwritePolicy OverwritePolicy { get; }
+
+        public string? SerializedValue { get; }
+
+        public string? EvaluationLocalRef { get; }
+
+        public SourceLocationId Source { get; }
+
+        static void ValidatePayloadShape(ValueInitEntrySourceKind sourceKind, ValueKind valueKind, string? serializedValue, string? evaluationLocalRef)
+        {
+            bool hasSerializedValue = !string.IsNullOrWhiteSpace(serializedValue);
+            bool hasEvaluationLocalRef = !string.IsNullOrWhiteSpace(evaluationLocalRef);
+
+            switch (sourceKind)
+            {
+                case ValueInitEntrySourceKind.Literal:
+                    if (hasEvaluationLocalRef)
+                        throw new ArgumentException("Literal value init entries must not declare an evaluation local ref.", nameof(evaluationLocalRef));
+
+                    if (valueKind == ValueKind.Null)
+                    {
+                        if (hasSerializedValue)
+                            throw new ArgumentException("Null literal value init entries must not declare a serialized payload.", nameof(serializedValue));
+
+                        return;
+                    }
+
+                    if (!hasSerializedValue)
+                        throw new ArgumentException("Literal value init entries must declare a serialized payload.", nameof(serializedValue));
+
+                    return;
+
+                case ValueInitEntrySourceKind.DynamicEvaluation:
+                case ValueInitEntrySourceKind.ReactiveEvaluation:
+                    if (valueKind == ValueKind.Null)
+                        throw new ArgumentException("Dynamic or reactive value init entries must declare a non-null target value kind.", nameof(valueKind));
+
+                    if (hasSerializedValue)
+                        throw new ArgumentException("Dynamic or reactive value init entries must not declare a serialized payload.", nameof(serializedValue));
+
+                    if (!hasEvaluationLocalRef)
+                        throw new ArgumentException("Dynamic or reactive value init entries must declare an evaluation local ref.", nameof(evaluationLocalRef));
+
+                    return;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sourceKind), sourceKind, "Unsupported value init entry source kind.");
+            }
+        }
+    }
+
+    public sealed class ValueInitPlanIR
+    {
+        readonly ValueInitEntryIR[] entries;
+
+        public ValueInitPlanIR(
+            ValueInitPlanId planId,
+            ModuleId ownerModule,
+            ScopePlanId targetScopePlanId,
+            string targetStoreRef,
+            LifecyclePhase executionPhase,
+            int order,
+            AvailabilityIR availability,
+            ValueInitEntryIR[] entries,
+            SourceLocationId source)
+        {
+            if (planId.Value == 0)
+                throw new ArgumentException("Value init plans must provide a non-zero plan identity.", nameof(planId));
+
+            if (ownerModule.Value == 0)
+                throw new ArgumentException("Value init plans must provide a non-zero owner module identity.", nameof(ownerModule));
+
+            if (targetScopePlanId.Value == 0)
+                throw new ArgumentException("Value init plans must provide a non-zero target scope identity.", nameof(targetScopePlanId));
+
+            if (string.IsNullOrWhiteSpace(targetStoreRef))
+                throw new ArgumentException("Value init plans must provide a target store ref.", nameof(targetStoreRef));
+
+            if (!IsSupportedExecutionPhase(executionPhase))
+                throw new ArgumentOutOfRangeException(nameof(executionPhase), executionPhase, "Value init plans must use a supported lifecycle phase.");
+
+            if (order < 0)
+                throw new ArgumentOutOfRangeException(nameof(order), order, "Value init plans must provide a non-negative execution order.");
+
+            if (source.Value == 0)
+                throw new ArgumentException("Value init plans must provide a non-zero source location identity.", nameof(source));
+
+            PlanId = planId;
+            OwnerModule = ownerModule;
+            TargetScopePlanId = targetScopePlanId;
+            TargetStoreRef = targetStoreRef.Trim();
+            ExecutionPhase = executionPhase;
+            Order = order;
+            Availability = availability;
+            this.entries = KernelIRNodeArrayUtilities.CloneArray(entries);
+            ValidateEntries(this.entries);
+            Source = source;
+        }
+
+        public ValueInitPlanId PlanId { get; }
+
+        public ModuleId OwnerModule { get; }
+
+        public ScopePlanId TargetScopePlanId { get; }
+
+        public string TargetStoreRef { get; }
+
+        public LifecyclePhase ExecutionPhase { get; }
+
+        public int Order { get; }
+
+        public AvailabilityIR Availability { get; }
+
+        public ReadOnlySpan<ValueInitEntryIR> Entries => entries;
+
+        public SourceLocationId Source { get; }
+
+        static bool IsSupportedExecutionPhase(LifecyclePhase phase)
+        {
+            switch (phase)
+            {
+                case LifecyclePhase.Create:
+                case LifecyclePhase.Acquire:
+                case LifecyclePhase.Reset:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        static void ValidateEntries(ReadOnlySpan<ValueInitEntryIR> entries)
+        {
+            if (entries.Length == 0)
+                throw new ArgumentException("Value init plans must contain at least one entry.", nameof(entries));
+
+            HashSet<int> seenEntryOrders = new HashSet<int>();
+            Dictionary<int, ValueInitEntryIR> lastEntryByValueKey = new Dictionary<int, ValueInitEntryIR>();
+            for (int index = 0; index < entries.Length; index++)
+            {
+                ValueInitEntryIR entry = entries[index] ?? throw new ArgumentException("Value init plan entries must not contain null items.", nameof(entries));
+
+                if (!seenEntryOrders.Add(entry.Order))
+                    throw new ArgumentException("Value init plans must use unique entry execution orders.", nameof(entries));
+
+                if (lastEntryByValueKey.TryGetValue(entry.KeyId.Value, out ValueInitEntryIR previousEntry)
+                    && entry.OverwritePolicy == ValueInitOverwritePolicy.ErrorIfExists)
+                {
+                    throw new ArgumentException("Duplicate value init entries require an explicit overwrite or merge policy on the later entry.", nameof(entries));
+                }
+
+                lastEntryByValueKey[entry.KeyId.Value] = entry;
+            }
+        }
+    }
+
+    public sealed class UnityObjectLinkIR
+    {
+        public UnityObjectLinkIR(string kind, string? sourceGuid, long localFileId, string debugName, SourceLocationId source)
+        {
+            if (string.IsNullOrWhiteSpace(kind))
+                throw new ArgumentException("Unity object links must provide a kind.", nameof(kind));
+
+            if (string.Equals(kind.Trim(), "Unknown", StringComparison.Ordinal))
+                throw new ArgumentException("Unity object links must use a defined kind.", nameof(kind));
+
+            if (source.Value == 0)
+                throw new ArgumentException("Unity object links must provide a non-zero source location identity.", nameof(source));
+
+            if (string.IsNullOrWhiteSpace(debugName))
+                throw new ArgumentException("Unity object links must provide a debug name.", nameof(debugName));
+
+            if (sourceGuid != null && string.IsNullOrWhiteSpace(sourceGuid))
+                throw new ArgumentException("Unity object link source GUIDs must be null or non-empty.", nameof(sourceGuid));
+
+            if (localFileId < 0)
+                throw new ArgumentOutOfRangeException(nameof(localFileId), localFileId, "Unity object links must use a non-negative local file id.");
+
+            if (!string.IsNullOrWhiteSpace(sourceGuid) && localFileId == 0)
+                throw new ArgumentException("Unity object links with a source GUID must provide a positive local file id.", nameof(localFileId));
+
+            Kind = kind.Trim();
+            SourceGuid = sourceGuid?.Trim();
+            LocalFileId = localFileId;
+            DebugName = debugName.Trim();
+            Source = source;
+        }
+
+        public string Kind { get; }
+
+        public string? SourceGuid { get; }
+
+        public long LocalFileId { get; }
+
+        public string DebugName { get; }
 
         public SourceLocationId Source { get; }
     }
@@ -283,8 +570,10 @@ namespace Game.Kernel.IR
     {
         readonly ScopeServiceRequirementIR[] requiredServices;
         readonly ScopeValueInitRefIR[] valueInitPlans;
+        readonly ScopeServiceBoundaryIR serviceBoundary;
+        readonly UnityObjectLinkIR? unityObjectLink;
 
-        public ScopeIR(ScopeAuthoringId authoringId, ScopePlanId planId, string name, ScopeKind kind, ModuleId ownerModule, ScopeAuthoringId parentAuthoringId, ScopeServiceRequirementIR[]? requiredServices, ScopeValueInitRefIR[]? valueInitPlans, LifecyclePlanRefIR lifecycle, SourceLocationId source)
+        public ScopeIR(ScopeAuthoringId authoringId, ScopePlanId planId, string name, ScopeKind kind, ModuleId ownerModule, ScopeAuthoringId parentAuthoringId, ScopeServiceRequirementIR[]? requiredServices, ScopeValueInitRefIR[]? valueInitPlans, ScopeServiceBoundaryIR serviceBoundary, LifecyclePlanRefIR lifecycle, SourceLocationId source, UnityObjectLinkIR? unityObjectLink = null)
         {
             if (authoringId.Value == 0)
                 throw new ArgumentException("Scope IR must provide a non-zero authoring identity.", nameof(authoringId));
@@ -312,8 +601,11 @@ namespace Game.Kernel.IR
             ParentAuthoringId = parentAuthoringId;
             this.requiredServices = KernelIRNodeArrayUtilities.CloneArray(requiredServices);
             this.valueInitPlans = KernelIRNodeArrayUtilities.CloneArray(valueInitPlans);
+            this.serviceBoundary = serviceBoundary ?? throw new ArgumentNullException(nameof(serviceBoundary));
+            ValidateServiceBoundary(this.serviceBoundary, this.requiredServices, ParentAuthoringId);
             Lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
             Source = source;
+            this.unityObjectLink = unityObjectLink;
         }
 
         public ScopeAuthoringId AuthoringId { get; }
@@ -332,9 +624,22 @@ namespace Game.Kernel.IR
 
         public ReadOnlySpan<ScopeValueInitRefIR> ValueInitPlans => valueInitPlans;
 
+        public ScopeServiceBoundaryIR ServiceBoundary => serviceBoundary;
+
         public LifecyclePlanRefIR Lifecycle { get; }
 
         public SourceLocationId Source { get; }
+
+        public UnityObjectLinkIR? UnityObjectLink => unityObjectLink;
+
+        static void ValidateServiceBoundary(ScopeServiceBoundaryIR serviceBoundary, ReadOnlySpan<ScopeServiceRequirementIR> requiredServices, ScopeAuthoringId parentAuthoringId)
+        {
+            if (requiredServices.Length > 0 && !serviceBoundary.OwnsLocalServiceGraph)
+                throw new ArgumentException("Scopes with required services must own a local service boundary.", nameof(serviceBoundary));
+
+            if (serviceBoundary.ReferencesParentServiceGraph && parentAuthoringId.Value == 0)
+                throw new ArgumentException("Parent-referencing scope service boundaries require an explicit parent scope.", nameof(serviceBoundary));
+        }
     }
 
     public sealed class ServiceContractIR
@@ -380,7 +685,7 @@ namespace Game.Kernel.IR
         readonly ServiceContractIR[] contracts;
         readonly ServiceDependencyIR[] dependencies;
 
-        public ServiceIR(ServiceId id, string name, ServiceLifetimeKind lifetime, ModuleId ownerModule, ServiceContractIR[]? contracts, ServiceDependencyIR[]? dependencies, ServiceFactoryKind factoryKind, SourceLocationId source)
+        public ServiceIR(ServiceId id, string name, ServiceLifetimeKind lifetime, ModuleId ownerModule, ServiceContractIR[]? contracts, ServiceDependencyIR[]? dependencies, ServiceFactoryKind factoryKind, SourceLocationId source, ServiceCardinalityKind cardinality = ServiceCardinalityKind.Unknown)
         {
             if (id.Value == 0)
                 throw new ArgumentException("Service IR must provide a non-zero service identity.", nameof(id));
@@ -408,6 +713,7 @@ namespace Game.Kernel.IR
             this.dependencies = KernelIRNodeArrayUtilities.CloneArray(dependencies);
             FactoryKind = factoryKind;
             Source = source;
+            Cardinality = ResolveCardinality(lifetime, cardinality);
         }
 
         public ServiceId Id { get; }
@@ -425,11 +731,129 @@ namespace Game.Kernel.IR
         public ServiceFactoryKind FactoryKind { get; }
 
         public SourceLocationId Source { get; }
+
+        public ServiceCardinalityKind Cardinality { get; }
+
+        static ServiceCardinalityKind ResolveCardinality(ServiceLifetimeKind lifetime, ServiceCardinalityKind cardinality)
+        {
+            ServiceCardinalityKind expectedCardinality;
+
+            switch (lifetime)
+            {
+                case ServiceLifetimeKind.Kernel:
+                case ServiceLifetimeKind.Singleton:
+                    expectedCardinality = ServiceCardinalityKind.SingletonGlobal;
+                    break;
+
+                case ServiceLifetimeKind.Project:
+                    expectedCardinality = ServiceCardinalityKind.OnePerProject;
+                    break;
+
+                case ServiceLifetimeKind.Scene:
+                    expectedCardinality = ServiceCardinalityKind.OnePerScene;
+                    break;
+
+                case ServiceLifetimeKind.Scope:
+                case ServiceLifetimeKind.Scoped:
+                    expectedCardinality = ServiceCardinalityKind.OnePerAuthoredScope;
+                    break;
+
+                case ServiceLifetimeKind.ExplicitTransient:
+                case ServiceLifetimeKind.Transient:
+                    throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, "Explicit transient services require a lower-spec budgeting policy before they can become ServiceGraph services.");
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, "Unsupported service lifetime kind.");
+            }
+
+            if (cardinality == ServiceCardinalityKind.Unknown)
+                return expectedCardinality;
+
+            if (cardinality != expectedCardinality)
+                throw new ArgumentOutOfRangeException(nameof(cardinality), cardinality, "Service cardinality must match the verified lifetime boundary.");
+
+            return cardinality;
+        }
+    }
+
+    public enum CommandPayloadFieldKindIR
+    {
+        Unknown = 0,
+        Bool = 10,
+        Int = 20,
+        Float = 30,
+        String = 40,
+        Object = 50,
+        ValueKeyId = 60,
+        RuntimeQueryId = 70,
+        TargetReference = 80,
+        CommandList = 90,
+        VarStorePayload = 100,
+    }
+
+    public enum CommandPayloadFieldRequirementIR
+    {
+        Optional = 10,
+        Required = 20,
+    }
+
+    public enum CommandPayloadUnknownFieldPolicyIR
+    {
+        Reject = 10,
+        Ignore = 20,
+    }
+
+    public enum CommandPayloadReferenceKindIR
+    {
+        None = 0,
+        ValueKeyId = 10,
+        RuntimeQueryId = 20,
+        TargetReference = 30,
+    }
+
+    public sealed class CommandPayloadFieldIR
+    {
+        public CommandPayloadFieldIR(
+            string fieldPath,
+            CommandPayloadFieldKindIR kind,
+            CommandPayloadFieldRequirementIR requirement,
+            SourceLocationId source,
+            CommandPayloadReferenceKindIR referenceKind = CommandPayloadReferenceKindIR.None,
+            bool allowNull = false)
+        {
+            string normalizedFieldPath = fieldPath == null ? string.Empty : fieldPath.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedFieldPath))
+                throw new ArgumentException("Command payload field IR must provide a field path.", nameof(fieldPath));
+
+            if (source.Value == 0)
+                throw new ArgumentException("Command payload field IR must provide a non-zero source location identity.", nameof(source));
+
+            FieldPath = normalizedFieldPath;
+            Kind = kind;
+            Requirement = requirement;
+            ReferenceKind = referenceKind;
+            AllowNull = allowNull;
+            Source = source;
+        }
+
+        public string FieldPath { get; }
+
+        public CommandPayloadFieldKindIR Kind { get; }
+
+        public CommandPayloadFieldRequirementIR Requirement { get; }
+
+        public CommandPayloadReferenceKindIR ReferenceKind { get; }
+
+        public bool AllowNull { get; }
+
+        public SourceLocationId Source { get; }
     }
 
     public sealed class CommandPayloadSchemaRefIR
     {
-        public CommandPayloadSchemaRefIR(CommandPayloadSchemaId id, SourceLocationId source)
+        readonly CommandPayloadFieldIR[] fields;
+
+        public CommandPayloadSchemaRefIR(CommandPayloadSchemaId id, SourceLocationId source, CommandPayloadFieldIR[]? fields = null, CommandPayloadUnknownFieldPolicyIR unknownFieldPolicy = CommandPayloadUnknownFieldPolicyIR.Reject)
         {
             if (id.Value == 0)
                 throw new ArgumentException("Command payload schema refs must provide a non-zero schema identity.", nameof(id));
@@ -439,11 +863,28 @@ namespace Game.Kernel.IR
 
             Id = id;
             Source = source;
+            UnknownFieldPolicy = unknownFieldPolicy;
+            this.fields = KernelIRNodeArrayUtilities.CloneArray(fields);
+            ValidateFieldPaths(this.fields);
         }
 
         public CommandPayloadSchemaId Id { get; }
 
         public SourceLocationId Source { get; }
+
+        public CommandPayloadUnknownFieldPolicyIR UnknownFieldPolicy { get; }
+
+        public ReadOnlySpan<CommandPayloadFieldIR> Fields => fields;
+
+        static void ValidateFieldPaths(CommandPayloadFieldIR[] fields)
+        {
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < fields.Length; index++)
+            {
+                if (!seen.Add(fields[index].FieldPath))
+                    throw new ArgumentException("Command payload schema refs require unique field paths.", nameof(fields));
+            }
+        }
     }
 
     public sealed class CommandExecutorRefIR
@@ -461,6 +902,32 @@ namespace Game.Kernel.IR
         }
 
         public CommandExecutorId Id { get; }
+
+        public SourceLocationId Source { get; }
+    }
+
+    public sealed class CommandAuthoringKeyRefIR
+    {
+        public CommandAuthoringKeyRefIR(CommandAuthoringKeyId id, string value, SourceLocationId source)
+        {
+            if (id.Value == 0)
+                throw new ArgumentException("Command authoring key refs must provide a non-zero authoring key identity.", nameof(id));
+
+            string normalizedValue = value == null ? string.Empty : value.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedValue))
+                throw new ArgumentException("Command authoring key refs must provide a non-empty authoring key value.", nameof(value));
+
+            if (source.Value == 0)
+                throw new ArgumentException("Command authoring key refs must provide a non-zero source location identity.", nameof(source));
+
+            Id = id;
+            Value = normalizedValue;
+            Source = source;
+        }
+
+        public CommandAuthoringKeyId Id { get; }
+
+        public string Value { get; }
 
         public SourceLocationId Source { get; }
     }
@@ -488,16 +955,13 @@ namespace Game.Kernel.IR
     {
         readonly CommandDependencyIR[] dependencies;
 
-        public CommandIR(CommandTypeId typeId, string runtimeName, string authoringKey, CommandCategoryId categoryId, ModuleId ownerModule, CommandPayloadSchemaRefIR payloadSchema, CommandExecutorRefIR executor, CommandDependencyIR[]? dependencies, SourceLocationId source)
+        public CommandIR(CommandTypeId typeId, string runtimeName, CommandAuthoringKeyRefIR authoringKey, CommandCategoryId categoryId, ModuleId ownerModule, CommandPayloadSchemaRefIR payloadSchema, CommandExecutorRefIR executor, CommandDependencyIR[]? dependencies, SourceLocationId source)
         {
             if (typeId.Value == 0)
                 throw new ArgumentException("Command IR must provide a non-zero command type identity.", nameof(typeId));
 
             if (string.IsNullOrWhiteSpace(runtimeName))
                 throw new ArgumentException("Command IR must provide a runtime name.", nameof(runtimeName));
-
-            if (string.IsNullOrWhiteSpace(authoringKey))
-                throw new ArgumentException("Command IR must provide an authoring key.", nameof(authoringKey));
 
             if (categoryId.Value == 0)
                 throw new ArgumentException("Command IR must provide a non-zero command category identity.", nameof(categoryId));
@@ -510,7 +974,7 @@ namespace Game.Kernel.IR
 
             TypeId = typeId;
             RuntimeName = runtimeName;
-            AuthoringKey = authoringKey;
+            AuthoringKey = authoringKey ?? throw new ArgumentNullException(nameof(authoringKey));
             CategoryId = categoryId;
             OwnerModule = ownerModule;
             PayloadSchema = payloadSchema ?? throw new ArgumentNullException(nameof(payloadSchema));
@@ -523,7 +987,7 @@ namespace Game.Kernel.IR
 
         public string RuntimeName { get; }
 
-        public string AuthoringKey { get; }
+        public CommandAuthoringKeyRefIR AuthoringKey { get; }
 
         public CommandCategoryId CategoryId { get; }
 
@@ -695,11 +1159,73 @@ namespace Game.Kernel.IR
         }
     }
 
+    public sealed class LifecycleAsyncPolicyIR
+    {
+        public LifecycleAsyncPolicyIR(
+            LifecycleAsyncCancellationSourceKind cancellationSourceKind,
+            LifecycleAsyncTimeoutPolicyKind timeoutPolicyKind,
+            int timeoutMilliseconds,
+            LifecycleAsyncCompletionRequirementKind completionRequirementKind,
+            bool waitForNextStep)
+        {
+            if (!LifecycleAsyncCancellationSourceKindUtilities.IsDefined(cancellationSourceKind))
+                throw new ArgumentOutOfRangeException(nameof(cancellationSourceKind), cancellationSourceKind, "Lifecycle async policies must provide a defined cancellation source kind.");
+
+            if (!LifecycleAsyncTimeoutPolicyKindUtilities.IsDefined(timeoutPolicyKind))
+                throw new ArgumentOutOfRangeException(nameof(timeoutPolicyKind), timeoutPolicyKind, "Lifecycle async policies must provide a defined timeout policy kind.");
+
+            if (!LifecycleAsyncCompletionRequirementKindUtilities.IsDefined(completionRequirementKind))
+                throw new ArgumentOutOfRangeException(nameof(completionRequirementKind), completionRequirementKind, "Lifecycle async policies must provide a defined completion requirement kind.");
+
+            if (timeoutPolicyKind == LifecycleAsyncTimeoutPolicyKind.DurationMilliseconds)
+            {
+                if (timeoutMilliseconds <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(timeoutMilliseconds), timeoutMilliseconds, "Lifecycle async timeout policies that use a duration must provide a positive timeout in milliseconds.");
+            }
+            else if (timeoutMilliseconds != 0)
+            {
+                throw new ArgumentException("Lifecycle async timeout policies without a duration must not declare a timeout value.", nameof(timeoutMilliseconds));
+            }
+
+            if (waitForNextStep && completionRequirementKind != LifecycleAsyncCompletionRequirementKind.BeforeNextStep)
+                throw new ArgumentException("Tracked async steps that wait for the next step must require completion before the next step.", nameof(completionRequirementKind));
+
+            if (!waitForNextStep && completionRequirementKind != LifecycleAsyncCompletionRequirementKind.BeforePhaseExit)
+                throw new ArgumentException("Tracked async steps that do not block the next step must require completion before phase exit.", nameof(completionRequirementKind));
+
+            CancellationSourceKind = cancellationSourceKind;
+            TimeoutPolicyKind = timeoutPolicyKind;
+            TimeoutMilliseconds = timeoutMilliseconds;
+            CompletionRequirementKind = completionRequirementKind;
+            WaitForNextStep = waitForNextStep;
+        }
+
+        public LifecycleAsyncCancellationSourceKind CancellationSourceKind { get; }
+
+        public LifecycleAsyncTimeoutPolicyKind TimeoutPolicyKind { get; }
+
+        public int TimeoutMilliseconds { get; }
+
+        public LifecycleAsyncCompletionRequirementKind CompletionRequirementKind { get; }
+
+        public bool WaitForNextStep { get; }
+    }
+
     public sealed class LifecycleStepIR
     {
         readonly DependencyEdgeId[] dependencies;
 
-        public LifecycleStepIR(LifecycleStepId id, LifecyclePhase phase, int order, LifecycleTargetRefIR target, LifecycleActionKind action, DependencyEdgeId[]? dependencies, SourceLocationId source)
+        public LifecycleStepIR(
+            LifecycleStepId id,
+            LifecyclePhase phase,
+            int order,
+            LifecycleTargetRefIR target,
+            LifecycleActionKind action,
+            DependencyEdgeId[]? dependencies,
+            SourceLocationId source,
+            LifecycleTickCardinalityKind tickCardinality = LifecycleTickCardinalityKind.Unknown,
+            LifecycleExecutionModeKind executionMode = LifecycleExecutionModeKind.Synchronous,
+            LifecycleAsyncPolicyIR? asyncPolicy = null)
         {
             if (id.Value == 0)
                 throw new ArgumentException("Lifecycle steps must provide a non-zero step identity.", nameof(id));
@@ -710,6 +1236,29 @@ namespace Game.Kernel.IR
             if (source.Value == 0)
                 throw new ArgumentException("Lifecycle steps must provide a non-zero source location identity.", nameof(source));
 
+            if (!LifecycleExecutionModeKindUtilities.IsDefined(executionMode))
+                throw new ArgumentOutOfRangeException(nameof(executionMode), executionMode, "Lifecycle steps must provide a defined execution mode.");
+
+            if (executionMode == LifecycleExecutionModeKind.TrackedAsync && asyncPolicy == null)
+                throw new ArgumentException("Tracked async lifecycle steps must provide an async policy.", nameof(asyncPolicy));
+
+            if (executionMode == LifecycleExecutionModeKind.Synchronous && asyncPolicy != null)
+                throw new ArgumentException("Synchronous lifecycle steps must not provide an async policy.", nameof(asyncPolicy));
+
+            if (executionMode == LifecycleExecutionModeKind.TrackedAsync && phase == LifecyclePhase.Acquire && asyncPolicy != null && !asyncPolicy.WaitForNextStep)
+                throw new ArgumentException("Acquire-phase tracked async lifecycle steps must complete before the next step.", nameof(asyncPolicy));
+
+            bool isTickPhase = phase == LifecyclePhase.Tick || phase == LifecyclePhase.FixedTick || phase == LifecyclePhase.LateTick;
+
+            if (!isTickPhase && tickCardinality != LifecycleTickCardinalityKind.Unknown)
+                throw new ArgumentException("Tick cardinality is only valid for tick phases.", nameof(tickCardinality));
+
+            if (isTickPhase && tickCardinality == LifecycleTickCardinalityKind.Unknown)
+                tickCardinality = LifecycleTickCardinalityKind.Hub;
+
+            if (tickCardinality != LifecycleTickCardinalityKind.Unknown && !LifecycleTickCardinalityKindUtilities.IsDefined(tickCardinality))
+                throw new ArgumentOutOfRangeException(nameof(tickCardinality), tickCardinality, "Lifecycle steps must provide a defined tick cardinality.");
+
             Id = id;
             Phase = phase;
             Order = order;
@@ -717,6 +1266,9 @@ namespace Game.Kernel.IR
             Action = action;
             this.dependencies = KernelIRNodeArrayUtilities.CloneDependencyIds(dependencies);
             Source = source;
+            TickCardinality = tickCardinality;
+            ExecutionMode = executionMode;
+            AsyncPolicy = asyncPolicy;
         }
 
         public LifecycleStepId Id { get; }
@@ -729,6 +1281,12 @@ namespace Game.Kernel.IR
 
         public LifecycleActionKind Action { get; }
 
+        public LifecycleTickCardinalityKind TickCardinality { get; }
+
+        public LifecycleExecutionModeKind ExecutionMode { get; }
+
+        public LifecycleAsyncPolicyIR? AsyncPolicy { get; }
+
         public ReadOnlySpan<DependencyEdgeId> Dependencies => dependencies;
 
         public SourceLocationId Source { get; }
@@ -738,7 +1296,17 @@ namespace Game.Kernel.IR
     {
         readonly LifecycleStepIR[] steps;
 
-        public LifecycleIR(LifecyclePlanId planId, string name, ModuleId ownerModule, LifecycleStepIR[] steps, SourceLocationId source)
+        public LifecycleIR(
+            LifecyclePlanId planId,
+            string name,
+            ModuleId ownerModule,
+            LifecycleStepIR[] steps,
+            SourceLocationId source,
+            LifecycleFailurePolicy failurePolicy,
+            bool failurePolicyIsExplicit = true,
+            KernelProfileMask failurePolicyJustificationProfiles = KernelProfileMask.None,
+            string? failurePolicyJustification = null,
+            LifecycleAcquireRollbackPolicy acquireRollbackPolicy = LifecycleAcquireRollbackPolicy.ReverseCompletedAcquireSteps)
         {
             if (planId.Value == 0)
                 throw new ArgumentException("Lifecycle IR must provide a non-zero plan identity.", nameof(planId));
@@ -755,11 +1323,50 @@ namespace Game.Kernel.IR
             if (source.Value == 0)
                 throw new ArgumentException("Lifecycle IR must provide a non-zero source location identity.", nameof(source));
 
+            if (!LifecycleFailurePolicyUtilities.IsDefined(failurePolicy))
+                throw new ArgumentOutOfRangeException(nameof(failurePolicy), failurePolicy, "Lifecycle IR must provide a defined failure policy.");
+
+            if (!LifecycleAcquireRollbackPolicyUtilities.IsDefined(acquireRollbackPolicy))
+                throw new ArgumentOutOfRangeException(nameof(acquireRollbackPolicy), acquireRollbackPolicy, "Lifecycle IR must provide a defined acquire rollback policy.");
+
+            if (!failurePolicyIsExplicit && failurePolicy == LifecycleFailurePolicy.ContinueWithError)
+                throw new ArgumentException("ContinueWithError must be an explicit failure policy.", nameof(failurePolicyIsExplicit));
+
+            if (failurePolicy == LifecycleFailurePolicy.ContinueWithError)
+            {
+                if (!failurePolicyIsExplicit)
+                    throw new ArgumentException("ContinueWithError must be an explicit failure policy.", nameof(failurePolicyIsExplicit));
+
+                if (failurePolicyJustificationProfiles == KernelProfileMask.None)
+                    throw new ArgumentException("ContinueWithError must declare at least one justified profile.", nameof(failurePolicyJustificationProfiles));
+
+                if (string.IsNullOrWhiteSpace(failurePolicyJustification))
+                    throw new ArgumentException("ContinueWithError must provide a profile justification.", nameof(failurePolicyJustification));
+            }
+            else if (failurePolicyJustificationProfiles != KernelProfileMask.None || failurePolicyJustification != null)
+            {
+                throw new ArgumentException("Lifecycle failure policy justification metadata is only valid with ContinueWithError.", nameof(failurePolicyJustification));
+            }
+
+            if (!failurePolicyIsExplicit && failurePolicyJustificationProfiles != KernelProfileMask.None)
+                throw new ArgumentException("Defaulted lifecycle failure policies must not declare profile justification metadata.", nameof(failurePolicyJustificationProfiles));
+
+            if (!failurePolicyIsExplicit && failurePolicyJustification != null)
+                throw new ArgumentException("Defaulted lifecycle failure policies must not declare justification text.", nameof(failurePolicyJustification));
+
+            if (failurePolicyIsExplicit == false && failurePolicy == LifecycleFailurePolicy.Unknown)
+                throw new ArgumentException("Lifecycle IR must provide an explicit failure policy.", nameof(failurePolicy));
+
             PlanId = planId;
             Name = name;
             OwnerModule = ownerModule;
             this.steps = KernelIRNodeArrayUtilities.CloneArray(steps);
             Source = source;
+            FailurePolicy = failurePolicy;
+            FailurePolicyIsExplicit = failurePolicyIsExplicit;
+            FailurePolicyJustificationProfiles = failurePolicyJustificationProfiles;
+            FailurePolicyJustification = failurePolicyJustification;
+            AcquireRollbackPolicy = acquireRollbackPolicy;
         }
 
         public LifecyclePlanId PlanId { get; }
@@ -771,6 +1378,16 @@ namespace Game.Kernel.IR
         public ReadOnlySpan<LifecycleStepIR> Steps => steps;
 
         public SourceLocationId Source { get; }
+
+        public LifecycleFailurePolicy FailurePolicy { get; }
+
+        public bool FailurePolicyIsExplicit { get; }
+
+        public KernelProfileMask FailurePolicyJustificationProfiles { get; }
+
+        public string? FailurePolicyJustification { get; }
+
+        public LifecycleAcquireRollbackPolicy AcquireRollbackPolicy { get; }
     }
 
     public sealed class RuntimeIdentityFieldIR

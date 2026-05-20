@@ -1,5 +1,6 @@
 #nullable enable
 using Game;
+using UnityEngine;
 
 namespace Game.Commands.VNext
 {
@@ -10,6 +11,8 @@ namespace Game.Commands.VNext
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
             _catalog = CommandCatalogLocator.GetOrCreate();
+            if (_catalog == null)
+                Debug.LogError("[CommandCatalogService] CommandCatalog could not be loaded.");
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
@@ -33,6 +36,12 @@ namespace Game.Commands.VNext
         {
             meta = null!;
             return _catalog != null && _catalog.TryGetMeta(key, out meta);
+        }
+
+        public bool TryGetPayloadSchema(int commandId, out CommandPayloadSchema schema)
+        {
+            schema = null!;
+            return _catalog != null && _catalog.TryGetPayloadSchema(commandId, out schema);
         }
     }
 }

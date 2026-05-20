@@ -400,10 +400,17 @@ namespace Game.Save
                 {
                     Kind = (byte)s.Kind,
                     Phase = (byte)s.Phase,
+                    Lane = (byte)s.Lane,
                     Value = s.Value,
                     Remain = s.Remain,
                     Layer = s.Layer ?? string.Empty,
                     Tag = s.Tag ?? string.Empty,
+                    Revision = s.Revision,
+                    Id = s.Id,
+                    ClampMin = s.ClampMin,
+                    ClampMax = s.ClampMax,
+                    HasClampMin = s.HasClampMin,
+                    HasClampMax = s.HasClampMax,
                 });
             }
 
@@ -413,6 +420,7 @@ namespace Game.Save
                 Name = rt.Key.Name ?? string.Empty,
                 Baseline = rt.Baseline,
                 LocalBase = rt.LocalBase,
+                Revision = rt.Revision,
                 Mods = modsList.Count == 0 ? Array.Empty<ScalarModPayload>() : modsList.ToArray(),
             };
         }
@@ -435,20 +443,27 @@ namespace Game.Save
             for (int i = 0; i < payload.Mods.Length; i++)
             {
                 var m = payload.Mods[i];
-                var kind = (ScalarModKind)m.Kind;
-                var phase = (ScalarMulPhase)m.Phase;
-                var layer = m.Layer ?? string.Empty;
-                var tag = m.Tag;
+                var snapshot = new ScalarSnapshot(
+                    key,
+                    (LayeredNumericLaneKind)m.Lane,
+                    (ScalarModKind)m.Kind,
+                    (ScalarMulPhase)m.Phase,
+                    m.Value,
+                    m.Remain,
+                    null,
+                    m.Tag,
+                    m.Layer,
+                    m.Id,
+                    m.Revision,
+                    m.ClampMin,
+                    m.ClampMax,
+                    m.HasClampMin,
+                    m.HasClampMax);
 
-                if (kind == ScalarModKind.Add)
-                {
-                    rt.Add(scalar, layer, m.Value, m.Remain, source: null, tag: tag);
-                }
-                else
-                {
-                    rt.Mul(scalar, layer, m.Value, phase, m.Remain, source: null, tag: tag);
-                }
+                rt.RestoreSnapshot(snapshot);
             }
+
+            rt.RestoreRevision(payload.Revision);
         }
     }
 }

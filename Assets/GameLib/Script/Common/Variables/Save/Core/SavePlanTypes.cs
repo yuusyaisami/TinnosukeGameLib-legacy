@@ -101,10 +101,17 @@ namespace Game.Save
     {
         public byte Kind;
         public byte Phase;
+        public byte Lane;
         public float Value;
         public float Remain;
         public string Layer;
         public string Tag;
+        public int Revision;
+        public Guid Id;
+        public float ClampMin;
+        public float ClampMax;
+        public bool HasClampMin;
+        public bool HasClampMax;
     }
 
     [Serializable]
@@ -129,6 +136,7 @@ namespace Game.Save
         public string Name;
         public float Baseline;
         public float LocalBase;
+        public int Revision;
         public ScalarModPayload[] Mods;
     }
 }

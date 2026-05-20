@@ -13,7 +13,7 @@ namespace Game.Commands.VNext
 
         static CommandCatalogSO? _cachedCatalog;
 
-        public static CommandCatalogSO GetOrCreate()
+        public static CommandCatalogSO? GetOrCreate()
         {
 #if UNITY_EDITOR
             if (_cachedCatalog != null)
@@ -41,10 +41,7 @@ namespace Game.Commands.VNext
             {
                 _cachedCatalog = Resources.Load<CommandCatalogSO>("CommandCatalog");
                 if (_cachedCatalog == null)
-                {
-                    _cachedCatalog = ScriptableObject.CreateInstance<CommandCatalogSO>();
-                    Debug.LogError("[CommandCatalogLocator] Could not load CommandCatalog at runtime (Resources/CommandCatalog). Created a runtime fallback instance.");
-                }
+                    Debug.LogError("[CommandCatalogLocator] Could not load CommandCatalog at runtime (Resources/CommandCatalog).");
             }
             return _cachedCatalog;
 #endif

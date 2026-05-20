@@ -11,7 +11,7 @@ using VContainer;
 namespace Game.Common
 {
     [Serializable]
-    public sealed class StatusEffectStackDescriptionSource : IDynamicSource
+    public sealed class StatusEffectStackDescriptionSource : IDynamicSource, IDynamicSourceConfigurationRevisionProvider, IDynamicSourceDependencyRevisionProvider
     {
         [LabelText("Definition")]
         [Tooltip("Inspector setting.")]
@@ -31,6 +31,32 @@ namespace Game.Common
 
         public string GetDebugData
             => $"Def={Definition.SourceTypeName},Stack={StackPreset.SourceTypeName}";
+
+        public int GetSourceConfigurationRevision()
+        {
+            unchecked
+            {
+                var hash = 17;
+                hash = (hash * 31) ^ Definition.HasSource.GetHashCode();
+                hash = (hash * 31) ^ Definition.SourceTypeName.GetHashCode();
+                hash = (hash * 31) ^ Definition.GetSourceConfigurationRevision();
+                hash = (hash * 31) ^ StackPreset.HasSource.GetHashCode();
+                hash = (hash * 31) ^ StackPreset.SourceTypeName.GetHashCode();
+                hash = (hash * 31) ^ StackPreset.GetSourceConfigurationRevision();
+                return hash;
+            }
+        }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            unchecked
+            {
+                var hash = 17;
+                hash = (hash * 31) ^ Definition.GetSourceDependencyRevision(context);
+                hash = (hash * 31) ^ StackPreset.GetSourceDependencyRevision(context);
+                return hash;
+            }
+        }
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {

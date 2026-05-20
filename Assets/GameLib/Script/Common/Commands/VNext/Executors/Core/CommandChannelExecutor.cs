@@ -78,9 +78,9 @@ namespace Game.Commands.VNext
                 var runToken = typed.BackgroundCancellationMode == CommandChannelBackgroundCancellationMode.DetachFromCaller
                     ? CancellationToken.None
                     : ct;
-                var runTask = ExecuteInternalAsync(hub, typed.Tag, channelCtx, runToken);
                 if (typed.AwaitMode == FlowRunAwaitMode.WaitForCompletion)
                 {
+                    var runTask = ExecuteInternalAsync(hub, typed.Tag, channelCtx, runToken);
                     var status = await runTask;
                     if (status == CommandRunStatus.Break)
                         break;
@@ -96,7 +96,46 @@ namespace Game.Commands.VNext
                     continue;
                 }
 
-                RunInBackground(runTask, backgroundKey).Forget();
+                if (channelCtx.Runner is not ICommandDetachedRunner detachedRunner)
+                {
+                    ExitBackground(backgroundKey);
+                    throw new CommandExecutionException(CommandRunFailureKind.DetachedPolicyMissing, "Runner does not support detached CommandChannel execution.");
+                }
+
+                var cancellationMode = typed.BackgroundCancellationMode == CommandChannelBackgroundCancellationMode.DetachFromCaller
+                    ? CommandDetachedCancellationMode.DetachFromCaller
+                    : CommandDetachedCancellationMode.FollowCaller;
+                var detachedCtx = channelCtx.WithOptions(channelCtx.Options.WithDetachedExecution(true, cancellationMode));
+                var policy = new CommandDetachedExecutionPolicy(
+                    isAllowed: detachedCtx.Options.AllowDetachedExecution,
+                    detachedCtx.CurrentFrame.FrameId,
+                    detachedCtx.Scope,
+                    cancellationMode,
+                    diagnosticDestination: nameof(CommandChannelExecutor),
+                    debugName: $"CommandChannel:{typed.Tag}");
+                var detachedResult = detachedRunner.StartDetached(
+                    detachedCtx,
+                    policy,
+                    ct,
+                    async (detachedCtx, detachedCt) =>
+                    {
+                        try
+                        {
+                            var status = await ExecuteInternalAsync(hub, typed.Tag, detachedCtx, detachedCt);
+                            return status == CommandRunStatus.Break
+                                ? CommandRunResult.Break(-1, null)
+                                : CommandRunResult.Completed(-1, 0, CommandRunFailureKind.None, -1, string.Empty, null, null);
+                        }
+                        finally
+                        {
+                            ExitBackground(backgroundKey);
+                        }
+                    });
+                if (detachedResult.Status == CommandRunStatus.Error)
+                {
+                    ExitBackground(backgroundKey);
+                    throw new CommandExecutionException(detachedResult.FailureKind, detachedResult.Message);
+                }
             }
         }
 
@@ -247,12 +286,12 @@ namespace Game.Commands.VNext
                     return ownerAnyHub;
             }
 
-            // Ownerを�E示持E��した場合�E、�EコンチE��ストへのフォールバックを行わなぁE��E
-            // これにより「誰の CommandChannel を使ぁE��」を明確化する、E
+            // Ownerを�E示持E��した場合�E、�EコンチE��ストへのフォールバックを行わなぁE��E
+            // これにより「誰の CommandChannel を使ぁE��」を明確化する、E
             if (preferOwnerHub)
                 return null;
 
-            // Current持E��時は従来互換で允E��ンチE��ストにもフォールバック、E
+            // Current持E��時は従来互換で允E��ンチE��ストにもフォールバック、E
             if (TryResolveHubWithTag(originalCtx.Resolver, tag, out var originalTagged))
                 return originalTagged;
 
@@ -286,29 +325,6 @@ namespace Game.Commands.VNext
 
             hub = resolved;
             return true;
-        }
-
-        static UniTask RunInBackground(UniTask<CommandRunStatus> task, string backgroundKey)
-        {
-            UniTask.Void(async () =>
-            {
-                try
-                {
-                    await task;
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception)
-                {
-                }
-                finally
-                {
-                    ExitBackground(backgroundKey);
-                }
-            });
-
-            return UniTask.CompletedTask;
         }
 
         static string BuildBackgroundKey(ICommandChannelHubService hub, string tag, CommandContext ctx)

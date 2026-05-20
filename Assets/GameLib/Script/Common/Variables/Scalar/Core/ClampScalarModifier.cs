@@ -65,7 +65,7 @@ namespace Game.Scalar
 
         public void OnAfterEvaluate(ref ScalarGetContext ctx)
         {
-            ctx.Value = _clamp.Apply(ctx.Value, ctx.DynamicContext);
+            ctx.Value = _clamp.Apply(ctx.Value, null);
         }
 
         static bool TryGetLiteralValue(DynamicValue<float> value, out float result)

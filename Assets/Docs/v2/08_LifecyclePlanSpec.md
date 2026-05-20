@@ -681,6 +681,18 @@ If a failure boundary is not declared, the runtime must apply the default bounda
 
 ---
 
+## Partial Acquire Rollback Policy
+
+Partial acquire completion must be handled explicitly.
+
+- acquire rollback defaults to `ReverseCompletedAcquireSteps`
+- `None` may be used only when the plan intentionally keeps partial acquire work
+- rollback is evaluated in reverse order of the already completed acquire steps
+- rollback failures must emit `KernelDiagnostic`
+- partial acquire failure must report both the forward failure and the rollback summary
+
+---
+
 ## Reset and Pooling Policy
 
 Reset is separate from release and destroy.
@@ -750,6 +762,7 @@ Representative lifecycle runtime error codes include:
 - `LIFECYCLE_TICK_CARDINALITY_FORBIDDEN`
 - `LIFECYCLE_ASYNC_UNTRACKED`
 - `LIFECYCLE_PARTIAL_ACQUIRE_FAILED`
+- `LIFECYCLE_ROLLBACK_STEP_FAILED`
 - `LIFECYCLE_RESET_REQUIRED_BEFORE_REUSE`
 
 A lifecycle failure without step provenance is a diagnostics degradation.
@@ -1028,7 +1041,8 @@ Input:
 Expected:
 
 - scope enters failed or inactive state
-- completed acquire steps are released if rollback policy requires
+- completed acquire steps are released in reverse order when rollback policy requires
+- rollback failures emit diagnostics instead of being hidden
 
 #### TC_LIFE_FAIL_002_BootFailureFailsKernel
 

@@ -4,6 +4,7 @@ using Game.Kernel.Abstractions;
 using Game.Kernel.Boot;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;
+using Game.Kernel.IR;
 using NUnit.Framework;
 
 namespace TinnosukeGameLib.Tests.Editor
@@ -36,7 +37,9 @@ namespace TinnosukeGameLib.Tests.Editor
                     new[] { ServiceIdentity(11) },
                     new[] { ScopeIdentity(21) },
                     new[] { ScopeIdentity(21) }),
-                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false)));
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest)));
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Passed));
             Assert.That(report.Issues, Is.Empty);
@@ -55,7 +58,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencyValidationStatus: ValidationResultStatus.Passed,
                 artifactState: CreatePassingArtifactState(manifest),
                 rootState: CreatePassingRootState(),
-                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false)));
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest)));
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
             Assert.That(report.Issues.Count, Is.EqualTo(1));
@@ -75,7 +80,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencyValidationStatus: ValidationResultStatus.Failed,
                 artifactState: CreatePassingArtifactState(manifest),
                 rootState: CreatePassingRootState(),
-                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false)));
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest)));
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
             Assert.That(report.Issues[0].Code, Is.EqualTo(BootValidationCodes.DependencyValidationFailed));
@@ -98,7 +105,9 @@ namespace TinnosukeGameLib.Tests.Editor
                     Array.Empty<RuntimeIdentityRef>(),
                     new[] { ScopeIdentity(21) },
                     new[] { ScopeIdentity(21) }),
-                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false));
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest));
 
             BootValidationReport report = BootValidator.Validate(input);
 
@@ -124,7 +133,8 @@ namespace TinnosukeGameLib.Tests.Editor
                     new[] { ServiceIdentity(11) },
                     new[] { ScopeIdentity(21) },
                     Array.Empty<RuntimeIdentityRef>()),
-                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false));
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                debugMap: CreateDebugMap(manifest));
 
             BootValidationReport report = BootValidator.Validate(input);
 
@@ -146,7 +156,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencyValidationStatus: ValidationResultStatus.Passed,
                 artifactState: CreatePassingArtifactState(manifest),
                 rootState: CreatePassingRootState(),
-                fallbackState: new BootFallbackValidationState(true, false, false, false, false, false)));
+                fallbackState: new BootFallbackValidationState(true, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest)));
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
             Assert.That(report.Issues[0].Code, Is.EqualTo(BootValidationCodes.LegacyFallbackForbidden));
@@ -165,7 +177,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencyValidationStatus: ValidationResultStatus.Passed,
                 artifactState: CreatePassingArtifactState(manifest),
                 rootState: CreatePassingRootState(),
-                fallbackState: new BootFallbackValidationState(false, false, false, false, false, true)));
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, true),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest)));
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
             Assert.That(report.Issues[0].Code, Is.EqualTo(BootValidationCodes.TestNonDeterministicPolicy));
@@ -184,7 +198,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencyValidationStatus: ValidationResultStatus.Passed,
                 artifactState: CreatePassingArtifactState(manifest),
                 rootState: CreatePassingRootState(),
-                fallbackState: new BootFallbackValidationState(false, true, true, true, true, false)));
+                fallbackState: new BootFallbackValidationState(false, true, true, true, true, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest)));
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
             Assert.That(report.Issues.Count, Is.EqualTo(4));
@@ -208,7 +224,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 kernelIRHash: new UnityEngine.Hash128(9, 9, 9, 9).ToString(),
                 registryHash: new UnityEngine.Hash128(8, 8, 8, 8).ToString(),
                 profileHash: new UnityEngine.Hash128(7, 7, 7, 7).ToString(),
-                debugMapHash: new UnityEngine.Hash128(6, 6, 6, 6).ToString());
+                debugMapHash: CreateDebugMap(manifest, includeServiceEntry: true).ContentHash.ToString());
+
+            KernelDebugMap mismatchedDebugMap = CreateDebugMap(manifest, includeServiceEntry: true);
 
             BootValidationReport report = BootValidator.Validate(new BootValidationInput(
                 manifest,
@@ -217,7 +235,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencyValidationStatus: ValidationResultStatus.Passed,
                 artifactState: artifactState,
                 rootState: CreatePassingRootState(),
-                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false)));
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: mismatchedDebugMap));
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
             Assert.That(report.Issues.Count, Is.EqualTo(4));
@@ -250,11 +270,34 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencyValidationStatus: ValidationResultStatus.Passed,
                 artifactState: artifactState,
                 rootState: CreatePassingRootState(),
-                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false)));
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest)));
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
             Assert.That(report.Issues.Count, Is.EqualTo(1));
             Assert.That(report.Issues[0].Code, Is.EqualTo(BootValidationCodes.DebugMapMissing));
+        }
+
+        [Test]
+        public void BootValidator_ReportsArtifactHeadersIncompatible_WhenScopeGraphHeaderDoesNotMatchManifest()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Release);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Release);
+
+            BootValidationReport report = BootValidator.Validate(new BootValidationInput(
+                manifest,
+                profile,
+                artifactSetReferencePresent: true,
+                dependencyValidationStatus: ValidationResultStatus.Passed,
+                artifactState: CreatePassingArtifactState(manifest),
+                rootState: CreatePassingRootState(),
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(artifactSetId: 99),
+                debugMap: CreateDebugMap(manifest)));
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<BootValidationIssue>(issue => issue.Code == BootValidationCodes.ArtifactHeadersIncompatible));
         }
 
         [Test]
@@ -283,6 +326,26 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void BootValidator_ReportsMissingVerifiedDebugMapInput_WhenBootDebugMapIsNotProvided()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Release);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Release);
+
+            BootValidationReport report = BootValidator.Validate(new BootValidationInput(
+                manifest,
+                profile,
+                artifactSetReferencePresent: true,
+                dependencyValidationStatus: ValidationResultStatus.Passed,
+                artifactState: CreatePassingArtifactState(manifest),
+                rootState: CreatePassingRootState(),
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan()));
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<BootValidationIssue>(issue => issue.Code == BootValidationCodes.DebugMapInputMissing));
+        }
+
+        [Test]
         public void BootRootValidationState_RejectsDuplicateRootEntries()
         {
             Assert.That(() => new BootRootValidationState(
@@ -290,6 +353,25 @@ namespace TinnosukeGameLib.Tests.Editor
                 new[] { ServiceIdentity(11) },
                 new[] { ScopeIdentity(21) },
                 new[] { ScopeIdentity(21) }), Throws.ArgumentException);
+        }
+
+        [Test]
+        public void BootValidationInput_RejectsMissingScopeGraphPlan()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Release);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Release);
+
+            Assert.That(() => new BootValidationInput(
+                manifest,
+                profile,
+                artifactSetReferencePresent: true,
+                dependencyValidationStatus: ValidationResultStatus.Passed,
+                artifactState: CreatePassingArtifactState(manifest),
+                rootState: CreatePassingRootState(),
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                serviceGraphPlan: CreateEmptyServiceGraphPlan(),
+                scopeGraphPlan: null!,
+                debugMap: CreateDebugMap(manifest)), Throws.ArgumentNullException);
         }
 
         static BootArtifactValidationState CreatePassingArtifactState(KernelBootManifest manifest)
@@ -312,6 +394,41 @@ namespace TinnosukeGameLib.Tests.Editor
                 new[] { ServiceIdentity(11) },
                 new[] { ScopeIdentity(21) },
                 new[] { ScopeIdentity(21) });
+        }
+
+        static ScopeGraphPlan CreateScopeGraphPlan(int artifactSetId = 11)
+        {
+            ScopeIR[] scopes =
+            {
+                new ScopeIR(
+                    new ScopeAuthoringId(1),
+                    new ScopePlanId(21),
+                    "Scope21",
+                    ScopeKind.Root,
+                    new ModuleId(10),
+                    default,
+                    Array.Empty<ScopeServiceRequirementIR>(),
+                    Array.Empty<ScopeValueInitRefIR>(),
+                    new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.Detached, 0, new SourceLocationId(31)),
+                    new LifecyclePlanRefIR(new LifecyclePlanId(41), new SourceLocationId(32)),
+                    new SourceLocationId(33))
+            };
+
+            Hash128 contentHash = KernelProjectionHashing.ComputeScopeGraphHash(scopes);
+            VerifiedArtifactHeader header = new VerifiedArtifactHeader(
+                new PlanId(32),
+                new ArtifactSetId(artifactSetId),
+                new ArtifactId(2),
+                ArtifactKind.ScopeGraph,
+                11,
+                new UnityEngine.Hash128(1, 2, 3, 4),
+                new UnityEngine.Hash128(5, 6, 7, 8),
+                new UnityEngine.Hash128(9, 9, 9, 9),
+                new UnityEngine.Hash128(6, 6, 6, 6),
+                contentHash,
+                "BootValidationTests");
+
+            return new ScopeGraphPlan(header, scopes);
         }
 
         static KernelBootManifest CreateManifest(KernelProfileId profileId, KernelProfileKind profileKind)
@@ -348,6 +465,38 @@ namespace TinnosukeGameLib.Tests.Editor
         static string EmptyDebugMapHash()
         {
             return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(Array.Empty<string>()).ToString();
+        }
+
+        static KernelDebugMap CreateDebugMap(KernelBootManifest manifest, bool includeServiceEntry = false)
+        {
+            KernelDebugMapEntry[] entries = includeServiceEntry
+                ? new[]
+                {
+                    new KernelDebugMapEntry(
+                        ServiceIdentity(11),
+                        "Service11",
+                        new ModuleId(10),
+                        new SourceLocationId(11),
+                        KernelProfileMask.Release,
+                        new Hash128(7, 7, 7, 7))
+                }
+                : Array.Empty<KernelDebugMapEntry>();
+
+            Hash128 contentHash = KernelProjectionHashing.ComputeDebugMapHash(entries);
+            VerifiedArtifactHeader header = new VerifiedArtifactHeader(
+                manifest.ArtifactSet.PlanId,
+                manifest.ArtifactSet.ArtifactSetId,
+                new ArtifactId(7),
+                ArtifactKind.KernelDebugMap,
+                manifest.ArtifactSet.FormatVersion,
+                Hash128Serialization.Parse(manifest.ArtifactSet.KernelIRHash),
+                Hash128Serialization.Parse(manifest.ArtifactSet.RegistryHash!),
+                Hash128Serialization.Parse(manifest.ArtifactSet.ProfileHash),
+                contentHash,
+                contentHash,
+                "BootValidationTests");
+
+            return new KernelDebugMap(header, entries);
         }
 
         static void AssertPayloadEntry(KernelDiagnostic diagnostic, string key, string expectedValue)

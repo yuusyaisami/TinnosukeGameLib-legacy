@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game;
@@ -20,6 +21,23 @@ namespace Game.Commands.VNext
         bool IsExecuting { get; }
         UniTask WaitUntilIdleAsync(CancellationToken ct = default);
         UniTask WaitUntilScopeIdleAsync(IScopeNode scope, CancellationToken ct = default);
+    }
+
+    public interface ICommandDetachedRunner
+    {
+        CommandRunResult StartDetached(
+            CommandContext ctx,
+            CommandDetachedExecutionPolicy policy,
+            CancellationToken callerToken,
+            Func<CommandContext, CancellationToken, UniTask<CommandRunResult>> work);
+
+        CommandRunResult StartDetachedList(
+            CommandListData list,
+            CommandListData onCanceled,
+            CommandContext ctx,
+            CommandDetachedExecutionPolicy policy,
+            CancellationToken callerToken,
+            CommandRunOptions options);
     }
 
     public interface ICommandRunnerDefaultVarsProvider

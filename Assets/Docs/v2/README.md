@@ -23,6 +23,7 @@
 - [15 Test and Validation Specification](15_TestAndValidationSpec.md)
 - [16 Implementation Milestone Order Specification](16_ImplementationMilestoneOrderSpec.md)
 - [17 Assembly Definition and Compile Boundary Specification](17_AssemblyDefinitionAndCompileBoundarySpec.md)
+- [Hub Classification Inventory](Index/HubClassificationInventory.md)
 - [Diagnostic Code Traceability Catalog](Index/DiagnosticCodeTraceabilityCatalog.md)
 
 初回の v2 文書では、現行実装の観測結果と移行先の target policy を分離することを最優先にしています。

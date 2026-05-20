@@ -2,7 +2,7 @@
 
 namespace Game.Commands.VNext
 {
-    public interface ICommandCatalog
+    public interface ICommandCatalog : ICommandPayloadSchemaCatalog
     {
         bool TryResolve(CommandKeyId keyId, out ICommandData data);
         bool TryResolve(CommandKeyRef key, out ICommandData data);

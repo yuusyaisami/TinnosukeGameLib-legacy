@@ -51,6 +51,67 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void ComputeNormalizedHash_ScopeServiceBoundaryChangesChangeHash()
+        {
+            KernelIR ownedBoundary = CreateKernelIR(
+                reverseNestedOrder: false,
+                moduleVersion: 1,
+                sourceGeneratorName: "ModuleProjector",
+                scopeServiceBoundary: new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.OwnedLocal, 1, new SourceLocationId(3)));
+
+            KernelIR parentBoundary = CreateKernelIR(
+                reverseNestedOrder: false,
+                moduleVersion: 1,
+                sourceGeneratorName: "ModuleProjector",
+                scopeServiceBoundary: new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.ReferencesParent, 0, new SourceLocationId(3)));
+
+            Hash128 ownedBoundaryHash = KernelIRHashing.ComputeNormalizedHash(ownedBoundary);
+            Hash128 parentBoundaryHash = KernelIRHashing.ComputeNormalizedHash(parentBoundary);
+
+            Assert.That(parentBoundaryHash, Is.Not.EqualTo(ownedBoundaryHash));
+        }
+
+        [Test]
+        public void ComputeNormalizedHash_ScopeUnityObjectLinkChangesChangeHash()
+        {
+            KernelIR baseline = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector");
+            KernelIR linked = CreateKernelIR(
+                reverseNestedOrder: false,
+                moduleVersion: 1,
+                sourceGeneratorName: "ModuleProjector",
+                scopeUnityObjectLink: new UnityObjectLinkIR("Scene", "scene-guid-1", 101, "BattleScopeAuthoring", new SourceLocationId(4)));
+
+            Hash128 baselineHash = KernelIRHashing.ComputeNormalizedHash(baseline);
+            Hash128 linkedHash = KernelIRHashing.ComputeNormalizedHash(linked);
+
+            Assert.That(linkedHash, Is.Not.EqualTo(baselineHash));
+        }
+
+        [Test]
+        public void ComputeNormalizedHash_LifecycleFailurePolicyChangesChangeHash()
+        {
+            KernelIR baseline = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector", lifecycleFailurePolicy: LifecycleFailurePolicy.FailKernel);
+            KernelIR changedPolicy = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector", lifecycleFailurePolicy: LifecycleFailurePolicy.FailScope);
+
+            Hash128 baselineHash = KernelIRHashing.ComputeNormalizedHash(baseline);
+            Hash128 changedHash = KernelIRHashing.ComputeNormalizedHash(changedPolicy);
+
+            Assert.That(changedHash, Is.Not.EqualTo(baselineHash));
+        }
+
+        [Test]
+        public void ComputeNormalizedHash_LifecycleFailurePolicyExplicitnessChangesChangeHash()
+        {
+            KernelIR explicitPolicy = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector", lifecycleFailurePolicy: LifecycleFailurePolicy.FailKernel, lifecycleFailurePolicyIsExplicit: true);
+            KernelIR defaultedPolicy = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector", lifecycleFailurePolicy: LifecycleFailurePolicy.FailKernel, lifecycleFailurePolicyIsExplicit: false);
+
+            Hash128 explicitHash = KernelIRHashing.ComputeNormalizedHash(explicitPolicy);
+            Hash128 defaultedHash = KernelIRHashing.ComputeNormalizedHash(defaultedPolicy);
+
+            Assert.That(defaultedHash, Is.Not.EqualTo(explicitHash));
+        }
+
+        [Test]
         public void ComputeNormalizedHash_RuntimeCycleMediationChangesChangeHash()
         {
             KernelIR baseline = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector");
@@ -142,7 +203,9 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(firstDump, Does.Contain("Modules (2):"));
             Assert.That(firstDump, Does.Contain("Required=[ModuleId(2)@SourceLocationId(1)]"));
             Assert.That(firstDump, Does.Contain("Services (1):"));
+            Assert.That(firstDump, Does.Contain("ServiceBoundary=OwnedLocal("));
             Assert.That(firstDump, Does.Contain("Contracts=[IBattleService@SourceLocationId(3), ISharedService@SourceLocationId(3)]"));
+            Assert.That(firstDump, Does.Contain("AuthoringKey=battle.command@CommandAuthoringKeyId(7)@SourceLocationId(6)"));
             Assert.That(firstDump, Does.Contain("PayloadSchema=CommandPayloadSchemaId(4)@SourceLocationId(6)"));
             Assert.That(firstDump, Does.Contain("RuntimeQueries (1):"));
             Assert.That(firstDump, Does.Contain("IndexedFields=[OwnerModule:Type=ModuleId:Required=False, ServiceId:Type=ServiceId:Required=True]"));
@@ -153,7 +216,7 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(report.NormalizedHash, Is.EqualTo(KernelIRHashing.ComputeNormalizedHash(first)));
         }
 
-        static KernelIR CreateKernelIR(bool reverseNestedOrder, int moduleVersion, string sourceGeneratorName, int serviceSourceId = 3, RuntimeCycleMediationKind dependencyRuntimeCycleMediation = RuntimeCycleMediationKind.None, LegacyCompatDescriptorIR? primaryModuleLegacyCompat = null)
+        static KernelIR CreateKernelIR(bool reverseNestedOrder, int moduleVersion, string sourceGeneratorName, int serviceSourceId = 3, RuntimeCycleMediationKind dependencyRuntimeCycleMediation = RuntimeCycleMediationKind.None, LegacyCompatDescriptorIR? primaryModuleLegacyCompat = null, ScopeServiceBoundaryIR? scopeServiceBoundary = null, UnityObjectLinkIR? scopeUnityObjectLink = null, LifecycleFailurePolicy lifecycleFailurePolicy = LifecycleFailurePolicy.FailKernel, bool lifecycleFailurePolicyIsExplicit = true, KernelProfileMask lifecycleFailurePolicyJustificationProfiles = KernelProfileMask.None, string? lifecycleFailurePolicyJustification = null)
         {
             SourceLocationTable sources = new SourceLocationTable(new[]
             {
@@ -215,8 +278,10 @@ namespace TinnosukeGameLib.Tests.Editor
                 default,
                 new[] { new ScopeServiceRequirementIR(new ServiceId(11), DependencyStrength.Required, new SourceLocationId(4)) },
                 new[] { new ScopeValueInitRefIR(new ValueInitPlanId(7), new SourceLocationId(4)) },
+                scopeServiceBoundary ?? new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.OwnedLocal, 1, new SourceLocationId(4)),
                 new LifecyclePlanRefIR(new LifecyclePlanId(21), new SourceLocationId(5)),
-                new SourceLocationId(4));
+                new SourceLocationId(4),
+                scopeUnityObjectLink);
 
             DependencyEdgeIR dependency = new DependencyEdgeIR(
                 new DependencyEdgeId(1),
@@ -243,12 +308,16 @@ namespace TinnosukeGameLib.Tests.Editor
                         new[] { new DependencyEdgeId(1) },
                         new SourceLocationId(5)),
                 },
-                new SourceLocationId(5));
+                    new SourceLocationId(5),
+                    lifecycleFailurePolicy,
+                    lifecycleFailurePolicyIsExplicit,
+                    lifecycleFailurePolicyJustificationProfiles,
+                    lifecycleFailurePolicyJustification);
 
             CommandIR command = new CommandIR(
                 new CommandTypeId(12),
                 "BattleCommand",
-                "battle.command",
+                new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(7), "battle.command", new SourceLocationId(6)),
                 new CommandCategoryId(3),
                 new ModuleId(8),
                 new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(4), new SourceLocationId(6)),
@@ -394,12 +463,16 @@ namespace TinnosukeGameLib.Tests.Editor
                         new[] { new DependencyEdgeId(1) },
                         new SourceLocationId(4)),
                 },
-                new SourceLocationId(4));
+                    new SourceLocationId(4),
+                    LifecycleFailurePolicy.FailKernel,
+                    true,
+                    KernelProfileMask.None,
+                    null);
 
             CommandIR command = new CommandIR(
                 new CommandTypeId(12),
                 "BattleCommand",
-                "battle.command",
+                new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(6), "battle.command", new SourceLocationId(5)),
                 new CommandCategoryId(3),
                 new ModuleId(8),
                 new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(4), new SourceLocationId(5)),

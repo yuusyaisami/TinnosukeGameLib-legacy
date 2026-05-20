@@ -1041,7 +1041,7 @@ namespace Game.Common
     /// Variant / ManagedRef 荳｡譁ｹ繧偵し繝昴・繝医・
     /// </summary>
     [Serializable]
-    public sealed class VarStoreSource : IDynamicSource
+    public sealed class VarStoreSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, InlineProperty, HideLabel]
         VarKeyRef key;
@@ -1080,6 +1080,15 @@ namespace Game.Common
                 return v;
 
             return DynamicVariant.Null;
+        }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var varId = ResolveVarId();
+            if (varId <= 0 || context?.Vars == null)
+                return 0;
+
+            return context.Vars.GetVarVersion(varId);
         }
 
         int ResolveVarId()
@@ -1361,7 +1370,7 @@ namespace Game.Common
     /// 閾ｪ繧ｹ繧ｳ繝ｼ繝励・ Blackboard 縺九ｉ蛟､繧定ｪｭ縺ｿ蜿悶ｋ繧ｽ繝ｼ繧ｹ縲・
     /// </summary>
     [Serializable]
-    public sealed class SelfBlackboardSource : IDynamicSource
+    public sealed class SelfBlackboardSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Blackboard Key"), VarIdDropdown]
         int blackboardId;
@@ -1438,6 +1447,40 @@ namespace Game.Common
             return BlackboardSourceUtility.ApplyFallback(context.Scope, bb, blackboardId, resolvedFallback, initialValue);
         }
 
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = fallbackInitialValue.GetSourceDependencyRevision(context);
+            if (context?.Scope == null || blackboardId == 0)
+                return revision;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (!vars.Contains(blackboardId))
+                        continue;
+
+                    var scopeIdentity = DynamicEvaluationOrigin.ComputeStableScopeIdentity(node);
+                    var varVersion = vars.GetVarVersion(blackboardId);
+                    return TableVarStoreSourceUtility.CombineRevision(revision, scopeIdentity, varVersion);
+                }
+
+                return revision;
+            }
+
+            if (!context.Scope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null || bb.LocalVars == null)
+                return revision;
+
+            if (!bb.LocalVars.Contains(blackboardId))
+                return revision;
+
+            var localScopeIdentity = DynamicEvaluationOrigin.ComputeStableScopeIdentity(context.Scope);
+            return TableVarStoreSourceUtility.CombineRevision(revision, localScopeIdentity, bb.LocalVars.GetVarVersion(blackboardId));
+        }
+
         static bool TryGetHierarchical(IScopeNode? origin, int varId, IDynamicContext context, out DynamicVariant value)
         {
             // Search nearest -> farthest by scope parent chain.
@@ -1491,7 +1534,7 @@ namespace Game.Common
     /// 莉悶せ繧ｳ繝ｼ繝励・ Blackboard 縺九ｉ蛟､繧定ｪｭ縺ｿ蜿悶ｋ繧ｽ繝ｼ繧ｹ縲・
     /// </summary>
     [Serializable]
-    public sealed class OtherBlackboardSource : IDynamicSource
+    public sealed class OtherBlackboardSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Blackboard Key"), VarIdDropdown]
         int blackboardId;
@@ -1594,6 +1637,43 @@ namespace Game.Common
             return BlackboardSourceUtility.ApplyFallback(targetScope, bb, blackboardId, resolvedFallback, initialValue);
         }
 
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = fallbackInitialValue.GetSourceDependencyRevision(context);
+            if (context == null || blackboardId == 0)
+                return revision;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return revision;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (!vars.Contains(blackboardId))
+                        continue;
+
+                    var scopeIdentity = DynamicEvaluationOrigin.ComputeStableScopeIdentity(node);
+                    return TableVarStoreSourceUtility.CombineRevision(revision, scopeIdentity, vars.GetVarVersion(blackboardId));
+                }
+
+                return revision;
+            }
+
+            if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null || bb.LocalVars == null)
+                return revision;
+
+            if (!bb.LocalVars.Contains(blackboardId))
+                return revision;
+
+            var targetScopeIdentity = DynamicEvaluationOrigin.ComputeStableScopeIdentity(targetScope);
+            return TableVarStoreSourceUtility.CombineRevision(revision, targetScopeIdentity, bb.LocalVars.GetVarVersion(blackboardId));
+        }
+
         static bool TryGetHierarchical(IScopeNode? origin, int varId, IDynamicContext context, out DynamicVariant value)
         {
             for (IScopeNode? node = origin; node != null; node = node.Parent)
@@ -1636,7 +1716,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class SelfGridBlackboardSource : IDynamicSource
+    public sealed class SelfGridBlackboardSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField, LabelText("Var Key縺ｧ邨槭ｊ霎ｼ繧")]
         bool useVarKeyFilter = true;
@@ -1659,6 +1739,8 @@ namespace Game.Common
             => useVarKeyFilter
                 ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
                 : "(first var in cell)";
+
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -1689,7 +1771,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class OtherGridBlackboardSource : IDynamicSource
+    public sealed class OtherGridBlackboardSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField, LabelText("Use Var Key Filter")]
         bool useVarKeyFilter = true;
@@ -1717,6 +1799,8 @@ namespace Game.Common
             => useVarKeyFilter
                 ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
                 : "(first var in cell)";
+
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -1750,7 +1834,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class SelfGridBlackboardColumnCountSource : IDynamicSource
+    public sealed class SelfGridBlackboardColumnCountSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField, LabelText("Use Var Key Filter")]
         bool useVarKeyFilter = true;
@@ -1770,6 +1854,8 @@ namespace Game.Common
             => useVarKeyFilter
                 ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
                 : "(all vars)";
+
+        public bool AllowTrackedEvaluation => false;
 
         internal bool TryGetGridLinkHint(IDynamicContext context, out int rowIndex, out int filterVarId)
         {
@@ -1833,7 +1919,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class OtherGridBlackboardColumnCountSource : IDynamicSource
+    public sealed class OtherGridBlackboardColumnCountSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField, LabelText("Use Var Key Filter")]
         bool useVarKeyFilter = true;
@@ -1857,6 +1943,8 @@ namespace Game.Common
             => useVarKeyFilter
                 ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
                 : "(all vars)";
+
+        public bool AllowTrackedEvaluation => false;
 
         internal bool TryGetGridLinkHint(IDynamicContext context, out int rowIndex, out int filterVarId)
         {
@@ -1924,7 +2012,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class SelfGridBlackboardRowCountSource : IDynamicSource
+    public sealed class SelfGridBlackboardRowCountSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField, LabelText("Use Var Key Filter")]
         bool useVarKeyFilter = true;
@@ -1941,6 +2029,8 @@ namespace Game.Common
             => useVarKeyFilter
                 ? (VarIdResolver.TryGetIdToStable(varIdFilter) ?? "(none)")
                 : "(all vars)";
+
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -1982,7 +2072,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class SelfTableRowCountSource : IDynamicSource
+    public sealed class SelfTableRowCountSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
         int tableVarId;
@@ -2019,10 +2109,35 @@ namespace Game.Common
                 ? DynamicVariant.FromInt(localCount)
                 : DynamicVariant.Null;
         }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            if (context?.Scope == null || tableVarId == 0)
+                return 0;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.ContainsTable(tableVarId))
+                        return vars.GetTableVersion(tableVarId);
+                }
+
+                return 0;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
+                return 0;
+
+            return localVars.ContainsTable(tableVarId) ? localVars.GetTableVersion(tableVarId) : 0;
+        }
     }
 
     [Serializable]
-    public sealed class OtherTableRowCountSource : IDynamicSource
+    public sealed class OtherTableRowCountSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
         int tableVarId;
@@ -2068,10 +2183,39 @@ namespace Game.Common
                 ? DynamicVariant.FromInt(localCount)
                 : DynamicVariant.Null;
         }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            if (context == null || tableVarId == 0)
+                return 0;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return 0;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.ContainsTable(tableVarId))
+                        return vars.GetTableVersion(tableVarId);
+                }
+
+                return 0;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
+                return 0;
+
+            return localVars.ContainsTable(tableVarId) ? localVars.GetTableVersion(tableVarId) : 0;
+        }
     }
 
     [Serializable]
-    public sealed class SelfTableColumnCountSource : IDynamicSource
+    public sealed class SelfTableColumnCountSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
         int tableVarId;
@@ -2115,10 +2259,42 @@ namespace Game.Common
                 ? DynamicVariant.FromInt(localCount)
                 : DynamicVariant.Null;
         }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = row.GetSourceDependencyRevision(context);
+            if (context?.Scope == null || tableVarId == 0)
+                return revision;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            if (rowIndex < 0)
+                return revision;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableRowVersion(tableVarId, rowIndex, out var rowVersion))
+                        return unchecked((revision * 397) ^ rowVersion);
+                }
+
+                return revision;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
+                return revision;
+
+            return localVars.TryGetTableRowVersion(tableVarId, rowIndex, out var localRowVersion)
+                ? unchecked((revision * 397) ^ localRowVersion)
+                : revision;
+        }
     }
 
     [Serializable]
-    public sealed class OtherTableColumnCountSource : IDynamicSource
+    public sealed class OtherTableColumnCountSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
         int tableVarId;
@@ -2171,10 +2347,46 @@ namespace Game.Common
                 ? DynamicVariant.FromInt(localCount)
                 : DynamicVariant.Null;
         }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = row.GetSourceDependencyRevision(context);
+            if (context == null || tableVarId == 0)
+                return revision;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            if (rowIndex < 0)
+                return revision;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return revision;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableRowVersion(tableVarId, rowIndex, out var rowVersion))
+                        return unchecked((revision * 397) ^ rowVersion);
+                }
+
+                return revision;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
+                return revision;
+
+            return localVars.TryGetTableRowVersion(tableVarId, rowIndex, out var localRowVersion)
+                ? unchecked((revision * 397) ^ localRowVersion)
+                : revision;
+        }
     }
 
     [Serializable]
-    public sealed class SelfTableCellExistsSource : IDynamicSource
+    public sealed class SelfTableCellExistsSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
         int tableVarId;
@@ -2220,10 +2432,43 @@ namespace Game.Common
 
             return DynamicVariant.FromBool(localVars.TryHasTableCell(tableVarId, rowIndex, columnIndex));
         }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = unchecked((row.GetSourceDependencyRevision(context) * 397) ^ column.GetSourceDependencyRevision(context));
+            if (context?.Scope == null || tableVarId == 0)
+                return revision;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            var columnIndex = TableVarStoreSourceUtility.EvaluateIndex(context, column);
+            if (rowIndex < 0 || columnIndex < 0)
+                return revision;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableCellVersion(tableVarId, rowIndex, columnIndex, out var cellVersion))
+                        return unchecked((revision * 397) ^ cellVersion);
+                }
+
+                return revision;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
+                return revision;
+
+            return localVars.TryGetTableCellVersion(tableVarId, rowIndex, columnIndex, out var localCellVersion)
+                ? unchecked((revision * 397) ^ localCellVersion)
+                : revision;
+        }
     }
 
     [Serializable]
-    public sealed class OtherTableCellExistsSource : IDynamicSource
+    public sealed class OtherTableCellExistsSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
         int tableVarId;
@@ -2278,10 +2523,47 @@ namespace Game.Common
 
             return DynamicVariant.FromBool(localVars.TryHasTableCell(tableVarId, rowIndex, columnIndex));
         }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = unchecked((row.GetSourceDependencyRevision(context) * 397) ^ column.GetSourceDependencyRevision(context));
+            if (context == null || tableVarId == 0)
+                return revision;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            var columnIndex = TableVarStoreSourceUtility.EvaluateIndex(context, column);
+            if (rowIndex < 0 || columnIndex < 0)
+                return revision;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return revision;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableCellVersion(tableVarId, rowIndex, columnIndex, out var cellVersion))
+                        return unchecked((revision * 397) ^ cellVersion);
+                }
+
+                return revision;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
+                return revision;
+
+            return localVars.TryGetTableCellVersion(tableVarId, rowIndex, columnIndex, out var localCellVersion)
+                ? unchecked((revision * 397) ^ localCellVersion)
+                : revision;
+        }
     }
 
     [Serializable]
-    public sealed class SelfTableCellSource : IDynamicSource
+    public sealed class SelfTableCellSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
         int tableVarId;
@@ -2341,10 +2623,43 @@ namespace Game.Common
                 ? localValue
                 : DynamicVariant.Null;
         }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = unchecked((row.GetSourceDependencyRevision(context) * 397) ^ column.GetSourceDependencyRevision(context));
+            if (context?.Scope == null || tableVarId == 0)
+                return revision;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            var columnIndex = TableVarStoreSourceUtility.EvaluateIndex(context, column);
+            if (rowIndex < 0 || columnIndex < 0)
+                return revision;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = context.Scope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableCellVersion(tableVarId, rowIndex, columnIndex, out var cellVersion))
+                        return unchecked((revision * 397) ^ cellVersion);
+                }
+
+                return revision;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
+                return revision;
+
+            return localVars.TryGetTableCellVersion(tableVarId, rowIndex, columnIndex, out var localCellVersion)
+                ? unchecked((revision * 397) ^ localCellVersion)
+                : revision;
+        }
     }
 
     [Serializable]
-    public sealed class OtherTableCellSource : IDynamicSource
+    public sealed class OtherTableCellSource : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Table Var Key"), VarIdDropdown]
         int tableVarId;
@@ -2413,10 +2728,58 @@ namespace Game.Common
                 ? localValue
                 : DynamicVariant.Null;
         }
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = unchecked((row.GetSourceDependencyRevision(context) * 397) ^ column.GetSourceDependencyRevision(context));
+            if (context == null || tableVarId == 0)
+                return revision;
+
+            var rowIndex = TableVarStoreSourceUtility.EvaluateIndex(context, row);
+            var columnIndex = TableVarStoreSourceUtility.EvaluateIndex(context, column);
+            if (rowIndex < 0 || columnIndex < 0)
+                return revision;
+
+            var targetScope = ActorSourceFastResolver.ResolveCached(context, targetActor, ref _cache);
+            if (targetScope == null)
+                return revision;
+
+            if (readScope == BlackboardReadScope.Global)
+            {
+                for (IScopeNode? node = targetScope; node != null; node = node.Parent)
+                {
+                    if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                        continue;
+
+                    if (vars.TryGetTableCellVersion(tableVarId, rowIndex, columnIndex, out var cellVersion))
+                        return unchecked((revision * 397) ^ cellVersion);
+                }
+
+                return revision;
+            }
+
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
+                return revision;
+
+            return localVars.TryGetTableCellVersion(tableVarId, rowIndex, columnIndex, out var localCellVersion)
+                ? unchecked((revision * 397) ^ localCellVersion)
+                : revision;
+        }
     }
 
     static class TableVarStoreSourceUtility
     {
+        public static int CombineRevision(int first, int second, int third)
+        {
+            unchecked
+            {
+                var hash = first;
+                hash = (hash * 397) ^ second;
+                hash = (hash * 397) ^ third;
+                return hash;
+            }
+        }
+
         public static int EvaluateIndex(IDynamicContext context, DynamicValue<int> value)
         {
             if (value.HasSource)

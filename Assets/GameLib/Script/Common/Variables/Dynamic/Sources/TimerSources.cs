@@ -9,7 +9,7 @@ using VContainer;
 namespace Game.Common
 {
     [Serializable]
-    public sealed class TimerValueSource : IDynamicSource
+    public sealed class TimerValueSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [SerializeField, LabelText("Timer Key")]
         string timerKey = "default";
@@ -21,6 +21,7 @@ namespace Game.Common
 
         public string SourceTypeName => "TimerValue";
         public string GetDebugData => timerKey ?? "null";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {

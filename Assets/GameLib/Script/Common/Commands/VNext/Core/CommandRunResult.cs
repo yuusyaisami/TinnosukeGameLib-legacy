@@ -13,6 +13,10 @@ namespace Game.Commands.VNext
         public string Message { get; }
         public IReadOnlyList<CommandRunFrame> Trace { get; }
         public CommandExceptionInfo? Exception { get; }
+        public CommandFrameSnapshot RootFrame { get; }
+        public CommandFailureBoundary AppliedFailureBoundary { get; }
+        public bool TimedOut { get; }
+        public bool DetachedFailure { get; }
 
         public CommandRunResult(
             CommandRunStatus status,
@@ -22,7 +26,11 @@ namespace Game.Commands.VNext
             int errorIndex,
             string message,
             IReadOnlyList<CommandRunFrame>? trace,
-            CommandExceptionInfo? exception)
+            CommandExceptionInfo? exception,
+            CommandFrameSnapshot rootFrame = default,
+            CommandFailureBoundary appliedFailureBoundary = CommandFailureBoundary.FailFrame,
+            bool timedOut = false,
+            bool detachedFailure = false)
         {
             Status = status;
             FailureKind = failureKind;
@@ -32,6 +40,10 @@ namespace Game.Commands.VNext
             Message = message ?? string.Empty;
             Trace = trace ?? System.Array.Empty<CommandRunFrame>();
             Exception = exception;
+            RootFrame = rootFrame;
+            AppliedFailureBoundary = appliedFailureBoundary == default ? CommandFailureBoundary.FailFrame : appliedFailureBoundary;
+            TimedOut = timedOut;
+            DetachedFailure = detachedFailure;
         }
 
         public static CommandRunResult Completed(int lastIndex, int failureCount, CommandRunFailureKind failureKind, int errorIndex, string message, IReadOnlyList<CommandRunFrame>? trace, CommandExceptionInfo? exception)

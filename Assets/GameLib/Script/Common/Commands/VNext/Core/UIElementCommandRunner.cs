@@ -10,12 +10,14 @@ namespace Game.Commands.VNext
     {
         public UIElementCommandRunner(
             IScopeNode scope,
-            CommandExecutorRegistry registry,
+            ICommandExecutorCatalog executorCatalog,
             ICommandCatalog catalog,
             ICommandKeyResolver keyResolver,
             ICommandResolveLogger logger,
+            ICommandPayloadFieldReaderProvider payloadFieldReaderProvider,
+            ICommandPayloadReferenceValidator payloadReferenceValidator,
             VarStorePayload? defaultVars = null)
-            : base(scope, registry, catalog, keyResolver, logger, defaultVars)
+            : base(scope, executorCatalog, catalog, keyResolver, logger, payloadFieldReaderProvider, payloadReferenceValidator, defaultVars)
         {
         }
 

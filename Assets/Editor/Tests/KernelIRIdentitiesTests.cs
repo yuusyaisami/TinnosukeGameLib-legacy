@@ -62,6 +62,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 new IdentityCase("CommandTypeId", typeof(CommandTypeId), value => new CommandTypeId(value), instance => ((CommandTypeId)instance).Value, () => default(CommandTypeId)),
                 new IdentityCase("CommandExecutorId", typeof(CommandExecutorId), value => new CommandExecutorId(value), instance => ((CommandExecutorId)instance).Value, () => default(CommandExecutorId)),
                 new IdentityCase("CommandPayloadSchemaId", typeof(CommandPayloadSchemaId), value => new CommandPayloadSchemaId(value), instance => ((CommandPayloadSchemaId)instance).Value, () => default(CommandPayloadSchemaId)),
+                new IdentityCase("CommandAuthoringKeyId", typeof(CommandAuthoringKeyId), value => new CommandAuthoringKeyId(value), instance => ((CommandAuthoringKeyId)instance).Value, () => default(CommandAuthoringKeyId)),
                 new IdentityCase("ValueKeyId", typeof(ValueKeyId), value => new ValueKeyId(value), instance => ((ValueKeyId)instance).Value, () => default(ValueKeyId)),
                 new IdentityCase("ValueSchemaId", typeof(ValueSchemaId), value => new ValueSchemaId(value), instance => ((ValueSchemaId)instance).Value, () => default(ValueSchemaId)),
                 new IdentityCase("LifecycleStepId", typeof(LifecycleStepId), value => new LifecycleStepId(value), instance => ((LifecycleStepId)instance).Value, () => default(LifecycleStepId)),

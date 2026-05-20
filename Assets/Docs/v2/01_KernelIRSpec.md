@@ -436,7 +436,7 @@ public sealed class CommandIR
 {
     public CommandTypeId TypeId;
     public string RuntimeName;
-    public string AuthoringKey;
+    public CommandAuthoringKeyRefIR AuthoringKey;
     public CommandCategoryId CategoryId;
     public ModuleId OwnerModule;
 
@@ -449,6 +449,13 @@ public sealed class CommandIR
 ```
 
 AuthoringKey is not runtime dispatch identity.
+
+When preserved, authoring-key metadata should remain typed and provenance-aware rather than a bare runtime string.
+The normalized IR shape should carry at least:
+
+- `CommandAuthoringKeyId`
+- normalized authoring-key string value, with surrounding whitespace trimmed before KernelIR entry
+- `SourceLocationId` for the preserved authoring-key metadata
 
 Runtime command dispatch must use CommandTypeId or an equivalent verified runtime identity.
 AuthoringKey may be preserved for editor, migration, and diagnostics.

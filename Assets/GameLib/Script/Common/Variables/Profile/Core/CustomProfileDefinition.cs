@@ -408,14 +408,24 @@ namespace Game.Profile
 
         ScalarRuntimeConfig CreateRuntimeConfig()
         {
+            var useClamp = _useClampMod;
+            var clamp = _clamp;
+
+            if (useClamp && !clamp.TryCreateLiteralClamp(out clamp))
+            {
+                Debug.LogError($"[CustomProfileDefinition] SCALAR_CLAMP_DYNAMIC_UNSUPPORTED key={_scalarKey.Id} name={_scalarKey.Name ?? string.Empty}");
+                useClamp = false;
+                clamp = default;
+            }
+
             return new ScalarRuntimeConfig
             {
                 BaseValue = _floatValue,
                 UseEffectMod = _useEffectMod,
                 UseRoundMod = _useRoundMod,
                 RoundDigits = Mathf.Clamp(_roundDigits, 0, 6),
-                UseClampMod = _useClampMod,
-                Clamp = _clamp
+                UseClampMod = useClamp,
+                Clamp = clamp
             };
         }
 

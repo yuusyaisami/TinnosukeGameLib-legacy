@@ -10,5 +10,11 @@ namespace Game.Commands.VNext
         InvalidArgs = 3,
         Exception = 4,
         Canceled = 5,
+        PayloadInvalid = 6,
+        Timeout = 7,
+        DetachedPolicyMissing = 8,
+        FailureBoundaryViolation = 9,
+        CommandLocalInvalid = 10,
+        LoopBoundMissing = 11,
     }
 }

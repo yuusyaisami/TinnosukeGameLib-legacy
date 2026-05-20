@@ -49,7 +49,7 @@ namespace Game.Kernel.Generation
             Hash128 profileHash = KernelProjectionHashing.ComputeProfileHash(kernelIR, selectedProfile, selectedProfileMask);
 
             Hash128 serviceGraphHash = KernelProjectionHashing.ComputeServiceGraphHash(kernelIR.Services);
-            Hash128 scopeGraphHash = KernelProjectionHashing.ComputeScopeGraphHash(kernelIR.Scopes);
+            Hash128 scopeGraphHash = KernelProjectionHashing.ComputeScopeGraphHash(kernelIR.Scopes, kernelIR.ValueInitPlans);
             Hash128 lifecyclePlanHash = KernelProjectionHashing.ComputeLifecyclePlanHash(kernelIR.Lifecycles);
             Hash128 commandCatalogHash = KernelProjectionHashing.ComputeCommandCatalogHash(kernelIR.Commands);
             Hash128 valueSchemaHash = KernelProjectionHashing.ComputeValueSchemaHash(kernelIR.ValueKeys);
@@ -182,7 +182,7 @@ namespace Game.Kernel.Generation
         static ScopeGraphPlan CreateScopeGraphPlan(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, KernelIR kernelIR, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash, Hash128 generatedHash)
         {
             VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 2, ArtifactKind.ScopeGraph, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
-            return new ScopeGraphPlan(header, kernelIR.Scopes);
+            return new ScopeGraphPlan(header, kernelIR.Scopes, kernelIR.ValueInitPlans);
         }
 
         static LifecyclePlan CreateLifecyclePlan(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, KernelIR kernelIR, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash, Hash128 generatedHash)
@@ -345,11 +345,12 @@ namespace Game.Kernel.Generation
                 }
             }
 
-            ReadOnlySpan<CommandIR> commands = commandCatalog.Commands;
+            ReadOnlySpan<CommandEntryPlan> commands = commandCatalog.Entries;
             for (int index = 0; index < commands.Length; index++)
             {
-                CommandIR command = commands[index];
+                CommandEntryPlan command = commands[index];
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), command.OwnerModule, command.Source);
+                AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), command.OwnerModule, command.AuthoringKey.Source);
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), command.OwnerModule, command.Executor.Source);
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.Id.Value), command.OwnerModule, command.PayloadSchema.Source);
             }
@@ -412,6 +413,7 @@ namespace Game.Kernel.Generation
             for (int index = 0; index < commands.Length; index++)
             {
                 AddCoverage(coverage, new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, commands[index].TypeId.Value));
+                AddCoverage(coverage, new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, commands[index].AuthoringKey.Id.Value));
                 AddCoverage(coverage, new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, commands[index].Executor.Id.Value));
                 AddCoverage(coverage, new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, commands[index].PayloadSchema.Id.Value));
             }
@@ -524,11 +526,12 @@ namespace Game.Kernel.Generation
                 }
             }
 
-            ReadOnlySpan<CommandIR> commands = kernelIR.Commands;
+            ReadOnlySpan<CommandEntryPlan> commands = commandCatalog.Entries;
             for (int index = 0; index < commands.Length; index++)
             {
-                CommandIR command = commands[index];
+                CommandEntryPlan command = commands[index];
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), command.RuntimeName, command.OwnerModule, command.Source, selectedProfileMask, commandCatalogHash));
+                entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), command.RuntimeName + "/AuthoringKey", command.OwnerModule, command.AuthoringKey.Source, selectedProfileMask, commandCatalogHash));
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), command.RuntimeName + "/Executor", command.OwnerModule, command.Executor.Source, selectedProfileMask, commandCatalogHash));
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.Id.Value), command.RuntimeName + "/Payload", command.OwnerModule, command.PayloadSchema.Source, selectedProfileMask, commandCatalogHash));
             }

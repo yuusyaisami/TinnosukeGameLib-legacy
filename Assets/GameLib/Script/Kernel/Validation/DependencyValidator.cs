@@ -13,6 +13,7 @@ namespace Game.Kernel.Validation
         readonly ServiceIR[] services;
         readonly CommandIR[] commands;
         readonly ValueKeyIR[] valueKeys;
+        readonly ValueInitPlanIR[] valueInitPlans;
         readonly LifecycleIR[] lifecycles;
         readonly RuntimeQueryIR[] runtimeQueries;
         readonly DependencyEdgeIR[] dependencies;
@@ -33,7 +34,8 @@ namespace Game.Kernel.Validation
             DependencyEdgeIR[]? dependencies,
             CommandExecutorId[]? commandExecutors = null,
             CommandPayloadSchemaId[]? commandPayloadSchemas = null,
-            SourceLocationTable? sources = null)
+            SourceLocationTable? sources = null,
+            ValueInitPlanIR[]? valueInitPlans = null)
         {
             if (string.IsNullOrWhiteSpace(selectedProfile))
                 throw new ArgumentException("Validation inputs must provide a selected profile.", nameof(selectedProfile));
@@ -51,6 +53,7 @@ namespace Game.Kernel.Validation
             this.services = CloneArray(services, nameof(services))!;
             this.commands = CloneArray(commands, nameof(commands))!;
             this.valueKeys = CloneArray(valueKeys, nameof(valueKeys))!;
+            this.valueInitPlans = CloneArray(valueInitPlans, nameof(valueInitPlans))!;
             this.lifecycles = CloneArray(lifecycles, nameof(lifecycles))!;
             this.runtimeQueries = CloneArray(runtimeQueries, nameof(runtimeQueries))!;
             this.dependencies = CloneArray(dependencies, nameof(dependencies))!;
@@ -72,6 +75,8 @@ namespace Game.Kernel.Validation
         public ReadOnlySpan<CommandIR> Commands => commands;
 
         public ReadOnlySpan<ValueKeyIR> ValueKeys => valueKeys;
+
+        public ReadOnlySpan<ValueInitPlanIR> ValueInitPlans => valueInitPlans;
 
         public ReadOnlySpan<LifecycleIR> Lifecycles => lifecycles;
 
@@ -107,7 +112,8 @@ namespace Game.Kernel.Validation
                 CopySpan(kernelIR.Dependencies),
                 null,
                 null,
-                kernelIR.Sources);
+                kernelIR.Sources,
+                CopySpan(kernelIR.ValueInitPlans));
         }
 
         static T[]? CloneArray<T>(T[]? source, string parameterName, bool allowNull = false)
@@ -259,6 +265,7 @@ namespace Game.Kernel.Validation
         readonly Dictionary<int, ServiceIR> servicesById;
         readonly Dictionary<int, CommandIR> commandsById;
         readonly Dictionary<int, ValueKeyIR> valueKeysById;
+        readonly Dictionary<int, ValueInitPlanIR> valueInitPlansById;
         readonly Dictionary<int, RuntimeQueryIR> runtimeQueriesById;
         readonly Dictionary<int, LifecycleStepRecord> lifecycleStepsById;
         readonly HashSet<int>? commandExecutors;
@@ -275,6 +282,7 @@ namespace Game.Kernel.Validation
             servicesById = IndexServices(input.Services);
             commandsById = IndexCommands(input.Commands);
             valueKeysById = IndexValueKeys(input.ValueKeys);
+            valueInitPlansById = IndexValueInitPlans(input.ValueInitPlans);
             runtimeQueriesById = IndexRuntimeQueries(input.RuntimeQueries);
             lifecycleStepsById = IndexLifecycleSteps(input.Lifecycles);
             commandExecutors = input.HasCommandExecutorRegistry ? IndexValues(input.CommandExecutors) : null;
@@ -315,6 +323,11 @@ namespace Game.Kernel.Validation
         public bool TryGetValueKey(ValueKeyId valueKeyId, out ValueKeyIR valueKey)
         {
             return valueKeysById.TryGetValue(valueKeyId.Value, out valueKey!);
+        }
+
+        public bool TryGetValueInitPlan(ValueInitPlanId valueInitPlanId, out ValueInitPlanIR valueInitPlan)
+        {
+            return valueInitPlansById.TryGetValue(valueInitPlanId.Value, out valueInitPlan!);
         }
 
         public bool TryGetRuntimeQuery(RuntimeQueryId runtimeQueryId, out RuntimeQueryIR runtimeQuery)
@@ -369,6 +382,11 @@ namespace Game.Kernel.Validation
             return IsModuleAvailable(valueKey.OwnerModule);
         }
 
+        public bool IsValueInitPlanAvailable(ValueInitPlanIR valueInitPlan)
+        {
+            return IsModuleAvailable(valueInitPlan.OwnerModule) && IsAvailabilityEnabled(valueInitPlan.Availability);
+        }
+
         public bool IsRuntimeQueryAvailable(RuntimeQueryIR runtimeQuery)
         {
             return IsModuleAvailable(runtimeQuery.OwnerModule);
@@ -382,6 +400,33 @@ namespace Game.Kernel.Validation
         public bool IsLifecycleStepAvailable(LifecycleStepRecord step)
         {
             return IsModuleAvailable(step.OwnerModule);
+        }
+
+        public bool HasAvailableValueStoreTarget(string? targetStoreRef, LifecyclePhase phase)
+        {
+            if (string.IsNullOrWhiteSpace(targetStoreRef))
+                return false;
+
+            ReadOnlySpan<ValueInitPlanIR> valueInitPlans = Input.ValueInitPlans;
+            for (int index = 0; index < valueInitPlans.Length; index++)
+            {
+                ValueInitPlanIR valueInitPlan = valueInitPlans[index];
+                if (!StringComparer.Ordinal.Equals(valueInitPlan.TargetStoreRef, targetStoreRef))
+                    continue;
+
+                if (valueInitPlan.ExecutionPhase != phase)
+                    continue;
+
+                if (!IsValueInitPlanAvailable(valueInitPlan))
+                    continue;
+
+                if (!TryGetScopeByPlanId(valueInitPlan.TargetScopePlanId, out ScopeIR scope) || !IsScopeAvailable(scope))
+                    continue;
+
+                return true;
+            }
+
+            return false;
         }
 
         public bool IsNodeAvailable(DependencyNodeIR node)
@@ -405,6 +450,17 @@ namespace Game.Kernel.Validation
                 default:
                     return false;
             }
+        }
+
+        bool IsAvailabilityEnabled(AvailabilityIR availability)
+        {
+            if (!availability.EnabledByDefault)
+                return false;
+
+            if (selectedProfileMask == KernelProfileMask.None)
+                return true;
+
+            return (availability.Profiles & selectedProfileMask) != 0;
         }
 
         public bool TryResolveOwnerModule(DependencyNodeIR node, out ModuleId ownerModule)
@@ -550,6 +606,17 @@ namespace Game.Kernel.Validation
             return result;
         }
 
+        static Dictionary<int, ValueInitPlanIR> IndexValueInitPlans(ReadOnlySpan<ValueInitPlanIR> valueInitPlans)
+        {
+            Dictionary<int, ValueInitPlanIR> result = new Dictionary<int, ValueInitPlanIR>();
+            for (int index = 0; index < valueInitPlans.Length; index++)
+            {
+                result[valueInitPlans[index].PlanId.Value] = valueInitPlans[index];
+            }
+
+            return result;
+        }
+
         static Dictionary<int, RuntimeQueryIR> IndexRuntimeQueries(ReadOnlySpan<RuntimeQueryIR> runtimeQueries)
         {
             Dictionary<int, RuntimeQueryIR> result = new Dictionary<int, RuntimeQueryIR>();
@@ -623,6 +690,7 @@ namespace Game.Kernel.Validation
             ValidationLookupContext context = new ValidationLookupContext(input);
             ValidateModules(context, issues);
             ValidateScopes(context, issues);
+            ValidateValueInitPlans(context, issues);
             ValidateServices(context, issues);
             ValidateLifecycles(context, issues);
             ValidateCommands(context, issues);
@@ -664,6 +732,7 @@ namespace Game.Kernel.Validation
             {
                 ScopeIR scope = scopes[index];
                 ValidateScopeParent(context, scope, issues);
+                ValidateScopeServiceBoundary(context, scope, issues);
 
                 ReadOnlySpan<ScopeServiceRequirementIR> requiredServices = scope.RequiredServices;
                 for (int serviceIndex = 0; serviceIndex < requiredServices.Length; serviceIndex++)
@@ -688,6 +757,42 @@ namespace Game.Kernel.Validation
                         "Scope requires a service that is missing or unavailable for the selected profile.",
                         "Add the required service or enable its owner module for the selected profile."));
                 }
+            }
+        }
+
+        static void ValidateScopeServiceBoundary(ValidationLookupContext context, ScopeIR scope, List<DependencyValidationIssue> issues)
+        {
+            if (scope.RequiredServices.Length > 0 && !scope.ServiceBoundary.OwnsLocalServiceGraph)
+            {
+                issues.Add(new DependencyValidationIssue(
+                    "DEP_SCOPE_SERVICE_BOUNDARY_INVALID",
+                    ValidationSeverity.Error,
+                    ValidationIssueCategory.CrossNode,
+                    new DependencyNodeIR(scope.PlanId),
+                    null,
+                    ValidationPhase.Build,
+                    scope.OwnerModule,
+                    scope.ServiceBoundary.Source,
+                    context.Input.SelectedProfile,
+                    "Scopes with required services must own a local service boundary.",
+                    "Change the scope boundary to own the local service graph or remove the scope-local service requirements."));
+                return;
+            }
+
+            if (scope.ServiceBoundary.ReferencesParentServiceGraph && (scope.Kind == ScopeKind.Root || scope.Kind == ScopeKind.Detached))
+            {
+                issues.Add(new DependencyValidationIssue(
+                    "DEP_SCOPE_SERVICE_BOUNDARY_INVALID",
+                    ValidationSeverity.Error,
+                    ValidationIssueCategory.CrossNode,
+                    new DependencyNodeIR(scope.PlanId),
+                    null,
+                    ValidationPhase.Build,
+                    scope.OwnerModule,
+                    scope.ServiceBoundary.Source,
+                    context.Input.SelectedProfile,
+                    "Root and detached scopes cannot reference a parent service boundary.",
+                    "Change the scope boundary to own the local service graph or re-author the scope as a child scope."));
             }
         }
 
@@ -745,6 +850,98 @@ namespace Game.Kernel.Validation
                 context.Input.SelectedProfile,
                 "Scope parent kind is illegal for the child scope kind.",
                 "Use a parent scope kind that is valid for the child scope kind."));
+        }
+
+        static void ValidateValueInitPlans(ValidationLookupContext context, List<DependencyValidationIssue> issues)
+        {
+            ReadOnlySpan<ScopeIR> scopes = context.Input.Scopes;
+            for (int scopeIndex = 0; scopeIndex < scopes.Length; scopeIndex++)
+            {
+                ScopeIR scope = scopes[scopeIndex];
+                ReadOnlySpan<ScopeValueInitRefIR> scopeValueInitPlans = scope.ValueInitPlans;
+                for (int valueInitIndex = 0; valueInitIndex < scopeValueInitPlans.Length; valueInitIndex++)
+                {
+                    ScopeValueInitRefIR valueInitRef = scopeValueInitPlans[valueInitIndex];
+                    if (!context.TryGetValueInitPlan(valueInitRef.PlanId, out ValueInitPlanIR valueInitPlan) || !context.IsValueInitPlanAvailable(valueInitPlan))
+                    {
+                        issues.Add(new DependencyValidationIssue(
+                            "DEP_VALUE_INIT_PLAN_MISSING",
+                            ValidationSeverity.Error,
+                            ValidationIssueCategory.LocalNode,
+                            new DependencyNodeIR(scope.PlanId),
+                            null,
+                            ValidationPhase.Build,
+                            scope.OwnerModule,
+                            valueInitRef.Source,
+                            context.Input.SelectedProfile,
+                            "Scope references a value init plan that is missing or unavailable for the selected profile.",
+                            "Add the referenced value init plan or enable its owner module for the selected profile."));
+                        continue;
+                    }
+
+                    if (valueInitPlan.TargetScopePlanId != scope.PlanId)
+                    {
+                        issues.Add(new DependencyValidationIssue(
+                            "DEP_VALUE_INIT_SCOPE_MISMATCH",
+                            ValidationSeverity.Error,
+                            ValidationIssueCategory.CrossNode,
+                            new DependencyNodeIR(scope.PlanId),
+                            new DependencyNodeIR(valueInitPlan.TargetScopePlanId),
+                            ValidationPhase.Build,
+                            scope.OwnerModule,
+                            valueInitRef.Source,
+                            context.Input.SelectedProfile,
+                            "Scope references a value init plan whose target scope does not match the referencing scope.",
+                            "Reference only value init plans whose TargetScopePlanId matches the owning scope."));
+                    }
+                }
+            }
+
+            ReadOnlySpan<ValueInitPlanIR> valueInitPlans = context.Input.ValueInitPlans;
+            for (int planIndex = 0; planIndex < valueInitPlans.Length; planIndex++)
+            {
+                ValueInitPlanIR valueInitPlan = valueInitPlans[planIndex];
+                if (!context.TryGetScopeByPlanId(valueInitPlan.TargetScopePlanId, out ScopeIR targetScope) || !context.IsScopeAvailable(targetScope))
+                {
+                    issues.Add(new DependencyValidationIssue(
+                        "DEP_VALUE_INIT_TARGET_SCOPE_MISSING",
+                        ValidationSeverity.Error,
+                        ValidationIssueCategory.CrossNode,
+                        new DependencyNodeIR(valueInitPlan.TargetScopePlanId),
+                        null,
+                        ValidationPhase.Build,
+                        valueInitPlan.OwnerModule,
+                        valueInitPlan.Source,
+                        context.Input.SelectedProfile,
+                        "Value init plan targets a scope that is missing or unavailable for the selected profile.",
+                        "Add the target scope or enable its owner module for the selected profile."));
+                    continue;
+                }
+
+                if (!context.IsValueInitPlanAvailable(valueInitPlan))
+                    continue;
+
+                ReadOnlySpan<ValueInitEntryIR> entries = valueInitPlan.Entries;
+                for (int entryIndex = 0; entryIndex < entries.Length; entryIndex++)
+                {
+                    ValueInitEntryIR entry = entries[entryIndex];
+                    if (context.TryGetValueKey(entry.KeyId, out ValueKeyIR valueKey) && context.IsValueKeyAvailable(valueKey))
+                        continue;
+
+                    issues.Add(new DependencyValidationIssue(
+                        "DEP_VALUE_INIT_KEY_MISSING",
+                        ValidationSeverity.Error,
+                        ValidationIssueCategory.CrossNode,
+                        new DependencyNodeIR(valueInitPlan.TargetScopePlanId),
+                        new DependencyNodeIR(entry.KeyId),
+                        ValidationPhase.Build,
+                        valueInitPlan.OwnerModule,
+                        entry.Source,
+                        context.Input.SelectedProfile,
+                        "Value init plan entry targets a value key that is missing or unavailable for the selected profile.",
+                        "Add the referenced value key or enable its owner module for the selected profile."));
+                }
+            }
         }
 
         static bool IsLegalParentScopeKind(ScopeKind parentKind, ScopeKind childKind)
@@ -838,6 +1035,16 @@ namespace Game.Kernel.Validation
 
                             issues.Add(CreateInvalidLifecycleTargetIssue(lifecycle, step, context));
                             break;
+
+                        case LifecycleTargetKind.RuntimeObjectOwner:
+                        case LifecycleTargetKind.LegacyAdapter:
+                        case LifecycleTargetKind.ValueStore:
+                            issues.Add(CreateUnsupportedLifecycleLocalTargetIssue(lifecycle, step, context));
+                            break;
+
+                        default:
+                            issues.Add(CreateInvalidLifecycleTargetKindIssue(lifecycle, step, context));
+                            break;
                     }
                 }
             }
@@ -867,7 +1074,39 @@ namespace Game.Kernel.Validation
                 step.Source,
                 context.Input.SelectedProfile,
                 "Lifecycle step target is missing or invalid for the declared target kind.",
-                "Add a target that matches the declared lifecycle target kind." );
+                "Add a target that matches the declared lifecycle target kind.");
+        }
+
+        static DependencyValidationIssue CreateInvalidLifecycleTargetKindIssue(LifecycleIR lifecycle, LifecycleStepIR step, ValidationLookupContext context)
+        {
+            return new DependencyValidationIssue(
+                "DEP_LIFECYCLE_TARGET_INVALID",
+                ValidationSeverity.Error,
+                ValidationIssueCategory.CrossNode,
+                new DependencyNodeIR(step.Id),
+                null,
+                ConvertPhase(step.Phase),
+                lifecycle.OwnerModule,
+                step.Source,
+                context.Input.SelectedProfile,
+                "Lifecycle step target kind is not valid for dependency validation.",
+                "Use a lifecycle target kind that is supported by the verified lifecycle model.");
+        }
+
+        static DependencyValidationIssue CreateUnsupportedLifecycleLocalTargetIssue(LifecycleIR lifecycle, LifecycleStepIR step, ValidationLookupContext context)
+        {
+            return new DependencyValidationIssue(
+            "DEP_LIFECYCLE_TARGET_LOCAL_REF_UNSUPPORTED",
+            ValidationSeverity.Error,
+            ValidationIssueCategory.LocalNode,
+            new DependencyNodeIR(step.Id),
+            null,
+            ConvertPhase(step.Phase),
+            lifecycle.OwnerModule,
+            step.Source,
+            context.Input.SelectedProfile,
+            "Lifecycle local-owner targets require a lower-spec verified runtime boundary that is not implemented in the current kernel runtime.",
+            "Replace the step target with a verified service, scope, or runtime query target, or defer it until the lower-spec runtime boundary exists.");
         }
 
         static void ValidateCommands(ValidationLookupContext context, List<DependencyValidationIssue> issues)
@@ -1870,6 +2109,8 @@ namespace Game.Kernel.Validation
         static void ValidateDuplicateCommands(DependencyValidationInput input, List<DependencyValidationIssue> issues)
         {
             Dictionary<int, CommandIR> seen = new Dictionary<int, CommandIR>();
+            Dictionary<int, CommandIR> seenAuthoringKeyIds = new Dictionary<int, CommandIR>();
+            Dictionary<string, CommandIR> seenAuthoringKeys = new Dictionary<string, CommandIR>(StringComparer.Ordinal);
             ReadOnlySpan<CommandIR> commands = input.Commands;
             for (int index = 0; index < commands.Length; index++)
             {
@@ -1886,6 +2127,34 @@ namespace Game.Kernel.Validation
                         input.SelectedProfile,
                         "Duplicate CommandTypeId detected. Command identities must be unique before runtime.",
                         "Assign a unique CommandTypeId to each command contribution."));
+                }
+
+                if (!seenAuthoringKeyIds.TryAdd(command.AuthoringKey.Id.Value, command))
+                {
+                    CommandIR first = seenAuthoringKeyIds[command.AuthoringKey.Id.Value];
+                    issues.Add(CreateDuplicateIssue(
+                        "DEP_COMMAND_AUTHORING_KEY_ID_DUPLICATE",
+                        new DependencyNodeIR(command.TypeId),
+                        new DependencyNodeIR(first.TypeId),
+                        command.OwnerModule,
+                        command.AuthoringKey.Source,
+                        input.SelectedProfile,
+                        "Duplicate CommandAuthoringKeyId detected. Preserved command authoring identities must be unique before runtime.",
+                        "Assign a unique CommandAuthoringKeyId to each command contribution."));
+                }
+
+                if (!seenAuthoringKeys.TryAdd(command.AuthoringKey.Value, command))
+                {
+                    CommandIR first = seenAuthoringKeys[command.AuthoringKey.Value];
+                    issues.Add(CreateDuplicateIssue(
+                        "DEP_COMMAND_AUTHORING_KEY_DUPLICATE",
+                        new DependencyNodeIR(command.TypeId),
+                        new DependencyNodeIR(first.TypeId),
+                        command.OwnerModule,
+                        command.AuthoringKey.Source,
+                        input.SelectedProfile,
+                        "Duplicate normalized command authoring key detected. Preserved authoring keys must remain unique where command identity provenance is required.",
+                        "Assign a unique normalized authoring key to each command contribution."));
                 }
             }
         }
@@ -2039,90 +2308,8 @@ namespace Game.Kernel.Validation
 
         static void ValidateModules(ValidationLookupContext context, List<DependencyValidationIssue> issues)
         {
-            ReadOnlySpan<ModuleIR> modules = context.Input.Modules;
-            for (int index = 0; index < modules.Length; index++)
-            {
-                ModuleIR module = modules[index];
-                LegacyCompatDescriptorIR? legacyCompat = module.LegacyCompat;
-                if (legacyCompat == null)
-                {
-                    if (module.Kind == ModuleKind.MigrationAdapter)
-                    {
-                        issues.Add(CreateIssue(
-                            "LEGACY_MIGRATION_REQUIRED",
-                            ValidationSeverity.Error,
-                            new DependencyNodeIR(module.Id),
-                            null,
-                            module.Id,
-                            module.Source,
-                            context.Input.SelectedProfile,
-                            "Migration-adapter modules must declare explicit legacy compatibility metadata.",
-                            "Attach explicit legacy compatibility classification and policy metadata to the adapter module."));
-                    }
-
-                    continue;
-                }
-
-                if (legacyCompat.Kind == LegacyCompatKind.ForbiddenFallback)
-                {
-                    issues.Add(CreateLegacyIssue(
-                        context,
-                        new DependencyNodeIR(module.Id),
-                        module,
-                        module.Source,
-                        "LEGACY_FALLBACK_FORBIDDEN",
-                        "Legacy fallback bridges are forbidden by default.",
-                        "Replace fallback behavior with an explicit migrated target-kernel dependency or fail deterministically."));
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(legacyCompat.DiagnosticsCode))
-                {
-                    issues.Add(CreateLegacyIssue(
-                        context,
-                        new DependencyNodeIR(module.Id),
-                        module,
-                        module.Source,
-                        "LEGACY_ADAPTER_DIAGNOSTICS_MISSING",
-                        "Legacy bridge modules must declare a stable diagnostics code.",
-                        "Provide a stable diagnostics code for the legacy bridge descriptor."));
-                }
-
-                if (RequiresRemovalCondition(legacyCompat.Kind) && string.IsNullOrWhiteSpace(legacyCompat.RemovalCondition))
-                {
-                    issues.Add(CreateLegacyIssue(
-                        context,
-                        new DependencyNodeIR(module.Id),
-                        module,
-                        module.Source,
-                        "LEGACY_ADAPTER_REMOVAL_POLICY_MISSING",
-                        "Runtime-capable legacy bridges must declare a removal condition.",
-                        "Declare how and when the legacy bridge will be removed."));
-                }
-
-                if (IsProfileForbidden(legacyCompat, context.Input.SelectedProfileMask))
-                {
-                    issues.Add(CreateLegacyIssue(
-                        context,
-                        new DependencyNodeIR(module.Id),
-                        module,
-                        module.Source,
-                        "LEGACY_PROFILE_FORBIDDEN",
-                        "Legacy bridge kind is forbidden for the selected profile.",
-                        "Remove the live runtime legacy bridge from this profile or migrate the dependency fully into v2."));
-                    continue;
-                }
-
-                issues.Add(CreateLegacyIssue(
-                    context,
-                    new DependencyNodeIR(module.Id),
-                    module,
-                    module.Source,
-                    IsRuntimeCapable(legacyCompat.Kind) ? "LEGACY_RUNTIME_ADAPTER_USED" : "LEGACY_BRIDGE_USED",
-                    "Legacy bridge remains active and must stay explicit, observable, and removable.",
-                    "Continue migration until the legacy bridge can be removed from the verified graph.",
-                    ValidationSeverity.Warning));
-            }
+            LegacyMigrationReport legacyReport = LegacyMigrationReport.Validate(context.Input);
+            issues.AddRange(legacyReport.Issues);
         }
 
         static void ValidateLegacyOwnership(ValidationLookupContext context, List<DependencyValidationIssue> issues)
@@ -2245,8 +2432,7 @@ namespace Game.Kernel.Validation
             for (int moduleIndex = 0; moduleIndex < modules.Length; moduleIndex++)
             {
                 ModuleIR module = modules[moduleIndex];
-                bool isLegacyBridgeModule = IsLegacyBridgeModule(module);
-                if (isLegacyBridgeModule)
+                if (IsLegacyBridgeModule(module))
                     continue;
 
                 ReadOnlySpan<ModuleDependencyIR> requiredModules = module.RequiredModules;

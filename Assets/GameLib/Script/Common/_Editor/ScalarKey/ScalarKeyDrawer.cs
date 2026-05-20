@@ -86,7 +86,7 @@ namespace Game.Scalar.Editor
                     menu.AddItem(new GUIContent(menuPath), isOn, () =>
                     {
                         nameProp.stringValue = capturedKey;
-                        idProp.intValue = Animator.StringToHash(capturedKey);
+                        idProp.intValue = ScalarKeyIdResolver.ResolveOrZero(capturedKey);
                         nameProp.serializedObject.ApplyModifiedProperties();
                     });
                 }

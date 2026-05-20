@@ -64,6 +64,42 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void Validate_DuplicateCommandAuthoringKeyIdProducesStableIssue()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                commands: new[]
+                {
+                    CreateCommand(501, 10, 3, authoringKeyId: 900, authoringKey: "command.alpha"),
+                    CreateCommand(502, 10, 4, authoringKeyId: 900, authoringKey: "command.beta"),
+                });
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_COMMAND_AUTHORING_KEY_ID_DUPLICATE"));
+            Assert.That(report.Issues[0].From.Kind, Is.EqualTo(DependencyNodeKind.Command));
+        }
+
+        [Test]
+        public void Validate_DuplicateCommandAuthoringKeyProducesStableIssue()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                commands: new[]
+                {
+                    CreateCommand(501, 10, 3, authoringKeyId: 901, authoringKey: "command.shared"),
+                    CreateCommand(502, 10, 4, authoringKeyId: 902, authoringKey: "command.shared"),
+                });
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_COMMAND_AUTHORING_KEY_DUPLICATE"));
+            Assert.That(report.Issues[0].From.Kind, Is.EqualTo(DependencyNodeKind.Command));
+        }
+
+        [Test]
         public void Validate_DuplicateStableKeyProducesStableIssue()
         {
             DependencyValidationInput input = CreateBaselineInput(
@@ -558,6 +594,41 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void Validate_ScopeWithRequiredServicesRejectsDetachedBoundary()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                services: new[]
+                {
+                    CreateService(101, 10, 2),
+                },
+                scopes: new[]
+                {
+                    new ScopeIR(
+                        new ScopeAuthoringId(301),
+                        new ScopePlanId(401),
+                        "Scope-401",
+                        ScopeKind.Root,
+                        new ModuleId(10),
+                        default,
+                        new[]
+                        {
+                            new ScopeServiceRequirementIR(new ServiceId(101), DependencyStrength.Required, new SourceLocationId(7)),
+                        },
+                        Array.Empty<ScopeValueInitRefIR>(),
+                        new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.Detached, 0, new SourceLocationId(7)),
+                        new LifecyclePlanRefIR(new LifecyclePlanId(301), new SourceLocationId(7)),
+                        new SourceLocationId(7)),
+                });
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_SCOPE_SERVICE_BOUNDARY_INVALID"));
+            Assert.That(report.Issues[0].From.Kind, Is.EqualTo(DependencyNodeKind.Scope));
+        }
+
+        [Test]
         public void Validate_MissingLifecycleServiceTargetProducesStableIssue()
         {
             DependencyValidationInput input = CreateBaselineInput(
@@ -588,6 +659,95 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
             Assert.That(report.Issues, Has.Count.EqualTo(1));
             Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_LIFECYCLE_TARGET_INVALID"));
+            Assert.That(report.Issues[0].Category, Is.EqualTo(ValidationIssueCategory.CrossNode));
+        }
+
+        [Test]
+        public void Validate_LifecycleLocalOwnerTargetsAreRejectedUntilLowerSpecSupportExists()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                lifecycles: new[]
+                {
+                    CreateLifecycle(301, 10, 5, 401, 6, new LifecycleTargetRefIR(LifecycleTargetKind.LegacyAdapter, "legacy-bridge")),
+                });
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_LIFECYCLE_TARGET_LOCAL_REF_UNSUPPORTED"));
+            Assert.That(report.Issues[0].Category, Is.EqualTo(ValidationIssueCategory.LocalNode));
+        }
+
+        [Test]
+        public void Validate_LifecycleValueStoreTargetIsRejectedUntilRuntimeSupportExists()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                scopes: new[]
+                {
+                    CreateScope(
+                        1,
+                        101,
+                        ScopeKind.Root,
+                        10,
+                        8,
+                        valueInitPlans: new[]
+                        {
+                            new ScopeValueInitRefIR(new ValueInitPlanId(801), new SourceLocationId(8)),
+                        }),
+                },
+                lifecycles: new[]
+                {
+                    CreateLifecycle(
+                        301,
+                        10,
+                        5,
+                        401,
+                        6,
+                        new LifecycleTargetRefIR(LifecycleTargetKind.ValueStore, "local:blackboard"),
+                        phase: LifecyclePhase.Create,
+                        action: LifecycleActionKind.ValueInit),
+                },
+                valueInitPlans: new[]
+                {
+                    CreateValueInitPlan(801, 10, 101, 201, 8, LifecyclePhase.Create, "local:blackboard"),
+                });
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_LIFECYCLE_TARGET_LOCAL_REF_UNSUPPORTED"));
+            Assert.That(report.Issues[0].Category, Is.EqualTo(ValidationIssueCategory.CrossNode));
+        }
+
+        [Test]
+        public void Validate_ValueInitPlanMissingValueKeyProducesStableIssue()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                scopes: new[]
+                {
+                    CreateScope(
+                        1,
+                        101,
+                        ScopeKind.Root,
+                        10,
+                        8,
+                        valueInitPlans: new[]
+                        {
+                            new ScopeValueInitRefIR(new ValueInitPlanId(801), new SourceLocationId(8)),
+                        }),
+                },
+                valueInitPlans: new[]
+                {
+                    CreateValueInitPlan(801, 10, 101, 999, 8, LifecyclePhase.Create, "local:blackboard"),
+                });
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_VALUE_INIT_KEY_MISSING"));
             Assert.That(report.Issues[0].Category, Is.EqualTo(ValidationIssueCategory.CrossNode));
         }
 
@@ -958,6 +1118,35 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void Validate_LegacyBridgeCanDependOnV2AndRemainVisible()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, requiredModules: new[] { new ModuleDependencyIR(new ModuleId(10), new SourceLocationId(5)) }, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration")),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                dependencies: new[]
+                {
+                    CreateDependency(700, DependencyNodeKind.Module, 20, DependencyNodeKind.Module, 10, DependencyPhase.Build, DependencyStrength.Required, 12),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.PassedWithWarnings));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("LEGACY_RUNTIME_ADAPTER_USED"));
+            Assert.That(report.Issues[0].Severity, Is.EqualTo(ValidationSeverity.Warning));
+            Assert.That(report.Issues, Has.None.Matches<DependencyValidationIssue>(issue => issue.Code == "LEGACY_CORE_DEPENDENCY_FORBIDDEN"));
+        }
+
+        [Test]
         public void Validate_ForbiddenFallbackFails()
         {
             DependencyValidationInput input = CreateBaselineInput(
@@ -1187,7 +1376,8 @@ namespace TinnosukeGameLib.Tests.Editor
             DependencyEdgeIR[]? dependencies = null,
             CommandExecutorId[]? commandExecutors = null,
             CommandPayloadSchemaId[]? commandPayloadSchemas = null,
-            SourceLocationTable? sources = null)
+            SourceLocationTable? sources = null,
+            ValueInitPlanIR[]? valueInitPlans = null)
         {
             KernelProfileMask profileMask = selectedProfileMask ?? ParseProfileMask(selectedProfile);
             SourceLocationTable sourceTable = sources ?? CreateSources(16);
@@ -1205,7 +1395,8 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencies ?? Array.Empty<DependencyEdgeIR>(),
                 commandExecutors,
                 commandPayloadSchemas,
-                sourceTable);
+                sourceTable,
+                valueInitPlans);
         }
 
         static ModuleIR CreateModule(int moduleId, int sourceId, ModuleDependencyIR[]? requiredModules = null, ModuleDependencyIR[]? optionalModules = null, ModuleAvailabilityIR? availability = null, ModuleKind kind = ModuleKind.Feature, LegacyCompatDescriptorIR? legacyCompat = null)
@@ -1244,8 +1435,13 @@ namespace TinnosukeGameLib.Tests.Editor
             int ownerModuleId,
             int sourceId,
             int parentAuthoringId = 0,
-            ScopeServiceRequirementIR[]? requiredServices = null)
+            ScopeServiceRequirementIR[]? requiredServices = null,
+            ScopeValueInitRefIR[]? valueInitPlans = null)
         {
+            ScopeServiceBoundaryIR serviceBoundary = parentAuthoringId == 0
+                ? new ScopeServiceBoundaryIR(requiredServices != null && requiredServices.Length > 0 ? ScopeServiceBoundaryKind.OwnedLocal : ScopeServiceBoundaryKind.Detached, requiredServices != null && requiredServices.Length > 0 ? 1 : 0, new SourceLocationId(sourceId))
+                : new ScopeServiceBoundaryIR(requiredServices != null && requiredServices.Length > 0 ? ScopeServiceBoundaryKind.OwnedLocal : ScopeServiceBoundaryKind.ReferencesParent, requiredServices != null && requiredServices.Length > 0 ? 1 : 0, new SourceLocationId(sourceId));
+
             return new ScopeIR(
                 new ScopeAuthoringId(authoringId),
                 new ScopePlanId(planId),
@@ -1254,7 +1450,8 @@ namespace TinnosukeGameLib.Tests.Editor
                 new ModuleId(ownerModuleId),
                 parentAuthoringId == 0 ? default : new ScopeAuthoringId(parentAuthoringId),
                 requiredServices,
-                Array.Empty<ScopeValueInitRefIR>(),
+                valueInitPlans,
+                serviceBoundary,
                 new LifecyclePlanRefIR(new LifecyclePlanId(301), new SourceLocationId(sourceId)),
                 new SourceLocationId(sourceId));
         }
@@ -1272,12 +1469,12 @@ namespace TinnosukeGameLib.Tests.Editor
                 new SourceLocationId(sourceId));
         }
 
-        static CommandIR CreateCommand(int commandTypeId, int ownerModuleId, int sourceId, CommandDependencyIR[]? dependencies = null)
+        static CommandIR CreateCommand(int commandTypeId, int ownerModuleId, int sourceId, CommandDependencyIR[]? dependencies = null, int? authoringKeyId = null, string? authoringKey = null)
         {
             return new CommandIR(
                 new CommandTypeId(commandTypeId),
                 "Command-" + commandTypeId,
-                "authoring.command." + commandTypeId,
+            new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(authoringKeyId ?? commandTypeId), authoringKey ?? ("authoring.command." + commandTypeId), new SourceLocationId(sourceId)),
                 new CommandCategoryId(1),
                 new ModuleId(ownerModuleId),
                 new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(1), new SourceLocationId(sourceId)),
@@ -1299,7 +1496,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 new SourceLocationId(sourceId));
         }
 
-        static LifecycleIR CreateLifecycle(int lifecyclePlanId, int ownerModuleId, int lifecycleSourceId, int stepId, int stepSourceId, LifecycleTargetRefIR? target = null)
+        static LifecycleIR CreateLifecycle(int lifecyclePlanId, int ownerModuleId, int lifecycleSourceId, int stepId, int stepSourceId, LifecycleTargetRefIR? target = null, LifecycleFailurePolicy failurePolicy = LifecycleFailurePolicy.FailScope, LifecyclePhase phase = LifecyclePhase.Boot, LifecycleActionKind action = LifecycleActionKind.ServiceMethod)
         {
             return new LifecycleIR(
                 new LifecyclePlanId(lifecyclePlanId),
@@ -1309,14 +1506,39 @@ namespace TinnosukeGameLib.Tests.Editor
                 {
                     new LifecycleStepIR(
                         new LifecycleStepId(stepId),
-                        LifecyclePhase.Boot,
+                        phase,
                         10,
                         target ?? new LifecycleTargetRefIR(new ServiceId(101)),
-                        LifecycleActionKind.ServiceMethod,
+                        action,
                         Array.Empty<DependencyEdgeId>(),
                         new SourceLocationId(stepSourceId)),
                 },
-                new SourceLocationId(lifecycleSourceId));
+                    new SourceLocationId(lifecycleSourceId),
+                    failurePolicy);
+        }
+
+        static ValueInitPlanIR CreateValueInitPlan(int planId, int ownerModuleId, int targetScopePlanId, int keyId, int sourceId, LifecyclePhase executionPhase, string targetStoreRef)
+        {
+            return new ValueInitPlanIR(
+                new ValueInitPlanId(planId),
+                new ModuleId(ownerModuleId),
+                new ScopePlanId(targetScopePlanId),
+                targetStoreRef,
+                executionPhase,
+                10,
+                new AvailabilityIR(KernelProfileMask.Development, true, null),
+                new[]
+                {
+                    new ValueInitEntryIR(
+                        new ValueKeyId(keyId),
+                        ValueInitEntrySourceKind.Literal,
+                        ValueKind.Int,
+                        10,
+                        ValueInitOverwritePolicy.Overwrite,
+                        new SourceLocationId(sourceId),
+                        serializedValue: "1"),
+                },
+                new SourceLocationId(sourceId));
         }
 
         static RuntimeQueryIR CreateRuntimeQuery(int runtimeQueryId, int ownerModuleId, int sourceId)

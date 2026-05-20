@@ -11,7 +11,7 @@ namespace Game.Common
     /// Supports partial registration by falling back to a default value per axis.
     /// </summary>
     [Serializable]
-    public sealed class SplitVector2Source : IDynamicSource
+    public sealed class SplitVector2Source : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Use X")]
         bool useX = true;
@@ -33,6 +33,18 @@ namespace Game.Common
         public string SourceTypeName => "SplitVec2";
         public string GetDebugData => $"useX={useX}, useY={useY}, fallback=({fallback.x},{fallback.y})";
 
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = 0;
+            if (useX)
+                revision = unchecked((revision * 397) ^ x.GetSourceDependencyRevision(context));
+
+            if (useY)
+                revision = unchecked((revision * 397) ^ y.GetSourceDependencyRevision(context));
+
+            return revision;
+        }
+
         public DynamicVariant Evaluate(IDynamicContext context)
         {
             var vx = useX ? x.GetOrDefault(context, fallback.x) : fallback.x;
@@ -46,7 +58,7 @@ namespace Game.Common
     /// Supports partial registration by falling back to a default value per axis.
     /// </summary>
     [Serializable]
-    public sealed class SplitVector3Source : IDynamicSource
+    public sealed class SplitVector3Source : IDynamicSource, IDynamicSourceDependencyRevisionProvider
     {
         [SerializeField, LabelText("Use X")]
         bool useX = true;
@@ -74,6 +86,21 @@ namespace Game.Common
 
         public string SourceTypeName => "SplitVec3";
         public string GetDebugData => $"useX={useX}, useY={useY}, useZ={useZ}, fallback=({fallback.x},{fallback.y},{fallback.z})";
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = 0;
+            if (useX)
+                revision = unchecked((revision * 397) ^ x.GetSourceDependencyRevision(context));
+
+            if (useY)
+                revision = unchecked((revision * 397) ^ y.GetSourceDependencyRevision(context));
+
+            if (useZ)
+                revision = unchecked((revision * 397) ^ z.GetSourceDependencyRevision(context));
+
+            return revision;
+        }
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {

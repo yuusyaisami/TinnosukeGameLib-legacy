@@ -1,5 +1,4 @@
 #nullable enable
-using System.Collections.Generic;
 using Game;
 using Game.Commands;
 using Game.Common;
@@ -7,31 +6,11 @@ using VContainer;
 
 namespace Game.Commands.VNext
 {
-    public sealed class CommandContext : IDynamicContext
+    public sealed class CommandContext : IDynamicContext, IDynamicDependencyTokenSource, IDynamicEvaluationOriginProvider
     {
-        internal sealed class CommandExecutionControl
-        {
-            bool _breakRequested;
-
-            public void RequestBreak()
-            {
-                _breakRequested = true;
-            }
-
-            public bool TryConsumeBreakRequest()
-            {
-                if (!_breakRequested)
-                    return false;
-
-                _breakRequested = false;
-                return true;
-            }
-        }
-
         readonly IScopeNode?[] _ltsSlots;
-        readonly object _channelExecutionGate;
-        readonly List<string> _channelExecutionStack;
-        readonly CommandExecutionControl _executionControl;
+        readonly CommandLocal _local;
+        readonly CommandFrameSnapshot _currentFrame;
 
         public IScopeNode Scope { get; }
         public IRuntimeResolver Resolver => Scope.Resolver!;
@@ -42,6 +21,8 @@ namespace Game.Commands.VNext
         public IScopeNode? RootActor => GetScope(CommandLtsSlot.RootActor) ?? Actor;
         public IScopeNode? CallerActor => GetScope(CommandLtsSlot.CallerActor) ?? Actor;
         public CommandRunOptions Options { get; }
+        public CommandLocal Local => _local;
+        public CommandFrameSnapshot CurrentFrame => _currentFrame;
 
         public CommandContext(IScopeNode scope, IVarStore vars, ICommandRunner runner)
             : this(scope, vars, runner, actor: scope, options: CommandRunOptions.Default, commandRootScope: scope, rootActor: scope, callerActor: scope)
@@ -63,7 +44,7 @@ namespace Game.Commands.VNext
             IScopeNode? rootActor,
             IScopeNode? callerActor = null,
             CommandContext? sourceContext = null)
-            : this(scope, vars, runner, actor, options, commandRootScope, rootActor, callerActor, sourceContext, executionControl: null)
+            : this(scope, vars, runner, actor, options, commandRootScope, rootActor, callerActor, sourceContext, local: null, currentFrame: default)
         {
         }
 
@@ -77,7 +58,8 @@ namespace Game.Commands.VNext
             IScopeNode? rootActor,
             IScopeNode? callerActor,
             CommandContext? sourceContext,
-            CommandExecutionControl? executionControl)
+            CommandLocal? local,
+            CommandFrameSnapshot currentFrame)
         {
             Scope = scope ?? throw new System.ArgumentNullException(nameof(scope));
             if (Scope.Resolver == null)
@@ -91,15 +73,13 @@ namespace Game.Commands.VNext
             if (sourceContext != null)
             {
                 System.Array.Copy(sourceContext._ltsSlots, _ltsSlots, _ltsSlots.Length);
-                _channelExecutionGate = sourceContext._channelExecutionGate;
-                _channelExecutionStack = sourceContext._channelExecutionStack;
-                _executionControl = executionControl ?? sourceContext._executionControl;
+                _local = local ?? sourceContext._local;
+                _currentFrame = currentFrame.FrameId.IsValid ? currentFrame : sourceContext._currentFrame;
             }
             else
             {
-                _channelExecutionGate = new object();
-                _channelExecutionStack = new List<string>(4);
-                _executionControl = executionControl ?? new CommandExecutionControl();
+                _local = local ?? new CommandLocal(CommandLocalScope.Sequence, default);
+                _currentFrame = currentFrame;
             }
 
             SetStoredScope(CommandLtsSlot.Actor, actor ?? scope);
@@ -115,17 +95,37 @@ namespace Game.Commands.VNext
 
         internal CommandContext CreateExecutionContext()
         {
-            return new CommandContext(Scope, Vars, Runner, Actor, Options, CommandRootScope, RootActor, CallerActor, this, new CommandExecutionControl());
+            var rootLocal = new CommandLocal(CommandLocalScope.Sequence, default, _local);
+            return new CommandContext(Scope, Vars, Runner, Actor, Options, CommandRootScope, RootActor, CallerActor, this, rootLocal, _currentFrame);
+        }
+
+        internal CommandContext AttachFrame(CommandFrame frame, CommandFailureBoundary failureBoundary, bool isDetached, bool isTimedOut)
+        {
+            if (frame == null)
+                throw new System.ArgumentNullException(nameof(frame));
+
+            var snapshot = frame.ToSnapshot(failureBoundary, isDetached, isTimedOut);
+            return new CommandContext(Scope, Vars, Runner, Actor, Options, CommandRootScope, RootActor, CallerActor, this, frame.Local, snapshot);
         }
 
         internal void RequestBreak()
         {
-            _executionControl.RequestBreak();
+            _local.RequestBreak();
+        }
+
+        internal void RequestCancel()
+        {
+            _local.RequestCancel();
         }
 
         internal bool TryConsumeBreakRequest()
         {
-            return _executionControl.TryConsumeBreakRequest();
+            return _local.TryConsumeBreakRequest();
+        }
+
+        internal bool TryConsumeCancelRequest()
+        {
+            return _local.TryConsumeCancelRequest();
         }
 
         public IScopeNode? GetScope(CommandLtsSlot slot)
@@ -163,20 +163,7 @@ namespace Game.Commands.VNext
             if (string.IsNullOrEmpty(key))
                 return false;
 
-            lock (_channelExecutionGate)
-            {
-                if (_channelExecutionStack.Contains(key))
-                {
-                    chain = _channelExecutionStack.Count > 0
-                        ? string.Join(" -> ", _channelExecutionStack)
-                        : "<empty>";
-                    return false;
-                }
-
-                _channelExecutionStack.Add(key);
-                chain = string.Join(" -> ", _channelExecutionStack);
-                return true;
-            }
+            return _local.TryEnterChannelExecution(key, out chain);
         }
 
         internal void ExitChannelExecution(string key)
@@ -184,17 +171,7 @@ namespace Game.Commands.VNext
             if (string.IsNullOrEmpty(key))
                 return;
 
-            lock (_channelExecutionGate)
-            {
-                for (var i = _channelExecutionStack.Count - 1; i >= 0; i--)
-                {
-                    if (!string.Equals(_channelExecutionStack[i], key, System.StringComparison.Ordinal))
-                        continue;
-
-                    _channelExecutionStack.RemoveAt(i);
-                    break;
-                }
-            }
+            _local.ExitChannelExecution(key);
         }
 
         public IScopeNode ResolveOtherScope(CommandTargetIdentityFilter filter)
@@ -207,6 +184,20 @@ namespace Game.Commands.VNext
                 return registry.Resolve(filter, origin);
 
             return origin;
+        }
+
+        public DynamicDependencyTokenSet GetDynamicDependencyTokens()
+        {
+            return new DynamicDependencyTokenSet(
+                runtimeQueryVersion: 0,
+                scopeVersion: 0,
+                commandVersion: _currentFrame.FrameId.Value,
+                extraVersion: 0);
+        }
+
+        public DynamicEvaluationOrigin GetDynamicEvaluationOrigin()
+        {
+            return DynamicEvaluationOrigin.FromScopeNodes(Scope, CommandRootScope, _currentFrame.FrameId.Value);
         }
     }
 }

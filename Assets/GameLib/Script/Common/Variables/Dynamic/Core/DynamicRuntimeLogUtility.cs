@@ -388,7 +388,25 @@ namespace Game.Common
 
         static string DescribeScalarSnapshot(ScalarSnapshot snapshot)
         {
-            var kindLabel = snapshot.Kind == ScalarModKind.Add ? "Add" : "Mul";
+            var laneLabel = snapshot.Lane switch
+            {
+                LayeredNumericLaneKind.Base => "Base",
+                LayeredNumericLaneKind.PrefixMul => "PrefixMul",
+                LayeredNumericLaneKind.Add => "Add",
+                LayeredNumericLaneKind.SuffixMul => "SuffixMul",
+                LayeredNumericLaneKind.FinalClamp => "FinalClamp",
+                LayeredNumericLaneKind.Effective => "Effective",
+                _ => "Unknown",
+            };
+
+            var kindLabel = snapshot.Kind switch
+            {
+                ScalarModKind.Add => "Add",
+                ScalarModKind.Mul => "Mul",
+                ScalarModKind.Clamp => "Clamp",
+                _ => "Unknown",
+            };
+
             var valueText = snapshot.Kind == ScalarModKind.Mul
                 ? "x" + FormatNumber(snapshot.Value)
                 : (snapshot.Value >= 0f ? "+" : string.Empty) + FormatNumber(snapshot.Value);
@@ -396,7 +414,8 @@ namespace Game.Common
             var tagText = string.IsNullOrWhiteSpace(snapshot.Tag) ? string.Empty : " tag=" + snapshot.Tag;
             var layerText = string.IsNullOrWhiteSpace(snapshot.Layer) ? string.Empty : " layer=" + snapshot.Layer;
             var remainText = snapshot.Remain < 0f ? string.Empty : " remain=" + FormatNumber(snapshot.Remain) + "s";
-            return "[" + kindLabel + "] " + valueText + sourceText + tagText + layerText + remainText;
+            var revisionText = " rev=" + snapshot.Revision;
+            return "[" + laneLabel + "/" + kindLabel + "] " + valueText + sourceText + tagText + layerText + remainText + revisionText;
         }
 
         static string FormatNumber(float value)

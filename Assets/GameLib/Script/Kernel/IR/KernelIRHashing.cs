@@ -24,6 +24,7 @@ namespace Game.Kernel.IR
             string[] services,
             string[] commands,
             string[] valueKeys,
+            string[] valueInitPlans,
             string[] lifecycles,
             string[] runtimeQueries,
             string[] dependencies,
@@ -43,6 +44,7 @@ namespace Game.Kernel.IR
             Services = CloneLines(services, nameof(services));
             Commands = CloneLines(commands, nameof(commands));
             ValueKeys = CloneLines(valueKeys, nameof(valueKeys));
+            ValueInitPlans = CloneLines(valueInitPlans, nameof(valueInitPlans));
             Lifecycles = CloneLines(lifecycles, nameof(lifecycles));
             RuntimeQueries = CloneLines(runtimeQueries, nameof(runtimeQueries));
             Dependencies = CloneLines(dependencies, nameof(dependencies));
@@ -76,6 +78,8 @@ namespace Game.Kernel.IR
         public string[] Commands { get; }
 
         public string[] ValueKeys { get; }
+
+        public string[] ValueInitPlans { get; }
 
         public string[] Lifecycles { get; }
 
@@ -199,6 +203,7 @@ namespace Game.Kernel.IR
                 WriteServices(writer, ir.Services, includeSourceData: false);
                 WriteCommands(writer, ir.Commands, includeSourceData: false);
                 WriteValueKeys(writer, ir.ValueKeys, includeSourceData: false);
+                WriteValueInitPlans(writer, ir.ValueInitPlans, includeSourceData: false);
                 WriteLifecycles(writer, ir.Lifecycles, includeSourceData: false);
                 WriteRuntimeQueries(writer, ir.RuntimeQueries, includeSourceData: false);
                 WriteDependencies(writer, ir.Dependencies, includeSourceData: false);
@@ -222,6 +227,7 @@ namespace Game.Kernel.IR
                 WriteServices(writer, ir.Services, includeSourceData: true);
                 WriteCommands(writer, ir.Commands, includeSourceData: true);
                 WriteValueKeys(writer, ir.ValueKeys, includeSourceData: true);
+                WriteValueInitPlans(writer, ir.ValueInitPlans, includeSourceData: true);
                 WriteLifecycles(writer, ir.Lifecycles, includeSourceData: true);
                 WriteRuntimeQueries(writer, ir.RuntimeQueries, includeSourceData: true);
                 WriteDependencies(writer, ir.Dependencies, includeSourceData: true);
@@ -252,6 +258,7 @@ namespace Game.Kernel.IR
                 BuildServiceLines(ir.Services),
                 BuildCommandLines(ir.Commands),
                 BuildValueKeyLines(ir.ValueKeys),
+                BuildValueInitPlanLines(ir.ValueInitPlans),
                 BuildLifecycleLines(ir.Lifecycles),
                 BuildRuntimeQueryLines(ir.RuntimeQueries),
                 BuildDependencyLines(ir.Dependencies),
@@ -277,6 +284,7 @@ namespace Game.Kernel.IR
             AppendSection(builder, "Services", report.Services);
             AppendSection(builder, "Commands", report.Commands);
             AppendSection(builder, "ValueKeys", report.ValueKeys);
+            AppendSection(builder, "ValueInitPlans", report.ValueInitPlans);
             AppendSection(builder, "Lifecycles", report.Lifecycles);
             AppendSection(builder, "RuntimeQueries", report.RuntimeQueries);
             AppendSection(builder, "Dependencies", report.Dependencies);
@@ -392,6 +400,12 @@ namespace Game.Kernel.IR
                 if (includeSourceData)
                     writer.WriteInt(scope.Source.Value);
 
+                ScopeServiceBoundaryIR serviceBoundary = scope.ServiceBoundary;
+                writer.WriteInt((int)serviceBoundary.Kind);
+                writer.WriteInt(serviceBoundary.ExpectedInstanceCount);
+                if (includeSourceData)
+                    writer.WriteInt(serviceBoundary.Source.Value);
+
                 ScopeServiceRequirementIR[] requiredServices = CopyAndSort(scope.RequiredServices, CompareScopeServiceRequirement);
                 writer.WriteInt(requiredServices.Length);
                 for (int requirementIndex = 0; requirementIndex < requiredServices.Length; requirementIndex++)
@@ -427,6 +441,7 @@ namespace Game.Kernel.IR
                 writer.WriteInt(service.Id.Value);
                 writer.WriteString(service.Name);
                 writer.WriteInt((int)service.Lifetime);
+                writer.WriteInt((int)service.Cardinality);
                 writer.WriteInt(service.OwnerModule.Value);
                 writer.WriteInt((int)service.FactoryKind);
                 if (includeSourceData)
@@ -462,16 +477,33 @@ namespace Game.Kernel.IR
                 CommandIR command = commands[commandIndex];
                 writer.WriteInt(command.TypeId.Value);
                 writer.WriteString(command.RuntimeName);
-                writer.WriteString(command.AuthoringKey);
+                writer.WriteInt(command.AuthoringKey.Id.Value);
+                writer.WriteString(command.AuthoringKey.Value);
                 writer.WriteInt(command.CategoryId.Value);
                 writer.WriteInt(command.OwnerModule.Value);
                 writer.WriteInt(command.PayloadSchema.Id.Value);
+                writer.WriteInt((int)command.PayloadSchema.UnknownFieldPolicy);
                 writer.WriteInt(command.Executor.Id.Value);
                 if (includeSourceData)
                 {
+                    writer.WriteInt(command.AuthoringKey.Source.Value);
                     writer.WriteInt(command.PayloadSchema.Source.Value);
                     writer.WriteInt(command.Executor.Source.Value);
                     writer.WriteInt(command.Source.Value);
+                }
+
+                CommandPayloadFieldIR[] payloadFields = CopyAndSort(command.PayloadSchema.Fields, CompareCommandPayloadField);
+                writer.WriteInt(payloadFields.Length);
+                for (int fieldIndex = 0; fieldIndex < payloadFields.Length; fieldIndex++)
+                {
+                    CommandPayloadFieldIR field = payloadFields[fieldIndex];
+                    writer.WriteString(field.FieldPath);
+                    writer.WriteInt((int)field.Kind);
+                    writer.WriteInt((int)field.Requirement);
+                    writer.WriteInt((int)field.ReferenceKind);
+                    writer.WriteInt(BoolToInt(field.AllowNull));
+                    if (includeSourceData)
+                        writer.WriteInt(field.Source.Value);
                 }
 
                 CommandDependencyIR[] dependencies = CopyAndSort(command.Dependencies, CompareCommandDependency);
@@ -510,6 +542,41 @@ namespace Game.Kernel.IR
             }
         }
 
+        static void WriteValueInitPlans(KernelIRTokenWriter writer, ReadOnlySpan<ValueInitPlanIR> valueInitPlans, bool includeSourceData)
+        {
+            writer.WriteString("ValueInitPlans");
+            writer.WriteInt(valueInitPlans.Length);
+            for (int planIndex = 0; planIndex < valueInitPlans.Length; planIndex++)
+            {
+                ValueInitPlanIR valueInitPlan = valueInitPlans[planIndex];
+                writer.WriteInt(valueInitPlan.PlanId.Value);
+                writer.WriteInt(valueInitPlan.OwnerModule.Value);
+                writer.WriteInt(valueInitPlan.TargetScopePlanId.Value);
+                writer.WriteString(valueInitPlan.TargetStoreRef);
+                writer.WriteInt((int)valueInitPlan.ExecutionPhase);
+                writer.WriteInt(valueInitPlan.Order);
+                WriteAvailability(writer, valueInitPlan.Availability);
+                if (includeSourceData)
+                    writer.WriteInt(valueInitPlan.Source.Value);
+
+                ValueInitEntryIR[] entries = CopyAndSort(valueInitPlan.Entries, CompareValueInitEntry);
+                writer.WriteInt(entries.Length);
+                for (int entryIndex = 0; entryIndex < entries.Length; entryIndex++)
+                {
+                    ValueInitEntryIR entry = entries[entryIndex];
+                    writer.WriteInt(entry.KeyId.Value);
+                    writer.WriteInt((int)entry.SourceKind);
+                    writer.WriteInt((int)entry.ValueKind);
+                    writer.WriteInt(entry.Order);
+                    writer.WriteInt((int)entry.OverwritePolicy);
+                    writer.WriteString(entry.SerializedValue);
+                    writer.WriteString(entry.EvaluationLocalRef);
+                    if (includeSourceData)
+                        writer.WriteInt(entry.Source.Value);
+                }
+            }
+        }
+
         static void WriteLifecycles(KernelIRTokenWriter writer, ReadOnlySpan<LifecycleIR> lifecycles, bool includeSourceData)
         {
             writer.WriteString("Lifecycles");
@@ -520,6 +587,10 @@ namespace Game.Kernel.IR
                 writer.WriteInt(lifecycle.PlanId.Value);
                 writer.WriteString(lifecycle.Name);
                 writer.WriteInt(lifecycle.OwnerModule.Value);
+                writer.WriteInt((int)lifecycle.FailurePolicy);
+                writer.WriteBool(lifecycle.FailurePolicyIsExplicit);
+                writer.WriteInt((int)lifecycle.FailurePolicyJustificationProfiles);
+                writer.WriteString(lifecycle.FailurePolicyJustification);
                 if (includeSourceData)
                     writer.WriteInt(lifecycle.Source.Value);
 
@@ -696,7 +767,7 @@ namespace Game.Kernel.IR
             for (int scopeIndex = 0; scopeIndex < scopes.Length; scopeIndex++)
             {
                 ScopeIR scope = scopes[scopeIndex];
-                lines[scopeIndex] = scope.PlanId + " AuthoringId=" + scope.AuthoringId.Value + " Name=" + scope.Name + " Kind=" + scope.Kind + " OwnerModule=" + scope.OwnerModule.Value + " ParentAuthoringId=" + scope.ParentAuthoringId.Value + " Source=" + FormatSourceId(scope.Source) + " RequiredServices=" + FormatScopeServiceRequirements(scope.RequiredServices) + " ValueInitPlans=" + FormatScopeValueInitRefs(scope.ValueInitPlans) + " LifecyclePlan=" + scope.Lifecycle.PlanId + "@" + FormatSourceId(scope.Lifecycle.Source);
+                lines[scopeIndex] = scope.PlanId + " AuthoringId=" + scope.AuthoringId.Value + " Name=" + scope.Name + " Kind=" + scope.Kind + " OwnerModule=" + scope.OwnerModule.Value + " ParentAuthoringId=" + scope.ParentAuthoringId.Value + " Source=" + FormatSourceId(scope.Source) + " ServiceBoundary=" + FormatScopeServiceBoundary(scope.ServiceBoundary) + " RequiredServices=" + FormatScopeServiceRequirements(scope.RequiredServices) + " ValueInitPlans=" + FormatScopeValueInitRefs(scope.ValueInitPlans) + " LifecyclePlan=" + scope.Lifecycle.PlanId + "@" + FormatSourceId(scope.Lifecycle.Source);
             }
 
             return lines;
@@ -708,7 +779,7 @@ namespace Game.Kernel.IR
             for (int serviceIndex = 0; serviceIndex < services.Length; serviceIndex++)
             {
                 ServiceIR service = services[serviceIndex];
-                lines[serviceIndex] = service.Id + " Name=" + service.Name + " Lifetime=" + service.Lifetime + " OwnerModule=" + service.OwnerModule.Value + " FactoryKind=" + service.FactoryKind + " Source=" + FormatSourceId(service.Source) + " Contracts=" + FormatServiceContracts(service.Contracts) + " Dependencies=" + FormatServiceDependencies(service.Dependencies);
+                lines[serviceIndex] = service.Id + " Name=" + service.Name + " Lifetime=" + service.Lifetime + " Cardinality=" + service.Cardinality + " OwnerModule=" + service.OwnerModule.Value + " FactoryKind=" + service.FactoryKind + " Source=" + FormatSourceId(service.Source) + " Contracts=" + FormatServiceContracts(service.Contracts) + " Dependencies=" + FormatServiceDependencies(service.Dependencies);
             }
 
             return lines;
@@ -720,7 +791,7 @@ namespace Game.Kernel.IR
             for (int commandIndex = 0; commandIndex < commands.Length; commandIndex++)
             {
                 CommandIR command = commands[commandIndex];
-                lines[commandIndex] = command.TypeId + " RuntimeName=" + command.RuntimeName + " AuthoringKey=" + command.AuthoringKey + " CategoryId=" + command.CategoryId.Value + " OwnerModule=" + command.OwnerModule.Value + " PayloadSchema=" + command.PayloadSchema.Id + "@" + FormatSourceId(command.PayloadSchema.Source) + " Executor=" + command.Executor.Id + "@" + FormatSourceId(command.Executor.Source) + " Source=" + FormatSourceId(command.Source) + " Dependencies=" + FormatCommandDependencies(command.Dependencies);
+                lines[commandIndex] = command.TypeId + " RuntimeName=" + command.RuntimeName + " AuthoringKey=" + command.AuthoringKey.Value + "@" + command.AuthoringKey.Id + "@" + FormatSourceId(command.AuthoringKey.Source) + " CategoryId=" + command.CategoryId.Value + " OwnerModule=" + command.OwnerModule.Value + " PayloadSchema=" + command.PayloadSchema.Id + "@" + FormatSourceId(command.PayloadSchema.Source) + " UnknownFieldPolicy=" + command.PayloadSchema.UnknownFieldPolicy + " PayloadFields=" + FormatCommandPayloadFields(command.PayloadSchema.Fields) + " Executor=" + command.Executor.Id + "@" + FormatSourceId(command.Executor.Source) + " Source=" + FormatSourceId(command.Source) + " Dependencies=" + FormatCommandDependencies(command.Dependencies);
             }
 
             return lines;
@@ -738,13 +809,25 @@ namespace Game.Kernel.IR
             return lines;
         }
 
+        static string[] BuildValueInitPlanLines(ReadOnlySpan<ValueInitPlanIR> valueInitPlans)
+        {
+            string[] lines = new string[valueInitPlans.Length];
+            for (int planIndex = 0; planIndex < valueInitPlans.Length; planIndex++)
+            {
+                ValueInitPlanIR valueInitPlan = valueInitPlans[planIndex];
+                lines[planIndex] = valueInitPlan.PlanId + " OwnerModule=" + valueInitPlan.OwnerModule.Value + " TargetScope=" + valueInitPlan.TargetScopePlanId.Value + " TargetStoreRef=" + valueInitPlan.TargetStoreRef + " Phase=" + valueInitPlan.ExecutionPhase + " Order=" + valueInitPlan.Order + " Availability=" + FormatAvailability(valueInitPlan.Availability) + " Source=" + FormatSourceId(valueInitPlan.Source) + " Entries=" + FormatValueInitEntries(valueInitPlan.Entries);
+            }
+
+            return lines;
+        }
+
         static string[] BuildLifecycleLines(ReadOnlySpan<LifecycleIR> lifecycles)
         {
             string[] lines = new string[lifecycles.Length];
             for (int lifecycleIndex = 0; lifecycleIndex < lifecycles.Length; lifecycleIndex++)
             {
                 LifecycleIR lifecycle = lifecycles[lifecycleIndex];
-                lines[lifecycleIndex] = lifecycle.PlanId + " Name=" + lifecycle.Name + " OwnerModule=" + lifecycle.OwnerModule.Value + " Source=" + FormatSourceId(lifecycle.Source) + " Steps=" + FormatLifecycleSteps(lifecycle.Steps);
+                lines[lifecycleIndex] = lifecycle.PlanId + " Name=" + lifecycle.Name + " OwnerModule=" + lifecycle.OwnerModule.Value + " FailurePolicy=" + lifecycle.FailurePolicy + " FailurePolicyExplicit=" + lifecycle.FailurePolicyIsExplicit + " FailurePolicyJustificationProfiles=" + lifecycle.FailurePolicyJustificationProfiles + " FailurePolicyJustification=" + (lifecycle.FailurePolicyJustification ?? string.Empty) + " Source=" + FormatSourceId(lifecycle.Source) + " Steps=" + FormatLifecycleSteps(lifecycle.Steps);
             }
 
             return lines;
@@ -937,6 +1020,11 @@ namespace Game.Kernel.IR
             return builder.ToString();
         }
 
+        static string FormatScopeServiceBoundary(ScopeServiceBoundaryIR serviceBoundary)
+        {
+            return serviceBoundary.Kind + "(ExpectedInstances=" + serviceBoundary.ExpectedInstanceCount + ", Source=" + FormatSourceId(serviceBoundary.Source) + ")";
+        }
+
         static string FormatScopeValueInitRefs(ReadOnlySpan<ScopeValueInitRefIR> valueInitPlans)
         {
             if (valueInitPlans.Length == 0)
@@ -1029,9 +1117,76 @@ namespace Game.Kernel.IR
             return builder.ToString();
         }
 
+        static string FormatCommandPayloadFields(ReadOnlySpan<CommandPayloadFieldIR> fields)
+        {
+            if (fields.Length == 0)
+                return "[]";
+
+            CommandPayloadFieldIR[] sortedFields = CopyAndSort(fields, CompareCommandPayloadField);
+            StringBuilder builder = new StringBuilder();
+            builder.Append('[');
+            for (int index = 0; index < sortedFields.Length; index++)
+            {
+                if (index > 0)
+                    builder.Append(", ");
+
+                CommandPayloadFieldIR field = sortedFields[index];
+                builder.Append(field.FieldPath);
+                builder.Append(":Kind=");
+                builder.Append(field.Kind);
+                builder.Append(":Requirement=");
+                builder.Append(field.Requirement);
+                builder.Append(":Reference=");
+                builder.Append(field.ReferenceKind);
+                builder.Append(":AllowNull=");
+                builder.Append(field.AllowNull);
+                builder.Append('@');
+                builder.Append(FormatSourceId(field.Source));
+            }
+
+            builder.Append(']');
+            return builder.ToString();
+        }
+
         static string FormatSavePolicy(SavePolicyIR savePolicy)
         {
             return "SavePolicy(Persists=" + savePolicy.Persists + ", SaveAcrossProfiles=" + savePolicy.SaveAcrossProfiles + ", Channel=" + SafeString(savePolicy.Channel) + ")";
+        }
+
+        static string FormatValueInitEntries(ReadOnlySpan<ValueInitEntryIR> entries)
+        {
+            if (entries.Length == 0)
+                return "[]";
+
+            ValueInitEntryIR[] sortedEntries = CopyAndSort(entries, CompareValueInitEntry);
+            StringBuilder builder = new StringBuilder();
+            builder.Append('[');
+            for (int index = 0; index < sortedEntries.Length; index++)
+            {
+                if (index > 0)
+                    builder.Append(", ");
+
+                ValueInitEntryIR entry = sortedEntries[index];
+                builder.Append(entry.KeyId);
+                builder.Append("(SourceKind=");
+                builder.Append(entry.SourceKind);
+                builder.Append(", ValueKind=");
+                builder.Append(entry.ValueKind);
+                builder.Append(", Order=");
+                builder.Append(entry.Order);
+                builder.Append(", Overwrite=");
+                builder.Append(entry.OverwritePolicy);
+                builder.Append(", Serialized=");
+                builder.Append(SafeString(entry.SerializedValue));
+                builder.Append(", EvalRef=");
+                builder.Append(SafeString(entry.EvaluationLocalRef));
+                builder.Append(", Source=");
+                builder.Append(FormatSourceId(entry.Source));
+                builder.Append(')');
+            }
+
+            builder.Append(']');
+            return builder.ToString();
         }
 
         static string FormatLifecycleSteps(ReadOnlySpan<LifecycleStepIR> steps)
@@ -1156,6 +1311,36 @@ namespace Game.Kernel.IR
             return result != 0 ? result : left.Source.Value.CompareTo(right.Source.Value);
         }
 
+        static int CompareValueInitEntry(ValueInitEntryIR left, ValueInitEntryIR right)
+        {
+            int result = left.Order.CompareTo(right.Order);
+            if (result != 0)
+                return result;
+
+            result = left.KeyId.Value.CompareTo(right.KeyId.Value);
+            if (result != 0)
+                return result;
+
+            result = ((int)left.SourceKind).CompareTo((int)right.SourceKind);
+            if (result != 0)
+                return result;
+
+            result = ((int)left.ValueKind).CompareTo((int)right.ValueKind);
+            if (result != 0)
+                return result;
+
+            result = ((int)left.OverwritePolicy).CompareTo((int)right.OverwritePolicy);
+            if (result != 0)
+                return result;
+
+            result = StringComparer.Ordinal.Compare(left.SerializedValue, right.SerializedValue);
+            if (result != 0)
+                return result;
+
+            result = StringComparer.Ordinal.Compare(left.EvaluationLocalRef, right.EvaluationLocalRef);
+            return result != 0 ? result : left.Source.Value.CompareTo(right.Source.Value);
+        }
+
         static int CompareServiceContract(ServiceContractIR left, ServiceContractIR right)
         {
             int result = StringComparer.Ordinal.Compare(left.ContractName, right.ContractName);
@@ -1253,6 +1438,12 @@ namespace Game.Kernel.IR
         static int BoolToInt(bool value)
         {
             return value ? 1 : 0;
+        }
+
+        static int CompareCommandPayloadField(CommandPayloadFieldIR left, CommandPayloadFieldIR right)
+        {
+            int result = StringComparer.Ordinal.Compare(left.FieldPath, right.FieldPath);
+            return result != 0 ? result : left.Source.Value.CompareTo(right.Source.Value);
         }
 
         static T[] CopyAndSort<T>(ReadOnlySpan<T> source, Comparison<T> comparison)

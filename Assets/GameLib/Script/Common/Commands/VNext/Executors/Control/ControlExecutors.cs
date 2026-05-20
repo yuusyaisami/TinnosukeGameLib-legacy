@@ -12,48 +12,40 @@ namespace Game.Commands.VNext
 {
     static class ControlExecutorBackground
     {
-        public static void Run(
+        public static CommandRunResult Run(
             ICommandRunner runner,
             CommandListData commands,
             CommandListData onCanceled,
             CommandContext ctx,
-            CancellationTokenSource cts)
+            CancellationToken callerToken,
+            CommandDetachedCancellationMode cancellationMode,
+            string debugName)
         {
-            RunAsync(runner, commands, onCanceled, ctx, cts).Forget();
+            if (runner is not ICommandDetachedRunner detachedRunner)
+            {
+                return CommandRunResult.Error(
+                    -1,
+                    -1,
+                    CommandRunFailureKind.DetachedPolicyMissing,
+                    "Runner does not support detached command execution.",
+                    null,
+                    null);
+            }
+
+            var detachedCtx = ctx.WithOptions(ctx.Options.WithDetachedExecution(true, cancellationMode));
+            var policy = CreatePolicy(detachedCtx, cancellationMode, debugName);
+            return detachedRunner.StartDetachedList(commands, onCanceled, detachedCtx, policy, callerToken, detachedCtx.Options);
         }
 
-        static async UniTaskVoid RunAsync(
-            ICommandRunner runner,
-            CommandListData commands,
-            CommandListData onCanceled,
-            CommandContext ctx,
-            CancellationTokenSource cts)
+        public static CommandDetachedExecutionPolicy CreatePolicy(CommandContext ctx, CommandDetachedCancellationMode cancellationMode, string debugName)
         {
-            try
-            {
-                var ct = cts.Token;
-                var result = onCanceled != null && onCanceled.Count > 0
-                    ? await runner.ExecuteWithCancelAsync(commands, onCanceled, ctx, ct, ctx.Options)
-                    : await runner.ExecuteListAsync(commands, ctx, ct, ctx.Options);
-
-                if (result.Status == CommandRunStatus.Error)
-                {
-                    Debug.LogError($"[ControlExecutorBackground] Background command error: {result.FailureKind} {result.Message}");
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // Normal cancellation
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("[ControlExecutorBackground] Background command threw an exception.");
-                Debug.LogException(ex);
-            }
-            finally
-            {
-                try { cts.Dispose(); } catch { }
-            }
+            return new CommandDetachedExecutionPolicy(
+                isAllowed: ctx.Options.AllowDetachedExecution,
+                ctx.CurrentFrame.FrameId,
+                ctx.Scope,
+                cancellationMode,
+                diagnosticDestination: nameof(CommandRunner),
+                debugName);
         }
     }
 
@@ -78,8 +70,22 @@ namespace Game.Commands.VNext
 
             if (typed.FireAndForget)
             {
-                var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                RunBlockFireAndForgetAsync(blockService, typed, runner, ctx, linkedCts).Forget();
+                if (runner is not ICommandDetachedRunner detachedRunner)
+                    throw new CommandExecutionException(CommandRunFailureKind.DetachedPolicyMissing, "Runner does not support detached ActionBlock execution.");
+
+                var detachedCtx = ctx.WithOptions(ctx.Options.WithDetachedExecution(true, CommandDetachedCancellationMode.FollowCaller));
+                var policy = ControlExecutorBackground.CreatePolicy(detachedCtx, CommandDetachedCancellationMode.FollowCaller, "ActionBlock.FireAndForget");
+                var result = detachedRunner.StartDetached(
+                    detachedCtx,
+                    policy,
+                    ct,
+                    async (detachedCtx, detachedCt) =>
+                    {
+                        await RunBlockAsync(blockService, typed, runner, detachedCtx, detachedCt);
+                        return CommandRunResult.Completed(-1, 0, CommandRunFailureKind.None, -1, string.Empty, null, null);
+                    });
+                if (result.Status == CommandRunStatus.Error)
+                    throw new CommandExecutionException(result.FailureKind, result.Message);
                 return;
             }
 
@@ -90,27 +96,6 @@ namespace Game.Commands.VNext
         {
             using var blockGuard = AcquireBlockGuard(blockService, typed);
             await ExecuteBodyCommandsAsync(runner, typed, ctx, ct);
-        }
-
-        static async UniTask RunBlockFireAndForgetAsync(IActionBlockService blockService, ActionBlockCommandData typed, ICommandRunner runner, CommandContext ctx, CancellationTokenSource linkedCts)
-        {
-            try
-            {
-                await RunBlockAsync(blockService, typed, runner, ctx, linkedCts.Token);
-            }
-            catch (OperationCanceledException) when (linkedCts.IsCancellationRequested)
-            {
-                // Cancellation was requested, swallow.
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("[ActionBlockExecutor] Background command threw an exception.");
-                Debug.LogException(ex);
-            }
-            finally
-            {
-                try { linkedCts.Dispose(); } catch { }
-            }
         }
 
         static IDisposable AcquireBlockGuard(IActionBlockService blockService, ActionBlockCommandData typed)
@@ -188,8 +173,17 @@ namespace Game.Commands.VNext
             if (runner == null)
                 return UniTask.CompletedTask;
 
-            var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            ControlExecutorBackground.Run(runner, typed.Commands, typed.OnCanceledCommands, ctx, cts);
+            var detachedCtx = ctx.WithOptions(ctx.Options.WithDetachedExecution(true, CommandDetachedCancellationMode.FollowCaller));
+            var result = ControlExecutorBackground.Run(
+                runner,
+                typed.Commands,
+                typed.OnCanceledCommands,
+                detachedCtx,
+                ct,
+                CommandDetachedCancellationMode.FollowCaller,
+                "Forget");
+            if (result.Status == CommandRunStatus.Error)
+                throw new CommandExecutionException(result.FailureKind, result.Message);
             return UniTask.CompletedTask;
         }
     }
@@ -204,6 +198,21 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "BreakCommandData is required.");
 
             ctx.RequestBreak();
+            return UniTask.CompletedTask;
+        }
+    }
+
+    public sealed class CancelExecutor : ICommandExecutor
+    {
+        public int CommandId => CommandIds.Cancel;
+
+        public UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
+        {
+            if (data is not CancelCommandData)
+                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "CancelCommandData is required.");
+
+            _ = ct;
+            ctx.RequestCancel();
             return UniTask.CompletedTask;
         }
     }
@@ -223,8 +232,17 @@ namespace Game.Commands.VNext
 
             if (typed.FirstCommands != null && typed.FirstCommands.Count > 0)
             {
-                var firstCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                ControlExecutorBackground.Run(runner, typed.FirstCommands, typed.OnCanceledCommands, ctx, firstCts);
+                var detachedCtx = ctx.WithOptions(ctx.Options.WithDetachedExecution(true, CommandDetachedCancellationMode.FollowCaller));
+                var firstResult = ControlExecutorBackground.Run(
+                    runner,
+                    typed.FirstCommands,
+                    typed.OnCanceledCommands,
+                    detachedCtx,
+                    ct,
+                    CommandDetachedCancellationMode.FollowCaller,
+                    "DelayExecutor.First");
+                if (firstResult.Status == CommandRunStatus.Error)
+                    throw new CommandExecutionException(firstResult.FailureKind, firstResult.Message);
             }
 
             var seconds = typed.DelaySeconds.GetOrDefault(ctx, 0f);
@@ -791,6 +809,8 @@ namespace Game.Commands.VNext
             if (data is not ForCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "ForCommandData is required.");
 
+            EnsureLoopBound(typed);
+
             if (typed.BodyCommands == null || typed.BodyCommands.Count == 0)
                 return;
 
@@ -798,29 +818,26 @@ namespace Game.Commands.VNext
 
             if (!typed.WaitForCompletion)
             {
-                var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                RunLoopFireAndForgetAsync(typed, loopCtx, cts).Forget();
+                if (ctx.Runner is not ICommandDetachedRunner detachedRunner)
+                    throw new CommandExecutionException(CommandRunFailureKind.DetachedPolicyMissing, "Runner does not support detached For execution.");
+
+                var detachedCtx = loopCtx.WithOptions(loopCtx.Options.WithDetachedExecution(true, CommandDetachedCancellationMode.FollowCaller));
+                var policy = ControlExecutorBackground.CreatePolicy(detachedCtx, CommandDetachedCancellationMode.FollowCaller, "For.BackgroundLoop");
+                var result = detachedRunner.StartDetached(
+                    detachedCtx,
+                    policy,
+                    ct,
+                    async (detachedCtx, detachedCt) =>
+                    {
+                        await ExecuteLoopCoreAsync(typed, detachedCtx, detachedCt, throwOnCanceled: false);
+                        return CommandRunResult.Completed(-1, 0, CommandRunFailureKind.None, -1, string.Empty, null, null);
+                    });
+                if (result.Status == CommandRunStatus.Error)
+                    throw new CommandExecutionException(result.FailureKind, result.Message);
                 return;
             }
 
             await ExecuteLoopCoreAsync(typed, loopCtx, ct, throwOnCanceled: true);
-        }
-
-        async UniTaskVoid RunLoopFireAndForgetAsync(ForCommandData typed, CommandContext ctx, CancellationTokenSource linkedCts)
-        {
-            try
-            {
-                await ExecuteLoopCoreAsync(typed, ctx, linkedCts.Token, throwOnCanceled: false);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("[ForExecutor] Background loop threw an exception.");
-                Debug.LogException(ex);
-            }
-            finally
-            {
-                try { linkedCts.Dispose(); } catch { }
-            }
         }
 
         async UniTask ExecuteLoopCoreAsync(ForCommandData typed, CommandContext ctx, CancellationToken ct, bool throwOnCanceled)
@@ -1008,6 +1025,14 @@ namespace Game.Commands.VNext
                 ctx.RootActor,
                 ctx.CallerActor,
                 ctx);
+        }
+
+        static void EnsureLoopBound(ForCommandData typed)
+        {
+            if (typed.MaxIterations > 0)
+                return;
+
+            throw new CommandExecutionException(CommandRunFailureKind.LoopBoundMissing, "For command requires MaxIterations > 0.");
         }
 
         static bool ShouldBreak(ForCommandData typed, CommandContext ctx)

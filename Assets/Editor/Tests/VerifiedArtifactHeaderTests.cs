@@ -208,6 +208,36 @@ namespace TinnosukeGameLib.Tests.Editor
                     hash,
                     " "),
                 Throws.ArgumentException);
+
+            Assert.That(
+                () => new VerifiedArtifactHeader(
+                    new PlanId(1),
+                    new ArtifactSetId(1),
+                    new ArtifactId(1),
+                    ArtifactKind.ServiceGraph,
+                    1,
+                    default,
+                    hash,
+                    hash,
+                    hash,
+                    hash,
+                    "1.0.0"),
+                Throws.ArgumentException);
+
+            Assert.That(
+                () => new VerifiedArtifactHeader(
+                    new PlanId(1),
+                    new ArtifactSetId(1),
+                    new ArtifactId(1),
+                    ArtifactKind.ServiceGraph,
+                    1,
+                    hash,
+                    hash,
+                    hash,
+                    hash,
+                    default,
+                    "1.0.0"),
+                Throws.ArgumentException);
         }
 
         static KernelIR CreateKernelIR()

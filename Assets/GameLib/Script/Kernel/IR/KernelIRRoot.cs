@@ -107,12 +107,13 @@ namespace Game.Kernel.IR
         readonly ServiceIR[] services;
         readonly CommandIR[] commands;
         readonly ValueKeyIR[] valueKeys;
+        readonly ValueInitPlanIR[] valueInitPlans;
         readonly LifecycleIR[] lifecycles;
         readonly RuntimeQueryIR[] runtimeQueries;
         readonly DependencyEdgeIR[] dependencies;
         readonly DiagnosticSeedIR[] diagnosticSeeds;
 
-        public KernelIR(KernelIRHeader header, KernelProfileIR profile, ModuleIR[] modules, ScopeIR[] scopes, ServiceIR[] services, CommandIR[] commands, ValueKeyIR[] valueKeys, LifecycleIR[] lifecycles, RuntimeQueryIR[] runtimeQueries, DependencyEdgeIR[] dependencies, SourceLocationTable sources, DiagnosticSeedIR[]? diagnosticSeeds = null)
+        public KernelIR(KernelIRHeader header, KernelProfileIR profile, ModuleIR[] modules, ScopeIR[] scopes, ServiceIR[] services, CommandIR[] commands, ValueKeyIR[] valueKeys, LifecycleIR[] lifecycles, RuntimeQueryIR[] runtimeQueries, DependencyEdgeIR[] dependencies, SourceLocationTable sources, DiagnosticSeedIR[]? diagnosticSeeds = null, ValueInitPlanIR[]? valueInitPlans = null)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             Profile = profile ?? throw new ArgumentNullException(nameof(profile));
@@ -122,6 +123,7 @@ namespace Game.Kernel.IR
             this.services = CloneAndSortServices(services);
             this.commands = CloneAndSortCommands(commands);
             this.valueKeys = CloneAndSortValueKeys(valueKeys);
+            this.valueInitPlans = CloneAndSortValueInitPlans(valueInitPlans);
             this.lifecycles = CloneAndSortLifecycles(lifecycles);
             this.runtimeQueries = CloneAndSortRuntimeQueries(runtimeQueries);
             this.dependencies = CloneAndSortDependencies(dependencies);
@@ -150,6 +152,8 @@ namespace Game.Kernel.IR
 
         public ReadOnlySpan<ValueKeyIR> ValueKeys => valueKeys;
 
+        public ReadOnlySpan<ValueInitPlanIR> ValueInitPlans => valueInitPlans;
+
         public ReadOnlySpan<LifecycleIR> Lifecycles => lifecycles;
 
         public ReadOnlySpan<RuntimeQueryIR> RuntimeQueries => runtimeQueries;
@@ -166,13 +170,19 @@ namespace Game.Kernel.IR
             EnsureUniqueIds(scopes, nameof(Scopes), scope => scope.PlanId.Value, "KernelIR scopes must use unique scope plan identities.");
             EnsureUniqueIds(services, nameof(Services), service => service.Id.Value, "KernelIR services must use unique service identities.");
             EnsureUniqueIds(commands, nameof(Commands), command => command.TypeId.Value, "KernelIR commands must use unique command identities.");
+            EnsureUniqueIds(commands, nameof(Commands), command => command.AuthoringKey.Id.Value, "KernelIR commands must use unique command authoring key identities.");
             EnsureUniqueIds(valueKeys, nameof(ValueKeys), valueKey => valueKey.Id.Value, "KernelIR value keys must use unique value key identities.");
+            EnsureUniqueIds(valueInitPlans, nameof(ValueInitPlans), valueInitPlan => valueInitPlan.PlanId.Value, "KernelIR value init plans must use unique plan identities.");
             EnsureUniqueIds(lifecycles, nameof(Lifecycles), lifecycle => lifecycle.PlanId.Value, "KernelIR lifecycles must use unique lifecycle plan identities.");
             EnsureUniqueIds(runtimeQueries, nameof(RuntimeQueries), runtimeQuery => runtimeQuery.Id.Value, "KernelIR runtime queries must use unique runtime query identities.");
+            EnsureUniqueCommandAuthoringKeys();
 
             HashSet<int> lifecycleStepIds = new HashSet<int>();
             for (int lifecycleIndex = 0; lifecycleIndex < lifecycles.Length; lifecycleIndex++)
             {
+                if (!LifecycleFailurePolicyUtilities.IsDefined(lifecycles[lifecycleIndex].FailurePolicy))
+                    throw new ArgumentOutOfRangeException(nameof(Lifecycles), lifecycles[lifecycleIndex].FailurePolicy, "KernelIR lifecycles must declare a defined failure policy.");
+
                 ReadOnlySpan<LifecycleStepIR> steps = lifecycles[lifecycleIndex].Steps;
                 for (int stepIndex = 0; stepIndex < steps.Length; stepIndex++)
                 {
@@ -217,6 +227,9 @@ namespace Game.Kernel.IR
                     EnsureValidSource(valueInitPlans[valueInitIndex].Source, nameof(ScopeValueInitRefIR));
                 }
 
+                if (scopes[i].UnityObjectLink != null)
+                    EnsureValidSource(scopes[i].UnityObjectLink.Source, nameof(UnityObjectLinkIR));
+
                 EnsureValidSource(scopes[i].Lifecycle.Source, nameof(LifecyclePlanRefIR));
             }
 
@@ -240,6 +253,7 @@ namespace Game.Kernel.IR
             for (int i = 0; i < commands.Length; i++)
             {
                 EnsureValidSource(commands[i].Source, nameof(CommandIR));
+                EnsureValidSource(commands[i].AuthoringKey.Source, nameof(CommandAuthoringKeyRefIR));
                 EnsureValidSource(commands[i].PayloadSchema.Source, nameof(CommandPayloadSchemaRefIR));
                 EnsureValidSource(commands[i].Executor.Source, nameof(CommandExecutorRefIR));
 
@@ -254,6 +268,17 @@ namespace Game.Kernel.IR
             {
                 EnsureValidSource(valueKeys[i].Source, nameof(ValueKeyIR));
                 EnsureValidSource(valueKeys[i].Schema.Source, nameof(ValueSchemaRefIR));
+            }
+
+            for (int i = 0; i < valueInitPlans.Length; i++)
+            {
+                EnsureValidSource(valueInitPlans[i].Source, nameof(ValueInitPlanIR));
+
+                ReadOnlySpan<ValueInitEntryIR> entries = valueInitPlans[i].Entries;
+                for (int entryIndex = 0; entryIndex < entries.Length; entryIndex++)
+                {
+                    EnsureValidSource(entries[entryIndex].Source, nameof(ValueInitEntryIR));
+                }
             }
 
             for (int i = 0; i < lifecycles.Length; i++)
@@ -279,6 +304,16 @@ namespace Game.Kernel.IR
             for (int i = 0; i < diagnosticSeeds.Length; i++)
             {
                 EnsureValidSource(diagnosticSeeds[i].Source, nameof(DiagnosticSeedIR));
+            }
+        }
+
+        void EnsureUniqueCommandAuthoringKeys()
+        {
+            HashSet<string> seenAuthoringKeys = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < commands.Length; index++)
+            {
+                if (!seenAuthoringKeys.Add(commands[index].AuthoringKey.Value))
+                    throw new ArgumentException("KernelIR commands must use unique normalized authoring keys.", nameof(Commands));
             }
         }
 
@@ -318,6 +353,11 @@ namespace Game.Kernel.IR
             for (int i = 0; i < valueKeys.Length; i++)
             {
                 EnsureModuleExists(moduleIds, valueKeys[i].OwnerModule, nameof(ValueKeyIR));
+            }
+
+            for (int i = 0; i < valueInitPlans.Length; i++)
+            {
+                EnsureModuleExists(moduleIds, valueInitPlans[i].OwnerModule, nameof(ValueInitPlanIR));
             }
 
             for (int i = 0; i < lifecycles.Length; i++)
@@ -371,6 +411,7 @@ namespace Game.Kernel.IR
             HashSet<int> scopeIds = BuildIdSet(scopes, scope => scope.PlanId.Value);
             HashSet<int> lifecyclePlanIds = BuildIdSet(lifecycles, lifecycle => lifecycle.PlanId.Value);
             HashSet<int> runtimeQueryIds = BuildIdSet(runtimeQueries, runtimeQuery => runtimeQuery.Id.Value);
+            HashSet<int> valueInitPlanIds = BuildIdSet(valueInitPlans, valueInitPlan => valueInitPlan.PlanId.Value);
             HashSet<int> dependencyNodeModuleIds = moduleIds;
             HashSet<int> dependencyNodeServiceIds = serviceIds;
             HashSet<int> dependencyNodeScopeIds = scopeIds;
@@ -393,8 +434,29 @@ namespace Game.Kernel.IR
                         throw new ArgumentException("ScopeIR required services must reference services that exist in KernelIR.Services.", nameof(Scopes));
                 }
 
+                ReadOnlySpan<ScopeValueInitRefIR> scopeValueInitPlans = scopes[scopeIndex].ValueInitPlans;
+                for (int planIndex = 0; planIndex < scopeValueInitPlans.Length; planIndex++)
+                {
+                    if (!valueInitPlanIds.Contains(scopeValueInitPlans[planIndex].PlanId.Value))
+                        throw new ArgumentException("ScopeIR value init refs must reference value init plans that exist in KernelIR.ValueInitPlans.", nameof(Scopes));
+                }
+
                 if (!lifecyclePlanIds.Contains(scopes[scopeIndex].Lifecycle.PlanId.Value))
                     throw new ArgumentException("ScopeIR lifecycle refs must reference lifecycle plans that exist in KernelIR.Lifecycles.", nameof(Scopes));
+            }
+
+            for (int planIndex = 0; planIndex < valueInitPlans.Length; planIndex++)
+            {
+                ValueInitPlanIR valueInitPlan = valueInitPlans[planIndex];
+                if (!scopeIds.Contains(valueInitPlan.TargetScopePlanId.Value))
+                    throw new ArgumentException("Value init plans must reference target scopes that exist in KernelIR.Scopes.", nameof(ValueInitPlans));
+
+                ReadOnlySpan<ValueInitEntryIR> entries = valueInitPlan.Entries;
+                for (int entryIndex = 0; entryIndex < entries.Length; entryIndex++)
+                {
+                    if (!dependencyNodeValueKeyIds.Contains(entries[entryIndex].KeyId.Value))
+                        throw new ArgumentException("Value init plan entries must reference value keys that exist in KernelIR.ValueKeys.", nameof(ValueInitPlans));
+                }
             }
 
             for (int serviceIndex = 0; serviceIndex < services.Length; serviceIndex++)
@@ -476,12 +538,9 @@ namespace Game.Kernel.IR
                 case LifecycleTargetKind.Service when serviceIds.Contains(target.TargetService.Value):
                 case LifecycleTargetKind.Scope when scopeIds.Contains(target.TargetScope.Value):
                 case LifecycleTargetKind.RuntimeQuery when runtimeQueryIds.Contains(target.TargetRuntimeQuery.Value):
-                case LifecycleTargetKind.ValueStore when !string.IsNullOrWhiteSpace(target.TargetLocalRef):
-                case LifecycleTargetKind.RuntimeObjectOwner when !string.IsNullOrWhiteSpace(target.TargetLocalRef):
-                case LifecycleTargetKind.LegacyAdapter when !string.IsNullOrWhiteSpace(target.TargetLocalRef):
                     return;
                 default:
-                    throw new ArgumentException("Lifecycle steps must reference targets that exist in KernelIR.", nameof(Lifecycles));
+                    throw new ArgumentException("Lifecycle steps must reference targets that exist in KernelIR and are supported by the current verified lifecycle model.", nameof(Lifecycles));
             }
         }
 
@@ -534,6 +593,16 @@ namespace Game.Kernel.IR
         {
             ValueKeyIR[] clone = CloneArray(source, "valueKeys");
             Array.Sort(clone, (left, right) => left.Id.Value.CompareTo(right.Id.Value));
+            return clone;
+        }
+
+        static ValueInitPlanIR[] CloneAndSortValueInitPlans(ValueInitPlanIR[]? source)
+        {
+            if (source == null || source.Length == 0)
+                return Array.Empty<ValueInitPlanIR>();
+
+            ValueInitPlanIR[] clone = CloneArray(source, "valueInitPlans");
+            Array.Sort(clone, static (left, right) => left.PlanId.Value.CompareTo(right.PlanId.Value));
             return clone;
         }
 

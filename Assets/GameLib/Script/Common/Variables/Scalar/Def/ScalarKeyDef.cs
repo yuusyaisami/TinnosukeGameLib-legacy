@@ -5,12 +5,35 @@ using ScalarSpace = Game.LifetimeScopeKind; // ScalarSpace を LifetimeScopeKind
 namespace Game.Scalar
 {
     /// <summary>
+    /// Verified scalar identity.
+    /// </summary>
+    [Serializable]
+    public readonly struct ScalarKeyId : IEquatable<ScalarKeyId>
+    {
+        public ScalarKeyId(int value)
+        {
+            Value = value;
+        }
+
+        public int Value { get; }
+
+        public bool Equals(ScalarKeyId other) => Value == other.Value;
+        public override bool Equals(object obj) => obj is ScalarKeyId other && Equals(other);
+        public override int GetHashCode() => Value;
+        public override string ToString() => $"ScalarKeyId({Value})";
+
+        public static bool operator ==(ScalarKeyId left, ScalarKeyId right) => left.Equals(right);
+        public static bool operator !=(ScalarKeyId left, ScalarKeyId right) => !left.Equals(right);
+    }
+
+    /// <summary>
     /// スカラーの修正種別。Add: 加算, Mul: 乗算。
     /// </summary>
     public enum ScalarModKind
     {
-        Add,
-        Mul,
+        Add = 10,
+        Mul = 20,
+        Clamp = 30,
     }
 
     [Serializable]
@@ -38,11 +61,13 @@ namespace Game.Scalar
         public ScalarKey(string name)
         {
             Name = name ?? string.Empty;
-            Id = Animator.StringToHash(Name);
+            Id = ScalarKeyIdResolver.ResolveOrZero(Name);
         }
 
-        public void OnBeforeSerialize() => Id = Animator.StringToHash(Name ?? string.Empty);
-        public void OnAfterDeserialize() => Id = Animator.StringToHash(Name ?? string.Empty);
+        public bool IsVerified => Id > 0;
+
+        public void OnBeforeSerialize() => Id = ScalarKeyIdResolver.ResolveOrZero(Name ?? string.Empty);
+        public void OnAfterDeserialize() => Id = ScalarKeyIdResolver.ResolveOrZero(Name ?? string.Empty);
 
         public bool Equals(ScalarKey other) => Id == other.Id;
         public override bool Equals(object obj) => obj is ScalarKey o && Equals(o);
@@ -60,7 +85,7 @@ namespace Game.Scalar
                 return "(empty)";
 
             var name = Name ?? string.Empty;
-            var parts = name.Split(new[] {'.','/','\\'}, StringSplitOptions.RemoveEmptyEntries);
+            var parts = name.Split(new[] { '.', '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length <= 1)
                 return string.IsNullOrEmpty(name) ? (includeId ? $"#{Id}" : string.Empty) : name;
 

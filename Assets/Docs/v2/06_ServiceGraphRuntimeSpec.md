@@ -280,6 +280,70 @@ It must not:
 - collect behavior lists from arbitrary contracts
 - resolve runtime objects through service lookup
 
+### M6.1 Service Eligibility Classification Rules and Service-Boundary Inventory
+
+M6.1 freezes the question of what ServiceGraph is allowed to represent.
+It must be resolved before any slot, cache, or factory work is considered complete.
+
+The classification rule is intentionally narrow:
+
+```text
+Shared, explicit, validated runtime infrastructure may be a service.
+Per-target runtime objects are not services by default.
+```
+
+Service eligibility is determined by all of the following:
+
+1. The candidate has a stable ServiceId.
+2. The candidate has an explicit owner module.
+3. The candidate has a verified lifetime domain.
+4. The candidate is discoverable from ServiceGraphPlan, not from runtime search.
+5. The candidate's dependencies are declared and validated before runtime.
+6. The candidate is constructed by a verified factory or a verified prebuilt source.
+7. The candidate's failure can be diagnosed through DebugMap and structured diagnostics.
+8. The candidate's expected cardinality is coarse-grained enough to justify service-slot ownership.
+
+The following are service-eligible categories when the above rules are satisfied:
+
+- kernel-level coarse services
+- project-level coarse services
+- scene-level coarse services
+- authored-scope coarse services
+
+The following are not service-eligible by default:
+
+- per-entity runtime objects
+- per-part runtime objects
+- per-renderer runtime objects
+- per-tooltip runtime objects
+- per-channel-player runtime objects
+- per-mesh-track runtime objects
+- per-animation-player runtime objects
+- transient command execution frames
+- dynamic value evaluation contexts
+- pooled runtime object instances
+
+ServiceGraph must not be used to assign synthetic ServiceId values to these non-service objects just to make retrieval convenient.
+
+Boundary inventory for current migration anchors:
+
+| Current anchor | M6.1 classification | Lifetime / cardinality | Why it belongs there | Required downstream treatment |
+|---|---|---|---|---|
+| [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) | legacy boundary, not target service | n/a | registration tables, collection-style discovery, and runtime resolver coupling are the opposite of verified coarse-grained service ownership | quarantine behind the legacy boundary; do not promote as ServiceGraph truth |
+| [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) | legacy scope/build boundary, not target service | n/a | build-time installer discovery, resolver construction, and lifecycle extraction are mixed into one path | split into verified boot and explicit scope/runtime boundaries before any target ServiceGraph use |
+| [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) | legacy discovery boundary, not target service | n/a | nearest-scope filtering and installer discovery are explicit transform-derived ownership leaks | quarantine discovery behavior and keep scope ownership explicit |
+| [LoadingScreenService.cs](../../GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs) | boot-adjacent legacy boundary, not target service | n/a | loading behavior still depends on scene search and persistent-parent repair flow | keep this outside target ServiceGraph until boot and scope boundaries own the entry path |
+| [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) | legacy command bootstrap boundary, not target service | n/a | bulk executor registration and lifecycle wiring are still registration-driven | exclude from ServiceGraph; command ownership belongs to M9 and explicit lifecycle boundaries |
+| [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) | legacy command-dispatch boundary, not target service | n/a | executor lookup and invalid-ID behavior are still registry-shaped command dispatch | keep it out of ServiceGraph; command truth belongs to M9 |
+| [ModalStackChannelHubService.cs](../../GameLib/Script/Project/UI/Core/ModalStackChannel/ModalStackChannelHubService.cs) | service candidate, hub service | OnePerProject or OnePerScene; bounded | coarse-grained UI hub with shared state and explicit ownership boundary | model the hub identity only; keep layer/root state inside the hub |
+| [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) | mixed boundary, split required before service eligibility | n/a until split | coarse-grained hub, but it currently mixes runtime query, value access, and player ownership concerns | keep only the hub in ServiceGraph after split; move player runtimes and lookup paths out of service truth |
+| [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) | service candidate, hub service | OnePerScene; bounded | owns many player runtimes but the players themselves are not service identities | keep MeshChannelPlayerRuntime hub-owned and non-ServiceId-backed |
+| [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) | mixed boundary, split required before service eligibility | n/a until split | current behavior mixes hub service, material/provider behavior, lifecycle, and player runtime ownership | split service declaration, lifecycle declaration, and player runtime ownership before target migration |
+
+The inventory above is the initial seed set for M6.1.
+Any new candidate must be added only when it is directly needed to classify a service boundary or to expose a split requirement that would otherwise remain ambiguous.
+Any row marked mixed boundary remains non-eligible for ServiceGraph until the split is complete.
+
 ---
 
 ## Service Eligibility Model
@@ -733,9 +797,10 @@ They do not change the default prohibition.
 
 ---
 
-## Hub / Channel / Player Classification
+### M6.7 Hub / Channel / Player Classification
 
 Existing runtime hubs and channel systems must be classified explicitly.
+The canonical machine-readable inventory is [Index/HubClassificationInventory.md](Index/HubClassificationInventory.md); this section mirrors that inventory and must stay aligned with it.
 
 | Runtime concept | Default classification | Notes |
 |---|---|---|

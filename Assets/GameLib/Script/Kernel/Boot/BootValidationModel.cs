@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Diagnostics;
+using Game.Kernel.Generation;
 using Game.Kernel.Validation;
 
 namespace Game.Kernel.Boot
@@ -21,6 +22,7 @@ namespace Game.Kernel.Boot
         RegistryHashMismatch = 90,
         ProfileHashMismatch = 100,
         DebugMapHashMismatch = 110,
+        DebugMapInputMissing = 115,
         DebugMapMissing = 120,
         DependencyValidationFailed = 130,
         RequiredRootServiceMissing = 140,
@@ -46,6 +48,7 @@ namespace Game.Kernel.Boot
         public const string RegistryHashMismatch = "BOOT_REGISTRY_HASH_MISMATCH";
         public const string ProfileHashMismatch = "BOOT_PROFILE_HASH_MISMATCH";
         public const string DebugMapHashMismatch = "BOOT_DEBUGMAP_HASH_MISMATCH";
+        public const string DebugMapInputMissing = "BOOT_DEBUGMAP_INPUT_MISSING";
         public const string DebugMapMissing = "BOOT_DEBUGMAP_MISSING";
         public const string DependencyValidationFailed = "BOOT_DEPENDENCY_VALIDATION_FAILED";
         public const string RequiredRootServiceMissing = "BOOT_REQUIRED_ROOT_SERVICE_MISSING";
@@ -470,16 +473,31 @@ namespace Game.Kernel.Boot
             ValidationResultStatus dependencyValidationStatus,
             BootArtifactValidationState artifactState,
             BootRootValidationState rootState,
-            BootFallbackValidationState fallbackState)
+            BootFallbackValidationState fallbackState,
+            ServiceGraphPlan? serviceGraphPlan = null,
+            ScopeGraphPlan scopeGraphPlan,
+            LifecyclePlan? lifecyclePlan = null,
+            KernelDebugMap? debugMap = null)
         {
             ArtifactState = artifactState ?? throw new ArgumentNullException(nameof(artifactState));
             RootState = rootState ?? throw new ArgumentNullException(nameof(rootState));
             FallbackState = fallbackState ?? throw new ArgumentNullException(nameof(fallbackState));
 
+            if (debugMap != null
+                && ArtifactState.DebugMapHash != null
+                && !StringComparer.OrdinalIgnoreCase.Equals(ArtifactState.DebugMapHash, debugMap.ContentHash.ToString()))
+            {
+                throw new ArgumentException("Boot validation inputs must keep artifact-state DebugMapHash aligned with the verified KernelDebugMap input.", nameof(debugMap));
+            }
+
             Manifest = manifest;
             SelectedProfile = selectedProfile;
             ArtifactSetReferencePresent = artifactSetReferencePresent;
             DependencyValidationStatus = dependencyValidationStatus;
+            ServiceGraphPlan = serviceGraphPlan;
+            ScopeGraphPlan = scopeGraphPlan;
+            LifecyclePlan = lifecyclePlan;
+            DebugMap = debugMap;
         }
 
         public KernelBootManifest? Manifest { get; }
@@ -495,6 +513,14 @@ namespace Game.Kernel.Boot
         public BootRootValidationState RootState { get; }
 
         public BootFallbackValidationState FallbackState { get; }
+
+        public ServiceGraphPlan? ServiceGraphPlan { get; }
+
+        public ScopeGraphPlan ScopeGraphPlan { get; }
+
+        public LifecyclePlan? LifecyclePlan { get; }
+
+        public KernelDebugMap? DebugMap { get; }
     }
 
     public static class BootValidator
@@ -597,6 +623,31 @@ namespace Game.Kernel.Boot
 
                 if (selectedProfile != null)
                     ValidateProfileHash(input, manifest, selectedProfile, issues);
+
+                if (input.ArtifactState.ArtifactHeadersCompatible)
+                {
+                    if (input.ServiceGraphPlan != null)
+                        ValidateArtifactHeaderCompatibility(input.ServiceGraphPlan.Header, ArtifactKind.ServiceGraph, manifest, selectedProfile, issues);
+
+                    ValidateArtifactHeaderCompatibility(input.ScopeGraphPlan.Header, ArtifactKind.ScopeGraph, manifest, selectedProfile, issues);
+
+                    if (input.LifecyclePlan != null)
+                        ValidateArtifactHeaderCompatibility(input.LifecyclePlan.Header, ArtifactKind.LifecyclePlan, manifest, selectedProfile, issues);
+
+                    if (input.DebugMap != null)
+                        ValidateArtifactHeaderCompatibility(input.DebugMap.Header, ArtifactKind.KernelDebugMap, manifest, selectedProfile, issues);
+                }
+
+                if (input.DebugMap == null)
+                {
+                    issues.Add(new BootValidationIssue(
+                        BootValidationCodes.DebugMapInputMissing,
+                        GetBlockingSeverity(selectedProfile),
+                        BootValidationGateKind.DebugMapInputMissing,
+                        "Verified KernelDebugMap boot input is missing.",
+                        "Provide the verified DebugMap artifact that belongs to the selected artifact set before booting.",
+                        new RuntimeIdentityRef(RuntimeIdentityKind.ArtifactSet, manifest.ArtifactSet.ArtifactSetId.Value)));
+                }
 
                 if (debugMapRequired)
                 {
@@ -756,7 +807,9 @@ namespace Game.Kernel.Boot
         static void ValidateDebugMapHash(BootValidationInput input, KernelBootManifest manifest, KernelProfile? selectedProfile, List<BootValidationIssue> issues)
         {
             string? expected = manifest.ArtifactSet.DebugMapHash;
-            string? actual = input.ArtifactState.DebugMapHash;
+            string? actual = input.DebugMap != null
+                ? input.DebugMap.ContentHash.ToString()
+                : input.ArtifactState.DebugMapHash;
 
             if (expected == null || !StringComparer.OrdinalIgnoreCase.Equals(expected, actual))
             {
@@ -770,6 +823,31 @@ namespace Game.Kernel.Boot
                     expected,
                     actual));
             }
+        }
+
+        static void ValidateArtifactHeaderCompatibility(VerifiedArtifactHeader header, ArtifactKind expectedArtifactKind, KernelBootManifest manifest, KernelProfile? selectedProfile, List<BootValidationIssue> issues)
+        {
+            bool compatible = header.ArtifactKind == expectedArtifactKind
+                && header.ArtifactSetId == manifest.ArtifactSet.ArtifactSetId
+                && header.PlanId == manifest.ArtifactSet.PlanId
+                && header.FormatVersion == manifest.ArtifactSet.FormatVersion
+                && StringComparer.OrdinalIgnoreCase.Equals(header.SourceHash.ToString(), manifest.ArtifactSet.KernelIRHash)
+                && StringComparer.OrdinalIgnoreCase.Equals(header.ProfileHash.ToString(), manifest.ArtifactSet.ProfileHash)
+                && (manifest.ArtifactSet.RegistryHash == null || StringComparer.OrdinalIgnoreCase.Equals(header.RegistryHash.ToString(), manifest.ArtifactSet.RegistryHash))
+                && (manifest.ArtifactSet.DebugMapHash == null || StringComparer.OrdinalIgnoreCase.Equals(header.DebugMapHash.ToString(), manifest.ArtifactSet.DebugMapHash));
+
+            if (compatible)
+                return;
+
+            issues.Add(new BootValidationIssue(
+                BootValidationCodes.ArtifactHeadersIncompatible,
+                GetBlockingSeverity(selectedProfile),
+                BootValidationGateKind.ArtifactHeadersIncompatible,
+                "Boot input artifact header is incompatible with the selected verified artifact set.",
+                "Provide boot projection artifacts whose headers match the selected manifest artifact set.",
+                new RuntimeIdentityRef(RuntimeIdentityKind.ArtifactSet, manifest.ArtifactSet.ArtifactSetId.Value),
+                expectedValue: expectedArtifactKind + "@ArtifactSet=" + manifest.ArtifactSet.ArtifactSetId.Value + "/Plan=" + manifest.ArtifactSet.PlanId.Value,
+                actualValue: header.ArtifactKind + "@ArtifactSet=" + header.ArtifactSetId.Value + "/Plan=" + header.PlanId.Value));
         }
 
         static void ValidateRequiredRootServices(BootValidationInput input, KernelProfile? selectedProfile, List<BootValidationIssue> issues)

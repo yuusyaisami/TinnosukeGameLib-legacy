@@ -135,7 +135,13 @@ namespace Game.Common
         [SerializeField] LocalGridBlackboardInit localGridBlackboardInit = new();
 
         IScopeNode? _owner;
+        readonly DynamicEvaluationRuntime _valueInitRuntime = new();
+        BlackboardLocalValueInitPlan? _createLocalBlackboardPlan;
+        BlackboardLocalValueInitPlan? _acquireLocalBlackboardPlan;
+        BlackboardGridValueInitPlan? _createLocalGridBlackboardPlan;
+        BlackboardGridValueInitPlan? _acquireLocalGridBlackboardPlan;
         bool _debugInitialized;
+        bool _valueInitPlansBuilt;
 
         public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
@@ -202,8 +208,9 @@ namespace Game.Common
         [Inject]
         void Construct(IBlackboardService blackboard, IGridBlackboardService gridBlackboard)
         {
-            TryInitializeLocalBlackboard(blackboard, overwrite: false);
-            TryInitializeLocalGridBlackboard(blackboard, gridBlackboard, overwrite: false);
+            EnsureValueInitPlansBuilt();
+            BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _createLocalBlackboardPlan, _valueInitRuntime);
+            BlackboardValueInitRuntime.ApplyGridPlan(blackboard, gridBlackboard, _owner, _createLocalGridBlackboardPlan, _valueInitRuntime);
             TryInitializeDebugView(blackboard, gridBlackboard);
         }
 
@@ -222,19 +229,14 @@ namespace Game.Common
             if (resolver == null)
                 return;
 
-            if (resolver.TryResolve<IBlackboardService>(out var blackboard))
-            {
-                TryInitializeLocalBlackboard(blackboard, overwrite: false);
+            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                return;
 
-                IGridBlackboardService? gridBlackboard = null;
-                if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard))
-                {
-                    gridBlackboard = resolvedGridBlackboard;
-                    TryInitializeLocalGridBlackboard(blackboard, resolvedGridBlackboard, overwrite: false);
-                }
+            IGridBlackboardService? gridBlackboard = null;
+            if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard) && resolvedGridBlackboard != null)
+                gridBlackboard = resolvedGridBlackboard;
 
-                TryInitializeDebugView(blackboard, gridBlackboard);
-            }
+            TryInitializeDebugView(blackboard, gridBlackboard);
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
@@ -248,13 +250,14 @@ namespace Game.Common
             if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
                 return;
 
-            TryInitializeLocalBlackboard(blackboard, overwrite: reinitializeLocalBlackboardOnAcquire);
+            EnsureValueInitPlansBuilt();
+            BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _acquireLocalBlackboardPlan, _valueInitRuntime);
 
             IGridBlackboardService? gridBlackboard = null;
             if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard) && resolvedGridBlackboard != null)
             {
                 gridBlackboard = resolvedGridBlackboard;
-                TryInitializeLocalGridBlackboard(blackboard, resolvedGridBlackboard, overwrite: reinitializeLocalGridBlackboardOnAcquire);
+                BlackboardValueInitRuntime.ApplyGridPlan(blackboard, resolvedGridBlackboard, _owner, _acquireLocalGridBlackboardPlan, _valueInitRuntime);
             }
 
             TryInitializeDebugView(blackboard, gridBlackboard);
@@ -284,88 +287,27 @@ namespace Game.Common
             _debugInitialized = true;
         }
 
-        void TryInitializeLocalGridBlackboard(IBlackboardService blackboard, IGridBlackboardService gridBlackboard, bool overwrite)
+        void EnsureValueInitPlansBuilt()
         {
-            if (!initializeLocalGridBlackboard || blackboard == null || gridBlackboard == null)
+            if (_valueInitPlansBuilt)
                 return;
 
-            if (localGridBlackboardInit == null || !localGridBlackboardInit.HasTable)
-                return;
-
-            var vars = blackboard.LocalVars;
-            if (vars == null)
-                return;
-
-            var ctx = new SimpleDynamicContext(vars, _owner);
-            var rows = localGridBlackboardInit.Rows;
-            if (rows == null || rows.Count == 0)
-                return;
-
-            var gridId = localGridBlackboardInit.GridId;
-            var hasGridId = gridId != 0;
-
-            for (int row = 0; row < rows.Count; row++)
-            {
-                var rowInit = rows[row];
-                if (rowInit == null)
-                    continue;
-
-                var columns = rowInit.Columns;
-                if (columns == null || columns.Count == 0)
-                    continue;
-
-                for (int column = 0; column < columns.Count; column++)
-                {
-                    var columnInit = columns[column];
-                    if (columnInit == null)
-                        continue;
-
-                    var payload = columnInit.Vars;
-                    var entries = payload?.Entries;
-                    if (entries == null || entries.Count == 0)
-                    {
-                        if (hasGridId)
-                        {
-                            GridBlackboardWriteUtility.ApplyCellValues(gridBlackboard, row, column, null, ctx, overwrite, upsert: true, gridIdVarId: gridId);
-                        }
-
-                        continue;
-                    }
-
-                    var seenVarIds = new HashSet<int>();
-                    for (int entryIndex = 0; entryIndex < entries.Count; entryIndex++)
-                    {
-                        var entry = entries[entryIndex];
-                        var varId = entry.VarId;
-                        if (varId == 0)
-                            continue;
-
-                        if (!seenVarIds.Add(varId))
-                        {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                            Debug.LogWarning($"[BlackboardMB] LocalGridBlackboardInit has duplicate varId={varId} at row={row} column={column} index={entryIndex}. Later entries may override earlier values.", this);
-#endif
-                        }
-                    }
-
-                    GridBlackboardWriteUtility.ApplyCellValues(gridBlackboard, row, column, payload, ctx, overwrite, upsert: true, gridIdVarId: gridId);
-                }
-            }
+            _createLocalBlackboardPlan = BuildLocalBlackboardPlan(BlackboardValueInitPhase.Create, overwriteExisting: false);
+            _acquireLocalBlackboardPlan = BuildLocalBlackboardPlan(BlackboardValueInitPhase.Acquire, overwriteExisting: reinitializeLocalBlackboardOnAcquire);
+            _createLocalGridBlackboardPlan = BuildLocalGridBlackboardPlan(BlackboardValueInitPhase.Create, overwriteExisting: false);
+            _acquireLocalGridBlackboardPlan = BuildLocalGridBlackboardPlan(BlackboardValueInitPhase.Acquire, overwriteExisting: reinitializeLocalGridBlackboardOnAcquire);
+            _valueInitPlansBuilt = true;
         }
 
-        void TryInitializeLocalBlackboard(IBlackboardService blackboard, bool overwrite)
+        BlackboardLocalValueInitPlan? BuildLocalBlackboardPlan(BlackboardValueInitPhase phase, bool overwriteExisting)
         {
-            if (!initializeLocalBlackboard || blackboard == null)
-                return;
+            if (!initializeLocalBlackboard)
+                return null;
 
             if (localBlackboardInitEntries == null || localBlackboardInitEntries.Length == 0)
-                return;
+                return null;
 
-            var vars = blackboard.LocalVars;
-            if (vars == null)
-                return;
-
-            var ctx = new SimpleDynamicContext(vars, _owner);
+            var plans = new List<BlackboardLocalValueInitEntryPlan>(localBlackboardInitEntries.Length);
             var seenVarIds = new HashSet<int>();
 
             for (int i = 0; i < localBlackboardInitEntries.Length; i++)
@@ -385,46 +327,83 @@ namespace Game.Common
 #endif
                 }
 
-                if (!overwrite && vars.Contains(varId))
-                {
-                    //#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    //                    Debug.Log($"[BlackboardMB] LocalBlackboardInit skipped (already exists). VarId={varId}, Overwrite={overwrite}", this);
-                    //#endif
-                    continue;
-                }
-
-                if (overwrite && vars.Contains(varId))
-                {
-                    vars.TryUnset(varId);
-                }
-
-                var value = entry.Value.Evaluate(ctx);
-
-                if (!TrySetLocalValue(vars, varId, value))
-                {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    var currentKind = vars.GetVarKind(varId);
-                    Debug.LogWarning(
-                        $"[BlackboardMB] LocalBlackboardInit failed. VarId={varId}, VariantKind={value.Kind}, Overwrite={overwrite}, CurrentKind={currentKind}",
-                        this);
-#endif
-                }
+                plans.Add(new BlackboardLocalValueInitEntryPlan(varId, entry.Value, i));
             }
+
+            return plans.Count == 0
+                ? null
+                : new BlackboardLocalValueInitPlan(phase, overwriteExisting, plans.ToArray());
         }
 
-        static bool TrySetLocalValue(IVarStore vars, int varId, in DynamicVariant value)
+        BlackboardGridValueInitPlan? BuildLocalGridBlackboardPlan(BlackboardValueInitPhase phase, bool overwriteExisting)
         {
-            if (value.Kind == ValueKind.Null)
+            if (!initializeLocalGridBlackboard)
+                return null;
+
+            if (localGridBlackboardInit == null || !localGridBlackboardInit.HasTable)
+                return null;
+
+            var rows = localGridBlackboardInit.Rows;
+            if (rows == null || rows.Count == 0)
+                return null;
+
+            int gridId = localGridBlackboardInit.GridId;
+            bool hasGridId = gridId != 0;
+            var cellPlans = new List<BlackboardGridValueInitCellPlan>();
+            int order = 0;
+
+            for (int row = 0; row < rows.Count; row++)
             {
-                if (!vars.Contains(varId))
-                    return true;
-                return vars.TryUnset(varId);
+                var rowInit = rows[row];
+                if (rowInit == null)
+                    continue;
+
+                var columns = rowInit.Columns;
+                if (columns == null || columns.Count == 0)
+                    continue;
+
+                for (int column = 0; column < columns.Count; column++)
+                {
+                    var columnInit = columns[column];
+                    if (columnInit == null)
+                        continue;
+
+                    var payload = columnInit.Vars;
+                    var entries = payload?.Entries;
+                    VarStorePayload.Entry[]? copiedEntries = null;
+
+                    if (entries != null && entries.Count > 0)
+                    {
+                        copiedEntries = new VarStorePayload.Entry[entries.Count];
+                        var seenVarIds = new HashSet<int>();
+                        for (int entryIndex = 0; entryIndex < entries.Count; entryIndex++)
+                        {
+                            var entry = entries[entryIndex];
+                            copiedEntries[entryIndex] = entry;
+
+                            int varId = entry.VarId;
+                            if (varId == 0)
+                                continue;
+
+                            if (!seenVarIds.Add(varId))
+                            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                                Debug.LogWarning($"[BlackboardMB] LocalGridBlackboardInit has duplicate varId={varId} at row={row} column={column} index={entryIndex}. Later entries may override earlier values.", this);
+#endif
+                            }
+                        }
+                    }
+
+                    if (!hasGridId && (copiedEntries == null || copiedEntries.Length == 0))
+                        continue;
+
+                    cellPlans.Add(new BlackboardGridValueInitCellPlan(row, column, order++, copiedEntries));
+                }
             }
 
-            if (value.Kind == ValueKind.ManagedRef)
-                return value.AsManagedRef != null && vars.TrySetManagedRef(varId, value.AsManagedRef);
-
-            return vars.TrySetVariant(varId, value);
+            return cellPlans.Count == 0
+                ? null
+                : new BlackboardGridValueInitPlan(phase, overwriteExisting, gridId, cellPlans.ToArray());
         }
 
     }

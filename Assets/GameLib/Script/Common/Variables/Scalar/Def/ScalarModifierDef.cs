@@ -67,6 +67,31 @@ namespace Game.Scalar
         public bool UsesDynamicBounds
             => UsesDynamicValue(Min) || UsesDynamicValue(Max);
 
+        public bool TryCreateLiteralClamp(out ScalarClamp literalClamp)
+        {
+            literalClamp = default;
+
+            if (UseMin)
+            {
+                if (!TryGetLiteralValue(Min, out var min))
+                    return false;
+
+                literalClamp.UseMin = true;
+                literalClamp.Min = DynamicValueExtensions.FromLiteral(min);
+            }
+
+            if (UseMax)
+            {
+                if (!TryGetLiteralValue(Max, out var max))
+                    return false;
+
+                literalClamp.UseMax = true;
+                literalClamp.Max = DynamicValueExtensions.FromLiteral(max);
+            }
+
+            return true;
+        }
+
         public float Apply(float v, IDynamicContext context)
         {
             if (UseMin)
@@ -98,6 +123,24 @@ namespace Game.Scalar
                 return false;
 
             return true;
+        }
+
+        static bool TryGetLiteralValue(DynamicValue<float> value, out float result)
+        {
+            if (value.TryGetSource<LiteralFloatSource>(out var literalFloat))
+            {
+                result = literalFloat.Evaluate(null).AsFloat;
+                return true;
+            }
+
+            if (value.TryGetSource<LiteralSource>(out var literal))
+            {
+                result = literal.Evaluate(null).AsFloat;
+                return true;
+            }
+
+            result = default;
+            return false;
         }
     }
 

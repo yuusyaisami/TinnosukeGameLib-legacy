@@ -13,7 +13,7 @@ namespace Game.Commands.VNext
 
         static CommandKeyRegistry? _cachedRegistry;
 
-        public static CommandKeyRegistry GetOrCreate()
+        public static CommandKeyRegistry? GetOrCreate()
         {
 #if UNITY_EDITOR
             if (_cachedRegistry != null)
@@ -41,10 +41,7 @@ namespace Game.Commands.VNext
             {
                 _cachedRegistry = Resources.Load<CommandKeyRegistry>("CommandKeyRegistry");
                 if (_cachedRegistry == null)
-                {
-                    _cachedRegistry = ScriptableObject.CreateInstance<CommandKeyRegistry>();
-                    Debug.LogError("[CommandKeyRegistryLocator] Could not load CommandKeyRegistry at runtime (Resources/CommandKeyRegistry). Created a runtime fallback instance.");
-                }
+                    Debug.LogError("[CommandKeyRegistryLocator] Could not load CommandKeyRegistry at runtime (Resources/CommandKeyRegistry).");
             }
             return _cachedRegistry;
 #endif

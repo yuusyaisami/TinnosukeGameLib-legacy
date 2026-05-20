@@ -43,6 +43,8 @@ namespace Game.Common
         IEnumerable<int> EnumerateTableVarIds();
         bool ContainsTable(int tableVarId);
         int GetTableVersion(int tableVarId);
+        bool TryGetTableRowVersion(int tableVarId, int rowIndex, out int rowVersion);
+        bool TryGetTableCellVersion(int tableVarId, int rowIndex, int columnIndex, out int cellVersion);
         bool TryGetTableRowCount(int tableVarId, out int rowCount);
         bool TryGetTableColumnCount(int tableVarId, int rowIndex, out int columnCount);
         bool TryHasTableCell(int tableVarId, int rowIndex, int columnIndex);

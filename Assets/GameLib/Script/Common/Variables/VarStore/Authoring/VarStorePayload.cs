@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using Game.Commands.VNext;
 using Sirenix.OdinInspector;
@@ -72,6 +73,10 @@ namespace Game.Common
             [SerializeField, VarIdDropdown]
             public int TableVarId;
 
+            [SerializeField]
+            [LabelText("Revision")]
+            public int Revision = 1;
+
             [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
             public List<TableRow> Rows = new();
         }
@@ -79,6 +84,14 @@ namespace Game.Common
         [Serializable]
         public sealed class TableRow
         {
+            [SerializeField]
+            [LabelText("Row Id")]
+            public int RowId;
+
+            [SerializeField]
+            [LabelText("Revision")]
+            public int Revision = 1;
+
             [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = false)]
             public List<TableCell> Cells = new();
         }
@@ -86,6 +99,18 @@ namespace Game.Common
         [Serializable]
         public sealed class TableCell
         {
+            [SerializeField]
+            [LabelText("Column Id")]
+            public int ColumnId;
+
+            [SerializeField]
+            [LabelText("Cell Id")]
+            public int CellId;
+
+            [SerializeField]
+            [LabelText("Revision")]
+            public int Revision = 1;
+
             [SerializeField, InlineProperty]
             public VarStoreCellPayload Vars = new();
         }
@@ -408,12 +433,58 @@ namespace Game.Common
     [Serializable]
     public sealed class Table
     {
+        [SerializeField]
+        [LabelText("Revision")]
+        public int Revision = 1;
+
         [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
         List<RowPayload> rows = new();
 
         public IReadOnlyList<RowPayload> Rows => rows;
 
         public int RowCount => rows?.Count ?? 0;
+
+        public bool TryGetRowIdentity(int rowIndex, out int rowId, out int revision)
+        {
+            rowId = 0;
+            revision = 0;
+
+            if (rows == null || rowIndex < 0 || rowIndex >= rows.Count)
+                return false;
+
+            var row = rows[rowIndex];
+            if (row == null || row.RowId == 0)
+                return false;
+
+            rowId = row.RowId;
+            revision = row.Revision;
+            return true;
+        }
+
+        public bool TryGetCellIdentity(int rowIndex, int columnIndex, out int rowId, out int columnId, out int cellId, out int revision)
+        {
+            rowId = 0;
+            columnId = 0;
+            cellId = 0;
+            revision = 0;
+
+            if (rows == null || rowIndex < 0 || rowIndex >= rows.Count)
+                return false;
+
+            var row = rows[rowIndex];
+            if (row?.Cells == null || columnIndex < 0 || columnIndex >= row.Cells.Count)
+                return false;
+
+            var cell = row.Cells[columnIndex];
+            if (cell == null || cell.CellId == 0)
+                return false;
+
+            rowId = row.RowId;
+            columnId = cell.ColumnId;
+            cellId = cell.CellId;
+            revision = cell.Revision;
+            return true;
+        }
 
         public static Table FromLegacy(VarStorePayload? payload)
         {
@@ -438,13 +509,22 @@ namespace Game.Common
                         var sourceCell = sourceRow.Cells[columnIndex];
                         row.Cells.Add(new CellPayload
                         {
+                            ColumnId = sourceCell?.ColumnId ?? 0,
+                            CellId = sourceCell?.CellId ?? 0,
+                            Revision = sourceCell?.Revision > 0 ? sourceCell.Revision : 1,
                             Vars = sourceCell?.Vars ?? new VarStoreCellPayload(),
                         });
                     }
                 }
 
+                row.RowId = sourceRow?.RowId ?? 0;
+                row.Revision = sourceRow?.Revision > 0 ? sourceRow.Revision : 1;
+
                 table.rows.Add(row);
             }
+
+            table.Revision = legacyTable.Revision > 0 ? legacyTable.Revision : 1;
+            table.NormalizeIdentities();
 
             return table;
         }
@@ -479,9 +559,216 @@ namespace Game.Common
             return vars != null;
         }
 
+        public void NormalizeIdentities()
+        {
+            if (rows == null)
+                rows = new List<RowPayload>();
+
+            HashSet<int> usedRowIds = new HashSet<int>();
+            HashSet<int> usedCellIds = new HashSet<int>();
+
+            for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+            {
+                RowPayload row = rows[rowIndex] ?? throw new InvalidOperationException("Table rows must not contain null entries.");
+                NormalizeIdentity(row, usedRowIds, usedCellIds);
+            }
+
+            ValidateIdentityIntegrity();
+        }
+
+        public void ValidateIdentityIntegrity()
+        {
+            if (rows == null)
+                return;
+
+            HashSet<int> seenRowIds = new HashSet<int>();
+            HashSet<int> seenCellIds = new HashSet<int>();
+
+            for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+            {
+                RowPayload row = rows[rowIndex] ?? throw new InvalidOperationException("Table rows must not contain null entries.");
+
+                if (row.RowId == 0)
+                    throw new InvalidOperationException("Table rows must provide a non-zero row identity.");
+
+                if (!seenRowIds.Add(row.RowId))
+                    throw new InvalidOperationException("Table rows must use unique row identities.");
+
+                if (row.Cells == null)
+                    continue;
+
+                HashSet<int> seenColumnIds = new HashSet<int>();
+                for (int columnIndex = 0; columnIndex < row.Cells.Count; columnIndex++)
+                {
+                    CellPayload cell = row.Cells[columnIndex] ?? throw new InvalidOperationException("Table cells must not contain null entries.");
+
+                    if (cell.ColumnId == 0)
+                        throw new InvalidOperationException("Table cells must provide a non-zero column identity.");
+
+                    if (!seenColumnIds.Add(cell.ColumnId))
+                        throw new InvalidOperationException("Table rows must use unique column identities.");
+
+                    if (cell.CellId == 0)
+                        throw new InvalidOperationException("Table cells must provide a non-zero cell identity.");
+
+                    if (!seenCellIds.Add(cell.CellId))
+                        throw new InvalidOperationException("Table cells must use unique cell identities.");
+                }
+            }
+        }
+
+        static void NormalizeIdentity(RowPayload row, HashSet<int> usedRowIds, HashSet<int> usedCellIds)
+        {
+            if (row.Cells == null)
+                row.Cells = new List<CellPayload>();
+
+            if (row.RowId == 0)
+            {
+                row.RowId = AllocateStableIdentity("Table.Row", BuildRowIdentitySignature(row), usedRowIds);
+            }
+            else if (!usedRowIds.Add(row.RowId))
+            {
+                throw new InvalidOperationException("Table rows must use unique row identities.");
+            }
+
+            HashSet<int> usedColumnIds = new HashSet<int>();
+            for (int columnIndex = 0; columnIndex < row.Cells.Count; columnIndex++)
+            {
+                CellPayload cell = row.Cells[columnIndex] ?? throw new InvalidOperationException("Table cells must not contain null entries.");
+                NormalizeIdentity(cell, usedColumnIds, usedCellIds);
+            }
+        }
+
+        static void NormalizeIdentity(CellPayload cell, HashSet<int> usedColumnIds, HashSet<int> usedCellIds)
+        {
+            string signature = BuildCellIdentitySignature(cell);
+
+            if (cell.ColumnId == 0)
+            {
+                cell.ColumnId = AllocateStableIdentity("Table.Column", signature, usedColumnIds);
+            }
+            else if (!usedColumnIds.Add(cell.ColumnId))
+            {
+                throw new InvalidOperationException("Table rows must use unique column identities.");
+            }
+
+            if (cell.CellId == 0)
+            {
+                cell.CellId = AllocateStableIdentity("Table.Cell", signature, usedCellIds);
+            }
+            else if (!usedCellIds.Add(cell.CellId))
+            {
+                throw new InvalidOperationException("Table cells must use unique cell identities.");
+            }
+        }
+
+        static string BuildRowIdentitySignature(RowPayload row)
+        {
+            StringBuilder sb = new StringBuilder(64);
+            sb.Append("Revision=").Append(row.Revision);
+            sb.Append("|CellCount=").Append(row.Cells?.Count ?? 0);
+
+            if (row.Cells != null)
+            {
+                for (int columnIndex = 0; columnIndex < row.Cells.Count; columnIndex++)
+                {
+                    CellPayload cell = row.Cells[columnIndex];
+                    if (cell == null)
+                    {
+                        sb.Append("|Cell=<null>");
+                        continue;
+                    }
+
+                    sb.Append("|Cell[").Append(columnIndex).Append("]=");
+                    sb.Append(BuildCellIdentitySignature(cell));
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        static string BuildCellIdentitySignature(CellPayload cell)
+        {
+            StringBuilder sb = new StringBuilder(96);
+            sb.Append("ColumnId=").Append(cell.ColumnId);
+            sb.Append("|Revision=").Append(cell.Revision);
+            sb.Append("|ValueCount=").Append(cell.Vars?.Entries?.Count ?? 0);
+
+            if (cell.Vars?.Entries != null)
+            {
+                for (int entryIndex = 0; entryIndex < cell.Vars.Entries.Count; entryIndex++)
+                {
+                    VarStorePayload.Entry entry = cell.Vars.Entries[entryIndex];
+                    sb.Append("|Entry[").Append(entryIndex).Append("]=");
+                    sb.Append(entry.VarId).Append(',');
+                    sb.Append((int)entry.Kind).Append(',');
+                    sb.Append((int)entry.StoreMode).Append(',');
+                    sb.Append(entry.Value.HasSource ? entry.Value.SourceTypeName : "<no-source>").Append(',');
+                    sb.Append(entry.Value.HasSource ? entry.Value.SourceDebugData : string.Empty);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        static int AllocateStableIdentity(string identityKind, string signature, HashSet<int> usedIds)
+        {
+            int salt = 0;
+            while (salt < int.MaxValue)
+            {
+                int candidate = ComposeStableIdentity(identityKind, signature, salt);
+                if (usedIds.Add(candidate))
+                    return candidate;
+
+                salt++;
+            }
+
+            throw new InvalidOperationException("Unable to allocate a unique stable identity.");
+        }
+
+        static int ComposeStableIdentity(string identityKind, string signature, int salt)
+        {
+            unchecked
+            {
+                ulong hash = 1469598103934665603UL;
+                hash = MixHash(hash, identityKind);
+                hash = MixHash(hash, "\u001f");
+                hash = MixHash(hash, signature);
+
+                if (salt != 0)
+                {
+                    hash = MixHash(hash, "\u001f");
+                    hash = MixHash(hash, salt.ToString(CultureInfo.InvariantCulture));
+                }
+
+                int candidate = (int)((hash ^ (hash >> 32)) & 0x7fffffff);
+                return candidate == 0 ? 1 : candidate;
+            }
+        }
+
+        static ulong MixHash(ulong hash, string text)
+        {
+            unchecked
+            {
+                for (int i = 0; i < text.Length; i++)
+                {
+                    hash ^= text[i];
+                    hash *= 1099511628211UL;
+                }
+
+                return hash;
+            }
+        }
+
         [Serializable]
         public sealed class RowPayload
         {
+            [SerializeField]
+            public int RowId;
+
+            [SerializeField]
+            public int Revision = 1;
+
             [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
             public List<CellPayload> Cells = new();
         }
@@ -489,8 +776,86 @@ namespace Game.Common
         [Serializable]
         public sealed class CellPayload
         {
+            [SerializeField]
+            public int ColumnId;
+
+            [SerializeField]
+            public int CellId;
+
+            [SerializeField]
+            public int Revision = 1;
+
             [SerializeField, InlineProperty]
             public VarStoreCellPayload Vars = new();
         }
+
+        static int ComposeTableCellId(int rowIndex, int columnIndex)
+        {
+            unchecked
+            {
+                return ((rowIndex + 1) * 100000) + (columnIndex + 1);
+            }
+        }
+    }
+
+    [Serializable]
+    public sealed class RecordPayload
+    {
+        [SerializeField, VarIdDropdown]
+        public int RecordVarId;
+
+        [SerializeField]
+        public int Revision = 1;
+
+        [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
+        public List<RecordFieldPayload> Fields = new();
+    }
+
+    [Serializable]
+    public sealed class RecordFieldPayload
+    {
+        [SerializeField, VarIdDropdown]
+        public int FieldId;
+
+        [SerializeField]
+        public ValueKind Kind = ValueKind.Null;
+
+        [SerializeField]
+        public bool Required = true;
+
+        [SerializeField]
+        public int Revision = 1;
+
+        [SerializeField, InlineProperty]
+        public VarStoreCellPayload Vars = new();
+    }
+
+    [Serializable]
+    public sealed class RecordListPayload
+    {
+        [SerializeField, VarIdDropdown]
+        public int RecordListVarId;
+
+        [SerializeField]
+        public int Revision = 1;
+
+        [SerializeField, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
+        public List<RecordListElementPayload> Elements = new();
+    }
+
+    [Serializable]
+    public sealed class RecordListElementPayload
+    {
+        [SerializeField]
+        public int ElementId;
+
+        [SerializeField]
+        public int Order;
+
+        [SerializeField]
+        public int Revision = 1;
+
+        [SerializeField, InlineProperty]
+        public VarStoreCellPayload Vars = new();
     }
 }

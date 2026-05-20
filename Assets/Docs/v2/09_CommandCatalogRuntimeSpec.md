@@ -378,6 +378,11 @@ public readonly struct CommandCategoryId
 {
     public readonly int Value;
 }
+
+public readonly struct CommandAuthoringKeyId
+{
+    public readonly int Value;
+}
 ```
 
 This sketch is explanatory and does not finalize the serialized API.
@@ -395,6 +400,10 @@ CommandCategoryId is not dispatch identity.
 CommandAuthoringKey is not dispatch identity.
 Raw C# type name is not dispatch identity.
 Raw string command name is not dispatch identity.
+
+When authoring-key metadata is preserved in normalized IR, it should remain typed and provenance-aware.
+A bare string field is insufficient because it allows runtime-facing code to accidentally treat authoring text as authority.
+Preserved command authoring-key metadata must also be traceable in projection and DebugMap artifacts.
 
 ---
 
@@ -454,6 +463,8 @@ CommandContribution may declare:
 - runtime query dependencies
 - profile availability
 - diagnostics source
+
+Verified command catalog projection should preserve these declarations as structured `CommandEntryPlan` rows with grouped module and category metadata rather than as a flat runtime string table.
 
 CommandContribution must not:
 

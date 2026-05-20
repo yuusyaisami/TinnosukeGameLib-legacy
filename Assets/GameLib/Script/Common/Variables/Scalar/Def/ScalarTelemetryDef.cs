@@ -4,6 +4,17 @@ using System.Collections.Generic;
 
 namespace Game.Scalar
 {
+    public enum LayeredNumericLaneKind : byte
+    {
+        Unknown = 0,
+        Base = 10,
+        PrefixMul = 20,
+        Add = 30,
+        SuffixMul = 40,
+        FinalClamp = 50,
+        Effective = 60,
+    }
+
     /// <summary>
     /// Debug 表示用のスナップショット。
     /// 基本的には Editor / UI テレメトリでのみ使用。
@@ -11,6 +22,7 @@ namespace Game.Scalar
     public readonly struct ScalarSnapshot
     {
         public readonly ScalarKey Key;
+        public readonly LayeredNumericLaneKind Lane;
         public readonly ScalarModKind Kind;
         public readonly ScalarMulPhase Phase;
         public readonly float Value;
@@ -19,9 +31,15 @@ namespace Game.Scalar
         public readonly string Tag;
         public readonly string Layer;
         public readonly Guid Id;
+        public readonly int Revision;
+        public readonly float ClampMin;
+        public readonly float ClampMax;
+        public readonly bool HasClampMin;
+        public readonly bool HasClampMax;
 
         public ScalarSnapshot(
             ScalarKey key,
+            LayeredNumericLaneKind lane,
             ScalarModKind kind,
             ScalarMulPhase phase,
             float value,
@@ -29,9 +47,15 @@ namespace Game.Scalar
             object source,
             string tag,
             string layer,
-            Guid id)
+            Guid id,
+            int revision,
+            float clampMin,
+            float clampMax,
+            bool hasClampMin,
+            bool hasClampMax)
         {
             Key = key;
+            Lane = lane;
             Kind = kind;
             Phase = phase;
             Value = value;
@@ -40,6 +64,11 @@ namespace Game.Scalar
             Tag = tag;
             Layer = layer;
             Id = id;
+            Revision = revision;
+            ClampMin = clampMin;
+            ClampMax = clampMax;
+            HasClampMin = hasClampMin;
+            HasClampMax = hasClampMax;
         }
     }
 

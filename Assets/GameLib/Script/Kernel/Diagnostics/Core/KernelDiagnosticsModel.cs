@@ -57,6 +57,7 @@ namespace Game.Kernel.Diagnostics
         CommandType = 80,
         CommandExecutor = 90,
         CommandPayloadSchema = 100,
+        CommandAuthoringKey = 105,
         ValueKey = 110,
         ValueSchema = 120,
         RuntimeQuery = 130,

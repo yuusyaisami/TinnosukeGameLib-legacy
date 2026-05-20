@@ -58,7 +58,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class RandomWeightedStringListSource : IDynamicSource
+    public sealed class RandomWeightedStringListSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [Serializable]
         public struct Entry
@@ -75,6 +75,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => entries == null ? "string weighted (null)" : $"string weighted n={entries.Count}";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -86,7 +87,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class RandomWeightedIntListSource : IDynamicSource
+    public sealed class RandomWeightedIntListSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [Serializable]
         public struct Entry
@@ -103,6 +104,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => entries == null ? "int weighted (null)" : $"int weighted n={entries.Count}";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -114,7 +116,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class RandomWeightedFloatListSource : IDynamicSource
+    public sealed class RandomWeightedFloatListSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [Serializable]
         public struct Entry
@@ -131,6 +133,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => entries == null ? "float weighted (null)" : $"float weighted n={entries.Count}";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -142,7 +145,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class RandomWeightedColorListSource : IDynamicSource
+    public sealed class RandomWeightedColorListSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [Serializable]
         public struct Entry
@@ -159,6 +162,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => entries == null ? "Color weighted (null)" : $"Color weighted n={entries.Count}";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -175,7 +179,7 @@ namespace Game.Common
     ///   and also DynamicValue&lt;TDerivedTemplate&gt;.
     /// </summary>
     [Serializable]
-    public sealed class RandomWeightedRuntimeTemplateListSource : IDynamicSource
+    public sealed class RandomWeightedRuntimeTemplateListSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [Serializable]
         public struct Entry
@@ -192,6 +196,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => entries == null ? "Template weighted (null)" : $"Template weighted n={entries.Count}";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -210,7 +215,7 @@ namespace Game.Common
     ///   and derived preset types.
     /// </summary>
     [Serializable]
-    public sealed class RandomWeightedRuntimeTemplatePresetListSource : IDynamicSource
+    public sealed class RandomWeightedRuntimeTemplatePresetListSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [Serializable]
         public struct Entry
@@ -227,6 +232,7 @@ namespace Game.Common
 
         public string SourceTypeName => "Random";
         public string GetDebugData => entries == null ? "TemplatePreset weighted (null)" : $"TemplatePreset weighted n={entries.Count}";
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {
@@ -244,7 +250,7 @@ namespace Game.Common
     /// - commonMaterialFxPreset is always applied first.
     /// </summary>
     [Serializable]
-    public sealed class RandomMaterialFxSource : IDynamicSource
+    public sealed class RandomMaterialFxSource : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [Serializable]
         public struct Entry
@@ -284,6 +290,7 @@ namespace Game.Common
                 return $"MaterialFx common={commonCount} weighted={weightedCount}";
             }
         }
+        public bool AllowTrackedEvaluation => false;
 
         public DynamicVariant Evaluate(IDynamicContext context)
         {

@@ -7,7 +7,7 @@ using System.Threading;
 namespace Game.Common
 {
     [Serializable]
-    public sealed class DeferredDynamicVarValue
+    public sealed class DeferredDynamicVarValue : IDynamicSourceDependencyRevisionProvider
     {
         readonly DynamicValue _value;
         readonly VarStorePayload.EntryValueKind _expectedKind;
@@ -31,6 +31,11 @@ namespace Game.Common
         public VarStorePayload.EntryValueKind ExpectedKind => _expectedKind;
         public int VarId => _varId;
         public string Owner => _owner;
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            return _value.GetSourceDependencyRevision(context);
+        }
     }
 
     static class DeferredDynamicVarResolver

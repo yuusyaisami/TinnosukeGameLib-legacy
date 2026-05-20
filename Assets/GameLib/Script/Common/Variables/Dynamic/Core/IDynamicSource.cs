@@ -39,6 +39,21 @@ namespace Game.Common
         string GetDebugData { get; }
     }
 
+    public interface IDynamicSourceConfigurationRevisionProvider
+    {
+        int GetSourceConfigurationRevision();
+    }
+
+    public interface IDynamicSourceDependencyRevisionProvider
+    {
+        int GetSourceDependencyRevision(IDynamicContext context);
+    }
+
+    public interface IDynamicTrackedEvaluationPolicyProvider
+    {
+        bool AllowTrackedEvaluation { get; }
+    }
+
     /// <summary>
     /// 動的値評価のコンテキスト。
     /// VarStore/Blackboard/Scalar 等へのアクセスを提供。

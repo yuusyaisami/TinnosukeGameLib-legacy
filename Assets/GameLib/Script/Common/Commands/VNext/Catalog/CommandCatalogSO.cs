@@ -1,5 +1,7 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace Game.Commands.VNext
@@ -8,11 +10,17 @@ namespace Game.Commands.VNext
     public sealed class CommandCatalogSO : ScriptableObject, ICommandCatalog
     {
         [SerializeField] List<CommandCatalogEntry> entries = new();
+        [SerializeField] List<CommandPayloadSchemaAsset> payloadSchemas = new();
 
         readonly Dictionary<int, int> _keyIdToIndex = new();
+        readonly Dictionary<int, CommandPayloadSchema> _payloadSchemaByCommandId = new();
         bool _built;
+        bool _payloadSchemasBuilt;
+        bool _payloadSchemasInvalid;
 
         public IReadOnlyList<CommandCatalogEntry> Entries => entries;
+
+        public IReadOnlyList<CommandPayloadSchemaAsset> PayloadSchemas => payloadSchemas;
 
         public bool TryResolve(CommandKeyId keyId, out ICommandData data)
         {
@@ -46,9 +54,13 @@ namespace Game.Commands.VNext
 
                 if (registry.TryResolve(key.StableKey, out var keyId))
                     return TryResolve(keyId, out data);
+
+#if UNITY_EDITOR
+                return TryResolveByStableKey(key.StableKey, out data);
+#endif
             }
 
-            return TryResolveByStableKey(key.StableKey, out data);
+            return false;
         }
 
         public bool TryGetMeta(CommandKeyRef key, out CommandCatalogMeta meta)
@@ -75,9 +87,23 @@ namespace Game.Commands.VNext
                     meta = entries[index]?.Meta!;
                     return meta != null;
                 }
+
+#if UNITY_EDITOR
+                return TryGetMetaByStableKey(key.StableKey, out meta);
+#endif
             }
 
-            return TryGetMetaByStableKey(key.StableKey, out meta);
+            return false;
+        }
+
+        public bool TryGetPayloadSchema(int commandId, out CommandPayloadSchema schema)
+        {
+            schema = null!;
+            EnsurePayloadSchemaLookup();
+            if (commandId <= 0 || _payloadSchemasInvalid)
+                return false;
+
+            return _payloadSchemaByCommandId.TryGetValue(commandId, out schema!);
         }
 
         void EnsureLookup()
@@ -124,6 +150,54 @@ namespace Game.Commands.VNext
             }
         }
 
+        void EnsurePayloadSchemaLookup()
+        {
+            if (_payloadSchemasBuilt)
+                return;
+
+            _payloadSchemaByCommandId.Clear();
+            _payloadSchemasBuilt = true;
+            _payloadSchemasInvalid = false;
+
+            var errors = new StringBuilder();
+
+            for (int index = 0; index < payloadSchemas.Count; index++)
+            {
+                CommandPayloadSchemaAsset asset = payloadSchemas[index];
+                if (asset == null)
+                {
+                    errors.AppendLine($"Payload schema entry is null. Index={index}");
+                    continue;
+                }
+
+                CommandPayloadSchema schema;
+                try
+                {
+                    schema = asset.ToRuntimeSchema();
+                }
+                catch (Exception ex)
+                {
+                    errors.AppendLine($"Payload schema entry is invalid. Index={index} Error={ex.Message}");
+                    continue;
+                }
+
+                if (_payloadSchemaByCommandId.ContainsKey(schema.CommandId))
+                {
+                    errors.AppendLine($"Duplicate payload schema for CommandId={schema.CommandId}.");
+                    continue;
+                }
+
+                _payloadSchemaByCommandId.Add(schema.CommandId, schema);
+            }
+
+            if (errors.Length > 0)
+            {
+                _payloadSchemaByCommandId.Clear();
+                _payloadSchemasInvalid = true;
+                Debug.LogError("[CommandCatalogSO] Payload schema table is invalid and cannot be used:\n" + errors.ToString().TrimEnd());
+            }
+        }
+
         bool TryResolveByStableKey(string stableKey, out ICommandData data)
         {
             data = null!;
@@ -165,11 +239,100 @@ namespace Game.Commands.VNext
         void OnEnable()
         {
             _built = false;
+            _payloadSchemasBuilt = false;
+            _payloadSchemasInvalid = false;
         }
 
         void OnValidate()
         {
             _built = false;
+            _payloadSchemasBuilt = false;
+            _payloadSchemasInvalid = false;
+        }
+    }
+
+    [Serializable]
+    public sealed class CommandPayloadSchemaAsset
+    {
+        [SerializeField] int commandId;
+        [SerializeField] int schemaId;
+        [SerializeField] CommandPayloadUnknownFieldPolicy unknownFieldPolicy = CommandPayloadUnknownFieldPolicy.Reject;
+        [SerializeField] List<CommandPayloadFieldSchemaAsset> fields = new();
+
+        public int CommandId => commandId;
+
+        public int SchemaId => schemaId;
+
+        public CommandPayloadUnknownFieldPolicy UnknownFieldPolicy => unknownFieldPolicy;
+
+        public IReadOnlyList<CommandPayloadFieldSchemaAsset> Fields => fields;
+
+        public CommandPayloadSchema ToRuntimeSchema()
+        {
+            var runtimeFields = new CommandPayloadFieldSchema[fields.Count];
+            for (int index = 0; index < fields.Count; index++)
+            {
+                CommandPayloadFieldSchemaAsset field = fields[index];
+                if (field == null)
+                    throw new ArgumentException($"Payload schema field entry is null. Index={index}");
+
+                runtimeFields[index] = field.ToRuntimeSchema();
+            }
+
+            return new CommandPayloadSchema(commandId, schemaId, unknownFieldPolicy, runtimeFields);
+        }
+    }
+
+    public sealed class VerifiedCommandPayloadSchemaCatalog : ICommandPayloadSchemaCatalog
+    {
+        readonly Dictionary<int, CommandPayloadSchema> schemaByCommandId = new();
+
+        public VerifiedCommandPayloadSchemaCatalog(IReadOnlyList<CommandPayloadSchema> schemas)
+        {
+            if (schemas == null)
+                throw new ArgumentNullException(nameof(schemas));
+
+            for (int index = 0; index < schemas.Count; index++)
+            {
+                CommandPayloadSchema schema = schemas[index] ?? throw new ArgumentException("Verified command payload schema catalog must not contain null schemas.", nameof(schemas));
+                if (schemaByCommandId.ContainsKey(schema.CommandId))
+                    throw new ArgumentException("Verified command payload schema catalog requires unique CommandTypeId values.", nameof(schemas));
+
+                schemaByCommandId.Add(schema.CommandId, schema);
+            }
+        }
+
+        public bool TryGetPayloadSchema(int commandId, out CommandPayloadSchema schema)
+        {
+            return schemaByCommandId.TryGetValue(commandId, out schema!);
+        }
+    }
+
+    [Serializable]
+    public sealed class CommandPayloadFieldSchemaAsset
+    {
+        [SerializeField] string fieldPath = string.Empty;
+        [SerializeField] CommandPayloadFieldKind kind = CommandPayloadFieldKind.Unknown;
+        [SerializeField] CommandPayloadFieldRequirement requirement = CommandPayloadFieldRequirement.Optional;
+        [SerializeField] CommandPayloadReferenceKind referenceKind = CommandPayloadReferenceKind.None;
+        [SerializeField] bool allowNull;
+        [SerializeField] int sourceLocationId;
+
+        public string FieldPath => fieldPath ?? string.Empty;
+
+        public CommandPayloadFieldKind Kind => kind;
+
+        public CommandPayloadFieldRequirement Requirement => requirement;
+
+        public CommandPayloadReferenceKind ReferenceKind => referenceKind;
+
+        public bool AllowNull => allowNull;
+
+        public int SourceLocationId => sourceLocationId;
+
+        public CommandPayloadFieldSchema ToRuntimeSchema()
+        {
+            return new CommandPayloadFieldSchema(fieldPath, kind, requirement, referenceKind, allowNull, sourceLocationId);
         }
     }
 }

@@ -10,8 +10,19 @@ namespace TinnosukeGameLib.Tests.Editor
         [Test]
         public void KernelIRSupportTypes_UseExplicitStableEnumValues()
         {
+            Assert.That((int)ServiceLifetimeKind.Kernel, Is.EqualTo(10));
             Assert.That((int)ServiceLifetimeKind.Singleton, Is.EqualTo(10));
+            Assert.That((int)ServiceLifetimeKind.Project, Is.EqualTo(20));
+            Assert.That((int)ServiceLifetimeKind.Scene, Is.EqualTo(30));
+            Assert.That((int)ServiceLifetimeKind.Scope, Is.EqualTo(40));
+            Assert.That((int)ServiceLifetimeKind.ExplicitTransient, Is.EqualTo(50));
             Assert.That((int)ServiceFactoryKind.GeneratedFactory, Is.EqualTo(10));
+            Assert.That((int)ServiceCardinalityKind.SingletonGlobal, Is.EqualTo(10));
+            Assert.That((int)ServiceCardinalityKind.OnePerProject, Is.EqualTo(20));
+            Assert.That((int)ServiceCardinalityKind.OnePerScene, Is.EqualTo(30));
+            Assert.That((int)ServiceCardinalityKind.OnePerAuthoredScope, Is.EqualTo(40));
+            Assert.That((int)ServiceCardinalityKind.BoundedPool, Is.EqualTo(50));
+            Assert.That((int)ServiceCardinalityKind.UnboundedRuntime, Is.EqualTo(90));
             Assert.That((int)ScopeKind.Root, Is.EqualTo(10));
             Assert.That((int)ValueKind.Bool, Is.EqualTo(10));
             Assert.That((int)ValueKind.LayeredNumeric, Is.EqualTo(300));
@@ -23,6 +34,21 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That((int)LifecycleTargetKind.RuntimeQuery, Is.EqualTo(40));
             Assert.That((int)LifecycleActionKind.ServiceMethod, Is.EqualTo(10));
             Assert.That((int)LifecycleActionKind.ValueInit, Is.EqualTo(50));
+            Assert.That((int)LifecycleTickCardinalityKind.Hub, Is.EqualTo(10));
+            Assert.That((int)LifecycleTickCardinalityKind.PerEntity, Is.EqualTo(20));
+            Assert.That((int)LifecycleExecutionModeKind.Synchronous, Is.EqualTo(10));
+            Assert.That((int)LifecycleExecutionModeKind.TrackedAsync, Is.EqualTo(20));
+            Assert.That((int)LifecycleAsyncCancellationSourceKind.DispatcherOwned, Is.EqualTo(10));
+            Assert.That((int)LifecycleAsyncCancellationSourceKind.LinkedToCaller, Is.EqualTo(20));
+            Assert.That((int)LifecycleAsyncTimeoutPolicyKind.None, Is.EqualTo(10));
+            Assert.That((int)LifecycleAsyncTimeoutPolicyKind.DurationMilliseconds, Is.EqualTo(20));
+            Assert.That((int)LifecycleAsyncCompletionRequirementKind.BeforeNextStep, Is.EqualTo(10));
+            Assert.That((int)LifecycleAsyncCompletionRequirementKind.BeforePhaseExit, Is.EqualTo(20));
+            Assert.That((int)LifecycleFailurePolicy.FailOperation, Is.EqualTo(10));
+            Assert.That((int)LifecycleFailurePolicy.FailScope, Is.EqualTo(20));
+            Assert.That((int)LifecycleFailurePolicy.FailScene, Is.EqualTo(30));
+            Assert.That((int)LifecycleFailurePolicy.FailKernel, Is.EqualTo(40));
+            Assert.That((int)LifecycleFailurePolicy.ContinueWithError, Is.EqualTo(50));
             Assert.That((int)DependencyNodeKind.Module, Is.EqualTo(10));
             Assert.That((int)DependencyKind.Requires, Is.EqualTo(10));
             Assert.That((int)DependencyPhase.Build, Is.EqualTo(10));
@@ -43,6 +69,194 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That((int)LegacyRemovalStatus.TestOnly, Is.EqualTo(30));
             Assert.That((int)LegacyRemovalStatus.Deprecated, Is.EqualTo(40));
             Assert.That((int)LegacyRemovalStatus.Forbidden, Is.EqualTo(90));
+            Assert.That((int)ScopeServiceBoundaryKind.Detached, Is.EqualTo(10));
+            Assert.That((int)ScopeServiceBoundaryKind.OwnedLocal, Is.EqualTo(20));
+            Assert.That((int)ScopeServiceBoundaryKind.ReferencesParent, Is.EqualTo(30));
+        }
+
+        [Test]
+        public void LifecycleIR_RejectsInvalidFailurePolicyAndRequiresContinueWithErrorJustification()
+        {
+            LifecycleStepIR step = new LifecycleStepIR(
+                new LifecycleStepId(31),
+                LifecyclePhase.Boot,
+                10,
+                new LifecycleTargetRefIR(new ServiceId(11)),
+                LifecycleActionKind.ServiceMethod,
+                Array.Empty<DependencyEdgeId>(),
+                new SourceLocationId(4));
+
+            ArgumentOutOfRangeException invalidPolicyException = Assert.Throws<ArgumentOutOfRangeException>(() => new LifecycleIR(
+                new LifecyclePlanId(21),
+                "BattleLifecycle",
+                new ModuleId(8),
+                new[] { step },
+                new SourceLocationId(4),
+                (LifecycleFailurePolicy)999));
+
+            Assert.That(invalidPolicyException, Is.Not.Null);
+
+            ArgumentException missingJustificationException = Assert.Throws<ArgumentException>(() => new LifecycleIR(
+                new LifecyclePlanId(21),
+                "BattleLifecycle",
+                new ModuleId(8),
+                new[] { step },
+                new SourceLocationId(4),
+                LifecycleFailurePolicy.ContinueWithError));
+
+            Assert.That(missingJustificationException, Is.Not.Null);
+
+            ArgumentOutOfRangeException invalidRollbackPolicyException = Assert.Throws<ArgumentOutOfRangeException>(() => new LifecycleIR(
+                new LifecyclePlanId(21),
+                "BattleLifecycle",
+                new ModuleId(8),
+                new[] { step },
+                new SourceLocationId(4),
+                LifecycleFailurePolicy.FailScope,
+                true,
+                KernelProfileMask.None,
+                null,
+                (LifecycleAcquireRollbackPolicy)999));
+
+            Assert.That(invalidRollbackPolicyException, Is.Not.Null);
+
+            LifecycleIR justifiedLifecycle = new LifecycleIR(
+                new LifecyclePlanId(22),
+                "BattleLifecycleWithJustification",
+                new ModuleId(8),
+                new[] { step },
+                new SourceLocationId(5),
+                LifecycleFailurePolicy.ContinueWithError,
+                true,
+                KernelProfileMask.Development,
+                "Development profile keeps diagnostics flowing during migration.");
+
+            Assert.That(justifiedLifecycle.FailurePolicy, Is.EqualTo(LifecycleFailurePolicy.ContinueWithError));
+            Assert.That(justifiedLifecycle.FailurePolicyIsExplicit, Is.True);
+            Assert.That(justifiedLifecycle.FailurePolicyJustificationProfiles, Is.EqualTo(KernelProfileMask.Development));
+            Assert.That(justifiedLifecycle.FailurePolicyJustification, Is.Not.Null.And.Not.Empty);
+            Assert.That(justifiedLifecycle.AcquireRollbackPolicy, Is.EqualTo(LifecycleAcquireRollbackPolicy.ReverseCompletedAcquireSteps));
+        }
+
+        [Test]
+        public void LifecycleStepIR_RequiresExplicitTrackedAsyncPolicy_AndValidatesAsyncPolicyShape()
+        {
+            ArgumentException missingPolicyException = Assert.Throws<ArgumentException>(() => new LifecycleStepIR(
+                new LifecycleStepId(41),
+                LifecyclePhase.Boot,
+                10,
+                new LifecycleTargetRefIR(new ServiceId(11)),
+                LifecycleActionKind.ServiceMethod,
+                Array.Empty<DependencyEdgeId>(),
+                new SourceLocationId(4),
+                LifecycleTickCardinalityKind.Unknown,
+                LifecycleExecutionModeKind.TrackedAsync));
+
+            Assert.That(missingPolicyException, Is.Not.Null);
+
+            ArgumentException acquireAsyncException = Assert.Throws<ArgumentException>(() => new LifecycleStepIR(
+                new LifecycleStepId(42),
+                LifecyclePhase.Acquire,
+                20,
+                new LifecycleTargetRefIR(new ScopePlanId(12)),
+                LifecycleActionKind.ScopeStateTransition,
+                Array.Empty<DependencyEdgeId>(),
+                new SourceLocationId(5),
+                LifecycleTickCardinalityKind.Unknown,
+                LifecycleExecutionModeKind.TrackedAsync,
+                new LifecycleAsyncPolicyIR(
+                    LifecycleAsyncCancellationSourceKind.DispatcherOwned,
+                    LifecycleAsyncTimeoutPolicyKind.None,
+                    0,
+                    LifecycleAsyncCompletionRequirementKind.BeforePhaseExit,
+                    waitForNextStep: false)));
+
+            Assert.That(acquireAsyncException, Is.Not.Null);
+
+            Assert.That(() => new LifecycleAsyncPolicyIR(
+                LifecycleAsyncCancellationSourceKind.DispatcherOwned,
+                LifecycleAsyncTimeoutPolicyKind.None,
+                5,
+                LifecycleAsyncCompletionRequirementKind.BeforeNextStep,
+                waitForNextStep: true), Throws.ArgumentException);
+
+            Assert.That(() => new LifecycleAsyncPolicyIR(
+                LifecycleAsyncCancellationSourceKind.DispatcherOwned,
+                LifecycleAsyncTimeoutPolicyKind.DurationMilliseconds,
+                0,
+                LifecycleAsyncCompletionRequirementKind.BeforeNextStep,
+                waitForNextStep: true), Throws.ArgumentException);
+
+            LifecycleAsyncPolicyIR validAsyncPolicy = new LifecycleAsyncPolicyIR(
+                LifecycleAsyncCancellationSourceKind.LinkedToCaller,
+                LifecycleAsyncTimeoutPolicyKind.DurationMilliseconds,
+                25,
+                LifecycleAsyncCompletionRequirementKind.BeforeNextStep,
+                waitForNextStep: true);
+
+            LifecycleStepIR asyncStep = new LifecycleStepIR(
+                new LifecycleStepId(43),
+                LifecyclePhase.Boot,
+                30,
+                new LifecycleTargetRefIR(new ServiceId(13)),
+                LifecycleActionKind.ServiceMethod,
+                Array.Empty<DependencyEdgeId>(),
+                new SourceLocationId(6),
+                LifecycleTickCardinalityKind.Unknown,
+                LifecycleExecutionModeKind.TrackedAsync,
+                validAsyncPolicy);
+
+            Assert.That(asyncStep.ExecutionMode, Is.EqualTo(LifecycleExecutionModeKind.TrackedAsync));
+            Assert.That(asyncStep.AsyncPolicy, Is.SameAs(validAsyncPolicy));
+        }
+
+        [Test]
+        public void KernelIR_RejectsLifecycleLocalOwnerTargets_UntilLowerSpecSupportExists()
+        {
+            SourceLocationTable sources = new SourceLocationTable(new[]
+            {
+                new SourceLocationIR(new GeneratedSourceLocation("KernelIRStructureTests", "MinimalKernel", "Build")),
+                new SourceLocationIR(new GeneratedSourceLocation("KernelIRStructureTests", "MinimalKernel", "Lifecycle")),
+            });
+
+            ModuleIR module = new ModuleIR(
+                new ModuleId(1),
+                "MinimalKernel",
+                ModuleKind.Feature,
+                new ModuleVersion(1),
+                new ModuleAvailabilityIR(new AvailabilityIR(KernelProfileMask.Release, true, null)),
+                new SourceLocationId(1));
+
+            LifecycleIR lifecycle = new LifecycleIR(
+                new LifecyclePlanId(21),
+                "LegacyLifecycle",
+                new ModuleId(1),
+                new[]
+                {
+                    new LifecycleStepIR(
+                        new LifecycleStepId(31),
+                        LifecyclePhase.Boot,
+                        10,
+                        new LifecycleTargetRefIR(LifecycleTargetKind.LegacyAdapter, "legacy-bridge"),
+                        LifecycleActionKind.LegacyAdapterCall,
+                        Array.Empty<DependencyEdgeId>(),
+                        new SourceLocationId(2)),
+                },
+                new SourceLocationId(2),
+                LifecycleFailurePolicy.FailScope);
+
+            Assert.That(() => new KernelIR(
+                new KernelIRHeader("KernelIR-Minimal", 1, "TinnosukeGameLib", "Release", "1.0.0", new Hash128(1, 2, 3, 4), new Hash128(5, 6, 7, 8)),
+                new KernelProfileIR("Release", KernelProfileMask.Release, new AvailabilityIR(KernelProfileMask.Release, true, null)),
+                new[] { module },
+                Array.Empty<ScopeIR>(),
+                Array.Empty<ServiceIR>(),
+                Array.Empty<CommandIR>(),
+                Array.Empty<ValueKeyIR>(),
+                new[] { lifecycle },
+                Array.Empty<RuntimeQueryIR>(),
+                Array.Empty<DependencyEdgeIR>(),
+                sources), Throws.ArgumentException);
         }
 
         [Test]
@@ -89,6 +303,124 @@ namespace TinnosukeGameLib.Tests.Editor
 
             Assert.That(exception, Is.Not.Null);
             Assert.That(exception!.Message, Does.Contain("Runtime cycle mediation metadata"));
+        }
+
+        [Test]
+        public void ScopeIR_PreservesExplicitServiceBoundary()
+        {
+            ScopeIR ownedScope = new ScopeIR(
+                new ScopeAuthoringId(1),
+                new ScopePlanId(101),
+                "BattleScope",
+                ScopeKind.Root,
+                new ModuleId(8),
+                default,
+                new[] { new ScopeServiceRequirementIR(new ServiceId(11), DependencyStrength.Required, new SourceLocationId(3)) },
+                Array.Empty<ScopeValueInitRefIR>(),
+                new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.OwnedLocal, 1, new SourceLocationId(3)),
+                new LifecyclePlanRefIR(new LifecyclePlanId(21), new SourceLocationId(4)),
+                new SourceLocationId(3));
+
+            ScopeIR detachedScope = new ScopeIR(
+                new ScopeAuthoringId(2),
+                new ScopePlanId(102),
+                "DetachedScope",
+                ScopeKind.Detached,
+                new ModuleId(8),
+                default,
+                Array.Empty<ScopeServiceRequirementIR>(),
+                Array.Empty<ScopeValueInitRefIR>(),
+                new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.Detached, 0, new SourceLocationId(5)),
+                new LifecyclePlanRefIR(new LifecyclePlanId(22), new SourceLocationId(5)),
+                new SourceLocationId(5));
+
+            Assert.That(ownedScope.ServiceBoundary.Kind, Is.EqualTo(ScopeServiceBoundaryKind.OwnedLocal));
+            Assert.That(ownedScope.ServiceBoundary.ExpectedInstanceCount, Is.EqualTo(1));
+            Assert.That(detachedScope.ServiceBoundary.Kind, Is.EqualTo(ScopeServiceBoundaryKind.Detached));
+            Assert.That(detachedScope.ServiceBoundary.ExpectedInstanceCount, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ScopeIR_PreservesExplicitUnityObjectLinkMetadata()
+        {
+            UnityObjectLinkIR unityObjectLink = new UnityObjectLinkIR(
+                "Scene",
+                "scene-guid-1",
+                101,
+                "BattleScopeAuthoring",
+                new SourceLocationId(7));
+
+            ScopeIR scope = new ScopeIR(
+                new ScopeAuthoringId(3),
+                new ScopePlanId(103),
+                "LinkedScope",
+                ScopeKind.Root,
+                new ModuleId(8),
+                default,
+                Array.Empty<ScopeServiceRequirementIR>(),
+                Array.Empty<ScopeValueInitRefIR>(),
+                new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.Detached, 0, new SourceLocationId(7)),
+                new LifecyclePlanRefIR(new LifecyclePlanId(23), new SourceLocationId(8)),
+                new SourceLocationId(7),
+                unityObjectLink);
+
+            Assert.That(scope.UnityObjectLink, Is.Not.Null);
+            Assert.That(scope.UnityObjectLink!.Kind, Is.EqualTo("Scene"));
+            Assert.That(scope.UnityObjectLink.SourceGuid, Is.EqualTo("scene-guid-1"));
+            Assert.That(scope.UnityObjectLink.LocalFileId, Is.EqualTo(101));
+            Assert.That(scope.UnityObjectLink.DebugName, Is.EqualTo("BattleScopeAuthoring"));
+            Assert.That(scope.UnityObjectLink.Source, Is.EqualTo(new SourceLocationId(7)));
+        }
+
+        [Test]
+        public void ScopeIR_RejectsDetachedBoundaryWhenRequiredServicesExist()
+        {
+            ArgumentException exception = Assert.Throws<ArgumentException>(() => new ScopeIR(
+                new ScopeAuthoringId(3),
+                new ScopePlanId(103),
+                "InvalidScope",
+                ScopeKind.Root,
+                new ModuleId(8),
+                default,
+                new[] { new ScopeServiceRequirementIR(new ServiceId(13), DependencyStrength.Required, new SourceLocationId(6)) },
+                Array.Empty<ScopeValueInitRefIR>(),
+                new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.Detached, 0, new SourceLocationId(6)),
+                new LifecyclePlanRefIR(new LifecyclePlanId(23), new SourceLocationId(6)),
+                new SourceLocationId(6)));
+
+            Assert.That(exception, Is.Not.Null);
+            Assert.That(exception!.Message, Does.Contain("local service boundary"));
+        }
+
+        [Test]
+        public void ServiceIR_RejectsUnsupportedCardinalityAndTransientLifetime()
+        {
+            ArgumentException cardinalityException = Assert.Throws<ArgumentException>(() => new ServiceIR(
+                new ServiceId(11),
+                "BattleService",
+                ServiceLifetimeKind.Singleton,
+                new ModuleId(8),
+                new[] { new ServiceContractIR("IBattleService", new SourceLocationId(2)) },
+                Array.Empty<ServiceDependencyIR>(),
+                ServiceFactoryKind.GeneratedFactory,
+                new SourceLocationId(2),
+                ServiceCardinalityKind.BoundedPool));
+
+            Assert.That(cardinalityException, Is.Not.Null);
+            Assert.That(cardinalityException!.ParamName, Is.EqualTo("cardinality"));
+
+            ArgumentException transientException = Assert.Throws<ArgumentException>(() => new ServiceIR(
+                new ServiceId(12),
+                "TemporaryBattleService",
+                ServiceLifetimeKind.ExplicitTransient,
+                new ModuleId(8),
+                new[] { new ServiceContractIR("ITemporaryBattleService", new SourceLocationId(3)) },
+                Array.Empty<ServiceDependencyIR>(),
+                ServiceFactoryKind.GeneratedFactory,
+                new SourceLocationId(3)));
+
+            Assert.That(transientException, Is.Not.Null);
+            Assert.That(transientException!.ParamName, Is.EqualTo("lifetime"));
         }
 
         [Test]
@@ -189,6 +521,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 default,
                 new[] { new ScopeServiceRequirementIR(new ServiceId(11), DependencyStrength.Required, new SourceLocationId(3)) },
                 new[] { new ScopeValueInitRefIR(new ValueInitPlanId(7), new SourceLocationId(3)) },
+                new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.OwnedLocal, 1, new SourceLocationId(3)),
                 new LifecyclePlanRefIR(new LifecyclePlanId(21), new SourceLocationId(4)),
                 new SourceLocationId(3));
             DependencyEdgeIR edge = new DependencyEdgeIR(
@@ -214,11 +547,14 @@ namespace TinnosukeGameLib.Tests.Editor
                             new[] { new DependencyEdgeId(1) },
                             new SourceLocationId(4)),
                 },
-                new SourceLocationId(4));
+                new SourceLocationId(4),
+                LifecycleFailurePolicy.FailScope);
+
+            Assert.That(lifecycle.FailurePolicy, Is.EqualTo(LifecycleFailurePolicy.FailScope));
             CommandIR command = new CommandIR(
                 new CommandTypeId(12),
                 "BattleCommand",
-                "battle.command",
+                new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(6), "battle.command", new SourceLocationId(5)),
                 new CommandCategoryId(3),
                 new ModuleId(8),
                 new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(4), new SourceLocationId(5)),
@@ -405,6 +741,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 default,
                 new[] { new ScopeServiceRequirementIR(new ServiceId(77), DependencyStrength.Required, new SourceLocationId(2)) },
                 Array.Empty<ScopeValueInitRefIR>(),
+                new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.OwnedLocal, 1, new SourceLocationId(2)),
                 new LifecyclePlanRefIR(new LifecyclePlanId(21), new SourceLocationId(3)),
                 new SourceLocationId(2));
             LifecycleIR lifecycle = new LifecycleIR(
@@ -422,7 +759,8 @@ namespace TinnosukeGameLib.Tests.Editor
                         Array.Empty<DependencyEdgeId>(),
                         new SourceLocationId(4)),
                 },
-                new SourceLocationId(3));
+                    new SourceLocationId(3),
+                    LifecycleFailurePolicy.FailKernel);
 
             ArgumentException missingReferenceException = Assert.Throws<ArgumentException>(() => new KernelIR(
                 new KernelIRHeader("KernelIR-Battle", 1, "TinnosukeGameLib", "Battle", "1.0.0", default, default),
@@ -439,6 +777,124 @@ namespace TinnosukeGameLib.Tests.Editor
 
             Assert.That(missingReferenceException, Is.Not.Null);
             Assert.That(missingReferenceException!.Message, Does.Contain("reference"));
+        }
+
+        [Test]
+        public void KernelIR_RejectsDuplicateCommandAuthoringKeyIdentities()
+        {
+            SourceLocationTable sources = new SourceLocationTable(new[]
+            {
+                CreateGeneratedSourceLocation("ModuleProjector", "BattleModule"),
+                CreateGeneratedSourceLocation("CommandProjector", "BattleCommandA"),
+                CreateGeneratedSourceLocation("CommandProjector", "BattleCommandB"),
+            });
+
+            ModuleIR module = new ModuleIR(
+                new ModuleId(8),
+                "BattleModule",
+                ModuleKind.Feature,
+                new ModuleVersion(1),
+                new ModuleAvailabilityIR(new AvailabilityIR(KernelProfileMask.Release, true, null)),
+                new SourceLocationId(1));
+
+            CommandIR[] commands =
+            {
+                new CommandIR(
+                    new CommandTypeId(12),
+                    "BattleCommandA",
+                    new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(500), "battle.command.a", new SourceLocationId(2)),
+                    new CommandCategoryId(3),
+                    new ModuleId(8),
+                    new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(4), new SourceLocationId(2)),
+                    new CommandExecutorRefIR(new CommandExecutorId(5), new SourceLocationId(2)),
+                    Array.Empty<CommandDependencyIR>(),
+                    new SourceLocationId(2)),
+                new CommandIR(
+                    new CommandTypeId(13),
+                    "BattleCommandB",
+                    new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(500), "battle.command.b", new SourceLocationId(3)),
+                    new CommandCategoryId(3),
+                    new ModuleId(8),
+                    new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(6), new SourceLocationId(3)),
+                    new CommandExecutorRefIR(new CommandExecutorId(7), new SourceLocationId(3)),
+                    Array.Empty<CommandDependencyIR>(),
+                    new SourceLocationId(3)),
+            };
+
+            ArgumentException duplicateAuthoringIdException = Assert.Throws<ArgumentException>(() => new KernelIR(
+                new KernelIRHeader("KernelIR-Battle", 1, "TinnosukeGameLib", "Battle", "1.0.0", default, default),
+                new KernelProfileIR("Battle", KernelProfileMask.Release, new AvailabilityIR(KernelProfileMask.Release, true, null)),
+                new[] { module },
+                Array.Empty<ScopeIR>(),
+                Array.Empty<ServiceIR>(),
+                commands,
+                Array.Empty<ValueKeyIR>(),
+                Array.Empty<LifecycleIR>(),
+                Array.Empty<RuntimeQueryIR>(),
+                Array.Empty<DependencyEdgeIR>(),
+                sources));
+
+            Assert.That(duplicateAuthoringIdException, Is.Not.Null);
+            Assert.That(duplicateAuthoringIdException!.Message, Does.Contain("unique command authoring key identities"));
+        }
+
+        [Test]
+        public void KernelIR_RejectsDuplicateNormalizedCommandAuthoringKeys()
+        {
+            SourceLocationTable sources = new SourceLocationTable(new[]
+            {
+                CreateGeneratedSourceLocation("ModuleProjector", "BattleModule"),
+                CreateGeneratedSourceLocation("CommandProjector", "BattleCommandA"),
+                CreateGeneratedSourceLocation("CommandProjector", "BattleCommandB"),
+            });
+
+            ModuleIR module = new ModuleIR(
+                new ModuleId(8),
+                "BattleModule",
+                ModuleKind.Feature,
+                new ModuleVersion(1),
+                new ModuleAvailabilityIR(new AvailabilityIR(KernelProfileMask.Release, true, null)),
+                new SourceLocationId(1));
+
+            CommandIR[] commands =
+            {
+                new CommandIR(
+                    new CommandTypeId(12),
+                    "BattleCommandA",
+                    new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(500), "battle.command.shared", new SourceLocationId(2)),
+                    new CommandCategoryId(3),
+                    new ModuleId(8),
+                    new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(4), new SourceLocationId(2)),
+                    new CommandExecutorRefIR(new CommandExecutorId(5), new SourceLocationId(2)),
+                    Array.Empty<CommandDependencyIR>(),
+                    new SourceLocationId(2)),
+                new CommandIR(
+                    new CommandTypeId(13),
+                    "BattleCommandB",
+                    new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(501), " battle.command.shared ", new SourceLocationId(3)),
+                    new CommandCategoryId(3),
+                    new ModuleId(8),
+                    new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(6), new SourceLocationId(3)),
+                    new CommandExecutorRefIR(new CommandExecutorId(7), new SourceLocationId(3)),
+                    Array.Empty<CommandDependencyIR>(),
+                    new SourceLocationId(3)),
+            };
+
+            ArgumentException duplicateAuthoringKeyException = Assert.Throws<ArgumentException>(() => new KernelIR(
+                new KernelIRHeader("KernelIR-Battle", 1, "TinnosukeGameLib", "Battle", "1.0.0", default, default),
+                new KernelProfileIR("Battle", KernelProfileMask.Release, new AvailabilityIR(KernelProfileMask.Release, true, null)),
+                new[] { module },
+                Array.Empty<ScopeIR>(),
+                Array.Empty<ServiceIR>(),
+                commands,
+                Array.Empty<ValueKeyIR>(),
+                Array.Empty<LifecycleIR>(),
+                Array.Empty<RuntimeQueryIR>(),
+                Array.Empty<DependencyEdgeIR>(),
+                sources));
+
+            Assert.That(duplicateAuthoringKeyException, Is.Not.Null);
+            Assert.That(duplicateAuthoringKeyException!.Message, Does.Contain("unique normalized authoring keys"));
         }
 
         static SourceLocationIR CreateGeneratedSourceLocation(string generatorName, string generatedFrom)

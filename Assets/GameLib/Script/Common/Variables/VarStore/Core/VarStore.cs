@@ -24,21 +24,45 @@ namespace Game.Common
         sealed class TableSlot
         {
             public int Version;
-            public readonly List<List<TableCell>> Rows = new();
+            public readonly List<RowSlot> Rows = new();
+        }
+
+        sealed class RowSlot
+        {
+            readonly VarStore _owner;
+            readonly int _tableVarId;
+
+            public RowSlot(VarStore owner, int tableVarId)
+            {
+                _owner = owner;
+                _tableVarId = tableVarId;
+            }
+
+            public int Version;
+
+            public readonly List<TableCell> Cells = new();
+
+            public void BumpVersion()
+            {
+                _owner.BumpTableVersionAndNotify(_tableVarId, _owner.RequireTableSlot(_tableVarId));
+            }
         }
 
         sealed class TableCell
         {
             readonly VarStore _owner;
             readonly int _tableVarId;
+            readonly RowSlot _row;
             readonly Action<int> _onChanged;
 
             public readonly VarStore Vars;
+            public int Version;
 
-            public TableCell(VarStore owner, int tableVarId)
+            public TableCell(VarStore owner, int tableVarId, RowSlot row)
             {
                 _owner = owner;
                 _tableVarId = tableVarId;
+                _row = row;
                 _onChanged = HandleCellVarChanged;
                 Vars = new VarStore();
                 Vars.OnVarChanged += _onChanged;
@@ -51,6 +75,8 @@ namespace Game.Common
 
             void HandleCellVarChanged(int _)
             {
+                Version++;
+                _row.Version++;
                 _owner.NotifyTableCellChanged(_tableVarId);
             }
         }
@@ -101,6 +127,30 @@ namespace Game.Common
             return TryGetTableSlot(tableVarId, out var slot) ? slot.Version : 0;
         }
 
+        public bool TryGetTableRowVersion(int tableVarId, int rowIndex, out int rowVersion)
+        {
+            if (TryGetTableRow(tableVarId, rowIndex, out var row))
+            {
+                rowVersion = row.Version;
+                return true;
+            }
+
+            rowVersion = 0;
+            return false;
+        }
+
+        public bool TryGetTableCellVersion(int tableVarId, int rowIndex, int columnIndex, out int cellVersion)
+        {
+            if (TryGetTableCell(tableVarId, rowIndex, columnIndex, out var cell))
+            {
+                cellVersion = cell.Version;
+                return true;
+            }
+
+            cellVersion = 0;
+            return false;
+        }
+
         public ValueKind GetVarKind(int varId)
         {
             return TryGetSlot(varId, out var slot) ? slot.Kind : ValueKind.Null;
@@ -126,7 +176,7 @@ namespace Game.Common
                 return false;
             }
 
-            columnCount = table.Rows[rowIndex].Count;
+            columnCount = table.Rows[rowIndex].Cells.Count;
             return true;
         }
 
@@ -139,7 +189,7 @@ namespace Game.Common
                 return false;
 
             var row = table.Rows[rowIndex];
-            return columnIndex < row.Count;
+            return columnIndex < row.Cells.Count;
         }
 
         public bool TryEnsureTableRow(int tableVarId, int rowIndex)
@@ -150,7 +200,7 @@ namespace Game.Common
             var changed = false;
             while (table.Rows.Count <= rowIndex)
             {
-                table.Rows.Add(new List<TableCell>());
+                table.Rows.Add(new RowSlot(this, tableVarId));
                 changed = true;
             }
 
@@ -168,7 +218,7 @@ namespace Game.Common
             if (rowIndex > table.Rows.Count)
                 return false;
 
-            table.Rows.Insert(rowIndex, new List<TableCell>());
+            table.Rows.Insert(rowIndex, new RowSlot(this, tableVarId));
             BumpTableVersionAndNotify(tableVarId, table);
             return true;
         }
@@ -193,9 +243,10 @@ namespace Game.Common
             }
 
             var row = table.Rows[rowIndex];
-            var cell = CreateTableCell(tableVarId);
-            row.Add(cell);
-            columnIndex = row.Count - 1;
+            var cell = CreateTableCell(tableVarId, row);
+            row.Cells.Add(cell);
+            row.Version++;
+            columnIndex = row.Cells.Count - 1;
             BumpTableVersionAndNotify(tableVarId, table);
             return true;
         }
@@ -206,10 +257,11 @@ namespace Game.Common
                 return false;
 
             var row = table.Rows[rowIndex];
-            if (columnIndex < 0 || columnIndex > row.Count)
+            if (columnIndex < 0 || columnIndex > row.Cells.Count)
                 return false;
 
-            row.Insert(columnIndex, CreateTableCell(tableVarId));
+            row.Cells.Insert(columnIndex, CreateTableCell(tableVarId, row));
+            row.Version++;
             BumpTableVersionAndNotify(tableVarId, table);
             return true;
         }
@@ -220,11 +272,12 @@ namespace Game.Common
                 return false;
 
             var row = table.Rows[rowIndex];
-            if (columnIndex < 0 || columnIndex >= row.Count)
+            if (columnIndex < 0 || columnIndex >= row.Cells.Count)
                 return false;
 
-            row[columnIndex].Dispose();
-            row.RemoveAt(columnIndex);
+            row.Cells[columnIndex].Dispose();
+            row.Cells.RemoveAt(columnIndex);
+            row.Version++;
             BumpTableVersionAndNotify(tableVarId, table);
             return true;
         }
@@ -633,19 +686,39 @@ namespace Game.Common
             }
 
             var row = table.Rows[rowIndex];
-            if (columnIndex >= row.Count)
+            if (columnIndex >= row.Cells.Count)
             {
                 cell = null!;
                 return false;
             }
 
-            cell = row[columnIndex];
+            cell = row.Cells[columnIndex];
             return true;
         }
 
-        TableCell CreateTableCell(int tableVarId)
+        bool TryGetTableRow(int tableVarId, int rowIndex, out RowSlot row)
         {
-            return new TableCell(this, tableVarId);
+            if (!TryGetTableSlot(tableVarId, out var table) || rowIndex < 0 || rowIndex >= table.Rows.Count)
+            {
+                row = null!;
+                return false;
+            }
+
+            row = table.Rows[rowIndex];
+            return true;
+        }
+
+        TableSlot RequireTableSlot(int tableVarId)
+        {
+            if (!TryGetTableSlot(tableVarId, out var table))
+                throw new InvalidOperationException("Required table slot was missing.");
+
+            return table;
+        }
+
+        TableCell CreateTableCell(int tableVarId, RowSlot row)
+        {
+            return new TableCell(this, tableVarId, row);
         }
 
         void CacheTableSlot(int tableVarId, TableSlot table)
@@ -683,16 +756,16 @@ namespace Game.Common
             OnVarChanged?.Invoke(tableVarId);
         }
 
-        static void DisposeRows(List<List<TableCell>> rows)
+        static void DisposeRows(List<RowSlot> rows)
         {
             for (var i = 0; i < rows.Count; i++)
                 DisposeRow(rows[i]);
         }
 
-        static void DisposeRow(List<TableCell> row)
+        static void DisposeRow(RowSlot row)
         {
-            for (var i = 0; i < row.Count; i++)
-                row[i].Dispose();
+            for (var i = 0; i < row.Cells.Count; i++)
+                row.Cells[i].Dispose();
         }
 
         internal static bool TryCoerceVariant(ValueKind expectedKind, in DynamicVariant value, out DynamicVariant coerced, bool logOnFailure = true)

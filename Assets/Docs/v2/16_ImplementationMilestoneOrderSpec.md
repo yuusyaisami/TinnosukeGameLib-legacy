@@ -664,7 +664,7 @@ M9 creates verified command dispatch.
 Required outputs:
 
 - M9.1 command identities including `CommandTypeId`, `CommandCategoryId`, `CommandExecutorId`, `CommandPayloadSchemaId`, and `CommandAuthoringKeyId`
-- M9.2 `CommandCatalogPlan`, `CommandEntryPlan`, `CommandExecutorRef`, `CommandPayloadSchemaPlan`, `CommandModuleMetadata`, and `CommandCategoryMetadata`
+- M9.2 structured `CommandCatalogPlan` entries and grouped metadata tables: `CommandEntryPlan`, `CommandExecutorRef`, `CommandPayloadSchemaPlan`, `CommandModuleMetadata`, and `CommandCategoryMetadata`
 - M9.3 executor lookup through `CommandTypeId -> ExecutorRef -> executor factory`
 - M9.4 payload schema validation for required fields, type mismatch, unknown fields, target references, `ValueKeyId`, and runtime-query references
 - M9.5 `CommandRunner`, `CommandFrame`, `CommandContext`, `CommandLocal`, cancellation, and failure boundary

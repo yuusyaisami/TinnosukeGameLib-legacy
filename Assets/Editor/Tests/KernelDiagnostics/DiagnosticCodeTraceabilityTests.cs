@@ -15,7 +15,7 @@ namespace TinnosukeGameLib.Tests.Editor
     {
         static readonly Regex DiagnosticCodePattern = new Regex("new\\s+DiagnosticCode\\(\\\"(?<code>[A-Z0-9_]+)\\\"\\)", RegexOptions.CultureInvariant);
         static readonly Regex StaticRulePattern = new Regex("\\\"(?<code>STATIC_RULE_[A-Z0-9_]+)\\\"", RegexOptions.CultureInvariant);
-        static readonly Regex TypedIdentityPattern = new Regex("public\\s+readonly\\s+struct\\s+(?<code>(?:ModuleId|ServiceId|ScopeAuthoringId|ScopePlanId|CommandTypeId|CommandExecutorId|CommandPayloadSchemaId|ValueKeyId|ValueSchemaId|LifecycleStepId|RuntimeQueryId|SourceLocationId))\\b", RegexOptions.CultureInvariant);
+        static readonly Regex TypedIdentityPattern = new Regex("public\\s+readonly\\s+struct\\s+(?<code>(?:ModuleId|ServiceId|ScopeAuthoringId|ScopePlanId|CommandTypeId|CommandExecutorId|CommandPayloadSchemaId|CommandAuthoringKeyId|ValueKeyId|ValueSchemaId|LifecycleStepId|RuntimeQueryId|SourceLocationId))\\b", RegexOptions.CultureInvariant);
         static readonly Regex SourceLocationModelPattern = new Regex("public\\s+readonly\\s+struct\\s+(?<code>(?:SourceLocationIR|UnitySourceLocation|LegacySourceLocation|GeneratedSourceLocation))\\b", RegexOptions.CultureInvariant);
 
         static readonly string[] ExplicitNonCatalogCodes =

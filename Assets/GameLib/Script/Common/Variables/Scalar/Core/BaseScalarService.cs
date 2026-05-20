@@ -8,8 +8,8 @@ using VContainer;
 namespace Game.Scalar
 {
     /// <summary>
-    /// ScalarKey ごとにランタイムを管琁E��、Mod パイプラインを通じて値を扱ぁEScalar サービス、E
-    /// ローカルのみ(Local*) / 親フォールバック(Global*) を�E示皁E��使ぁE�Eける、E
+    /// ScalarKey ごとにランタイムを管琁E��、Mod パイプラインを通じて値を扱ぁEScalar サービス、E
+    /// ローカルのみ(Local*) / 親フォールバック(Global*) を�E示皁E��使ぁE�Eける、E
     /// </summary>
     public class BaseScalarService :
         IBaseScalarService,
@@ -96,16 +96,16 @@ namespace Game.Scalar
 
             InvalidateAncestorScalarCache();
 
-            // Runtime scope は pool 再利用される前提なので、Acquire 時�E reset では
-            // まぁEscalar の local runtime を完�Eに破棁E��る、E
+            // Runtime scope は pool 再利用される前提なので、Acquire 時�E reset では
+            // まぁEscalar の local runtime を完�Eに破棁E��る、E
             // ここで古ぁEbaseline / modifier / subscription が残ると、profile の再適用結果と
-            // 実際に参�Eされる値が食い違うため、いったん完�E初期化する、E
+            // 実際に参�Eされる値が食い違うため、いったん完�E初期化する、E
             ResetForScopeReuse();
 
-            // そ�E直後に profile binding を�E適用する、E
-            // これは「profile が存在してぁE��のに watch では 0/null になる」問題を防ぐためで、E
-            // Acquire/Install の頁E��差めE�E生�Eタイミングの差で baseline が抜け落ちても、E
-            // 最終的に profile 定義の値が忁E�� local runtime に戻るよぁE��する、E
+            // そ�E直後に profile binding を�E適用する、E
+            // これは「profile が存在してぁE��のに watch では 0/null になる」問題を防ぐためで、E
+            // Acquire/Install の頁E��差めE�E生�Eタイミングの差で baseline が抜け落ちても、E
+            // 最終的に profile 定義の値が忁E�� local runtime に戻るよぁE��する、E
             ReapplyScopeBindingsIfAvailable();
         }
 
@@ -121,8 +121,26 @@ namespace Game.Scalar
         public LifetimeScopeKind Space => _space;
         internal IDynamicContext DynamicContext => _dynamicContext;
 
+        static bool IsValidKey(ScalarKey key) => key.Id > 0;
+
+        void ReportInvalidKey(string operation, ScalarKey key)
+        {
+            Debug.LogError($"[Scalar] SCALAR_KEY_UNRESOLVED operation={operation} id={key.Id} name={key.Name ?? string.Empty}");
+        }
+
+        void ReportRequiredValueMissing(string operation, ScalarKey key)
+        {
+            Debug.LogError($"[Scalar] SCALAR_REQUIRED_VALUE_MISSING operation={operation} id={key.Id} name={key.Name ?? string.Empty}");
+        }
+
         public ScalarKeyRuntime GetOrCreateRuntime(ScalarKey key)
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(GetOrCreateRuntime), key);
+                return null;
+            }
+
             if (_runtimes.TryGetValue(key.Id, out var rt))
                 return rt;
 
@@ -139,7 +157,19 @@ namespace Game.Scalar
 
         bool TryGetLocalInternal(ScalarKey key, bool includeAllLayers, string layer, out float value)
         {
+            if (!IsValidKey(key))
+            {
+                value = 0f;
+                return false;
+            }
+
             var rt = GetOrCreateRuntime(key);
+            if (rt == null)
+            {
+                value = 0f;
+                return false;
+            }
+
             if (!rt.HasLocalData)
             {
                 value = 0f;
@@ -155,13 +185,29 @@ namespace Game.Scalar
 
         public float LocalGet(ScalarKey key)
         {
-            TryGetLocalInternal(key, includeAllLayers: true, layer: null, out var v);
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(LocalGet), key);
+                return 0f;
+            }
+
+            if (!TryGetLocalInternal(key, includeAllLayers: true, layer: null, out var v))
+                ReportRequiredValueMissing(nameof(LocalGet), key);
+
             return v;
         }
 
         public float LocalGet(ScalarKey key, bool includeAllLayers, string layer = null)
         {
-            TryGetLocalInternal(key, includeAllLayers, layer, out var v);
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(LocalGet), key);
+                return 0f;
+            }
+
+            if (!TryGetLocalInternal(key, includeAllLayers, layer, out var v))
+                ReportRequiredValueMissing(nameof(LocalGet), key);
+
             return v;
         }
 
@@ -170,63 +216,71 @@ namespace Game.Scalar
 
         public float GlobalGet(ScalarKey key)
         {
-            TryGetGlobalInternal(key, includeAllLayers: true, layer: null, out var v);
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(GlobalGet), key);
+                return 0f;
+            }
+
+            if (!TryGetGlobalInternal(key, includeAllLayers: true, layer: null, out var v))
+                ReportRequiredValueMissing(nameof(GlobalGet), key);
+
             return v;
         }
 
         public float GlobalGet(ScalarKey key, bool includeAllLayers, string layer = null)
         {
-            TryGetGlobalInternal(key, includeAllLayers, layer, out var v);
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(GlobalGet), key);
+                return 0f;
+            }
+
+            if (!TryGetGlobalInternal(key, includeAllLayers, layer, out var v))
+                ReportRequiredValueMissing(nameof(GlobalGet), key);
+
             return v;
         }
 
         bool TryGetGlobalInternal(ScalarKey key, bool includeAllLayers, string layer, out float value)
         {
+            if (!IsValidKey(key))
+            {
+                value = 0f;
+                return false;
+            }
+
             if (TryGetLocalInternal(key, includeAllLayers, layer, out value))
                 return true;
 
-            var parentService = ResolveNearestAncestorScalarService();
+            var parentService = ResolveParentScalarService();
             if (parentService == null || ReferenceEquals(parentService, this))
             {
                 value = 0f;
                 return false;
             }
 
-            return parentService.TryGetGlobalInternal(key, includeAllLayers, layer, out value);
+            return parentService.TryGetLocalInternal(key, includeAllLayers, layer, out value);
         }
 
-        BaseScalarService ResolveNearestAncestorScalarService()
+        BaseScalarService ResolveParentScalarService()
         {
             if (_hasNearestAncestorScalarServiceCache)
                 return _nearestAncestorScalarServiceCache;
 
-            if (_scope == null)
+            var parentScope = _scope?.Parent;
+            if (parentScope?.Resolver == null)
             {
                 _nearestAncestorScalarServiceCache = null;
                 _hasNearestAncestorScalarServiceCache = true;
                 return null;
             }
 
-            var path = _scope.GetPathFromRoot();
-            if (path == null || path.Count <= 1)
+            if (parentScope.Resolver.TryResolve<IBaseScalarService>(out var svc) && svc is BaseScalarService baseSvc)
             {
-                _nearestAncestorScalarServiceCache = null;
+                _nearestAncestorScalarServiceCache = baseSvc;
                 _hasNearestAncestorScalarServiceCache = true;
-                return null;
-            }
-
-            for (int i = path.Count - 2; i >= 0; --i)
-            {
-                var ancestor = path[i];
-                if (ancestor?.Resolver == null)
-                    continue;
-
-                if (ancestor.Resolver.TryResolve<IBaseScalarService>(out var svc) && svc is BaseScalarService baseSvc)
-                {
-                    _nearestAncestorScalarServiceCache = baseSvc;
-                    _hasNearestAncestorScalarServiceCache = true;
-                    return baseSvc;
-                }
+                return baseSvc;
             }
 
             _nearestAncestorScalarServiceCache = null;
@@ -245,11 +299,11 @@ namespace Game.Scalar
             if (TryGetLocalInternal(key, includeAllLayers, layer, out _))
                 return this;
 
-            var parentService = ResolveNearestAncestorScalarService();
+            var parentService = ResolveParentScalarService();
             if (parentService == null || ReferenceEquals(parentService, this))
                 return this;
 
-            return parentService.ResolveServiceForGlobalKey(key, includeAllLayers, layer);
+            return parentService;
         }
 
         bool HasLocalOwnership(ScalarKey key)
@@ -272,16 +326,25 @@ namespace Game.Scalar
             if (key.Id != 0 && _runtimes.TryGetValue(key.Id, out var rt) && rt != null && rt.HasLocalOverride)
                 return this;
 
-            var parentService = ResolveNearestAncestorScalarService();
+            var parentService = ResolveParentScalarService();
             if (parentService == null || ReferenceEquals(parentService, this))
                 return this;
 
-            return parentService.ResolveServiceForGlobalWrite(key);
+            return parentService;
         }
 
         public float AddLocalBase(ScalarKey key, string layer, float delta)
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(AddLocalBase), key);
+                return 0f;
+            }
+
             var rt = GetOrCreateRuntime(key);
+            if (rt == null)
+                return 0f;
+
             return rt.AddLocalBase(this, layer, delta);
         }
 
@@ -293,7 +356,16 @@ namespace Game.Scalar
             object source = null,
             string tag = null)
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(LocalAdd), key);
+                return null;
+            }
+
             var rt = GetOrCreateRuntime(key);
+            if (rt == null)
+                return null;
+
             return rt.Add(this, layer, delta, duration, source, tag);
         }
 
@@ -305,6 +377,12 @@ namespace Game.Scalar
             object source = null,
             string tag = null)
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(GlobalAdd), key);
+                return null;
+            }
+
             var target = ResolveServiceForGlobalWrite(key);
             return target.LocalAdd(key, layer, delta, duration, source, tag);
         }
@@ -318,7 +396,16 @@ namespace Game.Scalar
             object source = null,
             string tag = null)
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(LocalMul), key);
+                return null;
+            }
+
             var rt = GetOrCreateRuntime(key);
+            if (rt == null)
+                return null;
+
             return rt.Mul(this, layer, factor, phase, duration, source, tag);
         }
 
@@ -331,24 +418,54 @@ namespace Game.Scalar
             object source = null,
             string tag = null)
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(GlobalMul), key);
+                return null;
+            }
+
             var target = ResolveServiceForGlobalWrite(key);
             return target.LocalMul(key, layer, factor, phase, duration, source, tag);
         }
 
         public TMod ResolveMod<TMod>(ScalarKey key) where TMod : class, IScalarModifier
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(ResolveMod), key);
+                return null;
+            }
+
             var rt = GetOrCreateRuntime(key);
+            if (rt == null)
+                return null;
+
             return rt.ResolveModifier<TMod>();
         }
 
         public void SetLocalBase(ScalarKey key, float value)
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(SetLocalBase), key);
+                return;
+            }
+
             var rt = GetOrCreateRuntime(key);
+            if (rt == null)
+                return;
+
             rt.SetLocalBase(value);
         }
 
         public void SetGlobalBase(ScalarKey key, float value)
         {
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(SetGlobalBase), key);
+                return;
+            }
+
             var target = ResolveServiceForGlobalWrite(key);
             target.SetLocalBase(key, value);
         }
@@ -357,9 +474,23 @@ namespace Game.Scalar
         {
             if (key.HasValue)
             {
+                if (!IsValidKey(key.Value))
+                {
+                    ReportInvalidKey(nameof(ClearAll), key.Value);
+                    return;
+                }
+
+                if (_runtimes.TryGetValue(key.Value.Id, out var runtime) && runtime != null)
+                    runtime.InvalidateAllHandles();
+
                 _runtimes.Remove(key.Value.Id);
                 _lastValues.Remove(key.Value.Id);
                 return;
+            }
+
+            foreach (var runtime in _runtimes.Values)
+            {
+                runtime?.InvalidateAllHandles();
             }
 
             _runtimes.Clear();
@@ -372,8 +503,14 @@ namespace Game.Scalar
         /// </summary>
         public void EnsureRuntime(ScalarKey key, ScalarRuntimeConfig config)
         {
-            if (key.Id == 0)
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(EnsureRuntime), key);
                 return;
+            }
+
+            if (_runtimes.TryGetValue(key.Id, out var existingRuntime) && existingRuntime != null)
+                existingRuntime.InvalidateAllHandles();
 
             var rt = new ScalarKeyRuntime(key, config, () => MarkRuntimeDirty(key));
             _runtimes[key.Id] = rt;
@@ -384,8 +521,14 @@ namespace Game.Scalar
         /// </summary>
         public ScalarKeyRuntime EnsureAndGetRuntime(ScalarKey key, ScalarRuntimeConfig config)
         {
-            if (key.Id == 0)
-                throw new ArgumentException("ScalarKey must be valid", nameof(key));
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(EnsureAndGetRuntime), key);
+                return null;
+            }
+
+            if (_runtimes.TryGetValue(key.Id, out var existingRuntime) && existingRuntime != null)
+                existingRuntime.InvalidateAllHandles();
 
             var rt = new ScalarKeyRuntime(key, config, () => MarkRuntimeDirty(key));
             _runtimes[key.Id] = rt;
@@ -397,7 +540,7 @@ namespace Game.Scalar
         /// </summary>
         public bool TryGetRuntime(ScalarKey key, out ScalarKeyRuntime runtime)
         {
-            if (key.Id == 0)
+            if (!IsValidKey(key))
             {
                 runtime = null;
                 return false;
@@ -411,8 +554,11 @@ namespace Game.Scalar
         /// </summary>
         public void SetRuntimeBaseline(ScalarKey key, float baseline)
         {
-            if (key.Id == 0)
+            if (!IsValidKey(key))
+            {
+                ReportInvalidKey(nameof(SetRuntimeBaseline), key);
                 return;
+            }
 
             if (!_runtimes.TryGetValue(key.Id, out var rt))
             {
@@ -543,8 +689,8 @@ namespace Game.Scalar
                 return;
 
             // ScopeBindingRegistry は profile 定義の実値めEscalar/blackboard に流し込む責務を持つ、E
-            // scalar 側は reset で runtime を消すため、registry を�E実行しなぁE��
-            // ProfileFloatValue の Default Value / UpdateBaseline が反映されなぁE��E
+            // scalar 側は reset で runtime を消すため、registry を�E実行しなぁE��
+            // ProfileFloatValue の Default Value / UpdateBaseline が反映されなぁE��E
             if (_scope.Resolver.TryResolve<IScopeBindingRegistry>(out var registry) && registry is ScopeBindingRegistryService scopeRegistry)
             {
                 scopeRegistry.ReapplyAllBindings();
@@ -640,7 +786,7 @@ namespace Game.Scalar
 
         public void Dispose()
         {
-            _runtimes.Clear();
+            ClearAll();
             _subscriptions.Clear();
             _keySubscriptions.Clear();
             _allSubscriptions.Clear();

@@ -24,7 +24,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class TransformAnimationChannelPosition2Source : IDynamicSource
+    public sealed class TransformAnimationChannelPosition2Source : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(actorSource)")]
         [SerializeField]
@@ -64,6 +64,7 @@ namespace Game.Common
 
         public string SourceTypeName => "TransformChannelPos";
         public string GetDebugData => $"{actorSource.Kind}:{channelTag} [{targetSelectMode}] ({space},Vector2)";
+        public bool AllowTrackedEvaluation => false;
 
         bool ShowChildPathField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildPath;
         bool ShowChildNameField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildName;
@@ -115,7 +116,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class TransformAnimationChannelPosition3Source : IDynamicSource
+    public sealed class TransformAnimationChannelPosition3Source : IDynamicSource, IDynamicTrackedEvaluationPolicyProvider
     {
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetActorSourceLabel(actorSource)")]
         [SerializeField]
@@ -155,6 +156,7 @@ namespace Game.Common
 
         public string SourceTypeName => "TransformChannelPos";
         public string GetDebugData => $"{actorSource.Kind}:{channelTag} [{targetSelectMode}] ({space},Vector3)";
+        public bool AllowTrackedEvaluation => false;
 
         bool ShowChildPathField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildPath;
         bool ShowChildNameField() => targetSelectMode == TransformAnimationChannelTargetSelectMode.ChildName;

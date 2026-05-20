@@ -92,9 +92,25 @@ namespace Game.Kernel.IR
     public enum ServiceLifetimeKind
     {
         Unknown = 0,
+        Kernel = 10,
         Singleton = 10,
-        Scoped = 20,
-        Transient = 30,
+        Project = 20,
+        Scene = 30,
+        Scope = 40,
+        Scoped = 40,
+        ExplicitTransient = 50,
+        Transient = 50,
+    }
+
+    public enum ServiceCardinalityKind
+    {
+        Unknown = 0,
+        SingletonGlobal = 10,
+        OnePerProject = 20,
+        OnePerScene = 30,
+        OnePerAuthoredScope = 40,
+        BoundedPool = 50,
+        UnboundedRuntime = 90,
     }
 
     public enum ServiceFactoryKind
@@ -112,6 +128,14 @@ namespace Game.Kernel.IR
         Child = 20,
         Dynamic = 30,
         Detached = 40,
+    }
+
+    public enum ScopeServiceBoundaryKind
+    {
+        Unknown = 0,
+        Detached = 10,
+        OwnedLocal = 20,
+        ReferencesParent = 30,
     }
 
     public enum ValueKind
@@ -132,6 +156,59 @@ namespace Game.Kernel.IR
         RecordList = 210,
         Table = 220,
         LayeredNumeric = 300,
+    }
+
+    public enum ValueInitEntrySourceKind
+    {
+        Unknown = 0,
+        Literal = 10,
+        DynamicEvaluation = 20,
+        ReactiveEvaluation = 30,
+    }
+
+    public static class ValueInitEntrySourceKindUtilities
+    {
+        public static bool IsDefined(ValueInitEntrySourceKind kind)
+        {
+            switch (kind)
+            {
+                case ValueInitEntrySourceKind.Literal:
+                case ValueInitEntrySourceKind.DynamicEvaluation:
+                case ValueInitEntrySourceKind.ReactiveEvaluation:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public enum ValueInitOverwritePolicy
+    {
+        ErrorIfExists = 10,
+        KeepExisting = 20,
+        Overwrite = 30,
+        ClearIfNull = 40,
+        Merge = 50,
+    }
+
+    public static class ValueInitOverwritePolicyUtilities
+    {
+        public static bool IsDefined(ValueInitOverwritePolicy policy)
+        {
+            switch (policy)
+            {
+                case ValueInitOverwritePolicy.ErrorIfExists:
+                case ValueInitOverwritePolicy.KeepExisting:
+                case ValueInitOverwritePolicy.Overwrite:
+                case ValueInitOverwritePolicy.ClearIfNull:
+                case ValueInitOverwritePolicy.Merge:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
     }
 
     public enum RuntimeQueryTargetKind
@@ -171,6 +248,173 @@ namespace Game.Kernel.IR
         ValueInit = 50,
         RuntimeQueryNotify = 60,
         LegacyAdapterCall = 90,
+    }
+
+    public enum LifecycleTickCardinalityKind
+    {
+        Unknown = 0,
+        Hub = 10,
+        PerEntity = 20,
+    }
+
+    public static class LifecycleTickCardinalityKindUtilities
+    {
+        public static bool IsDefined(LifecycleTickCardinalityKind cardinality)
+        {
+            switch (cardinality)
+            {
+                case LifecycleTickCardinalityKind.Hub:
+                case LifecycleTickCardinalityKind.PerEntity:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public enum LifecycleExecutionModeKind
+    {
+        Unknown = 0,
+        Synchronous = 10,
+        TrackedAsync = 20,
+    }
+
+    public static class LifecycleExecutionModeKindUtilities
+    {
+        public static bool IsDefined(LifecycleExecutionModeKind mode)
+        {
+            switch (mode)
+            {
+                case LifecycleExecutionModeKind.Synchronous:
+                case LifecycleExecutionModeKind.TrackedAsync:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public enum LifecycleAsyncCancellationSourceKind
+    {
+        Unknown = 0,
+        DispatcherOwned = 10,
+        LinkedToCaller = 20,
+    }
+
+    public static class LifecycleAsyncCancellationSourceKindUtilities
+    {
+        public static bool IsDefined(LifecycleAsyncCancellationSourceKind cancellationSourceKind)
+        {
+            switch (cancellationSourceKind)
+            {
+                case LifecycleAsyncCancellationSourceKind.DispatcherOwned:
+                case LifecycleAsyncCancellationSourceKind.LinkedToCaller:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public enum LifecycleAsyncTimeoutPolicyKind
+    {
+        Unknown = 0,
+        None = 10,
+        DurationMilliseconds = 20,
+    }
+
+    public static class LifecycleAsyncTimeoutPolicyKindUtilities
+    {
+        public static bool IsDefined(LifecycleAsyncTimeoutPolicyKind timeoutPolicyKind)
+        {
+            switch (timeoutPolicyKind)
+            {
+                case LifecycleAsyncTimeoutPolicyKind.None:
+                case LifecycleAsyncTimeoutPolicyKind.DurationMilliseconds:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public enum LifecycleAsyncCompletionRequirementKind
+    {
+        Unknown = 0,
+        BeforeNextStep = 10,
+        BeforePhaseExit = 20,
+    }
+
+    public static class LifecycleAsyncCompletionRequirementKindUtilities
+    {
+        public static bool IsDefined(LifecycleAsyncCompletionRequirementKind completionRequirementKind)
+        {
+            switch (completionRequirementKind)
+            {
+                case LifecycleAsyncCompletionRequirementKind.BeforeNextStep:
+                case LifecycleAsyncCompletionRequirementKind.BeforePhaseExit:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public enum LifecycleFailurePolicy
+    {
+        Unknown = 0,
+        FailOperation = 10,
+        FailScope = 20,
+        FailScene = 30,
+        FailKernel = 40,
+        ContinueWithError = 50,
+    }
+
+    public static class LifecycleFailurePolicyUtilities
+    {
+        public static bool IsDefined(LifecycleFailurePolicy policy)
+        {
+            switch (policy)
+            {
+                case LifecycleFailurePolicy.FailOperation:
+                case LifecycleFailurePolicy.FailScope:
+                case LifecycleFailurePolicy.FailScene:
+                case LifecycleFailurePolicy.FailKernel:
+                case LifecycleFailurePolicy.ContinueWithError:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public enum LifecycleAcquireRollbackPolicy
+    {
+        Unknown = 0,
+        None = 10,
+        ReverseCompletedAcquireSteps = 20,
+    }
+
+    public static class LifecycleAcquireRollbackPolicyUtilities
+    {
+        public static bool IsDefined(LifecycleAcquireRollbackPolicy policy)
+        {
+            switch (policy)
+            {
+                case LifecycleAcquireRollbackPolicy.None:
+                case LifecycleAcquireRollbackPolicy.ReverseCompletedAcquireSteps:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
     }
 
     public enum LifecycleTargetKind

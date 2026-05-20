@@ -33,6 +33,37 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void Validate_UnknownProjectedCommandExecutorKeepsSourceRepresentativeNode()
+        {
+            ProjectionValidationInput input = CreateInput(
+                selectedArtifacts: new[] { ProjectionArtifactKind.CommandCatalog },
+                mappings: new[]
+                {
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 999), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), 10, 7),
+                },
+                coverage: new[]
+                {
+                    new RuntimeIdentityRef(RuntimeIdentityKind.Module, 10),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201),
+                });
+
+            ProjectionValidationReport report = ProjectionValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_PROJECTION_UNKNOWN_COMMAND_EXECUTOR_ID"));
+            Assert.That(report.Issues[0].From.Kind, Is.EqualTo(DependencyNodeKind.Command));
+            Assert.That(report.Issues[0].From.CommandTypeId.Value, Is.EqualTo(200));
+            Assert.That(report.Issues[0].AdditionalPayloadEntries, Has.Some.Matches<DiagnosticPayloadEntry>(entry => entry.Key == "SourceIdentity"));
+        }
+
+        [Test]
         public void Validate_DebugMapCoverageMissingFails()
         {
             ProjectionValidationInput input = CreateInput(
@@ -40,10 +71,16 @@ namespace TinnosukeGameLib.Tests.Editor
                 mappings: new[]
                 {
                     CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), 10, 7),
                 },
                 coverage: new[]
                 {
                     new RuntimeIdentityRef(RuntimeIdentityKind.Module, 10),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201),
                 });
 
             ProjectionValidationReport report = ProjectionValidator.Validate(input);
@@ -61,11 +98,17 @@ namespace TinnosukeGameLib.Tests.Editor
                 mappings: new[]
                 {
                     CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), 10, 7),
                     CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), 10, 7),
                 },
                 coverage: new[]
                 {
                     new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201),
                 });
 
             ProjectionValidationReport report = ProjectionValidator.Validate(input);
@@ -101,11 +144,13 @@ namespace TinnosukeGameLib.Tests.Editor
                 mappings: new[]
                 {
                     CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), 10, 7),
                 },
                 coverage: new[]
                 {
                     new RuntimeIdentityRef(RuntimeIdentityKind.Module, 10),
                     new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203),
                 });
 
             ProjectionValidationReport report = ProjectionValidator.Validate(input);
@@ -114,6 +159,44 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(report.Issues, Has.Count.EqualTo(2));
             Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_PROJECTION_COMMAND_EXECUTOR_MISSING"));
             Assert.That(report.Issues[1].Code, Is.EqualTo("DEP_PROJECTION_COMMAND_PAYLOAD_SCHEMA_MISSING"));
+        }
+
+        [Test]
+        public void Validate_CommandPayloadSchemaWithUnknownFieldKindFails()
+        {
+            CommandPayloadFieldIR[] payloadFields =
+            {
+                new CommandPayloadFieldIR(
+                    "amount",
+                    CommandPayloadFieldKindIR.Unknown,
+                    CommandPayloadFieldRequirementIR.Required,
+                    new SourceLocationId(8)),
+            };
+
+            ProjectionValidationInput input = CreateInput(
+                selectedArtifacts: new[] { ProjectionArtifactKind.CommandCatalog },
+                mappings: new[]
+                {
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), 10, 7),
+                },
+                coverage: new[]
+                {
+                    new RuntimeIdentityRef(RuntimeIdentityKind.Module, 10),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201),
+                },
+                kernelIR: CreateKernelIR(payloadFields));
+
+            ProjectionValidationReport report = ProjectionValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Count.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_PROJECTION_COMMAND_PAYLOAD_SCHEMA_INVALID"));
         }
 
         [Test]
@@ -152,6 +235,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 {
                     CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.Service, 100), new RuntimeIdentityRef(RuntimeIdentityKind.Service, 100), 10, 6),
                     CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202), 10, 7),
+                    CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201), 10, 7),
                     CreateMapping(new RuntimeIdentityRef(RuntimeIdentityKind.ValueKey, 300), new RuntimeIdentityRef(RuntimeIdentityKind.ValueSchema, 301), 10, 8),
                 },
                 coverage: new[]
@@ -159,6 +245,9 @@ namespace TinnosukeGameLib.Tests.Editor
                     new RuntimeIdentityRef(RuntimeIdentityKind.Module, 10),
                     new RuntimeIdentityRef(RuntimeIdentityKind.Service, 100),
                     new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, 200),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, 203),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, 202),
+                    new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, 201),
                     new RuntimeIdentityRef(RuntimeIdentityKind.ValueSchema, 301),
                 });
 
@@ -168,12 +257,12 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(report.Issues, Is.Empty);
         }
 
-        static ProjectionValidationInput CreateInput(ProjectionArtifactKind[] selectedArtifacts, ProjectionMappingIR[] mappings, RuntimeIdentityRef[] coverage)
+        static ProjectionValidationInput CreateInput(ProjectionArtifactKind[] selectedArtifacts, ProjectionMappingIR[] mappings, RuntimeIdentityRef[] coverage, KernelIR? kernelIR = null)
         {
             return new ProjectionValidationInput(
                 "Development",
                 KernelProfileMask.Development,
-                CreateKernelIR(),
+            kernelIR ?? CreateKernelIR(),
                 selectedArtifacts,
                 mappings,
                 coverage);
@@ -184,7 +273,7 @@ namespace TinnosukeGameLib.Tests.Editor
             return new ProjectionMappingIR(sourceIdentity, projectedIdentity, new ModuleId(ownerModule), new SourceLocationId(sourceLocation), hasProvenance);
         }
 
-        static KernelIR CreateKernelIR()
+        static KernelIR CreateKernelIR(CommandPayloadFieldIR[]? payloadFields = null)
         {
             ModuleIR module = new ModuleIR(
                 new ModuleId(10),
@@ -210,10 +299,10 @@ namespace TinnosukeGameLib.Tests.Editor
             CommandIR command = new CommandIR(
                 new CommandTypeId(200),
                 "Command200",
-                "command.200",
+                new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(203), "command.200", new SourceLocationId(3)),
                 new CommandCategoryId(1),
                 new ModuleId(10),
-                new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(201), new SourceLocationId(4)),
+                new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(201), new SourceLocationId(4), payloadFields),
                 new CommandExecutorRefIR(new CommandExecutorId(202), new SourceLocationId(5)),
                 null,
                 new SourceLocationId(3));

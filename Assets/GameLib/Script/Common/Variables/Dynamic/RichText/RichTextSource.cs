@@ -16,7 +16,7 @@ namespace Game.Common
     }
 
     [Serializable]
-    public sealed class RichTextSource : IDynamicSource, IExpressionSource, IExternalExpressionVariablesReceiver
+    public sealed class RichTextSource : IDynamicSource, IExpressionSource, IExternalExpressionVariablesReceiver, IDynamicSourceConfigurationRevisionProvider, IDynamicSourceDependencyRevisionProvider
     {
         [LabelText("Source Mode")]
         [SerializeField]
@@ -87,6 +87,7 @@ namespace Game.Common
         bool _dirty = true;
         bool _validationIsError;
         int _lastEmptyWarnFrame = -1;
+        int _configurationRevision;
 
         bool IsTemplateMode => _sourceMode == RichTextSourceMode.Template;
         bool IsRefServiceMode => _sourceMode == RichTextSourceMode.RefService;
@@ -98,6 +99,39 @@ namespace Game.Common
         public string GetDebugData => _sourceMode == RichTextSourceMode.RefService
             ? (_refKey.HasSource ? "(ref key set)" : "(ref key empty)")
             : (string.IsNullOrEmpty(_template) ? "(empty)" : _template);
+        public int GetSourceConfigurationRevision() => _configurationRevision;
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = 0;
+
+            if (_refKey.HasSource)
+                revision = unchecked((revision * 397) ^ _refKey.GetSourceDependencyRevision(context));
+
+            if (_externalVariables != null)
+            {
+                foreach (var variable in _externalVariables)
+                {
+                    if (variable == null)
+                        continue;
+
+                    revision = unchecked((revision * 397) ^ variable.GetSourceDependencyRevision(context));
+                }
+            }
+
+            if (_variables != null && (_includeLocalVariablesWithExternal || _externalVariables == null))
+            {
+                foreach (var variable in _variables)
+                {
+                    if (variable == null)
+                        continue;
+
+                    revision = unchecked((revision * 397) ^ variable.GetSourceDependencyRevision(context));
+                }
+            }
+
+            return revision;
+        }
 
         public string Template
         {
@@ -724,6 +758,7 @@ namespace Game.Common
 
         void MarkDirty()
         {
+            _configurationRevision++;
             _dirty = true;
             _compiledNodes = null;
             _usedIdentifiers = null;

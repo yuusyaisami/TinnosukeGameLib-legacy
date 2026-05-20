@@ -23,6 +23,14 @@ namespace Game.Commands.VNext
                 $"Cmd=<unknown>(Id={commandId}) {message}"));
         }
 
+        public void LogPayloadInvalid(int commandId, string message)
+        {
+            Debug.LogError(Format(
+                "#FF9966",
+                "Payload invalid",
+                $"Cmd=<unknown>(Id={commandId}) {message}"));
+        }
+
         public void LogExecutionFailed(int commandId, string message)
         {
             Debug.LogError(Format(

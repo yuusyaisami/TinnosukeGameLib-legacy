@@ -178,8 +178,14 @@ namespace Game.Scalar
         // Editor-only helper wrapper to present ScalarSnapshot in a readable way
         public readonly struct PrettyScalarSnapshot
         {
+            [ShowInInspector, ReadOnly, LabelText("Lane")]
+            public readonly LayeredNumericLaneKind Lane;
+
             [ShowInInspector, ReadOnly, LabelText("Kind")]
             public readonly ScalarModKind Kind;
+
+            [ShowInInspector, ReadOnly, LabelText("Revision")]
+            public readonly int Revision;
 
             [ShowInInspector, ReadOnly, LabelText("Value")]
             public readonly float Value;
@@ -201,21 +207,41 @@ namespace Game.Scalar
 
             public PrettyScalarSnapshot(ScalarSnapshot s)
             {
+                Lane = s.Lane;
                 Kind = s.Kind;
+                Revision = s.Revision;
                 Value = s.Value;
                 Remain = s.Remain;
                 Source = s.Source?.ToString() ?? "(none)";
                 Tag = s.Tag ?? string.Empty;
                 Id = s.Id;
 
-                // Build a compact human readable summary e.g. "[Add] +5.0 ﾂｷ src=State(tag:state) ﾂｷ remain=2.4s"
-                var kindLabel = Kind == ScalarModKind.Add ? "Add" : "Mul";
+                var laneLabel = Lane switch
+                {
+                    LayeredNumericLaneKind.Base => "Base",
+                    LayeredNumericLaneKind.PrefixMul => "PrefixMul",
+                    LayeredNumericLaneKind.Add => "Add",
+                    LayeredNumericLaneKind.SuffixMul => "SuffixMul",
+                    LayeredNumericLaneKind.FinalClamp => "FinalClamp",
+                    LayeredNumericLaneKind.Effective => "Effective",
+                    _ => "Unknown",
+                };
+
+                var kindLabel = Kind switch
+                {
+                    ScalarModKind.Add => "Add",
+                    ScalarModKind.Mul => "Mul",
+                    ScalarModKind.Clamp => "Clamp",
+                    _ => "Unknown",
+                };
+
                 var valueText = Kind == ScalarModKind.Mul ? $"x{Value:0.##}" : $"{(Value >= 0 ? "+" : string.Empty)}{Value:0.##}";
                 var tagText = string.IsNullOrEmpty(Tag) ? string.Empty : $" (tag:{Tag})";
                 var srcText = string.IsNullOrEmpty(Source) ? string.Empty : $" src={Source}";
                 var remainText = Remain < 0 ? string.Empty : $" ﾂｷ remain={Remain:0.##}s";
+                var revisionText = $" rev={Revision}";
 
-                Summary = $"[{kindLabel}] {valueText}{srcText}{tagText}{remainText}";
+                Summary = $"[{laneLabel}/{kindLabel}] {valueText}{srcText}{tagText}{remainText}{revisionText}";
             }
         }
     }

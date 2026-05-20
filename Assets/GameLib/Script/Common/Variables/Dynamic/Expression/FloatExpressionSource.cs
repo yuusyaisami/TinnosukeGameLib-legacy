@@ -15,7 +15,7 @@ namespace Game.Common
     /// Variables に定義した変数を Expression で参照して float 値を返す。
     /// </summary>
     [Serializable]
-    public sealed class FloatExpressionSource : IDynamicSource, IExpressionSource, IExternalExpressionVariablesReceiver
+    public sealed class FloatExpressionSource : IDynamicSource, IExpressionSource, IExternalExpressionVariablesReceiver, IDynamicTrackedEvaluationPolicyProvider, IDynamicSourceConfigurationRevisionProvider, IDynamicSourceDependencyRevisionProvider
     {
         [LabelText("Allow Implicit Keys")]
         [SerializeField]
@@ -56,9 +56,41 @@ namespace Game.Common
 
         bool _dirty = true;
         bool _validationIsError;
+        int _configurationRevision;
+        bool _allowTrackedEvaluation;
 
         public string SourceTypeName => "FloatExpression";
         public string GetDebugData => string.IsNullOrEmpty(_expression) ? "(empty)" : _expression;
+        public int GetSourceConfigurationRevision() => _configurationRevision;
+        public bool AllowTrackedEvaluation => _allowTrackedEvaluation;
+
+        public int GetSourceDependencyRevision(IDynamicContext context)
+        {
+            var revision = 0;
+            if (_externalVariables != null)
+            {
+                foreach (var variable in _externalVariables)
+                {
+                    if (variable == null)
+                        continue;
+
+                    revision = unchecked((revision * 397) ^ variable.GetSourceDependencyRevision(context));
+                }
+            }
+
+            if (_variables != null && (_includeLocalVariablesWithExternal || _externalVariables == null))
+            {
+                foreach (var variable in _variables)
+                {
+                    if (variable == null)
+                        continue;
+
+                    revision = unchecked((revision * 397) ^ variable.GetSourceDependencyRevision(context));
+                }
+            }
+
+            return revision;
+        }
 
         public string GetExpressionVariablesDebugData()
         {
@@ -177,6 +209,7 @@ namespace Game.Common
             message = null;
             _dirty = false;
             _validationIsError = false;
+            _allowTrackedEvaluation = false;
 
             if (!BuildCaches(out message))
             {
@@ -202,17 +235,20 @@ namespace Game.Common
                     _compiled = null;
                     message = lexError;
                     _validationIsError = true;
+                    _allowTrackedEvaluation = false;
                     return false;
                 }
 
                 var usedIdentifiers = new HashSet<string>(StringComparer.Ordinal);
-                var parser = new ExpressionParser(tokens, _typeMap, usedIdentifiers);
+                var usedFunctions = new HashSet<string>(StringComparer.Ordinal);
+                var parser = new ExpressionParser(tokens, _typeMap, usedIdentifiers, usedFunctions);
                 var node = parser.ParseExpression(out var parseError);
                 if (parseError != null)
                 {
                     _compiled = null;
                     message = parseError;
                     _validationIsError = true;
+                    _allowTrackedEvaluation = false;
                     return false;
                 }
 
@@ -222,12 +258,14 @@ namespace Game.Common
                     {
                         _compiled = null;
                         _validationIsError = true;
+                        _allowTrackedEvaluation = false;
                         return false;
                     }
                 }
 
                 _usedIdentifiers = usedIdentifiers;
                 _compiled = node;
+                _allowTrackedEvaluation = !ContainsNondeterministicFunctions(usedFunctions);
                 message = "OK";
                 _validationIsError = false;
                 return true;
@@ -237,6 +275,7 @@ namespace Game.Common
                 _compiled = null;
                 message = $"Compile error: {ex.Message}";
                 _validationIsError = true;
+                _allowTrackedEvaluation = false;
                 return false;
             }
         }
@@ -387,6 +426,8 @@ namespace Game.Common
 
         void MarkDirty()
         {
+            _allowTrackedEvaluation = false;
+            _configurationRevision++;
             _dirty = true;
             _compiled = null;
         }
@@ -425,6 +466,20 @@ namespace Game.Common
             _externalVariables = null;
             _includeLocalVariablesWithExternal = false;
             MarkDirty();
+        }
+
+        static bool ContainsNondeterministicFunctions(HashSet<string> usedFunctions)
+        {
+            if (usedFunctions == null || usedFunctions.Count == 0)
+                return false;
+
+            foreach (var functionName in usedFunctions)
+            {
+                if (ExpressionFunctionRegistry.IsNondeterministicFunction(functionName))
+                    return true;
+            }
+
+            return false;
         }
     }
 }
