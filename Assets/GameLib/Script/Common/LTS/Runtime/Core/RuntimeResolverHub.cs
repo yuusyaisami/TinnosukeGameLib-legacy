@@ -626,7 +626,7 @@ namespace Game
             }
         }
 
-            object CollectAll(Type elementType)
+        object CollectAll(Type elementType)
         {
             var listType = typeof(List<>).MakeGenericType(elementType);
             var list = (IList?)Activator.CreateInstance(listType);

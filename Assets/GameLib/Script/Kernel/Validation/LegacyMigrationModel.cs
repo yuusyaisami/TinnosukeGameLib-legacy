@@ -985,21 +985,21 @@ namespace Game.Kernel.Validation
                         break;
                     case ValidationSeverity.Warning:
                         warningCount++;
-            return (infoCount, warningCount, errorCount, fatalCount);
+                        return (infoCount, warningCount, errorCount, fatalCount);
+                }
+
+                static ValidationResultStatus DeriveStatus(int infoCount, int warningCount, int errorCount, int fatalCount)
+                {
+                    if (fatalCount > 0)
+                        return ValidationResultStatus.Fatal;
+
+                    if (errorCount > 0)
+                        return ValidationResultStatus.Failed;
+
+                    if (warningCount > 0 || infoCount > 0)
+                        return ValidationResultStatus.PassedWithWarnings;
+
+                    return ValidationResultStatus.Passed;
+                }
+            }
         }
-
-        static ValidationResultStatus DeriveStatus(int infoCount, int warningCount, int errorCount, int fatalCount)
-        {
-            if (fatalCount > 0)
-                return ValidationResultStatus.Fatal;
-
-            if (errorCount > 0)
-                return ValidationResultStatus.Failed;
-
-            if (warningCount > 0 || infoCount > 0)
-                return ValidationResultStatus.PassedWithWarnings;
-
-            return ValidationResultStatus.Passed;
-        }
-    }
-}
