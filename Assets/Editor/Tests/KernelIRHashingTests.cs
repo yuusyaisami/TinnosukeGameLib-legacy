@@ -127,12 +127,98 @@ namespace TinnosukeGameLib.Tests.Editor
         public void ComputeNormalizedHash_LegacyCompatChangesChangeHash()
         {
             KernelIR baseline = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector");
-            KernelIR changedLegacyCompat = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector", primaryModuleLegacyCompat: new LegacyCompatDescriptorIR(LegacyCompatKind.RuntimeAdapter, "LegacySystem", "ServiceGraph", KernelProfileMask.Development | KernelProfileMask.Test, LegacyRemovalStatus.Temporary, "LEGACY_RUNTIME_ADAPTER_USED", "Remove after migration"));
+            KernelIR changedLegacyCompat = CreateKernelIR(reverseNestedOrder: false, moduleVersion: 1, sourceGeneratorName: "ModuleProjector", primaryModuleLegacyCompat: new LegacyCompatDescriptorIR(LegacyCompatKind.RuntimeAdapter, "LegacySystem", "ServiceGraph", KernelProfileMask.Development | KernelProfileMask.Test, LegacyRemovalStatus.Temporary, "LEGACY_RUNTIME_ADAPTER_USED", "Remove after migration", "TICKET-1", surface: LegacyAdapterSurface.Resolver, legacySourceType: "RuntimeResolverHub", explicitTargets: new[] { new DependencyNodeIR(new ServiceId(201)) }));
 
             Hash128 baselineHash = KernelIRHashing.ComputeNormalizedHash(baseline);
             Hash128 changedHash = KernelIRHashing.ComputeNormalizedHash(changedLegacyCompat);
 
             Assert.That(changedHash, Is.Not.EqualTo(baselineHash));
+        }
+
+        [Test]
+        public void ComputeNormalizedHash_LegacyCompatTrackingChangesChangeHash()
+        {
+            KernelIR baseline = CreateKernelIR(
+                reverseNestedOrder: false,
+                moduleVersion: 1,
+                sourceGeneratorName: "ModuleProjector",
+                primaryModuleLegacyCompat: new LegacyCompatDescriptorIR(
+                    LegacyCompatKind.RuntimeAdapter,
+                    "LegacySystem",
+                    "ServiceGraph",
+                    KernelProfileMask.Development | KernelProfileMask.Test,
+                    LegacyRemovalStatus.Temporary,
+                    "LEGACY_RUNTIME_ADAPTER_USED",
+                    "Remove after migration",
+                    "TICKET-1",
+                    surface: LegacyAdapterSurface.Resolver,
+                    legacySourceType: "RuntimeResolverHub",
+                    explicitTargets: new[] { new DependencyNodeIR(new ServiceId(201)) }));
+
+            KernelIR changed = CreateKernelIR(
+                reverseNestedOrder: false,
+                moduleVersion: 1,
+                sourceGeneratorName: "ModuleProjector",
+                primaryModuleLegacyCompat: new LegacyCompatDescriptorIR(
+                    LegacyCompatKind.RuntimeAdapter,
+                    "LegacySystem",
+                    "ServiceGraph",
+                    KernelProfileMask.Development | KernelProfileMask.Test,
+                    LegacyRemovalStatus.Temporary,
+                    "LEGACY_RUNTIME_ADAPTER_USED",
+                    "Remove after migration",
+                    "TICKET-2",
+                    surface: LegacyAdapterSurface.Resolver,
+                    legacySourceType: "RuntimeResolverHub",
+                    explicitTargets: new[] { new DependencyNodeIR(new ServiceId(201)) }));
+
+            Hash128 baselineHash = KernelIRHashing.ComputeNormalizedHash(baseline);
+            Hash128 changedHash = KernelIRHashing.ComputeNormalizedHash(changed);
+
+            Assert.That(changedHash, Is.Not.EqualTo(baselineHash));
+        }
+
+        [Test]
+        public void ComputeNormalizedHash_LegacyCompatSurfaceChangesChangeHash()
+        {
+            KernelIR resolverCompat = CreateKernelIR(
+                reverseNestedOrder: false,
+                moduleVersion: 1,
+                sourceGeneratorName: "ModuleProjector",
+                primaryModuleLegacyCompat: new LegacyCompatDescriptorIR(
+                    LegacyCompatKind.RuntimeAdapter,
+                    "LegacySystem",
+                    "ServiceGraph",
+                    KernelProfileMask.Development | KernelProfileMask.Test,
+                    LegacyRemovalStatus.Temporary,
+                    "LEGACY_RUNTIME_ADAPTER_USED",
+                    "Remove after migration",
+                    "TICKET-1",
+                    surface: LegacyAdapterSurface.Resolver,
+                    legacySourceType: "RuntimeResolverHub",
+                    explicitTargets: new[] { new DependencyNodeIR(new ServiceId(201)) }));
+
+            KernelIR commandCompat = CreateKernelIR(
+                reverseNestedOrder: false,
+                moduleVersion: 1,
+                sourceGeneratorName: "ModuleProjector",
+                primaryModuleLegacyCompat: new LegacyCompatDescriptorIR(
+                    LegacyCompatKind.RuntimeAdapter,
+                    "LegacySystem",
+                    "ServiceGraph",
+                    KernelProfileMask.Development | KernelProfileMask.Test,
+                    LegacyRemovalStatus.Temporary,
+                    "LEGACY_RUNTIME_ADAPTER_USED",
+                    "Remove after migration",
+                    "TICKET-1",
+                    surface: LegacyAdapterSurface.Command,
+                    legacySourceType: "LegacyCommandRunner",
+                    explicitTargets: new[] { new DependencyNodeIR(new CommandTypeId(601)) }));
+
+            Hash128 resolverHash = KernelIRHashing.ComputeNormalizedHash(resolverCompat);
+            Hash128 commandHash = KernelIRHashing.ComputeNormalizedHash(commandCompat);
+
+            Assert.That(commandHash, Is.Not.EqualTo(resolverHash));
         }
 
         [Test]

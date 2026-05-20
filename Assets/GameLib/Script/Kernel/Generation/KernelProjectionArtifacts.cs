@@ -1744,7 +1744,7 @@ namespace Game.Kernel.Generation
             if (module.LegacyCompat != null)
             {
                 LegacyCompatDescriptorIR legacyCompat = module.LegacyCompat;
-                tokens.Add("MODULE_LEGACY|" + legacyCompat.Kind + "|" + legacyCompat.LegacySystemName + "|" + legacyCompat.TargetSubsystem + "|" + legacyCompat.Profiles + "|" + legacyCompat.RemovalStatus + "|" + (legacyCompat.DiagnosticsCode ?? string.Empty) + "|" + (legacyCompat.RemovalCondition ?? string.Empty));
+                tokens.Add("MODULE_LEGACY|" + legacyCompat.Kind + "|" + legacyCompat.LegacySystemName + "|" + legacyCompat.TargetSubsystem + "|" + legacyCompat.Profiles + "|" + legacyCompat.RemovalStatus + "|" + (legacyCompat.DiagnosticsCode ?? string.Empty) + "|" + (legacyCompat.RemovalCondition ?? string.Empty) + "|" + (legacyCompat.TrackingIssueOrBlockingCondition ?? string.Empty));
             }
         }
 

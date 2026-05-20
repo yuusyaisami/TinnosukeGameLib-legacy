@@ -445,9 +445,6 @@ namespace Game
                 return;
 
             var builder = new RuntimeContainerBuilder();
-            var parent = GetParentCached();
-            if (parent?.Resolver != null)
-                builder.SetParentResolver(parent.Resolver);
             builder.SetHostScope(this);
 
             ConfigureCore(builder);

@@ -12,9 +12,16 @@ namespace Game.Kernel.Validation
     {
         public const string BridgeUsed = "LEGACY_BRIDGE_USED";
         public const string RuntimeAdapterUsed = "LEGACY_RUNTIME_ADAPTER_USED";
+        public const string RuntimeAdapterReleaseForbidden = "LEGACY_RUNTIME_ADAPTER_RELEASE_FORBIDDEN";
         public const string FallbackForbidden = "LEGACY_FALLBACK_FORBIDDEN";
+        public const string ResolverComponentFallbackForbidden = "LEGACY_RESOLVER_COMPONENT_FALLBACK_FORBIDDEN";
         public const string ProfileForbidden = "LEGACY_PROFILE_FORBIDDEN";
         public const string AdapterExpired = "LEGACY_ADAPTER_EXPIRED";
+        public const string AdapterSurfaceMissing = "LEGACY_ADAPTER_SURFACE_MISSING";
+        public const string AdapterSourceTypeMissing = "LEGACY_ADAPTER_SOURCE_TYPE_MISSING";
+        public const string AdapterKindSurfaceMismatch = "LEGACY_ADAPTER_KIND_SURFACE_MISMATCH";
+        public const string AdapterTargetMissing = "LEGACY_ADAPTER_TARGET_MISSING";
+        public const string AdapterTrackingMissing = "LEGACY_ADAPTER_TRACKING_MISSING";
     }
 
     public sealed class LegacyMigrationReportHeader
@@ -77,6 +84,7 @@ namespace Game.Kernel.Validation
     {
         readonly LegacyMigrationReportHeader header;
         readonly ReadOnlyCollection<LegacyAdapterDescriptor> adapters;
+        readonly ReadOnlyCollection<LegacyRemovalPolicy> removalPolicies;
         readonly ReadOnlyCollection<DependencyValidationIssue> issues;
 
         LegacyMigrationReport(
@@ -93,6 +101,7 @@ namespace Game.Kernel.Validation
 
             SelectedProfile = header.SelectedProfile;
             this.adapters = new ReadOnlyCollection<LegacyAdapterDescriptor>(CloneAndSortAdapters(adapters));
+            removalPolicies = new ReadOnlyCollection<LegacyRemovalPolicy>(CloneRemovalPolicies(this.adapters));
             this.issues = new ReadOnlyCollection<DependencyValidationIssue>(CloneIssues(issues));
 
             (InfoCount, WarningCount, ErrorCount, FatalCount) = CountSeverity(this.issues);
@@ -106,6 +115,8 @@ namespace Game.Kernel.Validation
         public IReadOnlyList<LegacyAdapterDescriptor> Adapters => adapters;
 
         public IReadOnlyList<DependencyValidationIssue> Issues => issues;
+
+        public IReadOnlyList<LegacyRemovalPolicy> RemovalPolicies => removalPolicies;
 
         public ValidationResultStatus Status { get; }
 
@@ -183,6 +194,8 @@ namespace Game.Kernel.Validation
                     continue;
                 }
 
+                DiagnosticPayloadEntry[] legacyPayload = CreatePayloadEntries(legacyCompat);
+
                 if (legacyCompat.Kind == LegacyCompatKind.ForbiddenFallback)
                 {
                     issues.Add(CreateIssue(
@@ -192,9 +205,13 @@ namespace Game.Kernel.Validation
                         ValidationSeverity.Error,
                         input.SelectedProfile,
                         "Legacy fallback bridges are forbidden by default.",
-                        "Replace fallback behavior with an explicit migrated target-kernel dependency or fail deterministically."));
+                            "Replace fallback behavior with an explicit migrated target-kernel dependency or fail deterministically.",
+                            legacyPayload));
                     continue;
                 }
+
+                bool canCreateAdapter = true;
+                bool hasBlockingMetadataIssues = false;
 
                 if (string.IsNullOrWhiteSpace(legacyCompat.DiagnosticsCode))
                 {
@@ -205,10 +222,25 @@ namespace Game.Kernel.Validation
                         ValidationSeverity.Error,
                         input.SelectedProfile,
                         "Legacy bridge modules must declare a stable diagnostics code.",
-                        "Provide a stable diagnostics code for the legacy bridge descriptor."));
+                            "Provide a stable diagnostics code for the legacy bridge descriptor.",
+                            legacyPayload));
                 }
 
-                if (RequiresRemovalCondition(legacyCompat.Kind) && string.IsNullOrWhiteSpace(legacyCompat.RemovalCondition))
+                if (string.IsNullOrWhiteSpace(legacyCompat.TrackingIssueOrBlockingCondition))
+                {
+                    issues.Add(CreateIssue(
+                        module.Id,
+                        module.Source,
+                        LegacyCompatBoundaryCodes.AdapterTrackingMissing,
+                        ValidationSeverity.Error,
+                        input.SelectedProfile,
+                        "Legacy bridge modules must declare a tracking issue or blocking condition.",
+                        "Provide a stable issue reference or blocking condition for removal tracking.",
+                        legacyPayload));
+                    hasBlockingMetadataIssues = true;
+                }
+
+                if (string.IsNullOrWhiteSpace(legacyCompat.RemovalCondition))
                 {
                     issues.Add(CreateIssue(
                         module.Id,
@@ -216,8 +248,24 @@ namespace Game.Kernel.Validation
                         "LEGACY_ADAPTER_REMOVAL_POLICY_MISSING",
                         ValidationSeverity.Error,
                         input.SelectedProfile,
-                        "Runtime-capable legacy bridges must declare a removal condition.",
-                        "Declare how and when the legacy bridge will be removed."));
+                        "Legacy bridge modules must declare a removal condition.",
+                            "Declare how and when the legacy bridge will be removed.",
+                            legacyPayload));
+                    hasBlockingMetadataIssues = true;
+                }
+
+                if (IsReleaseProfile(input.SelectedProfileMask) && IsReleaseRuntimeAdapterKind(legacyCompat.Kind))
+                {
+                    issues.Add(CreateIssue(
+                        module.Id,
+                        module.Source,
+                        LegacyCompatBoundaryCodes.RuntimeAdapterReleaseForbidden,
+                        ValidationSeverity.Error,
+                        input.SelectedProfile,
+                        "Release profile forbids live runtime legacy adapters.",
+                        "Replace the runtime adapter with prevalidated migrated input or a non-runtime migration artifact before shipping Release.",
+                        legacyPayload));
+                    continue;
                 }
 
                 if (IsProfileForbidden(legacyCompat, input.SelectedProfileMask))
@@ -229,9 +277,69 @@ namespace Game.Kernel.Validation
                         ValidationSeverity.Error,
                         input.SelectedProfile,
                         "Legacy bridge kind is forbidden for the selected profile.",
-                        "Remove the live runtime legacy bridge from this profile or migrate the dependency fully into v2."));
+                            "Remove the live runtime legacy bridge from this profile or migrate the dependency fully into v2.",
+                            legacyPayload));
                     continue;
                 }
+
+                if (legacyCompat.Surface == LegacyAdapterSurface.None)
+                {
+                    issues.Add(CreateIssue(
+                        module.Id,
+                        module.Source,
+                        LegacyCompatBoundaryCodes.AdapterSurfaceMissing,
+                        ValidationSeverity.Error,
+                        input.SelectedProfile,
+                        "Legacy bridge modules must classify which compatibility surface they isolate.",
+                        "Declare whether this adapter isolates installer, resolver, command, value, lifecycle, or authoring migration behavior.",
+                        legacyPayload));
+                    canCreateAdapter = false;
+                }
+
+                if (string.IsNullOrWhiteSpace(legacyCompat.LegacySourceType))
+                {
+                    issues.Add(CreateIssue(
+                        module.Id,
+                        module.Source,
+                        LegacyCompatBoundaryCodes.AdapterSourceTypeMissing,
+                        ValidationSeverity.Error,
+                        input.SelectedProfile,
+                        "Legacy bridge modules must declare the concrete legacy source type they adapt.",
+                        "Record the stable legacy runtime or authoring source type behind this compatibility seam.",
+                        legacyPayload));
+                    canCreateAdapter = false;
+                }
+
+                if (canCreateAdapter && !IsSurfaceCompatible(legacyCompat.Kind, legacyCompat.Surface))
+                {
+                    issues.Add(CreateIssue(
+                        module.Id,
+                        module.Source,
+                        LegacyCompatBoundaryCodes.AdapterKindSurfaceMismatch,
+                        ValidationSeverity.Error,
+                        input.SelectedProfile,
+                        GetKindSurfaceMismatchMessage(legacyCompat.Surface),
+                        GetKindSurfaceMismatchFix(legacyCompat.Surface),
+                        legacyPayload));
+                    canCreateAdapter = false;
+                }
+
+                if (canCreateAdapter && !TryValidateExplicitTargets(input, module.Id, legacyCompat.Surface, legacyCompat.ExplicitTargets, out string targetValidationMessage, out string targetValidationFix))
+                {
+                    issues.Add(CreateIssue(
+                        module.Id,
+                        module.Source,
+                        LegacyCompatBoundaryCodes.AdapterTargetMissing,
+                        ValidationSeverity.Error,
+                        input.SelectedProfile,
+                        targetValidationMessage,
+                        targetValidationFix,
+                        legacyPayload));
+                    canCreateAdapter = false;
+                }
+
+                if (!canCreateAdapter || hasBlockingMetadataIssues)
+                    continue;
 
                 LegacyRemovalPolicy removalPolicy = new LegacyRemovalPolicy(
                     module.Id,
@@ -239,18 +347,21 @@ namespace Game.Kernel.Validation
                     legacyCompat.Profiles,
                     "Legacy bridge declared in dependency input.",
                     legacyCompat.TargetSubsystem,
-                    legacyCompat.RemovalCondition ?? "Complete migration to v2-owned normalized data.",
+                    legacyCompat.RemovalCondition!,
                     legacyCompat.DiagnosticsCode ?? "LEGACY_ADAPTER_DIAGNOSTICS_MISSING",
-                    legacyCompat.RemovalCondition ?? "Complete migration to v2-owned normalized data.");
+                    legacyCompat.TrackingIssueOrBlockingCondition!);
 
                 adapters.Add(new LegacyAdapterDescriptor(
                     legacyCompat.Kind,
                     module.Id,
                     legacyCompat.LegacySystemName,
+                    legacyCompat.LegacySourceType!,
                     legacyCompat.TargetSubsystem,
+                    legacyCompat.Surface,
                     legacyCompat.Profiles,
                     module.Source,
-                    removalPolicy));
+                        removalPolicy,
+                        explicitTargets: CopyTargets(legacyCompat.ExplicitTargets)));
             }
 
             LegacyMigrationReport adapterReport = Validate(header, adapters);
@@ -293,7 +404,8 @@ namespace Game.Kernel.Validation
                     ValidationSeverity.Error,
                     header.SelectedProfile,
                     "Legacy fallback bridges are forbidden by default.",
-                    "Replace fallback behavior with an explicit migrated target-kernel dependency or fail deterministically."));
+                    "Replace fallback behavior with an explicit migrated target-kernel dependency or fail deterministically.",
+                    CreatePayloadEntries(adapter)));
                 return;
             }
 
@@ -306,11 +418,26 @@ namespace Game.Kernel.Validation
                     ValidationSeverity.Error,
                     header.SelectedProfile,
                     "Legacy bridge kind is forbidden for the selected profile.",
-                    "Remove the live legacy bridge from this profile or migrate the dependency fully into v2."));
+                    "Remove the live legacy bridge from this profile or migrate the dependency fully into v2.",
+                    CreatePayloadEntries(adapter)));
                 return;
             }
 
-            if (adapter.RemovalStatus == LegacyRemovalStatus.Deprecated || adapter.RemovalStatus == LegacyRemovalStatus.Forbidden)
+            if (IsReleaseProfile(header.SelectedProfileMask) && IsReleaseRuntimeAdapterKind(adapter.Kind))
+            {
+                issues.Add(CreateIssue(
+                    adapter.OwnerModule,
+                    adapter.Source,
+                    LegacyCompatBoundaryCodes.RuntimeAdapterReleaseForbidden,
+                    ValidationSeverity.Error,
+                    header.SelectedProfile,
+                    "Release profile forbids live runtime legacy adapters.",
+                    "Replace the runtime adapter with prevalidated migrated input or a non-runtime migration artifact before shipping Release.",
+                    CreatePayloadEntries(adapter)));
+                return;
+            }
+
+            if (adapter.RemovalPolicy.IsExpired)
             {
                 issues.Add(CreateIssue(
                     adapter.OwnerModule,
@@ -319,7 +446,8 @@ namespace Game.Kernel.Validation
                     ValidationSeverity.Error,
                     header.SelectedProfile,
                     "Legacy adapter removal policy has expired.",
-                    "Remove the adapter or refresh its removal policy before shipping."));
+                    "Remove the adapter or refresh its removal policy before shipping.",
+                    CreatePayloadEntries(adapter)));
                 return;
             }
 
@@ -330,7 +458,8 @@ namespace Game.Kernel.Validation
                 ValidationSeverity.Warning,
                 header.SelectedProfile,
                 "Legacy bridge remains active and must stay explicit, observable, and removable.",
-                "Continue migration until the legacy bridge can be removed from the verified graph."));
+                "Continue migration until the legacy bridge can be removed from the verified graph.",
+                CreatePayloadEntries(adapter)));
         }
 
         static DependencyValidationIssue CreateIssue(
@@ -340,7 +469,8 @@ namespace Game.Kernel.Validation
             ValidationSeverity severity,
             string profile,
             string message,
-            string suggestedFix)
+            string suggestedFix,
+            DiagnosticPayloadEntry[]? payloadEntries = null)
         {
             return new DependencyValidationIssue(
                 code,
@@ -354,7 +484,18 @@ namespace Game.Kernel.Validation
                 profile,
                 message,
                 suggestedFix,
-                Array.Empty<DiagnosticPayloadEntry>());
+                payloadEntries ?? Array.Empty<DiagnosticPayloadEntry>());
+        }
+
+        static bool IsReleaseProfile(KernelProfileMask selectedProfileMask)
+        {
+            return (selectedProfileMask & KernelProfileMask.Release) != KernelProfileMask.None;
+        }
+
+        static bool IsReleaseRuntimeAdapterKind(LegacyCompatKind kind)
+        {
+            return kind == LegacyCompatKind.RuntimeAdapter
+                || kind == LegacyCompatKind.TemporaryBridge;
         }
 
         static LegacyAdapterDescriptor[] CloneAndSortAdapters(IReadOnlyList<LegacyAdapterDescriptor> source)
@@ -366,6 +507,17 @@ namespace Game.Kernel.Validation
             }
 
             Array.Sort(clone, CompareAdapters);
+
+            return clone;
+        }
+
+        static LegacyRemovalPolicy[] CloneRemovalPolicies(IReadOnlyList<LegacyAdapterDescriptor> source)
+        {
+            LegacyRemovalPolicy[] clone = new LegacyRemovalPolicy[source.Count];
+            for (int index = 0; index < source.Count; index++)
+            {
+                clone[index] = source[index].RemovalPolicy;
+            }
 
             return clone;
         }
@@ -390,11 +542,420 @@ namespace Game.Kernel.Validation
             if (comparison != 0)
                 return comparison;
 
+            comparison = left.Surface.CompareTo(right.Surface);
+            if (comparison != 0)
+                return comparison;
+
             comparison = StringComparer.Ordinal.Compare(left.TargetSubsystemName, right.TargetSubsystemName);
             if (comparison != 0)
                 return comparison;
 
-            return StringComparer.Ordinal.Compare(left.LegacySystemName, right.LegacySystemName);
+            comparison = StringComparer.Ordinal.Compare(left.LegacySourceType, right.LegacySourceType);
+            if (comparison != 0)
+                return comparison;
+
+            return CompareTargets(left.ExplicitTargets, right.ExplicitTargets);
+        }
+
+        static DiagnosticPayloadEntry[] CreatePayloadEntries(LegacyCompatDescriptorIR legacyCompat)
+        {
+            List<DiagnosticPayloadEntry> payloadEntries = new List<DiagnosticPayloadEntry>(10)
+            {
+                new DiagnosticPayloadEntry("LegacySystemName", DiagnosticPayloadValue.FromString(legacyCompat.LegacySystemName)),
+                new DiagnosticPayloadEntry("BridgeKind", DiagnosticPayloadValue.FromString(legacyCompat.Kind.ToString())),
+                new DiagnosticPayloadEntry("TargetSubsystem", DiagnosticPayloadValue.FromString(legacyCompat.TargetSubsystem)),
+                new DiagnosticPayloadEntry("Profiles", DiagnosticPayloadValue.FromString(legacyCompat.Profiles.ToString())),
+                new DiagnosticPayloadEntry("RemovalStatus", DiagnosticPayloadValue.FromString(legacyCompat.RemovalStatus.ToString())),
+            };
+
+            if (legacyCompat.Surface != LegacyAdapterSurface.None)
+                payloadEntries.Add(new DiagnosticPayloadEntry("AdapterSurface", DiagnosticPayloadValue.FromString(legacyCompat.Surface.ToString())));
+
+            if (!string.IsNullOrWhiteSpace(legacyCompat.LegacySourceType))
+                payloadEntries.Add(new DiagnosticPayloadEntry("LegacySourceType", DiagnosticPayloadValue.FromString(legacyCompat.LegacySourceType)));
+
+            if (!string.IsNullOrWhiteSpace(legacyCompat.DiagnosticsCode))
+                payloadEntries.Add(new DiagnosticPayloadEntry("LegacyDiagnosticsCode", DiagnosticPayloadValue.FromString(legacyCompat.DiagnosticsCode)));
+
+            if (!string.IsNullOrWhiteSpace(legacyCompat.RemovalCondition))
+                payloadEntries.Add(new DiagnosticPayloadEntry("RemovalCondition", DiagnosticPayloadValue.FromString(legacyCompat.RemovalCondition)));
+
+            if (!string.IsNullOrWhiteSpace(legacyCompat.TrackingIssueOrBlockingCondition))
+                payloadEntries.Add(new DiagnosticPayloadEntry("TrackingIssueOrBlockingCondition", DiagnosticPayloadValue.FromString(legacyCompat.TrackingIssueOrBlockingCondition)));
+
+            if (legacyCompat.ExplicitTargets.Length > 0)
+                payloadEntries.Add(new DiagnosticPayloadEntry("ExplicitTargets", DiagnosticPayloadValue.FromString(FormatTargets(legacyCompat.ExplicitTargets))));
+
+            return payloadEntries.ToArray();
+        }
+
+        static DiagnosticPayloadEntry[] CreatePayloadEntries(LegacyAdapterDescriptor adapter)
+        {
+            List<DiagnosticPayloadEntry> payloadEntries = new List<DiagnosticPayloadEntry>(16)
+            {
+                new DiagnosticPayloadEntry("LegacySystemName", DiagnosticPayloadValue.FromString(adapter.LegacySystemName)),
+                new DiagnosticPayloadEntry("BridgeKind", DiagnosticPayloadValue.FromString(adapter.Kind.ToString())),
+                new DiagnosticPayloadEntry("TargetSubsystem", DiagnosticPayloadValue.FromString(adapter.TargetSubsystemName)),
+                new DiagnosticPayloadEntry("Profiles", DiagnosticPayloadValue.FromString(adapter.Profiles.ToString())),
+                new DiagnosticPayloadEntry("RemovalStatus", DiagnosticPayloadValue.FromString(adapter.RemovalStatus.ToString())),
+                new DiagnosticPayloadEntry("AdapterSurface", DiagnosticPayloadValue.FromString(adapter.Surface.ToString())),
+                new DiagnosticPayloadEntry("LegacySourceType", DiagnosticPayloadValue.FromString(adapter.LegacySourceType)),
+                new DiagnosticPayloadEntry("LegacyDiagnosticsCode", DiagnosticPayloadValue.FromString(adapter.DiagnosticsCode)),
+                new DiagnosticPayloadEntry("RemovalCondition", DiagnosticPayloadValue.FromString(adapter.RemovalCondition)),
+                new DiagnosticPayloadEntry("TrackingIssueOrBlockingCondition", DiagnosticPayloadValue.FromString(adapter.TrackingIssueOrBlockingCondition)),
+                new DiagnosticPayloadEntry("ExplicitTargets", DiagnosticPayloadValue.FromString(FormatTargets(adapter.ExplicitTargets))),
+            };
+
+            payloadEntries.AddRange(adapter.RemovalPolicy.ToDiagnosticPayloadEntries());
+
+            return payloadEntries.ToArray();
+        }
+
+        static bool IsSurfaceCompatible(LegacyCompatKind kind, LegacyAdapterSurface surface)
+        {
+            switch (surface)
+            {
+                case LegacyAdapterSurface.Installer:
+                case LegacyAdapterSurface.Authoring:
+                    return kind == LegacyCompatKind.AuthoringMigration;
+
+                case LegacyAdapterSurface.Resolver:
+                case LegacyAdapterSurface.Command:
+                case LegacyAdapterSurface.Lifecycle:
+                    return kind == LegacyCompatKind.RuntimeAdapter
+                        || kind == LegacyCompatKind.TemporaryBridge
+                        || kind == LegacyCompatKind.TestAdapter;
+
+                case LegacyAdapterSurface.Value:
+                    return kind == LegacyCompatKind.DataMigration
+                        || kind == LegacyCompatKind.RuntimeAdapter
+                        || kind == LegacyCompatKind.TemporaryBridge
+                        || kind == LegacyCompatKind.TestAdapter;
+
+                case LegacyAdapterSurface.None:
+                    return false;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(surface), surface, "Unsupported legacy adapter surface.");
+            }
+        }
+
+        static string GetKindSurfaceMismatchMessage(LegacyAdapterSurface surface)
+        {
+            switch (surface)
+            {
+                case LegacyAdapterSurface.Installer:
+                case LegacyAdapterSurface.Authoring:
+                    return "Installer and authoring migration surfaces must use the AuthoringMigration bridge kind.";
+
+                case LegacyAdapterSurface.Resolver:
+                case LegacyAdapterSurface.Command:
+                case LegacyAdapterSurface.Lifecycle:
+                    return "Resolver, command, and lifecycle migration surfaces cannot use DataMigration; reserve DataMigration for the Value surface.";
+
+                case LegacyAdapterSurface.Value:
+                    return "Value migration surfaces cannot use the AuthoringMigration bridge kind.";
+
+                case LegacyAdapterSurface.None:
+                    return "Legacy bridge modules must classify which compatibility surface they isolate.";
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(surface), surface, "Unsupported legacy adapter surface.");
+            }
+        }
+
+        static string GetKindSurfaceMismatchFix(LegacyAdapterSurface surface)
+        {
+            switch (surface)
+            {
+                case LegacyAdapterSurface.Installer:
+                case LegacyAdapterSurface.Authoring:
+                    return "Reclassify this adapter as AuthoringMigration or move the runtime seam into a runtime migration surface.";
+
+                case LegacyAdapterSurface.Resolver:
+                case LegacyAdapterSurface.Command:
+                case LegacyAdapterSurface.Lifecycle:
+                    return "Use RuntimeAdapter, TemporaryBridge, or TestAdapter on this surface, or move DataMigration to the Value surface.";
+
+                case LegacyAdapterSurface.Value:
+                    return "Use DataMigration, RuntimeAdapter, TemporaryBridge, or TestAdapter for value migration.";
+
+                case LegacyAdapterSurface.None:
+                    return "Declare whether this adapter isolates installer, resolver, command, value, lifecycle, or authoring migration behavior.";
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(surface), surface, "Unsupported legacy adapter surface.");
+            }
+        }
+
+        static bool TryValidateExplicitTargets(DependencyValidationInput input, ModuleId ownerModule, LegacyAdapterSurface surface, ReadOnlySpan<DependencyNodeIR> explicitTargets, out string message, out string suggestedFix)
+        {
+            if (explicitTargets.Length == 0)
+            {
+                message = "Legacy bridge surface '" + surface + "' requires explicit target nodes in its descriptor.";
+                suggestedFix = "Declare at least one " + GetSurfaceTargetRequirement(surface) + " in the legacy adapter descriptor.";
+                return false;
+            }
+
+            for (int index = 0; index < explicitTargets.Length; index++)
+            {
+                DependencyNodeIR target = explicitTargets[index];
+                if (!IsTargetKindAllowed(surface, target.Kind))
+                {
+                    message = "Legacy bridge surface '" + surface + "' cannot target dependency node kind '" + target.Kind + "'.";
+                    suggestedFix = "Restrict explicit targets to " + GetSurfaceTargetRequirement(surface) + ".";
+                    return false;
+                }
+
+                if (!IsOwnedExplicitTarget(input, ownerModule, target))
+                {
+                    message = "Legacy bridge target '" + DescribeDependencyNode(target) + "' must resolve to v2-owned IR emitted by the same adapter module.";
+                    suggestedFix = "Emit the declared target from module " + ownerModule.Value + " or correct the adapter descriptor's explicit targets.";
+                    return false;
+                }
+            }
+
+            message = string.Empty;
+            suggestedFix = string.Empty;
+            return true;
+        }
+
+        static string GetSurfaceTargetRequirement(LegacyAdapterSurface surface)
+        {
+            switch (surface)
+            {
+                case LegacyAdapterSurface.Installer:
+                    return "explicit contribution target nodes (scope, service, command, value, lifecycle step, or runtime query)";
+
+                case LegacyAdapterSurface.Authoring:
+                    return "explicit authoring-emitted target nodes (scope, service, command, value, lifecycle step, or runtime query)";
+
+                case LegacyAdapterSurface.Resolver:
+                    return "explicit ServiceId targets";
+
+                case LegacyAdapterSurface.Command:
+                    return "explicit CommandTypeId targets";
+
+                case LegacyAdapterSurface.Value:
+                    return "explicit ValueKeyId targets";
+
+                case LegacyAdapterSurface.Lifecycle:
+                    return "explicit LifecycleStepId targets";
+
+                case LegacyAdapterSurface.None:
+                    return "classified legacy adapter target";
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(surface), surface, "Unsupported legacy adapter surface.");
+            }
+        }
+
+        static bool IsTargetKindAllowed(LegacyAdapterSurface surface, DependencyNodeKind kind)
+        {
+            switch (surface)
+            {
+                case LegacyAdapterSurface.Installer:
+                case LegacyAdapterSurface.Authoring:
+                    return kind == DependencyNodeKind.Scope
+                        || kind == DependencyNodeKind.Service
+                        || kind == DependencyNodeKind.Command
+                        || kind == DependencyNodeKind.ValueKey
+                        || kind == DependencyNodeKind.LifecycleStep
+                        || kind == DependencyNodeKind.RuntimeQuery;
+
+                case LegacyAdapterSurface.Resolver:
+                    return kind == DependencyNodeKind.Service;
+
+                case LegacyAdapterSurface.Command:
+                    return kind == DependencyNodeKind.Command;
+
+                case LegacyAdapterSurface.Value:
+                    return kind == DependencyNodeKind.ValueKey;
+
+                case LegacyAdapterSurface.Lifecycle:
+                    return kind == DependencyNodeKind.LifecycleStep;
+
+                case LegacyAdapterSurface.None:
+                    return false;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(surface), surface, "Unsupported legacy adapter surface.");
+            }
+        }
+
+        static bool IsOwnedExplicitTarget(DependencyValidationInput input, ModuleId ownerModule, DependencyNodeIR target)
+        {
+            switch (target.Kind)
+            {
+                case DependencyNodeKind.Scope:
+                    return HasOwnedScope(input.Scopes, ownerModule, target.ScopePlanId);
+
+                case DependencyNodeKind.Service:
+                    return HasOwnedService(input.Services, ownerModule, target.ServiceId);
+
+                case DependencyNodeKind.Command:
+                    return HasOwnedCommand(input.Commands, ownerModule, target.CommandTypeId);
+
+                case DependencyNodeKind.ValueKey:
+                    return HasOwnedValueKey(input.ValueKeys, ownerModule, target.ValueKeyId);
+
+                case DependencyNodeKind.LifecycleStep:
+                    return HasOwnedLifecycleStep(input.Lifecycles, ownerModule, target.LifecycleStepId);
+
+                case DependencyNodeKind.RuntimeQuery:
+                    return HasOwnedRuntimeQuery(input.RuntimeQueries, ownerModule, target.RuntimeQueryId);
+
+                default:
+                    return false;
+            }
+        }
+
+        static bool HasOwnedScope(ReadOnlySpan<ScopeIR> scopes, ModuleId ownerModule, ScopePlanId scopePlanId)
+        {
+            for (int index = 0; index < scopes.Length; index++)
+            {
+                if (scopes[index].OwnerModule == ownerModule && scopes[index].PlanId == scopePlanId)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool HasOwnedService(ReadOnlySpan<ServiceIR> services, ModuleId ownerModule, ServiceId serviceId)
+        {
+            for (int index = 0; index < services.Length; index++)
+            {
+                if (services[index].OwnerModule == ownerModule && services[index].Id == serviceId)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool HasOwnedCommand(ReadOnlySpan<CommandIR> commands, ModuleId ownerModule, CommandTypeId commandTypeId)
+        {
+            for (int index = 0; index < commands.Length; index++)
+            {
+                if (commands[index].OwnerModule == ownerModule && commands[index].TypeId == commandTypeId)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool HasOwnedValueKey(ReadOnlySpan<ValueKeyIR> valueKeys, ModuleId ownerModule, ValueKeyId valueKeyId)
+        {
+            for (int index = 0; index < valueKeys.Length; index++)
+            {
+                if (valueKeys[index].OwnerModule == ownerModule && valueKeys[index].Id == valueKeyId)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool HasOwnedLifecycleStep(ReadOnlySpan<LifecycleIR> lifecycles, ModuleId ownerModule, LifecycleStepId lifecycleStepId)
+        {
+            for (int lifecycleIndex = 0; lifecycleIndex < lifecycles.Length; lifecycleIndex++)
+            {
+                if (lifecycles[lifecycleIndex].OwnerModule != ownerModule)
+                    continue;
+
+                ReadOnlySpan<LifecycleStepIR> steps = lifecycles[lifecycleIndex].Steps;
+                for (int stepIndex = 0; stepIndex < steps.Length; stepIndex++)
+                {
+                    if (steps[stepIndex].Id == lifecycleStepId)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        static bool HasOwnedRuntimeQuery(ReadOnlySpan<RuntimeQueryIR> runtimeQueries, ModuleId ownerModule, RuntimeQueryId runtimeQueryId)
+        {
+            for (int index = 0; index < runtimeQueries.Length; index++)
+            {
+                if (runtimeQueries[index].OwnerModule == ownerModule && runtimeQueries[index].Id == runtimeQueryId)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static DependencyNodeIR[] CopyTargets(ReadOnlySpan<DependencyNodeIR> source)
+        {
+            if (source.Length == 0)
+                return Array.Empty<DependencyNodeIR>();
+
+            DependencyNodeIR[] clone = new DependencyNodeIR[source.Length];
+            for (int index = 0; index < source.Length; index++)
+                clone[index] = source[index];
+
+            return clone;
+        }
+
+        static int CompareTargets(ReadOnlySpan<DependencyNodeIR> left, ReadOnlySpan<DependencyNodeIR> right)
+        {
+            int lengthComparison = left.Length.CompareTo(right.Length);
+            int maxLength = left.Length < right.Length ? left.Length : right.Length;
+            for (int index = 0; index < maxLength; index++)
+            {
+                int comparison = left[index].Kind.CompareTo(right[index].Kind);
+                if (comparison != 0)
+                    return comparison;
+
+                comparison = DescribeDependencyNode(left[index]).CompareTo(DescribeDependencyNode(right[index]));
+                if (comparison != 0)
+                    return comparison;
+            }
+
+            if (lengthComparison != 0)
+                return lengthComparison;
+
+            return 0;
+        }
+
+        static string FormatTargets(ReadOnlySpan<DependencyNodeIR> targets)
+        {
+            if (targets.Length == 0)
+                return "<none>";
+
+            string[] parts = new string[targets.Length];
+            for (int index = 0; index < targets.Length; index++)
+                parts[index] = DescribeDependencyNode(targets[index]);
+
+            return string.Join(",", parts);
+        }
+
+        static string DescribeDependencyNode(DependencyNodeIR node)
+        {
+            switch (node.Kind)
+            {
+                case DependencyNodeKind.Scope:
+                    return "Scope:" + node.ScopePlanId.Value;
+
+                case DependencyNodeKind.Service:
+                    return "Service:" + node.ServiceId.Value;
+
+                case DependencyNodeKind.Command:
+                    return "Command:" + node.CommandTypeId.Value;
+
+                case DependencyNodeKind.ValueKey:
+                    return "ValueKey:" + node.ValueKeyId.Value;
+
+                case DependencyNodeKind.LifecycleStep:
+                    return "LifecycleStep:" + node.LifecycleStepId.Value;
+
+                case DependencyNodeKind.RuntimeQuery:
+                    return "RuntimeQuery:" + node.RuntimeQueryId.Value;
+
+                case DependencyNodeKind.Module:
+                    return "Module:" + node.ModuleId.Value;
+
+                default:
+                    return node.Kind + ":unknown";
+            }
         }
 
         static DependencyValidationIssue[] CloneIssues(IReadOnlyList<DependencyValidationIssue> source)
@@ -424,18 +985,6 @@ namespace Game.Kernel.Validation
                         break;
                     case ValidationSeverity.Warning:
                         warningCount++;
-                        break;
-                    case ValidationSeverity.Error:
-                        errorCount++;
-                        break;
-                    case ValidationSeverity.Fatal:
-                        fatalCount++;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(source), source[index].Severity, "Legacy migration reports must contain only defined severities.");
-                }
-            }
-
             return (infoCount, warningCount, errorCount, fatalCount);
         }
 

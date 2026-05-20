@@ -35,6 +35,17 @@ namespace Game.Kernel.IR
         Forbidden = 90,
     }
 
+    public enum LegacyAdapterSurface
+    {
+        None = 0,
+        Installer = 10,
+        Resolver = 20,
+        Command = 30,
+        Value = 40,
+        Lifecycle = 50,
+        Authoring = 60,
+    }
+
     public readonly struct ModuleVersion : IEquatable<ModuleVersion>
     {
         public ModuleVersion(int value)

@@ -351,6 +351,13 @@ namespace Game.Kernel.IR
                 writer.WriteInt(module.LegacyCompat != null ? (int)module.LegacyCompat.RemovalStatus : 0);
                 writer.WriteString(module.LegacyCompat?.DiagnosticsCode);
                 writer.WriteString(module.LegacyCompat?.RemovalCondition);
+                writer.WriteString(module.LegacyCompat?.TrackingIssueOrBlockingCondition);
+                writer.WriteInt(module.LegacyCompat != null ? (int)module.LegacyCompat.Surface : 0);
+                writer.WriteString(module.LegacyCompat?.LegacySourceType);
+                ReadOnlySpan<DependencyNodeIR> explicitTargets = module.LegacyCompat?.ExplicitTargets ?? ReadOnlySpan<DependencyNodeIR>.Empty;
+                writer.WriteInt(explicitTargets.Length);
+                for (int explicitTargetIndex = 0; explicitTargetIndex < explicitTargets.Length; explicitTargetIndex++)
+                    WriteDependencyNode(writer, explicitTargets[explicitTargetIndex]);
                 if (includeSourceData)
                     writer.WriteInt(module.Source.Value);
 
@@ -946,7 +953,7 @@ namespace Game.Kernel.IR
             if (legacyCompat == null)
                 return "<none>";
 
-            return "LegacyCompat(Kind=" + legacyCompat.Kind + ", LegacySystemName=" + SafeString(legacyCompat.LegacySystemName) + ", TargetSubsystem=" + SafeString(legacyCompat.TargetSubsystem) + ", Profiles=" + legacyCompat.Profiles + ", RemovalStatus=" + legacyCompat.RemovalStatus + ", DiagnosticsCode=" + SafeString(legacyCompat.DiagnosticsCode) + ", RemovalCondition=" + SafeString(legacyCompat.RemovalCondition) + ")";
+            return "LegacyCompat(Kind=" + legacyCompat.Kind + ", LegacySystemName=" + SafeString(legacyCompat.LegacySystemName) + ", TargetSubsystem=" + SafeString(legacyCompat.TargetSubsystem) + ", Profiles=" + legacyCompat.Profiles + ", RemovalStatus=" + legacyCompat.RemovalStatus + ", DiagnosticsCode=" + SafeString(legacyCompat.DiagnosticsCode) + ", RemovalCondition=" + SafeString(legacyCompat.RemovalCondition) + ", TrackingIssueOrBlockingCondition=" + SafeString(legacyCompat.TrackingIssueOrBlockingCondition) + ", Surface=" + legacyCompat.Surface + ", LegacySourceType=" + SafeString(legacyCompat.LegacySourceType) + ", ExplicitTargets=" + FormatDependencyNodes(legacyCompat.ExplicitTargets) + ")";
         }
 
         static string FormatModuleDependencies(ReadOnlySpan<ModuleDependencyIR> dependencies)

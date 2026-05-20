@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Kernel.Diagnostics;
 using Game.Kernel.IR;
 using Game.Kernel.Validation;
 using NUnit.Framework;
@@ -1188,7 +1189,159 @@ namespace TinnosukeGameLib.Tests.Editor
             DependencyValidationReport report = DependencyValidator.Validate(input);
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
-            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == "LEGACY_PROFILE_FORBIDDEN"));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.RuntimeAdapterReleaseForbidden));
+        }
+
+        [Test]
+        public void Validate_ReleaseRuntimeAdapterExplicitlyAllowedStillFails()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                selectedProfile: "Release",
+                modules: new[]
+                {
+                    CreateModule(10, 1, availability: new ModuleAvailabilityIR(new AvailabilityIR(KernelProfileMask.Release, true, null))),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, availability: new ModuleAvailabilityIR(new AvailabilityIR(KernelProfileMask.Release, true, null)), legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove before release", profiles: KernelProfileMask.Release)),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.RuntimeAdapterReleaseForbidden));
+        }
+
+        [Test]
+        public void Validate_ReleaseAuthoringMigrationRemainsVisible()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                selectedProfile: "Release",
+                modules: new[]
+                {
+                    CreateModule(10, 1, availability: new ModuleAvailabilityIR(new AvailabilityIR(KernelProfileMask.Release, true, null))),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, availability: new ModuleAvailabilityIR(new AvailabilityIR(KernelProfileMask.Release, true, null)), legacyCompat: CreateLegacyCompat(LegacyCompatKind.AuthoringMigration, diagnosticsCode: "LEGACY_BRIDGE_USED", removalPolicy: "Remove after authoring migration", surface: LegacyAdapterSurface.Authoring, legacySourceType: "UnityAuthoringBridge", profiles: KernelProfileMask.Release)),
+                },
+                scopes: new[]
+                {
+                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.PassedWithWarnings));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.BridgeUsed));
+            Assert.That(report.Issues, Has.None.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.RuntimeAdapterReleaseForbidden));
+        }
+
+        [Test]
+        public void Validate_RuntimeAdapterInDevelopmentIncludesRemovalPolicyTrackingMetadata()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration", surface: LegacyAdapterSurface.Resolver, legacySourceType: "RuntimeResolverHub")),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.PassedWithWarnings));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.RuntimeAdapterUsed));
+
+            DependencyValidationIssue issue = FindIssue(report.Issues, LegacyCompatBoundaryCodes.RuntimeAdapterUsed);
+            KernelDiagnostic diagnostic = issue.ToKernelDiagnostic();
+
+            Assert.That(FindPayloadValue(diagnostic, "RemovalPolicyReason"), Is.EqualTo("Legacy bridge declared in dependency input."));
+            Assert.That(FindPayloadValue(diagnostic, "RemovalPolicyTargetReplacement"), Is.EqualTo("ServiceGraph"));
+            Assert.That(FindPayloadValue(diagnostic, "TrackingIssueOrBlockingCondition"), Is.EqualTo("TICKET-1"));
+        }
+
+        [Test]
+        public void Validate_LegacyAdapterWithoutTrackingIssueFails()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration", surface: LegacyAdapterSurface.Resolver, legacySourceType: "RuntimeResolverHub", trackingIssueOrBlockingCondition: null)),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterTrackingMissing));
+        }
+
+        [Test]
+        public void Validate_ValueDataMigrationRemainsVisibleAndUsesExplicitValueTarget()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.DataMigration, diagnosticsCode: "LEGACY_VALUE_MIGRATION_USED", removalPolicy: "Remove after value migration", surface: LegacyAdapterSurface.Value, legacySourceType: "LegacyBlackboard", profiles: KernelProfileMask.Development | KernelProfileMask.Test)),
+                },
+                valueKeys: new[]
+                {
+                    CreateValueKey(201, "health.current", 10, 4),
+                    CreateValueKey(202, "legacy.health", 20, 8),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.PassedWithWarnings));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.BridgeUsed));
+            Assert.That(report.Issues, Has.None.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.RuntimeAdapterReleaseForbidden));
+        }
+
+        [Test]
+        public void Validate_DataMigrationOnResolverSurfaceIsRejected()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.DataMigration, diagnosticsCode: "LEGACY_VALUE_MIGRATION_USED", removalPolicy: "Remove after value migration", surface: LegacyAdapterSurface.Resolver, legacySourceType: "LegacyResolver", profiles: KernelProfileMask.Development | KernelProfileMask.Test)),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterKindSurfaceMismatch));
         }
 
         [Test]
@@ -1236,6 +1389,168 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void Validate_LegacyAdapterWithoutSurfaceFails()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration", surface: LegacyAdapterSurface.None, legacySourceType: "RuntimeResolverHub", explicitTargets: Array.Empty<DependencyNodeIR>())),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterSurfaceMissing));
+        }
+
+        [Test]
+        public void Validate_CommandSurfaceWithoutOwnedCommandFails()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration", surface: LegacyAdapterSurface.Command, legacySourceType: "LegacyCommandRunner", explicitTargets: new[] { new DependencyNodeIR(new CommandTypeId(601)) })),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                commands: new[]
+                {
+                    CreateCommand(501, 10, 6),
+                },
+                sources: CreateSources(10, 2, 8, 6));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterTargetMissing));
+        }
+
+        [Test]
+        public void Validate_CommandSurfaceWithOwnedCommandRemainsVisible()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration", surface: LegacyAdapterSurface.Command, legacySourceType: "LegacyCommandRunner", explicitTargets: new[] { new DependencyNodeIR(new CommandTypeId(601)) })),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                },
+                commands: new[]
+                {
+                    CreateCommand(501, 10, 6),
+                    CreateCommand(601, 20, 9),
+                },
+                sources: CreateSources(10, 2, 3, 6, 9));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.PassedWithWarnings));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.RuntimeAdapterUsed));
+            Assert.That(report.Issues, Has.None.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterTargetMissing));
+        }
+
+        [Test]
+        public void Validate_CommandSurfaceWithWrongExplicitCommandFails()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration", surface: LegacyAdapterSurface.Command, legacySourceType: "LegacyCommandRunner", explicitTargets: new[] { new DependencyNodeIR(new CommandTypeId(777)) })),
+                },
+                commands: new[]
+                {
+                    CreateCommand(501, 10, 6),
+                    CreateCommand(601, 20, 9),
+                },
+                sources: CreateSources(10, 2, 6, 9));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterTargetMissing));
+        }
+
+        [Test]
+        public void Validate_ResolverSurfaceWithServiceTargetRemainsVisible()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration", surface: LegacyAdapterSurface.Resolver, legacySourceType: "RuntimeResolverHub", explicitTargets: new[] { new DependencyNodeIR(new ServiceId(201)) })),
+                },
+                services: new[]
+                {
+                    CreateService(101, 10, 3),
+                    CreateService(201, 20, 8),
+                },
+                sources: CreateSources(10, 2, 3, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.PassedWithWarnings));
+            Assert.That(report.Issues, Has.None.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterTargetMissing));
+        }
+
+        [Test]
+        public void Validate_InstallerSurfaceRejectsRuntimeAdapterKind()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.RuntimeAdapter, diagnosticsCode: "LEGACY_RUNTIME_ADAPTER_USED", removalPolicy: "Remove after migration", surface: LegacyAdapterSurface.Installer, legacySourceType: "ScopeFeatureInstallerUtility", explicitTargets: new[] { new DependencyNodeIR(new ScopePlanId(200)) })),
+                },
+                scopes: new[]
+                {
+                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterKindSurfaceMismatch));
+        }
+
+        [Test]
+        public void Validate_AuthoringSurfaceWithExplicitScopeTargetRemainsVisible()
+        {
+            DependencyValidationInput input = CreateBaselineInput(
+                modules: new[]
+                {
+                    CreateModule(10, 1),
+                    CreateModule(20, 2, kind: ModuleKind.MigrationAdapter, legacyCompat: CreateLegacyCompat(LegacyCompatKind.AuthoringMigration, diagnosticsCode: "LEGACY_BRIDGE_USED", removalPolicy: "Remove after authoring migration", surface: LegacyAdapterSurface.Authoring, legacySourceType: "UnityAuthoringBridge", explicitTargets: new[] { new DependencyNodeIR(new ScopePlanId(200)) })),
+                },
+                scopes: new[]
+                {
+                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                },
+                sources: CreateSources(10, 2, 8));
+
+            DependencyValidationReport report = DependencyValidator.Validate(input);
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.PassedWithWarnings));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.BridgeUsed));
+            Assert.That(report.Issues, Has.None.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.AdapterTargetMissing));
+        }
+
+        [Test]
         public void Validate_NonAdapterOwningLegacySourceFails()
         {
             DependencyValidationInput input = CreateBaselineInput(
@@ -1252,7 +1567,7 @@ namespace TinnosukeGameLib.Tests.Editor
             DependencyValidationReport report = DependencyValidator.Validate(input);
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
-            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == "LEGACY_RESOLVER_COMPONENT_FALLBACK_FORBIDDEN"));
+            Assert.That(report.Issues, Has.Some.Matches<DependencyValidationIssue>(issue => issue.Code == LegacyCompatBoundaryCodes.ResolverComponentFallbackForbidden));
         }
 
         [Test]
@@ -1416,16 +1731,71 @@ namespace TinnosukeGameLib.Tests.Editor
             legacyCompat);
         }
 
-        static LegacyCompatDescriptorIR CreateLegacyCompat(LegacyCompatKind kind, string? diagnosticsCode, string? removalPolicy)
+        static LegacyCompatDescriptorIR CreateLegacyCompat(LegacyCompatKind kind, string? diagnosticsCode, string? removalPolicy, LegacyAdapterSurface surface = LegacyAdapterSurface.Resolver, string? legacySourceType = "RuntimeResolverHub", DependencyNodeIR[]? explicitTargets = null, KernelProfileMask profiles = KernelProfileMask.Development | KernelProfileMask.Test, string? trackingIssueOrBlockingCondition = "TICKET-1")
         {
             return new LegacyCompatDescriptorIR(
                 kind,
                 "LegacySystem",
                 "ServiceGraph",
-                KernelProfileMask.Development | KernelProfileMask.Test,
+            profiles,
                 LegacyRemovalStatus.Temporary,
                 diagnosticsCode,
-            removalPolicy);
+                removalPolicy,
+                trackingIssueOrBlockingCondition,
+                surface,
+                legacySourceType,
+                explicitTargets ?? CreateDefaultExplicitTargets(surface));
+        }
+
+        static string? FindPayloadValue(KernelDiagnostic diagnostic, string key)
+        {
+            for (int index = 0; index < diagnostic.Payload.Entries.Count; index++)
+            {
+                DiagnosticPayloadEntry entry = diagnostic.Payload.Entries[index];
+                if (string.Equals(entry.Key, key, StringComparison.Ordinal))
+                    return entry.Value.ToString();
+            }
+
+            return null;
+        }
+
+        static DependencyValidationIssue FindIssue(IReadOnlyList<DependencyValidationIssue> issues, string code)
+        {
+            for (int index = 0; index < issues.Count; index++)
+            {
+                if (string.Equals(issues[index].Code, code, StringComparison.Ordinal))
+                    return issues[index];
+            }
+
+            throw new AssertionException("Expected validation issue with code '" + code + "'.");
+        }
+
+        static DependencyNodeIR[] CreateDefaultExplicitTargets(LegacyAdapterSurface surface)
+        {
+            switch (surface)
+            {
+                case LegacyAdapterSurface.None:
+                    return Array.Empty<DependencyNodeIR>();
+
+                case LegacyAdapterSurface.Installer:
+                case LegacyAdapterSurface.Authoring:
+                    return new[] { new DependencyNodeIR(new ScopePlanId(200)) };
+
+                case LegacyAdapterSurface.Resolver:
+                    return new[] { new DependencyNodeIR(new ServiceId(201)) };
+
+                case LegacyAdapterSurface.Command:
+                    return new[] { new DependencyNodeIR(new CommandTypeId(601)) };
+
+                case LegacyAdapterSurface.Value:
+                    return new[] { new DependencyNodeIR(new ValueKeyId(202)) };
+
+                case LegacyAdapterSurface.Lifecycle:
+                    return new[] { new DependencyNodeIR(new LifecycleStepId(402)) };
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(surface), surface, "Unsupported legacy adapter surface.");
+            }
         }
 
         static ScopeIR CreateScope(

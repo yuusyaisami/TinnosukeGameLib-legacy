@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using Game.Kernel.Diagnostics;
 
 namespace Game.Kernel.IR
 {
@@ -66,6 +67,23 @@ namespace Game.Kernel.IR
 
         public string TrackingIssueOrBlockingCondition { get; }
 
+        public bool IsExpired => Status == LegacyRemovalStatus.Deprecated || Status == LegacyRemovalStatus.Forbidden;
+
+        public DiagnosticPayloadEntry[] ToDiagnosticPayloadEntries()
+        {
+            return new[]
+            {
+                new DiagnosticPayloadEntry("RemovalPolicyOwnerModule", DiagnosticPayloadValue.FromInt32(OwnerModule.Value)),
+                new DiagnosticPayloadEntry("RemovalPolicyStatus", DiagnosticPayloadValue.FromString(Status.ToString())),
+                new DiagnosticPayloadEntry("RemovalPolicyAllowedProfiles", DiagnosticPayloadValue.FromString(AllowedProfiles.ToString())),
+                new DiagnosticPayloadEntry("RemovalPolicyReason", DiagnosticPayloadValue.FromString(Reason)),
+                new DiagnosticPayloadEntry("RemovalPolicyTargetReplacement", DiagnosticPayloadValue.FromString(TargetReplacement)),
+                new DiagnosticPayloadEntry("RemovalPolicyExpirationCondition", DiagnosticPayloadValue.FromString(ExpirationCondition)),
+                new DiagnosticPayloadEntry("RemovalPolicyDiagnosticsCode", DiagnosticPayloadValue.FromString(DiagnosticsCode)),
+                new DiagnosticPayloadEntry("RemovalPolicyTrackingIssueOrBlockingCondition", DiagnosticPayloadValue.FromString(TrackingIssueOrBlockingCondition)),
+            };
+        }
+
         public bool Allows(KernelProfileMask profileMask)
         {
             return (AllowedProfiles & profileMask) != KernelProfileMask.None;
@@ -74,14 +92,19 @@ namespace Game.Kernel.IR
 
     public sealed class LegacyAdapterDescriptor
     {
+        readonly DependencyNodeIR[] explicitTargets;
+
         public LegacyAdapterDescriptor(
             LegacyCompatKind kind,
             ModuleId ownerModule,
             string legacySystemName,
+            string legacySourceType,
             string targetSubsystemName,
+            LegacyAdapterSurface surface,
             KernelProfileMask profiles,
             SourceLocationId source,
-            LegacyRemovalPolicy removalPolicy)
+            LegacyRemovalPolicy removalPolicy,
+            DependencyNodeIR[]? explicitTargets = null)
         {
             if (kind == LegacyCompatKind.None)
                 throw new ArgumentException("Legacy adapter descriptors must provide a bridge kind.", nameof(kind));
@@ -92,8 +115,14 @@ namespace Game.Kernel.IR
             if (string.IsNullOrWhiteSpace(legacySystemName))
                 throw new ArgumentException("Legacy adapter descriptors must provide a legacy system name.", nameof(legacySystemName));
 
+            if (string.IsNullOrWhiteSpace(legacySourceType))
+                throw new ArgumentException("Legacy adapter descriptors must provide a legacy source type.", nameof(legacySourceType));
+
             if (string.IsNullOrWhiteSpace(targetSubsystemName))
                 throw new ArgumentException("Legacy adapter descriptors must provide a target subsystem name.", nameof(targetSubsystemName));
+
+            if (surface == LegacyAdapterSurface.None)
+                throw new ArgumentException("Legacy adapter descriptors must provide a compatibility surface.", nameof(surface));
 
             if (profiles == KernelProfileMask.None)
                 throw new ArgumentException("Legacy adapter descriptors must declare at least one allowed profile.", nameof(profiles));
@@ -113,10 +142,17 @@ namespace Game.Kernel.IR
             if (kind == LegacyCompatKind.ForbiddenFallback && removalPolicy.Status != LegacyRemovalStatus.Forbidden)
                 throw new ArgumentException("Forbidden fallback adapters must use a forbidden removal policy.", nameof(removalPolicy));
 
+            this.explicitTargets = CloneExplicitTargets(explicitTargets);
+
+            if (this.explicitTargets.Length == 0)
+                throw new ArgumentException("Legacy adapter descriptors must declare explicit target nodes.", nameof(explicitTargets));
+
             Kind = kind;
             OwnerModule = ownerModule;
             LegacySystemName = legacySystemName;
+            LegacySourceType = legacySourceType;
             TargetSubsystemName = targetSubsystemName;
+            Surface = surface;
             Source = source;
             RemovalPolicy = removalPolicy;
         }
@@ -127,7 +163,11 @@ namespace Game.Kernel.IR
 
         public string LegacySystemName { get; }
 
+        public string LegacySourceType { get; }
+
         public string TargetSubsystemName { get; }
+
+        public LegacyAdapterSurface Surface { get; }
 
         public KernelProfileMask Profiles => RemovalPolicy.AllowedProfiles;
 
@@ -139,7 +179,11 @@ namespace Game.Kernel.IR
 
         public string DiagnosticsCode => RemovalPolicy.DiagnosticsCode;
 
-        public string RemovalCondition => RemovalPolicy.TrackingIssueOrBlockingCondition;
+        public string RemovalCondition => RemovalPolicy.ExpirationCondition;
+
+        public string TrackingIssueOrBlockingCondition => RemovalPolicy.TrackingIssueOrBlockingCondition;
+
+        public ReadOnlySpan<DependencyNodeIR> ExplicitTargets => explicitTargets;
 
         public bool IsRuntimeCapable => Kind == LegacyCompatKind.RuntimeAdapter
             || Kind == LegacyCompatKind.TemporaryBridge
@@ -148,6 +192,23 @@ namespace Game.Kernel.IR
         public bool IsAllowedFor(KernelProfileMask profileMask)
         {
             return RemovalPolicy.Allows(profileMask);
+        }
+
+        static DependencyNodeIR[] CloneExplicitTargets(DependencyNodeIR[]? source)
+        {
+            if (source == null || source.Length == 0)
+                return Array.Empty<DependencyNodeIR>();
+
+            DependencyNodeIR[] clone = new DependencyNodeIR[source.Length];
+            for (int index = 0; index < source.Length; index++)
+            {
+                if (source[index].Kind == DependencyNodeKind.Unknown)
+                    throw new ArgumentException("Legacy adapter explicit targets must not contain unknown dependency nodes.", nameof(source));
+
+                clone[index] = source[index];
+            }
+
+            return clone;
         }
     }
 }

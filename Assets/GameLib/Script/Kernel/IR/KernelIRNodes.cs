@@ -102,6 +102,8 @@ namespace Game.Kernel.IR
 
     public sealed class LegacyCompatDescriptorIR
     {
+        readonly DependencyNodeIR[] explicitTargets;
+
         public LegacyCompatDescriptorIR(
             LegacyCompatKind kind,
             string legacySystemName,
@@ -109,7 +111,11 @@ namespace Game.Kernel.IR
             KernelProfileMask profiles,
             LegacyRemovalStatus removalStatus,
             string? diagnosticsCode = null,
-            string? removalCondition = null)
+            string? removalCondition = null,
+            string? trackingIssueOrBlockingCondition = null,
+            LegacyAdapterSurface surface = LegacyAdapterSurface.None,
+            string? legacySourceType = null,
+            DependencyNodeIR[]? explicitTargets = null)
         {
             if (kind == LegacyCompatKind.None)
                 throw new ArgumentException("Legacy compatibility descriptors must provide a bridge kind.", nameof(kind));
@@ -132,6 +138,17 @@ namespace Game.Kernel.IR
             if (removalCondition != null && string.IsNullOrWhiteSpace(removalCondition))
                 throw new ArgumentException("Legacy compatibility removal conditions must be null or non-empty.", nameof(removalCondition));
 
+            if (trackingIssueOrBlockingCondition != null && string.IsNullOrWhiteSpace(trackingIssueOrBlockingCondition))
+                throw new ArgumentException("Legacy compatibility tracking issue or blocking conditions must be null or non-empty.", nameof(trackingIssueOrBlockingCondition));
+
+            if (legacySourceType != null && string.IsNullOrWhiteSpace(legacySourceType))
+                throw new ArgumentException("Legacy compatibility source types must be null or non-empty.", nameof(legacySourceType));
+
+            this.explicitTargets = CloneExplicitTargets(explicitTargets);
+
+            if (surface != LegacyAdapterSurface.None && this.explicitTargets.Length == 0)
+                throw new ArgumentException("Legacy compatibility descriptors with a classified surface must declare explicit target nodes.", nameof(explicitTargets));
+
             Kind = kind;
             LegacySystemName = legacySystemName;
             TargetSubsystem = targetSubsystem;
@@ -139,6 +156,9 @@ namespace Game.Kernel.IR
             RemovalStatus = removalStatus;
             DiagnosticsCode = diagnosticsCode;
             RemovalCondition = removalCondition;
+            TrackingIssueOrBlockingCondition = trackingIssueOrBlockingCondition;
+            Surface = surface;
+            LegacySourceType = legacySourceType;
         }
 
         public LegacyCompatKind Kind { get; }
@@ -154,6 +174,31 @@ namespace Game.Kernel.IR
         public string? DiagnosticsCode { get; }
 
         public string? RemovalCondition { get; }
+
+        public string? TrackingIssueOrBlockingCondition { get; }
+
+        public LegacyAdapterSurface Surface { get; }
+
+        public string? LegacySourceType { get; }
+
+        public ReadOnlySpan<DependencyNodeIR> ExplicitTargets => explicitTargets;
+
+        static DependencyNodeIR[] CloneExplicitTargets(DependencyNodeIR[]? source)
+        {
+            if (source == null || source.Length == 0)
+                return Array.Empty<DependencyNodeIR>();
+
+            DependencyNodeIR[] clone = new DependencyNodeIR[source.Length];
+            for (int index = 0; index < source.Length; index++)
+            {
+                if (source[index].Kind == DependencyNodeKind.Unknown)
+                    throw new ArgumentException("Legacy compatibility explicit targets must not contain unknown dependency nodes.", nameof(source));
+
+                clone[index] = source[index];
+            }
+
+            return clone;
+        }
     }
 
     public sealed class ModuleIR

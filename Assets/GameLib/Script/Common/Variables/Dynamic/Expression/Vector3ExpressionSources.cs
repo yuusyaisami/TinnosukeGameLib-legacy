@@ -671,7 +671,7 @@ namespace Game.Common
                 _compiledX = null;
                 _compiledY = null;
                 _compiledZ = null;
-                    _allowTrackedEvaluation = false;
+                _allowTrackedEvaluation = false;
                 return false;
             }
 
@@ -682,7 +682,7 @@ namespace Game.Common
                 _compiledX = null;
                 _compiledY = null;
                 _compiledZ = null;
-                    _allowTrackedEvaluation = false;
+                _allowTrackedEvaluation = false;
                 return false;
             }
 

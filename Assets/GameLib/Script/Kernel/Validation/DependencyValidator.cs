@@ -2512,7 +2512,8 @@ namespace Game.Kernel.Validation
 
         static bool RequiresRemovalCondition(LegacyCompatKind kind)
         {
-            return kind == LegacyCompatKind.RuntimeAdapter
+            return kind == LegacyCompatKind.DataMigration
+                || kind == LegacyCompatKind.RuntimeAdapter
                 || kind == LegacyCompatKind.TemporaryBridge
                 || kind == LegacyCompatKind.TestAdapter;
         }
@@ -2578,7 +2579,7 @@ namespace Game.Kernel.Validation
             if (!context.TryGetModule(ownerModule, out ModuleIR module) || module.LegacyCompat == null)
                 return CreateIssue(code, severity, from, to, ownerModule, source, context.Input.SelectedProfile, message, suggestedFix);
 
-            List<DiagnosticPayloadEntry> payloadEntries = new List<DiagnosticPayloadEntry>(7)
+            List<DiagnosticPayloadEntry> payloadEntries = new List<DiagnosticPayloadEntry>(9)
             {
                 new DiagnosticPayloadEntry("LegacySystemName", DiagnosticPayloadValue.FromString(module.LegacyCompat.LegacySystemName)),
                 new DiagnosticPayloadEntry("BridgeKind", DiagnosticPayloadValue.FromString(module.LegacyCompat.Kind.ToString())),
@@ -2587,11 +2588,20 @@ namespace Game.Kernel.Validation
                 new DiagnosticPayloadEntry("RemovalStatus", DiagnosticPayloadValue.FromString(module.LegacyCompat.RemovalStatus.ToString())),
             };
 
+            if (module.LegacyCompat.Surface != LegacyAdapterSurface.None)
+                payloadEntries.Add(new DiagnosticPayloadEntry("AdapterSurface", DiagnosticPayloadValue.FromString(module.LegacyCompat.Surface.ToString())));
+
+            if (!string.IsNullOrWhiteSpace(module.LegacyCompat.LegacySourceType))
+                payloadEntries.Add(new DiagnosticPayloadEntry("LegacySourceType", DiagnosticPayloadValue.FromString(module.LegacyCompat.LegacySourceType)));
+
             if (!string.IsNullOrWhiteSpace(module.LegacyCompat.DiagnosticsCode))
                 payloadEntries.Add(new DiagnosticPayloadEntry("LegacyDiagnosticsCode", DiagnosticPayloadValue.FromString(module.LegacyCompat.DiagnosticsCode)));
 
             if (!string.IsNullOrWhiteSpace(module.LegacyCompat.RemovalCondition))
                 payloadEntries.Add(new DiagnosticPayloadEntry("RemovalCondition", DiagnosticPayloadValue.FromString(module.LegacyCompat.RemovalCondition)));
+
+            if (!string.IsNullOrWhiteSpace(module.LegacyCompat.TrackingIssueOrBlockingCondition))
+                payloadEntries.Add(new DiagnosticPayloadEntry("TrackingIssueOrBlockingCondition", DiagnosticPayloadValue.FromString(module.LegacyCompat.TrackingIssueOrBlockingCondition)));
 
             return CreateIssue(code, severity, from, to, ownerModule, source, context.Input.SelectedProfile, message, suggestedFix, payloadEntries.ToArray());
         }
@@ -2611,7 +2621,7 @@ namespace Game.Kernel.Validation
                 case DependencyNodeKind.RuntimeQuery:
                     return "LEGACY_RUNTIME_QUERY_LEGACY_LOOKUP_FORBIDDEN";
                 case DependencyNodeKind.Service:
-                    return "LEGACY_RESOLVER_COMPONENT_FALLBACK_FORBIDDEN";
+                    return LegacyCompatBoundaryCodes.ResolverComponentFallbackForbidden;
                 default:
                     return "LEGACY_MIGRATION_REQUIRED";
             }
@@ -2632,7 +2642,7 @@ namespace Game.Kernel.Validation
                 case DependencyNodeKind.Scope:
                     return "LEGACY_INSTALLER_DISCOVERY_FORBIDDEN";
                 case DependencyNodeKind.Service:
-                    return "LEGACY_RESOLVER_COMPONENT_FALLBACK_FORBIDDEN";
+                    return LegacyCompatBoundaryCodes.ResolverComponentFallbackForbidden;
                 default:
                     return "LEGACY_CORE_DEPENDENCY_FORBIDDEN";
             }

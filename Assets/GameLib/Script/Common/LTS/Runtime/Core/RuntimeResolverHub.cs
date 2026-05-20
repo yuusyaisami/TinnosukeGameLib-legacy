@@ -69,17 +69,10 @@ namespace Game
     {
         readonly List<RuntimeRegistration> _registrations = new(64);
         readonly List<Action<IRuntimeResolver>> _buildCallbacks = new(8);
-        IRuntimeResolver? _parentResolver;
         IScopeNode? _hostScope;
 
         public IReadOnlyList<RuntimeRegistration> Registrations => _registrations;
-        public IRuntimeResolver? ParentResolver => _parentResolver;
         public IScopeNode? HostScope => _hostScope;
-
-        public void SetParentResolver(IRuntimeResolver? parent)
-        {
-            _parentResolver = parent;
-        }
 
         public void SetHostScope(IScopeNode? host)
         {
@@ -209,7 +202,7 @@ namespace Game
 
         public IRuntimeResolver Build()
         {
-            var resolver = new RuntimeResolver(_registrations, _parentResolver, _hostScope);
+            var resolver = new RuntimeResolver(_registrations, _hostScope);
             for (int i = 0; i < _buildCallbacks.Count; i++)
             {
                 _buildCallbacks[i](resolver);
@@ -307,7 +300,6 @@ namespace Game
         readonly Dictionary<RuntimeRegistration, object?> _singletonCache = new(ReferenceEqualityComparer<RuntimeRegistration>.Instance);
         readonly Dictionary<RuntimeRegistration, object?> _scopedCache = new(ReferenceEqualityComparer<RuntimeRegistration>.Instance);
         readonly Dictionary<Type, object?> _resolvedTypeCache = new(128);
-        readonly IRuntimeResolver? _parentResolver;
         readonly IScopeNode? _hostScope;
         bool _disposed;
 
@@ -319,7 +311,6 @@ namespace Game
 
         public RuntimeResolver(
             IReadOnlyList<RuntimeRegistration> registrations,
-            IRuntimeResolver? parentResolver,
             IScopeNode? hostScope)
         {
             if (registrations == null)
@@ -342,7 +333,6 @@ namespace Game
                     _singletonCache[reg] = reg.Instance;
             }
 
-            _parentResolver = parentResolver;
             _hostScope = hostScope;
         }
 
@@ -404,7 +394,7 @@ namespace Game
                 return true;
             }
 
-            if (_hostScope != null && type.IsInstanceOfType(_hostScope))
+            if (_hostScope != null && (type == typeof(IScopeNode) || type == _hostScope.GetType()))
             {
                 instance = _hostScope;
                 return true;
@@ -415,7 +405,7 @@ namespace Game
 
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IReadOnlyList<>))
             {
-                instance = CollectAll(type.GetGenericArguments()[0], includeParent: true);
+                instance = CollectAll(type.GetGenericArguments()[0]);
                 _resolvedTypeCache[type] = instance;
                 return true;
             }
@@ -426,20 +416,6 @@ namespace Game
                 instance = CreateInstance(reg, type);
                 return instance != null;
             }
-
-            if (_hostScope is Component component && typeof(Component).IsAssignableFrom(type))
-            {
-                var found = component.GetComponent(type) ?? component.GetComponentInChildren(type, includeInactive: true);
-                if (found != null)
-                {
-                    instance = found;
-                    _resolvedTypeCache[type] = instance;
-                    return true;
-                }
-            }
-
-            if (_parentResolver != null && _parentResolver.TryResolve(type, out instance))
-                return true;
 
             instance = null;
             return false;
@@ -458,7 +434,7 @@ namespace Game
                 return true;
             }
 
-            if (_hostScope != null && type.IsInstanceOfType(_hostScope))
+            if (_hostScope != null && (type == typeof(IScopeNode) || type == _hostScope.GetType()))
             {
                 instance = _hostScope;
                 return true;
@@ -466,7 +442,7 @@ namespace Game
 
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IReadOnlyList<>))
             {
-                instance = CollectAll(type.GetGenericArguments()[0], includeParent: false);
+                instance = CollectAll(type.GetGenericArguments()[0]);
                 return true;
             }
 
@@ -474,12 +450,6 @@ namespace Game
             {
                 var reg = registrations[registrations.Count - 1];
                 instance = CreateInstance(reg, type);
-                return instance != null;
-            }
-
-            if (_hostScope is Component component && typeof(Component).IsAssignableFrom(type))
-            {
-                instance = component.GetComponent(type) ?? component.GetComponentInChildren(type, includeInactive: true);
                 return instance != null;
             }
 
@@ -626,18 +596,6 @@ namespace Game
             if (TryResolve(parameter.ParameterType, out value))
                 return true;
 
-            if (parameter.HasDefaultValue)
-            {
-                value = parameter.DefaultValue;
-                return true;
-            }
-
-            if (!parameter.ParameterType.IsValueType || Nullable.GetUnderlyingType(parameter.ParameterType) != null)
-            {
-                value = null;
-                return true;
-            }
-
             value = null;
             return false;
         }
@@ -668,7 +626,7 @@ namespace Game
             }
         }
 
-        object CollectAll(Type elementType, bool includeParent)
+            object CollectAll(Type elementType)
         {
             var listType = typeof(List<>).MakeGenericType(elementType);
             var list = (IList?)Activator.CreateInstance(listType);
@@ -687,19 +645,6 @@ namespace Game
                     continue;
 
                 list.Add(instance);
-            }
-
-            if (includeParent &&
-                _parentResolver != null &&
-                _parentResolver.TryResolve(typeof(IReadOnlyList<>).MakeGenericType(elementType), out var parentList) &&
-                parentList is IEnumerable enumerable)
-            {
-                foreach (var item in enumerable)
-                {
-                    if (item == null || !seen.Add(item))
-                        continue;
-                    list.Add(item);
-                }
             }
 
             return list;

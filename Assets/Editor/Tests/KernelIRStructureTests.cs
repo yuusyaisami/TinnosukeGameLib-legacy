@@ -69,6 +69,12 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That((int)LegacyRemovalStatus.TestOnly, Is.EqualTo(30));
             Assert.That((int)LegacyRemovalStatus.Deprecated, Is.EqualTo(40));
             Assert.That((int)LegacyRemovalStatus.Forbidden, Is.EqualTo(90));
+            Assert.That((int)LegacyAdapterSurface.Installer, Is.EqualTo(10));
+            Assert.That((int)LegacyAdapterSurface.Resolver, Is.EqualTo(20));
+            Assert.That((int)LegacyAdapterSurface.Command, Is.EqualTo(30));
+            Assert.That((int)LegacyAdapterSurface.Value, Is.EqualTo(40));
+            Assert.That((int)LegacyAdapterSurface.Lifecycle, Is.EqualTo(50));
+            Assert.That((int)LegacyAdapterSurface.Authoring, Is.EqualTo(60));
             Assert.That((int)ScopeServiceBoundaryKind.Detached, Is.EqualTo(10));
             Assert.That((int)ScopeServiceBoundaryKind.OwnedLocal, Is.EqualTo(20));
             Assert.That((int)ScopeServiceBoundaryKind.ReferencesParent, Is.EqualTo(30));
@@ -455,7 +461,11 @@ namespace TinnosukeGameLib.Tests.Editor
                 KernelProfileMask.Development | KernelProfileMask.Test,
                 LegacyRemovalStatus.Temporary,
                 "LEGACY_RUNTIME_ADAPTER_USED",
-                "Remove after migration");
+                "Remove after migration",
+                "TICKET-1",
+                surface: LegacyAdapterSurface.Resolver,
+                legacySourceType: "RuntimeResolverHub",
+                explicitTargets: new[] { new DependencyNodeIR(new ServiceId(201)) });
 
             ModuleIR module = new ModuleIR(
                 new ModuleId(5),
@@ -471,6 +481,11 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(module.LegacyCompat.LegacySystemName, Is.EqualTo("LegacySystem"));
             Assert.That(module.LegacyCompat.DiagnosticsCode, Is.EqualTo("LEGACY_RUNTIME_ADAPTER_USED"));
             Assert.That(module.LegacyCompat.RemovalCondition, Is.EqualTo("Remove after migration"));
+            Assert.That(module.LegacyCompat.TrackingIssueOrBlockingCondition, Is.EqualTo("TICKET-1"));
+            Assert.That(module.LegacyCompat.Surface, Is.EqualTo(LegacyAdapterSurface.Resolver));
+            Assert.That(module.LegacyCompat.LegacySourceType, Is.EqualTo("RuntimeResolverHub"));
+            Assert.That(module.LegacyCompat.ExplicitTargets.Length, Is.EqualTo(1));
+            Assert.That(module.LegacyCompat.ExplicitTargets[0], Is.EqualTo(new DependencyNodeIR(new ServiceId(201))));
         }
 
         [Test]

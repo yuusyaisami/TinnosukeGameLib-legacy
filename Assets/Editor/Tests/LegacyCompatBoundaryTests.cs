@@ -45,10 +45,69 @@ namespace TinnosukeGameLib.Tests.Editor
                     LegacyCompatKind.RuntimeAdapter,
                     new ModuleId(10),
                     "LegacySystem",
+                    "RuntimeResolverHub",
                     "TargetSubsystem",
+                    LegacyAdapterSurface.Resolver,
                     KernelProfileMask.Release,
                     new SourceLocationId(5),
-                    policy),
+                    policy,
+                    new[] { new DependencyNodeIR(new ServiceId(101)) }),
+                Throws.ArgumentException);
+        }
+
+        [Test]
+        public void LegacyAdapterDescriptor_RejectsMissingSurfaceMetadata()
+        {
+            LegacyRemovalPolicy policy = new LegacyRemovalPolicy(
+                new ModuleId(10),
+                LegacyRemovalStatus.Temporary,
+                KernelProfileMask.Development,
+                "legacy shim remains in development",
+                "TargetSubsystem",
+                "remove after migration",
+                "LEGACY_RUNTIME_ADAPTER_USED",
+                "TICKET-1");
+
+            Assert.That(
+                () => new LegacyAdapterDescriptor(
+                    LegacyCompatKind.RuntimeAdapter,
+                    new ModuleId(10),
+                    "LegacySystem",
+                    string.Empty,
+                    "TargetSubsystem",
+                    LegacyAdapterSurface.None,
+                    KernelProfileMask.Development,
+                    new SourceLocationId(5),
+                    policy,
+                    Array.Empty<DependencyNodeIR>()),
+                Throws.ArgumentException);
+        }
+
+        [Test]
+        public void LegacyAdapterDescriptor_RejectsMissingExplicitTargets()
+        {
+            LegacyRemovalPolicy policy = new LegacyRemovalPolicy(
+                new ModuleId(10),
+                LegacyRemovalStatus.Temporary,
+                KernelProfileMask.Development,
+                "legacy shim remains in development",
+                "TargetSubsystem",
+                "remove after migration",
+                "LEGACY_RUNTIME_ADAPTER_USED",
+                "TICKET-1");
+
+            Assert.That(
+                () => new LegacyAdapterDescriptor(
+                    LegacyCompatKind.RuntimeAdapter,
+                    new ModuleId(10),
+                    "LegacySystem",
+                    "RuntimeResolverHub",
+                    "TargetSubsystem",
+                    LegacyAdapterSurface.Resolver,
+                    KernelProfileMask.Development,
+                    new SourceLocationId(5),
+                    policy,
+                    Array.Empty<DependencyNodeIR>()),
                 Throws.ArgumentException);
         }
 
@@ -72,6 +131,69 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(report.Issues[0].Code, Is.EqualTo(LegacyCompatBoundaryCodes.RuntimeAdapterUsed));
             Assert.That(report.ToKernelDiagnostics(), Has.Length.EqualTo(1));
             Assert.That(report.ToKernelDiagnostics()[0].Domain, Is.EqualTo(DiagnosticDomain.LegacyCompat));
+        }
+
+        [Test]
+        public void LegacyMigrationReport_TracksRemovalPolicyMetadataInDiagnostics()
+        {
+            LegacyAdapterDescriptor descriptor = CreateRuntimeAdapterDescriptor(
+                profiles: KernelProfileMask.Development,
+                status: LegacyRemovalStatus.Temporary);
+
+            LegacyMigrationReport report = LegacyMigrationReport.Validate(
+                new LegacyMigrationReportHeader("LegacyCompatBoundary", 1, "TargetSubsystem", ValidationPhase.Build, "Development", KernelProfileMask.Development),
+                new[] { descriptor });
+
+            Assert.That(report.RemovalPolicies, Has.Count.EqualTo(1));
+            Assert.That(report.RemovalPolicies[0].IsExpired, Is.False);
+            Assert.That(report.RemovalPolicies[0].TrackingIssueOrBlockingCondition, Is.EqualTo("TICKET-1"));
+
+            KernelDiagnostic diagnostic = report.Issues[0].ToKernelDiagnostic();
+
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyOwnerModule"), Is.EqualTo("10"));
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyStatus"), Is.EqualTo(LegacyRemovalStatus.Temporary.ToString()));
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyReason"), Is.EqualTo("legacy shim remains in development"));
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyTargetReplacement"), Is.EqualTo("TargetSubsystem"));
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyExpirationCondition"), Is.EqualTo("remove after migration"));
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyDiagnosticsCode"), Is.EqualTo(LegacyCompatBoundaryCodes.RuntimeAdapterUsed));
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyTrackingIssueOrBlockingCondition"), Is.EqualTo("TICKET-1"));
+        }
+
+        [Test]
+        public void LegacyMigrationReport_RejectsExpiredAdapter()
+        {
+            LegacyAdapterDescriptor descriptor = CreateRuntimeAdapterDescriptor(
+                profiles: KernelProfileMask.Development,
+                status: LegacyRemovalStatus.Deprecated);
+
+            LegacyMigrationReport report = LegacyMigrationReport.Validate(
+                new LegacyMigrationReportHeader("LegacyCompatBoundary", 1, "TargetSubsystem", ValidationPhase.Build, "Development", KernelProfileMask.Development),
+                new[] { descriptor });
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.RemovalPolicies, Has.Count.EqualTo(1));
+            Assert.That(report.RemovalPolicies[0].IsExpired, Is.True);
+            Assert.That(report.Issues[0].Code, Is.EqualTo(LegacyCompatBoundaryCodes.AdapterExpired));
+
+            KernelDiagnostic diagnostic = report.Issues[0].ToKernelDiagnostic();
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyStatus"), Is.EqualTo(LegacyRemovalStatus.Deprecated.ToString()));
+            Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyTrackingIssueOrBlockingCondition"), Is.EqualTo("TICKET-1"));
+        }
+
+        [Test]
+        public void LegacyMigrationReport_RejectsRuntimeAdapterInRelease()
+        {
+            LegacyAdapterDescriptor descriptor = CreateRuntimeAdapterDescriptor(
+                profiles: KernelProfileMask.Release,
+                status: LegacyRemovalStatus.Temporary);
+
+            LegacyMigrationReport report = LegacyMigrationReport.Validate(
+                new LegacyMigrationReportHeader("LegacyCompatBoundary", 1, "TargetSubsystem", ValidationPhase.Build, "Release", KernelProfileMask.Release),
+                new[] { descriptor });
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
+            Assert.That(report.ErrorCount, Is.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo(LegacyCompatBoundaryCodes.RuntimeAdapterReleaseForbidden));
         }
 
         [Test]
@@ -121,10 +243,13 @@ namespace TinnosukeGameLib.Tests.Editor
                 LegacyCompatKind.RuntimeAdapter,
                 new ModuleId(10),
                 "LegacySystem",
+                "RuntimeResolverHub",
                 "TargetSubsystem",
+                LegacyAdapterSurface.Resolver,
                 profiles,
                 new SourceLocationId(5),
-                policy);
+                policy,
+                new[] { new DependencyNodeIR(new ServiceId(101)) });
         }
 
         static LegacyAdapterDescriptor CreateForbiddenFallbackDescriptor()
@@ -144,10 +269,25 @@ namespace TinnosukeGameLib.Tests.Editor
                 LegacyCompatKind.ForbiddenFallback,
                 new ModuleId(20),
                 "LegacyFallbackSystem",
+                "LegacyFallbackResolver",
                 "TargetSubsystem",
+                LegacyAdapterSurface.Resolver,
                 profiles,
                 new SourceLocationId(6),
-                policy);
+                policy,
+                new[] { new DependencyNodeIR(new ServiceId(201)) });
+        }
+
+        static string? GetPayloadValue(KernelDiagnostic diagnostic, string key)
+        {
+            for (int index = 0; index < diagnostic.Payload.Entries.Count; index++)
+            {
+                DiagnosticPayloadEntry entry = diagnostic.Payload.Entries[index];
+                if (string.Equals(entry.Key, key, StringComparison.Ordinal))
+                    return entry.Value.ToString();
+            }
+
+            return null;
         }
     }
 }
