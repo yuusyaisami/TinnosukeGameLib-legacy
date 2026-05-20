@@ -11,11 +11,23 @@ v2.1 は second kernel ではない。
 v2 の意味論を再定義せず、live game migration の entry condition、preservation floor、destructive allowance、migration wave、acceptance を定義する。
 
 - [00 Kernel v2.1 Migration Overview Specification](00_KernelV21MigrationOverviewSpec.md)
+- [01 Wave A Boot and Scene Entry Cutover Specification](01_WaveABootAndSceneEntryCutoverSpec.md)
+- [02 Wave B Scope and Service Composition Cutover Specification](02_WaveBScopeAndServiceCompositionCutoverSpec.md)
+- [03 Wave C Command Dispatch Cutover Specification](03_WaveCCommandDispatchCutoverSpec.md)
+- [04 Wave D Value, Blackboard, and Var Cutover Specification](04_WaveDValueBlackboardAndVarCutoverSpec.md)
+- [05 Wave E Representative Gameplay Systems Cutover Specification](05_WaveERepresentativeGameplaySystemsCutoverSpec.md)
+- [06 Wave F Legacy Removal and Hardening Specification](06_WaveFLegacyRemovalAndHardeningSpec.md)
 
 ## Principles
 
 - gameplay logic surface は守るが、architecture wiring は置換する
 - Command field shape、DynamicValue authoring surface、ValueStore generated key identity は preservation floor とする
+- Wave A は live boot authority、persistent root ownership、scene entry、loading orchestration の切り替えを最初の詳細 wave として扱う
+- Wave B は installer-driven composition authority を verified ScopeGraph と scope-local ServiceGraph authority へ切り替える
+- Wave C は command registration と dispatch truth を bulk executor registration と runtime key fallback から verified CommandCatalog authority へ切り替える
+- Wave D は generic value truth と blackboard ownership と DynamicValue runtime authority を verified ValueStore and DynamicEvaluation authority へ切り替える
+- Wave E は representative gameplay systems が migrated authority を実際に consume し、gameplay success only を completion proof に使えないことを明文化する
+- Wave F は migration-only residue を deletion または audited quarantine に詰め、Release or direct-play or CI acceptance を executable gates で harden する
 - direct-play side path の成功だけでは移行完了とみなさない
 - 最終目標は、現在動いているゲーム本体が verified kernel path で起動・進行・終了すること
 
@@ -26,3 +38,9 @@ v2 の意味論を再定義せず、live game migration の entry condition、pr
 | TC-V21-README-01 | Confirm v2.1 is explicitly separated from v2 target-kernel semantics. | This file must describe the role split between v2 and v2.1. |
 | TC-V21-README-02 | Confirm the overview spec is exposed as the first v2.1 root document. | This file must link to 00_KernelV21MigrationOverviewSpec.md. |
 | TC-V21-README-03 | Confirm preservation floor is stated at the index level. | This file must mention Command fields, DynamicValue surface, and ValueStore generated keys. |
+| TC-V21-README-04 | Confirm the first detailed migration wave is exposed. | This file must link to 01_WaveABootAndSceneEntryCutoverSpec.md. |
+| TC-V21-README-05 | Confirm the second detailed migration wave is exposed. | This file must link to 02_WaveBScopeAndServiceCompositionCutoverSpec.md. |
+| TC-V21-README-06 | Confirm the third detailed migration wave is exposed. | This file must link to 03_WaveCCommandDispatchCutoverSpec.md. |
+| TC-V21-README-07 | Confirm the fourth detailed migration wave is exposed. | This file must link to 04_WaveDValueBlackboardAndVarCutoverSpec.md. |
+| TC-V21-README-08 | Confirm the fifth detailed migration wave is exposed. | This file must link to 05_WaveERepresentativeGameplaySystemsCutoverSpec.md. |
+| TC-V21-README-09 | Confirm the sixth detailed migration wave is exposed. | This file must link to 06_WaveFLegacyRemovalAndHardeningSpec.md. |
