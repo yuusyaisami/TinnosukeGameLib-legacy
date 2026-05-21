@@ -179,7 +179,7 @@ namespace Game.Kernel.Diagnostics
             WriteJson(Path.Combine(metadata.RunDirectory, "DiagnosticsReport.json"), CreateDiagnosticsReport(metadata, diagnostics));
             WriteJson(Path.Combine(metadata.RunDirectory, "ValidationReport.json"), CreateEmptyReport(metadata, "ValidationReport", true));
             WriteJson(Path.Combine(metadata.RunDirectory, "GenerationReport.json"), CreateEmptyReport(metadata, "GenerationReport", true));
-            WriteJson(Path.Combine(metadata.RunDirectory, "PerformanceReport.json"), CreateEmptyReport(metadata, "PerformanceReport", true));
+            WritePerformanceReport(metadata, KernelPerformanceReportCollector.Snapshot());
         }
 
         public static DiagnosticsReport CreateDiagnosticsReport(KernelTestRunMetadata metadata, IReadOnlyList<KernelDiagnostic> diagnostics)
@@ -204,6 +204,27 @@ namespace Game.Kernel.Diagnostics
                 TotalCount = 0,
                 Notes = Array.Empty<string>(),
             };
+        }
+
+        public static KernelPerformanceReport CreatePerformanceReport(KernelTestRunMetadata metadata, IReadOnlyList<KernelPerformanceReportEntry> entries)
+        {
+            return KernelPerformanceReportFormatter.CreateReport(metadata, entries);
+        }
+
+        public static string CreatePerformanceReportMarkdown(KernelPerformanceReport report)
+        {
+            return KernelPerformanceReportFormatter.CreateMarkdown(report);
+        }
+
+        public static void WritePerformanceReport(KernelTestRunMetadata metadata, IReadOnlyList<KernelPerformanceReportEntry> entries)
+        {
+            if (metadata == null)
+                throw new ArgumentNullException(nameof(metadata));
+            if (entries == null)
+                throw new ArgumentNullException(nameof(entries));
+
+            KernelPerformanceReport report = CreatePerformanceReport(metadata, entries);
+            KernelPerformanceReportFormatter.WriteReportFiles(metadata.RunDirectory, report);
         }
 
         static KernelTestReportHeader CreateHeader(KernelTestRunMetadata metadata, string reportKind, bool isPlaceholder)

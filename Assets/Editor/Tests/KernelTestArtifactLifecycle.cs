@@ -29,10 +29,27 @@ namespace TinnosukeGameLib.Tests.Editor
             if (!Directory.Exists(runDirectory))
                 Directory.CreateDirectory(runDirectory);
 
-            WritePlaceholderReport(Path.Combine(runDirectory, "DiagnosticsReport.json"), "DiagnosticsReport");
-            WritePlaceholderReport(Path.Combine(runDirectory, "ValidationReport.json"), "ValidationReport");
-            WritePlaceholderReport(Path.Combine(runDirectory, "GenerationReport.json"), "GenerationReport");
-            WritePlaceholderReport(Path.Combine(runDirectory, "PerformanceReport.json"), "PerformanceReport");
+            WritePlaceholderReportIfMissing(Path.Combine(runDirectory, "DiagnosticsReport.json"), "DiagnosticsReport");
+            WritePlaceholderReportIfMissing(Path.Combine(runDirectory, "ValidationReport.json"), "ValidationReport");
+            WritePlaceholderReportIfMissing(Path.Combine(runDirectory, "GenerationReport.json"), "GenerationReport");
+            WritePlaceholderReportIfMissing(Path.Combine(runDirectory, "PerformanceReport.json"), "PerformanceReport");
+            WritePlaceholderMarkdownIfMissing(Path.Combine(runDirectory, "PerformanceReport.md"), "PerformanceReport");
+        }
+
+        static void WritePlaceholderReportIfMissing(string path, string reportKind)
+        {
+            if (File.Exists(path))
+                return;
+
+            WritePlaceholderReport(path, reportKind);
+        }
+
+        static void WritePlaceholderMarkdownIfMissing(string path, string reportKind)
+        {
+            if (File.Exists(path))
+                return;
+
+            WritePlaceholderMarkdown(path, reportKind);
         }
 
         static void WritePlaceholderReport(string path, string reportKind)
@@ -49,6 +66,15 @@ namespace TinnosukeGameLib.Tests.Editor
                 "  \"generatedAtUtc\": \"" + DateTime.UtcNow.ToString("O") + "\"\n" +
                 "}\n";
             File.WriteAllText(path, json);
+        }
+
+        static void WritePlaceholderMarkdown(string path, string reportKind)
+        {
+            string markdown =
+                "# " + reportKind + "\n\n" +
+                "- Placeholder: true\n" +
+                "- Generated At Utc: " + DateTime.UtcNow.ToString("O") + "\n";
+            File.WriteAllText(path, markdown);
         }
 
         static string Escape(string value)

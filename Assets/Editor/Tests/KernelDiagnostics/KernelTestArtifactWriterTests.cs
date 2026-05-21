@@ -23,6 +23,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(File.Exists(Path.Combine(runDirectory, "ValidationReport.json")), Is.True);
                 Assert.That(File.Exists(Path.Combine(runDirectory, "GenerationReport.json")), Is.True);
                 Assert.That(File.Exists(Path.Combine(runDirectory, "PerformanceReport.json")), Is.True);
+                Assert.That(File.Exists(Path.Combine(runDirectory, "PerformanceReport.md")), Is.True);
             }
             finally
             {
@@ -109,6 +110,72 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(report.Header.Run.ProfileIdentity, Is.EqualTo("Test"));
                 Assert.That(report.TotalCount, Is.EqualTo(0));
                 Assert.That(report.Notes, Is.Empty);
+            }
+            finally
+            {
+                DeleteDirectory(runDirectory);
+            }
+        }
+
+        [Test]
+        public void CreatePerformanceReport_PreservesStructuredPerformanceFields()
+        {
+            string runDirectory = CreateTempRunDirectory();
+            try
+            {
+                KernelTestRunMetadata metadata = CreateMetadata(runDirectory);
+                var entry = new KernelPerformanceReportEntry
+                {
+                    TestId = "M13.5.ResolveCacheHit",
+                    Subsystem = "RuntimeResolver",
+                    Operation = "TryResolve<IMeasuredService>",
+                    PathKind = "HotPath",
+                    FixtureSize = 1,
+                    Profile = "Performance",
+                    ElapsedMilliseconds = 0.125,
+                    AllocationBytes = 0,
+                    CallCount = 1,
+                    MarkerSamples = new[] { "Kernel.Resolve.CacheHit" },
+                    Passed = true,
+                    ExpectedMaxAllocationBytes = 0,
+                    ExpectedMaxElapsedMilliseconds = 0.5,
+                    AllowedAllocationRegressionBytes = 0,
+                    AllowedElapsedRegressionMilliseconds = 0.25,
+                    FailureCode = string.Empty,
+                    BaselineLabel = "baseline-20260521",
+                    HasBaseline = true,
+                    BaselineAllocationBytes = 8,
+                    BaselineElapsedMilliseconds = 0.25,
+                    AllocationDeltaBytes = -8,
+                    ElapsedDeltaMilliseconds = -0.125,
+                };
+
+                KernelPerformanceReport report = KernelTestArtifactWriter.CreatePerformanceReport(metadata, new[] { entry });
+                string json = JsonUtility.ToJson(report, true);
+                string markdown = KernelTestArtifactWriter.CreatePerformanceReportMarkdown(report);
+
+                Assert.That(report.Header.ReportKind, Is.EqualTo("PerformanceReport"));
+                Assert.That(report.Header.IsPlaceholder, Is.False);
+                Assert.That(report.Summary.TotalCount, Is.EqualTo(1));
+                Assert.That(report.Summary.PassedCount, Is.EqualTo(1));
+                Assert.That(report.Summary.FailedCount, Is.EqualTo(0));
+                Assert.That(report.Summary.MaxElapsedMilliseconds, Is.EqualTo(0.125));
+                Assert.That(report.Entries, Has.Length.EqualTo(1));
+                Assert.That(report.Entries[0].TestId, Is.EqualTo("M13.5.ResolveCacheHit"));
+                Assert.That(report.Entries[0].Subsystem, Is.EqualTo("RuntimeResolver"));
+                Assert.That(report.Entries[0].MarkerSamples, Has.Length.EqualTo(1));
+                Assert.That(report.Entries[0].ExpectedMaxElapsedMilliseconds, Is.EqualTo(0.5));
+                Assert.That(report.Entries[0].AllowedAllocationRegressionBytes, Is.EqualTo(0));
+                Assert.That(report.Entries[0].AllowedElapsedRegressionMilliseconds, Is.EqualTo(0.25));
+                Assert.That(json, Does.Contain("PerformanceReport"));
+                Assert.That(json, Does.Contain("M13.5.ResolveCacheHit"));
+                Assert.That(json, Does.Contain("ExpectedMaxElapsedMilliseconds"));
+                Assert.That(json, Does.Contain("FailureCode"));
+                Assert.That(markdown, Does.Contain("# Performance Report"));
+                Assert.That(markdown, Does.Contain("M13.5.ResolveCacheHit"));
+                Assert.That(markdown, Does.Contain("Kernel.Resolve.CacheHit"));
+                Assert.That(markdown, Does.Contain("Expected Max ms"));
+                Assert.That(markdown, Does.Contain("Allowed Alloc Regression B"));
             }
             finally
             {

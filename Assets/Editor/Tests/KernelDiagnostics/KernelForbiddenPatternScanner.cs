@@ -132,7 +132,7 @@ namespace TinnosukeGameLib.Tests.Editor
 
         public static ForbiddenPatternRule[] CreateForbiddenApiRules()
         {
-            return new[]
+            ForbiddenPatternRule[] existingRules = new[]
             {
                 new ForbiddenPatternRule(
                     "STATIC_RULE_RESOURCES_LOAD_IN_KERNEL_RUNTIME",
@@ -155,6 +155,74 @@ namespace TinnosukeGameLib.Tests.Editor
                     "Transform.parent",
                     new Regex(@"\b(?:[A-Za-z_][A-Za-z0-9_]*\s*\.\s*)+parent\b", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
             };
+
+            ForbiddenPatternRule[] additionalRules = new[]
+            {
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_FIND_FIRST_OBJECT_BY_TYPE_IN_KERNEL_RUNTIME",
+                    "FindFirstObjectByType must not be used in Kernel code paths.",
+                    "FindFirstObjectByType",
+                    new Regex(@"\b(?:[A-Za-z_][A-Za-z0-9_]*\s*\.\s*)*FindFirstObjectByType(?:<[^>]+>)?\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_FIND_ANY_OBJECT_BY_TYPE_IN_KERNEL_RUNTIME",
+                    "FindAnyObjectByType must not be used in Kernel code paths.",
+                    "FindAnyObjectByType",
+                    new Regex(@"\b(?:[A-Za-z_][A-Za-z0-9_]*\s*\.\s*)*FindAnyObjectByType(?:<[^>]+>)?\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_GET_COMPONENTS_IN_PARENT_IN_KERNEL_RUNTIME",
+                    "GetComponentsInParent must not be used in Kernel code paths.",
+                    "GetComponentsInParent",
+                    new Regex(@"\bGetComponentsInParent(?:<[^>]+>)?\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_GAMEOBJECT_FIND_IN_KERNEL_RUNTIME",
+                    "GameObject.Find must not be used in Kernel code paths.",
+                    "GameObject.Find",
+                    new Regex(@"\b(?:GameObject|UnityEngine\.GameObject|Object|UnityEngine\.Object)\s*\.\s*Find(?:<[^>]+>)?\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_ACTIVATOR_CREATE_INSTANCE_IN_KERNEL_RUNTIME",
+                    "Activator.CreateInstance must not be used in target runtime paths.",
+                    "Activator.CreateInstance",
+                    new Regex(@"\bActivator\s*\.\s*CreateInstance(?:<[^>]+>)?\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_COMMAND_EXECUTOR_LIST_DISCOVERY_IN_KERNEL_RUNTIME",
+                    "Command executor list discovery must not be used as runtime truth.",
+                    "IReadOnlyList<ICommandExecutor>",
+                    new Regex(@"\bIReadOnlyList\s*<\s*ICommandExecutor\s*>|\bIEnumerable\s*<\s*ICommandExecutor\s*>", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_COMMAND_KEY_RESOLVER_STRING_DISPATCH_IN_KERNEL_RUNTIME",
+                    "CommandKeyResolver runtime fallback must not be used in target runtime paths.",
+                    "AllowRuntimeFallback",
+                    new Regex(@"\bAllowRuntimeFallback\s*\(\s*allowRuntimeFallback\s*\)", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_RUNTIME_STABLE_KEY_LOOKUP_IN_KERNEL_RUNTIME",
+                    "StableKey must not be used as runtime lookup truth.",
+                    "StableKey",
+                    new Regex(@"\bStableKey\b", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+                    IsAllowedOutsideTargetRuntimePathMatch),
+                new ForbiddenPatternRule(
+                    "STATIC_RULE_LIFECYCLE_INTERFACE_SCAN_IN_KERNEL_RUNTIME",
+                    "Lifecycle participation must not be inferred from handler interface scans in target runtime paths.",
+                    "CollectHandlers<IScopeHandler>",
+                    new Regex(@"\bCollectHandlers\s*<\s*IScope(?:Acquire|Release|Tick|LateTick|FixedTick)Handler\s*>", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+            };
+
+            ForbiddenPatternRule[] allRules = new ForbiddenPatternRule[existingRules.Length + additionalRules.Length];
+            Array.Copy(existingRules, 0, allRules, 0, existingRules.Length);
+            Array.Copy(additionalRules, 0, allRules, existingRules.Length, additionalRules.Length);
+            return allRules;
+        }
+
+        static bool IsAllowedOutsideTargetRuntimePathMatch(string filePath, int lineNumber, string lineText, string matchedToken)
+        {
+            _ = lineNumber;
+            _ = lineText;
+            _ = matchedToken;
+
+            string normalizedPath = NormalizePath(filePath);
+            if (normalizedPath.Contains("/IR/", PathComparison) || normalizedPath.Contains("/Validation/", PathComparison))
+                return true;
+
+            return false;
         }
 
         public static ForbiddenPatternViolation[] ScanKernelSources(ForbiddenPatternRule rule)

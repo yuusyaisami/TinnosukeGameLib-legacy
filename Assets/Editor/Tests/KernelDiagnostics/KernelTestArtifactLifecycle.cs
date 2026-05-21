@@ -23,6 +23,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 return;
 
             KernelTestArtifactCollector.Configure(metadata);
+            KernelPerformanceReportCollector.Reset();
         }
 
         [OneTimeTearDown]
@@ -32,6 +33,7 @@ namespace TinnosukeGameLib.Tests.Editor
             if (metadata == null || string.IsNullOrWhiteSpace(metadata.RunDirectory))
             {
                 KernelTestArtifactCollector.Reset();
+                KernelPerformanceReportCollector.Reset();
                 return;
             }
 
@@ -40,6 +42,7 @@ namespace TinnosukeGameLib.Tests.Editor
 
             KernelTestArtifactWriter.WriteArtifacts(metadata, KernelTestArtifactCollector.SnapshotDiagnostics());
             KernelTestArtifactCollector.Reset();
+            KernelPerformanceReportCollector.Reset();
         }
 
         static KernelTestRunMetadata? CreateMetadataFromEnvironment()

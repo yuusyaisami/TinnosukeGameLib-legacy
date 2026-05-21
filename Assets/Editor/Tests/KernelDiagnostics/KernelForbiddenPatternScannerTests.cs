@@ -6,6 +6,18 @@ namespace TinnosukeGameLib.Tests.Editor
     [TestFixture]
     public sealed class KernelForbiddenPatternScannerTests
     {
+        private static ForbiddenPatternRule GetForbiddenApiRule(string ruleId)
+        {
+            ForbiddenPatternRule[] rules = KernelForbiddenPatternScanner.CreateForbiddenApiRules();
+            for (int i = 0; i < rules.Length; i++)
+            {
+                if (rules[i].RuleId == ruleId)
+                    return rules[i];
+            }
+
+            throw new AssertionException("Missing forbidden API rule: " + ruleId);
+        }
+
         [Test]
         public void ScanText_IgnoresStringAndCommentFalsePositives()
         {
@@ -495,6 +507,303 @@ namespace Game.Kernel.Sample
         {
             return current.Parent;
         }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Is.Empty);
+        }
+
+        [Test]
+        public void ScanText_ReportsFindFirstObjectByTypeCalls()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_FIND_FIRST_OBJECT_BY_TYPE_IN_KERNEL_RUNTIME");
+
+            string source = @"
+using UnityEngine;
+
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo
+    {
+        public GameObject Resolve()
+        {
+            return UnityEngine.Object.FindFirstObjectByType<GameObject>();
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_FIND_FIRST_OBJECT_BY_TYPE_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_ReportsFindAnyObjectByTypeCalls()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_FIND_ANY_OBJECT_BY_TYPE_IN_KERNEL_RUNTIME");
+
+            string source = @"
+using UnityEngine;
+
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo
+    {
+        public GameObject Resolve()
+        {
+            return Object.FindAnyObjectByType<GameObject>();
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_FIND_ANY_OBJECT_BY_TYPE_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_ReportsGetComponentsInParentCalls()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_GET_COMPONENTS_IN_PARENT_IN_KERNEL_RUNTIME");
+
+            string source = @"
+using UnityEngine;
+
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo : MonoBehaviour
+    {
+        public Transform[] Resolve()
+        {
+            return GetComponentsInParent<Transform>();
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_GET_COMPONENTS_IN_PARENT_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_ReportsGameObjectFindCalls()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_GAMEOBJECT_FIND_IN_KERNEL_RUNTIME");
+
+            string source = @"
+using UnityEngine;
+
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo
+    {
+        public GameObject Resolve()
+        {
+            return GameObject.Find(""Demo"");
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_GAMEOBJECT_FIND_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_ReportsActivatorCreateInstanceCalls()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_ACTIVATOR_CREATE_INSTANCE_IN_KERNEL_RUNTIME");
+
+            string source = @"
+using System;
+
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo
+    {
+        public object Create(Type type)
+        {
+            return Activator.CreateInstance(type)!;
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_ACTIVATOR_CREATE_INSTANCE_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_ReportsCommandExecutorListDiscovery()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_COMMAND_EXECUTOR_LIST_DISCOVERY_IN_KERNEL_RUNTIME");
+
+            string source = @"
+using System.Collections.Generic;
+
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo
+    {
+        public IReadOnlyList<ICommandExecutor> Executors;
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_COMMAND_EXECUTOR_LIST_DISCOVERY_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_ReportsCommandKeyResolverStringDispatch()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_COMMAND_KEY_RESOLVER_STRING_DISPATCH_IN_KERNEL_RUNTIME");
+
+            string source = @"
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo
+    {
+        public bool Run(bool allowRuntimeFallback)
+        {
+            return AllowRuntimeFallback(allowRuntimeFallback);
+        }
+
+        bool AllowRuntimeFallback(bool allowRuntimeFallback)
+        {
+            return allowRuntimeFallback;
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_COMMAND_KEY_RESOLVER_STRING_DISPATCH_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_DoesNotReportCommandKeyResolverTypeDeclarations()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_COMMAND_KEY_RESOLVER_STRING_DISPATCH_IN_KERNEL_RUNTIME");
+
+            string source = @"
+namespace Game.Kernel.Sample
+{
+    public sealed class CommandKeyResolver { }
+
+    public sealed class Demo
+    {
+        private CommandKeyResolver resolver;
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Is.Empty);
+        }
+
+        [Test]
+        public void ScanText_ReportsStableKeyLookupOutsideValidationPaths()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_RUNTIME_STABLE_KEY_LOOKUP_IN_KERNEL_RUNTIME");
+
+            string source = @"
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo
+    {
+        public string Resolve(ValueNode value)
+        {
+            return value.StableKey;
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Runtime/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_RUNTIME_STABLE_KEY_LOOKUP_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_IgnoresStableKeyLookupInsideValidationPaths()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_RUNTIME_STABLE_KEY_LOOKUP_IN_KERNEL_RUNTIME");
+
+            string source = @"
+namespace Game.Kernel.Validation
+{
+    public sealed class Demo
+    {
+        public string Resolve(ValueNode value)
+        {
+            return value.StableKey;
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Validation/Demo.cs", source, rule);
+
+            Assert.That(violations, Is.Empty);
+        }
+
+        [Test]
+        public void ScanText_ReportsLifecycleHandlerInterfaceScans()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_LIFECYCLE_INTERFACE_SCAN_IN_KERNEL_RUNTIME");
+
+            string source = @"
+namespace Game.Kernel.Sample
+{
+    public sealed class Demo
+    {
+        public void Run()
+        {
+            CollectHandlers<IScopeAcquireHandler>();
+            CollectHandlers<IScopeTickHandler>();
+            CollectHandlers<IScopeLateTickHandler>();
+            CollectHandlers<IScopeReleaseHandler>();
+        }
+
+        void CollectHandlers<THandler>()
+        {
+        }
+    }
+}";
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanText("Assets/GameLib/Script/Kernel/Sample/Demo.cs", source, rule);
+
+            Assert.That(violations, Has.Length.EqualTo(4));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_LIFECYCLE_INTERFACE_SCAN_IN_KERNEL_RUNTIME"));
+            Assert.That(violations[1].RuleId, Is.EqualTo("STATIC_RULE_LIFECYCLE_INTERFACE_SCAN_IN_KERNEL_RUNTIME"));
+            Assert.That(violations[2].RuleId, Is.EqualTo("STATIC_RULE_LIFECYCLE_INTERFACE_SCAN_IN_KERNEL_RUNTIME"));
+            Assert.That(violations[3].RuleId, Is.EqualTo("STATIC_RULE_LIFECYCLE_INTERFACE_SCAN_IN_KERNEL_RUNTIME"));
+        }
+
+        [Test]
+        public void ScanText_DoesNotReportLifecycleHandlerTypeDeclarations()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_LIFECYCLE_INTERFACE_SCAN_IN_KERNEL_RUNTIME");
+
+            string source = @"
+namespace Game.Kernel.Sample
+{
+    public interface IScopeAcquireHandler { }
+    public interface IScopeTickHandler { }
+    public interface IScopeLateTickHandler { }
+    public interface IScopeReleaseHandler { }
+
+    public sealed class Demo : IScopeAcquireHandler, IScopeTickHandler, IScopeLateTickHandler, IScopeReleaseHandler
+    {
     }
 }";
 

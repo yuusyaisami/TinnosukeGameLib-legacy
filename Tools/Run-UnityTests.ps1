@@ -337,6 +337,36 @@ function Ensure-JsonArtifactFile(
         return $true
     }
 
+function Ensure-MarkdownArtifactFile(
+    [string]$Path,
+    [string]$ReportKind,
+    [string]$RunId,
+    [string]$Platform,
+    [string]$TestFilter,
+    [string]$Target,
+    [string]$RunDirectory
+) {
+    if (Test-Path -LiteralPath $Path) {
+        return $false
+    }
+
+    $generatedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+    $markdown = @(
+        "# $ReportKind",
+        "",
+        "- Placeholder: true",
+        "- Run Id: $RunId",
+        "- Platform: $Platform",
+        "- Test Filter: $TestFilter",
+        "- Target: $Target",
+        "- Run Directory: $RunDirectory",
+        "- Generated At Utc: $generatedAtUtc"
+    ) -join "`n"
+
+    Set-Content -LiteralPath $Path -Value $markdown -Encoding utf8
+    return $true
+}
+
     function Register-ArtifactFallbackFailure(
         [pscustomobject]$Classification,
         [string[]]$FallbackArtifacts
@@ -477,6 +507,7 @@ if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "DiagnosticsReport.json") -
 if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "ValidationReport.json") -ReportKind "ValidationReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "ValidationReport.json" }
 if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "GenerationReport.json") -ReportKind "GenerationReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "GenerationReport.json" }
 if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "PerformanceReport.json") -ReportKind "PerformanceReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "PerformanceReport.json" }
+if (Ensure-MarkdownArtifactFile -Path (Join-Path $runDir "PerformanceReport.md") -ReportKind "PerformanceReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "PerformanceReport.md" }
 Register-ArtifactFallbackFailure -Classification $classification -FallbackArtifacts $fallbackArtifacts
 Write-RunSummary -SummaryPaths @($summaryPath, $legacySummaryPath) -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -CommandLine $commandLine -RunDirectory $runDir -LogPath $logPath -ResultsPath $resultsPath -Classification $classification -ExitCode $exitCode
 Write-RunSummaryJson -SummaryJsonPath $summaryJsonPath -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir -LogPath $logPath -ResultsPath $resultsPath -Classification $classification -ExitCode $exitCode

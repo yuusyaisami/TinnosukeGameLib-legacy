@@ -50,8 +50,14 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("STATIC_RULE_DEBUG_LOG_OUTSIDE_SINK"));
             Assert.That(content, Does.Contain("STATIC_RULE_DEBUG_LOG_ERROR_OUTSIDE_SINK"));
             Assert.That(content, Does.Contain("STATIC_RULE_TRANSFORM_PARENT_SCOPE_INFERENCE_IN_KERNEL_RUNTIME"));
+            Assert.That(content, Does.Contain("STATIC_RULE_FIND_FIRST_OBJECT_BY_TYPE_IN_KERNEL_RUNTIME"));
+            Assert.That(content, Does.Contain("STATIC_RULE_FIND_ANY_OBJECT_BY_TYPE_IN_KERNEL_RUNTIME"));
+            Assert.That(content, Does.Contain("STATIC_RULE_ACTIVATOR_CREATE_INSTANCE_IN_KERNEL_RUNTIME"));
+            Assert.That(content, Does.Contain("STATIC_RULE_RUNTIME_STABLE_KEY_LOOKUP_IN_KERNEL_RUNTIME"));
             Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsGetComponentsInChildrenCalls"));
             Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsTransformParentScopeInferenceCalls"));
+            Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsFindFirstObjectByTypeCalls"));
+            Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsStableKeyLookupOutsideValidationPaths"));
             Assert.That(content, Does.Contain("KernelIRIdentitiesTests.TypedIdentityPrimitives_PreserveValueEqualityAndHashCode"));
             Assert.That(content, Does.Contain("KernelIRSourceLocationTests.SourceLocationIR_PreservesUnityVariantEqualityAndHashCode"));
         }
@@ -132,10 +138,18 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("Transform.parent"));
             Assert.That(content, Does.Contain("Resources.Load"));
             Assert.That(content, Does.Contain("runtime stable-key lookup"));
+            Assert.That(content, Does.Contain("FindFirstObjectByType"));
+            Assert.That(content, Does.Contain("FindAnyObjectByType"));
+            Assert.That(content, Does.Contain("GetComponentsInParent"));
+            Assert.That(content, Does.Contain("GameObject.Find"));
+            Assert.That(content, Does.Contain("Activator.CreateInstance"));
             Assert.That(content, Does.Contain("Runtime-generated negative IDs"));
             Assert.That(content, Does.Contain("IReadOnlyList<ICommandExecutor>"));
+            Assert.That(content, Does.Contain("CommandKeyResolver"));
             Assert.That(content, Does.Contain("IScopeAcquireHandler"));
             Assert.That(content, Does.Contain("IScopeTickHandler"));
+            Assert.That(content, Does.Contain("IScopeLateTickHandler"));
+            Assert.That(content, Does.Contain("IScopeReleaseHandler"));
             Assert.That(content, Does.Contain("ServiceGraph as runtime object registry"));
             Assert.That(content, Does.Contain("BootManifest as global settings dump"));
             Assert.That(content, Does.Contain("Legacy fallback repair"));
@@ -342,11 +356,29 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("TC-16-01"));
             Assert.That(content, Does.Contain("TC-16-02"));
             Assert.That(content, Does.Contain("TC-16-03"));
+            Assert.That(content, Does.Contain("M13.4 hot-path allocation tests"));
+            Assert.That(content, Does.Contain("M13.5 performance report output"));
+            Assert.That(content, Does.Contain("M13.6 regression thresholds for allocation, elapsed time, baseline delta, and marker presence"));
+            Assert.That(content, Does.Contain("resolve, handle validation, tick dispatch, command dispatch, value read or write, dynamic cached read, and diagnostics-disabled trace path"));
             Assert.That(content, Does.Contain("TC-16-04"));
             Assert.That(content, Does.Contain("TC-16-05"));
             Assert.That(content, Does.Contain("M1"));
             Assert.That(content, Does.Contain("M6"));
             Assert.That(content, Does.Contain("M15"));
+        }
+
+        [Test]
+        public void PerformanceBudgetSpec_ContainsPerformanceReportFormatAndThresholdLanguage()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "14_PerformanceBudgetAndRuntimeRulesSpec.md"));
+
+            Assert.That(content, Does.Contain("## Performance Report Format"));
+            Assert.That(content, Does.Contain("PerformanceReport.json"));
+            Assert.That(content, Does.Contain("PerformanceReport.md"));
+            Assert.That(content, Does.Contain("allocation"));
+            Assert.That(content, Does.Contain("baseline"));
+            Assert.That(content, Does.Contain("PERF_BENCHMARK_THRESHOLD_REGRESSION"));
+            Assert.That(content, Does.Contain("expected max elapsed milliseconds"));
         }
 
         [Test]

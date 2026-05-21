@@ -24,7 +24,7 @@
 
 ### Revision Note
 
-This document records the initial forbidden pattern vocabulary required by M0.3.
+This document records the forbidden pattern vocabulary required by M0.3 and its later M13.3 expansion.
 
 It is a registry, not a justification memo.
 Each entry maps a forbidden pattern to the owning lower specification or to the test gate that must reject it.
@@ -43,7 +43,7 @@ The registry is meant to be consumed by static tests, code review, and implement
 
 ## Scope
 
-This registry covers the initial M0.3 seed set and closely related patterns that already appear in 00, 05, 06, 07, 09, 10, 11, 12, 13, 14, and 15.
+This registry covers the initial M0.3 seed set and the later M13.3 forbidden-API expansion that already appears in 00, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, and 16.
 
 The seed set is intentionally small and high-value.
 It should grow only when a new forbidden pattern has a clear owner and a clear regression gate.
@@ -65,6 +65,14 @@ It should grow only when a new forbidden pattern has a clear owner and a clear r
 | Runtime stable-key lookup | Value and Identity | 00_KernelArchitectureOverviewSpec.md, 10_ValueSchemaAndStoreSpec.md, 10_1_ScalarRuntimeAndBindingSpec.md, 10_2_DynamicValueEvaluationSpec.md | validation and source review gate | stable-key fallback is a migration smell, not target behavior |
 | Runtime-generated negative IDs | Identity | 01_KernelIRSpec.md, 10_ValueSchemaAndStoreSpec.md | validation and source review gate | negative ID creation must not be used to repair missing identity at runtime |
 | `IReadOnlyList<ICommandExecutor>` discovery | Command Runtime | 00_KernelArchitectureOverviewSpec.md, 09_CommandCatalogRuntimeSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static source gate | command dispatch must be table-driven, not executor-list discovered |
+| `FindFirstObjectByType` for kernel lookup | Runtime Discovery | 00_KernelArchitectureOverviewSpec.md, 05_BootManifestAndProfileSpec.md, 07_ScopeGraphRuntimeSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static forbidden-API gate | scene-wide search is not the authority for kernel structure |
+| `FindAnyObjectByType` for kernel lookup | Runtime Discovery | 00_KernelArchitectureOverviewSpec.md, 05_BootManifestAndProfileSpec.md, 07_ScopeGraphRuntimeSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static forbidden-API gate | scene-wide search is not the authority for kernel structure |
+| `GetComponentsInParent` for runtime discovery | Runtime Discovery | 00_KernelArchitectureOverviewSpec.md, 06_ServiceGraphRuntimeSpec.md, 07_ScopeGraphRuntimeSpec.md, 12_UnityAuthoringBridgeSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static forbidden-API gate | parent traversal is not an explicit runtime ownership model |
+| `GameObject.Find` for kernel lookup | Runtime Discovery | 00_KernelArchitectureOverviewSpec.md, 05_BootManifestAndProfileSpec.md, 07_ScopeGraphRuntimeSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static forbidden-API gate | scene hierarchy search is not the authority for kernel structure |
+| `Activator.CreateInstance` fallback construction | Construction | 06_ServiceGraphRuntimeSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static forbidden-API gate | construction must stay on verified plans, not reflection fallback |
+| `CommandKeyResolver` string dispatch | Command Runtime | 00_KernelArchitectureOverviewSpec.md, 09_CommandCatalogRuntimeSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static forbidden-API gate | command keys must be resolved from verified catalog data, not ad-hoc string dispatch |
+| `IScopeLateTickHandler` scan | Lifecycle Runtime | 00_KernelArchitectureOverviewSpec.md, 08_LifecyclePlanSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static source gate | lifecycle participation must come from verified plans, not interface scans |
+| `IScopeReleaseHandler` scan | Lifecycle Runtime | 00_KernelArchitectureOverviewSpec.md, 08_LifecyclePlanSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static source gate | lifecycle participation must come from verified plans, not interface scans |
 | `IScopeAcquireHandler` scan | Lifecycle Runtime | 00_KernelArchitectureOverviewSpec.md, 08_LifecyclePlanSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static source gate | lifecycle participation must come from verified plans, not interface scans |
 | `IScopeTickHandler` scan | Lifecycle Runtime | 00_KernelArchitectureOverviewSpec.md, 08_LifecyclePlanSpec.md, 14_PerformanceBudgetAndRuntimeRulesSpec.md | static source gate | tick dispatch must be table-driven and budgeted |
 | ServiceGraph as runtime object registry | Service Runtime | 06_ServiceGraphRuntimeSpec.md | architecture review gate | ServiceGraph is a coarse-grained resolver, not a general object registry |

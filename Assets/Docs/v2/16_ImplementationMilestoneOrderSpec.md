@@ -798,7 +798,7 @@ Required outputs:
 - M13.3 forbidden-API tests for hierarchy scans, discovery, reflection construction, direct logging, string dispatch, stable-key access, and lifecycle scans
 - M13.4 hot-path allocation tests for resolve, handle validation, tick dispatch, command dispatch, value read or write, dynamic cached read, and diagnostics-disabled trace path
 - M13.5 performance report output
-- M13.6 regression thresholds
+- M13.6 regression thresholds for allocation, elapsed time, baseline delta, and marker presence
 
 Exit gates:
 

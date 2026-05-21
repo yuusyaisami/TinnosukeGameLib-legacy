@@ -554,6 +554,7 @@ Required responsibilities:
 - assert required profiler markers exist on covered paths
 - assert allocation policy and explicit complexity rules for budgeted paths
 - detect regressions relative to approved baselines when baselines are defined
+- detect threshold regressions against explicit allocation, elapsed-time, and baseline-delta ceilings
 
 Required performance gate kinds:
 

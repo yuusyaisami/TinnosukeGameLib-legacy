@@ -29,6 +29,25 @@ namespace Game.Editor.Tests
         }
 
         [Test]
+        public void Runtime_CachedRead_IsAllocationFreeOnCacheHit()
+        {
+            var runtime = new DynamicEvaluationRuntime();
+            var source = new CountingSource(DynamicVariant.FromFloat(3.5f));
+            var context = CreateContext(runtime, phase: DynamicEvaluationPhase.ExplicitRead, planId: 10);
+            var value = DynamicValue.FromSource(source);
+
+            Assert.That(value.Evaluate(context).AsFloat, Is.EqualTo(3.5f));
+
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            DynamicVariant cachedValue = value.Evaluate(context);
+            long allocatedBytes = GC.GetAllocatedBytesForCurrentThread() - before;
+
+            Assert.That(allocatedBytes, Is.LessThanOrEqualTo(0L), $"Allocated {allocatedBytes} bytes, expected at most 0.");
+            Assert.That(cachedValue.AsFloat, Is.EqualTo(3.5f));
+            Assert.That(source.Evaluations, Is.EqualTo(1));
+        }
+
+        [Test]
         public void Runtime_InvalidatesCacheWhenStampChanges()
         {
             var runtime = new DynamicEvaluationRuntime();

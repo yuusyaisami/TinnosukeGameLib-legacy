@@ -834,6 +834,27 @@ Logs/TestRuns/<timestamp>/PerformanceReport.md
 
 Reports must preserve enough structure to compare runs over time.
 
+### Regression Thresholds
+
+Every performance test case must declare an explicit threshold policy.
+
+Threshold policy requirements:
+
+- hot paths must declare an absolute allocation ceiling
+- hot paths must declare an absolute elapsed-time ceiling
+- when a baseline is available, the report must carry allowed regression deltas for allocation and elapsed time
+- required profiler markers must be explicit and missing markers must fail the test
+- threshold breaches must surface as `PERF_BENCHMARK_THRESHOLD_REGRESSION`
+
+Threshold fields in the report should remain stable enough to compare runs over time:
+
+- expected max allocation bytes
+- expected max elapsed milliseconds
+- allowed allocation regression bytes
+- allowed elapsed regression milliseconds
+- baseline label when available
+- failure code and failure reason
+
 ---
 
 ## Failure Policy
@@ -852,6 +873,7 @@ Representative stable diagnostics codes:
 - `PERF_PER_ENTITY_TICK_FORBIDDEN`
 - `PERF_LEGACY_STABLE_KEY_FALLBACK_FORBIDDEN`
 - `PERF_DIRECT_UNITY_LOG_FORBIDDEN`
+- `PERF_BENCHMARK_THRESHOLD_REGRESSION`
 
 Severity policy:
 
