@@ -13,7 +13,7 @@ using VContainer.Unity;
 namespace Game.BuildConsole
 {
     [DisallowMultipleComponent]
-    public sealed class BuildConsoleMB : MonoBehaviour, IFeatureInstaller
+    public sealed class BuildConsoleMB : MonoBehaviour, IScopeInstaller
     {
         static readonly Color32 WindowBackgroundColor = new(10, 13, 18, 245);
         static readonly Color32 PanelBackgroundColor = new(18, 24, 34, 255);
@@ -129,7 +129,7 @@ namespace Game.BuildConsole
         Texture2D? _searchBackgroundTexture;
         Texture2D? _badgeBackgroundTexture;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ = scope;
 
@@ -1109,3 +1109,4 @@ namespace Game.BuildConsole
         }
     }
 }
+

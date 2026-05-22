@@ -352,7 +352,7 @@ namespace Game.Kernel.Generation
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), command.OwnerModule, command.Source);
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), command.OwnerModule, command.AuthoringKey.Source);
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), command.OwnerModule, command.Executor.Source);
-                AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.Id.Value), command.OwnerModule, command.PayloadSchema.Source);
+                AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.SchemaId.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.SchemaId.Value), command.OwnerModule, command.PayloadSchema.Source);
             }
 
             ReadOnlySpan<ValueKeyIR> valueKeys = valueSchema.ValueKeys;
@@ -526,10 +526,10 @@ namespace Game.Kernel.Generation
                 }
             }
 
-            ReadOnlySpan<CommandEntryPlan> commands = commandCatalog.Entries;
+            ReadOnlySpan<CommandIR> commands = kernelIR.Commands;
             for (int index = 0; index < commands.Length; index++)
             {
-                CommandEntryPlan command = commands[index];
+                CommandIR command = commands[index];
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), command.RuntimeName, command.OwnerModule, command.Source, selectedProfileMask, commandCatalogHash));
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), command.RuntimeName + "/AuthoringKey", command.OwnerModule, command.AuthoringKey.Source, selectedProfileMask, commandCatalogHash));
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), command.RuntimeName + "/Executor", command.OwnerModule, command.Executor.Source, selectedProfileMask, commandCatalogHash));

@@ -33,6 +33,8 @@ This revision creates the third detailed v2.1 wave specification.
 Wave B moves runtime scope and coarse service composition toward verified ScopeGraph and ServiceGraph boundaries.
 Wave C exists because that cutover does not, by itself, replace the legacy command authority that still lives in `CommandRunnerMB`, `CommandExecutorCatalog(IReadOnlyList<ICommandExecutor>)`, `CommandCatalogService`, `CommandCatalogLocator`, `CommandKeyResolver`, `CatalogCommandSource`, and scope-kind runner registration.
 
+`CommandRunnerAuthoring` now carries serialized runner defaults and debug-view intent while `CommandRunnerMB` remains the migration adapter and installer boundary.
+
 The purpose of this wave is not to redesign the preserved authored command payload surfaces.
 Its purpose is to move runtime command truth to the verified command authority defined by v2 while keeping representative existing command content functional through explicit normalization and compatibility boundaries.
 
@@ -155,6 +157,7 @@ It is migration evidence, not target policy.
 ### Representative Anchors
 
 - [../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs)
+- [../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - serialized command-runner defaults and debug-view authoring surface
 - [../../GameLib/Script/Common/Commands/VNext/Core/CommandRunner.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandRunner.cs)
 - [../../GameLib/Script/Common/Commands/VNext/Core/ICommandRunner.cs](../../GameLib/Script/Common/Commands/VNext/Core/ICommandRunner.cs)
 - [../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs)

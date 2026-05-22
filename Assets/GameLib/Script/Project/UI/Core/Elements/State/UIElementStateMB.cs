@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using UnityEngine;
 using VContainer;
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace Game.UI
     // ## 讎りｦ・
     //
     // UIElementStateMB縺ｯ縲ゞIElement縺ｮ迥ｶ諷九→險ｭ螳壹ｒ邂｡逅・☆繧貴onoBehaviour縲・
-    // IScopeNode・・aseLifetimeScope/RuntimeLifetimeScope・蛾・荳九〒蜍穂ｽ懊＠縲∽ｻ･荳九・讖溯・繧呈署萓帙☆繧・
+    // IScopeNode・・aseLifetimeScope/KernelScopeHost・蛾・荳九〒蜍穂ｽ懊＠縲∽ｻ･荳九・讖溯・繧呈署萓帙☆繧・
     //
     // 1. **Inspector險ｭ螳・*: Active/Visible縲∝ｽ薙◆繧雁愛螳壹√リ繝薙ご繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳・
     // 2. **DI繧ｳ繝ｳ繝・リ逋ｻ骭ｲ**: UIElementStateService繧偵せ繧ｳ繝ｼ繝励↓逋ｻ骭ｲ
@@ -72,12 +72,12 @@ namespace Game.UI
     /// UIElementLifetimeScope縺ｫRequireComponent縺ｧ蠑ｷ蛻ｶ縺輔ｌ繧九′縲・
     /// RuntimeLifetimeScope驟堺ｸ九〒繧ょ酔讒倥↓蜍穂ｽ懊☆繧九・
     /// 
-    /// ## IFeatureInstaller
+    /// ## IScopeInstaller
     /// 
     /// 縺薙・MB縺ｯIFeatureInstaller繧貞ｮ溯｣・＠縲・
     /// UIElementStateService繧奪I繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
     /// </summary>
-    public sealed class UIElementStateMB : MonoBehaviour, IFeatureInstaller, IUIElementStateOptions, IScopeAcquireHandler, IScopeReleaseHandler
+    public sealed class UIElementStateMB : MonoBehaviour, IScopeInstaller, IUIElementStateOptions, IScopeAcquireHandler, IScopeReleaseHandler
     {
         // ================================================================
         // Inspector險ｭ螳・- 蝓ｺ譛ｬ迥ｶ諷・
@@ -217,7 +217,7 @@ namespace Game.UI
         /// 
         /// UIElementLifetimeScope縺ｮConfigure譎ゅ↓蜻ｼ縺ｳ蜃ｺ縺輔ｌ繧九・
         /// </summary>
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ownerScope = scope;
 
@@ -372,3 +372,6 @@ namespace Game.UI
         }
     }
 }
+
+
+

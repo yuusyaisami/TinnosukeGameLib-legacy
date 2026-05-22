@@ -7,7 +7,7 @@ using VContainer.Unity;
 namespace Game.Direction
 {
     [DisallowMultipleComponent]
-    public sealed class DirectionChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class DirectionChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField]
         [Tooltip("Initial direction layers that will be registered with the hub.")]
@@ -17,7 +17,7 @@ namespace Game.Direction
         [SerializeField, InlineProperty, HideLabel]
         DirectionChannelHubDebugViewer debugViewer = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<IDirectionChannelHub, DirectionChannelHubService>(RuntimeLifetime.Singleton)
                 .As<IScopeTickHandler>()
@@ -32,3 +32,4 @@ namespace Game.Direction
         }
     }
 }
+

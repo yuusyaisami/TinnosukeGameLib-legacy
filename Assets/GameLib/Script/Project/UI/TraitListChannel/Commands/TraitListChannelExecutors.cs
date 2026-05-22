@@ -18,13 +18,12 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "BindTraitListChannelCommandData is required.");
 
             var targetScope = await TraitListChannelExecutorUtility.ResolveTargetScopeAsync(typed.Target, ctx, ct);
-            TraitListChannelExecutorUtility.EnsureScopeBuiltIfNeeded(targetScope);
 
             if (!TraitListChannelExecutorUtility.TryResolve(targetScope, out ITraitListChannelHubService? hub) || hub == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "ITraitListChannelHubService is missing on target scope.");
+                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, $"{TraitListChannelExecutorUtility.DiagnosticCode} ITraitListChannelHubService is missing on target scope.");
 
             if (!await hub.BindAsync(typed.ChannelTag, typed.Request, typed.Rebuild, ct))
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"TraitListChannel bind failed. tag='{typed.ChannelTag}'");
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"{TraitListChannelExecutorUtility.DiagnosticCode} TraitListChannel bind failed. tag='{typed.ChannelTag}'");
         }
     }
 
@@ -38,13 +37,12 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "RefreshTraitListChannelCommandData is required.");
 
             var targetScope = await TraitListChannelExecutorUtility.ResolveTargetScopeAsync(typed.Target, ctx, ct);
-            TraitListChannelExecutorUtility.EnsureScopeBuiltIfNeeded(targetScope);
 
             if (!TraitListChannelExecutorUtility.TryResolve(targetScope, out ITraitListChannelHubService? hub) || hub == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "ITraitListChannelHubService is missing on target scope.");
+                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, $"{TraitListChannelExecutorUtility.DiagnosticCode} ITraitListChannelHubService is missing on target scope.");
 
             if (!await hub.RefreshAsync(typed.ChannelTag, typed.RefreshMode, ct))
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"TraitListChannel refresh failed. tag='{typed.ChannelTag}'");
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"{TraitListChannelExecutorUtility.DiagnosticCode} TraitListChannel refresh failed. tag='{typed.ChannelTag}'");
         }
     }
 
@@ -58,13 +56,12 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "SetTraitListChannelRangeCommandData is required.");
 
             var targetScope = await TraitListChannelExecutorUtility.ResolveTargetScopeAsync(typed.Target, ctx, ct);
-            TraitListChannelExecutorUtility.EnsureScopeBuiltIfNeeded(targetScope);
 
             if (!TraitListChannelExecutorUtility.TryResolve(targetScope, out ITraitListChannelHubService? hub) || hub == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "ITraitListChannelHubService is missing on target scope.");
+                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, $"{TraitListChannelExecutorUtility.DiagnosticCode} ITraitListChannelHubService is missing on target scope.");
 
             if (!await hub.SetRangeAsync(typed.ChannelTag, typed.UseRange, typed.Range, typed.Rebuild, ct))
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"TraitListChannel range update failed. tag='{typed.ChannelTag}'");
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"{TraitListChannelExecutorUtility.DiagnosticCode} TraitListChannel range update failed. tag='{typed.ChannelTag}'");
         }
     }
 
@@ -78,43 +75,26 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "ClearTraitListChannelCommandData is required.");
 
             var targetScope = await TraitListChannelExecutorUtility.ResolveTargetScopeAsync(typed.Target, ctx, ct);
-            TraitListChannelExecutorUtility.EnsureScopeBuiltIfNeeded(targetScope);
 
             if (!TraitListChannelExecutorUtility.TryResolve(targetScope, out ITraitListChannelHubService? hub) || hub == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "ITraitListChannelHubService is missing on target scope.");
+                throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, $"{TraitListChannelExecutorUtility.DiagnosticCode} ITraitListChannelHubService is missing on target scope.");
 
             if (!await hub.ClearAsync(typed.ChannelTag, typed.KeepBinding, ct))
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"TraitListChannel clear failed. tag='{typed.ChannelTag}'");
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"{TraitListChannelExecutorUtility.DiagnosticCode} TraitListChannel clear failed. tag='{typed.ChannelTag}'");
         }
     }
 
     static class TraitListChannelExecutorUtility
     {
+        internal const string DiagnosticCode = "[V22-M4-TRAIT-001]";
+
         public static async UniTask<IScopeNode> ResolveTargetScopeAsync(ActorSource target, CommandContext ctx, CancellationToken ct)
         {
             var (targetScope, error) = await ActorScopeResolver.ResolveAsync(target, ctx, ct);
             if (targetScope != null)
                 return targetScope;
 
-            if (AllowFallback(ctx.Options) && ctx.Scope != null)
-            {
-                Debug.LogWarning($"[TraitListChannelExecutor] Target resolve failed: {error} Falling back to current scope.");
-                return ctx.Scope;
-            }
-
-            throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, error);
-        }
-
-        public static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
-        {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
+            throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"{DiagnosticCode} {error}");
         }
 
         public static bool TryResolve<T>(IScopeNode scope, out T? value) where T : class
@@ -125,17 +105,6 @@ namespace Game.Commands.VNext
                 return false;
 
             return resolver.TryResolve(out value) && value != null;
-        }
-
-        static bool AllowFallback(CommandRunOptions options)
-        {
-            if (!options.AllowActorFallback)
-                return false;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            return true;
-#else
-            return Debug.isDebugBuild;
-#endif
         }
     }
 }

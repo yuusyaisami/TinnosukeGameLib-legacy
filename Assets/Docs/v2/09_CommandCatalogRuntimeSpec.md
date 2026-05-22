@@ -221,6 +221,7 @@ These observations are migration evidence only.
 They are not target architecture.
 
 - [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk executor registration, scope-kind runner registration, lifecycle handler registration, and debug viewer build callback
+- [CommandRunnerAuthoring.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - serialized command-runner defaults and debug-view authoring surface
 - [CommandRunner.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandRunner.cs) - runtime execution flow, registry lookup, failure handling, context slots, and lifecycle handler implementation
 - [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) - `IReadOnlyList<ICommandExecutor>` scan into command-id lookup table
 - [CommandCatalogService.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogService.cs) - acquire-time catalog loading through a runtime service
@@ -237,6 +238,8 @@ The list includes control-flow commands, actor routing commands, transform comma
 
 `CommandRunnerMB` also registers different command runner contracts depending on `LifetimeScopeKind`.
 Project, Platform, Global, Scene, Field, Entity, UI, and UIElement runner variants are installed by runtime switch rather than verified plan.
+
+`CommandRunnerAuthoring` preserves the serialized default-var and debug-view surfaces, but target runtime command truth must still come from verified command authority rather than that authoring data.
 
 `CommandExecutorRegistry` builds executor lookup by scanning an `IReadOnlyList<ICommandExecutor>`.
 This makes executor availability depend on DI collection behavior and boot registration completeness.

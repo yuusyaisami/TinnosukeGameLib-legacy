@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -78,7 +78,7 @@ namespace Game.UI
     }
 
     [DisallowMultipleComponent]
-    public sealed class TraitListChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class TraitListChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
@@ -89,7 +89,7 @@ namespace Game.UI
 
         public IReadOnlyList<TraitListChannelDefinition> Channels => _channels;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<TraitListChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -100,3 +100,4 @@ namespace Game.UI
         }
     }
 }
+

@@ -7,9 +7,9 @@ using VContainer.Unity;
 namespace Game.Collision
 {
     [DisallowMultipleComponent]
-    public sealed class HitColliderChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class HitColliderChannelHubMB : MonoBehaviour, IScopeInstaller
     {
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<HitColliderChannelHub>(resolver =>
                 {
@@ -35,3 +35,4 @@ namespace Game.Collision
         public void UpdateWatcherFlags(DynamicColliderHandle self, HitColliderChannelRuntime runtime, HitWatchFlags flags) { }
     }
 }
+

@@ -10,7 +10,7 @@ namespace Game.SelectRuntime
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(WorldPointerTargetMB))]
-    public sealed class SelectableRuntimeMB : MonoBehaviour, IFeatureInstaller
+    public sealed class SelectableRuntimeMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Target")]
         [LabelText("Pointer Target")]
@@ -64,7 +64,7 @@ namespace Game.SelectRuntime
             NotifyBridgeRefresh();
         }
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<SelectableRuntimeBridgeService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
@@ -91,3 +91,4 @@ namespace Game.SelectRuntime
         }
     }
 }
+

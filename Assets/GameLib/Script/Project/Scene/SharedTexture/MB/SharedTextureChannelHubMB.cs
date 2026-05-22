@@ -6,9 +6,9 @@ using VContainer;
 namespace Game.SharedTexture
 {
     [DisallowMultipleComponent]
-    public sealed class SharedTextureChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class SharedTextureChannelHubMB : MonoBehaviour, IScopeInstaller
     {
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<SharedTextureChannelHubService>(RuntimeLifetime.Singleton)
                 .As<ISharedTextureChannelHub>()
@@ -17,3 +17,4 @@ namespace Game.SharedTexture
         }
     }
 }
+

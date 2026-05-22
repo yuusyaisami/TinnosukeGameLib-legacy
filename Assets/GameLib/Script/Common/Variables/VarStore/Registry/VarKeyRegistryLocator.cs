@@ -11,16 +11,37 @@ using UnityEngine;
 public static class VarKeyRegistryLocator
 {
     // Runtime では explicit に配置された VarKeyRegistry だけを使う。
-    // Runtime fallback の空 registry 生成は行わない。
+    // Runtime fallback の asset lookup や空 registry 生成は行わない。
     public const string DefaultRegistryPath = "Assets/Resources/VarKeyRegistry.asset";
 
-    // Conservative runtime caching controls to avoid repeated expensive Resources.Load.
-    // _cachedRegistry is only trusted when it already contains registered keys.
+    // Runtime では明示的に登録された registry だけを使う。
     static VarKeyRegistry? _cachedRegistry;
-#pragma warning disable CS0414
-    static float _lastReloadAttemptTime = -Mathf.Infinity;
-#pragma warning restore CS0414
-    const float _reloadThrottleSeconds = 1.5f;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetRuntimeState()
+    {
+        _cachedRegistry = null;
+    }
+
+    public static void SetExplicitRuntimeRegistry(VarKeyRegistry registry)
+    {
+        if (registry == null)
+            throw new ArgumentNullException(nameof(registry));
+
+        if (registry.RegisteredKeyCount <= 0)
+        {
+            throw new ArgumentException(
+                "VarKeyRegistryLocator requires a populated explicit registry when registering runtime value-key authority.",
+                nameof(registry));
+        }
+
+        _cachedRegistry = registry;
+    }
+
+    public static void ClearExplicitRuntimeRegistry()
+    {
+        _cachedRegistry = null;
+    }
 
     public static bool TryGetExplicitRegistry(out VarKeyRegistry? registry)
     {
@@ -46,19 +67,6 @@ public static class VarKeyRegistryLocator
         {
             registry = _cachedRegistry;
             return true;
-        }
-
-        var now = Time.realtimeSinceStartup;
-        if (now - _lastReloadAttemptTime > _reloadThrottleSeconds)
-        {
-            _lastReloadAttemptTime = now;
-            var loaded = Resources.Load<VarKeyRegistry>("VarKeyRegistry");
-            if (loaded != null && loaded.RegisteredKeyCount > 0)
-            {
-                _cachedRegistry = loaded;
-                registry = _cachedRegistry;
-                return true;
-            }
         }
 
         registry = null;

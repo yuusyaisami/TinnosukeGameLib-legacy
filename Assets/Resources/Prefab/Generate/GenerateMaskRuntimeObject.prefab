@@ -442,7 +442,6 @@ GameObject:
   - component: {fileID: 6855433479617083096}
   - component: {fileID: 5022031701747297524}
   - component: {fileID: 6170479844804795747}
-  - component: {fileID: 2346119411283484037}
   - component: {fileID: 8245303642583486678}
   m_Layer: 0
   m_Name: GenerateMaskRuntimeObject
@@ -534,30 +533,6 @@ MonoBehaviour:
   initializeBaseLocalVars: 0
   reinitializeBaseLocalVarsOnAcquire: 1
   baseLocalVarEntries: []
---- !u!114 &2346119411283484037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8922887192831993300}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &8245303642583486678
 MonoBehaviour:
   m_ObjectHideFlags: 0

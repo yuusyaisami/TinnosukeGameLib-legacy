@@ -60,7 +60,18 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_PROJECTION_UNKNOWN_COMMAND_EXECUTOR_ID"));
             Assert.That(report.Issues[0].From.Kind, Is.EqualTo(DependencyNodeKind.Command));
             Assert.That(report.Issues[0].From.CommandTypeId.Value, Is.EqualTo(200));
-            Assert.That(report.Issues[0].AdditionalPayloadEntries, Has.Some.Matches<DiagnosticPayloadEntry>(entry => entry.Key == "SourceIdentity"));
+
+            bool hasSourceIdentityPayload = false;
+            foreach (DiagnosticPayloadEntry entry in report.Issues[0].AdditionalPayloadEntries)
+            {
+                if (entry.Key == "SourceIdentity")
+                {
+                    hasSourceIdentityPayload = true;
+                    break;
+                }
+            }
+
+            Assert.That(hasSourceIdentityPayload, Is.True);
         }
 
         [Test]

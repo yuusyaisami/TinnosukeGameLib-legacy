@@ -20,8 +20,8 @@ namespace Game.Trait
 
         bool TryGetPresentationState(string holderKey, string traitKey, out TraitRuntimePresentationState state);
         bool TrySetPresentationState(string holderKey, string traitKey, TraitRuntimePresentationState state);
-        bool TryGetRuntime(string holderKey, string traitKey, out RuntimeLifetimeScope? runtimeScope);
-        UniTask<RuntimeLifetimeScope?> PlaceAsync(
+        bool TryGetRuntime(string holderKey, string traitKey, out KernelScopeHost? runtimeScope);
+        UniTask<KernelScopeHost?> PlaceAsync(
             string holderKey,
             TraitElementSelector selector,
             IDynamicContext dynamicContext,
@@ -43,8 +43,8 @@ namespace Game.Trait
         readonly IScopeNode _owner;
         readonly ITraitHolderHubService _hub;
 
-        readonly Dictionary<TraitRuntimeLinkKey, RuntimeLifetimeScope> _runtimeByLink = new();
-        readonly Dictionary<RuntimeLifetimeScope, TraitRuntimeLinkData> _linkByRuntime = new();
+        readonly Dictionary<TraitRuntimeLinkKey, KernelScopeHost> _runtimeByLink = new();
+        readonly Dictionary<KernelScopeHost, TraitRuntimeLinkData> _linkByRuntime = new();
         readonly Dictionary<TraitRuntimeLinkKey, TraitRuntimePresentationState> _presentationByLink = new();
         readonly Dictionary<string, ITraitHolderService> _subscribedHolders = new(StringComparer.Ordinal);
         readonly List<TraitRuntimeLinkKey> _linkKeyBuffer = new();
@@ -68,7 +68,7 @@ namespace Game.Trait
         {
             _isActive = false;
 
-            var runtimes = new List<RuntimeLifetimeScope>(_linkByRuntime.Keys);
+            var runtimes = new List<KernelScopeHost>(_linkByRuntime.Keys);
             for (int i = 0; i < runtimes.Count; i++)
             {
                 var runtime = runtimes[i];
@@ -115,7 +115,7 @@ namespace Game.Trait
             return true;
         }
 
-        public bool TryGetRuntime(string holderKey, string traitKey, out RuntimeLifetimeScope? runtimeScope)
+        public bool TryGetRuntime(string holderKey, string traitKey, out KernelScopeHost? runtimeScope)
         {
             runtimeScope = null;
             var linkKey = CreateLinkKey(holderKey, traitKey);
@@ -126,7 +126,7 @@ namespace Game.Trait
             return true;
         }
 
-        public async UniTask<RuntimeLifetimeScope?> PlaceAsync(
+        public async UniTask<KernelScopeHost?> PlaceAsync(
             string holderKey,
             TraitElementSelector selector,
             IDynamicContext dynamicContext,
@@ -317,7 +317,7 @@ namespace Game.Trait
             }
         }
 
-        bool ReleaseRuntimeInternal(RuntimeLifetimeScope runtime, bool clearPresentationState)
+        bool ReleaseRuntimeInternal(KernelScopeHost runtime, bool clearPresentationState)
         {
             if (runtime == null)
                 return false;
@@ -353,7 +353,7 @@ namespace Game.Trait
         void SetPresentationState(
             TraitRuntimeLinkKey linkKey,
             TraitRuntimePresentationState newState,
-            RuntimeLifetimeScope? runtime)
+            KernelScopeHost? runtime)
         {
             var previousState = _presentationByLink.TryGetValue(linkKey, out var current)
                 ? current
@@ -394,7 +394,7 @@ namespace Game.Trait
         }
 
         void WriteRuntimeBlackboard(
-            RuntimeLifetimeScope runtime,
+            KernelScopeHost runtime,
             TraitDefinitionSO definition,
             TraitRuntimeLinkData linkData,
             TraitRuntimePresentationState presentationState)
@@ -427,7 +427,7 @@ namespace Game.Trait
             TraitRuntimeLinkVarKeys.WritePresentationState(blackboard.LocalVars, presentationState, runtimeBridge);
         }
 
-        void WritePresentationState(RuntimeLifetimeScope runtime, TraitRuntimePresentationState state)
+        void WritePresentationState(KernelScopeHost runtime, TraitRuntimePresentationState state)
         {
             if (runtime == null || runtime.Resolver == null)
                 return;
@@ -440,7 +440,7 @@ namespace Game.Trait
         }
 
         bool TryApplyInitialPlacement(
-            RuntimeLifetimeScope runtimeScope,
+            KernelScopeHost runtimeScope,
             RuntimeTraitMB bridge,
             Vector3 requestedPosition,
             Quaternion requestedRotation)
@@ -479,7 +479,7 @@ namespace Game.Trait
         }
 
         static void ResolvePlacementTransforms(
-            RuntimeLifetimeScope runtimeScope,
+            KernelScopeHost runtimeScope,
             UserMoveRotateRuntimeMB editor,
             out Transform moveTransform,
             out Transform rotateTransform)
@@ -493,7 +493,7 @@ namespace Game.Trait
                 : rootTransform;
         }
 
-        static Transform ResolveRootTransform(RuntimeLifetimeScope runtimeScope)
+        static Transform ResolveRootTransform(KernelScopeHost runtimeScope)
         {
             return runtimeScope.Identity?.SelfTransform != null
                 ? runtimeScope.Identity.SelfTransform
@@ -564,21 +564,21 @@ namespace Game.Trait
             return null;
         }
 
-        static RuntimeLifetimeScope? ResolveRuntimeScope(IRuntimeResolver? resolver)
+        static KernelScopeHost? ResolveRuntimeScope(IRuntimeResolver? resolver)
         {
             if (resolver == null)
                 return null;
 
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            if (resolver.TryResolve<KernelScopeHost>(out var runtimeScope) && runtimeScope != null)
                 return runtimeScope;
 
-            if (resolver.TryResolve<IScopeNode>(out var scopeNode) && scopeNode is RuntimeLifetimeScope typedRuntime)
+            if (resolver.TryResolve<IScopeNode>(out var scopeNode) && scopeNode is KernelScopeHost typedRuntime)
                 return typedRuntime;
 
             return null;
         }
 
-        static RuntimeLifetimeScope? ResolveRuntimeScopeFromBridge(RuntimeTraitMB bridge)
+        static KernelScopeHost? ResolveRuntimeScopeFromBridge(RuntimeTraitMB bridge)
         {
             if (bridge == null)
                 return null;
@@ -586,10 +586,10 @@ namespace Game.Trait
             if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(bridge, includeInactive: true, out var scope) || scope == null)
                 return null;
 
-            return scope as RuntimeLifetimeScope;
+            return scope as KernelScopeHost;
         }
 
-        static RuntimeTraitMB? ResolveOrCreateRuntimeBridge(RuntimeLifetimeScope runtimeScope, bool applyRuntimeTraitMb)
+        static RuntimeTraitMB? ResolveOrCreateRuntimeBridge(KernelScopeHost runtimeScope, bool applyRuntimeTraitMb)
         {
             if (runtimeScope == null)
                 return null;
@@ -624,3 +624,5 @@ namespace Game.Trait
         }
     }
 }
+
+

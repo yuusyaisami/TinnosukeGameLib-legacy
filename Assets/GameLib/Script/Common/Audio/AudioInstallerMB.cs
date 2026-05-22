@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -16,7 +16,7 @@ namespace Game.Audio
     //
     // ## 讎りｦ・
     //
-    // IFeatureInstaller 縺ｨ縺励※ AudioService 繧・DI 繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
+    // IScopeInstaller 縺ｨ縺励※ AudioService 繧・DI 繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
     // Inspector 縺ｧ繝舌せ險ｭ螳壹→繝懊Μ繝･繝ｼ繝繝励Ο繝舌う繝繧定ｨｭ螳壼庄閭ｽ縲・
     //
     // ## 驟咲ｽｮ
@@ -26,7 +26,7 @@ namespace Game.Audio
     // ================================================================
 
     [DisallowMultipleComponent]
-    public sealed class AudioInstallerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class AudioInstallerMB : MonoBehaviour, IScopeInstaller
     {
         // ----------------------------------------------------------------
         // Inspector 險ｭ螳・
@@ -76,10 +76,10 @@ namespace Game.Audio
         bool use2DDistanceAttenuation = true;
 
         // ----------------------------------------------------------------
-        // IFeatureInstaller
+        // IScopeInstaller
         // ----------------------------------------------------------------
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // 繝懊Μ繝･繝ｼ繝繝励Ο繝舌う繝縺ｮ逋ｻ骭ｲ
             if (useConstantVolumeProvider)
@@ -116,3 +116,4 @@ namespace Game.Audio
         }
     }
 }
+

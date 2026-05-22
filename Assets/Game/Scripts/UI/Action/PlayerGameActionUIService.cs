@@ -42,7 +42,7 @@ namespace Game.Actions
 
         sealed class SegmentBar
         {
-            public RuntimeLifetimeScope Scope;
+            public KernelScopeHost Scope;
             public RectTransform Rect;
             public GageColor LastColor;
             public bool HasSegment;
@@ -206,7 +206,7 @@ namespace Game.Actions
             }
         }
 
-        async UniTask<RuntimeLifetimeScope> SpawnActionBarAsync(
+        async UniTask<KernelScopeHost> SpawnActionBarAsync(
             Vector3 localPosition,
             CancellationToken cancellationToken)
         {
@@ -679,28 +679,28 @@ namespace Game.Actions
             }
         }
 
-        static bool TryResolveActionBarRect(RuntimeLifetimeScope scope, out RectTransform rect)
+        static bool TryResolveActionBarRect(KernelScopeHost scope, out RectTransform rect)
         {
             rect = scope != null ? scope.GetComponent<RectTransform>() : null;
             return rect != null;
         }
 
-        static RuntimeLifetimeScope ResolveRuntimeScope(IRuntimeResolver resolver)
+        static KernelScopeHost ResolveRuntimeScope(IRuntimeResolver resolver)
         {
             if (resolver == null)
                 return null;
 
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            if (resolver.TryResolve<KernelScopeHost>(out var runtimeScope) && runtimeScope != null)
                 return runtimeScope;
 
-            if (resolver.TryResolve<IScopeNode>(out var scope) && scope is RuntimeLifetimeScope resolved)
+            if (resolver.TryResolve<IScopeNode>(out var scope) && scope is KernelScopeHost resolved)
                 return resolved;
 
             if (resolver.TryResolve<Transform>(out var transform) && transform != null)
-                return transform.GetComponent<RuntimeLifetimeScope>();
+                return transform.GetComponent<KernelScopeHost>();
 
             if (resolver.TryResolve<GameObject>(out var go) && go != null)
-                return go.GetComponent<RuntimeLifetimeScope>();
+                return go.GetComponent<KernelScopeHost>();
 
             return null;
         }
@@ -716,3 +716,4 @@ namespace Game.Actions
     }
 }
 */
+

@@ -27,7 +27,7 @@ namespace Game.Channel
             if (state.ActiveScope == null || state.ListRoot == null || state.ResolvedRuntimeTemplate == null)
                 return null;
 
-            if (!GridObjectChannelRuntimeUtility.TryResolveFromScopeOrAncestors<ISceneSpawnerRegistry>(state.ActiveScope, out var registry) || registry == null)
+            if (!GridObjectChannelRuntimeUtility.TryResolveFromScope<ISceneSpawnerRegistry>(state.ActiveScope, out var registry) || registry == null)
             {
                 Debug.LogWarning($"[GridObjectChannel] ISceneSpawnerRegistry is not available. Tag='{_tag}'");
                 return null;

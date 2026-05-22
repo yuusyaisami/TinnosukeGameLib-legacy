@@ -712,6 +712,20 @@ namespace Game.Kernel.Sample
         }
 
         [Test]
+        public void ScanFiles_ReportsCommandKeyResolverStringDispatchInRealFile()
+        {
+            ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_COMMAND_KEY_RESOLVER_STRING_DISPATCH_IN_KERNEL_RUNTIME");
+            string resolverPath = Path.Combine(KernelForbiddenPatternScanner.ProjectRootPath, "Assets", "GameLib", "Script", "Common", "Commands", "VNext", "Catalog", "CommandKeyResolver.cs");
+            string rootPath = Path.Combine(KernelForbiddenPatternScanner.ProjectRootPath, "Assets", "GameLib", "Script", "Common", "Commands", "VNext");
+
+            ForbiddenPatternViolation[] violations = KernelForbiddenPatternScanner.ScanFiles(new[] { resolverPath }, rule, new[] { rootPath });
+
+            Assert.That(violations, Has.Length.EqualTo(1));
+            Assert.That(violations[0].RuleId, Is.EqualTo("STATIC_RULE_COMMAND_KEY_RESOLVER_STRING_DISPATCH_IN_KERNEL_RUNTIME"));
+            Assert.That(violations[0].FilePath, Is.EqualTo("Assets/GameLib/Script/Common/Commands/VNext/Catalog/CommandKeyResolver.cs"));
+        }
+
+        [Test]
         public void ScanText_ReportsStableKeyLookupOutsideValidationPaths()
         {
             ForbiddenPatternRule rule = GetForbiddenApiRule("STATIC_RULE_RUNTIME_STABLE_KEY_LOOKUP_IN_KERNEL_RUNTIME");

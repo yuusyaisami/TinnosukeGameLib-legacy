@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Game.Kernel.Authoring;
 using Game.Kernel.IR;
 using UnityEngine;
+using AuthoringUnitySourceLocation = Game.Kernel.Authoring.UnitySourceLocation;
 
 namespace Game.Kernel.Boot
 {
@@ -153,9 +154,9 @@ namespace Game.Kernel.Boot
         }
 #endif
 
-        public UnitySourceLocation CreateSourceLocation()
+        public AuthoringUnitySourceLocation CreateSourceLocation()
         {
-            return new UnitySourceLocation(
+            return new AuthoringUnitySourceLocation(
                 sourceKind,
                 assetGuid,
                 assetPath,
@@ -166,7 +167,7 @@ namespace Game.Kernel.Boot
                 propertyPath);
         }
 
-        public bool TryGetBaseSourceLocation(out UnitySourceLocation sourceLocation)
+        public bool TryGetBaseSourceLocation(out AuthoringUnitySourceLocation sourceLocation)
         {
             if (!HasBaseSourceLocation)
             {
@@ -174,7 +175,7 @@ namespace Game.Kernel.Boot
                 return false;
             }
 
-            sourceLocation = new UnitySourceLocation(
+            sourceLocation = new AuthoringUnitySourceLocation(
                 baseSourceKind,
                 baseAssetGuid,
                 baseAssetPath,
@@ -391,6 +392,14 @@ namespace Game.Kernel.Boot
         static bool HasAny(string? first, string? second, string? third)
         {
             return !string.IsNullOrEmpty(first) || !string.IsNullOrEmpty(second) || !string.IsNullOrEmpty(third);
+        }
+
+        static bool HasAny(string? first, string? second, string? third, string? fourth)
+        {
+            return !string.IsNullOrEmpty(first)
+                || !string.IsNullOrEmpty(second)
+                || !string.IsNullOrEmpty(third)
+                || !string.IsNullOrEmpty(fourth);
         }
 
         static string? NormalizeOptionalString(string? value)

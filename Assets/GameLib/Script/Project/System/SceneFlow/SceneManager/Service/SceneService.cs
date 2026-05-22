@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Game.Common;
 using Game.Loading;
 using Game.Project;
+using Game.Project.Bootstrap;
 using Game.Vars.Generated;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -138,6 +139,9 @@ namespace Game.Flow
                 return;
             }
 
+            bool beganSceneHandoff = BeginSceneHandoffIfRequired();
+            bool completedSceneHandoff = false;
+
             SetIsLoading(true);
             try
             {
@@ -159,9 +163,18 @@ namespace Game.Flow
                 {
                     await op.ToUniTask();
                 }
+
+                if (beganSceneHandoff)
+                {
+                    KernelLiveBootRuntime.CompleteSceneHandoff();
+                    completedSceneHandoff = true;
+                }
             }
             finally
             {
+                if (beganSceneHandoff && !completedSceneHandoff)
+                    KernelLiveBootRuntime.CancelSceneHandoff();
+
                 SetIsLoading(false);
             }
         }
@@ -173,6 +186,9 @@ namespace Game.Flow
 
             if (IsLoaded(sceneName))
                 return;
+
+            bool beganSceneHandoff = BeginSceneHandoffIfRequired();
+            bool completedSceneHandoff = false;
 
             SetIsLoading(true);
             try
@@ -207,9 +223,18 @@ namespace Game.Flow
                 {
                     await _loading.HideAsync();
                 }
+
+                if (beganSceneHandoff)
+                {
+                    KernelLiveBootRuntime.CompleteSceneHandoff();
+                    completedSceneHandoff = true;
+                }
             }
             finally
             {
+                if (beganSceneHandoff && !completedSceneHandoff)
+                    KernelLiveBootRuntime.CancelSceneHandoff();
+
                 SetIsLoading(false);
             }
         }
@@ -308,6 +333,18 @@ namespace Game.Flow
 
             scene = default;
             return false;
+        }
+
+        static bool BeginSceneHandoffIfRequired()
+        {
+            if (!KernelLiveBootRuntime.IsVerifiedLiveBootReady)
+                return false;
+
+            if (KernelLiveBootRuntime.IsSceneHandoffReady)
+                return false;
+
+            KernelLiveBootRuntime.BeginSceneHandoff();
+            return true;
         }
     }
 }

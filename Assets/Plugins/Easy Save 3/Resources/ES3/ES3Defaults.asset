@@ -43,12 +43,15 @@ MonoBehaviour:
     - Febucci.TextAnimatorForUnity.TMP.Runtime
     - Febucci.TextAnimatorForUnity.UITk.Runtime
     - GameLib.Kernel.Abstractions
+    - GameLib.Kernel.Authoring
     - GameLib.Kernel.Boot
+    - GameLib.Kernel.Contributions
     - GameLib.Kernel.Diagnostics
     - GameLib.Kernel.Diagnostics.Unity
     - GameLib.Kernel.Generation
     - GameLib.Kernel.IR
     - GameLib.Kernel.Validation
+    - GameLib.Tests.Integration.PlayMode
     - SingularityGroup.HotReload.Runtime
     - SingularityGroup.HotReload.Runtime.Public
     - UniTask

@@ -30,6 +30,12 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("Index/HubClassificationInventory.md"));
             Assert.That(content, Does.Contain("DiagnosticCodeTraceabilityCatalog.md"));
             Assert.That(content, Does.Contain("Run-UnityTests.ps1"));
+            Assert.That(content, Does.Contain("Run-M15.4Gate.ps1"));
+            Assert.That(content, Does.Contain("CommandRuntimeLegacyRemovalTests.cs"));
+            Assert.That(content, Does.Contain("KernelM154GateScriptTests.cs"));
+            Assert.That(content, Does.Contain("TC-README-04"));
+            Assert.That(content, Does.Contain("TC-README-05"));
+            Assert.That(content, Does.Contain("TC-README-03"));
         }
 
         [Test]
@@ -57,6 +63,8 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsGetComponentsInChildrenCalls"));
             Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsTransformParentScopeInferenceCalls"));
             Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsFindFirstObjectByTypeCalls"));
+            Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanFiles_ReportsCommandKeyResolverStringDispatchInRealFile"));
+            Assert.That(content, Does.Contain("CommandRuntimeLegacyRemovalTests"));
             Assert.That(content, Does.Contain("KernelForbiddenPatternScannerTests.ScanText_ReportsStableKeyLookupOutsideValidationPaths"));
             Assert.That(content, Does.Contain("KernelIRIdentitiesTests.TypedIdentityPrimitives_PreserveValueEqualityAndHashCode"));
             Assert.That(content, Does.Contain("KernelIRSourceLocationTests.SourceLocationIR_PreservesUnityVariantEqualityAndHashCode"));
@@ -101,9 +109,67 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("TooltipChannelHubService"));
             Assert.That(content, Does.Contain("MeshChannelHubService"));
             Assert.That(content, Does.Contain("AnimationSpriteHubService"));
+            Assert.That(content, Does.Contain("AnimationSpriteHubAuthoring"));
             Assert.That(content, Does.Contain("Hub-owned runtime object"));
             Assert.That(content, Does.Contain("mixed boundary"));
             Assert.That(content, Does.Contain("Service candidate"));
+        }
+
+        [Test]
+        public void UnityAuthoringBridgeSpec_ContainsMeshChannelAuthoringSplit()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "12_UnityAuthoringBridgeSpec.md"));
+
+            Assert.That(content, Does.Contain("BlackboardAuthoring"));
+            Assert.That(content, Does.Contain("BlackboardMB"));
+            Assert.That(content, Does.Contain("MeshChannelHubAuthoring"));
+            Assert.That(content, Does.Contain("MeshChannelHubMB"));
+            Assert.That(content, Does.Contain("AnimationSpriteHubAuthoring"));
+            Assert.That(content, Does.Contain("AnimationSpriteHubMB"));
+            Assert.That(content, Does.Contain("Legacy `IScopeInstaller`-implementing components may remain only through 13’s migration boundary."));
+        }
+
+        [Test]
+        public void ValueSchemaSpec_ContainsBlackboardAuthoringSplit()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "10_ValueSchemaAndStoreSpec.md"));
+
+            Assert.That(content, Does.Contain("BlackboardAuthoring"));
+            Assert.That(content, Does.Contain("BlackboardMB"));
+            Assert.That(content, Does.Contain("ValueStoreInitContribution"));
+        }
+
+        [Test]
+        public void CommandCatalogSpec_ContainsCommandRunnerAuthoringSplit()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "09_CommandCatalogRuntimeSpec.md"));
+
+            Assert.That(content, Does.Contain("CommandRunnerAuthoring"));
+            Assert.That(content, Does.Contain("CommandRunnerMB"));
+            Assert.That(content, Does.Contain("CommandExecutorRegistry"));
+        }
+
+        [Test]
+        public void LegacyCompatSpec_ContainsBlackboardAuthoringSplit()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "13_LegacyCompatBoundarySpec.md"));
+
+            Assert.That(content, Does.Contain("BlackboardAuthoring"));
+            Assert.That(content, Does.Contain("BlackboardMB"));
+            Assert.That(content, Does.Contain("Legacy compatibility is a quarantine boundary, not a design extension point."));
+        }
+
+        [Test]
+        public void ImplementationMilestoneSpec_ContainsRepresentativeMigrationRules()
+        {
+            string content = ReadDoc(Path.Combine("Docs", "v2", "16_ImplementationMilestoneOrderSpec.md"));
+
+            Assert.That(content, Does.Contain("M14.3 MeshChannel migration"));
+            Assert.That(content, Does.Contain("M14.4 AnimationSprite migration"));
+            Assert.That(content, Does.Contain("M14.5 Blackboard / Var migration"));
+            Assert.That(content, Does.Contain("null var-store fallback"));
+            Assert.That(content, Does.Contain("stable-key fallback"));
+            Assert.That(content, Does.Contain("hub-owned runtime objects remain hub-owned runtime objects"));
         }
 
         [Test]
@@ -114,9 +180,11 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("## Document Status"));
             Assert.That(content, Does.Contain("machine-readable inventory of the current M6.7 hub classification decisions"));
             Assert.That(content, Does.Contain("ModalStackChannelHubService.cs"));
+            Assert.That(content, Does.Contain("keep layer and root state hub-owned"));
             Assert.That(content, Does.Contain("TooltipChannelHubService.cs"));
             Assert.That(content, Does.Contain("MeshChannelHubService.cs"));
             Assert.That(content, Does.Contain("AnimationSpriteHubService.cs"));
+            Assert.That(content, Does.Contain("AnimationSpriteHubAuthoring.cs"));
             Assert.That(content, Does.Contain("service candidate"));
             Assert.That(content, Does.Contain("mixed boundary"));
             Assert.That(content, Does.Contain("hub-owned runtime object"));
@@ -190,7 +258,7 @@ namespace TinnosukeGameLib.Tests.Editor
             string content = ReadDoc(Path.Combine("Docs", "v2", "Index", "ExistingAnchorInventory.md"));
 
             Assert.That(content, Does.Contain("## Document Status"));
-            Assert.That(content, Does.Contain("RuntimeLifetimeScope.cs"));
+            Assert.That(content, Does.Contain("KernelScopeHost.cs"));
             Assert.That(content, Does.Contain("ScopeFeatureInstallerUtility.cs"));
             Assert.That(content, Does.Contain("LoadingScreenService.cs"));
             Assert.That(content, Does.Contain("RuntimeResolverHub.cs"));
@@ -359,12 +427,24 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(content, Does.Contain("M13.4 hot-path allocation tests"));
             Assert.That(content, Does.Contain("M13.5 performance report output"));
             Assert.That(content, Does.Contain("M13.6 regression thresholds for allocation, elapsed time, baseline delta, and marker presence"));
+            Assert.That(content, Does.Contain("M14.1 ModalStack migration"));
+            Assert.That(content, Does.Contain("M14.2 Tooltip migration"));
             Assert.That(content, Does.Contain("resolve, handle validation, tick dispatch, command dispatch, value read or write, dynamic cached read, and diagnostics-disabled trace path"));
             Assert.That(content, Does.Contain("TC-16-04"));
             Assert.That(content, Does.Contain("TC-16-05"));
             Assert.That(content, Does.Contain("M1"));
             Assert.That(content, Does.Contain("M6"));
             Assert.That(content, Does.Contain("M15"));
+        }
+
+        [Test]
+        public void TooltipHubService_DoesNotUseCameraMainFallback()
+        {
+            string content = ReadDoc(Path.Combine("GameLib", "Script", "Project", "UI", "Core", "Tooltip", "TooltipChannelHubService.cs"));
+
+            Assert.That(content, Does.Not.Contain("Camera.main"));
+            Assert.That(content, Does.Not.Contain("_fallbackCameraCache"));
+            Assert.That(content, Does.Contain("TryGetCamera(_currentHubPreset.CameraLocationTag"));
         }
 
         [Test]
@@ -400,3 +480,5 @@ namespace TinnosukeGameLib.Tests.Editor
         }
     }
 }
+
+

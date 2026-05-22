@@ -2,10 +2,15 @@
   "name": "GameLib.Tests.Kernel.Boot.Editor",
   "rootNamespace": "TinnosukeGameLib.Tests.Editor",
   "references": [
+    "GameLib.Editor.KernelBoot",
+    "GameLib.Kernel.Authoring",
+    "GameLib.Kernel.Contributions",
     "GameLib.Kernel.Boot",
     "GameLib.Kernel.Diagnostics",
     "GameLib.Kernel.Abstractions",
     "GameLib.Kernel.Generation",
+    "GameLib.Kernel.IR",
+    "GameLib.Kernel.Validation",
     "GameLib.Tests.Kernel.Support.Editor"
   ],
   "includePlatforms": [

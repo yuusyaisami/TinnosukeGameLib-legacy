@@ -67,11 +67,11 @@ namespace TinnosukeGameLib.Tests.Editor
         public void LegacySourceLocation_PreservesOriginFields()
         {
             LegacySourceLocation source = new LegacySourceLocation(
-                legacySystemName: "RuntimeLifetimeScope.IFeatureInstaller",
+                legacySystemName: "KernelScopeHost.IScopeInstaller",
                 legacyOrigin: "BattleInstaller/RegisterServices",
                 migrationAdapter: "LegacyScopeInstallerAdapter");
 
-            Assert.That(source.LegacySystemName, Is.EqualTo("RuntimeLifetimeScope.IFeatureInstaller"));
+            Assert.That(source.LegacySystemName, Is.EqualTo("KernelScopeHost.IScopeInstaller"));
             Assert.That(source.LegacyOrigin, Is.EqualTo("BattleInstaller/RegisterServices"));
             Assert.That(source.MigrationAdapter, Is.EqualTo("LegacyScopeInstallerAdapter"));
             Assert.That(source.ToString(), Does.Contain("LegacyScopeInstallerAdapter"));
@@ -99,7 +99,7 @@ namespace TinnosukeGameLib.Tests.Editor
             ArgumentException legacySystemException = Assert.Throws<ArgumentException>(() => unityInvalid = new SourceLocationIR(
                 new LegacySourceLocation(null, "BattleInstaller/RegisterServices", "LegacyScopeInstallerAdapter")));
             ArgumentException legacyOriginException = Assert.Throws<ArgumentException>(() => unityInvalid = new SourceLocationIR(
-                new LegacySourceLocation("RuntimeLifetimeScope.IFeatureInstaller", "", "LegacyScopeInstallerAdapter")));
+                new LegacySourceLocation("KernelScopeHost.IScopeInstaller", "", "LegacyScopeInstallerAdapter")));
 
             Assert.That(legacySystemException!.ParamName, Is.EqualTo("LegacySystemName"));
             Assert.That(legacyOriginException!.ParamName, Is.EqualTo("LegacyOrigin"));
@@ -186,3 +186,5 @@ namespace TinnosukeGameLib.Tests.Editor
         }
     }
 }
+
+

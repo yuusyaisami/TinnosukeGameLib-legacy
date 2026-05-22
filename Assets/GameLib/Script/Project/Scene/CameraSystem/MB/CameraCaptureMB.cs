@@ -9,14 +9,14 @@ using Game.SharedTexture;
 namespace Game.CameraSystem
 {
     [DisallowMultipleComponent]
-    public sealed class CameraCaptureMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CameraCaptureMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Capture")]
         [LabelText("Resolution Scale")]
         [Range(0.1f, 1.0f)]
         [SerializeField] float resolutionScale = 1.0f;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var options = new CameraCaptureOptions(resolutionScale);
 
@@ -29,3 +29,4 @@ namespace Game.CameraSystem
         }
     }
 }
+

@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -13,7 +13,7 @@ namespace Game.UI
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RectTransform))]
     [RequireComponent(typeof(Slider))]
-    public sealed class UISliderMB : MonoBehaviour, IFeatureInstaller, IUISliderValueOptions, IUISliderInputOptions
+    public sealed class UISliderMB : MonoBehaviour, IScopeInstaller, IUISliderValueOptions, IUISliderInputOptions
     {
         [Header("Unity Slider (Visual)")]
         [SerializeField] Slider? _unitySlider;
@@ -204,7 +204,7 @@ namespace Game.UI
             }
         }
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             ResolveSlider();
             ApplyUnitySliderConfig();
@@ -307,3 +307,4 @@ namespace Game.UI
         }
     }
 }
+

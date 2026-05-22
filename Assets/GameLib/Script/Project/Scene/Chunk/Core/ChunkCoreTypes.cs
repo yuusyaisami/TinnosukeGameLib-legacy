@@ -125,28 +125,22 @@ namespace Game.Chunk
     {
         public readonly ChunkCoord Coord;
         public readonly Bounds WorldBounds;
-        public readonly IScopeNode? ScopeNode;
-        public readonly RuntimeLifetimeScope? RuntimeScope;
-        public readonly BaseLifetimeScope? BaseScope;
-        public readonly UnityEngine.GameObject? Root;
-        public readonly IRuntimeResolver? Resolver;
+        public readonly SpawnedLifetimeHandle Lifetime;
+
+        public IScopeNode? ScopeNode => Lifetime.ScopeNode;
+        public UnityEngine.GameObject? Root => Lifetime.Root;
+        public IRuntimeResolver? Resolver => Lifetime.Resolver;
+        public bool UsesRuntimeLifetimeScope => Lifetime.UsesRuntimeLifetimeScope;
+        public bool UsesBaseLifetimeScope => Lifetime.UsesBaseLifetimeScope;
 
         public ChunkHandle(
             ChunkCoord coord,
             Bounds worldBounds,
-            IScopeNode? scopeNode,
-            RuntimeLifetimeScope? runtimeScope,
-            BaseLifetimeScope? baseScope,
-            UnityEngine.GameObject? root,
-            IRuntimeResolver? resolver)
+            SpawnedLifetimeHandle lifetime)
         {
             Coord = coord;
             WorldBounds = worldBounds;
-            ScopeNode = scopeNode;
-            RuntimeScope = runtimeScope;
-            BaseScope = baseScope;
-            Root = root;
-            Resolver = resolver;
+            Lifetime = lifetime;
         }
     }
 

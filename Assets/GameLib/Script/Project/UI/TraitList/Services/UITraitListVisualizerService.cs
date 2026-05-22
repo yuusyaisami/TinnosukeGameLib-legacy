@@ -170,7 +170,7 @@ namespace Game.UI.TraitList
                 return null;
             }
 
-            ExtractSpawnedInfo(resolver, out var root, out var scope, out _, out _);
+            ExtractSpawnedInfo(resolver, out var root, out var scope);
             if (root == null || scope == null)
             {
                 Debug.LogError("[UITraitListVisualizer] Spawned instance missing root or scope.");
@@ -825,35 +825,9 @@ namespace Game.UI.TraitList
             if (resolver == null)
                 return;
 
-            await UniTask.SwitchToMainThread();
-
             try
             {
-                if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
-                {
-                    if (runtimeScope.Resolver != null &&
-                        runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                        pool != null)
-                    {
-                        pool.Release(runtimeScope);
-                        return;
-                    }
-
-                    if (root != null)
-                        UnityEngine.Object.Destroy(root.gameObject);
-                    else
-                        UnityEngine.Object.Destroy(runtimeScope.gameObject);
-                    return;
-                }
-
-                if (scope is BaseLifetimeScope baseScope)
-                {
-                    await baseScope.DespawnAsync(CancellationToken.None);
-                    return;
-                }
-
-                if (root != null)
-                    UnityEngine.Object.Destroy(root.gameObject);
+                await ScopeFeatureInstallerUtility.ReleaseSpawnedLifetimeAsync(resolver, CancellationToken.None);
             }
             catch (Exception ex)
             {
@@ -864,49 +838,11 @@ namespace Game.UI.TraitList
         static void ExtractSpawnedInfo(
             IRuntimeResolver? resolver,
             out Transform? root,
-            out IScopeNode? scopeNode,
-            out RuntimeLifetimeScope? runtimeScope,
-            out BaseLifetimeScope? baseScope)
+            out IScopeNode? scopeNode)
         {
-            root = null;
-            scopeNode = null;
-            runtimeScope = null;
-            baseScope = null;
-
-            if (resolver == null)
-                return;
-
-            resolver.TryResolve(out runtimeScope);
-
-            if (runtimeScope != null)
-                root = runtimeScope.transform;
-
-            if (root == null)
-            {
-                if (resolver.TryResolve<Transform>(out var tr) && tr != null)
-                    root = tr;
-                else if (resolver.TryResolve<GameObject>(out var go) && go != null)
-                    root = go.transform;
-            }
-
-            scopeNode = runtimeScope;
-            if (scopeNode == null && resolver.TryResolve<IScopeNode>(out var resolved) && resolved != null)
-                scopeNode = resolved;
-
-            if (scopeNode == null && root != null)
-            {
-                var comps = root.GetComponents<Component>();
-                for (int i = 0; i < comps.Length; i++)
-                {
-                    if (comps[i] is IScopeNode node)
-                    {
-                        scopeNode = node;
-                        break;
-                    }
-                }
-            }
-
-            baseScope = scopeNode as BaseLifetimeScope;
+            var lifetime = ScopeFeatureInstallerUtility.CaptureSpawnedLifetime(resolver);
+            root = lifetime.Root != null ? lifetime.Root.transform : null;
+            scopeNode = lifetime.ScopeNode;
         }
     }
 

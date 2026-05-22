@@ -12,7 +12,7 @@ namespace Game.Commands.VNext
         public string DebugData => $"{ActorSourceOdinLabelHelper.GetLabel("State Machine Source", StateMachineSource)} State={State}";
 
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"State Machine Source\", StateMachineSource)")]
-        public ActorSource StateMachineSource = new() { Kind = ActorSourceKind.Current };
+        public ActorSource StateMachineSource = new() { Kind = ActorSourceKind.GameLogicRoot };
 
         [LabelText("State")]
         public GameState State;

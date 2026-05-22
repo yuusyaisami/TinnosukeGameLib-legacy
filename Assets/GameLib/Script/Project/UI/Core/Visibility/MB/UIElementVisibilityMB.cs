@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,7 +12,7 @@ namespace Game.UI
     /// - GameObject.SetActive(false) 縺ｯ菴ｿ逕ｨ縺励↑縺・
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class UIElementVisibilityMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UIElementVisibilityMB : MonoBehaviour, IScopeInstaller
     {
         [Header("Adapter (CanvasGroup)")]
         [Tooltip("Inspector setting.")]
@@ -29,7 +29,7 @@ namespace Game.UI
         [SerializeField]
         UIFadeOptions fadeOptions = UIFadeOptions.Default;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var group = ResolveCanvasGroup();
             var root = graphicsRoot != null ? graphicsRoot : transform;
@@ -71,4 +71,5 @@ namespace Game.UI
         }
     }
 }
+
 

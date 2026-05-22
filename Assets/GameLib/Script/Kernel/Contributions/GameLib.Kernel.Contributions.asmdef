@@ -1,0 +1,16 @@
+{
+  "name": "GameLib.Kernel.Contributions",
+  "rootNamespace": "Game.Kernel.Contributions",
+  "references": [
+    "GameLib.Kernel.IR"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

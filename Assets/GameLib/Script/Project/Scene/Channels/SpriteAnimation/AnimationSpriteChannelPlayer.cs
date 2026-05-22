@@ -205,7 +205,16 @@ namespace Game.Channel
             IMaterialFxServiceFactory? materialFxFactory)
         {
             _def = def ?? throw new ArgumentNullException(nameof(def));
-            _scope = scope;
+            if (string.IsNullOrWhiteSpace(_def.Tag))
+                throw new ArgumentException("AnimationSprite channel tag must be specified.", nameof(def));
+
+            if (string.Equals(_def.Tag.Trim(), "default", StringComparison.Ordinal))
+                throw new ArgumentException("AnimationSprite channel tag must be an explicit non-default value.", nameof(def));
+
+            if (_def.SpriteRenderer == null && _def.Image == null)
+                throw new InvalidOperationException($"AnimationSprite channel '{_def.Tag}' requires an explicit SpriteRenderer or Image target.");
+
+            _scope = scope ?? throw new ArgumentNullException(nameof(scope));
             _commandRunner = commandRunner ?? throw new ArgumentNullException(nameof(commandRunner));
 
             _hookRunner = new HookRunner(_scope, _commandRunner);

@@ -10,9 +10,9 @@ namespace Game.RoomMap
     /// Attach this under ProjectLifetimeScope.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class RoomMapCommandsMB : MonoBehaviour, IFeatureInstaller
+    public sealed class RoomMapCommandsMB : MonoBehaviour, IScopeInstaller
     {
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             // Register RoomMap command executors in Project, Scene and Field scopes (RoomMap may be invoked from Field scopes at runtime)
             if (owner.Kind != LifetimeScopeKind.Project && owner.Kind != LifetimeScopeKind.Scene && owner.Kind != LifetimeScopeKind.Field)
@@ -35,3 +35,4 @@ namespace Game.RoomMap
         }
     }
 }
+

@@ -15,7 +15,7 @@ namespace Game.Collision
     /// Installs BulkCollisionSystem into ProjectLifetimeScope.
     /// Attach to the same GameObject as ProjectLifetimeScope.
     /// </summary>
-    public sealed class BulkCollisionSystemMB : MonoBehaviour, IFeatureInstaller
+    public sealed class BulkCollisionSystemMB : MonoBehaviour, IScopeInstaller
     {
         [Header("Configuration")]
         [SerializeField] CollisionSystemProfileSO _profile;
@@ -26,7 +26,7 @@ namespace Game.Collision
         IBulkCollisionManager _manager;
         CollisionHitRouter _router;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var kind = scope.Kind;
             if (kind != LifetimeScopeKind.Project)
@@ -209,3 +209,4 @@ namespace Game.Collision
         }
     }
 }
+

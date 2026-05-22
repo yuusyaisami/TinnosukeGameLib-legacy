@@ -1,5 +1,4 @@
 #nullable enable
-using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game;
@@ -19,7 +18,9 @@ namespace Game.Commands.VNext
 
             var (originScope, error) = await ActorScopeResolver.ResolveAsync(typed.StateMachineSource, ctx, ct);
             if (originScope == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, error ?? "State machine source could not be resolved.");
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ResolveFailed,
+                    $"{GameStateMachineCommandExecutorUtility.DiagnosticCode} {error ?? "State machine source could not be resolved."}");
 
             var svc = GameStateMachineCommandExecutorUtility.ResolveServiceOrThrow(originScope);
             svc.ChangeState(typed.State);
@@ -28,36 +29,24 @@ namespace Game.Commands.VNext
 
     static class GameStateMachineCommandExecutorUtility
     {
+        internal const string DiagnosticCode = "[V22-M4-GSM-001]";
+
         public static IGameStateMachineService ResolveServiceOrThrow(IScopeNode origin)
         {
             if (origin == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "Scope is null.");
+                throw CreateResolveFailed("Resolved state-machine source scope is null.");
 
             var originResolver = origin.Resolver;
             if (originResolver != null && originResolver.TryResolve<IGameStateMachineService>(out var originSvc) && originSvc != null)
                 return originSvc;
 
-            var candidates = new List<LifetimeScopeKind>
-            {
-                LifetimeScopeKind.Scene,
-                LifetimeScopeKind.Field,
-                LifetimeScopeKind.Project
-            };
+            throw CreateResolveFailed(
+                "IGameStateMachineService must be registered in the resolved state-machine source scope. Update StateMachineSource or add GameStateMachineMB to that scope.");
+        }
 
-            foreach (var kind in candidates)
-            {
-                var node = ScopeNodeHierarchy.FindNearestAncestorByKind(origin, kind, includeSelf: true);
-                if (node == null)
-                    continue;
-                var resolver = node.Resolver;
-                if (resolver == null)
-                    continue;
-                if (resolver.TryResolve<IGameStateMachineService>(out var svc) && svc != null)
-                    return svc;
-            }
-
-            throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed,
-                "IGameStateMachineService is not registered in the nearest Scene/Field/Project scope. Add GameStateMachineMB to the appropriate scope.");
+        static CommandExecutionException CreateResolveFailed(string message)
+        {
+            return new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"{DiagnosticCode} {message}");
         }
     }
 }

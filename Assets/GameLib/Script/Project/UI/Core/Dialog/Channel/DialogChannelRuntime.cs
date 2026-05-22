@@ -36,7 +36,7 @@ namespace Game.Dialogue
             public string CharacterId = string.Empty;
             public int CharacterDataId;
             public IRuntimeResolver? Resolver;
-            public RuntimeLifetimeScope? RuntimeScope;
+            public KernelScopeHost? RuntimeScope;
             public Transform? Root;
             public IScopeNode? Scope;
             public bool IsOwnedByDialogue = true;
@@ -1172,7 +1172,7 @@ namespace Game.Dialogue
                     KeepAliveAfterEnd = true,
                 };
 
-                if (existingBinding.Scope is RuntimeLifetimeScope adoptedRuntimeScope)
+                if (existingBinding.Scope is KernelScopeHost adoptedRuntimeScope)
                     adopted.RuntimeScope = adoptedRuntimeScope;
 
                 _characterRecords[resolved.RuntimeKey] = adopted;
@@ -1256,7 +1256,7 @@ namespace Game.Dialogue
 
         void ResolveSpawnedIdentity(CharacterRuntimeRecord record, IRuntimeResolver resolver)
         {
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            if (resolver.TryResolve<KernelScopeHost>(out var runtimeScope) && runtimeScope != null)
             {
                 record.RuntimeScope = runtimeScope;
                 record.Root = runtimeScope.transform;
@@ -1303,7 +1303,7 @@ namespace Game.Dialogue
 
             await UniTask.SwitchToMainThread();
 
-            if (record.Resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            if (record.Resolver.TryResolve<KernelScopeHost>(out var runtimeScope) && runtimeScope != null)
             {
                 if (runtimeScope.Resolver != null &&
                     runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
@@ -1628,3 +1628,5 @@ namespace Game.Dialogue
         }
     }
 }
+
+

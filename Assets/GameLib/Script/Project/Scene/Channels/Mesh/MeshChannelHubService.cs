@@ -29,11 +29,17 @@ namespace Game.Channel
             IScopeNode scope,
             Transform ownerTransform)
         {
+            if (entries == null)
+                throw new ArgumentNullException(nameof(entries));
+
+            if (scope == null)
+                throw new ArgumentNullException(nameof(scope));
+
+            if (ownerTransform == null)
+                throw new ArgumentNullException(nameof(ownerTransform));
+
             _scope = scope;
             _ownerTransform = ownerTransform;
-
-            if (entries == null)
-                return;
 
             for (var i = 0; i < entries.Length; i++)
             {
@@ -41,7 +47,10 @@ namespace Game.Channel
                 if (entry == null)
                     continue;
 
-                var tag = string.IsNullOrWhiteSpace(entry.Tag) ? "default" : entry.Tag.Trim();
+                var tag = NormalizeTagOrThrow(entry.Tag);
+                if (_playersByTag.ContainsKey(tag))
+                    throw new InvalidOperationException($"[MeshChannelHub] Duplicate channel tag '{tag}'.");
+
                 var runtime = new MeshChannelPlayerRuntime(tag, entry.Definition, scope, ownerTransform);
                 _playersByTag[tag] = runtime;
                 _players.Add(runtime);
@@ -50,7 +59,12 @@ namespace Game.Channel
 
         public bool TryGetPlayer(string tag, out IMeshChannelPlayerRuntime player)
         {
-            tag = NormalizeTag(tag);
+            if (!TryNormalizeTag(tag, out tag))
+            {
+                player = null!;
+                return false;
+            }
+
             if (_playersByTag.TryGetValue(tag, out var runtime))
             {
                 player = runtime;
@@ -63,7 +77,7 @@ namespace Game.Channel
 
         public IMeshChannelPlayerRuntime GetPlayer(string tag)
         {
-            tag = NormalizeTag(tag);
+            tag = NormalizeTagOrThrow(tag);
             if (_playersByTag.TryGetValue(tag, out var runtime))
                 return runtime;
 
@@ -72,14 +86,12 @@ namespace Game.Channel
 
         public bool SwapRootDefinition(string tag, MeshDefinitionPreset preset)
         {
-            var runtime = GetOrCreateRuntime(tag);
-            return runtime.SwapRootDefinition(preset);
+            return TryGetRuntime(tag, out var runtime) && runtime.SwapRootDefinition(preset);
         }
 
         public bool SwapTrackDefinition(string tag, string key, MeshTrackDefinition definition)
         {
-            var runtime = GetOrCreateRuntime(tag);
-            return runtime.SwapTrackDefinition(key, definition);
+            return TryGetRuntime(tag, out var runtime) && runtime.SwapTrackDefinition(key, definition);
         }
 
         public bool MutateTrackVisualizer(string tag, string key, MeshTrackVisualizerRuntimeMutation mutation)
@@ -199,30 +211,27 @@ namespace Game.Channel
 
         bool TryGetRuntime(string tag, out MeshChannelPlayerRuntime runtime)
         {
-            tag = NormalizeTag(tag);
+            if (!TryNormalizeTag(tag, out tag))
+            {
+                runtime = null!;
+                return false;
+            }
+
             return _playersByTag.TryGetValue(tag, out runtime!);
         }
 
-        MeshChannelPlayerRuntime GetOrCreateRuntime(string tag)
+        static string NormalizeTagOrThrow(string tag)
         {
-            tag = NormalizeTag(tag);
-            if (_playersByTag.TryGetValue(tag, out var runtime))
-                return runtime;
+            if (TryNormalizeTag(tag, out var normalizedTag))
+                return normalizedTag;
 
-            runtime = new MeshChannelPlayerRuntime(
-                tag,
-                MeshChannelDynamicValueFactory.FromManaged(new MeshDefinitionPreset()),
-                _scope,
-                _ownerTransform);
-            _playersByTag[tag] = runtime;
-            _players.Add(runtime);
-            runtime.OnAcquire();
-            return runtime;
+            throw new ArgumentException("Mesh channel tags must be specified.", nameof(tag));
         }
 
-        static string NormalizeTag(string tag)
+        static bool TryNormalizeTag(string tag, out string normalizedTag)
         {
-            return string.IsNullOrWhiteSpace(tag) ? "default" : tag.Trim();
+            normalizedTag = tag?.Trim() ?? string.Empty;
+            return !string.IsNullOrWhiteSpace(normalizedTag);
         }
     }
 }

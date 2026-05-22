@@ -37,18 +37,6 @@ namespace Game.UI
             return NullVarStore.Instance;
         }
 
-        public static void EnsureScopeBuiltIfNeeded(IScopeNode? scope)
-        {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
-        }
-
         public static bool TryResolveVisualBounds(TraitListChannelVisualInstance instance, out VisualBoundsOutput output)
         {
             return TransformGridSharedUtility.TryResolveVisualBounds(
@@ -95,38 +83,9 @@ namespace Game.UI
             if (resolver == null)
                 return;
 
-            await UniTask.SwitchToMainThread();
-            //Debug.Log(
-            //    $"[TraitListChannel][ReleaseSpawnedInstance] root='{DescribeTransform(root)}' scope='{scope?.GetType().Name ?? "<null>"}' " +
-            //    $"resolver='{resolver.GetType().Name}'");
-
             try
             {
-                if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
-                {
-                    if (runtimeScope.Resolver != null &&
-                        runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                        pool != null)
-                    {
-                        pool.Release(runtimeScope);
-                        return;
-                    }
-
-                    if (root != null)
-                        Object.Destroy(root.gameObject);
-                    else
-                        Object.Destroy(runtimeScope.gameObject);
-                    return;
-                }
-
-                if (scope is BaseLifetimeScope baseScope)
-                {
-                    await baseScope.DespawnAsync(CancellationToken.None);
-                    return;
-                }
-
-                if (root != null)
-                    Object.Destroy(root.gameObject);
+                await ScopeFeatureInstallerUtility.ReleaseSpawnedLifetimeAsync(resolver, CancellationToken.None);
             }
             catch (System.Exception ex)
             {
@@ -139,24 +98,9 @@ namespace Game.UI
             out Transform? root,
             out IScopeNode? scopeNode)
         {
-            root = null;
-            scopeNode = null;
-            if (resolver == null)
-                return;
-
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
-            {
-                root = runtimeScope.transform;
-                scopeNode = runtimeScope;
-                return;
-            }
-
-            if (resolver.TryResolve<BaseLifetimeScope>(out var baseScope) && baseScope != null)
-            {
-                root = baseScope.transform;
-                scopeNode = baseScope;
-                return;
-            }
+            var lifetime = ScopeFeatureInstallerUtility.CaptureSpawnedLifetime(resolver);
+            root = lifetime.Root != null ? lifetime.Root.transform : null;
+            scopeNode = lifetime.ScopeNode;
         }
 
         public static bool TryResolveTransformAnimationPlayer(
@@ -167,20 +111,5 @@ namespace Game.UI
             return TransformGridSharedUtility.TryResolveTransformAnimationPlayer(instance.Resolver, channelTag, out player);
         }
 
-        static string DescribeTransform(Transform? target)
-        {
-            if (target == null)
-                return "<null>";
-
-            var current = target;
-            var path = current.name;
-            while (current.parent != null)
-            {
-                current = current.parent;
-                path = $"{current.name}/{path}";
-            }
-
-            return $"{target.name} path='{path}'";
-        }
     }
 }

@@ -473,24 +473,12 @@ namespace Game.Trait
                 return true;
             }
 
-            var projects = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-            if (projects != null)
+            if (KernelScopeHost.TryResolveProjectHostService<IBaseLifetimeScopeRegistry>(out var resolved) &&
+                resolved != null)
             {
-                for (int i = 0; i < projects.Length; i++)
-                {
-                    var project = projects[i];
-                    if (project == null || project.Resolver == null)
-                        continue;
-
-                    if (!project.Resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) || resolved == null)
-                        continue;
-
-                    s_cachedRegistry = resolved;
-                    registry = resolved;
-                    return true;
-                }
+                s_cachedRegistry = resolved;
+                registry = resolved;
+                return true;
             }
 
             registry = null;
@@ -498,3 +486,4 @@ namespace Game.Trait
         }
     }
 }
+

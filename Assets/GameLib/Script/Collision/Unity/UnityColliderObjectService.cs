@@ -95,7 +95,7 @@ namespace Game.Collision
                 else if (!_loggedMissingManager)
                 {
                     _loggedMissingManager = true;
-                    Game.LTSLog.LogWarning("[UnityColliderObjectService] IUnityCollisionManager is not registered. UnityCollisionSystemMB profile may be missing.", _mb);
+                    Debug.LogWarning("[UnityColliderObjectService] IUnityCollisionManager is not registered. UnityCollisionSystemMB profile may be missing.", _mb);
                     Debug.LogWarning("[UnityColliderObjectService] IUnityCollisionManager is not registered. UnityCollisionSystemMB profile may be missing.");
                 }
             }
@@ -110,7 +110,7 @@ namespace Game.Collision
                 else if (!_loggedMissingRegistry)
                 {
                     _loggedMissingRegistry = true;
-                    Game.LTSLog.LogWarning("[UnityColliderObjectService] IHitColliderScopeRegistry is not registered. UnityCollisionSystemMB may be missing.", _mb);
+                    Debug.LogWarning("[UnityColliderObjectService] IHitColliderScopeRegistry is not registered. UnityCollisionSystemMB may be missing.", _mb);
                     Debug.LogWarning("[UnityColliderObjectService] IHitColliderScopeRegistry is not registered. UnityCollisionSystemMB may be missing.");
                 }
             }

@@ -9,7 +9,7 @@ using VContainer.Unity;
 namespace Game.Channel
 {
     [DisallowMultipleComponent]
-    public sealed class ScrollChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ScrollChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("View")]
         [LabelText("World Camera")]
@@ -36,7 +36,7 @@ namespace Game.Channel
         [LabelText("Channels")]
         [SerializeField] ScrollChannelDefinition[] channels = Array.Empty<ScrollChannelDefinition>();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (channels == null)
                 channels = Array.Empty<ScrollChannelDefinition>();
@@ -90,3 +90,4 @@ namespace Game.Channel
         bool ShowManualViewSize => !useCameraView;
     }
 }
+

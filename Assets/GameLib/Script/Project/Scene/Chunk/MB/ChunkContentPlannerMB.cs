@@ -7,7 +7,7 @@ using VContainer;
 namespace Game.Chunk
 {
     [DisallowMultipleComponent]
-    public sealed class ChunkContentPlannerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ChunkContentPlannerMB : MonoBehaviour, IScopeInstaller
     {
         const string PlanGroup = "Plan";
 
@@ -20,7 +20,7 @@ namespace Game.Chunk
         [BoxGroup(PlanGroup)]
         [SerializeField] ChunkRuleSetSO? ruleSet;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             var config = new ChunkPlannerConfig
             {
@@ -36,3 +36,4 @@ namespace Game.Chunk
         }
     }
 }
+

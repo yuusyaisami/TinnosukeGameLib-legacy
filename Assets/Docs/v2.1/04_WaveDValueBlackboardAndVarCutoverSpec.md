@@ -174,6 +174,7 @@ It is migration evidence, not target policy.
 ### Representative Anchors
 
 - [../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs)
+- [../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - explicit declaration surface for local init, grid init, debug metadata, and transform-write intent
 - [../../GameLib/Script/Common/Variables/Blackboard/Service/BlackboardService.cs](../../GameLib/Script/Common/Variables/Blackboard/Service/BlackboardService.cs)
 - [../../GameLib/Script/Common/Variables/Blackboard/Service/GridBlackboardService.cs](../../GameLib/Script/Common/Variables/Blackboard/Service/GridBlackboardService.cs)
 - [../../GameLib/Script/Common/Variables/Blackboard/Service/BlackboardValueInitRuntime.cs](../../GameLib/Script/Common/Variables/Blackboard/Service/BlackboardValueInitRuntime.cs)

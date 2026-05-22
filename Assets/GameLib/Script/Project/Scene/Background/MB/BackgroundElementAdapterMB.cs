@@ -7,7 +7,7 @@ using VContainer;
 namespace Game.Background
 {
     [DisallowMultipleComponent]
-    public sealed class BackgroundElementAdapterMB : MonoBehaviour, IFeatureInstaller, IBackgroundElementAdapterOptions
+    public sealed class BackgroundElementAdapterMB : MonoBehaviour, IScopeInstaller, IBackgroundElementAdapterOptions
     {
         const string TargetGroup = "Targets";
         const string OptionGroup = "Options";
@@ -43,7 +43,7 @@ namespace Game.Background
         public bool ApplySortingOrder => applySortingOrder;
         public int SortingOrderOffset => sortingOrderOffset;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.Register<BackgroundElementAdapterService>(RuntimeLifetime.Singleton)
                 .WithParameter<IBackgroundElementAdapterOptions>(this)
@@ -71,3 +71,4 @@ namespace Game.Background
 #endif
     }
 }
+

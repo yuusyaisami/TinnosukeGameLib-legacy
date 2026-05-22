@@ -146,17 +146,7 @@ namespace Game.Commands.VNext
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-            {
-                runtimeScope.EnsureScopeBuilt();
-                return;
-            }
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
 
         static bool TryResolveRunner(IScopeNode scope, out ICommandRunner? runner)
@@ -268,15 +258,9 @@ namespace Game.Commands.VNext
             if (go == null)
                 return null;
 
-            var baseScope = go.GetComponentInParent<BaseLifetimeScope>();
-            if (baseScope != null)
-                return baseScope;
-
-            var runtimeScope = go.GetComponentInParent<RuntimeLifetimeScope>();
-            if (runtimeScope != null)
-                return runtimeScope;
-
-            return null;
+            return ScopeFeatureInstallerUtility.TryGetScopeNode(go, includeInactive: true, out var node)
+                ? node
+                : null;
         }
 
         static IVarStore ResolveVars(VarsPolicy policy, CommandContext ctx, IScopeNode scope)

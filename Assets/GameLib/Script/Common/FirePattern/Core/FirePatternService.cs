@@ -164,7 +164,7 @@ namespace Game.Fire
                 {
 
                 }
-                else if (outputResolver.TryResolve<ILTSIdentityService>(out var lts) && lts != null)
+                else if (outputResolver.TryResolve<IScopeIdentityService>(out var lts) && lts != null)
                 {
                     var go2 = lts.SelfTransform;
                 }
@@ -217,40 +217,7 @@ namespace Game.Fire
 
             await WaitUntilScopeCommandsIdleAsync(resolver, ct);
 
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) &&
-                runtimeScope != null &&
-                !IsDestroyed(runtimeScope) &&
-                resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                pool != null)
-            {
-                pool.Release(runtimeScope);
-                return;
-            }
-
-            if (resolver.TryResolve<BaseLifetimeScope>(out var baseScope) &&
-                baseScope != null &&
-                !IsDestroyed(baseScope))
-            {
-                await baseScope.DespawnAsync(ct);
-                return;
-            }
-
-            if (resolver.TryResolve<Component>(out var component) &&
-                component != null &&
-                !IsDestroyed(component))
-            {
-                var go = component.gameObject;
-                if (go != null && !IsDestroyed(go))
-                    UnityEngine.Object.Destroy(go);
-                return;
-            }
-
-            if (resolver.TryResolve<GameObject>(out var gameObject) &&
-                gameObject != null &&
-                !IsDestroyed(gameObject))
-            {
-                UnityEngine.Object.Destroy(gameObject);
-            }
+            await ScopeFeatureInstallerUtility.ReleaseSpawnedLifetimeAsync(resolver, ct);
         }
 
         static async UniTask WaitUntilScopeCommandsIdleAsync(IRuntimeResolver resolver, CancellationToken ct)
@@ -279,3 +246,4 @@ namespace Game.Fire
         }
     }
 }
+

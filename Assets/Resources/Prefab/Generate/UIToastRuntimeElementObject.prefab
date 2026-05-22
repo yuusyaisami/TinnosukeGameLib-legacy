@@ -151,7 +151,6 @@ GameObject:
   - component: {fileID: 1868327803171634473}
   - component: {fileID: 679350126330972818}
   - component: {fileID: 6492978099401191921}
-  - component: {fileID: 8678687384512050743}
   - component: {fileID: 1813799831630085270}
   m_Layer: 0
   m_Name: UIToastRuntimeElementObject
@@ -288,30 +287,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!114 &8678687384512050743
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1255711634492439393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1813799831630085270
 MonoBehaviour:
   m_ObjectHideFlags: 0

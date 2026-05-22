@@ -177,7 +177,7 @@ namespace Game.SelectRuntime
     public readonly struct UserMoveRotateValidationRequest
     {
         public readonly UserMoveRotateRuntimeMB Editor;
-        public readonly RuntimeLifetimeScope RuntimeScope;
+        public readonly KernelScopeHost RuntimeScope;
         public readonly Transform RootTransform;
         public readonly SelectRuntimeManagerMB? ManagerBridge;
         public readonly IReadOnlyList<Collider> ValidationColliders;
@@ -186,7 +186,7 @@ namespace Game.SelectRuntime
 
         UserMoveRotateValidationRequest(
             UserMoveRotateRuntimeMB editor,
-            RuntimeLifetimeScope runtimeScope,
+            KernelScopeHost runtimeScope,
             Transform rootTransform,
             SelectRuntimeManagerMB? managerBridge,
             IReadOnlyList<Collider> validationColliders)
@@ -198,7 +198,7 @@ namespace Game.SelectRuntime
             ValidationColliders = validationColliders;
         }
 
-        public static UserMoveRotateValidationRequest Create(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
+        public static UserMoveRotateValidationRequest Create(UserMoveRotateRuntimeMB editor, KernelScopeHost runtimeScope)
         {
             var rootTransform = runtimeScope.Identity?.SelfTransform != null
                 ? runtimeScope.Identity.SelfTransform
@@ -286,3 +286,5 @@ namespace Game.SelectRuntime
     }
 
 }
+
+

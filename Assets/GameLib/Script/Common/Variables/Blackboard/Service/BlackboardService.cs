@@ -95,6 +95,15 @@ namespace Game.Common
             if (_localVars.TryGetVariant(varId, out value))
                 return true;
 
+            if (VerifiedValueRuntimeBridge.IsActive)
+            {
+                VerifiedValueAccessDiagnostics.ReportBlockedAccessOnce(
+                    "BlackboardService.TryGlobalGetVariant",
+                    "Wave D verified value authority blocked BlackboardService.TryGlobalGetVariant hierarchical global read. Global blackboard traversal is no longer accepted runtime value truth.");
+                value = default;
+                return false;
+            }
+
             // 2) ascend parent scopes and ask their local stores
             var node = _scope?.Parent;
             while (node != null)
@@ -119,6 +128,14 @@ namespace Game.Common
             // 1) check local store
             if (_localVars.Contains(varId))
                 return _scope;
+
+            if (VerifiedValueRuntimeBridge.IsActive)
+            {
+                VerifiedValueAccessDiagnostics.ReportBlockedAccessOnce(
+                    "BlackboardService.FindGlobalVariantScope",
+                    "Wave D verified value authority blocked BlackboardService.FindGlobalVariantScope hierarchical traversal. Global blackboard scope discovery is no longer accepted runtime value truth.");
+                return null;
+            }
 
             // 2) ascend parent scopes and ask their local stores
             var node = _scope?.Parent;
@@ -150,6 +167,14 @@ namespace Game.Common
             if (_localVars.Contains(varId))
             {
                 return _localVars.TrySetVariant(varId, in value);
+            }
+
+            if (VerifiedValueRuntimeBridge.IsActive)
+            {
+                VerifiedValueAccessDiagnostics.ReportBlockedAccessOnce(
+                    "BlackboardService.TryGlobalSetVariant",
+                    "Wave D verified value authority blocked BlackboardService.TryGlobalSetVariant hierarchical global write. Global blackboard fallback writes are no longer accepted runtime value truth.");
+                return false;
             }
 
             // Otherwise, walk upwards to find the nearest scope that contains the var

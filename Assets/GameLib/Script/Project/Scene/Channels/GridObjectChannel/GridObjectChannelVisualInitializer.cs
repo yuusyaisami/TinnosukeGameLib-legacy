@@ -76,7 +76,7 @@ namespace Game.Channel
 
             instance.UpdateFromItem(item);
             var payload = _payloadBuilder.BuildPayload(state, item);
-            var commandVars = _payloadBuilder.ApplyPayloadToBlackboard(instance, payload);
+            var commandVars = _payloadBuilder.BuildCommandVars(payload);
 
             if (state.EnableVerboseLayoutLog)
             {
@@ -377,7 +377,7 @@ namespace Game.Channel
                 return true;
             }
 
-            return GridObjectChannelRuntimeUtility.TryResolveFromScopeOrAncestors(state.ActiveScope, out runner) && runner != null;
+            return GridObjectChannelRuntimeUtility.TryResolveFromScope(state.ActiveScope, out runner) && runner != null;
         }
     }
 }

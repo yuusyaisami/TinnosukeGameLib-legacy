@@ -20,7 +20,7 @@ namespace Game.MapNode
     }
 
     [DisallowMultipleComponent]
-    public sealed class MapNodePlayerMB : MonoBehaviour, IFeatureInstaller, IMapNodePlayerOptions
+    public sealed class MapNodePlayerMB : MonoBehaviour, IScopeInstaller, IMapNodePlayerOptions
     {
         [BoxGroup("Build")]
         [SerializeField]
@@ -92,7 +92,7 @@ namespace Game.MapNode
             _onSelectedNodeChangedCommands?.BindDebugOwner(this, nameof(_onSelectedNodeChangedCommands));
         }
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IMapNodePlayerOptions>(this);
 
@@ -106,3 +106,4 @@ namespace Game.MapNode
         }
     }
 }
+

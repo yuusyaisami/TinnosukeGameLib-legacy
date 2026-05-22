@@ -17,7 +17,7 @@ namespace Game.UI
     }
 
     [RequireComponent(typeof(UIElementLifetimeScope))]
-    public sealed class ModalStackLayerAffectCommandMB : MonoBehaviour, IFeatureInstaller, IModalStackLayerAffectCommandOptions
+    public sealed class ModalStackLayerAffectCommandMB : MonoBehaviour, IScopeInstaller, IModalStackLayerAffectCommandOptions
     {
         [FoldoutGroup("Commands")]
         [SerializeField]
@@ -56,7 +56,7 @@ namespace Game.UI
         public VNext.CommandListData OnBecameInactiveInLayer => _onBecameInactiveInLayer;
         public VNext.CommandListData OnBecameSuppressedByOtherLayer => _onBecameSuppressedByOtherLayer;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<ModalStackLayerAffectCommandService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -86,3 +86,4 @@ namespace Game.UI
         }
     }
 }
+

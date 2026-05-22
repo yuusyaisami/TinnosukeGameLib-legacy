@@ -45,7 +45,7 @@ namespace Game.Profile
         /// </summary>
         /// <param name="blackboard">Blackboard サービス（null 可）</param>
         /// <param name="scalar">Scalar サービス（null 可）</param>
-        /// <param name="scopeIdentity">Scope の安定 ID（LTSIdentityMB.id）。Save 対象にする場合は必須。</param>
+        /// <param name="scopeIdentity">Scope の安定 ID（ScopeIdentityMB.id）。Save 対象にする場合は必須。</param>
         public ScopeBindingRegistryService(
             IBlackboardService blackboard = null,
             IBaseScalarService scalar = null,
@@ -182,7 +182,7 @@ namespace Game.Profile
 
         /// <summary>
         /// 登録済み Profile を全てクリアする。
-        /// RuntimeLifetimeScope の Pool 再利用時のリセットに使用する。
+        /// KernelScopeHost の Pool 再利用時のリセットに使用する。
         /// </summary>
         public void ClearAllProfiles(bool resetVersion = true)
         {
@@ -307,3 +307,6 @@ namespace Game.Profile
     }
 
 }
+
+
+

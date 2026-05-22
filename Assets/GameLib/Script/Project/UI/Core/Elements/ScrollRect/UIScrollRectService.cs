@@ -594,7 +594,7 @@ namespace Game.UI
 
             if (scope.Resolver == null)
             {
-                var pendingBuild = scope is BaseLifetimeScope baseScope && !baseScope.IsBuildCompleted;
+                var pendingBuild = scope is ICoordinatedBuildScope coordinated && !coordinated.IsBuildCompleted;
                 if (_mb.EnableDebugLog)
                 {
                     Debug.Log(
@@ -1965,7 +1965,7 @@ namespace Game.UI
 
             var id = scope.Identity?.Id;
             var identityText = string.IsNullOrWhiteSpace(id) ? "<none>" : id;
-            var buildStatus = scope is BaseLifetimeScope baseScope ? baseScope.DebugBuildStatus : null;
+            var buildStatus = scope is KernelScopeHost runtimeScope ? runtimeScope.DebugBuildStatus : null;
             var buildText = string.IsNullOrWhiteSpace(buildStatus) ? string.Empty : $" build='{buildStatus}'";
             return $"{scope.Kind} id='{identityText}' transform='{DescribeTransform(scope.Identity?.SelfTransform)}'{buildText}";
         }
@@ -1998,3 +1998,4 @@ namespace Game.UI
         }
     }
 }
+

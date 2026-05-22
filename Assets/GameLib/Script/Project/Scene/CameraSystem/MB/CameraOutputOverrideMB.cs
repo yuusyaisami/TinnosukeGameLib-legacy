@@ -8,11 +8,11 @@ using Sirenix.OdinInspector;
 namespace Game.CameraSystem
 {
     /// <summary>
-    /// Camera の最終�E力を SharedTexture で差し替える設宁EMB、E
+    /// Camera の最終�E力を SharedTexture で差し替える設宁EMB、E
     /// CameraSystemMB と同じ LTS に配置する、E
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class CameraOutputOverrideMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CameraOutputOverrideMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Override")]
         [LabelText("Enabled")]
@@ -26,7 +26,7 @@ namespace Game.CameraSystem
         [LabelText("SharedTexture Tag")]
         [SerializeField] string sharedTextureTag = "camera/main/final";
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var options = new CameraOutputOverrideOptions(overrideEnabled, mode, sharedTextureTag);
 
@@ -68,3 +68,4 @@ namespace Game.CameraSystem
         }
     }
 }
+

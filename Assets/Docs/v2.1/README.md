@@ -17,6 +17,8 @@ v2 の意味論を再定義せず、live game migration の entry condition、pr
 - [04 Wave D Value, Blackboard, and Var Cutover Specification](04_WaveDValueBlackboardAndVarCutoverSpec.md)
 - [05 Wave E Representative Gameplay Systems Cutover Specification](05_WaveERepresentativeGameplaySystemsCutoverSpec.md)
 - [06 Wave F Legacy Removal and Hardening Specification](06_WaveFLegacyRemovalAndHardeningSpec.md)
+- [07 Kernel v2.1 Migration Milestone Order Specification](07_KernelV21MigrationMilestoneOrderSpec.md)
+- [Index / V21-M0 Baseline Freeze Package](Index/README.md)
 
 ## Principles
 
@@ -28,6 +30,8 @@ v2 の意味論を再定義せず、live game migration の entry condition、pr
 - Wave D は generic value truth と blackboard ownership と DynamicValue runtime authority を verified ValueStore and DynamicEvaluation authority へ切り替える
 - Wave E は representative gameplay systems が migrated authority を実際に consume し、gameplay success only を completion proof に使えないことを明文化する
 - Wave F は migration-only residue を deletion または audited quarantine に詰め、Release or direct-play or CI acceptance を executable gates で harden する
+- 07 は overview と Wave A-F を V21-M0 から V21-M6 の claimable milestone に束ね、wave ownership と completion claim order を分離する
+- V21-M0 は v2 の M0成果物を複製せず、v2.1 固有の baseline ledger、preservation floor ledger、proof-anchor catalog を Index package として固定する
 - direct-play side path の成功だけでは移行完了とみなさない
 - 最終目標は、現在動いているゲーム本体が verified kernel path で起動・進行・終了すること
 
@@ -44,3 +48,6 @@ v2 の意味論を再定義せず、live game migration の entry condition、pr
 | TC-V21-README-07 | Confirm the fourth detailed migration wave is exposed. | This file must link to 04_WaveDValueBlackboardAndVarCutoverSpec.md. |
 | TC-V21-README-08 | Confirm the fifth detailed migration wave is exposed. | This file must link to 05_WaveERepresentativeGameplaySystemsCutoverSpec.md. |
 | TC-V21-README-09 | Confirm the sixth detailed migration wave is exposed. | This file must link to 06_WaveFLegacyRemovalAndHardeningSpec.md. |
+| TC-V21-README-10 | Confirm the milestone-order spec is exposed at the index level. | This file must link to 07_KernelV21MigrationMilestoneOrderSpec.md. |
+| TC-V21-README-11 | Confirm the V21-M0 index package is exposed at the index level. | This file must link to Index/README.md. |
+| TC-V21-README-12 | Confirm V21-M0 is described as migration-specific evidence rather than a fork of the v2 M0 artifacts. | This file must state that v2.1 adds baseline, preservation, and proof ledgers instead of duplicating the v2 M0 documents. |

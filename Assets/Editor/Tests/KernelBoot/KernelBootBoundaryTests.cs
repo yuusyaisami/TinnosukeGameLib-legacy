@@ -152,7 +152,7 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(result.Diagnostics[0].Code.Value, Is.EqualTo(KernelBootBoundaryCodes.RuntimeConstructionFailed));
             Assert.That(result.Diagnostics[0].Severity, Is.EqualTo(DiagnosticSeverity.Fatal));
             Assert.That(result.Diagnostics[0].Context.ProfileId, Is.EqualTo(profile.Id.Value));
-            Assert.That(result.Diagnostics[0].Context.Artifact.Value, Is.EqualTo(manifest.ArtifactSet.ArtifactSetId.Value));
+            Assert.That(result.Diagnostics[0].Context.Artifact.ArtifactSetId, Is.EqualTo(manifest.ArtifactSet.ArtifactSetId.Value));
             Assert.That(result.Diagnostics[0].Exception, Is.Not.Null);
             Assert.That(result.Diagnostics[0].Exception!.Type, Does.Contain(nameof(InvalidOperationException)));
             Assert.That(result.Diagnostics[0].Exception!.StackTrace, Is.Null);

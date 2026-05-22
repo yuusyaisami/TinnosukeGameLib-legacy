@@ -282,7 +282,7 @@ namespace Game.Channel
                 if (instance == null)
                     continue;
 
-                if (!GridObjectChannelRuntimeUtility.TryResolveFromScopeOrAncestors<IButtonChannelHubService>(instance.Scope, out var buttonHub) ||
+                if (!GridObjectChannelRuntimeUtility.TryResolveFromScope<IButtonChannelHubService>(instance.Scope, out var buttonHub) ||
                     buttonHub == null)
                 {
                     continue;

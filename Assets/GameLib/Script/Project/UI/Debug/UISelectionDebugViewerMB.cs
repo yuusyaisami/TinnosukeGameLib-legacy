@@ -7,12 +7,12 @@ namespace Game.UI
 {
     // Minimal compatibility wrapper for legacy project reference.
     // Prefer using UISelectionDebugView registered from `UISelectionMB`.
-    public sealed class UISelectionDebugViewerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UISelectionDebugViewerMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField]
         UISelectionDebugView _debug = new UISelectionDebugView();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance(_debug);
             builder.RegisterBuildCallback(container =>
@@ -25,3 +25,4 @@ namespace Game.UI
         }
     }
 }
+

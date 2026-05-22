@@ -10,9 +10,15 @@ namespace Game.Channel
     {
         public static MeshRuntimeDefinitionState BuildRuntimeState(MeshDefinitionPreset preset, IDynamicContext context)
         {
+            if (preset == null)
+                throw new ArgumentNullException(nameof(preset));
+
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
             var state = new MeshRuntimeDefinitionState
             {
-                RenderPipeline = ResolveRenderPipeline(preset.RenderPipeline, context, new MeshRenderPipelinePreset()),
+                RenderPipeline = ResolveRenderPipeline(preset.RenderPipeline, context),
             };
 
             for (var i = 0; i < preset.RegularTracks.Count; i++)
@@ -78,17 +84,24 @@ namespace Game.Channel
 
         public static MeshRegularTrackRuntimeState ResolveRegularTrack(MeshTrackDefinition authored, IDynamicContext context)
         {
-            var key = string.IsNullOrWhiteSpace(authored.Key) ? Guid.NewGuid().ToString("N") : authored.Key.Trim();
+            if (authored == null)
+                throw new ArgumentNullException(nameof(authored));
+
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            var key = NormalizeKey(authored.Key, nameof(authored.Key));
+            var tag = NormalizeKey(authored.Tag, nameof(authored.Tag));
             var runtime = new MeshRegularTrackRuntimeState
             {
                 Key = key,
-                Tag = string.IsNullOrWhiteSpace(authored.Tag) ? key : authored.Tag.Trim(),
+                Tag = tag,
                 Priority = authored.Priority,
                 RequestedEnabled = authored.Enabled,
-                PlayerPreset = ResolvePlayerPreset(authored.Player, context, new MeshLineTrackPlayerPreset()),
-                VisualizerPreset = ResolveVisualizerPreset(authored.Visualizer, context, new MeshLineTrackVisualizerPreset()),
-                ColliderPreset = ResolveColliderPreset(authored.Collider, context, new MeshPolygonTrackColliderPreset()),
-                MaterialPreset = ResolveMaterialPreset(authored.Material, context, new MeshTrackMaterialPreset()),
+                PlayerPreset = ResolvePlayerPreset(authored.Player, context),
+                VisualizerPreset = ResolveVisualizerPreset(authored.Visualizer, context),
+                ColliderPreset = ResolveColliderPreset(authored.Collider, context),
+                MaterialPreset = ResolveMaterialPreset(authored.Material, context),
             };
             runtime.ConditionEnabled = EvaluateConditionEnabled(runtime.PlayerPreset, context, runtime.ConditionEnabled);
             runtime.RecalculateEnabled();
@@ -101,13 +114,19 @@ namespace Game.Channel
 
         public static MeshSimulationTrackRuntimeState ResolveSimulationTrack(MeshSimulationTrackDefinition authored, IDynamicContext context)
         {
-            var key = string.IsNullOrWhiteSpace(authored.Key) ? Guid.NewGuid().ToString("N") : authored.Key.Trim();
+            if (authored == null)
+                throw new ArgumentNullException(nameof(authored));
+
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            var key = NormalizeKey(authored.Key, nameof(authored.Key));
             var runtime = new MeshSimulationTrackRuntimeState
             {
                 Key = key,
                 Priority = authored.Priority,
                 Enabled = authored.Enabled,
-                Preset = ResolveSimulationPreset(authored.Preset, context, new MeshClayTransientSimulationPreset()),
+                Preset = ResolveSimulationPreset(authored.Preset, context),
             };
             runtime.Runtime = CreateSimulationRuntime(runtime.Preset);
             return runtime;
@@ -115,6 +134,9 @@ namespace Game.Channel
 
         public static IVarStore ResolveVars(IScopeNode scope)
         {
+            if (scope == null)
+                throw new ArgumentNullException(nameof(scope));
+
             if (scope.Resolver != null &&
                 scope.Resolver.TryResolve<IVarStore>(out var vars) &&
                 vars != null)
@@ -122,34 +144,37 @@ namespace Game.Channel
                 return vars;
             }
 
-            return NullVarStore.Instance;
+            throw new InvalidOperationException($"Mesh channel scope '{scope.GetType().Name}' is missing an IVarStore resolver.");
         }
 
-        public static MeshDefinitionPreset ResolveDefinition(DynamicValue<MeshDefinitionPreset> value, IDynamicContext context, MeshDefinitionPreset fallback)
+        public static MeshDefinitionPreset ResolveDefinition(DynamicValue<MeshDefinitionPreset> value, IDynamicContext context)
         {
-            if (value.TryGet(context, out MeshDefinitionPreset? preset) && preset != null)
+            if (value.HasSource && value.TryGet(context, out MeshDefinitionPreset? preset) && preset != null)
                 return preset.CreateRuntimeCopy();
-            return fallback.CreateRuntimeCopy();
+
+            throw new InvalidOperationException("Mesh definition preset could not be resolved.");
         }
 
-        public static MeshTrackPlayerPresetBase ResolvePlayerPreset(DynamicValue<MeshTrackPlayerPresetBase> value, IDynamicContext context, MeshTrackPlayerPresetBase fallback)
+        public static MeshTrackPlayerPresetBase ResolvePlayerPreset(DynamicValue<MeshTrackPlayerPresetBase> value, IDynamicContext context)
         {
-            if (value.TryGet(context, out MeshTrackPlayerPresetBase? preset) && preset != null)
+            if (value.HasSource && value.TryGet(context, out MeshTrackPlayerPresetBase? preset) && preset != null)
                 return preset.CreateRuntimeCopy();
-            return fallback.CreateRuntimeCopy();
+
+            throw new InvalidOperationException("Mesh track player preset could not be resolved.");
         }
 
-        public static MeshTrackVisualizerPresetBase ResolveVisualizerPreset(DynamicValue<MeshTrackVisualizerPresetBase> value, IDynamicContext context, MeshTrackVisualizerPresetBase fallback)
+        public static MeshTrackVisualizerPresetBase ResolveVisualizerPreset(DynamicValue<MeshTrackVisualizerPresetBase> value, IDynamicContext context)
         {
-            if (value.TryGet(context, out MeshTrackVisualizerPresetBase? preset) && preset != null)
+            if (value.HasSource && value.TryGet(context, out MeshTrackVisualizerPresetBase? preset) && preset != null)
                 return preset.CreateRuntimeCopy();
-            return fallback.CreateRuntimeCopy();
+
+            throw new InvalidOperationException("Mesh track visualizer preset could not be resolved.");
         }
 
-        public static MeshTrackColliderPresetBase ResolveColliderPreset(DynamicValue<MeshTrackColliderPresetBase> value, IDynamicContext context, MeshTrackColliderPresetBase fallback)
+        public static MeshTrackColliderPresetBase ResolveColliderPreset(DynamicValue<MeshTrackColliderPresetBase> value, IDynamicContext context)
         {
             if (!value.HasSource)
-                return fallback.CreateRuntimeCopy();
+                throw new InvalidOperationException("Mesh track collider preset has no authored source.");
 
             var variant = value.Evaluate(context);
             if (variant.IsNull)
@@ -158,14 +183,15 @@ namespace Game.Channel
             if (variant.TryGet(out MeshTrackColliderPresetBase? preset) && preset != null)
                 return preset.CreateRuntimeCopy();
 
-            return fallback.CreateRuntimeCopy();
+            throw new InvalidOperationException("Mesh track collider preset could not be resolved.");
         }
 
-        public static MeshTrackMaterialPreset ResolveMaterialPreset(DynamicValue<MeshTrackMaterialPreset> value, IDynamicContext context, MeshTrackMaterialPreset fallback)
+        public static MeshTrackMaterialPreset ResolveMaterialPreset(DynamicValue<MeshTrackMaterialPreset> value, IDynamicContext context)
         {
-            if (value.TryGet(context, out MeshTrackMaterialPreset? preset) && preset != null)
+            if (value.HasSource && value.TryGet(context, out MeshTrackMaterialPreset? preset) && preset != null)
                 return preset.CreateRuntimeCopy();
-            return fallback.CreateRuntimeCopy();
+
+            throw new InvalidOperationException("Mesh track material preset could not be resolved.");
         }
 
         public static bool EvaluateConditionEnabled(MeshTrackPlayerPresetBase preset, IDynamicContext context, bool fallback)
@@ -189,18 +215,20 @@ namespace Game.Channel
             return true;
         }
 
-        static MeshRenderPipelinePreset ResolveRenderPipeline(DynamicValue<MeshRenderPipelinePreset> value, IDynamicContext context, MeshRenderPipelinePreset fallback)
+        static MeshRenderPipelinePreset ResolveRenderPipeline(DynamicValue<MeshRenderPipelinePreset> value, IDynamicContext context)
         {
-            if (value.TryGet(context, out MeshRenderPipelinePreset? preset) && preset != null)
+            if (value.HasSource && value.TryGet(context, out MeshRenderPipelinePreset? preset) && preset != null)
                 return preset.CreateRuntimeCopy();
-            return fallback.CreateRuntimeCopy();
+
+            throw new InvalidOperationException("Mesh render pipeline preset could not be resolved.");
         }
 
-        public static MeshSimulationPresetBase ResolveSimulationPreset(DynamicValue<MeshSimulationPresetBase> value, IDynamicContext context, MeshSimulationPresetBase fallback)
+        public static MeshSimulationPresetBase ResolveSimulationPreset(DynamicValue<MeshSimulationPresetBase> value, IDynamicContext context)
         {
-            if (value.TryGet(context, out MeshSimulationPresetBase? preset) && preset != null)
+            if (value.HasSource && value.TryGet(context, out MeshSimulationPresetBase? preset) && preset != null)
                 return preset.CreateRuntimeCopy();
-            return fallback.CreateRuntimeCopy();
+
+            throw new InvalidOperationException("Mesh simulation preset could not be resolved.");
         }
 
         public static IMeshTrackPlayerRuntime CreatePlayerRuntime(MeshTrackPlayerPresetBase preset)
@@ -211,7 +239,7 @@ namespace Game.Channel
                 MeshTrailTrackPlayerPreset trail => new MeshTrailTrackPlayerRuntime(trail),
                 MeshAreaFillTrackPlayerPreset area => new MeshAreaFillTrackPlayerRuntime(area),
                 MeshLineTrackPlayerPreset line => new MeshLineTrackPlayerRuntime(line),
-                _ => new MeshLineTrackPlayerRuntime(new MeshLineTrackPlayerPreset()),
+                _ => throw new InvalidOperationException($"Unsupported mesh track player preset type '{preset?.GetType().FullName ?? "<null>"}'."),
             };
         }
 
@@ -221,7 +249,7 @@ namespace Game.Channel
             {
                 MeshAreaFillTrackVisualizerPreset area => new MeshAreaFillTrackVisualizerRuntime(area),
                 MeshLineTrackVisualizerPreset line => new MeshLineTrackVisualizerRuntime(line),
-                _ => new MeshLineTrackVisualizerRuntime(new MeshLineTrackVisualizerPreset()),
+                _ => throw new InvalidOperationException($"Unsupported mesh track visualizer preset type '{preset?.GetType().FullName ?? "<null>"}'."),
             };
         }
 
@@ -231,7 +259,7 @@ namespace Game.Channel
             {
                 MeshNoColliderTrackColliderPreset => new MeshNoColliderTrackColliderRuntime(),
                 MeshPolygonTrackColliderPreset polygon => new MeshPolygonTrackColliderRuntime(polygon),
-                _ => new MeshNoColliderTrackColliderRuntime(),
+                _ => throw new InvalidOperationException($"Unsupported mesh track collider preset type '{preset?.GetType().FullName ?? "<null>"}'."),
             };
         }
 
@@ -242,8 +270,16 @@ namespace Game.Channel
                 MeshClayPersistentSimulationPreset persistent => new MeshClayPersistentSimulationRuntime(persistent),
                 MeshFluidSimulationPreset fluid => new MeshFluidSimulationRuntime(fluid),
                 MeshClayTransientSimulationPreset clay => new MeshClayTransientSimulationRuntime(clay),
-                _ => new MeshClayTransientSimulationRuntime(new MeshClayTransientSimulationPreset()),
+                _ => throw new InvalidOperationException($"Unsupported mesh simulation preset type '{preset?.GetType().FullName ?? "<null>"}'."),
             };
+        }
+
+        static string NormalizeKey(string value, string parameterName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new InvalidOperationException($"Mesh channel runtime state requires a non-empty {parameterName}.");
+
+            return value.Trim();
         }
     }
 }

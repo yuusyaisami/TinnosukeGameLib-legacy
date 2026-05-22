@@ -93,7 +93,7 @@ namespace TinnosukeGameLib.Tests.Editor
         {
             AuthoringUnityObjectLink first = CreateUnityObjectLink();
             AuthoringUnityObjectLink same = CreateUnityObjectLink();
-            AuthoringUnityObjectLink different = new AuthoringUnityObjectLink(RuntimeUnityObjectLinkKind.Asset, "asset-guid-2", 24, 5, "Other/Link");
+            AuthoringUnityObjectLink different = new AuthoringUnityObjectLink(AuthoringUnityObjectLinkKind.Asset, "asset-guid-2", 24, 5, "Other/Link");
 
             Assert.That(first.IsEmpty, Is.False);
             Assert.That(first, Is.EqualTo(same));
@@ -101,7 +101,12 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(first.GetHashCode(), Is.EqualTo(same.GetHashCode()));
             Assert.That(first.ToString(), Does.Contain("Scene"));
 
-            RuntimeUnityObjectLink runtimeLink = AuthoringUnityBridge.ToRuntimeLink(first);
+            RuntimeUnityObjectLink runtimeLink = Game.Kernel.Boot.UnityObjectLinkBridge.Create(
+                (RuntimeUnityObjectLinkKind)first.Kind,
+                first.SourceGuid,
+                first.LocalFileId,
+                first.RuntimeInstanceId,
+                first.DebugName);
             Assert.That(runtimeLink.Kind, Is.EqualTo(RuntimeUnityObjectLinkKind.Scene));
             Assert.That(runtimeLink.SourceGuid, Is.EqualTo("scene-guid-1"));
             Assert.That(runtimeLink.LocalFileId, Is.EqualTo(101L));

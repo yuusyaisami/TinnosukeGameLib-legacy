@@ -308,57 +308,9 @@ namespace Game.RoomMap
             if (cell.Resolver == null)
                 return;
 
-            await UniTask.SwitchToMainThread();
-
             try
             {
-                if (cell.RuntimeScope != null)
-                {
-                    try
-                    {
-                        if (cell.RuntimeScope.Resolver != null &&
-                            cell.RuntimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                            pool != null)
-                        {
-                            pool.Release(cell.RuntimeScope);
-                            return;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogRoomMapException("ReleaseCellSafeAsync - pool release", ex);
-                    }
-
-                    if (cell.Root != null)
-                    {
-                        try { UnityEngine.Object.Destroy(cell.Root); } catch (Exception ex) { LogRoomMapException("ReleaseCellSafeAsync - destroy runtime root", ex); }
-                    }
-                    else
-                    {
-                        try { UnityEngine.Object.Destroy(cell.RuntimeScope.gameObject); } catch (Exception ex) { LogRoomMapException("ReleaseCellSafeAsync - destroy runtime scope game object", ex); }
-                    }
-
-                    return;
-                }
-
-                if (cell.BaseScope != null)
-                {
-                    try
-                    {
-                        await cell.BaseScope.DespawnAsync(CancellationToken.None);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogRoomMapException("ReleaseCellSafeAsync - despawn base scope", ex);
-                    }
-
-                    return;
-                }
-
-                if (cell.Root != null)
-                {
-                    try { UnityEngine.Object.Destroy(cell.Root); } catch (Exception ex) { LogRoomMapException("ReleaseCellSafeAsync - destroy cell root fallback", ex); }
-                }
+                await cell.Lifetime.ReleaseAsync(CancellationToken.None, ex => LogRoomMapException("ReleaseCellSafeAsync - pool release", ex));
             }
             catch (Exception ex)
             {
@@ -371,57 +323,9 @@ namespace Game.RoomMap
             if (cell.Resolver == null)
                 return;
 
-            await UniTask.SwitchToMainThread();
-
             try
             {
-                if (cell.RuntimeScope != null)
-                {
-                    try
-                    {
-                        if (cell.RuntimeScope.Resolver != null &&
-                            cell.RuntimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                            pool != null)
-                        {
-                            pool.Release(cell.RuntimeScope);
-                            return;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogRoomMapException("ReleaseDynamicSafeAsync - pool release", ex);
-                    }
-
-                    if (cell.Root != null)
-                    {
-                        try { UnityEngine.Object.Destroy(cell.Root); } catch (Exception ex) { LogRoomMapException("ReleaseDynamicSafeAsync - destroy runtime root", ex); }
-                    }
-                    else
-                    {
-                        try { UnityEngine.Object.Destroy(cell.RuntimeScope.gameObject); } catch (Exception ex) { LogRoomMapException("ReleaseDynamicSafeAsync - destroy runtime scope game object", ex); }
-                    }
-
-                    return;
-                }
-
-                if (cell.BaseScope != null)
-                {
-                    try
-                    {
-                        await cell.BaseScope.DespawnAsync(CancellationToken.None);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogRoomMapException("ReleaseDynamicSafeAsync - despawn base scope", ex);
-                    }
-
-                    return;
-                }
-
-                if (cell.Root != null)
-                {
-                    try { UnityEngine.Object.Destroy(cell.Root); } catch (Exception ex) { LogRoomMapException("ReleaseDynamicSafeAsync - destroy cell root fallback", ex); }
-                }
+                await cell.Lifetime.ReleaseAsync(CancellationToken.None, ex => LogRoomMapException("ReleaseDynamicSafeAsync - pool release", ex));
             }
             catch (Exception ex)
             {

@@ -10,7 +10,7 @@ namespace Game.Save
     /// <summary>
     /// Registers SaveSystem v2 implementations into the current LifetimeScope.
     /// </summary>
-    public sealed class SaveManagerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class SaveManagerMB : MonoBehaviour
     {
         [SerializeField]
         SaveManagerDebugView _debug = new SaveManagerDebugView();
@@ -36,9 +36,12 @@ namespace Game.Save
 
         public bool DeleteAllSaveDataBeforeBuild => _debug != null && _debug.DeleteAllSaveDataBeforeBuild;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallSaveManagerRuntime(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            // WebGLではFile I/Oの永続化タイミングが不安定になりやすいので、PlayerPrefsベ�Eスへ刁E��
+            _ = builder ?? throw new ArgumentNullException(nameof(builder));
+            _ = scope ?? throw new ArgumentNullException(nameof(scope));
+
+            // WebGLではFile I/Oの永続化タイミングが不安定になりやすいので、PlayerPrefsベ�Eスへ刁E��
 #if UNITY_WEBGL && !UNITY_EDITOR
             builder.Register<PlayerPrefsSaveStore>(_ => new PlayerPrefsSaveStore(), RuntimeLifetime.Singleton)
                 .As<ISaveStore>();

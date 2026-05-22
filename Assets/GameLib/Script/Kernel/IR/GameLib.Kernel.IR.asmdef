@@ -1,7 +1,9 @@
 {
   "name": "GameLib.Kernel.IR",
   "rootNamespace": "Game.Kernel.IR",
-  "references": [],
+  "references": [
+    "GameLib.Kernel.Diagnostics"
+  ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

@@ -45,7 +45,7 @@ namespace Game.Commands.VNext
                 return;
 
             IEmitterService? emitterService = null;
-            RuntimeLifetimeScope? spawnedEmitterScope = null;
+            KernelScopeHost? spawnedEmitterScope = null;
             BaseRuntimeTemplateSO? fireTemplate = null;
             FirePatternRuntimeTemplatePreset? fireTemplatePreset = null;
             IRuntimeLifetimeScopePool? pool = null;
@@ -297,9 +297,9 @@ namespace Game.Commands.VNext
         {
             public readonly bool Success;
             public readonly IRuntimeResolver? Resolver;
-            public readonly RuntimeLifetimeScope? Scope;
+            public readonly KernelScopeHost? Scope;
 
-            public SpawnEmitterResult(bool success, IRuntimeResolver? resolver, RuntimeLifetimeScope? scope)
+            public SpawnEmitterResult(bool success, IRuntimeResolver? resolver, KernelScopeHost? scope)
             {
                 Success = success;
                 Resolver = resolver;
@@ -343,8 +343,8 @@ namespace Game.Commands.VNext
             if (resolver == null)
                 return new SpawnEmitterResult(false, null, null);
 
-            RuntimeLifetimeScope? scope = null;
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var resolvedScope) && resolvedScope != null)
+            KernelScopeHost? scope = null;
+            if (resolver.TryResolve<KernelScopeHost>(out var resolvedScope) && resolvedScope != null)
                 scope = resolvedScope;
 
             return new SpawnEmitterResult(true, resolver, scope);
@@ -415,3 +415,5 @@ namespace Game.Commands.VNext
         }
     }
 }
+
+

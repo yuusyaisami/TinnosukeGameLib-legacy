@@ -269,16 +269,7 @@ namespace Game.Commands.VNext
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-            {
-                runtimeScope.EnsureScopeBuilt();
-            }
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
 
         static bool TryResolveRunner(IScopeNode scope, out ICommandRunner? runner)
@@ -481,7 +472,7 @@ namespace Game.Commands.VNext
                     return true;
                 }
 
-                var identity = candidate.GetComponent<LTSIdentityMB>();
+                var identity = candidate.GetComponent<ScopeIdentityMB>();
                 var authoringId = identity != null && !string.IsNullOrEmpty(identity.id) ? identity.id : candidate.name;
                 if (string.Equals(authoringId, uiLifetimeScopeId, StringComparison.Ordinal))
                 {
@@ -499,11 +490,7 @@ namespace Game.Commands.VNext
             if (scope == null)
                 return;
 
-            if (scope is RuntimeLifetimeScopeBase baseScope && !baseScope.IsBuildCompleted)
-            {
-                await baseScope.WhenBuiltAsync(ct);
-                return;
-            }
+            await ScopeFeatureInstallerUtility.WaitForResolverBuiltAsync(scope, ct);
 
             if (scope.Resolver == null)
                 await UniTask.Yield(PlayerLoopTiming.Update, ct);
@@ -600,3 +587,4 @@ namespace Game.Commands.VNext
         }
     }
 }
+

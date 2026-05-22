@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
-// Game.Common.BlackboardInstallerMB.cs
+// Game.Common.BlackboardAuthoring + BlackboardMB adapter.
+using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -9,10 +10,10 @@ using System.Collections.Generic;
 
 namespace Game.Common
 {
-    public class BlackboardMB : MonoBehaviour, IFeatureInstaller, IScopeAcquireHandler, IScopeReleaseHandler
+    public abstract class BlackboardAuthoring : MonoBehaviour
     {
         [System.Serializable]
-        sealed class LocalBlackboardInitEntry
+        public sealed class LocalBlackboardInitEntry
         {
             [LabelText("VarId")]
             [VarIdDropdown]
@@ -30,11 +31,11 @@ namespace Game.Common
             [LabelText("Grid Id")]
             [Tooltip("Inspector setting.")]
             [VarIdDropdown]
-            [SerializeField] int gridId;
+            [SerializeField] protected int gridId;
 
             [LabelText("Rows")]
             [ListDrawerSettings(ShowPaging = false, DraggableItems = false, ShowFoldout = true, DefaultExpandedState = true)]
-            [SerializeField] List<RowInit> rows = new();
+            [SerializeField] protected List<RowInit> rows = new();
 
             public int GridId => gridId;
             public bool HasGridId => gridId != 0;
@@ -73,7 +74,7 @@ namespace Game.Common
             {
                 [LabelText("Columns")]
                 [ListDrawerSettings(ShowPaging = false, DraggableItems = false, ShowFoldout = true, DefaultExpandedState = true)]
-                [SerializeField] List<ColumnInit> columns = new();
+                [SerializeField] protected List<ColumnInit> columns = new();
 
                 public IReadOnlyList<ColumnInit> Columns => columns;
             }
@@ -83,7 +84,7 @@ namespace Game.Common
             {
                 [LabelText("Vars")]
                 [InlineProperty]
-                [SerializeField] VarStorePayload vars = new();
+                [SerializeField] protected VarStorePayload vars = new();
 
                 public VarStorePayload Vars => vars;
             }
@@ -91,200 +92,186 @@ namespace Game.Common
 
         [FoldoutGroup("Debug")]
         [LabelText("Enable Debug View")]
-        public bool enableDebugView = false;
+        [SerializeField] protected bool enableDebugView = false;
 
         [FoldoutGroup("Debug")]
         [SerializeField, InlineProperty, HideLabel, ShowIf(nameof(enableDebugView))]
-        BlackboardDebugView _debugView = new BlackboardDebugView();
+        protected BlackboardDebugView _debugView = new BlackboardDebugView();
 
         [FoldoutGroup("Auto Write")]
         [LabelText("Auto Write Transform Vars")]
-        [SerializeField] bool autoWriteTransformVars = false;
+        [SerializeField] protected bool autoWriteTransformVars = false;
 
         [BoxGroup("Local Blackboard Init")]
         [LabelText("Initialize Local Blackboard")]
-        [SerializeField] bool initializeLocalBlackboard = false;
+        [SerializeField] protected bool initializeLocalBlackboard = false;
 
         [BoxGroup("Local Blackboard Init")]
         [LabelText("Reinitialize On Acquire")]
         [Tooltip("Inspector setting.")]
         [ShowIf(nameof(initializeLocalBlackboard))]
-        [SerializeField] bool reinitializeLocalBlackboardOnAcquire = true;
+        [SerializeField] protected bool reinitializeLocalBlackboardOnAcquire = true;
 
         [BoxGroup("Local Blackboard Init")]
         [LabelText("Entries")]
         [ShowIf(nameof(initializeLocalBlackboard))]
         [ListDrawerSettings(ShowPaging = false, DraggableItems = false, ShowFoldout = true, DefaultExpandedState = true)]
-        [SerializeField] LocalBlackboardInitEntry[] localBlackboardInitEntries = System.Array.Empty<LocalBlackboardInitEntry>();
+        [SerializeField] protected LocalBlackboardInitEntry[] localBlackboardInitEntries = System.Array.Empty<LocalBlackboardInitEntry>();
 
         [BoxGroup("Local Grid Blackboard Init")]
         [LabelText("Initialize Local Grid Blackboard")]
-        [SerializeField] bool initializeLocalGridBlackboard = false;
+        [SerializeField] protected bool initializeLocalGridBlackboard = false;
 
         [BoxGroup("Local Grid Blackboard Init")]
         [LabelText("Reinitialize On Acquire")]
         [Tooltip("Inspector setting.")]
         [ShowIf(nameof(initializeLocalGridBlackboard))]
-        [SerializeField] bool reinitializeLocalGridBlackboardOnAcquire = true;
+        [SerializeField] protected bool reinitializeLocalGridBlackboardOnAcquire = true;
 
         [BoxGroup("Local Grid Blackboard Init")]
         [LabelText("Grid Definition")]
         [Tooltip("Inspector setting.")]
         [ShowIf(nameof(initializeLocalGridBlackboard))]
         [InlineProperty]
-        [SerializeField] LocalGridBlackboardInit localGridBlackboardInit = new();
+        [SerializeField] protected LocalGridBlackboardInit localGridBlackboardInit = new();
 
-        IScopeNode? _owner;
-        readonly DynamicEvaluationRuntime _valueInitRuntime = new();
+        internal void ValidateOrThrow()
+        {
+            if (initializeLocalBlackboard && localBlackboardInitEntries == null)
+                throw new InvalidOperationException("Blackboard authoring requires local blackboard entries when initialization is enabled.");
+
+            if (initializeLocalGridBlackboard && localGridBlackboardInit == null)
+                throw new InvalidOperationException("Blackboard authoring requires a grid definition when grid initialization is enabled.");
+
+            if (localBlackboardInitEntries != null)
+            {
+                var seenVarIds = new HashSet<int>();
+                for (int i = 0; i < localBlackboardInitEntries.Length; i++)
+                {
+                    var entry = localBlackboardInitEntries[i];
+                    if (entry == null)
+                        throw new InvalidOperationException($"Blackboard local init entry at index {i} is null.");
+
+                    if (entry.VarId == 0)
+                        throw new InvalidOperationException($"Blackboard local init entry at index {i} requires a non-zero VarId.");
+
+                    if (!seenVarIds.Add(entry.VarId))
+                        throw new InvalidOperationException($"Blackboard local init entry VarId '{entry.VarId}' is duplicated.");
+                }
+            }
+
+            if (!initializeLocalGridBlackboard || localGridBlackboardInit == null)
+                return;
+
+            var rows = localGridBlackboardInit.Rows;
+            if (rows == null)
+                throw new InvalidOperationException("Blackboard grid init requires rows when grid initialization is enabled.");
+
+            for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+            {
+                var row = rows[rowIndex];
+                if (row == null)
+                    throw new InvalidOperationException($"Blackboard grid init row at index {rowIndex} is null.");
+
+                var columns = row.Columns;
+                if (columns == null)
+                    throw new InvalidOperationException($"Blackboard grid init row at index {rowIndex} has null columns.");
+
+                for (int columnIndex = 0; columnIndex < columns.Count; columnIndex++)
+                {
+                    var column = columns[columnIndex];
+                    if (column == null)
+                        throw new InvalidOperationException($"Blackboard grid init column at row {rowIndex}, column {columnIndex} is null.");
+
+                    if (column.Vars?.Entries == null)
+                        throw new InvalidOperationException($"Blackboard grid init column at row {rowIndex}, column {columnIndex} is missing vars.");
+                }
+            }
+        }
+
+        internal virtual RuntimeAuthoringState CaptureRuntimeAuthoringState()
+        {
+            ValidateOrThrow();
+            return new RuntimeAuthoringState(
+                createLocalBlackboardPlan: null,
+                acquireLocalBlackboardPlan: null,
+                createLocalGridBlackboardPlan: null,
+                acquireLocalGridBlackboardPlan: null,
+                enableDebugView,
+                enableDebugView ? _debugView : null,
+                autoWriteTransformVars);
+        }
+
+        internal sealed class RuntimeAuthoringState
+        {
+            public static RuntimeAuthoringState Empty { get; } = new RuntimeAuthoringState(
+                createLocalBlackboardPlan: null,
+                acquireLocalBlackboardPlan: null,
+                createLocalGridBlackboardPlan: null,
+                acquireLocalGridBlackboardPlan: null,
+                enableDebugView: false,
+                debugView: null,
+                autoWriteTransformVars: false);
+
+            public RuntimeAuthoringState(
+                BlackboardLocalValueInitPlan? createLocalBlackboardPlan,
+                BlackboardLocalValueInitPlan? acquireLocalBlackboardPlan,
+                BlackboardGridValueInitPlan? createLocalGridBlackboardPlan,
+                BlackboardGridValueInitPlan? acquireLocalGridBlackboardPlan,
+                bool enableDebugView,
+                BlackboardDebugView? debugView,
+                bool autoWriteTransformVars)
+            {
+                CreateLocalBlackboardPlan = createLocalBlackboardPlan;
+                AcquireLocalBlackboardPlan = acquireLocalBlackboardPlan;
+                CreateLocalGridBlackboardPlan = createLocalGridBlackboardPlan;
+                AcquireLocalGridBlackboardPlan = acquireLocalGridBlackboardPlan;
+                EnableDebugView = enableDebugView;
+                DebugView = debugView;
+                AutoWriteTransformVars = autoWriteTransformVars;
+            }
+
+            public BlackboardLocalValueInitPlan? CreateLocalBlackboardPlan { get; }
+
+            public BlackboardLocalValueInitPlan? AcquireLocalBlackboardPlan { get; }
+
+            public BlackboardGridValueInitPlan? CreateLocalGridBlackboardPlan { get; }
+
+            public BlackboardGridValueInitPlan? AcquireLocalGridBlackboardPlan { get; }
+
+            public bool EnableDebugView { get; }
+
+            public BlackboardDebugView? DebugView { get; }
+
+            public bool AutoWriteTransformVars { get; }
+        }
+
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            try
+            {
+                ValidateOrThrow();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex.Message, this);
+            }
+        }
+#endif
+    }
+
+    public class BlackboardMB : BlackboardAuthoring
+    {
         BlackboardLocalValueInitPlan? _createLocalBlackboardPlan;
         BlackboardLocalValueInitPlan? _acquireLocalBlackboardPlan;
         BlackboardGridValueInitPlan? _createLocalGridBlackboardPlan;
         BlackboardGridValueInitPlan? _acquireLocalGridBlackboardPlan;
-        bool _debugInitialized;
         bool _valueInitPlansBuilt;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallBlackboardRuntime(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
-            _owner = scope;
-            LifetimeScopeKind kind = scope.Kind;
-            IRuntimeRegistrationBuilder blackboard = builder.Register<IBlackboardService, BlackboardService>(RuntimeLifetime.Singleton).WithParameter(scope);
-            switch (kind)
-            {
-                case LifetimeScopeKind.Project:
-                    blackboard.As<IProjectBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Platform:
-                    blackboard.As<IPlatformBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Global:
-                    blackboard.As<IGlobalBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Scene:
-                    blackboard.As<ISceneBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Field:
-                    blackboard.As<IFieldBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Entity:
-                    blackboard.As<IEntityBlackboardService>();
-                    break;
-                case LifetimeScopeKind.UI:
-                    blackboard.As<IUIBlackboardService>();
-                    break;
-                case LifetimeScopeKind.UIElement:
-                    blackboard.As<IUIElementBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Runtime:
-                    blackboard.As<IRuntimeBlackboardService>();
-                    break;
-                default:
-                    Debug.LogWarning($"Unhandled LifetimeScopeKind: {kind} in BlackboardMB.");
-                    break;
-            }
-
-            builder.Register<IGridBlackboardService, GridBlackboardService>(RuntimeLifetime.Singleton)
-                .As<IGridBlackboardService>()
-                .As<IScopeAcquireHandler>()
-                .As<IScopeReleaseHandler>();
-
-            // Register this component after the grid service so grid reset happens before local reinitialization.
-            builder.RegisterComponent(this)
-                .AsSelf()
-                .As<IScopeAcquireHandler>()
-                .As<IScopeReleaseHandler>();
-
-            // Save registration is handled by ScopeBindingRegistry. BlackboardMB only owns local blackboard initialization.
-
-            if (autoWriteTransformVars)
-            {
-                builder.Register<TransformVarAutoWriterService>(RuntimeLifetime.Singleton)
-                    .WithParameter(transform)
-                    .As<IScopeTickHandler>()
-                    .As<IScopeAcquireHandler>()
-                    .As<IScopeReleaseHandler>();
-            }
-        }
-
-        [Inject]
-        void Construct(IBlackboardService blackboard, IGridBlackboardService gridBlackboard)
-        {
-            EnsureValueInitPlansBuilt();
-            BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _createLocalBlackboardPlan, _valueInitRuntime);
-            BlackboardValueInitRuntime.ApplyGridPlan(blackboard, gridBlackboard, _owner, _createLocalGridBlackboardPlan, _valueInitRuntime);
-            TryInitializeDebugView(blackboard, gridBlackboard);
-        }
-
-        void OnDisable()
-        {
-            if (_debugInitialized)
-            {
-                _debugView.Dispose();
-                _debugInitialized = false;
-            }
-        }
-
-        void Start()
-        {
-            var resolver = _owner?.Resolver;
-            if (resolver == null)
-                return;
-
-            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
-                return;
-
-            IGridBlackboardService? gridBlackboard = null;
-            if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard) && resolvedGridBlackboard != null)
-                gridBlackboard = resolvedGridBlackboard;
-
-            TryInitializeDebugView(blackboard, gridBlackboard);
-        }
-
-        public void OnAcquire(IScopeNode scope, bool isReset)
-        {
-            _ = isReset;
-
-            var resolver = scope?.Resolver;
-            if (resolver == null)
-                return;
-
-            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
-                return;
-
-            EnsureValueInitPlansBuilt();
-            BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _acquireLocalBlackboardPlan, _valueInitRuntime);
-
-            IGridBlackboardService? gridBlackboard = null;
-            if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard) && resolvedGridBlackboard != null)
-            {
-                gridBlackboard = resolvedGridBlackboard;
-                BlackboardValueInitRuntime.ApplyGridPlan(blackboard, resolvedGridBlackboard, _owner, _acquireLocalGridBlackboardPlan, _valueInitRuntime);
-            }
-
-            TryInitializeDebugView(blackboard, gridBlackboard);
-        }
-
-        public void OnRelease(IScopeNode scope, bool isReset)
-        {
-            if (!isReset)
-                return;
-
-            var resolver = scope?.Resolver;
-            if (resolver == null)
-                return;
-
-            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
-                return;
-
-            blackboard.LocalVars.Clear();
-        }
-
-        void TryInitializeDebugView(IBlackboardService blackboard, IGridBlackboardService? gridBlackboard)
-        {
-            if (!enableDebugView || _debugInitialized || blackboard == null)
-                return;
-
-            _debugView.Initialize(blackboard, gridBlackboard, this);
-            _debugInitialized = true;
+            BlackboardRuntimeInstaller.Install(builder, scope, this);
         }
 
         void EnsureValueInitPlansBuilt()
@@ -297,6 +284,20 @@ namespace Game.Common
             _createLocalGridBlackboardPlan = BuildLocalGridBlackboardPlan(BlackboardValueInitPhase.Create, overwriteExisting: false);
             _acquireLocalGridBlackboardPlan = BuildLocalGridBlackboardPlan(BlackboardValueInitPhase.Acquire, overwriteExisting: reinitializeLocalGridBlackboardOnAcquire);
             _valueInitPlansBuilt = true;
+        }
+
+        internal override RuntimeAuthoringState CaptureRuntimeAuthoringState()
+        {
+            ValidateOrThrow();
+            EnsureValueInitPlansBuilt();
+            return new RuntimeAuthoringState(
+                _createLocalBlackboardPlan,
+                _acquireLocalBlackboardPlan,
+                _createLocalGridBlackboardPlan,
+                _acquireLocalGridBlackboardPlan,
+                enableDebugView,
+                enableDebugView ? _debugView : null,
+                autoWriteTransformVars);
         }
 
         BlackboardLocalValueInitPlan? BuildLocalBlackboardPlan(BlackboardValueInitPhase phase, bool overwriteExisting)
@@ -406,5 +407,237 @@ namespace Game.Common
                 : new BlackboardGridValueInitPlan(phase, overwriteExisting, gridId, cellPlans.ToArray());
         }
 
+        internal sealed class RuntimeBindings : IScopeAcquireHandler, IScopeReleaseHandler, IDisposable
+        {
+            readonly IScopeNode _owner;
+            readonly string _scopeName;
+            readonly DynamicEvaluationRuntime _valueInitRuntime = new();
+            readonly BlackboardLocalValueInitPlan? _createLocalBlackboardPlan;
+            readonly BlackboardLocalValueInitPlan? _acquireLocalBlackboardPlan;
+            readonly BlackboardGridValueInitPlan? _createLocalGridBlackboardPlan;
+            readonly BlackboardGridValueInitPlan? _acquireLocalGridBlackboardPlan;
+            readonly bool _enableDebugView;
+            readonly BlackboardDebugView? _debugView;
+            bool _debugInitialized;
+
+            public RuntimeBindings(IScopeNode owner, BlackboardAuthoring.RuntimeAuthoringState authoringState)
+            {
+                _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+                _ = authoringState ?? throw new ArgumentNullException(nameof(authoringState));
+
+                _scopeName = owner is MonoBehaviour behaviour
+                    ? behaviour.gameObject.name
+                    : owner.Kind.ToString();
+
+                _createLocalBlackboardPlan = authoringState.CreateLocalBlackboardPlan;
+                _acquireLocalBlackboardPlan = authoringState.AcquireLocalBlackboardPlan;
+                _createLocalGridBlackboardPlan = authoringState.CreateLocalGridBlackboardPlan;
+                _acquireLocalGridBlackboardPlan = authoringState.AcquireLocalGridBlackboardPlan;
+                _enableDebugView = authoringState.EnableDebugView;
+                _debugView = authoringState.DebugView;
+            }
+
+            [Inject]
+            void Construct(IBlackboardService blackboard, IGridBlackboardService gridBlackboard)
+            {
+                if (!TryApplyVerifiedLocalValueInit(blackboard, VerifiedValueInitPhase.Create))
+                    BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _createLocalBlackboardPlan, _valueInitRuntime);
+
+                ThrowIfVerifiedGridInitWouldReenterLegacy(VerifiedValueInitPhase.Create);
+                BlackboardValueInitRuntime.ApplyGridPlan(blackboard, gridBlackboard, _owner, _createLocalGridBlackboardPlan, _valueInitRuntime);
+                TryInitializeDebugView(blackboard, gridBlackboard);
+            }
+
+            public void OnAcquire(IScopeNode scope, bool isReset)
+            {
+                _ = isReset;
+
+                IRuntimeResolver? resolver = scope?.Resolver;
+                if (resolver == null)
+                    return;
+
+                if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                    return;
+
+                if (!TryApplyVerifiedLocalValueInit(blackboard, VerifiedValueInitPhase.Acquire))
+                    BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _acquireLocalBlackboardPlan, _valueInitRuntime);
+
+                IGridBlackboardService? gridBlackboard = null;
+                if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard) && resolvedGridBlackboard != null)
+                {
+                    gridBlackboard = resolvedGridBlackboard;
+                    ThrowIfVerifiedGridInitWouldReenterLegacy(VerifiedValueInitPhase.Acquire);
+                    BlackboardValueInitRuntime.ApplyGridPlan(blackboard, resolvedGridBlackboard, _owner, _acquireLocalGridBlackboardPlan, _valueInitRuntime);
+                }
+
+                TryInitializeDebugView(blackboard, gridBlackboard);
+            }
+
+            public void OnRelease(IScopeNode scope, bool isReset)
+            {
+                if (!isReset)
+                    return;
+
+                IRuntimeResolver? resolver = scope?.Resolver;
+                if (resolver == null)
+                    return;
+
+                if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+                    return;
+
+                blackboard.LocalVars.Clear();
+            }
+
+            public void Dispose()
+            {
+                if (!_debugInitialized || _debugView == null)
+                    return;
+
+                _debugView.Dispose();
+                _debugInitialized = false;
+            }
+
+            void TryInitializeDebugView(IBlackboardService blackboard, IGridBlackboardService? gridBlackboard)
+            {
+                if (!_enableDebugView || _debugInitialized || _debugView == null || blackboard == null)
+                    return;
+
+                _debugView.Initialize(blackboard, gridBlackboard, _owner as MonoBehaviour);
+                _debugInitialized = true;
+            }
+
+            bool TryApplyVerifiedLocalValueInit(IBlackboardService blackboard, global::Game.Common.VerifiedValueInitPhase phase)
+            {
+                if (!VerifiedValueRuntimeBridge.TryGetSession(out IVerifiedValueRuntimeSession? verifiedSession) || verifiedSession == null)
+                    return false;
+
+                global::Game.Common.VerifiedValueInitApplyResult result = verifiedSession.ApplyLocalBlackboardInit(_owner, blackboard, phase, _valueInitRuntime);
+                if (result.IsRejected)
+                {
+                    throw new InvalidOperationException(
+                        result.FailureReason ?? ("Wave D verified value init rejected phase " + phase + " for scope " + _scopeName + "."));
+                }
+
+                if (!result.IsApplied && GetLocalBlackboardPlan(phase) != null)
+                {
+                    throw new InvalidOperationException(
+                        "Wave D verified value authority is active, but BlackboardMB local init authoring for phase " + phase + " on scope " + _scopeName + " has no verified ValueInitPlan. Legacy local blackboard fallback is forbidden.");
+                }
+
+                return result.IsApplied;
+            }
+
+            void ThrowIfVerifiedGridInitWouldReenterLegacy(global::Game.Common.VerifiedValueInitPhase phase)
+            {
+                if (!VerifiedValueRuntimeBridge.IsActive)
+                    return;
+
+                if (GetGridBlackboardPlan(phase) == null)
+                    return;
+
+                throw new InvalidOperationException(
+                    "Wave D verified value authority is active, but BlackboardMB grid init authoring for phase " + phase + " on scope " + _scopeName + " still depends on legacy grid initialization. Legacy grid fallback is forbidden until verified grid authority exists.");
+            }
+
+            BlackboardLocalValueInitPlan? GetLocalBlackboardPlan(global::Game.Common.VerifiedValueInitPhase phase)
+            {
+                return phase switch
+                {
+                    global::Game.Common.VerifiedValueInitPhase.Create => _createLocalBlackboardPlan,
+                    global::Game.Common.VerifiedValueInitPhase.Acquire => _acquireLocalBlackboardPlan,
+                    global::Game.Common.VerifiedValueInitPhase.Reset => null,
+                    _ => null,
+                };
+            }
+
+            BlackboardGridValueInitPlan? GetGridBlackboardPlan(global::Game.Common.VerifiedValueInitPhase phase)
+            {
+                return phase switch
+                {
+                    global::Game.Common.VerifiedValueInitPhase.Create => _createLocalGridBlackboardPlan,
+                    global::Game.Common.VerifiedValueInitPhase.Acquire => _acquireLocalGridBlackboardPlan,
+                    global::Game.Common.VerifiedValueInitPhase.Reset => null,
+                    _ => null,
+                };
+            }
+        }
+
+    }
+
+    internal static class BlackboardRuntimeInstaller
+    {
+        public static void Install(IRuntimeContainerBuilder builder, IScopeNode scope, BlackboardAuthoring? authoring = null)
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (scope == null)
+                throw new ArgumentNullException(nameof(scope));
+
+            BlackboardAuthoring.RuntimeAuthoringState authoringState = authoring?.CaptureRuntimeAuthoringState()
+                ?? BlackboardAuthoring.RuntimeAuthoringState.Empty;
+
+            LifetimeScopeKind kind = scope.Kind;
+            IRuntimeRegistrationBuilder blackboard = builder.Register<IBlackboardService, BlackboardService>(RuntimeLifetime.Singleton).WithParameter(scope);
+            switch (kind)
+            {
+                case LifetimeScopeKind.Project:
+                    blackboard.As<IProjectBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Platform:
+                    blackboard.As<IPlatformBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Global:
+                    blackboard.As<IGlobalBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Scene:
+                    blackboard.As<ISceneBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Field:
+                    blackboard.As<IFieldBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Entity:
+                    blackboard.As<IEntityBlackboardService>();
+                    break;
+                case LifetimeScopeKind.UI:
+                    blackboard.As<IUIBlackboardService>();
+                    break;
+                case LifetimeScopeKind.UIElement:
+                    blackboard.As<IUIElementBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Runtime:
+                    blackboard.As<IRuntimeBlackboardService>();
+                    break;
+                default:
+                    Debug.LogWarning($"Unhandled LifetimeScopeKind: {kind} in BlackboardRuntimeInstaller.");
+                    break;
+            }
+
+            builder.Register<IGridBlackboardService, GridBlackboardService>(RuntimeLifetime.Singleton)
+                .As<IGridBlackboardService>()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
+
+            builder.Register<BlackboardMB.RuntimeBindings>(RuntimeLifetime.Singleton)
+                .WithParameter(scope)
+                .WithParameter(authoringState)
+                .AsSelf()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>()
+                .As<IDisposable>();
+
+            if (authoringState.AutoWriteTransformVars)
+            {
+                if (scope is not MonoBehaviour scopeBehaviour)
+                {
+                    throw new InvalidOperationException("Blackboard runtime auto-write requires a MonoBehaviour-backed scope.");
+                }
+
+                builder.Register<TransformVarAutoWriterService>(RuntimeLifetime.Singleton)
+                    .WithParameter(scopeBehaviour.transform)
+                    .As<IScopeTickHandler>()
+                    .As<IScopeAcquireHandler>()
+                    .As<IScopeReleaseHandler>();
+            }
+        }
     }
 }

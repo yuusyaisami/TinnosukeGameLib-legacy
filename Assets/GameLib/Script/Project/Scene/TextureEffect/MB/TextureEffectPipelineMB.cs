@@ -9,12 +9,12 @@ using Sirenix.OdinInspector;
 namespace Game.TextureEffect
 {
     [DisallowMultipleComponent]
-    public sealed class TextureEffectPipelineMB : MonoBehaviour, IFeatureInstaller
+    public sealed class TextureEffectPipelineMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Initial Layers")]
         [SerializeField] List<TextureEffectLayerDef> initialLayers = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // Register individual effects
             builder.Register<BlurEffect>(RuntimeLifetime.Singleton).As<ITextureEffect>();
@@ -45,3 +45,4 @@ namespace Game.TextureEffect
         }
     }
 }
+

@@ -8,7 +8,7 @@ namespace Game.Rotation
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RotateChannelHubMB))]
-    public sealed class VelocityDrivenRotationMB : MonoBehaviour, IFeatureInstaller
+    public sealed class VelocityDrivenRotationMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField]
         [InlineProperty, HideLabel]
@@ -23,7 +23,7 @@ namespace Game.Rotation
         [ShowInInspector, ReadOnly, InlineProperty, HideLabel]
         VelocityDrivenRotationDebugView debugView = new VelocityDrivenRotationDebugView();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode _)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode _)
         {
             builder.Register<VelocityDrivenRotationService>(RuntimeLifetime.Singleton)
                 .AsSelf()
@@ -51,3 +51,4 @@ namespace Game.Rotation
         }
     }
 }
+

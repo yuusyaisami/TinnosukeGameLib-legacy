@@ -1227,7 +1227,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 },
                 scopes: new[]
                 {
-                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                    CreateScope(100, 200, ScopeKind.Root, 20, 8),
                 },
                 services: new[]
                 {
@@ -1518,7 +1518,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 },
                 scopes: new[]
                 {
-                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                    CreateScope(100, 200, ScopeKind.Root, 20, 8),
                 },
                 sources: CreateSources(10, 2, 8));
 
@@ -1539,7 +1539,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 },
                 scopes: new[]
                 {
-                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                    CreateScope(100, 200, ScopeKind.Root, 20, 8),
                 },
                 sources: CreateSources(10, 2, 8));
 

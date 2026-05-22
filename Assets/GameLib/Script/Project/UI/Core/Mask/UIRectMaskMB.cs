@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using UnityEngine;
 using VContainer;
 
@@ -29,7 +29,7 @@ namespace Game.UI
     //
     // ## 蠖ｹ蜑ｲ
     //
-    // 1. **UIRectMaskService 縺ｮ DI 逋ｻ骭ｲ**: IFeatureInstaller 縺ｨ縺励※逋ｻ骭ｲ
+    // 1. **UIRectMaskService 縺ｮ DI 逋ｻ骭ｲ**: IScopeInstaller 縺ｨ縺励※逋ｻ骭ｲ
     // 2. **險ｭ螳壹ヵ繧｣繝ｼ繝ｫ繝峨・謠蝉ｾ・*: 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ驕ｮ阡ｽ髢ｾ蛟､縺ｪ縺ｩ縺ｮ險ｭ螳・
     //
     // ## 險ｭ險域婿驥・
@@ -60,7 +60,7 @@ namespace Game.UI
     /// 蠢・★ UIElementLifetimeScope 縺ｨ蜷後§ GameObject 縺ｫ驟咲ｽｮ縺吶ｋ縺薙→縲・
     /// Unity 縺ｮ Mask/RectMask2D 繧ｳ繝ｳ繝昴・繝阪Φ繝医→菴ｵ逕ｨ縺吶ｋ縲・
     /// </summary>
-    public sealed class UIRectMaskMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UIRectMaskMB : MonoBehaviour, IScopeInstaller
     {
         // ----------------------------------------------------------------
         // Inspector險ｭ螳・
@@ -92,13 +92,13 @@ namespace Game.UI
         public bool EnableDebugLog => _enableDebugLog;
 
         // ----------------------------------------------------------------
-        // IFeatureInstaller 螳溯｣・
+        // IScopeInstaller 螳溯｣・
         // ----------------------------------------------------------------
 
         /// <summary>
         /// UIRectMaskService 繧・DI 繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ縺吶ｋ縲・
         /// </summary>
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // UIRectMaskService 繧・Singleton 縺ｧ逋ｻ骭ｲ
             // 閾ｪ蛻・・霄ｫ縺ｮ GameObject 繧・MaskOwner 縺ｨ縺励※貂｡縺・
@@ -148,3 +148,4 @@ namespace Game.UI
 #endif
     }
 }
+

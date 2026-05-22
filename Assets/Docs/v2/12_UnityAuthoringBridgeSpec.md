@@ -218,7 +218,12 @@ If Unity authoring logic cannot be placed into an authoring, editor, or Unity br
 - [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - owned-installer caching and runtime execution of installer mutation
 - [LTSIdentityMB.cs](../../GameLib/Script/Common/LTS/Identity/MB/LTSIdentityMB.cs) - guessed scope kind, id repair, runtime registration, and dynamic registry opt-in
 - [TooltipChannelHubMB.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubMB.cs) - DynamicValue authoring, editor inference, root override, and runtime registration mixed in one MB
-- [MeshChannelHubMB.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubMB.cs) - serialized channel entries directly used for service and lifecycle registration
+- [MeshChannelHubAuthoring.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubAuthoring.cs) - serialized channel entries and explicit declaration surface for mesh channels
+- [MeshChannelHubMB.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubMB.cs) - migration adapter that registers the mesh hub as service and lifecycle handlers
+- [BlackboardAuthoring.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - explicit declaration surface for local init, grid init, debug metadata, and transform-write intent
+- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - migration adapter that registers blackboard, grid, and transform auto-write behavior
+- [AnimationSpriteHubAuthoring.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubAuthoring.cs) - explicit declaration surface for sprite-animation channel wiring and hub tag input
+- [AnimationSpriteHubMB.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubMB.cs) - migration adapter that validates authoring input and registers the sprite-animation hub service
 - [EntityLifetimeScopeSpawnerMB.cs](../../GameLib/Script/Project/Scene/Field/Entity/Spawner/EntityLifetimeScopeSpawnerMB.cs) - prefab-scope assumptions and build-callback-driven service instantiation
 
 ### Current Gaps

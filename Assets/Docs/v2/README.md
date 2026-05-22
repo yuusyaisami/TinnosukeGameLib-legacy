@@ -36,5 +36,8 @@
 |---|---|---|
 | TC-README-01 | Confirm the docs index exposes the review memo and created specs. | This file must link to 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 10-1, 10-2, 11, 12, 13, 14, 15, 16, and 17. |
 | TC-README-02 | Confirm the shared test runner is documented. | Use [Run-UnityTests.ps1](../../../Tools/Run-UnityTests.ps1) for EditMode checks. |
+| TC-README-03 | Confirm the M15.4 gate wrapper is documented. | Use [Run-M15.4Gate.ps1](../../../Tools/Run-M15.4Gate.ps1) as the CI entry point for the ordered M15.4 lanes. |
+| TC-README-04 | Confirm the M15.5 legacy-removal pass is documented. | Use [CommandRuntimeLegacyRemovalTests.cs](../../../Editor/Tests/CommandRuntimeLegacyRemovalTests.cs) to prove the runtime-key fallback surface stays removed. |
+| TC-README-05 | Confirm M15.6 traceability completion is documented. | Use [KernelArchitectureDocTests.cs](../../../Editor/Tests/KernelArchitectureDocTests.cs), [KernelM154GateScriptTests.cs](../../../Editor/Tests/KernelDiagnostics/KernelM154GateScriptTests.cs), and [CommandRuntimeLegacyRemovalTests.cs](../../../Editor/Tests/CommandRuntimeLegacyRemovalTests.cs) to keep the docs/test traceability chain aligned. |
 
 These cases are validated by the EditMode doc tests in the workspace.

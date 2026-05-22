@@ -352,7 +352,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     CreateStep(501, LifecyclePhase.Acquire, 10, new LifecycleTargetRefIR(LifecycleTargetKind.LegacyAdapter, "legacy-bridge"), LifecycleActionKind.LegacyAdapterCall, 5001),
                 });
 
-            Assert.That(() => CreatePlan(lifecycle), Throws.ArgumentOutOfRangeException);
+            Assert.That(() => CreatePlan(lifecycle), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         static LifecyclePlan CreatePlan(params LifecycleIR[] lifecycles)

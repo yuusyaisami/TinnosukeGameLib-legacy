@@ -61,11 +61,11 @@ namespace Game.Search
     public readonly struct DynamicSearchHit
     {
         public readonly IScopeNode Scope;
-        public readonly ILTSIdentityService Identity;
+        public readonly IScopeIdentityService Identity;
         public readonly float DistanceSq;
         public readonly float2 Position;
 
-        public DynamicSearchHit(IScopeNode scope, ILTSIdentityService identity, float distanceSq, float2 position)
+        public DynamicSearchHit(IScopeNode scope, IScopeIdentityService identity, float distanceSq, float2 position)
         {
             Scope = scope;
             Identity = identity;
@@ -76,7 +76,7 @@ namespace Game.Search
 
     public interface IDynamicObjectRegistryService
     {
-        void Register(IScopeNode scope, ILTSIdentityService identity);
+        void Register(IScopeNode scope, IScopeIdentityService identity);
         void Unregister(IScopeNode scope);
         void Update(IScopeNode scope);
         int Count { get; }
@@ -89,3 +89,4 @@ namespace Game.Search
         void Query(float2 origin, float radius, float2 forward, float cosHalfAngle, List<DynamicSearchHit> results, LifetimeScopeMask kindMask = LifetimeScopeMask.All);
     }
 }
+

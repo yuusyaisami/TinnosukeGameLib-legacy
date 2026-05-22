@@ -9,7 +9,7 @@ using VContainer.Unity;
 namespace Game.Conversation
 {
     [DisallowMultipleComponent]
-    public sealed class ConversationChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ConversationChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
@@ -28,7 +28,7 @@ namespace Game.Conversation
         public bool EnableDebugLog => _enableDebugLog;
         public IConversationChannelHubService? Hub => _hub;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<ConversationChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -54,3 +54,4 @@ namespace Game.Conversation
 #endif
     }
 }
+

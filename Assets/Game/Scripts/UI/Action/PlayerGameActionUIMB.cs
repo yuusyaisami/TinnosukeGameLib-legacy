@@ -30,7 +30,7 @@ namespace Game.Actions
     }
 
     [DisallowMultipleComponent]
-    public sealed class PlayerGameActionUIMB : MonoBehaviour, IFeatureInstaller, IPlayerGameActionUISettings
+    public sealed class PlayerGameActionUIMB : MonoBehaviour, IScopeInstaller, IPlayerGameActionUISettings
     {
         [Header("Action Bar UI")]
         [SerializeField] RectTransform _selectorParentTransform = null!;
@@ -70,7 +70,7 @@ namespace Game.Actions
         public VNext.CommandListData HideActionBarCommands => _hideActionBarCommands;
         public VNext.CommandListData StopSelectorCommands => _stopSelectorCommands;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scopeNode)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scopeNode)
         {
             builder.RegisterInstance<IPlayerGameActionUISettings>(this);
             builder.Register<PlayerGameActionUIService>(RuntimeLifetime.Singleton)
@@ -82,3 +82,4 @@ namespace Game.Actions
     }
 }
 */
+

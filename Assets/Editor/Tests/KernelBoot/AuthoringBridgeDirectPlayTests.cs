@@ -15,6 +15,7 @@ using Game.Kernel.Validation;
 using NUnit.Framework;
 using TinnosukeGameLib.Editor.KernelBoot;
 using UnityEngine;
+using KernelHash128 = Game.Kernel.IR.Hash128;
 
 namespace TinnosukeGameLib.Tests.Editor
 {
@@ -45,12 +46,10 @@ namespace TinnosukeGameLib.Tests.Editor
                     "ScopeAuthoringLink",
                     "scope");
 
-                KernelIR kernelIR = CreateKernelIR();
                 FakeKernelBootRuntimeSurfaceFactory runtimeSurfaceFactory = new FakeKernelBootRuntimeSurfaceFactory();
 
-                AuthoringDirectPlayInput input = new AuthoringDirectPlayInput(
+                AuthoringDirectPlayAuthoringInput input = new AuthoringDirectPlayAuthoringInput(
                     new[] { root },
-                    kernelIR,
                     new KernelProfile(new KernelProfileId(7), KernelProfileKind.Development),
                     new PlanId(101),
                     new ArtifactSetId(202),
@@ -91,8 +90,8 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(linkObject);
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -146,8 +145,48 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(linkObject);
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void PrepareDirectPlay_BlocksOnDirtyAuthoringBeforeExtraction()
+        {
+            GameObject rootObject = new GameObject("DirtyDirectPlayRoot");
+
+            try
+            {
+                ScopeAuthoringRoot root = rootObject.AddComponent<ScopeAuthoringRoot>();
+                ConfigureRoot(root, 101, "DirtyDirectPlayModule", "Assets/Scenes/DirtyDirectPlay.unity", "DirtyDirectPlayRoot", "ScopeAuthoringRoot", "module");
+
+                TestDiagnosticSink sink = new TestDiagnosticSink();
+                KernelDiagnosticService diagnosticService = new KernelDiagnosticService(new IKernelDiagnosticSink[] { sink });
+
+                AuthoringDirectPlayAuthoringInput input = new AuthoringDirectPlayAuthoringInput(
+                    new[] { root },
+                    new KernelProfile(new KernelProfileId(7), KernelProfileKind.Development),
+                    new PlanId(101),
+                    new ArtifactSetId(202),
+                    4,
+                    "1.0.0",
+                    new ManifestId(303),
+                    new BootPolicyId(404));
+
+                AuthoringDirectPlayResult result = AuthoringBridge.PrepareDirectPlay(input, diagnosticService);
+
+                Assert.That(result.IsSuccessful, Is.False);
+                Assert.That(result.FailedStage, Is.EqualTo(AuthoringDirectPlayStage.DirtyCheck));
+                Assert.That(result.ExtractionReport.IsValid, Is.False);
+                Assert.That(result.GenerationResult, Is.Null);
+                Assert.That(result.PromotionStageResult, Is.Null);
+                Assert.That(result.BootBoundaryResult, Is.Null);
+                Assert.That(sink.Diagnostics, Has.Count.EqualTo(1));
+                Assert.That(sink.Diagnostics[0].Code.Value, Is.EqualTo(ScopeAuthoringValidationCodes.RootEmpty));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -185,7 +224,7 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -238,8 +277,8 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(linkObject);
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -295,8 +334,8 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(linkObject);
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -328,10 +367,10 @@ namespace TinnosukeGameLib.Tests.Editor
                 new BootPolicyId(404));
 
             KernelIRNormalizationReport normalizationReport = new KernelIRNormalizationReport(
-                new Hash128(1, 2, 3, 4),
-                new Hash128(4, 3, 2, 1),
-                new Hash128(5, 6, 7, 8),
-                new Hash128(8, 7, 6, 5));
+                new KernelHash128(1, 2, 3, 4),
+                new KernelHash128(4, 3, 2, 1),
+                new KernelHash128(5, 6, 7, 8),
+                new KernelHash128(8, 7, 6, 5));
 
             DependencyValidationReport dependencyValidationReport = new DependencyValidationReport(input.Profile.Kind.ToString(), Array.Empty<DependencyValidationIssue>());
 
@@ -419,19 +458,19 @@ namespace TinnosukeGameLib.Tests.Editor
 
         static KernelIR CreateKernelIRWithMismatchedHashes()
         {
-            KernelIR provisional = CreateKernelIRCore(new Hash128(1, 2, 3, 4), new Hash128(5, 6, 7, 8));
-            Hash128 normalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
-            return CreateKernelIRCore(normalizedHash, new Hash128(normalizedHash.A ^ 1u, normalizedHash.B, normalizedHash.C, normalizedHash.D));
+            KernelIR provisional = CreateKernelIRCore(new KernelHash128(1, 2, 3, 4), new KernelHash128(5, 6, 7, 8));
+            KernelHash128 normalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
+            return CreateKernelIRCore(normalizedHash, new KernelHash128(normalizedHash.A ^ 1u, normalizedHash.B, normalizedHash.C, normalizedHash.D));
         }
 
         static KernelIR CreateKernelIR()
         {
-            KernelIR provisional = CreateKernelIRCore(new Hash128(1, 2, 3, 4), new Hash128(5, 6, 7, 8));
-            Hash128 normalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
+            KernelIR provisional = CreateKernelIRCore(new KernelHash128(1, 2, 3, 4), new KernelHash128(5, 6, 7, 8));
+            KernelHash128 normalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
             return CreateKernelIRCore(normalizedHash, normalizedHash);
         }
 
-        static KernelIR CreateKernelIRCore(Hash128 sourceHash, Hash128 normalizedHash)
+        static KernelIR CreateKernelIRCore(KernelHash128 sourceHash, KernelHash128 normalizedHash)
         {
             ModuleIR module = new ModuleIR(
                 new ModuleId(10),
@@ -565,7 +604,8 @@ namespace TinnosukeGameLib.Tests.Editor
                 "RootLifecycle",
                 new ModuleId(10),
                 lifecycleSteps,
-                new SourceLocationId(28));
+                new SourceLocationId(28),
+                LifecycleFailurePolicy.FailOperation);
 
             RuntimeIdentityFieldIR[] runtimeQueryFields = new[]
             {
@@ -659,21 +699,6 @@ namespace TinnosukeGameLib.Tests.Editor
                 dependencies,
                 sources,
                 null);
-        }
-
-        static void ConfigureRoot(ScopeAuthoringRoot root, int moduleId, string moduleName, string assetPath, string gameObjectPath, string componentType, string propertyPath)
-        {
-            root.SetModuleMetadata(moduleId, moduleName, ModuleKind.Feature, 1);
-            root.SetContributionAvailability("Battle", "Windows", "Desktop", ContributionEnvironment.Release);
-            root.SetSourceLocation(
-                UnityAuthoringSourceKind.SceneObject,
-                "4f4f3b04b1e44671b9f1b6a8613bb2d6",
-                assetPath,
-                12001,
-                assetPath,
-                gameObjectPath,
-                componentType,
-                propertyPath);
         }
 
         sealed class FakeKernelBootRuntimeSurfaceFactory : IKernelBootRuntimeSurfaceFactory

@@ -16,9 +16,9 @@ namespace Game.Collision
     /// </summary>
     [Obsolete("Use HitColliderChannelHubMB instead.")]
     [DisallowMultipleComponent]
-    public sealed class HitColliderChannelRuntimeMB : MonoBehaviour, IFeatureInstaller
+    public sealed class HitColliderChannelRuntimeMB : MonoBehaviour, IScopeInstaller
     {
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // Register the new Hub so old scenes don't break immediately.
             builder.Register<IHitColliderChannelHub, HitColliderChannelHub>(RuntimeLifetime.Singleton)
@@ -27,3 +27,4 @@ namespace Game.Collision
         }
     }
 }
+

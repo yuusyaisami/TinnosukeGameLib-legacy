@@ -17,7 +17,6 @@ GameObject:
   - component: {fileID: 2422040575707202293}
   - component: {fileID: 8906286634476114669}
   - component: {fileID: 230756495714326166}
-  - component: {fileID: 447745913203770083}
   m_Layer: 0
   m_Name: VisualCardObject
   m_TagString: Untagged
@@ -279,30 +278,6 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
---- !u!114 &447745913203770083
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2270902629072559532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!1 &3881852133645632500
 GameObject:
   m_ObjectHideFlags: 0

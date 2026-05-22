@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using Sirenix.OdinInspector;
 namespace Game.Commands
 {
     [DisallowMultipleComponent]
-    public sealed class MonitorRuleMB : MonoBehaviour, IFeatureInstaller
+    public sealed class MonitorRuleMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Monitor Rules")]
         [LabelText("Monitor Rules")]
@@ -41,7 +41,7 @@ namespace Game.Commands
         }
 #endif
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // Register a scope-aware handler that will add/remove rules when the scope acquires/releases.
             builder.Register<MonitorRuleService>(RuntimeLifetime.Singleton)
@@ -428,3 +428,4 @@ namespace Game.Commands
 #endif
     }
 }
+

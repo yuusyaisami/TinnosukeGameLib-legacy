@@ -5,7 +5,9 @@ using Game.Kernel.Boot;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;
 using Game.Kernel.IR;
+using Game.Kernel.Validation;
 using NUnit.Framework;
+using KernelHash128 = Game.Kernel.IR.Hash128;
 
 namespace TinnosukeGameLib.Tests.Editor
 {
@@ -134,6 +136,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     new[] { ScopeIdentity(21) },
                     Array.Empty<RuntimeIdentityRef>()),
                 fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
                 debugMap: CreateDebugMap(manifest));
 
             BootValidationReport report = BootValidator.Validate(input);
@@ -162,6 +165,38 @@ namespace TinnosukeGameLib.Tests.Editor
 
             Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
             Assert.That(report.Issues[0].Code, Is.EqualTo(BootValidationCodes.LegacyFallbackForbidden));
+        }
+
+        [Test]
+        public void BootValidator_ReportsArtifactStale_WhenVerifiedArtifactSetIsStale()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Release);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Release);
+
+            BootArtifactValidationState artifactState = new BootArtifactValidationState(
+                artifactSetComplete: true,
+                artifactHeadersCompatible: true,
+                artifactStale: true,
+                debugMapRequired: true,
+                kernelIRHash: manifest.ArtifactSet.KernelIRHash,
+                registryHash: manifest.ArtifactSet.RegistryHash,
+                profileHash: manifest.ArtifactSet.ProfileHash,
+                debugMapHash: manifest.ArtifactSet.DebugMapHash);
+
+            BootValidationReport report = BootValidator.Validate(new BootValidationInput(
+                manifest,
+                profile,
+                artifactSetReferencePresent: true,
+                dependencyValidationStatus: ValidationResultStatus.Passed,
+                artifactState: artifactState,
+                rootState: CreatePassingRootState(),
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest)));
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
+            Assert.That(report.Issues.Count, Is.EqualTo(1));
+            Assert.That(report.Issues[0].Code, Is.EqualTo(BootValidationCodes.ArtifactStale));
         }
 
         [Test]
@@ -346,6 +381,30 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void BootValidator_ReportsMissingRequiredVerifiedProjectionInputs_WhenAcceptedPathRequiresThem()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Release);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Release);
+
+            BootValidationReport report = BootValidator.Validate(new BootValidationInput(
+                manifest,
+                profile,
+                artifactSetReferencePresent: true,
+                dependencyValidationStatus: ValidationResultStatus.Passed,
+                artifactState: CreatePassingArtifactState(manifest),
+                rootState: CreatePassingRootState(),
+                fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
+                debugMap: CreateDebugMap(manifest),
+                requiredProjectionKinds: BootRequiredProjectionKind.All));
+
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Fatal));
+            Assert.That(report.Issues, Has.Some.Matches<BootValidationIssue>(issue => issue.Code == BootValidationCodes.CommandCatalogMissing));
+            Assert.That(report.Issues, Has.Some.Matches<BootValidationIssue>(issue => issue.Code == BootValidationCodes.ValueSchemaMissing));
+            Assert.That(report.Issues, Has.Some.Matches<BootValidationIssue>(issue => issue.Code == BootValidationCodes.RuntimeQueryMissing));
+        }
+
+        [Test]
         public void BootRootValidationState_RejectsDuplicateRootEntries()
         {
             Assert.That(() => new BootRootValidationState(
@@ -369,7 +428,6 @@ namespace TinnosukeGameLib.Tests.Editor
                 artifactState: CreatePassingArtifactState(manifest),
                 rootState: CreatePassingRootState(),
                 fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
-                serviceGraphPlan: CreateEmptyServiceGraphPlan(),
                 scopeGraphPlan: null!,
                 debugMap: CreateDebugMap(manifest)), Throws.ArgumentNullException);
         }
@@ -421,10 +479,10 @@ namespace TinnosukeGameLib.Tests.Editor
                 new ArtifactId(2),
                 ArtifactKind.ScopeGraph,
                 11,
-                new UnityEngine.Hash128(1, 2, 3, 4),
-                new UnityEngine.Hash128(5, 6, 7, 8),
-                new UnityEngine.Hash128(9, 9, 9, 9),
-                new UnityEngine.Hash128(6, 6, 6, 6),
+                new KernelHash128(1, 2, 3, 4),
+                new KernelHash128(5, 6, 7, 8),
+                new KernelHash128(9, 9, 9, 9),
+                new KernelHash128(6, 6, 6, 6),
                 contentHash,
                 "BootValidationTests");
 

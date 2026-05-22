@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Game;
 using UnityEngine;
 
@@ -9,9 +9,9 @@ namespace Game.Actions
     /// Attach this under ProjectLifetimeScope.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class GameStateMachineCommandsMB : MonoBehaviour, IFeatureInstaller
+    public sealed class GameStateMachineCommandsMB : MonoBehaviour, IScopeInstaller
     {
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (owner.Kind != LifetimeScopeKind.Project &&
                 owner.Kind != LifetimeScopeKind.Scene &&
@@ -23,3 +23,4 @@ namespace Game.Actions
         }
     }
 }
+

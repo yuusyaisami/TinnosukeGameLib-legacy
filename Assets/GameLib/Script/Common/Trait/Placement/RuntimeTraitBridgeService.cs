@@ -282,11 +282,11 @@ namespace Game.Trait
             if (linkData == null)
                 return;
 
-            RuntimeLifetimeScope? runtimeScope = null;
+            KernelScopeHost? runtimeScope = null;
             TryResolveRuntimeScope(_owner, out runtimeScope);
 
             // Hidden の手動適用は MB の Condition で制御する、E
-            // 条件ぁEfalse のとき�E右クリチE��しても状態を変えなぁE��E
+            // 条件ぁEfalse のとき�E右クリチE��しても状態を変えなぁE��E
             if (!_owner.CanHideOnRightClick(runtimeScope))
                 return;
 
@@ -360,7 +360,7 @@ namespace Game.Trait
             }
         }
 
-        void ExecuteDefinitionPresentationCommands(RuntimeLifetimeScope scope, TraitRuntimePresentationState state)
+        void ExecuteDefinitionPresentationCommands(KernelScopeHost scope, TraitRuntimePresentationState state)
         {
             var definition = ResolveTraitDefinition(scope, _linkData);
             if (definition == null)
@@ -381,7 +381,7 @@ namespace Game.Trait
         }
 
         void ExecutePresentationCommands(
-            RuntimeLifetimeScope scope,
+            KernelScopeHost scope,
             DynamicValue<CommandListData> commandSource,
             PresentationCommandMutationSlot mutationSlot,
             string eventName)
@@ -402,7 +402,7 @@ namespace Game.Trait
         }
 
         void ExecuteCommandList(
-            RuntimeLifetimeScope scope,
+            KernelScopeHost scope,
             CommandListData commands,
             string eventName)
         {
@@ -430,7 +430,7 @@ namespace Game.Trait
             });
         }
 
-        static TraitDefinitionSO? ResolveTraitDefinition(RuntimeLifetimeScope scope, TraitRuntimeLinkData? linkData)
+        static TraitDefinitionSO? ResolveTraitDefinition(KernelScopeHost scope, TraitRuntimeLinkData? linkData)
         {
             var resolver = scope?.Resolver;
             if (resolver != null &&
@@ -564,7 +564,7 @@ namespace Game.Trait
             return vars;
         }
 
-        static bool TryResolveRuntimeScope(RuntimeTraitMB owner, out RuntimeLifetimeScope? runtimeScope)
+        static bool TryResolveRuntimeScope(RuntimeTraitMB owner, out KernelScopeHost? runtimeScope)
         {
             runtimeScope = null;
             if (owner == null)
@@ -573,7 +573,7 @@ namespace Game.Trait
             if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(owner, includeInactive: true, out var scope) || scope == null)
                 return false;
 
-            runtimeScope = scope as RuntimeLifetimeScope;
+            runtimeScope = scope as KernelScopeHost;
             return runtimeScope != null;
         }
 
@@ -674,3 +674,5 @@ namespace Game.Trait
         }
     }
 }
+
+

@@ -12,7 +12,7 @@ using Game.Commands.VNext;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class VisualBoundsMB : MonoBehaviour, IFeatureInstaller
+    public sealed class VisualBoundsMB : MonoBehaviour, IScopeInstaller
     {
         const string RootGroup = "Root";
         const string SourcesGroup = "Sources";
@@ -176,7 +176,7 @@ namespace Game.UI
         GUIStyle? _labelStyle;
         readonly Vector3[] _debugCorners = new Vector3[8];
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             var config = new VisualBoundsConfig
             {
@@ -458,3 +458,4 @@ namespace Game.UI
 #endif
     }
 }
+

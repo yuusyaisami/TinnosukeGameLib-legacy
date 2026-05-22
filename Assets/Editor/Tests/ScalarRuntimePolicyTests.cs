@@ -79,7 +79,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 lanes.Add(snapshot.Lane);
             }
 
-            Assert.That(lanes, Does.Contain(LayeredNumericLaneKind.FinalClamp));
+            Assert.That(lanes, Has.Member(LayeredNumericLaneKind.FinalClamp));
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 lanes.Add(snapshot.Lane);
             }
 
-            Assert.That(lanes, Does.Not.Contain(LayeredNumericLaneKind.FinalClamp));
+            Assert.That(lanes, Has.No.Member(LayeredNumericLaneKind.FinalClamp));
         }
 
         [Test]
@@ -301,7 +301,7 @@ namespace TinnosukeGameLib.Tests.Editor
             }
 
             public IScopeNode? Parent { get; set; }
-            public ILTSIdentityService? Identity { get; set; }
+            public IScopeIdentityService? Identity { get; set; }
             public LifetimeScopeKind Kind => _kind;
             public IRuntimeResolver? Resolver { get; set; }
             public bool IsVisible { get; private set; } = true;
@@ -328,7 +328,7 @@ namespace TinnosukeGameLib.Tests.Editor
             public IReadOnlyList<IScopeNode>? GetPathFromRoot()
             {
                 var nodes = new List<IScopeNode>();
-                var current = this;
+                IScopeNode? current = this;
 
                 while (current != null)
                 {

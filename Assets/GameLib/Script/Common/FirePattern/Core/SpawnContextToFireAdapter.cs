@@ -102,7 +102,7 @@ namespace Game.Fire
 
             // IMPORTANT:
             // Do NOT try to find/register to an emitter via IScopeNode.Parent.
-            // Spawned RuntimeLifetimeScope hierarchy is not guaranteed to match emitter ownership.
+            // Spawned KernelScopeHost hierarchy is not guaranteed to match emitter ownership.
             // EmitterService already registers all ISpawnContextConsumer from the spawned unit resolver.
             EnsureServicesResolved(scope.Resolver);
 
@@ -227,11 +227,9 @@ namespace Game.Fire
         {
             if (resolver != null)
             {
-                if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtime) && runtime != null)
-                    return runtime.transform.position;
-
-                if (resolver.TryResolve<BaseLifetimeScope>(out var baseScope) && baseScope != null)
-                    return baseScope.transform.position;
+                var handle = ScopeFeatureInstallerUtility.CaptureSpawnedLifetime(resolver);
+                if (handle.Root != null)
+                    return handle.Root.transform.position;
             }
 
             return fallback;
@@ -250,3 +248,5 @@ namespace Game.Fire
         }
     }
 }
+
+

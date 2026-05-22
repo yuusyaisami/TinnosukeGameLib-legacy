@@ -8,15 +8,15 @@ using Cysharp.Threading.Tasks;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class UIElementSpawnerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UIElementSpawnerMB : MonoBehaviour, IScopeInstaller
     {
         [Header("Spawner")]
         [SerializeField] string spawnerTag = "";
 
-        [Tooltip("Spawn parent. Null の場合�Eこ�E GameObject 直下に生�E")]
+        [Tooltip("Spawn parent. Null の場合�Eこ�E GameObject 直下に生�E")]
         [SerializeField] Transform? root;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance(this);
 
@@ -44,3 +44,4 @@ namespace Game.UI
         }
     }
 }
+

@@ -150,7 +150,6 @@ namespace Game.Commands
             _runOptions = new VNext.CommandRunOptions(
                 VNext.CommandFailurePolicy.Skip,
                 allowActorFallback: false,
-                allowRuntimeKeyFallback: false,
                 VNext.CommandTracePolicy.OnFailure,
                 maxTraceDepth: 32,
                 maxTraceFrames: 256,
@@ -468,28 +467,9 @@ namespace Game.Commands
             if (go == null)
                 return null;
 
-            // NOTE:
-            // Monitor 側も FromUnityObject 相当の解決を行うため、優先順は VNext と揃える。
-            // 近傍 Transform から RuntimeScope を先に取り、Scope取り違えを防ぐ。
-            for (var t = go.transform; t != null; t = t.parent)
-            {
-                var runtimeScope = t.GetComponent<RuntimeLifetimeScope>();
-                if (runtimeScope != null)
-                    return runtimeScope;
-
-                var baseScope = t.GetComponent<BaseLifetimeScope>();
-                if (baseScope != null)
-                    return baseScope;
-
-                var sameLevel = t.GetComponents<Component>();
-                for (var i = 0; i < sameLevel.Length; i++)
-                {
-                    if (sameLevel[i] is IScopeNode node)
-                        return node;
-                }
-            }
-
-            return null;
+            return ScopeFeatureInstallerUtility.TryGetScopeNode(go, includeInactive: true, out var node)
+                ? node
+                : null;
         }
 
         // ================================================================

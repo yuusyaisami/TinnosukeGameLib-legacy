@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VNext = Game.Commands.VNext;
@@ -27,7 +27,7 @@ namespace Game.Actions
     }
 
     [DisallowMultipleComponent]
-    public sealed class GameStateMachineMB : MonoBehaviour, IGameStateMachineSettings, IFeatureInstaller
+    public sealed class GameStateMachineMB : MonoBehaviour, IGameStateMachineSettings, IScopeInstaller
     {
         [BoxGroup("Commands")]
         [LabelText("State Commands")]
@@ -62,7 +62,7 @@ namespace Game.Actions
         public bool ExecuteInitialStateCommandsOnAcquire => _executeInitialStateCommandsOnAcquire;
         public int InitialStateCommandDelayFramesOnAcquire => _initialStateCommandDelayFramesOnAcquire;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance<IGameStateMachineSettings>(this);
 
@@ -84,3 +84,4 @@ namespace Game.Actions
         }
     }
 }
+

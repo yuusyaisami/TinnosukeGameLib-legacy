@@ -59,16 +59,7 @@ namespace Game.Fire
             _vars = new VarStore();
             _input = inputContext;
 
-            IScopeNode scope = null;
-            if (inputContext.UnitResolver != null)
-            {
-                if (!inputContext.UnitResolver.TryResolve<IScopeNode>(out scope) || scope == null)
-                {
-                    inputContext.UnitResolver.TryResolve<BaseLifetimeScope>(out var baseScope);
-                    scope = baseScope;
-                }
-            }
-            _scope = scope;
+            _scope = ScopeFeatureInstallerUtility.CaptureSpawnedLifetime(inputContext.UnitResolver).ScopeNode;
 
             SetFromSpawnContext(in inputContext);
             SetFireDefaults();

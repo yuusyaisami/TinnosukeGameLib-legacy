@@ -2,6 +2,7 @@
 
 using NUnit.Framework;
 using Game.Editor.Tests;
+using Game.Kernel.Diagnostics;
 
 namespace TinnosukeGameLib.Tests.Editor
 {

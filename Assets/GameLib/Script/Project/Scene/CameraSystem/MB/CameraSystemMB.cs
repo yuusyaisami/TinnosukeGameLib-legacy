@@ -9,7 +9,7 @@ using Game.Times;
 namespace Game.CameraSystem
 {
     [DisallowMultipleComponent]
-    public sealed class CameraSystemMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CameraSystemMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("References")]
         [LabelText("Fx Transform")]
@@ -57,7 +57,7 @@ namespace Game.CameraSystem
         [MinValue(0.001f)]
         [SerializeField] float zoomMaxSize = 20f;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             ResolveReferences();
 
@@ -182,3 +182,4 @@ namespace Game.CameraSystem
 
     }
 }
+

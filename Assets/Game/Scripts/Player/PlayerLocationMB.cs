@@ -1,4 +1,4 @@
-﻿using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Game.Commands;
 
@@ -14,11 +14,11 @@ namespace Game
     }
 
     [DisallowMultipleComponent]
-    public sealed class PlayerLocationMB : MonoBehaviour, IFeatureInstaller, IPlayerLocationSettings
+    public sealed class PlayerLocationMB : MonoBehaviour, IScopeInstaller, IPlayerLocationSettings
     {
         [BoxGroup("Player")]
         [LabelText("Player Id")]
-        [Tooltip("LTSIdentityService.Id to resolve as the player scope.")]
+        [Tooltip("ScopeIdentityService.Id to resolve as the player scope.")]
         [SerializeField]
         string _playerId = "Player";
 
@@ -49,7 +49,7 @@ namespace Game
         public bool RequireActive => _requireActive;
         public CommandTargetSearchScope SearchScope => _searchScope;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IPlayerLocationSettings>(this);
             builder.Register<PlayerLocationService>(RuntimeLifetime.Singleton)
@@ -60,3 +60,4 @@ namespace Game
         }
     }
 }
+

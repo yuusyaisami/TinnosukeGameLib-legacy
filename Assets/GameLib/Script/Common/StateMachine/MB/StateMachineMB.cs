@@ -1,4 +1,4 @@
-﻿// Game.StateMachine.StateMachineMB.cs
+// Game.StateMachine.StateMachineMB.cs
 
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ namespace Game.StateMachine
     /// StateMachine 縺ｮ FeatureInstaller + Debug Viewer縲・
     /// LifetimeScope 驟堺ｸ九↓驟咲ｽｮ縺励※菴ｿ逕ｨ縺吶ｋ縲・
     /// </summary>
-    public sealed class StateMachineMB : MonoBehaviour, IFeatureInstaller
+    public sealed class StateMachineMB : MonoBehaviour, IScopeInstaller
     {
         // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Inspector Fields
@@ -151,10 +151,10 @@ namespace Game.StateMachine
         }
 
         // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-        //  IFeatureInstaller
+        //  IScopeInstaller
         // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
         {
             EnsurePresetMigrated();
             var dynamicContext = new SimpleDynamicContext(NullVarStore.Instance, baseLTS);
@@ -353,3 +353,4 @@ namespace Game.StateMachine
 #endif
     }
 }
+

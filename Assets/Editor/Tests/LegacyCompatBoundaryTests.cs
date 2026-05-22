@@ -157,6 +157,8 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyExpirationCondition"), Is.EqualTo("remove after migration"));
             Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyDiagnosticsCode"), Is.EqualTo(LegacyCompatBoundaryCodes.RuntimeAdapterUsed));
             Assert.That(GetPayloadValue(diagnostic, "RemovalPolicyTrackingIssueOrBlockingCondition"), Is.EqualTo("TICKET-1"));
+            Assert.That(GetPayloadValue(diagnostic, "ResidueState"), Is.EqualTo("QuarantineOnly"));
+            Assert.That(GetPayloadValue(diagnostic, "AuthorityState"), Is.EqualTo("NonAuthoritative"));
         }
 
         [Test]

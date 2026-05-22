@@ -14,6 +14,7 @@ namespace TinnosukeGameLib.Tests.Editor
     public sealed class DiagnosticCodeTraceabilityTests
     {
         static readonly Regex DiagnosticCodePattern = new Regex("new\\s+DiagnosticCode\\(\\\"(?<code>[A-Z0-9_]+)\\\"\\)", RegexOptions.CultureInvariant);
+        static readonly Regex RepresentativeGameplayDiagnosticCodePattern = new Regex("\\[(?<code>V22-M4-[A-Z]+-\\d{3})\\]", RegexOptions.CultureInvariant);
         static readonly Regex StaticRulePattern = new Regex("\\\"(?<code>STATIC_RULE_[A-Z0-9_]+)\\\"", RegexOptions.CultureInvariant);
         static readonly Regex TypedIdentityPattern = new Regex("public\\s+readonly\\s+struct\\s+(?<code>(?:ModuleId|ServiceId|ScopeAuthoringId|ScopePlanId|CommandTypeId|CommandExecutorId|CommandPayloadSchemaId|CommandAuthoringKeyId|ValueKeyId|ValueSchemaId|LifecycleStepId|RuntimeQueryId|SourceLocationId))\\b", RegexOptions.CultureInvariant);
         static readonly Regex SourceLocationModelPattern = new Regex("public\\s+readonly\\s+struct\\s+(?<code>(?:SourceLocationIR|UnitySourceLocation|LegacySourceLocation|GeneratedSourceLocation))\\b", RegexOptions.CultureInvariant);
@@ -225,6 +226,13 @@ namespace TinnosukeGameLib.Tests.Editor
             CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "Diagnostics", "Core", "Service", "KernelDiagnosticService.cs"), identifiers);
             CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelDiagnostics", "KernelDiagnosticsModelTests.cs"), identifiers);
             CollectDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelDiagnostics", "KernelTestArtifactWriterTests.cs"), identifiers);
+            CollectRepresentativeGameplayDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "Game", "Scripts", "Flow", "Commands", "GameStateMachineExecutors.cs"), identifiers);
+            CollectRepresentativeGameplayDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Common", "Commands", "VNext", "Executors", "UI", "ConversationExecutors.cs"), identifiers);
+            CollectRepresentativeGameplayDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Project", "UI", "Core", "Conversation", "Channel", "ConversationChannelHubService.cs"), identifiers);
+            CollectRepresentativeGameplayDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Project", "Scene", "Channels", "GridObjectChannel", "GridObjectChannelExecutors.cs"), identifiers);
+            CollectRepresentativeGameplayDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Project", "UI", "TraitListChannel", "Commands", "TraitListChannelExecutors.cs"), identifiers);
+            CollectRepresentativeGameplayDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Common", "Commands", "VNext", "Executors", "StatusEffect", "StatusEffectExecutors.cs"), identifiers);
+            CollectRepresentativeGameplayDiagnosticCodes(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Common", "Commands", "VNext", "Executors", "StatusEffect", "WriteStatusEffectDataExecutor.cs"), identifiers);
             CollectStaticRuleIds(Path.Combine(ProjectRootPath, "Assets", "Editor", "Tests", "KernelDiagnostics", "KernelForbiddenPatternScanner.cs"), identifiers);
             CollectTypedIdentityIds(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "IR", "KernelIRIdentities.cs"), identifiers);
             CollectSourceLocationModelIds(Path.Combine(ProjectRootPath, "Assets", "GameLib", "Script", "Kernel", "IR", "KernelIRSourceLocations.cs"), identifiers);
@@ -241,6 +249,16 @@ namespace TinnosukeGameLib.Tests.Editor
         {
             string content = File.ReadAllText(filePath);
             MatchCollection matches = DiagnosticCodePattern.Matches(content);
+            for (int i = 0; i < matches.Count; i++)
+            {
+                identifiers.Add(matches[i].Groups["code"].Value);
+            }
+        }
+
+        static void CollectRepresentativeGameplayDiagnosticCodes(string filePath, ISet<string> identifiers)
+        {
+            string content = File.ReadAllText(filePath);
+            MatchCollection matches = RepresentativeGameplayDiagnosticCodePattern.Matches(content);
             for (int i = 0; i < matches.Count; i++)
             {
                 identifiers.Add(matches[i].Groups["code"].Value);

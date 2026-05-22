@@ -315,17 +315,7 @@ namespace Game.Commands.VNext
 
         public static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-            {
-                runtimeScope.EnsureScopeBuilt();
-                return;
-            }
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
     }
 }

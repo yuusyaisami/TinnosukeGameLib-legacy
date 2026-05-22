@@ -74,7 +74,6 @@ namespace Game.Commands.VNext
                 NullCommandCatalog.Instance,
                 NullCommandKeyResolver.Instance,
                 NullCommandResolveLogger.Instance,
-                allowRuntimeKeyFallback: ctx.Options.AllowRuntimeKeyFallback,
                 runtimeContext: ctx);
 
             var dynCtxForGrid = CreateDynamicContext();
@@ -449,16 +448,7 @@ namespace Game.Commands.VNext
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-            {
-                runtimeScope.EnsureScopeBuilt();
-            }
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
 
         static bool TryResolveRunner(IScopeNode scope, out ICommandRunner? runner)

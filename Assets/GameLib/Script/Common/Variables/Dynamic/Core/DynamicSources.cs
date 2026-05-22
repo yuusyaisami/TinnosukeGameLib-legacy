@@ -3501,6 +3501,9 @@ namespace Game.Common
 
         public static BlackboardReadFallback ResolveFallback(BlackboardReadFallback fallback, BlackboardReadScope readScope)
         {
+            if (VerifiedValueRuntimeBridge.IsActive)
+                return BlackboardReadFallback.Fail;
+
             if (fallback != BlackboardReadFallback.Default)
                 return fallback;
             return readScope == BlackboardReadScope.Global
@@ -3515,6 +3518,18 @@ namespace Game.Common
             BlackboardReadFallback fallback,
             in DynamicVariant initialValue)
         {
+            if (VerifiedValueRuntimeBridge.IsActive)
+            {
+                if (fallback != BlackboardReadFallback.Fail)
+                {
+                    VerifiedValueAccessDiagnostics.ReportBlockedAccessOnce(
+                        "DynamicSources.BlackboardFallback",
+                        "Wave D verified value authority blocked DynamicSources blackboard fallback creation. Dynamic blackboard sources must not create fallback values outside verified value authority.");
+                }
+
+                return DynamicVariant.Null;
+            }
+
             if (origin == null || varId == 0 || fallback == BlackboardReadFallback.Fail)
                 return DynamicVariant.Null;
 

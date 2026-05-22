@@ -141,14 +141,7 @@ namespace Game.Commands.VNext
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
 
         static List<TraitDefinitionSO> ResolveCandidates(TraitLotteryCommandData data, IDynamicContext dynCtx)

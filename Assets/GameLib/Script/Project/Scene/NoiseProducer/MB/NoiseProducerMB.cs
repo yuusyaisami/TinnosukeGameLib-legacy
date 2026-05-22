@@ -7,13 +7,13 @@ using VContainer;
 namespace Game.NoiseProducer
 {
     [DisallowMultipleComponent]
-    public sealed class NoiseProducerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class NoiseProducerMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField, Required]
         [ListDrawerSettings(ShowFoldout = true)]
         List<NoiseChannelDefinitionSO> _channelDefinitions = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var definitions = new List<NoiseChannelDefinition>(_channelDefinitions.Count);
             for (int i = 0; i < _channelDefinitions.Count; i++)
@@ -32,3 +32,4 @@ namespace Game.NoiseProducer
         }
     }
 }
+

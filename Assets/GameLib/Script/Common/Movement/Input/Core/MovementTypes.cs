@@ -50,7 +50,7 @@ namespace Game.Movement
         public readonly IScopeNode? TargetScope;
 
         /// <summary>ターゲットの Identity（任意）</summary>
-        public readonly ILTSIdentityService? TargetIdentity;
+        public readonly IScopeIdentityService? TargetIdentity;
 
         public TargetSnapshot(
             bool hasTarget,
@@ -59,7 +59,7 @@ namespace Game.Movement
             float distance,
             Vector2 targetDirection,
             IScopeNode? targetScope = null,
-            ILTSIdentityService? targetIdentity = null)
+            IScopeIdentityService? targetIdentity = null)
         {
             HasTarget = hasTarget;
             TargetPosition = targetPosition;
@@ -278,3 +278,4 @@ namespace Game.Movement
         }
     }
 }
+

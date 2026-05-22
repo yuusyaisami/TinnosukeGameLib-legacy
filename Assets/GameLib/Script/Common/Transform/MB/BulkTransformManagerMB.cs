@@ -6,13 +6,13 @@ using VContainer.Unity;
 namespace Game.TransformSystem
 {
     /// <summary>
-    /// BulkTransformManager の MonoBehaviour 実裁E��E
+    /// BulkTransformManager の MonoBehaviour 実裁E��E
     /// </summary>
-    public class BulkTransformManagerMB : MonoBehaviour, IFeatureInstaller
+    public class BulkTransformManagerMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField] int _initialCapacity = 8192;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode lifetimeScope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode lifetimeScope)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             builder.Register<BulkTransformManagerWebGL>(RuntimeLifetime.Singleton)
@@ -34,3 +34,4 @@ namespace Game.TransformSystem
 
     }
 }
+

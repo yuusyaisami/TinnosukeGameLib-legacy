@@ -41,7 +41,19 @@ namespace Game.Channel
             IScopeNode scope,
             Transform ownerTransform)
         {
-            _tag = string.IsNullOrWhiteSpace(tag) ? "default" : tag;
+            if (string.IsNullOrWhiteSpace(tag))
+                throw new ArgumentException("Mesh channel tag must be specified.", nameof(tag));
+
+            if (!definitionSource.HasSource)
+                throw new ArgumentException("Mesh definition source must have an authored source.", nameof(definitionSource));
+
+            if (scope == null)
+                throw new ArgumentNullException(nameof(scope));
+
+            if (ownerTransform == null)
+                throw new ArgumentNullException(nameof(ownerTransform));
+
+            _tag = tag.Trim();
             _definitionSource = definitionSource;
             _scope = scope;
             _ownerTransform = ownerTransform;
@@ -51,7 +63,7 @@ namespace Game.Channel
         {
             _vars = MeshRuntimeStateFactory.ResolveVars(_scope);
             var dynamicContext = CreateDynamicContext();
-            var authoredPreset = MeshRuntimeStateFactory.ResolveDefinition(_definitionSource, dynamicContext, new MeshDefinitionPreset());
+            var authoredPreset = MeshRuntimeStateFactory.ResolveDefinition(_definitionSource, dynamicContext);
             _baseState = MeshRuntimeStateFactory.BuildRuntimeState(authoredPreset, dynamicContext);
             _currentState = MeshRuntimeStateFactory.CloneRuntimeState(_baseState);
             RefreshTrackKeyCache();
@@ -162,8 +174,7 @@ namespace Game.Channel
             {
                 track.VisualizerPreset = MeshRuntimeStateFactory.ResolveVisualizerPreset(
                     mutation.Preset,
-                    CreateDynamicContext(),
-                    new MeshLineTrackVisualizerPreset());
+                    CreateDynamicContext());
             }
 
             if (track.VisualizerPreset is MeshLineTrackVisualizerPreset line)
@@ -208,8 +219,7 @@ namespace Game.Channel
             {
                 track.PlayerPreset = MeshRuntimeStateFactory.ResolvePlayerPreset(
                     mutation.Preset,
-                    CreateDynamicContext(),
-                    new MeshLineTrackPlayerPreset());
+                    CreateDynamicContext());
             }
 
             if (track.PlayerPreset is MeshLineTrackPlayerPreset line && mutation.ApplyPoints)
@@ -255,8 +265,7 @@ namespace Game.Channel
             {
                 track.ColliderPreset = MeshRuntimeStateFactory.ResolveColliderPreset(
                     mutation.Preset,
-                    CreateDynamicContext(),
-                    new MeshPolygonTrackColliderPreset());
+                    CreateDynamicContext());
             }
 
             if (track.ColliderPreset is MeshPolygonTrackColliderPreset polygon)
@@ -282,8 +291,7 @@ namespace Game.Channel
             {
                 track.MaterialPreset = MeshRuntimeStateFactory.ResolveMaterialPreset(
                     mutation.Preset,
-                    CreateDynamicContext(),
-                    new MeshTrackMaterialPreset());
+                    CreateDynamicContext());
             }
 
             if (mutation.ApplyEnabled)
@@ -305,8 +313,7 @@ namespace Game.Channel
             {
                 track.Preset = MeshRuntimeStateFactory.ResolveSimulationPreset(
                     mutation.Preset,
-                    CreateDynamicContext(),
-                    new MeshClayTransientSimulationPreset());
+                    CreateDynamicContext());
             }
             if (mutation.ApplyPriority)
                 track.Priority = mutation.Priority;

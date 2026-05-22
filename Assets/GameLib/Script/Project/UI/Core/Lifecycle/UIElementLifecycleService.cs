@@ -51,7 +51,7 @@ namespace Game.UI
     // UIElementを削除する際は必ず以下の処理を行う:
     //
     // 1. UIElementStateServiceのActiveをfalseに設定
-    // 2. BaseLifetimeScope.DespawnAsync()を呼び出し
+    // 2. scope host の despawn を呼び出し
     // 3. IScopeLifecycleServiceがあれば、そちらの処理を待つ
     //
     // ================================================================
@@ -139,7 +139,7 @@ namespace Game.UI
         /// 
         /// 1. UIElementStateServiceのActiveをfalseに設定
         /// 2. 生成済みリストから削除
-        /// 3. BaseLifetimeScope.DespawnAsync()を呼び出し
+        /// 3. scope host の despawn を呼び出し
         /// 4. IScopeLifecycleServiceの処理完了を待機
         /// 5. GameObjectを破棄
         /// 
@@ -419,7 +419,7 @@ namespace Game.UI
                 Debug.Log($"[UIElementLifecycleService] Set Active=false: {element.name}");
             }
 
-            // 2. BaseLifetimeScope.DespawnAsync()を呼び出し
+            // 2. scope host の despawn を呼び出し
             // これはIScopeLifecycleServiceがあれば、そちらの処理完了を待つ
             try
             {

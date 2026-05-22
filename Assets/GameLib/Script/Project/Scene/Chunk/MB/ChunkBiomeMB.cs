@@ -8,14 +8,14 @@ using VContainer;
 namespace Game.Chunk
 {
     [DisallowMultipleComponent]
-    public sealed class ChunkBiomeMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ChunkBiomeMB : MonoBehaviour, IScopeInstaller
     {
         const string BiomeGroup = "Biome";
 
         [BoxGroup(BiomeGroup)]
         [SerializeField] ChunkBiomeSettingsSO? settings;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (settings != null)
                 builder.RegisterInstance(settings);
@@ -27,3 +27,4 @@ namespace Game.Chunk
         }
     }
 }
+

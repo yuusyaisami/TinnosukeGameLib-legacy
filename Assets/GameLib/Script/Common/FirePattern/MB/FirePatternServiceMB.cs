@@ -7,7 +7,7 @@ using VContainer;
 
 namespace Game.Fire
 {
-    public sealed class FirePatternServiceMB : MonoBehaviour, IFeatureInstaller
+    public sealed class FirePatternServiceMB : MonoBehaviour, IScopeInstaller
     {
         [Header("Input")]
         [SerializeReference, ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
@@ -42,7 +42,7 @@ namespace Game.Fire
         bool ShowTargetChannelFields => hitAcquireMode == DynamicSearchHitAcquireMode.TargetChannelHub;
         bool ShowQueryFields => hitAcquireMode == DynamicSearchHitAcquireMode.DynamicSearchQuery;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<FirePatternService>(RuntimeLifetime.Singleton)
                 .As<IFirePatternService>();
@@ -66,3 +66,4 @@ namespace Game.Fire
         }
     }
 }
+

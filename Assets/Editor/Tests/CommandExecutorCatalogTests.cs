@@ -1,20 +1,51 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game;
+using Game.Commands;
 using Game.Commands.VNext;
 using Game.Common;
+using Game.Flow;
 using Game.Kernel.Generation;
 using Game.Kernel.IR;
 using NUnit.Framework;
+using UnityEngine;
+using KernelHash128 = Game.Kernel.IR.Hash128;
 
 namespace TinnosukeGameLib.Tests.Editor
 {
     [TestFixture]
     public sealed class CommandExecutorCatalogTests
     {
+        [Test]
+        public void CommandKeyResolver_FailsClosedWhenStableKeyIsMissing()
+        {
+            FieldInfo? cachedRegistryField = typeof(CommandKeyRegistryLocator).GetField("_cachedRegistry", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(cachedRegistryField, Is.Not.Null, "CommandKeyRegistryLocator cache field must exist for the test harness.");
+
+            CommandKeyRegistry? previousRegistry = cachedRegistryField!.GetValue(null) as CommandKeyRegistry;
+            CommandKeyRegistry testRegistry = ScriptableObject.CreateInstance<CommandKeyRegistry>();
+
+            try
+            {
+                cachedRegistryField.SetValue(null, testRegistry);
+
+                CommandKeyResolver resolver = new();
+                bool resolved = resolver.TryResolve("missing.command.key", out CommandKeyId keyId);
+
+                Assert.That(resolved, Is.False);
+                Assert.That(keyId.IsValid, Is.False);
+            }
+            finally
+            {
+                cachedRegistryField.SetValue(null, previousRegistry);
+                UnityEngine.Object.DestroyImmediate(testRegistry);
+            }
+        }
+
         [Test]
         public void TryGet_ReturnsRegisteredExecutor()
         {
@@ -102,17 +133,17 @@ namespace TinnosukeGameLib.Tests.Editor
                     Array.Empty<CommandDependencyIR>(),
                     new SourceLocationId(5)),
             };
-            Hash128 contentHash = KernelProjectionHashing.ComputeCommandCatalogHash(commands);
+            KernelHash128 contentHash = KernelProjectionHashing.ComputeCommandCatalogHash(commands);
             VerifiedArtifactHeader header = new(
                 new PlanId(814),
                 new ArtifactSetId(815),
                 new ArtifactId(816),
                 ArtifactKind.CommandCatalog,
                 4,
-                new Hash128(1, 2, 3, 4),
-                new Hash128(5, 6, 7, 8),
-                new Hash128(9, 10, 11, 12),
-                new Hash128(13, 14, 15, 16),
+                new KernelHash128(1, 2, 3, 4),
+                new KernelHash128(5, 6, 7, 8),
+                new KernelHash128(9, 10, 11, 12),
+                new KernelHash128(13, 14, 15, 16),
                 contentHash,
                 "1.0.0");
             CommandCatalogPlan plan = new(header, commands);
@@ -157,7 +188,7 @@ namespace TinnosukeGameLib.Tests.Editor
             AccessorOnlyCommandData data = new(818, 42);
             CommandPayloadFieldReaderProvider provider = new();
             provider.Register<AccessorOnlyCommandData>(
-                static (command, fieldPath, out CommandPayloadFieldValue value) =>
+                static (AccessorOnlyCommandData command, string fieldPath, out CommandPayloadFieldValue value) =>
                 {
                     if (string.Equals(fieldPath, "amount", StringComparison.Ordinal))
                     {
@@ -649,6 +680,195 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(bodyExecutor.ExecutionCount, Is.EqualTo(0));
         }
 
+        [Test]
+        public async UniTask FunctionExecutor_PropagatesChangedVarsBackToCaller()
+        {
+            const int bodyCommandId = 940;
+            const int callerVarId = 401;
+
+            VarMutatingExecutor bodyExecutor = new(bodyCommandId, callerVarId, 22);
+            CommandRunner runner = CreateRunner(
+                new[]
+                {
+                    CommandPayloadSchema.Empty(CommandIds.Function, 9401, CommandPayloadUnknownFieldPolicy.Ignore),
+                    CommandPayloadSchema.Empty(bodyCommandId, 9402, CommandPayloadUnknownFieldPolicy.Ignore),
+                },
+                new FunctionExecutor(),
+                bodyExecutor);
+
+            VarStore callerVars = new();
+            callerVars.TrySetVariant(callerVarId, DynamicVariant.FromInt(11));
+
+            CommandFunctionPreset function = new();
+            function.Commands.Add(new TestCommandSource(new TestCommandData(bodyCommandId), "function-body"));
+
+            FunctionCommandData data = new(function, initialVars: null, debugName: "function-test");
+            CommandContext context = new(runner.Scope, callerVars, runner);
+
+            CommandRunResult result = await runner.ExecuteSingleAsync(data, context, CancellationToken.None, CommandRunOptions.Default);
+
+            Assert.That(result.Status, Is.EqualTo(CommandRunStatus.Completed));
+            Assert.That(callerVars.TryGetVariant(callerVarId, out DynamicVariant updated), Is.True);
+            Assert.That(updated.AsInt, Is.EqualTo(22));
+        }
+
+        [Test]
+        public async UniTask WithActorExecutor_ExecutesBodyOnResolvedActorScope()
+        {
+            const int bodyCommandId = 941;
+
+            IScopeNode? observedScope = null;
+            IScopeNode? observedActor = null;
+
+            TestCommandExecutor actorBodyExecutor = new(bodyCommandId, (data, ctx, ct) =>
+            {
+                _ = data;
+                _ = ct;
+                observedScope = ctx.Scope;
+                observedActor = ctx.Actor;
+                return UniTask.CompletedTask;
+            });
+
+            TestRuntimeResolver actorResolver = new();
+            TestScopeNode actorScope = new(actorResolver, parent: null, kind: LifetimeScopeKind.Entity);
+            CommandRunner actorRunner = CreateRunner(
+                actorScope,
+                new[] { CommandPayloadSchema.Empty(bodyCommandId, 9411, CommandPayloadUnknownFieldPolicy.Ignore) },
+                actorBodyExecutor);
+            actorResolver.Register<ICommandRunner>(actorRunner);
+
+            TestScopeNode originScope = new();
+            CommandRunner outerRunner = CreateRunner(
+                originScope,
+                new[] { CommandPayloadSchema.Empty(CommandIds.WithActor, 9412, CommandPayloadUnknownFieldPolicy.Ignore) },
+                new WithActorExecutor());
+
+            WithActorCommandData data = new()
+            {
+                ActorSource = new ActorSource { Kind = ActorSourceKind.Current },
+                ExecutionScope = WithActorExecutionScope.ActorOnly,
+                AwaitMode = FlowRunAwaitMode.WaitForCompletion,
+            };
+            data.Body.Add(new TestCommandSource(new TestCommandData(bodyCommandId), "with-actor-body"));
+
+            CommandContext context = new(originScope, NullVarStore.Instance, outerRunner, actorScope, CommandRunOptions.Default);
+
+            CommandRunResult result = await outerRunner.ExecuteSingleAsync(data, context, CancellationToken.None, CommandRunOptions.Default);
+
+            Assert.That(result.Status, Is.EqualTo(CommandRunStatus.Completed));
+            Assert.That(actorBodyExecutor.ExecutionCount, Is.EqualTo(1));
+            Assert.That(observedScope, Is.SameAs(actorScope));
+            Assert.That(observedActor, Is.SameAs(actorScope));
+        }
+
+        [Test]
+        public async UniTask CommandChannelExecutor_ExecutesRegisteredTagCommands()
+        {
+            const int channelBodyCommandId = 942;
+
+            TestCommandExecutor channelBodyExecutor = new(channelBodyCommandId);
+            TestRuntimeResolver resolver = new();
+            TestScopeNode scope = new(resolver);
+            CommandRunner runner = CreateRunner(
+                scope,
+                new[]
+                {
+                    CommandPayloadSchema.Empty(CommandIds.CommandChannelExecute, 9421, CommandPayloadUnknownFieldPolicy.Ignore),
+                    CommandPayloadSchema.Empty(channelBodyCommandId, 9422, CommandPayloadUnknownFieldPolicy.Ignore),
+                },
+                new CommandChannelExecutor(),
+                channelBodyExecutor);
+
+            CommandChannelHubService hub = new(new EmptyCommandChannelSettings());
+            CommandListData channelCommands = new();
+            channelCommands.Add(new TestCommandSource(new TestCommandData(channelBodyCommandId), "channel-body"));
+            Assert.That(hub.RegisterOrUpdate("test-tag", channelCommands), Is.True);
+            resolver.Register<ICommandChannelHubService>(hub);
+
+            CommandChannelCommandData data = new()
+            {
+                ActorSource = new ActorSource { Kind = ActorSourceKind.Current },
+                Tag = "test-tag",
+                AwaitMode = FlowRunAwaitMode.WaitForCompletion,
+                ExecutionScope = WithActorExecutionScope.ActorOnly,
+            };
+
+            CommandContext context = new(scope, NullVarStore.Instance, runner);
+            CommandRunResult result = await runner.ExecuteSingleAsync(data, context, CancellationToken.None, CommandRunOptions.Default);
+
+            Assert.That(result.Status, Is.EqualTo(CommandRunStatus.Completed));
+            Assert.That(channelBodyExecutor.ExecutionCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async UniTask SceneChangeExecutor_UsesAncestorSceneService()
+        {
+            TestSceneService sceneService = new();
+            TestRuntimeResolver rootResolver = new();
+            rootResolver.Register<ISceneService>(sceneService);
+
+            TestScopeNode rootScope = new(rootResolver, parent: null, kind: LifetimeScopeKind.Project);
+            TestScopeNode childScope = new(new TestRuntimeResolver(), rootScope, LifetimeScopeKind.Scene);
+            CommandRunner runner = CreateRunner(
+                childScope,
+                new[] { CommandPayloadSchema.Empty(CommandIds.SceneChange, 9431, CommandPayloadUnknownFieldPolicy.Ignore) },
+                new SceneChangeExecutor());
+
+            SceneChangeCommandData data = new()
+            {
+                Mode = SceneChangeMode.LoadSingle,
+                TargetMode = SceneChangeTargetMode.GameScene,
+                Scene = GameScene.HUD,
+                ForceReload = true,
+            };
+
+            CommandContext context = new(childScope, NullVarStore.Instance, runner);
+            CommandRunResult result = await runner.ExecuteSingleAsync(data, context, CancellationToken.None, CommandRunOptions.Default);
+
+            Assert.That(result.Status, Is.EqualTo(CommandRunStatus.Completed));
+            Assert.That(sceneService.LastLoadSingleScene, Is.EqualTo(GameScene.HUD));
+            Assert.That(sceneService.LastForceReload, Is.True);
+        }
+
+        [Test]
+        public async UniTask SelfDespawnExecutor_RunsBeforeDespawnCommands()
+        {
+            const int beforeCommandId = 944;
+
+            TestCommandExecutor beforeExecutor = new(beforeCommandId);
+            GameObject scopeObject = new("self-despawn-test-scope");
+            try
+            {
+                TestComponentScope scope = scopeObject.AddComponent<TestComponentScope>();
+                scope.Initialize(new TestRuntimeResolver(), parent: null, kind: LifetimeScopeKind.Entity);
+
+                CommandRunner runner = CreateRunner(
+                    scope,
+                    new[]
+                    {
+                        CommandPayloadSchema.Empty(CommandIds.SelfDespawn, 9441, CommandPayloadUnknownFieldPolicy.Ignore),
+                        CommandPayloadSchema.Empty(beforeCommandId, 9442, CommandPayloadUnknownFieldPolicy.Ignore),
+                    },
+                    new SelfDespawnExecutor(),
+                    beforeExecutor);
+
+                SelfDespawnCommandData data = new();
+                data.BeforeDespawnCommands.Add(new TestCommandSource(new TestCommandData(beforeCommandId), "before-despawn"));
+
+                CommandContext context = new(scope, NullVarStore.Instance, runner);
+                CommandRunResult result = await runner.ExecuteSingleAsync(data, context, CancellationToken.None, CommandRunOptions.Default);
+
+                Assert.That(result.Status, Is.EqualTo(CommandRunStatus.Completed));
+                Assert.That(beforeExecutor.ExecutionCount, Is.EqualTo(1));
+                await UniTask.Yield();
+            }
+            finally
+            {
+                if (scopeObject != null)
+                    UnityEngine.Object.DestroyImmediate(scopeObject);
+            }
+        }
+
         static CommandRunner CreateRunner(int commandId, ICommandExecutor executor, CommandPayloadSchema schema)
         {
             _ = commandId;
@@ -657,7 +877,11 @@ namespace TinnosukeGameLib.Tests.Editor
 
         static CommandRunner CreateRunner(CommandPayloadSchema[] schemas, params ICommandExecutor[] executors)
         {
-            TestScopeNode scope = new();
+            return CreateRunner(new TestScopeNode(), schemas, executors);
+        }
+
+        static CommandRunner CreateRunner(IScopeNode scope, CommandPayloadSchema[] schemas, params ICommandExecutor[] executors)
+        {
             return new CommandRunner(
                 scope,
                 new CommandExecutorCatalog(executors),
@@ -666,6 +890,29 @@ namespace TinnosukeGameLib.Tests.Editor
                 NullCommandResolveLogger.Instance,
                 SelfCommandPayloadFieldReaderProvider.Instance,
                 MissingCommandPayloadReferenceValidator.Instance);
+        }
+
+        sealed class VarMutatingExecutor : ICommandExecutor
+        {
+            readonly int varId;
+            readonly int value;
+
+            public VarMutatingExecutor(int commandId, int varId, int value)
+            {
+                CommandId = commandId;
+                this.varId = varId;
+                this.value = value;
+            }
+
+            public int CommandId { get; }
+
+            public UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
+            {
+                _ = data;
+                _ = ct;
+                ctx.Vars.TrySetVariant(varId, DynamicVariant.FromInt(value));
+                return UniTask.CompletedTask;
+            }
         }
 
         sealed class TestCommandExecutor : ICommandExecutor
@@ -692,7 +939,7 @@ namespace TinnosukeGameLib.Tests.Editor
             }
         }
 
-        sealed class TestPayloadSchemaCatalog : ICommandPayloadSchemaCatalog
+        sealed class TestPayloadSchemaCatalog : ICommandCatalog
         {
             readonly Dictionary<int, CommandPayloadSchema> schemas = new();
 
@@ -705,6 +952,27 @@ namespace TinnosukeGameLib.Tests.Editor
             public bool TryGetPayloadSchema(int commandId, out CommandPayloadSchema schema)
             {
                 return schemas.TryGetValue(commandId, out schema);
+            }
+
+            public bool TryResolve(CommandKeyId keyId, out ICommandData data)
+            {
+                _ = keyId;
+                data = null!;
+                return false;
+            }
+
+            public bool TryResolve(CommandKeyRef key, out ICommandData data)
+            {
+                _ = key;
+                data = null!;
+                return false;
+            }
+
+            public bool TryGetMeta(CommandKeyRef key, out CommandCatalogMeta meta)
+            {
+                _ = key;
+                meta = default;
+                return false;
             }
         }
 
@@ -775,18 +1043,39 @@ namespace TinnosukeGameLib.Tests.Editor
 
         sealed class TestScopeNode : IScopeNode
         {
-            readonly TestRuntimeResolver resolver = new();
+            readonly IRuntimeResolver resolver;
+            readonly IScopeNode? parent;
+            readonly LifetimeScopeKind kind;
 
-            public IScopeNode Parent => null!;
-            public ILTSIdentityService Identity => null!;
-            public LifetimeScopeKind Kind => LifetimeScopeKind.Project;
+            public TestScopeNode(IRuntimeResolver? resolver = null, IScopeNode? parent = null, LifetimeScopeKind kind = LifetimeScopeKind.Project)
+            {
+                this.resolver = resolver ?? new TestRuntimeResolver();
+                this.parent = parent;
+                this.kind = kind;
+            }
+
+            public IScopeNode Parent => parent!;
+            public IScopeIdentityService Identity => null!;
+            public LifetimeScopeKind Kind => kind;
             public IRuntimeResolver Resolver => resolver;
             public bool IsVisible => true;
             public bool IsActive => true;
 
             public IReadOnlyList<IScopeNode> GetPathFromRoot()
             {
-                return Array.Empty<IScopeNode>();
+                if (parent == null)
+                    return new[] { this };
+
+                var parentPath = parent.GetPathFromRoot();
+                List<IScopeNode> path = new(parentPath?.Count + 1 ?? 1);
+                if (parentPath != null)
+                {
+                    for (int i = 0; i < parentPath.Count; i++)
+                        path.Add(parentPath[i]);
+                }
+
+                path.Add(this);
+                return path;
             }
 
             public UniTask SetActiveAsync(bool active, bool isReset = false, CancellationToken ct = default)
@@ -812,8 +1101,140 @@ namespace TinnosukeGameLib.Tests.Editor
             }
         }
 
+        sealed class TestComponentScope : MonoBehaviour, IScopeNode
+        {
+            IRuntimeResolver resolver = null!;
+            IScopeNode? parent;
+            LifetimeScopeKind kind;
+
+            public void Initialize(IRuntimeResolver resolver, IScopeNode? parent, LifetimeScopeKind kind)
+            {
+                this.resolver = resolver;
+                this.parent = parent;
+                this.kind = kind;
+            }
+
+            public IScopeNode Parent => parent!;
+
+            public IScopeIdentityService Identity => null!;
+
+            public LifetimeScopeKind Kind => kind;
+
+            public IRuntimeResolver Resolver => resolver;
+
+            public bool IsVisible => true;
+
+            public bool IsActive => true;
+
+            public bool TrySetVisible(bool visible, bool isReset = false)
+            {
+                _ = visible;
+                _ = isReset;
+                return true;
+            }
+
+            public bool TrySetActive(bool active, bool isReset = false)
+            {
+                _ = active;
+                _ = isReset;
+                return true;
+            }
+
+            public UniTask SetActiveAsync(bool active, bool isReset = false, CancellationToken ct = default)
+            {
+                _ = active;
+                _ = isReset;
+                _ = ct;
+                return UniTask.CompletedTask;
+            }
+
+            public IReadOnlyList<IScopeNode> GetPathFromRoot()
+            {
+                if (parent == null)
+                    return new IScopeNode[] { this };
+
+                var parentPath = parent.GetPathFromRoot();
+                List<IScopeNode> path = new(parentPath?.Count + 1 ?? 1);
+                if (parentPath != null)
+                {
+                    for (int i = 0; i < parentPath.Count; i++)
+                        path.Add(parentPath[i]);
+                }
+
+                path.Add(this);
+                return path;
+            }
+        }
+
+        sealed class EmptyCommandChannelSettings : ICommandChannelHubSettings
+        {
+            public CommandChannelEntry[] Entries => Array.Empty<CommandChannelEntry>();
+        }
+
+        sealed class TestSceneService : ISceneService
+        {
+            public GameScene? LastLoadSingleScene { get; private set; }
+
+            public bool LastForceReload { get; private set; }
+
+            public UniTask LoadSingle(GameScene scene, bool forceReload = false)
+            {
+                LastLoadSingleScene = scene;
+                LastForceReload = forceReload;
+                return UniTask.CompletedTask;
+            }
+
+            public UniTask LoadAdditive(GameScene scene)
+            {
+                return UniTask.CompletedTask;
+            }
+
+            public UniTask Unload(GameScene scene)
+            {
+                return UniTask.CompletedTask;
+            }
+
+            public bool IsLoaded(GameScene scene)
+            {
+                _ = scene;
+                return false;
+            }
+
+            public UniTask LoadSingle(string sceneName, bool forceReload = false)
+            {
+                _ = sceneName;
+                LastForceReload = forceReload;
+                return UniTask.CompletedTask;
+            }
+
+            public UniTask LoadAdditive(string sceneName)
+            {
+                _ = sceneName;
+                return UniTask.CompletedTask;
+            }
+
+            public UniTask Unload(string sceneName)
+            {
+                _ = sceneName;
+                return UniTask.CompletedTask;
+            }
+
+            public bool IsLoaded(string sceneName)
+            {
+                _ = sceneName;
+                return false;
+            }
+        }
+
         sealed class TestRuntimeResolver : IRuntimeResolver
         {
+            readonly Dictionary<Type, object> services = new();
+
+            public void Register<T>(T instance)
+            {
+                services[typeof(T)] = instance!;
+            }
+
             public void Dispose()
             {
             }
@@ -825,29 +1246,40 @@ namespace TinnosukeGameLib.Tests.Editor
 
             public object Resolve(Type type)
             {
-                throw new InvalidOperationException("Test resolver has no services.");
+                if (services.TryGetValue(type, out object instance))
+                    return instance;
+
+                throw new InvalidOperationException($"Test resolver has no service for {type.FullName}.");
             }
 
             public T Resolve<T>()
             {
-                throw new InvalidOperationException("Test resolver has no services.");
+                if (TryResolve<T>(out T instance))
+                    return instance;
+
+                throw new InvalidOperationException($"Test resolver has no service for {typeof(T).FullName}.");
             }
 
             public object ResolveOrDefault(Type type)
             {
-                _ = type;
-                return null!;
+                return services.TryGetValue(type, out object instance)
+                    ? instance
+                    : null!;
             }
 
             public bool TryResolve(Type type, out object instance)
             {
-                _ = type;
-                instance = null!;
-                return false;
+                return services.TryGetValue(type, out instance!);
             }
 
             public bool TryResolve<T>(out T instance)
             {
+                if (services.TryGetValue(typeof(T), out object resolved) && resolved is T typed)
+                {
+                    instance = typed;
+                    return true;
+                }
+
                 instance = default!;
                 return false;
             }

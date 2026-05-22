@@ -10,16 +10,18 @@ using VContainer;
 namespace Game.Entity
 {
     [DisallowMultipleComponent]
-    public sealed class EntityLifetimeScopeSpawnerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class EntityLifetimeScopeSpawnerMB : MonoBehaviour
     {
         [Header("Spawner")]
         [SerializeField] string spawnerTag = "";
 
-        [Tooltip("Spawn parent. Null の場合�Eこ�E GameObject 直下に生�E")]
+        [Tooltip("Spawn parent. Null の場合�Eこ�E GameObject 直下に生�E")]
         [SerializeField] Transform? root;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallEntitySpawnerRuntime(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
+            _ = owner ?? throw new ArgumentNullException(nameof(owner));
+
             builder.RegisterInstance(this);
 
             var resolvedRoot = root != null ? root : transform;
@@ -74,9 +76,17 @@ namespace Game.Entity
             if (p.Prefab == null)
                 throw new ArgumentException("SpawnParams.Prefab is required for Entity spawns.", nameof(p));
 
-            var prefabScope = p.Prefab.GetComponent<EntityLifetimeScope>();
+            var prefabScope = p.Prefab.GetComponent<KernelScopeHost>();
             if (prefabScope == null)
-                throw new ArgumentException($"Prefab must have {nameof(EntityLifetimeScope)}.", nameof(p));
+                throw new ArgumentException("Prefab must have a KernelScopeHost root.", nameof(p));
+
+            if (p.Prefab.TryGetComponent<ScopeIdentityMB>(out var identity) &&
+                identity != null &&
+                identity.kind != LifetimeScopeKind.None &&
+                identity.kind != LifetimeScopeKind.Entity)
+            {
+                throw new ArgumentException("Prefab scope kind must be Entity for entity spawns.", nameof(p));
+            }
 
             var parent = p.TransformParent != null ? p.TransformParent : _root;
 
@@ -106,3 +116,5 @@ namespace Game.Entity
             => UniTask.CompletedTask;
     }
 }
+
+

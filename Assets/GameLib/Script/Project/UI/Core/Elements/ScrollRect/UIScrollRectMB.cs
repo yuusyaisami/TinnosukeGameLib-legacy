@@ -8,7 +8,7 @@ using VContainer.Unity;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class UIScrollRectMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UIScrollRectMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Scene")]
         [LabelText("Content")]
@@ -38,7 +38,7 @@ namespace Game.UI
         public DynamicValue<UIScrollRectPreset> PresetValue => _presetValue;
         public bool EnableDebugLog => _enableDebugLog;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<UIScrollRectService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -50,3 +50,4 @@ namespace Game.UI
         }
     }
 }
+

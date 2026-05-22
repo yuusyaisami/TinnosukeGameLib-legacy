@@ -10,7 +10,7 @@ namespace Game.Project
         /// ApplicationShutdownService 縺ｮ險ｭ螳壹・逋ｻ骭ｲ繧定｡後≧霆ｽ驥・MB縲・
         /// 螳滄圀縺ｮ繝ｭ繧ｸ繝・け縺ｯ Service 蛛ｴ縺ｫ髮・ｴ・☆繧九・
         /// </summary>
-        public sealed class ApplicationShutdownMB : MonoBehaviour, IFeatureInstaller, IApplicationShutdownOptions
+        public sealed class ApplicationShutdownMB : MonoBehaviour, IApplicationShutdownOptions
         {
                 [Header("Automatic Triggers")]
                 [Tooltip("Inspector setting.")]
@@ -46,11 +46,10 @@ namespace Game.Project
 
                 [Inject]
                 IApplicationShutdownService _shutdownService = null;
-
-
-                // 縺ゅ↑縺溘・ IFeatureInstaller 縺・(builder, owner) 繧ｷ繧ｰ繝阪メ繝｣縺縺｣縺溘・縺ｧ縺昴ｌ縺ｫ蜷医ｏ縺帙※縺・ｋ
-                public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode lts)
+                public void InstallApplicationShutdownRuntime(IRuntimeContainerBuilder builder, IScopeNode owner)
                 {
+                        _ = owner ?? throw new System.ArgumentNullException(nameof(owner));
+
                         // 縺薙・ MB 閾ｪ霄ｫ繧偵が繝励す繝ｧ繝ｳ縺ｨ縺励※繧ｳ繝ｳ繝・リ縺ｫ逋ｻ骭ｲ
                         builder.RegisterInstance(this).As<IApplicationShutdownOptions>();
 

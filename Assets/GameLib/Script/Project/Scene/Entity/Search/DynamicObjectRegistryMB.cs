@@ -8,7 +8,7 @@ using VContainer.Unity;
 namespace Game.Entity.Search
 {
     [DisallowMultipleComponent]
-    public sealed class DynamicObjectRegistryMB : MonoBehaviour, IFeatureInstaller
+    public sealed class DynamicObjectRegistryMB : MonoBehaviour
     {
         [Header("Debug")]
         [SerializeField] bool enableDebugView = true;
@@ -18,8 +18,10 @@ namespace Game.Entity.Search
 
         [SerializeField] List<DynamicObjectDebugEntry> debugEntries = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallDynamicObjectRegistryRuntime(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
+            _ = owner ?? throw new System.ArgumentNullException(nameof(owner));
+
             builder.RegisterComponent(this);
 
             builder.Register<DynamicObjectRegistryService>(RuntimeLifetime.Singleton)

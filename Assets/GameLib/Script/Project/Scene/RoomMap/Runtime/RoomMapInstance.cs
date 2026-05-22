@@ -17,13 +17,13 @@ namespace Game.RoomMap
             public readonly int TileId;
             public readonly Vector3 WorldPos;
 
-            public readonly IRuntimeResolver? Resolver;
-            public readonly GameObject? Root;
-            public readonly IScopeNode? ScopeNode;
-            public readonly RuntimeLifetimeScope? RuntimeScope;
-            public readonly BaseLifetimeScope? BaseScope;
+            public readonly SpawnedLifetimeHandle Lifetime;
 
-            public bool IsEmpty => TileId == 0 || Resolver == null || !HasLiveObject();
+            public IRuntimeResolver? Resolver => Lifetime.Resolver;
+            public GameObject? Root => Lifetime.Root;
+            public IScopeNode? ScopeNode => Lifetime.ScopeNode;
+
+            public bool IsEmpty => TileId == 0 || Lifetime.IsEmpty;
 
             public CellRecord(
                 int layerIndex,
@@ -32,11 +32,7 @@ namespace Game.RoomMap
                 int y,
                 int tileId,
                 Vector3 worldPos,
-                IRuntimeResolver? resolver,
-                GameObject? root,
-                IScopeNode? scopeNode,
-                RuntimeLifetimeScope? runtimeScope,
-                BaseLifetimeScope? baseScope)
+                SpawnedLifetimeHandle lifetime)
             {
                 LayerIndex = layerIndex;
                 LayerName = layerName;
@@ -44,27 +40,12 @@ namespace Game.RoomMap
                 Y = y;
                 TileId = tileId;
                 WorldPos = worldPos;
-                Resolver = resolver;
-                Root = root;
-                ScopeNode = scopeNode;
-                RuntimeScope = runtimeScope;
-                BaseScope = baseScope;
+                Lifetime = lifetime;
             }
 
             public CellRecord AsEmpty()
             {
-                return new CellRecord(LayerIndex, LayerName, X, Y, 0, WorldPos, null, null, null, null, null);
-            }
-
-            bool HasLiveObject()
-            {
-                if (Root != null)
-                    return true;
-                if (RuntimeScope != null)
-                    return true;
-                if (BaseScope != null)
-                    return true;
-                return ScopeNode != null && IsScopeNodeAlive(ScopeNode);
+                return new CellRecord(LayerIndex, LayerName, X, Y, 0, WorldPos, SpawnedLifetimeHandle.Empty);
             }
         }
 
@@ -74,43 +55,24 @@ namespace Game.RoomMap
             public readonly Vector2Int Cell;
             public readonly Vector3 WorldPos;
 
-            public readonly IRuntimeResolver? Resolver;
-            public readonly GameObject? Root;
-            public readonly IScopeNode? ScopeNode;
-            public readonly RuntimeLifetimeScope? RuntimeScope;
-            public readonly BaseLifetimeScope? BaseScope;
+            public readonly SpawnedLifetimeHandle Lifetime;
 
-            public bool IsEmpty => TileId == 0 || Resolver == null || !HasLiveObject();
+            public IRuntimeResolver? Resolver => Lifetime.Resolver;
+            public GameObject? Root => Lifetime.Root;
+            public IScopeNode? ScopeNode => Lifetime.ScopeNode;
+
+            public bool IsEmpty => TileId == 0 || Lifetime.IsEmpty;
 
             public DynamicRecord(
                 int tileId,
                 Vector2Int cell,
                 Vector3 worldPos,
-                IRuntimeResolver? resolver,
-                GameObject? root,
-                IScopeNode? scopeNode,
-                RuntimeLifetimeScope? runtimeScope,
-                BaseLifetimeScope? baseScope)
+                SpawnedLifetimeHandle lifetime)
             {
                 TileId = tileId;
                 Cell = cell;
                 WorldPos = worldPos;
-                Resolver = resolver;
-                Root = root;
-                ScopeNode = scopeNode;
-                RuntimeScope = runtimeScope;
-                BaseScope = baseScope;
-            }
-
-            bool HasLiveObject()
-            {
-                if (Root != null)
-                    return true;
-                if (RuntimeScope != null)
-                    return true;
-                if (BaseScope != null)
-                    return true;
-                return ScopeNode != null && IsScopeNodeAlive(ScopeNode);
+                Lifetime = lifetime;
             }
         }
 
@@ -318,17 +280,6 @@ namespace Game.RoomMap
             }
 
             return false;
-        }
-
-        static bool IsScopeNodeAlive(IScopeNode node)
-        {
-            if (node == null)
-                return false;
-
-            if (node is UnityEngine.Object unityObj)
-                return unityObj != null;
-
-            return true;
         }
     }
 }

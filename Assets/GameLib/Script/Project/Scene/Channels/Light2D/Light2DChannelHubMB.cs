@@ -8,7 +8,7 @@ using VContainer.Unity;
 namespace Game.Channel
 {
     [DisallowMultipleComponent]
-    public sealed class Light2DChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class Light2DChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
@@ -16,7 +16,7 @@ namespace Game.Channel
         [SerializeField]
         Light2DChannelDef[] _channels = Array.Empty<Light2DChannelDef>();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (_channels != null)
             {
@@ -43,3 +43,4 @@ namespace Game.Channel
 #endif
     }
 }
+

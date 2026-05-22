@@ -11,7 +11,7 @@ using VContainer.Unity;
 namespace Game.Chunk
 {
     [DisallowMultipleComponent]
-    public sealed class ChunkStreamerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ChunkStreamerMB : MonoBehaviour, IScopeInstaller
     {
         const string ViewGroup = "View";
         const string ChunkGroup = "Chunk";
@@ -54,7 +54,7 @@ namespace Game.Chunk
         [BoxGroup(RuntimeGroup)]
         [SerializeField] Transform? chunkParent;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             chunkSettings.EnsureDefaults();
             originSettings.EnsureDefaults();
@@ -101,3 +101,4 @@ namespace Game.Chunk
 #endif
     }
 }
+

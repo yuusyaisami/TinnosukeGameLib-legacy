@@ -491,7 +491,8 @@ namespace Game.Background
             if (resolver == null)
                 return;
 
-            ExtractSpawnedInfo(resolver, out var root, out var scopeNode, out var runtimeScope, out var baseScope);
+            var lifetime = SpawnedLifetimeHandle.FromResolver(resolver);
+            var root = lifetime.Root;
             var tr = root != null ? root.transform : null;
             RectTransform? rectTransform = null;
             if (tr != null)
@@ -501,7 +502,7 @@ namespace Game.Background
             if (resolver.TryResolve<IBackgroundElementAdapter>(out var resolvedAdapter))
                 adapter = resolvedAdapter;
 
-            var handle = new BackgroundElementHandle(coord, tr, rectTransform, scopeNode, runtimeScope, baseScope, root, resolver, adapter);
+            var handle = new BackgroundElementHandle(coord, tr, rectTransform, lifetime, adapter);
             layer.Elements[coord] = handle;
 
             ApplyTransform(handle, tilePos, def, viewState);
@@ -613,93 +614,7 @@ namespace Game.Background
 
         static async UniTask ReleaseHandleAsync(BackgroundElementHandle handle, CancellationToken ct)
         {
-            await UniTask.SwitchToMainThread();
-
-            if (handle.RuntimeScope != null)
-            {
-                try
-                {
-                    if (handle.RuntimeScope.Resolver != null &&
-                        handle.RuntimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                        pool != null)
-                    {
-                        pool.Release(handle.RuntimeScope);
-                        return;
-                    }
-                }
-                catch (Exception)
-                {
-                }
-
-                if (handle.Root != null)
-                {
-                    UnityEngine.Object.Destroy(handle.Root);
-                }
-                else
-                {
-                    UnityEngine.Object.Destroy(handle.RuntimeScope.gameObject);
-                }
-                return;
-            }
-
-            if (handle.BaseScope != null)
-            {
-                await handle.BaseScope.DespawnAsync(ct);
-                return;
-            }
-
-            if (handle.Root != null)
-            {
-                UnityEngine.Object.Destroy(handle.Root);
-            }
-        }
-
-        static void ExtractSpawnedInfo(
-            IRuntimeResolver? resolver,
-            out GameObject? root,
-            out IScopeNode? scopeNode,
-            out RuntimeLifetimeScope? runtimeScope,
-            out BaseLifetimeScope? baseScope)
-        {
-            root = null;
-            scopeNode = null;
-            runtimeScope = null;
-            baseScope = null;
-
-            if (resolver == null)
-                return;
-
-            resolver.TryResolve(out runtimeScope);
-
-            if (runtimeScope != null)
-                root = runtimeScope.gameObject;
-
-            if (root == null)
-            {
-                if (resolver.TryResolve<Transform>(out var tr) && tr != null)
-                    root = tr.gameObject;
-                else if (resolver.TryResolve<GameObject>(out var go) && go != null)
-                    root = go;
-            }
-
-            scopeNode = runtimeScope;
-            if (scopeNode == null && resolver.TryResolve<IScopeNode>(out var resolved) && resolved != null)
-                scopeNode = resolved;
-
-            if (scopeNode == null && root != null)
-            {
-                var comps = root.GetComponents<Component>();
-                for (int i = 0; i < comps.Length; i++)
-                {
-                    if (comps[i] is IScopeNode node)
-                    {
-                        scopeNode = node;
-                        break;
-                    }
-                }
-            }
-
-            baseScope = scopeNode as BaseLifetimeScope;
+            await handle.Lifetime.ReleaseAsync(ct);
         }
 
         void ApplyTransform(BackgroundElementHandle handle, Vector3 tilePos, BackgroundLayerDefinition def, in BackgroundViewState viewState)
@@ -956,8 +871,8 @@ namespace Game.Background
             var root = handle.Root;
             TrySetVar(vars, VarIds.GameLib.Background.Spawn.Root.name, DynamicVariant.FromString(root != null ? root.name : string.Empty));
             TrySetVar(vars, VarIds.GameLib.Background.Spawn.Root.instanceId, DynamicVariant.FromInt(root != null ? root.GetInstanceID() : 0));
-            TrySetVar(vars, VarIds.GameLib.Background.Spawn.Root.Scope.runtimeLTS, DynamicVariant.FromInt(handle.RuntimeScope != null ? 1 : 0));
-            TrySetVar(vars, VarIds.GameLib.Background.Spawn.Root.Scope.baseLTS, DynamicVariant.FromInt(handle.BaseScope != null ? 1 : 0));
+            TrySetVar(vars, VarIds.GameLib.Background.Spawn.Root.Scope.runtimeLTS, DynamicVariant.FromInt(handle.UsesRuntimeLifetimeScope ? 1 : 0));
+            TrySetVar(vars, VarIds.GameLib.Background.Spawn.Root.Scope.baseLTS, DynamicVariant.FromInt(handle.UsesBaseLifetimeScope ? 1 : 0));
             TrySetVar(vars, VarIds.GameLib.Background.Spawn.Root.Has.adapter, DynamicVariant.FromInt(handle.Adapter != null ? 1 : 0));
         }
 

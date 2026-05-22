@@ -12,7 +12,7 @@ namespace Game.Search
         sealed class Entry
         {
             public IScopeNode Scope = null!;
-            public ILTSIdentityService Identity = null!;
+            public IScopeIdentityService Identity = null!;
             public Transform? Transform;
         }
 
@@ -34,7 +34,7 @@ namespace Game.Search
 
         public int Count => _entries.Count;
 
-        public void Register(IScopeNode scope, ILTSIdentityService identity)
+        public void Register(IScopeNode scope, IScopeIdentityService identity)
         {
             if (scope == null || identity == null)
                 return;
@@ -204,7 +204,7 @@ namespace Game.Search
             }
         }
 
-        static bool Matches(ILTSIdentityService id, in DynamicSearchQuery q)
+        static bool Matches(IScopeIdentityService id, in DynamicSearchQuery q)
         {
             if (id == null)
                 return false;
@@ -238,7 +238,7 @@ namespace Game.Search
             return (dot * dot) >= threshold;
         }
 
-        static Transform? ResolveTransform(IScopeNode scope, ILTSIdentityService identity)
+        static Transform? ResolveTransform(IScopeNode scope, IScopeIdentityService identity)
         {
             if (identity != null && identity.SelfTransform != null)
                 return identity.SelfTransform;
@@ -282,3 +282,4 @@ namespace Game.Search
         }
     }
 }
+

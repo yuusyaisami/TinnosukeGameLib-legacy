@@ -7,16 +7,13 @@ using VContainer.Unity;
 namespace Game.Channel
 {
     [DisallowMultipleComponent]
-    public sealed class MeshChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class MeshChannelHubMB : MeshChannelHubAuthoring, IScopeInstaller
     {
-        [SerializeField]
-        MeshChannelEntry[] _entries = Array.Empty<MeshChannelEntry>();
-
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<MeshChannelHubService>(resolver =>
                 new MeshChannelHubService(
-                    _entries ?? Array.Empty<MeshChannelEntry>(),
+                    Entries,
                     scope,
                     transform),
                 RuntimeLifetime.Singleton)
@@ -30,3 +27,4 @@ namespace Game.Channel
         }
     }
 }
+

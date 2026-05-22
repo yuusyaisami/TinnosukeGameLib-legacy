@@ -8,10 +8,10 @@ using VContainer.Unity;
 namespace Game.Collision
 {
     /// <summary>
-    /// Projectスコープに UnityCollider 牁ECollisionSystem をインスト�Eルする、E
-    /// v0.1: BulkCollisionSystemMB と同時に有効化しなぁE��Erameイベント多重発火を避ける�E�、E
+    /// Projectスコープに UnityCollider 牁ECollisionSystem をインスト�Eルする、E
+    /// v0.1: BulkCollisionSystemMB と同時に有効化しなぁE��Erameイベント多重発火を避ける�E�、E
     /// </summary>
-    public sealed class UnityCollisionSystemMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UnityCollisionSystemMB : MonoBehaviour, IScopeInstaller
     {
         [Header("Configuration")]
         [SerializeField] CollisionSystemProfileSO? _profile;
@@ -22,28 +22,28 @@ namespace Game.Collision
         UnityCollisionManager? _manager;
         CollisionHitRouter? _router;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var kind = scope.Kind;
             if (kind != LifetimeScopeKind.Project)
             {
-                Game.LTSLog.LogWarning($"[{nameof(UnityCollisionSystemMB)}] Expected Project scope but got {kind}.", this);
+                Debug.LogWarning($"[{nameof(UnityCollisionSystemMB)}] Expected Project scope but got {kind}.", this);
                 return;
             }
 
             if (!CollisionPipelineModeResolver.IsEnabled(scope, CollisionPipelineKind.Unity, this))
             {
-                Game.LTSLog.Log($"[{nameof(UnityCollisionSystemMB)}] Unity pipeline is disabled by CollisionPipelineMode. Skipping.", this);
+                Debug.Log($"[{nameof(UnityCollisionSystemMB)}] Unity pipeline is disabled by CollisionPipelineMode. Skipping.", this);
                 return;
             }
 
             if (_profile == null)
             {
-                Game.LTSLog.LogWarning($"[{nameof(UnityCollisionSystemMB)}] Collision profile is not assigned. IUnityCollisionManager will not be registered.", this);
+                Debug.LogWarning($"[{nameof(UnityCollisionSystemMB)}] Collision profile is not assigned. IUnityCollisionManager will not be registered.", this);
                 return;
             }
 
-            Game.LTSLog.Log($"[{nameof(UnityCollisionSystemMB)}] Installing Unity collision system. Profile={_profile.name}", this);
+            Debug.Log($"[{nameof(UnityCollisionSystemMB)}] Installing Unity collision system. Profile={_profile.name}", this);
 
             builder.RegisterBuildCallback(container =>
             {
@@ -164,3 +164,4 @@ namespace Game.Collision
         }
     }
 }
+

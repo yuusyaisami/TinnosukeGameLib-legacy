@@ -6,7 +6,7 @@ using VContainer;
 namespace Game.Commands
 {
     [DisallowMultipleComponent]
-    public sealed class CommandChannelHubMB : MonoBehaviour, IFeatureInstaller, ICommandChannelHubSettings
+    public sealed class CommandChannelHubMB : MonoBehaviour, IScopeInstaller, ICommandChannelHubSettings
     {
         [BoxGroup("Channels")]
         [LabelText("Command Channels")]
@@ -16,7 +16,7 @@ namespace Game.Commands
 
         public CommandChannelEntry[] Entries => _entries;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             _ = owner;
 
@@ -28,3 +28,4 @@ namespace Game.Commands
         }
     }
 }
+

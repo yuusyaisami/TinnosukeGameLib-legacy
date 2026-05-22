@@ -163,13 +163,14 @@ namespace Game.Conversation
                 return false;
             }
 
-            var dialogueChannelSource = new ActorSource { Kind = ActorSourceKind.Current };
-            var dialogueChannelTag = "default";
-            if (_definitions.TryGetValue(normalized, out var definition) && definition != null)
+            if (!_definitions.TryGetValue(normalized, out var definition) || definition == null)
             {
-                dialogueChannelSource = definition.DialogueChannelSource;
-                dialogueChannelTag = definition.DialogueChannelTag;
+                message = $"{ConversationExecutorUtility.ResolveDiagnosticCode}[CONV-104] Conversation channel definition is missing. tag='{normalized}'";
+                return false;
             }
+
+            var dialogueChannelSource = definition.DialogueChannelSource;
+            var dialogueChannelTag = definition.DialogueChannelTag;
 
             var runtime = new ConversationRuntimeSession(
                 normalized,

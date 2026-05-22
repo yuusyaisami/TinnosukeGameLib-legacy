@@ -596,7 +596,7 @@ namespace Game.Editor.Tests
             }
         }
 
-        sealed class TestIdentityService : ILTSIdentityService
+        sealed class TestIdentityService : IScopeIdentityService
         {
             public TestIdentityService(string id, string category, LifetimeScopeKind kind)
             {
@@ -617,13 +617,13 @@ namespace Game.Editor.Tests
 
         sealed class TestScopeNode : IScopeNode
         {
-            public TestScopeNode(ILTSIdentityService identity)
+            public TestScopeNode(IScopeIdentityService identity)
             {
                 Identity = identity;
             }
 
             public IScopeNode? Parent => null;
-            public ILTSIdentityService? Identity { get; }
+            public IScopeIdentityService? Identity { get; }
             public LifetimeScopeKind Kind => Identity?.Kind ?? LifetimeScopeKind.None;
             public IRuntimeResolver? Resolver => null;
             public bool IsVisible => true;
@@ -658,3 +658,4 @@ namespace Game.Editor.Tests
         }
     }
 }
+

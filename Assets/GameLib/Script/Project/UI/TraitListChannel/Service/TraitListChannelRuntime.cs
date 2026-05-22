@@ -417,11 +417,10 @@ namespace Game.UI
             }
 
             var hubScope = ActorSourceFastResolver.ResolveCached(_activeScope, binding.HolderHubSource, ref _holderHubSourceCache);
-            TraitListChannelRuntimeHelpers.EnsureScopeBuiltIfNeeded(hubScope);
-            if (!TryResolveFromScopeOrAncestors<ITraitHolderHubService>(hubScope, out var hub) || hub == null)
+            if (!TryResolveFromScope<ITraitHolderHubService>(hubScope, out var hub) || hub == null)
             {
                 UnbindServices();
-                Debug.LogWarning($"[TraitListChannel] TraitHolderHubService is missing. Tag='{Tag}'");
+                Debug.LogWarning($"[V21-WE-TRAIT-001][TraitListChannel] TraitHolderHubService is missing on the resolved holder hub scope. Tag='{Tag}'");
                 return UniTask.FromResult(false);
             }
 
@@ -434,7 +433,7 @@ namespace Game.UI
 
             ITraitPlacementService? placementService = null;
             if (playerPreset.HideVisiblePlacedTraits)
-                TryResolveFromScopeOrAncestors(hubScope, out placementService);
+                TryResolveFromScope(hubScope, out placementService);
 
             BindServices(holder, placementService);
             ct.ThrowIfCancellationRequested();
@@ -457,9 +456,20 @@ namespace Game.UI
                 _resolvedBinding.NormalizedHolderKey,
                 _placementService,
                 _resolvedPlayerPreset.HideVisiblePlacedTraits);
-
             var itemSize = ResolvePlanningItemSize();
-            var layoutRect = ResolveLayoutRect();
+            var layoutRect = TransformGridSharedUtility.ResolveLayoutRect(
+                _listRoot,
+                _layoutReferenceTransform,
+                _layoutRectTransform,
+                _canvas,
+                _activeScope,
+                _environmentKind == TraitListChannelEnvironmentKind.ScreenUI
+                    ? TransformGridEnvironmentKind.ScreenUI
+                    : TransformGridEnvironmentKind.World,
+                _resolvedLayoutPreset.RangeSourceMode,
+                _resolvedLayoutPreset.AreaActorSource,
+                ref _layoutAreaSourceCache,
+                _resolvedLayoutPreset.AreaChannelTag);
 
             if (!TraitListChannelLayoutUtility.TryBuildSlots(
                     filteredTraits,
@@ -484,7 +494,7 @@ namespace Game.UI
             if (mode == TraitListChannelRefreshMode.FullRebuild || !_isBuilt)
             {
                 await ClearSpawnedInstancesAsync(ct);
-                await BuildFromSlotsAsync(slots, layoutRect, itemSize, ct);
+                await BuildFromSlotsAsync(slots, ct);
                 _isBuilt = true;
                 return true;
             }
@@ -586,7 +596,7 @@ namespace Game.UI
             }
 
             var initializedNewSpawned = 0;
-            RecalculateSlotPositions(slots, layoutRect, itemSize);
+            RecalculateSlotPositions(slots);
             for (var i = 0; i < slots.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -619,13 +629,12 @@ namespace Game.UI
             return true;
         }
 
-        async UniTask BuildFromSlotsAsync(List<TraitListChannelSlot> slots, Rect layoutRect, Vector2 itemSize, CancellationToken ct)
+        async UniTask BuildFromSlotsAsync(List<TraitListChannelSlot> slots, CancellationToken ct)
         {
             if (slots == null || slots.Count == 0)
                 return;
 
-            RecalculateSlotPositions(slots, layoutRect, itemSize);
-
+            RecalculateSlotPositions(slots);
             var initializedSpawned = 0;
             var totalSpawnCount = 0;
             for (var i = 0; i < slots.Count; i++)
@@ -655,9 +664,10 @@ namespace Game.UI
             SortInstancesByListIndex();
         }
 
-        Rect ResolveLayoutRect()
+        void RecalculateSlotPositions(List<TraitListChannelSlot> slots)
         {
-            return TransformGridSharedUtility.ResolveLayoutRect(
+            var itemSize = ResolvePlanningItemSize();
+            var layoutRect = TransformGridSharedUtility.ResolveLayoutRect(
                 _listRoot,
                 _layoutReferenceTransform,
                 _layoutRectTransform,
@@ -670,10 +680,6 @@ namespace Game.UI
                 _resolvedLayoutPreset.AreaActorSource,
                 ref _layoutAreaSourceCache,
                 _resolvedLayoutPreset.AreaChannelTag);
-        }
-
-        void RecalculateSlotPositions(List<TraitListChannelSlot> slots, Rect layoutRect, Vector2 itemSize)
-        {
             TraitListChannelLayoutUtility.RecalculateTargetPositions(
                 slots,
                 _resolvedLayoutPreset,
@@ -686,9 +692,9 @@ namespace Game.UI
             if (_activeScope == null || _listRoot == null || _resolvedRuntimeTemplate == null)
                 return null;
 
-            if (!TryResolveFromScopeOrAncestors<ISceneSpawnerRegistry>(_activeScope, out var registry) || registry == null)
+            if (!TryResolveFromScope<ISceneSpawnerRegistry>(_activeScope, out var registry) || registry == null)
             {
-                Debug.LogWarning($"[TraitListChannel] ISceneSpawnerRegistry is not available. Tag='{Tag}'");
+                Debug.LogWarning($"[V21-WE-TRAIT-001][TraitListChannel] ISceneSpawnerRegistry is not available on the active scope. Tag='{Tag}'");
                 return null;
             }
 
@@ -1001,14 +1007,11 @@ namespace Game.UI
         IVarStore ApplyPayloadToBlackboard(TraitListChannelVisualInstance instance, VarStore payload)
         {
             var commandVars = new VarStore(initialCapacity: 32);
-            if (instance.Resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null)
-            {
-                payload.MergeInto(blackboard.LocalVars, overwrite: true);
-                blackboard.LocalVars.MergeInto(commandVars, overwrite: true);
-                return commandVars;
-            }
-
             payload.MergeInto(commandVars, overwrite: true);
+
+            if (instance.Resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null)
+                payload.MergeInto(blackboard.LocalVars, overwrite: true);
+
             return commandVars;
         }
 
@@ -1477,25 +1480,14 @@ namespace Game.UI
                 return true;
             }
 
-            return TryResolveFromScopeOrAncestors(_activeScope, out runner) && runner != null;
+            return TryResolveFromScope(_activeScope, out runner) && runner != null;
         }
 
-        static bool TryResolveFromScopeOrAncestors<T>(IScopeNode? scope, out T? value) where T : class
+        static bool TryResolveFromScope<T>(IScopeNode? scope, out T? value) where T : class
         {
             value = null;
-            for (var current = scope; current != null; current = current.Parent)
-            {
-                var resolver = current.Resolver;
-                if (resolver == null)
-                    continue;
-                if (resolver.TryResolve<T>(out var resolved) && resolved != null)
-                {
-                    value = resolved;
-                    return true;
-                }
-            }
-
-            return false;
+            var resolver = scope?.Resolver;
+            return resolver != null && resolver.TryResolve<T>(out value) && value != null;
         }
 
         static IReadOnlyList<ITraitInstance> CollectFilteredTraits(

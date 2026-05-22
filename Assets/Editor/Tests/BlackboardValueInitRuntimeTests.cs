@@ -319,7 +319,7 @@ namespace Game.Editor.Tests
 
             public IScopeNode? Parent { get; set; }
 
-            public ILTSIdentityService? Identity { get; set; }
+            public IScopeIdentityService? Identity { get; set; }
 
             public LifetimeScopeKind Kind => kind;
 

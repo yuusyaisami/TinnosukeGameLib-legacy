@@ -9,12 +9,12 @@ using Sirenix.OdinInspector;
 namespace Game.SharedTexture
 {
     [DisallowMultipleComponent]
-    public sealed class SharedTextureMaterialBinderMB : MonoBehaviour, IFeatureInstaller
+    public sealed class SharedTextureMaterialBinderMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Bindings")]
         [SerializeField] List<SharedTextureBindingDef> bindings = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var options = new SharedTextureBinderOptions(new List<SharedTextureBindingDef>(bindings));
 
@@ -26,3 +26,4 @@ namespace Game.SharedTexture
         }
     }
 }
+

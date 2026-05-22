@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -32,7 +32,7 @@ namespace Game.CameraSystem
     }
 
     [DisallowMultipleComponent]
-    public sealed class CameraLocationChannelMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CameraLocationChannelMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
@@ -42,7 +42,7 @@ namespace Game.CameraSystem
 
         public IReadOnlyList<CameraLocationChannelDefinition> Channels => channels;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             EnsureChannels();
 
@@ -84,3 +84,4 @@ namespace Game.CameraSystem
         }
     }
 }
+

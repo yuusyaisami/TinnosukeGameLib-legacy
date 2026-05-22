@@ -5,6 +5,7 @@ using Game.Kernel.Authoring;
 using Game.Kernel.Contributions;
 using Game.Kernel.IR;
 using UnityEngine;
+using AuthoringUnitySourceLocation = Game.Kernel.Authoring.UnitySourceLocation;
 
 namespace Game.Kernel.Boot
 {
@@ -200,9 +201,9 @@ namespace Game.Kernel.Boot
         }
 #endif
 
-        public UnitySourceLocation CreateSourceLocation()
+        public AuthoringUnitySourceLocation CreateSourceLocation()
         {
-            return new UnitySourceLocation(
+            return new AuthoringUnitySourceLocation(
                 sourceKind,
                 assetGuid,
                 assetPath,

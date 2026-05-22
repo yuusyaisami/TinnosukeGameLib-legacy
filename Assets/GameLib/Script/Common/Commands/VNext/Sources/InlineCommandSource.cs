@@ -37,7 +37,7 @@ namespace Game.Commands.VNext
             {
                 var scopeKind = ctx.Scope.Kind;
                 var scopeId = ctx.Scope.Identity?.Id ?? "(none)";
-                ctx.Logger.LogResolveFailed(this, $"Inline command data is null. ScopeKind={scopeKind}, ScopeId={scopeId}, AllowRuntimeKeyFallback={ctx.AllowRuntimeKeyFallback}");
+                ctx.Logger.LogResolveFailed(this, $"Inline command data is null. ScopeKind={scopeKind}, ScopeId={scopeId}");
                 return false;
             }
 

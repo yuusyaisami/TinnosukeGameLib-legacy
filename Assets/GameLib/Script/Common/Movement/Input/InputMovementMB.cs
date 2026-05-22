@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands;
@@ -17,7 +17,7 @@ namespace Game.Movement
     /// Feature installer that registers <see cref="InputMovementService"/>.
     /// v0.2: Homing/Motion 繝｢繧ｸ繝･繝ｼ繝ｫ縺ｫ蟇ｾ蠢懊・
     /// </summary>
-    public sealed class InputMovementMB : MonoBehaviour, IFeatureInstaller
+    public sealed class InputMovementMB : MonoBehaviour, IScopeInstaller
     {
         // ================================================================
         // General Settings
@@ -146,10 +146,10 @@ namespace Game.Movement
 #endif
 
         // ================================================================
-        // IFeatureInstaller
+        // IScopeInstaller
         // ================================================================
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (_debugView == null)
                 _debugView = new InputMovementDebugView();
@@ -232,3 +232,4 @@ namespace Game.Movement
         }
     }
 }
+

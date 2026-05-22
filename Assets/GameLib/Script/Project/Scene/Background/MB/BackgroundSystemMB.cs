@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System.Collections.Generic;
 using Game;
 using Game.Commands.VNext;
@@ -10,7 +10,7 @@ using VContainer.Unity;
 namespace Game.Background
 {
     [DisallowMultipleComponent]
-    public sealed class BackgroundSystemMB : MonoBehaviour, IFeatureInstaller
+    public sealed class BackgroundSystemMB : MonoBehaviour, IScopeInstaller
     {
         const string RootGroup = "Root";
         const string ViewGroup = "View";
@@ -98,7 +98,7 @@ namespace Game.Background
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
         [SerializeField] List<BackgroundLayerDefinition> layers = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             EnsureDefaults();
 
@@ -194,3 +194,4 @@ namespace Game.Background
         bool ShowManualViewSize() => space == BackgroundSpace.World && !useCameraView;
     }
 }
+

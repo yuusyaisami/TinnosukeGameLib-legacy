@@ -25,7 +25,7 @@ namespace Game.Spawn
         /// <summary>
         /// Parent scope for DI/LifetimeScope build.
         /// This is independent from <see cref="TransformParent"/>.
-        /// When specified, RuntimeLifetimeScope should be built under this scope even if the transform
+        /// When specified, KernelScopeHost should be built under this scope even if the transform
         /// parent is the spawner root.
         /// </summary>
         public IScopeNode? LifetimeScopeParent;
@@ -33,7 +33,7 @@ namespace Game.Spawn
 
         /// <summary>
         /// Whether the spawned instance may be pooled. When false, spawners should instantiate/destroy
-        /// directly and mark the created RuntimeLifetimeScope so it will not be returned to the pool.
+        /// directly and mark the created KernelScopeHost so it will not be returned to the pool.
         /// Default: true
         /// </summary>
         public bool AllowPooling;
@@ -376,4 +376,6 @@ namespace Game.Spawn
 #endif
     }
 }
+
+
 

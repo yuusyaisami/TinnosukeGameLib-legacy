@@ -3,6 +3,8 @@
   "rootNamespace": "Game.Kernel.Boot",
   "references": [
     "GameLib.Kernel.Abstractions",
+    "GameLib.Kernel.Authoring",
+    "GameLib.Kernel.Contributions",
     "GameLib.Kernel.Diagnostics",
     "GameLib.Kernel.IR",
     "GameLib.Kernel.Generation",
@@ -16,5 +18,5 @@
   "autoReferenced": true,
   "defineConstraints": [],
   "versionDefines": [],
-  "noEngineReferences": true
+  "noEngineReferences": false
 }

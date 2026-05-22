@@ -10,7 +10,7 @@ using VContainer.Unity;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class VisualBoundsReactiveHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class VisualBoundsReactiveHubMB : MonoBehaviour, IScopeInstaller
     {
         [Serializable]
         public sealed class Settings
@@ -67,7 +67,7 @@ namespace Game.UI
         public IReadOnlyList<VisualBoundsReactiveChannelDefinition> Channels => _channels;
         public Settings HubSettings => _settings;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.Register<VisualBoundsReactiveHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)

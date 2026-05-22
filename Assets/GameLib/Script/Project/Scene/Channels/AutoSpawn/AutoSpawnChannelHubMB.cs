@@ -10,7 +10,7 @@ namespace Game.Channel
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(AreaChannelHubMB))]
-    public sealed class AutoSpawnChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class AutoSpawnChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Hub")]
         [LabelText("Run In LateUpdate")]
@@ -20,7 +20,7 @@ namespace Game.Channel
         [LabelText("Channels")]
         [SerializeField] AutoSpawnChannelDefinition[] channels = Array.Empty<AutoSpawnChannelDefinition>();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (channels == null)
                 channels = Array.Empty<AutoSpawnChannelDefinition>();
@@ -57,3 +57,4 @@ namespace Game.Channel
 #endif
     }
 }
+

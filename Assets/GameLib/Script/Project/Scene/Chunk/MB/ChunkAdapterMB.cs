@@ -6,9 +6,9 @@ using VContainer;
 namespace Game.Chunk
 {
     [DisallowMultipleComponent]
-    public sealed class ChunkAdapterMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ChunkAdapterMB : MonoBehaviour, IScopeInstaller
     {
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.Register<ChunkAdapterService>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)
@@ -18,3 +18,4 @@ namespace Game.Chunk
         }
     }
 }
+

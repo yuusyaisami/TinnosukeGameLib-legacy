@@ -20,6 +20,12 @@ namespace Game.Commands.VNext
             if (data is not AnimationSpriteChannelCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AnimationSpriteChannelCommandData is required.");
 
+            if (string.IsNullOrWhiteSpace(typed.ChannelTag))
+                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AnimationSpriteChannelCommandData.ChannelTag is required.");
+
+            if (string.Equals(typed.ChannelTag.Trim(), "default", StringComparison.Ordinal))
+                throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "AnimationSpriteChannelCommandData.ChannelTag must be an explicit non-default value.");
+
             if (!TryResolveAnimationHub(ctx, out var hub))
                 throw new CommandExecutionException(CommandRunFailureKind.ExecutorMissing, "IAnimationSpriteHubService is missing.");
 
@@ -112,65 +118,29 @@ namespace Game.Commands.VNext
 
         static bool TryResolveAnimationHub(CommandContext ctx, out IAnimationSpriteHubService hub)
         {
-            var origin = ctx.Actor ?? ctx.Scope;
-            if (origin == null)
-            {
-                hub = null!;
-                return false;
-            }
+            if (TryResolveDirectHub(ctx.CommandRootScope, out hub))
+                return true;
 
-            // Prefer hubs in actor/scope subtree so spawned runtime elements resolve their local channels.
-            foreach (var node in ScopeNodeHierarchy.EnumerateSubtree(origin, includeSelf: true))
-            {
-                var resolver = node?.Resolver;
-                if (resolver == null)
-                    continue;
+            if (!ReferenceEquals(ctx.CommandRootScope, ctx.Scope) && TryResolveDirectHub(ctx.Scope, out hub))
+                return true;
 
-                if (resolver.TryResolve<IAnimationSpriteHubService>(out var childHub) && childHub != null)
-                {
-                    if (!IsHubOwnedByNode(childHub, node))
-                        continue;
-
-                    hub = childHub;
-                    return true;
-                }
-            }
-
-            if (ctx.Resolver.TryResolve<IAnimationSpriteHubService>(out var directHub) && directHub != null)
-            {
-                if (IsHubOwnedByNode(directHub, ctx.Scope) || IsHubOwnedByNode(directHub, origin))
-                {
-                    hub = directHub;
-                    return true;
-                }
-            }
-
-            foreach (var node in origin.EnumerateAncestors(includeSelf: false))
-            {
-                var resolver = node?.Resolver;
-                if (resolver == null)
-                    continue;
-
-                if (resolver.TryResolve<IAnimationSpriteHubService>(out var foundHub) && foundHub != null)
-                {
-                    if (!IsHubOwnedByNode(foundHub, node))
-                        continue;
-
-                    hub = foundHub;
-                    return true;
-                }
-            }
+            if (ctx.Actor != null && !ReferenceEquals(ctx.Actor, ctx.Scope) && !ReferenceEquals(ctx.Actor, ctx.CommandRootScope) && TryResolveDirectHub(ctx.Actor, out hub))
+                return true;
 
             hub = null!;
             return false;
         }
 
-        static bool IsHubOwnedByNode(IAnimationSpriteHubService hub, IScopeNode? node)
+        static bool TryResolveDirectHub(IScopeNode? scope, out IAnimationSpriteHubService hub)
         {
-            if (hub is AnimationSpriteHubService typed)
-                return ReferenceEquals(typed.OwnerScope, node);
+            if (scope?.Resolver != null && scope.Resolver.TryResolve<IAnimationSpriteHubService>(out var resolved) && resolved != null)
+            {
+                hub = resolved;
+                return true;
+            }
 
-            return true;
+            hub = null!;
+            return false;
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -188,22 +158,16 @@ namespace Game.Commands.VNext
 
         static bool IsToastDebugContext(CommandContext ctx)
         {
-            return ContainsToastMarker(ctx.Actor) || ContainsToastMarker(ctx.Scope);
+            return ContainsToastMarker(ctx.Actor) || ContainsToastMarker(ctx.Scope) || ContainsToastMarker(ctx.CommandRootScope);
         }
 
         static bool ContainsToastMarker(IScopeNode? scope)
         {
-            foreach (var node in scope?.EnumerateAncestors(includeSelf: true) ?? System.Array.Empty<IScopeNode>())
-            {
-                var id = node?.Identity?.Id;
-                if (string.IsNullOrEmpty(id))
-                    continue;
+            var id = scope?.Identity?.Id;
+            if (string.IsNullOrEmpty(id))
+                return false;
 
-                if (id.IndexOf("UIToast", System.StringComparison.OrdinalIgnoreCase) >= 0)
-                    return true;
-            }
-
-            return false;
+            return id.IndexOf("UIToast", System.StringComparison.OrdinalIgnoreCase) >= 0;
         }
 #endif
 

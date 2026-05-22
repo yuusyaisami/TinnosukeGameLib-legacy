@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using Game;
 using Game.Commands.VNext;
@@ -43,7 +43,7 @@ namespace Game.UI.TraitList
     }
 
     [DisallowMultipleComponent]
-    public sealed class UITraitListSystemMB : MonoBehaviour, IFeatureInstaller, IUITraitListSystemOptions
+    public sealed class UITraitListSystemMB : MonoBehaviour, IScopeInstaller, IUITraitListSystemOptions
     {
         [BoxGroup("Profile")]
         [Tooltip("Inspector setting.")]
@@ -106,7 +106,7 @@ namespace Game.UI.TraitList
         public int AutoBuildRetryFrameInterval => _autoBuildSettings != null ? _autoBuildSettings.AutoBuildRetryFrameInterval : 1;
         public bool HideVisiblePlacedTraits => _hideVisiblePlacedTraits;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IUITraitListSystemOptions>(this);
 
@@ -140,3 +140,4 @@ namespace Game.UI.TraitList
         }
     }
 }
+

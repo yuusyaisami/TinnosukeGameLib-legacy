@@ -134,11 +134,17 @@ namespace Game.Channel
 
             copy.RegularTracks = new List<MeshTrackDefinition>(RegularTracks.Count);
             for (int i = 0; i < RegularTracks.Count; i++)
-                copy.RegularTracks.Add(RegularTracks[i]?.CreateRuntimeCopy() ?? new MeshTrackDefinition());
+            {
+                MeshTrackDefinition track = RegularTracks[i] ?? throw new InvalidOperationException("Mesh definition contains a null regular track entry.");
+                copy.RegularTracks.Add(track.CreateRuntimeCopy());
+            }
 
             copy.SimulationTracks = new List<MeshSimulationTrackDefinition>(SimulationTracks.Count);
             for (int i = 0; i < SimulationTracks.Count; i++)
-                copy.SimulationTracks.Add(SimulationTracks[i]?.CreateRuntimeCopy() ?? new MeshSimulationTrackDefinition());
+            {
+                MeshSimulationTrackDefinition track = SimulationTracks[i] ?? throw new InvalidOperationException("Mesh definition contains a null simulation track entry.");
+                copy.SimulationTracks.Add(track.CreateRuntimeCopy());
+            }
 
             return copy;
         }

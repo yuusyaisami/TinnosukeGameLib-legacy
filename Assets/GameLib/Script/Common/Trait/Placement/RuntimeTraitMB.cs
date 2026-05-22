@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Game;
 using Game.Commands.VNext;
 using Game.Common;
@@ -10,7 +10,7 @@ using VContainer.Unity;
 namespace Game.Trait
 {
     [DisallowMultipleComponent]
-    public sealed class RuntimeTraitMB : MonoBehaviour, IFeatureInstaller
+    public sealed class RuntimeTraitMB : MonoBehaviour, IScopeInstaller
     {
         TraitRuntimeLinkData? _linkData;
 
@@ -114,7 +114,7 @@ namespace Game.Trait
             return false;
         }
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<RuntimeTraitBridgeService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
@@ -131,3 +131,4 @@ namespace Game.Trait
         }
     }
 }
+

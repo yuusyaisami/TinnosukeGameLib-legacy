@@ -8,7 +8,7 @@ using VContainer.Unity;
 namespace Game.UnityRoom
 {
     [DisallowMultipleComponent]
-    public sealed class UnityRoomMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UnityRoomMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Scoreboard")]
         [LabelText("HMAC Key")]
@@ -21,7 +21,7 @@ namespace Game.UnityRoom
         [SerializeField]
         int scoreboardId = 1;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ = scope;
 
@@ -39,3 +39,4 @@ namespace Game.UnityRoom
         }
     }
 }
+

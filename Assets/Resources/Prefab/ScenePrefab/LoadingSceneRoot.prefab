@@ -152,7 +152,6 @@ GameObject:
   - component: {fileID: 4617347078296124661}
   - component: {fileID: 1997042814285219239}
   - component: {fileID: 4190269572756615388}
-  - component: {fileID: 1805377878543686054}
   - component: {fileID: 1422180898357057889}
   m_Layer: 0
   m_Name: LoadingPanel
@@ -316,36 +315,6 @@ MonoBehaviour:
   timeScaleBehavior: 1
   registerToDynamicRegistry: 1
   radius: 0
---- !u!114 &1805377878543686054
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1918263938023287686}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8ec127ea933e5841b6d80cc35226cfc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementLifetimeScope
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  useAsGameLogicRoot: 0
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  initiallyVisible: 1
 --- !u!114 &1422180898357057889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -628,27 +597,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 3025499932521171011}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86494e5985de77a4d9e1afcc0fd21288, type: 3}
+  m_Script: {fileID: 11500000, guid: 4d1d28bf8ac9d5d4ebf0ca2a2aecacc5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Scene.SceneLifetimeScope
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  useAsGameLogicRoot: 0
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  initiallyVisible: 1
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Loading.LoadingScreenMB
+  screenRoot: {fileID: 1918263938023287686}
+  loadingIcon: {fileID: 6349106602665171224}
+  messageText: {fileID: 7495330592794813590}
+  iconRotationSpeed: 180
+  hideOnAwake: 1
 --- !u!1 &3760137345623769651
 GameObject:
   m_ObjectHideFlags: 0
@@ -2322,7 +2278,6 @@ GameObject:
   - component: {fileID: 5704822574360519995}
   - component: {fileID: 7268203363538944511}
   - component: {fileID: 4971567550296256833}
-  - component: {fileID: 4490152577199968758}
   - component: {fileID: 6847865917287765053}
   - component: {fileID: 8502690284873254025}
   m_Layer: 0
@@ -2487,36 +2442,6 @@ MonoBehaviour:
   timeScaleBehavior: 1
   registerToDynamicRegistry: 1
   radius: 0
---- !u!114 &4490152577199968758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8746132006408903387}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8ec127ea933e5841b6d80cc35226cfc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.UI.UIElementLifetimeScope
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  useAsGameLogicRoot: 0
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  initiallyVisible: 1
 --- !u!114 &6847865917287765053
 MonoBehaviour:
   m_ObjectHideFlags: 0

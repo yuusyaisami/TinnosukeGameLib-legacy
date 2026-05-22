@@ -379,13 +379,15 @@ namespace Game.Channel
             if (resolver == null)
                 return;
 
-            ExtractSpawnedInfo(resolver, out var root, out var scopeNode, out var runtimeScope, out var baseScope);
+            var lifetime = ScopeFeatureInstallerUtility.CaptureSpawnedLifetime(resolver);
+            var root = lifetime.Root;
+            var scopeNode = lifetime.ScopeNode;
             var tr = root != null ? root.transform : null;
             RectTransform? rectTransform = null;
             if (tr != null)
                 rectTransform = tr as RectTransform;
 
-            var handle = new ScrollTileHandle(coord, tr, rectTransform, scopeNode, runtimeScope, baseScope, root, resolver);
+            var handle = new ScrollTileHandle(coord, tr, rectTransform, lifetime);
             player.Tiles[coord] = handle;
 
             UniTask.Void(async () => await RunOnSpawnedCommandsAsync(player, handle, ct));
@@ -654,85 +656,9 @@ namespace Game.Channel
                 maxProj = projection;
         }
 
-        static void ExtractSpawnedInfo(
-            IRuntimeResolver resolver,
-            out GameObject? root,
-            out IScopeNode? scopeNode,
-            out RuntimeLifetimeScope? runtimeScope,
-            out BaseLifetimeScope? baseScope)
-        {
-            root = null;
-            scopeNode = null;
-            runtimeScope = null;
-            baseScope = null;
-
-            resolver.TryResolve(out runtimeScope);
-            resolver.TryResolve(out baseScope);
-            resolver.TryResolve(out scopeNode);
-
-            if (runtimeScope != null)
-                root = runtimeScope.gameObject;
-            else if (baseScope != null)
-                root = baseScope.gameObject;
-            else if (scopeNode?.Identity?.SelfTransform != null)
-                root = scopeNode.Identity.SelfTransform.gameObject;
-        }
-
         static async UniTask ReleaseHandleAsync(ScrollTileHandle handle, CancellationToken ct)
         {
-            await UniTask.SwitchToMainThread();
-
-            if (handle.RuntimeScope != null)
-            {
-                try
-                {
-                    if (handle.RuntimeScope.Resolver != null &&
-                        handle.RuntimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                        pool != null)
-                    {
-                        pool.Release(handle.RuntimeScope);
-                        return;
-                    }
-                }
-                catch (Exception)
-                {
-                }
-
-                if (handle.Root != null)
-                {
-                    UnityEngine.Object.Destroy(handle.Root);
-                }
-                else
-                {
-                    UnityEngine.Object.Destroy(handle.RuntimeScope.gameObject);
-                }
-                return;
-            }
-
-            if (handle.BaseScope != null)
-            {
-                try
-                {
-                    await handle.BaseScope.DespawnAsync(ct);
-                    return;
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            if (handle.Root != null)
-            {
-                UnityEngine.Object.Destroy(handle.Root);
-            }
-            else if (handle.Transform != null)
-            {
-                UnityEngine.Object.Destroy(handle.Transform.gameObject);
-            }
+            await ScopeFeatureInstallerUtility.ReleaseSpawnedLifetimeAsync(handle.Resolver, ct);
         }
 
         static IVarStore ResolveVars(IScopeNode? scope)
@@ -776,14 +702,7 @@ namespace Game.Channel
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
     }
 }

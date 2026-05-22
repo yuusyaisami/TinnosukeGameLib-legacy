@@ -741,16 +741,9 @@ namespace Game.UI
             if (t == null)
                 return null;
 
-            // Unity cannot GetComponent by interface reliably; use known concrete scope types.
-            var baseScope = t.GetComponent<BaseLifetimeScope>();
-            if (baseScope != null)
-                return baseScope;
-
-            var runtimeScope = t.GetComponent<RuntimeLifetimeScope>();
-            if (runtimeScope != null)
-                return runtimeScope;
-
-            return null;
+            return ScopeFeatureInstallerUtility.TryGetScopeNode(t, includeInactive: true, out var node)
+                ? node
+                : null;
         }
 
         /// <summary>

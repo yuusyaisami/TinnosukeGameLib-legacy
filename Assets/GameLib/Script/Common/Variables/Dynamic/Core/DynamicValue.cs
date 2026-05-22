@@ -511,7 +511,7 @@ namespace Game.Common
         }
 
         public IScopeNode? Parent => null;
-        public ILTSIdentityService? Identity => null;
+        public IScopeIdentityService? Identity => null;
         public LifetimeScopeKind Kind => LifetimeScopeKind.None;
         public IRuntimeResolver? Resolver => null;
         public bool IsVisible => false;
@@ -547,3 +547,4 @@ namespace Game.Common
 
 #nullable restore
 }
+

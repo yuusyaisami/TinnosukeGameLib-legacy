@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -49,7 +49,7 @@ namespace Game.UI
     }
 
     [DisallowMultipleComponent]
-    public sealed class ButtonChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ButtonChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
@@ -62,7 +62,7 @@ namespace Game.UI
         public IReadOnlyList<ButtonChannelDefinition> Channels => _channels;
         public IButtonChannelHubService? Hub => _hub;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<ButtonChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -79,3 +79,4 @@ namespace Game.UI
         }
     }
 }
+

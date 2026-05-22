@@ -10,7 +10,7 @@ using VContainer.Unity;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class PointerTiltSwipeMB : MonoBehaviour, IFeatureInstaller
+    public sealed class PointerTiltSwipeMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("General")]
         [LabelText("Enabled")]
@@ -212,7 +212,7 @@ namespace Game.UI
             BindDebugOwners();
         }
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<PointerTiltSwipeService>(RuntimeLifetime.Singleton)
                 .AsSelf()
@@ -230,3 +230,4 @@ namespace Game.UI
         }
     }
 }
+

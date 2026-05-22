@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -79,7 +79,7 @@ namespace Game.UI
     /// </summary>
     public readonly struct UIElementStateChangedArgs
     {
-        /// <summary>迥ｶ諷九ｒ謖√▽UIElement・・IElementLifetimeScope/RuntimeLifetimeScope・・/summary>
+        /// <summary>迥ｶ諷九ｒ謖√▽UIElement・・IElementLifetimeScope/KernelScopeHost・・/summary>
         public IScopeNode Owner { get; }
 
         /// <summary>螟画峩蜑阪・Active迥ｶ諷・/summary>
@@ -705,7 +705,7 @@ namespace Game.UI
         /// 
         /// ## 繝代Λ繝｡繝ｼ繧ｿ
         /// 
-        /// owner: 縺薙・繧ｵ繝ｼ繝薙せ繧呈戟縺､IScopeNode・・IElementLifetimeScope/RuntimeLifetimeScope・・
+        /// owner: 縺薙・繧ｵ繝ｼ繝薙せ繧呈戟縺､IScopeNode・・IElementLifetimeScope/KernelScopeHost・・
         /// </summary>
         /// <param name="owner">謇譛芽・・繧ｹ繧ｳ繝ｼ繝励ヮ繝ｼ繝・/param>
         public UIElementStateService(IScopeNode owner, IUIElementStateOptions options, IUISelectionState? selectionState, VNext.ICommandRunner commandRunner)
@@ -1095,3 +1095,5 @@ namespace Game.UI
         }
     }
 }
+
+

@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -177,7 +177,7 @@ namespace Game.TransformSystem
     }
 
     [DisallowMultipleComponent]
-    public sealed class TransformManagerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class TransformManagerMB : MonoBehaviour, IScopeInstaller
     {
         [FoldoutGroup("Debug Viewer")]
         [LabelText("Transform Manager Debug Viewer")]
@@ -202,7 +202,7 @@ namespace Game.TransformSystem
         [SerializeField]
         List<TransformManagerScaleGlobalValue> _scaleGlobals = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ = scope;
 
@@ -255,3 +255,4 @@ namespace Game.TransformSystem
         }
     }
 }
+

@@ -108,14 +108,14 @@ namespace Game.Channel
             IMaterialFxServiceFactory? materialFxFactory = null,
             IMaterialFxPropertyRegistry? materialFxRegistry = null,
             bool replaceWithTransparentOnRelease = false,
-            string hubTag = "default")
+            string hubTag = "")
         {
             _ownerScope = ownerScope ?? throw new ArgumentNullException(nameof(ownerScope));
-            _commandRunner = commandRunner;
+            _commandRunner = commandRunner ?? throw new ArgumentNullException(nameof(commandRunner));
             _replaceWithTransparentOnRelease = replaceWithTransparentOnRelease;
 
-            _hubTag = string.IsNullOrWhiteSpace(hubTag) ? "default" : hubTag;
-            var resolver = ownerScope.Resolver;
+            _hubTag = NormalizeTagOrThrow(hubTag);
+            var resolver = _ownerScope.Resolver;
             if (resolver != null && resolver.TryResolve<IVisualSystem>(out var vs) && vs != null)
                 _visualSystem = vs;
 
@@ -124,7 +124,7 @@ namespace Game.Channel
             _materialFxFactory = materialFxFactory;
 
             // Fallback: VContainer の optional parameter injection が親スコープかめE
-            // IMaterialFxPropertyRegistry を解決できなぁE��合、scope resolver で再試行すめE
+            // IMaterialFxPropertyRegistry を解決できなぁE��合、scope resolver で再試行すめE
             if (materialFxRegistry == null && resolver != null)
                 resolver.TryResolve(out materialFxRegistry);
             _materialFxRegistry = materialFxRegistry;
@@ -145,14 +145,11 @@ namespace Game.Channel
             _hubStateContextTag = "AnimationSpriteHub.State." + hubInstanceId;
             _hubBroadcastContextTag = "AnimationSpriteHub.Broadcast." + hubInstanceId;
 
-            if (channelDefs != null)
-            {
-                foreach (var def in channelDefs)
-                {
-                    // 初期登録は overwrite=false で投�E
-                    RegisterChannelInternal(def, overwrite: false);
-                }
-            }
+            if (channelDefs == null)
+                throw new ArgumentNullException(nameof(channelDefs));
+
+            foreach (var def in channelDefs)
+                RegisterChannelInternal(def, overwrite: false);
         }
 
         // ========= IVisualHub =========
@@ -247,8 +244,7 @@ namespace Game.Channel
 
         public IAnimationSpriteChannelPlayer GetPlayer(string tag)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            tag = NormalizeTagOrThrow(tag);
 
             if (_players.TryGetValue(tag, out var player))
                 return player;
@@ -258,8 +254,11 @@ namespace Game.Channel
 
         public bool TryGetPlayer(string tag, out IAnimationSpriteChannelPlayer player)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            if (!TryNormalizeTag(tag, out tag))
+            {
+                player = null!;
+                return false;
+            }
 
             if (_players.TryGetValue(tag, out var p))
             {
@@ -273,8 +272,11 @@ namespace Game.Channel
 
         public bool TryGetMaterialFxReceiver(string tag, out IMaterialFxReceiver? receiver)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            if (!TryNormalizeTag(tag, out tag))
+            {
+                receiver = null;
+                return false;
+            }
 
             if (_players.TryGetValue(tag, out var player))
             {
@@ -288,8 +290,11 @@ namespace Game.Channel
 
         public bool TryGetMaterialFx(string tag, out IMaterialFxService? materialFx)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            if (!TryNormalizeTag(tag, out tag))
+            {
+                materialFx = null;
+                return false;
+            }
 
             if (_players.TryGetValue(tag, out var player) && player.MaterialFx != null)
             {
@@ -305,8 +310,11 @@ namespace Game.Channel
 
         public bool TryGetChannelDef(string tag, out ChannelDefBase def)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            if (!TryNormalizeTag(tag, out tag))
+            {
+                def = null!;
+                return false;
+            }
 
             if (_defsByTag.TryGetValue(tag, out var spriteDef))
             {
@@ -320,7 +328,7 @@ namespace Game.Channel
 
         public bool RegisterChannel(ChannelDefBase def, bool overwrite = false)
         {
-            // ChannelDefBase から自刁E�E型にキャストして判宁E
+            // ChannelDefBase から自刁E�E型にキャストして判宁E
             if (def is not AnimationSpriteChannelDef spriteDef)
             {
                 Debug.LogWarning("[AnimationSpriteHub] Cannot register channel: invalid channel definition type.");
@@ -332,8 +340,8 @@ namespace Game.Channel
 
         public bool UnregisterChannel(string tag)
         {
-            if (string.IsNullOrWhiteSpace(tag))
-                tag = "default";
+            if (!TryNormalizeTag(tag, out tag))
+                return false;
 
             return RemoveChannelInternal(tag);
         }
@@ -348,11 +356,7 @@ namespace Game.Channel
             var materialFxRegistry = ResolveMaterialFxRegistry();
             if (materialFxRegistry == null)
             {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.LogWarning($"[AnimationSpriteHub] SetHubState skipped: _materialFxRegistry is null. " +
-                    $"Ensure MaterialFxMB is installed in an ancestor scope. HubTag='{_hubTag}'");
-#endif
-                return;
+                throw new InvalidOperationException($"[AnimationSpriteHub] SetHubState requires an IMaterialFxPropertyRegistry. HubTag='{_hubTag}'.");
             }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -517,10 +521,7 @@ namespace Game.Channel
             var materialFxRegistry = ResolveMaterialFxRegistry();
             if (materialFxRegistry == null)
             {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.LogWarning($"[AnimationSpriteHub] BroadcastMaterialFx skipped: _materialFxRegistry is null. HubTag='{_hubTag}'");
-#endif
-                return;
+                throw new InvalidOperationException($"[AnimationSpriteHub] BroadcastMaterialFx requires an IMaterialFxPropertyRegistry. HubTag='{_hubTag}'.");
             }
             if (entries == null || entries.Count == 0)
                 return;
@@ -569,7 +570,7 @@ namespace Game.Channel
             }
         }
 
-        // =========  冁E��共通ロジチE��  =========
+        // =========  冁E��共通ロジチE��  =========
 
         IMaterialFxServiceFactory? ResolveMaterialFxFactory()
         {
@@ -599,16 +600,12 @@ namespace Game.Channel
         {
             if (def == null)
             {
-                Debug.LogWarning("[AnimationSpriteHub] Cannot register null channel definition.");
-                return false;
+                throw new ArgumentNullException(nameof(def));
             }
 
-            var tag = def.Tag;
-            if (string.IsNullOrWhiteSpace(tag))
-            {
-                Debug.LogWarning("[AnimationSpriteHub] Cannot register channel with null or empty tag.");
-                return false;
-            }
+            var tag = NormalizeTagOrThrow(def.Tag);
+            if (def.SpriteRenderer == null && def.Image == null)
+                throw new InvalidOperationException($"[AnimationSpriteHub] Channel '{tag}' requires an explicit SpriteRenderer or Image target.");
 
             if (_players.ContainsKey(tag))
             {
@@ -706,7 +703,26 @@ namespace Game.Channel
             if (resolver != null && resolver.TryResolve<Game.Common.IVarStore>(out var vars) && vars != null)
                 return new Game.Common.SimpleDynamicContext(vars, _ownerScope);
 
-            return new Game.Common.SimpleDynamicContext(Game.Common.NullVarStore.Instance, _ownerScope);
+            throw new InvalidOperationException($"[AnimationSpriteHub] Scope '{DescribeScope(_ownerScope)}' is missing an IVarStore resolver.");
+        }
+
+        static string NormalizeTagOrThrow(string tag)
+        {
+            if (TryNormalizeTag(tag, out var normalizedTag))
+                return normalizedTag;
+
+            throw new ArgumentException("AnimationSprite channel tag must be specified.", nameof(tag));
+        }
+
+        static bool TryNormalizeTag(string tag, out string normalizedTag)
+        {
+            normalizedTag = tag?.Trim() ?? string.Empty;
+            return !string.IsNullOrWhiteSpace(normalizedTag) && !string.Equals(normalizedTag, "default", StringComparison.Ordinal);
+        }
+
+        static string DescribeScope(IScopeNode scope)
+        {
+            return scope.Identity?.Id ?? scope.Identity?.SelfTransform?.name ?? scope.GetType().Name;
         }
 
         static bool TryNormalizeValue(MaterialFxSerializedValue serialized, ValueKind expectedType, Game.Common.IDynamicContext? context, out MaterialFxTypedValue typed)
@@ -745,7 +761,7 @@ namespace Game.Channel
 
             // 一応止めておく
             player.Stop();
-            // Dispose があれ�E確実に破棁E��てリークを止める
+            // Dispose があれ�E確実に破棁E��てリークを止める
             try
             {
                 (player as IDisposable)?.Dispose();

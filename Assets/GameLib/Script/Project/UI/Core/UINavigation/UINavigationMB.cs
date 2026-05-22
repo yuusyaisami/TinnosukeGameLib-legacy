@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -30,7 +30,7 @@ namespace Game.UI
     /// - 繝ｪ繝斐・繝磯幕蟋九∪縺ｧ縺ｮ驕・ｻｶ譎る俣
     /// - 繝ｪ繝斐・繝磯俣髫・
     /// </summary>
-    public sealed class UINavigationMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UINavigationMB : MonoBehaviour, IScopeInstaller
     {
         // ----------------------------------------------------------------
         // Inspector險ｭ螳・
@@ -75,7 +75,7 @@ namespace Game.UI
         /// - UINavigationService縺ｯIUISelectionService縺ｫ萓晏ｭ倥☆繧・
         /// - UISelectionMB縺悟・縺ｫ逋ｻ骭ｲ縺輔ｌ縺ｦ縺・ｋ蠢・ｦ√′縺ゅｋ
         /// </summary>
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ險ｭ螳壹ｒ逋ｻ骭ｲ
             builder.RegisterInstance(new UINavigationOptions
@@ -132,3 +132,4 @@ namespace Game.UI
         public bool EnableNavigationLogging { get; set; }
     }
 }
+

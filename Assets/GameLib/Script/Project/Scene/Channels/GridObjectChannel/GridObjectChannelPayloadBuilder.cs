@@ -22,21 +22,9 @@ namespace Game.Channel
             return payload;
         }
 
-        public IVarStore ApplyPayloadToBlackboard(GridObjectChannelVisualInstance instance, VarStore payload)
+        public IVarStore BuildCommandVars(VarStore payload)
         {
-            var commandVars = new VarStore(initialCapacity: 32);
-            var hasLocalBlackboard = instance.Resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null;
-            if (hasLocalBlackboard && blackboard != null)
-            {
-                payload.MergeInto(blackboard.LocalVars, overwrite: true);
-                blackboard.LocalVars.MergeInto(commandVars, overwrite: true);
-            }
-            else
-            {
-                payload.MergeInto(commandVars, overwrite: true);
-            }
-
-            return commandVars;
+            return BlackboardPayloadProjectionUtility.ProjectCommandVars(payload);
         }
 
         void ApplyItemVars(IVarStore vars, GridObjectChannelRuntimeState state, GridObjectChannelResolvedItem item)

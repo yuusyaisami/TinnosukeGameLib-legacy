@@ -1,11 +1,11 @@
-﻿#nullable enable
+#nullable enable
 using UnityEngine;
 using VContainer;
 
 namespace Game.Collision
 {
     [DisallowMultipleComponent]
-    public sealed class CollisionPipelineModeMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CollisionPipelineModeMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField]
         [Tooltip("Inspector setting.")]
@@ -13,7 +13,7 @@ namespace Game.Collision
 
         public CollisionPipelineKind Mode => mode;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (scope.Kind != LifetimeScopeKind.Project)
                 return;
@@ -22,3 +22,4 @@ namespace Game.Collision
         }
     }
 }
+

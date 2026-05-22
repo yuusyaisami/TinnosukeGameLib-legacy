@@ -80,8 +80,7 @@ GameObject:
   - component: {fileID: 525784452006429552}
   - component: {fileID: 6581162495091439770}
   - component: {fileID: 7038566573169279879}
-  - component: {fileID: 6771870668685897715}
-  - component: {fileID: 3611883063367699013}
+- component: {fileID: 3611883063367699013}
   - component: {fileID: 2232581906808052746}
   - component: {fileID: 1365717188846828213}
   - component: {fileID: 7147185317018211598}
@@ -162,20 +161,6 @@ MonoBehaviour:
     queryKey: 
     queryVarId: 0
     writeEntries: []
---- !u!114 &6771870668685897715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3215116773989912426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
 --- !u!114 &3611883063367699013
 MonoBehaviour:
   m_ObjectHideFlags: 0

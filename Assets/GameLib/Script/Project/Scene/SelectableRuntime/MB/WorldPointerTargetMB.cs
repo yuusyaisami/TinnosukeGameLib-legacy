@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System.Collections.Generic;
 using Game;
 using Game.Commands;
@@ -13,7 +13,7 @@ using VContainer.Unity;
 namespace Game.SelectRuntime
 {
     [DisallowMultipleComponent]
-    public sealed class WorldPointerTargetMB : MonoBehaviour, IFeatureInstaller
+    public sealed class WorldPointerTargetMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Target")]
         [LabelText("Colliders")]
@@ -182,7 +182,7 @@ namespace Game.SelectRuntime
             BindDebugOwners();
         }
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<WorldPointerTargetBridgeService>(RuntimeLifetime.Singleton)
                 .AsSelf()
@@ -234,3 +234,4 @@ namespace Game.SelectRuntime
         }
     }
 }
+

@@ -11,30 +11,24 @@ namespace Game.Channel
         public ScrollTileCoord Coord;
         public Transform? Transform;
         public RectTransform? RectTransform;
-        public IScopeNode? ScopeNode;
-        public RuntimeLifetimeScope? RuntimeScope;
-        public BaseLifetimeScope? BaseScope;
-        public GameObject? Root;
-        public IRuntimeResolver? Resolver;
+        public SpawnedLifetimeHandle Lifetime;
+
+        public IScopeNode? ScopeNode => Lifetime.ScopeNode;
+        public GameObject? Root => Lifetime.Root;
+        public IRuntimeResolver? Resolver => Lifetime.Resolver;
+        public bool UsesRuntimeLifetimeScope => Lifetime.UsesRuntimeLifetimeScope;
+        public bool UsesBaseLifetimeScope => Lifetime.UsesBaseLifetimeScope;
 
         public ScrollTileHandle(
             ScrollTileCoord coord,
             Transform? transform,
             RectTransform? rectTransform,
-            IScopeNode? scopeNode,
-            RuntimeLifetimeScope? runtimeScope,
-            BaseLifetimeScope? baseScope,
-            GameObject? root,
-            IRuntimeResolver? resolver)
+            SpawnedLifetimeHandle lifetime)
         {
             Coord = coord;
             Transform = transform;
             RectTransform = rectTransform;
-            ScopeNode = scopeNode;
-            RuntimeScope = runtimeScope;
-            BaseScope = baseScope;
-            Root = root;
-            Resolver = resolver;
+            Lifetime = lifetime;
         }
     }
 

@@ -26,10 +26,14 @@ namespace Game.DI
         [SerializeField]
         string templateId = "";
 
+        [SerializeField]
+        int verifiedScopePlanId;
+
         public virtual GameObject? Prefab => prefab;
         public virtual bool UsePooling => usePooling;
         public virtual string Category => category ?? "Runtime";
         public virtual string TemplateId => string.IsNullOrEmpty(templateId) ? string.Empty : templateId;
+        public virtual int VerifiedScopePlanId => verifiedScopePlanId;
 
         public virtual void OnAcquire(IScopeNode scope, RuntimeIdentityData identity) { }
         public virtual void OnRelease(IScopeNode scope) { }
@@ -169,6 +173,7 @@ namespace Game.DI
                 return string.IsNullOrEmpty(resolvedTemplateId) ? name : resolvedTemplateId;
             }
         }
+        public override int VerifiedScopePlanId => _preset?.VerifiedScopePlanId ?? 0;
         public override BaseRuntimeTemplateSO PoolKey => this;
 
         public override void OnAcquire(IScopeNode scope, RuntimeIdentityData identity)

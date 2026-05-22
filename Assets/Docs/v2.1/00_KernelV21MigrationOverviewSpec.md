@@ -33,6 +33,7 @@
   - [04_WaveDValueBlackboardAndVarCutoverSpec.md](04_WaveDValueBlackboardAndVarCutoverSpec.md)
   - [05_WaveERepresentativeGameplaySystemsCutoverSpec.md](05_WaveERepresentativeGameplaySystemsCutoverSpec.md)
   - [06_WaveFLegacyRemovalAndHardeningSpec.md](06_WaveFLegacyRemovalAndHardeningSpec.md)
+  - [07_KernelV21MigrationMilestoneOrderSpec.md](07_KernelV21MigrationMilestoneOrderSpec.md)
 
 ### Revision Note
 
@@ -242,6 +243,32 @@ Each wave specification must define:
 - diagnostics and failure policy
 - acceptance and non-completion rules
 
+Wave ownership is not the same thing as milestone claim order.
+Cross-wave claim order, gate sequencing, and downstream unlock rules are owned by [07_KernelV21MigrationMilestoneOrderSpec.md](07_KernelV21MigrationMilestoneOrderSpec.md).
+
+---
+
+## V21-M0 Baseline Freeze Artifacts
+
+V21-M0 operational evidence lives under [Index/README.md](Index/README.md).
+This overview continues to own the migration contract.
+The v2.1 Index package owns the joined evidence that later milestone reviews consume.
+
+Canonical V21-M0 artifacts:
+
+- [Index/KernelV21BaselineLedger.md](Index/KernelV21BaselineLedger.md)
+- [Index/KernelV21PreservationFloorLedger.md](Index/KernelV21PreservationFloorLedger.md)
+- [Index/KernelV21ProofAnchorCatalog.md](Index/KernelV21ProofAnchorCatalog.md)
+
+Upstream v2 references reused by V21-M0 rather than duplicated:
+
+- [../v2/Index/KernelV2ConceptMap.md](../v2/Index/KernelV2ConceptMap.md)
+- [../v2/Index/ForbiddenPatternRegistry.md](../v2/Index/ForbiddenPatternRegistry.md)
+- [../v2/Index/CrossSpecDependencyMatrix.md](../v2/Index/CrossSpecDependencyMatrix.md)
+- [../v2/Index/ExistingAnchorInventory.md](../v2/Index/ExistingAnchorInventory.md)
+
+V21-M0 is therefore a migration baseline freeze layer, not a second copy of the v2 M0 architecture-freeze package.
+
 ---
 
 ## Governance Rules
@@ -287,3 +314,5 @@ The migration is complete only when:
 | TC-V21-00-03 | Confirm the current baseline distinguishes existing kernel infrastructure from live-game routing. | The baseline section must mention both verified boot surfaces and remaining legacy live authority. |
 | TC-V21-00-04 | Confirm migration is partitioned into Wave A through Wave F. | The migration-waves section must enumerate all six waves and assign each a distinct ownership slice. |
 | TC-V21-00-05 | Confirm direct-play success is not treated as migration completion. | The acceptance rules must explicitly separate direct play from live-game completion. |
+| TC-V21-00-06 | Confirm the overview points to the V21-M0 operational artifact set. | This file must link to Index/README.md and the three v2.1 Index ledgers. |
+| TC-V21-00-07 | Confirm the overview reuses the v2 M0 package by reference rather than duplicating it. | This file must link to the v2 Index concept map, forbidden-pattern registry, dependency matrix, and anchor inventory as upstream references. |

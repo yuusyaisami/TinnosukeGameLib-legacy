@@ -12,7 +12,7 @@ namespace Game.Actions
     }
 
     [DisallowMultipleComponent]
-    public sealed class PlayerGameActionMB : MonoBehaviour, IFeatureInstaller, IPlayerGameActionSettings
+    public sealed class PlayerGameActionMB : MonoBehaviour, IScopeInstaller, IPlayerGameActionSettings
     {
         [Header("Action Gage Commands")]
         [Tooltip("Commands to run when StartGage is called.")]
@@ -40,7 +40,7 @@ namespace Game.Actions
         public VNext.CommandListData BuildGageCommands => _buildGageCommands;
         public VNext.CommandListData StopGageSectorCommands => _stopGageSectorCommands;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IPlayerGameActionSettings>(this);
             builder.Register<IPlayerGameActionService, PlayerGameActionService>(RuntimeLifetime.Singleton);
@@ -48,3 +48,4 @@ namespace Game.Actions
     }
 }
 */
+

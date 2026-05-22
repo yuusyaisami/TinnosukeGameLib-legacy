@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game;
@@ -110,6 +111,85 @@ namespace TinnosukeGameLib.Tests.Editor
             }
         }
 
+        [Test]
+        public void Resolve_FailsClosedWhenTypeHasNoPublicConstructor()
+        {
+            RuntimeContainerBuilder builder = new RuntimeContainerBuilder();
+            builder.Register<NonPublicConstructorService>(RuntimeLifetime.Transient);
+
+            IRuntimeResolver resolver = builder.Build();
+            try
+            {
+                InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() => resolver.Resolve<NonPublicConstructorService>());
+                Assert.That(exception.Message, Does.Contain("must expose a public constructor"));
+            }
+            finally
+            {
+                resolver.Dispose();
+            }
+        }
+
+        [Test]
+        public void GetAcquireHandlers_UsesExplicitCatalog_WhenHandlerCollectionResolutionIsDisabled()
+        {
+            RuntimeContainerBuilder builder = new RuntimeContainerBuilder();
+            CountingAcquireHandler handler = new CountingAcquireHandler();
+
+            builder.DisableHandlerCollectionResolution();
+            builder.RegisterInstance(handler).As<IScopeAcquireHandler>();
+
+            IRuntimeResolver resolver = builder.Build();
+            try
+            {
+                Assert.That(resolver.TryResolve<IReadOnlyList<IScopeAcquireHandler>>(out IReadOnlyList<IScopeAcquireHandler> handlers), Is.False);
+                Assert.That(handlers, Is.Null);
+
+                Assert.That(resolver, Is.InstanceOf<RuntimeResolver>());
+                RuntimeResolver runtimeResolver = (RuntimeResolver)resolver;
+                IScopeAcquireHandler[] explicitHandlers = runtimeResolver.GetAcquireHandlers();
+
+                Assert.That(explicitHandlers, Has.Length.EqualTo(1));
+                Assert.That(explicitHandlers[0], Is.SameAs(handler));
+            }
+            finally
+            {
+                resolver.Dispose();
+            }
+        }
+
+        [Test]
+        public void ScopeHandlerOwnershipUtility_PrefersExplicitOwnerScopeOverTransformFallback()
+        {
+            GameObject transformOwnerObject = new GameObject("handler-transform-owner");
+            GameObject explicitOwnerObject = new GameObject("handler-explicit-owner");
+            GameObject handlerObject = new GameObject("handler-component");
+            try
+            {
+                FallbackProbeScopeNode transformOwner = transformOwnerObject.AddComponent<FallbackProbeScopeNode>();
+                FallbackProbeScopeNode explicitOwner = explicitOwnerObject.AddComponent<FallbackProbeScopeNode>();
+                handlerObject.transform.SetParent(transformOwnerObject.transform, false);
+
+                ExplicitOwnerComponentHandler handler = handlerObject.AddComponent<ExplicitOwnerComponentHandler>();
+                handler.SetOwnerScope(explicitOwner);
+
+                MethodInfo shouldInvokeMethod = typeof(IScopeNode).Assembly
+                    .GetType("Game.ScopeHandlerOwnershipUtility", throwOnError: true)!
+                    .GetMethod("ShouldInvokeHandler", BindingFlags.Public | BindingFlags.Static)!;
+
+                bool usesTransformOwner = (bool)shouldInvokeMethod.Invoke(null, new object?[] { transformOwner, handler })!;
+                bool usesExplicitOwner = (bool)shouldInvokeMethod.Invoke(null, new object?[] { explicitOwner, handler })!;
+
+                Assert.That(usesTransformOwner, Is.False);
+                Assert.That(usesExplicitOwner, Is.True);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(handlerObject);
+                UnityEngine.Object.DestroyImmediate(explicitOwnerObject);
+                UnityEngine.Object.DestroyImmediate(transformOwnerObject);
+            }
+        }
+
         sealed class ExplicitService
         {
         }
@@ -128,11 +208,43 @@ namespace TinnosukeGameLib.Tests.Editor
         {
         }
 
+        sealed class NonPublicConstructorService
+        {
+            NonPublicConstructorService()
+            {
+            }
+        }
+
+        sealed class CountingAcquireHandler : IScopeAcquireHandler
+        {
+            public void OnAcquire(IScopeNode scope, bool isReset)
+            {
+                _ = scope;
+                _ = isReset;
+            }
+        }
+
+        sealed class ExplicitOwnerComponentHandler : MonoBehaviour, IScopeAcquireHandler
+        {
+            IScopeNode? _ownerScope;
+
+            public void SetOwnerScope(IScopeNode ownerScope)
+            {
+                _ownerScope = ownerScope;
+            }
+
+            public void OnAcquire(IScopeNode scope, bool isReset)
+            {
+                _ = scope;
+                _ = isReset;
+            }
+        }
+
         sealed class FallbackProbeScopeNode : MonoBehaviour, IScopeNode
         {
             public IScopeNode? Parent { get; set; }
 
-            public ILTSIdentityService? Identity { get; set; }
+            public IScopeIdentityService? Identity { get; set; }
 
             public LifetimeScopeKind Kind => LifetimeScopeKind.Runtime;
 
@@ -167,3 +279,4 @@ namespace TinnosukeGameLib.Tests.Editor
         }
     }
 }
+

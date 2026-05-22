@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5951847600716171699}
   - component: {fileID: 7469233353319400290}
   - component: {fileID: 6500543052473595091}
-  - component: {fileID: 2755351420423024498}
   - component: {fileID: 6628504365086523097}
   m_Layer: 0
   m_Name: DefaultEmitter
@@ -82,27 +81,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a10913f1437c843b3c22bc4cf2127f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeTickHub
---- !u!114 &2755351420423024498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3929354528731814569}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  useBuildCoordinator: 1
-  isBuildRoot: 0
-  autoBuildOnAwake: 0
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
 --- !u!114 &6628504365086523097
 MonoBehaviour:
   m_ObjectHideFlags: 0

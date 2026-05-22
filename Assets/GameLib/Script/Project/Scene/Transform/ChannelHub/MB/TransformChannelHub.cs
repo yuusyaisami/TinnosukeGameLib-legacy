@@ -74,7 +74,7 @@ namespace Game.TransformSystem
     }
 
     [DisallowMultipleComponent]
-    public sealed class TransformChannelHub : MonoBehaviour, IFeatureInstaller
+    public sealed class TransformChannelHub : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Debug")]
         [SerializeField, InlineProperty, HideLabel]
@@ -95,7 +95,7 @@ namespace Game.TransformSystem
 
         internal bool DebugGlobalApplyLogs => _debugGlobalApplyLogs;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<TransformChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -116,3 +116,4 @@ namespace Game.TransformSystem
         }
     }
 }
+

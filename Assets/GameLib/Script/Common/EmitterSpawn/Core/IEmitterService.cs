@@ -23,7 +23,7 @@ namespace Game.Spawn
         IScopeNode OwnerNode { get; }
 
         /// <summary>繧ｨ繝溘ャ繧ｿ繝ｼ縺ｮ隕ｪ・育函謌占・ｼ峨・ Scope・・untimeResolver 縺ｮ蝣ｴ蜷医・ null・・/summary>
-        RuntimeLifetimeScopeBase? OwnerScope { get; }
+        KernelScopeHost? OwnerScope { get; }
 
         /// <summary>SceneSpawnerRegistry</summary>
         ISceneSpawnerRegistry SpawnerRegistry { get; }
@@ -49,3 +49,4 @@ namespace Game.Spawn
         void NotifySpawnedUnit(IRuntimeResolver unitResolver, in SpawnContext context, int waveIndex);
     }
 }
+

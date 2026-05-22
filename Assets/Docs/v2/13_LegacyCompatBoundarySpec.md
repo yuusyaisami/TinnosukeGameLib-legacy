@@ -177,7 +177,7 @@ It is migration evidence, not target policy.
 | Installer discovery still uses `GetComponentsInChildren` and `Transform.parent` ownership inference. | Source | no runtime discovery and no hierarchy-derived truth |
 | Legacy scope build still caches installers and calls `InstallFeature(builder, scope)` directly. | Source | contribution-driven runtime composition |
 | Resolver fallback still uses component search and parent resolver chaining. | Source | explicit `ServiceGraph` and no resolver fallback |
-| `CommandRunnerMB` still performs bulk executor, service, and lifecycle registration in one installer. | Source | explicit command and lifecycle contribution pipeline |
+| `CommandRunnerAuthoring` preserves serialized runner defaults and debug intent while `CommandRunnerMB` still performs bulk executor, service, and lifecycle registration in one installer. | Source | explicit command and lifecycle contribution pipeline |
 | `VarIdResolver` still creates runtime-only negative IDs for unresolved stable keys. | Source | verified `ValueKeyId` mapping and no runtime ID invention |
 | `VarKeyRegistryLocator` still uses `Resources.Load` and runtime-created fallback registry instances. | Source | verified boot input and no runtime asset fallback |
 | `BlackboardMB` still mixes installer mutation, acquire/release participation, init, debug, and transform auto-write. | Source | split authoring, value init, lifecycle, and diagnostics responsibilities |
@@ -188,8 +188,10 @@ It is migration evidence, not target policy.
 - [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - caches owned installers and invokes `InstallFeature(builder, this)` during build
 - [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - falls back to `GetComponent`, `GetComponentInChildren`, and `_parentResolver`
 - [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk-registers many `ICommandExecutor` implementations plus lifecycle-related services
+- [CommandRunnerAuthoring.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - serialized command-runner defaults and debug-view authoring surface
 - [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) - allocates runtime-only negative IDs for unresolved stable keys
 - [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) - uses `Resources.Load` and creates runtime fallback registry instances
+- [BlackboardAuthoring.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - explicit declaration surface for local init, grid init, debug metadata, and transform-write intent
 - [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - combines `IFeatureInstaller`, acquire/release hooks, init logic, debug-view wiring, and transform auto-write
 
 ### Current Gaps
@@ -549,6 +551,7 @@ Forbidden:
 - using legacy command authoring key lookup as runtime dispatch truth
 - falling back from missing `CommandTypeId` to legacy command key resolver
 
+`CommandRunnerAuthoring` may remain as a migration-facing declaration surface inside the compatibility boundary.
 `CommandRunnerMB` may remain only as migration source or legacy-facing facade inside the compatibility boundary.
 It is not a target runtime registrar.
 
@@ -562,7 +565,7 @@ Current evidence:
 
 - [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) allocates runtime-only negative IDs for unresolved stable keys
 - [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) uses `Resources.Load` and runtime-created fallback registry instances
-- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) mixes installer mutation, init, lifecycle, and debug responsibilities
+- [BlackboardAuthoring.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) carries the declaration surface while [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) mixes installer mutation, init, lifecycle, and debug responsibilities
 
 Forbidden in target paths:
 

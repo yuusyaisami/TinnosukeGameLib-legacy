@@ -5,7 +5,7 @@ using Game.Times;
 
 namespace Game.DI
 {
-    public sealed class RuntimeScopeIdentityService : ILTSIdentityService
+    public sealed class RuntimeScopeIdentityService : IScopeIdentityService
     {
         public LifetimeScopeKind Kind { get; private set; } = LifetimeScopeKind.Runtime;
         public string Id { get; private set; } = "";
@@ -27,3 +27,4 @@ namespace Game.DI
         }
     }
 }
+

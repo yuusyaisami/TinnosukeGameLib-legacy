@@ -96,7 +96,7 @@ namespace Game.Spawn
         sealed class PreviewScopeNode : IScopeNode
         {
             public IScopeNode? Parent => null;
-            public ILTSIdentityService? Identity => null;
+            public IScopeIdentityService? Identity => null;
             public LifetimeScopeKind Kind => LifetimeScopeKind.None;
             public IRuntimeResolver? Resolver => null;
             public bool IsVisible => true;
@@ -110,3 +110,4 @@ namespace Game.Spawn
 #endif
     }
 }
+

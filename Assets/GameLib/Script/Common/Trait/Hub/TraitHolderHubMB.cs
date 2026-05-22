@@ -7,7 +7,7 @@ using VContainer;
 namespace Game.Trait
 {
     [DisallowMultipleComponent]
-    public sealed class TraitHolderHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class TraitHolderHubMB : MonoBehaviour, IScopeInstaller
     {
         [Tooltip("Configure holders here. External systems must obtain ITraitHolderService via the hub with a key.")]
         [SerializeField]
@@ -20,7 +20,7 @@ namespace Game.Trait
 
         public ITraitHolderHubService? Hub => _hub;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var holderCount = _holders?.Count ?? 0;
             var settings = new List<TraitHolderSettings>(holderCount);
@@ -58,3 +58,4 @@ namespace Game.Trait
         }
     }
 }
+

@@ -200,7 +200,9 @@ When this document is updated, observations that no longer match the current cod
 - [ScopeLifecycleMB.cs](../../GameLib/Script/Common/LTS/Lifecycle/MB/ScopeLifecycleMB.cs) - installer mutation that enrolls lifecycle behavior through handler interfaces
 - [ScopeLifecycleService.cs](../../GameLib/Script/Common/LTS/Lifecycle/Service/ScopeLifecycleService.cs) - fire-and-forget `UniTask.Void`, command fallback, and value fallback in lifecycle logic
 - [RuntimeScopeLifecycleService.cs](../../GameLib/Script/Common/LTS/Lifecycle/Service/RuntimeScopeLifecycleService.cs) - async despawn from tick, parent traversal for command runner lookup, and runtime key fallback
-- [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) - representative mixed acquire, tick, query, camera fallback, and runtime object ownership service
+- [AnimationSpriteHubAuthoring.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubAuthoring.cs) - explicit declaration surface that validates sprite-animation channel wiring before lifecycle enrollment
+- [AnimationSpriteHubMB.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubMB.cs) - migration adapter that validates authoring input before lifecycle registration
+- [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) - representative mixed acquire, tick, query, explicit camera lookup, and runtime object ownership service
 - [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) - representative hub-owned player runtime lifecycle service
 - [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) - representative hub service that mixes lifecycle, provider contracts, and runtime player ownership
 

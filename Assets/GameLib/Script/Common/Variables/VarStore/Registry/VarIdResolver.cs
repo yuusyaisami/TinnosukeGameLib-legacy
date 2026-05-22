@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Common;
 using Game.VarStoreKeys;
 using UnityEngine;
 
@@ -32,13 +33,18 @@ public static class VarIdResolver
     const bool EnableRegistryDiagnostics = false;
 #endif
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetStatics()
+    internal static void ClearCachedResolutions()
     {
         lock (Gate)
         {
             s_positiveCache.Clear();
         }
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics()
+    {
+        ClearCachedResolutions();
     }
 
     public static bool TryResolve(string stableKeyOrAlias, out int varId)
@@ -57,11 +63,30 @@ public static class VarIdResolver
             return false;
         }
 
-        // Fast path: return cached positive resolution to avoid repeated registry lookups.
-        if (s_positiveCache.TryGetValue(stableKeyOrAlias, out var cached) && cached > 0)
+        if (VerifiedValueRuntimeBridge.TryGetSession(out IVerifiedValueRuntimeSession? verifiedSession) && verifiedSession != null)
         {
-            varId = cached;
-            return true;
+            if (verifiedSession.TryResolveValueKey(stableKeyOrAlias, out varId) && varId > 0)
+            {
+                lock (Gate)
+                {
+                    s_positiveCache[stableKeyOrAlias] = varId;
+                }
+
+                return true;
+            }
+
+            varId = 0;
+            failureReason = VarIdResolutionFailureReason.StableKeyNotFound;
+            return false;
+        }
+
+        lock (Gate)
+        {
+            if (s_positiveCache.TryGetValue(stableKeyOrAlias, out int cached) && cached > 0)
+            {
+                varId = cached;
+                return true;
+            }
         }
 
         bool hasRegistry = VarKeyRegistryLocator.TryGetExplicitRegistry(out var registry) && registry != null;
@@ -87,6 +112,9 @@ public static class VarIdResolver
         if (varId == 0)
             return false;
 
+        if (VerifiedValueRuntimeBridge.TryGetSession(out IVerifiedValueRuntimeSession? verifiedSession) && verifiedSession != null)
+            return verifiedSession.TryGetStableKey(varId, out stableKey);
+
         if (VarKeyRegistryLocator.TryGetExplicitRegistry(out var registry) && registry != null && registry.TryGetStableKey(varId, out stableKey) && !string.IsNullOrEmpty(stableKey))
             return true;
 
@@ -99,8 +127,11 @@ public static class VarIdResolver
         if (varId == 0)
             return null;
 
-        if (VarKeyRegistryLocator.TryGetExplicitRegistry(out var registry) && registry != null && registry.TryGetStableKey(varId, out var stableKey) && !string.IsNullOrEmpty(stableKey))
-            return stableKey;
+        if (VerifiedValueRuntimeBridge.TryGetSession(out IVerifiedValueRuntimeSession? verifiedSession) && verifiedSession != null)
+            return verifiedSession.TryGetStableKey(varId, out string verifiedStableKey) ? verifiedStableKey : null;
+
+        if (VarKeyRegistryLocator.TryGetExplicitRegistry(out var registry) && registry != null && registry.TryGetStableKey(varId, out var registryStableKey) && !string.IsNullOrEmpty(registryStableKey))
+            return registryStableKey;
 
         return null;
     }

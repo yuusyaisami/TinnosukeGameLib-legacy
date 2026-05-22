@@ -257,35 +257,9 @@ namespace Game.MapNode
             if (resolver == null)
                 return;
 
-            await UniTask.SwitchToMainThread();
-
             try
             {
-                if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
-                {
-                    if (runtimeScope.Resolver != null &&
-                        runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                        pool != null)
-                    {
-                        pool.Release(runtimeScope);
-                        return;
-                    }
-
-                    if (root != null)
-                        UnityEngine.Object.Destroy(root.gameObject);
-                    else
-                        UnityEngine.Object.Destroy(runtimeScope.gameObject);
-                    return;
-                }
-
-                if (scope is BaseLifetimeScope baseScope)
-                {
-                    await baseScope.DespawnAsync(CancellationToken.None);
-                    return;
-                }
-
-                if (root != null)
-                    UnityEngine.Object.Destroy(root.gameObject);
+                await ScopeFeatureInstallerUtility.ReleaseSpawnedLifetimeAsync(resolver, CancellationToken.None);
             }
             catch (Exception ex)
             {

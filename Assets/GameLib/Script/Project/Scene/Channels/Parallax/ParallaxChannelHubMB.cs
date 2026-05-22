@@ -9,7 +9,7 @@ using VContainer.Unity;
 namespace Game.Channel
 {
     [DisallowMultipleComponent]
-    public sealed class ParallaxChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ParallaxChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Hub")]
         [LabelText("Run In LateUpdate")]
@@ -23,7 +23,7 @@ namespace Game.Channel
         [SerializeField, InlineProperty, HideLabel]
         ParallaxChannelHubDebugViewer debugViewer = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (channels == null)
                 channels = Array.Empty<ParallaxChannelDef>();
@@ -64,3 +64,4 @@ namespace Game.Channel
 #endif
     }
 }
+

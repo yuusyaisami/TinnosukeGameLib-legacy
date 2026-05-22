@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -46,7 +46,7 @@ namespace Game.Commands
     }
 
     [DisallowMultipleComponent]
-    public sealed class CommandListChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CommandListChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
@@ -56,7 +56,7 @@ namespace Game.Commands
 
         public IReadOnlyList<CommandListChannelDefinition> Channels => _channels;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<CommandListChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -68,3 +68,4 @@ namespace Game.Commands
         }
     }
 }
+

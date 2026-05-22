@@ -259,6 +259,14 @@ namespace Game.Common
             if (bb == null || varId == 0)
                 return false;
 
+            if (readScope == BlackboardReadScope.Global && VerifiedValueRuntimeBridge.IsActive)
+            {
+                VerifiedValueAccessDiagnostics.ReportBlockedAccessOnce(
+                    "DynamicValueResolver.TryGetVariant.Global",
+                    "Wave D verified value authority blocked DynamicValueResolver global blackboard read. DynamicValue global traversal must migrate to verified value authority.");
+                return false;
+            }
+
             return readScope == BlackboardReadScope.Global
                 ? bb.TryGlobalGetVariant(varId, out value)
                 : bb.TryLocalGetVariant(varId, out value);
@@ -269,6 +277,14 @@ namespace Game.Common
             value = null;
             if (bb == null || varId == 0)
                 return false;
+
+            if (readScope == BlackboardReadScope.Global && VerifiedValueRuntimeBridge.IsActive)
+            {
+                VerifiedValueAccessDiagnostics.ReportBlockedAccessOnce(
+                    "DynamicValueResolver.TryGetManagedRef.Global",
+                    "Wave D verified value authority blocked DynamicValueResolver global managed-ref traversal. DynamicValue global traversal must migrate to verified value authority.");
+                return false;
+            }
 
             if (readScope == BlackboardReadScope.Local)
             {

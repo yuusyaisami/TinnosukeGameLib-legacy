@@ -15,7 +15,7 @@ using UnityEditor;
 namespace Game.Channel
 {
     [DisallowMultipleComponent]
-    public sealed class TransformAnimationHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class TransformAnimationHubMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField]
         TransformChannelDef[] channels = Array.Empty<TransformChannelDef>();
@@ -37,7 +37,7 @@ namespace Game.Channel
 
         /// <summary>
         /// Awake で初期 Transform 設定を即座に適用、E
-        /// DI 完亁E��に実行されるため、E frame の遁E��なぁETransform を設定できる、E
+        /// DI 完亁E��に実行されるため、E frame の遁E��なぁETransform を設定できる、E
         /// </summary>
         void Awake()
         {
@@ -55,7 +55,7 @@ namespace Game.Channel
         }
 
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (channels != null)
             {
@@ -358,3 +358,4 @@ namespace Game.Channel
 #endif
     }
 }
+

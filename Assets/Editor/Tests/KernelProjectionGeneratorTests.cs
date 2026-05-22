@@ -495,9 +495,8 @@ namespace TinnosukeGameLib.Tests.Editor
                         new LifecycleTargetRefIR(new ServiceId(100)),
                         LifecycleActionKind.ServiceMethod,
                         new[] { new DependencyEdgeId(9001) },
-                    new SourceLocationId(5),
-                    LifecycleFailurePolicy.FailScope);
-        }
+                        new SourceLocationId(26)),
+                }
                 : new[]
                 {
                     new LifecycleStepIR(
@@ -518,36 +517,37 @@ namespace TinnosukeGameLib.Tests.Editor
                         new SourceLocationId(27)),
                 };
 
-LifecycleIR lifecycle = new LifecycleIR(
-    new LifecyclePlanId(500),
-    "RootLifecycle",
-    new ModuleId(10),
-    lifecycleSteps,
-    new SourceLocationId(28));
+            LifecycleIR lifecycle = new LifecycleIR(
+                new LifecyclePlanId(500),
+                "RootLifecycle",
+                new ModuleId(10),
+                lifecycleSteps,
+                new SourceLocationId(28),
+                LifecycleFailurePolicy.FailScope);
 
-RuntimeIdentityFieldIR[] runtimeQueryFields = reverseNestedOrder
-    ? new[]
-    {
+            RuntimeIdentityFieldIR[] runtimeQueryFields = reverseNestedOrder
+                ? new[]
+                {
                     new RuntimeIdentityFieldIR("name", "string", true),
                     new RuntimeIdentityFieldIR("id", "int", true),
-    }
-    : new[]
-    {
+                }
+                : new[]
+                {
                     new RuntimeIdentityFieldIR("id", "int", true),
                     new RuntimeIdentityFieldIR("name", "string", true),
-    };
+                };
 
-RuntimeQueryIR runtimeQuery = new RuntimeQueryIR(
-    new RuntimeQueryId(400),
-    "RuntimeQuery400",
-    RuntimeQueryTargetKind.Service,
-    runtimeQueryFields,
-    new RuntimeQueryPolicyIR(true, false, DependencyPhase.Runtime),
-    new ModuleId(10),
-    new SourceLocationId(29));
+            RuntimeQueryIR runtimeQuery = new RuntimeQueryIR(
+                new RuntimeQueryId(400),
+                "RuntimeQuery400",
+                RuntimeQueryTargetKind.Service,
+                runtimeQueryFields,
+                new RuntimeQueryPolicyIR(true, false, DependencyPhase.Runtime),
+                new ModuleId(10),
+                new SourceLocationId(29));
 
-DependencyEdgeIR[] dependencies = new[]
-{
+            DependencyEdgeIR[] dependencies = new[]
+            {
                 new DependencyEdgeIR(
                     new DependencyEdgeId(9001),
                     new DependencyNodeIR(new ServiceId(100)),
@@ -566,8 +566,8 @@ DependencyEdgeIR[] dependencies = new[]
                     new SourceLocationId(25)),
             };
 
-SourceLocationTable sources = new SourceLocationTable(new[]
-{
+            SourceLocationTable sources = new SourceLocationTable(new[]
+            {
                 new SourceLocationIR(new GeneratedSourceLocation("Test", "KernelIR", "Module")),
                 new SourceLocationIR(new GeneratedSourceLocation("Test", "KernelIR", "Service100")),
                 new SourceLocationIR(new GeneratedSourceLocation("Test", "KernelIR", "Service110")),
@@ -599,71 +599,71 @@ SourceLocationTable sources = new SourceLocationTable(new[]
                 new SourceLocationIR(new GeneratedSourceLocation("Test", "KernelIR", "Extra29")),
             });
 
-KernelIRHeader header = new KernelIRHeader(
-    "DOC",
-    1,
-    "TestProject",
-    "Development",
-    "1.0.0",
-    new Hash128(1, 2, 3, 4),
-    new Hash128(5, 6, 7, 8));
+            KernelIRHeader header = new KernelIRHeader(
+                "DOC",
+                1,
+                "TestProject",
+                "Development",
+                "1.0.0",
+                new Hash128(1, 2, 3, 4),
+                new Hash128(5, 6, 7, 8));
 
-KernelProfileIR profile = new KernelProfileIR("Development", profileMask, new AvailabilityIR(KernelProfileMask.All, true, null));
+            KernelProfileIR profile = new KernelProfileIR("Development", profileMask, new AvailabilityIR(KernelProfileMask.All, true, null));
 
-return new KernelIR(
-    header,
-    profile,
-    new[] { module },
-    new[] { scope },
-    new[] { service100, service110 },
-    new[] { command },
-    valueKeys,
-    new[] { lifecycle },
-    new[] { runtimeQuery },
-    dependencies,
-    sources,
-    diagnosticSeeds);
+            return new KernelIR(
+                header,
+                profile,
+                new[] { module },
+                new[] { scope },
+                new[] { service100, service110 },
+                new[] { command },
+                valueKeys,
+                new[] { lifecycle },
+                new[] { runtimeQuery },
+                dependencies,
+                sources,
+                diagnosticSeeds);
         }
 
         static bool ContainsDiagnosticSeedEntry(ReadOnlySpan<KernelDebugMapEntry> entries, string seedKey, string debugName, int ownerModuleId, int sourceId)
-{
-    for (int i = 0; i < entries.Length; i++)
-    {
-        KernelDebugMapEntry entry = entries[i];
-        if (entry.Identity.Kind != RuntimeIdentityKind.DiagnosticSeed)
-            continue;
-
-        if (string.Equals(entry.Name, debugName, StringComparison.Ordinal)
-            && string.Equals(entry.DiagnosticSeedKey, seedKey, StringComparison.Ordinal)
-            && entry.LegacyOrigin == null
-            && entry.OwnerModule.Value == ownerModuleId
-            && entry.Source.Value == sourceId)
         {
-            return true;
+            for (int i = 0; i < entries.Length; i++)
+            {
+                KernelDebugMapEntry entry = entries[i];
+                if (entry.Identity.Kind != RuntimeIdentityKind.DiagnosticSeed)
+                    continue;
+
+                if (string.Equals(entry.Name, debugName, StringComparison.Ordinal)
+                    && string.Equals(entry.DiagnosticSeedKey, seedKey, StringComparison.Ordinal)
+                    && entry.LegacyOrigin == null
+                    && entry.OwnerModule.Value == ownerModuleId
+                    && entry.Source.Value == sourceId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
-    }
 
-    return false;
-}
-
-static bool ContainsRuntimeIdentityEntry(ReadOnlySpan<KernelDebugMapEntry> entries, RuntimeIdentityKind kind, int value, string name, int ownerModuleId, int sourceId)
-{
-    for (int i = 0; i < entries.Length; i++)
-    {
-        KernelDebugMapEntry entry = entries[i];
-        if (entry.Identity.Kind != kind)
-            continue;
-
-        if (entry.Identity.Value == value
-            && string.Equals(entry.Name, name, StringComparison.Ordinal)
-            && entry.OwnerModule.Value == ownerModuleId
-            && entry.Source.Value == sourceId)
+        static bool ContainsRuntimeIdentityEntry(ReadOnlySpan<KernelDebugMapEntry> entries, RuntimeIdentityKind kind, int value, string name, int ownerModuleId, int sourceId)
         {
-            return true;
-        }
-    }
+            for (int i = 0; i < entries.Length; i++)
+            {
+                KernelDebugMapEntry entry = entries[i];
+                if (entry.Identity.Kind != kind)
+                    continue;
 
-    return false;
-}
+                if (entry.Identity.Value == value
+                    && string.Equals(entry.Name, name, StringComparison.Ordinal)
+                    && entry.OwnerModule.Value == ownerModuleId
+                    && entry.Source.Value == sourceId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

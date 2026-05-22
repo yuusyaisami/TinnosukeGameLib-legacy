@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -7,7 +7,7 @@ using VContainer.Unity;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class UIScrollBarMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UIScrollBarMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Scene")]
         [LabelText("Track Rect")]
@@ -29,7 +29,7 @@ namespace Game.UI
         public RectTransform? HandleRect => _handleRect;
         public GameObject? VisibilityRoot => _visibilityRoot != null ? _visibilityRoot : gameObject;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<UIScrollBarBindingService>(RuntimeLifetime.Singleton)
                 .WithParameter(this)
@@ -100,3 +100,4 @@ namespace Game.UI
         }
     }
 }
+

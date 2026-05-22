@@ -153,14 +153,7 @@ namespace Game.Commands.VNext
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
 
         static async UniTask<Transform?> ResolveTransformParentFromActorSourceAsync(ActorSource source, CommandContext ctx, CancellationToken ct)
@@ -177,7 +170,7 @@ namespace Game.Commands.VNext
         }
 
         static async UniTask ExecuteOnPlacedCommandsAsync(
-            RuntimeLifetimeScope runtimeScope,
+            KernelScopeHost runtimeScope,
             ITraitInstance traitInstance,
             CommandContext sourceContext,
             CommandListData commands)
@@ -247,7 +240,7 @@ namespace Game.Commands.VNext
 #endif
         }
 
-        static bool TryApplyFinalPlacementCorrection(RuntimeLifetimeScope runtimeScope)
+        static bool TryApplyFinalPlacementCorrection(KernelScopeHost runtimeScope)
         {
             if (runtimeScope == null)
                 return true;
@@ -282,7 +275,7 @@ namespace Game.Commands.VNext
         }
 
         static void ResolvePlacementTransforms(
-            RuntimeLifetimeScope runtimeScope,
+            KernelScopeHost runtimeScope,
             UserMoveRotateRuntimeMB editor,
             out Transform moveTransform,
             out Transform rotateTransform)
@@ -296,7 +289,7 @@ namespace Game.Commands.VNext
                 : rootTransform;
         }
 
-        static Transform ResolveRootTransform(RuntimeLifetimeScope runtimeScope)
+        static Transform ResolveRootTransform(KernelScopeHost runtimeScope)
         {
             return runtimeScope.Identity?.SelfTransform != null
                 ? runtimeScope.Identity.SelfTransform
@@ -336,3 +329,5 @@ namespace Game.Commands.VNext
 #endif
     }
 }
+
+

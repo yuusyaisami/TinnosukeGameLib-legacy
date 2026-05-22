@@ -5,6 +5,7 @@
 - [Expression Functions](ExpressionFunctions.md)
 - [RichText](RichText.md)
 - [Kernel v2 Specs](v2/README.md)
+- [Kernel v2.3 Specs](v2.3/README.md)
 
 Expression と RichText は同じ Expression エンジンを共有しています。Expression から先に読むと、RichText の `cond` や式プレースホルダが分かりやすくなります。
 

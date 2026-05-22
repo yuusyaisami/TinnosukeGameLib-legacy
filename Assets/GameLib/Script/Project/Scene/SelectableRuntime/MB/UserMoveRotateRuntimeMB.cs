@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System.Collections.Generic;
 using Game;
 using Game.Channel;
@@ -19,7 +19,7 @@ namespace Game.SelectRuntime
     }
 
     [DisallowMultipleComponent]
-    public sealed class UserMoveRotateRuntimeMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UserMoveRotateRuntimeMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Target")]
         [LabelText("Pointer Target")]
@@ -251,7 +251,7 @@ namespace Game.SelectRuntime
             NotifyBridgeRefresh();
         }
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<UserMoveRotateRuntimeBridgeService>(RuntimeLifetime.Singleton)
                 .As<IScopeAcquireHandler>()
@@ -278,3 +278,4 @@ namespace Game.SelectRuntime
         }
     }
 }
+

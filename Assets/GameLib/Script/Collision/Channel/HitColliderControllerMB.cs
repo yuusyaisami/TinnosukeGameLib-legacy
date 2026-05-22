@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game;
@@ -32,7 +32,7 @@ namespace Game.Collision
 
     [DisallowMultipleComponent]
     [RequireComponent(typeof(HitColliderChannelHubMB))]
-    public sealed class HitColliderControllerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class HitColliderControllerMB : MonoBehaviour, IScopeInstaller
     {
         [Header("Self")]
         [SerializeField]
@@ -79,7 +79,7 @@ namespace Game.Collision
         }
 #endif
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<HitColliderControllerService>(RuntimeLifetime.Singleton)
                 .AsSelf()
@@ -516,3 +516,4 @@ namespace Game.Collision
         }
     }
 }
+

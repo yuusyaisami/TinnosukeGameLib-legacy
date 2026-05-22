@@ -8,7 +8,6 @@ namespace Game.Commands.VNext
         public readonly CommandFailureBoundary FailureBoundary;
         public readonly CommandExecutionDomain ExecutionDomain;
         public readonly bool AllowActorFallback;
-        public readonly bool AllowRuntimeKeyFallback;
         public readonly CommandTracePolicy TracePolicy;
         public readonly int MaxTraceDepth;
         public readonly int MaxTraceFrames;
@@ -20,7 +19,6 @@ namespace Game.Commands.VNext
         public CommandRunOptions(
             CommandFailurePolicy failurePolicy,
             bool allowActorFallback,
-            bool allowRuntimeKeyFallback,
             CommandTracePolicy tracePolicy,
             int maxTraceDepth,
             int maxTraceFrames,
@@ -30,7 +28,6 @@ namespace Game.Commands.VNext
                 CommandFailureBoundary.FailFrame,
                 CommandExecutionDomain.Project,
                 allowActorFallback,
-                allowRuntimeKeyFallback,
                 tracePolicy,
                 maxTraceDepth,
                 maxTraceFrames,
@@ -46,7 +43,6 @@ namespace Game.Commands.VNext
             CommandFailureBoundary failureBoundary,
             CommandExecutionDomain executionDomain,
             bool allowActorFallback,
-            bool allowRuntimeKeyFallback,
             CommandTracePolicy tracePolicy,
             int maxTraceDepth,
             int maxTraceFrames,
@@ -59,7 +55,6 @@ namespace Game.Commands.VNext
             FailureBoundary = failureBoundary == default ? CommandFailureBoundary.FailFrame : failureBoundary;
             ExecutionDomain = executionDomain == default ? CommandExecutionDomain.Project : executionDomain;
             AllowActorFallback = allowActorFallback;
-            AllowRuntimeKeyFallback = allowRuntimeKeyFallback;
             TracePolicy = tracePolicy;
             MaxTraceDepth = maxTraceDepth;
             MaxTraceFrames = maxTraceFrames;
@@ -76,7 +71,6 @@ namespace Game.Commands.VNext
                 CommandFailureBoundary.FailFrame,
                 CommandExecutionDomain.Project,
             allowActorFallback: false,
-            allowRuntimeKeyFallback: false,
             CommandTracePolicy.OnFailure,
             maxTraceDepth: 32,
             maxTraceFrames: 256,
@@ -106,7 +100,6 @@ namespace Game.Commands.VNext
                 FailureBoundary,
                 ExecutionDomain,
                 AllowActorFallback,
-                AllowRuntimeKeyFallback,
                 TracePolicy,
                 MaxTraceDepth,
                 MaxTraceFrames,
@@ -123,7 +116,6 @@ namespace Game.Commands.VNext
                 FailureBoundary,
                 ExecutionDomain,
                 AllowActorFallback,
-                AllowRuntimeKeyFallback,
                 TracePolicy,
                 MaxTraceDepth,
                 MaxTraceFrames,
@@ -140,7 +132,6 @@ namespace Game.Commands.VNext
                 failureBoundary,
                 executionDomain,
                 AllowActorFallback,
-                AllowRuntimeKeyFallback,
                 TracePolicy,
                 MaxTraceDepth,
                 MaxTraceFrames,

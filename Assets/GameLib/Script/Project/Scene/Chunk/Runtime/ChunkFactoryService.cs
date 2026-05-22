@@ -77,10 +77,10 @@ namespace Game.Chunk
             if (resolver == null)
                 return null;
 
-            ExtractSpawnedInfo(resolver, out var root, out var scopeNode, out var runtimeScope, out var baseScope);
+            var lifetime = ScopeFeatureInstallerUtility.CaptureSpawnedLifetime(resolver);
+            var handle = new ChunkHandle(context.Coord, context.WorldBounds, lifetime);
 
-            var handle = new ChunkHandle(context.Coord, context.WorldBounds, scopeNode, runtimeScope, baseScope, root, resolver);
-
+            var scopeNode = handle.ScopeNode;
             if (scopeNode?.Resolver != null && scopeNode.Resolver.TryResolve<IChunkAdapter>(out var adapter) && adapter != null)
             {
                 try
@@ -106,59 +106,16 @@ namespace Game.Chunk
             if (handle == null)
                 return;
 
-            await UniTask.SwitchToMainThread();
-
             try
             {
-                if (handle.RuntimeScope != null)
-                {
-                    try
-                    {
-                        if (handle.RuntimeScope.Resolver != null &&
-                            handle.RuntimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                            pool != null)
-                        {
-                            pool.Release(handle.RuntimeScope);
-                            return;
-                        }
-                    }
-                    catch (Exception ex)
+                await ScopeFeatureInstallerUtility.ReleaseSpawnedLifetimeAsync(
+                    handle.Resolver,
+                    ct,
+                    ex =>
                     {
                         Debug.LogWarning($"[ChunkFactoryService] Pool release failed: {ex.Message}");
                         Debug.LogException(ex);
-                    }
-
-                    if (handle.Root != null)
-                    {
-                        try { UnityEngine.Object.Destroy(handle.Root); } catch (Exception ex) { Debug.LogException(ex); }
-                    }
-                    else
-                    {
-                        try { UnityEngine.Object.Destroy(handle.RuntimeScope.gameObject); } catch (Exception ex) { Debug.LogException(ex); }
-                    }
-
-                    return;
-                }
-
-                if (handle.BaseScope != null)
-                {
-                    try
-                    {
-                        await handle.BaseScope.DespawnAsync(CancellationToken.None);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"[ChunkFactoryService] Despawn failed: {ex.Message}");
-                        Debug.LogException(ex);
-                    }
-
-                    return;
-                }
-
-                if (handle.Root != null)
-                {
-                    try { UnityEngine.Object.Destroy(handle.Root); } catch (Exception ex) { Debug.LogException(ex); }
-                }
+                    });
             }
             catch (Exception ex)
             {
@@ -180,52 +137,5 @@ namespace Game.Chunk
             return new Vector3(center.x, center.y, 0f);
         }
 
-        static void ExtractSpawnedInfo(
-            IRuntimeResolver? resolver,
-            out GameObject? root,
-            out IScopeNode? scopeNode,
-            out RuntimeLifetimeScope? runtimeScope,
-            out BaseLifetimeScope? baseScope)
-        {
-            root = null;
-            scopeNode = null;
-            runtimeScope = null;
-            baseScope = null;
-
-            if (resolver == null)
-                return;
-
-            resolver.TryResolve(out runtimeScope);
-
-            if (runtimeScope != null)
-                root = runtimeScope.gameObject;
-
-            if (root == null)
-            {
-                if (resolver.TryResolve<Transform>(out var tr) && tr != null)
-                    root = tr.gameObject;
-                else if (resolver.TryResolve<GameObject>(out var go) && go != null)
-                    root = go;
-            }
-
-            scopeNode = runtimeScope;
-            if (scopeNode == null && resolver.TryResolve<IScopeNode>(out var resolved) && resolved != null)
-                scopeNode = resolved;
-
-            if (scopeNode == null && root != null)
-            {
-                var comps = root.GetComponents<Component>();
-                for (int i = 0; i < comps.Length; i++)
-                {
-                    if (comps[i] is IScopeNode n)
-                    {
-                        scopeNode = n;
-                        break;
-                    }
-                }
-            }
-
-            baseScope = scopeNode as BaseLifetimeScope;
-        }
     }
 }

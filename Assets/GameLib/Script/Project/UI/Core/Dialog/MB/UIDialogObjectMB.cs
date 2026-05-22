@@ -7,14 +7,14 @@ using VContainer;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class UIDialogObjectMB : MonoBehaviour, Game.IFeatureInstaller
+    public sealed class UIDialogObjectMB : MonoBehaviour, Game.IScopeInstaller
     {
         [BoxGroup("Options")]
         [InlineProperty, HideLabel]
         [SerializeField]
         UIDialogObjectOptions options = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, Game.IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, Game.IScopeNode scope)
         {
             options ??= new UIDialogObjectOptions();
             builder.RegisterInstance(options);
@@ -32,4 +32,5 @@ namespace Game.UI
 #endif
     }
 }
+
 

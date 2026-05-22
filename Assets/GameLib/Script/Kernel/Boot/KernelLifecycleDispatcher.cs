@@ -253,7 +253,8 @@ namespace Game.Kernel.Boot
                 if (allowAcquireRollback && step.Phase == LifecyclePhase.Acquire && succeededStepCount > 0 && step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
                 {
                     rollbackResult = RollbackCompletedAcquireSteps(steps, succeededStepCount, executor);
-                    diagnosticService?.Report(in CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult));
+                    KernelDiagnostic partialAcquireFailureDiagnostic = CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult);
+                    diagnosticService?.Report(in partialAcquireFailureDiagnostic);
                 }
 
                 if (step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
@@ -310,7 +311,8 @@ namespace Game.Kernel.Boot
                     if (allowAcquireRollback && step.Phase == LifecyclePhase.Acquire && succeededStepCount > 0 && step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
                     {
                         rollbackResult = RollbackCompletedAcquireSteps(steps, succeededStepCount, executor);
-                        diagnosticService?.Report(in CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult));
+                        KernelDiagnostic partialAcquireFailureDiagnostic = CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult);
+                        diagnosticService?.Report(in partialAcquireFailureDiagnostic);
                     }
 
                     if (step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
@@ -358,7 +360,8 @@ namespace Game.Kernel.Boot
                     if (allowAcquireRollback && step.Phase == LifecyclePhase.Acquire && succeededStepCount > 0 && step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
                     {
                         rollbackResult = RollbackCompletedAcquireSteps(steps, succeededStepCount, executor);
-                        diagnosticService?.Report(in CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult));
+                        KernelDiagnostic partialAcquireFailureDiagnostic = CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult);
+                        diagnosticService?.Report(in partialAcquireFailureDiagnostic);
                     }
 
                     if (step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)

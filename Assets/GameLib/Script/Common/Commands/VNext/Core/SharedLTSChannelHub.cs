@@ -400,7 +400,7 @@ namespace Game.Commands.VNext
             return scope is Component component && !component;
         }
 
-        static string BuildScopeLabel(IScopeNode scope, bool isDestroyed, ILTSIdentityService? identity, string scopeKind)
+        static string BuildScopeLabel(IScopeNode scope, bool isDestroyed, IScopeIdentityService? identity, string scopeKind)
         {
             if (isDestroyed)
                 return "Destroyed";
@@ -466,3 +466,4 @@ namespace Game.Commands.VNext
         }
     }
 }
+

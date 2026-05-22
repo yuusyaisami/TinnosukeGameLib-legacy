@@ -9,7 +9,7 @@ using System;
 namespace Game.Scalar
 {
     [DisallowMultipleComponent]
-    public class BaseScalarMB : MonoBehaviour, IFeatureInstaller
+    public class BaseScalarMB : MonoBehaviour
     {
         [FoldoutGroup("Debug")]
         [LabelText("Enable Debug View")]
@@ -24,8 +24,11 @@ namespace Game.Scalar
         // Whether the debug view has been initialized via DI injection or Start fallback
         bool _debugInitialized = false;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScalarRuntime(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
+            _ = builder ?? throw new ArgumentNullException(nameof(builder));
+            _ = owner ?? throw new ArgumentNullException(nameof(owner));
+
             _owner = owner;
 
             // No baseline/init pipeline here. If you need initial values, use ProfileRegistry.
@@ -127,11 +130,12 @@ namespace Game.Scalar
                            .As<IScopeTickHandler>();
                     break;
             }
-            ExtraInstallFeature(builder, owner);
+            ExtraInstallScalarRuntime(builder, owner);
         }
-        protected virtual void ExtraInstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+
+        protected virtual void ExtraInstallScalarRuntime(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
-            // 継承先で追加の登録を行う場合にオーバ�EライドすめE
+            // 継承先で追加の登録を行う場合にオーバ�EライドすめE
         }
 
         [Inject]

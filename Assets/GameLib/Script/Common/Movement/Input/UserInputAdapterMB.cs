@@ -9,7 +9,7 @@ using VNext = Game.Commands.VNext;
 
 namespace Game.Movement
 {
-    public sealed class UserInputAdapterMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UserInputAdapterMB : MonoBehaviour, IScopeInstaller
     {
         [FoldoutGroup("Adapter")]
         [SerializeField]
@@ -37,7 +37,7 @@ namespace Game.Movement
         InputDirectionDebugView _debugView = new InputDirectionDebugView();
 
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var sources = BuildSources();
             builder.Register<UserInputAdapter>(RuntimeLifetime.Singleton)
@@ -101,3 +101,4 @@ namespace Game.Movement
         }
     }
 }
+

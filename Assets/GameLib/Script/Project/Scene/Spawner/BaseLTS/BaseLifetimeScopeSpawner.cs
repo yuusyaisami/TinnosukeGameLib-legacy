@@ -75,21 +75,7 @@ namespace Game.Spawn
                 t.localRotation = param.Rotation;
             }
 
-            if (instance is BaseLifetimeScope lts)
-            {
-                if (param.BuildSynchronously)
-                {
-                    lts.EnsureScopeBuilt();
-                }
-                else
-                {
-                    await lts.WhenBuiltAsync(ct);
-                }
-                // NOTE:
-                // BaseLifetimeScope runs Acquire + local IScopeLifecycleService.HandleSpawnAsync automatically
-                // from its build callback when active.
-            }
-            else if (instance is RuntimeLifetimeScope runtime)
+            if (instance is KernelScopeHost runtime)
             {
                 if (param.BuildSynchronously)
                 {
@@ -101,8 +87,21 @@ namespace Game.Spawn
                 }
                 await runtime.HandleSpawnAsync(ct);
             }
+            else if (instance is KernelScopeHost scope)
+            {
+                if (param.BuildSynchronously)
+                {
+                    scope.EnsureScopeBuilt();
+                }
+                else
+                {
+                    await scope.WhenBuiltAsync(ct);
+                }
+            }
 
             return instance;
         }
     }
 }
+
+

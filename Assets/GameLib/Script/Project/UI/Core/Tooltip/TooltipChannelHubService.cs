@@ -55,7 +55,6 @@ namespace Game.UI
         Transform? _worldRoot;
         RectTransform? _clampArea;
         Canvas? _uiRootCanvas;
-        Camera? _fallbackCameraCache;
         Rect _cachedClampRect;
         Camera? _cachedClampCamera;
         int _cachedClampScreenWidth;
@@ -100,22 +99,21 @@ namespace Game.UI
         {
             _activeScope = scope;
             _isAcquired = false;
+            var ownerName = scope.Identity?.Id ?? scope.Identity?.SelfTransform?.name ?? gameObjectName();
 
             ResolveServices(scope);
             if (_tooltipSystemService == null)
             {
-                Debug.LogWarning($"[TooltipChannelHub] TooltipSystemService was not found for '{scope.Identity?.Id ?? scope.Identity?.SelfTransform?.name ?? gameObjectName()}'. Hub is disabled.");
-                return;
+                throw new InvalidOperationException($"[TooltipChannelHub] TooltipSystemService was not found for '{ownerName}'. Explicit family authority is required before the hub can acquire.");
             }
 
             ResolveRoots();
             ResolveHubPreset(scope);
             ResolveSpaceAndSolver();
             LogDebug($"Acquire. TriggerSpace={_spaceKind} RenderSpace={_renderSpaceKind} UiRoot={DescribeObject(_uiRoot)} WorldRoot={DescribeObject(_worldRoot)}");
-            if (_renderSpaceKind == TooltipChannelRenderSpaceKind.UIScreen && _uiRoot == null)
+            if (RequiresExplicitUiRoot() && _uiRoot == null)
             {
-                Debug.LogWarning($"[TooltipChannelHub] UI space hub requires TooltipSystem.TooltipRoot or Tooltip Root Override. Hub '{scope.Identity?.Id ?? scope.Identity?.SelfTransform?.name ?? gameObjectName()}' is disabled.");
-                return;
+                throw new InvalidOperationException($"[TooltipChannelHub] UI space hub requires TooltipSystem.TooltipRoot or Tooltip Root Override. Hub '{ownerName}' cannot acquire without an explicit UI root.");
             }
 
             _isAcquired = true;
@@ -141,7 +139,6 @@ namespace Game.UI
             _worldRoot = null;
             _clampArea = null;
             _uiRootCanvas = null;
-            _fallbackCameraCache = null;
             _cachedClampRect = default;
             _cachedClampCamera = null;
             _cachedClampScreenWidth = 0;
@@ -349,7 +346,6 @@ namespace Game.UI
             _worldRoot = _tooltipSystemService.WorldRoot;
             _clampArea = _tooltipSystemService.ClampArea;
             _uiRootCanvas = _uiRoot != null ? _uiRoot.GetComponentInParent<Canvas>() : null;
-            _fallbackCameraCache = null;
             _hasCachedClampRect = false;
         }
 
@@ -383,10 +379,18 @@ namespace Game.UI
                 : new WorldTooltipPlacementSolver();
         }
 
+        bool RequiresExplicitUiRoot()
+        {
+            if (_spaceKind == TooltipChannelSpaceKind.UIScreen)
+                return true;
+
+            return _currentHubPreset.RenderSpace == TooltipChannelRenderSpaceKind.UIScreen;
+        }
+
         static TooltipChannelRenderSpaceKind ResolveRenderSpaceKind(TooltipChannelRenderSpaceKind configured, RectTransform? uiRoot)
         {
             if (configured == TooltipChannelRenderSpaceKind.UIScreen)
-                return uiRoot != null ? TooltipChannelRenderSpaceKind.UIScreen : TooltipChannelRenderSpaceKind.World;
+                return TooltipChannelRenderSpaceKind.UIScreen;
 
             if (configured == TooltipChannelRenderSpaceKind.World)
                 return TooltipChannelRenderSpaceKind.World;
@@ -460,16 +464,7 @@ namespace Game.UI
                     return _uiRootCanvas.worldCamera;
             }
 
-            if (_fallbackCameraCache != null)
-            {
-                if (_fallbackCameraCache.isActiveAndEnabled)
-                    return _fallbackCameraCache;
-
-                _fallbackCameraCache = null;
-            }
-
-            _fallbackCameraCache = Camera.main;
-            return _fallbackCameraCache;
+            return null;
         }
 
         TooltipChannelInputMode ResolveInputMode()
@@ -567,14 +562,7 @@ namespace Game.UI
 
         internal static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
 
         internal static Transform? GetTransformFromScope(IScopeNode scope)
@@ -593,7 +581,7 @@ namespace Game.UI
             if (scope == null)
                 return;
 
-            if (scope is RuntimeLifetimeScope runtimeScope)
+            if (scope is KernelScopeHost runtimeScope)
             {
                 if (runtimeScope.Resolver != null &&
                     runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
@@ -642,3 +630,5 @@ namespace Game.UI
         }
     }
 }
+
+

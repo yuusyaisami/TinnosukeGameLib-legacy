@@ -12,7 +12,7 @@ namespace Game.Trait
     /// TraitHolderHubMB と同じ LifetimeScope に配置して使用する、E
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class EquipTraitHolderHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class EquipTraitHolderHubMB : MonoBehaviour, IScopeInstaller
     {
         [Tooltip("Configure equip slots here. Each slot can hold one equipped trait from the corresponding TraitHolder.")]
         [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true)]
@@ -23,7 +23,7 @@ namespace Game.Trait
 
         public IEquipTraitHolderHubService? Hub => _hub;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var slotCount = _slots?.Count ?? 0;
             var settings = new List<EquipTraitSlotSettings>(slotCount);
@@ -51,3 +51,4 @@ namespace Game.Trait
         }
     }
 }
+

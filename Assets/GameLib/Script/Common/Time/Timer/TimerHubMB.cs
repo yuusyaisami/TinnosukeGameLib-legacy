@@ -8,7 +8,7 @@ using VContainer.Unity;
 namespace Game.Times
 {
     [DisallowMultipleComponent]
-    public sealed class TimerHubMB : MonoBehaviour, IFeatureInstaller, ITimerHubSettings
+    public sealed class TimerHubMB : MonoBehaviour, IScopeInstaller, ITimerHubSettings
     {
         [BoxGroup("Setup")]
         [LabelText("Auto Initialize")]
@@ -26,7 +26,7 @@ namespace Game.Times
         public TimerChannelDef[] Timers => timers;
         public bool AutoInitializeOnStart => autoInitializeOnStart;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance<ITimerHubSettings>(this);
 
@@ -40,3 +40,4 @@ namespace Game.Times
         }
     }
 }
+

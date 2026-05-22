@@ -5,7 +5,7 @@ namespace Game.Profile
 {
     /// <summary>
     /// ProfileRegistry の登録ソースを動的に差し替えるための操作API。
-    /// Pool / Template など、RuntimeLifetimeScope 再利用時の差し替えに使用する。
+    /// Pool / Template など、KernelScopeHost 再利用時の差し替えに使用する。
     /// </summary>
     public interface IScopeBindingRegistryConfigurator
     {
@@ -19,3 +19,5 @@ namespace Game.Profile
         void ClearExternalProfiles(bool applyImmediately = false);
     }
 }
+
+

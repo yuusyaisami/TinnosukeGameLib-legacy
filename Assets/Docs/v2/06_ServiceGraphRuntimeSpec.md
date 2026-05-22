@@ -207,11 +207,13 @@ When this document is updated, observations that no longer match the current cod
 - [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - builder construction, feature installer discovery, scope-local resolver creation, lifecycle handler extraction
 - [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - installer-style command registration and lifecycle handler registration
 - [ModalStackChannelHubService.cs](../../GameLib/Script/Project/UI/Core/ModalStackChannel/ModalStackChannelHubService.cs) - stateful UI hub that should be modeled as a coarse-grained hub, not as per-target service expansion
-- [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) - mixed service resolution, ancestor lookup, tick handling, channel runtime ownership, camera fallback, and value fallback
+- [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) - mixed service resolution, ancestor lookup, tick handling, channel runtime ownership, explicit camera lookup, and value fallback
 - [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) - scope-bound hub that owns many `MeshChannelPlayerRuntime` instances
-- [MeshChannelHubMB.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubMB.cs) - installer mutation that registers a hub as service plus lifecycle handlers
+- [MeshChannelHubAuthoring.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubAuthoring.cs) - declaration surface for channel entries and migration-owned authoring data
+- [MeshChannelHubMB.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubMB.cs) - migration adapter that registers a hub as service plus lifecycle handlers
+- [AnimationSpriteHubAuthoring.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubAuthoring.cs) - explicit declaration surface for sprite-animation channel wiring and hub tag input
+- [AnimationSpriteHubMB.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubMB.cs) - migration adapter that validates authoring input and registers the sprite-animation hub service
 - [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) - mixed hub, material provider, visual hub, lifecycle, tick, and player runtime ownership
-- [AnimationSpriteHubMB.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubMB.cs) - installer mutation that registers a hub through multiple contracts and lifecycle interfaces
 
 ### Current Gaps
 
@@ -882,7 +884,7 @@ ServiceGraph must not implement:
 - actor lookup
 - owner lookup
 - UI root lookup
-- camera fallback lookup
+- explicit camera lookup
 
 If a service needs one of these objects, the dependency must be represented as:
 

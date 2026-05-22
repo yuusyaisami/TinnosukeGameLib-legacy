@@ -8,7 +8,7 @@ using Game.DI;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class ToastSystemMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ToastSystemMB : MonoBehaviour, IScopeInstaller
     {
         const string RootGroup = "Root";
         const string SpawnGroup = "Spawn";
@@ -117,7 +117,7 @@ namespace Game.UI
         [BoxGroup(DebugGroup), LabelText("Debug Log Capacity"), MinValue(16)]
         [SerializeField] int debugLogCapacity = 128;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var resolvedRoot = toastRoot != null ? toastRoot : GetComponent<RectTransform>();
             if (resolvedRoot == null)
@@ -181,3 +181,4 @@ namespace Game.UI
         }
     }
 }
+

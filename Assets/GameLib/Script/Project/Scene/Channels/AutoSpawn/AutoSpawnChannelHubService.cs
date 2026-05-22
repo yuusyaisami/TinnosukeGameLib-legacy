@@ -840,28 +840,23 @@ namespace Game.Channel
 
             await UniTask.SwitchToMainThread(ct);
 
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            try
             {
-                if (runtimeScope.Resolver != null &&
-                    runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                    pool != null)
-                {
-                    pool.Release(runtimeScope);
-                    return true;
-                }
-
-                Debug.LogError($"{LogPrefix} Runtime scope release was requested, but no IRuntimeLifetimeScopePool was found.");
-                return false;
-            }
-
-            if (resolver.TryResolve<BaseLifetimeScope>(out var baseScope) && baseScope != null)
-            {
-                await baseScope.DespawnAsync(ct);
+                await ScopeFeatureInstallerUtility.ReleaseSpawnedLifetimeAsync(
+                    resolver,
+                    ct,
+                    ex => Debug.LogError($"{LogPrefix} Pool release failed: {ex.Message}"));
                 return true;
             }
-
-            Debug.LogError($"{LogPrefix} Managed spawn resolver does not expose releasable LifetimeScope.");
-            return false;
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"{LogPrefix} Managed spawn release failed: {ex.Message}");
+                return false;
+            }
         }
 
         static float GetNextIntervalSeconds(AutoSpawnChannelFrequency frequency)
@@ -922,14 +917,7 @@ namespace Game.Channel
 
         static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
+            ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
 
         static bool TryResolveRunner(IScopeNode scope, out ICommandRunner? runner)

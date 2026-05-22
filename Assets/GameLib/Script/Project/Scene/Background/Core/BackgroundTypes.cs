@@ -113,32 +113,25 @@ namespace Game.Background
         public BackgroundTileCoord Coord { get; }
         public Transform? Transform { get; }
         public RectTransform? RectTransform { get; }
-        public IScopeNode? ScopeNode { get; }
-        public RuntimeLifetimeScope? RuntimeScope { get; }
-        public BaseLifetimeScope? BaseScope { get; }
-        public GameObject? Root { get; }
-        public IRuntimeResolver? Resolver { get; }
+        public SpawnedLifetimeHandle Lifetime { get; }
+        public IScopeNode? ScopeNode => Lifetime.ScopeNode;
+        public GameObject? Root => Lifetime.Root;
+        public IRuntimeResolver? Resolver => Lifetime.Resolver;
+        public bool UsesRuntimeLifetimeScope => Lifetime.UsesRuntimeLifetimeScope;
+        public bool UsesBaseLifetimeScope => Lifetime.UsesBaseLifetimeScope;
         public IBackgroundElementAdapter? Adapter { get; }
 
         public BackgroundElementHandle(
             BackgroundTileCoord coord,
             Transform? transform,
             RectTransform? rectTransform,
-            IScopeNode? scopeNode,
-            RuntimeLifetimeScope? runtimeScope,
-            BaseLifetimeScope? baseScope,
-            GameObject? root,
-            IRuntimeResolver? resolver,
+            SpawnedLifetimeHandle lifetime,
             IBackgroundElementAdapter? adapter)
         {
             Coord = coord;
             Transform = transform;
             RectTransform = rectTransform;
-            ScopeNode = scopeNode;
-            RuntimeScope = runtimeScope;
-            BaseScope = baseScope;
-            Root = root;
-            Resolver = resolver;
+            Lifetime = lifetime;
             Adapter = adapter;
         }
     }

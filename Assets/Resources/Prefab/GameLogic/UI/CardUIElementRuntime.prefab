@@ -1089,7 +1089,6 @@ GameObject:
   - component: {fileID: 2669922569899582947}
   - component: {fileID: 2980443796655854894}
   - component: {fileID: 4805484694463295958}
-  - component: {fileID: 3986175439189477264}
   - component: {fileID: 9162102940996061991}
   - component: {fileID: 4873276702334529204}
   - component: {fileID: 260458423786819113}
@@ -1232,30 +1231,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!114 &3986175439189477264
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4610338051289506295}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &9162102940996061991
 MonoBehaviour:
   m_ObjectHideFlags: 0

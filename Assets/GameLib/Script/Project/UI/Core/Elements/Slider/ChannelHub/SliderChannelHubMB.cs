@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
@@ -141,7 +141,7 @@ namespace Game.UI
     }
 
     [DisallowMultipleComponent]
-    public sealed class SliderChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class SliderChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
@@ -175,7 +175,7 @@ namespace Game.UI
 
         bool HasAnyDebugLogEnabled() => _enableDebugLog || _enableBindingDebugLog;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<SliderChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -187,3 +187,4 @@ namespace Game.UI
         }
     }
 }
+

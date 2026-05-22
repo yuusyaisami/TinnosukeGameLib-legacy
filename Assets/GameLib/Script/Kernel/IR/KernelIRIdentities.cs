@@ -92,6 +92,8 @@ namespace Game.Kernel.IR
 
         public int Value { get; }
 
+        public bool IsDefault => Value == 0;
+
         public bool Equals(ScopeAuthoringId other)
         {
             return Value == other.Value;

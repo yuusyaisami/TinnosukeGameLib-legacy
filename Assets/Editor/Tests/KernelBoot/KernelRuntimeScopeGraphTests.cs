@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using Game.Kernel.Boot;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;

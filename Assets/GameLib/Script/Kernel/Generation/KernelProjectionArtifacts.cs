@@ -1386,7 +1386,7 @@ namespace Game.Kernel.Generation
         }
     }
 
-    static class KernelProjectionArrayHelpers
+    public static class KernelProjectionArrayHelpers
     {
         public static T[] CloneAndSort<T>(ReadOnlySpan<T> source, Comparison<T> comparison) where T : class
         {
@@ -1415,7 +1415,7 @@ namespace Game.Kernel.Generation
         }
     }
 
-    static class KernelProjectionHashing
+    public static class KernelProjectionHashing
     {
         public static Hash128 ComputeServiceGraphHash(ReadOnlySpan<ServiceIR> services)
         {

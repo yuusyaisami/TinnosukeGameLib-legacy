@@ -284,7 +284,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 "GetComponentsInChildren",
                 "FindObjectsByType",
                 "Transform.parent",
-                "InstallFeature(",
+                "InstallScopeServices(",
             };
 
             for (int fileIndex = 0; fileIndex < files.Length; fileIndex++)
@@ -337,3 +337,4 @@ namespace TinnosukeGameLib.Tests.Editor
         }
     }
 }
+

@@ -506,21 +506,11 @@ public class FPSDisplay : MonoBehaviour
         if (cachedSaveManager != null)
             return cachedSaveManager;
 
-        var scopes = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
-        for (int i = 0; i < scopes.Length; i++)
+        if (KernelScopeHost.TryResolveProjectHostService<ISaveManager>(out var saveManager) &&
+            saveManager != null)
         {
-            var scope = scopes[i];
-            var container = scope != null ? scope.Container : null;
-            if (container == null)
-                continue;
-
-            if (container.TryResolve<ISaveManager>(out var saveManager) && saveManager != null)
-            {
-                cachedSaveManager = saveManager;
-                return cachedSaveManager;
-            }
+            cachedSaveManager = saveManager;
+            return cachedSaveManager;
         }
 
         return null;
@@ -531,21 +521,11 @@ public class FPSDisplay : MonoBehaviour
         if (cachedCommandRunner != null)
             return cachedCommandRunner;
 
-        var scopes = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
-        for (int i = 0; i < scopes.Length; i++)
+        if (KernelScopeHost.TryResolveProjectHostService<VNext.ICommandRunner>(out var runner) &&
+            runner != null)
         {
-            var scope = scopes[i];
-            var container = scope != null ? scope.Container : null;
-            if (container == null)
-                continue;
-
-            if (container.TryResolve<VNext.ICommandRunner>(out var runner) && runner != null)
-            {
-                cachedCommandRunner = runner;
-                return cachedCommandRunner;
-            }
+            cachedCommandRunner = runner;
+            return cachedCommandRunner;
         }
 
         return null;
@@ -727,3 +707,4 @@ public class FPSDisplay : MonoBehaviour
 #endif
     }
 }
+

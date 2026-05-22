@@ -1,0 +1,25 @@
+{
+  "name": "GameLib.Editor.KernelBoot",
+  "rootNamespace": "TinnosukeGameLib.Editor.KernelBoot",
+  "references": [
+    "GameLib.Kernel.Abstractions",
+    "GameLib.Kernel.Authoring",
+    "GameLib.Kernel.Boot",
+    "GameLib.Kernel.Contributions",
+    "GameLib.Kernel.Diagnostics",
+    "GameLib.Kernel.Generation",
+    "GameLib.Kernel.IR",
+    "GameLib.Kernel.Validation"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

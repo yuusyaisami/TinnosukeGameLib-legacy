@@ -31,6 +31,7 @@ namespace Game.StatusEffect
         ICommandListRuntimeMutationService? _mutationService;
         IEntityEventService? _eventService;
         IBlackboardService? _blackboardService;
+        bool _optionalDependenciesCaptured;
         bool _disposed;
         bool _isActive;
         bool _hasInitializedGlobalState;
@@ -84,11 +85,11 @@ namespace Game.StatusEffect
             _blackboardBindingOptions = blackboardBindingOptions;
         }
 
-        internal ICommandRunner? CommandRunner => _commandRunner ??= ResolveOptional<ICommandRunner>();
-        internal IRichTextRefService? RichTextRefService => _richTextRefService ??= ResolveOptional<IRichTextRefService>();
-        internal ICommandListRuntimeMutationService? MutationService => _mutationService ??= ResolveOptional<ICommandListRuntimeMutationService>();
-        internal IEntityEventService? EventService => _eventService ??= ResolveOptional<IEntityEventService>();
-        internal IBlackboardService? BlackboardService => _blackboardService ??= ResolveOptional<IBlackboardService>();
+        internal ICommandRunner? CommandRunner => ResolveOptionalDependency(ref _commandRunner);
+        internal IRichTextRefService? RichTextRefService => ResolveOptionalDependency(ref _richTextRefService);
+        internal ICommandListRuntimeMutationService? MutationService => ResolveOptionalDependency(ref _mutationService);
+        internal IEntityEventService? EventService => ResolveOptionalDependency(ref _eventService);
+        internal IBlackboardService? BlackboardService => ResolveOptionalDependency(ref _blackboardService);
         internal float GlobalLifetimeRemaining => _globalLifetimeRemaining;
         internal float GlobalLifetimeTotal => _globalLifetimeTotal;
         internal float GlobalCooldownRemaining => _globalCooldownRemaining;
@@ -595,6 +596,7 @@ namespace Game.StatusEffect
         {
             _ = scope;
             _isActive = true;
+            CaptureOptionalDependencies();
             EnsureGlobalStateInitialized(forceReset: isReset || !_hasInitializedGlobalState);
 
             foreach (var runtime in _effects.Values)
@@ -622,6 +624,7 @@ namespace Game.StatusEffect
         {
             _ = scope;
             _isActive = false;
+            _optionalDependenciesCaptured = false;
 
             if (isReset)
             {
@@ -629,6 +632,7 @@ namespace Game.StatusEffect
                 return;
             }
 
+            ClearOptionalDependencies();
             _blackboardBindingSourceCache = default;
 
             foreach (var runtime in _effects.Values)
@@ -680,11 +684,8 @@ namespace Game.StatusEffect
             _hasGlobalUseCooldownSettingsOverride = false;
             _hasGlobalCountSettingsOverride = false;
 
-            _commandRunner = null;
-            _richTextRefService = null;
-            _mutationService = null;
-            _eventService = null;
-            _blackboardService = null;
+            ClearOptionalDependencies();
+            _optionalDependenciesCaptured = false;
 
             UpdateGlobalCanUse();
             WriteGlobalStateToBlackboard(force: true);
@@ -699,11 +700,8 @@ namespace Game.StatusEffect
             ClearAll();
             _effects.Clear();
             _removeQueue.Clear();
-            _commandRunner = null;
-            _richTextRefService = null;
-            _mutationService = null;
-            _eventService = null;
-            _blackboardService = null;
+            ClearOptionalDependencies();
+            _optionalDependenciesCaptured = false;
             _blackboardBindingSourceCache = default;
         }
 
@@ -1029,6 +1027,36 @@ namespace Game.StatusEffect
             _removeQueue.Clear();
         }
 
+        T? ResolveOptionalDependency<T>(ref T? cached) where T : class
+        {
+            if (_optionalDependenciesCaptured)
+                return cached;
+
+            if (!_isActive)
+                return null;
+
+            return cached ??= ResolveOptional<T>();
+        }
+
+        void ClearOptionalDependencies()
+        {
+            _commandRunner = null;
+            _richTextRefService = null;
+            _mutationService = null;
+            _eventService = null;
+            _blackboardService = null;
+        }
+
+        void CaptureOptionalDependencies()
+        {
+            _commandRunner = ResolveOptional<ICommandRunner>();
+            _richTextRefService = ResolveOptional<IRichTextRefService>();
+            _mutationService = ResolveOptional<ICommandListRuntimeMutationService>();
+            _eventService = ResolveOptional<IEntityEventService>();
+            _blackboardService = ResolveOptional<IBlackboardService>();
+            _optionalDependenciesCaptured = true;
+        }
+
         T? ResolveOptional<T>() where T : class
         {
             var current = _scope;
@@ -1187,7 +1215,7 @@ namespace Game.StatusEffect
         IVarStore? TryResolveGlobalBlackboardVars()
         {
             if (_blackboardBindingOptions == null)
-                return BlackboardService?.LocalVars;
+                return null;
 
             if (!_blackboardBindingOptions.UseBlackboardBinding)
                 return null;

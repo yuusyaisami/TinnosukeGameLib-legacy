@@ -9,7 +9,7 @@ using Sirenix.OdinInspector;
 namespace Game.Common
 {
     /// <summary>LifetimeScopeKind ごとに EventService を登録する MB、E/summary>
-    public sealed class EventMB : MonoBehaviour, IFeatureInstaller
+    public sealed class EventMB : MonoBehaviour
     {
 
         [Header("Event Logging")]
@@ -23,8 +23,11 @@ namespace Game.Common
 
         EventLogStore? _eventLogStore;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallEventRuntime(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
+            _ = builder ?? throw new ArgumentNullException(nameof(builder));
+            _ = scope ?? throw new ArgumentNullException(nameof(scope));
+
             var logStore = new EventLogStore(_logCapacity);
             logStore.Enabled = _captureEventLog;
             _eventLogStore = logStore;

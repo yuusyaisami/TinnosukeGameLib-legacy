@@ -163,7 +163,6 @@ GameObject:
   - component: {fileID: 2005049924174128323}
   - component: {fileID: 7827178754001204235}
   - component: {fileID: 5195397406654403350}
-  - component: {fileID: 3124696319013324403}
   - component: {fileID: 2104333318262994264}
   - component: {fileID: 3980886692694389397}
   m_Layer: 0
@@ -234,20 +233,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7201a20823b9f354c9ce6610212f9e9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Common.BlackboardMB
---- !u!114 &3124696319013324403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3497210955070876917}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
 --- !u!114 &2104333318262994264
 MonoBehaviour:
   m_ObjectHideFlags: 0

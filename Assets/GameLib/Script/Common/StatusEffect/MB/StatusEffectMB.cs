@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Game.Commands.VNext;
 using Game.Common;
@@ -121,7 +121,7 @@ namespace Game.StatusEffect
     {
         [LabelText("Enabled")]
         [Tooltip("Inspector setting.")]
-        public bool Enabled = true;
+        public bool Enabled;
 
         [ShowIf(nameof(Enabled))]
         [LabelText("@Game.Commands.VNext.ActorSourceOdinLabelHelper.GetLabel(\"Blackboard Source\", BlackboardBindingSource)")]
@@ -132,7 +132,7 @@ namespace Game.StatusEffect
     [DisallowMultipleComponent]
     public sealed class StatusEffectMB :
         MonoBehaviour,
-        IFeatureInstaller,
+        IScopeInstaller,
         IScopeAcquireHandler,
         IScopeReleaseHandler,
         IStatusEffectServiceOptions,
@@ -279,7 +279,7 @@ namespace Game.StatusEffect
         public bool UseBlackboardBinding => _globalBlackboardBinding.Enabled;
         public ActorSource BlackboardBindingSource => _globalBlackboardBinding.BlackboardBindingSource;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterComponent(this)
                 .AsSelf()
@@ -471,3 +471,4 @@ namespace Game.StatusEffect
 #endif
     }
 }
+

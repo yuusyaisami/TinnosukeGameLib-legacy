@@ -4,11 +4,11 @@ using VContainer;
 
 namespace Game.Rotation
 {
-    public class RotateChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public class RotateChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField] List<RotateChannelDef> channelDefs = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
         {
             if (channelDefs == null)
                 channelDefs = new List<RotateChannelDef>();
@@ -20,3 +20,4 @@ namespace Game.Rotation
         }
     }
 }
+

@@ -56,7 +56,7 @@ namespace Game.Commands.VNext
             if (data.LogOptions)
             {
                 var options = ctx.Options;
-                sb.AppendLine($"Options: FailurePolicy={options.FailurePolicy} TracePolicy={options.TracePolicy} MaxDepth={options.MaxTraceDepth} MaxFrames={options.MaxTraceFrames} AllowActorFallback={options.AllowActorFallback} AllowRuntimeKeyFallback={options.AllowRuntimeKeyFallback}");
+                sb.AppendLine($"Options: FailurePolicy={options.FailurePolicy} TracePolicy={options.TracePolicy} MaxDepth={options.MaxTraceDepth} MaxFrames={options.MaxTraceFrames} AllowActorFallback={options.AllowActorFallback}");
             }
 
             if (data.LogVarStore)
@@ -163,9 +163,9 @@ namespace Game.Commands.VNext
             sb.AppendLine($"  Parent: {DescribeScope(scope.Parent)}");
             sb.AppendLine($"  Resolver: {DescribeResolver(scope.Resolver)}");
 
-            if (scope is BaseLifetimeScope baseScope)
+            if (scope is KernelScopeHost runtimeScope)
             {
-                sb.AppendLine($"  UseAsGameLogicRoot: {baseScope.UseAsGameLogicRoot}");
+                sb.AppendLine($"  UseAsGameLogicRoot: {runtimeScope.UseAsGameLogicRoot}");
             }
 
             var path = scope.GetPathFromRoot();
@@ -362,7 +362,7 @@ namespace Game.Commands.VNext
             return $"[{laneLabel}/{kindLabel}] {valueText}{sourceText}{tagText}{layerText}{remainText}{revisionText}";
         }
 
-        static string DescribeIdentity(ILTSIdentityService? identity)
+        static string DescribeIdentity(IScopeIdentityService? identity)
         {
             if (identity == null)
                 return "<null>";
@@ -692,3 +692,5 @@ namespace Game.Commands.VNext
         }
     }
 }
+
+

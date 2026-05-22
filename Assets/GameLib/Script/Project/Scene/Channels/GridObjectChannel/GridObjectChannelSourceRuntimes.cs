@@ -148,7 +148,6 @@ namespace Game.Channel
             _columnOffset = _preset.ColumnOffset.GetOrDefault(context.DynamicContext, 0);
 
             var scope = ActorSourceFastResolver.ResolveCached(context.ActiveScope, _preset.GridBlackboardActorSource, ref _gridActorCache);
-            GridObjectChannelRuntimeUtility.EnsureScopeBuiltIfNeeded(scope);
             if (!TryResolveGridBlackboard(scope, out var grid))
             {
                 SwapGrid(null);
@@ -340,20 +339,11 @@ namespace Game.Channel
         static bool TryResolveGridBlackboard(IScopeNode? scope, out IGridBlackboardService? grid)
         {
             grid = null;
-            for (var current = scope; current != null; current = current.Parent)
-            {
-                var resolver = current.Resolver;
-                if (resolver == null)
-                    continue;
+            var resolver = scope?.Resolver;
+            if (resolver == null)
+                return false;
 
-                if (resolver.TryResolve<IGridBlackboardService>(out var resolved) && resolved != null)
-                {
-                    grid = resolved;
-                    return true;
-                }
-            }
-
-            return false;
+            return resolver.TryResolve<IGridBlackboardService>(out grid) && grid != null;
         }
     }
 }

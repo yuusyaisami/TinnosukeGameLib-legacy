@@ -7,7 +7,7 @@ using VContainer.Unity;
 namespace Game.Direction
 {
     [DisallowMultipleComponent]
-    public sealed class DirectionStateMachineOptionMB : MonoBehaviour, IFeatureInstaller
+    public sealed class DirectionStateMachineOptionMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Thresholds")]
         [SerializeField, Min(0f), LabelText("Activation Threshold")]
@@ -108,7 +108,7 @@ namespace Game.Direction
                 downHalfRangeDeg: downHalfRangeDeg);
         }
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var config = new DirectionStateMachineOptionConfig(
                 activationThreshold: activationThreshold,
@@ -128,3 +128,4 @@ namespace Game.Direction
         }
     }
 }
+

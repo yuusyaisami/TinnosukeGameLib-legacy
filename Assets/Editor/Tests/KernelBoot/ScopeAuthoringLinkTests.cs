@@ -6,6 +6,7 @@ using Game.Kernel.IR;
 using NUnit.Framework;
 using UnityEngine;
 using TinnosukeGameLib.Editor.KernelBoot;
+using AuthoringUnitySourceLocation = Game.Kernel.Authoring.UnitySourceLocation;
 
 namespace TinnosukeGameLib.Tests.Editor
 {
@@ -41,7 +42,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(link.ScopeAuthoringId, Is.EqualTo(new ScopeAuthoringId(101)));
                 Assert.That(link.TryValidate(out failureReason), Is.True, failureReason);
 
-                UnitySourceLocation sourceLocation = link.CreateSourceLocation();
+                AuthoringUnitySourceLocation sourceLocation = link.CreateSourceLocation();
                 Assert.That(sourceLocation.Kind, Is.EqualTo(UnityAuthoringSourceKind.SceneObject));
                 Assert.That(sourceLocation.ScenePath, Is.EqualTo("Assets/Scenes/Battle.unity"));
                 Assert.That(sourceLocation.GameObjectPath, Is.EqualTo("Root/Scope"));
@@ -86,7 +87,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     null);
 
                 Assert.That(link.HasBaseSourceLocation, Is.True);
-                Assert.That(link.TryGetBaseSourceLocation(out UnitySourceLocation baseLocation), Is.True);
+                Assert.That(link.TryGetBaseSourceLocation(out AuthoringUnitySourceLocation baseLocation), Is.True);
                 Assert.That(baseLocation.Kind, Is.EqualTo(UnityAuthoringSourceKind.PrefabAsset));
                 Assert.That(baseLocation.AssetGuid, Is.EqualTo("base-guid-1"));
                 Assert.That(link.TryValidate(out failureReason), Is.True, failureReason);
@@ -125,8 +126,8 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(report.Issues[0].Code, Is.EqualTo("UNITY_SCOPE_AUTHORING_DUPLICATE_ID"));
                 Assert.That(report.Issues[0].AuthoringId, Is.EqualTo(new ScopeAuthoringId(301)));
                 Assert.That(report.Issues[0].Primary.name, Is.EqualTo("ScopeAuthoringLinkDuplicateA"));
-                Assert.That(report.Issues[0].Secondary.HasValue, Is.True);
-                Assert.That(report.Issues[0].Secondary!.Value.name, Is.EqualTo("ScopeAuthoringLinkDuplicateB"));
+                Assert.That(report.Issues[0].Secondary, Is.Not.Null);
+                Assert.That(report.Issues[0].Secondary!.name, Is.EqualTo("ScopeAuthoringLinkDuplicateB"));
                 Assert.That(report.Issues[0].HasSecondarySourceLocation, Is.True);
                 Assert.That(report.Issues[0].SecondarySourceLocation.ScenePath, Is.EqualTo("Assets/Scenes/Two.unity"));
 
@@ -204,7 +205,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     "ScopeAuthoringLink",
                     "scope.id");
 
-                UnitySourceLocation before = link.CreateSourceLocation();
+                AuthoringUnitySourceLocation before = link.CreateSourceLocation();
 
                 link.ClearAuthoringId();
                 Assert.That(link.HasScopeAuthoringId, Is.False);
@@ -212,7 +213,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(failureReason, Does.Contain("ScopeAuthoringId"));
 
                 link.SetAuthoringId(new ScopeAuthoringId(502));
-                UnitySourceLocation after = link.CreateSourceLocation();
+                AuthoringUnitySourceLocation after = link.CreateSourceLocation();
 
                 Assert.That(before, Is.EqualTo(after));
                 Assert.That(link.ScopeAuthoringId, Is.EqualTo(new ScopeAuthoringId(502)));

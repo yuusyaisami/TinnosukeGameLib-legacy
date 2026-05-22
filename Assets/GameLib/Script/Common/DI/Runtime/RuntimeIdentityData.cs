@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Game.DI
 {
     /// <summary>
-    /// Lightweight identity payload passed when acquiring a RuntimeLifetimeScope from a pool.
-    /// Mirrors ILTSIdentityService fields.
+    /// Lightweight identity payload passed when acquiring a KernelScopeHost from a pool.
+    /// Mirrors IScopeIdentityService fields.
     /// </summary>
     public struct RuntimeIdentityData
     {
@@ -33,4 +33,7 @@ namespace Game.DI
         }
     }
 }
+
+
+
 

@@ -206,7 +206,8 @@ They are not target architecture.
 
 ### Representative Anchors
 
-- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - service registration, grid registration, debug view, transform auto-writer, lifecycle handler registration, and multi-path initialization
+- [BlackboardAuthoring.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - declaration surface for local init, grid init, debug metadata, and transform-write intent
+- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - migration adapter for service registration, grid registration, lifecycle handler registration, and multi-path initialization
 - [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) - runtime stable-key resolution and runtime-only negative ID allocation
 - [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) - `Resources.Load` registry lookup and runtime fallback registry creation
 - [VarStore.cs](../../GameLib/Script/Common/Variables/VarStore/Core/VarStore.cs) - dictionary-backed var/table storage, optional schema, revision, and runtime type coercion
@@ -1004,7 +1005,7 @@ Performance must not be optimized by skipping schema checks, access policy check
 | `VarKeyRegistryLocator.Resources.Load` | boot-time verified artifact reference |
 | `BlackboardService` | `ValueStore` service or scope store facade |
 | `GridBlackboardService` | `Table`, `Record`, or `RecordList` store |
-| `BlackboardMB` local init | `ValueStoreInitContribution` |
+| `BlackboardAuthoring` local init | `ValueStoreInitContribution` |
 | `BlackboardMB.OnAcquire` init | `LifecycleContribution` invoking verified init |
 | `DynamicValue` in init entry | `DynamicEvaluationPlan` |
 | `DeferredDynamicVarValue` | explicit dynamic evaluation plan or rejected migration |

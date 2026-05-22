@@ -10,7 +10,6 @@ namespace Game.Commands.VNext
     static class ActorScopeResolver
     {
         const int ResolveRetryFrames = 5;
-        static IBaseLifetimeScopeRegistry? s_fallbackRegistry;
 
         public static async UniTask<(IScopeNode? scope, string error)> ResolveAsync(
             ActorSource source,
@@ -162,66 +161,18 @@ namespace Game.Commands.VNext
             if (go == null)
                 return null;
 
-            // NOTE:
-            // FromUnityObject の実運用では子オブジェクト参照が多く、
-            // 親探索順によっては RuntimeScope ではなく BaseScope を拾ってしまう。
-            // それを避けるため、近い Transform から Runtime -> Base の優先順で判定する。
-            for (var t = go.transform; t != null; t = t.parent)
-            {
-                var runtimeScope = t.GetComponent<RuntimeLifetimeScope>();
-                if (runtimeScope != null)
-                    return runtimeScope;
-
-                var baseScope = t.GetComponent<BaseLifetimeScope>();
-                if (baseScope != null)
-                    return baseScope;
-
-                var sameLevel = t.GetComponents<Component>();
-                for (var i = 0; i < sameLevel.Length; i++)
-                {
-                    if (sameLevel[i] is IScopeNode node)
-                        return node;
-                }
-            }
-
-            return null;
+            return ScopeFeatureInstallerUtility.TryGetScopeNode(go, includeInactive: true, out var node)
+                ? node
+                : null;
         }
 
         static bool TryResolveScopeRegistry(IScopeNode? origin, out IBaseLifetimeScopeRegistry? registry)
         {
-            if (s_fallbackRegistry != null)
+            var resolver = origin?.Resolver;
+            if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
             {
-                registry = s_fallbackRegistry;
+                registry = resolved;
                 return true;
-            }
-
-            var current = origin;
-            while (current != null)
-            {
-                var resolver = current.Resolver;
-                if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
-                {
-                    s_fallbackRegistry = resolved;
-                    registry = resolved;
-                    return true;
-                }
-                current = current.Parent;
-            }
-
-            var projects = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-            if (projects != null && projects.Length > 0)
-            {
-                var projectResolver = projects[0] != null ? projects[0].Resolver : null;
-                if (projectResolver != null &&
-                    projectResolver.TryResolve<IBaseLifetimeScopeRegistry>(out var projectRegistry) &&
-                    projectRegistry != null)
-                {
-                    s_fallbackRegistry = projectRegistry;
-                    registry = projectRegistry;
-                    return true;
-                }
             }
 
             registry = null;

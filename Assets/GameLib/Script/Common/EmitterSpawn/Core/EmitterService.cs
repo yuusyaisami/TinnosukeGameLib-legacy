@@ -19,7 +19,7 @@ namespace Game.Spawn
         readonly Transform _transform;
         readonly IRuntimeResolver _ownerResolver;
         readonly IScopeNode _ownerNode;
-        readonly RuntimeLifetimeScopeBase? _ownerScope;
+        readonly KernelScopeHost? _ownerScope;
         readonly ISceneSpawnerRegistry _spawnerRegistry;
 
 
@@ -37,7 +37,7 @@ namespace Game.Spawn
         public Quaternion Rotation => _transform.rotation;
         public IRuntimeResolver OwnerResolver => _ownerResolver;
         public IScopeNode OwnerNode => _ownerNode;
-        public RuntimeLifetimeScopeBase? OwnerScope => _ownerScope;
+        public KernelScopeHost? OwnerScope => _ownerScope;
         public ISceneSpawnerRegistry SpawnerRegistry => _spawnerRegistry;
 
         public EmitterService(
@@ -45,7 +45,7 @@ namespace Game.Spawn
             IRuntimeResolver ownerResolver,
             ISceneSpawnerRegistry spawnerRegistry,
             IScopeNode ownerNode,
-            RuntimeLifetimeScopeBase? ownerScope = null)
+            KernelScopeHost? ownerScope = null)
         {
             _transform = transform ? transform : throw new ArgumentNullException(nameof(transform));
             _ownerResolver = ownerResolver ?? throw new ArgumentNullException(nameof(ownerResolver));
@@ -258,7 +258,7 @@ namespace Game.Spawn
 
             await WaitUntilScopeCommandsIdleAsync(resolver, ct);
 
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) &&
+            if (resolver.TryResolve<KernelScopeHost>(out var runtimeScope) &&
                 runtimeScope != null &&
                 !IsDestroyed(runtimeScope) &&
                 resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
@@ -268,7 +268,7 @@ namespace Game.Spawn
                 return;
             }
 
-            if (resolver.TryResolve<RuntimeLifetimeScopeBase>(out var runtimeBaseScope) &&
+            if (resolver.TryResolve<KernelScopeHost>(out var runtimeBaseScope) &&
                 runtimeBaseScope != null &&
                 !IsDestroyed(runtimeBaseScope))
             {
@@ -399,14 +399,14 @@ namespace Game.Spawn
             if (resolver == null) return false;
 
             // RuntimeResolver: Template 蛛ｴ縺ｧ RuntimeResolverMB 繧堤匳骭ｲ縺励※縺・ｋ蝣ｴ蜷医′縺ゅｋ
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            if (resolver.TryResolve<KernelScopeHost>(out var runtimeScope) && runtimeScope != null)
             {
                 node = runtimeScope;
                 return true;
             }
 
             // LTS: Scope 繧堤匳骭ｲ縺励※縺・ｋ蝣ｴ蜷医′縺ゅｋ
-            if (resolver.TryResolve<RuntimeLifetimeScopeBase>(out var scope) && scope != null)
+            if (resolver.TryResolve<KernelScopeHost>(out var scope) && scope != null)
             {
                 node = scope;
                 return true;
@@ -441,3 +441,5 @@ namespace Game.Spawn
         }
     }
 }
+
+

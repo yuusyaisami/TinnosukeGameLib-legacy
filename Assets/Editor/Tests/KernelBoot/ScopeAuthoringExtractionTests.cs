@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using Game.Kernel.Authoring;
 using Game.Kernel.Boot;
 using Game.Kernel.Contributions;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.IR;
 using NUnit.Framework;
+using TinnosukeGameLib.Editor.KernelBoot;
 using UnityEngine;
 
 using KernelModuleKind = Game.Kernel.IR.ModuleKind;
@@ -242,7 +244,7 @@ namespace TinnosukeGameLib.Tests.Editor
 
         static void ConfigureRoot(ScopeAuthoringRoot root, int moduleId, string moduleName, string assetPath, string gameObjectPath, string componentType, string propertyPath)
         {
-            root.SetModuleMetadata(moduleId, moduleName, KernelModuleKind.Feature, new KernelModuleVersion(1));
+            root.SetModuleMetadata(moduleId, moduleName, KernelModuleKind.Feature, 1);
             root.SetContributionAvailability("Battle", "Windows", "Desktop", ContributionEnvironment.Release);
             root.SetSourceLocation(
                 UnityAuthoringSourceKind.SceneObject,

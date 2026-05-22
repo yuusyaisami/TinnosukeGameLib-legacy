@@ -2,12 +2,14 @@
   "name": "GameLib.Tests.Kernel.Editor",
   "rootNamespace": "TinnosukeGameLib.Tests.Editor",
   "references": [
+    "Assembly-CSharp",
     "GameLib.Kernel.Abstractions",
     "GameLib.Kernel.Diagnostics",
     "GameLib.Kernel.Diagnostics.Unity",
     "GameLib.Kernel.IR",
     "GameLib.Kernel.Generation",
     "GameLib.Kernel.Validation",
+    "UniTask",
     "GameLib.Tests.Kernel.Support.Editor"
   ],
   "includePlatforms": [

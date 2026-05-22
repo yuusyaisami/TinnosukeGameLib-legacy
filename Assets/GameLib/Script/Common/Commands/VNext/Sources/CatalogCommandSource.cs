@@ -29,18 +29,12 @@ namespace Game.Commands.VNext
 
             if (!TryResolveKeyId(ctx, key.StableKey, out var keyId) || !keyId.IsValid)
             {
-                if (ctx.AllowRuntimeKeyFallback && ctx.Catalog.TryResolve(key, out data) && data != null)
-                    return true;
-
                 ctx.Logger.LogResolveFailed(this, $"CommandKeyRef '{key.StableKey}' failed to resolve.");
                 return false;
             }
 
             if (!ctx.Catalog.TryResolve(keyId, out data) || data == null)
             {
-                if (ctx.AllowRuntimeKeyFallback && ctx.Catalog.TryResolve(key, out data) && data != null)
-                    return true;
-
                 ctx.Logger.LogResolveFailed(this, $"Catalog entry not found for keyId={keyId.Value}.");
                 data = null!;
                 return false;
@@ -65,11 +59,6 @@ namespace Game.Commands.VNext
         static bool TryResolveKeyId(CommandResolveContext ctx, string stableKey, out CommandKeyId keyId)
         {
             keyId = default;
-            if (ctx.KeyResolver is CommandKeyResolver resolver)
-            {
-                return resolver.TryResolve(stableKey, ctx.AllowRuntimeKeyFallback, out keyId);
-            }
-
             return ctx.KeyResolver.TryResolve(stableKey, out keyId);
         }
     }

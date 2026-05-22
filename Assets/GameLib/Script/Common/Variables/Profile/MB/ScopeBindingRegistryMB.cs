@@ -1,7 +1,7 @@
-﻿// Game.Profile.ScopeBindingRegistryMB.cs
+// Game.Profile.ScopeBindingRegistryMB.cs
 //
 // ScopeBindingRegistryService 縺ｮ DI 逋ｻ骭ｲ縺ｨ縲！nspector 縺九ｉ縺ｮ蛻晄悄 Profile 險ｭ螳壹ｒ陦後≧縲・
-// Pool(RuntimeLifetimeScope) 縺ｧ縺ｮ蜀榊茜逕ｨ繝ｭ繧ｸ繝・け縺ｯ ScopeBindingRegistryInstallService 縺梧球蠖薙☆繧九・
+// Pool(KernelScopeHost) 縺ｧ縺ｮ蜀榊茜逕ｨ繝ｭ繧ｸ繝・け縺ｯ ScopeBindingRegistryInstallService 縺梧球蠖薙☆繧九・
 
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ using Sirenix.OdinInspector;
 namespace Game.Profile
 {
     [DisallowMultipleComponent]
-    public sealed class ScopeBindingRegistryMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ScopeBindingRegistryMB : MonoBehaviour
     {
         [Header("Profiles")]
         [Tooltip("Inspector setting.")]
@@ -25,18 +25,21 @@ namespace Game.Profile
         List<DynamicValue<BaseProfileData>> _profiles = new();
 
         [Header("Pool / Runtime")]
-        [Tooltip("RuntimeLifetimeScope(Pool) 縺ｮ Acquire 譎ゅ↓ Registry 繧偵Μ繧ｻ繝・ヨ縺励※蜀咲匳骭ｲ縺吶ｋ")]
+        [Tooltip("KernelScopeHost(Pool) 縺ｮ Acquire 譎ゅ↓ Registry 繧偵Μ繧ｻ繝・ヨ縺励※蜀咲匳骭ｲ縺吶ｋ")]
         [SerializeField] bool _resetOnAcquire = true;
 
-        [Tooltip("RuntimeLifetimeScope(Pool) 縺ｮ Release 譎ゅ↓ Registry 繧偵け繝ｪ繧｢縺吶ｋ")]
+        [Tooltip("KernelScopeHost(Pool) 縺ｮ Release 譎ゅ↓ Registry 繧偵け繝ｪ繧｢縺吶ｋ")]
         [SerializeField] bool _clearOnRelease = true;
 
         [Header("Scope Identity")]
         [Tooltip("Inspector setting.")]
         [SerializeField] bool _enableSaveInRuntimeScope = false;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeBindingRegistryRuntime(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
+            _ = builder ?? throw new ArgumentNullException(nameof(builder));
+            _ = scope ?? throw new ArgumentNullException(nameof(scope));
+
             var isRuntime = scope.Kind == LifetimeScopeKind.Runtime;
 
             builder.Register<ScopeBindingRegistryService>(resolver =>
@@ -46,7 +49,7 @@ namespace Game.Profile
                 var scopeIdentity = string.Empty;
 
                 // First, try resolving identity via this scope's resolver (preferred)
-                if (resolver.TryResolve<ILTSIdentityService>(out var identity) && identity != null && (!isRuntime || _enableSaveInRuntimeScope))
+                if (resolver.TryResolve<IScopeIdentityService>(out var identity) && identity != null && (!isRuntime || _enableSaveInRuntimeScope))
                 {
                     scopeIdentity = identity.Id ?? string.Empty;
                 }
@@ -57,7 +60,7 @@ namespace Game.Profile
                     scopeIdentity = scope.Identity.Id ?? string.Empty;
                 }
 
-                // Last resort: walk up scope chain to find nearest ILTSIdentityService (fallback for edge cases)
+                // Last resort: walk up scope chain to find nearest IScopeIdentityService (fallback for edge cases)
                 if (string.IsNullOrEmpty(scopeIdentity))
                 {
                     for (IScopeNode cur = scope.Parent; cur != null; cur = cur.Parent)
@@ -127,3 +130,6 @@ namespace Game.Profile
         }
     }
 }
+
+
+

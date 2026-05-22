@@ -194,7 +194,6 @@ namespace Game.Commands.VNext
                 _catalog,
                 _keyResolver,
                 _logger,
-                normalized.AllowRuntimeKeyFallback,
                 effectiveCtx);
 
             var trace = new TraceBuilder(normalized);

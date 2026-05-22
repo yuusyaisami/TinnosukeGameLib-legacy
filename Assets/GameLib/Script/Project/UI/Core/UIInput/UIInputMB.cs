@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using UnityEngine;
 using Game.Input;
 
@@ -31,7 +31,7 @@ namespace Game.UI
     /// 縺薙・MB縺ｧ縺ｯ迚ｹ縺ｫ險ｭ螳夐・岼縺ｯ縺ゅｊ縺ｾ縺帙ｓ縺後・
     /// 蟆・擂逧・↓蜈･蜉帛､画鋤縺ｮ繧ｫ繧ｹ繧ｿ繝槭う繧ｺ繧ｪ繝励す繝ｧ繝ｳ繧定ｿｽ蜉蜿ｯ閭ｽ縲・
     /// </summary>
-    public sealed class UIInputMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UIInputMB : MonoBehaviour, IScopeInstaller
     {
         // ----------------------------------------------------------------
         // Inspector險ｭ螳夲ｼ亥ｰ・擂縺ｮ諡｡蠑ｵ逕ｨ・・
@@ -79,7 +79,7 @@ namespace Game.UI
         /// - 縺昴・縺溘ａ縲ゞINavigationMB繧医ｊ蠕後↓逋ｻ骭ｲ縺輔ｌ繧九°縲・
         ///   蜷後§Configure繝輔ぉ繝ｼ繧ｺ縺ｧ荳邱偵↓逋ｻ骭ｲ縺輔ｌ繧句ｿ・ｦ√′縺ゅｋ
         /// </summary>
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // UIInputService繧堤匳骭ｲ
             // - IUIInputService: 蜈ｬ髢九う繝ｳ繧ｿ繝ｼ繝輔ぉ繝ｼ繧ｹ
@@ -133,3 +133,4 @@ namespace Game.UI
         public bool ForcePointerSyncOnPress { get; set; } = true;
     }
 }
+

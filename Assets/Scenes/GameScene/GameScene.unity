@@ -236,8 +236,7 @@ GameObject:
   - component: {fileID: 65932052}
   - component: {fileID: 65932051}
   - component: {fileID: 65932050}
-  - component: {fileID: 65932049}
-  - component: {fileID: 65932048}
+- component: {fileID: 65932048}
   - component: {fileID: 65932054}
   m_Layer: 3
   m_Name: RightTopWallFrame1
@@ -308,30 +307,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 6.7082014, y: 0.22000265}
   m_EdgeRadius: 0
---- !u!114 &65932049
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 65932046}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &65932050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5052,8 +5027,7 @@ GameObject:
   - component: {fileID: 195292939}
   - component: {fileID: 195292938}
   - component: {fileID: 195292937}
-  - component: {fileID: 195292936}
-  - component: {fileID: 195292935}
+- component: {fileID: 195292935}
   m_Layer: 0
   m_Name: Back
   m_TagString: Untagged
@@ -5428,30 +5402,6 @@ MonoBehaviour:
       type: {class: LiteralIntSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 0
---- !u!114 &195292936
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 195292933}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &195292937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6051,8 +6001,7 @@ GameObject:
   - component: {fileID: 247894737}
   - component: {fileID: 247894736}
   - component: {fileID: 247894735}
-  - component: {fileID: 247894734}
-  - component: {fileID: 247894733}
+- component: {fileID: 247894733}
   - component: {fileID: 247894739}
   m_Layer: 3
   m_Name: LeftTopWallFrame1
@@ -6123,30 +6072,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.065533, y: 1.0134904}
   m_EdgeRadius: 0
---- !u!114 &247894734
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 247894731}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &247894735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8956,8 +8881,7 @@ GameObject:
   - component: {fileID: 354715640}
   - component: {fileID: 354715639}
   - component: {fileID: 354715638}
-  - component: {fileID: 354715637}
-  - component: {fileID: 354715636}
+- component: {fileID: 354715636}
   - component: {fileID: 354715635}
   m_Layer: 3
   m_Name: MetalLeftTopRig1
@@ -9046,30 +8970,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.20984411, y: 0.124605656}
   m_EdgeRadius: 0
---- !u!114 &354715637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 354715633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &354715638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10078,8 +9978,7 @@ GameObject:
   - component: {fileID: 427838408}
   - component: {fileID: 427838407}
   - component: {fileID: 427838406}
-  - component: {fileID: 427838405}
-  - component: {fileID: 427838404}
+- component: {fileID: 427838404}
   - component: {fileID: 427838403}
   m_Layer: 3
   m_Name: MetalRightTopRig0
@@ -10168,30 +10067,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.20984411, y: 0.124605656}
   m_EdgeRadius: 0
---- !u!114 &427838405
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 427838401}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &427838406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10306,8 +10181,7 @@ GameObject:
   - component: {fileID: 437750859}
   - component: {fileID: 437750858}
   - component: {fileID: 437750857}
-  - component: {fileID: 437750856}
-  - component: {fileID: 437750855}
+- component: {fileID: 437750855}
   - component: {fileID: 437750854}
   m_Layer: 3
   m_Name: MetalRightTopRig1
@@ -10396,30 +10270,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.20984411, y: 0.124605656}
   m_EdgeRadius: 0
---- !u!114 &437750856
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 437750852}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &437750857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23601,8 +23451,7 @@ GameObject:
   - component: {fileID: 801339478}
   - component: {fileID: 801339477}
   - component: {fileID: 801339476}
-  - component: {fileID: 801339475}
-  - component: {fileID: 801339474}
+- component: {fileID: 801339474}
   - component: {fileID: 801339473}
   - component: {fileID: 801339470}
   m_Layer: 3
@@ -24272,30 +24121,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.6729562, y: 0.1251173}
   m_EdgeRadius: 0
---- !u!114 &801339475
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 801339468}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &801339476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24410,8 +24235,7 @@ GameObject:
   - component: {fileID: 824937128}
   - component: {fileID: 824937127}
   - component: {fileID: 824937126}
-  - component: {fileID: 824937125}
-  - component: {fileID: 824937124}
+- component: {fileID: 824937124}
   - component: {fileID: 824937123}
   - component: {fileID: 824937130}
   m_Layer: 3
@@ -24501,30 +24325,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.6729562, y: 0.1251173}
   m_EdgeRadius: 0
---- !u!114 &824937125
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 824937119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &824937126
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25400,8 +25200,7 @@ GameObject:
   - component: {fileID: 843825815}
   - component: {fileID: 843825814}
   - component: {fileID: 843825813}
-  - component: {fileID: 843825812}
-  - component: {fileID: 843825811}
+- component: {fileID: 843825811}
   - component: {fileID: 843825810}
   m_Layer: 3
   m_Name: LeftWallFrame (10)
@@ -25490,30 +25289,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &843825812
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 843825808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &843825813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42464,8 +42239,7 @@ GameObject:
   - component: {fileID: 1084634068}
   - component: {fileID: 1084634067}
   - component: {fileID: 1084634066}
-  - component: {fileID: 1084634065}
-  - component: {fileID: 1084634064}
+- component: {fileID: 1084634064}
   - component: {fileID: 1084634063}
   - component: {fileID: 1084634070}
   m_Layer: 3
@@ -42555,30 +42329,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.20984411, y: 0.124605656}
   m_EdgeRadius: 0
---- !u!114 &1084634065
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1084634061}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1084634066
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43371,8 +43121,7 @@ GameObject:
   - component: {fileID: 1166495125}
   - component: {fileID: 1166495124}
   - component: {fileID: 1166495123}
-  - component: {fileID: 1166495122}
-  - component: {fileID: 1166495121}
+- component: {fileID: 1166495121}
   m_Layer: 0
   m_Name: PlayerInventry
   m_TagString: Untagged
@@ -43445,30 +43194,6 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
---- !u!114 &1166495122
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1166495119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1166495123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -50652,8 +50377,7 @@ GameObject:
   - component: {fileID: 1339687741}
   - component: {fileID: 1339687740}
   - component: {fileID: 1339687739}
-  - component: {fileID: 1339687738}
-  - component: {fileID: 1339687737}
+- component: {fileID: 1339687737}
   - component: {fileID: 1339687736}
   m_Layer: 0
   m_Name: GateRightObjects
@@ -51213,30 +50937,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!114 &1339687738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1339687734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1339687739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52379,8 +52079,7 @@ GameObject:
   - component: {fileID: 1467384566}
   - component: {fileID: 1467384565}
   - component: {fileID: 1467384564}
-  - component: {fileID: 1467384563}
-  - component: {fileID: 1467384562}
+- component: {fileID: 1467384562}
   - component: {fileID: 1467384568}
   m_Layer: 0
   m_Name: GateLeftObjects
@@ -52443,30 +52142,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!114 &1467384563
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1467384559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1467384564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53110,8 +52785,7 @@ GameObject:
   - component: {fileID: 1470168662}
   - component: {fileID: 1470168661}
   - component: {fileID: 1470168660}
-  - component: {fileID: 1470168659}
-  - component: {fileID: 1470168658}
+- component: {fileID: 1470168658}
   - component: {fileID: 1470168664}
   m_Layer: 3
   m_Name: LeftTopWallFrame2
@@ -53182,30 +52856,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.8474258, y: 0.16710913}
   m_EdgeRadius: 0
---- !u!114 &1470168659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1470168656}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1470168660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56331,8 +55981,7 @@ GameObject:
   - component: {fileID: 1484563813}
   - component: {fileID: 1484563812}
   - component: {fileID: 1484563811}
-  - component: {fileID: 1484563810}
-  - component: {fileID: 1484563809}
+- component: {fileID: 1484563809}
   - component: {fileID: 1484563808}
   - component: {fileID: 1484563807}
   - component: {fileID: 1484563806}
@@ -58525,30 +58174,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.2916205, y: 5.70549}
   m_EdgeRadius: 0
---- !u!114 &1484563810
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1484563803}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1484563811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60487,8 +60112,7 @@ GameObject:
   - component: {fileID: 1505620741}
   - component: {fileID: 1505620740}
   - component: {fileID: 1505620739}
-  - component: {fileID: 1505620738}
-  - component: {fileID: 1505620737}
+- component: {fileID: 1505620737}
   - component: {fileID: 1505620736}
   - component: {fileID: 1505620735}
   - component: {fileID: 1505620734}
@@ -61116,30 +60740,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.2962146, y: 6.2662973}
   m_EdgeRadius: 0
---- !u!114 &1505620738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1505620732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1505620739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63026,8 +62626,7 @@ GameObject:
   - component: {fileID: 1574847660}
   - component: {fileID: 1574847659}
   - component: {fileID: 1574847658}
-  - component: {fileID: 1574847657}
-  - component: {fileID: 1574847656}
+- component: {fileID: 1574847656}
   m_Layer: 3
   m_Name: TogepiRight1
   m_TagString: Untagged
@@ -63103,30 +62702,6 @@ PolygonCollider2D:
       - {x: 0.14612293, y: -0.6667814}
       - {x: 0.14597729, y: 0.3334567}
   m_UseDelaunayMesh: 1
---- !u!114 &1574847657
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1574847654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1574847658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65959,8 +65534,7 @@ GameObject:
   - component: {fileID: 1635666135}
   - component: {fileID: 1635666134}
   - component: {fileID: 1635666133}
-  - component: {fileID: 1635666132}
-  - component: {fileID: 1635666131}
+- component: {fileID: 1635666131}
   m_Layer: 3
   m_Name: LeftWallFrame (3)
   m_TagString: Untagged
@@ -66030,30 +65604,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 0.8119169}
   m_EdgeRadius: 0
---- !u!114 &1635666132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1635666129}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1635666133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66863,8 +66413,7 @@ GameObject:
   - component: {fileID: 1656888564}
   - component: {fileID: 1656888563}
   - component: {fileID: 1656888562}
-  - component: {fileID: 1656888561}
-  - component: {fileID: 1656888560}
+- component: {fileID: 1656888560}
   - component: {fileID: 1656888566}
   m_Layer: 3
   m_Name: LeftTopWallFrame2
@@ -66935,30 +66484,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.8436692, y: 0.16753721}
   m_EdgeRadius: 0
---- !u!114 &1656888561
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1656888558}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1656888562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67228,8 +66753,7 @@ GameObject:
   - component: {fileID: 1662035321}
   - component: {fileID: 1662035320}
   - component: {fileID: 1662035319}
-  - component: {fileID: 1662035318}
-  - component: {fileID: 1662035317}
+- component: {fileID: 1662035317}
   - component: {fileID: 1662035316}
   - component: {fileID: 1662035323}
   m_Layer: 3
@@ -67319,30 +66843,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.67013884, y: 0.1251173}
   m_EdgeRadius: 0
---- !u!114 &1662035318
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1662035312}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1662035319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68115,8 +67615,7 @@ GameObject:
   - component: {fileID: 1670822312}
   - component: {fileID: 1670822311}
   - component: {fileID: 1670822310}
-  - component: {fileID: 1670822309}
-  - component: {fileID: 1670822308}
+- component: {fileID: 1670822308}
   m_Layer: 0
   m_Name: Handle
   m_TagString: Untagged
@@ -68235,30 +67734,6 @@ MonoBehaviour:
       type: {class: LiteralBoolSource, ns: Game.Common, asm: Assembly-CSharp}
       data:
         value: 1
---- !u!114 &1670822309
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1670822304}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1670822310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68663,8 +68138,7 @@ GameObject:
   - component: {fileID: 1692474658}
   - component: {fileID: 1692474657}
   - component: {fileID: 1692474656}
-  - component: {fileID: 1692474655}
-  - component: {fileID: 1692474660}
+- component: {fileID: 1692474660}
   m_Layer: 3
   m_Name: TogepiLeft1
   m_TagString: Untagged
@@ -68688,30 +68162,6 @@ Transform:
   - {fileID: 359043669}
   m_Father: {fileID: 1887467443}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1692474655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1692474652}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1692474656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68879,8 +68329,7 @@ GameObject:
   - component: {fileID: 1713894696}
   - component: {fileID: 1713894695}
   - component: {fileID: 1713894694}
-  - component: {fileID: 1713894693}
-  - component: {fileID: 1713894692}
+- component: {fileID: 1713894692}
   - component: {fileID: 1713894698}
   - component: {fileID: 1713894699}
   m_Layer: 0
@@ -69197,30 +68646,6 @@ MonoBehaviour:
         usePooling: 1
         category: Runtime
         templateId: 
---- !u!114 &1713894693
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1713894685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1713894694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69616,8 +69041,7 @@ GameObject:
   - component: {fileID: 1761689375}
   - component: {fileID: 1761689374}
   - component: {fileID: 1761689373}
-  - component: {fileID: 1761689372}
-  - component: {fileID: 1761689371}
+- component: {fileID: 1761689371}
   - component: {fileID: 1761689370}
   - component: {fileID: 1761689367}
   m_Layer: 3
@@ -70287,30 +69711,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.7277715, y: 0.1251173}
   m_EdgeRadius: 0
---- !u!114 &1761689372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1761689365}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1761689373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74672,8 +74072,7 @@ GameObject:
   - component: {fileID: 1789457590}
   - component: {fileID: 1789457589}
   - component: {fileID: 1789457588}
-  - component: {fileID: 1789457587}
-  - component: {fileID: 1789457586}
+- component: {fileID: 1789457586}
   - component: {fileID: 1789457585}
   m_Layer: 3
   m_Name: LeftTopWallFrame0
@@ -74762,30 +74161,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1789457587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1789457583}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1789457588
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75736,8 +75111,7 @@ GameObject:
   - component: {fileID: 1823362330}
   - component: {fileID: 1823362329}
   - component: {fileID: 1823362328}
-  - component: {fileID: 1823362327}
-  - component: {fileID: 1823362326}
+- component: {fileID: 1823362326}
   m_Layer: 3
   m_Name: LeftWallFrame
   m_TagString: Untagged
@@ -75807,30 +75181,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1823362327
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1823362324}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1823362328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77881,8 +77231,7 @@ GameObject:
   - component: {fileID: 1893065038}
   - component: {fileID: 1893065037}
   - component: {fileID: 1893065036}
-  - component: {fileID: 1893065035}
-  - component: {fileID: 1893065034}
+- component: {fileID: 1893065034}
   m_Layer: 3
   m_Name: RightWallFrame
   m_TagString: Untagged
@@ -77952,30 +77301,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1893065035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1893065032}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1893065036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79498,8 +78823,7 @@ GameObject:
   - component: {fileID: 1979925671}
   - component: {fileID: 1979925670}
   - component: {fileID: 1979925669}
-  - component: {fileID: 1979925668}
-  - component: {fileID: 1979925667}
+- component: {fileID: 1979925667}
   - component: {fileID: 1979925666}
   - component: {fileID: 1979925665}
   - component: {fileID: 1979925664}
@@ -81692,30 +81016,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 5.8528986}
   m_EdgeRadius: 0
---- !u!114 &1979925668
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979925661}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cea925f8b3d836342b22b1ca033a0cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.RuntimeLifetimeScope
-  includeFeatureInstallers: 1
-  includeInactiveFeatureInstallers: 1
-  debugAwakeFrame: -1
-  debugBuildFrame: -1
-  debugBuildDelayFrames: -1
-  debugAwakeRealtime: -1
-  debugBuildRealtime: -1
-  debugParent: null
-  debugParentHasResolver: 0
-  debugParentBuildStatus: Unknown
-  debugPath: 
-  debugBuildStatus: NotBuilt
 --- !u!114 &1979925669
 MonoBehaviour:
   m_ObjectHideFlags: 0

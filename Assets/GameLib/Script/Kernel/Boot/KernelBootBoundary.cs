@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Diagnostics;
+using Game.Kernel.Generation;
+using Game.Kernel.IR;
 using Game.Kernel.Validation;
 
 namespace Game.Kernel.Boot
@@ -279,7 +281,7 @@ namespace Game.Kernel.Boot
                 profileId: context.SelectedProfile.Id.Value,
                 phase: "Boot");
 
-            DiagnosticPayload payload = new DiagnosticPayload(new[]
+            List<DiagnosticPayloadEntry> payloadEntries = new List<DiagnosticPayloadEntry>(8)
             {
                 new DiagnosticPayloadEntry("ManifestId", DiagnosticPayloadValue.FromInt32(context.Manifest.ManifestId.Value)),
                 new DiagnosticPayloadEntry("ArtifactSetId", DiagnosticPayloadValue.FromInt32(context.Manifest.ArtifactSet.ArtifactSetId.Value)),
@@ -288,9 +290,9 @@ namespace Game.Kernel.Boot
                 new DiagnosticPayloadEntry("BootStage", DiagnosticPayloadValue.FromString("RuntimeConstruction")),
                 new DiagnosticPayloadEntry("FailureKind", DiagnosticPayloadValue.FromString(KernelBootBoundaryFailureKind.RuntimeSurfaceMissing.ToString())),
                 new DiagnosticPayloadEntry("SuggestedFix", DiagnosticPayloadValue.FromString("Return a non-null runtime surface from the boot factory after validation passes.")),
-            });
-
+            };
             BootDiagnosticsPayloadBuilder.AppendPolicyEntries(payloadEntries, diagnosticsPolicy);
+            DiagnosticPayload payload = new DiagnosticPayload(payloadEntries);
 
             return new KernelDiagnostic(
                 new DiagnosticCode(KernelBootBoundaryCodes.RuntimeSurfaceMissing),
@@ -309,7 +311,7 @@ namespace Game.Kernel.Boot
                 profileId: context.SelectedProfile.Id.Value,
                 phase: "Boot");
 
-            DiagnosticPayload payload = new DiagnosticPayload(new[]
+            List<DiagnosticPayloadEntry> payloadEntries = new List<DiagnosticPayloadEntry>(8)
             {
                 new DiagnosticPayloadEntry("ManifestId", DiagnosticPayloadValue.FromInt32(context.Manifest.ManifestId.Value)),
                 new DiagnosticPayloadEntry("ArtifactSetId", DiagnosticPayloadValue.FromInt32(context.Manifest.ArtifactSet.ArtifactSetId.Value)),
@@ -318,9 +320,9 @@ namespace Game.Kernel.Boot
                 new DiagnosticPayloadEntry("BootStage", DiagnosticPayloadValue.FromString("RuntimeConstruction")),
                 new DiagnosticPayloadEntry("FailureKind", DiagnosticPayloadValue.FromString(KernelBootBoundaryFailureKind.RuntimeConstructionFailed.ToString())),
                 new DiagnosticPayloadEntry("SuggestedFix", DiagnosticPayloadValue.FromString("Ensure boot runtime construction is deterministic and side-effect free after validation passes.")),
-            });
-
+            };
             BootDiagnosticsPayloadBuilder.AppendPolicyEntries(payloadEntries, diagnosticsPolicy);
+            DiagnosticPayload payload = new DiagnosticPayload(payloadEntries);
 
             return new KernelDiagnostic(
                 new DiagnosticCode(KernelBootBoundaryCodes.RuntimeConstructionFailed),

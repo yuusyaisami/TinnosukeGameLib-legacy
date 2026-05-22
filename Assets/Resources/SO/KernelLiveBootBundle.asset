@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2e80dd9efef4a00a33749fbd6f77142, type: 3}
+  m_Name: KernelLiveBootBundle
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Project.Bootstrap.KernelLiveBootBundleAsset
+  projectRootPrefab: {fileID: 5168433763782961915, guid: ba214c01e27040e45890238e3878e5f2, type: 3}
+  globalRootPrefab: {fileID: 8207296612103833857, guid: 7b13fbab65eb5ef4d9f40878ed317a1c, type: 3}
+  loadingParentKind: 30
+  profileId: 21001
+  profileKind: 10
+  manifestId: 21001
+  bootPolicyId: 21001
+  planId: 21001
+  artifactSetId: 21001
+  formatVersion: 1
+  generatorVersion: V21-M1
+  autoLoadInitialScene: 1
+  initialSceneMode: 10
+  initialGameScene: 0
+  initialSceneName: TitleScene

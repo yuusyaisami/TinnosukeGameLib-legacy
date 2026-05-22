@@ -11,14 +11,14 @@ namespace Game.RoomMap
         string RuntimeSpawnerTag { get; }
     }
     [DisallowMultipleComponent]
-    public sealed class RoomMapSystemMB : MonoBehaviour, IFeatureInstaller, IRoomMapSystemOptions
+    public sealed class RoomMapSystemMB : MonoBehaviour, IScopeInstaller, IRoomMapSystemOptions
     {
         [Header("RoomMap System")]
         [SerializeField] Transform _roomMapParentTransform = null!;
         [SerializeField] string _runtimeSpawnerTag = "";
         public Transform RoomMapParentTransform => _roomMapParentTransform;
         public string RuntimeSpawnerTag => _runtimeSpawnerTag;
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             builder.RegisterInstance<IRoomMapSystemOptions>(this);
             builder.Register<RoomMapBuilder>(RuntimeLifetime.Singleton)
@@ -35,3 +35,4 @@ namespace Game.RoomMap
         }
     }
 }
+

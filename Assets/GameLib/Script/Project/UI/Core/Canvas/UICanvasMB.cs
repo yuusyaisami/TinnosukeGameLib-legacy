@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using UnityEngine;
 using VContainer;
 
@@ -50,7 +50,7 @@ namespace Game.UI
     /// 
     /// Canvas縺瑚ｨｭ螳壹＆繧後※縺・↑縺・ｴ蜷医∬ｦｪ髫主ｱ､縺九ｉCanvas繧定・蜍募叙蠕励☆繧九・
     /// </summary>
-    public sealed class UICanvasMB : MonoBehaviour, IFeatureInstaller
+    public sealed class UICanvasMB : MonoBehaviour, IScopeInstaller
     {
         // ================================================================
         // Inspector險ｭ螳・
@@ -148,7 +148,7 @@ namespace Game.UI
         /// 2. UICanvasServiceCore繧担ingleton縺ｧ逋ｻ骭ｲ
         /// 3. IUICanvasService縺ｨ縺励※蜈ｬ髢・
         /// </summary>
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // Canvas繧定ｧ｣豎ｺ
             _resolvedCanvas = ResolveCanvas();
@@ -429,3 +429,4 @@ namespace Game.UI
         }
     }
 }
+

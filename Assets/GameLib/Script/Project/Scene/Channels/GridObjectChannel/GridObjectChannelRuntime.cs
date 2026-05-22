@@ -479,7 +479,6 @@ namespace Game.Channel
                 if (mode != GridObjectChannelRefreshMode.LayoutOnly)
                 {
                     var payload = _payloadBuilder.BuildPayload(_state, item);
-                    _ = _payloadBuilder.ApplyPayloadToBlackboard(instance, payload);
                 }
 
                 await _visualRelayoutService.RelayoutInstanceAsync(_state, instance, item, ct);

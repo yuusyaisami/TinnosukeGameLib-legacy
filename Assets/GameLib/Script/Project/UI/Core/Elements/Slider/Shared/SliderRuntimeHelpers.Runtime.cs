@@ -116,7 +116,7 @@ namespace Game.UI
             IRuntimeResolver? resolver,
             out Transform? root,
             out IScopeNode? scopeNode,
-            out RuntimeLifetimeScope? runtimeScope)
+            out KernelScopeHost? runtimeScope)
         {
             root = null;
             scopeNode = null;
@@ -170,7 +170,7 @@ namespace Game.UI
             if (resolver == null)
                 return;
 
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
+            if (resolver.TryResolve<KernelScopeHost>(out var runtimeScope) && runtimeScope != null)
             {
                 if (runtimeScope.Resolver != null &&
                     runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
@@ -547,3 +547,5 @@ namespace Game.UI
 
     }
 }
+
+

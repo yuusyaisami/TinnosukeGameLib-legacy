@@ -800,7 +800,7 @@ namespace Game.Targeting
             return $"mobility={mobility} dynSet={dynamicSet} staticKind={staticKind}";
         }
 
-        static bool TryResolveScopePosition(IScopeNode scope, ILTSIdentityService identity, out float2 pos)
+        static bool TryResolveScopePosition(IScopeNode scope, IScopeIdentityService identity, out float2 pos)
         {
             pos = default;
             if (identity.SelfTransform != null)
@@ -844,3 +844,4 @@ namespace Game.Targeting
         public bool ClearDirectTargets() => _runtime.ClearDirectTargets();
     }
 }
+

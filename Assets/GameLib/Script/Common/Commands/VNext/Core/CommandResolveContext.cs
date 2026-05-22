@@ -14,7 +14,6 @@ namespace Game.Commands.VNext
         public ICommandCatalog Catalog { get; }
         public ICommandKeyResolver KeyResolver { get; }
         public ICommandResolveLogger Logger { get; }
-        public bool AllowRuntimeKeyFallback { get; }
         public CommandContext? RuntimeContext { get; }
 
         public CommandResolveContext(
@@ -25,7 +24,6 @@ namespace Game.Commands.VNext
             ICommandCatalog catalog,
             ICommandKeyResolver keyResolver,
             ICommandResolveLogger logger,
-            bool allowRuntimeKeyFallback,
             CommandContext? runtimeContext = null)
         {
             Scope = scope;
@@ -35,7 +33,6 @@ namespace Game.Commands.VNext
             Catalog = catalog;
             KeyResolver = keyResolver;
             Logger = logger;
-            AllowRuntimeKeyFallback = allowRuntimeKeyFallback;
             RuntimeContext = runtimeContext;
         }
 

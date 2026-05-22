@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Game;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -8,7 +8,7 @@ using VContainer.Unity;
 namespace Game.UI
 {
     [DisallowMultipleComponent]
-    public sealed class TooltipSystemMB : MonoBehaviour, IFeatureInstaller
+    public sealed class TooltipSystemMB : MonoBehaviour, IScopeInstaller
     {
         const string RootsGroup = "Roots";
         const string InputGroup = "Input";
@@ -76,7 +76,7 @@ namespace Game.UI
         [SerializeField]
         TooltipSystemSharedDefaults sharedDefaults = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             var resolvedTooltipRoot = tooltipRoot != null ? tooltipRoot : GetComponent<RectTransform>();
             if (resolvedTooltipRoot == null)
@@ -131,3 +131,4 @@ namespace Game.UI
 #endif
     }
 }
+

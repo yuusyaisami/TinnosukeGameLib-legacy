@@ -18,7 +18,7 @@ namespace Game.Channel
     {
         [Header("Target")]
         [SerializeField]
-        string channelTag = "default";
+        string channelTag = string.Empty;
 
         [Header("Snapshot")]
         [SerializeField, ReadOnly]
@@ -72,7 +72,13 @@ namespace Game.Channel
                 return;
             }
 
-            var tag = string.IsNullOrWhiteSpace(channelTag) ? "default" : channelTag;
+            if (string.IsNullOrWhiteSpace(channelTag))
+            {
+                status = "(channel tag not set)";
+                return;
+            }
+
+            var tag = channelTag;
             if (!_hub.TryGetPlayer(tag, out var player) || player == null)
             {
                 status = $"(player not found: '{tag}')";

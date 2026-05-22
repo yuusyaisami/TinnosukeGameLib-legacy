@@ -349,15 +349,9 @@ namespace Game.Channel
             if (t == null)
                 return null;
 
-            var baseScope = t.GetComponent<BaseLifetimeScope>();
-            if (baseScope != null)
-                return baseScope;
-
-            var runtimeScope = t.GetComponent<RuntimeLifetimeScope>();
-            if (runtimeScope != null)
-                return runtimeScope;
-
-            return null;
+            return ScopeFeatureInstallerUtility.TryGetScopeNode(t, includeInactive: true, out var node)
+                ? node
+                : null;
         }
     }
 }

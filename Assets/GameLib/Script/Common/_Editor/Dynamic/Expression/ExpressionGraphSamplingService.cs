@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -434,7 +434,7 @@ namespace Game.Common.Editor
         sealed class PreviewScopeNode : IScopeNode
         {
             public IScopeNode Parent => null;
-            public ILTSIdentityService Identity => null;
+            public IScopeIdentityService Identity => null;
             public LifetimeScopeKind Kind => LifetimeScopeKind.None;
             public IRuntimeResolver Resolver => null;
             public bool IsVisible => false;
@@ -470,3 +470,4 @@ namespace Game.Common.Editor
     }
 }
 #endif
+

@@ -354,7 +354,9 @@ namespace Game.Kernel.IR
                 writer.WriteString(module.LegacyCompat?.TrackingIssueOrBlockingCondition);
                 writer.WriteInt(module.LegacyCompat != null ? (int)module.LegacyCompat.Surface : 0);
                 writer.WriteString(module.LegacyCompat?.LegacySourceType);
-                ReadOnlySpan<DependencyNodeIR> explicitTargets = module.LegacyCompat?.ExplicitTargets ?? ReadOnlySpan<DependencyNodeIR>.Empty;
+                ReadOnlySpan<DependencyNodeIR> explicitTargets = module.LegacyCompat != null
+                    ? module.LegacyCompat.ExplicitTargets
+                    : ReadOnlySpan<DependencyNodeIR>.Empty;
                 writer.WriteInt(explicitTargets.Length);
                 for (int explicitTargetIndex = 0; explicitTargetIndex < explicitTargets.Length; explicitTargetIndex++)
                     WriteDependencyNode(writer, explicitTargets[explicitTargetIndex]);
@@ -915,6 +917,25 @@ namespace Game.Kernel.IR
                 default:
                     return "<invalid>";
             }
+        }
+
+        static string FormatDependencyNodes(ReadOnlySpan<DependencyNodeIR> dependencyNodes)
+        {
+            if (dependencyNodes.Length == 0)
+                return "[]";
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append('[');
+            for (int index = 0; index < dependencyNodes.Length; index++)
+            {
+                if (index > 0)
+                    builder.Append(", ");
+
+                builder.Append(FormatDependencyNode(dependencyNodes[index]));
+            }
+
+            builder.Append(']');
+            return builder.ToString();
         }
 
         static string SanitizePathForHash(string? value)

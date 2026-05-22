@@ -457,7 +457,7 @@ namespace Game.Kernel.Validation
                 adapter.IsRuntimeCapable ? LegacyCompatBoundaryCodes.RuntimeAdapterUsed : LegacyCompatBoundaryCodes.BridgeUsed,
                 ValidationSeverity.Warning,
                 header.SelectedProfile,
-                "Legacy bridge remains active and must stay explicit, observable, and removable.",
+                "Legacy bridge remains active as quarantine-only residue and must stay explicit, observable, profile-bounded, removable, and non-authoritative.",
                 "Continue migration until the legacy bridge can be removed from the verified graph.",
                 CreatePayloadEntries(adapter)));
         }
@@ -496,6 +496,14 @@ namespace Game.Kernel.Validation
         {
             return kind == LegacyCompatKind.RuntimeAdapter
                 || kind == LegacyCompatKind.TemporaryBridge;
+        }
+
+        static bool IsProfileForbidden(LegacyCompatDescriptorIR legacyCompat, KernelProfileMask selectedProfileMask)
+        {
+            if (legacyCompat == null)
+                throw new ArgumentNullException(nameof(legacyCompat));
+
+            return (legacyCompat.Profiles & selectedProfileMask) == KernelProfileMask.None;
         }
 
         static LegacyAdapterDescriptor[] CloneAndSortAdapters(IReadOnlyList<LegacyAdapterDescriptor> source)
@@ -566,6 +574,8 @@ namespace Game.Kernel.Validation
                 new DiagnosticPayloadEntry("TargetSubsystem", DiagnosticPayloadValue.FromString(legacyCompat.TargetSubsystem)),
                 new DiagnosticPayloadEntry("Profiles", DiagnosticPayloadValue.FromString(legacyCompat.Profiles.ToString())),
                 new DiagnosticPayloadEntry("RemovalStatus", DiagnosticPayloadValue.FromString(legacyCompat.RemovalStatus.ToString())),
+                new DiagnosticPayloadEntry("ResidueState", DiagnosticPayloadValue.FromString(GetResidueState(legacyCompat.Kind))),
+                new DiagnosticPayloadEntry("AuthorityState", DiagnosticPayloadValue.FromString("NonAuthoritative")),
             };
 
             if (legacyCompat.Surface != LegacyAdapterSurface.None)
@@ -598,6 +608,8 @@ namespace Game.Kernel.Validation
                 new DiagnosticPayloadEntry("TargetSubsystem", DiagnosticPayloadValue.FromString(adapter.TargetSubsystemName)),
                 new DiagnosticPayloadEntry("Profiles", DiagnosticPayloadValue.FromString(adapter.Profiles.ToString())),
                 new DiagnosticPayloadEntry("RemovalStatus", DiagnosticPayloadValue.FromString(adapter.RemovalStatus.ToString())),
+                new DiagnosticPayloadEntry("ResidueState", DiagnosticPayloadValue.FromString(GetResidueState(adapter.Kind))),
+                new DiagnosticPayloadEntry("AuthorityState", DiagnosticPayloadValue.FromString("NonAuthoritative")),
                 new DiagnosticPayloadEntry("AdapterSurface", DiagnosticPayloadValue.FromString(adapter.Surface.ToString())),
                 new DiagnosticPayloadEntry("LegacySourceType", DiagnosticPayloadValue.FromString(adapter.LegacySourceType)),
                 new DiagnosticPayloadEntry("LegacyDiagnosticsCode", DiagnosticPayloadValue.FromString(adapter.DiagnosticsCode)),
@@ -609,6 +621,13 @@ namespace Game.Kernel.Validation
             payloadEntries.AddRange(adapter.RemovalPolicy.ToDiagnosticPayloadEntries());
 
             return payloadEntries.ToArray();
+        }
+
+        static string GetResidueState(LegacyCompatKind kind)
+        {
+            return IsReleaseRuntimeAdapterKind(kind) || kind == LegacyCompatKind.ForbiddenFallback
+                ? "QuarantineOnly"
+                : "ExplicitCompatOnly";
         }
 
         static bool IsSurfaceCompatible(LegacyCompatKind kind, LegacyAdapterSurface surface)
@@ -985,21 +1004,33 @@ namespace Game.Kernel.Validation
                         break;
                     case ValidationSeverity.Warning:
                         warningCount++;
-                        return (infoCount, warningCount, errorCount, fatalCount);
-                }
-
-                static ValidationResultStatus DeriveStatus(int infoCount, int warningCount, int errorCount, int fatalCount)
-                {
-                    if (fatalCount > 0)
-                        return ValidationResultStatus.Fatal;
-
-                    if (errorCount > 0)
-                        return ValidationResultStatus.Failed;
-
-                    if (warningCount > 0 || infoCount > 0)
-                        return ValidationResultStatus.PassedWithWarnings;
-
-                    return ValidationResultStatus.Passed;
+                        break;
+                    case ValidationSeverity.Error:
+                        errorCount++;
+                        break;
+                    case ValidationSeverity.Fatal:
+                        fatalCount++;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(source), source[index].Severity, "Unsupported validation severity.");
                 }
             }
+
+            return (infoCount, warningCount, errorCount, fatalCount);
         }
+
+        static ValidationResultStatus DeriveStatus(int infoCount, int warningCount, int errorCount, int fatalCount)
+        {
+            if (fatalCount > 0)
+                return ValidationResultStatus.Fatal;
+
+            if (errorCount > 0)
+                return ValidationResultStatus.Failed;
+
+            if (warningCount > 0 || infoCount > 0)
+                return ValidationResultStatus.PassedWithWarnings;
+
+            return ValidationResultStatus.Passed;
+        }
+    }
+}

@@ -535,8 +535,7 @@ namespace Game.Rotation
         {
             for (var current = transform; current != null; current = current.parent)
             {
-                var scope = current.GetComponent<BaseLifetimeScope>();
-                if (scope?.Resolver == null)
+                if (!ScopeFeatureInstallerUtility.TryGetScopeNode(current, includeInactive: true, out var scope) || scope?.Resolver == null)
                     continue;
 
                 if (scope.Resolver.TryResolve<ITransformChannelPoseReader>(out var poseReader) && poseReader != null)

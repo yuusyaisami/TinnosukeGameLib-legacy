@@ -7,12 +7,12 @@ namespace Game.Spawn
     /// <summary>
     /// 繧ｨ繝溘ャ繧ｿ繝ｼ繧剃ｿ晄怏縺励◆GameObject繧剃ｽ懈・縺吶ｋ縺溘ａ縺ｮMonoBehaviour縲・譛ｬ莠ｺ縺梧戟縺｣縺ｦ縺・※繧ょ撫鬘後↑縺・
     /// </summary>
-    public class EmitterMB : MonoBehaviour, IFeatureInstaller
+    public class EmitterMB : MonoBehaviour, IScopeInstaller
     {
         [SerializeField] Transform originTransform = null;
         public Vector3 Origin => originTransform != null ? originTransform.position : transform.position;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             var ownerScope = ScopeNodeUtility.FindNearestRuntimeLifetimeScope(scope);
 
@@ -24,3 +24,4 @@ namespace Game.Spawn
         }
     }
 }
+

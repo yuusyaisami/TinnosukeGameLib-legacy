@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -52,7 +52,7 @@ namespace Game.UI
     }
 
     [DisallowMultipleComponent]
-    public sealed class TooltipChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class TooltipChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         const string RootsGroup = "Root Override";
         const string SpaceGroup = "Space";
@@ -115,7 +115,7 @@ namespace Game.UI
         public RectTransform? TooltipRootOverride => _tooltipRootOverride != null ? _tooltipRootOverride : GetComponent<RectTransform>();
         public bool EnableDebugLog => _enableDebugLog;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             EnsureDefaults();
 
@@ -200,3 +200,4 @@ namespace Game.UI
         bool ShowsTooltipRootOverride => _applyTooltipRootOverride && NormalizeSpaceKind(_spaceKind) == TooltipChannelSpaceKind.UIScreen;
     }
 }
+

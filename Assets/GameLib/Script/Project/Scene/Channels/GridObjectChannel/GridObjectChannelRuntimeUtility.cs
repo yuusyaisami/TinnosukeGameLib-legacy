@@ -11,23 +11,14 @@ namespace Game.Channel
 {
     internal static class GridObjectChannelRuntimeUtility
     {
-        public static bool TryResolveFromScopeOrAncestors<T>(IScopeNode? scope, out T? value) where T : class
+        public static bool TryResolveFromScope<T>(IScopeNode? scope, out T? value) where T : class
         {
             value = null;
-            for (var current = scope; current != null; current = current.Parent)
-            {
-                var resolver = current.Resolver;
-                if (resolver == null)
-                    continue;
+            var resolver = scope?.Resolver;
+            if (resolver == null)
+                return false;
 
-                if (resolver.TryResolve<T>(out var resolved) && resolved != null)
-                {
-                    value = resolved;
-                    return true;
-                }
-            }
-
-            return false;
+            return resolver.TryResolve<T>(out var resolved) && (value = resolved) != null;
         }
 
         public static IVarStore ResolveVars(IScopeNode? scope)
@@ -40,18 +31,6 @@ namespace Game.Channel
             }
 
             return NullVarStore.Instance;
-        }
-
-        public static void EnsureScopeBuiltIfNeeded(IScopeNode? scope)
-        {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
         }
 
         public static int ResolveVarId(VarKeyRef key, int fallback)
@@ -85,35 +64,9 @@ namespace Game.Channel
             if (resolver == null)
                 return;
 
-            await UniTask.SwitchToMainThread();
-
             try
             {
-                if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
-                {
-                    if (runtimeScope.Resolver != null &&
-                        runtimeScope.Resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) &&
-                        pool != null)
-                    {
-                        pool.Release(runtimeScope);
-                        return;
-                    }
-
-                    if (root != null)
-                        Object.Destroy(root.gameObject);
-                    else
-                        Object.Destroy(runtimeScope.gameObject);
-                    return;
-                }
-
-                if (scope is BaseLifetimeScope baseScope)
-                {
-                    await baseScope.DespawnAsync(CancellationToken.None);
-                    return;
-                }
-
-                if (root != null)
-                    Object.Destroy(root.gameObject);
+                await ScopeFeatureInstallerUtility.ReleaseSpawnedLifetimeAsync(resolver, CancellationToken.None);
             }
             catch (System.Exception ex)
             {
@@ -123,23 +76,9 @@ namespace Game.Channel
 
         public static void ExtractSpawnedInfo(IRuntimeResolver? resolver, out Transform? root, out IScopeNode? scopeNode)
         {
-            root = null;
-            scopeNode = null;
-            if (resolver == null)
-                return;
-
-            if (resolver.TryResolve<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
-            {
-                root = runtimeScope.transform;
-                scopeNode = runtimeScope;
-                return;
-            }
-
-            if (resolver.TryResolve<BaseLifetimeScope>(out var baseScope) && baseScope != null)
-            {
-                root = baseScope.transform;
-                scopeNode = baseScope;
-            }
+            var lifetime = ScopeFeatureInstallerUtility.CaptureSpawnedLifetime(resolver);
+            root = lifetime.Root != null ? lifetime.Root.transform : null;
+            scopeNode = lifetime.ScopeNode;
         }
 
         public static void WriteVariant(IVarStore vars, int varId, DynamicVariant value)

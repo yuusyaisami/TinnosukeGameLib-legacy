@@ -122,10 +122,10 @@ namespace Game.RoomMap
 
                         var resolver = await spawner.SpawnAsync(p, ct);
 
-                        ExtractSpawnedInfo(resolver, out var root, out var scopeNode, out var runtimeScope, out var baseScope);
+                        var lifetime = SpawnedLifetimeHandle.FromResolver(resolver);
 
                         // Diagnostic: warn if runtime scope identity appears unset (helps debug missing LTS identity reports)
-                        if (runtimeScope != null && (runtimeScope.Identity == null || string.IsNullOrEmpty(runtimeScope.Identity.Id)))
+                        if (lifetime.HasMissingRuntimeIdentity)
                         {
                         }
 
@@ -136,11 +136,7 @@ namespace Game.RoomMap
                             y,
                             tileId,
                             pos,
-                            resolver,
-                            root,
-                            scopeNode,
-                            runtimeScope,
-                            baseScope);
+                            lifetime);
 
                         instance.Set(layerIndex, x, y, record);
 
@@ -280,17 +276,13 @@ namespace Game.RoomMap
                 if (resolver == null)
                     continue;
 
-                ExtractSpawnedInfo(resolver, out var dynRoot, out var dynScopeNode, out var dynRuntimeScope, out var dynBaseScope);
-                var dynWorldPos = dynRoot != null ? dynRoot.transform.position : pos;
+                var lifetime = SpawnedLifetimeHandle.FromResolver(resolver);
+                var dynWorldPos = lifetime.Root != null ? lifetime.Root.transform.position : pos;
                 var dynamicRecord = new RoomMapInstance.DynamicRecord(
                     tileId,
                     entry.Cell,
                     dynWorldPos,
-                    resolver,
-                    dynRoot,
-                    dynScopeNode,
-                    dynRuntimeScope,
-                    dynBaseScope);
+                    lifetime);
                 instance.AddDynamic(dynamicRecord);
 
                 spawned++;
@@ -298,54 +290,6 @@ namespace Game.RoomMap
                     await UniTask.Yield(PlayerLoopTiming.Update, ct);
             }
 
-        }
-
-        static void ExtractSpawnedInfo(
-            IRuntimeResolver? resolver,
-            out GameObject? root,
-            out IScopeNode? scopeNode,
-            out RuntimeLifetimeScope? runtimeScope,
-            out BaseLifetimeScope? baseScope)
-        {
-            root = null;
-            scopeNode = null;
-            runtimeScope = null;
-            baseScope = null;
-
-            if (resolver == null)
-                return;
-
-            resolver.TryResolve(out runtimeScope);
-
-            if (runtimeScope != null)
-                root = runtimeScope.gameObject;
-
-            if (root == null)
-            {
-                if (resolver.TryResolve<Transform>(out var tr) && tr != null)
-                    root = tr.gameObject;
-                else if (resolver.TryResolve<GameObject>(out var go) && go != null)
-                    root = go;
-            }
-
-            scopeNode = runtimeScope;
-            if (scopeNode == null && resolver.TryResolve<IScopeNode>(out var resolved) && resolved != null)
-                scopeNode = resolved;
-
-            if (scopeNode == null && root != null)
-            {
-                var comps = root.GetComponents<Component>();
-                for (int i = 0; i < comps.Length; i++)
-                {
-                    if (comps[i] is IScopeNode n)
-                    {
-                        scopeNode = n;
-                        break;
-                    }
-                }
-            }
-
-            baseScope = scopeNode as BaseLifetimeScope;
         }
     }
 }

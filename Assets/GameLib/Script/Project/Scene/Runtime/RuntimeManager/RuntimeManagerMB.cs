@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
@@ -13,7 +13,7 @@ namespace Game.Project.Scene.Runtime
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RuntimeTickHub))]
-    public sealed class RuntimeManagerMB : MonoBehaviour, Game.IFeatureInstaller
+    public sealed class RuntimeManagerMB : MonoBehaviour
     {
         [Serializable]
         sealed class WarmupEntry
@@ -48,9 +48,11 @@ namespace Game.Project.Scene.Runtime
         [SerializeField, InlineProperty, HideLabel]
         RuntimeManagerPoolDebugViewer debugViewer = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallRuntimeManagerRuntime(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
-            // Only register this instance if the underlying Unity object is alive. When InstallFeature
+            _ = owner ?? throw new ArgumentNullException(nameof(owner));
+
+            // Only register this instance if the underlying Unity object is alive. When InstallScopeServices
             // runs during scope build, it's possible components were destroyed or are in an invalid state.
             if (this != null)
             {
@@ -676,7 +678,7 @@ namespace Game.Project.Scene.Runtime
             // This allows pooling under arbitrary parents while still preventing cross-parent reuse.
             bool bypassPooling = !p.AllowPooling;
 
-            RuntimeLifetimeScope scope;
+            KernelScopeHost scope;
             if (bypassPooling)
             {
                 var directSpawnStartRealtime = Time.realtimeSinceStartupAsDouble;
@@ -686,33 +688,57 @@ namespace Game.Project.Scene.Runtime
                 var go = UnityEngine.Object.Instantiate(prefab);
                 go.name = prefab.name;
 
-                scope = go.GetComponent<RuntimeLifetimeScope>();
+                scope = go.GetComponent<KernelScopeHost>();
                 if (scope == null)
-                    throw new InvalidOperationException($"Prefab {prefab.name} does not have {nameof(RuntimeLifetimeScope)}.");
+                    throw new InvalidOperationException($"Prefab {prefab.name} does not have {nameof(KernelScopeHost)}.");
 
                 // Parent in hierarchy and set pose
                 var t = scope.transform;
                 t.SetParent(transformParent, worldPositionStays: false);
                 SpawnPoseUtility.ApplySpawnPose(t, p);
 
-                // Build/DI parent selection: allow override, otherwise prefer nearest runtime scope, then base lifetime scope, then default.
-                if (lifetimeScopeParent != null)
+                bool useVerifiedComposition = VerifiedCompositionRuntime.IsActive;
+
+                if (useVerifiedComposition)
                 {
                     scope.SetExplicitBuildParent(lifetimeScopeParent);
+
+                    if (template.VerifiedScopePlanId <= 0)
+                    {
+                        throw new InvalidOperationException(
+                            $"Verified composition requires a positive VerifiedScopePlanId on runtime template '{template.name}' before spawning '{scope.name}'.");
+                    }
+
+                    if (!VerifiedCompositionRuntime.TryBindRuntimeScope(template, scope, lifetimeScopeParent))
+                    {
+                        string parentDescription = lifetimeScopeParent is Component explicitParentComponent
+                            ? explicitParentComponent.gameObject.name
+                            : lifetimeScopeParent?.GetType().Name ?? "<root>";
+
+                        throw new InvalidOperationException(
+                            $"Verified composition could not bind runtime scope '{scope.name}' for template '{template.name}' with explicit parent '{parentDescription}'. Pass an explicit verified parent or publish the required scope plan.");
+                    }
+                }
+                else if (lifetimeScopeParent != null)
+                {
+                    scope.SetExplicitBuildParent(lifetimeScopeParent);
+                    VerifiedCompositionRuntime.TryBindRuntimeScope(template, scope, lifetimeScopeParent);
                 }
                 else
                 {
-                    var runtimeParent = transformParent.GetComponentInParent<RuntimeLifetimeScopeBase>(includeInactive: true);
+                    var runtimeParent = transformParent.GetComponentInParent<KernelScopeHost>(includeInactive: true);
                     if (runtimeParent == scope)
                         runtimeParent = null;
 
                     if (runtimeParent != null)
                     {
                         scope.SetExplicitBuildParent(runtimeParent);
+                        VerifiedCompositionRuntime.TryBindRuntimeScope(template, scope, runtimeParent);
                     }
                     else
                     {
                         scope.SetExplicitBuildParent((IScopeNode?)null);
+                        VerifiedCompositionRuntime.TryBindRuntimeScope(template, scope, explicitParent: null);
                     }
                 }
 
@@ -788,7 +814,7 @@ namespace Game.Project.Scene.Runtime
 
             // NOTE: We intentionally target RuntimeLifetimeScopes under this spawner's configured root.
             // This matches the intended ownership model and avoids corrupting pooled inactive instances.
-            var scopes = _root.GetComponentsInChildren<RuntimeLifetimeScope>(filter.IncludeInactive);
+            var scopes = _root.GetComponentsInChildren<KernelScopeHost>(filter.IncludeInactive);
             if (scopes == null || scopes.Length == 0)
                 return 0;
 
@@ -812,7 +838,7 @@ namespace Game.Project.Scene.Runtime
             return deleted;
         }
 
-        static bool MatchesIdentity(RuntimeLifetimeScope scope, CommandTargetIdentityFilter filter)
+        static bool MatchesIdentity(KernelScopeHost scope, CommandTargetIdentityFilter filter)
         {
             var identity = scope.Identity;
             if (identity == null)
@@ -847,3 +873,6 @@ namespace Game.Project.Scene.Runtime
             => _pool.WarmupAsync(template, count, ct);
     }
 }
+
+
+

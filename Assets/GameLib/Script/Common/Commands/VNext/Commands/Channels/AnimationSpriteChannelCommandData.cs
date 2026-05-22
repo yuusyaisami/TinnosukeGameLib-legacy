@@ -152,7 +152,7 @@ namespace Game.Commands.VNext
 
         [BoxGroup("Target")]
         [LabelText("Channel Tag")]
-        public string ChannelTag = "default";
+        public string ChannelTag = string.Empty;
 
         [BoxGroup("Animation")]
         [LabelText("Apply Animation")]

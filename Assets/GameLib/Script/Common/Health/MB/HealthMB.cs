@@ -1,4 +1,4 @@
-﻿// Game.Health.HealthMB.cs
+// Game.Health.HealthMB.cs
 //
 // Health 邂｡逅・畑縺ｮ MonoBehaviour (v0.2)
 // - FixedHealthModifierRegistrySO 縺九ｉ蝗ｺ螳・Modifier 繧堤匳骭ｲ
@@ -22,7 +22,7 @@ namespace Game.Health
     /// Entity 縺ｫ驟咲ｽｮ縺励※ IHealthService 繧・DI 逋ｻ骭ｲ縺吶ｋ縲・
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class HealthMB : MonoBehaviour, IFeatureInstaller, IDisposable
+    public sealed class HealthMB : MonoBehaviour, IScopeInstaller, IDisposable
     {
         [Header("Profile")]
         [Tooltip("Inspector setting.")]
@@ -69,7 +69,7 @@ namespace Game.Health
 
         public IHealthService HealthService => _healthService;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // HealthService 繧堤匳骭ｲ・・untimeLTS 縺ｧ縺ｯ IEntityEventService 譛ｪ逋ｻ骭ｲ縺ｮ繧ｱ繝ｼ繧ｹ縺後≠繧九◆繧√ヵ繧ｩ繝ｼ繝ｫ繝舌ャ繧ｯ隗｣豎ｺ・・
             builder.Register<HealthService>(resolver =>
@@ -127,7 +127,7 @@ namespace Game.Health
 
         bool TryResolveHealthService()
         {
-            var runtimeScope = GetComponentInParent<RuntimeLifetimeScope>();
+            var runtimeScope = GetComponentInParent<KernelScopeHost>();
             if (runtimeScope != null)
             {
                 if (runtimeScope.TryResolveLocal<IHealthService>(out var runtimeHealthService) &&
@@ -148,7 +148,7 @@ namespace Game.Health
                 return false;
             }
 
-            var baseScope = GetComponentInParent<BaseLifetimeScope>();
+            var baseScope = GetComponentInParent<KernelScopeHost>();
             var baseResolver = baseScope?.Resolver;
             if (baseResolver != null &&
                 baseResolver.TryResolve<IHealthService>(out var baseHealthService) &&
@@ -255,7 +255,7 @@ namespace Game.Health
         static bool TryResolveOwnedService<T>(IScopeNode scope, IRuntimeResolver resolver, out T service) where T : class
         {
             service = null;
-            if (scope is RuntimeLifetimeScope runtimeScope)
+            if (scope is KernelScopeHost runtimeScope)
             {
                 return runtimeScope.TryResolveLocal<T>(out service) && service != null;
             }
@@ -267,7 +267,7 @@ namespace Game.Health
         {
             registry = null;
 
-            var runtimeScope = GetComponentInParent<RuntimeLifetimeScope>();
+            var runtimeScope = GetComponentInParent<KernelScopeHost>();
             var runtimeResolver = runtimeScope?.Resolver;
             if (runtimeResolver != null &&
                 runtimeResolver.TryResolve<FixedHealthModifierRegistrySO>(out registry) &&
@@ -276,7 +276,7 @@ namespace Game.Health
                 return true;
             }
 
-            var baseScope = GetComponentInParent<BaseLifetimeScope>();
+            var baseScope = GetComponentInParent<KernelScopeHost>();
             var baseResolver = baseScope?.Resolver;
             if (baseResolver != null &&
                 baseResolver.TryResolve<FixedHealthModifierRegistrySO>(out registry) &&
@@ -357,3 +357,6 @@ namespace Game.Health
 #endif
     }
 }
+
+
+

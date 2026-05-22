@@ -6,7 +6,7 @@ namespace Game.Spawn
 {
     /// <summary>
     /// Generic runtime template for pooled/non-pooled emitters.
-    /// Prefab must contain RuntimeLifetimeScope + EmitterMB (and related services).
+    /// Prefab must contain KernelScopeHost + EmitterMB (and related services).
     /// </summary>
     [CreateAssetMenu(menuName = "Game/Spawn/Runtime Template/Emitter", fileName = "EmitterRuntimeTemplate")]
     public sealed class EmitterRuntimeTemplateSO : BaseRuntimeObjectTemplate
@@ -15,3 +15,5 @@ namespace Game.Spawn
         protected override bool? FixedUsePooling => false;
     }
 }
+
+

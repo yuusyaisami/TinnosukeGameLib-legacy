@@ -8,7 +8,7 @@ using System;
 
 namespace Game.Scalar
 {
-    public class ProjectScalarMB : BaseScalarMB, IFeatureInstaller
+    public class ProjectScalarMB : BaseScalarMB
     {
         [FoldoutGroup("Debug")]
         [SerializeField, InlineProperty, HideLabel, ShowIf(nameof(enableDebugView))]

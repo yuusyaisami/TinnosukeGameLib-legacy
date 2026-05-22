@@ -22,11 +22,14 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "ConversationFlowCommandData is required.");
 
             var targetScope = await ConversationExecutorUtility.ResolveTargetScopeAsync(typed.Target, ctx, ct);
-            ConversationExecutorUtility.EnsureScopeBuiltIfNeeded(targetScope);
 
             if (!ConversationExecutorUtility.TryResolve(targetScope, out IConversationChannelHubService? hub) || hub == null)
             {
-                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, "IConversationChannelHubService is missing on target scope.");
+                EnsureStrict(
+                    typed.Strict,
+                    false,
+                    CommandRunFailureKind.ExecutorMissing,
+                    $"{ConversationExecutorUtility.ResolveDiagnosticCode} IConversationChannelHubService is missing on target scope.");
                 return;
             }
 
@@ -93,7 +96,7 @@ namespace Game.Commands.VNext
 
                         if (!hub.TryEndSession(tag, ConversationSessionEndKind.Forced, typed.EndMessage, out _))
                         {
-                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-202] Conversation session end failed. tag='{tag}'");
+                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"{ConversationExecutorUtility.SessionCompletionDiagnosticCode}[CONV-202] Conversation session end failed. tag='{tag}'");
                             return;
                         }
 
@@ -105,7 +108,7 @@ namespace Game.Commands.VNext
 
                         if (!dialogueClosed && !ct.IsCancellationRequested)
                         {
-                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-203] Dialogue channel end failed. tag='{session.DialogueChannelTag}'");
+                            EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"{ConversationExecutorUtility.SessionCompletionDiagnosticCode}[CONV-203] Dialogue channel end failed. tag='{session.DialogueChannelTag}'");
                             return;
                         }
 
@@ -170,13 +173,13 @@ namespace Game.Commands.VNext
                 if (ct.IsCancellationRequested || !session.IsActive)
                     return;
 
-                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-251] Conversation session end failed. tag='{session.Tag}'");
+                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"{ConversationExecutorUtility.SessionCompletionDiagnosticCode}[CONV-251] Conversation session end failed. tag='{session.Tag}'");
                 return;
             }
 
             if (!dialogueClosed && !ct.IsCancellationRequested)
             {
-                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"[CONV-252] Dialogue channel end failed. tag='{session.DialogueChannelTag}'");
+                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ResolveFailed, $"{ConversationExecutorUtility.SessionCompletionDiagnosticCode}[CONV-252] Dialogue channel end failed. tag='{session.DialogueChannelTag}'");
                 return;
             }
 
@@ -821,11 +824,14 @@ namespace Game.Commands.VNext
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "ConversationInFlowCommandData is required.");
 
             var targetScope = await ConversationExecutorUtility.ResolveTargetScopeAsync(typed.Target, ctx, ct);
-            ConversationExecutorUtility.EnsureScopeBuiltIfNeeded(targetScope);
 
             if (!ConversationExecutorUtility.TryResolve(targetScope, out IConversationChannelHubService? hub) || hub == null)
             {
-                EnsureStrict(typed.Strict, false, CommandRunFailureKind.ExecutorMissing, "IConversationChannelHubService is missing on target scope.");
+                EnsureStrict(
+                    typed.Strict,
+                    false,
+                    CommandRunFailureKind.ExecutorMissing,
+                    $"{ConversationExecutorUtility.ResolveDiagnosticCode} IConversationChannelHubService is missing on target scope.");
                 return;
             }
 
@@ -1080,31 +1086,16 @@ namespace Game.Commands.VNext
 
     static class ConversationExecutorUtility
     {
+        internal const string ResolveDiagnosticCode = "[V22-M4-CONV-001]";
+        internal const string SessionCompletionDiagnosticCode = "[V22-M4-CONV-002]";
+
         public static async UniTask<IScopeNode> ResolveTargetScopeAsync(ActorSource target, CommandContext ctx, CancellationToken ct)
         {
             var (targetScope, error) = await ActorScopeResolver.ResolveAsync(target, ctx, ct);
             if (targetScope != null)
                 return targetScope;
 
-            if (AllowFallback(ctx.Options) && ctx.Scope != null)
-            {
-                Debug.LogWarning($"[ConversationExecutor] Target resolve failed: {error} Falling back to current scope.");
-                return ctx.Scope;
-            }
-
-            throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, error);
-        }
-
-        public static void EnsureScopeBuiltIfNeeded(IScopeNode scope)
-        {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
+            throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"{ResolveDiagnosticCode} {error}");
         }
 
         public static bool TryResolve<T>(IScopeNode scope, out T? value) where T : class
@@ -1141,14 +1132,14 @@ namespace Game.Commands.VNext
             if (dialogueScope == null)
             {
                 var message = string.IsNullOrWhiteSpace(scopeError)
-                    ? $"[CONV-240] Dialogue channel scope was not found. source={session.DialogueChannelSource.Kind} tag='{session.DialogueChannelTag}'"
-                    : scopeError;
+                    ? $"{ResolveDiagnosticCode}[CONV-240] Dialogue channel scope was not found. source={session.DialogueChannelSource.Kind} tag='{session.DialogueChannelTag}'"
+                    : $"{ResolveDiagnosticCode} {scopeError}";
                 return (null, message);
             }
 
             if (!TryResolve(dialogueScope, out IDialogueService? dialogue) || dialogue == null)
             {
-                return (null, $"[CONV-241] IDialogueService is missing on dialogue channel scope. source={session.DialogueChannelSource.Kind} tag='{session.DialogueChannelTag}'");
+                return (null, $"{ResolveDiagnosticCode}[CONV-241] IDialogueService is missing on dialogue channel scope. source={session.DialogueChannelSource.Kind} tag='{session.DialogueChannelTag}'");
             }
 
             return (dialogue, string.Empty);
@@ -1162,15 +1153,5 @@ namespace Game.Commands.VNext
             return keyRef.VarId > 0 ? keyRef.VarId : fallback;
         }
 
-        static bool AllowFallback(CommandRunOptions options)
-        {
-            if (!options.AllowActorFallback)
-                return false;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            return true;
-#else
-            return Debug.isDebugBuild;
-#endif
-        }
     }
 }

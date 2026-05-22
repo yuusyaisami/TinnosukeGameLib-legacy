@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using Game.Common;
@@ -93,7 +93,7 @@ namespace Game.Channel
     }
 
     [DisallowMultipleComponent]
-    public sealed class GridObjectChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class GridObjectChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Channels")]
         [LabelText("Channels")]
@@ -104,7 +104,7 @@ namespace Game.Channel
 
         public IReadOnlyList<GridObjectChannelDefinition> Channels => _channels;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<GridObjectChannelHubService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -116,3 +116,4 @@ namespace Game.Channel
         }
     }
 }
+

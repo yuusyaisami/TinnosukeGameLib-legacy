@@ -47,7 +47,7 @@ namespace Game.Commands.VNext
 
             if (delay > 0f)
             {
-                if (resolver != null && resolver.TryResolve<ILTSIdentityService>(out var identity) && identity != null)
+                if (resolver != null && resolver.TryResolve<IScopeIdentityService>(out var identity) && identity != null)
                     await identity.DelayAsync(delay, ct);
                 else
                     await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: ct);
@@ -73,7 +73,7 @@ namespace Game.Commands.VNext
             if (IsDestroyed(scope))
                 return;
 
-            if (scope is RuntimeLifetimeScope runtimeScopeForReacquire &&
+            if (scope is KernelScopeHost runtimeScopeForReacquire &&
                 typed.OnReacquireCommands != null &&
                 typed.OnReacquireCommands.Count > 0 &&
                 resolver != null &&
@@ -83,16 +83,16 @@ namespace Game.Commands.VNext
                 poolForReacquire.TryEnqueueOnNextAcquire(runtimeScopeForReacquire, typed.OnReacquireCommands, ctx.Options);
             }
 
-            ILTSIdentityService? idService = null;
-            if (resolver != null && resolver.TryResolve<ILTSIdentityService>(out var resolved))
+            IScopeIdentityService? idService = null;
+            if (resolver != null && resolver.TryResolve<IScopeIdentityService>(out var resolved))
                 idService = resolved;
 
-            var isRuntime = idService?.Kind == LifetimeScopeKind.Runtime || scope is RuntimeLifetimeScope;
+            var isRuntime = idService?.Kind == LifetimeScopeKind.Runtime || scope is KernelScopeHost;
             if (isRuntime)
             {
                 if (resolver != null && resolver.TryResolve<IRuntimeLifetimeScopePool>(out var pool) && pool != null)
                 {
-                    if (scope is RuntimeLifetimeScope runtimeScope)
+                    if (scope is KernelScopeHost runtimeScope)
                     {
                         if (IsDestroyed(runtimeScope))
                             return;
@@ -102,9 +102,9 @@ namespace Game.Commands.VNext
                 }
             }
 
-            if (scope is BaseLifetimeScope baseScope)
+            if (scope is KernelScopeHost runtimeScopeBase)
             {
-                await baseScope.DespawnAsync(ct);
+                await KernelScopeHost.DespawnCompatAsync(runtimeScopeBase, ct);
                 return;
             }
 
@@ -130,3 +130,6 @@ namespace Game.Commands.VNext
         }
     }
 }
+
+
+

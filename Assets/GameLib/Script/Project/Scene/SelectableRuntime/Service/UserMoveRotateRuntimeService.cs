@@ -26,7 +26,7 @@ namespace Game.SelectRuntime
         sealed class EditSession
         {
             public UserMoveRotateRuntimeMB? Editor;
-            public RuntimeLifetimeScope? RuntimeScope;
+            public KernelScopeHost? RuntimeScope;
             public Transform? RootTransform;
             public Transform? MoveTransform;
             public Transform? RotateTransform;
@@ -430,7 +430,7 @@ namespace Game.SelectRuntime
 
         bool TryEnterEditorMode(
             UserMoveRotateRuntimeMB editor,
-            RuntimeLifetimeScope? runtimeScopeOverride,
+            KernelScopeHost? runtimeScopeOverride,
             UserMoveRotateEnterSource enterSource,
             WorldPointerEventData eventData,
             bool ignoreEntrySource)
@@ -509,12 +509,12 @@ namespace Game.SelectRuntime
             _ = message;
         }
 
-        bool TryResolveRuntimeScope(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope? runtimeScopeOverride, out RuntimeLifetimeScope runtimeScope)
+        bool TryResolveRuntimeScope(UserMoveRotateRuntimeMB editor, KernelScopeHost? runtimeScopeOverride, out KernelScopeHost runtimeScope)
         {
             runtimeScope = null!;
-            if (!editor.TryResolveActorScope(out var scope) || scope is not RuntimeLifetimeScope resolved)
+            if (!editor.TryResolveActorScope(out var scope) || scope is not KernelScopeHost resolved)
             {
-                LogEditorEntryFailure(editor, "Could not resolve RuntimeLifetimeScope from editor actor scope.");
+                LogEditorEntryFailure(editor, "Could not resolve KernelScopeHost from editor actor scope.");
                 return false;
             }
 
@@ -522,7 +522,7 @@ namespace Game.SelectRuntime
             return true;
         }
 
-        bool EvaluateEditorCondition(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
+        bool EvaluateEditorCondition(UserMoveRotateRuntimeMB editor, KernelScopeHost runtimeScope)
         {
             var vars = new VarStore();
             if (runtimeScope.Resolver != null && runtimeScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) && blackboard != null)
@@ -566,7 +566,7 @@ namespace Game.SelectRuntime
             return target != null ? target.name : "null";
         }
 
-        static string DescribeRuntime(RuntimeLifetimeScope? runtime)
+        static string DescribeRuntime(KernelScopeHost? runtime)
         {
             if (runtime == null)
                 return "null";
@@ -757,13 +757,13 @@ namespace Game.SelectRuntime
             _session.Clear();
         }
 
-        void BindRotateExternal(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
+        void BindRotateExternal(UserMoveRotateRuntimeMB editor, KernelScopeHost runtimeScope)
         {
             _rotateBinding.Acquire(runtimeScope, editor.RotateBinding, onValueChanged: null);
             SyncRotateBinding();
         }
 
-        void BindIsEditorModeExternal(UserMoveRotateRuntimeMB editor, RuntimeLifetimeScope runtimeScope)
+        void BindIsEditorModeExternal(UserMoveRotateRuntimeMB editor, KernelScopeHost runtimeScope)
         {
             _isEditorModeBinding.Acquire(runtimeScope, editor.IsEditorModeBinding);
         }
@@ -822,3 +822,5 @@ namespace Game.SelectRuntime
         }
     }
 }
+
+

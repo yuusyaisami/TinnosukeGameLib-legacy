@@ -9,6 +9,7 @@ using Game.Kernel.Diagnostics;
 using Game.Kernel.IR;
 using Game.Kernel.Validation;
 using UnityEngine;
+using AuthoringUnitySourceLocation = Game.Kernel.Authoring.UnitySourceLocation;
 
 namespace TinnosukeGameLib.Editor.KernelBoot
 {
@@ -102,7 +103,7 @@ namespace TinnosukeGameLib.Editor.KernelBoot
                         root.ModuleKind,
                         root.ModuleVersion,
                         root.Availability,
-                        new SourceLocationIR(root.CreateSourceLocation()),
+                        new SourceLocationIR(ConvertToIRSourceLocation(root.CreateSourceLocation())),
                         new[] { ContributionKind.ScopeContribution },
                         Array.Empty<ModuleId>(),
                         Array.Empty<ModuleId>(),
@@ -150,7 +151,7 @@ namespace TinnosukeGameLib.Editor.KernelBoot
                         ContributionKind.ScopeContribution,
                         root.ModuleId,
                         source,
-                        new SourceLocationIR(link.CreateSourceLocation()),
+                        new SourceLocationIR(ConvertToIRSourceLocation(link.CreateSourceLocation())),
                         stableId,
                         root.Availability,
                         null,
@@ -232,6 +233,18 @@ namespace TinnosukeGameLib.Editor.KernelBoot
         static string CreateStableId(ScopeAuthoringId authoringId)
         {
             return "scope-authoring-" + authoringId.Value.ToString("D10");
+        }
+
+        static Game.Kernel.IR.UnitySourceLocation ConvertToIRSourceLocation(AuthoringUnitySourceLocation sourceLocation)
+        {
+            return new Game.Kernel.IR.UnitySourceLocation(
+                sourceLocation.AssetGuid,
+                sourceLocation.AssetPath,
+                sourceLocation.LocalFileId,
+                sourceLocation.ScenePath,
+                sourceLocation.GameObjectPath,
+                sourceLocation.ComponentType,
+                sourceLocation.PropertyPath);
         }
 
         static AuthoringValidationIssue[] CopyIssues(IReadOnlyList<AuthoringValidationIssue> issues)

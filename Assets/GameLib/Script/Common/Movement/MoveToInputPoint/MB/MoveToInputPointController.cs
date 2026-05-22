@@ -15,7 +15,7 @@ using Game.Scalar.Generated;
 namespace Game.Movement
 {
     [DisallowMultipleComponent]
-    public sealed class MoveToInputPointController : MonoBehaviour, IFeatureInstaller
+    public sealed class MoveToInputPointController : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Profile")]
         [SerializeField] MoveToInputPointProfileSO profile = null!;
@@ -87,7 +87,7 @@ namespace Game.Movement
         }
 #endif
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (profile == null)
             {
@@ -405,3 +405,4 @@ namespace Game.Movement
         }
     }
 }
+

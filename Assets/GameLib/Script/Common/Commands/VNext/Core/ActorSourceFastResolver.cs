@@ -20,8 +20,6 @@ namespace Game.Commands.VNext
 
     public static class ActorSourceFastResolver
     {
-        static IBaseLifetimeScopeRegistry? s_fallbackRegistry;
-
         public static IScopeNode? ResolveCached(IDynamicContext context, in ActorSource source, ref ActorSourceResolveCache cache, IScopeNode? originOverride = null)
         {
             if (context == null)
@@ -233,250 +231,28 @@ namespace Game.Commands.VNext
 
         static IScopeNode? ResolveByIdentity(IScopeNode origin, CommandTargetIdentityFilter filter)
         {
-            if (TryResolveScopeRegistry(origin, out var registry) && registry != null)
+            var resolver = origin.Resolver;
+            if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var registry) && registry != null)
             {
                 var resolved = registry.Resolve(filter, origin);
                 if (resolved != null)
                     return resolved;
             }
 
-            // Registry can be unavailable during early scope build.
-            // For simple kind-only lookups, fall back to hierarchy search.
-            return ResolveByIdentityHierarchyFallback(origin, filter);
-        }
-
-        static IScopeNode? ResolveByIdentityHierarchyFallback(IScopeNode origin, CommandTargetIdentityFilter filter)
-        {
-            switch (filter.searchScope)
-            {
-                case CommandTargetSearchScope.AncestorsOnly:
-                    for (var node = origin.Parent; node != null; node = node.Parent)
-                    {
-                        if (MatchesIdentity(node, filter))
-                            return node;
-                    }
-                    return null;
-
-                case CommandTargetSearchScope.DescendantsOnly:
-                    foreach (var node in ScopeNodeHierarchy.EnumerateSubtree(origin, includeSelf: false))
-                    {
-                        if (MatchesIdentity(node, filter))
-                            return node;
-                    }
-                    return ResolveByIdentityTransformFallback(origin, filter);
-
-                case CommandTargetSearchScope.All:
-                default:
-                    {
-                        var root = FindRoot(origin);
-                        if (root == null)
-                            return null;
-
-                        foreach (var node in ScopeNodeHierarchy.EnumerateSubtree(root, includeSelf: true))
-                        {
-                            if (ReferenceEquals(node, origin))
-                                continue;
-
-                            if (MatchesIdentity(node, filter))
-                                return node;
-                        }
-
-                        return ResolveByIdentityTransformFallback(origin, filter);
-                    }
-            }
-        }
-
-        static IScopeNode? ResolveByIdentityTransformFallback(IScopeNode origin, in CommandTargetIdentityFilter filter)
-        {
-            var originTransform = origin.Identity?.SelfTransform;
-            if (originTransform == null)
-                return null;
-
-            switch (filter.searchScope)
-            {
-                case CommandTargetSearchScope.AncestorsOnly:
-                    for (var current = originTransform.parent; current != null; current = current.parent)
-                    {
-                        if (TryResolveMatchingScope(current, filter, out var scope))
-                            return scope;
-                    }
-                    return null;
-
-                case CommandTargetSearchScope.DescendantsOnly:
-                    return FindMatchingScopeInSubtree(originTransform, filter, includeSelf: false);
-
-                case CommandTargetSearchScope.All:
-                default:
-                    {
-                        var root = originTransform;
-                        while (root.parent != null)
-                            root = root.parent;
-
-                        return FindMatchingScopeInSubtree(root, filter, includeSelf: true);
-                    }
-            }
-        }
-
-        static IScopeNode? FindMatchingScopeInSubtree(Transform root, in CommandTargetIdentityFilter filter, bool includeSelf)
-        {
-            if (root == null)
-                return null;
-
-            var queue = new Queue<Transform>();
-            if (includeSelf)
-            {
-                queue.Enqueue(root);
-            }
-            else
-            {
-                for (var i = 0; i < root.childCount; i++)
-                    queue.Enqueue(root.GetChild(i));
-            }
-
-            while (queue.Count > 0)
-            {
-                var current = queue.Dequeue();
-                if (TryResolveMatchingScope(current, filter, out var scope))
-                    return scope;
-
-                for (var i = 0; i < current.childCount; i++)
-                    queue.Enqueue(current.GetChild(i));
-            }
-
             return null;
-        }
-
-        static bool TryResolveMatchingScope(Transform transform, in CommandTargetIdentityFilter filter, out IScopeNode? scope)
-        {
-            scope = null;
-            if (transform == null)
-                return false;
-
-            if (!transform.TryGetComponent<LTSIdentityMB>(out var identityMB) || identityMB == null)
-                return false;
-
-            if (!MatchesIdentity(identityMB, filter))
-                return false;
-
-            if (transform.TryGetComponent<BaseLifetimeScope>(out var baseScope) && baseScope != null)
-            {
-                scope = baseScope;
-                return true;
-            }
-
-            if (transform.TryGetComponent<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
-            {
-                scope = runtimeScope;
-                return true;
-            }
-
-            return false;
         }
 
         static IScopeNode? ResolveGameLogicRoot(IScopeNode origin)
         {
-            // まずは従来どおり、親チェーン上の GameLogicRoot を優先
-            var nearest = ScopeNodeHierarchy.FindNearestGameLogicRoot(origin, includeSelf: true);
-            if (nearest != null)
-                return nearest;
-
-            // 別ツリー構成（例: UI scope から Global/GameLogic 参照）向けに
-            // レジストリ全体から UseAsGameLogicRoot を探す
-            if (TryResolveScopeRegistry(origin, out var registry) && registry != null)
-            {
-                var all = registry.ResolveAll(new CommandTargetIdentityFilter { searchScope = CommandTargetSearchScope.All }, origin);
-                IScopeNode? firstMarked = null;
-                for (int i = 0; i < all.Count; i++)
-                {
-                    var candidate = all[i];
-                    if (candidate is not BaseLifetimeScope baseScope || !baseScope.UseAsGameLogicRoot)
-                        continue;
-
-                    var identity = candidate.Identity;
-                    if (identity != null && !identity.IsActive)
-                        continue;
-
-                    if (identity != null && string.Equals(identity.Id, "GameLogicRoot", StringComparison.Ordinal))
-                        return candidate;
-
-                    firstMarked ??= candidate;
-                }
-
-                if (firstMarked != null)
-                    return firstMarked;
-
-                // 最後の保険: Id 直指定のスコープがあれば採用
-                for (int i = 0; i < all.Count; i++)
-                {
-                    var candidate = all[i];
-                    var identity = candidate?.Identity;
-                    if (identity != null && identity.IsActive &&
-                        string.Equals(identity.Id, "GameLogicRoot", StringComparison.Ordinal))
-                        return candidate;
-                }
-            }
-
-            return null;
+            return ScopeNodeHierarchy.FindNearestGameLogicRoot(origin, includeSelf: true);
         }
 
         static IScopeNode? ResolveNearestGlobalScope(IScopeNode origin)
         {
-            var nearest = ScopeNodeHierarchy.FindNearestAncestorByKind(
+            return ScopeNodeHierarchy.FindNearestAncestorByKind(
                 origin,
                 LifetimeScopeKind.Global,
                 includeSelf: true);
-            if (nearest != null)
-                return nearest;
-
-            if (TryResolveScopeRegistry(origin, out var registry) && registry != null)
-            {
-                var all = registry.ResolveAll(
-                    new CommandTargetIdentityFilter
-                    {
-                        kind = LifetimeScopeKind.Global,
-                        searchScope = CommandTargetSearchScope.All,
-                    },
-                    origin);
-
-                IScopeNode? fallback = null;
-                for (int i = 0; i < all.Count; i++)
-                {
-                    var candidate = all[i];
-                    if (candidate == null || candidate.Kind != LifetimeScopeKind.Global)
-                        continue;
-
-                    fallback ??= candidate;
-
-                    var identity = candidate.Identity;
-                    if (identity == null || identity.IsActive)
-                        return candidate;
-                }
-
-                if (fallback != null)
-                    return fallback;
-            }
-
-            var globals = UnityEngine.Object.FindObjectsByType<GlobalLifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-            if (globals == null || globals.Length == 0)
-                return null;
-
-            IScopeNode? inactiveFallback = null;
-            for (int i = 0; i < globals.Length; i++)
-            {
-                var candidate = globals[i];
-                if (candidate == null)
-                    continue;
-
-                inactiveFallback ??= candidate;
-
-                var identity = candidate.Identity;
-                if (identity == null || identity.IsActive)
-                    return candidate;
-            }
-
-            return inactiveFallback;
         }
 
         static bool MatchesIdentity(IScopeNode scope, in CommandTargetIdentityFilter filter)
@@ -503,34 +279,6 @@ namespace Game.Commands.VNext
                 return false;
 
             return true;
-        }
-
-        static bool MatchesIdentity(LTSIdentityMB identity, in CommandTargetIdentityFilter filter)
-        {
-            if (identity == null)
-                return false;
-
-            if (filter.requireActive && !identity.gameObject.activeInHierarchy)
-                return false;
-
-            if (filter.kind != LifetimeScopeKind.None && identity.kind != filter.kind)
-                return false;
-
-            if (!string.IsNullOrEmpty(filter.id) && !string.Equals(identity.id, filter.id, StringComparison.Ordinal))
-                return false;
-
-            if (!string.IsNullOrEmpty(filter.category) && !string.Equals(identity.category, filter.category, StringComparison.Ordinal))
-                return false;
-
-            return true;
-        }
-
-        static IScopeNode? FindRoot(IScopeNode origin)
-        {
-            IScopeNode? root = null;
-            for (var node = origin; node != null; node = node.Parent)
-                root = node;
-            return root;
         }
 
         static bool IsInSearchScope(IScopeNode origin, IScopeNode candidate, CommandTargetSearchScope scope)
@@ -593,74 +341,9 @@ namespace Game.Commands.VNext
             if (go == null)
                 return null;
 
-            // NOTE:
-            // FromUnityObject で参照されるのは Scope 本体ではなく子オブジェクトであることが多い。
-            // このとき GetComponentInParent で種類ごとに探すと、より近い RuntimeScope より
-            // 先に BaseScope が拾われるケースがあり、期待チャネルが見つからない不具合につながる。
-            // そのため Transform を近傍から順にたどり、各階層で Runtime -> Base の順で評価する。
-            // Resolve by nearest Transform first, preferring Runtime scope over Base scope.
-            for (var t = go.transform; t != null; t = t.parent)
-            {
-                var runtimeScope = t.GetComponent<RuntimeLifetimeScope>();
-                if (runtimeScope != null)
-                    return runtimeScope;
-
-                var baseScope = t.GetComponent<BaseLifetimeScope>();
-                if (baseScope != null)
-                    return baseScope;
-
-                var sameLevel = t.GetComponents<Component>();
-                for (var i = 0; i < sameLevel.Length; i++)
-                {
-                    if (sameLevel[i] is IScopeNode node)
-                        return node;
-                }
-            }
-
-            return null;
-        }
-
-        static bool TryResolveScopeRegistry(IScopeNode? origin, out IBaseLifetimeScopeRegistry? registry)
-        {
-            if (s_fallbackRegistry != null)
-            {
-                registry = s_fallbackRegistry;
-                return true;
-            }
-
-            var current = origin;
-            while (current != null)
-            {
-                var resolver = current.Resolver;
-                if (resolver != null && resolver.TryResolve<IBaseLifetimeScopeRegistry>(out var resolved) && resolved != null)
-                {
-                    s_fallbackRegistry = resolved;
-                    registry = resolved;
-                    return true;
-                }
-                current = current.Parent;
-            }
-
-            // Last-resort fallback for detached scope trees:
-            // resolve registry from ProjectLifetimeScope.
-            var projects = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-            if (projects != null && projects.Length > 0)
-            {
-                var projectResolver = projects[0] != null ? projects[0].Resolver : null;
-                if (projectResolver != null &&
-                    projectResolver.TryResolve<IBaseLifetimeScopeRegistry>(out var projectRegistry) &&
-                    projectRegistry != null)
-                {
-                    s_fallbackRegistry = projectRegistry;
-                    registry = projectRegistry;
-                    return true;
-                }
-            }
-
-            registry = null;
-            return false;
+            return ScopeFeatureInstallerUtility.TryGetScopeNode(go, includeInactive: true, out var node)
+                ? node
+                : null;
         }
 
         static bool SourceEquals(in ActorSource a, in ActorSource b)
@@ -793,22 +476,6 @@ namespace Game.Commands.VNext
                 }
 
                 current = current.Parent;
-            }
-
-            // Detached tree fallback: resolve from ProjectLifetimeScope.
-            var projects = UnityEngine.Object.FindObjectsByType<ProjectLifetimeScope>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None);
-            if (projects != null && projects.Length > 0)
-            {
-                var projectResolver = projects[0] != null ? projects[0].Resolver : null;
-                if (projectResolver != null &&
-                    projectResolver.TryResolve<IPlayerLocationService>(out var projectLocator) &&
-                    projectLocator != null)
-                {
-                    locator = projectLocator;
-                    return true;
-                }
             }
 
             return false;

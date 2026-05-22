@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -9,7 +9,7 @@ using VContainer.Unity;
 namespace Game.Conversation
 {
     [DisallowMultipleComponent]
-    public sealed class CharacterDataBaseMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CharacterDataBaseMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("CharacterDataBase")]
         [LabelText("Scope Mode")]
@@ -29,7 +29,7 @@ namespace Game.Conversation
         public IReadOnlyList<CharacterDataBaseDefinition> Definitions => _definitions;
         public ICharacterDataBaseService? Service => _service;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<CharacterDataBaseService>(RuntimeLifetime.Singleton)
                 .WithParameter(scope)
@@ -55,3 +55,4 @@ namespace Game.Conversation
 #endif
     }
 }
+

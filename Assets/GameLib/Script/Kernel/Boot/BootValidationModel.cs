@@ -33,6 +33,19 @@ namespace Game.Kernel.Boot
         ResourcesFallbackForbidden = 190,
         DefaultRootCreationForbidden = 200,
         DuplicateRootCleanupForbidden = 210,
+        CommandCatalogMissing = 220,
+        ValueSchemaMissing = 230,
+        RuntimeQueryMissing = 240,
+    }
+
+    [Flags]
+    public enum BootRequiredProjectionKind
+    {
+        None = 0,
+        CommandCatalog = 1 << 0,
+        ValueSchema = 1 << 1,
+        RuntimeQuery = 1 << 2,
+        All = CommandCatalog | ValueSchema | RuntimeQuery,
     }
 
     public static class BootValidationCodes
@@ -59,6 +72,9 @@ namespace Game.Kernel.Boot
         public const string ResourcesFallbackForbidden = "BOOT_RESOURCES_FALLBACK_FORBIDDEN";
         public const string DefaultRootCreationForbidden = "BOOT_DEFAULT_ROOT_CREATION_FORBIDDEN";
         public const string DuplicateRootCleanupForbidden = "BOOT_DUPLICATE_ROOT_CLEANUP_FORBIDDEN";
+        public const string CommandCatalogMissing = "BOOT_COMMAND_CATALOG_MISSING";
+        public const string ValueSchemaMissing = "BOOT_VALUE_SCHEMA_MISSING";
+        public const string RuntimeQueryMissing = "BOOT_RUNTIME_QUERY_MISSING";
     }
 
     static class BootDiagnosticsPayloadBuilder
@@ -474,14 +490,21 @@ namespace Game.Kernel.Boot
             BootArtifactValidationState artifactState,
             BootRootValidationState rootState,
             BootFallbackValidationState fallbackState,
-            ServiceGraphPlan? serviceGraphPlan = null,
             ScopeGraphPlan scopeGraphPlan,
+            ServiceGraphPlan? serviceGraphPlan = null,
             LifecyclePlan? lifecyclePlan = null,
-            KernelDebugMap? debugMap = null)
+            KernelDebugMap? debugMap = null,
+            CommandCatalogPlan? commandCatalogPlan = null,
+            ValueSchemaPlan? valueSchemaPlan = null,
+            RuntimeQueryPlan? runtimeQueryPlan = null,
+            BootRequiredProjectionKind requiredProjectionKinds = BootRequiredProjectionKind.None)
         {
             ArtifactState = artifactState ?? throw new ArgumentNullException(nameof(artifactState));
             RootState = rootState ?? throw new ArgumentNullException(nameof(rootState));
             FallbackState = fallbackState ?? throw new ArgumentNullException(nameof(fallbackState));
+
+            if ((requiredProjectionKinds & ~BootRequiredProjectionKind.All) != 0)
+                throw new ArgumentOutOfRangeException(nameof(requiredProjectionKinds), requiredProjectionKinds, "Boot validation inputs must use only supported required projection flags.");
 
             if (debugMap != null
                 && ArtifactState.DebugMapHash != null
@@ -495,9 +518,13 @@ namespace Game.Kernel.Boot
             ArtifactSetReferencePresent = artifactSetReferencePresent;
             DependencyValidationStatus = dependencyValidationStatus;
             ServiceGraphPlan = serviceGraphPlan;
-            ScopeGraphPlan = scopeGraphPlan;
+            ScopeGraphPlan = scopeGraphPlan ?? throw new ArgumentNullException(nameof(scopeGraphPlan));
             LifecyclePlan = lifecyclePlan;
             DebugMap = debugMap;
+            CommandCatalogPlan = commandCatalogPlan;
+            ValueSchemaPlan = valueSchemaPlan;
+            RuntimeQueryPlan = runtimeQueryPlan;
+            RequiredProjectionKinds = requiredProjectionKinds;
         }
 
         public KernelBootManifest? Manifest { get; }
@@ -521,6 +548,14 @@ namespace Game.Kernel.Boot
         public LifecyclePlan? LifecyclePlan { get; }
 
         public KernelDebugMap? DebugMap { get; }
+
+        public CommandCatalogPlan? CommandCatalogPlan { get; }
+
+        public ValueSchemaPlan? ValueSchemaPlan { get; }
+
+        public RuntimeQueryPlan? RuntimeQueryPlan { get; }
+
+        public BootRequiredProjectionKind RequiredProjectionKinds { get; }
     }
 
     public static class BootValidator
@@ -636,6 +671,15 @@ namespace Game.Kernel.Boot
 
                     if (input.DebugMap != null)
                         ValidateArtifactHeaderCompatibility(input.DebugMap.Header, ArtifactKind.KernelDebugMap, manifest, selectedProfile, issues);
+
+                    if (input.CommandCatalogPlan != null)
+                        ValidateArtifactHeaderCompatibility(input.CommandCatalogPlan.Header, ArtifactKind.CommandCatalog, manifest, selectedProfile, issues);
+
+                    if (input.ValueSchemaPlan != null)
+                        ValidateArtifactHeaderCompatibility(input.ValueSchemaPlan.Header, ArtifactKind.ValueSchema, manifest, selectedProfile, issues);
+
+                    if (input.RuntimeQueryPlan != null)
+                        ValidateArtifactHeaderCompatibility(input.RuntimeQueryPlan.Header, ArtifactKind.RuntimeQuery, manifest, selectedProfile, issues);
                 }
 
                 if (input.DebugMap == null)
@@ -681,6 +725,7 @@ namespace Game.Kernel.Boot
 
             ValidateRequiredRootServices(input, selectedProfile, issues);
             ValidateRequiredRootScopes(input, selectedProfile, issues);
+            ValidateRequiredProjectionInputs(input, manifest, selectedProfile, issues);
 
             if (input.FallbackState.LegacyFallbackAttempted)
             {
@@ -895,6 +940,46 @@ namespace Game.Kernel.Boot
                         "Add the required scope to the verified boot input set.",
                         requiredIdentity));
                 }
+            }
+        }
+
+        static void ValidateRequiredProjectionInputs(BootValidationInput input, KernelBootManifest? manifest, KernelProfile? selectedProfile, List<BootValidationIssue> issues)
+        {
+            RuntimeIdentityRef? artifactIdentity = manifest == null
+                ? null
+                : new RuntimeIdentityRef(RuntimeIdentityKind.ArtifactSet, manifest.ArtifactSet.ArtifactSetId.Value);
+
+            if ((input.RequiredProjectionKinds & BootRequiredProjectionKind.CommandCatalog) != 0 && input.CommandCatalogPlan == null)
+            {
+                issues.Add(new BootValidationIssue(
+                    BootValidationCodes.CommandCatalogMissing,
+                    GetBlockingSeverity(selectedProfile),
+                    BootValidationGateKind.CommandCatalogMissing,
+                    "Required verified CommandCatalogPlan boot input is missing.",
+                    "Publish the verified CommandCatalog projection and provide it to boot before entering the accepted path.",
+                    artifactIdentity));
+            }
+
+            if ((input.RequiredProjectionKinds & BootRequiredProjectionKind.ValueSchema) != 0 && input.ValueSchemaPlan == null)
+            {
+                issues.Add(new BootValidationIssue(
+                    BootValidationCodes.ValueSchemaMissing,
+                    GetBlockingSeverity(selectedProfile),
+                    BootValidationGateKind.ValueSchemaMissing,
+                    "Required verified ValueSchemaPlan boot input is missing.",
+                    "Publish the verified ValueSchema projection and provide it to boot before entering the accepted path.",
+                    artifactIdentity));
+            }
+
+            if ((input.RequiredProjectionKinds & BootRequiredProjectionKind.RuntimeQuery) != 0 && input.RuntimeQueryPlan == null)
+            {
+                issues.Add(new BootValidationIssue(
+                    BootValidationCodes.RuntimeQueryMissing,
+                    GetBlockingSeverity(selectedProfile),
+                    BootValidationGateKind.RuntimeQueryMissing,
+                    "Required verified RuntimeQueryPlan boot input is missing.",
+                    "Publish the verified RuntimeQuery projection and provide it to boot before entering the accepted path.",
+                    artifactIdentity));
             }
         }
 

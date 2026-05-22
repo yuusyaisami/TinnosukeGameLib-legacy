@@ -842,6 +842,8 @@ Exit gates:
 - selected existing systems run through v2 contributions, validation, verified generation, boot, runtime, diagnostics, and performance rules
 - representative legacy fallback patterns are removed or isolated
 - debug-map traceability exists for migrated features
+- Blackboard / Var migration keeps authored value surfaces usable while moving runtime authority to verified value identity and store boundaries
+- CommandRunner migration keeps authored command surfaces usable while moving runtime authority to verified command identity and catalog boundaries
 
 Forbidden shortcuts:
 

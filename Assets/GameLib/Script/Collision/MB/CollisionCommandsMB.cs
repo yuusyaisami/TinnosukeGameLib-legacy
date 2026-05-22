@@ -9,9 +9,9 @@ namespace Game.Collision
     /// Attach this under ProjectLifetimeScope (and/or scopes that need to execute these commands).
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class CollisionCommandsMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CollisionCommandsMB : MonoBehaviour, IScopeInstaller
     {
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             if (owner.Kind != LifetimeScopeKind.Project
                 && owner.Kind != LifetimeScopeKind.Scene
@@ -30,3 +30,4 @@ namespace Game.Collision
         }
     }
 }
+

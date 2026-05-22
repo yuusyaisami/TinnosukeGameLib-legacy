@@ -11,10 +11,10 @@ namespace Game.Visual
 {
     /// <summary>
     /// VisualSystem の FeatureInstaller、E
-    /// FieldLifetimeScope 推奨だが、任意�E LifetimeScope 配下でも動く、E
+    /// FieldLifetimeScope 推奨だが、任意�E LifetimeScope 配下でも動く、E
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class VisualSystemMB : MonoBehaviour, IFeatureInstaller
+    public sealed class VisualSystemMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Default")]
         [LabelText("Default Payload")]
@@ -23,7 +23,7 @@ namespace Game.Visual
         [SerializeField]
         DynamicValue<MaterialFxPayload> defaultMaterialFxSource = DynamicValue<MaterialFxPayload>.FromSource(new LiteralMaterialFxPayloadSource());
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             _ = scope;
             builder.Register<VisualSystemService>(RuntimeLifetime.Singleton)
@@ -35,3 +35,4 @@ namespace Game.Visual
         }
     }
 }
+

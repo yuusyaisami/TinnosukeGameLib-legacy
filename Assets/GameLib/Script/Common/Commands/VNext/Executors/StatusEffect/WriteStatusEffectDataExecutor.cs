@@ -14,6 +14,8 @@ namespace Game.Commands.VNext
 {
     public sealed class WriteStatusEffectDataExecutor : ICommandExecutor
     {
+        internal const string DiagnosticCode = "[V22-M4-SCALAR-001]";
+
         readonly List<EffectState> _states = new();
 
         public int CommandId => CommandIds.WriteStatusEffectData;
@@ -25,7 +27,7 @@ namespace Game.Commands.VNext
             if (data is not WriteStatusEffectDataCommandData typed)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "WriteStatusEffectDataCommandData is required.");
 
-            var targetScope = ResolveTargetScope(ctx, typed);
+            var targetScope = ResolveTargetScopeOrThrow(ctx, typed);
             var blackboard = ResolveBlackboard(targetScope);
 
             switch (typed.SourceMode)
@@ -57,12 +59,20 @@ namespace Game.Commands.VNext
 
         void WriteRuntimeData(CommandContext ctx, WriteStatusEffectDataCommandData typed, IScopeNode? targetScope, IBlackboardService? blackboard)
         {
-            var serviceScope = ResolveServiceScope(ctx, typed);
-            if (serviceScope?.Resolver == null)
-                return;
+            var serviceScope = ResolveServiceScopeOrThrow(ctx, typed);
+            if (serviceScope.Resolver == null)
+            {
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ResolveFailed,
+                    $"{DiagnosticCode} Resolved status effect service scope has no resolver. ServiceKind={typed.ServiceActorSource.Kind} TargetKind={typed.TargetActorSource.Kind}");
+            }
 
             if (!serviceScope.Resolver.TryResolve<IStatusEffectService>(out var service) || service == null)
-                return;
+            {
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ExecutorMissing,
+                    $"{DiagnosticCode} IStatusEffectService is missing on the resolved status effect service scope. ServiceKind={typed.ServiceActorSource.Kind} TargetKind={typed.TargetActorSource.Kind}");
+            }
 
             _states.Clear();
             service.GetStates(_states, typed.Filter);
@@ -192,14 +202,26 @@ namespace Game.Commands.VNext
             WriteVariant(target, commandVars, targetScope, blackboard, ignoreGlobalWhenMinusOneVarId, DynamicVariant.FromBool(ignoreGlobalWhenMinusOne), overwrite);
         }
 
-        static IScopeNode? ResolveTargetScope(CommandContext ctx, WriteStatusEffectDataCommandData typed)
+        static IScopeNode ResolveTargetScopeOrThrow(CommandContext ctx, WriteStatusEffectDataCommandData typed)
         {
-            return ActorSourceFastResolver.Resolve(ctx, typed.TargetActorSource, ctx.Actor ?? ctx.Scope) ?? ctx.Actor ?? ctx.Scope;
+            var targetScope = ActorSourceFastResolver.Resolve(ctx, typed.TargetActorSource);
+            if (targetScope != null)
+                return targetScope;
+
+            throw new CommandExecutionException(
+                CommandRunFailureKind.ResolveFailed,
+                $"{DiagnosticCode} Status effect target scope could not be resolved. TargetKind={typed.TargetActorSource.Kind}");
         }
 
-        static IScopeNode? ResolveServiceScope(CommandContext ctx, WriteStatusEffectDataCommandData typed)
+        static IScopeNode ResolveServiceScopeOrThrow(CommandContext ctx, WriteStatusEffectDataCommandData typed)
         {
-            return ActorSourceFastResolver.Resolve(ctx, typed.ServiceActorSource, ctx.Actor ?? ctx.Scope) ?? ctx.Actor ?? ctx.Scope;
+            var serviceScope = ActorSourceFastResolver.Resolve(ctx, typed.ServiceActorSource);
+            if (serviceScope != null)
+                return serviceScope;
+
+            throw new CommandExecutionException(
+                CommandRunFailureKind.ResolveFailed,
+                $"{DiagnosticCode} Status effect service scope could not be resolved. ServiceKind={typed.ServiceActorSource.Kind}");
         }
 
         static IBlackboardService? ResolveBlackboard(IScopeNode? scope)

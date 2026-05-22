@@ -11,16 +11,7 @@ namespace Game.Commands.VNext
         readonly Dictionary<string, CommandKeyId> _cacheKeyToId = new(StringComparer.Ordinal);
         readonly Dictionary<int, string> _cacheIdToKey = new();
 
-        readonly Dictionary<string, CommandKeyId> _runtimeKeyToId = new(StringComparer.Ordinal);
-        readonly Dictionary<int, string> _runtimeIdToKey = new();
-        int _nextRuntimeId = -1;
-
         public bool TryResolve(string stableKey, out CommandKeyId keyId)
-        {
-            return TryResolve(stableKey, allowRuntimeFallback: false, out keyId);
-        }
-
-        public bool TryResolve(string stableKey, bool allowRuntimeFallback, out CommandKeyId keyId)
         {
             keyId = default;
             if (string.IsNullOrEmpty(stableKey))
@@ -51,26 +42,13 @@ namespace Game.Commands.VNext
                 }
             }
 
-            if (!AllowRuntimeFallback(allowRuntimeFallback))
-                return false;
-
-            if (_runtimeKeyToId.TryGetValue(stableKey, out keyId) && keyId.Value != 0)
-                return true;
-
-            keyId = new CommandKeyId(_nextRuntimeId--);
-            _runtimeKeyToId[stableKey] = keyId;
-            _runtimeIdToKey[keyId.Value] = stableKey;
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.LogError($"[CommandKeyResolver] StableKey '{stableKey}' is not registered. Using runtime-only keyId={keyId.Value} (do not serialize).");
-#endif
-            return true;
+            return false;
         }
 
         public bool TryGetStableKey(CommandKeyId keyId, out string stableKey)
         {
             stableKey = string.Empty;
-            if (!keyId.IsValid && keyId.Value >= 0)
+            if (!keyId.IsValid)
                 return false;
 
             if (_cacheIdToKey.TryGetValue(keyId.Value, out stableKey) && !string.IsNullOrEmpty(stableKey))
@@ -83,22 +61,8 @@ namespace Game.Commands.VNext
                 return true;
             }
 
-            if (_runtimeIdToKey.TryGetValue(keyId.Value, out stableKey) && !string.IsNullOrEmpty(stableKey))
-                return true;
-
             stableKey = string.Empty;
             return false;
-        }
-
-        static bool AllowRuntimeFallback(bool allowRuntimeFallback)
-        {
-            if (!allowRuntimeFallback)
-                return false;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            return true;
-#else
-            return Debug.isDebugBuild;
-#endif
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
@@ -116,9 +80,6 @@ namespace Game.Commands.VNext
         {
             _cacheKeyToId.Clear();
             _cacheIdToKey.Clear();
-            _runtimeKeyToId.Clear();
-            _runtimeIdToKey.Clear();
-            _nextRuntimeId = -1;
         }
     }
 }

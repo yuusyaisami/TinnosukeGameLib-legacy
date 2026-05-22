@@ -1,4 +1,4 @@
-﻿// Game.Collision.ColliderObjectMB.cs
+// Game.Collision.ColliderObjectMB.cs
 //
 // Authoring/Installer MonoBehaviour for CollisionSystem colliders.
 //
@@ -44,7 +44,7 @@ namespace Game.Collision
     /// - Hit 繧呈鏡縺・ｴ蜷医・蜷後せ繧ｳ繝ｼ繝励↓ HitColliderChannelHubMB 繧貞・繧後※ Hub 繧堤匳骭ｲ
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class ColliderObjectMB : MonoBehaviour, IFeatureInstaller
+    public sealed class ColliderObjectMB : MonoBehaviour, IScopeInstaller
     {
         [Header("Shape")]
         [SerializeField] ColliderShapeType _shapeType = ColliderShapeType.Circle;
@@ -132,10 +132,10 @@ namespace Game.Collision
         }
 
         // ================================================================
-        // IFeatureInstaller
+        // IScopeInstaller
         // ================================================================
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             if (!CollisionPipelineModeResolver.IsEnabled(scope, CollisionPipelineKind.Custom, this))
                 return;
@@ -199,3 +199,4 @@ namespace Game.Collision
 #endif
     }
 }
+

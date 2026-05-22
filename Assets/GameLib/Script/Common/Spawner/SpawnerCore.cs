@@ -11,7 +11,7 @@ namespace Game.Spawn
 {
     /// <summary>
     /// Kinds of spawners used by patterns and services.
-    /// Runtime kinds will later map to RuntimeLifetimeScope pools.
+    /// Runtime kinds will later map to KernelScopeHost pools.
     /// </summary>
     public enum SpawnerKind { UI, UIElement, Entity, Field, RuntimeEntity, RuntimeUIElement }
 
@@ -144,4 +144,6 @@ namespace Game.Spawn
         public void Dispose() => _spawners.Clear();
     }
 }
+
+
 

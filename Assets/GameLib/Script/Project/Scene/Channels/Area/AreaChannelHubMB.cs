@@ -14,7 +14,7 @@ using UnityEditor;
 namespace Game.Channel
 {
     [DisallowMultipleComponent]
-    public sealed class AreaChannelHubMB : MonoBehaviour, IFeatureInstaller
+    public sealed class AreaChannelHubMB : MonoBehaviour, IScopeInstaller
     {
         [BoxGroup("Hub")]
         [LabelText("Channels")]
@@ -31,7 +31,7 @@ namespace Game.Channel
 
         IScopeNode? _ownerScope;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
             _ownerScope = owner;
 
@@ -286,3 +286,4 @@ namespace Game.Channel
         }
     }
 }
+

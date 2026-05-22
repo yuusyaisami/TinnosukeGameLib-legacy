@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Game.DI
 {
     /// <summary>
-    /// Base ScriptableObject template for pooled RuntimeLifetimeScope prefabs.
+    /// Base ScriptableObject template for pooled KernelScopeHost prefabs.
     /// New Runtime system will use this to configure the scope on Acquire.
     /// </summary>
     public abstract class BaseRuntimeTemplateSO : ScriptableObject
@@ -33,7 +33,7 @@ namespace Game.DI
             }
         }
 
-        /// <summary>Prefab that holds RuntimeLifetimeScope.</summary>
+        /// <summary>Prefab that holds KernelScopeHost.</summary>
         public virtual GameObject Prefab
         {
             get
@@ -72,6 +72,8 @@ namespace Game.DI
             }
         }
 
+        public virtual int VerifiedScopePlanId => BasePreset?.VerifiedScopePlanId ?? 0;
+
         /// <summary>
         /// Pool key for grouping templates into the same pool.
         /// Default is template itself (one pool per template).
@@ -79,7 +81,7 @@ namespace Game.DI
         public virtual BaseRuntimeTemplateSO PoolKey => this;
 
         /// <summary>
-        /// Hook called after the RuntimeLifetimeScope is acquired and its container is built.
+        /// Hook called after the KernelScopeHost is acquired and its container is built.
         /// </summary>
         public virtual void OnAcquire(IScopeNode scope, RuntimeIdentityData identity)
         {
@@ -87,7 +89,7 @@ namespace Game.DI
         }
 
         /// <summary>
-        /// Hook called before the RuntimeLifetimeScope is released to the pool.
+        /// Hook called before the KernelScopeHost is released to the pool.
         /// </summary>
         public virtual void OnRelease(IScopeNode scope)
         {
@@ -131,3 +133,5 @@ namespace Game.DI
         }
     }
 }
+
+

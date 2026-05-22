@@ -10,7 +10,7 @@ namespace Game.Times
     //
     // ## 概要E
     //
-    // IFeatureInstaller として TimeService めEDI コンチE��に登録する、E
+    // IScopeInstaller として TimeService めEDI コンチE��に登録する、E
     // Inspector で初期値を設定可能、E
     //
     // ## 配置
@@ -25,7 +25,7 @@ namespace Game.Times
     // ================================================================
 
     [DisallowMultipleComponent]
-    public sealed class TimeInstallerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class TimeInstallerMB : MonoBehaviour, IScopeInstaller
     {
         // ----------------------------------------------------------------
         // Inspector 設宁E
@@ -41,17 +41,17 @@ namespace Game.Times
         float basePauseScale = 1f;
 
         // ----------------------------------------------------------------
-        // IFeatureInstaller
+        // IScopeInstaller
         // ----------------------------------------------------------------
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.Register<TimeService>(RuntimeLifetime.Singleton)
                    .As<ITimeService>()
                    .As<IScopeAcquireHandler>()
                    .As<IScopeReleaseHandler>();
 
-            // 初期値適用�E�Euild 後に実行！E
+            // 初期値適用�E�Euild 後に実行！E
             builder.RegisterBuildCallback(resolver =>
             {
                 var time = resolver.Resolve<ITimeService>();
@@ -61,3 +61,4 @@ namespace Game.Times
         }
     }
 }
+

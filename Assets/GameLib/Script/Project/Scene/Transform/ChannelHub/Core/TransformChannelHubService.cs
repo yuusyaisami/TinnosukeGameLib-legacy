@@ -977,21 +977,8 @@ namespace Game.TransformSystem
         {
             if (targetTransform != null)
             {
-                for (var current = targetTransform; current != null; current = current.parent)
-                {
-                    if (current.TryGetComponent<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
-                        return runtimeScope;
-
-                    if (current.TryGetComponent<BaseLifetimeScope>(out var baseScope) && baseScope != null)
-                        return baseScope;
-
-                    var components = current.GetComponents<Component>();
-                    for (var i = 0; i < components.Length; i++)
-                    {
-                        if (components[i] is IScopeNode node)
-                            return node;
-                    }
-                }
+                if (ScopeFeatureInstallerUtility.TryGetScopeNode(targetTransform, includeInactive: true, out var node) && node != null)
+                    return node;
             }
 
             return fallbackScope;

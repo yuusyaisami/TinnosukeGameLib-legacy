@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using Game;
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -10,7 +10,7 @@ namespace Game.SelectRuntime
     [DisallowMultipleComponent]
     public sealed class SelectRuntimeManagerMB :
         MonoBehaviour,
-        IFeatureInstaller,
+        IScopeInstaller,
         IWorldPointerRuntimeOptions,
         ISelectRuntimeManagerOptions
     {
@@ -66,7 +66,7 @@ namespace Game.SelectRuntime
         public float ShortPressSeconds => Mathf.Max(0.05f, _shortPressSeconds);
         public float LongPressSeconds => Mathf.Max(0.05f, _longPressSeconds);
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IWorldPointerRuntimeOptions>(this);
             builder.RegisterInstance<ISelectRuntimeManagerOptions>(this);
@@ -94,3 +94,4 @@ namespace Game.SelectRuntime
         }
     }
 }
+

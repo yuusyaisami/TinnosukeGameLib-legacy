@@ -11,6 +11,8 @@ namespace Game.Commands.VNext
 {
     public sealed class StatusEffectExecutor : ICommandExecutor
     {
+        internal const string DiagnosticCode = "[V22-M4-STATUS-001]";
+
         public int CommandId => CommandIds.StatusEffectControl;
 
         public UniTask Execute(ICommandData data, CommandContext ctx, CancellationToken ct)
@@ -20,12 +22,20 @@ namespace Game.Commands.VNext
             if (data is not StatusEffectCommandData typed)
                 return UniTask.CompletedTask;
 
-            var targetScope = ResolveTargetScope(typed, ctx);
-            if (targetScope?.Resolver == null)
-                return UniTask.CompletedTask;
+            var targetScope = ResolveTargetScopeOrThrow(typed, ctx);
+            if (targetScope.Resolver == null)
+            {
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ResolveFailed,
+                    $"{DiagnosticCode} Resolved status effect scope has no resolver. ServiceScope={typed.ServiceScope} TargetKind={typed.TargetActorSource.Kind}");
+            }
 
             if (!targetScope.Resolver.TryResolve<IStatusEffectService>(out var service) || service == null)
-                return UniTask.CompletedTask;
+            {
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ExecutorMissing,
+                    $"{DiagnosticCode} IStatusEffectService is missing on the resolved status effect scope. ServiceScope={typed.ServiceScope} TargetKind={typed.TargetActorSource.Kind}");
+            }
 
             switch (typed.Op)
             {
@@ -83,28 +93,30 @@ namespace Game.Commands.VNext
             if (service.TryApply(request, ctx, out var instanceId))
                 return;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            var targetScope = ResolveTargetScope(typed, ctx);
-            var definition = request.Definition.HasSource
-                ? request.Definition.GetOrDefault(ctx, default!)
-                : default;
-
-            Debug.LogWarning(
-                "[StatusEffectExecutor] Failed to apply status effect. " +
-                $"Op={typed.Op} ServiceScope={typed.ServiceScope} " +
-                $"TargetScope={DescribeScope(targetScope)} Actor={DescribeScope(ctx.Actor)} Scope={DescribeScope(ctx.Scope)} " +
-                $"Request={DescribeRequest(request, ctx)} " +
-                $"DefinitionResolved={(definition != null ? definition.DefinitionId : "<null>")} " +
-                $"InstanceId={(string.IsNullOrEmpty(instanceId) ? "<none>" : instanceId)}");
-#endif
+            throw new CommandExecutionException(
+                CommandRunFailureKind.ResolveFailed,
+                $"{DiagnosticCode} Status effect apply failed. ServiceScope={typed.ServiceScope} TargetKind={typed.TargetActorSource.Kind} Request={DescribeRequest(request, ctx)} InstanceId={(string.IsNullOrEmpty(instanceId) ? "<none>" : instanceId)}");
         }
 
-        static IScopeNode? ResolveTargetScope(StatusEffectCommandData typed, CommandContext ctx)
+        static IScopeNode ResolveTargetScopeOrThrow(StatusEffectCommandData typed, CommandContext ctx)
         {
             if (typed.ServiceScope == StatusEffectServiceScope.Scope)
-                return ctx.Scope;
+            {
+                if (ctx.Scope != null)
+                    return ctx.Scope;
 
-            return ActorSourceFastResolver.Resolve(ctx, typed.TargetActorSource);
+                throw new CommandExecutionException(
+                    CommandRunFailureKind.ResolveFailed,
+                    $"{DiagnosticCode} Status effect scope target could not be resolved. ServiceScope={typed.ServiceScope} TargetKind={typed.TargetActorSource.Kind}");
+            }
+
+            var targetScope = ActorSourceFastResolver.Resolve(ctx, typed.TargetActorSource);
+            if (targetScope != null)
+                return targetScope;
+
+            throw new CommandExecutionException(
+                CommandRunFailureKind.ResolveFailed,
+                $"{DiagnosticCode} Status effect target scope could not be resolved. ServiceScope={typed.ServiceScope} TargetKind={typed.TargetActorSource.Kind}");
         }
 
         static string DescribeScope(IScopeNode? scope)

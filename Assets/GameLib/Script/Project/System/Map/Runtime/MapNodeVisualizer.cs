@@ -140,7 +140,7 @@ namespace Game.MapNode
 
                     if (lineResolver != null)
                     {
-                        ExtractSpawnedInfo(lineResolver, out var lineRoot, out var lineScope, out _, out _);
+                        ExtractSpawnedInfo(lineResolver, out var lineRoot, out var lineScope);
                         if (lineRoot == null || lineScope == null)
                         {
                             if (failurePolicy == MapNodeFailurePolicy.FailFast)
@@ -239,7 +239,7 @@ namespace Game.MapNode
                 if (spawnedResolver == null)
                     continue;
 
-                ExtractSpawnedInfo(spawnedResolver, out var root, out var scope, out _, out _);
+                ExtractSpawnedInfo(spawnedResolver, out var root, out var scope);
                 if (root == null || scope == null)
                 {
                     if (failurePolicy == MapNodeFailurePolicy.FailFast)
@@ -744,49 +744,11 @@ namespace Game.MapNode
         static void ExtractSpawnedInfo(
             IRuntimeResolver? resolver,
             out Transform? root,
-            out IScopeNode? scopeNode,
-            out RuntimeLifetimeScope? runtimeScope,
-            out BaseLifetimeScope? baseScope)
+            out IScopeNode? scopeNode)
         {
-            root = null;
-            scopeNode = null;
-            runtimeScope = null;
-            baseScope = null;
-
-            if (resolver == null)
-                return;
-
-            resolver.TryResolve(out runtimeScope);
-
-            if (runtimeScope != null)
-                root = runtimeScope.transform;
-
-            if (root == null)
-            {
-                if (resolver.TryResolve<Transform>(out var tr) && tr != null)
-                    root = tr;
-                else if (resolver.TryResolve<GameObject>(out var go) && go != null)
-                    root = go.transform;
-            }
-
-            scopeNode = runtimeScope;
-            if (scopeNode == null && resolver.TryResolve<IScopeNode>(out var resolved) && resolved != null)
-                scopeNode = resolved;
-
-            if (scopeNode == null && root != null)
-            {
-                var comps = root.GetComponents<Component>();
-                for (int i = 0; i < comps.Length; i++)
-                {
-                    if (comps[i] is IScopeNode node)
-                    {
-                        scopeNode = node;
-                        break;
-                    }
-                }
-            }
-
-            baseScope = scopeNode as BaseLifetimeScope;
+            var lifetime = ScopeFeatureInstallerUtility.CaptureSpawnedLifetime(resolver);
+            root = lifetime.Root != null ? lifetime.Root.transform : null;
+            scopeNode = lifetime.ScopeNode;
         }
     }
 }

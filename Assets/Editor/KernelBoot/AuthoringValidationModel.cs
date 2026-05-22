@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using AuthoringUnitySourceLocation = Game.Kernel.Authoring.UnitySourceLocation;
 using Game.Kernel.Boot;
 using Game.Kernel.Contributions;
 using Game.Kernel.Diagnostics;
@@ -21,9 +22,9 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             ValidationIssueCategory category,
             ModuleId ownerModule,
             string message,
-            UnitySourceLocation? sourceLocation = null,
-            UnitySourceLocation? secondarySourceLocation = null,
-            UnitySourceLocation? baseSourceLocation = null,
+            AuthoringUnitySourceLocation? sourceLocation = null,
+            AuthoringUnitySourceLocation? secondarySourceLocation = null,
+            AuthoringUnitySourceLocation? baseSourceLocation = null,
             RuntimeIdentityRef[]? runtimeIdentities = null,
             string? suggestedFix = null,
             string? subjectName = null,
@@ -55,7 +56,7 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             SourceLocation = sourceLocation;
             SecondarySourceLocation = secondarySourceLocation;
             BaseSourceLocation = baseSourceLocation;
-            RuntimeIdentities = CloneRuntimeIdentities(runtimeIdentities);
+            this.runtimeIdentities = CloneRuntimeIdentities(runtimeIdentities);
             SuggestedFix = suggestedFix;
             SubjectName = subjectName;
             this.additionalPayloadEntries = ClonePayloadEntries(additionalPayloadEntries);
@@ -71,11 +72,11 @@ namespace TinnosukeGameLib.Editor.KernelBoot
 
         public string Message { get; }
 
-        public UnitySourceLocation? SourceLocation { get; }
+        public AuthoringUnitySourceLocation? SourceLocation { get; }
 
-        public UnitySourceLocation? SecondarySourceLocation { get; }
+        public AuthoringUnitySourceLocation? SecondarySourceLocation { get; }
 
-        public UnitySourceLocation? BaseSourceLocation { get; }
+        public AuthoringUnitySourceLocation? BaseSourceLocation { get; }
 
         public ReadOnlySpan<RuntimeIdentityRef> RuntimeIdentities => runtimeIdentities;
 
@@ -278,7 +279,7 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             return left.Length.CompareTo(right.Length);
         }
 
-        static string FormatSourceLocation(UnitySourceLocation? sourceLocation)
+        static string FormatSourceLocation(AuthoringUnitySourceLocation? sourceLocation)
         {
             return sourceLocation.HasValue ? sourceLocation.Value.ToString() : string.Empty;
         }

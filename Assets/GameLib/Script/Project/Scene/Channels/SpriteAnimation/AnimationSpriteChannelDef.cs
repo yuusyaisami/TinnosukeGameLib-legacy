@@ -40,19 +40,7 @@ namespace Game.Channel
         private bool isShowImage() => spriteRenderer == null || image != null;
         public override void EnsureIntegrity(Component owner)
         {
-            base.EnsureIntegrity(owner);
-
-            if (!spriteRenderer && owner)
-            {
-                spriteRenderer = owner.GetComponentInChildren<SpriteRenderer>(true);
-            }
-
-            if (!image && owner)
-            {
-                image = owner.GetComponentInChildren<UnityEngine.UI.Image>(true);
-            }
-
-            // 荳｡譁ｹ null 縺ｧ繧ゆｸ譌ｦ險ｱ縺呻ｼ育ｴ・BodyFx 繝√Ε繝阪Ν縺ｪ縺ｩ繧ゅ≠繧翫≧繧具ｼ・
+            _ = owner;
         }
     }
 }

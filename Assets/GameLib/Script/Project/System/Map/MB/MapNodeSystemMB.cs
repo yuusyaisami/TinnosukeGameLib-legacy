@@ -15,7 +15,7 @@ namespace Game.MapNode
     }
 
     [DisallowMultipleComponent]
-    public sealed class MapNodeSystemMB : MonoBehaviour, IFeatureInstaller, IMapNodeSystemOptions
+    public sealed class MapNodeSystemMB : MonoBehaviour, IScopeInstaller, IMapNodeSystemOptions
     {
         [BoxGroup("Profile")]
         [SerializeField]
@@ -38,7 +38,7 @@ namespace Game.MapNode
         public bool AutoBuildOnAcquire => _autoBuildOnAcquire;
         public Transform DefaultParentTransform => _defaultParentTransform != null ? _defaultParentTransform : transform;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             builder.RegisterInstance<IMapNodeSystemOptions>(this);
 
@@ -57,3 +57,4 @@ namespace Game.MapNode
         }
     }
 }
+

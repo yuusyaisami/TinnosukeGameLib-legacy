@@ -1,4 +1,4 @@
-﻿// Game.StateMachine.StateAnimationMB.cs
+// Game.StateMachine.StateAnimationMB.cs
 
 using Game.Common;
 using Sirenix.OdinInspector;
@@ -13,7 +13,7 @@ namespace Game.StateMachine
     /// LifetimeScope 驟堺ｸ九↓驟咲ｽｮ縺励※菴ｿ逕ｨ縺吶ｋ縲・
     /// </summary>
     [RequireComponent(typeof(StateMachineMB))]
-    public sealed class StateAnimationMB : MonoBehaviour, IFeatureInstaller
+    public sealed class StateAnimationMB : MonoBehaviour, IScopeInstaller
     {
         // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
         //  Inspector Fields
@@ -38,10 +38,10 @@ namespace Game.StateMachine
         StateAnimationController _controllerRef;
 
         // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
-        //  IFeatureInstaller
+        //  IScopeInstaller
         // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
+        public void InstallScopeServices(IRuntimeContainerBuilder builder, IScopeNode baseLTS)
         {
             EnsurePresetMigrated();
             var dynamicContext = new SimpleDynamicContext(NullVarStore.Instance, baseLTS);
@@ -106,3 +106,4 @@ namespace Game.StateMachine
         }
     }
 }
+

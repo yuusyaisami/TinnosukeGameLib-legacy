@@ -1006,14 +1006,7 @@ namespace Game.UI
 
         static void EnsureScopeBuiltIfNeeded(global::Game.IScopeNode scope)
         {
-            if (scope is BaseLifetimeScope baseScope)
-            {
-                baseScope.EnsureScopeBuilt();
-                return;
-            }
-
-            if (scope is RuntimeLifetimeScope runtimeScope)
-                runtimeScope.EnsureScopeBuilt();
+            global::Game.ScopeFeatureInstallerUtility.EnsureScopeBuiltIfNeeded(scope);
         }
 
         static Transform? GetTransformFromScope(global::Game.IScopeNode scope)

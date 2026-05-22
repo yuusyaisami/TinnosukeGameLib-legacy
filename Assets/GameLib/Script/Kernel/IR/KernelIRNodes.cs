@@ -783,32 +783,29 @@ namespace Game.Kernel.IR
         {
             ServiceCardinalityKind expectedCardinality;
 
-            switch (lifetime)
+            if (lifetime == ServiceLifetimeKind.Kernel || lifetime == ServiceLifetimeKind.Singleton)
             {
-                case ServiceLifetimeKind.Kernel:
-                case ServiceLifetimeKind.Singleton:
-                    expectedCardinality = ServiceCardinalityKind.SingletonGlobal;
-                    break;
-
-                case ServiceLifetimeKind.Project:
-                    expectedCardinality = ServiceCardinalityKind.OnePerProject;
-                    break;
-
-                case ServiceLifetimeKind.Scene:
-                    expectedCardinality = ServiceCardinalityKind.OnePerScene;
-                    break;
-
-                case ServiceLifetimeKind.Scope:
-                case ServiceLifetimeKind.Scoped:
-                    expectedCardinality = ServiceCardinalityKind.OnePerAuthoredScope;
-                    break;
-
-                case ServiceLifetimeKind.ExplicitTransient:
-                case ServiceLifetimeKind.Transient:
-                    throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, "Explicit transient services require a lower-spec budgeting policy before they can become ServiceGraph services.");
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, "Unsupported service lifetime kind.");
+                expectedCardinality = ServiceCardinalityKind.SingletonGlobal;
+            }
+            else if (lifetime == ServiceLifetimeKind.Project)
+            {
+                expectedCardinality = ServiceCardinalityKind.OnePerProject;
+            }
+            else if (lifetime == ServiceLifetimeKind.Scene)
+            {
+                expectedCardinality = ServiceCardinalityKind.OnePerScene;
+            }
+            else if (lifetime == ServiceLifetimeKind.Scope || lifetime == ServiceLifetimeKind.Scoped)
+            {
+                expectedCardinality = ServiceCardinalityKind.OnePerAuthoredScope;
+            }
+            else if (lifetime == ServiceLifetimeKind.ExplicitTransient || lifetime == ServiceLifetimeKind.Transient)
+            {
+                throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, "Explicit transient services require a lower-spec budgeting policy before they can become ServiceGraph services.");
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, "Unsupported service lifetime kind.");
             }
 
             if (cardinality == ServiceCardinalityKind.Unknown)

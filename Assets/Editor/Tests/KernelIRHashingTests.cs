@@ -522,6 +522,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 default,
                 new[] { new ScopeServiceRequirementIR(new ServiceId(11), DependencyStrength.Required, new SourceLocationId(3)) },
                 new[] { new ScopeValueInitRefIR(new ValueInitPlanId(7), new SourceLocationId(3)) },
+                new ScopeServiceBoundaryIR(ScopeServiceBoundaryKind.OwnedLocal, 1, new SourceLocationId(3)),
                 new LifecyclePlanRefIR(new LifecyclePlanId(21), new SourceLocationId(4)),
                 new SourceLocationId(3));
 
