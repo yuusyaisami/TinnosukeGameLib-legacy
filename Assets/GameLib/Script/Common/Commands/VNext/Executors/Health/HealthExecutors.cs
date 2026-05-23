@@ -172,32 +172,32 @@ namespace Game.Commands.VNext
                     break;
 
                 case HealthEventCommandBindingSelectMode.First:
-                {
-                    if (bindings.Count == 0 && !TryCreateBindingIfAllowed(bindings, step))
-                        return;
-
-                    ApplyMutation(bindings[0], step, mutationService);
-                    break;
-                }
-
-                case HealthEventCommandBindingSelectMode.Index:
-                {
-                    var index = step.BindingIndex;
-                    if (index < 0)
-                        index = 0;
-
-                    if (index >= bindings.Count)
                     {
-                        if (!step.CreateBindingIfMissing || !step.Mutation.RequiresCommands())
+                        if (bindings.Count == 0 && !TryCreateBindingIfAllowed(bindings, step))
                             return;
 
-                        while (bindings.Count <= index)
-                            bindings.Add(new HealthEventCommandBinding());
+                        ApplyMutation(bindings[0], step, mutationService);
+                        break;
                     }
 
-                    ApplyMutation(bindings[index], step, mutationService);
-                    break;
-                }
+                case HealthEventCommandBindingSelectMode.Index:
+                    {
+                        var index = step.BindingIndex;
+                        if (index < 0)
+                            index = 0;
+
+                        if (index >= bindings.Count)
+                        {
+                            if (!step.CreateBindingIfMissing || !step.Mutation.RequiresCommands())
+                                return;
+
+                            while (bindings.Count <= index)
+                                bindings.Add(new HealthEventCommandBinding());
+                        }
+
+                        ApplyMutation(bindings[index], step, mutationService);
+                        break;
+                    }
             }
         }
 

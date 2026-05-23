@@ -20,6 +20,14 @@ v2.3 の中心方針:
 - [02 Kernel v2.3 Authoring Registration Flow Specification](02_KernelV23AuthoringRegistrationFlowSpec.md)
 - [03 Kernel v2.3 Milestone Order Specification](03_KernelV23MilestoneOrderSpec.md)
 - [04 Kernel v2.3 Service Reconstruction and Compatibility Specification](04_KernelV23ServiceReconstructionAndCompatibilitySpec.md)
+- [05 Kernel v2.3 M0 Full-Migration Contract Freeze Execution Specification](05_KernelV23M0FullMigrationContractFreezeExecutionSpec.md)
+- [06 Kernel v2.3 M1 Spec Lock and Census Execution Specification](06_KernelV23M1SpecLockAndCensusExecutionSpec.md)
+- [07 Kernel v2.3 M2 Kernel Command Surface Execution Specification](07_KernelV23M2KernelCommandSurfaceExecutionSpec.md)
+- [08 Kernel v2.3 M3 Leaf Scope Demotion Execution Specification](08_KernelV23M3LeafScopeDemotionExecutionSpec.md)
+- [09 Kernel v2.3 M4 Root Scene Integration Cutover Execution Specification](09_KernelV23M4RootSceneIntegrationCutoverExecutionSpec.md)
+- [10 Kernel v2.3 M5 Hardening and Delete Execution Specification](10_KernelV23M5HardeningAndDeleteExecutionSpec.md)
+- [11 Kernel v2.3 M6 Full-Proof and Release Claim Execution Specification](11_KernelV23M6FullProofAndReleaseClaimExecutionSpec.md)
+- [Operational Artifact Templates (M1-M6)](Templates/README.md)
 
 ## Test Cases
 

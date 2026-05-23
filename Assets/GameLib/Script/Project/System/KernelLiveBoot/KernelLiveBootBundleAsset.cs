@@ -35,11 +35,11 @@ namespace Game.Project.Bootstrap
 
         public KernelLiveBootPersistentRootRole Role { get; }
 
-    public global::Game.IScopeGraphHost RootScope { get; }
+        public global::Game.IScopeGraphHost RootScope { get; }
 
-    public GameObject RootGameObject => RootScope.HostGameObject;
+        public GameObject RootGameObject => RootScope.HostGameObject;
 
-    public Transform RootTransform => RootScope.HostTransform;
+        public Transform RootTransform => RootScope.HostTransform;
     }
 
     [CreateAssetMenu(fileName = "KernelLiveBootBundle", menuName = "Game/Kernel/V21/Live Boot Bundle")]
