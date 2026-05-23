@@ -1,62 +1,62 @@
-# Kernel v2.3 Service Reconstruction and Compatibility Specification
+# Kernel v2.3 サービス再構成および互換性仕様
 
-## Document Status
+## 文書状態
 
-- Document ID: 04_KernelV23ServiceReconstructionAndCompatibilitySpec
-- Status: Draft
-- Role: defines mandatory full-service reconstruction policy with name stability and reference continuity during v2.3 migration
-- Depends on:
+- 文書 ID: 04_KernelV23ServiceReconstructionAndCompatibilitySpec
+- 状態: 下書き
+- 役割: v2.3 移行中の名前安定性と参照継続性を保った全サービス再構成の必須方針を定義する
+- 依存先:
   - [00_KernelV23OverviewSpec.md](00_KernelV23OverviewSpec.md)
   - [01_KernelV23ServiceRuntimeModelSpec.md](01_KernelV23ServiceRuntimeModelSpec.md)
   - [02_KernelV23AuthoringRegistrationFlowSpec.md](02_KernelV23AuthoringRegistrationFlowSpec.md)
   - [03_KernelV23MilestoneOrderSpec.md](03_KernelV23MilestoneOrderSpec.md)
 
-## Purpose
+## 目的
 
-This specification makes two requirements non-optional:
+本仕様は次の2要件を必須化する。
 
-1. full migration to v2.3 runtime ownership model
-2. complete service-family internal rebuild without external name/reference break
+1. 完全移行 to v2.3 実行時 ownership model
+2. 完了 サービス-family internal rebuild without external name/reference break
 
-## Full Migration Requirement (Normative)
+## 完全移行要件（規範）
 
-The accepted runtime path must satisfy all of the following:
+The 許可実行経路 必須である satisfy all of the following:
 
-- scope-local DI runtime authority residue is zero
-- all service families run under kernel-owned AoS or kernel-owned Scope-ServiceInstance form
-- MBs are declaration-only in accepted runtime path
+- スコープ-local DI 実行権限 residue is zero
+- all サービス families run under kernel-owned AoS or kernel-owned 範囲-ServiceInstance form
+- MBs are 宣言-only in 許可実行経路
 
-Any remaining accepted-path runtime dependency on scope-local container build invalidates v2.3 completion.
+Any remaining 許可経路 実行時 dependency on スコープ-local container build invalidates v2.3 completion.
 
-## Service Reconstruction Contract (Normative)
+## サービス再構成契約（規範）
 
-All existing service families must be reconstructed internally to new authoring/runtime model.
+All existing サービス families でなければならない reconstructed internally to new authoring/実行時 model.
 
 Allowed:
 
 - full internal refactor
 - data layout redesign
-- command/runtime ownership rewrite
+- command/実行時 ownership rewrite
 - replacing builder/injector internals
 
-Required constraints:
+必須 constraints:
 
-- keep service name identity stable at integration boundary
+- keep サービス name identity stable at integration boundary
 - keep scene/prefab/script references intact
-- keep migration-time compatibility bridges strictly non-authoritative
+- keep 移行-time 互換 bridges strictly non-authoritative
 
 Disallowed:
 
-- rename/delete migration that breaks serialized or script references without approved bridge
-- partial migration that leaves accepted-path authority in legacy local DI container
+- rename/delete 移行 that breaks serialized or script references without 承認済み bridge
+- partial 移行 that leaves 許可経路 authority in 旧系 local DI container
 
-## Migration Inventory and Ownership Plan
+## 移行在庫および所有計画
 
-Each service family must have an inventory record containing at least:
+Each サービスファミリー 必須である have an 在庫 レコード containing at least:
 
 - ServiceFamilyName
 - CurrentAuthorityPath
-- TargetServiceForm (AoS or Scope-ServiceInstance)
+- TargetServiceForm (AoS or 範囲-ServiceInstance)
 - AuthoringDeclarationSurface
 - KernelCommandHandlers
 - CompatibilityBridgeNeeded (yes/no)
@@ -64,23 +64,28 @@ Each service family must have an inventory record containing at least:
 - ReferenceContinuityRisk
 - PlannedDeletePoint
 
-No service family may skip inventory.
+No サービスファミリー may skip 在庫.
 
-## Validation Gates
+## 検証ゲート
 
-v2.3 completion gates must include:
+v2.3 completion ゲートs 必須である include:
 
-- authority residue gate: zero accepted-path scope-local DI authority
-- service inventory gate: all service families mapped to target form
-- compatibility gate: no name/reference break across migration milestones
-- delete gate: temporary compatibility bridges removed when obsolete
+- authority residue ゲート: zero 許可経路 スコープ-local DI authority
+- サービス 在庫 ゲート: all サービス families mapped to target form
+- 互換 ゲート: no name/reference break across 移行 milestones
+- delete ゲート: temporary 互換 bridges removed when obsolete
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行注記 |
 | --- | --- | --- |
-| TC-V23-04-01 | Confirm full migration is explicit and mandatory. | Spec must require zero accepted-path local DI authority residue. |
-| TC-V23-04-02 | Confirm all service families are mandatory migration targets. | Spec must prohibit exempt service families. |
-| TC-V23-04-03 | Confirm internal rebuild with stable names/references is explicit. | Spec must require name identity and reference continuity contract. |
-| TC-V23-04-04 | Confirm inventory schema is defined. | Spec must list mandatory per-service migration record fields. |
-| TC-V23-04-05 | Confirm completion gates include authority, inventory, compatibility, and delete checks. | Spec must define all four gate classes. |
+| TC-V23-04-01 | 確認 完全移行 is explicit and mandatory. | 仕様は次を必須とする zero 許可経路 local DI authority residue. |
+| TC-V23-04-02 | 確認 all サービス families are mandatory 移行 targets. | 仕様は次を禁止する exempt サービス families. |
+| TC-V23-04-03 | 確認 internal rebuild with stable names/references is explicit. | 仕様は次を必須とする name identity and reference continuity contract. |
+| TC-V23-04-04 | 確認 在庫 schema is defined. | Spec 必須である list mandatory per-サービス 移行 レコード 項目. |
+| TC-V23-04-05 | 確認 completion ゲートs include authority, 在庫, 互換, and delete checks. | 仕様は次を定義する all four ゲート classes. |
+
+
+
+
+

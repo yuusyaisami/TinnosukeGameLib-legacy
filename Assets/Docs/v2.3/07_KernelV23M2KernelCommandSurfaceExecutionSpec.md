@@ -1,57 +1,57 @@
-# Kernel v2.3 M2 Kernel Command Surface Execution Specification
+# Kernel v2.3 M2 Kernel Command 面 実行仕様
 
-## Document Status
+## 文書状態
 
-- Document ID: 07_KernelV23M2KernelCommandSurfaceExecutionSpec
-- Status: Draft
-- Role: execution-level definition for M2 and M2.x in v2.3
-- Depends on:
+- 文書 ID: 07_KernelV23M2KernelCommandSurfaceExecutionSpec
+- 状態: 下書き
+- 役割: v2.3 における M2 および M2.x の実行レベル定義
+- 依存先:
   - [01_KernelV23ServiceRuntimeModelSpec.md](01_KernelV23ServiceRuntimeModelSpec.md)
   - [02_KernelV23AuthoringRegistrationFlowSpec.md](02_KernelV23AuthoringRegistrationFlowSpec.md)
   - [03_KernelV23MilestoneOrderSpec.md](03_KernelV23MilestoneOrderSpec.md)
   - [05_KernelV23M0FullMigrationContractFreezeExecutionSpec.md](05_KernelV23M0FullMigrationContractFreezeExecutionSpec.md)
   - [06_KernelV23M1SpecLockAndCensusExecutionSpec.md](06_KernelV23M1SpecLockAndCensusExecutionSpec.md)
 
-## Purpose
+## 目的
 
-M2 establishes the non-bypassable kernel command surface that owns runtime lifecycle execution.
+M2 は実行ライフサイクルを所有する迂回不能な Kernel command 面を確立する。
 
-M2 is successful only if accepted runtime path cannot acquire scope-local DI authority.
+M2 は許可実行経路で スコープ-local DI 権限を取得不能にした場合のみ成功とする。
 
-## Scope
+## 範囲
 
-M2 covers:
+M2 の対象範囲:
 
 - command contract lock for lifecycle operations
-- declaration-to-command deterministic mapping
-- kernel handler implementation for both service forms
-- hard rejection of local DI authority in accepted path
-- focused runtime verification for command correctness and authority isolation
+- 宣言-to-command deterministic mapping
+- kernel handler implementation for both サービス forms
+- hard rejection of local DI authority in 許可経路
+- focused 実行時 検証 for command correctness and authority isolation
 
-M2 does not cover:
+M2 の非対象:
 
-- service-family migration cutover implementation in leaf/root domains (M3/M4)
-- final legacy path deletion work (M5)
+- サービス-family 移行 cutover implementation in leaf/root domains (M3/M4)
+- final 旧系 path deletion work (M5)
 
-## Non-Negotiable Rules
+## 非交渉規則
 
 The following are mandatory and non-waivable in M2:
 
-1. no fallback rule
-- command execution must not silently fallback to legacy local-container behavior
+1. no フォールバック rule
+- command 実行 必須である not silently フォールバック to 旧系 local-container behavior
 
 2. kernel ownership rule
-- slot/instance lifecycle authority must remain kernel-owned in all accepted-path flows
+- slot/instance lifecycle authority 必須である remain kernel-owned in all 許可経路 flows
 
-3. explicit failure rule
-- authority violation and mapping violation must return structured diagnostics
+3. explicit 失敗 rule
+- authority violation and mapping violation 必須である return structured diagnostics
 
-4. gate enforcement rule
-- M3 must not start until M2 evidence package is complete and approved
+4. ゲート enforcement rule
+- M3 必須である not start until M2 証拠 package is 完了 and 承認済み
 
-## Mandatory Artifacts
+## 必須成果物
 
-M2 must produce all of the following:
+M2 は次の成果物をすべて作成しなければならない:
 
 - KernelCommandContractSpec
 - DeclarationToCommandMappingTable
@@ -60,21 +60,21 @@ M2 must produce all of the following:
 - FocusedRuntimeVerificationReport
 - M3EntryGateEvidencePackage
 
-## M2.x Execution Details
+## M2.x 実行詳細
 
 ### M2.1 Command Contract Lock
 
-Tasks:
+作業:
 
 - define register/build/activate/deactivate/release command signatures
 - define idempotency guarantees and duplicate command handling
-- define required diagnostics for success/failure
+- define 必須 diagnostics for success/失敗
 
-Output:
+出力:
 
 - KernelCommandContractSpec
 
-Required fields:
+必須項目:
 
 - CommandName
 - InputSchema
@@ -85,17 +85,17 @@ Required fields:
 
 ### M2.2 Declaration-to-Command Deterministic Mapping
 
-Tasks:
+作業:
 
-- define deterministic mapping from declaration payload to command sequence
-- define form-specific branching for AoS and Scope-ServiceInstance
-- reject undeclared targets and malformed declaration inputs
+- define deterministic mapping from 宣言 payload to command sequence
+- define form-specific branching for AoS and 範囲-ServiceInstance
+- 拒否 undeclared targets and malformed 宣言 inputs
 
-Output:
+出力:
 
 - DeclarationToCommandMappingTable
 
-Required fields:
+必須項目:
 
 - MappingId
 - DeclarationSelector
@@ -106,17 +106,17 @@ Required fields:
 
 ### M2.3 Kernel Handler Implementation and Ownership Enforcement
 
-Tasks:
+作業:
 
 - implement kernel handlers for full lifecycle command set
 - enforce kernel ownership checks for all slot/instance mutations
-- block scope-local authority sources from entering handler path
+- block スコープ-local authority sources from entering handler path
 
-Output:
+出力:
 
 - KernelCommandHandlersCoverageReport
 
-Required fields:
+必須項目:
 
 - HandlerName
 - CoveredCommand
@@ -124,19 +124,19 @@ Required fields:
 - LegacyBypassRisk
 - CoverageEvidence
 
-### M2.4 Authority Violation Hard-Reject Path
+### M2.4 Authority Violation Hard-拒否 Path
 
-Tasks:
+作業:
 
-- implement hard-reject on any accepted-path local DI authority request
+- implement hard-拒否 on any 許可経路 local DI authority request
 - assign structured error codes and diagnostic payload shape
-- verify reject behavior has no recovery path to legacy authority
+- verify 拒否 behavior has no recovery path to 旧系 authority
 
-Output:
+出力:
 
 - AuthorityViolationRejectionMatrix
 
-Required fields:
+必須項目:
 
 - ViolationType
 - DetectionPoint
@@ -144,19 +144,19 @@ Required fields:
 - DiagnosticEvidence
 - FallbackBlockedFlag
 
-### M2.5 Focused Runtime Verification
+### M2.5 Focused 実行時 検証
 
-Tasks:
+作業:
 
-- run focused tests for command ordering/idempotency/failure semantics
-- validate declaration-only MB runtime boundary under command execution
-- validate authority isolation with negative cases
+- run focused tests for command ordering/idempotency/失敗 semantics
+- 検証する 宣言-only MB 実行時 boundary under command 実行
+- 検証する authority isolation with negative cases
 
-Output:
+出力:
 
 - FocusedRuntimeVerificationReport
 
-Required fields:
+必須項目:
 
 - VerificationCaseId
 - Scenario
@@ -165,51 +165,56 @@ Required fields:
 - PassFail
 - EvidenceAnchor
 
-### M2.6 M3 Entry Gate Evidence Package
+### M2.6 M3 Entry ゲート 証拠 Package
 
-Tasks:
+作業:
 
 - compose M3 entry package from M2 artifacts
 - define open risks and mandatory mitigations
-- enforce M3 start block when evidence set is incomplete
+- enforce M3 start block when 証拠 set is incomplete
 
-Output:
+出力:
 
 - M3EntryGateEvidencePackage
 
-Required fields:
+必須項目:
 
 - RequiredArtifact
 - PresenceFlag
 - ApprovalState
 - BlockingCondition
 
-## Exit Criteria
+## 完了条件
 
-M2 is complete only when all are true:
+M2 は次の条件をすべて満たした場合のみ完了とする:
 
-- all mandatory M2 artifacts are present and approved
+- all mandatory M2 artifacts are present and 承認済み
 - command contract is deterministic and ambiguity-free
-- authority violation hard-reject path is proven in runtime verification
-- no accepted-path fallback to legacy local container behavior exists
-- M3EntryGateEvidencePackage is approved
+- authority violation hard-拒否 path is proven in 実行時 検証
+- no 許可経路 フォールバック to 旧系 local container behavior exists
+- M3EntryGateEvidencePackage is 承認済み
 
-## Failure Conditions
+## 失敗条件
 
-M2 fails if any of the following occurs:
+M2 は次のいずれかが発生した場合に失敗とする:
 
 - any lifecycle command lacks contract or diagnostics schema
 - mapping allows non-deterministic route selection
-- authority violation can bypass reject path
-- verification reveals fallback to local DI authority
-- M3 starts without approved M3EntryGateEvidencePackage
+- authority violation can bypass 拒否 path
+- 検証 reveals フォールバック to local DI authority
+- M3 starts without 承認済み M3EntryGateEvidencePackage
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行注記 |
 | --- | --- | --- |
-| TC-V23-07-01 | Confirm M2 forbids any accepted-path authority fallback. | Spec must require hard reject without legacy recovery. |
-| TC-V23-07-02 | Confirm M2 command contracts are explicit and testable. | Spec must define command schema, pre/postconditions, and failures. |
-| TC-V23-07-03 | Confirm declaration-to-command mapping is deterministic. | Spec must prohibit ambiguous mapping branches. |
-| TC-V23-07-04 | Confirm M2 enforces kernel ownership checks in handlers. | Spec must require ownership enforcement evidence per handler. |
-| TC-V23-07-05 | Confirm M2 blocks M3 until evidence package approval. | Spec must require M3 entry gate with blocking conditions. |
+| TC-V23-07-01 | 確認 M2 forbids any 許可経路 authority フォールバック. | 仕様は次を必須とする hard 拒否 without 旧系 recovery. |
+| TC-V23-07-02 | 確認 M2 command contracts are explicit and testable. | 仕様は次を定義する command schema, pre/postconditions, and failures. |
+| TC-V23-07-03 | 確認 宣言-to-command mapping is deterministic. | 仕様は次を禁止する ambiguous mapping branches. |
+| TC-V23-07-04 | 確認 M2 enforces kernel ownership checks in handlers. | 仕様は次を必須とする ownership enforcement 証拠 per handler. |
+| TC-V23-07-05 | 確認 M2 blocks M3 until 証拠 package approval. | 仕様は次を必須とする M3 entry ゲート with blocking conditions. |
+
+
+
+
+

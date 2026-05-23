@@ -1,92 +1,96 @@
 # M6EntryGateEvidencePackage
 
 Source Spec: [10_KernelV23M5HardeningAndDeleteExecutionSpec.md](../../10_KernelV23M5HardeningAndDeleteExecutionSpec.md)
-Execution Step: M5.6 M6 Entry Gate Evidence Packaging
-Artifact Owner: Copilot Draft (handoff required)
-Last Updated: 2026-05-23
-Approval State: design-ready (Package baseline composed; gate still blocked)
+実行 Step: M5.6 M6 Entry ゲート 証拠 Packaging
+成果物担当: Copilot 下書き (handoff 必須)
+最終更新日: 2026-05-23
+承認状態: design-ready (Package baseline composed; ゲート still ブロック)
 
-## ApprovalState Vocabulary
+## 承認状態語彙
 
 - `not-started`: artifact missing or not reviewable
-- `design-ready`: required records are defined and internally reviewed
-- `runtime-verified`: runtime evidence is captured and pass/fail is fixed
-- `approved`: reviewer sign-off is completed
+- `design-ready`: 必須 レコード are defined and internally reviewed
+- `実行時-verified`: 実行時 証拠 is captured and pass/fail is fixed
+- `承認済み`: reviewer sign-off is completed
 
-## PresenceFlag Vocabulary
+## PresenceFlag 語彙
 
-- `yes`: required artifact exists and is reviewable
-- `no`: required artifact is missing
-- `blocked`: artifact exists but cannot be used for gate decision due to invalid/incomplete structure
+- `yes`: 必須 artifact exists and is reviewable
+- `no`: 必須 artifact is missing
+- `ブロック`: artifact exists but cannot be used for ゲート decision due to invalid/incomplete structure
 
-## Packaging Policy (M5.6)
+## パッケージング方針（M5.6）
 
-- Every mandatory M5 artifact must be present and approved before M6 start can be allowed.
-- Presence alone is insufficient; unresolved runtime verification or open regression risk keeps M6 blocked.
-- `BlockingCondition` must use explicit, auditable gate keys.
+- Every mandatory M5 artifact 必須である be present and 承認済み before M6 start can be allowed.
+- Presence alone is insufficient; unresolved 実行時 検証 or open regression risk keeps M6 ブロック.
+- `BlockingCondition` 必須である use explicit, auditable ゲート keys.
 
-## Gate Rules (M5.6 Lock)
+## ゲート規則（M5.6 ロック）
 
-- M6 start is blocked until all required artifacts are in `approved` state.
-- `not-started`, `design-ready`, and `runtime-verified` are all blocking states.
-- Any unresolved authority reachability, fallback observation, reference break, or budget regression keeps M6 blocked.
+- M6 start is ブロック until all 必須 artifacts are in `承認済み` state.
+- `not-started`, `design-ready`, and `実行時-verified` are all blocking states.
+- Any unresolved authority reachability, フォールバック observation, reference break, or budget regression keeps M6 ブロック.
 - Any `PresenceFlag != yes` is a hard block.
 
-## Records
+## レコード
 
 | RequiredArtifact | PresenceFlag | ApprovalState | BlockingCondition |
 | --- | --- | --- | --- |
-| ObsoleteAuthorityDeletionBoundaryInventory | yes | design-ready | gate:deletion_boundary_not_approved; gate:owner_handoff_pending |
-| ObsoleteAuthorityDeletionExecutionReport | yes | design-ready | gate:physical_delete_not_verified; gate:reachability_after_delete_not_verified; gate:reintroduction_risk_open |
-| DiagnosticsFailureHardeningVerificationReport | yes | design-ready | gate:silent_fallback_absence_not_verified; gate:hardening_not_approved |
-| PerformanceBudgetValidationReport | yes | design-ready | gate:budget_conformance_not_verified; gate:regression_absence_not_verified; gate:budget_validation_not_approved |
-| CompatibilityShellRetirementValidationReport | yes | design-ready | gate:retirement_conformance_not_verified; gate:reference_continuity_not_verified; gate:shell_retirement_not_approved |
+| ObsoleteAuthorityDeletionBoundaryInventory | yes | design-ready | ゲート:deletion_boundary_not_承認済み; ゲート:owner_handoff_pending |
+| ObsoleteAuthorityDeletionExecutionReport | yes | design-ready | ゲート:physical_delete_not_verified; ゲート:reachability_after_delete_not_verified; ゲート:reintroduction_risk_open |
+| DiagnosticsFailureHardeningVerificationReport | yes | design-ready | ゲート:silent_フォールバック_absence_not_verified; ゲート:hardening_not_承認済み |
+| PerformanceBudgetValidationReport | yes | design-ready | ゲート:budget_conformance_not_verified; ゲート:regression_absence_not_verified; ゲート:budget_validation_not_承認済み |
+| CompatibilityShellRetirementValidationReport | yes | design-ready | ゲート:retirement_conformance_not_verified; ゲート:reference_continuity_not_verified; ゲート:shell_retirement_not_承認済み |
 
-## BlockingCondition Resolution Map
+## BlockingCondition 解決条件マップ
 
-| GateKey | Closure Evidence Requirement |
+| GateKey | Closure 証拠 Requirement |
 | --- | --- |
-| gate:owner_handoff_pending | named owner assigned and approval sign-off record attached |
-| gate:deletion_boundary_not_approved | M5.1 artifact state changed to approved |
-| gate:physical_delete_not_verified | all M5-EXE records have runtime delete proof |
-| gate:reachability_after_delete_not_verified | all M5-EXE records fixed to `ReachabilityAfterDelete=unreachable` |
-| gate:reintroduction_risk_open | all high/medium reintroduction risks mitigated or accepted with explicit waiver |
-| gate:silent_fallback_absence_not_verified | all M5-HRD records fixed to `FallbackObservedFlag=false` |
-| gate:hardening_not_approved | M5.3 artifact state changed to approved |
-| gate:budget_conformance_not_verified | all M5-BGT records have measured baseline/current metrics and threshold evaluation |
-| gate:regression_absence_not_verified | no open `BudgetPassFail=fail` case without approved waiver |
-| gate:budget_validation_not_approved | M5.4 artifact state changed to approved |
-| gate:retirement_conformance_not_verified | all M5-SHL records closed with expected retirement state matched |
-| gate:reference_continuity_not_verified | all M5-SHL records fixed to `ReferenceContinuityPassFail=pass` |
-| gate:shell_retirement_not_approved | M5.5 artifact state changed to approved |
+| ゲート:owner_handoff_pending | named 担当 assigned and approval sign-off レコード attached |
+| ゲート:deletion_boundary_not_承認済み | M5.1 artifact state changed to 承認済み |
+| ゲート:physical_delete_not_verified | all M5-EXE レコード have 実行時 delete proof |
+| ゲート:reachability_after_delete_not_verified | all M5-EXE レコード fixed to `ReachabilityAfterDelete=unreachable` |
+| ゲート:reintroduction_risk_open | all high/medium reintroduction risks mitiゲートd or accepted with explicit waiver |
+| ゲート:silent_フォールバック_absence_not_verified | all M5-HRD レコード fixed to `FallbackObservedFlag=false` |
+| ゲート:hardening_not_承認済み | M5.3 artifact state changed to 承認済み |
+| ゲート:budget_conformance_not_verified | all M5-BGT レコード have measured baseline/current metrics and threshold evaluation |
+| ゲート:regression_absence_not_verified | no open `BudgetPassFail=fail` case without 承認済み waiver |
+| ゲート:budget_validation_not_承認済み | M5.4 artifact state changed to 承認済み |
+| ゲート:retirement_conformance_not_verified | all M5-SHL レコード closed with expected retirement state matched |
+| ゲート:reference_continuity_not_verified | all M5-SHL レコード fixed to `ReferenceContinuityPassFail=pass` |
+| ゲート:shell_retirement_not_承認済み | M5.5 artifact state changed to 承認済み |
 
-## M6 Start Blockers
+## M6 開始ブロッカー
 
-- Physical delete and post-delete reachability are not runtime-closed.
-- Failure hardening still has unresolved fallback observation checks.
-- Performance budget cases are defined but runtime metrics are not yet collected.
-- Compatibility shell retirement/retention is not runtime-verified for authority and reference continuity.
-- Required artifacts are not reviewer-approved; M6 gate remains locked.
+- Physical delete and post-delete reachability are not 実行時-closed.
+- 失敗 hardening still has unresolved フォールバック observation checks.
+- Performance budget cases are defined but 実行時 metrics are not yet collected.
+- 互換 shell retirement/retention is not 実行時-verified for authority and reference continuity.
+- 必須 artifacts are not reviewer-承認済み; M6 ゲート remains locked.
 
-## Open Risks and Mandatory Mitigations
+## 未解決リスクと必須軽減策
 
-| RiskId | Risk | Severity | MandatoryMitigation | Owner |
+| RiskId | Risk | Severity | MandatoryMitigation | 担当 |
 | --- | --- | --- | --- | --- |
-| M5-GATE-RISK-001 | Obsolete authority paths may remain reachable because delete execution is not runtime-verified | high | Execute all M5-EXE cases and prove `ReachabilityAfterDelete=unreachable` with evidence | Runtime Cutover Owner |
-| M5-GATE-RISK-002 | Silent fallback/swallow behavior may persist because hardening checks are pending | high | Execute all M5-HRD cases and confirm `FallbackObservedFlag=false` for all reject classes | Hardening Owner |
-| M5-GATE-RISK-003 | Budget regression may be hidden because baseline/current metrics are pending capture | high | Execute all M5-BGT cases and close BudgetPassFail/RegressionRisk decisions with measured metrics | Performance Owner |
-| M5-GATE-RISK-004 | Compatibility shell behavior may still be authoritative or break references after retirement actions | high | Execute all M5-SHL cases and close `AuthorityBehaviorFlag` and `ReferenceContinuityPassFail` with runtime evidence | Compatibility Owner |
-| M5-GATE-RISK-005 | Artifact approvals are incomplete, allowing ambiguous M5 completion interpretation | medium | Complete reviewer sign-off and record decision owner/date in this package | Program Owner |
+| M5-GATE-RISK-001 | Obsolete authority paths may remain reachable because delete 実行 is not 実行時-verified | high | Execute all M5-EXE cases and prove `ReachabilityAfterDelete=unreachable` with 証拠 | 実行時 Cutover 担当 |
+| M5-GATE-RISK-002 | Silent フォールバック/swallow behavior may persist because hardening checks are pending | high | Execute all M5-HRD cases and confirm `FallbackObservedFlag=false` for all 拒否 classes | Hardening 担当 |
+| M5-GATE-RISK-003 | Budget regression may be hidden because baseline/current metrics are pending capture | high | Execute all M5-BGT cases and close BudgetPassFail/RegressionRisk decisions with measured metrics | Performance 担当 |
+| M5-GATE-RISK-004 | 互換 shell behavior may still be authoritative or break references after retirement actions | high | Execute all M5-SHL cases and close `AuthorityBehaviorFlag` and `ReferenceContinuityPassFail` with 実行時 証拠 | 互換 担当 |
+| M5-GATE-RISK-005 | Artifact approvals are incomplete, allowing ambiguous M5 completion interpretation | medium | 完了 reviewer sign-off and レコード decision 担当/date in this package | Program 担当 |
 
-## Review Notes
+## レビューノート
 
 - All mandatory M5 artifacts are present and linked in this package.
-- Current package state is `design-ready` baseline only; runtime closure and approvals remain blocking.
+- Current package state is `design-ready` baseline only; 実行時 closure and approvals remain blocking.
 - `design-ready` is not a start-permissive state for M6.
 
-## Gate Decision
+## ゲート判定
 
 - M6 start allowed: [ ]
-- Decision owner: Pending
+- Decision 担当: Pending
 - Decision date: Pending
-- Decision rationale: Blocked until all required M5 artifacts are approved with runtime evidence closed.
+- Decision rationale: ブロック until all 必須 M5 artifacts are 承認済み with 実行時 証拠 closed.
+
+
+
+

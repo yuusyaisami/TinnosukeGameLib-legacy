@@ -1,11 +1,11 @@
 # IndependentClaimReviewDecisionRecord
 
 Source Spec: [11_KernelV23M6FullProofAndReleaseClaimExecutionSpec.md](../../11_KernelV23M6FullProofAndReleaseClaimExecutionSpec.md)
-Artifact Owner:
-Last Updated:
-Approval State: Draft
+成果物担当:
+最終更新日:
+承認状態: 下書き
 
-## Records
+## レコード
 
 | ReviewItemId | ValidationResult | ContractConformanceState | Decision | DecisionRationale |
 | --- | --- | --- | --- | --- |
@@ -13,7 +13,9 @@ Approval State: Draft
 |  |  |  |  |  |
 |  |  |  |  |  |
 
-## Gate Check
+## ゲートチェック
 
-- Independent review complete: [ ]
+- Independent review 完了: [ ]
 - Acceptance recorded: [ ]
+
+

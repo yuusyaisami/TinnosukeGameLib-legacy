@@ -1,86 +1,86 @@
-# Kernel v2.3 M0 Full-Migration Contract Freeze Execution Specification
+# Kernel v2.3 M0 完全移行契約凍結 実行仕様
 
-## Document Status
+## 文書状態
 
-- Document ID: 05_KernelV23M0FullMigrationContractFreezeExecutionSpec
-- Status: Draft
-- Role: execution-level definition for M0 in v2.3
-- Depends on:
+- 文書 ID: 05_KernelV23M0FullMigrationContractFreezeExecutionSpec
+- 状態: 下書き
+- 役割: v2.3 における M0 の実行レベル定義
+- 依存先:
   - [00_KernelV23OverviewSpec.md](00_KernelV23OverviewSpec.md)
   - [01_KernelV23ServiceRuntimeModelSpec.md](01_KernelV23ServiceRuntimeModelSpec.md)
   - [02_KernelV23AuthoringRegistrationFlowSpec.md](02_KernelV23AuthoringRegistrationFlowSpec.md)
   - [03_KernelV23MilestoneOrderSpec.md](03_KernelV23MilestoneOrderSpec.md)
   - [04_KernelV23ServiceReconstructionAndCompatibilitySpec.md](04_KernelV23ServiceReconstructionAndCompatibilitySpec.md)
 
-## Purpose
+## 目的
 
-M0 freezes the non-negotiable contract for v2.3 before implementation-scale work starts.
+M0 は実装規模作業開始前に、v2.3 の非交渉契約を凍結する。
 
-M0 must ensure that later milestones cannot reinterpret core requirements.
+M0 は後続マイルストーンで中核要件を再解釈できない状態を保証する。
 
-## Scope
+## 範囲
 
-M0 covers:
+M0 の対象範囲:
 
-- completion contract freeze (full migration mandatory)
-- compatibility contract freeze (name/reference continuity mandatory)
-- release rejection trigger freeze (legacy authority residue is reject condition)
+- completion contract freeze (完全移行 mandatory)
+- 互換 contract freeze (name/reference continuity mandatory)
+- release rejection trigger freeze (旧系 authority residue is 拒否 condition)
 
-M0 does not cover:
+M0 の非対象:
 
-- service-by-service implementation migration
-- runtime command handler coding work
+- サービス-by-サービス implementation 移行
+- 実行時 command handler coding work
 
-## Inputs
+## 入力
 
 - normative requirements from 00/01/02/04
-- known migration constraints from active runtime paths
+- known 移行 constraints from active 実行経路s
 
-## Outputs
+## 出力
 
-- M0 Contract Decision Record
+- M0 Contract Decision レコード
 - M0 Rejection Trigger Matrix
-- M0 Invariant List for M1 and M2 entry gates
+- M0 Invariant List for M1 and M2 entry ゲートs
 
-Required fields:
+必須項目:
 
-- M0 Contract Decision Record:
+- M0 Contract Decision レコード:
   - ContractRuleId
   - CanonicalStatement
   - DecisionState
   - DecisionRationale
-  - Owner
+  - 担当
 - M0 Rejection Trigger Matrix:
   - TriggerId
   - TriggerCondition
   - EvidenceRequirement
   - RejectDecisionRule
   - DiagnosticCode
-- M0 Invariant List for M1 and M2 entry gates:
+- M0 Invariant List for M1 and M2 entry ゲートs:
   - InvariantId
   - InvariantStatement
-  - Scope
+  - 範囲
   - VerificationMethod
   - GateBinding
 
-## Mandatory Invariants Frozen by M0
+## M0 で凍結する必須不変条件
 
-M0 must freeze these invariants as non-overridable:
+M0 必須である freeze these invariants as non-overridable:
 
-1. accepted path authority invariant
-- accepted runtime path must have zero scope-local DI runtime authority at completion
+1. 許可経路 authority invariant
+- 許可実行経路 必須である have zero スコープ-local DI 実行権限 at completion
 
-2. service model invariant
-- only AoS and Scope-ServiceInstance forms are accepted
+2. サービス model invariant
+- only AoS and 範囲-ServiceInstance forms are accepted
 
-3. compatibility invariant
-- all service family migrations must preserve external service identity names
-- scene/prefab/script references must remain valid throughout migration
+3. 互換 invariant
+- all サービスファミリー migrations 必須である preserve external サービス identity names
+- scene/prefab/script references 必須である remain valid throughout 移行
 
 4. release rejection invariant
-- any residual accepted-path dependency on local DI authority blocks release claim
+- any residual 許可経路 dependency on local DI authority blocks release claim
 
-## Execution Steps
+## 実行手順
 
 ### M0.1 Contract Canonicalization
 
@@ -90,7 +90,7 @@ M0 must freeze these invariants as non-overridable:
 Deliverable:
 - canonical contract glossary
 
-Required fields:
+必須項目:
 - Term
 - CanonicalDefinition
 - DeprecatedAliases
@@ -98,28 +98,28 @@ Required fields:
 
 ### M0.2 Rejection Trigger Definition
 
-- define exact reject triggers for release gate
-- map each trigger to measurable evidence
+- define exact 拒否 triggers for release ゲート
+- map each trigger to measurable 証拠
 
 Deliverable:
 - rejection trigger matrix
 
-Required fields:
+必須項目:
 - TriggerId
 - TriggerCondition
 - EvidenceRequirement
 - RejectDecisionRule
 - DiagnosticCode
 
-### M0.3 Compatibility Boundary Lock
+### M0.3 互換 Boundary Lock
 
-- freeze allowed compatibility shell behavior
-- freeze disallowed compatibility shell behavior
+- freeze allowed 互換 shell behavior
+- freeze disallowed 互換 shell behavior
 
 Deliverable:
-- compatibility boundary table
+- 互換 boundary テーブル
 
-Required fields:
+必須項目:
 - BoundaryId
 - AllowedBehavior
 - DisallowedBehavior
@@ -129,41 +129,46 @@ Required fields:
 ### M0.4 Governance Lock
 
 - define who can approve contract changes
-- define exceptional change process and required justification
+- define exceptional change process and 必須 justification
 
 Deliverable:
 - governance lock protocol
 
-Required fields:
+必須項目:
 - GovernanceRuleId
 - ApproverRole
 - ChangeRequestCondition
 - RequiredJustification
 - DecisionRecordFormat
 
-## Exit Criteria
+## 完了条件
 
-M0 is complete only when all are true:
+M0 は次の条件をすべて満たした場合のみ完了とする:
 
-- canonical contract glossary approved
-- rejection trigger matrix approved
-- compatibility boundary table approved
-- governance lock protocol approved
+- canonical contract glossary 承認済み
+- rejection trigger matrix 承認済み
+- 互換 boundary テーブル 承認済み
+- governance lock protocol 承認済み
 - no unresolved contradiction remains across 00/01/02/03/04/05
 
-## Failure Conditions
+## 失敗条件
 
-M0 fails if any of the following occurs:
+M0 は次のいずれかが発生した場合に失敗とする:
 
 - contract remains interpretable in multiple conflicting ways
 - rejection trigger cannot be measured objectively
-- compatibility boundary allows runtime authority leakage
+- 互換 boundary allows 実行権限 leakage
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行注記 |
 | --- | --- | --- |
-| TC-V23-05-01 | Confirm M0 freezes full migration as non-optional. | Spec must declare full migration as mandatory invariant. |
-| TC-V23-05-02 | Confirm M0 freezes compatibility constraints. | Spec must require service name and reference continuity. |
-| TC-V23-05-03 | Confirm M0 defines objective release rejection triggers. | Spec must define measurable reject conditions. |
-| TC-V23-05-04 | Confirm M0 governs change authority after freeze. | Spec must define governance lock protocol. |
+| TC-V23-05-01 | 確認 M0 freezes 完全移行 as non-optional. | Spec 必須である declare 完全移行 as mandatory invariant. |
+| TC-V23-05-02 | 確認 M0 freezes 互換 constraints. | 仕様は次を必須とする サービス name and reference continuity. |
+| TC-V23-05-03 | 確認 M0 defines objective release rejection triggers. | 仕様は次を定義する measurable 拒否 conditions. |
+| TC-V23-05-04 | 確認 M0 governs change authority after freeze. | 仕様は次を定義する governance lock protocol. |
+
+
+
+
+

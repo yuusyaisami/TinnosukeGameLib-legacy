@@ -1,99 +1,105 @@
-# Kernel v2.3 Service Runtime Model Specification
+# Kernel v2.3 サービス実行モデル仕様
 
-## Document Status
+## 文書状態
 
-- Document ID: 01_KernelV23ServiceRuntimeModelSpec
-- Status: Draft
-- Role: defines service runtime ownership and execution model for v2.3
-- Depends on:
+- 文書 ID: 01_KernelV23ServiceRuntimeModelSpec
+- 状態: 下書き
+- 役割: v2.3 のサービス実行所有と実行モデルを定義する
+- 依存先:
   - [00_KernelV23OverviewSpec.md](00_KernelV23OverviewSpec.md)
   - [../v2/06_ServiceGraphRuntimeSpec.md](../v2/06_ServiceGraphRuntimeSpec.md)
   - [../v2/07_ScopeGraphRuntimeSpec.md](../v2/07_ScopeGraphRuntimeSpec.md)
 
-## Ownership
+## 所掌
 
-This specification owns:
+本仕様の所掌:
 
-- runtime service form classification
-- kernel-side ownership rule for service state and instances
-- rejection rules for scope-local DI service authority
-- runtime dispatch shape between ScopeGraph and Service runtime
+- 実行時 サービス form 分類
+- kernel-side ownership rule for サービス state and instances
+- rejection rules for スコープ-local DI サービス authority
+- 実行時 dispatch shape between ScopeGraph and サービス 実行時
 
-This specification does not own:
+本仕様の非所掌:
 
 - command catalog internals
 - value schema internals
 - Unity authoring schema details
 
-## Normative Runtime Model
+## 規範実行モデル
 
-### Service Form A: AoS Service
+### サービス Form A: AoS サービス
 
-Definition:
-- service holds runtime data by ScopeHandle in AoS slots
-- service methods process slots in batches or indexed operations
-- scope does not own service object instance
+定義:
+- サービス holds 実行時 data by ScopeHandle in AoS slots
+- サービス methods process slots in batches or indexed operations
+- スコープ does not own サービス object instance
 
-Required properties:
+必須特性:
 - slot creation/destruction is kernel-command driven
 - slot access is handle-indexed and generation-safe
-- slot lifetime is bound to scope lifetime plan
+- slot lifetime is bound to スコープ lifetime plan
 
-### Service Form B: Scope-ServiceInstance Service
+### サービス Form B: 範囲-ServiceInstance サービス
 
-Definition:
-- kernel owns one runtime instance per scope where declared
+定義:
+- kernel owns one 実行時 instance per スコープ where declared
 - instance creation/destruction is kernel-command driven
-- scope may reference service capability but does not own the instance container
+- スコープ may reference サービス capability but does not own the instance container
 
-Required properties:
+必須特性:
 - instance registry is kernel-side
-- runtime ownership remains outside MB and outside scope-local DI container
-- diagnostics include scope handle and declaration source
+- 実行時 ownership remains outside MB and outside スコープ-local DI container
+- diagnostics include スコープ handle and 宣言 source
 
-## Prohibited Runtime Model
+## 禁止実行モデル
 
-The following are prohibited in accepted runtime path:
+許可実行経路で次を禁止する:
 
-- per-scope local DI container as service runtime authority
-- per-scope autonomous service construction based on local component scan
-- runtime fallback creation of undeclared service instances
+- per-スコープ local DI container as サービス 実行権限
+- per-スコープ autonomous サービス construction based on local component scan
+- 実行時 フォールバック creation of undeclared サービス instances
 
-## Service Reconstruction Contract (Normative)
+## サービス再構成契約（規範）
 
-All existing service families must be migrated to v2.3 runtime model under these constraints:
+既存の全サービスファミリーは次の制約で v2.3 実行モデルへ移行する。
 
-- keep service names stable at integration boundary
-- keep serialized/script reference continuity during migration
-- replace internal execution ownership with kernel-owned AoS or kernel-owned Scope-ServiceInstance form
-- remove scope-local DI ownership semantics from the migrated service implementation
+- keep サービス names stable at integration boundary
+- keep serialized/script reference continuity during 移行
+- replace internal 実行 ownership with kernel-owned AoS or kernel-owned 範囲-ServiceInstance form
+- remove スコープ-local DI ownership semantics from the migrated サービス implementation
 
-No service family is exempt from migration.
-Partial migration that leaves accepted runtime authority in legacy scope-local DI is invalid.
+No サービスファミリー is exempt from 移行.
+Partial 移行 that leaves accepted 実行権限 in 旧系 スコープ-local DI is invalid.
 
-## Runtime API Direction (Conceptual)
+## 実行API 方向（概念）
 
 Conceptual authority flow:
 
-1. ScopeGraph signals scope lifecycle transitions to Kernel runtime
-2. Kernel runtime issues service registration/build/activate/release commands
-3. Service runtime applies commands to AoS slots or instance registry
-4. Diagnostics/DebugMap record declaration source and execution provenance
+1. ScopeGraph signals スコープ lifecycle transitions to Kernel 実行時
+2. Kernel 実行時 issues サービス registration/build/activate/release commands
+3. サービス 実行時 applies commands to AoS slots or instance registry
+4. Diagnostics/DebugMap レコード 宣言 source and 実行 provenance
 
-## Performance Policy
+## 性能方針
 
-- AoS services are default for high-cardinality scope domains (entity-like domains)
-- Scope-ServiceInstance is allowed where encapsulation/stateful orchestration is required
-- service count growth must not track entity count unless explicitly justified by form B
-- migration must not reintroduce per-scope container build cost through compatibility layers
+- AoS services are default for high-cardinality スコープ domains (entity-like domains)
+- 範囲-ServiceInstance is allowed where encapsulation/stateful orchestration is 必須
+- サービス count growth 必須である not track entity count unless explicitly justified by form B
+- 移行 必須である not reintroduce per-スコープ container build cost through 互換 layers
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行注記 |
 | --- | --- | --- |
-| TC-V23-01-01 | Confirm AoS service form is defined as kernel-owned slot model. | Spec must define slot ownership and lifecycle commands. |
-| TC-V23-01-02 | Confirm Scope-ServiceInstance form is kernel-owned. | Spec must define kernel-side instance registry ownership. |
-| TC-V23-01-03 | Confirm third service form is disallowed. | Spec must explicitly prohibit per-scope local DI authority. |
-| TC-V23-01-04 | Confirm fallback runtime construction is rejected. | Spec must prohibit undeclared runtime instance creation. |
-| TC-V23-01-05 | Confirm all service families are covered by migration contract. | Spec must require non-exempt migration for all existing services. |
-| TC-V23-01-06 | Confirm name/reference continuity requirement is explicit. | Spec must require stable names and reference-safe migration. |
+| TC-V23-01-01 | 確認 AoS サービス form is defined as kernel-owned slot model. | 仕様は次を定義する slot ownership and lifecycle commands. |
+| TC-V23-01-02 | 確認 範囲-ServiceInstance form is kernel-owned. | 仕様は次を定義する kernel-side instance registry ownership. |
+| TC-V23-01-03 | 確認 third サービス form is disallowed. | Spec を明示的に prohibit per-スコープ local DI authority. |
+| TC-V23-01-04 | 確認 フォールバック 実行時 construction is rejected. | 仕様は次を禁止する undeclared 実行時 instance creation. |
+| TC-V23-01-05 | 確認 all サービス families are covered by 移行 contract. | 仕様は次を必須とする non-exempt 移行 for all existing services. |
+| TC-V23-01-06 | 確認 name/reference continuity requirement is explicit. | 仕様は次を必須とする stable names and reference-safe 移行. |
+
+
+
+
+
+

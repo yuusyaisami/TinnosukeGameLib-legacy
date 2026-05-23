@@ -1,104 +1,110 @@
-# Kernel v2.3 Authoring Registration Flow Specification
+# Kernel v2.3 Authoring 登録フロー仕様
 
-## Document Status
+## 文書状態
 
-- Document ID: 02_KernelV23AuthoringRegistrationFlowSpec
-- Status: Draft
-- Role: defines MB declaration flow from editor compilation to runtime kernel registration/execution in v2.3
-- Depends on:
+- 文書 ID: 02_KernelV23AuthoringRegistrationFlowSpec
+- 状態: 下書き
+- 役割: v2.3 における editor compile から 実行時 kernel 登録/実行までの MB 宣言フローを定義する
+- 依存先:
   - [00_KernelV23OverviewSpec.md](00_KernelV23OverviewSpec.md)
   - [01_KernelV23ServiceRuntimeModelSpec.md](01_KernelV23ServiceRuntimeModelSpec.md)
   - [../v2/03_VerifiedPlanGenerationSpec.md](../v2/03_VerifiedPlanGenerationSpec.md)
   - [../v2/12_UnityAuthoringBridgeSpec.md](../v2/12_UnityAuthoringBridgeSpec.md)
 
-## Purpose
+## 目的
 
-This specification makes MB declaration-only policy executable.
+本仕様は MB 宣言専用方針を実行可能な運用へ固定する。
 
-It defines how authoring attached to scopes is compiled and registered without granting runtime authority to MB or scope-local DI container.
+本仕様は、スコープ に付随する authoring を MB や スコープ-local DI container に実行権限を与えずに、コンパイルおよび登録する手順を定義する。
 
-## Flow
+## フロー
 
 ### Phase 1: Editor Compile/Registration Plan
 
-- editor collects scope declarations and attached authoring declarations
-- declarations are normalized into verified registration plans
-- initial scene scopes are compiled as scene-initial scope set
-- each declaration record includes:
+- editor collects スコープ 宣言 and attached authoring 宣言
+- 宣言 are normalized into verified registration plans
+- initial scene scopes are compiled as scene-initial スコープ set
+- each 宣言 レコード includes:
   - ScopePlanId
   - ScopeKind
-  - ServiceForm target (AoS or Scope-ServiceInstance)
-  - declaration payload hash
+  - ServiceForm target (AoS or 範囲-ServiceInstance)
+  - 宣言 payload hash
   - source location for diagnostics
 
-### Phase 2: Runtime Scene Load
+### Phase 2: 実行時 Scene Load
 
 - scene kernel loads verified registration plans for initial scene scopes
-- kernel creates runtime scope identities from verified plans
+- kernel creates 実行時 スコープ identities from verified plans
 - kernel emits build/registration commands in verified order
 
-### Phase 3: Scope Declaration Submit
+### Phase 3: 範囲 Declaration Submit
 
-- scope host provides declaration endpoint only
-- scope sends declaration references to kernel runtime
-- kernel validates declaration compatibility with verified plan
+- スコープ host provides 宣言 endpoint only
+- スコープ sends 宣言 references to kernel 実行時
+- kernel validates 宣言 互換 with verified plan
 
 ### Phase 4: Kernel Registration Execute
 
-- kernel maps declaration into one of two service forms
-- kernel updates AoS slot service or instance registry
-- kernel records diagnostics and debug provenance
+- kernel maps 宣言 into one of two サービス forms
+- kernel updates AoS slot サービス or instance registry
+- kernel レコード diagnostics and debug provenance
 
 ### Phase 5: Lifecycle Commands
 
 - kernel sends activate/deactivate/release commands based on lifecycle plan
 - services apply lifecycle using kernel-owned state
 
-## MB Responsibility Rules
+## MB 責務規則
 
 MB is limited to:
 
-- declaration data surface
+- 宣言 data surface
 - optional editor-time validation
 - optional debug authoring helpers
 
-MB must not:
+MB 必須である not:
 
-- build runtime container
-- own runtime resolver authority
-- instantiate runtime service authority autonomously
+- build 実行時 container
+- own 実行時 resolver authority
+- instantiate 実行時 サービス authority autonomously
 
-For migrated legacy services, MB rename/removal that breaks existing references is prohibited in accepted migration path.
+For migrated 旧系 services, MB rename/removal that breaks existing references is 禁止 in accepted 移行 path.
 Internal structure may change completely as long as external name/reference continuity contract is preserved.
 
-## Scope Host Responsibility Rules
+## 範囲 Host Responsibility Rules
 
-Scope host is limited to:
+範囲 host is limited to:
 
 - identity endpoint
-- declaration submission endpoint
+- 宣言 submission endpoint
 - kernel command receiver
 
-Scope host must not:
+範囲 host 必須である not:
 
 - own local DI container authority
-- perform runtime installer discovery as accepted path
+- perform 実行時 installer discovery as 許可経路
 
-## Legacy-to-New Authoring Cutover Rules
+## 旧系から新系への Authoring 切替規則
 
-- all existing service MB families must be cut over to declaration-only authoring
-- declaration payload must map to ServiceForm (AoS or Scope-ServiceInstance) deterministically
-- runtime execution authority must move to kernel runtime command handlers
-- migration must preserve service naming and scene/prefab/script references
-- accepted runtime path must not contain scope-local DI authority residue
+- all existing サービス MB families でなければならない cut over to 宣言-only authoring
+- 宣言 payload 必須である map to ServiceForm (AoS or 範囲-ServiceInstance) deterministically
+- 実行時 実行 authority 必須である move to kernel 実行時 command handlers
+- 移行 必須である preserve サービス naming and scene/prefab/script references
+- 許可実行経路 必須である not contain スコープ-local DI authority residue
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行注記 |
 | --- | --- | --- |
-| TC-V23-02-01 | Confirm editor compile stage produces declaration plans for initial scene scopes. | Spec must require scene-initial scope compile registration. |
-| TC-V23-02-02 | Confirm runtime registration is kernel-driven. | Spec must require kernel-issued build/registration commands. |
-| TC-V23-02-03 | Confirm MB declaration-only boundary is explicit. | Spec must prohibit MB-owned runtime container authority. |
-| TC-V23-02-04 | Confirm scope host declaration endpoint model is explicit. | Spec must limit scope host to submit/receive responsibilities. |
-| TC-V23-02-05 | Confirm legacy service authoring cutover rule is explicit. | Spec must require all existing service MB families to move to declaration-only model. |
-| TC-V23-02-06 | Confirm reference-safe migration rule is explicit. | Spec must require no reference break during service internal rebuild. |
+| TC-V23-02-01 | 確認 editor compile stage produces 宣言 plans for initial scene scopes. | 仕様は次を必須とする scene-initial スコープ compile registration. |
+| TC-V23-02-02 | 確認 実行時 registration is kernel-driven. | 仕様は次を必須とする kernel-issued build/registration commands. |
+| TC-V23-02-03 | 確認 MB 宣言-only boundary is explicit. | 仕様は次を禁止する MB-owned 実行時 container authority. |
+| TC-V23-02-04 | 確認 スコープ host 宣言 endpoint model is explicit. | Spec 必須である limit スコープ host to submit/receive responsibilities. |
+| TC-V23-02-05 | 確認 旧系 サービス authoring cutover rule is explicit. | 仕様は次を必須とする all existing サービス MB families to move to 宣言-only model. |
+| TC-V23-02-06 | 確認 reference-safe 移行 rule is explicit. | 仕様は次を必須とする no reference break during サービス internal rebuild. |
+
+
+
+
+
+

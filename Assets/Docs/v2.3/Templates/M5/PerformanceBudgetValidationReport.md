@@ -1,39 +1,39 @@
 # PerformanceBudgetValidationReport
 
 Source Spec: [10_KernelV23M5HardeningAndDeleteExecutionSpec.md](../../10_KernelV23M5HardeningAndDeleteExecutionSpec.md)
-Execution Step: M5.4 Performance Budget Validation
-Artifact Owner: Copilot Draft (handoff required)
-Last Updated: 2026-05-23
-Approval State: design-ready (Budget case set defined; runtime metrics pending)
+実行 Step: M5.4 Performance Budget 検証
+成果物担当: Copilot 下書き (handoff 必須)
+最終更新日: 2026-05-23
+承認状態: design-ready (Budget case set defined; 実行時 metrics pending)
 
-## ApprovalState Vocabulary
+## 承認状態語彙
 
-- `not-started`: budget records are missing or not reviewable
-- `design-ready`: budget records are complete and internally reviewed
-- `runtime-verified`: runtime metric evidence is captured and pass/fail is fixed
-- `approved`: reviewer sign-off is completed
+- `not-started`: budget レコード are missing or not reviewable
+- `design-ready`: budget レコード are 完了 and internally reviewed
+- `実行時-verified`: 実行時 metric 証拠 is captured and pass/fail is fixed
+- `承認済み`: reviewer sign-off is completed
 
-## Budget Validation Policy (M5.4)
+## 予算検証方針（M5.4）
 
-- Post-delete/hardening verification must compare baseline and current metrics on critical runtime hot paths.
-- Any unresolved regression with `BudgetPassFail=fail` keeps M5.4 gate open.
-- Metrics must be collected under reproducible run conditions and attached to evidence.
+- Post-delete/hardening 検証 必須である compare baseline and current metrics on critical 実行時 hot paths.
+- Any unresolved regression with `BudgetPassFail=fail` keeps M5.4 ゲート open.
+- Metrics 必須である be collected under reproducible run conditions and attached to 証拠.
 
-## BudgetPassFail Vocabulary
+## BudgetPassFail 語彙
 
 - `pending`: measurement is not yet completed
 - `pass`: current metric is within allowed budget threshold
 - `fail`: current metric violates budget threshold
-- `blocked`: measurement could not complete due to harness/environment issue
+- `ブロック`: measurement could not 完了 due to harness/environment issue
 
-## RegressionRisk Vocabulary
+## RegressionRisk 語彙
 
 - `pending`: risk evaluation not completed
 - `low`: no material regression risk identified
 - `medium`: watchlist regression risk requiring follow-up
 - `high`: budget violation risk likely or observed
 
-## Metric Format
+## メトリクス形式
 
 Use this normalized format for metrics:
 
@@ -42,18 +42,18 @@ Use this normalized format for metrics:
 - `cpu_ms=<value>` for CPU budget cases
 - Use `pending-capture` when metrics are not yet collected
 
-## Budget Threshold Rules
+## 予算閾値規則
 
-Pass/fail must be decided by the following normalized rules:
+Pass/fail 必須である be decided by the following normalized rules:
 
 - time and cpu metrics: `current <= baseline * 1.05` (max +5%)
 - allocation metrics: `current <= baseline * 1.03` (max +3%)
-- if baseline is missing or invalid, `BudgetPassFail=blocked`
+- if baseline is missing or invalid, `BudgetPassFail=ブロック`
 - if any metric in a case fails the threshold, case-level `BudgetPassFail=fail`
 
-## Measurement Protocol (Reproducibility)
+## 計測プロトコル（再現性）
 
-Each runtime measurement batch must lock these conditions:
+Each 実行時 measurement batch 必須である lock these conditions:
 
 - build profile and scripting backend
 - target platform/device profile
@@ -62,29 +62,29 @@ Each runtime measurement batch must lock these conditions:
 - aggregation rule: median for time/cpu, p95 for alloc
 - outlier handling: single-run spikes are kept (no silent drop)
 
-## Evidence Minimum Fields
+## 証拠最小項目
 
-Each runtime evidence update must include:
+Each 実行時 証拠 update 必須である include:
 
-- test run id / execution timestamp
+- test run id / 実行 timestamp
 - environment fingerprint (build profile, platform, backend)
 - baseline source id and capture timestamp
 - raw sample summary (count, warm-up count, aggregation result)
 - threshold evaluation result per metric and final case decision
 
-## Records
+## レコード
 
 | BudgetCaseId | HotPathName | BaselineMetric | CurrentMetric | BudgetPassFail | RegressionRisk |
 | --- | --- | --- | --- | --- | --- |
 | M5-BGT-001 | Root boot plan validation + register/build/activate lifecycle hot path | time_ms=pending-capture; alloc_bytes=pending-capture | time_ms=pending-capture; alloc_bytes=pending-capture | pending | pending |
 | M5-BGT-002 | Root registration target expansion guard and non-plan rejection hot path | cpu_ms=pending-capture; alloc_bytes=pending-capture | cpu_ms=pending-capture; alloc_bytes=pending-capture | pending | pending |
 | M5-BGT-003 | Build authority rejection guard path (`M4BOOT_BUILD_AUTHORITY_VIOLATION`) | time_ms=pending-capture; alloc_bytes=pending-capture | time_ms=pending-capture; alloc_bytes=pending-capture | pending | pending |
-| M5-BGT-004 | Activation ordering signature verification path | time_ms=pending-capture; cpu_ms=pending-capture | time_ms=pending-capture; cpu_ms=pending-capture | pending | pending |
-| M5-BGT-005 | Deactivate/release fallback rejection path (`M4BOOT_RELEASE_AUTHORITY_BYPASS`) | time_ms=pending-capture; alloc_bytes=pending-capture | time_ms=pending-capture; alloc_bytes=pending-capture | pending | pending |
-| M5-BGT-006 | Fallback reachability reject path (`M4BOOT_FALLBACK_REACHABILITY`) | time_ms=pending-capture; cpu_ms=pending-capture | time_ms=pending-capture; cpu_ms=pending-capture | pending | pending |
-| M5-BGT-007 | Diagnostics schema completeness verification path | time_ms=pending-capture; alloc_bytes=pending-capture | time_ms=pending-capture; alloc_bytes=pending-capture | pending | pending |
+| M5-BGT-004 | Activation ordering signature 検証 path | time_ms=pending-capture; cpu_ms=pending-capture | time_ms=pending-capture; cpu_ms=pending-capture | pending | pending |
+| M5-BGT-005 | Deactivate/release フォールバック rejection path (`M4BOOT_RELEASE_AUTHORITY_BYPASS`) | time_ms=pending-capture; alloc_bytes=pending-capture | time_ms=pending-capture; alloc_bytes=pending-capture | pending | pending |
+| M5-BGT-006 | フォールバック reachability 拒否 path (`M4BOOT_FALLBACK_REACHABILITY`) | time_ms=pending-capture; cpu_ms=pending-capture | time_ms=pending-capture; cpu_ms=pending-capture | pending | pending |
+| M5-BGT-007 | Diagnostics schema completeness 検証 path | time_ms=pending-capture; alloc_bytes=pending-capture | time_ms=pending-capture; alloc_bytes=pending-capture | pending | pending |
 
-## Evidence Anchors
+## 証拠アンカー
 
 - M5-BGT-001 -> M5-EXE-001, M5-HRD-001
 - M5-BGT-002 -> M5-EXE-002, M5-HRD-002
@@ -94,7 +94,7 @@ Each runtime evidence update must include:
 - M5-BGT-006 -> M5-EXE-006, M5-HRD-006
 - M5-BGT-007 -> M5-HRD-007
 
-## Threshold Evaluation Map
+## 閾値評価マップ
 
 | BudgetCaseId | ThresholdProfile | DecisionRule |
 | --- | --- | --- |
@@ -106,15 +106,19 @@ Each runtime evidence update must include:
 | M5-BGT-006 | perf-default-v1 | pass only if all metrics satisfy threshold rules |
 | M5-BGT-007 | perf-default-v1 | pass only if all metrics satisfy threshold rules |
 
-## Review Notes
+## レビューノート
 
-- This artifact is in M5.4 start state: case matrix is defined and runtime metrics are pending.
-- Cases are aligned to M5.2 delete execution rows and M5.3 hardening reject classes.
+- This artifact is in M5.4 start state: case matrix is defined and 実行時 metrics are pending.
+- Cases are aligned to M5.2 delete 実行 rows and M5.3 hardening 拒否 classes.
 - Metric units and placeholders are normalized to avoid mixed-format audit failures.
 
-## Gate Check
+## ゲートチェック
 
-- Budget case design coverage complete: [x]
-- Budget conformance verified (runtime): [ ]
-- Unresolved regression absent (runtime): [ ]
-- Budget validation approved: [ ]
+- Budget case design coverage 完了: [x]
+- Budget conformance verified (実行時): [ ]
+- Unresolved regression absent (実行時): [ ]
+- Budget validation 承認済み: [ ]
+
+
+
+

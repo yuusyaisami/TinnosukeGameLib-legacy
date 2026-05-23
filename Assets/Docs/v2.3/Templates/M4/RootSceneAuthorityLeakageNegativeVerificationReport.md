@@ -1,49 +1,49 @@
 # RootSceneAuthorityLeakageNegativeVerificationReport
 
 Source Spec: [09_KernelV23M4RootSceneIntegrationCutoverExecutionSpec.md](../../09_KernelV23M4RootSceneIntegrationCutoverExecutionSpec.md)
-Execution Step: M4.5 Root/Scene Authority Leakage Negative Verification
-Artifact Owner: Copilot Draft (handoff required)
-Last Updated: 2026-05-23
-Approval State: design-ready (Case definition complete; runtime verification pending)
+実行 Step: M4.5 Root/Scene Authority Leakage Negative 検証
+成果物担当: Copilot 下書き (handoff 必須)
+最終更新日: 2026-05-23
+承認状態: design-ready (Case definition 完了; 実行時 検証 pending)
 
-## ApprovalState Vocabulary
+## 承認状態語彙
 
-- `not-started`: required records are missing or not reviewable
+- `not-started`: 必須 レコード are missing or not reviewable
 - `design-ready`: all negative cases are defined and internally reviewed
-- `runtime-verified`: reject/fallback runtime evidence is captured for all cases
-- `approved`: reviewer sign-off is completed
+- `実行時-verified`: 拒否/フォールバック 実行時 証拠 is captured for all cases
+- `承認済み`: reviewer sign-off is completed
 
-## Negative Verification Policy (M4.5)
+## ネガティブ検証方針（M4.5）
 
 - Each negative case targets a discovery/local-authority composition attempt in root/scene accepted flow.
-- `ExpectedRejectCode` must map to M4.2 contract reject codes.
-- `ObservedResult` and `FallbackObservedFlag` must be updated together from runtime evidence.
-- Any `fail` or `true` fallback observation keeps M4.5 gate open.
+- `ExpectedRejectCode` 必須である map to M4.2 contract 拒否 codes.
+- `ObservedResult` and `FallbackObservedFlag` 必須である be updated together from 実行時 証拠.
+- Any `fail` or `true` フォールバック observation keeps M4.5 ゲート open.
 
-## ObservedResult Vocabulary
+## ObservedResult 語彙
 
-- `pending`: case is defined but runtime execution is not yet completed
-- `pass`: expected reject is observed and fallback path remains unreachable
-- `fail`: reject mismatch or fallback reachability is observed
-- `blocked`: execution could not be completed due to harness/environment issue
+- `pending`: case is defined but 実行時 実行 is not yet completed
+- `pass`: expected 拒否 is observed and フォールバック path remains unreachable
+- `fail`: 拒否 mismatch or フォールバック reachability is observed
+- `ブロック`: 実行 could not be completed due to harness/environment issue
 
-## FallbackObservedFlag Vocabulary
+## FallbackObservedFlag 語彙
 
-- `pending`: runtime fallback observation is not yet captured
-- `false`: fallback path was not observed
-- `true`: fallback path was observed
+- `pending`: 実行時 フォールバック observation is not yet captured
+- `false`: フォールバック path was not observed
+- `true`: フォールバック path was observed
 
-## Evidence Minimum Fields
+## 証拠最小項目
 
-Each runtime evidence update must include:
+Each 実行時 証拠 update 必須である include:
 
-- test run id / execution timestamp
+- test run id / 実行 timestamp
 - attempted authority path symbol and trigger payload
-- expected vs observed reject code and diagnostic payload
-- fallback probe result and decision basis
+- expected vs observed 拒否 code and diagnostic payload
+- フォールバック probe result and decision basis
 - pass/fail rationale linked to `NegativeCaseId`
 
-## Records
+## レコード
 
 | NegativeCaseId | TriggerCondition | ExpectedRejectCode | ObservedResult | FallbackObservedFlag | EvidenceAnchor |
 | --- | --- | --- | --- | --- | --- |
@@ -51,20 +51,24 @@ Each runtime evidence update must include:
 | M4-NEG-002 | Root registration attempts discovery-sourced non-plan target injection | M4BOOT_NON_PLAN_REGISTRATION_TARGET | pending | pending | M4-CTR-002, M4-CUT-002 |
 | M4-NEG-003 | Build stage attempts non-kernel authority invocation or unregistered handle consumption | M4BOOT_BUILD_AUTHORITY_VIOLATION | pending | pending | M4-CTR-003, M4-CUT-003 |
 | M4-NEG-004 | Activation ordering is bypassed via scene callback path outside plan-derived sequence | M4BOOT_ACTIVATION_ORDER_DRIFT | pending | pending | M4-CTR-004, M4-CUT-004 |
-| M4-NEG-005 | Deactivate/Release path attempts local callback fallback authority | M4BOOT_RELEASE_AUTHORITY_BYPASS | pending | pending | M4-CTR-005, M4-CUT-005 |
-| M4-NEG-006 | Plan mismatch reject handling continues into post-reject lifecycle path | M4BOOT_FALLBACK_REACHABILITY | pending | pending | M4-CTR-006, M4-CUT-006 |
-| M4-NEG-007 | Boot lifecycle emits diagnostics with missing/invalid mandatory schema fields | M4BOOT_DIAGNOSTIC_SCHEMA_VIOLATION | pending | pending | M4-CTR-007, M4-CUT-007 |
+| M4-NEG-005 | Deactivate/Release path attempts local callback フォールバック authority | M4BOOT_RELEASE_AUTHORITY_BYPASS | pending | pending | M4-CTR-005, M4-CUT-005 |
+| M4-NEG-006 | Plan mismatch 拒否 handling continues into post-拒否 lifecycle path | M4BOOT_FALLBACK_REACHABILITY | pending | pending | M4-CTR-006, M4-CUT-006 |
+| M4-NEG-007 | Boot lifecycle emits diagnostics with missing/invalid mandatory schema 項目 | M4BOOT_DIAGNOSTIC_SCHEMA_VIOLATION | pending | pending | M4-CTR-007, M4-CUT-007 |
 | M4-NEG-008 | Root-to-scene transition uses scene-local registration/activation shortcut path | M4BOOT_NON_PLAN_REGISTRATION_TARGET | pending | pending | M4-CTR-002, M4-CUT-008 |
 
-## Review Notes
+## レビューノート
 
-- This artifact is in M4.5 start state: negative-case set is complete and runtime execution is pending.
-- Cases are aligned to M4.2 reject contract and M4.3 cutover rows for closure traceability.
-- Fallback reachability proof is mandatory for `pass` decision in every case.
+- This artifact is in M4.5 start state: negative-case set is 完了 and 実行時 実行 is pending.
+- Cases are aligned to M4.2 拒否 contract and M4.3 cutover rows for closure traceability.
+- フォールバック reachability proof is mandatory for `pass` decision in every case.
 
-## Gate Check
+## ゲートチェック
 
-- Negative case design coverage complete: [x]
-- Hard reject verified (runtime): [ ]
-- Fallback unreachable (runtime): [ ]
-- Negative verification approved: [ ]
+- Negative case design coverage 完了: [x]
+- Hard 拒否 verified (実行時): [ ]
+- フォールバック unreachable (実行時): [ ]
+- Negative 検証 承認済み: [ ]
+
+
+
+

@@ -1,46 +1,49 @@
 # RootSceneIntegrationBoundaryMap
 
 Source Spec: [09_KernelV23M4RootSceneIntegrationCutoverExecutionSpec.md](../../09_KernelV23M4RootSceneIntegrationCutoverExecutionSpec.md)
-Execution Step: M4.1 Root/Scene Boundary Freeze
-Artifact Owner: Copilot Draft (handoff required)
-Last Updated: 2026-05-23
-Approval State: Draft (Boundary set defined; runtime cutover pending)
+実行 Step: M4.1 Root/Scene Boundary Freeze
+成果物担当: Copilot 下書き (handoff 必須)
+最終更新日: 2026-05-23
+承認状態: 下書き (Boundary set defined; 実行時 cutover pending)
 
-## ApprovalState Vocabulary
+## 承認状態語彙
 
-- `not-started`: boundary records are missing or not reviewable
-- `design-ready`: boundary records are complete and internally reviewed
-- `runtime-verified`: runtime cutover evidence is collected for all targets
-- `approved`: reviewer sign-off is completed
+- `not-started`: boundary レコード are missing or not reviewable
+- `design-ready`: boundary レコード are 完了 and internally reviewed
+- `実行時-verified`: 実行時 cutover 証拠 is collected for all targets
+- `承認済み`: reviewer sign-off is completed
 
-## Boundary Freeze Policy (M4.1)
+## Boundary Freeze 方針 (M4.1)
 
-- Root/scene accepted path must not rely on discovery/local-authority runtime composition.
-- Integration targets below are frozen as M4 cutover scope; new targets require explicit change note.
+- Root/scene accepted path 必須である not rely on discovery/local-authority 実行時 composition.
+- Integration targets below are frozen as M4 cutover スコープ; new targets require explicit change note.
 - `CurrentOwner` represents pre-cutover authority in accepted path.
 - `TargetOwner` represents post-cutover kernel-owned authority model.
 
-## Records
+## レコード
 
 | IntegrationTargetName | CurrentOwner | TargetOwner | MigrationOwner | CutoverWave |
 | --- | --- | --- | --- | --- |
-| Root Scene Boot Entry and Plan Handshake | Legacy root scene bootstrap entry (scene-local boot trigger authority) | Verified-plan-first kernel boot authority | Root Boot Runtime Owner | M4-W1 |
-| Root Scene Registration Dispatch (`Register` path) | Discovery-coupled root registration path | Kernel command-surface registration authority (`KernelScope.Register`) | Root Registration Owner | M4-W1 |
-| Root Scene Build Dispatch (`Build` path) | Local composition build authority in scene bootstrap flow | Kernel lifecycle build authority (`KernelScope.Build`) | Root Composition Owner | M4-W1 |
-| Root Scene Activation Ordering (`Activate` path) | Scene bootstrap callback sequencing (non-plan deterministic risk) | Kernel-owned deterministic activation ordering authority (`KernelScope.Activate`) | Runtime Ordering Owner | M4-W2 |
-| Root Scene Deactivation/Release Coordination | Legacy release callback chain with local fallback tolerance | Kernel-owned deactivation/release authority (`KernelScope.Deactivate` / `KernelScope.Release`) | Lifecycle Runtime Owner | M4-W2 |
-| Root Scene Plan Source Validation and Mismatch Rejection | Mixed runtime path where missing/mismatch plan handling can drift by caller | Centralized verified-plan validation and explicit reject authority | Plan Validation Owner | M4-W2 |
-| Root Scene Integration Diagnostics Emission | Fragmented diagnostics ownership across scene-local handlers | Kernel command-surface diagnostics authority with structured payload contract | Diagnostics Runtime Owner | M4-W3 |
-| Scene Transition Integration Boundary (root to scene handoff) | Transition-time registration/activation handoff coupled to scene-local routing | Plan-driven root-to-scene handoff authority under kernel runtime orchestration | Scene Integration Owner | M4-W3 |
+| Root Scene Boot Entry and Plan Handshake | Legacy root scene bootstrap entry (scene-local boot trigger authority) | Verified-plan-first kernel boot authority | Root Boot 実行時 担当 | M4-W1 |
+| Root Scene Registration Dispatch (`Register` path) | Discovery-coupled root registration path | Kernel command-surface registration authority (`KernelScope.Register`) | Root Registration 担当 | M4-W1 |
+| Root Scene Build Dispatch (`Build` path) | Local composition build authority in scene bootstrap flow | Kernel lifecycle build authority (`KernelScope.Build`) | Root Composition 担当 | M4-W1 |
+| Root Scene Activation Ordering (`Activate` path) | Scene bootstrap callback sequencing (non-plan deterministic risk) | Kernel-owned deterministic activation ordering authority (`KernelScope.Activate`) | 実行時 Ordering 担当 | M4-W2 |
+| Root Scene Deactivation/Release Coordination | Legacy release callback chain with local フォールバック tolerance | Kernel-owned deactivation/release authority (`KernelScope.Deactivate` / `KernelScope.Release`) | Lifecycle 実行時 担当 | M4-W2 |
+| Root Scene Plan Source 検証 and Mismatch Rejection | Mixed 実行時 path where missing/mismatch plan handling can drift by caller | Centralized verified-plan validation and explicit 拒否 authority | Plan 検証 担当 | M4-W2 |
+| Root Scene Integration Diagnostics Emission | Fragmented diagnostics ownership across scene-local handlers | Kernel command-surface diagnostics authority with structured payload contract | Diagnostics 実行時 担当 | M4-W3 |
+| Scene Transition Integration Boundary (root to scene handoff) | Transition-time registration/activation handoff coupled to scene-local routing | Plan-driven root-to-scene handoff authority under kernel 実行時 orchestration | Scene Integration 担当 | M4-W3 |
 
-## Review Notes
+## レビューノート
 
-- This artifact is in M4.1 start state: boundary scope is frozen at design level.
+- This artifact is in M4.1 start state: boundary スコープ is frozen at design level.
 - Cutover waves are ordered to prioritize plan-first registration/build authority before downstream ordering/diagnostics stabilization.
-- Any accepted-path target outside this map is treated as out-of-policy until mapped and approved.
+- Any 許可経路 target outside this map is treated as out-of-方針 until mapped and 承認済み.
 
-## Gate Check
+## ゲートチェック
 
-- Ownership boundary design lock complete: [x]
-- Target assignments complete: [x]
-- Boundary lock approved: [ ]
+- Ownership boundary design lock 完了: [x]
+- Target assignments 完了: [x]
+- Boundary lock 承認済み: [ ]
+
+
+

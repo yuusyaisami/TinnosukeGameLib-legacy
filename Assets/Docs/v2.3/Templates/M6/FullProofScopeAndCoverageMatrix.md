@@ -1,11 +1,11 @@
 # FullProofScopeAndCoverageMatrix
 
 Source Spec: [11_KernelV23M6FullProofAndReleaseClaimExecutionSpec.md](../../11_KernelV23M6FullProofAndReleaseClaimExecutionSpec.md)
-Artifact Owner:
-Last Updated:
-Approval State: Draft
+成果物担当:
+最終更新日:
+承認状態: 下書き
 
-## Records
+## レコード
 
 | ProofTargetId | ClaimDimension | EvidenceOwner | EvidenceSource | CoverageState | OutOfScopeJustification |
 | --- | --- | --- | --- | --- | --- |
@@ -13,7 +13,9 @@ Approval State: Draft
 |  |  |  |  |  |  |
 |  |  |  |  |  |  |
 
-## Gate Check
+## ゲートチェック
 
-- Mandatory proof coverage complete: [ ]
-- Out-of-scope justification complete: [ ]
+- Mandatory proof coverage 完了: [ ]
+- Out-of-スコープ justification 完了: [ ]
+
+

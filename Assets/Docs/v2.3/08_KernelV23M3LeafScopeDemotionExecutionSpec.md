@@ -1,57 +1,57 @@
-# Kernel v2.3 M3 Leaf Scope Demotion Execution Specification
+# Kernel v2.3 M3 葉スコープ降格 実行仕様
 
-## Document Status
+## 文書状態
 
-- Document ID: 08_KernelV23M3LeafScopeDemotionExecutionSpec
-- Status: Draft
-- Role: execution-level definition for M3 and M3.x in v2.3
-- Depends on:
+- 文書 ID: 08_KernelV23M3LeafScopeDemotionExecutionSpec
+- 状態: 下書き
+- 役割: v2.3 における M3 および M3.x の実行レベル定義
+- 依存先:
   - [01_KernelV23ServiceRuntimeModelSpec.md](01_KernelV23ServiceRuntimeModelSpec.md)
   - [02_KernelV23AuthoringRegistrationFlowSpec.md](02_KernelV23AuthoringRegistrationFlowSpec.md)
   - [03_KernelV23MilestoneOrderSpec.md](03_KernelV23MilestoneOrderSpec.md)
   - [04_KernelV23ServiceReconstructionAndCompatibilitySpec.md](04_KernelV23ServiceReconstructionAndCompatibilitySpec.md)
   - [07_KernelV23M2KernelCommandSurfaceExecutionSpec.md](07_KernelV23M2KernelCommandSurfaceExecutionSpec.md)
 
-## Purpose
+## 目的
 
-M3 performs the first production-scale runtime authority cutover by demoting leaf domains from scope-local DI ownership.
+M3 は葉ドメインを スコープ-local DI 所有から降格し、本番規模で最初の実行権限切替を実施する。
 
-M3 is successful only when leaf-domain accepted path runs entirely on kernel-owned service forms.
+M3 は葉ドメイン許可経路が Kernel 所有サービス形態のみで実行される場合のみ成功とする。
 
-## Scope
+## 範囲
 
-M3 covers:
+M3 の対象範囲:
 
-- leaf-domain service family cutover (entity/ui-element)
-- replacement of accepted-path local DI runtime authority
+- leaf-domain サービスファミリー cutover (entity/ui-element)
+- replacement of 許可経路 local DI 実行権限
 - validation of name/reference continuity during cutover
-- authority leakage negative verification
-- M4 entry gate evidence packaging
+- authority leakage negative 検証
+- M4 entry ゲート 証拠 packaging
 
-M3 does not cover:
+M3 の非対象:
 
 - root/scene integration orchestration changes (M4)
-- final global legacy deletion and hardening (M5)
+- final global 旧系 deletion and hardening (M5)
 
-## Non-Negotiable Rules
+## 非交渉規則
 
 The following are mandatory and non-waivable in M3:
 
-1. accepted-path authority elimination rule
-- leaf-domain accepted path must not retain scope-local DI runtime authority
+1. 許可経路 authority elimination rule
+- leaf-domain 許可経路 必須である not retain スコープ-local DI 実行権限
 
 2. continuity rule
-- service names and scene/prefab/script references must remain valid through cutover
+- サービス names and scene/prefab/script references 必須である remain valid through cutover
 
-3. compatibility shell boundary rule
-- compatibility shells may preserve serialization continuity only and must remain non-authoritative
+3. 互換 shell boundary rule
+- 互換 shells may preserve serialization continuity only and 必須である remain non-authoritative
 
-4. no silent fallback rule
-- authority failure must not recover through legacy local-container execution
+4. no silent フォールバック rule
+- authority 失敗 必須である not recover through 旧系 local-container 実行
 
-## Mandatory Artifacts
+## 必須成果物
 
-M3 must produce all of the following:
+M3 は次の成果物をすべて作成しなければならない:
 
 - LeafDomainServiceCutoverPlan
 - LeafDomainRuntimePathReplacementReport
@@ -60,21 +60,21 @@ M3 must produce all of the following:
 - CompatibilityShellBoundaryValidationReport
 - M4EntryGateEvidencePackage
 
-## M3.x Execution Details
+## M3.x 実行詳細
 
 ### M3.1 Leaf Domain Freeze
 
-Tasks:
+作業:
 
-- freeze leaf-domain service families and migration owners
-- freeze target service form per family
+- freeze leaf-domain サービス families and 移行担当s
+- freeze target サービス form per family
 - freeze cutover order by risk class
 
-Output:
+出力:
 
 - LeafDomainServiceCutoverPlan
 
-Required fields:
+必須項目:
 
 - ServiceFamilyName
 - DomainClass
@@ -83,19 +83,19 @@ Required fields:
 - CutoverWave
 - RiskClass
 
-### M3.2 Service Cutover Design Lock
+### M3.2 サービス Cutover Design Lock
 
-Tasks:
+作業:
 
-- define per-family cutover design from legacy authority to kernel ownership
-- define compatibility shell behavior and removal preconditions
-- define reject conditions for disallowed authority paths
+- define per-family cutover design from 旧系 authority to kernel ownership
+- define 互換 shell behavior and removal preconditions
+- define 拒否 conditions for disallowed authority paths
 
-Output:
+出力:
 
 - LeafDomainServiceCutoverPlan (design-lock section)
 
-Required fields:
+必須項目:
 
 - FamilyDesignId
 - LegacyAuthorityPath
@@ -103,19 +103,19 @@ Required fields:
 - CompatibilityShellPlan
 - RejectCondition
 
-### M3.3 Leaf Runtime Path Replacement
+### M3.3 Leaf 実行時 Path Replacement
 
-Tasks:
+作業:
 
-- replace accepted-path runtime authority in leaf domains
+- replace 許可経路 実行権限 in leaf domains
 - route lifecycle operations through kernel command handlers
-- remove accepted-path runtime installer discovery reliance
+- remove 許可経路 実行時 installer discovery reliance
 
-Output:
+出力:
 
 - LeafDomainRuntimePathReplacementReport
 
-Required fields:
+必須項目:
 
 - ReplacementId
 - ReplacedLegacyPath
@@ -123,20 +123,20 @@ Required fields:
 - OwnershipEvidence
 - ResidueFlag
 
-### M3.4 Name/Reference Continuity Validation
+### M3.4 Name/Reference Continuity 検証
 
-Tasks:
+作業:
 
-- validate unchanged service names at integration boundaries
-- validate scene/prefab/script references remain intact
-- validate compatibility shell remains non-authoritative
+- 検証する unchanged サービス names at integration boundaries
+- 検証する scene/prefab/script references remain intact
+- 検証する 互換 shell remains non-authoritative
 
-Output:
+出力:
 
 - NameReferenceContinuityValidationReport
 - CompatibilityShellBoundaryValidationReport
 
-Required fields:
+必須項目:
 
 - ValidationCaseId
 - BoundaryType
@@ -145,19 +145,19 @@ Required fields:
 - PassFail
 - EvidenceAnchor
 
-### M3.5 Authority Leakage Negative Verification
+### M3.5 Authority Leakage Negative 検証
 
-Tasks:
+作業:
 
-- run negative tests for legacy authority acquisition attempts
-- verify hard-reject behavior with structured diagnostics
-- verify no silent fallback path is reachable
+- run negative tests for 旧系 authority acquisition attempts
+- verify hard-拒否 behavior with structured diagnostics
+- verify no silent フォールバック path is reachable
 
-Output:
+出力:
 
 - AuthorityLeakageNegativeVerificationReport
 
-Required fields:
+必須項目:
 
 - NegativeCaseId
 - TriggerCondition
@@ -166,51 +166,56 @@ Required fields:
 - FallbackObservedFlag
 - EvidenceAnchor
 
-### M3.6 M4 Entry Gate Evidence Package
+### M3.6 M4 Entry ゲート 証拠 Package
 
-Tasks:
+作業:
 
-- compose M4 gate package from all M3 mandatory artifacts
+- compose M4 ゲート package from all M3 mandatory artifacts
 - list unresolved risks requiring M4 handling
-- enforce M4 start block if evidence package is incomplete
+- enforce M4 start block if 証拠 package is incomplete
 
-Output:
+出力:
 
 - M4EntryGateEvidencePackage
 
-Required fields:
+必須項目:
 
 - RequiredArtifact
 - PresenceFlag
 - ApprovalState
 - BlockingCondition
 
-## Exit Criteria
+## 完了条件
 
-M3 is complete only when all are true:
+M3 は次の条件をすべて満たした場合のみ完了とする:
 
-- all mandatory M3 artifacts are present and approved
-- leaf-domain accepted path has zero scope-local DI runtime authority residue
+- all mandatory M3 artifacts are present and 承認済み
+- leaf-domain 許可経路 has zero スコープ-local DI 実行権限 residue
 - continuity validation reports pass with no unresolved break
-- authority leakage negative verification reports zero fallback reachability
-- M4EntryGateEvidencePackage is approved
+- authority leakage negative 検証 reports zero フォールバック reachability
+- M4EntryGateEvidencePackage is 承認済み
 
-## Failure Conditions
+## 失敗条件
 
-M3 fails if any of the following occurs:
+M3 は次のいずれかが発生した場合に失敗とする:
 
-- any leaf-domain service family remains on accepted-path legacy authority
+- any leaf-domain サービスファミリー remains on 許可経路 旧系 authority
 - continuity validation finds unresolved name/reference break
-- compatibility shell performs runtime authority behavior
-- negative verification detects fallback path reachability
-- M4 starts without approved M4EntryGateEvidencePackage
+- 互換 shell performs 実行権限 behavior
+- negative 検証 detects フォールバック path reachability
+- M4 starts without 承認済み M4EntryGateEvidencePackage
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行注記 |
 | --- | --- | --- |
-| TC-V23-08-01 | Confirm M3 requires complete leaf-domain authority cutover. | Spec must require zero accepted-path local DI authority in leaf domains. |
-| TC-V23-08-02 | Confirm M3 requires continuity validation. | Spec must require service name and reference continuity evidence. |
-| TC-V23-08-03 | Confirm M3 enforces compatibility-shell non-authoritative boundary. | Spec must reject shell authority behavior. |
-| TC-V23-08-04 | Confirm M3 requires negative verification against fallback. | Spec must require fallback reachability checks. |
-| TC-V23-08-05 | Confirm M3 blocks M4 until gate evidence is approved. | Spec must require approved M4 entry gate package. |
+| TC-V23-08-01 | 確認 M3 requires 完了 leaf-domain authority cutover. | 仕様は次を必須とする zero 許可経路 local DI authority in leaf domains. |
+| TC-V23-08-02 | 確認 M3 requires continuity validation. | 仕様は次を必須とする サービス name and reference continuity 証拠. |
+| TC-V23-08-03 | 確認 M3 enforces 互換-shell non-authoritative boundary. | Spec 必須である 拒否 shell authority behavior. |
+| TC-V23-08-04 | 確認 M3 requires negative 検証 against フォールバック. | 仕様は次を必須とする フォールバック reachability checks. |
+| TC-V23-08-05 | 確認 M3 blocks M4 until ゲート 証拠 is 承認済み. | 仕様は次を必須とする 承認済み M4 entry ゲート package. |
+
+
+
+
+

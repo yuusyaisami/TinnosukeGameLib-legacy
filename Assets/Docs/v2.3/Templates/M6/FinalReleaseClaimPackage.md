@@ -1,11 +1,11 @@
 # FinalReleaseClaimPackage
 
 Source Spec: [11_KernelV23M6FullProofAndReleaseClaimExecutionSpec.md](../../11_KernelV23M6FullProofAndReleaseClaimExecutionSpec.md)
-Artifact Owner:
-Last Updated:
-Approval State: Draft
+成果物担当:
+最終更新日:
+承認状態: 下書き
 
-## Records
+## レコード
 
 | RequiredArtifact | PresenceFlag | ApprovalState | ResidualRiskSummary | PublicationBlockCondition |
 | --- | --- | --- | --- | --- |
@@ -15,8 +15,11 @@ Approval State: Draft
 | ContinuityProofReport |  |  |  |  |
 | IndependentClaimReviewDecisionRecord |  |  |  |  |
 
-## Publication Decision
+## 公開判定
 
 - Publication allowed: [ ]
-- Decision owner:
+- Decision 担当:
 - Decision date:
+
+
+

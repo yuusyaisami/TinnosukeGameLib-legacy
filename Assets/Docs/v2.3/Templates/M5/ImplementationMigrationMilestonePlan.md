@@ -25,13 +25,13 @@ M5 実装の目的は次のとおり。
 
 現行コードで優先対象となる移行・削除箇所は次のとおり。
 
-- `Assets/GameLib/Script/Common/Scope/Runtime/RuntimeLifetimeScope.cs`
+- `Assets/GameLib/Script/Common/範囲/実行時/RuntimeLifetimeScope.cs`
   - `RuntimeLifetimeScope` / `KernelScopeHost` / `SpawnedLifetimeHandle` 周辺の互換シェルと混在フォールバック経路
-- `Assets/GameLib/Script/Common/Scope/Runtime/RuntimeLifetimeScopePool.cs`
+- `Assets/GameLib/Script/Common/範囲/実行時/RuntimeLifetimeScopePool.cs`
   - 旧スコーププール結合と実行時互換処理
-- `Assets/GameLib/Script/Common/Scope/Runtime/Core/RuntimeResolverHub.cs`
+- `Assets/GameLib/Script/Common/範囲/実行時/Core/RuntimeResolverHub.cs`
   - 境界ロックが必要な旧解決器登録経路
-- `Assets/GameLib/Script/Common/Scope/Core/ScopeFeatureInstallerUtility.cs`
+- `Assets/GameLib/Script/Common/範囲/Core/ScopeFeatureInstallerUtility.cs`
   - 親たどり・スコープ探索フォールバック経路
 - `Assets/GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs`
   - 互換橋として残存する面（隔離/削除候補）
@@ -139,7 +139,7 @@ M5 実装の目的は次のとおり。
 推奨検証コマンド:
 
 - `"/mnt/c/Program Files/dotnet/dotnet.exe" build TinnosukeGameLib.slnx -v minimal`
-- `rg "RuntimeLifetimeScope|BlackboardAuthoring|LegacyCompat|fallback" Assets/GameLib/Script -n`
+- `rg "RuntimeLifetimeScope|BlackboardAuthoring|LegacyCompat|フォールバック" Assets/GameLib/Script -n`
 
 ## M5 実装完了条件
 
@@ -149,3 +149,5 @@ M5 実装の目的は次のとおり。
 - 許可実行経路から旧権限経路が物理削除されている
 - 残存互換面が直列化継続専用かつ非権限である
 - M5.2..M5.6 の実行証跡がクローズし、必須成果物が承認済みである
+
+

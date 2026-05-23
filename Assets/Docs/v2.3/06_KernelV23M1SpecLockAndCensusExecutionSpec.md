@@ -1,60 +1,60 @@
-# Kernel v2.3 M1 Spec Lock and Census Execution Specification
+# Kernel v2.3 M1 仕様ロックおよび台帳化 実行仕様
 
-## Document Status
+## 文書状態
 
-- Document ID: 06_KernelV23M1SpecLockAndCensusExecutionSpec
-- Status: Draft
-- Role: execution-level definition for M1 and M1.x in v2.3
-- Depends on:
+- 文書 ID: 06_KernelV23M1SpecLockAndCensusExecutionSpec
+- 状態: 下書き
+- 役割: v2.3 における M1 および M1.x の実行レベル定義
+- 依存先:
   - [03_KernelV23MilestoneOrderSpec.md](03_KernelV23MilestoneOrderSpec.md)
   - [04_KernelV23ServiceReconstructionAndCompatibilitySpec.md](04_KernelV23ServiceReconstructionAndCompatibilitySpec.md)
   - [05_KernelV23M0FullMigrationContractFreezeExecutionSpec.md](05_KernelV23M0FullMigrationContractFreezeExecutionSpec.md)
 
-## Purpose
+## 目的
 
-M1 converts frozen M0 contract into executable migration planning artifacts.
+M1 は凍結済み M0 契約を実行可能な移行計画成果物へ変換する。
 
-M1 must leave no unknown ownership path in accepted runtime path.
+M1 は許可実行経路に未知の権限所有経路を残してはならない。
 
-## Scope
+## 範囲
 
-M1 covers:
+M1 の対象範囲:
 
-- M1.1 rule lock verification
-- M1.2 runtime authority census
-- M1.3 MB responsibility classification
-- M1.4 service family inventory freeze
-- M1.5 risk and gate baseline for M2 entry
+- M1.1 rule lock 検証
+- M1.2 実行権限 census
+- M1.3 MB responsibility 分類
+- M1.4 サービスファミリー 在庫 freeze
+- M1.5 risk and ゲート baseline for M2 entry
 
-M1 does not cover:
+M1 の非対象:
 
-- implementation of M2 command surface
-- runtime cutover execution (M3 and later)
+- M2 command 面の実装
+- 実行切替の実施（M3 以降）
 
-## Mandatory Artifacts
+## 必須成果物
 
-M1 must produce all of the following:
+M1 は次の成果物をすべて作成しなければならない:
 
-- AuthorityPathCensus table
-- MBResponsibilityClassification table
-- ServiceFamilyInventory table
+- AuthorityPathCensus テーブル
+- MBResponsibilityClassification テーブル
+- ServiceFamilyInventory テーブル
 - M2EntryGate package
 - MigrationRiskRegister
 
-## M1.x Execution Details
+## M1.x 実行詳細
 
-### M1.1 Rule Lock Verification
+### M1.1 Rule Lock 検証
 
-Tasks:
+作業:
 
 - verify normative consistency of 00/01/02/04 against M0 invariants
 - resolve unresolved conflicts before census starts
 
-Output:
+出力:
 
-- RuleLockVerification report
+- RuleLockVerification レポート
 
-Required fields:
+必須項目:
 
 - VerificationRuleId
 - CheckedSpecSet
@@ -64,37 +64,37 @@ Required fields:
 
 ### M1.2 Authority Path Census
 
-Tasks:
+作業:
 
-- enumerate accepted-path runtime authority edges
-- record source anchor for each edge (file path, symbol, call chain)
-- classify edge authority owner (kernel/scope/mixed/unknown)
+- enumerate 許可経路 実行権限 edges
+- レコード source anchor for each edge (file path, symbol, call chain)
+- classify edge authority 担当 (kernel/スコープ/mixed/unknown)
 
-Output:
+出力:
 
-- AuthorityPathCensus table
+- AuthorityPathCensus テーブル
 
-Required fields:
+必須項目:
 
 - PathId
 - SourceAnchor
 - CurrentOwnerClass
 - LegacyAuthorityResidueFlag
-- Evidence
+- 証拠
 
-### M1.3 MB Responsibility Classification
+### M1.3 MB Responsibility 分類
 
-Tasks:
+作業:
 
-- classify runtime-affecting MB families
-- assign each MB family to declaration-only/mixed/residue
+- classify 実行時-affecting MB families
+- assign each MB family to 宣言-only/mixed/residue
 - define action type per family (retain/convert/remove)
 
-Output:
+出力:
 
-- MBResponsibilityClassification table
+- MBResponsibilityClassification テーブル
 
-Required fields:
+必須項目:
 
 - MBFamilyName
 - CurrentResponsibilityClass
@@ -102,19 +102,19 @@ Required fields:
 - RequiredAction
 - BreakRisk
 
-### M1.4 Service Family Inventory Freeze
+### M1.4 サービス Family 在庫 Freeze
 
-Tasks:
+作業:
 
-- instantiate service inventory for all service families
-- map each service family to target service form
-- assign migration owner and planned delete point
+- instantiate サービス 在庫 for all サービス families
+- map each サービスファミリー to target サービス form
+- assign 移行担当 and planned delete point
 
-Output:
+出力:
 
-- ServiceFamilyInventory table
+- ServiceFamilyInventory テーブル
 
-Required fields:
+必須項目:
 
 - ServiceFamilyName
 - CurrentAuthorityPath
@@ -124,20 +124,20 @@ Required fields:
 - ReferenceContinuityRisk
 - PlannedDeletePoint
 
-### M1.5 Risk and M2 Gate Baseline
+### M1.5 Risk and M2 ゲート Baseline
 
-Tasks:
+作業:
 
-- define migration blocker taxonomy
-- define M2 entry gates from M1 outputs
-- define reject triggers for hidden or unclassified legacy authority
+- define 移行 blocker taxonomy
+- define M2 entry ゲートs from M1 outputs
+- define 拒否 triggers for hidden or unclassified 旧系 authority
 
-Output:
+出力:
 
 - M2EntryGate package
 - MigrationRiskRegister
 
-Required fields:
+必須項目:
 
 - M2EntryGate package:
   - GateItemId
@@ -150,33 +150,37 @@ Required fields:
   - RiskDescription
   - Severity
   - MitigationPlan
-  - Owner
+  - 担当
 
-## Exit Criteria
+## 完了条件
 
-M1 is complete only when all are true:
+M1 は次の条件をすべて満たした場合のみ完了とする:
 
-- every accepted-path runtime authority edge is classified
-- every runtime-affecting MB family is classified
-- every service family has inventory record and migration owner
-- no unknown owner class remains for accepted-path authority edges
-- M2EntryGate package is approved
+- every 許可経路 実行権限 edge is classified
+- every 実行時-affecting MB family is classified
+- every サービスファミリー has 在庫 レコード and 移行担当
+- no unknown 担当 class remains for 許可経路 authority edges
+- M2EntryGate package is 承認済み
 
-## Failure Conditions
+## 失敗条件
 
-M1 fails if any of the following occurs:
+M1 は次のいずれかが発生した場合に失敗とする:
 
 - census coverage is partial or unverifiable
-- any service family is missing from inventory
-- owner class is unknown for any accepted-path authority edge
-- M2 starts before M1 artifacts are approved
+- any サービスファミリー is missing from 在庫
+- 担当 class is unknown for any 許可経路 authority edge
+- M2 starts before M1 artifacts are 承認済み
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行注記 |
 | --- | --- | --- |
-| TC-V23-06-01 | Confirm M1 defines all mandatory artifacts. | Spec must require census, MB, service inventory, risk register, and M2 gate package. |
-| TC-V23-06-02 | Confirm M1.2 requires anchored authority evidence. | Spec must require source anchors and evidence fields. |
-| TC-V23-06-03 | Confirm M1.4 enforces full service-family coverage. | Spec must prohibit missing service records. |
-| TC-V23-06-04 | Confirm M1 exit blocks unknown authority ownership. | Spec must fail completion when unknown owner class exists. |
-| TC-V23-06-05 | Confirm M1 blocks premature M2 start. | Spec must require approved M2EntryGate package before M2. |
+| TC-V23-06-01 | 確認 M1 defines all mandatory artifacts. | 仕様は次を必須とする census, MB, サービス 在庫, risk register, and M2 ゲート package. |
+| TC-V23-06-02 | 確認 M1.2 requires anchored authority 証拠. | 仕様は次を必須とする source anchors and 証拠 項目. |
+| TC-V23-06-03 | 確認 M1.4 enforces full サービス-family coverage. | 仕様は次を禁止する missing サービス レコード. |
+| TC-V23-06-04 | 確認 M1 exit blocks unknown authority ownership. | 仕様は次の場合に完了失敗とする unknown 担当 class exists. |
+| TC-V23-06-05 | 確認 M1 blocks premature M2 start. | 仕様は次を必須とする 承認済み M2EntryGate package before M2. |
+
+
+
+
