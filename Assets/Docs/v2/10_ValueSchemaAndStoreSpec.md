@@ -1,247 +1,246 @@
-# Value Schema and Store Specification
+# Value Schema and Store 仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 10_ValueSchemaAndStoreSpec
-- Status: Draft
-- Role: defines abstract value identity, schema, runtime value storage, initialization plans, generic value-state boundaries, save metadata boundaries, and value diagnostics for Kernel v2; scalar runtime and binding semantics are delegated to 10-1
-- Depends on:
-- [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
-- [01_KernelIRSpec.md](01_KernelIRSpec.md)
-- [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
-- [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md)
-- [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md)
-- [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md)
-- [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md)
-- [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md)
-- [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
-- [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
-- Provides foundation for:
-- [10_1_ScalarRuntimeAndBindingSpec.md](10_1_ScalarRuntimeAndBindingSpec.md)
-- [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
-- [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
-- [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
-- [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md)
-- [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md)
-- [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md)
+- 文書 ID: 10_ValueSchemaAndStoreSpec
+- ステータス: Draft
+- 役割: Kernel v2 における抽象的な value identity、スキーマ、runtime value storage、初期化 plan、汎用 value-state 境界、save metadata 境界、および value diagnostics を定義する。scalar runtime と binding の意味論は 10-1 に委譲する
+- 依存先:
+  - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
+  - [01_KernelIRSpec.md](01_KernelIRSpec.md)
+  - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
+  - [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md)
+  - [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md)
+  - [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md)
+  - [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md)
+  - [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md)
+  - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
+  - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
+- 基盤を提供するもの:
+  - [10_1_ScalarRuntimeAndBindingSpec.md](10_1_ScalarRuntimeAndBindingSpec.md)
+  - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
+  - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
+  - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
+  - [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md)
+  - [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md)
+  - [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md)
 
-10 owns the runtime contract for values after they have been declared, normalized, validated, and projected.
+10 は、値が宣言され、正規化され、検証され、projection された後の runtime contract を所有する。
 
-This specification does not finalize concrete storage layout, serialized asset API, or editor UI.
+この仕様は、具体的な保存構造、シリアライズ済み asset API、editor UI を確定しない。
 
-## Ownership
+## 所有範囲
 
-This specification owns:
+この仕様が所有するもの:
 
-- `ValueKeyId` runtime access policy
-- `ValueSchema` runtime acceptance requirements
-- `ValueStore` runtime responsibility
-- `ValueStoreScope` and lifetime policy
-- `ValueStoreInitPlan` behavior
-- initialization ordering and overwrite policy
-- value read/write access policy
-- abstract value kind and generic storage policy
-- record, record list, table, and layered numeric state policy
-- revision and dirty signaling requirements
-- DynamicEvaluation boundary
-- ReactiveEvaluation boundary
-- CommandLocal boundary
-- command read/write access boundary
-- save metadata boundary
-- runtime stable-key fallback prohibition
-- value diagnostics and DebugMap requirements
-- value failure behavior
-- value performance and memory constraints
-- Blackboard, VarStore, GridBlackboard, DynamicValue, and CommandLocal migration policy
+- `ValueKeyId` の runtime access policy
+- `ValueSchema` の runtime  स्वीकार要件
+- `ValueStore` の runtime 責務
+- `ValueStoreScope` と lifetime policy
+- `ValueStoreInitPlan` の挙動
+- initialization 順序と overwrite policy
+- value の read/write access policy
+- abstract value kind と generic storage policy
+- record、record list、table、layered numeric state の policy
+- revision と dirty signal の要件
+- DynamicEvaluation 境界
+- ReactiveEvaluation 境界
+- CommandLocal 境界
+- command の read/write access 境界
+- save metadata 境界
+- runtime stable-key fallback の禁止
+- value diagnostics と DebugMap 要件
+- value failure の挙動
+- value performance と memory 制約
+- Blackboard、VarStore、GridBlackboard、DynamicValue、CommandLocal の移行ポリシー
 
-This specification does not own:
+この仕様が所有しないもの:
 
-- final scalar modifier, binding, or telemetry runtime contract
-- final ReactiveResolver graph implementation
-- final CommandCatalog dispatch implementation
-- final SaveSystem payload format
+- final な scalar modifier / binding / telemetry の runtime contract
+- final な ReactiveResolver graph 実装
+- final な CommandCatalog dispatch 実装
+- final な SaveSystem payload format
 - editor registry UI
-- ScopeGraph parent-child implementation
-- ServiceGraph service cache implementation
-- RuntimeQuery index implementation
+- ScopeGraph の親子構造実装
+- ServiceGraph の service cache 実装
+- RuntimeQuery の index 実装
 - Unity authoring component schema
 
-If a lower spec needs to execute value behavior, it must use the contracts defined here rather than recreating Blackboard-style fallback semantics.
+下位仕様が value 挙動を実行する必要がある場合、Blackboard 風の fallback semantics を再構築するのではなく、ここで定義された contract を使わなければならない。
 
-## Purpose
+## 目的
 
-This specification defines how Kernel v2 names, validates, initializes, stores, reads, writes, observes, and diagnoses runtime values.
+この仕様は、Kernel v2 が runtime value をどのように命名し、検証し、初期化し、保存し、読み書きし、観測し、診断するかを定義する。
 
-Core position:
-
-```md
-ValueSchema defines what values may exist.
-ValueStore stores runtime state.
-ValueStoreInitPlan defines initial writes.
-Float-specialized scalar runtime and binding semantics are defined in 10-1.
-Dynamic / Reactive evaluation is not hidden inside generic initialization.
-Runtime stable-key fallback is forbidden in target kernel paths.
-```
-
-The central runtime rule is:
+中心的な立場:
 
 ```md
-ValueStore stores verified values by ValueKeyId.
-It does not discover keys, infer schema, evaluate hidden dynamic expressions, or repair missing data at runtime.
+ValueSchema は、どの value が存在し得るかを定義する。
+ValueStore は runtime state を保存する。
+ValueStoreInitPlan は初期書き込みを定義する。
+Float 専用の scalar runtime と binding の意味論は 10-1 が定義する。
+Dynamic / Reactive evaluation は generic initialization の中に隠さない。
+Runtime stable-key fallback は target kernel path で禁止である。
 ```
 
-## Scope
+中核となる runtime rule は次の通りである:
 
-This specification defines:
+```md
+ValueStore は、`ValueKeyId` によって検証済み value を保存する。
+キーを発見したり、スキーマを推論したり、隠れた dynamic expression を評価したり、runtime で欠落データを修復したりしない。
+```
+
+## スコープ
+
+この仕様が定義するもの:
 
 - value identity model
-- stable-key boundary
+- stable-key 境界
 - value schema model
-- value kind and type model
+- value kind と type model
 - runtime store contract
-- store scope and lifetime policy
-- storage policy requirements
+- store scope と lifetime policy
+- storage policy 要件
 - read/write access policy
 - init plan model
-- init ordering and overwrite rules
-- table, record, and record list policy
+- initialization 順序と overwrite ルール
+- table / record / record list policy
 - layered numeric policy
-- revision and dirty signal policy
-- DynamicEvaluation boundary
-- ReactiveEvaluation boundary
-- CommandLocal boundary
-- command value access boundary
-- save metadata boundary
-- RuntimeQuery boundary
+- revision と dirty signal policy
+- DynamicEvaluation 境界
+- ReactiveEvaluation 境界
+- CommandLocal 境界
+- command value access 境界
+- save metadata 境界
+- RuntimeQuery 境界
 - value diagnostics
 - value failure policy
-- value performance and memory policy
+- value performance と memory policy
 - legacy migration policy
 - forbidden patterns
 - required test cases
 
-## Non-Goals
+## 対象外
 
-This specification does not define:
+この仕様が定義しないもの:
 
-- final `ValueStore` memory layout
-- final generated accessor API
-- final reactive dependency graph
-- final DynamicEvaluation evaluator implementation
-- final SaveSystem file format
-- final editor registry UI
-- final Unity authoring component schema
-- final command dispatch implementation
-- final runtime query index implementation
+- final な `ValueStore` memory layout
+- final な generated accessor API
+- final な reactive dependency graph
+- final な DynamicEvaluation evaluator 実装
+- final な SaveSystem file format
+- final な editor registry UI
+- final な Unity authoring component schema
+- final な command dispatch 実装
+- final な runtime query index 実装
 
-This specification must not turn `ValueStore` into Blackboard v2.
+この仕様は `ValueStore` を Blackboard v2 に変えてはならない。
 
-## Relationship to Other Specs
+## 他仕様との関係
 
-| Spec | Relationship |
+| 仕様 | 関係 |
 |---|---|
-| 00 | Defines explicit runtime, no runtime fallback, and value/schema ownership boundaries |
-| 01 | Defines `ValueKeyIR`, typed identity domains, source locations, and normalized value identity |
-| 02 | Defines value-related contributions without allowing installer-style runtime mutation |
-| 03 | Generates `ValueSchemaPlan`, `ValueStoreInitPlan`, and value projections as artifacts, not source of truth |
-| 04 | Validates value keys, schema references, init compatibility, stable-key rejection, dynamic dependencies, command access, and save metadata |
-| 05 | Boots only from verified value artifacts and must not use registry or `Resources.Load` fallback |
-| 06 | May resolve services that own or expose value stores, but does not own values or dynamic evaluation |
-| 07 | Owns scope lifetime and may reference scope-local value store boundaries without becoming a value store |
-| 08 | Executes explicit lifecycle steps that may initialize stores, but does not infer value initialization |
-| 09 | Declares command read/write access to `ValueKeyId` and owns CommandLocal execution context |
-| 10-1 | Owns float-specialized scalar runtime, modifier, binding, telemetry, and failure semantics layered on top of verified numeric definitions from 10 |
-| 10-2 | Owns `DynamicValue`, `DynamicEvaluationPlan`, `ReactiveEvaluationPlan`, tracker, cache, invalidation, and nested dependency capture semantics; 10 owns only the value-state boundary and revision signals consumed by that layer |
-| 11 | Owns the shared structured diagnostics substrate and DebugMap runtime contract used by value runtime; 10 defines required value provenance fields, init or table diagnostics context, and failure behavior |
-| 12 | Produces authoring inputs that normalize stable keys into `ValueKeyId` before runtime |
-| 13 | Defines the limited legacy boundary for Blackboard and VarStore migration |
-| 14 | Defines hot-path budgets for value access, initialization, and dirty signaling |
-| 15 | Turns required value tests into executable validation and CI coverage |
+| 00 | 明示的な runtime、runtime fallback の禁止、value/schema の所有境界を定義する。 |
+| 01 | `ValueKeyIR`、typed identity domain、source location、正規化済み value identity を定義する。 |
+| 02 | installer 風の runtime mutation を許さず、value 関連 contribution を定義する。 |
+| 03 | `ValueSchemaPlan`、`ValueStoreInitPlan`、value projection を source of truth ではなく artifact として生成する。 |
+| 04 | value key、schema reference、init compatibility、stable-key rejection、dynamic dependency、command access、save metadata を検証する。 |
+| 05 | 検証済み value artifact のみで boot し、registry や `Resources.Load` fallback を使ってはならない。 |
+| 06 | value store を所有または露出する service を解決してよいが、value や dynamic evaluation は所有しない。 |
+| 07 | scope lifetime を所有し、value store そのものにはならずに scope-local value store boundary を参照してよい。 |
+| 08 | store を初期化し得る明示的 lifecycle step を実行するが、value 初期化を推論してはならない。 |
+| 09 | `ValueKeyId` への command read/write access を定義し、CommandLocal execution context を所有する。 |
+| 10-1 | 10 の検証済み numeric definition の上に載る、float 専用 scalar runtime、modifier、binding、telemetry、failure semantics を所有する。 |
+| 10-2 | `DynamicValue`、`DynamicEvaluationPlan`、`ReactiveEvaluationPlan`、tracker、cache、invalidation、nested dependency capture を所有する。10 はその層が消費する value-state 境界と revision signal のみを所有する。 |
+| 11 | value runtime が使う共有 structured diagnostics substrate と DebugMap runtime contract を所有する。10 は必要な value provenance fields、init / table diagnostics context、failure behavior を定義する。 |
+| 12 | runtime 前に stable key を `ValueKeyId` に正規化する authoring input を生成する。 |
+| 13 | Blackboard と VarStore の移行に限定した legacy boundary を定義する。 |
+| 14 | value access、initialization、dirty signal の hot-path budget を定義する。 |
+| 15 | 必須 value test を実行可能な validation と CI coverage に落とし込む。 |
 
-## Assembly Definition and Compile Boundary Expectations
+## asmdef とコンパイル境界の期待値
 
-The intended assembly home for generic value schema and store runtime is `GameLib.Kernel.Value`.
-Scalar specialization and dynamic evaluation belong in their own leaf assemblies defined by 10-1 and 10-2.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+generic value schema と store runtime の想定 asmdef は `GameLib.Kernel.Value` である。
+scalar specialization と dynamic evaluation は、10-1 と 10-2 が定義する別々の leaf assembly に属する。
+詳細な依存行列は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が所有する。
 
-Required compile-boundary rules for 10:
+10 に必要なコンパイル境界ルール:
 
-- `GameLib.Kernel.Value` must remain separate from feature assemblies, legacy Blackboard or VarStore code, and concrete command implementations
-- value core should remain Unity-free and use `noEngineReferences: true`
-- dynamic evaluation logic, tracker logic, and scalar-specialized binding logic must not be collapsed back into the generic value assembly
-- save payload formatting, Unity authoring extraction, and runtime object lookup helpers must stay outside generic value core
+- `GameLib.Kernel.Value` は feature assembly、legacy Blackboard / VarStore コード、具体的な command 実装から分離されていなければならない
+- value core は Unity-free のまま保ち、`noEngineReferences: true` を使うべきである
+- dynamic evaluation logic、tracker logic、scalar-specific binding logic は generic value assembly に戻してはならない
+- save payload formatting、Unity authoring 抽出、runtime object lookup helper は generic value core の外に置かなければならない
 
-If value storage cannot compile without Unity APIs, legacy fallback helpers, or feature-specific runtime code, the 10 boundary has been violated.
+value storage が Unity API、legacy fallback helper、feature-specific runtime code なしにコンパイルできないなら、10 の境界は破られている。
 
-## Current Value Debt Observations
+## 現在の value 負債の観測
 
-Current value-related systems mix multiple responsibilities:
+現在の value 系システムは複数の責務を混在させている:
 
 - service registration
 - local value storage
-- grid/table storage
+- grid / table storage
 - initialization
-- DynamicValue evaluation
+- `DynamicValue` evaluation
 - lifecycle participation
 - debug view binding
 - transform auto-write
 - runtime stable-key resolution
 - registry fallback
-- save-adjacent metadata
+- save 近接 metadata
 
-These observations are migration evidence.
-They are not target architecture.
+これらの観測は移行証拠であり、対象アーキテクチャではない。
 
-### Observation Traceability
+### 観測の追跡可能性
 
-| Observation | Evidence Type | Target Pressure |
+| 観測 | 証拠種別 | 想定される圧力先 |
 |---|---|---|
-| Blackboard authoring currently registers services, handlers, debug view, and init data from one MonoBehaviour. | Source | Split schema, store, init, lifecycle, and diagnostics |
-| Value identity can be resolved from stable strings at runtime. | Source | Runtime access must use `ValueKeyId` |
-| Missing stable keys can receive runtime-only negative IDs. | Source | Missing identity must fail validation |
-| Registry lookup can use `Resources.Load` and create fallback runtime assets. | Source | Boot and runtime must consume verified inputs |
-| Dynamic values can be evaluated during generic init. | Source | Dynamic dependencies must become explicit plans |
-| Grid cells can carry arbitrary var payloads. | Source | Table and record cells must be schema-backed |
-| Save metadata can mix Blackboard, scalar, and runtime scope binding concerns. | Source | Save metadata must be schema-backed and deterministic |
+| `BlackboardMB` が 1 つの MonoBehaviour から service registration、handler、debug view、init data を登録している。 | ソース | schema、store、init、lifecycle、diagnostics を分離する |
+| value identity が runtime で stable string から解決できる。 | ソース | runtime access は `ValueKeyId` を使わなければならない |
+| 欠落した stable key に runtime-only の negative ID を割り当てられる。 | ソース | 欠落 identity は validation で失敗しなければならない |
+| registry lookup が `Resources.Load` を使い、fallback runtime asset を生成できる。 | ソース | boot と runtime は検証済み input のみを消費すべきである |
+| dynamic value が generic init の最中に評価できる。 | ソース | dynamic dependency は明示的 plan にしなければならない |
+| grid cell に任意の var payload を載せられる。 | ソース | table / record cell は schema-backed でなければならない |
+| save metadata が Blackboard、scalar、runtime scope binding の関心を混在させる。 | ソース | save metadata は schema-backed かつ deterministic でなければならない |
 
-### Representative Anchors
+### 代表的な参照先
 
-- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - service registration, grid registration, debug view, transform auto-writer, lifecycle handler registration, and multi-path initialization
-- [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) - runtime stable-key resolution and runtime-only negative ID allocation
-- [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) - `Resources.Load` registry lookup and runtime fallback registry creation
-- [VarStore.cs](../../GameLib/Script/Common/Variables/VarStore/Core/VarStore.cs) - dictionary-backed var/table storage, optional schema, revision, and runtime type coercion
-- [VarStorePayload.cs](../../GameLib/Script/Common/Variables/VarStore/Payload/VarStorePayload.cs) - dynamic value evaluation, deferred dynamic writes, and table cell payload application
-- [DeferredDynamicVarValue.cs](../../GameLib/Script/Common/Variables/VarStore/Core/DeferredDynamicVarValue.cs) - deferred dynamic evaluation as runtime value payload
-- [GridBlackboardService.cs](../../GameLib/Script/Common/Variables/Blackboard/Core/GridBlackboardService.cs) - grid cell storage with var payloads outside a normalized table schema
-- [ScopeBindingRegistryMB.cs](../../GameLib/Script/Common/Variables/Save/Binding/ScopeBindingRegistryMB.cs) - scope binding, value resolution, profile metadata, and save registration mixing
-- [SavePlanTypes.cs](../../GameLib/Script/Common/Variables/Save/Plan/SavePlanTypes.cs) - save payload concepts that must consume value metadata without owning value schema
+- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - service registration、grid registration、debug view、transform auto-writer、lifecycle handler registration、複数経路の initialization
+- [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) - runtime stable-key resolution と runtime-only negative ID allocation
+- [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) - `Resources.Load` による registry lookup と runtime fallback registry の生成
+- [VarStore.cs](../../GameLib/Script/Common/Variables/VarStore/Core/VarStore.cs) - dictionary-backed な var/table storage、optional schema、revision、runtime type coercion
+- [VarStorePayload.cs](../../GameLib/Script/Common/Variables/VarStore/Payload/VarStorePayload.cs) - dynamic value evaluation、deferred dynamic writes、table cell payload application
+- [DeferredDynamicVarValue.cs](../../GameLib/Script/Common/Variables/VarStore/Core/DeferredDynamicVarValue.cs) - runtime value payload としての deferred dynamic evaluation
+- [GridBlackboardService.cs](../../GameLib/Script/Common/Variables/Blackboard/Core/GridBlackboardService.cs) - 正規化された table schema の外にある、任意 payload の grid cell storage
+- [ScopeBindingRegistryMB.cs](../../GameLib/Script/Common/Variables/Save/Binding/ScopeBindingRegistryMB.cs) - scope binding、value resolution、profile metadata、save registration の混在
+- [SavePlanTypes.cs](../../GameLib/Script/Common/Variables/Save/Plan/SavePlanTypes.cs) - value metadata を消費すべきだが value schema は所有しない save payload の概念
 
-### Current Gaps
+### 現在のギャップ
 
-The target architecture must close these gaps:
+対象アーキテクチャは次のギャップを塞がなければならない:
 
-- value existence can still be learned from runtime write behavior
-- stable-key lookup can still act as runtime identity resolution
-- initialization can still occur from `Construct`, `Start`, and `OnAcquire` paths
-- dynamic evaluation can still hide dependencies inside generic initialization
-- grid/table data can still bypass schema validation
-- save metadata can still be inferred from runtime store contents
-- debug output can still lack source-level provenance for value failures
+- value の存在が runtime write behavior からまだ学習できてしまう
+- stable-key lookup が runtime identity resolution として振る舞えてしまう
+- initialization が `Construct`、`Start`、`OnAcquire` から発生してしまう
+- dynamic evaluation が generic initialization の中に依存関係を隠せてしまう
+- grid / table data が schema validation をすり抜けられる
+- save metadata が runtime store contents から推論されてしまう
+- debug output が value failure の source-level provenance を欠くことがある
 
 ## Value Architecture Definition
 
-Target value architecture is split into four concepts:
+対象 value architecture は 4 つの概念に分かれる:
 
-1. `ValueSchema` defines what values may exist.
-2. `ValueStore` stores runtime value state.
-3. `ValueStoreInitPlan` defines initial writes and default state.
-4. `EvaluationPlan` defines dynamic, reactive, or computed evaluation and is owned in detail by 10-2.
+1. `ValueSchema` は、どの value が存在し得るかを定義する。
+2. `ValueStore` は runtime value state を保存する。
+3. `ValueStoreInitPlan` は初期書き込みと既定 state を定義する。
+4. `EvaluationPlan` は dynamic / reactive / computed evaluation を定義し、その詳細は 10-2 が所有する。
 
-These concepts must not be collapsed into a single component, service, MonoBehaviour, or Blackboard facade.
+これらの概念を 1 つの component、service、MonoBehaviour、Blackboard facade にまとめてはならない。
 
-10-1 defines the float-specialized scalar runtime and binding layer that consumes these verified value contracts without re-owning schema, save policy, or dynamic evaluation internals.
+10-1 は、検証済み value contract を消費する float 専用 scalar runtime と binding layer を定義するが、schema、save policy、dynamic evaluation の内部は再所有しない。
 
-Pipeline:
+パイプライン:
 
 ```text
 ValueContribution
@@ -259,13 +258,11 @@ Runtime:
   Evaluation runtime semantics are owned by 10-2
 ```
 
-`ValueStore` must not become the owner of schema generation, dynamic evaluation graph construction, save file writing, command execution, or runtime object lookup.
-
 ## Value Identity Model
 
-`ValueKeyId` is the runtime identity for values.
+`ValueKeyId` は value の runtime identity である。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public readonly struct ValueKeyId
@@ -274,7 +271,7 @@ public readonly struct ValueKeyId
 }
 ```
 
-Related identity vocabulary:
+関連する identity vocabulary:
 
 - `ValueKeyId`
 - `ValueSchemaId`
@@ -286,30 +283,30 @@ Related identity vocabulary:
 - `ValueRevision`
 - `ValueInitPlanId`
 
-`StableKey` may exist for authoring, diagnostics, registry validation, migration, and DebugMap output.
-`StableKey` is not runtime lookup truth.
+`StableKey` は authoring、diagnostics、registry validation、migration、DebugMap output のために存在し得る。
+`StableKey` は runtime lookup の真実ではない。
 
-Runtime access must use:
+runtime access は次を使わなければならない:
 
 - `ValueKeyId`
-- generated accessor backed by `ValueKeyId`
-- validated command payload reference to `ValueKeyId`
-- validated table/record field identity
+- `ValueKeyId` に基づく generated accessor
+- `ValueKeyId` への検証済み command payload reference
+- 検証済み table / record field identity
 
-Forbidden:
+禁止事項:
 
-- runtime value access by raw string key
-- runtime generation of missing `ValueKeyId`
-- runtime-only negative value IDs
-- using service identity as value identity
-- using command payload field name as `ValueKeyId`
-- using save payload field name as runtime value identity
+- raw string key による runtime value access
+- 欠落した `ValueKeyId` の runtime 生成
+- runtime-only negative value ID
+- service identity を value identity として使うこと
+- command payload の field name を `ValueKeyId` として使うこと
+- save payload の field name を runtime value identity として使うこと
 
-## StableKey Boundary
+## StableKey 境界
 
-`StableKey` is not runtime truth.
+`StableKey` は runtime truth ではない。
 
-Allowed `StableKey` use:
+許可される `StableKey` の用途:
 
 - editor search
 - authoring display
@@ -318,23 +315,23 @@ Allowed `StableKey` use:
 - registry diff
 - generated DebugMap
 
-Forbidden `StableKey` use:
+禁止される `StableKey` の用途:
 
 - runtime read/write lookup
 - runtime schema creation
 - runtime fallback ID generation
-- runtime save key generation unless preverified
+- 事前検証されていない限り runtime save key generation
 - runtime command value access
 
-Conversion from `StableKey` to `ValueKeyId` must happen before runtime execution during normalization, validation, or generation.
+`StableKey` から `ValueKeyId` への変換は、runtime 実行の前に、normalization / validation / generation の過程で完了していなければならない。
 
-If a value cannot be converted to `ValueKeyId` before runtime, that value is invalid for target kernel execution.
+値を runtime 前に `ValueKeyId` へ変換できないなら、その value は target kernel 実行に対して無効である。
 
 ## ValueSchema Model
 
-`ValueSchema` defines the allowed shape of value data.
+`ValueSchema` は value data の許可された shape を定義する。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public sealed class ValueSchemaPlan
@@ -351,7 +348,7 @@ public sealed class ValueSchemaPlan
 }
 ```
 
-`ValueSchema` must define:
+`ValueSchema` は次を定義しなければならない:
 
 - value identity
 - value kind
@@ -364,16 +361,16 @@ public sealed class ValueSchemaPlan
 - source location
 - profile availability
 
-`ValueStore` must not infer schema from runtime writes.
+`ValueStore` は runtime write から schema を推論してはならない。
 
-Writing an unknown `ValueKeyId` must fail.
-Writing a value incompatible with schema must fail.
+未知の `ValueKeyId` への書き込みは失敗しなければならない。
+schema と互換性のない value の書き込みも失敗しなければならない。
 
 ## ValueKind and Type Model
 
-The target type model must be schema-backed.
+対象の type model は schema-backed でなければならない。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum ValueKind
@@ -397,41 +394,40 @@ public enum ValueKind
 }
 ```
 
-This model is explanatory.
-It does not finalize the serialized API and does not replace existing legacy `DynamicVariant.ValueKind` numeric values.
+このモデルは説明用であり、シリアライズ API を確定せず、既存の legacy `DynamicVariant.ValueKind` の numeric 値を置き換えない。
 
-Target vocabulary must distinguish:
+対象 vocabulary は次を区別しなければならない:
 
-- scalar values
-- Unity or runtime object references
-- managed references
-- records
-- record lists
-- tables
-- layered numeric values
+- scalar value
+- Unity あるいは runtime object reference
+- managed reference
+- record
+- record list
+- table
+- layered numeric value
 
-`ManagedRef` is allowed only when schema explicitly permits it.
-`ManagedRef` values must define save, clone, reset, and diagnostics behavior.
+`ManagedRef` は、schema が明示的に許可する場合に限り認められる。
+`ManagedRef` 値は save、clone、reset、diagnostics の挙動を定義しなければならない。
 
-Silent type coercion is forbidden unless schema declares a specific conversion policy.
+schema が特定の conversion policy を宣言していない限り、silent type coercion は禁止である。
 
 ## ValueStore Runtime Definition
 
-`ValueStore` is a runtime state container bound to a `ValueSchemaPlan`.
+`ValueStore` は、`ValueSchemaPlan` に結び付いた runtime state container である。
 
-`ValueStore` owns:
+`ValueStore` が所有するもの:
 
-- value slots
-- current values
-- revisions
-- dirty flags
+- value slot
+- current value
+- revision
+- dirty flag
 - optional table storage
 - optional record storage
 - optional layered numeric storage
 - init application state
 - diagnostics context
 
-`ValueStore` does not own:
+`ValueStore` が所有しないもの:
 
 - schema generation
 - dynamic evaluation graph
@@ -442,14 +438,14 @@ Silent type coercion is forbidden unless schema declares a specific conversion p
 - service resolution
 - lifecycle enrollment
 
-`ValueStore` must be created from verified schema and store scope inputs.
-It must not build schema by observing runtime writes.
+`ValueStore` は検証済み schema と store scope input から作成されなければならない。
+runtime write を観察して schema を組み立ててはならない。
 
 ## ValueStore Scope and Lifetime Model
 
-Value stores may exist at different runtime lifetimes.
+value store は異なる runtime lifetime に存在し得る。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum ValueStoreScopeKind
@@ -464,35 +460,35 @@ public enum ValueStoreScopeKind
 }
 ```
 
-Scope ownership rules:
+scope ownership ルール:
 
-- `Kernel` store is valid only for kernel-wide values.
-- `Project` store is valid for project runtime state.
-- `Scene` store is valid for scene-local state.
-- `Scope` store is valid for authored or verified runtime scopes.
-- `Entity` store is valid only as compact entity state, not as a service.
-- `CommandLocal` store is valid only inside command execution boundaries.
-- `Test` store is valid only for deterministic test fixtures.
+- `Kernel` store は kernel-wide value にのみ有効である
+- `Project` store は project runtime state に有効である
+- `Scene` store は scene-local state に有効である
+- `Scope` store は authored または verified runtime scope に有効である
+- `Entity` store は service ではなく compact entity state にのみ有効である
+- `CommandLocal` store は command execution boundary の内側にのみ有効である
+- `Test` store は deterministic test fixture にのみ有効である
 
-Entity-scoped values should prefer compact store slices or pooled store instances.
-Creating heavy dictionary-backed stores per entity is forbidden by default.
+entity-scoped value は compact store slice か pooled store instance を優先すべきである。
+entity ごとに heavy な dictionary-backed store を作ることは既定で禁止である。
 
-`ValueStore` lifetime must be explicit.
-Store reuse must obey the reset policy defined by this spec and executed through 08.
+`ValueStore` の lifetime は明示的でなければならない。
+store reuse は、この仕様で定義され、08 を通じて実行される reset policy に従わなければならない。
 
 ## ValueStore Storage Model
 
-`ValueStore` storage must be schema-indexed.
+`ValueStore` の storage は schema-indexed でなければならない。
 
-Recommended structure:
+推奨構造:
 
-- schema maps `ValueKeyId` to slot index
-- slot stores typed value
-- slot has revision
-- store has revision
-- optional per-kind backend handles records, record lists, tables, and layered numerics
+- schema が `ValueKeyId` を slot index に map する
+- slot が型付き value を保持する
+- slot には revision がある
+- store には revision がある
+- optional な kind ごとの backend が record、record list、table、layered numeric を扱う
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum ValueStorageKind
@@ -507,33 +503,33 @@ public enum ValueStorageKind
 }
 ```
 
-Forbidden:
+禁止事項:
 
-- hot path `Dictionary<string, object>`
-- hot path stable-key lookup
-- schema inference by first write
-- boxing common scalar values by default when avoidable
-- LINQ in read/write hot paths
-- `Resources.Load` in value access paths
+- hot path での `Dictionary<string, object>`
+- hot path での stable-key lookup
+- first write による schema inference
+- 避けられるのに common scalar を boxing すること
+- read/write hot path での LINQ
+- value access path での `Resources.Load`
 
-Slot lookup should be O(1) or bounded small constant.
+slot lookup は O(1) か、小さな定数時間であるべきである。
 
 ## ValueStore Access Policy
 
-`ValueStore` access must be typed and schema-validated.
+`ValueStore` access は型付けされ、schema-validated でなければならない。
 
-Allowed access forms:
+許可される access 形:
 
 - `TryRead<T>(ValueKeyId, out T)`
 - `TryWrite<T>(ValueKeyId, T)`
 - `ReadRequired<T>(ValueKeyId)`
 - `WriteRequired<T>(ValueKeyId, T)`
-- generated accessor backed by `ValueKeyId`
+- `ValueKeyId` に基づく generated accessor
 
-`TryRead` may return false for optional data or explicit absence checks.
-Required reads must report structured diagnostics on failure.
+`TryRead` は、任意データや明示的 absence check に対して false を返してよい。
+required read の失敗は structured diagnostics を報告しなければならない。
 
-Access policy must distinguish:
+access policy は次を区別しなければならない:
 
 - read
 - write
@@ -543,19 +539,19 @@ Access policy must distinguish:
 - save-only metadata
 - debug-only display
 
-Forbidden:
+禁止事項:
 
 - `TryRead(string stableKey)`
 - `TryWrite(string stableKey, object value)`
-- implicit key creation on write
-- silent type coercion unless schema declares conversion
-- treating missing required value as default without policy
+- write 時の暗黙的 key creation
+- schema が変換を宣言していない限り silent type coercion
+- policy なしで required value の欠落を default 扱いにすること
 
 ## ValueStoreInitPlan Model
 
-`ValueStoreInitPlan` defines initial writes applied to a `ValueStore`.
+`ValueStoreInitPlan` は、`ValueStore` に適用される初期書き込みを定義する。
 
-It must define:
+次を定義しなければならない:
 
 - target store scope
 - target schema
@@ -566,7 +562,7 @@ It must define:
 - profile availability
 - execution phase
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public sealed class ValueInitEntryPlan
@@ -579,17 +575,17 @@ public sealed class ValueInitEntryPlan
 }
 ```
 
-`ValueStoreInitPlan` must not evaluate arbitrary `DynamicValue` by default.
-Dynamic evaluation must be represented explicitly.
+`ValueStoreInitPlan` は、既定では任意の `DynamicValue` を評価してはならない。
+dynamic evaluation は明示的に表現されなければならない。
 
-Initialization must execute at explicit lifecycle boundaries defined by 08.
-`Construct`, `Start`, and `OnAcquire` multi-path initialization is forbidden in target kernel paths.
+initialization は、08 で定義された明示的な lifecycle boundary で実行されなければならない。
+`Construct`、`Start`、`OnAcquire` にまたがる multi-path initialization は target kernel path で禁止である。
 
 ## Initialization Ordering and Overwrite Policy
 
-Duplicate initialization entries for the same `ValueKeyId` are validation errors unless the plan defines deterministic merge or overwrite policy.
+同じ `ValueKeyId` に対する重複 initialization entry は、plan が決定的な merge または overwrite policy を定義していない限り validation error である。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum ValueInitOverwritePolicy
@@ -602,42 +598,42 @@ public enum ValueInitOverwritePolicy
 }
 ```
 
-Rules:
+ルール:
 
-- `ErrorIfExists` is the default for duplicate writes.
-- `KeepExisting` must define what counts as existing.
-- `Overwrite` must be deterministic and source-visible.
-- `ClearIfNull` must define null compatibility by schema.
-- `Merge` must define merge semantics by value kind.
+- `ErrorIfExists` は重複書き込みの既定である
+- `KeepExisting` は existing の定義を明示しなければならない
+- `Overwrite` は決定的で source-visible でなければならない
+- `ClearIfNull` は schema による null compatibility を定義しなければならない
+- `Merge` は value kind ごとの merge semantics を定義しなければならない
 
-Last-write-wins by collection order is forbidden.
+collection order による last-write-wins は禁止である。
 
-Init ordering must not depend on Unity callback order, component discovery order, or serialized list order unless the plan explicitly normalizes that list into deterministic order.
+init 順序は、Unity callback order、component discovery order、serialized list order に依存してはならない。list を deterministic order に正規化することを plan が明示している場合を除く。
 
 ## Table / Record / RecordList Policy
 
-Grid-like values must be represented as `Table` or `RecordList` schema, not as a separate Blackboard subsystem.
+grid-like value は、別の Blackboard subsystem ではなく、`Table` または `RecordList` schema として表現しなければならない。
 
-`Table` schema must define:
+`Table` schema は次を定義しなければならない:
 
 - row identity policy
 - column identity policy
 - cell schema
-- sparse or dense storage policy
+- sparse / dense storage policy
 - default cell policy
 - revision policy
 - save policy
 - diagnostics source
 
-`Record` schema must define:
+`Record` schema は次を定義しなければならない:
 
 - field identity
 - field kind
-- required or optional status
+- required / optional status
 - default policy
 - nested schema compatibility
 
-`RecordList` schema must define:
+`RecordList` schema は次を定義しなければならない:
 
 - element schema
 - ordering policy
@@ -645,15 +641,15 @@ Grid-like values must be represented as `Table` or `RecordList` schema, not as a
 - mutation policy
 - revision policy
 
-Grid storage must not hide arbitrary var payloads per cell without schema.
+grid storage は、schema なしで任意の var payload を cell ごとに隠してはならない。
 
-Legacy grid payloads that store arbitrary `VarStorePayload` per cell are migration-required unless normalized into table or record schema before runtime.
+legacy な grid payload で、cell ごとに任意の `VarStorePayload` を保存しているものは、runtime 前に table または record schema に正規化しない限り移行必須である。
 
 ## LayeredNumeric Policy
 
-`LayeredNumeric` is a structured numeric value with contribution lanes.
+`LayeredNumeric` は contribution lane を持つ構造化 numeric value である。
 
-Default lanes:
+既定の lane:
 
 - `Base = 10`
 - `PrefixMul = 20`
@@ -662,29 +658,29 @@ Default lanes:
 - `FinalClamp = 50`
 - `Effective = 60`
 
-Base and effective values must be distinguishable.
+Base と effective は区別できなければならない。
 
-Effective value is derived from base and contributions.
-Writing effective directly is forbidden unless schema explicitly permits override.
+effective value は base と contributions から導出される。
+schema が override を明示的に許可しない限り、effective を直接書くことは禁止である。
 
-Changing any contribution must update `LayeredNumeric` revision.
-Effective recalculation may be lazy if dependency signaling remains correct.
+どの contribution を変更しても `LayeredNumeric` の revision は更新されなければならない。
+依存シグナリングが正しければ、effective の再計算は lazy でもよい。
 
-Layered numeric policy must define:
+layered numeric policy は次を定義しなければならない:
 
 - numeric type
 - contribution ordering
 - contribution identity
 - conflict policy
-- clear/reset policy
+- clear / reset policy
 - revision behavior
 - save behavior
 
 ## Revision and Dirty Signal Policy
 
-Every writable `ValueStore` slot must have revision metadata.
+書き込み可能な `ValueStore` slot には、すべて revision metadata が必要である。
 
-Required revision concepts:
+必要な revision 概念:
 
 - slot revision
 - store revision
@@ -694,9 +690,9 @@ Required revision concepts:
 - optional table cell revision
 - optional layered numeric effective revision
 
-`ValueStore` may emit dirty signals, but dirty evaluation belongs to dependency and reaction systems.
+`ValueStore` は dirty signal を emit してもよいが、dirty evaluation は dependency system と reaction system に属する。
 
-Minimal dirty signal data:
+最小限の dirty signal data:
 
 - `ValueKeyId`
 - old revision
@@ -706,19 +702,19 @@ Minimal dirty signal data:
 - optional scope handle
 - optional entity handle
 
-Dirty signals must not become an implicit reactive dependency graph.
-Reactive graph ownership belongs outside `ValueStore`.
+dirty signal は implicit reactive dependency graph になってはならない。
+reactive graph の所有権は `ValueStore` の外にある。
 
 ## DynamicEvaluation Boundary
 
-10 owns only the boundary between `ValueStore` initialization and dynamic evaluation.
-Concrete `DynamicValue`, tracker, cache, invalidation, and nested dependency semantics are owned by 10-2.
+10 は、`ValueStore` initialization と dynamic evaluation の境界のみを所有する。
+具体的な `DynamicValue`、tracker、cache、invalidation、nested dependency semantics は 10-2 が所有する。
 
-DynamicValue-style evaluation must not be hidden inside `ValueStore` initialization.
+DynamicValue 風 evaluation を `ValueStore` initialization の中に隠してはならない。
 
-If an initial value depends on runtime context, the dependency must be explicit.
+初期 value が runtime context に依存するなら、その依存関係は明示的でなければならない。
 
-Dynamic evaluation must declare:
+dynamic evaluation は次を宣言しなければならない:
 
 - input dependencies
 - evaluation timing
@@ -728,13 +724,13 @@ Dynamic evaluation must declare:
 - diagnostics source
 - failure boundary
 
-Legacy shape:
+legacy 形:
 
 ```text
 BlackboardMB entry.Value.Evaluate(ctx) during OnAcquire
 ```
 
-Target shape:
+target 形:
 
 ```text
 DynamicEvaluationPlan
@@ -743,25 +739,25 @@ DynamicEvaluationPlan
   phase: Init or Acquire
 ```
 
-Deferred dynamic value writes are not generic init entries.
-They must be represented as dynamic evaluation plans or rejected.
+deferred dynamic value writes は generic init entry ではない。
+dynamic evaluation plan として表現するか、拒否しなければならない。
 
-Detailed source contract, tracked dependency capture, shared cache ownership, and invalidation policy belong to 10-2.
+詳細な source contract、tracked dependency capture、shared cache ownership、invalidation policy は 10-2 が所有する。
 
 ## ReactiveEvaluation Boundary
 
-10 owns only the boundary between `ValueStore` revisions or dirty signals and reactive evaluation.
-Concrete tracked evaluation, cached computed value policy, invalidation rules, and scheduling semantics are owned by 10-2.
+10 は、`ValueStore` の revision または dirty signal と reactive evaluation の境界のみを所有する。
+具体的な tracked evaluation、cached computed value policy、invalidation rule、scheduling semantics は 10-2 が所有する。
 
-Reactive evaluation is not owned by `ValueStore`.
+reactive evaluation は `ValueStore` の所有ではない。
 
-`ValueStore` provides:
+`ValueStore` が提供するもの:
 
 - values
 - revisions
 - dirty signals
 
-Reactive evaluation owns:
+reactive evaluation が所有するもの:
 
 - dependency graph
 - tracked evaluation
@@ -770,35 +766,35 @@ Reactive evaluation owns:
 - scheduling
 - failure boundary
 
-`ValueStore` must not become `ReactiveResolver`.
+`ValueStore` は `ReactiveResolver` になってはならない。
 
-Reactive dependencies must reference `ValueKeyId`, store scope, and runtime query inputs explicitly.
-The detailed tracker and reactive cache model belong to 10-2.
+reactive dependency は、`ValueKeyId`、store scope、runtime query input を明示的に参照しなければならない。
+詳細な tracker と reactive cache model は 10-2 が所有する。
 
 ## CommandLocal Boundary
 
-`CommandLocal` is execution-local value storage.
+`CommandLocal` は execution-local な value storage である。
 
-It is not a scope store.
-It is not saved.
-It must not leak outside its command boundary unless explicitly exported.
+`CommandLocal` は scope store ではない。
+保存されない。
+明示的に export されない限り、command boundary の外へ漏れてはならない。
 
-Valid `CommandLocal` lifetimes:
+有効な `CommandLocal` lifetime:
 
 - command frame
 - command sequence
 - async wait boundary
 - nested command block
 
-`CommandLocal` may use value-like typed slots, but it is not allowed to become global Blackboard.
+`CommandLocal` は value-like な typed slot を使ってよいが、global Blackboard になることは許されない。
 
-Exporting command-local data to a persistent store requires an explicit command write declaration and schema-compatible target `ValueKeyId`.
+command-local data を persistent store に export するには、明示的な command write declaration と schema-compatible な target `ValueKeyId` が必要である。
 
 ## Command Access Boundary
 
-Command access to `ValueStore` must be declared.
+`ValueStore` に対する command access は宣言されなければならない。
 
-`CommandContribution` must declare:
+`CommandContribution` は次を宣言しなければならない:
 
 - read `ValueKeyId` set
 - write `ValueKeyId` set
@@ -806,36 +802,36 @@ Command access to `ValueStore` must be declared.
 - access phase
 - failure behavior
 
-Command executor must not resolve stable keys at runtime.
+command executor は runtime で stable key を解決してはならない。
 
-Command write access must validate:
+command の write access は次を検証しなければならない:
 
-- target key exists
-- schema allows write
-- command has declared access
-- value type matches schema
-- target store scope is valid for command frame
+- target key が存在する
+- schema が write を許可している
+- command に宣言済み access がある
+- value type が schema に一致する
+- target store scope が command frame に対して有効である
 
-Command read access must validate:
+command の read access は次を検証しなければならない:
 
-- target key exists
-- schema allows read
-- command has declared access
-- absence policy is explicit for optional reads
+- target key が存在する
+- schema が read を許可している
+- command に宣言済み access がある
+- optional read の absence policy が明示的である
 
 ## Save Metadata and Save Payload Boundary
 
-Save metadata must be schema-backed.
+save metadata は schema-backed でなければならない。
 
-`ValueStore` must not infer save targets by scanning runtime store contents.
+`ValueStore` は runtime store contents を走査して save target を推論してはならない。
 
-Save policy may be defined by:
+save policy は次で定義してよい:
 
 - `ValueSchema`
-- explicit `SavePlan`
-- profile-specific save contribution
+- 明示的な `SavePlan`
+- profile-specific な save contribution
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum SavePolicy
@@ -849,48 +845,48 @@ public enum SavePolicy
 }
 ```
 
-This specification does not define the final save payload format.
+この仕様は最終的な save payload format を定義しない。
 
-This specification defines the value metadata required so SaveSystem can build payloads deterministically.
+ここで定義するのは、SaveSystem が deterministically payload を構築するために必要な value metadata である。
 
-Save metadata must include:
+save metadata には次を含めなければならない:
 
 - `ValueKeyId`
 - store scope
 - value kind
 - storage kind
 - save policy
-- version or migration metadata
+- version または migration metadata
 - source location
 - profile availability
 
-SaveSystem must not treat arbitrary runtime store contents as save authority.
+SaveSystem は、任意の runtime store contents を save authority とみなしてはならない。
 
 ## RuntimeQuery Boundary
 
-`ValueStore` may be associated with runtime objects through handles.
+`ValueStore` は handle を通じて runtime object と関連付けられてよい。
 
-Runtime object lookup belongs to RuntimeQuery.
+runtime object lookup は RuntimeQuery の責務である。
 
-`ValueStore` must not locate:
+`ValueStore` は次を locate してはならない:
 
-- entities
-- scopes
-- actors
-- UI roots
-- scene objects
-- Unity components
+- entity
+- scope
+- actor
+- UI root
+- scene object
+- Unity component
 
-Value access can consume a handle provided by RuntimeQuery, but it must not perform the query itself.
+value access は RuntimeQuery が提供する handle を consume してよいが、自分で query を実行してはならない。
 
-`ValueStore` must not implement actor lookup, scope lookup, scene search, or hierarchy search.
+`ValueStore` は actor lookup、scope lookup、scene search、hierarchy search を実装してはならない。
 
 ## Diagnostics and DebugMap Requirements
 
-Value diagnostics must include:
+value diagnostics には次を含めなければならない:
 
 - `ValueKeyId`
-- stable key if available
+- 利用可能なら stable key
 - display name
 - `ValueKind`
 - schema id
@@ -898,10 +894,10 @@ Value diagnostics must include:
 - store scope
 - owner module
 - source location
-- current revision if available
+- 利用可能なら current revision
 - selected profile
 
-Init diagnostics must also include:
+init diagnostics にはさらに次を含めなければならない:
 
 - `ValueInitPlanId`
 - init entry source
@@ -909,15 +905,15 @@ Init diagnostics must also include:
 - execution phase
 - target store scope
 
-Table diagnostics must also include:
+table diagnostics にはさらに次を含めなければならない:
 
 - `ValueTableId`
 - row identity
 - column identity
 - cell schema id
-- cell revision if available
+- 利用可能なら cell revision
 
-Representative error codes:
+代表的な error code:
 
 - `VALUE_KEY_MISSING`
 - `VALUE_SCHEMA_MISSING`
@@ -936,13 +932,13 @@ Representative error codes:
 - `VALUE_SAVE_POLICY_INVALID`
 - `VALUE_COMMAND_ACCESS_UNDECLARED`
 
-If DebugMap is missing, diagnostics must still emit stable numeric IDs and stable error codes.
+DebugMap がなくても、diagnostics は stable numeric ID と stable error code を emit しなければならない。
 
 ## Failure Policy
 
-Value failure must not be silently repaired.
+value failure は、黙って修復してはならない。
 
-Failure categories:
+failure category:
 
 - `MissingKey`
 - `MissingSchema`
@@ -955,102 +951,102 @@ Failure categories:
 - `RuntimeIdGeneration`
 - `SavePolicyInvalid`
 
-Failure boundary:
+failure boundary:
 
 | Failure | Boundary |
 |---|---|
 | Boot schema failure | boot failure |
 | Missing verified schema artifact | boot failure |
 | Scope init failure | scope failure |
-| Command write failure | command failure or frame failure |
+| Command write failure | command failure または frame failure |
 | Reactive evaluation failure | reactive failure boundary |
 | Save metadata failure | save operation failure |
 | Runtime stable-key lookup attempt | operation failure and diagnostics |
 
-Fallback defaults are allowed only when schema explicitly defines them.
-Missing required values must not be repaired by runtime key creation, silent default creation, or legacy registry fallback.
+fallback default は、schema が明示した場合にのみ許可される。
+required value の欠落を runtime key creation、silent default creation、legacy registry fallback で修復してはならない。
 
 ## Performance and Memory Policy
 
-`ValueStore` read/write is a runtime hot path.
+`ValueStore` の read/write は runtime hot path である。
 
-Target requirements:
+目標要件:
 
-- no stable-key lookup in hot path
-- no `Resources.Load` in value access path
-- no managed allocation in normal scalar read/write
-- no boxing for common scalar types where practical
-- no LINQ in hot paths
-- slot lookup should be O(1) or bounded small constant
-- revision update should be cheap
-- table access must define sparse or dense performance expectations
-- dirty signal emission must avoid unbounded allocation
+- hot path で stable-key lookup を行わない
+- value access path で `Resources.Load` を使わない
+- 通常の scalar read/write で managed allocation をしない
+- 実用上可能な範囲で common scalar type を boxing しない
+- hot path で LINQ を使わない
+- slot lookup は O(1) か、小さな定数時間であるべきである
+- revision update は安価でなければならない
+- table access は sparse または dense の性能期待値を定義しなければならない
+- dirty signal emission は無制限 allocation を避けなければならない
 
-Scalar-specific hot-path, binding, and handle-lifetime budgets are defined in 10-1.
+scalar 専用の hot-path、binding、handle-lifetime の budget は 10-1 が定義する。
 
-Entity-level value data must use compact storage.
-Creating heavy dictionary-backed stores per entity is forbidden by default.
+entity-level の value data は compact storage を使わなければならない。
+entity ごとに heavy な dictionary-backed store を作ることは既定で禁止である。
 
-Performance must not be optimized by skipping schema checks, access policy checks, revision updates, or diagnostics metadata required by profile.
+schema check、access policy check、revision update、profile で要求される diagnostics metadata を飛ばして performance を得てはならない。
 
 ## Legacy Migration Policy
 
 | Legacy Pattern | Target Representation |
 |---|---|
 | `VarId` int | `ValueKeyId` |
-| stable-key string lookup | pre-runtime `ValueKeyId` mapping |
-| `VarKeyRegistry` | verified value registry input or generated artifact |
-| `VarIdResolver` runtime negative IDs | forbidden in target runtime |
-| `VarKeyRegistryLocator.Resources.Load` | boot-time verified artifact reference |
-| `BlackboardService` | `ValueStore` service or scope store facade |
-| `GridBlackboardService` | `Table`, `Record`, or `RecordList` store |
-| `BlackboardMB` local init | `ValueStoreInitContribution` |
-| `BlackboardMB.OnAcquire` init | `LifecycleContribution` invoking verified init |
-| `DynamicValue` in init entry | `DynamicEvaluationPlan` |
-| `DeferredDynamicVarValue` | explicit dynamic evaluation plan or rejected migration |
-| `TransformVarAutoWriterService` | explicit Transform-to-Value bridge contribution |
-| `BlackboardDebugView` | diagnostics, DebugMap, or editor inspector |
-| Save blackboard/scalar metadata mixing | schema-backed save metadata projection |
+| stable-key string lookup | pre-runtime の `ValueKeyId` mapping |
+| `VarKeyRegistry` | 検証済み value registry input または generated artifact |
+| `VarIdResolver` runtime negative IDs | target runtime では禁止 |
+| `VarKeyRegistryLocator.Resources.Load` | boot-time の検証済み artifact reference |
+| `BlackboardService` | `ValueStore` service または scope store facade |
+| `GridBlackboardService` | `Table`、`Record`、`RecordList` store |
+| `BlackboardMB` の local init | `ValueStoreInitContribution` |
+| `BlackboardMB.OnAcquire` の init | 検証済み init を呼び出す `LifecycleContribution` |
+| init entry 内の `DynamicValue` | `DynamicEvaluationPlan` |
+| `DeferredDynamicVarValue` | 明示的な dynamic evaluation plan または移行拒否 |
+| `TransformVarAutoWriterService` | 明示的な Transform-to-Value bridge contribution |
+| `BlackboardDebugView` | diagnostics、DebugMap、または editor inspector |
+| save における Blackboard / scalar metadata の混在 | schema-backed な save metadata projection |
 
-Legacy migration must not preserve runtime fallback semantics.
+legacy migration は runtime fallback semantics を保持してはならない。
 
-Legacy names may appear in diagnostics and migration reports, but they must not define target runtime truth.
+legacy 名は diagnostics と migration report に現れてよいが、target runtime truth を定義してはならない。
 
 ## Forbidden Patterns
 
-The following are forbidden in target ValueSchema / ValueStore runtime:
+target の `ValueSchema` / `ValueStore` runtime で禁止されるもの:
 
-- runtime stable-key lookup for required values
-- runtime creation of missing `ValueKeyId`
-- runtime-only negative IDs
+- required value に対する runtime stable-key lookup
+- 欠落した `ValueKeyId` の runtime creation
+- runtime-only negative ID
 - `Resources.Load` registry fallback
-- inferring schema from runtime writes
-- raw `Dictionary<string, object>` hot path
+- runtime write からの schema 推論
+- hot path の raw `Dictionary<string, object>`
 - silent type coercion
-- hidden `DynamicValue` evaluation inside generic initialization
-- duplicate init entries resolved by collection order
-- Blackboard-style `Construct` / `Start` / `OnAcquire` multi-path initialization
-- `ValueStore` resolving runtime objects or scopes
-- `CommandLocal` used as global Blackboard
-- SaveSystem inferring save targets by scanning arbitrary store contents
-- grid cells holding arbitrary var payloads without schema
-- command value access without declared read/write policy
-- value diagnostics that cannot map back to source or stable error code
+- generic initialization の中に隠れた `DynamicValue` evaluation
+- collection order で解決される duplicate init entry
+- `Construct` / `Start` / `OnAcquire` にまたがる Blackboard 風 multi-path initialization
+- `ValueStore` による runtime object または scope の解決
+- global Blackboard として使われる `CommandLocal`
+- arbitrary store contents を scan して save target を推論する SaveSystem
+- schema のない arbitrary var payload を持つ grid cell
+- 宣言済み read/write policy なしの command value access
+- source または stable error code に戻せない value diagnostics
 
 ## Test Case Model
 
-Each ValueSchema / ValueStore test case must define:
+各 `ValueSchema` / `ValueStore` テストケースは次を定義しなければならない:
 
 - Test ID
 - Title
 - `ValueSchemaPlan` fixture
 - `ValueStore` fixture
-- `ValueStoreInitPlan` fixture if applicable
+- 必要に応じた `ValueStoreInitPlan` fixture
 - Operation
 - Expected result
 - Expected diagnostics
 - Expected revision changes
-- Expected allocation or performance assertion if applicable
+- 必要に応じた expected allocation または performance assertion
 
 ## Required Test Cases
 
@@ -1059,37 +1055,37 @@ Each ValueSchema / ValueStore test case must define:
 #### TC_VALUE_ID_001_ReadByValueKeyId
 
 ```text
-Input:
-- ValueSchema contains ValueKeyId health.current
-- Store has value
+入力:
+- ValueSchema に `health.current` の `ValueKeyId` がある
+- Store に value がある
 
-Operation:
-- Read by ValueKeyId
+操作:
+- `ValueKeyId` で読む
 
-Expected:
+期待結果:
 - Passed
 ```
 
 #### TC_VALUE_ID_002_StableKeyRuntimeLookupRejected
 
 ```text
-Operation:
-- Read value by "health.current" at runtime
+操作:
+- runtime で `"health.current"` によって value を読む
 
-Expected:
+期待結果:
 - Failed
-- VALUE_STABLE_KEY_RUNTIME_LOOKUP_FORBIDDEN
+- `VALUE_STABLE_KEY_RUNTIME_LOOKUP_FORBIDDEN`
 ```
 
 #### TC_VALUE_ID_003_RuntimeNegativeIdRejected
 
 ```text
-Input:
-- ValueKeyId = -1
+入力:
+- `ValueKeyId = -1`
 
-Expected:
+期待結果:
 - Failed
-- VALUE_RUNTIME_ID_GENERATION_FORBIDDEN
+- `VALUE_RUNTIME_ID_GENERATION_FORBIDDEN`
 ```
 
 ### Schema Tests
@@ -1097,40 +1093,40 @@ Expected:
 #### TC_VALUE_SCHEMA_001_WriteMatchingType
 
 ```text
-Input:
-- ValueKey kind = Int
+入力:
+- `ValueKey` の kind = `Int`
 
-Operation:
-- Write int
+操作:
+- int を書く
 
-Expected:
+期待結果:
 - Passed
-- slot revision incremented
+- slot revision が増える
 ```
 
 #### TC_VALUE_SCHEMA_002_WriteTypeMismatchRejected
 
 ```text
-Input:
-- ValueKey kind = Int
+入力:
+- `ValueKey` の kind = `Int`
 
-Operation:
-- Write string
+操作:
+- string を書く
 
-Expected:
+期待結果:
 - Failed
-- VALUE_TYPE_MISMATCH
+- `VALUE_TYPE_MISMATCH`
 ```
 
 #### TC_VALUE_SCHEMA_003_WriteUnknownKeyRejected
 
 ```text
-Operation:
-- Write ValueKeyId not in schema
+操作:
+- schema に存在しない `ValueKeyId` に書く
 
-Expected:
+期待結果:
 - Failed
-- VALUE_KEY_MISSING
+- `VALUE_KEY_MISSING`
 ```
 
 ### InitPlan Tests
@@ -1138,45 +1134,45 @@ Expected:
 #### TC_VALUE_INIT_001_InitPlanAppliesDefaults
 
 ```text
-Input:
-- InitPlan writes health.current = 100
+入力:
+- InitPlan が `health.current = 100` を書く
 
-Expected:
-- Store contains health.current = 100
+期待結果:
+- Store に `health.current = 100` が含まれる
 ```
 
 #### TC_VALUE_INIT_002_DuplicateInitWithoutPolicyRejected
 
 ```text
-Input:
-- InitPlan has two entries for same ValueKeyId
-- no merge or overwrite policy
+入力:
+- InitPlan に同じ `ValueKeyId` の entry が 2 つある
+- merge / overwrite policy がない
 
-Expected:
+期待結果:
 - Failed
-- VALUE_INIT_DUPLICATE_ENTRY
+- `VALUE_INIT_DUPLICATE_ENTRY`
 ```
 
 #### TC_VALUE_INIT_003_OverwritePolicyApplied
 
 ```text
-Input:
-- Existing value
-- Init overwrite policy = KeepExisting
+入力:
+- 既存 value がある
+- Init overwrite policy = `KeepExisting`
 
-Expected:
-- Existing value preserved
+期待結果:
+- 既存 value が保持される
 ```
 
 #### TC_VALUE_INIT_004_ConstructStartAcquireMultiPathForbidden
 
 ```text
-Input:
-- same init declared for Construct, Start, and Acquire without explicit policy
+入力:
+- 同じ init が `Construct`、`Start`、`Acquire` に対して、明示的 policy なしで宣言されている
 
-Expected:
+期待結果:
 - Failed
-- VALUE_INIT_MULTIPATH_FORBIDDEN
+- `VALUE_INIT_MULTIPATH_FORBIDDEN`
 ```
 
 ### Dynamic / Reactive Tests
@@ -1184,34 +1180,34 @@ Expected:
 #### TC_VALUE_DYNAMIC_001_DynamicInitRequiresEvaluationPlan
 
 ```text
-Input:
-- Init entry uses DynamicValue
-- no DynamicEvaluationPlan
+入力:
+- Init entry が `DynamicValue` を使う
+- `DynamicEvaluationPlan` がない
 
-Expected:
+期待結果:
 - Failed
-- VALUE_INIT_DYNAMIC_DEPENDENCY_UNDECLARED
+- `VALUE_INIT_DYNAMIC_DEPENDENCY_UNDECLARED`
 ```
 
 #### TC_VALUE_DYNAMIC_002_DynamicInitWithDeclaredInputs
 
 ```text
-Input:
-- DynamicEvaluationPlan declares inputs and output ValueKeyId
+入力:
+- `DynamicEvaluationPlan` が input と output `ValueKeyId` を宣言している
 
-Expected:
+期待結果:
 - Passed
 ```
 
 #### TC_VALUE_REACTIVE_001_RevisionChangeSignalsDirty
 
 ```text
-Operation:
-- Write value
+操作:
+- value を書く
 
-Expected:
-- slot revision increments
-- dirty signal emitted
+期待結果:
+- slot revision が増える
+- dirty signal が emit される
 ```
 
 ### Table / Record Tests
@@ -1219,34 +1215,34 @@ Expected:
 #### TC_VALUE_TABLE_001_TableCellWriteValid
 
 ```text
-Input:
-- Table schema exists
-- cell schema matches value
+入力:
+- Table schema が存在する
+- cell schema が value と一致する
 
-Expected:
+期待結果:
 - Passed
 ```
 
 #### TC_VALUE_TABLE_002_CellWriteWithoutSchemaRejected
 
 ```text
-Input:
-- Table cell write with missing schema
+入力:
+- schema なしで Table cell を書く
 
-Expected:
+期待結果:
 - Failed
-- VALUE_TABLE_SCHEMA_MISSING
+- `VALUE_TABLE_SCHEMA_MISSING`
 ```
 
 #### TC_VALUE_TABLE_003_GridPayloadWithoutSchemaRejected
 
 ```text
-Input:
-- legacy grid cell has arbitrary VarStorePayload
+入力:
+- legacy grid cell が任意の `VarStorePayload` を持つ
 
-Expected:
-- Failed or migration-required
-- VALUE_GRID_PAYLOAD_SCHEMA_REQUIRED
+期待結果:
+- Failed または migration required
+- `VALUE_GRID_PAYLOAD_SCHEMA_REQUIRED`
 ```
 
 ### LayeredNumeric Tests
@@ -1254,25 +1250,25 @@ Expected:
 #### TC_VALUE_NUMERIC_001_EffectiveRecomputedFromContributions
 
 ```text
-Input:
+入力:
 - Base = 10
 - Add +5
 - PrefixMul 2
 
-Expected:
-- Effective computed by schema order
-- revision updated
+期待結果:
+- Effective が schema order に従って計算される
+- revision が更新される
 ```
 
 #### TC_VALUE_NUMERIC_002_WriteEffectiveRejectedByDefault
 
 ```text
-Operation:
-- Write Effective directly
+操作:
+- Effective を直接書く
 
-Expected:
+期待結果:
 - Failed
-- VALUE_LAYERED_EFFECTIVE_WRITE_FORBIDDEN
+- `VALUE_LAYERED_EFFECTIVE_WRITE_FORBIDDEN`
 ```
 
 ### Command Boundary Tests
@@ -1280,33 +1276,33 @@ Expected:
 #### TC_VALUE_CMD_001_CommandDeclaredWriteAllowed
 
 ```text
-Input:
-- Command declares write access to health.current
+入力:
+- command が `health.current` への write access を宣言している
 
-Expected:
+期待結果:
 - Write succeeds
 ```
 
 #### TC_VALUE_CMD_002_CommandUndeclaredWriteRejected
 
 ```text
-Input:
-- Command writes health.current without access declaration
+入力:
+- command が access declaration なしで `health.current` を書く
 
-Expected:
+期待結果:
 - Failed
-- VALUE_COMMAND_ACCESS_UNDECLARED
+- `VALUE_COMMAND_ACCESS_UNDECLARED`
 ```
 
 #### TC_VALUE_CMD_003_CommandStableKeyLookupRejected
 
 ```text
-Input:
-- Command writes by stable string key
+入力:
+- command が stable string key で書こうとする
 
-Expected:
+期待結果:
 - Failed
-- VALUE_STABLE_KEY_RUNTIME_LOOKUP_FORBIDDEN
+- `VALUE_STABLE_KEY_RUNTIME_LOOKUP_FORBIDDEN`
 ```
 
 ### Save Tests
@@ -1314,22 +1310,22 @@ Expected:
 #### TC_VALUE_SAVE_001_SavePolicyIncludedInSchema
 
 ```text
-Input:
-- ValueSchema SavePolicy = Save
+入力:
+- `ValueSchema` の `SavePolicy = Save`
 
-Expected:
-- Save metadata projection includes key
+期待結果:
+- save metadata projection に key が含まれる
 ```
 
 #### TC_VALUE_SAVE_002_RuntimeStoreScanNotSaveAuthority
 
 ```text
-Input:
-- Runtime store contains unschematized value
+入力:
+- runtime store に schema なしの value がある
 
-Expected:
-- SaveSystem does not save it
-- VALUE_SAVE_SCHEMA_MISSING
+期待結果:
+- SaveSystem はそれを保存しない
+- `VALUE_SAVE_SCHEMA_MISSING`
 ```
 
 ### Performance Tests
@@ -1337,81 +1333,81 @@ Expected:
 #### TC_VALUE_PERF_001_ScalarReadNoAllocation
 
 ```text
-Operation:
-- Repeated scalar read
+操作:
+- scalar read を繰り返す
 
-Expected:
-- No managed allocation in normal path
+期待結果:
+- 通常 path で managed allocation はない
 ```
 
 #### TC_VALUE_PERF_002_ScalarWriteNoAllocation
 
 ```text
-Operation:
-- Repeated scalar write
+操作:
+- scalar write を繰り返す
 
-Expected:
-- No managed allocation in normal path
+期待結果:
+- 通常 path で managed allocation はない
 ```
 
 #### TC_VALUE_PERF_003_NoResourcesLoadDuringRuntimeAccess
 
 ```text
-Operation:
-- Read/write values during runtime
+操作:
+- runtime 中に value を読み書きする
 
-Expected:
-- No Resources.Load registry access
+期待結果:
+- `Resources.Load` の registry access はない
 ```
 
-## Acceptance Criteria
+## 受け入れ基準
 
-This specification is complete when it defines:
+この仕様は、次を定義するときに完了である:
 
-- value architecture split between Schema, Store, InitPlan, and Evaluation, with scalar runtime delegated to 10-1
+- Schema、Store、InitPlan、Evaluation に分かれた value architecture と、10-1 に委譲された scalar runtime
 - `ValueKeyId` identity model
-- `StableKey` boundary
+- `StableKey` 境界
 - `ValueSchema` model
-- `ValueKind` and type model
+- `ValueKind` と type model
 - `ValueStore` runtime definition
-- `ValueStore` scope and lifetime model
+- `ValueStore` scope と lifetime model
 - storage model
 - read/write access policy
 - `ValueStoreInitPlan` model
-- initialization ordering and overwrite policy
-- table, record, and record list policy
+- initialization ordering と overwrite policy
+- table、record、record list policy
 - layered numeric policy
-- revision and dirty signal policy
-- DynamicEvaluation boundary
-- ReactiveEvaluation boundary
-- CommandLocal boundary
-- command access boundary
-- save metadata boundary
-- RuntimeQuery boundary
-- diagnostics and DebugMap requirements
+- revision と dirty signal policy
+- DynamicEvaluation 境界
+- ReactiveEvaluation 境界
+- CommandLocal 境界
+- command access 境界
+- save metadata 境界
+- RuntimeQuery 境界
+- diagnostics と DebugMap 要件
 - failure policy
-- performance and memory policy
+- performance と memory policy
 - legacy migration policy
 - forbidden patterns
 - required test cases
 
-The specification is not complete if a required value can be created, looked up, or saved by runtime fallback.
+この仕様は、required value が runtime fallback によって作成、lookup、保存できる状態のままでは完了していない。
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Verification |
+| テストケース | 目的 | 検証 |
 |---|---|---|
-| TC-10-01 | Confirm runtime value access is `ValueKeyId` based. | Identity and stable-key sections reject runtime stable-key lookup and runtime ID generation. |
-| TC-10-02 | Confirm writes are schema-bound. | Schema, access, and failure sections reject unknown keys and type mismatches. |
-| TC-10-03 | Confirm init ordering is explicit. | Init and overwrite sections reject multi-path init and collection-order last-write-wins. |
-| TC-10-04 | Confirm dynamic evaluation is not hidden in init. | Dynamic boundary and required tests require `DynamicEvaluationPlan`. |
-| TC-10-05 | Confirm table and record values are schema-backed. | Table and record policy rejects arbitrary grid payloads without schema. |
-| TC-10-06 | Confirm hot paths do not use fallback lookup. | Performance and forbidden sections reject stable-key and `Resources.Load` runtime paths. |
+| TC-10-01 | runtime value access が `ValueKeyId` ベースであることを確認する。 | identity と stable-key の節で runtime stable-key lookup と runtime ID generation を拒否する。 |
+| TC-10-02 | 書き込みが schema-bound であることを確認する。 | schema、access、failure の節で unknown key と type mismatch を拒否する。 |
+| TC-10-03 | init ordering が明示的であることを確認する。 | init と overwrite の節で multi-path init と collection-order の last-write-wins を拒否する。 |
+| TC-10-04 | dynamic evaluation が init に隠れていないことを確認する。 | Dynamic boundary と required tests で `DynamicEvaluationPlan` を要求する。 |
+| TC-10-05 | table / record value が schema-backed であることを確認する。 | table と record policy で schema なしの arbitrary grid payload を拒否する。 |
+| TC-10-06 | hot path で fallback lookup を使わないことを確認する。 | performance と forbidden の節で stable-key と `Resources.Load` の runtime path を拒否する。 |
 
-## Final Position
+## 最終見解
 
-`ValueStore` stores verified values by `ValueKeyId`.
+`ValueStore` は、`ValueKeyId` によって検証済み value を保存する。
 
-It does not discover keys, infer schema, evaluate hidden dynamic expressions, or repair missing data at runtime.
+キーを発見したり、スキーマを推論したり、隠れた dynamic expression を評価したり、runtime で欠落データを修復したりしない。
 
-If a value can appear at runtime without `ValueSchema`, the architecture has already regressed.
+value が `ValueSchema` なしで runtime に現れ得るなら、その時点でアーキテクチャは退化している。

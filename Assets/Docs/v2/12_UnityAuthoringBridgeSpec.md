@@ -1,11 +1,11 @@
-# Unity Authoring Bridge Specification
+# Unity Authoring Bridge 仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 12_UnityAuthoringBridgeSpec
-- Status: Draft
-- Role: defines the Unity authoring bridge, authoring identity, source location, extraction, normalization, validation, and direct-play authoring boundary for Kernel v2
-- Depends on:
+- 文書 ID: 12_UnityAuthoringBridgeSpec
+- ステータス: Draft
+- 役割: Kernel v2 における Unity authoring bridge、authoring identity、source location、抽出、正規化、検証、direct-play authoring boundary を定義する
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
@@ -19,245 +19,245 @@
   - [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md)
   - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
   - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
-- Provides foundation for:
+- 基盤を提供するもの:
   - [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md)
   - [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md)
   - [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md)
 
-### Revision Note
+### 改訂メモ
 
-This revision defines 12 as the boundary where Unity authoring stops being runtime composition authority.
+この改訂では、12 を「Unity authoring が runtime composition authority であることをやめる境界」として定義する。
 
-It fixes the target rule that MonoBehaviour and ScriptableObject may provide declaration data, but they must not directly build runtime service graphs, command catalogs, lifecycle tables, or value stores.
+また、MonoBehaviour と ScriptableObject は declaration data を提供してよいが、runtime の service graph、command catalog、lifecycle table、value store を直接構築してはならない、というルールを明確にする。
 
-It also defines ScopeAuthoringId ownership, prefab and scene authoring identity rules, direct-play verified-input policy, and the migration path away from `IFeatureInstaller`-style runtime builder mutation.
+さらに、`ScopeAuthoringId` の所有、prefab と scene の authoring identity ルール、direct-play の verified input ポリシー、そして `IFeatureInstaller` 風の runtime builder mutation から離れる移行経路も定義する。
 
 ---
 
-## Ownership
+## 所有範囲
 
-This specification owns:
+この仕様が所有するもの:
 
-- Unity Scene, Prefab, Prefab Variant, Nested Prefab, and ScriptableObject authoring boundary for the kernel pipeline
-- explicit authoring root concept for extraction and direct play
-- `ScopeAuthoringId` generation, stability, duplication, and regeneration policy
-- `ScopeAuthoringLink`, `KernelRoot`, and equivalent authoring component responsibility boundaries
-- authoring-side `SourceLocation` and `UnityObjectLink` requirements
-- authoring component classification
-- deterministic contribution extraction from Unity authoring sources
-- authoring normalization and local validation rules before KernelIR handoff
-- Transform hierarchy boundary for authoring versus runtime truth
-- Unity object reference normalization boundary
-- DynamicValue authoring boundary in Unity-facing components
-- `OnValidate`, `Reset`, and editor utility policy for kernel-facing authoring components
-- generated artifact reference policy from Unity authoring and direct-play entry points
+- kernel pipeline に対する Unity Scene、Prefab、Prefab Variant、Nested Prefab、ScriptableObject の authoring boundary
+- 抽出と direct play のための explicit authoring root 概念
+- `ScopeAuthoringId` の生成、安定性、重複検出、再生成ポリシー
+- `ScopeAuthoringLink`、`KernelRoot`、および同等の authoring component の責務境界
+- authoring 側の `SourceLocation` と `UnityObjectLink` 要件
+- authoring component の分類
+- Unity authoring source からの deterministic な contribution 抽出
+- KernelIR への handoff 前に行う authoring 正規化とローカル検証
+- authoring と runtime truth を分ける Transform hierarchy boundary
+- Unity object reference の正規化境界
+- Unity-facing component における DynamicValue authoring 境界
+- kernel-facing authoring component に対する `OnValidate`、`Reset`、editor utility のポリシー
+- Unity authoring と direct-play entry point から生成 artifact を参照するポリシー
 - runtime Unity linkage metadata boundary
-- authoring diagnostics and failure boundary requirements
-- legacy installer migration policy for Unity authoring components
+- authoring diagnostics と failure boundary 要件
+- Unity authoring component に対する legacy installer migration policy
 
-This specification does not own:
+この仕様が所有しないもの:
 
-- runtime service graph implementation
-- runtime scope graph implementation
-- runtime scope handle storage
-- command execution behavior
-- value storage layout
-- DynamicValue evaluation runtime implementation
-- final editor window or inspector UI layout
-- final Odin group layout or custom drawer implementation
-- generated artifact binary container format
+- runtime service graph の実装
+- runtime scope graph の実装
+- runtime scope handle の保存
+- command execution の挙動
+- value storage の layout
+- DynamicValue evaluation の runtime 実装
+- 最終的な editor window / inspector UI の layout
+- 最終的な Odin group layout や custom drawer の実装
+- generated artifact の binary container format
 
-12 owns the authoring bridge.
-It must not re-own runtime semantics already owned by 06 through 11.
+12 は authoring bridge を所有する。
+06 から 11 までが所有している runtime semantics を再所有してはならない。
 
 ---
 
-## Purpose
+## 目的
 
-This specification defines how Unity authoring data becomes verified declaration input for the plan-first kernel.
+この仕様は、Unity authoring data が plan-first kernel のための verified declaration input にどう変換されるかを定義する。
 
-Core statements:
+中心的な記述:
 
 ```text
-Unity authoring describes runtime structure.
-It does not build runtime structure.
+Unity authoring は runtime structure を記述する。
+runtime structure を構築するものではない。
 
-Unity objects are authoring sources.
-Verified plans are runtime composition authority.
+Unity object は authoring source である。
+verified plan が runtime composition authority である。
 
-MonoBehaviour and ScriptableObject may provide declaration data.
-They must not directly build runtime service graphs, command catalogs, lifecycle tables, or value stores.
+MonoBehaviour と ScriptableObject は declaration data を提供してよい。
+しかし、runtime の service graph、command catalog、lifecycle table、value store を直接構築してはならない。
 ```
 
-The bridge exists so that Unity can remain an effective authoring environment without becoming a fallback runtime composition mechanism.
+この bridge は、Unity を有効な authoring 環境のまま保ちつつ、fallback 的な runtime composition 機構にしてしまわないために存在する。
 
-This specification exists to prevent the following regressions:
+この仕様は、次の退化を防ぐために存在する:
 
-- MonoBehaviour mutating runtime builders in target-kernel paths
-- runtime feature discovery through `GetComponentsInChildren` or similar traversal
-- scope ownership inferred through `Transform.parent`
-- prefab duplication silently duplicating authored kernel identity
-- `OnValidate` or `Reset` silently changing kernel semantics
-- direct play entering runtime boot with stale or incomplete artifacts
-- required Unity references surviving into runtime plans as unresolved fallback work
+- MonoBehaviour が target-kernel path で runtime builder を mutating する
+- `GetComponentsInChildren` や同等の走査で runtime feature を発見する
+- `Transform.parent` から scope ownership を推論する
+- prefab duplication が authored kernel identity を黙って複製する
+- `OnValidate` や `Reset` が kernel semantics を黙って変更する
+- direct play が stale または incomplete な artifact のまま runtime boot に入る
+- 必須の Unity reference が unresolved fallback work として runtime plan に残る
 
 ---
 
-## Scope
+## スコープ
 
-This specification defines:
+この仕様が定義するもの:
 
-- authoring-source categories
-- authoring authority versus runtime authority
-- authoring-side identity model
-- source location and Unity object linkage metadata
-- authoring component roles and classification
-- extraction pipeline from Unity objects to contribution data
-- normalization and validation pipeline from Unity authoring to KernelIR-ready input
-- prefab, variant, nested-prefab, and scene identity policy
+- authoring-source category
+- authoring authority と runtime authority の区別
+- authoring 側 identity model
+- source location と Unity object linkage metadata
+- authoring component の役割と分類
+- Unity object から contribution data への抽出パイプライン
+- Unity authoring から KernelIR-ready input への正規化と検証パイプライン
+- prefab、variant、nested-prefab、scene の identity policy
 - ScriptableObject authoring policy
 - MonoBehaviour authoring policy
 - direct-play authoring flow
-- generated artifact reference policy from Unity-facing tooling
+- Unity-facing tooling から生成 artifact を参照するポリシー
 - runtime Unity linkage boundary
-- diagnostics and failure policy for Unity authoring
-- performance and editor cost policy
+- Unity authoring に対する diagnostics と failure policy
+- performance と editor cost policy
 - legacy migration policy
-- forbidden patterns
-- required tests
+- forbidden pattern
+- required test
 
 ---
 
-## Non-Goals
+## 対象外
 
-This specification does not define:
+この仕様が定義しないもの:
 
-- the final editor window implementation for authoring diagnostics
-- the final Odin Inspector field layout
-- the final runtime service cache or resolver implementation
-- the final runtime scope handle layout
-- the final command execution algorithm
-- the final value store storage layout
-- the final scene transition algorithm
-- the final debug UI appearance
-- the final generated asset serialization container
+- authoring diagnostics の最終 editor window 実装
+- 最終 Odin Inspector field layout
+- 最終 runtime service cache / resolver 実装
+- 最終 runtime scope handle layout
+- 最終 command execution algorithm
+- 最終 value store storage layout
+- 最終 scene transition algorithm
+- 最終 debug UI appearance
+- 最終 generated asset serialization container
 
-This specification must not become a generic Unity editor-style guide.
-It defines the kernel-facing authoring contract.
+この仕様は、一般的な Unity editor guide になってはならない。
+kernel-facing な authoring contract を定義する。
 
 ---
 
-## Relationship to Other Specs
+## 他仕様との関係
 
-| Spec | Relationship |
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines the root rule that Unity authoring is not runtime composition authority and delegates exact bridge behavior to 12. |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines `ScopeAuthoringId`, `SourceLocationId`, and normalized IR identity domains that 12 must feed without ambiguity. |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Defines the constrained declaration system that 12 must produce inputs for. |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Generates verified artifacts from normalized inputs produced through the 12 boundary. |
-| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | Validates authoring-derived dependency declarations before runtime may trust them. |
-| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | Defines boot acceptance and allows authoring assets or references to feed manifest production, but not runtime boot discovery. |
-| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | Owns runtime service semantics; 12 owns authoring-side service contribution sources and Unity linkage inputs. |
-| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | Owns runtime scope semantics; 12 owns authored scope identity, source traceability, and Unity object linkage input. |
-| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | Owns runtime lifecycle ordering; 12 owns authoring-side lifecycle contribution sources. |
-| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | Owns runtime command semantics; 12 owns command authoring objects, authoring keys, and payload authoring normalization. |
-| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | Owns runtime value state; 12 owns stable-key-facing authoring input and value-init authoring sources. |
-| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | Owns dynamic evaluation runtime semantics; 12 owns Unity-facing DynamicValue authoring inputs and their normalization boundary. |
-| [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | Owns the shared diagnostics substrate; 12 defines the authoring-side source fields and failure contexts emitted through that substrate. |
-| [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) | Will define the only legal boundary where legacy authoring adapters may remain visible. |
-| [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | Will budget extraction, normalization, direct-play preparation, and authoring diagnostics costs defined here. |
-| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | Implements executable tests for authoring extraction determinism, direct-play input correctness, identity stability, and CI coverage using the rules defined here. It does not redefine authoring roles or extraction semantics. |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Unity authoring は runtime composition authority ではない、という根本ルールを定義し、12 に bridge の詳細を委譲する。 |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | `ScopeAuthoringId`、`SourceLocationId`、正規化済み IR identity domain を定義する。12 はそれらを曖昧さなく供給しなければならない。 |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | 12 が input を生成するべき制約付き declaration system を定義する。 |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | 12 の boundary を通って正規化された input から verified artifact を生成する。 |
+| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | runtime が信用する前に、authoring 由来の dependency declaration を検証する。 |
+| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | boot acceptance を定義し、authoring asset や reference が manifest 生成に入ることは許すが、runtime boot discovery は許さない。 |
+| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | runtime service semantics を所有する。12 は authoring 側の service contribution source と Unity linkage input を所有する。 |
+| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | runtime scope semantics を所有する。12 は authored scope identity、source traceability、Unity object linkage input を所有する。 |
+| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | runtime lifecycle ordering を所有する。12 は authoring 側の lifecycle contribution source を所有する。 |
+| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | runtime command semantics を所有する。12 は command authoring object、authoring key、payload authoring の正規化を所有する。 |
+| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | runtime value state を所有する。12 は stable-key-facing authoring input と value-init authoring source を所有する。 |
+| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | dynamic evaluation の runtime semantics を所有する。12 は Unity-facing DynamicValue authoring input とその正規化境界を所有する。 |
+| [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | 共有 diagnostics substrate を所有する。12 は authoring 側の source fields と failure context をそこへ供給する。 |
+| [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) | legacy authoring adapter が見えてよい唯一の boundary を定義する。 |
+| [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | ここで定義する extraction、normalization、direct-play preparation、authoring diagnostics cost を予算化する。 |
+| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | ここで定義した規則を使って authoring extraction の決定性、direct-play input の正しさ、identity stability、CI coverage の test を実装する。authoring role や extraction semantics は再定義しない。 |
 
-12 is the authoring-entry contract for the kernel pipeline.
-It must not leave Unity-facing identity, extraction, or direct-play rules ownerless.
+12 は kernel pipeline に対する authoring-entry contract である。
+Unity-facing な identity、extraction、direct-play rule が ownerless のままではいけない。
 
 ---
 
-## Assembly Definition and Compile Boundary Expectations
+## asmdef とコンパイル境界の期待値
 
-Unity authoring bridge intentionally spans multiple assemblies:
+Unity authoring bridge は意図的に複数 assembly にまたがる:
 
 - `GameLib.Kernel.Authoring`
 - `GameLib.Kernel.Authoring.Editor`
 - `GameLib.Kernel.Unity`
-- `GameLib.Kernel.Boot.Unity` where boot-entry glue is required
+- 必要な boot-entry glue は `GameLib.Kernel.Boot.Unity`
 
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+詳細な依存行列は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が所有する。
 
-Required compile-boundary rules for 12:
+12 に必要なコンパイル境界ルール:
 
-- serialized declaration components and authoring-side data contracts belong in `GameLib.Kernel.Authoring`
-- extraction, normalization, direct-play preparation, asset refresh, and editor validation belong in `GameLib.Kernel.Authoring.Editor`
-- runtime MonoBehaviour bridge code belongs in `GameLib.Kernel.Unity`, not in authoring editor assemblies
-- authoring assemblies must not mutate runtime builders or pull feature internals into kernel core assemblies
+- serialized declaration component と authoring-side data contract は `GameLib.Kernel.Authoring` に属する
+- extraction、normalization、direct-play preparation、asset refresh、editor validation は `GameLib.Kernel.Authoring.Editor` に属する
+- runtime MonoBehaviour bridge code は `GameLib.Kernel.Unity` に属し、authoring editor assembly には置かない
+- authoring assembly は runtime builder を mutating してはならず、feature internals を kernel core assembly に引き込んではならない
 
-If Unity authoring logic cannot be placed into an authoring, editor, or Unity bridge assembly without back-referencing kernel internals or legacy fallback code, the 12 boundary has been violated.
+Unity authoring logic を authoring / editor / Unity bridge assembly に置けず、kernel internals や legacy fallback code を逆参照しなければならないなら、12 の boundary は破られている。
 
 ---
 
-## Current Unity Authoring Debt Observations
+## 現在の Unity Authoring 負債の観測
 
 この節は現行コードベースの Unity authoring 負債の観測結果をまとめる。
 ここは target policy ではなく、移行元の整理である。
 
-### Observation Traceability
+### 観測の追跡可能性
 
-| Observation | Evidence Type | Target Pressure |
+| 観測 | 証拠種別 | 想定される圧力先 |
 |---|---|---|
-| Feature installers are discovered through runtime hierarchy traversal. | Source | explicit authoring roots and extraction pipeline |
-| Scope ownership is inferred by walking `Transform.parent`. | Source | explicit authored scope relation and no nearest-scope rule |
-| `IFeatureInstaller.InstallFeature` mutates the runtime builder directly. | Source | declaration-only authoring components |
-| Identity components repair kind and id by heuristic editor logic. | Source | explicit `ScopeAuthoringId` policy and authoring diagnostics |
-| MonoBehaviours mix authoring data, DynamicValue preview, defaults, and runtime registration. | Source | authoring/runtime separation and DynamicValue authoring boundary |
-| Prefab-spawn paths assume runtime scope components directly on prefab assets. | Source | prefab template versus instance policy and explicit binding requirements |
+| feature installer が runtime hierarchy traversal で発見されている。 | ソース | explicit authoring root と extraction pipeline |
+| scope ownership が `Transform.parent` をたどって推論されている。 | ソース | explicit authored scope relation と no-nearest-scope rule |
+| `IFeatureInstaller.InstallFeature` が runtime builder を直接 mutating している。 | ソース | declaration-only authoring component |
+| identity component が kind と id を heuristic editor logic で修復している。 | ソース | explicit `ScopeAuthoringId` policy と authoring diagnostics |
+| MonoBehaviour が authoring data、DynamicValue preview、defaults、runtime registration を混在させている。 | ソース | authoring/runtime separation と DynamicValue authoring boundary |
+| prefab-spawn path が prefab asset 上に runtime scope component がそのままある前提で動いている。 | ソース | prefab template と instance policy、および explicit binding 要件 |
 
-### Representative Anchors
+### 代表的な参照先
 
-- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) - `GetComponentsInChildren` discovery and nearest-scope lookup through `Transform.parent`
+- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) - `GetComponentsInChildren` による `IFeatureInstaller` discovery と `Transform.parent` 経由の nearest-scope lookup
 - [BaseLifetimeScope.cs](../../GameLib/Script/Common/LTS/Core/BaseLifetimeScope.cs) - `IFeatureInstaller` runtime builder mutation contract
-- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - owned-installer caching and runtime execution of installer mutation
-- [LTSIdentityMB.cs](../../GameLib/Script/Common/LTS/Identity/MB/LTSIdentityMB.cs) - guessed scope kind, id repair, runtime registration, and dynamic registry opt-in
-- [TooltipChannelHubMB.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubMB.cs) - DynamicValue authoring, editor inference, root override, and runtime registration mixed in one MB
-- [MeshChannelHubMB.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubMB.cs) - serialized channel entries directly used for service and lifecycle registration
-- [EntityLifetimeScopeSpawnerMB.cs](../../GameLib/Script/Project/Scene/Field/Entity/Spawner/EntityLifetimeScopeSpawnerMB.cs) - prefab-scope assumptions and build-callback-driven service instantiation
+- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - owned installer caching と build 時の runtime 実行
+- [LTSIdentityMB.cs](../../GameLib/Script/Common/LTS/Identity/MB/LTSIdentityMB.cs) - 推測された scope kind、id repair、runtime registration、dynamic registry opt-in
+- [TooltipChannelHubMB.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubMB.cs) - DynamicValue authoring、editor inference、root override、runtime registration の混在
+- [MeshChannelHubMB.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubMB.cs) - serialized channel entry を service / lifecycle registration に直接使う
+- [EntityLifetimeScopeSpawnerMB.cs](../../GameLib/Script/Project/Scene/Field/Entity/Spawner/EntityLifetimeScopeSpawnerMB.cs) - prefab-scope 前提と build-callback 駆動の service instantiation
 
-### Current Gaps
+### 現在のギャップ
 
-The current project still exposes the following gaps that 12 must close:
+現在の project には、12 が塞ぐべき次のギャップが残っている:
 
-- Unity authoring can still act as runtime composition logic instead of declaration input
-- scope identity and ownership are not yet expressed as one explicit authoring contract
-- direct play can still be tempted toward runtime repair instead of verified artifact generation
-- authoring-side DynamicValue usage is not yet uniformly normalized into explicit evaluation plans
-- prefab duplication and scene duplication do not yet have one explicit kernel-identity policy
-- editor convenience hooks can still drift into kernel-semantics mutation
+- Unity authoring が declaration input ではなく runtime composition logic として振る舞えてしまう
+- scope identity と ownership が 1 つの explicit authoring contract としてまだ表現されていない
+- direct play が verified artifact generation ではなく runtime repair に寄ってしまえる
+- authoring-side の DynamicValue usage が explicit evaluation plan にまだ一様に正規化されていない
+- prefab duplication と scene duplication に対する単一の explicit kernel-identity policy がまだない
+- editor convenience hook が kernel semantics mutation に滑り込めてしまう
 
 ---
 
-## Unity Authoring Bridge Definition
+## Unity Authoring Bridge の定義
 
-`UnityAuthoringBridge` converts Unity authoring data into kernel contribution input.
+`UnityAuthoringBridge` は Unity authoring data を kernel contribution input に変換する。
 
-It is an editor/build-time bridge, not a runtime service locator.
+これは editor / build-time の bridge であり、runtime service locator ではない。
 
-Core definition:
+中心定義:
 
 ```text
-UnityAuthoringBridge converts Unity authoring data into ModuleContributionData and KernelIR-ready normalized inputs.
+UnityAuthoringBridge は Unity authoring data を ModuleContributionData と KernelIR-ready normalized input に変換する。
 
-It owns extraction, source location attachment, authoring identity resolution, authoring diagnostics, and source-to-artifact traceability.
+この bridge は extraction、source location attachment、authoring identity resolution、authoring diagnostics、source-to-artifact traceability を所有する。
 
-UnityAuthoringBridge must not execute runtime composition.
+UnityAuthoringBridge は runtime composition を実行してはならない。
 ```
 
-The bridge may traverse explicit authoring roots in editor/build-time contexts.
-It must not reuse runtime ownership inference, runtime service resolution, or runtime fallback logic to understand those roots.
+bridge は editor / build-time 文脈で explicit authoring root を traverse してよい。
+しかし、その root を理解するために runtime ownership inference、runtime service resolution、runtime fallback logic を再利用してはならない。
 
 ---
 
 ## Authoring Source Categories
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum UnityAuthoringSourceKind
@@ -273,58 +273,58 @@ public enum UnityAuthoringSourceKind
 }
 ```
 
-Authoring source is the origin of declaration data.
+authoring source は declaration data の origin である。
 
-It is not:
+それは次ではない:
 
 - runtime owner
 - runtime identity
 - runtime scope handle
 - generated artifact
 
-Required source-category meanings:
+必要な source-category の意味:
 
-- `SceneObject`: a scene-resident authored object that provides declaration input
-- `PrefabAsset`: a prefab template that declares authored structure or reusable config
-- `PrefabInstance`: a scene or prefab-hosted placement of a prefab template
-- `PrefabVariant`: a derived prefab definition with traceable override source
-- `ScriptableObjectAsset`: an authored asset that contributes module, registry, profile, or reusable definition data
-- `GeneratedAsset`: an inspection or boot reference target, not authoring truth
-- `CodeDefinedModule`: a code-backed module declaration source when explicitly allowed by lower specs
-- `LegacyBridge`: migration-only authoring surface kept visible through 13
+- `SceneObject`: declaration input を提供する scene resident な authored object
+- `PrefabAsset`: authored structure または再利用可能 config を宣言する prefab template
+- `PrefabInstance`: prefab template の scene または prefab-hosted placement
+- `PrefabVariant`: traceable な override source を持つ派生 prefab definition
+- `ScriptableObjectAsset`: module、registry、profile、再利用可能 definition data を提供する authored asset
+- `GeneratedAsset`: inspection または boot reference target であり、authoring truth ではない
+- `CodeDefinedModule`: 下位仕様が明示的に許可する場合の code-backed module declaration source
+- `LegacyBridge`: 13 経由で可視のままにしておく migration-only authoring surface
 
 ---
 
 ## Authoring vs Runtime Authority
 
-Authoring data may describe intended runtime structure.
-Runtime structure is executed only from verified plans.
+authoring data は意図された runtime structure を記述してよい。
+しかし runtime structure は検証済み plan からのみ実行される。
 
-Allowed:
+許可されるもの:
 
-- MonoBehaviour or ScriptableObject provides declaration data
-- MonoBehaviour or ScriptableObject provides source location
-- MonoBehaviour or ScriptableObject provides Unity object link metadata
-- editor tools extract contributions from Unity authoring sources
+- MonoBehaviour または ScriptableObject が declaration data を提供する
+- MonoBehaviour または ScriptableObject が source location を提供する
+- MonoBehaviour または ScriptableObject が Unity object link metadata を提供する
+- editor tool が Unity authoring source から contribution を抽出する
 
-Forbidden:
+禁止されるもの:
 
-- MonoBehaviour registers runtime services directly
-- MonoBehaviour adds lifecycle steps at runtime
-- ScriptableObject mutates runtime service graphs directly
-- authoring extraction resolves live runtime services
-- authoring extraction discovers scope ownership at runtime
-- authoring object becomes runtime composition authority because play mode was entered
+- MonoBehaviour が runtime service を直接 register する
+- MonoBehaviour が runtime で lifecycle step を追加する
+- ScriptableObject が runtime service graph を直接 mutating する
+- authoring extraction が live runtime service を resolve する
+- authoring extraction が runtime で scope ownership を discovery する
+- play mode に入ったから authoring object が runtime composition authority になる
 
-If a MonoBehaviour can call `builder.Register` in the target architecture, the architecture has regressed.
+ターゲットアーキテクチャで MonoBehaviour から `builder.Register` が呼べるなら、アーキテクチャは退化している。
 
 ---
 
-## SourceLocation and UnityObjectLink Model
+## SourceLocation と UnityObjectLink モデル
 
-Every Unity authoring input that can produce runtime behavior must carry source traceability.
+runtime 行動を生み得る Unity authoring input は、すべて source traceability を持たなければならない。
 
-Explanatory `SourceLocation` model:
+説明用 `SourceLocation` モデル:
 
 ```csharp
 public sealed class UnitySourceLocation
@@ -340,7 +340,7 @@ public sealed class UnitySourceLocation
 }
 ```
 
-Explanatory `UnityObjectLink` model:
+説明用 `UnityObjectLink` モデル:
 
 ```csharp
 public sealed class UnityObjectLink
@@ -353,38 +353,38 @@ public sealed class UnityObjectLink
 }
 ```
 
-Rules:
+ルール:
 
-- `SourceLocation` is for authoring traceability.
-- `UnityObjectLink` is for runtime debug, bridge, and selection metadata.
-- neither `SourceLocation` nor `UnityObjectLink` is kernel identity.
-- runtime instance id may appear only as runtime debug metadata and must never become stable kernel identity.
-- scene path, prefab path, GameObject path, and property path are traceability data only.
+- `SourceLocation` は authoring traceability のためのもの
+- `UnityObjectLink` は runtime debug、bridge、selection metadata のためのもの
+- `SourceLocation` も `UnityObjectLink` も kernel identity ではない
+- runtime instance id は runtime debug metadata としてのみ現れ得て、stable kernel identity になってはならない
+- scene path、prefab path、GameObject path、property path は traceability data にすぎない
 
-Required provenance fields for kernel-facing authoring diagnostics are defined in the diagnostics section of this document and must remain compatible with 11.
+kernel-facing authoring diagnostics に必要な provenance field は、この文書の diagnostics section で定義され、11 と互換でなければならない。
 
 ---
 
 ## ScopeAuthoringId Policy
 
-`ScopeAuthoringId` identifies an authored scope definition.
+`ScopeAuthoringId` は authored scope definition を識別する。
 
-It must be:
+次を満たさなければならない:
 
-- stable across editor sessions
-- source-backed
-- duplicate-detectable
-- preserved through safe edits
-- regenerated only through explicit editor action or validated duplication policy
+- editor session をまたいで安定している
+- source-backed である
+- duplicate-detectable である
+- 安全な編集を通じて保持される
+- explicit editor action または validated duplication policy によってのみ再生成される
 
-Target ownership rule:
+対象の ownership rule:
 
 ```text
-ScopeAuthoringLink owns ScopeAuthoringId for target-kernel authoring paths.
-Legacy identity components may carry migration metadata, but they must not remain the final owner of authored scope identity.
+ScopeAuthoringLink が、target-kernel authoring path における ScopeAuthoringId を所有する。
+legacy identity component は migration metadata を持ってよいが、著作された scope identity の最終所有者であり続けてはならない。
 ```
 
-`ScopeAuthoringId` must not be derived from:
+`ScopeAuthoringId` は次から導出してはならない:
 
 - GameObject name
 - Transform sibling index
@@ -392,20 +392,21 @@ Legacy identity components may carry migration metadata, but they must not remai
 - scene traversal order
 - component enumeration order
 
-Generation and regeneration rules:
+生成と再生成のルール:
 
-- a new authored scope receives a `ScopeAuthoringId` through explicit authoring tool flow when the authored scope definition is created
-- moving a GameObject, renaming a GameObject, reordering siblings, or reserializing components must not regenerate `ScopeAuthoringId`
-- duplication policy must either regenerate identity through an explicit duplication path or fail validation until the collision is resolved
-- `OnValidate` must not silently mint a new `ScopeAuthoringId` as semantic repair
+- 新しい authored scope は、authoring tool の明示的 flow によって `ScopeAuthoringId` を得る
+- GameObject の移動、リネーム、sibling の並び替え、component の再シリアライズでは `ScopeAuthoringId` は再生成されてはならない
+- duplication policy は、explicit duplication path で identity を再生成するか、collision が解決されるまで validation で失敗しなければならない
+- `OnValidate` は、semantic repair として新しい `ScopeAuthoringId` を黙って発行してはならない
 
-Duplicate `ScopeAuthoringId` is an authoring error unless duplication policy explicitly creates a new authored definition and records the regeneration outcome.
+duplicate `ScopeAuthoringId` は authoring error である。
+ただし duplication policy が新しい authored definition を明示的に作成し、再生成結果を記録する場合は除く。
 
 ---
 
 ## Prefab / Variant / Nested Prefab Policy
 
-The bridge must distinguish:
+bridge は次を区別しなければならない:
 
 - prefab template identity
 - prefab instance placement
@@ -413,97 +414,97 @@ The bridge must distinguish:
 - nested prefab source identity
 - scene override source
 
-Rules:
+ルール:
 
-- a prefab template that declares a scope definition owns its own `ScopeAuthoringId`
-- a scene instance of a prefab template does not silently become a new authored definition merely because it exists in a scene
-- prefab variant that overrides authored kernel structure becomes a distinct authoring source and must preserve traceability to its base prefab plus its own override source
-- nested prefabs retain their own source identity and must not be flattened into parent identity by hierarchy inference
-- scene overrides must preserve both base source trace and override source trace where relevant
+- scope definition を宣言する prefab template は自分自身の `ScopeAuthoringId` を持つ
+- prefab template の scene instance は、scene に存在するという理由だけで黙って新しい authored definition になってはならない
+- authored kernel structure を override する prefab variant は distinct な authoring source となり、base prefab と自身の override source の両方への traceability を保持しなければならない
+- nested prefab は自分自身の source identity を保持し、hierarchy inference で parent identity に flatten してはならない
+- scene override は、関係する箇所では base source trace と override source trace の両方を保持しなければならない
 
-Prefab duplication policy:
+prefab duplication policy:
 
-- duplicating a prefab asset must not silently duplicate authored kernel identity
-- the bridge must either regenerate authored identity for the duplicated definition or reject the duplicate until explicit user action resolves it
-- unpacking a prefab, copying a component, or moving authored content between scenes and prefabs must preserve source traceability and trigger duplicate detection where identity conflicts arise
+- prefab asset の複製で authored kernel identity が黙って複製されてはならない
+- bridge は、複製された definition に対して authored identity を再生成するか、明示的 user action で collision を解決するまで duplicate を拒否しなければならない
+- prefab の unpack、component の copy、scene と prefab の間での authored content 移動は、source traceability を保持し、identity conflict が起きた場合は duplicate detection を発火しなければならない
 
-Minimum required handled cases:
+最低限必要な対応ケース:
 
-- prefab asset duplicated in the Project window
-- prefab instance duplicated in a scene
-- prefab variant created from a base prefab
-- nested prefab overridden
-- component copied and pasted
-- scene object moved into a prefab or out of a prefab
-- prefab unpacked
+- Project window で prefab asset を duplicate した場合
+- scene で prefab instance を duplicate した場合
+- base prefab から prefab variant を作成した場合
+- nested prefab が overridden された場合
+- component が copy/paste された場合
+- scene object を prefab に入れる、または prefab から出す場合
+- prefab が unpack された場合
 
-Silent collision is forbidden.
+silent collision は禁止である。
 
 ---
 
 ## Scene Authoring Policy
 
-Scene authoring may define:
+scene authoring は次を定義してよい:
 
-- scene-local scope declarations
-- service hubs and adapters as declaration sources
+- scene-local な scope declaration
+- declaration source としての service hub と adapter
 - value-init authoring data
-- command blocks
+- command block
 - runtime-query source data
-- Unity object links
+- Unity object link
 
-Scene authoring must not be used as runtime discovery input.
+scene authoring は runtime discovery input として使ってはならない。
 
-Rules:
+ルール:
 
-- scenes must expose explicit authoring roots such as `KernelRoot` or equivalent scene-entry authoring marker
-- scene object enumeration order must not affect generated KernelIR
-- scene object names and hierarchy positions are not stable kernel identity
-- entering play mode does not authorize runtime scene search to repair missing authoring declarations
+- scene は `KernelRoot` または同等の scene-entry authoring marker のような explicit authoring root を露出しなければならない
+- scene object の enumeration order は generated KernelIR に影響してはならない
+- scene object name と hierarchy position は stable kernel identity ではない
+- play mode に入ったことは、missing な authoring declaration を修復するための runtime scene search を許可しない
 
-`KernelRoot` responsibilities in target paths:
+target path における `KernelRoot` の責務:
 
-- declare that a scene or authoring set participates in kernel extraction
-- reference boot-relevant authoring inputs where allowed by 05
-- anchor bounded extraction roots for scene authoring
-- provide authoring diagnostics entry points
+- scene または authoring set が kernel extraction に参加することを宣言する
+- 05 が許す boot-relevant authoring input を参照する
+- scene authoring の bounded extraction root を anchor する
+- authoring diagnostics の entry point を提供する
 
-`KernelRoot` is not a runtime service locator.
+`KernelRoot` は runtime service locator ではない。
 
 ---
 
 ## ScriptableObject Authoring Policy
 
-ScriptableObject assets may define:
+ScriptableObject asset は次を定義してよい:
 
-- module definitions
-- registries
-- command catalogs
-- value key registries
-- profiles
-- authoring presets
-- channel definitions
-- reusable configs
+- module definition
+- registry
+- command catalog
+- value key registry
+- profile
+- authoring preset
+- channel definition
+- reusable config
 
-Rules:
+ルール:
 
-- ScriptableObject assets are declaration sources, not mutable runtime state containers, unless a lower spec explicitly defines a separate runtime-state asset and removes it from authoring truth
-- required authoring assets must be referenced by verified inputs
-- runtime `Resources.Load` fallback for required kernel assets is forbidden
-- duplicated authored identity inside ScriptableObject assets must trigger the same duplicate-detection and traceability policy as scene and prefab sources
+- ScriptableObject asset は declaration source であり、下位仕様が runtime-state asset を別途定義して authoring truth から外していない限り、mutable な runtime state container ではない
+- 必須 authoring asset は検証済み input から参照されなければならない
+- 必須 kernel asset に対する runtime `Resources.Load` fallback は禁止である
+- ScriptableObject asset 内の duplicated authored identity は、scene / prefab source と同じ duplicate-detection と traceability policy を発火しなければならない
 
-ScriptableObject assets may be convenient authoring surfaces.
-They must not become hidden runtime registries that repair missing verified inputs.
+ScriptableObject asset は便利な authoring surface であってよい。
+しかし、missing verified input を修復する hidden runtime registry になってはならない。
 
 ---
 
 ## MonoBehaviour Authoring Policy
 
-MonoBehaviour authoring components may provide serialized declaration data.
+MonoBehaviour authoring component は serialized declaration data を提供してよい。
 
-They must not perform runtime registration in target-kernel paths.
+しかし target-kernel path で runtime registration を行ってはならない。
 
-Target MonoBehaviour authoring roles include:
+対象 MonoBehaviour authoring role:
 
 - `KernelRoot`
 - `ScopeAuthoringLink`
@@ -514,33 +515,33 @@ Target MonoBehaviour authoring roles include:
 - `RuntimeQueryAuthoring`
 - `UnityObjectLinkAuthoring`
 
-Representative migration examples:
+代表的な移行例:
 
 ```text
 MeshChannelHubMB:
-  old: IFeatureInstaller + builder.Register + lifecycle and tick enrollment
+  old: IFeatureInstaller + builder.Register + lifecycle と tick enrollment
   new: MeshChannelHubAuthoring
        -> ServiceContribution
        -> LifecycleContribution
        -> channel-definition contribution
 
 TooltipChannelHubMB:
-  old: MonoBehaviour owns DynamicValue, root override, editor inference, and runtime registration
+  old: MonoBehaviour が DynamicValue、root override、editor inference、runtime registration を所有
   new: TooltipChannelHubAuthoring
        -> ServiceContribution
        -> LifecycleContribution
-       -> DynamicEvaluationContribution when runtime context is required
-       -> RuntimeQueryContribution or UnityObjectLink metadata when needed
+       -> runtime context が必要な場合は DynamicEvaluationContribution
+       -> 必要に応じて RuntimeQueryContribution または UnityObjectLink metadata
 ```
 
-Legacy `IFeatureInstaller`-implementing components may remain only through 13’s migration boundary.
-They are not valid target authoring components.
+legacy `IFeatureInstaller` 実装 component は、13 の migration boundary を通してのみ残ってよい。
+それらは target authoring component ではない。
 
 ---
 
 ## Authoring Component Classification
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum AuthoringComponentKind
@@ -554,21 +555,21 @@ public enum AuthoringComponentKind
 }
 ```
 
-Meaning:
+意味:
 
-- `Declaration`: input to `ModuleContributionData` or KernelIR normalization
-- `Link`: Unity-to-runtime traceability metadata
-- `Bridge`: bounded Unity event or object boundary that feeds verified runtime paths
-- `ViewBinding`: output binding between runtime data and Unity view objects
-- `DebugOnly`: editor or debug visualization only
-- `LegacyAdapter`: migration-only bridge controlled by 13
+- `Declaration`: `ModuleContributionData` または KernelIR 正規化への input
+- `Link`: Unity と runtime の traceability metadata
+- `Bridge`: verified runtime path に入力を渡す bounded な Unity event または object boundary
+- `ViewBinding`: runtime data と Unity view object の出力 binding
+- `DebugOnly`: editor または debug visualization 専用
+- `LegacyAdapter`: 13 によって制御される migration-only bridge
 
-Rules:
+ルール:
 
-- component kind must be explicit
-- one component should not mix declaration, runtime bridge, lifecycle semantics, and debug behavior unless a lower spec explicitly approves that combination
-- view binding and event bridging are not authoring truth
-- declaration components must be valid without play mode state
+- component kind は明示的でなければならない
+- 下位仕様がその組み合わせを明示的に許可しない限り、1 つの component が declaration、runtime bridge、lifecycle semantics、debug behavior を混在させてはならない
+- view binding と event bridging は authoring truth ではない
+- declaration component は play mode state なしでも valid でなければならない
 
 ---
 
@@ -576,56 +577,56 @@ Rules:
 
 Unity authoring extraction pipeline:
 
-1. collect explicit authoring roots
-2. read authoring components and assets under those roots
-3. attach `SourceLocation`
-4. resolve stable authoring identities
-5. normalize Unity references
-6. emit `ModuleContributionData`
-7. validate local authoring shape
-8. hand off to KernelIR normalization
+1. explicit authoring root を収集する
+2. その root 配下の authoring component と asset を読む
+3. `SourceLocation` を付与する
+4. stable authoring identity を解決する
+5. Unity reference を正規化する
+6. `ModuleContributionData` を emit する
+7. local authoring shape を検証する
+8. KernelIR 正規化へ handoff する
 
-Extraction rules:
+抽出ルール:
 
-- extraction is editor/build-time
-- extraction must be deterministic
-- extraction must not depend on live runtime service state
-- extraction may traverse explicit authoring roots, but traversal order must be normalized before any hash-relevant or ordering-relevant output is emitted
-- extraction must not call runtime `ServiceGraph`, `ScopeGraph`, `CommandCatalog`, or `ValueStore`
+- extraction は editor / build-time である
+- extraction は deterministic でなければならない
+- extraction は live runtime service state に依存してはならない
+- extraction は explicit authoring root を traverse してよいが、hash-relevant または ordering-relevant な出力を emit する前に traversal order を正規化しなければならない
+- extraction は runtime `ServiceGraph`、`ScopeGraph`、`CommandCatalog`、`ValueStore` を呼び出してはならない
 
-Allowed bounded traversal:
+許可される bounded traversal:
 
-- enumerating components under an explicit `KernelRoot` in editor/build-time context
-- traversing prefab contents as serialized authoring data
-- resolving referenced ScriptableObject inputs from verified authoring references
+- editor / build-time コンテキストで explicit `KernelRoot` 配下の component を列挙する
+- prefab contents を serialized authoring data としてたどる
+- 検証済み authoring reference から参照された ScriptableObject input を解決する
 
-Forbidden extraction behavior:
+禁止される extraction behavior:
 
-- runtime nearest-scope ownership inference
-- scene-wide blind search as kernel truth
-- consulting play mode runtime containers to understand authoring
-- mutating runtime builders while extracting
+- runtime の nearest-scope ownership inference
+- scene-wide blind search を kernel truth として扱うこと
+- authoring を理解するために play mode runtime container を参照すること
+- extraction 中に runtime builder を mutating すること
 
 ---
 
 ## Normalization and Validation Pipeline
 
-Raw Unity authoring data must be normalized before entering KernelIR.
+raw な Unity authoring data は、KernelIR に入る前に正規化しなければならない。
 
-Normalization must resolve:
+正規化が解決しなければならないもの:
 
-- authoring component references
+- authoring component reference
 - `ScopeAuthoringId`
 - module ownership
 - `SourceLocation`
 - profile availability
-- asset references
+- asset reference
 - prefab source metadata
 - scene override metadata
-- command authoring keys
-- stable value keys used only on the authoring side
+- command authoring key
+- authoring 側でのみ使う stable value key
 
-Required pipeline direction:
+必要な pipeline 方向:
 
 ```text
 Unity Authoring Source
@@ -637,49 +638,49 @@ Unity Authoring Source
   -> Verified artifacts
 ```
 
-Rules:
+ルール:
 
-- unresolved Unity references must not be carried into runtime plans as fallback work
-- unresolved identity collisions must fail before runtime boot
-- normalization must not invent runtime identities that were absent from authoring input
-- play mode state, live runtime handles, and runtime-created fallback identities are not valid normalization inputs
+- unresolved Unity reference を runtime plan に fallback work として持ち込んではならない
+- unresolved identity collision は runtime boot の前に失敗しなければならない
+- normalization は authoring input に存在しなかった runtime identity を invent してはならない
+- play mode state、live runtime handle、runtime-created fallback identity は有効な normalization input ではない
 
 ---
 
 ## Transform Hierarchy Boundary
 
-Transform hierarchy may help editor authoring, visual organization, and default suggestion.
+Transform hierarchy は、editor authoring、visual organization、default suggestion に役立ってよい。
 
-Transform hierarchy must not be runtime kernel truth.
+しかし Transform hierarchy は runtime kernel truth ではない。
 
-Allowed:
+許可されるもの:
 
-- editor-only suggestion for default parent or grouping
+- default parent または grouping の editor-only suggestion
 - editor validation display
-- GameObject path for diagnostics and source traceability
+- diagnostics と source traceability のための GameObject path
 - prefab nesting traceability
 
-Forbidden:
+禁止されるもの:
 
 - runtime parent inference
 - runtime nearest-scope search
-- feature ownership detection by `Transform` ancestry
-- plan generation depending on sibling order unless that order is explicitly authored and normalized as data
+- `Transform` ancestry による feature ownership detection
+- sibling order に依存した plan generation（その order が明示的に authored され、data として正規化されている場合を除く）
 
-Representative forbidden legacy patterns include:
+代表的な禁止 legacy pattern:
 
 - `ScopeFeatureInstallerUtility.TryGetNearestScopeNode(...)`
-- `GetComponentsInChildren<IFeatureInstaller>(...)` used as runtime composition logic
-- `Transform.parent` traversal used to discover scope ownership or service ownership
+- runtime composition logic として使われる `GetComponentsInChildren<IFeatureInstaller>(...)`
+- scope ownership または service ownership の discovery に使われる `Transform.parent` traversal
 
-12 does not forbid hierarchy-aware editor UX.
-It forbids hierarchy-derived runtime truth.
+12 は hierarchy-aware な editor UX を禁止しない。
+hierarchy 由来の runtime truth を禁止する。
 
 ---
 
 ## Unity Object Reference Boundary
 
-Unity object references in authoring must normalize into one of the following outcomes:
+authoring における Unity object reference は、次のいずれかに正規化されなければならない:
 
 - `SourceLocation`
 - `UnityObjectLink`
@@ -687,76 +688,76 @@ Unity object references in authoring must normalize into one of the following ou
 - `RuntimeBindingRequirement`
 - `AuthoringError`
 
-Rules:
+ルール:
 
-- destroyed-object and fake-null behavior must be explicit
-- Unity fake-null must not silently erase required authoring references
-- runtime object references must not become stable generated identity
-- authoring reference normalization must preserve whether a reference is asset-backed, scene-backed, runtime-link-only, or invalid
+- destroyed-object と fake-null の挙動は明示的でなければならない
+- Unity fake-null は required authoring reference を黙って消してはならない
+- runtime object reference は stable generated identity になってはならない
+- authoring reference の正規化は、その reference が asset-backed、scene-backed、runtime-link-only、invalid のどれかを保持しなければならない
 
-If a required Unity reference cannot be normalized, generation or validation must fail.
-Runtime must not repair it through discovery.
+required Unity reference を正規化できない場合、generation または validation は失敗しなければならない。
+runtime は discovery で修復してはならない。
 
 ---
 
 ## DynamicValue Authoring Boundary
 
-DynamicValue inside Unity authoring is allowed only as authoring data.
+Unity authoring 内の DynamicValue は、authoring data としてのみ許可される。
 
-Rules:
+ルール:
 
-- if a `DynamicValue` is context-free and editor-only, the bridge may evaluate it only for preview or validation assistance
-- if a `DynamicValue` requires runtime context, it must produce `DynamicEvaluationContribution` or `ReactiveEvaluationContribution`
-- `DynamicValue` must not be evaluated during contribution extraction as runtime truth
-- editor preview result must not suppress diagnostics or replace declared runtime evaluation semantics
+- `DynamicValue` が context-free かつ editor-only なら、bridge は preview または validation assistance のためだけに評価してよい
+- `DynamicValue` が runtime context を必要とするなら、`DynamicEvaluationContribution` または `ReactiveEvaluationContribution` を生成しなければならない
+- `DynamicValue` を contribution extraction 中に runtime truth として評価してはならない
+- editor preview の結果は diagnostics を suppress してはならず、宣言済み runtime evaluation semantics の代わりにもなってはならない
 
-Representative policy:
+代表的なポリシー:
 
 ```text
-DynamicValue in Unity authoring is declaration input.
-Runtime-context-dependent DynamicValue becomes an evaluation contribution.
-It does not remain a hidden runtime getter path attached to a MonoBehaviour.
+Unity authoring における DynamicValue は declaration input である。
+runtime context に依存する DynamicValue は evaluation contribution になる。
+MonoBehaviour に付いた hidden な runtime getter path のまま残ってはならない。
 ```
 
-This section must remain consistent with 10-2.
+この節は 10-2 と整合していなければならない。
 
 ---
 
 ## OnValidate / Reset / Editor Utility Policy
 
-`OnValidate`, `Reset`, and editor utilities may improve authoring usability.
+`OnValidate`、`Reset`、editor utility は authoring usability を改善してよい。
 
-Allowed:
+許可されるもの:
 
-- assign default references
-- normalize display-only fields
-- warn about invalid state
-- generate missing authoring id through approved explicit editor utility
-- mark asset dirty when explicit and editor-safe
+- default reference の割り当て
+- display-only field の正規化
+- invalid state への warning
+- approved な explicit editor utility を通じた missing authoring id の生成
+- 明示的かつ editor-safe な場合の asset dirty 付与
 
-Forbidden:
+禁止されるもの:
 
-- silently changing runtime semantics
-- repairing missing required dependencies without diagnostics
-- performing registry fallback
-- performing scene-wide discovery as source of truth
-- generating identities without duplicate detection
-- changing `ScopeAuthoringId` because a Transform parent changed
+- runtime semantics の黙った変更
+- diagnostics なしでの required dependency の修復
+- registry fallback
+- scene-wide discovery を source of truth として行うこと
+- duplicate detection なしで identity を生成すること
+- Transform parent が変わったからといって `ScopeAuthoringId` を変えること
 
-Current heuristic repair patterns such as type-guessing scope kind or inferring UI-space defaults may exist as migration evidence.
-They are not the final target contract.
+type-guessing による scope kind 修復や UI-space default の推論のような現在の heuristic repair pattern は migration evidence としては存在してよい。
+しかし、それは最終 target contract ではない。
 
 ---
 
 ## Generated Artifact Reference Policy
 
-Unity authoring may reference generated artifacts only as inspection targets or boot references.
+Unity authoring は generated artifact を inspection target または boot reference としてのみ参照してよい。
 
-Generated artifacts are not authoring truth.
+generated artifact は authoring truth ではない。
 
-Generated artifact references must include enough compatibility data to prove what they point at.
+generated artifact reference には、それが何を指しているのかを証明できるだけの compatibility data が必要である。
 
-Minimum fields:
+最低限の field:
 
 - `ArtifactSetId`
 - `KernelIRHash`
@@ -764,43 +765,43 @@ Minimum fields:
 - `RegistryHash`
 - `GeneratorVersion`
 
-Rules:
+ルール:
 
-- manually editing generated artifacts as authoring input is forbidden
-- generated artifacts referenced from Unity authoring must be treated as derived data
-- stale generated references must fail validation or direct-play boot
+- generated artifact を手で編集して authoring input とすることは禁止
+- Unity authoring から参照される generated artifact は derived data として扱わなければならない
+- stale generated reference は validation または direct-play boot で失敗しなければならない
 
 ---
 
 ## Direct Play / Editor Boot Policy
 
-Editor direct play must still use verified inputs.
+editor direct play でも、verified input を使わなければならない。
 
-Allowed direct-play flow:
+許可される direct-play flow:
 
-1. detect dirty authoring sources
-2. run extraction
-3. run normalization
-4. run validation
-5. generate temporary or persistent verified artifact set
-6. boot using BootManifest and profile policy
+1. dirty な authoring source を検出する
+2. extraction を実行する
+3. normalization を実行する
+4. validation を実行する
+5. temporary または persistent な verified artifact set を生成する
+6. BootManifest と profile policy を使って boot する
 
-Forbidden:
+禁止されるもの:
 
-- runtime fallback because the user pressed Play
-- `FindObjectsByType` repair for missing required authoring data
-- `Resources.Load` fallback for required kernel assets
-- booting from stale artifacts when dirty authoring has not been reconciled
+- ユーザーが Play を押したから runtime fallback すること
+- required authoring data の欠落に対する `FindObjectsByType` 修復
+- required kernel asset に対する `Resources.Load` fallback
+- dirty な authoring が reconciliation されていないのに stale artifact から boot すること
 
-If direct play cannot prove compatible verified input, boot must be blocked.
+direct play が compatible な verified input を証明できないなら、boot は block されなければならない。
 
 ---
 
 ## Runtime Unity Linkage Policy
 
-Runtime Unity linkage connects verified runtime handles to Unity objects.
+runtime Unity linkage は、verified runtime handle と Unity object を接続する。
 
-It is used for:
+用途:
 
 - view binding
 - diagnostics
@@ -809,40 +810,40 @@ It is used for:
 - Unity event bridge
 - object lifecycle observation
 
-It is not used for:
+用途ではないもの:
 
 - runtime identity generation
 - service discovery
 - scope parent inference
 - command target fallback
-- runtime repair of missing authoring declarations
+- missing authoring declaration の runtime repair
 
-`UnityObjectLink` is metadata.
-It is not kernel truth.
+`UnityObjectLink` は metadata である。
+kernel truth ではない。
 
 ---
 
 ## Diagnostics and DebugMap Requirements
 
-11 owns the shared diagnostics substrate.
-12 defines the minimum authoring-side provenance and failure contexts that must feed it.
+11 は共有 diagnostics substrate を所有する。
+12 は、それに流し込まれる authoring-side provenance と failure context の最小値を定義する。
 
-Unity authoring diagnostics must include:
+Unity authoring diagnostics には次を含めなければならない:
 
 - authoring source kind
 - asset GUID
 - asset path
 - local file id
-- scene path when relevant
-- GameObject path when relevant
+- 必要に応じた scene path
+- 必要に応じた GameObject path
 - component type
-- property path when relevant
-- module id if available
+- 必要に応じた property path
+- 利用可能なら module id
 - contribution kind
-- profile when relevant
-- prefab base or override source when relevant
+- 必要に応じた profile
+- 必要に応じた prefab base または override source
 
-Representative stable codes:
+代表的な stable code:
 
 - `UNITY_AUTHORING_SOURCE_MISSING`
 - `UNITY_AUTHORING_ID_DUPLICATE`
@@ -856,14 +857,14 @@ Representative stable codes:
 - `UNITY_DYNAMIC_VALUE_REQUIRES_EVALUATION_PLAN`
 - `UNITY_ONVALIDATE_SEMANTIC_MUTATION_FORBIDDEN`
 
-Inspector warnings are not sufficient for required failures.
-Required failures must enter the structured diagnostics pipeline.
+inspector warning だけでは required failure に足りない。
+required failure は structured diagnostics pipeline に入らなければならない。
 
 ---
 
 ## Failure Policy
 
-Invalid Unity authoring must fail before runtime boot.
+invalid な Unity authoring は runtime boot の前に失敗しなければならない。
 
 | Failure Type | Default Boundary |
 |---|---|
@@ -873,33 +874,33 @@ Invalid Unity authoring must fail before runtime boot.
 | prefab identity collision | validation failure |
 | stale direct-play artifact | boot blocked |
 | runtime builder mutation in target authoring component | analyzer or validation failure |
-| runtime nearest-scope inference required for correctness | validation failure |
+| runtime nearest-scope inference が correctness のために必要 | validation failure |
 
-Invalid authoring must not be repaired by runtime fallback.
+invalid authoring は runtime fallback で修復してはならない。
 
 ---
 
 ## Performance and Editor Cost Policy
 
-Authoring extraction should be incremental when practical.
+authoring extraction は、可能なら incremental であるべきである。
 
-Requirements:
+要件:
 
 - deterministic ordering
-- no repeated full-project scan on every minor operation
-- cache authoring-source hashes or equivalent invalidation data where practical
-- support explicit full regeneration
-- support CI and headless extraction
-- avoid reflection-heavy extraction in hot editor paths where practical
+- minor operation のたびに full-project scan を繰り返さない
+- 実用上可能なら authoring-source hash または同等の invalidation data を cache する
+- explicit full regeneration をサポートする
+- CI と headless extraction をサポートする
+- 実用上可能なら reflection-heavy extraction を hot editor path で避ける
 
-Performance optimization must not skip:
+performance 最適化は次を飛ばしてはならない:
 
 - validation
 - source-location generation
 - duplicate detection
 - identity normalization
 
-Suggested measurable editor cost categories for downstream budgeting defined by 14 include:
+14 で定義される downstream budgeting のための、測定可能な editor cost category の提案:
 
 - `AuthoringBridge.CollectRoots`
 - `AuthoringBridge.Extract`
@@ -913,47 +914,47 @@ Suggested measurable editor cost categories for downstream budgeting defined by 
 
 | Legacy Pattern | Target Representation |
 |---|---|
-| `IFeatureInstaller.InstallFeature(builder, scope)` | authoring contribution provider or authoring component extracted into `ModuleContributionData` |
-| `GetComponentsInChildren<IFeatureInstaller>` | explicit authoring root collection and deterministic extraction |
-| nearest scope by `Transform.parent` | explicit `ScopeAuthoringId` and authored relation normalized into plan data |
-| `builder.Register<Service>().As<...>()` from MonoBehaviour | `ServiceContribution` plus `LifecycleContribution` |
-| `.As<IScopeTickHandler>()` from authoring component | `LifecycleContribution` with explicit phase |
-| MonoBehaviour-owned command registration | `CommandContribution` |
-| MonoBehaviour-owned blackboard init | `ValueInitContribution` |
-| runtime object reference as identity | `UnityObjectLink` or `RuntimeBindingRequirement` |
-| runtime `Resources.Load` required asset fallback | verified artifact or verified authoring reference |
-| tooltip or mesh channel runtime installers | explicit authoring components normalized into contributions |
+| `IFeatureInstaller.InstallFeature(builder, scope)` | authoring contribution provider または `ModuleContributionData` に抽出される authoring component |
+| `GetComponentsInChildren<IFeatureInstaller>` | explicit authoring root collection と deterministic extraction |
+| `Transform.parent` による nearest scope | explicit `ScopeAuthoringId` と plan data に正規化された authored relation |
+| MonoBehaviour からの `builder.Register<Service>().As<...>()` | `ServiceContribution` + `LifecycleContribution` |
+| authoring component からの `.As<IScopeTickHandler>()` | explicit phase を持つ `LifecycleContribution` |
+| MonoBehaviour-owned な command registration | `CommandContribution` |
+| MonoBehaviour-owned な blackboard init | `ValueInitContribution` |
+| runtime object reference を identity として扱う | `UnityObjectLink` または `RuntimeBindingRequirement` |
+| required asset に対する runtime `Resources.Load` fallback | verified artifact または verified authoring reference |
+| tooltip / mesh channel runtime installer | contribution に正規化された explicit authoring component |
 
-Legacy migration must not preserve installer-style runtime mutation as the target shape.
+legacy migration は installer-style runtime mutation を target shape として残してはならない。
 
 ---
 
 ## Forbidden Patterns
 
-The following are forbidden in target Unity authoring bridge paths:
+target Unity authoring bridge path で禁止されるもの:
 
-- MonoBehaviour calling `builder.Register`
-- MonoBehaviour implementing target-path runtime composition through `IFeatureInstaller`
-- ScriptableObject mutating runtime service graphs
-- runtime feature discovery through `GetComponentsInChildren`
-- runtime scope ownership inference through `Transform.parent`
-- nearest-scope search as authoring ownership rule
-- authoring extraction depending on runtime `ServiceGraph`
-- authoring extraction depending on live runtime state
-- runtime `Resources.Load` fallback for required kernel assets
-- generated artifact treated as authoring source of truth
-- GameObject name as stable kernel identity
-- sibling index as stable kernel identity
-- runtime instance id as stable kernel identity
-- `OnValidate` silently changing kernel semantics
-- duplicate authored identity resolved by last-write-wins
-- prefab duplication causing silent identity collision
+- MonoBehaviour が `builder.Register` を呼ぶこと
+- MonoBehaviour が `IFeatureInstaller` を通じて target-path runtime composition を実装すること
+- ScriptableObject が runtime service graph を mutating すること
+- `GetComponentsInChildren` による runtime feature discovery
+- `Transform.parent` による runtime scope ownership inference
+- authoring ownership rule としての nearest-scope search
+- authoring extraction が runtime `ServiceGraph` に依存すること
+- authoring extraction が live runtime state に依存すること
+- required kernel asset に対する runtime `Resources.Load` fallback
+- generated artifact を authoring source of truth として扱うこと
+- GameObject name を stable kernel identity として使うこと
+- sibling index を stable kernel identity として使うこと
+- runtime instance id を stable kernel identity として使うこと
+- `OnValidate` が kernel semantics を黙って変更すること
+- duplicate authored identity を last-write-wins で解決すること
+- prefab duplication が silent identity collision を起こすこと
 
 ---
 
 ## Test Case Model
 
-Each UnityAuthoringBridge test case must define:
+各 UnityAuthoringBridge test case は次を定義しなければならない:
 
 - Test ID
 - Title
@@ -974,21 +975,21 @@ Each UnityAuthoringBridge test case must define:
 #### TC_UNITY_SRC_001_ComponentSourceLocationGenerated
 
 ```text
-Input:
-- Scene GameObject with TooltipChannelHubAuthoring
+入力:
+- `TooltipChannelHubAuthoring` を持つ Scene GameObject
 
-Expected:
-- SourceLocation includes scene path, GameObject path, component type, and property path
+期待結果:
+- SourceLocation に scene path、GameObject path、component type、property path が含まれる
 ```
 
 #### TC_UNITY_SRC_002_PrefabSourceLocationGenerated
 
 ```text
-Input:
-- Prefab asset with MeshChannelHubAuthoring
+入力:
+- `MeshChannelHubAuthoring` を持つ Prefab asset
 
-Expected:
-- SourceLocation includes asset GUID, asset path, local file id, and component type
+期待結果:
+- SourceLocation に asset GUID、asset path、local file id、component type が含まれる
 ```
 
 ### B. ScopeAuthoringId Tests
@@ -996,36 +997,36 @@ Expected:
 #### TC_UNITY_ID_001_NewScopeGetsStableAuthoringId
 
 ```text
-Input:
-- New ScopeAuthoringLink component
+入力:
+- 新しい `ScopeAuthoringLink` component
 
-Operation:
-- Generate authoring id
+操作:
+- authoring id を生成する
 
-Expected:
-- Stable ScopeAuthoringId assigned
-- diagnostics clean
+期待結果:
+- Stable な `ScopeAuthoringId` が割り当てられる
+- diagnostics は clean
 ```
 
 #### TC_UNITY_ID_002_DuplicateAuthoringIdRejected
 
 ```text
-Input:
-- Two scene objects with the same ScopeAuthoringId
+入力:
+- 同じ `ScopeAuthoringId` を持つ 2 つの scene object
 
-Expected:
+期待結果:
 - Failed
-- UNITY_AUTHORING_ID_DUPLICATE
+- `UNITY_AUTHORING_ID_DUPLICATE`
 ```
 
 #### TC_UNITY_ID_003_CopyPasteRequiresIdentityPolicy
 
 ```text
-Input:
-- Copy and paste GameObject containing ScopeAuthoringId
+入力:
+- `ScopeAuthoringId` を含む GameObject を copy & paste する
 
-Expected:
-- duplicate detected or regenerated through explicit policy
+期待結果:
+- duplicate が検出されるか、explicit policy によって再生成される
 ```
 
 ### C. Prefab Tests
@@ -1033,32 +1034,32 @@ Expected:
 #### TC_UNITY_PREFAB_001_PrefabInstanceDoesNotSilentlyDuplicateRuntimeIdentity
 
 ```text
-Input:
-- Prefab with authored scope instantiated twice
+入力:
+- authored scope を持つ prefab を 2 回 instantiate する
 
-Expected:
-- template identity and runtime instance identity are distinguished
+期待結果:
+- template identity と runtime instance identity が区別される
 ```
 
 #### TC_UNITY_PREFAB_002_PrefabVariantOverridePreservesSourceTrace
 
 ```text
-Input:
-- Prefab variant overrides channel config
+入力:
+- prefab variant が channel config を override する
 
-Expected:
-- SourceLocation can trace both base prefab and variant override
+期待結果:
+- SourceLocation で base prefab と variant override の両方を trace できる
 ```
 
 #### TC_UNITY_PREFAB_003_NestedPrefabIdentityCollisionRejected
 
 ```text
-Input:
-- Nested prefab contains duplicated authored ids
+入力:
+- nested prefab に duplicated authored id が含まれる
 
-Expected:
+期待結果:
 - Failed
-- UNITY_PREFAB_ID_COLLISION
+- `UNITY_PREFAB_ID_COLLISION`
 ```
 
 ### D. Installer Migration Tests
@@ -1066,38 +1067,38 @@ Expected:
 #### TC_UNITY_INSTALLER_001_IFeatureInstallerRejectedInTargetPath
 
 ```text
-Input:
-- Component implements IFeatureInstaller and calls builder.Register
+入力:
+- component が `IFeatureInstaller` を実装し、`builder.Register` を呼ぶ
 
-Expected:
+期待結果:
 - Failed
-- UNITY_RUNTIME_BUILDER_MUTATION_FORBIDDEN
+- `UNITY_RUNTIME_BUILDER_MUTATION_FORBIDDEN`
 ```
 
 #### TC_UNITY_INSTALLER_002_MeshChannelHubExtractsContributions
 
 ```text
-Input:
-- MeshChannelHubAuthoring with entries
+入力:
+- entries を持つ `MeshChannelHubAuthoring`
 
-Expected:
-- ServiceContribution for hub
-- LifecycleContribution for acquire, release, and tick
+期待結果:
+- hub に対する ServiceContribution
+- acquire、release、tick に対する LifecycleContribution
 - channel-definition contribution
-- no runtime builder mutation
+- runtime builder mutation はない
 ```
 
 #### TC_UNITY_INSTALLER_003_TooltipHubExtractsEvaluationPlan
 
 ```text
-Input:
-- TooltipChannelHubAuthoring with DynamicValue preset
+入力:
+- DynamicValue preset を持つ `TooltipChannelHubAuthoring`
 
-Expected:
+期待結果:
 - ServiceContribution
 - LifecycleContribution
-- DynamicEvaluationContribution if runtime context is required
-- RuntimeQueryContribution or UnityObjectLink metadata if required
+- runtime context が必要なら DynamicEvaluationContribution
+- 必要なら RuntimeQueryContribution または UnityObjectLink metadata
 ```
 
 ### E. Transform Boundary Tests
@@ -1105,22 +1106,22 @@ Expected:
 #### TC_UNITY_TRANSFORM_001_TransformParentNotScopeParent
 
 ```text
-Input:
-- Child GameObject under parent Transform
+入力:
+- 親 Transform の下にある child GameObject
 
-Expected:
-- scope parent is not inferred unless explicit authored relation exists
+期待結果:
+- explicit authored relation がない限り scope parent は推論されない
 ```
 
 #### TC_UNITY_TRANSFORM_002_NearestScopeSearchForbidden
 
 ```text
-Input:
-- authoring extraction attempts nearest-scope search through Transform.parent
+入力:
+- authoring extraction が Transform.parent を通じた nearest-scope search を試みる
 
-Expected:
+期待結果:
 - Failed
-- UNITY_TRANSFORM_PARENT_INFERENCE_FORBIDDEN
+- `UNITY_TRANSFORM_PARENT_INFERENCE_FORBIDDEN`
 ```
 
 ### F. Direct Play Tests
@@ -1128,27 +1129,27 @@ Expected:
 #### TC_UNITY_PLAY_001_DirectPlayGeneratesVerifiedArtifacts
 
 ```text
-Operation:
-- Press Play with dirty authoring
+操作:
+- dirty な authoring のまま Play を押す
 
-Expected:
-- extraction, validation, and generation run
-- boot uses verified artifact set
+期待結果:
+- extraction、validation、generation が走る
+- boot は verified artifact set を使う
 ```
 
 #### TC_UNITY_PLAY_002_DirectPlayDoesNotUseRuntimeFallback
 
 ```text
-Input:
-- missing required artifact
+入力:
+- required artifact が欠けている
 
-Operation:
-- Press Play
+操作:
+- Play を押す
 
-Expected:
+期待結果:
 - boot blocked
-- no FindObjectsByType repair
-- no Resources.Load fallback
+- `FindObjectsByType` repair なし
+- `Resources.Load` fallback なし
 ```
 
 ### G. OnValidate Tests
@@ -1156,23 +1157,23 @@ Expected:
 #### TC_UNITY_VALIDATE_001_OnValidateMayAssignEditorDefault
 
 ```text
-Input:
-- Tooltip root override missing
-- component can suggest local RectTransform
+入力:
+- tooltip root override がない
+- component が local `RectTransform` を提案できる
 
-Expected:
-- allowed if treated as editor convenience and diagnostics remain available
+期待結果:
+- editor convenience として扱われ、diagnostics が残るなら許可される
 ```
 
 #### TC_UNITY_VALIDATE_002_OnValidateCannotSilentlyChangeKernelIdentity
 
 ```text
-Operation:
-- OnValidate changes ScopeAuthoringId without explicit tool action
+操作:
+- explicit tool action なしで `OnValidate` が `ScopeAuthoringId` を変更する
 
-Expected:
+期待結果:
 - Failed
-- UNITY_ONVALIDATE_SEMANTIC_MUTATION_FORBIDDEN
+- `UNITY_ONVALIDATE_SEMANTIC_MUTATION_FORBIDDEN`
 ```
 
 ### H. Extraction and Reference Tests
@@ -1180,70 +1181,70 @@ Expected:
 #### TC_UNITY_EXTRACT_001_ExtractionDeterministic
 
 ```text
-Input:
-- Same authoring roots and profile
+入力:
+- 同じ authoring root と profile
 
-Operation:
-- run extraction twice
+操作:
+- extraction を 2 回実行する
 
-Expected:
-- normalized contribution ordering is deterministic
-- hash-relevant output is semantically identical
+期待結果:
+- normalized contribution ordering が deterministic
+- hash-relevant output が semantic に等しい
 ```
 
 #### TC_UNITY_EXTRACT_002_UnresolvedReferenceRejectedBeforeKernelIR
 
 ```text
-Input:
-- authoring component references missing required Unity object or asset
+入力:
+- authoring component が missing required Unity object または asset を参照している
 
-Expected:
-- Failed before runtime boot
-- UNITY_OBJECT_REFERENCE_UNRESOLVED
+期待結果:
+- runtime boot の前に Failed
+- `UNITY_OBJECT_REFERENCE_UNRESOLVED`
 ```
 
 ---
 
-## Acceptance Criteria
+## 受け入れ基準
 
-This specification is complete when it defines:
+この仕様は、次を定義するときに完了である:
 
-- Unity authoring bridge responsibility
-- authoring source categories
-- authoring versus runtime authority boundary
-- `SourceLocation` and `UnityObjectLink` model
-- `ScopeAuthoringId` policy
-- prefab, variant, and nested-prefab policy
+- Unity authoring bridge の責務
+- authoring source category
+- authoring と runtime authority の境界
+- `SourceLocation` と `UnityObjectLink` モデル
+- `ScopeAuthoringId` のポリシー
+- prefab、variant、nested-prefab のポリシー
 - scene authoring policy
 - ScriptableObject authoring policy
 - MonoBehaviour authoring policy
 - authoring component classification
 - contribution extraction pipeline
-- normalization and validation pipeline
+- normalization と validation pipeline
 - Transform hierarchy boundary
 - Unity object reference boundary
 - DynamicValue authoring boundary
-- `OnValidate` and `Reset` policy
+- `OnValidate` と `Reset` のポリシー
 - generated artifact reference policy
-- direct-play and editor-boot policy
+- direct-play と editor-boot policy
 - runtime Unity linkage policy
-- diagnostics and DebugMap requirements
+- diagnostics と DebugMap 要件
 - failure policy
-- performance and editor cost policy
+- performance と editor cost policy
 - legacy migration policy
-- forbidden patterns
-- required test cases
+- forbidden pattern
+- required test case
 
-The specification is not complete if Unity authoring can still build runtime structure directly or if runtime fallback is still needed to repair invalid authoring.
+この仕様は、Unity authoring が runtime structure を直接 build できるまま、または invalid authoring を修復するために runtime fallback がまだ必要なままでは完了していない。
 
 ---
 
-## Final Position
+## 最終見解
 
-Unity authoring describes runtime structure.
-It does not build runtime structure.
+Unity authoring は runtime structure を記述する。
+runtime structure を build するものではない。
 
-The target migration is:
+対象 migration は次の通りである:
 
 ```text
 old:
@@ -1261,4 +1262,4 @@ MonoBehaviour / ScriptableObject
   -> runtime
 ```
 
-This keeps Inspector, Prefab, Scene, and ScriptableObject usability while terminating runtime composition leakage from the Unity authoring layer.
+これにより、Inspector、Prefab、Scene、ScriptableObject の使いやすさを保ちながら、Unity authoring 層からの runtime composition leakage を止める。

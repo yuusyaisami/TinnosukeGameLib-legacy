@@ -1,11 +1,11 @@
-# Legacy Compatibility Boundary Specification
+# Legacy Compatibility Boundary 仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 13_LegacyCompatBoundarySpec
-- Status: Draft
-- Role: defines the quarantine boundary where legacy compatibility may remain visible, the allowed adapter shapes, profile constraints, diagnostics visibility, and removal rules for Kernel v2
-- Depends on:
+- 文書 ID: 13_LegacyCompatBoundarySpec
+- ステータス: Draft
+- 役割: Kernel v2 において legacy compatibility が見えてよい quarantine boundary、許可される adapter 形状、profile 制約、diagnostics の可視性、および削除ルールを定義する
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
@@ -21,222 +21,222 @@
   - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
   - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
   - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
-- Provides foundation for:
+- 基盤を提供するもの:
   - [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md)
   - [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md)
 
-### Revision Note
+### 改訂メモ
 
-This revision creates 13 as the quarantine boundary for legacy compatibility.
+この改訂では、13 を legacy compatibility の quarantine boundary として作る。
 
-It does not preserve legacy behavior as a design extension point.
-It defines where migration-only adapters may remain visible, how they must be measured, and how they are prevented from re-entering the target kernel core as fallback behavior.
+legacy behavior を design extension point として保存するものではない。
+migration-only adapter が見えてよい場所、それをどう計測するか、そして target kernel core に fallback behavior として再侵入させない方法を定義する。
 
-It also tightens the architecture direction around installer mutation, resolver fallback, command bulk registration, runtime stable-key fallback, and temporary runtime adapters so they remain explicit, profile-scoped, diagnostic-visible, and removable.
+また、installer mutation、resolver fallback、command bulk registration、runtime stable-key fallback、temporary runtime adapter まわりのアーキテクチャ方向をさらに締め、explicit・profile-scoped・diagnostic-visible・removable なものだけを残す。
 
 ---
 
-## Ownership
+## 所有範囲
 
-This specification owns:
+この仕様が所有するもの:
 
-- the purpose and prohibition model of `LegacyCompat`
-- `LegacyBoundary`, `LegacyBridge`, `LegacyAdapter`, and `LegacyFallback` definitions
-- dependency direction rules between legacy systems and the target kernel
-- classification of allowed and forbidden legacy bridge kinds
-- profile and availability rules for migration-only adapters
-- diagnostics visibility requirements for every legacy bridge
-- installer, resolver, service, scope, lifecycle, command, value, authoring, save, and runtime-query legacy boundary rules
-- adapter shape, metadata, ownership, and removal policy requirements
-- migration data policy for legacy-to-v2 mapping artifacts
-- fallback prohibition rules for all profiles
+- `LegacyCompat` の目的と禁止モデル
+- `LegacyBoundary`、`LegacyBridge`、`LegacyAdapter`、`LegacyFallback` の定義
+- legacy system と target kernel の dependency direction ルール
+- 許可される legacy bridge kind と禁止される bridge kind の分類
+- migration-only adapter に対する profile と availability ルール
+- すべての legacy bridge に対する diagnostics visibility 要件
+- installer、resolver、service、scope、lifecycle、command、value、authoring、save、runtime-query に関する legacy boundary ルール
+- adapter の形、metadata、ownership、削除ポリシー要件
+- legacy-to-v2 mapping artifact に対する migration data policy
+- すべての profile に対する fallback 禁止ルール
 - legacy compatibility failure policy
-- forbidden patterns and required tests for the compatibility boundary
+- compatibility boundary に対する forbidden pattern と required test
 
-This specification does not own:
+この仕様が所有しないもの:
 
-- final `ServiceGraph`, `ScopeGraph`, `LifecycleDispatcher`, `CommandCatalog`, or `ValueStore` implementation
-- final Unity authoring component schema
-- final save payload format
-- final editor UI for migration tools
-- final performance budget values for runtime subsystems
-- complete reimplementation of individual legacy systems
-- long-term maintenance of legacy APIs as first-class target APIs
+- 最終的な `ServiceGraph`、`ScopeGraph`、`LifecycleDispatcher`、`CommandCatalog`、`ValueStore` 実装
+- 最終的な Unity authoring component schema
+- 最終的な save payload format
+- migration tool 用の最終 editor UI
+- runtime subsystem に対する最終 performance budget 値
+- 個々の legacy system の全面再実装
+- legacy API を長期にわたって first-class target API として維持すること
 
-13 owns the compatibility quarantine.
-It must not re-own runtime semantics already owned by 05 through 12.
+13 は compatibility quarantine を所有する。
+05 から 12 までが所有している runtime semantics を再所有してはならない。
 
 ---
 
-## Purpose
+## 目的
 
-This specification defines where legacy code may interact with Kernel v2 during migration and, more importantly, where it may not.
+この仕様は、legacy code が migration 中に Kernel v2 とどう関わってよいか、そしてより重要なこととして、どこでは関わってはならないかを定義する。
 
-Core statements:
+中心的な記述:
 
 ```text
-Legacy compatibility is a quarantine boundary, not a design extension point.
+Legacy compatibility は quarantine boundary であり、design extension point ではない。
 
-Legacy code may adapt into the target kernel through explicit, profiled, diagnostic-visible bridges.
-Target kernel core must not depend on legacy runtime behavior.
+Legacy code は explicit で profile が付けられ diagnostics-visible な bridge を通して target kernel に適応してよい。
+target kernel core は legacy runtime behavior に依存してはならない。
 
-Legacy may call into v2 through adapters.
-v2 core must not call back into legacy as fallback.
+Legacy は adapter 経由で v2 に呼び出してよい。
+v2 core は fallback として legacy を呼び戻してはならない。
 ```
 
-This specification exists to stop old patterns from re-entering the target kernel under a new name.
+この仕様は、古い pattern が別名で target kernel に再侵入するのを止めるために存在する。
 
-If v2 core asks legacy code to repair missing data, repair missing services, invent missing IDs, or discover missing structure at runtime, the architecture has regressed.
-
----
-
-## Scope
-
-This specification defines:
-
-- the compatibility philosophy for migration-only legacy use
-- the allowed dependency direction between legacy systems and the target kernel
-- allowed bridge kinds and forbidden bridge kinds
-- profile restrictions for authoring migration, data migration, diagnostic adapters, and runtime adapters
-- diagnostics and visibility requirements for legacy usage
-- per-domain legacy boundaries for installer, resolver, service, scope, lifecycle, command, value, authoring, save, and runtime query surfaces
-- fallback prohibition rules
-- adapter metadata, shape, ownership, and removal requirements
-- migration data rules
-- failure behavior, forbidden patterns, and required test cases
+もし v2 core が missing data、missing service、missing ID、missing structure を legacy code に修復させたり、runtime でそれを発見させたりするなら、アーキテクチャは退化している。
 
 ---
 
-## Non-Goals
+## スコープ
 
-This specification does not define:
+この仕様が定義するもの:
 
-- a full porting guide for every legacy feature
-- the runtime implementation of the target kernel subsystems
-- the final authoring UI for migration tools
-- a promise that legacy APIs remain stable long-term
-- the final save-format migration payload schema
-- the final runtime packaging of legacy reports or dashboards
-
-13 must not become a place where legacy behavior is re-specified as a second kernel.
+- migration-only legacy での使用に対する compatibility philosophy
+- legacy system と target kernel の allowed dependency direction
+- allowed bridge kind と forbidden bridge kind
+- authoring migration、data migration、diagnostic adapter、runtime adapter に対する profile restriction
+- legacy usage に対する diagnostics と visibility 要件
+- installer、resolver、service、scope、lifecycle、command、value、authoring、save、runtime query 各 surface に対する legacy boundary
+- fallback 禁止ルール
+- adapter metadata、shape、ownership、削除要件
+- migration data ルール
+- failure behavior、forbidden pattern、required test
 
 ---
 
-## Relationship to Other Specs
+## 対象外
 
-| Spec | Relationship |
+この仕様が定義しないもの:
+
+- すべての legacy feature に対する完全な porting guide
+- target kernel subsystem の runtime 実装
+- migration tool の最終 authoring UI
+- legacy API が長期にわたり安定するという約束
+- final save-format migration payload schema
+- legacy report や dashboard の最終 runtime packaging
+
+13 は、legacy behavior を second kernel として再定義する場所になってはならない。
+
+---
+
+## 他仕様との関係
+
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines the root asymmetry that legacy compatibility remains outside the new kernel core and delegates the exact quarantine contract to 13. |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Owns normalized IDs and source locations that migration maps and legacy adapter diagnostics must target. |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Owns the contribution model that authoring migration adapters must emit into instead of mutating runtime builders. |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Owns generation of verified artifacts from migrated and normalized inputs. |
-| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | Enforces whether crossing into or out of `LegacyCompat` is legal. |
-| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | Owns boot and profile policy; 13 defines whether any legacy boot bridge may remain visible and under what constraints. |
-| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | Owns target service runtime; 13 defines where legacy resolver or service adapters may remain visible without becoming service fallback. |
-| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | Owns target scope runtime; 13 defines how legacy LifetimeScope surfaces are quarantined. |
-| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | Owns lifecycle plan execution; 13 defines how legacy handler interfaces may be migrated without runtime scanning. |
-| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | Owns target command runtime; 13 defines how legacy command runners and key systems are quarantined. |
-| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | Owns target value schema and store; 13 defines how legacy Blackboard and Var bridges are isolated and prevented from acting as fallback truth. |
-| [10_1_ScalarRuntimeAndBindingSpec.md](10_1_ScalarRuntimeAndBindingSpec.md) | Owns scalar runtime semantics; 13 defines where any legacy scalar adapters may remain visible without reintroducing string or hash identity fallback. |
-| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | Owns dynamic evaluation runtime; 13 defines how any legacy dynamic wrappers or deferred runtime bridges remain quarantined. |
-| [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | Owns the shared diagnostics substrate; 13 defines what legacy bridge visibility and error codes must feed into it. |
-| [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md) | Owns extraction of Unity authoring into contribution input; 13 defines the only legal boundary where legacy authoring adapters may remain visible. |
-| [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | Will budget the allowed cost of legacy diagnostics and explicitly bounded adapters. |
-| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | Implements executable boundary, visibility, removability, and regression checks using the quarantine rules defined here. It does not redefine adapter policy or legacy-boundary semantics. |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | legacy compatibility が新しい kernel core の外に残る、という根本の非対称性を定義し、13 に quarantine contract の詳細を委譲する。 |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | migration map と legacy adapter diagnostics が参照すべき normalized ID と source location を所有する。 |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | runtime builder を mutating するのではなく、authoring migration adapter が出力すべき contribution model を所有する。 |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | migrated かつ正規化された input から verified artifact を生成する。 |
+| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | `LegacyCompat` への出入りが合法かを enforce する。 |
+| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | boot と profile policy を所有する。13 は legacy boot bridge が見えてよいかとその制約を定義する。 |
+| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | target service runtime を所有する。13 は legacy resolver や service adapter が service fallback にならずに見えてよい場所を定義する。 |
+| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | target scope runtime を所有する。13 は legacy LifetimeScope surface の quarantine の方法を定義する。 |
+| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | lifecycle plan execution を所有する。13 は legacy handler interface を runtime scanning なしでどう移行するかを定義する。 |
+| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | target command runtime を所有する。13 は legacy command runner と key system の quarantine を定義する。 |
+| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | target value schema と store を所有する。13 は legacy Blackboard と Var bridge をどう分離し、fallback truth として振る舞わせないかを定義する。 |
+| [10_1_ScalarRuntimeAndBindingSpec.md](10_1_ScalarRuntimeAndBindingSpec.md) | scalar runtime semantics を所有する。13 は string または hash identity fallback を再導入しない legacy scalar adapter の居場所を定義する。 |
+| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | dynamic evaluation runtime を所有する。13 は legacy dynamic wrapper や deferred runtime bridge をどう quarantine するかを定義する。 |
+| [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | shared diagnostics substrate を所有する。13 は legacy bridge の visibility と error code がそこにどう流れるかを定義する。 |
+| [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md) | Unity authoring を contribution input に抽出する。13 は legacy authoring adapter が見えてよい唯一の boundary を定義する。 |
+| [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | legacy diagnostics と bounded adapter の許容コストを予算化する。 |
+| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | quarantine rule を使って boundary、visibility、removability、regression を executable test として実装する。adapter policy や legacy-boundary semantics は再定義しない。 |
 
-13 is the isolation contract for migration.
-It must not duplicate domain ownership already fixed by the lower subsystem specs.
-
----
-
-## Assembly Definition and Compile Boundary Expectations
-
-The intended assembly family for migration-only compatibility is `GameLib.Legacy.*`.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
-
-Required compile-boundary rules for 13:
-
-- legacy adapters must live in explicit quarantine assemblies rather than in `GameLib.Kernel.*` assemblies
-- dependency direction is one-way: `GameLib.Legacy.*` may depend on public kernel APIs, but `GameLib.Kernel.*` must not depend on legacy assemblies
-- migration helpers for installers, resolvers, Blackboard, command runners, or scope bridges must not be colocated inside kernel core assemblies
-- temporary compatibility code must remain removable by deleting quarantine assemblies rather than by surgically untangling kernel core
-
-If a new compatibility path requires a kernel assembly to reference legacy internals directly, the 13 boundary has been violated.
+13 は migration の isolation contract である。
+下位 subsystem spec ですでに固定された domain ownership を複製してはならない。
 
 ---
 
-## Current Legacy Debt Observations
+## asmdef とコンパイル境界の期待値
 
-This section summarizes the current legacy-related debt observed in the codebase.
-It is migration evidence, not target policy.
+migration-only compatibility の想定 assembly family は `GameLib.Legacy.*` である。
+詳細な依存行列は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が所有する。
 
-### Observation Traceability
+13 に必要なコンパイル境界ルール:
 
-| Observation | Evidence Type | Target Pressure |
+- legacy adapter は `GameLib.Kernel.*` ではなく explicit quarantine assembly に置かなければならない
+- dependency direction は一方向である。`GameLib.Legacy.*` は public kernel API に依存してよいが、`GameLib.Kernel.*` は legacy assembly に依存してはならない
+- installer、resolver、Blackboard、command runner、scope bridge の migration helper は kernel core assembly に同居させてはならない
+- temporary compatibility code は、kernel core を外科的にほどくのではなく、quarantine assembly を削除することで取り除ける状態でなければならない
+
+新しい compatibility path のために kernel assembly が legacy internals を直接参照しなければならないなら、13 の boundary は破られている。
+
+---
+
+## 現在の Legacy 負債の観測
+
+この節は現行コードベースで観測された legacy 負債を要約する。
+ここは移行証拠であって、target policy ではない。
+
+### 観測の追跡可能性
+
+| 観測 | 証拠種別 | 想定される圧力先 |
 |---|---|---|
-| Installer discovery still uses `GetComponentsInChildren` and `Transform.parent` ownership inference. | Source | no runtime discovery and no hierarchy-derived truth |
-| Legacy scope build still caches installers and calls `InstallFeature(builder, scope)` directly. | Source | contribution-driven runtime composition |
-| Resolver fallback still uses component search and parent resolver chaining. | Source | explicit `ServiceGraph` and no resolver fallback |
-| `CommandRunnerMB` still performs bulk executor, service, and lifecycle registration in one installer. | Source | explicit command and lifecycle contribution pipeline |
-| `VarIdResolver` still creates runtime-only negative IDs for unresolved stable keys. | Source | verified `ValueKeyId` mapping and no runtime ID invention |
-| `VarKeyRegistryLocator` still uses `Resources.Load` and runtime-created fallback registry instances. | Source | verified boot input and no runtime asset fallback |
-| `BlackboardMB` still mixes installer mutation, acquire/release participation, init, debug, and transform auto-write. | Source | split authoring, value init, lifecycle, and diagnostics responsibilities |
+| installer discovery がまだ `GetComponentsInChildren` と `Transform.parent` の ownership inference を使っている。 | ソース | runtime discovery なし、hierarchy-derived truth なし |
+| legacy scope build が installer を cache し、`InstallFeature(builder, scope)` を直接呼んでいる。 | ソース | contribution-driven runtime composition |
+| resolver fallback が component search と parent resolver chaining をまだ使っている。 | ソース | explicit `ServiceGraph` と no resolver fallback |
+| `CommandRunnerMB` が 1 つの installer の中で bulk executor、service、lifecycle registration を行っている。 | ソース | explicit command / lifecycle contribution pipeline |
+| `VarIdResolver` が unresolved stable key に対して runtime-only negative ID をまだ作っている。 | ソース | verified `ValueKeyId` mapping と no runtime ID invention |
+| `VarKeyRegistryLocator` がまだ `Resources.Load` と runtime-created fallback registry instance を使っている。 | ソース | verified boot input と no runtime asset fallback |
+| `BlackboardMB` が installer mutation、acquire/release participation、init、debug、transform auto-write を混在させている。 | ソース | authoring、value init、lifecycle、diagnostics の責務分離 |
 
-### Representative Anchors
+### 代表的な参照先
 
-- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) - collects `IFeatureInstaller` via `GetComponentsInChildren` and uses `Transform.parent` through `TryGetNearestScopeNode`
-- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - caches owned installers and invokes `InstallFeature(builder, this)` during build
-- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - falls back to `GetComponent`, `GetComponentInChildren`, and `_parentResolver`
-- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk-registers many `ICommandExecutor` implementations plus lifecycle-related services
-- [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) - allocates runtime-only negative IDs for unresolved stable keys
-- [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) - uses `Resources.Load` and creates runtime fallback registry instances
-- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - combines `IFeatureInstaller`, acquire/release hooks, init logic, debug-view wiring, and transform auto-write
+- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) - `GetComponentsInChildren` で `IFeatureInstaller` を収集し、`TryGetNearestScopeNode` を通じて `Transform.parent` を使う
+- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - owned installer を cache し、build 時に `InstallFeature(builder, this)` を呼ぶ
+- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - `GetComponent`、`GetComponentInChildren`、`_parentResolver` へ fallback する
+- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - 多数の `ICommandExecutor` 実装と lifecycle-related service を bulk register する
+- [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) - unresolved stable key に対して runtime-only negative ID を割り当てる
+- [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) - `Resources.Load` を使い、runtime fallback registry instance を作成する
+- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - `IFeatureInstaller`、acquire/release hook、init logic、debug-view wiring、transform auto-write をまとめて持つ
 
-### Current Gaps
+### 現在のギャップ
 
-The target architecture must close the following gaps:
+対象アーキテクチャは次のギャップを塞がなければならない:
 
-- runtime discovery still exists in migration-era installer and resolver paths
-- builder mutation still exists as a live pattern in legacy MonoBehaviours
-- fallback still exists for services, value IDs, and registry lookup
-- lifecycle intent can still be learned by registration or interface scanning
-- legacy authoring objects can still act as runtime composition authorities
-- missing target data can still be repaired indirectly by legacy systems instead of failing
+- migration-era の installer / resolver path にまだ runtime discovery が残っている
+- builder mutation が legacy MonoBehaviour で生きた pattern として残っている
+- service、value ID、registry lookup に fallback が残っている
+- lifecycle intent が registration や interface scanning からまだ学べてしまう
+- legacy authoring object がまだ runtime composition authority として振る舞える
+- missing target data が legacy system によって indirect に修復されてしまえる
 
 ---
 
 ## Legacy Compatibility Philosophy
 
-Legacy compatibility exists only to support migration, inspection, and controlled coexistence.
+legacy compatibility は migration、inspection、controlled coexistence を支援するためだけに存在する。
 
-It must not become:
+次のものになってはならない:
 
-- a fallback mechanism
-- a hidden runtime dependency
-- a second source of truth
-- a way to bypass validation
-- a way to keep installer-style runtime mutation alive
+- fallback mechanism
+- hidden runtime dependency
+- second source of truth
+- validation bypass の手段
+- installer-style runtime mutation を生かし続ける手段
 
-Required central rule:
+中心ルール:
 
 ```text
-Legacy compatibility is allowed only when it is explicit, profiled, diagnostic-visible, and removable.
+Legacy compatibility は、explicit で、profile が付けられ、diagnostic-visible で、removable な場合にのみ許可される。
 ```
 
-Additional rule:
+追加ルール:
 
 ```text
-Development may make legacy usage more visible.
-It must not make invalid target data valid through legacy fallback.
+Development は legacy usage をより見えるようにしてよい。
+invalid な target data を legacy fallback で valid にしてはならない。
 ```
 
 ---
 
 ## Legacy Boundary Definitions
 
-`LegacyCompat` is the migration-only quarantine zone where approved legacy adapters may remain visible.
+`LegacyCompat` は、承認された legacy adapter が見えてよい migration-only quarantine zone である。
 
-Explanatory classification:
+説明用分類:
 
 ```csharp
 public enum LegacyCompatKind
@@ -254,44 +254,44 @@ public enum LegacyCompatKind
 
 ### LegacyBoundary
 
-A declared boundary where legacy code may interact with the target kernel only through approved adapter rules.
+legacy code が target kernel と関われる declared boundary。承認された adapter rule 経由に限る。
 
 ### LegacyAdapter
 
-A small, owned wrapper that converts legacy input or behavior into target-kernel concepts.
+legacy input または behavior を target-kernel concept に変換する、小さくて ownership を持つ wrapper。
 
 ### LegacyBridge
 
-A migration-limited connection between legacy systems and the target kernel.
+legacy system と target kernel をつなぐ、migration-limited な connection。
 
 ### LegacyFallback
 
-An implicit fallback from the target kernel to legacy behavior when target data or target runtime structure is missing.
+target data または target runtime structure が欠けているときに、target kernel から legacy behavior へ暗黙に fallback すること。
 
-`LegacyFallback` is forbidden by default.
+`LegacyFallback` は既定で禁止である。
 
 ---
 
 ## Dependency Direction Rules
 
-Allowed by default:
+既定で許可されるもの:
 
-- `LegacyAdapter` depends on v2 interfaces
-- legacy authoring migration emits `ModuleContributionData`
-- legacy diagnostic adapters report `KernelDiagnostic`
-- legacy data migration reads legacy data and writes verified migration output
-- legacy-facing shims may call into v2 runtime through explicit adapters during migration
+- `LegacyAdapter` が v2 interface に依存する
+- legacy authoring migration が `ModuleContributionData` を emit する
+- legacy diagnostic adapter が `KernelDiagnostic` を report する
+- legacy data migration が legacy data を読み、verified migration output を書く
+- migration 中に legacy-facing shim が explicit adapter 経由で v2 runtime を呼ぶ
 
-Forbidden by default:
+既定で禁止されるもの:
 
-- v2 core depends on `RuntimeResolver`
-- v2 `ServiceGraph` depends on legacy `LifetimeScope`
-- v2 `ScopeGraph` depends on `Transform.parent` nearest-scope inference
-- v2 `CommandCatalog` depends on `CommandRunnerMB` executor registration
-- v2 `ValueStore` depends on `VarIdResolver` runtime fallback
-- v2 runtime asks legacy code to repair missing target data
+- v2 core が `RuntimeResolver` に依存する
+- v2 `ServiceGraph` が legacy `LifetimeScope` に依存する
+- v2 `ScopeGraph` が `Transform.parent` の nearest-scope inference に依存する
+- v2 `CommandCatalog` が `CommandRunnerMB` の executor registration に依存する
+- v2 `ValueStore` が `VarIdResolver` の runtime fallback に依存する
+- v2 runtime が missing target data の修復を legacy code に求める
 
-Dependency direction must be one-way:
+dependency direction は一方向でなければならない:
 
 ```text
 Legacy -> Adapter -> v2
@@ -305,23 +305,23 @@ v2 -> Legacy -> fallback
 
 ## Legacy Bridge Classification
 
-Legacy bridges must be classified before they are legal.
+legacy bridge は legal になる前に分類されなければならない。
 
-Allowed bridge kinds:
+許可される bridge kind:
 
-| Kind | Purpose | Runtime allowed by default |
+| Kind | Purpose | 既定で runtime 可否 |
 |---|---|---|
-| `AuthoringMigration` | Convert legacy MonoBehaviour or ScriptableObject data into contribution input | No target runtime dependency |
-| `DataMigration` | Convert legacy assets, registries, or save payloads into verified v2 data | Build, editor, migration, or load-prevalidation only |
-| `RuntimeAdapter` | Temporarily expose legacy behavior through an explicit migration bridge | Development and Test only by default |
-| `DiagnosticAdapter` | Forward legacy logs, failures, or migration status into 11 diagnostics | Allowed when it does not change runtime truth |
-| `TestAdapter` | Compare legacy and v2 behavior in migration tests | Test only |
-| `TemporaryBridge` | Short-lived emergency bridge with explicit expiration and owner | Development and Test only by default |
-| `ForbiddenFallback` | Attempted repair of missing target data through legacy behavior | Never allowed |
+| `AuthoringMigration` | legacy MonoBehaviour または ScriptableObject data を contribution input に変換する | target runtime dependency なし |
+| `DataMigration` | legacy asset、registry、save payload を verified v2 data に変換する | build、editor、migration、または load-prevalidation のみ |
+| `RuntimeAdapter` | explicit な migration bridge を通して一時的に legacy behavior を露出する | 既定では Development と Test のみ |
+| `DiagnosticAdapter` | legacy log、failure、migration status を 11 diagnostics に forward する | runtime truth を変えない限り許可 |
+| `TestAdapter` | migration test で legacy と v2 の behavior を比較する | test のみ |
+| `TemporaryBridge` | 明示的な期限と owner を持つ短命の緊急 bridge | 既定では Development と Test のみ |
+| `ForbiddenFallback` | legacy behavior による missing target data の修復試行 | 決して許可しない |
 
-Unclassified legacy bridges are invalid.
+未分類の legacy bridge は無効である。
 
-Forbidden bridge kinds include:
+禁止される bridge kind:
 
 - fallback resolver bridge
 - missing service repair bridge
@@ -334,29 +334,29 @@ Forbidden bridge kinds include:
 
 ## Profile and Availability Policy
 
-Legacy compatibility must declare profile availability.
+legacy compatibility は profile availability を宣言しなければならない。
 
-Default policy:
+既定ポリシー:
 
 | Profile | AuthoringMigration | DataMigration | RuntimeAdapter | DiagnosticAdapter | LegacyFallback |
 |---|---|---|---|---|---|
-| Development | Allowed with warning | Allowed with warning | Allowed only if declared, owned, and removable | Allowed | Forbidden |
-| Test | Allowed | Allowed | Allowed for comparison tests or declared migration checks | Allowed | Forbidden |
-| Release | Allowed only through prevalidated migrated input or prebuilt verified artifacts | Allowed only as explicit prevalidation or import step | Forbidden by default | Allowed only when forwarding diagnostics from an otherwise allowed bridge | Forbidden |
+| Development | warning 付きで許可 | warning 付きで許可 | 宣言済み・owner あり・removable の場合のみ許可 | 許可 | 禁止 |
+| Test | 許可 | 許可 | 比較 test または宣言済み migration check の場合に許可 | 許可 | 禁止 |
+| Release | prevalidated migrated input または prebuilt verified artifact を通る場合のみ許可 | explicit な prevalidation または import step としてのみ許可 | 既定では禁止 | それ以外で許可された bridge から diagnostics を forward する場合のみ許可 | 禁止 |
 
-Release profile may ship migrated results.
-That is not the same thing as shipping live runtime legacy dependency.
+Release profile は migrated result を ship してよい。
+しかし、それは live runtime legacy dependency を ship することと同じではない。
 
-Development profile may increase visibility.
-It must not increase fallback permissiveness.
+Development profile は visibility を上げてよい。
+しかし fallback permissiveness を上げてはならない。
 
 ---
 
 ## Diagnostics and Visibility Requirements
 
-Every legacy bridge use must be diagnostic-visible through 11’s structured diagnostics pipeline.
+すべての legacy bridge usage は、11 の structured diagnostics pipeline を通じて diagnostic-visible でなければならない。
 
-A `LegacyCompat` diagnostic must include at least:
+`LegacyCompat` diagnostic には少なくとも次を含める:
 
 - legacy system name
 - bridge kind
@@ -365,10 +365,10 @@ A `LegacyCompat` diagnostic must include at least:
 - source location
 - active profile
 - removal status
-- expiration condition or blocking issue when applicable
+- 該当する場合の expiration condition または blocking issue
 - stable diagnostics code
 
-Representative stable diagnostics codes:
+代表的な stable diagnostics code:
 
 - `LEGACY_BRIDGE_USED`
 - `LEGACY_RUNTIME_ADAPTER_USED`
@@ -388,29 +388,29 @@ Representative stable diagnostics codes:
 - `LEGACY_ADAPTER_REMOVAL_POLICY_MISSING`
 - `LEGACY_RUNTIME_QUERY_LEGACY_LOOKUP_FORBIDDEN`
 
-Inspector warnings or local `Debug.LogWarning` calls are not sufficient for required failures.
+Inspector warning や local `Debug.LogWarning` だけでは required failure に足りない。
 
 ---
 
 ## Legacy Installer Boundary
 
-Legacy installer-style mutation is not allowed in target kernel runtime.
+legacy installer-style mutation は target kernel runtime では許可されない。
 
-The following legacy pattern is forbidden in target paths:
+target path で禁止される legacy pattern:
 
 ```csharp
 void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
 ```
 
-Current evidence:
+現在の証拠:
 
-- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) discovers `IFeatureInstaller` components through `GetComponentsInChildren` and infers ownership through `Transform.parent`
-- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) caches owned installers and invokes `InstallFeature(builder, this)` directly during build
+- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) は `GetComponentsInChildren` で `IFeatureInstaller` component を発見し、`Transform.parent` を通じて ownership を推論する
+- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) は owned installer を cache し、build 中に `InstallFeature(builder, this)` を直接呼ぶ
 
-Target replacement:
+対象 replacement:
 
 ```text
-Legacy MB/SO data
+Legacy MB / SO data
   -> AuthoringMigration adapter
   -> ModuleContributionData
   -> KernelIR
@@ -418,57 +418,57 @@ Legacy MB/SO data
   -> runtime
 ```
 
-Allowed within the boundary:
+boundary の内側で許可されるもの:
 
-- read serialized legacy fields
-- attach source location and legacy component metadata
-- emit contribution data
-- report migration diagnostics
+- serialized legacy field を読む
+- source location と legacy component metadata を付ける
+- contribution data を emit する
+- migration diagnostics を report する
 
-Forbidden within target paths:
+target path で禁止されるもの:
 
-- calling `InstallFeature` during target boot
-- mutating `IRuntimeContainerBuilder` from legacy authoring components
-- collecting legacy features through `GetComponentsInChildren`
-- inferring installer ownership from `Transform.parent`
+- target boot 中に `InstallFeature` を呼ぶこと
+- legacy authoring component から `IRuntimeContainerBuilder` を mutating すること
+- `GetComponentsInChildren` で legacy feature を収集すること
+- `Transform.parent` から installer ownership を推論すること
 
 ---
 
 ## Legacy Resolver Boundary
 
-Target `ServiceGraph` must not depend on legacy `RuntimeResolver` or VContainer-like fallback resolution.
+target `ServiceGraph` は legacy `RuntimeResolver` や VContainer 風 fallback resolution に依存してはならない。
 
-Current evidence:
+現在の証拠:
 
-- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) falls back to `GetComponent`, `GetComponentInChildren`, and `_parentResolver` after registration miss
+- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) は registration miss の後に `GetComponent`、`GetComponentInChildren`、`_parentResolver` に fallback する
 
-Allowed:
+許可されるもの:
 
-- `LegacyResolverAdapter` may expose v2 services to legacy callers during migration
-- legacy diagnostic tools may inspect legacy resolver state
+- `LegacyResolverAdapter` は migration 中に legacy caller に v2 service を露出してよい
+- legacy diagnostic tool は legacy resolver state を inspect してよい
 
-Forbidden:
+禁止されるもの:
 
-- target service resolution falling back to legacy resolver
-- target service resolution falling back to host-component search
-- lifecycle handler lookup through legacy resolver chain
-- command executor lookup through legacy resolver chain
-- runtime query lookup through legacy resolver chain
+- target service resolution が legacy resolver に fallback すること
+- target service resolution が host-component search に fallback すること
+- legacy resolver chain 経由で lifecycle handler を lookup すること
+- legacy resolver chain 経由で command executor を lookup すること
+- legacy resolver chain 経由で runtime query を lookup すること
 
-Core rule:
+中心ルール:
 
 ```text
-If v2 service resolution fails, the result is a v2 diagnostics failure.
-It must not ask legacy resolver for repair.
+v2 service resolution が失敗したら、その結果は v2 diagnostics failure である。
+legacy resolver に修復を求めてはならない。
 ```
 
 ---
 
 ## Legacy Service Boundary
 
-Legacy services may be adapted only through explicit `RuntimeAdapter` or `AuthoringMigration` declarations.
+legacy service は explicit `RuntimeAdapter` または `AuthoringMigration` declaration を通じてのみ適応してよい。
 
-A legacy service adapter must declare:
+legacy service adapter は次を宣言しなければならない:
 
 - target `ServiceId`
 - legacy source type
@@ -478,59 +478,59 @@ A legacy service adapter must declare:
 - diagnostics code
 - removal plan
 
-Forbidden:
+禁止事項:
 
-- broad `.AsImplementedInterfaces()`-style exposure
-- exposing whatever interfaces the legacy object happens to implement as target truth
-- implicit service substitution after target resolution failure
+- broad な `.AsImplementedInterfaces()` 型の露出
+- legacy object がたまたま実装している interface を target truth としてそのまま露出すること
+- target resolution failure 後の implicit service substitution
 
-Each exposed target contract must be explicit.
+露出する target contract はすべて explicit でなければならない。
 
 ---
 
 ## Legacy Scope Boundary
 
-Legacy `LifetimeScope` may coexist only through an explicit `LegacyScopeAdapter`.
+legacy `LifetimeScope` は、explicit `LegacyScopeAdapter` がある場合にのみ共存できる。
 
-Target `ScopeGraph` must not infer runtime parent-child relationships from legacy scope hierarchy.
+target `ScopeGraph` は、legacy scope hierarchy から runtime parent-child relation を推論してはならない。
 
-Forbidden:
+禁止事項:
 
 - nearest-scope search
-- `Transform.parent` ownership inference
-- automatic scope creation from legacy object presence
-- duplicate root cleanup through legacy runtime behavior
-- using legacy scope hierarchy as target scope truth
+- `Transform.parent` による ownership inference
+- legacy object の存在から automatic scope creation をすること
+- legacy runtime behavior による duplicate root cleanup
+- legacy scope hierarchy を target scope truth として使うこと
 
-Allowed within migration:
+migration 中に許可されるもの:
 
-- explicit mapping from legacy scope identity to `ScopeAuthoringId` or verified scope IDs
-- diagnostics-visible legacy scope inspection
+- legacy scope identity から `ScopeAuthoringId` または verified scope ID への explicit mapping
+- diagnostics-visible な legacy scope inspection
 
 ---
 
 ## Legacy Lifecycle Boundary
 
-Legacy lifecycle handler interfaces are not target lifecycle enrollment.
+legacy lifecycle handler interface は target lifecycle enrollment ではない。
 
-Legacy `IScopeAcquireHandler`, `IScopeReleaseHandler`, and `IScopeTickHandler` may be mapped to `LifecycleContribution` during migration.
+legacy `IScopeAcquireHandler`、`IScopeReleaseHandler`、`IScopeTickHandler` は、migration 中に `LifecycleContribution` へ map してよい。
 
-Runtime scanning for implemented handler interfaces is forbidden.
+implemented handler interface の runtime scanning は禁止である。
 
-Core rule:
+中心ルール:
 
 ```text
-The migration adapter may read legacy handler intent.
-The target LifecycleDispatcher must execute LifecyclePlan, not scan legacy handlers.
+migration adapter は legacy handler intent を読んでよい。
+target LifecycleDispatcher は legacy handler を scan するのではなく、LifecyclePlan を実行しなければならない。
 ```
 
 ---
 
 ## Legacy Command Boundary
 
-Legacy command executors must not be discovered through DI registration.
+legacy command executor は DI registration によって発見してはならない。
 
-Target migration path:
+target migration path:
 
 - legacy executor metadata
 - `CommandContribution`
@@ -538,78 +538,78 @@ Target migration path:
 - `CommandCatalogPlan`
 - `CommandCatalog` runtime lookup
 
-Current evidence:
+現在の証拠:
 
-- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) bulk-registers many `ICommandExecutor` implementations and mixes command services with lifecycle handlers
+- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) は多数の `ICommandExecutor` 実装を bulk register し、command service と lifecycle handler を混在させる
 
-Forbidden:
+禁止事項:
 
-- resolving `IReadOnlyList<ICommandExecutor>` as target command discovery
-- registering executors through `CommandRunnerMB` in target runtime paths
-- using legacy command authoring key lookup as runtime dispatch truth
-- falling back from missing `CommandTypeId` to legacy command key resolver
+- target command discovery として `IReadOnlyList<ICommandExecutor>` を解決すること
+- target runtime path で `CommandRunnerMB` を通じて executor を register すること
+- legacy command authoring key lookup を runtime dispatch truth として使うこと
+- 欠落した `CommandTypeId` から legacy command key resolver に fallback すること
 
-`CommandRunnerMB` may remain only as migration source or legacy-facing facade inside the compatibility boundary.
-It is not a target runtime registrar.
+`CommandRunnerMB` は compatibility boundary の内側での migration source または legacy-facing facade としてのみ残ってよい。
+target runtime registrar ではない。
 
 ---
 
 ## Legacy Value / Blackboard / Var Boundary
 
-Legacy value systems may be migrated into `ValueSchema` and `ValueStore`, but target value runtime must not depend on legacy key fallback.
+legacy value system は `ValueSchema` と `ValueStore` へ migration してよいが、target value runtime は legacy key fallback に依存してはならない。
 
-Current evidence:
+現在の証拠:
 
-- [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) allocates runtime-only negative IDs for unresolved stable keys
-- [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) uses `Resources.Load` and runtime-created fallback registry instances
-- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) mixes installer mutation, init, lifecycle, and debug responsibilities
+- [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) は unresolved stable key に対して runtime-only negative ID を割り当てる
+- [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) は `Resources.Load` と runtime-created fallback registry instance を使う
+- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) は installer mutation、init、lifecycle、debug responsibility を混在させる
 
-Forbidden in target paths:
+target path で禁止されるもの:
 
-- runtime stable-key resolution for required values
-- runtime-only negative IDs
+- required value に対する runtime stable-key resolution
+- runtime-only negative ID
 - `Resources.Load` registry fallback
-- legacy Blackboard as schema authority
-- inferring `ValueSchema` from legacy runtime store contents
+- schema authority としての legacy Blackboard
+- legacy runtime store contents からの `ValueSchema` 推論
 
-Migration-only allowance:
+migration-only allowance:
 
 ```text
-Legacy stable keys may be used during migration to map old data to ValueKeyId.
-The mapping result must be verified before runtime.
+Legacy stable key は migration 中に old data を `ValueKeyId` に map するために使ってよい。
+その mapping result は runtime 前に検証されなければならない。
 ```
 
-The same rule applies to other legacy key systems that derive runtime IDs from strings or hashes.
+string や hash から runtime ID を導出する他の legacy key system も同じルールに従う。
 
 ---
 
 ## Legacy Unity Authoring Boundary
 
-Legacy MonoBehaviours may be used as authoring sources only through `AuthoringMigration` adapters.
+legacy MonoBehaviour は、`AuthoringMigration` adapter を通してのみ authoring source として使ってよい。
 
-Allowed:
+許可されるもの:
 
-- read serialized fields
-- attach `SourceLocation`
-- emit contribution data
-- report migration diagnostics
+- serialized field を読む
+- `SourceLocation` を付ける
+- contribution data を emit する
+- migration diagnostics を report する
 
-Forbidden:
+禁止されるもの:
 
-- calling `InstallFeature` during target boot
-- calling `builder.Register` from legacy authoring components in target paths
-- using `OnValidate` to silently repair target identity
-- runtime discovery of legacy MonoBehaviours as target contributions
+- target boot 中に `InstallFeature` を呼ぶこと
+- target path で legacy authoring component から `builder.Register` を呼ぶこと
+- `OnValidate` で target identity を黙って修復すること
+- legacy MonoBehaviour を target contribution として runtime discovery すること
 
-This section must remain consistent with [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md).
+この節は [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md) と整合していなければならない。
 
 ---
 
 ## Legacy Save Boundary
 
-Legacy save data may be migrated only through explicit `SaveMigrationPlan` behavior.
+legacy save data は、explicit `SaveMigrationPlan` の振る舞いを通してのみ migration できる。
 
-A save migration path must define:
+save migration path は次を定義しなければならない:
 
 - source legacy format
 - target schema version
@@ -618,70 +618,70 @@ A save migration path must define:
 - failure policy
 - diagnostics behavior
 
-Forbidden:
+禁止事項:
 
-- target `SaveSystem` reading legacy save payload opportunistically as fallback for missing v2 save data
-- save-schema inference from legacy runtime state during target runtime execution
+- target `SaveSystem` が missing v2 save data の fallback として legacy save payload を opportunistic に読むこと
+- target runtime execution 中の legacy runtime state からの save-schema 推論
 
-Migrated save output must be explicit and versioned.
+migrated save output は explicit で versioned でなければならない。
 
 ---
 
 ## Legacy Runtime Query Boundary
 
-Legacy lookup systems may be adapted into `RuntimeQuery` only when query identity, target kind, invalidation, and ambiguity policy are explicit.
+legacy lookup system は、query identity、target kind、invalidation、ambiguity policy が explicit である場合に限り `RuntimeQuery` へ適応してよい。
 
-Forbidden:
+禁止事項:
 
-- using legacy resolver chain as `RuntimeQuery`
-- using `Transform` traversal as query truth
-- using string lookup as target identity without verified mapping
-- using legacy kind or category lookup as target runtime query truth without explicit adapter metadata
+- legacy resolver chain を `RuntimeQuery` として使うこと
+- `Transform` traversal を query truth として使うこと
+- verified mapping なしで string lookup を target identity として使うこと
+- explicit adapter metadata なしで legacy kind や category lookup を target runtime query truth として使うこと
 
-Legacy lookup may remain inside migration reports or explicit adapters.
-It is not target runtime truth.
+legacy lookup は migration report または explicit adapter の内側に残ってよい。
+target runtime truth ではない。
 
 ---
 
-## Fallback Prohibition Policy
+## Fallback 禁止ポリシー
 
-Legacy compatibility must not repair missing target-kernel data.
+legacy compatibility は missing target-kernel data を修復してはならない。
 
-Core rule:
+中心ルール:
 
 ```text
-Fallback converts validation failure into hidden runtime behavior.
-Target kernel must reject this.
+Fallback は validation failure を hidden runtime behavior に変える。
+target kernel はこれを拒否しなければならない。
 ```
 
-Forbidden fallback examples:
+禁止される fallback の例:
 
-- missing `ServiceId` resolved from `RuntimeResolver`
-- missing scope parent inferred from `Transform.parent`
-- missing `CommandTypeId` resolved from command string key
-- missing `ValueKeyId` generated as negative runtime ID
-- missing `BootManifest` loaded from `Resources`
-- missing `LifecycleStep` discovered from implemented interface
-- missing installer contribution repaired through `GetComponentsInChildren`
+- missing `ServiceId` を `RuntimeResolver` から解決すること
+- missing scope parent を `Transform.parent` から推論すること
+- missing `CommandTypeId` を command string key から解決すること
+- missing `ValueKeyId` を negative runtime ID として生成すること
+- missing `BootManifest` を `Resources` から load すること
+- missing `LifecycleStep` を implemented interface から発見すること
+- missing installer contribution を `GetComponentsInChildren` で修復すること
 
-Development may warn more.
-It must not heal more.
+Development は warning を増やしてよい。
+しかし、修復を増やしてはならない。
 
 ---
 
 ## Adapter Shape and Ownership Policy
 
-A legacy adapter must be:
+legacy adapter は次を満たさなければならない:
 
-- explicitly declared
-- owned by a module
-- profile-scoped
-- diagnostics-visible
-- one-way where possible
-- removable
-- covered by tests
+- explicit に宣言されている
+- module に owned されている
+- profile-scoped である
+- diagnostics-visible である
+- 可能な限り one-way である
+- removable である
+- test でカバーされている
 
-Explanatory metadata shape:
+説明用 metadata shape:
 
 ```csharp
 public sealed class LegacyAdapterDescriptor
@@ -698,48 +698,48 @@ public sealed class LegacyAdapterDescriptor
 }
 ```
 
-Additional rules:
+追加ルール:
 
-- one adapter should solve one compatibility problem
-- adapters must not become parallel kernels or hidden registries
-- adapters must not create new target-kernel features through legacy APIs
-- if an adapter becomes performance-critical on a target hot path, the migration has regressed
+- 1 つの adapter は 1 つの compatibility problem だけを解決すべきである
+- adapter は parallel kernel や hidden registry になってはならない
+- adapter は legacy API を通じて新しい target-kernel feature を作ってはならない
+- adapter が target hot path で performance-critical になったら、migration は退化している
 
 ---
 
 ## Migration Data Policy
 
-Migration data must be explicit and versioned.
+migration data は explicit かつ versioned でなければならない。
 
-Examples:
+例:
 
-- legacy command key to `CommandTypeId` map
-- legacy var stable key to `ValueKeyId` map
-- legacy scope identity to `ScopeAuthoringId` map
-- legacy service type to `ServiceId` map
-- legacy save schema to target value schema map
+- legacy command key から `CommandTypeId` への map
+- legacy var stable key から `ValueKeyId` への map
+- legacy scope identity から `ScopeAuthoringId` への map
+- legacy service type から `ServiceId` への map
+- legacy save schema から target value schema への map
 
-Required properties:
+必要な性質:
 
 - owner module
-- source format or system name
+- source format または system name
 - source version
-- target artifact or subsystem
-- compatibility or generation hash when relevant
-- source locations for traced entries when available
+- target artifact または subsystem
+- 該当する場合の compatibility または generation hash
+- traced entry がある場合は source location
 
-Forbidden:
+禁止事項:
 
-- inferring migration data during runtime execution
-- creating migration maps lazily as repair during target runtime access
+- runtime execution 中に migration data を推論すること
+- target runtime access の修復として migration map を lazy 生成すること
 
 ---
 
 ## Sunset / Removal Policy
 
-Every runtime legacy adapter must declare a removal policy.
+すべての runtime legacy adapter は removal policy を宣言しなければならない。
 
-Explanatory status model:
+説明用 status model:
 
 ```csharp
 public enum LegacyRemovalStatus
@@ -752,51 +752,51 @@ public enum LegacyRemovalStatus
 }
 ```
 
-Removal policy must include at least:
+removal policy には少なくとも次を含める:
 
 - owner module
-- reason for temporary existence
-- target replacement
-- allowed profiles
+- 一時的に存在する理由
+- 置き換え先
+- 許可される profile
 - expiration condition
 - diagnostics code
-- tracking issue or blocking condition
+- tracking issue または blocking condition
 
-Expired adapters are not warnings.
-They are validation failures.
+期限切れ adapter は warning ではない。
+validation failure である。
 
 ---
 
 ## Performance and Memory Policy
 
-Legacy bridges must not reintroduce runtime discovery cost.
+legacy bridge は runtime discovery cost を再導入してはならない。
 
-Forbidden in target runtime paths:
+target runtime path で禁止されるもの:
 
-- full hierarchy scans
-- full registration scans
+- full hierarchy scan
+- full registration scan
 - reflection-heavy resolver lookup
 - per-frame legacy adapter conversion
 - per-command legacy key lookup
 - per-value stable-key fallback
 - per-access `Resources.Load`
 
-Important rule:
+重要なルール:
 
 ```text
-Legacy compatibility may be slower during migration tooling.
-It must not be on hot runtime paths by default.
+Legacy compatibility は migration tooling では遅くてもよい。
+しかし、default で hot runtime path に乗ってはならない。
 ```
 
-Performance optimization must not remove diagnostics visibility, ownership metadata, or removal policy checks.
+performance 最適化は diagnostics visibility、ownership metadata、removal policy check を取り除いてはならない。
 
 ---
 
 ## Failure Policy
 
-Legacy compatibility failure must be explicit.
+legacy compatibility failure は explicit でなければならない。
 
-Representative failure categories:
+代表的な failure category:
 
 - `LegacyAdapterMissing`
 - `LegacyProfileForbidden`
@@ -806,47 +806,47 @@ Representative failure categories:
 - `LegacySourceInvalid`
 - `LegacyRuntimeDependencyForbidden`
 
-Default failure boundaries:
+default failure boundary:
 
 | Failure Type | Default Boundary |
 |---|---|
 | authoring migration failure | generation failure |
-| runtime adapter forbidden in current profile | boot failure or subsystem failure |
-| fallback attempt from target core to legacy | operation failure in Development and Test; boot failure or fatal failure in Release depending on timing |
-| required migration mapping missing | generation, validation, load-prevalidation, or boot failure |
+| current profile で runtime adapter が forbidden | boot failure または subsystem failure |
+| target core から legacy への fallback attempt | Development と Test では operation failure、Release では timing に応じて boot failure または fatal failure |
+| required migration mapping missing | generation、validation、load-prevalidation、または boot failure |
 | expired adapter | validation failure |
-| diagnostics metadata missing on adapter | validation failure or analyzer failure |
+| adapter の diagnostics metadata missing | validation failure または analyzer failure |
 
-Legacy compatibility failure must not continue through silent repair or last-write-wins fallback.
+legacy compatibility failure は silent repair や last-write-wins fallback を通して継続してはならない。
 
 ---
 
 ## Forbidden Patterns
 
-The following are forbidden in the target legacy compatibility boundary:
+target legacy compatibility boundary で禁止されるもの:
 
-- v2 core depending on legacy `RuntimeResolver`
-- v2 `ServiceGraph` fallback to legacy resolver
-- v2 `ScopeGraph` fallback to `Transform` nearest-scope inference
-- v2 `CommandCatalog` fallback to `CommandRunnerMB`
-- v2 `ValueStore` fallback to `VarIdResolver` negative IDs
-- v2 `LifecyclePlan` scanning `IScopeAcquireHandler` or `IScopeTickHandler`
-- target boot invoking `IFeatureInstaller`
-- runtime `GetComponentsInChildren` to collect legacy features in target paths
-- runtime `Resources.Load` fallback for required kernel assets
-- runtime component fallback used as target service resolution
-- runtime parent-resolver chain used to repair target dependency misses
-- legacy adapter without owner module
-- legacy adapter without diagnostics metadata
-- legacy adapter without profile declaration
-- legacy adapter without removal policy
-- legacy compatibility used as a permanent extension point
+- v2 core が legacy `RuntimeResolver` に依存すること
+- v2 `ServiceGraph` が legacy resolver に fallback すること
+- v2 `ScopeGraph` が `Transform` nearest-scope inference に fallback すること
+- v2 `CommandCatalog` が `CommandRunnerMB` に fallback すること
+- v2 `ValueStore` が `VarIdResolver` の negative ID に fallback すること
+- v2 `LifecyclePlan` が `IScopeAcquireHandler` または `IScopeTickHandler` を scan すること
+- target boot が `IFeatureInstaller` を呼ぶこと
+- target path で legacy feature を集めるための runtime `GetComponentsInChildren`
+- required kernel asset に対する runtime `Resources.Load` fallback
+- target service resolution として使われる runtime component fallback
+- target dependency miss を修復するための runtime parent-resolver chain
+- owner module のない legacy adapter
+- diagnostics metadata のない legacy adapter
+- profile declaration のない legacy adapter
+- removal policy のない legacy adapter
+- 永続的な extension point として使われる legacy compatibility
 
 ---
 
 ## Test Case Model
 
-Each `LegacyCompat` test case must define:
+各 `LegacyCompat` test case は次を定義しなければならない:
 
 - Test ID
 - Title
@@ -857,7 +857,7 @@ Each `LegacyCompat` test case must define:
 - expected result
 - expected diagnostics
 - expected dependency direction
-- expected migration output when applicable
+- 該当する場合の expected migration output
 
 ---
 
@@ -868,34 +868,34 @@ Each `LegacyCompat` test case must define:
 #### TC_LEGACY_DEP_001_LegacyAdapterMayDependOnV2
 
 ```text
-Input:
-- LegacyCommandAdapter calls v2 CommandCatalog through declared adapter
+入力:
+- `LegacyCommandAdapter` が宣言済み adapter 経由で v2 `CommandCatalog` を呼ぶ
 
-Expected:
+期待結果:
 - Passed
-- Diagnostic LEGACY_BRIDGE_USED warning in Development
+- Development では `LEGACY_BRIDGE_USED` warning
 ```
 
 #### TC_LEGACY_DEP_002_V2CoreCannotDependOnLegacyResolver
 
 ```text
-Input:
-- ServiceGraph attempts fallback to RuntimeResolver
+入力:
+- `ServiceGraph` が `RuntimeResolver` へ fallback しようとする
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_CORE_DEPENDENCY_FORBIDDEN
+- `LEGACY_CORE_DEPENDENCY_FORBIDDEN`
 ```
 
 #### TC_LEGACY_DEP_003_V2ScopeGraphCannotUseNearestScopeSearch
 
 ```text
-Input:
-- ScopeGraph tries to use Transform.parent nearest-scope logic
+入力:
+- `ScopeGraph` が `Transform.parent` の nearest-scope logic を使おうとする
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_CORE_DEPENDENCY_FORBIDDEN
+- `LEGACY_CORE_DEPENDENCY_FORBIDDEN`
 ```
 
 ### B. Profile Tests
@@ -906,12 +906,12 @@ Expected:
 Profile:
 - Development
 
-Input:
-- explicit runtime legacy adapter with owner and removal policy
+入力:
+- owner と removal policy を持つ explicit runtime legacy adapter
 
-Expected:
+期待結果:
 - PassedWithWarnings
-- LEGACY_RUNTIME_ADAPTER_USED
+- `LEGACY_RUNTIME_ADAPTER_USED`
 ```
 
 #### TC_LEGACY_PROFILE_002_RuntimeAdapterRejectedInRelease
@@ -920,12 +920,12 @@ Expected:
 Profile:
 - Release
 
-Input:
-- runtime legacy adapter enabled
+入力:
+- runtime legacy adapter が有効
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_PROFILE_FORBIDDEN
+- `LEGACY_PROFILE_FORBIDDEN`
 ```
 
 #### TC_LEGACY_PROFILE_003_LegacyFallbackRejectedInAllProfiles
@@ -934,12 +934,12 @@ Expected:
 Profile:
 - Development / Test / Release
 
-Input:
-- missing ServiceId fallback to legacy resolver
+入力:
+- missing `ServiceId` を legacy resolver へ fallback しようとする
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_FALLBACK_FORBIDDEN
+- `LEGACY_FALLBACK_FORBIDDEN`
 ```
 
 ### C. Installer Boundary Tests
@@ -947,41 +947,41 @@ Expected:
 #### TC_LEGACY_INSTALLER_001_IFeatureInstallerNotInvokedByTargetBoot
 
 ```text
-Input:
-- legacy component implements IFeatureInstaller
+入力:
+- legacy component が `IFeatureInstaller` を実装している
 
-Operation:
+操作:
 - target kernel boot
 
-Expected:
-- InstallFeature is not called
-- target uses contribution data only
+期待結果:
+- `InstallFeature` は呼ばれない
+- target は contribution data のみを使う
 ```
 
 #### TC_LEGACY_INSTALLER_002_GetComponentsInChildrenFeatureCollectionForbidden
 
 ```text
-Input:
-- target boot attempts to collect installers by GetComponentsInChildren
+入力:
+- target boot が `GetComponentsInChildren` で installer を収集しようとする
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_INSTALLER_DISCOVERY_FORBIDDEN
+- `LEGACY_INSTALLER_DISCOVERY_FORBIDDEN`
 ```
 
 #### TC_LEGACY_INSTALLER_003_LegacyMBExtractedAsContribution
 
 ```text
-Input:
-- legacy MeshChannelHub-like MonoBehaviour serialized fields
+入力:
+- legacy MeshChannelHub-like MonoBehaviour の serialized field
 
-Operation:
-- AuthoringMigration adapter extracts data
+操作:
+- AuthoringMigration adapter が data を抽出する
 
-Expected:
+期待結果:
 - ServiceContribution
 - LifecycleContribution
-- no builder mutation
+- builder mutation なし
 ```
 
 ### D. Resolver and Service Boundary Tests
@@ -989,23 +989,23 @@ Expected:
 #### TC_LEGACY_RESOLVER_001_ComponentFallbackRejectedInTargetPath
 
 ```text
-Input:
-- target service resolution attempts host GetComponent or GetComponentInChildren fallback
+入力:
+- target service resolution が host `GetComponent` または `GetComponentInChildren` fallback を試みる
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_RESOLVER_COMPONENT_FALLBACK_FORBIDDEN
+- `LEGACY_RESOLVER_COMPONENT_FALLBACK_FORBIDDEN`
 ```
 
 #### TC_LEGACY_SERVICE_001_LegacyServiceAdapterRequiresExplicitContracts
 
 ```text
-Input:
-- legacy service adapter exposes broad implemented-interface set without explicit target contracts
+入力:
+- legacy service adapter が explicit target contract なしに broad な implemented-interface set を露出する
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_CORE_DEPENDENCY_FORBIDDEN
+- `LEGACY_CORE_DEPENDENCY_FORBIDDEN`
 ```
 
 ### E. Command Boundary Tests
@@ -1013,37 +1013,37 @@ Expected:
 #### TC_LEGACY_CMD_001_CommandRunnerMBBulkRegistrationRejected
 
 ```text
-Input:
-- CommandRunnerMB registers executors as ICommandExecutor
+入力:
+- `CommandRunnerMB` が executors を `ICommandExecutor` として register する
 
-Expected:
-- Failed in target runtime path
-- LEGACY_COMMAND_BULK_REGISTRATION_FORBIDDEN
+期待結果:
+- target runtime path で Failed
+- `LEGACY_COMMAND_BULK_REGISTRATION_FORBIDDEN`
 ```
 
 #### TC_LEGACY_CMD_002_LegacyCommandKeyMigrationAllowed
 
 ```text
-Input:
-- legacy command key camera.shake
+入力:
+- legacy command key `camera.shake`
 
-Operation:
-- migration maps key to CommandTypeId
+操作:
+- migration が key を `CommandTypeId` に map する
 
-Expected:
+期待結果:
 - Passed
-- mapping output included in migration report
+- mapping output が migration report に含まれる
 ```
 
 #### TC_LEGACY_CMD_003_RuntimeCommandStringFallbackRejected
 
 ```text
-Input:
-- runtime dispatch uses string key because CommandTypeId is missing
+入力:
+- `CommandTypeId` が missing だから runtime dispatch が string key を使う
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_COMMAND_STRING_FALLBACK_FORBIDDEN
+- `LEGACY_COMMAND_STRING_FALLBACK_FORBIDDEN`
 ```
 
 ### F. Value Boundary Tests
@@ -1051,36 +1051,36 @@ Expected:
 #### TC_LEGACY_VALUE_001_StableKeyMigrationAllowed
 
 ```text
-Input:
-- legacy stableKey health.current
+入力:
+- legacy stableKey `health.current`
 
-Operation:
-- migration maps stableKey to ValueKeyId
+操作:
+- migration が stableKey を `ValueKeyId` に map する
 
-Expected:
+期待結果:
 - Passed
 ```
 
 #### TC_LEGACY_VALUE_002_RuntimeNegativeIdRejected
 
 ```text
-Input:
-- VarIdResolver returns negative runtime-only id
+入力:
+- `VarIdResolver` が negative runtime-only id を返す
 
-Expected:
-- Failed in target runtime
-- LEGACY_RUNTIME_ID_FALLBACK_FORBIDDEN
+期待結果:
+- target runtime で Failed
+- `LEGACY_RUNTIME_ID_FALLBACK_FORBIDDEN`
 ```
 
 #### TC_LEGACY_VALUE_003_LegacyBlackboardNotSchemaAuthority
 
 ```text
-Input:
-- legacy Blackboard contains key not present in ValueSchema
+入力:
+- legacy Blackboard に `ValueSchema` に存在しない key がある
 
-Expected:
-- Failed or migration required
-- LEGACY_MIGRATION_REQUIRED
+期待結果:
+- Failed または migration required
+- `LEGACY_MIGRATION_REQUIRED`
 ```
 
 ### G. Lifecycle Boundary Tests
@@ -1088,25 +1088,25 @@ Expected:
 #### TC_LEGACY_LIFE_001_HandlerInterfaceMigrationAllowed
 
 ```text
-Input:
-- legacy service implements IScopeTickHandler
+入力:
+- legacy service が `IScopeTickHandler` を実装している
 
-Operation:
-- migration creates LifecycleContribution Tick step
+操作:
+- migration が `LifecycleContribution` の Tick step を作る
 
-Expected:
+期待結果:
 - Passed
 ```
 
 #### TC_LEGACY_LIFE_002_RuntimeHandlerScanRejected
 
 ```text
-Input:
-- LifecycleDispatcher scans ServiceGraph for IScopeTickHandler
+入力:
+- `LifecycleDispatcher` が `IScopeTickHandler` を探して ServiceGraph を scan する
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_LIFECYCLE_HANDLER_SCAN_FORBIDDEN
+- `LEGACY_LIFECYCLE_HANDLER_SCAN_FORBIDDEN`
 ```
 
 ### H. Authoring, Save, and Runtime Query Tests
@@ -1114,49 +1114,49 @@ Expected:
 #### TC_LEGACY_AUTHOR_001_LegacyMonoBehaviourUsedOnlyThroughAuthoringMigration
 
 ```text
-Input:
-- legacy MonoBehaviour with serialized migration data
+入力:
+- serialized migration data を持つ legacy MonoBehaviour
 
-Operation:
-- extraction under 12 and 13 boundary
+操作:
+- 12 と 13 の boundary の下で extraction する
 
-Expected:
-- contribution data emitted
-- SourceLocation attached
-- no runtime builder mutation
+期待結果:
+- contribution data が emit される
+- SourceLocation が付く
+- runtime builder mutation はない
 ```
 
 #### TC_LEGACY_SAVE_001_SaveMigrationPlanRequired
 
 ```text
-Input:
-- target load encounters legacy save payload
+入力:
+- target load が legacy save payload に遭遇する
 
-Expected:
-- explicit SaveMigrationPlan required or failure
-- no opportunistic runtime fallback
+期待結果:
+- explicit な SaveMigrationPlan が必要、または failure
+- opportunistic な runtime fallback はない
 ```
 
 #### TC_LEGACY_QUERY_001_LegacyResolverChainNotRuntimeQuery
 
 ```text
-Input:
-- RuntimeQuery attempts to use legacy resolver chain lookup
+入力:
+- RuntimeQuery が legacy resolver chain lookup を使おうとする
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_RUNTIME_QUERY_LEGACY_LOOKUP_FORBIDDEN
+- `LEGACY_RUNTIME_QUERY_LEGACY_LOOKUP_FORBIDDEN`
 ```
 
 #### TC_LEGACY_QUERY_002_TransformTraversalQueryRejected
 
 ```text
-Input:
-- query implementation uses Transform traversal as runtime identity source
+入力:
+- query implementation が runtime identity source として Transform traversal を使う
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_RUNTIME_QUERY_LEGACY_LOOKUP_FORBIDDEN
+- `LEGACY_RUNTIME_QUERY_LEGACY_LOOKUP_FORBIDDEN`
 ```
 
 ### I. Diagnostics and Sunset Tests
@@ -1164,77 +1164,77 @@ Expected:
 #### TC_LEGACY_DIAG_001_LegacyAdapterRequiresDiagnostics
 
 ```text
-Input:
-- legacy adapter without diagnostics metadata
+入力:
+- diagnostics metadata のない legacy adapter
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_ADAPTER_DIAGNOSTICS_MISSING
+- `LEGACY_ADAPTER_DIAGNOSTICS_MISSING`
 ```
 
 #### TC_LEGACY_SUNSET_001_RuntimeAdapterRequiresRemovalPolicy
 
 ```text
-Input:
-- runtime legacy adapter without removal policy
+入力:
+- removal policy のない runtime legacy adapter
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_ADAPTER_REMOVAL_POLICY_MISSING
+- `LEGACY_ADAPTER_REMOVAL_POLICY_MISSING`
 ```
 
 #### TC_LEGACY_SUNSET_002_ExpiredAdapterRejected
 
 ```text
-Input:
-- legacy adapter marked expired
+入力:
+- expired とマークされた legacy adapter
 
-Expected:
+期待結果:
 - Failed
-- LEGACY_ADAPTER_EXPIRED
+- `LEGACY_ADAPTER_EXPIRED`
 ```
 
 ---
 
-## Acceptance Criteria
+## 受け入れ基準
 
-This specification is complete when it defines:
+この仕様は、次を定義するときに完了である:
 
 - legacy compatibility philosophy
-- `LegacyBoundary`, `LegacyBridge`, `LegacyAdapter`, and `LegacyFallback` definitions
-- dependency direction rules
+- `LegacyBoundary`、`LegacyBridge`、`LegacyAdapter`、`LegacyFallback` の定義
+- dependency direction ルール
 - bridge classification
-- profile and availability policy
-- diagnostics and visibility requirements
+- profile と availability policy
+- diagnostics と visibility 要件
 - legacy installer boundary
 - legacy resolver boundary
 - legacy service boundary
 - legacy scope boundary
 - legacy lifecycle boundary
 - legacy command boundary
-- legacy value, Blackboard, and Var boundary
+- legacy value、Blackboard、Var boundary
 - legacy Unity authoring boundary
 - legacy save boundary
 - legacy runtime query boundary
-- fallback prohibition policy
-- adapter shape and ownership policy
+- fallback 禁止ポリシー
+- adapter shape と ownership policy
 - migration data policy
-- sunset and removal policy
-- performance and memory policy
+- sunset と removal policy
+- performance と memory policy
 - failure policy
-- forbidden patterns
-- required test cases
+- forbidden pattern
+- required test
 
-The specification is not complete if legacy compatibility can still act as a hidden repair path for missing target data or if v2 core can still depend on legacy runtime behavior as fallback.
+この仕様は、legacy compatibility が missing target data の hidden repair path として機能し続ける、または v2 core が legacy runtime behavior を fallback として依存し続ける状態では完了していない。
 
 ---
 
-## Final Position
+## 最終見解
 
-Legacy compatibility must be explicit, one-way, diagnostic-visible, profile-scoped, and removable.
+legacy compatibility は explicit で、一方向で、diagnostic-visible で、profile-scoped で、removable でなければならない。
 
-Legacy may call into v2 through adapters.
-v2 core must not call back into legacy as fallback.
+Legacy は adapter 経由で v2 に呼び出してよい。
+v2 core は fallback として legacy を呼び戻してはならない。
 
-13 is not a specification for preserving old behavior indefinitely.
-It is the quarantine contract that keeps migration necessary, measurable, and bounded while protecting the target kernel from regression.
+13 は old behavior を無期限に保存するための仕様ではない。
+migration を必要、計測可能、境界付きに保ちつつ、target kernel を退化から守るための quarantine contract である。

@@ -1,101 +1,101 @@
-# ScopeGraph Runtime Specification
+# ScopeGraph Runtime 仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 07_ScopeGraphRuntimeSpec
-- Status: Draft
-- Role: defines runtime scope instance graph, scope identity, scope state, parent-child relationships, and scope lifetime boundaries for Kernel v2
-- Depends on:
+- 文書 ID: `07_ScopeGraphRuntimeSpec`
+- 状態: Draft
+- 役割: Kernel v2 における runtime scope instance graph、scope identity、scope state、parent-child relationship、scope lifetime boundary を定義する
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md)
-  - 04_DependencyValidationSpec.md
-  - 05_BootManifestAndProfileSpec.md
-- Consumes:
+  - [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md)
+  - [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md)
+- この仕様が消費するもの:
   - ScopeIR
   - ScopeGraphPlan
-  - RuntimeQueryPlan references
-  - LifecyclePlan references
-  - ValueInitPlan references
-  - ServiceGraphPlan references
-  - KernelDebugMap
-- Provides foundation for:
-  - 08_LifecyclePlanSpec.md
-  - 10_ValueSchemaAndStoreSpec.md
-  - 11_DebugMapAndDiagnosticsSpec.md
-  - 12_UnityAuthoringBridgeSpec.md
-  - 13_LegacyCompatBoundarySpec.md
-  - 14_PerformanceBudgetAndRuntimeRulesSpec.md
-  - 15_TestAndValidationSpec.md
+  - RuntimeQueryPlan 参照
+  - LifecyclePlan 参照
+  - ValueInitPlan 参照
+  - ServiceGraphPlan 参照
+  - `KernelDebugMap`
+- この仕様を基盤としている文書:
+  - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
+  - [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md)
+  - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
+  - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
+  - [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md)
+  - [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md)
+  - [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md)
 
-### Ownership
+### 所有範囲
 
-This specification owns runtime scope instance structure.
-It does not own Unity Transform hierarchy operations, entity lifecycle internals, or scene transition algorithms.
+本仕様は runtime scope instance の structure を所有する。
+Unity Transform hierarchy の操作、entity lifecycle の内部、scene transition algorithm は所有しない。
 
-This specification owns:
+本仕様が所有するもの:
 
-- ScopeHandle contract
+- `ScopeHandle` contract
 - runtime scope instance graph
-- runtime parent-child relationships
+- runtime parent-child relationship
 - scope state machine
-- scope creation and destruction contracts
-- attach, detach, and reparent contracts
-- scope lifetime boundaries
-- scene and persistent scope boundary rules
+- scope creation / destruction contract
+- attach / detach / reparent contract
+- scope lifetime boundary
+- scene / persistent scope boundary rule
 - Unity object linkage metadata policy
-- scope-local boundary contracts for ServiceGraph, Lifecycle, ValueStore, and RuntimeQuery
-- pooling and generation invalidation
+- ServiceGraph、Lifecycle、ValueStore、RuntimeQuery に対する scope-local boundary contract
+- pooling と generation invalidation
 - ScopeGraph diagnostics
-- ScopeGraph runtime performance rules
-- threading rules for scope structural mutation
+- ScopeGraph runtime performance rule
+- scope structural mutation に対する threading rule
 
-This specification does not own:
+本仕様が所有しないもの:
 
-- final Unity authoring component schema
-- final Transform reparent implementation
-- entity or part lifecycle internals
+- 最終的な Unity authoring component schema
+- 最終的な Transform reparent implementation
+- entity / part lifecycle の内部
 - ServiceGraph cache implementation
-- LifecycleDispatcher step execution algorithm
+- LifecycleDispatcher の step execution algorithm
 - ValueStore storage layout
 - RuntimeQuery index storage
 - scene transition algorithm
-- loading screen visual behavior
+- loading screen の見た目
 
 ---
 
-## Purpose
+## 目的
 
-This specification defines ScopeGraph, the runtime authority for scope instances in Kernel v2.
+本仕様は、Kernel v2 における scope instance の runtime authority として ScopeGraph を定義する。
 
-ScopeGraph consumes verified scope plans and manages runtime scope identity, parent-child relationships, state transitions, lifetime boundaries, and Unity object linkage metadata.
+ScopeGraph は verified scope plan を消費し、runtime scope identity、parent-child relationship、state transition、lifetime boundary、Unity object linkage metadata を管理する。
 
-ScopeGraph exists to remove Transform-hierarchy inference, scene-wide discovery, and scope-build side effects from runtime structure management.
+ScopeGraph は、Transform hierarchy からの推測、scene-wide discovery、scope-build side effect を runtime structure management から取り除くために存在する。
 
-ScopeGraph does not discover scope structure.
-ScopeGraph executes verified scope structure.
+ScopeGraph は scope structure を discovery しない。
+verified scope structure を実行する。
 
-The core statement of 07 is:
+07 の中心文は次である。
 
 ```text
-ScopeGraph owns runtime scope structure.
-Unity hierarchy only links to it; it does not define it.
+ScopeGraph が runtime scope structure を所有する。
+Unity hierarchy はそれにつながるだけで、定義はしない。
 ```
 
 ---
 
-## Scope
+## 範囲
 
-This specification defines:
+本仕様は次を定義する。
 
-- ScopeGraph runtime responsibility
+- ScopeGraph の runtime responsibility
 - ScopeGraphPlan input contract
-- ScopeAuthoringId, ScopePlanId, ScopeHandle, and UnityObjectLink distinction
+- `ScopeAuthoringId`、`ScopePlanId`、`ScopeHandle`、`UnityObjectLink` の区別
 - runtime scope instance model
 - parent-child relationship model
 - scope state model
-- scope creation and destruction contracts
-- attach, detach, and reparent contracts
+- scope creation / destruction contract
+- attach / detach / reparent contract
 - scene boundary policy
 - persistent scope policy
 - Unity object linkage policy
@@ -103,137 +103,126 @@ This specification defines:
 - scope-local Lifecycle boundary
 - scope-local ValueStore boundary
 - RuntimeQuery boundary
-- pooling and generation invalidation
+- pooling と generation invalidation
 - ScopeGraph diagnostics
 - ScopeGraph failure policy
-- ScopeGraph performance constraints
-- ScopeGraph threading rules
-- ScopeGraph test case model and required tests
+- ScopeGraph performance constraint
+- ScopeGraph threading rule
+- ScopeGraph test case model と required test
 
 ---
 
-## Non-Goals
+## 非目標
 
-This specification does not define:
+本仕様は次を定義しない。
 
-- final Unity authoring component schema
-- final Transform reparent implementation
-- entity or part lifecycle internals
+- 最終的な Unity authoring component schema
+- 最終的な Transform reparent implementation
+- entity / part lifecycle の内部
 - ServiceGraph cache implementation
-- LifecycleDispatcher step execution algorithm
+- LifecycleDispatcher の step execution algorithm
 - ValueStore storage layout
 - RuntimeQuery index storage
 - scene transition algorithm
-- loading screen visual behavior
+- loading screen の見た目
 
-This specification must not become a generic hierarchy service specification.
+本仕様は、generic hierarchy service specification になってはならない。
 
 ---
 
-## Relationship to Other Specs
+## 他仕様との関係
 
-| Spec | Relationship |
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines that Transform hierarchy is not kernel truth and runtime discovery is forbidden |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines ScopeIR, ScopeAuthoringId, ScopePlanId, and the rule that ScopeHandle does not exist in KernelIR |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Defines ScopeContribution as declarative input for scope ownership, parent constraints, and attachment rules |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Produces ScopeGraphPlan and RuntimeQueryPlan as verified generation outputs |
-| 04_DependencyValidationSpec.md | Validates scope parent, owner, dependency, and boundary correctness before runtime use |
-| 05_BootManifestAndProfileSpec.md | Defines boot-created root scopes and persistent boot boundary |
-| 06_ServiceGraphRuntimeSpec.md | Defines service runtime; 07 owns only the scope-local service lifetime boundary |
-| 08_LifecyclePlanSpec.md | Defines lifecycle steps; 07 provides scope state boundaries and lifecycle request points |
-| 10_ValueSchemaAndStoreSpec.md | Defines ValueStore; 07 owns only the scope-local lifetime boundary |
-| 11_DebugMapAndDiagnosticsSpec.md | Owns the shared structured diagnostics substrate and DebugMap runtime contract; 07 defines required scope runtime provenance fields and failure behavior. |
-| 12_UnityAuthoringBridgeSpec.md | Defines Unity authoring bridge and object linkage details |
-| 13_LegacyCompatBoundarySpec.md | Defines legacy LifetimeScope compatibility boundary |
-| 14_PerformanceBudgetAndRuntimeRulesSpec.md | Defines performance budgets for ScopeGraph operations |
-| 15_TestAndValidationSpec.md | Defines executable validation of scope runtime behavior |
-
-07 consumes verified scope structure.
-It must not derive scope structure from Transform hierarchy, scene search, or service registration.
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Transform hierarchy は kernel truth ではなく、runtime discovery は禁止される |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | ScopeIR、ScopeAuthoringId、ScopePlanId、そして `ScopeHandle` が KernelIR に存在しないという rule を定義する |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | scope ownership、parent constraint、attachment rule の宣言的 input として ScopeContribution を定義する |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | verified generation output として ScopeGraphPlan と RuntimeQueryPlan を生成する |
+| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | scope dependency を事前検証する |
+| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | verified boot root intent を与える |
+| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | lifecycle step ordering と step execution を定義する |
+| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | value schema / store / init の boundary を定義する |
+| [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | debug / diagnostics の共通基盤を定義する |
+| [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md) | Unity authoring bridge を定義する |
+| [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) | legacy boundary を定義する |
+| [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | performance budget を定義する |
+| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | test と CI gate を定義する |
 
 ---
 
-## Assembly Definition and Compile Boundary Expectations
+## Assembly Definition と Compile Boundary の期待値
 
-The intended assembly home for this subsystem is `GameLib.Kernel.ScopeGraph`.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+ScopeGraph の想定配置先は `GameLib.Kernel.Scopes` である。
+詳細な dependency matrix は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が管理する。
 
-Required compile-boundary rules for 07:
+07 に対する必須の compile-boundary ルール:
 
-- `GameLib.Kernel.ScopeGraph` must remain separate from Unity authoring assemblies, feature leaves, and legacy scope implementations
-- ScopeGraph core should depend only on lower kernel assemblies such as Foundation, Diagnostics, Abstractions, and Runtime
-- Transform hierarchy helpers, scene object ownership inference, and MonoBehaviour authoring utilities must stay outside the ScopeGraph assembly
-- runtime scope truth must not be reconstructed by reaching back into ServiceGraph, feature installers, or legacy LifetimeScope code
-
-If explicit scope runtime cannot compile without Unity hierarchy truth or legacy scope back-references, the 07 boundary has been violated.
+- `GameLib.Kernel.Scopes` は Unity Transform 操作、entity lifecycle 実装、scene transition algorithm から分離する
+- core assembly は Unity 非依存のまま維持し、`noEngineReferences: true` を使うべきである
+- scope structural mutation の runtime truth は explicit plan から来なければならない
+- Transform-based nearest scope search を permanent mechanism として再導入してはならない
 
 ---
 
-## Current Runtime Observations
+## 現行の Runtime 観測
 
-### Observation Traceability
+現行の runtime 観測は、source code、migration note、profiling evidence に遡れなければならない。
 
-Current runtime scope observations must remain traceable to source code, profiling evidence, validation reports, or migration notes.
+### 観測のトレーサビリティ
 
-When this document is updated, observations that no longer match the current codebase must be removed or moved to legacy migration notes.
-
-| Observation | Evidence Type | Expected Downstream Spec |
+| 観測 | 根拠の種類 | Scope 圧力 |
 |---|---|---|
-| Parent scope is resolved by Transform parent walk and kind constraint | Source | 07 |
-| Feature installation depends on subtree discovery and nearest-scope ownership filtering | Source / Profiling | 07, 08, 14 |
-| Scope build mixes resolver construction, feature installation, acquire, and registry wiring | Source | 07, 08 |
-| Scope lookup uses kind/id/category registry matching rather than verified runtime scope graph data | Source | 07 |
-| Pooling exists, but generation-safe runtime handles are not the explicit authority contract | Source | 07, 14 |
-| Component fallback resolution leaks hierarchy discovery back into runtime scope-related behavior | Source | 06, 07 |
+| project root creation が `BeforeSceneLoad` singleton discovery に結びついている | Source | 05, 07 |
+| global root creation が project-root auto-creation、scene search、resource fallback に結びついている | Source | 05, 07, 13 |
+| loading presentation boot が `SceneLifetimeScope` instance を scan し、duplicate cleanup を行っている | Source | 05, 07 |
+| loading presentation の parent 選択が runtime で Global / Platform / Project root を探している | Source | 05, 07 |
+| boot repair が `Resources.Load` や `new GameObject` fallback で起こりうる | Source | 05, 13 |
+| persistent root が verified boot entry contract の外側で `DontDestroyOnLoad` singleton 挙動を使っている | Source | 05, 07 |
 
-### Representative Anchors
+### 代表的なアンカー
 
-- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - current scope build, parent resolution, acquire/release flow
-- [IScopeNode.cs](../../GameLib/Script/Common/LTS/Core/IScopeNode.cs) - current scope interface and lifecycle handler boundary
-- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) - current subtree discovery and nearest-scope ownership filtering
-- [ScopeBuildCoordinator.cs](../../GameLib/Script/Common/LTS/Core/ScopeBuildCoordinator.cs) - parent-before-child build coordination seed
-- [ScopeNodeHierarchy.cs](../../GameLib/Script/Common/LTS/Core/ScopeNodeHierarchy.cs) - explicit parent/child table seed
-- [LTSIdentityMB.cs](../../GameLib/Script/Common/LTS/Identity/MB/LTSIdentityMB.cs) - current kind/id/category metadata and kind inference behavior
-- [LTSIdentityService.cs](../../GameLib/Script/Common/LTS/Identity/Core/LTSIdentityService.cs) - identity and registry coupling
-- [BaseLifetimeScopeRegistry.cs](../../GameLib/Script/Common/LTS/Registry/BaseLifetimeScopeRegistry.cs) - current kind/id/category scope lookup mechanism
-- [RuntimeLifetimeScopePool.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScopePool.cs) - pooling seed and slot reuse constraints
-- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - component fallback resolution anti-pattern at scope boundary
+- [ProjectLifetimeScope.cs](../../GameLib/Script/Project/LTS/ProjectLifetimeScope.cs) - `BeforeSceneLoad` boot entry、scene-wide root search、resource fallback、default `GameObject` creation
+- [GlobalLifetimeScope.cs](../../GameLib/Script/Project/Global/LTS/GlobalLifetimeScope.cs) - project-first boot coupling、global root search、resource fallback、default `GameObject` creation
+- [LoadingScreenService.cs](../../GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs) - loading scope discovery、duplicate cleanup、persistent parent search
 
-### Current Gaps
+### 現行の不足点
 
-- runtime scope parentage is still inferred from Transform hierarchy
-- scope build still depends on runtime subtree discovery
-- runtime scope identity, plan identity, and authoring identity are not fully separated at the contract level
-- pooling and slot reuse are not expressed as generation-safe runtime handle rules
-- scope lookup and runtime query semantics are still mixed with registry-style matching
-- runtime scope state and lifecycle boundaries are not yet defined as one explicit runtime contract
+現行コードベースには、07 が target architecture から取り除くべき boot 挙動がまだ残っている。
+
+- boot truth が runtime startup 中の scene state から推測されている
+- missing boot root が fallback prefab load や default object creation で修復できる
+- loading presentation が scene search と persistent-parent search に依存している
+- duplicate root を rejection ではなく cleanup で処理できる
+- boot input acceptance が 1 つの verified artifact set と 1 つの selected profile を中心に centralize されていない
 
 ---
 
 ## Core Problem
 
-Legacy scope architecture mixes multiple responsibilities:
+現行 runtime は、Transform hierarchy と runtime scope truth を混同している。
 
-- scope ownership inferred from Transform hierarchy
-- feature ownership inferred by nearest scope search
-- scope build, service registration, lifecycle wiring, and acquire mixed together
-- Unity object hierarchy treated as runtime kernel truth
-- runtime fallback used when scope structure is missing
-- pooling and reuse risks stale references if generation safety is not enforced
+ScopeGraph が解くべき主要問題:
 
-Target ScopeGraph must separate these responsibilities.
-Transform hierarchy remains an observation link only.
+- runtime scope の identity を explicit に持つ
+- parent-child relation を verified plan によって定義する
+- state transition を explicit に持つ
+- scene boundary と persistent boundary を明示する
+- Unity object linkage を trace metadata として保持する
+- scope mutation を deterministic にする
+- scope failure を structured にする
+
+ScopeGraph が修正すべきなのは、単なる「親を見つける方法」ではない。
+runtime scope structure の truth source を Transform から verified scope plan へ移すことである。
 
 ---
 
 ## ScopeGraph Runtime Definition
 
-ScopeGraph is the runtime owner of scope instances.
+ScopeGraph は runtime scope instance の authority である。
 
-ScopeGraph owns:
+ScopeGraph が所有するもの:
 
-- ScopeHandle issuance
+- `ScopeHandle` issuance
 - runtime scope instance table
 - parent-child relationship table
 - scope state
@@ -242,7 +231,7 @@ ScopeGraph owns:
 - Unity object linkage metadata
 - scope diagnostics
 
-ScopeGraph does not own:
+ScopeGraph が所有しないもの:
 
 - service construction
 - lifecycle step execution
@@ -251,69 +240,68 @@ ScopeGraph does not own:
 - runtime query index implementation
 - Transform hierarchy mutation
 
-ScopeGraph is the runtime authority for scope instances.
-It owns runtime scope identity, parent-child relationships, state, lifetime boundary, and Unity object linkage metadata.
-It must not infer scope structure from Transform hierarchy.
+ScopeGraph は runtime scope identity、parent-child relationship、state、lifetime boundary、Unity object linkage metadata の authority である。
+Transform hierarchy から scope structure を推測してはならない。
 
 ---
 
 ## ScopeGraphPlan Input Contract
 
-ScopeGraph may be created only from a verified ScopeGraphPlan.
+ScopeGraph は、verified ScopeGraphPlan からのみ生成できる。
 
-A valid ScopeGraphPlan must provide at least:
+有効な ScopeGraphPlan には少なくとも次が必要である。
 
-- ScopePlanId set
-- ScopeKind per scope plan
-- allowed parent rules
-- required root scope definitions
-- required service graph references
-- required value init plan references
-- lifecycle plan references
-- RuntimeQueryPlan references required for scope events or indexing
-- source and DebugMap references
-- artifact header and verified artifact set metadata
+- ScopePlanId の set
+- scope plan ごとの ScopeKind
+- allowed parent rule
+- required root scope definition
+- required service graph reference
+- required value init plan reference
+- lifecycle plan reference
+- scope event または indexing に必要な RuntimeQueryPlan reference
+- source / DebugMap reference
+- artifact header と verified artifact set metadata
 
-ScopeGraph must not accept ad-hoc runtime scope type registration.
-It must not reconstruct missing scope plans from scene objects, prefabs, or components.
+ScopeGraph は ad-hoc な runtime scope type registration を受け付けてはならない。
+scene object、prefab、component から不足した scope plan を再構成してはならない。
 
 ---
 
 ## Scope Identity Model
 
-ScopeGraph distinguishes four identity layers:
+ScopeGraph は 4 つの identity layer を区別する。
 
-- ScopeAuthoringId
-- ScopePlanId
-- ScopeHandle
-- UnityObjectLink
+- `ScopeAuthoringId`
+- `ScopePlanId`
+- `ScopeHandle`
+- `UnityObjectLink`
 
-Their meanings are fixed:
+それぞれの意味は固定されている。
 
-- ScopeAuthoringId identifies authored source
-- ScopePlanId identifies a verified normalized scope definition
-- ScopeHandle identifies a live runtime scope instance
-- UnityObjectLink preserves traceability to Unity objects and authoring context
+- `ScopeAuthoringId` は authoring source を識別する
+- `ScopePlanId` は verified された正規化済み scope definition を識別する
+- `ScopeHandle` は live runtime scope instance を識別する
+- `UnityObjectLink` は Unity object と authoring context への traceability を保持する
 
-ScopeAuthoringId and ScopePlanId are not runtime instance handles.
-ScopeHandle is not an authoring identifier.
-UnityObjectLink is metadata, not identity.
+`ScopeAuthoringId` と `ScopePlanId` は runtime instance handle ではない。
+`ScopeHandle` は authoring identifier ではない。
+`UnityObjectLink` は identity ではなく metadata である。
 
-Forbidden:
+禁止:
 
-- using ScopeAuthoringId as a live runtime handle
-- using ScopePlanId as a pooled runtime slot identifier
-- storing ScopeHandle inside KernelIR
-- generating ScopePlanId at runtime as fallback
-- using Unity object reference as kernel scope identity
+- `ScopeAuthoringId` を live runtime handle として使うこと
+- `ScopePlanId` を pooled runtime slot identifier として使うこと
+- `ScopeHandle` を KernelIR に保存すること
+- runtime で fallback として `ScopePlanId` を生成すること
+- Unity object reference を kernel scope identity として使うこと
 
 ---
 
 ## ScopeHandle Model
 
-ScopeHandle must be generation-safe.
+`ScopeHandle` は generation-safe でなければならない。
 
-An explanatory sketch is:
+説明用スケッチ:
 
 ```csharp
 public readonly struct ScopeHandle
@@ -323,49 +311,49 @@ public readonly struct ScopeHandle
 }
 ```
 
-This sketch is explanatory only and does not finalize the runtime API.
+このスケッチは説明用であり、runtime API を最終確定するものではない。
 
-ScopeGraph must validate:
+ScopeGraph は次を検証しなければならない。
 
 - index range
 - generation match
-- target scope is not Destroyed
-- requested operation is allowed for the current state
+- target scope が Destroyed ではないこと
+- current state に対して requested operation が許可されること
 
-A stale ScopeHandle must not resolve to a reused scope slot.
-A destroyed scope slot reused from pool must increment generation.
+stale な `ScopeHandle` が再利用された scope slot を指してはならない。
+pool から再利用された destroyed scope slot は generation を増やさなければならない。
 
 ---
 
 ## Scope Instance Model
 
-A runtime scope instance must contain or reference at least:
+runtime scope instance は少なくとも次を含む、または参照する必要がある。
 
-- ScopeHandle
-- ScopePlanId
-- ScopeAuthoringId if authored
-- ScopeKind
-- parent ScopeHandle or explicit root marker
-- child list or child index range
+- `ScopeHandle`
+- `ScopePlanId`
+- authored なら `ScopeAuthoringId`
+- `ScopeKind`
+- parent `ScopeHandle` または explicit root marker
+- child list または child index range
 - state
 - generation
 - owner runtime domain
 - Unity object link metadata
-- ServiceGraph reference if the scope owns services
-- ValueStore reference if the scope owns values
-- Lifecycle state or boundary reference
-- DebugMap or diagnostics reference
+- scope が service を所有する場合の ServiceGraph reference
+- scope が values を所有する場合の ValueStore reference
+- lifecycle state または boundary reference
+- DebugMap または diagnostics reference
 
-Runtime scope instance must not treat a MonoBehaviour instance as identity.
-Unity object linkage is trace metadata, not kernel identity.
+runtime scope instance は MonoBehaviour instance を identity として扱ってはならない。
+Unity object linkage は trace metadata であり、kernel identity ではない。
 
 ---
 
 ## Scope State Model
 
-ScopeGraph must model runtime scope state explicitly.
+ScopeGraph は runtime scope state を explicit にモデル化しなければならない。
 
-An explanatory sketch is:
+説明用スケッチ:
 
 ```csharp
 public enum ScopeRuntimeState
@@ -383,7 +371,7 @@ public enum ScopeRuntimeState
 }
 ```
 
-Representative transition flow:
+代表的な transition flow:
 
 ```text
 None
@@ -397,52 +385,52 @@ None
   -> Destroyed
 ```
 
-07 fixes the requirement that scope state is explicit.
-08 defines lifecycle step ordering details.
+07 は scope state が explicit であることを固定する。
+08 は lifecycle step ordering の詳細を定義する。
 
-Scope state must not be represented only by multiple independent bool flags.
-Invalid state transitions must produce structured diagnostics.
+scope state は、複数の独立した bool flag だけで表現してはならない。
+invalid state transition は structured diagnostics を生む必要がある。
 
 ---
 
 ## Scope Parent / Child Model
 
-Scope parent-child relationships are explicit runtime data.
+scope の parent-child relationship は explicit な runtime data である。
 
-A child scope must have either:
+child scope は次のどちらかを持たなければならない。
 
-- a valid parent ScopeHandle
-- an explicit root marker allowed by ScopeGraphPlan
+- valid な parent `ScopeHandle`
+- ScopeGraphPlan で許可された explicit root marker
 
-Parent-child relationships must not be inferred from Transform.parent.
+parent-child relationship は Transform.parent から推測してはならない。
 
-ScopeGraph must support efficient child enumeration without whole-graph scanning.
+ScopeGraph は、whole-graph scanning を行わずに効率的な child enumeration をサポートしなければならない。
 
-Required invariants include:
+必要な invariant:
 
-- parent exists unless the scope is a verified root
-- parent generation matches
-- no parent cycle exists
-- child belongs to exactly one parent at a time
-- destroyed scope cannot be parent
-- scene boundary rules are respected
+- verified root でない限り parent が存在する
+- parent の generation が一致する
+- parent cycle が存在しない
+- child は一度に 1 つの parent にのみ属する
+- destroyed scope は parent になれない
+- scene boundary rule が守られる
 
 ---
 
 ## Scope Creation Contract
 
-Scope creation requires an explicit request.
+scope creation には explicit request が必要である。
 
-A valid ScopeCreateRequest must include at least:
+有効な `ScopeCreateRequest` には少なくとも次が必要である。
 
-- ScopePlanId
-- parent ScopeHandle or explicit root marker
+- `ScopePlanId`
+- parent `ScopeHandle` または explicit root marker
 - runtime domain
-- optional Unity object link
+- 必要なら Unity object link
 - creation policy
-- source context for diagnostics
+- diagnostics 用 source context
 
-An explanatory sketch is:
+説明用スケッチ:
 
 ```csharp
 public readonly struct ScopeCreateRequest
@@ -455,80 +443,80 @@ public readonly struct ScopeCreateRequest
 }
 ```
 
-ScopeGraph must not create a missing parent scope automatically.
-ScopeGraph must not search the scene to find an owner scope.
+ScopeGraph は missing parent scope を自動生成してはならない。
+scene を検索して owner scope を見つけてはならない。
 
 ---
 
 ## Scope Destruction Contract
 
-Scope destruction must be deterministic.
+scope destruction は決定論的でなければならない。
 
-Destruction must define:
+破棄は次を定義しなければならない。
 
 - child destruction order
 - lifecycle release boundary
 - service graph disposal boundary
-- value store disposal or persistence boundary
+- value store disposal または persistence boundary
 - runtime query invalidation boundary
 - Unity link cleanup behavior
 - generation invalidation
 
-Default expectation:
+既定の流れ:
 
 ```text
 destroy parent scope
-  -> destroy or detach children according to explicit policy
-  -> request lifecycle release boundary
-  -> dispose or release scope-local services
-  -> dispose, persist, or reset scope-local values according to policy
-  -> invalidate runtime query source state
-  -> invalidate ScopeHandle generation
+  -> explicit policy に従って children を destroy または detach
+  -> lifecycle release boundary を request
+  -> scope-local services を dispose または release
+  -> policy に従って scope-local values を dispose / persist / reset
+  -> runtime query source state を invalidate
+  -> ScopeHandle generation を invalidate
 ```
 
-07 requires the destruction order to be explicit.
-08 and 10 own the detailed lifecycle and value semantics at their boundaries.
+07 は destruction order を explicit にすることを求める。
+08 と 10 が、それぞれの boundary で詳細な lifecycle と value semantics を所有する。
 
 ---
 
 ## Attach / Detach / Reparent Contract
 
-ScopeGraph reparent changes kernel parent-child relationship.
-It does not directly imply Unity Transform reparent unless a lower specification defines a bridge operation.
+ScopeGraph の reparent は kernel の parent-child relationship を変える。
+ただし、下位仕様が bridge operation を定義しない限り、Unity Transform reparent を直接意味しない。
 
-A reparent operation must validate:
+reparent operation は次を検証しなければならない。
 
-- child exists
-- new parent exists
-- no cycle is introduced
-- scope kind parent rule allows the relationship
-- scene boundary rules allow the move
-- lifecycle state permits the operation
+- child が存在する
+- 新しい parent が存在する
+- cycle を導入しない
+- scope kind の parent rule がこの relation を許可する
+- scene boundary rule がこの move を許可する
+- lifecycle state が operation を許可する
 
-Transform.SetParent must not be the source of ScopeGraph reparent.
+`Transform.SetParent` は ScopeGraph reparent の source ではない。
 
-Detach removes kernel parent-child relationship.
-It must define whether the child becomes a verified root, a suspended scope, or an invalid operation.
+Detach は kernel parent-child relationship を削除する。
+その結果 child が verified root になるのか、suspended scope になるのか、invalid operation になるのかを定義しなければならない。
 
 ---
 
 ## Scene Boundary Policy
 
-ScopeGraph must define scene domain boundaries.
+ScopeGraph は scene domain boundary を定義しなければならない。
 
-Scene-local scopes must not outlive their scene domain unless explicitly promoted through a verified persistent policy.
+scene-local scope は、explicit な persistent policy で昇格されない限り、自分の scene domain より長生きしてはならない。
 
-Persistent scopes must not hold required direct references to scene-local scopes across unload unless represented by a verified weak handle, RuntimeQuery, or scene transition policy.
+persistent scope は、verified weak handle、RuntimeQuery、または scene transition policy で表現されない限り、unload をまたいで scene-local scope への required direct reference を持ってはならない。
 
-Scene unload must invalidate scene-local scope handles unless an explicit verified policy preserves or remaps them.
+scene unload は、explicit verified policy がそれらを保持または remap しない限り、scene-local scope handle を invalid にしなければならない。
 
 ---
 
 ## Persistent Scope Policy
 
-Persistent root scopes are created from verified boot inputs.
+persistent root scope は verified boot input から作られる。
 
-Examples include:
+例:
 
 - application root
 - project root
@@ -536,19 +524,19 @@ Examples include:
 - persistent presentation root
 - loading presentation root
 
-Duplicate persistent roots are errors.
-They must not be resolved by keeping one and destroying the rest at runtime.
+duplicate persistent root は error である。
+runtime で 1 つを残して残りを消すことで解決してはならない。
 
-07 consumes verified boot root intent from 05.
-It does not invent persistent roots on its own.
+07 は 05 から verified boot root intent を受け取る。
+独自に persistent root を発明してはならない。
 
 ---
 
 ## Unity Object Linkage Policy
 
-Unity object linkage preserves traceability between runtime scope and Unity objects.
+Unity object linkage は runtime scope と Unity object の traceability を保つ。
 
-Unity object link may contain:
+Unity object link には次を含めてよい。
 
 - GameObject reference
 - Transform reference
@@ -557,62 +545,62 @@ Unity object link may contain:
 - scene path
 - prefab instance metadata
 
-Unity object link is not scope identity.
+Unity object link は scope identity ではない。
 
-If a linked Unity object is destroyed, ScopeGraph must not silently use Unity fake-null behavior as structure truth.
+linked Unity object が破棄されても、ScopeGraph は Unity の fake-null 挙動を structure truth として silently 使ってはならない。
 
-The link must become invalid, and diagnostics or lifecycle policy must decide whether the scope is destroyed, detached, or marked invalid.
+link は invalid になり、diagnostics または lifecycle policy が scope を destroy するか、detach するか、invalid とマークするかを決める必要がある。
 
-ScopeGraph must not reconstruct parent-child relationship from Unity link.
+ScopeGraph は Unity link から parent-child relationship を再構成してはならない。
 
 ---
 
 ## ServiceGraph Boundary
 
-ScopeGraph may own or reference scope-local ServiceGraph instances.
+ScopeGraph は scope-local な ServiceGraph instance を所有または参照できる。
 
-ScopeGraph is responsible for creating and destroying the service lifetime boundary for a scope.
-ServiceGraph is responsible for service resolution inside that boundary.
+ScopeGraph は scope の service lifetime boundary を作成・破棄する責務を持つ。
+ServiceGraph はその boundary 内の service resolution を担当する。
 
-ServiceGraph must not decide scope parent-child structure.
-ScopeGraph must not perform service construction internally except through ServiceGraph boundary APIs.
+ServiceGraph は scope parent-child structure を決めてはならない。
+ScopeGraph は ServiceGraph boundary API を通さずに service construction を内部で行ってはならない。
 
 ---
 
 ## Lifecycle Boundary
 
-ScopeGraph owns scope state.
-LifecyclePlan owns lifecycle steps.
+ScopeGraph は scope state を所有する。
+LifecyclePlan は lifecycle step を所有する。
 
-ScopeGraph may request lifecycle execution at scope state boundaries.
+ScopeGraph は scope state boundary で lifecycle execution を request してよい。
 
-Examples include:
+例:
 
-- on scope acquire
-- on scope release
-- on scope destroy
-- on scope reset
+- scope acquire 時
+- scope release 時
+- scope destroy 時
+- scope reset 時
 
-ScopeGraph must not discover lifecycle handlers by scanning services or components.
+ScopeGraph は service や component を scan して lifecycle handler を発見してはならない。
 
 ---
 
 ## ValueStore Boundary
 
-ScopeGraph may own the lifetime of scope-local ValueStore instances.
+ScopeGraph は scope-local ValueStore instance の lifetime を所有してよい。
 
-ValueStore initialization must be performed from verified ValueInitPlan references.
-ScopeGraph must not directly interpret stable value strings or dynamic value expressions.
+ValueStore initialization は verified `ValueInitPlan` reference から行わなければならない。
+ScopeGraph は stable value string や dynamic value expression を直接解釈してはならない。
 
-ScopeGraph must not become Blackboard.
+ScopeGraph は Blackboard になってはならない。
 
 ---
 
 ## RuntimeQuery Boundary
 
-RuntimeQuery systems may index scope instances.
+RuntimeQuery system は scope instance を index してよい。
 
-ScopeGraph must provide explicit events or change records for:
+ScopeGraph は次のための explicit event または change record を提供しなければならない。
 
 - scope created
 - scope destroyed
@@ -620,74 +608,74 @@ ScopeGraph must provide explicit events or change records for:
 - scope state changed
 - Unity link changed
 
-RuntimeQuery owns query indexes.
-ScopeGraph owns source events.
+RuntimeQuery は query index を所有する。
+ScopeGraph は source event を所有する。
 
-ScopeGraph must not become a generic runtime query API for all gameplay lookups.
+ScopeGraph は、すべての gameplay lookup に対する generic runtime query API になってはならない。
 
 ---
 
-## Pooling and Generation Policy
+## Pooling と Generation Policy
 
-ScopeGraph may reuse internal slots.
+ScopeGraph は内部 slot を再利用してよい。
 
-Slot reuse must increment generation.
-A stale ScopeHandle must fail validation.
+slot reuse は generation を増やさなければならない。
+stale な `ScopeHandle` は validation に失敗しなければならない。
 
-Pool reset must define:
+pool reset は次を定義しなければならない。
 
 - state reset
-- parent and child cleanup
+- parent / child cleanup
 - service boundary cleanup
 - value boundary cleanup
 - lifecycle state cleanup
 - runtime query invalidation
 - Unity link cleanup
 
-Pooled scope reuse must never preserve previous owner, parent, services, values, or Unity link unless explicitly defined by reset policy.
+pool から再利用された scope は、reset policy が explicit に定義しない限り、以前の owner、parent、service、value、Unity link を残してはならない。
 
 ---
 
-## Diagnostics and DebugMap Requirements
+## Diagnostics と DebugMap 要件
 
-ScopeGraph diagnostics must include at least:
+ScopeGraph diagnostics には少なくとも次を含める。
 
 - error code
-- ScopeHandle if available
-- ScopePlanId
-- ScopeAuthoringId if available
-- ScopeKind
-- parent ScopeHandle if relevant
+- `ScopeHandle`（利用可能なら）
+- `ScopePlanId`
+- `ScopeAuthoringId`（利用可能なら）
+- `ScopeKind`
+- parent `ScopeHandle`（関係するなら）
 - current state
 - owner module
 - source location
-- Unity object link if available
+- Unity object link（利用可能なら）
 - selected profile
 
-Representative error codes include:
+代表的 error code:
 
-- SCOPE_MISSING
-- SCOPE_STALE_HANDLE
-- SCOPE_INVALID_GENERATION
-- SCOPE_PARENT_MISSING
-- SCOPE_PARENT_KIND_INVALID
-- SCOPE_PARENT_CYCLE
-- SCOPE_INVALID_STATE_TRANSITION
-- SCOPE_SCENE_BOUNDARY_VIOLATION
-- SCOPE_UNITY_LINK_DESTROYED
-- SCOPE_DUPLICATE_PERSISTENT_ROOT
+- `SCOPE_MISSING`
+- `SCOPE_STALE_HANDLE`
+- `SCOPE_INVALID_GENERATION`
+- `SCOPE_PARENT_MISSING`
+- `SCOPE_PARENT_KIND_INVALID`
+- `SCOPE_PARENT_CYCLE`
+- `SCOPE_INVALID_STATE_TRANSITION`
+- `SCOPE_SCENE_BOUNDARY_VIOLATION`
+- `SCOPE_UNITY_LINK_DESTROYED`
+- `SCOPE_DUPLICATE_PERSISTENT_ROOT`
 
-DebugMap and runtime mappings together must make a scope failure human-readable.
-DebugMap resolves plan and authoring identity.
-ScopeGraph runtime state resolves live ScopeHandle context.
+DebugMap と runtime mapping を合わせることで、scope failure は human-readable になる必要がある。
+DebugMap は plan と authoring identity を解決する。
+ScopeGraph runtime state は live `ScopeHandle` context を解決する。
 
 ---
 
 ## Failure Policy
 
-ScopeGraph must not fallback when a required scope relationship is invalid.
+required scope relationship が invalid な場合、ScopeGraph は fallback してはならない。
 
-Failure categories include:
+failure category:
 
 - MissingParent
 - StaleHandle
@@ -700,69 +688,69 @@ Failure categories include:
 - UnityLinkInvalid
 - ArtifactMismatch
 
-Failure boundary depends on the operation:
+failure boundary は operation に依存する。
 
 - boot root scope failure: boot failure
 - scene root failure: scene kernel failure
-- scope-local operation failure: operation failure or scope failure
+- scope-local operation failure: operation failure または scope failure
 - stale handle: operation failure
-- parent cycle: operation failure with diagnostics error
+- parent cycle: diagnostics error を伴う operation failure
 
-A failure must not continue through silent fallback.
+failure は silent fallback を通して続行してはならない。
 
 ---
 
 ## Performance Policy
 
-ScopeGraph is a runtime hot path.
+ScopeGraph は runtime hot path である。
 
-Target requirements:
+target requirements:
 
-- handle validation should be O(1)
-- parent lookup should be O(1)
-- child add and remove should be bounded and allocation-conscious
-- no scene-wide search in normal operations
-- no Transform traversal for parent inference
-- no component traversal for owner inference
-- no LINQ in hot paths
-- no allocation in the common handle validation path
+- handle validation は O(1)
+- parent lookup は O(1)
+- child add / remove は bounded かつ allocation-conscious
+- normal operation で scene-wide search をしない
+- parent inference のために Transform traversal をしない
+- owner inference のために component traversal をしない
+- hot path で LINQ を使わない
+- common handle validation path で allocation をしない
 
-Representative profiler markers include:
+代表的 profiler marker:
 
-- ScopeGraph.CreateScope
-- ScopeGraph.DestroyScope
-- ScopeGraph.ValidateHandle
-- ScopeGraph.Reparent
-- ScopeGraph.SetState
-- ScopeGraph.NotifyQuery
+- `ScopeGraph.CreateScope`
+- `ScopeGraph.DestroyScope`
+- `ScopeGraph.ValidateHandle`
+- `ScopeGraph.Reparent`
+- `ScopeGraph.SetState`
+- `ScopeGraph.NotifyQuery`
 
 ---
 
-## Threading and Main Thread Policy
+## Threading と Main Thread Policy
 
-ScopeGraph structural mutations are main-thread operations by default.
+ScopeGraph の structural mutation は既定で main-thread operation である。
 
-Unity object linkage access requires the main thread.
+Unity object linkage access には main thread が必要である。
 
-Read-only handle validation may be allowed outside the main thread only if a lower specification defines synchronization and Unity object access is excluded.
+read-only な handle validation は、下位仕様が synchronization を定義し、Unity object access を除外する場合に限り、main thread 外でも許可されうる。
 
-ScopeGraph must not touch UnityEngine.Object from worker threads unless a lower specification explicitly defines a safe proxy.
+ScopeGraph は、下位仕様が安全な proxy を明示しない限り、worker thread から `UnityEngine.Object` に触ってはならない。
 
 ---
 
 ## Legacy Compatibility Boundary
 
-Legacy LifetimeScope compatibility belongs to 13_LegacyCompatBoundarySpec.md.
+legacy `LifetimeScope` compatibility は [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) に属する。
 
-ScopeGraph core must not depend on:
+ScopeGraph core は次に依存してはならない。
 
-- RuntimeLifetimeScopeBase
-- BaseLifetimeScope
-- IRuntimeResolver
-- legacy ScopeFeatureInstallerUtility
+- `RuntimeLifetimeScopeBase`
+- `BaseLifetimeScope`
+- `IRuntimeResolver`
+- legacy `ScopeFeatureInstallerUtility`
 - Transform-based nearest scope search
 
-Allowed direction is:
+allowed direction:
 
 ```text
 LegacyScopeAdapter -> ScopeGraph: allowed
@@ -773,26 +761,26 @@ ScopeGraph -> LegacyScopeAdapter: forbidden
 
 ## Forbidden Patterns
 
-The following are forbidden in target ScopeGraph runtime:
+target ScopeGraph runtime で禁止されるもの:
 
-- parent inference from Transform.parent
-- scope discovery through FindObjectsByType
-- feature ownership detection through GetComponentsInChildren
-- nearest scope search through component ancestors
-- creating missing parent scope by fallback
-- duplicate root cleanup by keeping first and destroying others
-- using MonoBehaviour instance as scope identity
-- storing runtime ScopeHandle in KernelIR
-- reusing pooled slot without generation increment
-- resolving runtime scope through ServiceResolver
-- using ScopeGraph as generic gameplay object registry
-- silently ignoring stale handles
+- Transform.parent からの parent inference
+- `FindObjectsByType` による scope discovery
+- `GetComponentsInChildren` による feature ownership detection
+- component ancestor からの nearest scope search
+- fallback による missing parent scope creation
+- 最初を残して他を消す duplicate root cleanup
+- MonoBehaviour instance を scope identity として使うこと
+- KernelIR に runtime `ScopeHandle` を保存すること
+- generation を増やさずに pooled slot を再利用すること
+- ServiceResolver を通じて runtime scope を解決すること
+- ScopeGraph を generic gameplay object registry として使うこと
+- stale handle を silently 無視すること
 
 ---
 
 ## Test Case Model
 
-Each ScopeGraph test case must define:
+各 ScopeGraph test case は次を定義しなければならない。
 
 - Test ID
 - Title
@@ -803,257 +791,257 @@ Each ScopeGraph test case must define:
 - expected diagnostics
 - expected state transition
 - expected handle validity
-- expected performance assertion if applicable
+- 必要なら expected performance assertion
 
 ---
 
 ## Required Test Cases
 
-### Identity and Handle Tests
+### Identity と Handle のテスト
 
 #### TC_SCOPE_ID_001_CreateScopeReturnsValidHandle
 
-Expected result:
+期待される結果:
 
-- creating a verified root scope returns a valid ScopeHandle
-- ScopeHandle resolves to the requested ScopePlanId
+- verified root scope の作成は valid な `ScopeHandle` を返す
+- `ScopeHandle` は要求された `ScopePlanId` を解決する
 
 #### TC_SCOPE_ID_002_AuthoringIdIsNotRuntimeHandle
 
-Expected result:
+期待される結果:
 
-- using ScopeAuthoringId as ScopeHandle fails with a domain mismatch diagnostic
+- `ScopeAuthoringId` を `ScopeHandle` として使うと domain mismatch diagnostic で失敗する
 
 #### TC_SCOPE_ID_003_StaleHandleRejected
 
-Expected result:
+期待される結果:
 
-- after slot reuse, the old ScopeHandle is rejected with SCOPE_STALE_HANDLE
+- slot reuse 後、古い `ScopeHandle` は `SCOPE_STALE_HANDLE` で拒否される
 
-### Parent and Child Tests
+### Parent と Child のテスト
 
 #### TC_SCOPE_PARENT_001_CreateChildWithValidParent
 
-Expected result:
+期待される結果:
 
-- child parent equals the provided parent handle
-- parent child set contains the child
+- child の parent は与えられた parent handle と等しい
+- parent の child set に child が含まれる
 
 #### TC_SCOPE_PARENT_002_MissingParentRejected
 
-Expected result:
+期待される結果:
 
-- creating a child with missing parent fails with SCOPE_PARENT_MISSING
+- missing parent で child を作成すると `SCOPE_PARENT_MISSING` で失敗する
 
 #### TC_SCOPE_PARENT_003_InvalidParentKindRejected
 
-Expected result:
+期待される結果:
 
-- invalid parent-kind relationship fails with SCOPE_PARENT_KIND_INVALID
+- invalid parent-kind relationship は `SCOPE_PARENT_KIND_INVALID` で失敗する
 
 #### TC_SCOPE_PARENT_004_ParentCycleRejected
 
-Expected result:
+期待される結果:
 
-- reparent cycle introduction fails with SCOPE_PARENT_CYCLE
+- reparent に cycle を導入すると `SCOPE_PARENT_CYCLE` で失敗する
 
 #### TC_SCOPE_PARENT_005_TransformParentChangeDoesNotChangeScopeParent
 
-Expected result:
+期待される結果:
 
-- changing Unity Transform parent alone does not change ScopeGraph parent data
+- Unity Transform の parent 変更だけでは ScopeGraph の parent data は変わらない
 
-### State Tests
+### State のテスト
 
 #### TC_SCOPE_STATE_001_ValidStateTransition
 
-Expected result:
+期待される結果:
 
-- valid transition sequence Created -> Built -> Active succeeds
+- valid な transition sequence `Created -> Built -> Active` は成功する
 
 #### TC_SCOPE_STATE_002_InvalidStateTransitionRejected
 
-Expected result:
+期待される結果:
 
-- invalid transition Destroyed -> Active fails with SCOPE_INVALID_STATE_TRANSITION
+- invalid transition `Destroyed -> Active` は `SCOPE_INVALID_STATE_TRANSITION` で失敗する
 
 #### TC_SCOPE_STATE_003_DestroyedScopeCannotBeParent
 
-Expected result:
+期待される結果:
 
-- destroyed parent scope cannot accept child creation
+- destroyed parent scope は child creation を受け付けない
 
-### Creation and Destruction Tests
+### Creation と Destruction のテスト
 
 #### TC_SCOPE_CREATE_001_NoSceneSearchDuringCreate
 
-Expected result:
+期待される結果:
 
-- create path performs no FindObjectsByType
-- create path performs no Transform parent traversal for ownership inference
+- create path は `FindObjectsByType` を実行しない
+- create path は ownership inference のために Transform parent traversal を実行しない
 
 #### TC_SCOPE_DESTROY_001_DestroyInvalidatesChildren
 
-Expected result:
+期待される結果:
 
-- parent destruction invalidates or explicitly processes children according to policy
+- parent destruction は policy に従って children を invalid にする、または明示的に処理する
 
 #### TC_SCOPE_DESTROY_002_DestroyDisposesScopeBoundaries
 
-Expected result:
+期待される結果:
 
-- service, value, lifecycle, and query boundaries are cleaned up according to explicit policy
+- service / value / lifecycle / query boundary は explicit policy に従って clean up される
 
-### Reparent Tests
+### Reparent のテスト
 
 #### TC_SCOPE_REPARENT_001_ReparentValidScope
 
-Expected result:
+期待される結果:
 
-- child is removed from ParentA and attached to ParentB after validation passes
+- child は validation 後に ParentA から削除され、ParentB に attach される
 
 #### TC_SCOPE_REPARENT_002_ReparentAcrossInvalidSceneBoundaryRejected
 
-Expected result:
+期待される結果:
 
-- invalid scene-boundary reparent fails with SCOPE_SCENE_BOUNDARY_VIOLATION
+- invalid scene boundary の reparent は `SCOPE_SCENE_BOUNDARY_VIOLATION` で失敗する
 
 #### TC_SCOPE_REPARENT_003_SetParentIsNotScopeReparent
 
-Expected result:
+期待される結果:
 
-- Unity Transform.SetParent does not mutate ScopeGraph relationship without explicit bridge command
+- Unity Transform.SetParent は explicit bridge command なしには ScopeGraph relation を mutate しない
 
-### Persistent Root Tests
+### Persistent Root のテスト
 
 #### TC_SCOPE_ROOT_001_CreateRequiredRootFromBootPlan
 
-Expected result:
+期待される結果:
 
-- required persistent root defined by boot input is created successfully
+- boot input で定義された required persistent root は正常に作成される
 
 #### TC_SCOPE_ROOT_002_DuplicatePersistentRootRejected
 
-Expected result:
+期待される結果:
 
-- duplicate persistent roots fail with SCOPE_DUPLICATE_PERSISTENT_ROOT
+- duplicate persistent root は `SCOPE_DUPLICATE_PERSISTENT_ROOT` で失敗する
 
 #### TC_SCOPE_ROOT_003_NoKeepFirstDestroyRest
 
-Expected result:
+期待される結果:
 
-- duplicate persistent roots do not trigger automatic keep-first cleanup
+- duplicate persistent root は自動 keep-first cleanup を引き起こさない
 
-### Unity Link Tests
+### Unity Link のテスト
 
 #### TC_SCOPE_UNITY_001_UnityLinkIsTraceMetadata
 
-Expected result:
+期待される結果:
 
-- scope identity remains ScopeHandle, not Unity object reference
+- scope identity は Unity object reference ではなく `ScopeHandle` のままである
 
 #### TC_SCOPE_UNITY_002_DestroyedUnityLinkDetected
 
-Expected result:
+期待される結果:
 
-- destroyed linked Unity object invalidates the link and produces explicit policy outcome
+- destroyed linked Unity object は link を invalid にし、explicit な policy outcome を生む
 
 #### TC_SCOPE_UNITY_003_NoParentInferenceFromUnityLink
 
-Expected result:
+期待される結果:
 
-- Unity link Transform parent does not define scope parentage
+- Unity link の Transform parent は scope parentage を定義しない
 
-### Boundary Tests
+### Boundary のテスト
 
 #### TC_SCOPE_BOUNDARY_001_ServiceGraphDoesNotOwnScopeParent
 
-Expected result:
+期待される結果:
 
-- ServiceGraph cannot determine or mutate scope parent-child structure
+- ServiceGraph は scope parent-child structure を決定も変更もできない
 
 #### TC_SCOPE_BOUNDARY_002_ScopeGraphDoesNotExecuteLifecycleDirectly
 
-Expected result:
+期待される結果:
 
-- ScopeGraph requests lifecycle boundary work, but LifecycleDispatcher owns step execution
+- ScopeGraph は lifecycle boundary work を request するが、step execution は LifecycleDispatcher が所有する
 
 #### TC_SCOPE_BOUNDARY_003_ScopeGraphDoesNotResolveValueKeys
 
-Expected result:
+期待される結果:
 
-- ScopeGraph cannot interpret stable value keys directly
+- ScopeGraph は stable value key を直接解釈できない
 
 #### TC_SCOPE_BOUNDARY_004_ScopeGraphDoesNotBecomeRuntimeQueryRegistry
 
-Expected result:
+期待される結果:
 
-- gameplay lookup by category is delegated to RuntimeQuery or rejected
+- category による gameplay lookup は RuntimeQuery に委譲されるか、拒否される
 
-### Pooling Tests
+### Pooling のテスト
 
 #### TC_SCOPE_POOL_001_ReusedSlotIncrementsGeneration
 
-Expected result:
+期待される結果:
 
-- slot reuse increments generation and invalidates old handle
+- slot reuse は generation を増やし、古い handle を invalid にする
 
 #### TC_SCOPE_POOL_002_ResetClearsParentChildrenAndLinks
 
-Expected result:
+期待される結果:
 
-- reset clears parent, children, Unity link, and scope-local boundary references
+- reset は parent、children、Unity link、scope-local boundary reference を消す
 
-### Diagnostics Tests
+### Diagnostics のテスト
 
 #### TC_SCOPE_DIAG_001_StaleHandleDiagnosticReadable
 
-Expected result:
+期待される結果:
 
-- stale handle diagnostic includes handle, generation, ScopePlanId, and authoring source when available
+- stale handle diagnostic には、利用可能なら handle、generation、ScopePlanId、authoring source が含まれる
 
 #### TC_SCOPE_DIAG_002_MissingDebugMapInDevelopment
 
-Expected result:
+期待される結果:
 
-- Development profile failure without required DebugMap coverage is treated as error
+- Development profile で required DebugMap coverage がない failure は error として扱われる
 
-### Performance Tests
+### Performance のテスト
 
 #### TC_SCOPE_PERF_001_ValidateHandleNoAllocation
 
-Expected result:
+期待される結果:
 
-- repeated handle validation does not allocate on the normal path
+- repeated handle validation は normal path で allocation しない
 
 #### TC_SCOPE_PERF_002_CreateScopeDoesNotScanHierarchy
 
-Expected result:
+期待される結果:
 
-- create path performs no GetComponentsInChildren and no Transform parent traversal
+- create path は `GetComponentsInChildren` も Transform parent traversal も行わない
 
 #### TC_SCOPE_PERF_003_ChildEnumerationDoesNotScanAllScopes
 
-Expected result:
+期待される結果:
 
-- child enumeration cost is bounded by child count, not total scope count
+- child enumeration cost は total scope count ではなく child count によって bounded である
 
 ---
 
-## Acceptance Criteria
+## 受け入れ条件
 
-This specification is complete when it defines:
+本仕様が完成していると見なす条件は次のとおり。
 
 - ScopeGraph runtime responsibility
 - ScopeGraphPlan input contract
-- ScopeAuthoringId, ScopePlanId, ScopeHandle, and UnityObjectLink distinction
-- ScopeHandle generation safety
+- `ScopeAuthoringId`、`ScopePlanId`、`ScopeHandle`、`UnityObjectLink` の区別
+- `ScopeHandle` の generation safety
 - runtime scope instance model
 - scope state model
 - parent-child relationship model
 - scope creation contract
 - scope destruction contract
-- attach, detach, and reparent contract
+- attach / detach / reparent contract
 - scene boundary policy
 - persistent scope policy
 - Unity object linkage policy
@@ -1061,37 +1049,39 @@ This specification is complete when it defines:
 - Lifecycle boundary
 - ValueStore boundary
 - RuntimeQuery boundary
-- pooling and generation policy
-- diagnostics and DebugMap requirements
+- pooling と generation policy
+- diagnostics / DebugMap 要件
 - failure policy
 - performance policy
 - threading policy
 - legacy compatibility boundary
-- forbidden patterns
+- forbidden pattern
 - ScopeGraph test case model
-- required ScopeGraph test cases
+- required ScopeGraph test
 
-07 is not complete if it becomes a Transform hierarchy management specification, a generic hierarchy service, or a replacement for ServiceGraph, LifecyclePlan, ValueStore, or RuntimeQuery.
-
-## Test Cases
-
-| Test Case | Purpose | Verification |
-|---|---|---|
-| TC-07-01 | Confirm ScopeGraph, not Transform hierarchy, is the runtime authority for scope structure. | The Purpose, ScopeGraph Runtime Definition, and Forbidden Patterns sections must forbid Transform-parent inference and scene or component discovery. |
-| TC-07-02 | Confirm ScopeAuthoringId, ScopePlanId, ScopeHandle, and UnityObjectLink are not mixed. | The Scope Identity Model, ScopeHandle Model, and Scope Instance Model sections must define separate identity layers and reject stale or cross-domain handle use. |
-| TC-07-03 | Confirm scope creation, destruction, and reparent require explicit verified structure. | The ScopeGraphPlan Input Contract, Scope Creation Contract, Scope Destruction Contract, and Attach / Detach / Reparent Contract sections must require verified input, explicit parent rules, and no fallback parent creation. |
-| TC-07-04 | Confirm scope boundaries with ServiceGraph, Lifecycle, ValueStore, RuntimeQuery, and Unity linkage remain explicit. | The boundary sections must define ownership and non-ownership clearly and forbid ScopeGraph from becoming service resolution, lifecycle execution, Blackboard, or generic query registry. |
-| TC-07-05 | Confirm pooling, scene boundaries, and persistent roots fail closed. | The Scene Boundary Policy, Persistent Scope Policy, Pooling and Generation Policy, and Failure Policy sections must reject stale handles, scene leaks, and duplicate persistent roots without silent cleanup. |
-| TC-07-06 | Confirm diagnostics, performance, threading, and legacy rules are part of the runtime contract. | The Diagnostics and DebugMap Requirements, Performance Policy, Threading and Main Thread Policy, and Legacy Compatibility Boundary sections must remain explicit and testable. |
+07 が、Transform hierarchy management specification、generic hierarchy service、あるいは ServiceGraph / LifecyclePlan / ValueStore / RuntimeQuery の代替になったら未完成である。
 
 ---
 
-## Final Position
+## テストケース
 
-Transform is not truth.
-ScopeGraph is truth.
+| テストケース | 目的 | 検証 |
+|---|---|---|
+| TC-07-01 | Transform hierarchy ではなく ScopeGraph が scope structure の runtime authority であることを確認する。 | Purpose、ScopeGraph Runtime Definition、Forbidden Patterns の節で、Transform-parent inference と scene / component discovery を禁止していること。 |
+| TC-07-02 | `ScopeAuthoringId`、`ScopePlanId`、`ScopeHandle`、`UnityObjectLink` が混同されないことを確認する。 | Scope Identity Model、ScopeHandle Model、Scope Instance Model の節で、identity layer を分離し、stale または cross-domain の handle use を拒否していること。 |
+| TC-07-03 | scope creation、destruction、reparent が explicit で verified な structure を要求することを確認する。 | ScopeGraphPlan Input Contract、Scope Creation Contract、Scope Destruction Contract、Attach / Detach / Reparent Contract の節で、verified input、explicit parent rule、fallback parent creation の不在を要求していること。 |
+| TC-07-04 | ServiceGraph、Lifecycle、ValueStore、RuntimeQuery、Unity linkage との boundary が explicit であることを確認する。 | boundary の節で ownership / non-ownership を明確にし、ScopeGraph が service resolution、lifecycle execution、Blackboard、generic query registry にならないようにしていること。 |
+| TC-07-05 | pooling、scene boundary、persistent root が fail closed であることを確認する。 | Scene Boundary Policy、Persistent Scope Policy、Pooling and Generation Policy、Failure Policy の節で、stale handle、scene leak、duplicate persistent root を silent cleanup なしで拒否していること。 |
+| TC-07-06 | diagnostics、performance、threading、legacy rule が runtime contract の一部であることを確認する。 | Diagnostics and DebugMap Requirements、Performance Policy、Threading and Main Thread Policy、Legacy Compatibility Boundary の節が explicit で testable なままであること。 |
 
-ScopeGraph owns runtime scope structure.
-Unity hierarchy only links to it; it does not define it.
+---
 
-By separating ScopeAuthoringId, ScopePlanId, ScopeHandle, and UnityObjectLink, the kernel can preserve speed, safety, and debuggability without returning to Transform inference or legacy nearest-scope discovery.
+## 最終見解
+
+Transform は truth ではない。
+ScopeGraph が truth である。
+
+ScopeGraph は runtime scope structure を所有する。
+Unity hierarchy はそれにつながるだけで、定義はしない。
+
+`ScopeAuthoringId`、`ScopePlanId`、`ScopeHandle`、`UnityObjectLink` を分離することで、kernel は Transform inference や legacy nearest-scope discovery に戻らずに、速度、安全性、debuggability を保てる。

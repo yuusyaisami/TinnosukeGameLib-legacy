@@ -1,11 +1,11 @@
-# Implementation Milestone Order Specification
+# 実装マイルストーン順序仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 16_ImplementationMilestoneOrderSpec
-- Status: Draft
-- Role: defines implementation phase order, milestone gates, and prohibited sequencing for GameLib Kernel v2 realization
-- Depends on:
+- 文書ID: 16_ImplementationMilestoneOrderSpec
+- 状態: Draft
+- 役割: GameLib Kernel v2 の実現における実装フェーズの順序、マイルストーンゲート、禁止シーケンスを定義する
+- 依存元:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
@@ -24,260 +24,260 @@
   - [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md)
   - [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md)
   - [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md)
-- Provides foundation for:
-  - implementation planning, architecture review, migration tracking, and gate sequencing that realize 00 through 15 without violating their trust boundaries
+- 提供する基盤:
+  - 00 から 15 までを、trust boundary を壊さずに実現するための実装計画、アーキテクチャレビュー、移行管理、ゲート順序
 
-### Revision Note
+### 改訂メモ
 
-This revision creates 16 as the implementation-order specification for Kernel v2.
+この改訂は、Kernel v2 における実装順序仕様として 16 を作成する。
 
-It makes one rule explicit:
-the specification numbering is not the implementation schedule.
+この仕様は 1 つのルールを明確化する:
+仕様番号は実装順序そのものではない。
 
-Diagnostics, test gates, static forbidden-pattern detection, normalized IR, validation, verified generation, and boot acceptance must exist before runtime-rich subsystems become the target path.
+Diagnostics、test gate、静的な禁止パターン検出、正規化された IR、検証、検証済み生成、boot 受理は、runtime を多く含む subsystem より先に存在しなければならない。
 
-It also records the immediate documentation hygiene work that must happen before implementation starts at scale, including cross-spec concept ownership, forbidden-pattern registry setup, and existing anchor inventory.
-
----
-
-## Ownership
-
-This specification owns:
-
-- implementation milestone ordering from M0 through M15
-- milestone purpose, required outputs, entry assumptions, and exit gates
-- cross-spec dependency mapping from 00 through 15 into implementation phases
-- forbidden sequencing and anti-patterns for migration execution
-- milestone-level traceability from planned work items to lower-spec verification points
-- the rule that runtime subsystem work is blocked until the proof and trust-boundary milestones are in place
-
-This specification does not own:
-
-- subsystem semantics already owned by 00 through 15
-- final runtime API signatures
-- exact class, namespace, or file names for implementation artifacts
-- sprint planning, people assignment, staffing, or calendar estimates
-- CI vendor configuration files
-- gameplay feature prioritization outside the representative migration wave defined here
-
-16 defines execution order.
-It does not redefine the meaning of ServiceGraph, ScopeGraph, LifecyclePlan, CommandCatalog, ValueStore, DebugMap, or BootManifest.
+また、実装を大規模に始める前に必要な文書整備、すなわちクロス仕様の概念責務、禁止パターン台帳、既存アンカー目録も記録する。
 
 ---
 
-## Purpose
+## 所有範囲
 
-This specification defines how Kernel v2 should be implemented.
+この仕様が所有するもの:
 
-Core statements:
+- M0 から M15 までの実装マイルストーン順序
+- マイルストーンの目的、必要な出力、入口前提、出口ゲート
+- 00 から 15 へのクロス仕様依存マッピング
+- 移行実行における禁止シーケンスとアンチパターン
+- 計画済み作業項目から下位仕様の検証点へのマイルストーン追跡性
+- proof と trust boundary のマイルストーンが整うまで runtime subsystem 作業を止めるルール
+
+この仕様が所有しないもの:
+
+- 00 から 15 までがすでに所有している subsystem の意味論
+- 最終的な runtime API のシグネチャ
+- 実装成果物の正確なクラス名、namespace 名、ファイル名
+- sprint 計画、人員割り当て、工数見積もり
+- CI ベンダー設定ファイル
+- ここで定義された代表的な移行ウェーブ以外のゲームプレイ優先順位
+
+16 は実行順序を定義する。
+ServiceGraph、ScopeGraph、LifecyclePlan、CommandCatalog、ValueStore、DebugMap、BootManifest の意味を再定義するものではない。
+
+---
+
+## 目的
+
+この仕様は、Kernel v2 をどのような順番で実装すべきかを定義する。
+
+中核となる記述:
 
 ```text
-Specification numbering is not implementation order.
+仕様番号は実装順序ではない。
 
-No runtime core milestone may become a target path before diagnostics, tests, static gates, IR normalization, validation, verified generation, and boot acceptance gates exist.
+diagnostics、tests、static gate、IR 正規化、検証、検証済み生成、boot 受理のゲートが整う前に、いかなる runtime core マイルストーンも target path になってはならない。
 
-A milestone is complete only when its outputs are traceable to lower-spec rules and backed by executable or documentable gates.
+マイルストーンは、その出力が下位仕様のルールに追跡可能であり、実行可能または文書化可能なゲートで裏付けられている場合にのみ完了である。
 ```
 
-00 defines root-level constraints such as no runtime discovery, no lifecycle inference from registration, no runtime stable-key fallback, no trust in unvalidated artifacts, and no direct subsystem logging to Unity outside approved sinks.
+00 は、runtime discovery なし、registration からの lifecycle 推測なし、runtime stable-key fallback なし、未検証アーティファクトを信頼しないこと、許可された sink 以外での Unity 直接ロギングなし、というルート制約を定義する。
 
-01 defines `KernelIR` as normalized authority rather than runtime format.
+01 は `KernelIR` を runtime 形式ではなく正規化された権威として定義する。
 
-11 and 15 define that diagnostics and executable protection are architecture requirements, not later polish.
+11 と 15 は、diagnostics と実行可能な保護が後付けの飾りではなくアーキテクチャ要件であることを定義する。
 
-Therefore the implementation order must begin by creating proof boundaries and trust boundaries before building runtime richness.
+したがって実装順序は、runtime の豊かさを積む前に proof boundary と trust boundary を作ることから始めなければならない。
 
-If `ServiceGraph`, `ScopeGraph`, `CommandCatalog`, `ValueStore`, or feature migration start before those boundaries exist, the project will tend to recreate a faster form of the legacy architecture rather than the target kernel.
-
----
-
-## Scope
-
-This specification defines:
-
-- implementation phase order from M0 through M15
-- milestone goal, required outputs, and exit-gate model
-- cross-spec dependency mapping between the architecture specs and the implementation sequence
-- the required pre-runtime proof chain for diagnostics, tests, IR, validation, generation, and boot
-- representative migration-wave ordering for existing features
-- forbidden starting points and forbidden shortcuts
-- final integration and regression-hardening requirements
-
-This specification intentionally does not define:
-
-- runtime API shape
-- exact serialization formats
-- validation or generation algorithms already owned elsewhere
-- detailed team task breakdowns or schedule estimates
-- project management workflow outside architecture protection
-
-16 must not become a substitute for lower subsystem specs.
-It exists to determine when each lower spec is allowed to turn into code.
+`ServiceGraph`、`ScopeGraph`、`CommandCatalog`、`ValueStore`、あるいは feature 移行が、これらの境界が存在しないまま始まると、結果として target kernel ではなく legacy アーキテクチャの高速版を再生してしまう。
 
 ---
 
-## Non-Goals
+## スコープ
 
-This specification does not define:
+この仕様が定義するもの:
 
-- a promise that every milestone must be completed by one pull request
-- people or team ownership of each milestone
-- a requirement that all features stop shipping until M15 is complete
-- gameplay feature design unrelated to Kernel v2 architecture
-- temporary branch strategy or release scheduling
-- permission to bypass validation or diagnostics because the current task is internal-only
+- M0 から M15 までの実装フェーズ順序
+- マイルストーンの目標、必要な出力、出口ゲートモデル
+- アーキテクチャ仕様と実装シーケンスのクロス仕様依存マッピング
+- diagnostics、tests、IR、validation、generation、boot に対する必須の事前 proof chain
+- 既存機能の代表的移行ウェーブ順序
+- 禁止される開始点と禁止ショートカット
+- 最終統合と regression hardening の要件
 
-16 is an architecture execution order document.
-It is not a generic project management handbook.
+この仕様は以下を意図的に定義しない:
+
+- runtime API の形
+- 正確なシリアライズ形式
+- すでに別仕様が所有している検証または生成アルゴリズム
+- 詳細なチーム作業分解やスケジュール見積もり
+- アーキテクチャ保護の外側にあるプロジェクト管理ワークフロー
+
+16 は下位 subsystem 仕様の代替であってはならない。
+各下位仕様を、いつコードへ変えてよいかを決めるために存在する。
 
 ---
 
-## Relationship to Other Specs
+## 非目標
 
-| Spec | Relationship to 16 |
+この仕様は以下を定義しない:
+
+- すべてのマイルストーンを 1 つの pull request で終えるという約束
+- 各マイルストーンの人員またはチーム責任
+- M15 が完了するまで全機能の出荷を止める要件
+- Kernel v2 アーキテクチャと無関係なゲームプレイ設計
+- 一時的な branch 戦略やリリース日程
+- 内部作業だからという理由で検証や diagnostics を回避する許可
+
+16 はアーキテクチャ実行順序の文書である。
+汎用的なプロジェクト管理ハンドブックではない。
+
+---
+
+## 他仕様との関係
+
+| 仕様 | 16 との関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines the non-negotiable root constraints that all milestones must preserve. |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines the normalized authority model implemented in M2 and consumed by M3 through M11. |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Defines the contribution boundary implemented in M2 and consumed by M3 through M11. |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Defines the generation trust boundary implemented in M4 and consumed by M5 through M15. |
-| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | Defines the validation firewall implemented in M3 and reused by M4 through M15. |
-| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | Defines the verified boot entry point implemented in M5 and required before M6 through M15. |
-| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | Defines the runtime service subsystem implemented in M6 after the verified pipeline exists. |
-| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | Defines the runtime scope subsystem implemented in M7 after M6. |
-| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | Defines lifecycle dispatch implemented in M8 after scope runtime exists. |
-| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | Defines the verified command runtime implemented in M9 after lifecycle and boot foundations exist. |
-| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | Defines the value schema and store work implemented in M10 after the runtime core exists. |
-| [10_1_ScalarRuntimeAndBindingSpec.md](10_1_ScalarRuntimeAndBindingSpec.md) | Defines the scalar specialization included inside M10. |
-| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | Defines the dynamic and reactive specialization included inside M10. |
-| [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | Supplies the diagnostics contract that must be implemented early in M1 even though the spec number is higher. |
-| [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md) | Defines the Unity authoring bridge implemented in M11 once the verified pipeline and runtime core exist. |
-| [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) | Defines quarantine-only legacy compatibility implemented in M12. |
-| [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | Defines performance and forbidden-runtime rules formalized in M13, with seed static gates already introduced in M1. |
-| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | Supplies the executable protection model that must be partially implemented in M1 and completed in M15. |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | すべてのマイルストーンが守るべき譲れない根本制約を定義する。 |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | M2 で実装され、M3 から M11 で利用される正規化権威モデルを定義する。 |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | M2 で実装され、M3 から M11 で利用される contribution 境界を定義する。 |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | M4 で実装され、M5 から M15 で利用される生成信頼境界を定義する。 |
+| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | M3 で実装され、M4 から M15 で再利用される validation firewall を定義する。 |
+| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | M5 で実装され、M6 から M15 の前提となる検証済み boot entry point を定義する。 |
+| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | 検証済みパイプライン成立後に M6 で実装される runtime service subsystem を定義する。 |
+| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | M6 の後に M7 で実装される runtime scope subsystem を定義する。 |
+| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | scope runtime 成立後に M8 で実装される lifecycle dispatch を定義する。 |
+| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | lifecycle と boot の基盤が整った後に M9 で実装される verified command runtime を定義する。 |
+| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | runtime core 成立後に M10 で実装される value schema と store の作業を定義する。 |
+| [10_1_ScalarRuntimeAndBindingSpec.md](10_1_ScalarRuntimeAndBindingSpec.md) | M10 内に含まれる scalar specialization を定義する。 |
+| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | M10 内に含まれる dynamic と reactive specialization を定義する。 |
+| [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | 仕様番号は高いが、M1 に早期実装しなければならない diagnostics 契約を提供する。 |
+| [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md) | 検証済みパイプラインと runtime core が整った後に M11 で実装される Unity authoring bridge を定義する。 |
+| [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) | M12 で実装される quarantine 専用の legacy compatibility を定義する。 |
+| [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | M13 で正式化される performance と禁止 runtime ルールを定義するが、静的 gate の初期導入は M1 で始まる。 |
+| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | M1 で部分実装し、M15 で完了する実行可能な保護モデルを提供する。 |
 
-16 is intentionally not a downstream runtime spec.
-It is the execution-order contract that prevents the lower specs from being implemented in an unsafe sequence.
-
----
-
-## Assembly Definition and Compile Boundary Expectations
-
-Implementation order must treat asmdef work as architecture work, not as late cleanup.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
-
-Required sequencing rules for 16:
-
-- each runtime-facing milestone must identify the target assembly or assembly family before substantial implementation expands
-- milestone completion is incomplete if code exists but still resides in an invalid monolithic compile unit that hides forbidden dependency direction
-- compile-boundary tests and asmdef graph verification must appear early enough to stop later milestones from reintroducing feature, editor, or legacy back-references
-- subsystem migration work must follow the low-volatility-first split order rather than starting with feature leaves
-
-If a milestone claims completion without a credible asmdef residence and compile-boundary story, the 16 execution order has been violated.
+16 は down-stream の runtime 仕様ではない。
+下位仕様を危険な順序で実装しないようにするための実行順序契約である。
 
 ---
 
-## Implementation Ordering Principles
+## アセンブリ定義とコンパイル境界に関する期待
 
-### 1. Proof Before Richness
+実装順序は asmdef 作業を architecture work として扱うべきであり、後片付けではない。
+詳細な依存マトリクスは [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が所有する。
 
-The project must first be able to express failure, reject invalid structure, and record evidence.
+16 に必要なシーケンスルール:
 
-This is why M1 exists before M2.
-`KernelDiagnostic`, test artifact output, and static forbidden-pattern gates are not optional support work.
-They are the mechanism that prevents later milestones from smuggling fallback behavior into the runtime.
+- runtime に面する各マイルストーンは、本格実装が広がる前に対象アセンブリまたはアセンブリ群を特定しなければならない
+- コードが存在しても、禁止された依存方向を隠す無効な monolithic compile unit に残っているなら、そのマイルストーン完了は未完である
+- compile-boundary テストと asmdef グラフ検証は、後のマイルストーンが feature、editor、legacy の逆参照を再導入する前に十分早い段階で現れなければならない
+- subsystem 移行は、feature leaf から始めるのではなく、低変動から順に分割する
 
-### 2. Normalize Before Projecting
-
-`KernelIR` and `ModuleContributionData` must exist before validation and generation.
-
-No runtime plan may invent structure that cannot be traced back to normalized IR.
-This is why M2 must precede M3 and M4.
-
-### 3. Validate Before Generating
-
-03 defines generation as a trust boundary, not a file-output step.
-
-Therefore dependency validation, duplicate detection, cycle checks, and projection-validation hooks must exist before generated plans are considered runtime inputs.
-
-### 4. Verify Before Booting
-
-Boot is not a repair path.
-
-M5 must only accept complete verified artifact sets, matching hashes, matching profile policy, and acceptable legacy-boundary status.
-No later runtime milestone may assume boot can repair missing data through discovery or fallback.
-
-### 5. Runtime Before Migration
-
-Representative existing-feature migration begins only after the target pipeline exists.
-
-Without M6 through M13, a migration effort tends to recreate legacy behavior behind new names.
-This is why M14 and M15 are late milestones.
+マイルストーンが、credible な asmdef の居場所と compile-boundary の説明なしに完了を主張するなら、16 の実行順序は破られている。
 
 ---
 
-## Global Milestone Order
+## 実装順序の原則
 
-| Milestone | Name | Primary Goal | Exit Signal |
+### 1. 豊かさの前に proof
+
+project はまず、失敗を表現し、無効な構造を拒否し、証拠を記録できるようにならなければならない。
+
+そのため M1 は M2 より先に存在する。
+`KernelDiagnostic`、test artifact 出力、静的禁止パターン gate は、任意の支援作業ではない。
+後続マイルストーンが runtime に fallback 行動を紛れ込ませるのを防ぐ仕組みである。
+
+### 2. 投影の前に正規化
+
+`KernelIR` と `ModuleContributionData` は、検証と生成の前に存在しなければならない。
+
+どの runtime plan も、正規化 IR に追跡できない構造を勝手に発明してはならない。
+そのため M2 は M3 と M4 に先行する。
+
+### 3. 生成の前に検証
+
+03 は、生成をファイル出力ステップではなく信頼境界として定義する。
+
+したがって、dependency validation、重複検出、循環検査、projection-validation フックは、生成された plan を runtime input とみなす前に存在しなければならない。
+
+### 4. boot の前に検証
+
+boot は修復経路ではない。
+
+M5 は、完全な verified artifact set、整合する hash、整合する profile policy、受理可能な legacy boundary 状態だけを受け入れるべきだ。
+後続の runtime マイルストーンは、欠落データを discovery や fallback で修復できると仮定してはならない。
+
+### 5. 移行の前に runtime
+
+既存機能の代表的移行は、target pipeline が存在してから始める。
+
+M6 から M13 がなければ、移行作業は新しい名前の下で legacy 行動を再生しがちである。
+そのため M14 と M15 は後半のマイルストーンでなければならない。
+
+---
+
+## 全体のマイルストーン順序
+
+| マイルストーン | 名称 | 主目標 | 終了シグナル |
 |---|---|---|---|
-| M0 | Architecture Freeze / Spec Hygiene | Fix terminology, ownership, and forbidden-pattern visibility before implementation starts | 00 through 15 plus 10-1 and 10-2 are mapped into one concept and dependency matrix |
-| M1 | Diagnostics / Test Foundation | Create the proof layer that catches violations early | Structured diagnostics, test artifacts, and static gates are operational |
-| M2 | KernelIR / ModuleContribution Foundation | Create the normalized authority model | IR can be normalized, dumped, hashed, and traced to source |
-| M3 | DependencyValidation | Create the pre-runtime firewall | duplicates, missing dependencies, invalid absence behavior, and cycles are rejected |
-| M4 | VerifiedPlanGeneration | Create the verified artifact and projection boundary | only complete, deterministic, validated artifact sets can become verified |
-| M5 | BootManifest / Profile | Create the verified boot entry point | boot accepts only compatible verified artifacts and fails closed |
-| M6 | ServiceGraph | Create the coarse-grained verified service runtime | slot-based resolve works without scans, reflection fallback, or object-registry drift |
-| M7 | ScopeGraph | Create the explicit runtime scope structure | generation-safe handles and explicit parent-child tables replace transform truth |
-| M8 | LifecyclePlan | Create plan-driven lifecycle dispatch | lifecycle dispatch works without interface or registration scanning |
-| M9 | CommandCatalog | Create verified command dispatch | `CommandTypeId` table dispatch works without executor discovery or string fallback |
-| M10 | Value / Scalar / Dynamic Runtime | Create verified value runtime and its specializations | value access works without stable-key fallback or hidden evaluation |
-| M11 | UnityAuthoringBridge | Connect Unity authoring to the verified pipeline | authoring extracts contributions and boots through verified artifacts only |
-| M12 | LegacyCompat Boundary | Quarantine legacy compatibility | legacy is explicit, one-way, and non-repairing |
-| M13 | Performance / RuntimeRules | Enforce measurable runtime architecture rules | profiler markers, forbidden-operation tests, and allocation gates exist |
-| M14 | Existing Feature Migration | Move representative features through the target pipeline | selected features run through v2 without prohibited fallbacks |
-| M15 | Integration / Direct Play / Regression Hardening | Prove the end-to-end architecture is protected | direct play, regression suite, CI gates, and legacy-removal evidence are operational |
+| M0 | Architecture Freeze / Spec Hygiene | 実装開始前に用語、責務、禁止パターンの可視性を固定する | 00 から 15、さらに 10-1 と 10-2 が 1 つの概念表と依存マトリクスにマッピングされている |
+| M1 | Diagnostics / Test Foundation | 早期に違反を捉える proof layer を作る | 構造化 diagnostics、test artifact、静的 gate が稼働している |
+| M2 | KernelIR / ModuleContribution Foundation | 正規化された権威モデルを作る | IR を正規化、ダンプ、ハッシュ化でき、source に追跡できる |
+| M3 | DependencyValidation | runtime 前の firewall を作る | 重複、欠落 dependency、無効な absence behavior、循環が拒否される |
+| M4 | VerifiedPlanGeneration | 検証済み artifact と projection の境界を作る | 完全で決定論的、検証済みの artifact set だけが verified になれる |
+| M5 | BootManifest / Profile | 検証済み boot entry point を作る | boot は互換な verified artifact のみを受理し、closed に失敗する |
+| M6 | ServiceGraph | 粗粒度の検証済み service runtime を作る | scan、reflection fallback、object registry drift なしで slot ベース resolve が動く |
+| M7 | ScopeGraph | 明示的な runtime scope 構造を作る | generation-safe handle と明示的な親子テーブルが transform の真実に取って代わる |
+| M8 | LifecyclePlan | plan 駆動 lifecycle dispatch を作る | interface や registration scan なしで lifecycle dispatch が動く |
+| M9 | CommandCatalog | 検証済み command dispatch を作る | `CommandTypeId` テーブル dispatch が executor discovery や string fallback なしで動く |
+| M10 | Value / Scalar / Dynamic Runtime | 検証済み value runtime とその specialization を作る | stable-key fallback や隠れた evaluation なしで value access が動く |
+| M11 | UnityAuthoringBridge | Unity authoring を検証済みパイプラインへ接続する | authoring が contribution を抽出し、検証済み artifact を通じて boot する |
+| M12 | LegacyCompat Boundary | legacy compatibility を quarantine する | legacy は明示的、片方向、非修復である |
+| M13 | Performance / RuntimeRules | 測定可能な runtime アーキテクチャルールを強制する | profiler marker、禁止操作テスト、allocation gate が存在する |
+| M14 | Existing Feature Migration | 代表的 feature を target pipeline に通す | 選択した feature が禁止 fallback なしで v2 を通過する |
+| M15 | Integration / Direct Play / Regression Hardening | end-to-end のアーキテクチャが保護されていることを証明する | direct play、regression suite、CI gate、legacy 削除の証拠が稼働する |
 
-Required order:
+必要な順序:
 
 ```text
 M0 -> M1 -> M2 -> M3 -> M4 -> M5 -> M6 -> M7 -> M8 -> M9 -> M10 -> M11 -> M12 -> M13 -> M14 -> M15
 ```
 
-The order above is normative for target-kernel implementation.
-Parallel work is allowed only when it does not bypass the exit gate of an earlier milestone and does not create a target path before its prerequisites are complete.
+この順序は target-kernel 実装における規範である。
+並列作業は、より前のマイルストーンの出口ゲートを迂回しないこと、そして前提条件が完了する前に target path を作らないことが条件でのみ許可される。
 
 ---
 
-## Milestone Gate Model
+## マイルストーンゲートモデル
 
-Each milestone has four required properties.
+各マイルストーンには 4 つの必須属性がある。
 
-1. Required outputs
-2. Exit gates
-3. Forbidden shortcuts
-4. Downstream unlocks
+1. 必要な出力
+2. 出口ゲート
+3. 禁止ショートカット
+4. 下流の解放条件
 
-A milestone is not complete when code merely exists.
-It is complete only when the next milestone can consume its output without runtime fallback, undocumented ownership transfer, or manual repair.
+コードが存在するだけでは、マイルストーンは完了ではない。
+次のマイルストーンが runtime fallback、文書化されていない責務移譲、手動修復なしでその出力を消費できるときのみ完了である。
 
-If an earlier milestone gate regresses, every later milestone depending on that gate returns to at-risk state until the regression is closed.
+より前のマイルストーンゲートが退行したら、そのゲートに依存する後続マイルストーンは、退行が閉じられるまで at-risk 状態に戻る。
 
 ---
 
-## Milestone Definitions
+## マイルストーン定義
 
 ### M0: Architecture Freeze / Spec Hygiene
 
-M0 fixes the document surface before implementation starts at scale.
+M0 は、大規模な実装開始前に文書面を固定する。
 
-Required outputs:
+必要な出力:
 
-- M0.1 Spec hygiene pass across 00 through 15 and 10-1 / 10-2
-- M0.2 Cross-spec concept map document at `Assets/Docs/v2/Index/KernelV2ConceptMap.md`
-- M0.3 Forbidden pattern registry document at `Assets/Docs/v2/Index/ForbiddenPatternRegistry.md`
-- M0.4 Cross-spec dependency matrix document at `Assets/Docs/v2/Index/CrossSpecDependencyMatrix.md`
-- M0.5 Existing anchor inventory document at `Assets/Docs/v2/Index/ExistingAnchorInventory.md`
+- M0.1 00 から 15、10-1 / 10-2 を横断する spec hygiene pass
+- M0.2 `Assets/Docs/v2/Index/KernelV2ConceptMap.md` にあるクロス仕様概念マップ文書
+- M0.3 `Assets/Docs/v2/Index/ForbiddenPatternRegistry.md` にある禁止パターン台帳文書
+- M0.4 `Assets/Docs/v2/Index/CrossSpecDependencyMatrix.md` にあるクロス仕様依存マトリクス文書
+- M0.5 `Assets/Docs/v2/Index/ExistingAnchorInventory.md` にある既存アンカー目録文書
 
-M0 concept map must cover at least the following terms without duplicated ownership:
+M0 の概念マップは、重複した責務所有なしで少なくとも次の用語をカバーしなければならない:
 
 - `KernelIR`
 - `ModuleContribution`
@@ -295,59 +295,59 @@ M0 concept map must cover at least the following terms without duplicated owners
 - `UnityAuthoringBridge`
 - `LegacyCompat`
 
-Forbidden-pattern registry seed entries must include at least:
+禁止パターン台帳の初期登録には、少なくとも次を含める:
 
-- direct `Debug.LogError`
-- `GetComponentsInChildren` for runtime discovery
-- `FindObjectsByType` for kernel lookup
-- `Transform.parent` scope inference
-- `Resources.Load` required-asset fallback
+- 直接の `Debug.LogError`
+- runtime discovery のための `GetComponentsInChildren`
+- kernel lookup のための `FindObjectsByType`
+- scope 推定のための `Transform.parent`
+- 必須 asset の fallback としての `Resources.Load`
 - runtime stable-key lookup
-- runtime-generated negative IDs
-- `IReadOnlyList<ICommandExecutor>` discovery
+- runtime 生成の負の ID
+- `IReadOnlyList<ICommandExecutor>` の discovery
 - `IScopeAcquireHandler` scan
 - `IScopeTickHandler` scan
-- ServiceGraph as runtime object registry
-- BootManifest as global settings dump
+- runtime object registry としての ServiceGraph
+- global settings dump としての BootManifest
 - legacy fallback repair
 
-Documentation hygiene note:
+文書整備に関する注意:
 
-- known duplicate header content in 03 must be tracked and resolved or explicitly recorded before the team treats the doc set as frozen
+- 03 にある既知の重複ヘッダー内容は、チームが文書セットを凍結済みと見なす前に、追跡して解消するか、明示的に記録しなければならない
 
-Exit gates:
+出口ゲート:
 
-- every core concept has one owner spec
-- every forbidden pattern in the registry maps to a lower spec or test gate
-- the implementation sequence is reviewed against the dependency matrix
-- implementation work can name its current anchor inventory rather than exploring the codebase ad hoc
+- すべての core 概念に 1 つの所有仕様がある
+- 台帳にあるすべての禁止パターンが、下位仕様または test gate にマッピングされている
+- 実装順序が dependency matrix に照らしてレビューされている
+- 実装作業が、コードベースを ad hoc に探索するのではなく、現在のアンカー目録を指名できる
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- starting runtime subsystem implementation while concept ownership is still ambiguous
-- treating review notes as a substitute for normative specs
-- inferring architecture from legacy code when a current spec already exists
+- 概念責務がまだ曖昧なまま runtime subsystem 実装を始めること
+- レビューコメントを規範仕様の代わりにすること
+- すでに current spec があるのに legacy code からアーキテクチャを推測すること
 
-Downstream unlocks:
+下流の解放条件:
 
-- M1 can define proof gates against a fixed forbidden-pattern vocabulary
-- M2 can define IR types against stable concept ownership
+- M1 は固定された禁止パターン語彙に対して proof gate を定義できる
+- M2 は安定した概念責務に対して IR 型を定義できる
 
 ### M1: Diagnostics / Test Foundation
 
-M1 creates the proof layer that protects every later milestone.
+M1 は、以降すべてのマイルストーンを守る proof layer を作る。
 
-Required outputs:
+必要な出力:
 
-- M1.1 `KernelDiagnostic`, `DiagnosticCode`, `DiagnosticSeverity`, `DiagnosticDomain`, `DiagnosticFailureBoundary`, `DiagnosticContext`, `RuntimeIdentityRef`, `SourceLocationRef`, and `ArtifactIdentityRef`
-- M1.2 `IKernelDiagnosticService`, `KernelDiagnosticService`, `IKernelDiagnosticSink`, `InMemoryDiagnosticSink`, `UnityLogDiagnosticSink`, and `TestDiagnosticSink`
-- M1.3 timestamped test artifact output under `Logs/TestRuns/<timestamp>/`
-- M1.4 static rule gates for forbidden APIs and direct Unity logging
-- M1.5 documentation or test traceability from diagnostics codes to lower-spec failure meaning
-- M1.6 static Debug gate
-- M1.7 static forbidden-API gate
+- M1.1 `KernelDiagnostic`、`DiagnosticCode`、`DiagnosticSeverity`、`DiagnosticDomain`、`DiagnosticFailureBoundary`、`DiagnosticContext`、`RuntimeIdentityRef`、`SourceLocationRef`、`ArtifactIdentityRef`
+- M1.2 `IKernelDiagnosticService`、`KernelDiagnosticService`、`IKernelDiagnosticSink`、`InMemoryDiagnosticSink`、`UnityLogDiagnosticSink`、`TestDiagnosticSink`
+- M1.3 `Logs/TestRuns/<timestamp>/` 配下のタイムスタンプ付き test artifact 出力
+- M1.4 禁止 API と Unity 直接ロギングに対する静的ルール gate
+- M1.5 diagnostics code と下位仕様の失敗意味を結び付ける文書または test の追跡可能性
+- M1.6 静的 Debug gate
+- M1.7 静的 forbidden-API gate
 
-The minimum test artifact set must include:
+最低限の test artifact セット:
 
 - `TestRunSummary.md`
 - `TestRunSummary.json`
@@ -356,47 +356,47 @@ The minimum test artifact set must include:
 - `GenerationReport.json`
 - `PerformanceReport.json`
 
-The first static rules must detect at least:
+最初の静的ルールは、少なくとも次を検出しなければならない:
 
-- `Debug.LogError` outside approved sinks
-- `Debug.LogWarning` outside approved sinks
-- `Debug.LogException` outside approved sinks
-- `Resources.Load` in target runtime paths
-- `FindObjectsByType` in target runtime paths
-- `GetComponentsInChildren` in target runtime paths
-- `Transform.parent` scope inference in target runtime paths
+- 許可された sink の外側にある `Debug.LogError`
+- 許可された sink の外側にある `Debug.LogWarning`
+- 許可された sink の外側にある `Debug.LogException`
+- target runtime path にある `Resources.Load`
+- target runtime path にある `FindObjectsByType`
+- target runtime path にある `GetComponentsInChildren`
+- target runtime path にある `Transform.parent` 由来の scope 推定
 
-Exit gates:
+出口ゲート:
 
-- every kernel subsystem can report through one structured diagnostic model
-- tests can assert on `DiagnosticCode` through `TestDiagnosticSink`
-- only `UnityLogDiagnosticSink` may call Unity Debug APIs for kernel diagnostics
-- adding a forbidden API to a target runtime path causes a failing gate
+- すべての kernel subsystem が 1 つの構造化 diagnostic model で報告できる
+- test は `TestDiagnosticSink` を通じて `DiagnosticCode` を検証できる
+- kernel diagnostics に対して Unity Debug API を呼べるのは `UnityLogDiagnosticSink` のみである
+- target runtime path に forbidden API を追加すると失敗する gate が発動する
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- creating subsystem-specific logging pipelines that bypass the shared record model
-- postponing forbidden-pattern gates until after runtime core work starts
-- using formatted strings as diagnostic identity
+- 共有レコード model を迂回する subsystem 固有の logging pipeline を作ること
+- runtime core 作業が始まった後に forbidden-pattern gate を先延ばしにすること
+- diagnostic identity を整形済み文字列で扱うこと
 
-Downstream unlocks:
+下流の解放条件:
 
-- M2 through M15 can fail closed with structured evidence
-- runtime-first work loses its justification because architecture drift is now observable
+- M2 から M15 は、構造化された証拠付きで closed fail できる
+- architecture drift が今や観測可能なので、runtime-first 作業の正当化が失われる
 
 ### M2: KernelIR / ModuleContribution Foundation
 
-M2 creates the normalized authority layer.
+M2 は正規化された権威層を作る。
 
-Required outputs:
+必要な出力:
 
-- M2.1 typed identity primitives for `ModuleId`, `ServiceId`, `ScopeAuthoringId`, `ScopePlanId`, `CommandTypeId`, `CommandExecutorId`, `CommandPayloadSchemaId`, `ValueKeyId`, `ValueSchemaId`, `LifecycleStepId`, `RuntimeQueryId`, and `SourceLocationId`
-- M2.2 `SourceLocationIR`, `UnitySourceLocation`, `LegacySourceLocation`, and `GeneratedSourceLocation`
-- M2.3 `ModuleDefinition`, `ModuleContributionData`, `ContributionItem`, `ContributionKind`, `ContributionSource`, `ContributionAvailability`, and `ContributionConflictPolicy`
-- M2.4 `KernelIR`, `KernelIRHeader`, `ModuleIR`, `ServiceIR`, `ScopeIR`, `LifecycleIR`, `CommandIR`, `ValueKeyIR`, `RuntimeQueryIR`, `DependencyEdgeIR`, and `SourceLocationTable`
-- M2.5 IR hash and dump or report output
+- M2.1 `ModuleId`、`ServiceId`、`ScopeAuthoringId`、`ScopePlanId`、`CommandTypeId`、`CommandExecutorId`、`CommandPayloadSchemaId`、`ValueKeyId`、`ValueSchemaId`、`LifecycleStepId`、`RuntimeQueryId`、`SourceLocationId` の型付き ID 基本型
+- M2.2 `SourceLocationIR`、`UnitySourceLocation`、`LegacySourceLocation`、`GeneratedSourceLocation`
+- M2.3 `ModuleDefinition`、`ModuleContributionData`、`ContributionItem`、`ContributionKind`、`ContributionSource`、`ContributionAvailability`、`ContributionConflictPolicy`
+- M2.4 `KernelIR`、`KernelIRHeader`、`ModuleIR`、`ServiceIR`、`ScopeIR`、`LifecycleIR`、`CommandIR`、`ValueKeyIR`、`RuntimeQueryIR`、`DependencyEdgeIR`、`SourceLocationTable`
+- M2.5 IR hash とダンプまたはレポート出力
 
-Source location minimum provenance must include:
+source location の最低限の provenance には次を含める:
 
 - asset GUID
 - asset path
@@ -408,194 +408,194 @@ Source location minimum provenance must include:
 - legacy origin
 - generated origin
 
-Exit gates:
+出口ゲート:
 
-- normalized IR can be produced without touching runtime builder state
-- IR nodes can be traced back to source locations
-- semantic hash generation is deterministic for equivalent inputs
-- contribution collection does not resolve live services or infer ownership from transform hierarchy
+- runtime builder state に触れずに正規化 IR を生成できる
+- IR node を source location へ追跡できる
+- semantic hash の生成が等価入力に対して決定論的である
+- contribution 収集が live service を解決したり、transform 階層から所有権を推測したりしない
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- touching runtime builder or live service resolution during contribution collection
-- allowing raw `int` domain mixing in public identity boundaries
-- delaying source provenance until after generation
+- contribution 収集中に runtime builder または live service resolve に触ること
+- public identity 境界で raw `int` のドメイン混在を許すこと
+- 生成後まで source provenance を遅らせること
 
-Downstream unlocks:
+下流の解放条件:
 
-- M3 can validate real normalized identities and dependency edges
-- M4 can generate verified artifacts from a deterministic input model
+- M3 は、実際の正規化 ID と依存エッジを検証できる
+- M4 は、決定論的な入力モデルから verified artifact を生成できる
 
 ### M3: DependencyValidation
 
-M3 creates the pre-runtime firewall.
+M3 は runtime 前の firewall を作る。
 
-Required outputs:
+必要な出力:
 
-- M3.1 `DependencyValidationReport`, `DependencyValidationIssue`, `ValidationResultStatus`, `ValidationSeverity`, and `ValidationPhase`
-- M3.2 duplicate-ID and wrong-domain validation
-- M3.3 missing required dependency and invalid dependency-kind validation
-- M3.4 optional absence-behavior validation
-- M3.5 phase-aware cycle detection across Build, Generate, Boot, Acquire, Runtime, Save, and EditorOnly
-- M3.6 legacy leakage validation
-- M3.7 projection-validation interface including `IProjectionValidationRule`, `ProjectionValidationReport`, `UnknownProjectedIdRule`, `DroppedMappingRule`, and `DebugMapCoverageRule`
+- M3.1 `DependencyValidationReport`、`DependencyValidationIssue`、`ValidationResultStatus`、`ValidationSeverity`、`ValidationPhase`
+- M3.2 重複 ID と誤ったドメインの検証
+- M3.3 必須 dependency の欠落と無効な dependency kind の検証
+- M3.4 optional の absence behavior 検証
+- M3.5 Build、Generate、Boot、Acquire、Runtime、Save、EditorOnly をまたぐ phase-aware 循環検出
+- M3.6 legacy 漏れの検証
+- M3.7 `IProjectionValidationRule`、`ProjectionValidationReport`、`UnknownProjectedIdRule`、`DroppedMappingRule`、`DebugMapCoverageRule` を含む projection-validation インターフェース
 
-Exit gates:
+出口ゲート:
 
-- duplicate, missing, invalid-phase, invalid-owner, and cycle issues are rejected before runtime
-- validation issues can be converted into `KernelDiagnostic`
-- optional dependencies without declared absence behavior cannot pass validation
-- post-generation validation hooks are defined even if projections are still minimal
+- 重複、欠落、無効な phase、無効な owner、循環の問題が runtime より前に拒否される
+- validation issue を `KernelDiagnostic` に変換できる
+- 明示された absence behavior を持たない optional dependency は validation を通過できない
+- projection がまだ最小であっても、生成後の validation hook が定義されている
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- pushing duplicate or missing dependency detection into runtime boot
-- allowing runtime cycles without explicit policy
-- allowing legacy leakage to survive because migration is incomplete
+- 重複または欠落 dependency 検出を runtime boot に押し込むこと
+- 明示的な policy なしに runtime cycle を許すこと
+- 移行が未完だからといって legacy 漏れを生き残らせること
 
-Downstream unlocks:
+下流の解放条件:
 
-- M4 can distinguish generated from verified artifacts
-- M5 can trust validation reports rather than rediscovering structure at boot
+- M4 は、生成済み artifact と検証済み artifact を区別できる
+- M5 は、boot 時に構造を再発見するのではなく validation report を信頼できる
 
 ### M4: VerifiedPlanGeneration / ArtifactSet
 
-M4 creates the verified generation trust boundary.
+M4 は verified generation の信頼境界を作る。
 
-Required outputs:
+必要な出力:
 
-- M4.1 artifact headers containing `ArtifactSetId`, `PlanId`, `ArtifactId`, `ArtifactKind`, `FormatVersion`, `KernelIRHash`, `RegistryHash`, `ProfileHash`, `DebugMapHash`, `GeneratedContentHash`, and `GeneratorVersion`
-- M4.2 type-level separation between `GeneratedKernelPlan` and `VerifiedKernelPlan`
-- M4.3 artifact-set staging and promotion transaction model
-- M4.4 deterministic generation rules independent of dictionary order, reflection order, file system order, timestamp, and absolute path
-- M4.5 minimal projections for ServiceGraph, ScopeGraph, LifecyclePlan, CommandCatalog, ValueSchema, RuntimeQuery, KernelDebugMap, GenerationReport, and ValidationReport
-- M4.6 stale-artifact detection
-- M4.7 DebugMap generation seed
+- M4.1 `ArtifactSetId`、`PlanId`、`ArtifactId`、`ArtifactKind`、`FormatVersion`、`KernelIRHash`、`RegistryHash`、`ProfileHash`、`DebugMapHash`、`GeneratedContentHash`、`GeneratorVersion` を含む artifact header
+- M4.2 `GeneratedKernelPlan` と `VerifiedKernelPlan` の型レベル分離
+- M4.3 artifact set の staging と promotion の transaction model
+- M4.4 dictionary 順、reflection 順、file system 順、timestamp、absolute path に依存しない決定論的生成ルール
+- M4.5 ServiceGraph、ScopeGraph、LifecyclePlan、CommandCatalog、ValueSchema、RuntimeQuery、KernelDebugMap、GenerationReport、ValidationReport の最小 projection
+- M4.6 stale artifact 検出
+- M4.7 DebugMap 生成 seed
 
-Exit gates:
+出口ゲート:
 
-- partial artifact sets cannot become current verified artifacts
-- stale, mismatched, or hash-incompatible artifacts are rejected
-- DebugMap coverage is part of promotion, not an optional add-on
-- same semantic inputs produce the same semantic hash and compatible artifact set
+- 部分的な artifact set は current verified artifact になれない
+- stale、mismatch、hash 非互換の artifact は拒否される
+- DebugMap coverage は promotion の一部であり、任意の追加ではない
+- 同じ意味論的入力は同じ semantic hash と互換な artifact set を生む
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- passing generated output directly to runtime without verification
-- treating old artifacts as valid after source or profile changes
-- allowing generation to repair invalid IR by omission
+- 生成出力を verification なしで直接 runtime に渡すこと
+- source または profile が変わった後も古い artifact を有効とみなすこと
+- 生成が無効 IR を省略によって修復することを許すこと
 
-Downstream unlocks:
+下流の解放条件:
 
-- M5 can boot from verified artifact references only
-- runtime milestones can consume projections without reintroducing discovery
+- M5 は verified artifact reference のみから boot できる
+- runtime マイルストーンは discovery を再導入せずに projection を消費できる
 
 ### M5: BootManifest / Profile
 
-M5 creates the verified boot entry point.
+M5 は verified boot entry point を作る。
 
-Required outputs:
+必要な出力:
 
-- M5.1 `KernelProfile`, `KernelProfileKind`, `KernelProfilePolicy`, and `BootDiagnosticsPolicy`
-- M5.2 `KernelBootManifest` containing `ManifestId`, `ProfileId`, `VerifiedArtifactSetRef`, `BootPolicyId`, and `DiagnosticsPolicy`
-- M5.3 boot validation gates for artifact completeness, hash compatibility, validation success, required root scope presence, required root service presence, and legacy-bridge allowance by profile
-- M5.4 boot failure boundary that never publishes a partially initialized target runtime as valid
-- M5.5 minimal boot shell for empty IR, diagnostics, DebugMap, `KernelRuntime`, `ServiceGraph`, and root `ScopeGraph`
+- M5.1 `KernelProfile`、`KernelProfileKind`、`KernelProfilePolicy`、`BootDiagnosticsPolicy`
+- M5.2 `ManifestId`、`ProfileId`、`VerifiedArtifactSetRef`、`BootPolicyId`、`DiagnosticsPolicy` を含む `KernelBootManifest`
+- M5.3 artifact 完全性、hash 互換性、validation 成功、required root scope の存在、required root service の存在、profile による legacy-bridge 許可に対する boot validation gate
+- M5.4 partially initialized な target runtime を決して valid と公開しない boot failure boundary
+- M5.5 empty IR、diagnostics、DebugMap、`KernelRuntime`、`ServiceGraph`、root `ScopeGraph` のための最小 boot shell
 - M5.6 boot diagnostics
 
-BootManifest must not become:
+BootManifest は次のようなものになってはならない:
 
-- a full service list dump
-- a full command list dump
-- a full value-key dump
-- a full lifecycle-step dump
-- a full scope-graph dump
-- a direct executor-definition dump
-- a fallback-rule container
-- a scene-search-rule container
+- 完全な service list dump
+- 完全な command list dump
+- 完全な value-key dump
+- 完全な lifecycle-step dump
+- 完全な scope-graph dump
+- 直接的な executor definition dump
+- fallback-rule container
+- scene-search-rule container
 
-Exit gates:
+出口ゲート:
 
-- boot succeeds only with a complete compatible verified artifact set
-- boot failure leaves no partially valid runtime published to callers
-- profile policy can reject legacy or diagnostics mismatches before runtime work begins
+- boot は、完全で互換な verified artifact set がある場合にのみ成功する
+- boot failure は、partially valid な runtime を呼び出し側に残さない
+- profile policy は、runtime 作業開始前に legacy または diagnostics の不一致を拒否できる
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- using boot as a repair path for missing services, scopes, or artifacts
-- embedding runtime discovery rules into BootManifest
-- allowing legacy fallback because the profile is Development
+- 欠落した service、scope、artifact の修復経路として boot を使うこと
+- runtime discovery ルールを BootManifest に埋め込むこと
+- Development だからという理由で legacy fallback を許すこと
 
-Downstream unlocks:
+下流の解放条件:
 
-- M6 through M10 can assume a verified boot shell exists
-- M11 direct-play flow has a fixed target boot entry point
+- M6 から M10 は、verified boot shell が存在すると仮定できる
+- M11 の direct-play flow は固定された target boot entry point を持つ
 
 ### M6: ServiceGraph
 
-M6 creates the verified service runtime for coarse-grained services only.
+M6 は、粗粒度 service のみを対象とする verified service runtime を作る。
 
-Required outputs:
+必要な出力:
 
-- M6.1 service-eligibility classification rules and service-boundary inventory
-- M6.2 `ServiceGraphPlan`, `ServiceEntryPlan`, `ServiceSlotPlan`, `ServiceFactoryRef`, `ServiceContractRef`, `ServiceLifetimeKind`, and `ServiceCardinalityKind`
-- M6.3 slot-based resolver from `ServiceId` to slot index
-- M6.4 approved factory forms: GeneratedStatic, GeneratedDelegate, ExplicitManual, and LegacyBridge only inside the legacy boundary
-- M6.5 optional-service policy distinguishing required failure from declared optional absence behavior
-- M6.6 scope-local service boundary definition
-- M6.7 hub classification table for existing systems such as modal, tooltip, mesh, and animation sprite hubs
+- M6.1 service eligibility 分類ルールと service boundary 目録
+- M6.2 `ServiceGraphPlan`、`ServiceEntryPlan`、`ServiceSlotPlan`、`ServiceFactoryRef`、`ServiceContractRef`、`ServiceLifetimeKind`、`ServiceCardinalityKind`
+- M6.3 `ServiceId` から slot index への slot-based resolver
+- M6.4 許可された factory 形式: GeneratedStatic、GeneratedDelegate、ExplicitManual、LegacyBridge は legacy boundary 内のみ
+- M6.5 必須失敗と明示的 optional absence behavior を分ける optional service policy
+- M6.6 scope-local service boundary の定義
+- M6.7 modal、tooltip、mesh、animation sprite hub など既存システムの hub 分類表
 
-Services may represent:
+Service は次のようなものを表してよい:
 
-- kernel-level coarse services
-- project-level coarse services
-- scene-level coarse services
-- authored-scope coarse services
+- kernel レベルの粗粒度 service
+- project レベルの粗粒度 service
+- scene レベルの粗粒度 service
+- authoring された scope の粗粒度 service
 
-Services must not represent:
+Service は次のようなものを表してはならない:
 
-- per-entity runtime objects
-- per-part runtime objects
-- per-renderer runtime objects
-- per-tooltip runtime objects
-- per-channel-player runtime objects
-- per-mesh-track runtime objects
-- per-animation-player runtime objects
+- per-entity runtime object
+- per-part runtime object
+- per-renderer runtime object
+- per-tooltip runtime object
+- per-channel-player runtime object
+- per-mesh-track runtime object
+- per-animation-player runtime object
 
-Exit gates:
+出口ゲート:
 
-- `ServiceId` resolution works through precomputed slots rather than scans
-- no constructor reflection or fallback resolver is required on target paths
-- optional service absence is explicit rather than silent fallback
-- ServiceGraph does not degrade into a general-purpose runtime object registry
+- `ServiceId` resolve は scan ではなく事前計算された slot を通じて動く
+- target path で constructor reflection も fallback resolver も必要ない
+- optional service の欠落は silent fallback ではなく明示的である
+- ServiceGraph は汎用 runtime object registry に劣化しない
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- raw type as primary lookup identity
-- `IReadOnlyList<T>` discovery as service composition
-- registration scan or constructor reflection in target runtime paths
-- storing arbitrary gameplay runtime objects in ServiceGraph to avoid proper scope ownership
+- primary lookup identity として raw type を使うこと
+- service composition として `IReadOnlyList<T>` discovery を使うこと
+- target runtime path で registration scan や constructor reflection を使うこと
+- 正しい scope 所有を避けるために任意の gameplay runtime object を ServiceGraph に格納すること
 
-Downstream unlocks:
+下流の解放条件:
 
-- M7 can define scope-local service boundaries against a real resolver
-- M14 can classify existing hubs before migration rather than guessing service shape
+- M7 は、実際の resolver に対して scope-local service boundary を定義できる
+- M14 は、移行前に既存 hub を分類できる
 
 ### M7: ScopeGraph
 
-M7 creates the explicit runtime scope structure.
+M7 は明示的な runtime scope 構造を作る。
 
-Required outputs:
+必要な出力:
 
-- M7.1 identity separation between `ScopeAuthoringId`, `ScopePlanId`, `ScopeHandle`, and `UnityObjectLink`
-- M7.2 generation-safe `ScopeHandle { index, generation }`
-- M7.3 `ScopeInstanceTable`, `ScopeSlot`, and explicit parent-child table
+- M7.1 `ScopeAuthoringId`、`ScopePlanId`、`ScopeHandle`、`UnityObjectLink` の間の identity separation
+- M7.2 generation-safe な `ScopeHandle { index, generation }`
+- M7.3 `ScopeInstanceTable`、`ScopeSlot`、明示的な parent-child table
 - M7.4 scope runtime state machine
-- M7.5 scope-local boundaries for ServiceGraph, Lifecycle, ValueStore, RuntimeQuery notifications, and Unity links
+- M7.5 ServiceGraph、Lifecycle、ValueStore、RuntimeQuery 通知、Unity link に対する scope-local boundary
 - M7.6 `UnityObjectLink`
-- M7.7 pooling invalidation rules
+- M7.7 pooling invalidation ルール
 
-Representative scope states:
+代表的な scope 状態:
 
 - Created
 - Built
@@ -607,221 +607,221 @@ Representative scope states:
 - Destroyed
 - Failed
 
-Exit gates:
+出口ゲート:
 
-- stale handles are rejected after slot reuse
-- parent-child relationships are explicit table data rather than transform truth
-- nearest-scope search and `Transform.parent` inference are not required for target runtime behavior
-- scope-local subsystem boundaries are explicit rather than hidden in MonoBehaviour ownership
+- slot 再利用後に stale handle が拒否される
+- 親子関係は transform の真実ではなく明示的な table data である
+- nearest-scope search や `Transform.parent` 推定は target runtime 行動に必要ない
+- scope-local subsystem boundary は MonoBehaviour の所有に隠れておらず明示的である
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- using transform hierarchy as scope authority
-- using GameObject traversal to discover parentage or owner scope
-- mixing runtime handle validity with Unity object lifetime assumptions
+- transform 階層を scope authority として使うこと
+- GameObject traversal で親子や owner scope を発見すること
+- runtime handle の有効性を Unity object lifetime の仮定と混ぜること
 
-Downstream unlocks:
+下流の解放条件:
 
-- M8 can dispatch lifecycle by scope state transition
-- M10 and M11 can attach value and authoring links to explicit scope identity
+- M8 は scope state transition によって lifecycle を dispatch できる
+- M10 と M11 は明示的な scope identity に value と authoring の link を付けられる
 
 ### M8: LifecyclePlan
 
-M8 creates plan-driven lifecycle dispatch.
+M8 は plan 駆動の lifecycle dispatch を作る。
 
-Required outputs:
+必要な出力:
 
-- M8.1 `LifecyclePlanId`, `LifecycleStepId`, `LifecyclePhase`, `LifecycleTargetRef`, `LifecycleActionKind`, and `LifecycleFailurePolicy`
-- M8.2 dispatch tables for Acquire, Release, Tick, FixedTick, LateTick, Reset, and Destroy
-- M8.3 ScopeGraph integration through state transitions
-- M8.4 failure and rollback policy for partial acquire completion
-- M8.5 tick budget policy
-- M8.6 async lifecycle policy
+- M8.1 `LifecyclePlanId`、`LifecycleStepId`、`LifecyclePhase`、`LifecycleTargetRef`、`LifecycleActionKind`、`LifecycleFailurePolicy`
+- M8.2 Acquire、Release、Tick、FixedTick、LateTick、Reset、Destroy の dispatch table
+- M8.3 state transition を通じた ScopeGraph 連携
+- M8.4 部分的な acquire 完了に対する失敗と rollback の方針
+- M8.5 tick budget 方針
+- M8.6 async lifecycle 方針
 
-Exit gates:
+出口ゲート:
 
-- lifecycle dispatch is driven by verified plans rather than interface or registration scans
-- acquire failure can roll back completed work according to policy
-- per-entity tick is rejected by default unless explicitly justified by lower-spec policy
-- lifecycle failures emit `KernelDiagnostic` rather than ad hoc logs
+- lifecycle dispatch は interface や registration scan ではなく verified plan によって駆動される
+- acquire 失敗は、方針に従って完了済み作業を rollback できる
+- 個々の entity の tick は、下位仕様で明示的に正当化されない限り既定で拒否される
+- lifecycle failure は ad hoc なログではなく `KernelDiagnostic` を出力する
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- `GetAcquireHandlers()` style collection paths
+- `GetAcquireHandlers()` 風の collection path
 - `IScopeTickHandler` scan
-- service-registration scan to discover lifecycle participants
-- assuming successful acquire because rollback is hard to implement
+- lifecycle 参加者を探すための service-registration scan
+- rollback 実装が大変だからといって acquire 成功を前提にすること
 
-Downstream unlocks:
+下流の解放条件:
 
-- M9 and M10 can integrate with explicit scope and phase transitions
-- M14 migrations can map existing acquire or release debt into explicit steps
+- M9 と M10 は、明示的な scope と phase transition に統合できる
+- M14 の移行は、既存の acquire / release 負債を明示的な step に写像できる
 
 ### M9: CommandCatalog
 
-M9 creates verified command dispatch.
+M9 は検証済み command dispatch を作る。
 
-Required outputs:
+必要な出力:
 
-- M9.1 command identities including `CommandTypeId`, `CommandCategoryId`, `CommandExecutorId`, `CommandPayloadSchemaId`, and `CommandAuthoringKeyId`
-- M9.2 structured `CommandCatalogPlan` entries and grouped metadata tables: `CommandEntryPlan`, `CommandExecutorRef`, `CommandPayloadSchemaPlan`, `CommandModuleMetadata`, and `CommandCategoryMetadata`
-- M9.3 executor lookup through `CommandTypeId -> ExecutorRef -> executor factory`
-- M9.4 payload schema validation for required fields, type mismatch, unknown fields, target references, `ValueKeyId`, and runtime-query references
-- M9.5 `CommandRunner`, `CommandFrame`, `CommandContext`, `CommandLocal`, cancellation, and failure boundary
-- M9.6 control-flow and async commands including Sequence, If, Switch, For, Wait, Delay, Detached or Forget, and Cancel
-- M9.7 timeout, cancellation, and loop-bound policy
+- M9.1 `CommandTypeId`、`CommandCategoryId`、`CommandExecutorId`、`CommandPayloadSchemaId`、`CommandAuthoringKeyId` を含む command identity
+- M9.2 構造化された `CommandCatalogPlan` エントリと、グループ化された metadata table: `CommandEntryPlan`、`CommandExecutorRef`、`CommandPayloadSchemaPlan`、`CommandModuleMetadata`、`CommandCategoryMetadata`
+- M9.3 `CommandTypeId -> ExecutorRef -> executor factory` による executor lookup
+- M9.4 必須 field、type mismatch、unknown field、target reference、`ValueKeyId`、runtime-query reference に対する payload schema validation
+- M9.5 `CommandRunner`、`CommandFrame`、`CommandContext`、`CommandLocal`、cancellation、failure boundary
+- M9.6 Sequence、If、Switch、For、Wait、Delay、Detached/Forget、Cancel を含む control-flow と async command
+- M9.7 timeout、cancellation、loop-bound 方針
 
-Exit gates:
+出口ゲート:
 
-- command dispatch is table-driven by verified command identity
-- executor discovery does not depend on bulk DI registration or runtime string lookup
-- payload validation occurs before executor body execution
-- control-flow commands declare their failure and timeout behavior explicitly
+- command dispatch は検証済み command identity によって table 駆動される
+- executor discovery は bulk DI registration や runtime string lookup に依存しない
+- payload validation は executor 本体の実行前に行われる
+- control-flow command は失敗と timeout の挙動を明示する
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- `IReadOnlyList<ICommandExecutor>` discovery
-- `.As<ICommandExecutor>()` or equivalent installer-driven executor registration as the target model
-- string executor lookup or authoring-key dispatch on target runtime paths
-- giant runtime installer as the command composition mechanism
+- `IReadOnlyList<ICommandExecutor>` の discovery
+- target model としての `.As<ICommandExecutor>()` またはそれに相当する installer 駆動 executor registration
+- target runtime path における string executor lookup や authoring-key dispatch
+- command composition 機構としての巨大な runtime installer
 
-Downstream unlocks:
+下流の解放条件:
 
-- M10 and M14 can depend on verified command identity and schema
-- M15 can include command dispatch in the minimal vertical slice
+- M10 と M14 は、検証済み command identity と schema に依存できる
+- M15 は、minimal vertical slice に command dispatch を含められる
 
 ### M10: Value / Scalar / Dynamic Runtime
 
-M10 creates the verified value runtime and its specializations.
+M10 は検証済み value runtime とその specialization を作る。
 
-Required outputs:
+必要な出力:
 
-- M10.1 `ValueKeyId`, `ValueSchemaId`, `ValueStoreId`, `ValueKind`, `ValueStorageKind`, `ValueDefaultPolicy`, and `SavePolicy`
-- M10.2 slot-based storage from `ValueKeyId` to typed backend, slot revision, store revision, and dirty signal
-- M10.3 `ValueStoreInitPlan`, `ValueInitPlan`, `ValueInitEntry`, `OverwritePolicy`, `InitPhase`, and source provenance
-- M10.4 table, record, record-list, row, column, and cell identity or revision model
-- M10.5 `LayeredNumeric` pipeline with Base, PrefixMul, Add, SuffixMul, FinalClamp, Effective value, contribution handle, and revision tracking
-- M10.6 scalar runtime specialization from 10-1
-- M10.7 dynamic and reactive evaluation plans from 10-2
-- M10.8 evaluation context, tracker, cache, dependency stamp, invalidation policy, and nested dependency capture
-- M10.9 revision and dirty bridge
+- M10.1 `ValueKeyId`、`ValueSchemaId`、`ValueStoreId`、`ValueKind`、`ValueStorageKind`、`ValueDefaultPolicy`、`SavePolicy`
+- M10.2 `ValueKeyId` から typed backend、slot revision、store revision、dirty signal への slot-based storage
+- M10.3 `ValueStoreInitPlan`、`ValueInitPlan`、`ValueInitEntry`、`OverwritePolicy`、`InitPhase`、source provenance
+- M10.4 table、record、record-list、row、column、cell の identity / revision model
+- M10.5 Base、PrefixMul、Add、SuffixMul、FinalClamp、Effective value、contribution handle、revision tracking を持つ `LayeredNumeric` pipeline
+- M10.6 10-1 からの scalar runtime specialization
+- M10.7 10-2 からの dynamic および reactive evaluation plan
+- M10.8 evaluation context、tracker、cache、dependency stamp、invalidation policy、nested dependency capture
+- M10.9 revision と dirty bridge
 
-Exit gates:
+出口ゲート:
 
-- value reads and writes use verified IDs and slots rather than stable keys or runtime-generated negative IDs
-- init plans define overwrite and phase behavior explicitly rather than relying on collection order
-- scalar and dynamic evaluation are explicit plans rather than hidden behavior inside general value access
-- hot-path value access does not depend on `Dictionary<string, object>` or schema inference from writes
+- value の read/write は stable-key や runtime-generated negative ID ではなく検証済み ID と slot を使う
+- init plan は collection 順序に頼らず overwrite と phase の振る舞いを明示する
+- scalar と dynamic の evaluation は、一般的な value access の中の隠れた挙動ではなく明示的な plan である
+- hot-path の value access は `Dictionary<string, object>` や write からの schema 推論に依存しない
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- stable-key runtime lookup as normal value access
-- runtime negative-ID creation as target behavior
-- hidden dynamic evaluation during generic store access
-- repeated construct or start initialization to repair missing state
+- 通常の value access として stable-key runtime lookup を使うこと
+- target behavior として runtime negative ID を作ること
+- generic store access 中に hidden dynamic evaluation を行うこと
+- 状態不足を修復するために construct / start initialization を繰り返すこと
 
-Downstream unlocks:
+下流の解放条件:
 
-- M11 can extract authoring values into verified init plans
-- M14 can migrate Blackboard, Var, and DynamicValue behavior into bounded runtime forms
+- M11 は authoring value を検証済み init plan に抽出できる
+- M14 は Blackboard、Var、DynamicValue の振る舞いを bounded な runtime 形式へ移行できる
 
 ### M11: UnityAuthoringBridge
 
-M11 connects Unity authoring to the verified pipeline.
+M11 は Unity authoring を検証済みパイプラインへ接続する。
 
-Required outputs:
+必要な出力:
 
-- M11.1 authoring source model including `UnityAuthoringSourceKind`, `UnitySourceLocation`, `UnityObjectLink`, and `AuthoringComponentKind`
-- M11.2 stable `ScopeAuthoringId` policy including duplicate detection, copy and paste policy, prefab duplication policy, and variant override source tracing
-- M11.3 contribution extraction pipeline from explicit authoring roots into `ModuleContributionData`
-- M11.4 local authoring validation and diagnostics
-- M11.5 direct-play generation path through extract, normalize, validate, generate temporary verified artifact set, and boot via BootManifest
+- M11.1 `UnityAuthoringSourceKind`、`UnitySourceLocation`、`UnityObjectLink`、`AuthoringComponentKind` を含む authoring source model
+- M11.2 重複検出、copy/paste 方針、prefab duplication 方針、variant override の source tracing を含む安定した `ScopeAuthoringId` 方針
+- M11.3 明示的な authoring root から `ModuleContributionData` への contribution extraction pipeline
+- M11.4 ローカル authoring 検証と diagnostics
+- M11.5 extract、normalize、validate、一時的な verified artifact set の generate、BootManifest 経由の boot を通る direct-play generation path
 - M11.6 authoring diagnostics
 
-Exit gates:
+出口ゲート:
 
-- MonoBehaviour and ScriptableObject authoring describe runtime structure but do not construct runtime structure directly
-- direct play uses the verified pipeline rather than runtime discovery repair
-- authoring extraction produces source-traceable contributions and local diagnostics
+- MonoBehaviour と ScriptableObject の authoring は runtime 構造を記述するが、runtime 構造を直接構築しない
+- direct play は runtime discovery repair ではなく verified pipeline を使う
+- authoring extraction は source-traceable な contribution と local diagnostics を生成する
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- `IFeatureInstaller.InstallFeature` as the target authoring-to-runtime bridge
-- builder mutation during authoring extraction
-- `GetComponentsInChildren` runtime discovery or `Transform.parent` ownership inference as authoring truth
-- allowing Play Mode to bypass validation because it is an editor path
+- target authoring-to-runtime bridge としての `IFeatureInstaller.InstallFeature`
+- authoring extraction 中の builder mutation
+- authoring の真実としての `GetComponentsInChildren` による runtime discovery や `Transform.parent` による所有権推定
+- Play Mode だからという理由で validation を迂回すること
 
-Downstream unlocks:
+下流の解放条件:
 
-- M14 can migrate representative features through real authoring inputs
-- M15 can prove direct-play verified boot
+- M14 は実際の authoring input を通じて代表的 feature を移行できる
+- M15 は direct-play の検証済み boot を証明できる
 
 ### M12: LegacyCompat Boundary
 
-M12 quarantines legacy compatibility rather than extending it.
+M12 は legacy compatibility を拡張するのではなく quarantine する。
 
-Required outputs:
+必要な出力:
 
-- M12.1 `LegacyCompatKind`, `LegacyAdapterDescriptor`, `LegacyRemovalPolicy`, and `LegacyMigrationReport`
-- M12.2 dependency-direction enforcement allowing Legacy -> Adapter -> v2 only
-- M12.3 explicit legacy adapters for installer, resolver, command, value, lifecycle, and authoring migration
-- M12.4 release-profile rejection policy for runtime legacy adapters
-- M12.5 resolver fallback rejection
+- M12.1 `LegacyCompatKind`、`LegacyAdapterDescriptor`、`LegacyRemovalPolicy`、`LegacyMigrationReport`
+- M12.2 Legacy -> Adapter -> v2 のみを許す依存方向強制
+- M12.3 installer、resolver、command、value、lifecycle、authoring の移行に対する明示的 legacy adapter
+- M12.4 runtime legacy adapter に対する release profile 拒否方針
+- M12.5 resolver fallback 拒否
 - M12.6 value migration adapter
 - M12.7 removal-policy tracking
 
-Exit gates:
+出口ゲート:
 
-- target-kernel core does not depend on legacy types as a fallback path
-- legacy usage is explicit, diagnosable, and removable
-- Release profile can reject prohibited legacy runtime paths
+- target-kernel core は fallback path として legacy 型に依存しない
+- legacy 利用は明示的で、診断可能で、削除可能である
+- Release profile は禁止された legacy runtime path を拒否できる
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- v2 -> Legacy -> fallback direction
-- adding new target features through legacy APIs
-- using legacy resolver behavior to repair missing target-kernel data
+- v2 -> Legacy -> fallback の方向
+- legacy API を通じた新しい target feature の追加
+- 欠落した target-kernel data を修復するために legacy resolver 振る舞いを使うこと
 
-Downstream unlocks:
+下流の解放条件:
 
-- M14 and M15 can measure migration residue rather than hide it
-- performance and regression gates can treat legacy usage as bounded debt
+- M14 と M15 は、migration residue を隠さずに測定できる
+- performance と regression gate は legacy 利用を bounded debt として扱える
 
 ### M13: Performance / RuntimeRules
 
-M13 formalizes measurable runtime architecture rules.
+M13 は測定可能な runtime アーキテクチャルールを正式化する。
 
-Required outputs:
+必要な出力:
 
-- M13.1 `RuntimePathKind` classification for HotPath, WarmPath, ColdPath, BootPath, EditorGenerationPath, ValidationPath, TestOnlyPath, and LegacyMigrationPath
-- M13.2 profiler-marker taxonomy for Kernel.Boot, Kernel.ServiceGraph, Kernel.ScopeGraph, Kernel.Lifecycle, Kernel.CommandCatalog, Kernel.ValueStore, Kernel.DynamicEvaluation, Kernel.Diagnostics, Kernel.UnityBridge, and Kernel.LegacyCompat
-- M13.3 forbidden-API tests for hierarchy scans, discovery, reflection construction, direct logging, string dispatch, stable-key access, and lifecycle scans
-- M13.4 hot-path allocation tests for resolve, handle validation, tick dispatch, command dispatch, value read or write, dynamic cached read, and diagnostics-disabled trace path
-- M13.5 performance report output
-- M13.6 regression thresholds
+- M13.1 HotPath、WarmPath、ColdPath、BootPath、EditorGenerationPath、ValidationPath、TestOnlyPath、LegacyMigrationPath の `RuntimePathKind` 分類
+- M13.2 Kernel.Boot、Kernel.ServiceGraph、Kernel.ScopeGraph、Kernel.Lifecycle、Kernel.CommandCatalog、Kernel.ValueStore、Kernel.DynamicEvaluation、Kernel.Diagnostics、Kernel.UnityBridge、Kernel.LegacyCompat の profiler-marker taxonomy
+- M13.3 階層 scan、discovery、reflection construction、direct logging、string dispatch、stable-key access、lifecycle scan に対する forbidden-API テスト
+- M13.4 resolve、handle validation、tick dispatch、command dispatch、value read/write、dynamic cached read、diagnostics-disabled trace path に対する hot-path allocation テスト
+- M13.5 performance report 出力
+- M13.6 regression 閾値
 
-Exit gates:
+出口ゲート:
 
-- performance rules are executable rather than documentary only
-- target hot paths have profiler markers and allocation expectations
-- forbidden operations are measured as architecture regressions
+- performance ルールは文書だけでなく実行可能である
+- target hot path には profiler marker と allocation 期待値がある
+- forbidden operation はアーキテクチャ回帰として測定される
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- claiming a path is fast without measurement
-- postponing forbidden-operation tests until after feature migration
-- allowing hidden allocation or string lookup because the current content scale is small
+- 測定なしで path が速いと主張すること
+- feature migration の後まで forbidden-operation テストを延期すること
+- 現在のコンテンツ規模が小さいからといって hidden allocation や string lookup を許すこと
 
-Downstream unlocks:
+下流の解放条件:
 
-- M14 migrations can be accepted or rejected against explicit budgets
-- M15 CI gates can include real performance smoke checks
+- M14 の移行を explicit budgets に照らして受理または拒否できる
+- M15 の CI gate に実際の performance smoke check を含められる
 
 ### M14: Existing Feature Migration
 
-M14 migrates representative existing features through the verified pipeline.
+M14 は代表的な既存 feature を検証済みパイプラインに通して移行する。
 
-Required outputs:
+必要な出力:
 
 - M14.1 ModalStack migration
 - M14.2 Tooltip migration
@@ -831,63 +831,63 @@ Required outputs:
 - M14.6 CommandRunnerMB migration
 - M14.7 Loading / Boot legacy migration
 
-Representative migration rules:
+代表的な移行ルール:
 
-- per-modal, per-layer, per-tooltip, per-channel-player, or per-animation-player runtime objects must not be promoted into target services
-- camera fallback, null var-store fallback, scope-ancestor fallback, and stable-key fallback must be removed or quarantined behind explicit migration adapters
-- hub-owned runtime objects remain hub-owned runtime objects rather than becoming service abuse
+- per-modal、per-layer、per-tooltip、per-channel-player、per-animation-player の runtime object を target service に昇格させてはならない
+- camera fallback、null var-store fallback、scope-ancestor fallback、stable-key fallback は削除するか、明示的な migration adapter の背後に隔離しなければならない
+- hub 所有の runtime object は、service の濫用ではなく hub 所有の runtime object のままである
 
-Exit gates:
+出口ゲート:
 
-- selected existing systems run through v2 contributions, validation, verified generation, boot, runtime, diagnostics, and performance rules
-- representative legacy fallback patterns are removed or isolated
-- debug-map traceability exists for migrated features
+- 選択した既存 system が v2 の contribution、validation、verified generation、boot、runtime、diagnostics、performance ルールを通過する
+- 代表的 legacy fallback パターンが削除または隔離される
+- 移行された feature には debug map の追跡可能性がある
 
-Forbidden shortcuts:
+禁止ショートカット:
 
-- renaming legacy installer patterns without changing their trust boundary
-- migrating features before the target runtime path exists
-- accepting gameplay success while architectural regressions remain invisible
+- trust boundary を変えずに legacy installer パターンの名前だけを変えること
+- target runtime path が存在する前に feature を移行すること
+- アーキテクチャ回帰が見えないまま gameplay の成功だけで満足すること
 
-Downstream unlocks:
+下流の解放条件:
 
-- M15 can run a real minimal vertical slice using representative content
-- legacy removal evidence becomes concrete rather than theoretical
+- M15 は代表的コンテンツを使った実際の minimal vertical slice を実行できる
+- legacy 削除の証拠が理論ではなく具体になる
 
 ### M15: Integration / Direct Play / Regression Hardening
 
-M15 proves the end-to-end architecture.
+M15 は end-to-end のアーキテクチャを証明する。
 
-Required outputs:
+必要な出力:
 
-- M15.1 minimal vertical slice from Unity authoring source through contribution, IR, validation, generation, boot, service resolve, scope creation, lifecycle acquire, command dispatch, value access, and diagnostics output
-- M15.2 direct-play verified flow using dirty check, extract, validate, generate, and boot
-- M15.3 regression suite for direct logging, discovery, transform inference, `Resources.Load` fallback, service or executor discovery, lifecycle scan, command string dispatch, value stable-key runtime lookup, legacy fallback, stale artifact boot, and missing DebugMap in Development
-- M15.4 CI gate including build, EditMode validation, EditMode generation, PlayMode minimal boot, static forbidden-pattern tests, diagnostics snapshot tests, performance smoke tests, and legacy-boundary tests
+- M15.1 Unity authoring source から contribution、IR、validation、generation、boot、service resolve、scope creation、lifecycle acquire、command dispatch、value access、diagnostics output までの minimal vertical slice
+- M15.2 dirty check、extract、validate、generate、boot を使う direct-play verified flow
+- M15.3 direct logging、discovery、transform 推定、`Resources.Load` fallback、service または executor discovery、lifecycle scan、command string dispatch、value stable-key runtime lookup、legacy fallback、stale artifact boot、Development での DebugMap 欠落に対する regression suite
+- M15.4 build、EditMode validation、EditMode generation、PlayMode minimal boot、静的禁止パターンテスト、diagnostics snapshot テスト、performance smoke テスト、legacy boundary テストを含む CI gate
 - M15.5 legacy-removal pass
-- M15.6 documentation and test traceability completion
+- M15.6 文書化と test 追跡可能性の完了
 
-Exit gates:
+出口ゲート:
 
-- direct play and CI exercise the verified pipeline rather than a side path
-- regression suite fails when architecture drift re-enters the runtime
-- test and documentation traceability are complete enough that milestone status is auditable
+- direct play と CI は side path ではなく verified pipeline を使う
+- regression suite は、architecture drift が runtime に戻ってきたとき失敗する
+- test と文書の追跡可能性は、マイルストーン状態を監査できるほど十分である
 
-Forbidden shortcuts:
+禁止ショートカット:
 
 - Play Mode fallback boot
-- scene-discovery repair during integration
-- treating green gameplay as sufficient proof without validation, generation, diagnostics, performance, and regression evidence
+- 統合時の scene-discovery repair
+- validation、generation、diagnostics、performance、regression の証拠なしに gameplay が緑なら十分とみなすこと
 
-Downstream unlocks:
+下流の解放条件:
 
-- the target-kernel architecture is protected rather than aspirational
+- target-kernel アーキテクチャは、望ましいだけでなく保護されている
 
 ---
 
-## Forbidden Sequencing
+## 禁止シーケンス
 
-The following starting points are explicitly forbidden as primary implementation entry points for Kernel v2.
+以下の開始点は、Kernel v2 の primary implementation entry point として明確に禁止される。
 
 ```text
 NG:
@@ -897,44 +897,44 @@ M10 ValueStore first
 M14 Existing Feature Migration first
 ```
 
-Reasons:
+理由:
 
-- `ServiceGraph` first tends to recreate the old DI container and runtime object registry pattern.
-- `CommandCatalog` first tends to recreate bulk executor registration and runtime string dispatch debt.
-- `ValueStore` first tends to recreate Blackboard v2 with stable-key fallback and hidden dynamic behavior.
-- feature migration first tends to rename legacy behavior without changing trust boundaries.
+- `ServiceGraph` first は、古い DI コンテナと runtime object registry パターンを再生しがちである。
+- `CommandCatalog` first は、bulk executor registration と runtime string dispatch の負債を再生しがちである。
+- `ValueStore` first は、stable-key fallback と隠れた dynamic behavior を持つ Blackboard v2 を再生しがちである。
+- feature migration first は、trust boundary を変えずに legacy 行動の名前だけを変えがちである。
 
-The correct high-risk ordering rule is:
+高リスクな正しい順序ルールは次の通り:
 
 ```text
 Diagnostics / Test -> IR / Contribution -> Validation -> Generation -> Boot -> Runtime -> Migration -> Integration
 ```
 
-If a team needs to prototype a later subsystem earlier, that prototype must remain explicitly non-authoritative and must not become the target runtime path until its prerequisite milestones are complete.
+より後の subsystem を先に試作する必要がある場合でも、その試作は明示的に non-authoritative のままにしなければならず、前提マイルストーンが完了するまでは target runtime path になってはならない。
 
 ---
 
-## Completion Rule
+## 完了ルール
 
-The following criteria apply to every milestone:
+すべてのマイルストーンに次の基準が適用される:
 
-- all required outputs exist in source or documentation form
-- at least one lower-spec rule or test gate can verify the milestone output
-- the milestone's forbidden shortcuts remain absent on target runtime paths
-- downstream milestones can consume the output without introducing runtime fallback
+- 必要な出力が source または documentation 形式で存在する
+- 少なくとも 1 つの下位仕様ルールまたは test gate が、そのマイルストーン出力を検証できる
+- マイルストーンの禁止ショートカットが target runtime path に存在しない
+- 下流マイルストーンが runtime fallback を導入せずにその出力を消費できる
 
-If these criteria are not met, the milestone is in progress regardless of how much code exists.
+これらの基準を満たさない限り、コードがどれだけ存在してもマイルストーンは進行中である。
 
 ---
 
-## Final Position
+## 最終的位置づけ
 
-The most important implementation decision in this plan is placing M1 first.
+この計画で最も重要な実装判断は、M1 を最初に置くことである。
 
-The project does not begin by building a clever resolver.
-It begins by building a structured failure surface, static forbidden-pattern gates, and test artifacts.
+project は clever な resolver から始まらない。
+structured な failure surface、静的 forbidden-pattern gate、test artifact から始まる。
 
-After that, the target kernel is built in the following order:
+その後、target kernel は次の順で構築される:
 
 ```text
 KernelDiagnostic / Test Gates
@@ -950,15 +950,15 @@ KernelDiagnostic / Test Gates
 -> Integration and Regression Hardening
 ```
 
-This order makes the kernel verifiable before it becomes large.
-That is the only reliable way to keep the v2 migration from collapsing into legacy behavior with better names.
+この順序により、kernel は大きくなる前に検証可能になる。
+それが、v2 移行がより良い名前を持つ legacy 行動へ崩れるのを防ぐ唯一の信頼できる方法である。
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Verification |
+| テストケース | 目的 | 検証 |
 |---|---|---|
-| TC-16-01 | Confirm implementation order is not the same as specification numbering. | The Purpose and Global Milestone Order sections must explicitly state that diagnostics, tests, IR, validation, generation, and boot precede runtime subsystem milestones. |
-| TC-16-02 | Confirm M0 includes concept ownership, forbidden-pattern registry, dependency matrix, and anchor inventory work. | The M0 section must enumerate M0.2 through M0.5 and describe the minimum concept and forbidden-pattern coverage. |
-| TC-16-03 | Confirm M1 is the first implementation milestone because diagnostics and tests are architecture protection, not late polish. | The Implementation Ordering Principles and M1 sections must define structured diagnostics, sink policy, test artifacts, and static gates as prerequisite work. |
-| TC-16-04 | Confirm runtime-first entry points are explicitly rejected. | The Forbidden Sequencing section must list M6, M9, M10, and M14 as forbidden primary starting points and explain why. |
-| TC-16-05 | Confirm final integration requires direct-play verified boot, regression gates, CI gates, and legacy-removal evidence. | The M15 section must define M15.1 through M15.6 and require end-to-end proof rather than gameplay-only success. |
+| TC-16-01 | 実装順序が仕様番号と同じではないことを確認する。 | Purpose と Global Milestone Order の節が、diagnostics、tests、IR、validation、generation、boot が runtime subsystem マイルストーンより先であることを明示していなければならない。 |
+| TC-16-02 | M0 に concept ownership、禁止パターン台帳、依存マトリクス、アンカー目録の作業が含まれていることを確認する。 | M0 の節が M0.2 から M0.5 を列挙し、最小限の concept および forbidden-pattern カバレッジを説明していなければならない。 |
+| TC-16-03 | diagnostics と test がアーキテクチャ保護であり、後付けの磨きではないため、M1 が最初の実装マイルストーンであることを確認する。 | Implementation Ordering Principles と M1 の節が、構造化 diagnostics、sink 方針、test artifact、静的 gate を前提作業として定義していなければならない。 |
+| TC-16-04 | runtime-first の入口点が明示的に拒否されていることを確認する。 | Forbidden Sequencing の節が、M6、M9、M10、M14 を禁止された主要開始点として列挙し、その理由を説明していなければならない。 |
+| TC-16-05 | 最終統合に direct-play verified boot、regression gate、CI gate、legacy 削除の証拠が必要であることを確認する。 | M15 の節が M15.1 から M15.6 を定義し、ゲームプレイだけの成功ではなく end-to-end の証明を要求していなければならない。 |

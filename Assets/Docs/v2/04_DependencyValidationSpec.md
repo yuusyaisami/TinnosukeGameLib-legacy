@@ -1,67 +1,67 @@
-# Dependency Validation Specification
+# 依存関係検証仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 04_DependencyValidationSpec
-- Status: Draft
-- Role: dependency correctness contract across KernelIR and generated runtime projections
-- Depends on:
+- 文書 ID: `04_DependencyValidationSpec`
+- 状態: Draft
+- 役割: KernelIR と生成済み runtime projection をまたぐ依存関係正当性の契約
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
   - [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md)
-- Provides foundation for:
-  - 05_BootManifestAndProfileSpec.md
-  - 06_ServiceGraphRuntimeSpec.md
-  - 07_ScopeGraphRuntimeSpec.md
-  - 08_LifecyclePlanSpec.md
-  - 09_CommandCatalogRuntimeSpec.md
-  - 10_ValueSchemaAndStoreSpec.md
-  - 10_2_DynamicValueEvaluationSpec.md
-  - 11_DebugMapAndDiagnosticsSpec.md
-  - 12_UnityAuthoringBridgeSpec.md
-  - 13_LegacyCompatBoundarySpec.md
-  - 14_PerformanceBudgetAndRuntimeRulesSpec.md
-  - 15_TestAndValidationSpec.md
+- この仕様を基盤としている文書:
+  - [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md)
+  - [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md)
+  - [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md)
+  - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
+  - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
+  - [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md)
+  - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
+  - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
+  - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
+  - [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md)
+  - [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md)
+  - [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md)
 
-### Ownership
+### 所有範囲
 
-04 owns dependency correctness, phase-aware validation semantics, severity policy, diagnostics requirements, and the validation result model.
+04 は、dependency correctness、phase-aware な検証意味論、severity policy、diagnostics 要件、および validation result model を所有する。
 
-It does not own KernelIR layout, generation algorithms, runtime execution behavior, runtime storage layout, or artifact manifest format.
-
----
-
-## Purpose
-
-This specification defines how dependency correctness is validated before KernelIR and its generated projections are allowed to become runtime execution inputs.
-
-Dependency validation is the gate that prevents invalid KernelIR from becoming runtime plans.
-
-Invalid dependency graphs must fail before runtime plan execution.
-
-A dependency discovered only at runtime is a validation failure unless a lower spec explicitly defines it as a verified runtime query.
-
-This specification exists to prevent the following failure modes:
-
-- missing required dependencies reaching boot or acquire
-- cycles in invalid phases
-- profile-specific dependency gaps being discovered after generation
-- optional dependencies collapsing into silent fallback
-- runtime query semantics leaking into service resolution
-- legacy compatibility leaking into the target kernel core
-- generated projections introducing unknown identities or losing provenance
+KernelIR のレイアウト、generation algorithm、runtime 実行挙動、runtime storage layout、artifact manifest 形式は担当外である。
 
 ---
 
-## Scope
+## 目的
 
-This specification defines:
+本仕様は、KernelIR とその生成済み projection が runtime execution input になる前に、依存関係の正しさをどのように検証するかを定義する。
 
-- dependency validation inputs and outputs
-- dependency identity validation rules
-- phase-aware dependency validation
-- dependency strength interpretation for validation
+依存関係検証は、無効な KernelIR が runtime plan に変わるのを防ぐ gate である。
+
+無効な依存関係 graph は、runtime plan 実行の前に失敗しなければならない。
+
+runtime になって初めて見つかる依存関係は、下位仕様がそれを verified runtime query として明示していない限り、検証失敗である。
+
+この仕様は次の失敗モードを防ぐために存在する。
+
+- 必須 dependency の欠落が boot または acquire まで届くこと
+- invalid phase に cycle が存在すること
+- profile 固有の dependency gap が generation 後に見つかること
+- optional dependency が silent fallback に落ちること
+- runtime query の意味論が service resolution に漏れること
+- legacy compatibility が target kernel core に漏れること
+- generated projection が未知の identity を導入したり provenance を失ったりすること
+
+---
+
+## 範囲
+
+本仕様は次を定義する。
+
+- dependency validation の input / output
+- dependency identity の検証ルール
+- phase-aware validation
+- validation における dependency strength の解釈
 - validation severity policy
 - module dependency validation
 - service dependency validation
@@ -70,114 +70,114 @@ This specification defines:
 - command dependency validation
 - value dependency validation
 - runtime query dependency validation
-- diagnostics and debug coverage validation
+- diagnostics / debug coverage validation
 - profile-aware validation
 - optional dependency policy
 - cycle detection policy
-- conflict and duplicate validation
-- forbidden dependency patterns
+- conflict / duplicate validation
+- forbidden dependency pattern
 - legacy leakage validation
-- validation diagnostics requirements
-- validation test case format
+- validation diagnostics 要件
+- validation test case 形式
 
-This specification does not redefine the canonical meaning or wire shape of KernelIR nodes, dependency edges, generated artifacts, DebugMap assets, or runtime subsystem APIs.
+本仕様は、KernelIR node、dependency edge、generated artifact、DebugMap asset、runtime subsystem API の canonical な意味や wire shape を再定義しない。
 
 ---
 
-## Relationship to Other Specs
+## 他仕様との関係
 
-| Spec | Relationship |
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines validation as part of the trust boundary and forbids silent fallback in the target kernel. |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines typed IR identity domains, dependency edge representation, lifecycle data, and runtime query data interpreted by this spec. |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Defines declarative contribution inputs and dependency declarations that must become valid before normalization output is accepted. |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Defines generation, staging, and artifact consistency checks around the dependency validation gates owned here. |
-| 05_BootManifestAndProfileSpec.md | Consumes only inputs that have passed dependency validation for the selected profile. |
-| 06_ServiceGraphRuntimeSpec.md | Consumes validated service dependencies and lifetime direction rules. |
-| 07_ScopeGraphRuntimeSpec.md | Consumes validated scope parentage, runtime query rules, and explicit graph boundaries. |
-| 08_LifecyclePlanSpec.md | Consumes validated lifecycle participation, ordering, and phase dependencies. |
-| 09_CommandCatalogRuntimeSpec.md | Consumes validated command identity, executor, payload, and runtime query dependencies. |
-| 10_ValueSchemaAndStoreSpec.md | Consumes validated value schema, init, save, and value-state boundary rules. |
-| 10_2_DynamicValueEvaluationSpec.md | Consumes validated dynamic and reactive evaluation dependencies, phase legality, and invalidation declarations. |
-| 11_DebugMapAndDiagnosticsSpec.md | Consumes validation diagnostics, source provenance, and debug coverage requirements defined here. |
-| 12_UnityAuthoringBridgeSpec.md | Produces authoring inputs whose normalized dependency declarations must survive validation before acceptance. |
-| 13_LegacyCompatBoundarySpec.md | Defines the only legal boundary where legacy usage may remain observable and controlled. |
-| 15_TestAndValidationSpec.md | Converts the validation fixtures and required cases defined here into executable tests and CI gates. It does not redefine validation semantics, severity meaning, or diagnostics-code intent. |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | validation を trust boundary の一部として定義し、target kernel で silent fallback を禁じる |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | typed IR identity domain、dependency edge 表現、lifecycle data、runtime query data を定義し、本仕様が解釈する |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | 正規化出力が受理される前に valid でなければならない宣言的 contribution input と dependency 宣言を定義する |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | 本仕様が所有する dependency validation gate を中心に、generation、staging、artifact consistency check を定義する |
+| 05_BootManifestAndProfileSpec.md | 選択された profile に対して dependency validation を通過した input だけを消費する |
+| 06_ServiceGraphRuntimeSpec.md | validated された service dependency と lifetime direction rule を消費する |
+| 07_ScopeGraphRuntimeSpec.md | validated された scope parentage、runtime query rule、explicit graph boundary を消費する |
+| 08_LifecyclePlanSpec.md | validated された lifecycle participation、ordering、phase dependency を消費する |
+| 09_CommandCatalogRuntimeSpec.md | validated された command identity、executor、payload、runtime query dependency を消費する |
+| 10_ValueSchemaAndStoreSpec.md | validated された value schema、init、save、value-state boundary rule を消費する |
+| 10_2_DynamicValueEvaluationSpec.md | validated された dynamic / reactive evaluation dependency、phase legality、invalidation declaration を消費する |
+| 11_DebugMapAndDiagnosticsSpec.md | ここで定義される validation diagnostics、source provenance、debug coverage 要件を消費する |
+| 12_UnityAuthoringBridgeSpec.md | 正規化された dependency 宣言が受理前に validation を通過しなければならない authoring input を生成する |
+| 13_LegacyCompatBoundarySpec.md | legacy usage が観測可能で制御可能な唯一の合法 boundary を定義する |
+| 15_TestAndValidationSpec.md | ここで定義される validation fixture と required case を実行可能な test と CI gate に変換する。validation 意味論、severity の意味、diagnostics code の意図は再定義しない |
 
-04 is the dependency firewall between declarative architecture and runtime execution.
-
----
-
-## Assembly Definition and Compile Boundary Expectations
-
-The intended assembly home for dependency validation is `GameLib.Kernel.Validation`.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
-
-Required compile-boundary rules for 04:
-
-- `GameLib.Kernel.Validation` must remain separate from runtime mutation code and runtime subsystem implementations
-- the validation core should remain Unity-free and use `noEngineReferences: true`
-- validation helpers may be exercised by `GameLib.Tests.*` and authoring editor assemblies, but production validation core must not reference test or editor packages
-- legacy repair code, fallback lookup helpers, and runtime discovery utilities must not be pulled into the validation assembly
-
-If validation correctness depends on runtime side effects or Editor-only APIs in the core assembly, the 04 boundary has been violated.
+04 は、宣言的アーキテクチャと runtime execution を分ける dependency firewall である。
 
 ---
 
-## Current Validation Observations
+## Assembly Definition と Compile Boundary の期待値
 
-Current dependency validation observations must remain traceable to source code, design review notes, or migration evidence.
+依存関係検証の想定配置先は `GameLib.Kernel.Validation` である。
+詳細な dependency matrix は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が管理する。
 
-### Observation Traceability
+04 に対する必須の compile-boundary ルールは次のとおり。
 
-| Observation | Evidence Type | Validation Pressure |
+- `GameLib.Kernel.Validation` は runtime mutation code と runtime subsystem 実装から分離する
+- validation core は Unity 非依存のまま維持し、`noEngineReferences: true` を使うべきである
+- validation helper は `GameLib.Tests.*` や authoring editor assembly で使ってよいが、production validation core は test / editor package を参照してはならない
+- legacy repair code、fallback lookup helper、runtime discovery utility を validation assembly に引き込んではならない
+
+validation correctness が runtime side effect や Editor-only API に依存するなら、04 の boundary は破れている。
+
+---
+
+## 現行の検証観測
+
+現行の依存関係検証観測は、source code、design review note、migration evidence に遡れなければならない。
+
+### 観測のトレーサビリティ
+
+| 観測 | 根拠の種類 | 検証圧力 |
 |---|---|---|
-| Lifecycle and tick participation can be collected by scanning runtime registrations. | Source | 04, 08 |
-| Runtime handler dispatch can be finalized after resolver build instead of before validation. | Source | 04, 06, 08 |
-| Command executors and lifecycle services can be bulk-registered as a build side effect. | Source | 04, 09 |
-| Missing value registry entries can fall back to runtime-only negative IDs. | Source | 04, 10 |
-| Missing value registry assets can fall back to `Resources.Load` or an empty runtime asset. | Source | 04, 05, 10 |
-| Runtime identity lookup can be satisfied through registry traversal after boot. | Source | 04, 07 |
+| lifecycle と tick 参加を runtime registration の scan で集められる | Source | 04, 08 |
+| runtime handler dispatch を validation 前ではなく resolver build 後に確定できる | Source | 04, 06, 08 |
+| command executor と lifecycle service を build の副作用として一括登録できる | Source | 04, 09 |
+| 欠落した value registry entry を runtime-only negative ID にフォールバックできる | Source | 04, 10 |
+| 欠落した value registry asset を `Resources.Load` または空の runtime asset にフォールバックできる | Source | 04, 05, 10 |
+| runtime identity lookup を boot 後に registry traversal で満たせる | Source | 04, 07 |
 
-### Representative Anchors
+### 代表的なアンカー
 
-- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - registration indexing, `CollectHandlers<THandler>()`, `CollectAll(...)`, and `RuntimeAcquireReleaseDispatcher`
-- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - feature installation during build, resolver construction, and handler extraction after runtime registration
-- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk executor and lifecycle registration patterns coupled to scope kind
-- [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) - runtime-only negative ID fallback when a stable key is not present in the registry
-- [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) - `Resources.Load` lookup and empty runtime fallback asset creation
-- [BaseLifetimeScopeRegistry.cs](../../GameLib/Script/Common/LTS/Registry/BaseLifetimeScopeRegistry.cs) - runtime identity lookup over registered scopes
+- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - registration indexing、`CollectHandlers<THandler>()`、`CollectAll(...)`、`RuntimeAcquireReleaseDispatcher`
+- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - build 中の feature installation、resolver construction、runtime registration 後の handler extraction
+- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - scope kind に結びついた bulk executor / lifecycle registration pattern
+- [VarIdResolver.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs) - stable key が見つからないときの runtime-only negative ID fallback
+- [VarKeyRegistryLocator.cs](../../GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs) - `Resources.Load` lookup と empty runtime fallback asset の生成
+- [BaseLifetimeScopeRegistry.cs](../../GameLib/Script/Common/LTS/Registry/BaseLifetimeScopeRegistry.cs) - registered scope に対する runtime identity lookup
 
-### Current Gaps
+### 現行の不足点
 
-The current project still exposes several dependency gaps that 04 must close in the target architecture:
+現行プロジェクトには、04 が target architecture で埋めるべき依存関係の穴がまだ残っている。
 
-- dependency truth can still be finalized after runtime build rather than before generation and boot
-- optional behavior can still degrade into fallback rather than explicit absence policy
-- runtime query and service resolution are not yet fully separated by validation semantics
-- profile-specific failure boundaries are not yet fixed at the dependency level
-- projection mismatch and provenance loss do not yet have a single authoritative rejection gate
-
----
-
-## Validation Authority
-
-04 is the fail-closed authority for dependency correctness.
-
-If dependency correctness cannot be proven from explicit data, the graph is invalid for the target kernel.
-
-01 owns typed identity domains, dependency edge representation, and normalized IR structure.
-03 owns generation-time staging, artifact completeness, hash compatibility, and deterministic publication.
-04 owns the rules that determine whether the declared dependency graph is legal before runtime execution may begin.
-
-Validation is not a best-effort warning pass.
-It is the gate that decides whether a graph may proceed to projection, publication, boot, or execution.
+- dependency truth を generation と boot の前ではなく runtime build 後に確定できてしまう
+- optional behavior が explicit absence policy ではなく fallback に退化できてしまう
+- runtime query と service resolution が、まだ検証意味論で完全に分離されていない
+- profile 固有の failure boundary が dependency レベルで固定されていない
+- projection mismatch と provenance loss に対する単一の権威ある拒否 gate がない
 
 ---
 
-## Validation Position in Pipeline
+## 検証権威
 
-Dependency validation runs at two distinct gates.
+04 は、dependency correctness に対する fail-closed な権威である。
+
+explicit data から dependency correctness を証明できないなら、その graph は target kernel において無効である。
+
+01 は typed identity domain、dependency edge 表現、正規化済み IR structure を所有する。
+03 は generation-time の staging、artifact completeness、hash compatibility、決定論的な publication を所有する。
+04 は、runtime execution が始まる前に宣言された dependency graph が合法かどうかを決める rule を所有する。
+
+validation は best-effort の warning pass ではない。
+graph が projection、publication、boot、execution に進んでよいかを決める gate である。
+
+---
+
+## パイプラインにおける位置
+
+dependency validation は 2 つの異なる gate で実行される。
 
 ```text
 Authoring / ModuleContribution
@@ -192,395 +192,373 @@ Authoring / ModuleContribution
 
 ### 1. Pre-Generation Validation
 
-Pre-Generation Validation runs against normalized KernelIR before runtime-facing projections are generated.
+Pre-Generation Validation は、runtime-facing projection が生成される前に、正規化済み KernelIR に対して実行される。
 
-It validates dependency correctness within the declared graph, including:
+宣言された graph の内部で次を検証する。
 
-- missing dependencies
+- missing dependency
 - invalid identity-domain satisfaction
 - invalid ownership
 - invalid phase usage
-- forbidden lifecycle enrollment patterns
+- forbidden lifecycle enrollment pattern
 - invalid optional dependency policy
-- cycles in invalid phases
+- invalid phase の cycle
 - forbidden legacy leakage
 
-If Pre-Generation Validation fails, generation must not proceed as a trusted run.
+Pre-Generation Validation が失敗したら、generation は trusted run として進めてはならない。
 
 ### 2. Post-Generation Validation
 
-Post-Generation Validation runs against staged projections emitted by 03 before those outputs become a trusted artifact set.
+Post-Generation Validation は、03 が出した staged projection に対して実行され、それらが trusted artifact set になる前に検証する。
 
-It validates that generated projections preserve dependency correctness, provenance, and identity boundaries, including:
+projection が dependency correctness、provenance、identity boundary を保っていることを検証する。
 
-- no unknown identities introduced by projection
-- no dependency edges or required mappings dropped during projection
-- no profile availability drift introduced by projection
-- no debug coverage or source provenance required by validation lost in generation
-- no projection-specific fallback introduced to repair invalid inputs
+- projection によって unknown identity が導入されていない
+- projection 中に dependency edge や required mapping が落ちていない
+- projection によって profile availability drift が導入されていない
+- validation に必要な debug coverage や source provenance が generation 中に失われていない
+- invalid input を修復するための projection-specific fallback が導入されていない
 
-If Post-Generation Validation fails, staged artifacts are rejected and must not be published as verified outputs.
+Post-Generation Validation が失敗したら、staged artifact は拒否され、verified output として公開してはならない。
 
-Both gates must pass before a runtime may treat the resulting artifact set as trusted.
+runtime が結果の artifact set を trusted とみなす前に、両方の gate を通過しなければならない。
 
 ---
 
 ## Dependency Validation Model
 
-04 interprets the dependency data defined by 01 and 02.
-It does not redefine their canonical shapes.
+04 は、01 と 02 で定義された dependency data を解釈する。
+canonical shape を再定義しない。
 
 ### Validation Inputs
 
-Dependency validation operates on explicit, immutable inputs:
+dependency validation は、次の explicit で immutable な input に対して動作する。
 
 - normalized KernelIR
 - selected kernel profile
-- availability and version inputs resolved through normalization
-- staged projections emitted by 03 for the selected profile
-- DebugMap provenance metadata and identity coverage required for diagnostics
-- lower-spec allowances that are explicitly declared, such as verified runtime query behavior or LegacyCompat boundaries
+- normalization を通じて解決された availability / version input
+- 選択した profile 向けに 03 が出した staged projection
+- diagnostics に必要な DebugMap provenance metadata と identity coverage
+- verified runtime query behavior や LegacyCompat boundary のような、明示的に宣言された lower-spec allowance
 
-Hidden runtime state, scene discovery, reflection-derived handler lists, and fallback-created identities are not valid validation inputs.
+hidden runtime state、scene discovery、reflection 由来の handler list、fallback 生成 identity は有効な validation input ではない。
 
 ### Validation Outputs
 
-Dependency validation produces an explicit result contract:
+dependency validation は、明示的な result contract を返す。
 
-- pass or fail status
-- issue list with stable codes
+- pass / fail status
+- stable code を持つ issue list
 - severity summary
-- affected nodes and phases
+- affected node と phase
 - selected profile association
-- enough provenance for 11 and 15 to render diagnostics and tests deterministically
+- 11 と 15 が diagnostics と test を決定論的に描画するための provenance
 
-A successful validation result is a prerequisite for trust.
-It is not a hint that runtime may ignore.
+成功した validation result は trust の前提である。
+runtime が無視してよいヒントではない。
 
 ### Dependency Identity Rules
 
-Typed identity domains are owned by 01 and enforced here.
+KernelIR が typed identity を使うため、validation も同じ domain を尊重する。
 
-Validation must reject cross-domain satisfaction.
-
-Examples:
-
-- `ServiceId` cannot satisfy `CommandTypeId`
-- `ValueKeyId` cannot satisfy `RuntimeQueryId`
-- `ScopeAuthoringId` cannot satisfy a runtime `ScopeHandle` dependency
-- `RuntimeQueryId` cannot satisfy `LifecycleStepId`
-
-Unknown identity references are invalid whether they appear in KernelIR or only in a generated projection.
+- `ServiceId` は `CommandTypeId` として扱えない
+- `ValueKeyId` は `ServiceId` として扱えない
+- `ScopeAuthoringId` は runtime `ScopeHandle` として扱えない
+- `RuntimeQueryId` は lifecycle step identity として扱えない
 
 ### Phase Model
 
-04 uses the dependency phase set defined by 01.
+validation は phase-aware である。
 
-| Phase | Value | Validation Meaning |
-|---|---:|---|
-| Build | 10 | Dependency required while constructing normalized or generated structural state. |
-| Generate | 20 | Dependency required while producing verified projections. |
-| Boot | 30 | Dependency required before the target runtime reaches ready state. |
-| Acquire | 40 | Dependency required while entering active or acquired lifecycle participation. |
-| Runtime | 50 | Dependency required during steady-state runtime operations. |
-| Save | 60 | Dependency required while persisting validated runtime state. |
-| EditorOnly | 70 | Dependency that exists only in editor-facing validation or authoring tooling paths. |
+| Phase | 意味 |
+|---|---|
+| Build | generation 前の組み立て |
+| Generate | projection 生成中 |
+| Boot | runtime 開始時 |
+| Acquire | acquire / release などの lifecycle 取得段階 |
+| Runtime | 通常の runtime 実行 |
+| Save | save / persistence に関する段階 |
+| EditorOnly | editor 専用段階 |
 
-Validation is phase-aware.
-A graph valid in one phase is not automatically valid in another.
+phase によって許可される dependency と cycle は変わる。
 
 ### Strength Model
 
-04 uses the dependency strength set defined by 01.
+dependency strength は、validation での扱いを決める。
 
-| Strength | Value | Validation Meaning |
-|---|---:|---|
-| Required | 10 | Absence is invalid for the selected profile and phase. |
-| Optional | 20 | Absence is allowed only if explicit absence behavior is declared and itself valid. |
-| Weak | 30 | Dependency is non-owning, but may still become invalid for the selected profile or phase. |
-| DiagnosticOnly | 40 | Dependency exists to preserve observability or traceability rather than execution. |
-
-Optional does not mean fallback.
-Weak does not mean warning-only.
+| Strength | 意味 |
+|---|---|
+| Required | 欠けたら失敗する |
+| Optional | 欠けてもよいが、absence behavior が必要 |
+| Weak | 関係はあるが、強制依存ではない |
+| DiagnosticOnly | 診断には使うが、成立条件にはしない |
 
 ### Severity Model
 
-Validation severity is distinct from dependency strength.
+severity は次の意味を持つ。
 
-```csharp
-public enum ValidationSeverity
-{
-    Info = 10,
-    Warning = 20,
-    Error = 30,
-    Fatal = 40,
-}
-```
+- `Fatal`: trust boundary violation、projection が未知 identity を導入すること、回復不能な provenance loss、Release profile における forbidden legacy leakage
+- `Error`: required dependency の欠落、invalid lifetime direction、invalid cycle、invalid optional policy、invalid runtime query / service mixing、duplicate identity
+- `Warning`: 明示的に許可された migration 例外や profile 例外で、なお観測可能かつ bounded なもの
+- `Info`: acceptance を変えない非ブロッキングな trace data
 
-Default severity expectations:
-
-- `Fatal`: trust-boundary violations, projection introducing unknown identities, unrecoverable provenance loss, or forbidden release-profile legacy leakage
-- `Error`: missing required dependencies, invalid lifetime direction, invalid cycles, invalid optional policy, invalid runtime query/service mixing, duplicate identities
-- `Warning`: explicitly allowed migration or profile exceptions that remain observable and bounded
-- `Info`: non-blocking trace data that does not change acceptance
-
-If a lower spec changes severity for a specific case, it must do so explicitly and preserve fail-closed behavior where required.
+下位仕様が特定ケースの severity を変える場合は、それを明示し、必要な fail-closed 振る舞いを保たなければならない。
 
 ---
 
 ## Validation Rule Categories
 
-Validation rules are grouped into the following categories:
+validation rule は次のカテゴリに分ける。
 
-- `Local Node`: validity of a single node, such as source location, owner module, or profile declaration
-- `Local Edge`: validity of one dependency edge, such as identity domain, phase, or strength
-- `Cross-Node`: relationships such as lifetime direction, ordering, or missing targets
-- `Cross-Module`: module dependency and ownership interactions
-- `Profile-Aware`: dependency legality under Development, Release, or Test policy
-- `Projection`: preservation of dependency truth across generated artifacts
-- `Legacy Boundary`: legality of crossing into or out of LegacyCompat
+- `Local Node`: source location、owner module、profile 宣言など、単一 node の妥当性
+- `Local Edge`: identity domain、phase、strength など、1 本の dependency edge の妥当性
+- `Cross-Node`: lifetime direction、ordering、missing target などの関係
+- `Cross-Module`: module dependency と ownership の相互作用
+- `Profile-Aware`: Development / Release / Test における dependency 合法性
+- `Projection`: 生成済み artifact をまたいだ dependency truth の保持
+- `Legacy Boundary`: LegacyCompat へ入る・出ることの合法性
 
-This grouping exists to keep validation deterministic, auditable, and extensible without turning it into an unbounded heuristic pass.
+この分類は、validation を決定論的で監査可能、かつ拡張可能に保つためのものであり、無制限な heuristic pass にしないためのものである。
 
 ---
 
 ## Module Dependency Validation
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- every required module dependency exists
-- every required module dependency is enabled in the selected profile
-- module version compatibility rules are satisfied when a version constraint exists
-- optional module dependencies declare explicit absence behavior
-- core modules do not depend on legacy modules unless 13 explicitly allows the boundary
-- module ownership of contributed identities remains explicit and non-ambiguous
+- 必須 module dependency がすべて存在する
+- 必須 module dependency が選択 profile で enabled である
+- version constraint がある場合、その互換条件を満たす
+- optional module dependency が explicit な absence behavior を持つ
+- core module が 13 の明示的許可なしに legacy module に依存していない
+- 貢献された identity の module ownership が明示的で、曖昧でない
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- missing required modules
-- disabled required modules in the selected profile
-- optional module dependencies without absence behavior
-- undeclared forbidden module dependencies
-- target-kernel core depending on LegacyCompat as if it were a normal dependency
+- required module の欠落
+- 選択 profile で disabled の required module
+- absence behavior を持たない optional module dependency
+- 宣言されていない forbidden module dependency
+- target-kernel core が LegacyCompat を通常 dependency のように頼ること
 
 ---
 
 ## Service Dependency Validation
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- every required `ServiceId` exists
-- the owner module of each required service is available in the selected profile
-- required contracts are actually provided by the target service identity
-- lifetime direction is compatible with the requester and phase
-- the declared dependency phase is legal for the participating lifetimes
-- build, generate, boot, or acquire dependencies do not rely on runtime-only objects or discovery
+- 必須 `ServiceId` がすべて存在する
+- 各 required service の owner module が選択 profile で available である
+- required contract が実際に target service identity から提供されている
+- lifetime direction が requester と phase に対して互換である
+- 宣言された dependency phase が参与する lifetime に対して合法である
+- Build / Generate / Boot / Acquire dependency が runtime-only object や discovery に依存していない
 
-Longer-lived services must not require shorter-lived services during Build, Generate, Boot, or Acquire unless a lower spec defines a verified indirection.
+より長命な service は、下位仕様が verified indirection を定義しない限り、Build / Generate / Boot / Acquire の段階でより短命な service を必要としてはならない。
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- missing required services
+- missing required service
 - invalid service lifetime direction
 - service contract mismatch
-- service dependencies satisfied only through runtime component discovery
-- generation or boot dependencies that rely on runtime query semantics without an explicit runtime query declaration
+- runtime component discovery のみで満たされる service dependency
+- explicit runtime query 宣言なしに runtime query 意味論に依存する generation / boot dependency
 
 ---
 
 ## Scope Dependency Validation
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- every explicit parent scope exists
-- parent scope kind is legal for the child scope kind
-- the owner module exists and is available
-- required scope services exist and are profile-valid
-- referenced value init plans exist and target valid values
-- scene and runtime boundary rules are respected
-- parentage is explicit rather than deferred to runtime hierarchy inference
+- 明示的な parent scope がすべて存在する
+- parent scope kind が child scope kind に対して合法である
+- owner module が存在し、available である
+- required scope service が存在し、profile-valid である
+- 参照された value init plan が存在し、正しい value を対象にしている
+- scene と runtime boundary の rule が守られている
+- parentage が runtime hierarchy inference に委ねられず explicit である
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- missing parent scope definitions
-- invalid parent kind relationships
-- unresolved scope parentage that depends on transform hierarchy inference
-- scope dependencies that cross forbidden scene or ownership boundaries
+- missing parent scope definition
+- invalid parent kind relationship
+- transform hierarchy inference に依存した未解決の scope parentage
+- scene または ownership boundary を越える scope dependency
 
 ---
 
 ## Lifecycle Dependency Validation
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- every lifecycle target reference is valid for its declared target kind
-- every lifecycle target service exists when the target kind is `Service`
-- every lifecycle target scope exists when the target kind is `Scope`
-- every lifecycle target runtime query exists when the target kind is `RuntimeQuery`
-- every lifecycle target local owner reference is explicit and valid when the target kind is `ValueStore`, `RuntimeObjectOwner`, or `LegacyAdapter`
-- lifecycle phase declarations are valid
-- lifecycle step order is deterministic
-- source location exists for lifecycle plans and steps
-- lifecycle dependencies do not introduce invalid phase cycles
-- the target reference is available in the required scope and profile
+- 各 lifecycle target reference が宣言された target kind に対して有効である
+- target kind が `Service` のとき、target service が存在する
+- target kind が `Scope` のとき、target scope が存在する
+- target kind が `RuntimeQuery` のとき、target runtime query が存在する
+- target kind が `ValueStore`、`RuntimeObjectOwner`、`LegacyAdapter` のとき、target local owner reference が明示的で有効である
+- lifecycle phase 宣言が妥当である
+- lifecycle step order が決定論的である
+- lifecycle plan と step に source location がある
+- lifecycle dependency が invalid な phase cycle を導入しない
+- target reference が required scope と profile で利用可能である
 
-Participation must be represented by `LifecycleIR`.
-Interface implementation alone is not lifecycle enrollment.
+参加は `LifecycleIR` で表現されなければならない。
+interface 実装だけでは lifecycle enrollment にならない。
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- interface-only lifecycle discovery assumptions
-- lifecycle participation derived from registration scanning
-- lifecycle steps targeting missing services
-- lifecycle steps targeting missing scopes
-- lifecycle steps targeting missing runtime queries
-- lifecycle steps targeting invalid local owner references
-- non-deterministic lifecycle ordering within the same phase
-- lifecycle dependencies that create invalid Build, Generate, Boot, or Acquire cycles
+- interface-only の lifecycle discovery 想定
+- registration scanning から導かれた lifecycle participation
+- missing service を target にした lifecycle step
+- missing scope を target にした lifecycle step
+- missing runtime query を target にした lifecycle step
+- invalid local owner reference を target にした lifecycle step
+- 同一 phase 内で非決定論的な lifecycle ordering
+- Build / Generate / Boot / Acquire cycle を生む lifecycle dependency
 
 ---
 
 ## Command Dependency Validation
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- every `CommandTypeId` exists
-- every command executor reference exists
-- every payload schema reference exists
-- every command payload field reference is compatible with its payload schema
-- required service, value, and runtime query dependencies exist
-- runtime dispatch identity is not satisfied by a raw authoring key
-- command executor availability is not satisfied by ServiceGraph bulk discovery
-- control-flow child command references are valid
-- command runner domain and cardinality are valid where declared
-- command-level module dependencies are declared where required
+- すべての `CommandTypeId` が存在する
+- すべての command executor reference が存在する
+- すべての payload schema reference が存在する
+- 各 command payload field reference が payload schema と互換である
+- required service / value / runtime query dependency が存在する
+- runtime dispatch identity が raw authoring key で満たされていない
+- command executor availability が ServiceGraph の bulk discovery で満たされていない
+- control-flow の child command reference が妥当である
+- command runner domain と cardinality が宣言されている場合に妥当である
+- 必要な場合、command-level module dependency が宣言されている
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- missing command executors
-- missing payload schemas
-- payload fields missing required schema metadata
-- payload field type mismatches
-- use of authoring keys as runtime dispatch identity
-- command dependencies satisfied only by bulk DI discovery
-- command dependencies on missing values or runtime queries
-- command runner cardinality that scales with mass entity count without explicit budget
+- missing command executor
+- missing payload schema
+- required schema metadata を欠いた payload field
+- payload field type mismatch
+- authoring key を runtime dispatch identity として使うこと
+- bulk DI discovery のみで満たされる command dependency
+- missing value や runtime query への command dependency
+- 明示的 budget なしに mass entity count に比例して増大する command runner cardinality
 
 ---
 
 ## Value Dependency Validation
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- every `ValueKeyId` exists
-- stable keys are unique where required
-- every schema reference exists
-- every required `ValueSchemaPlan` projection exists
-- every init plan target exists
-- every init plan target schema exists
-- init value type is compatible with schema
-- duplicate init entries have explicit deterministic overwrite or merge policy
-- save policy references are valid
-- save policy metadata is compatible with schema and profile
-- dynamic or reactive evaluation dependencies are explicit
-- every required `DynamicEvaluationPlan` projection exists
-- every required `ReactiveEvaluationPlan` projection exists
-- every dynamic evaluation output target exists and is legal for the declared phase
-- every reactive evaluation plan declares dependency-discovery mode and invalidation policy
-- dynamic evaluation inputs are declared and valid for the target phase
-- table, record, and cell schema references are valid
-- command read/write access declarations reference valid `ValueKeyId` values and store scopes
-- runtime stable-key fallback is not required for target-kernel correctness
-- runtime-only negative value IDs are absent
+- すべての `ValueKeyId` が存在する
+- 必要な箇所で stable key が一意である
+- すべての schema reference が存在する
+- 必要な `ValueSchemaPlan` projection が存在する
+- すべての init plan target が存在する
+- すべての init plan target schema が存在する
+- init value type が schema と互換である
+- duplicate init entry に explicit かつ deterministic な overwrite / merge policy がある
+- save policy reference が妥当である
+- save policy metadata が schema と profile に互換である
+- dynamic / reactive evaluation dependency が explicit である
+- 必要な `DynamicEvaluationPlan` projection が存在する
+- 必要な `ReactiveEvaluationPlan` projection が存在する
+- 各 dynamic evaluation output target が存在し、宣言 phase に対して合法である
+- 各 reactive evaluation plan が dependency-discovery mode と invalidation policy を宣言している
+- dynamic evaluation input が宣言され、target phase に対して妥当である
+- table / record / cell schema reference が妥当である
+- command の read/write access 宣言が有効な `ValueKeyId` と store scope を参照している
+- target-kernel correctness に runtime stable-key fallback が必要でない
+- runtime-only negative value ID が存在しない
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- duplicate value IDs or stable keys
+- duplicate value ID または stable key
 - missing `ValueSchemaPlan` projection
-- init plans that target missing keys
-- type-mismatched initialization
-- duplicate init entries resolved by collection order
-- implicit dynamic dependencies hidden inside generic initialization
-- hidden DynamicValue or deferred dynamic dependencies without explicit evaluation plan
-- reactive evaluation that depends on hidden source-local version checks rather than declared invalidation policy
-- table or cell payloads without schema
+- missing key を target にした init plan
+- type mismatch の initialization
+- collection order によって解決される duplicate init entry
+- generic initialization の中に隠された implicit dynamic dependency
+- explicit evaluation plan のない hidden DynamicValue または deferred dynamic dependency
+- declared invalidation policy ではなく source-local な version check に依存する reactive evaluation
+- schema を持たない table / cell payload
 - invalid save policy metadata
-- command value access without declared access policy
-- value access that requires runtime stable-key lookup fallback
-- runtime-only negative value IDs
+- declared access policy のない command value access
+- runtime stable-key lookup fallback を必要とする value access
+- runtime-only negative value ID
 
 ---
 
 ## Runtime Query Dependency Validation
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- every `RuntimeQueryId` exists
-- query target kind exists
-- indexed fields are defined
-- owner module is available in the selected profile
-- invalidation policy exists
-- ambiguity policy exists
-- every requester explicitly declares the runtime query dependency
+- すべての `RuntimeQueryId` が存在する
+- query target kind が存在する
+- indexed field が定義されている
+- owner module が選択 profile で available である
+- invalidation policy が存在する
+- ambiguity policy が存在する
+- 各 requester が runtime query dependency を明示している
 
-Runtime query dependency must not be satisfied by generic service resolution.
+runtime query dependency は generic service resolution では満たしてはならない。
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- missing runtime queries
-- query dependencies silently redirected through service resolution
-- missing invalidation or ambiguity policy
-- query target kinds that are not defined in the validated graph
+- missing runtime query
+- service resolution に silently redirected された query dependency
+- missing invalidation / ambiguity policy
+- validated graph に定義されていない query target kind
 
 ---
 
-## Diagnostics and Debug Coverage Validation
+## Diagnostics と Debug Coverage Validation
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- error codes are stable and unique within their category
-- diagnostic category ownership exists
-- runtime-facing identities have required DebugMap coverage
-- fatal and error diagnostics can resolve to human-readable metadata
-- validation issues preserve enough provenance for 11 and 15 to render them deterministically
+- error code が category 内で stable かつ unique である
+- diagnostic category ownership が存在する
+- runtime-facing identity に required DebugMap coverage がある
+- fatal / error diagnostics が human-readable metadata に解決できる
+- validation issue が、11 と 15 が決定論的に描画するための provenance を十分に保持している
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- missing diagnostics coverage for runtime-facing IDs where required by profile
-- duplicate diagnostic codes in the same category
-- fatal or error diagnostics that cannot be resolved beyond raw unknown identity values
-- projection output that strips the provenance needed to explain a dependency failure
+- profile で必要な runtime-facing ID に対する diagnostics coverage の欠落
+- 同一 category 内の duplicate diagnostic code
+- raw の未知 identity 値以外に解決できない fatal / error diagnostics
+- dependency failure を説明するために必要な provenance を落とした projection output
 
 ---
 
 ## Profile-Aware Validation
 
-Validation always evaluates a selected kernel profile.
+validation は常に selected kernel profile を評価する。
 
-A dependency graph valid in Development may be invalid in Release or Test.
+Development で valid な dependency graph が Release や Test で invalid になることがある。
 
-Validation must check:
+validation は次を確認しなければならない。
 
-- contribution availability per profile
-- dependency availability per profile
-- legacy allowance per profile
-- DebugMap strictness per profile
-- diagnostics detail requirements per profile
+- profile ごとの contribution availability
+- profile ごとの dependency availability
+- profile ごとの legacy allowance
+- profile ごとの DebugMap strictness
+- profile ごとの diagnostics detail requirements
 
-Profile-aware policy must remain explicit.
-Silent fallback is forbidden in every profile.
+profile-aware policy は explicit でなければならない。
+silent fallback はすべての profile で禁止である。
 
-Typical profile expectations:
+典型的な profile 期待値:
 
-- Development: maximum diagnostics and debug coverage; migration allowances may degrade to warnings only when explicitly bounded
-- Release: no silent fallback; forbidden legacy leakage and unknown identity introduction are `Error` or `Fatal`
-- Test: deterministic validation, maximum practical strictness, and reproducible diagnostics
+- Development: 最大限の diagnostics と debug coverage。migration allowance は、明示的に bounded である場合に限り warning に落ちてよい
+- Release: silent fallback なし。forbidden legacy leakage と未知 identity の導入は `Error` または `Fatal`
+- Test: deterministic validation、実用上最大の strictness、再現可能な diagnostics
 
 ---
 
 ## Optional Dependency Policy
 
-Optional dependency is allowed only when absence behavior is explicit and valid.
+optional dependency は、absence behavior が explicit かつ valid である場合にのみ許可される。
 
 ```csharp
 public enum OptionalDependencyAbsenceBehavior
@@ -592,52 +570,54 @@ public enum OptionalDependencyAbsenceBehavior
 }
 ```
 
-Optional dependency policy rules:
+optional dependency policy のルール:
 
-- silent absence is forbidden
-- absence behavior must be declared explicitly
-- `DisableContribution` must identify what contribution or projection is disabled
-- `EmitWarning` must preserve observability without inventing runtime behavior
-- `UseExplicitAlternative` must identify an explicit alternative target that exists, is type-compatible, and is valid for the same phase and profile
-- `ProfileSpecificError` must define the profile boundary that upgrades absence into failure
+- silent absence は禁止
+- absence behavior は explicit に宣言しなければならない
+- `DisableContribution` は、どの contribution / projection が無効になるかを示さなければならない
+- `EmitWarning` は、runtime behavior を発明せずに observability を保たなければならない
+- `UseExplicitAlternative` は、存在し、型互換で、同じ phase と profile で valid な explicit alternative target を示さなければならない
+- `ProfileSpecificError` は、absence を failure に引き上げる profile boundary を定義しなければならない
 
-An optional dependency without absence behavior is invalid.
+absence behavior を持たない optional dependency は無効である。
 
-An explicit alternative that is missing, cross-domain, phase-incompatible, or profile-incompatible is also invalid.
+欠落している、cross-domain、phase-incompatible、profile-incompatible な explicit alternative も無効である。
 
 ---
 
 ## Cycle Detection Policy
 
-Cycle detection is phase-aware and must be evaluated separately for each dependency phase.
+cycle detection は phase-aware であり、dependency phase ごとに個別に評価しなければならない。
 
-Invalid by default:
+既定では無効:
 
 - Build cycle
 - Generate cycle
 - Boot cycle
 - Acquire cycle
-- Save cycle, unless a lower spec explicitly defines a safe and validated exception
+- Save cycle。ただし、下位仕様が安全で検証済みの例外を明示している場合を除く
 
-Conditionally allowed:
+条件付きで許可:
 
-- Runtime cycle through a verified lazy handle
-- Runtime cycle through an explicit event channel
-- Runtime cycle through a verified runtime query indirection
+- verified lazy handle を通じた Runtime cycle
+- explicit event channel を通じた Runtime cycle
+- verified runtime query indirection を通じた Runtime cycle
 
-Still invalid at Runtime:
+それでも Runtime で無効なもの:
 
-- direct required cycle with no verified indirection
-- cycle repaired only by fallback or deferred discovery
-- cycle whose observability cannot be explained through diagnostics
+- verified indirection のない直接 required cycle
+- fallback または deferred discovery のみで修復された cycle
+- diagnostics で説明できない observability の cycle
 
-Validation must prove why an allowed Runtime cycle remains bounded and explicit.
+許可された Runtime cycle が bounded かつ explicit である理由を、validation は証明しなければならない。
 
 ---
 
-## Conflict and Duplicate Validation
+## Conflict と Duplicate Validation
 
-Validation must reject duplicate or conflicting structural identities by default, including:
+validation は、既定で duplicate または conflicting な structural identity を拒否しなければならない。
+
+例:
 
 - duplicate `ModuleId`
 - duplicate `ServiceId`
@@ -645,61 +625,61 @@ Validation must reject duplicate or conflicting structural identities by default
 - duplicate `ValueKeyId`
 - duplicate `RuntimeQueryId`
 - duplicate `LifecycleStepId`
-- duplicate stable key where uniqueness is required
-- duplicate authoring key in the same runtime command namespace
-- conflicting lifecycle order declarations within the same phase
+- 一意性が必要な stable key の重複
+- 同一 runtime command namespace における duplicate authoring key
+- 同一 phase 内の conflicting lifecycle order 宣言
 
-Last-write-wins conflict resolution is forbidden.
+last-write-wins の conflict resolution は禁止である。
 
-Implicit merge behavior is also forbidden unless a lower spec explicitly defines a deterministic merge protocol and validation policy.
+下位仕様が deterministic merge protocol と validation policy を明示しない限り、implicit merge も禁止である。
 
 ---
 
 ## Forbidden Dependency Patterns
 
-The following dependency patterns are forbidden in the target kernel:
+target kernel で禁止される dependency pattern は次のとおり。
 
-- target-kernel dependency satisfied by runtime scene search
-- scope parent dependency satisfied by transform hierarchy inference
-- service dependency satisfied by broad component traversal or generic runtime discovery
-- command executor dependency satisfied by bulk DI registration discovery
-- lifecycle participation inferred from implemented interface alone
-- value dependency satisfied by runtime stable-key fallback
-- missing required dependency repaired by generated runtime fallback identity
-- runtime query dependency satisfied by generic service resolution
-- generated projection introducing dependency semantics not present in KernelIR
+- runtime scene search で満たされた target-kernel dependency
+- transform hierarchy inference で満たされた scope parent dependency
+- broad component traversal または generic runtime discovery で満たされた service dependency
+- bulk DI registration discovery で満たされた command executor dependency
+- 実装した interface だけから推測された lifecycle participation
+- runtime stable-key fallback で満たされた value dependency
+- generated runtime fallback identity で修復された missing required dependency
+- generic service resolution で満たされた runtime query dependency
+- KernelIR に存在しない dependency semantics を導入する generated projection
 
-If a lower spec needs an exception, it must define the allowed caller, timing, bounds, diagnostics behavior, and removal condition explicitly.
+下位仕様が例外を必要とする場合は、allowed caller、timing、bounds、diagnostics behavior、removal condition を明示しなければならない。
 
 ---
 
 ## Legacy Leakage Validation
 
-Legacy dependencies are allowed only inside the boundary defined by 13.
+legacy dependency は、13 が定義する boundary の内側でのみ許可される。
 
-The only default legal direction is:
+既定で合法な方向は次の 1 つだけである。
 
 ```text
 LegacyCompat -> New Kernel
 New Kernel -> LegacyCompat is forbidden
 ```
 
-Validation must reject:
+validation は次を拒否しなければならない。
 
-- new kernel core depending on legacy runtime APIs
-- runtime plan depending on legacy resolver fallback
-- command catalog depending on legacy command runner registration
-- value schema depending on legacy negative-ID repair or runtime stable-key repair
-- lifecycle participation depending on interface-scan or registration-scan discovery rooted in legacy behavior
+- legacy runtime API に依存する new kernel core
+- legacy resolver fallback に依存する runtime plan
+- legacy command runner registration に依存する command catalog
+- legacy negative-ID repair または runtime stable-key repair に依存する value schema
+- legacy behavior に根ざした interface-scan または registration-scan discovery に依存する lifecycle participation
 
-Legacy allowances must remain explicit, observable, profile-aware, and removable.
+legacy allowance は、explicit、observable、profile-aware、removable でなければならない。
 
 ---
 
 ## Validation Report Model
 
-The report model below is explanatory.
-Lower specs or implementation may rename fields if the semantics remain equivalent.
+下の report model は説明用である。
+下位仕様や実装は、意味が等価であれば field 名を変えてよい。
 
 ```csharp
 public sealed class DependencyValidationReport
@@ -747,35 +727,35 @@ public sealed class DependencyValidationSummary
 }
 ```
 
-The report must make acceptance and rejection explicit.
-It must not require runtime reproduction to understand why validation failed.
+report は、acceptance と rejection を明示しなければならない。
+validation が失敗した理由を理解するのに runtime reproduction を必要としてはならない。
 
 ---
 
-## Validation Diagnostics Requirements
+## Validation Diagnostics 要件
 
-Every validation issue must provide:
+各 validation issue は次を提供しなければならない。
 
 - stable error code
 - severity
 - dependency phase
-- dependency kind or rule category
+- dependency kind または rule category
 - source node
-- target node when applicable
+- 必要なら target node
 - owner module
 - source location
 - selected profile
-- suggested fix where possible
+- 可能なら suggested fix
 
-A validation error without source location is itself a diagnostics degradation.
+source location のない validation error は、それ自体が diagnostics degradation である。
 
-Diagnostics must remain deterministic across hosts, profiles, and repeated runs over the same validated input.
+diagnostics は、同じ validated input に対して host、profile、反復実行をまたいでも決定論的でなければならない。
 
 ---
 
 ## Validation Test Case Model
 
-Each validation test case must define:
+各 validation test case は次を定義しなければならない。
 
 - Test ID
 - Title
@@ -787,7 +767,7 @@ Each validation test case must define:
 - Expected phase
 - Notes
 
-Recommended fixture format:
+推奨 fixture 形式:
 
 ```md
 ### TC_DEP_001_MissingRequiredService
@@ -808,7 +788,7 @@ Expected:
 - Affected To: Service B
 ```
 
-The fixture format exists so that 15 may turn these cases into executable validation tests without redefining intent.
+この fixture 形式は、15 が intent を再定義せずに executable validation test に変換できるようにするためにある。
 
 ---
 
@@ -818,578 +798,572 @@ The fixture format exists so that 15 may turn these cases into executable valida
 
 #### TC_DEP_MODULE_001_MissingRequiredModule
 
-Input:
-- Module Gameplay requires Module Physics
-- Module Physics is absent
+入力:
+- Module Gameplay は Module Physics を required とする
+- Module Physics は存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_MODULE_MISSING
+- Diagnostic: `DEP_MODULE_MISSING`
 
 #### TC_DEP_MODULE_002_DisabledRequiredModule
 
-Input:
-- Module Gameplay requires Module Save
-- Module Save exists but is disabled in the Release profile
+入力:
+- Module Gameplay は Module Save を required とする
+- Module Save は存在するが Release profile で disabled である
 
 Profile:
 - Release
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_MODULE_DISABLED_FOR_PROFILE
+- Diagnostic: `DEP_MODULE_DISABLED_FOR_PROFILE`
 
 #### TC_DEP_MODULE_003_OptionalModuleAbsentWithDisableBehavior
 
-Input:
-- Module UI optionally depends on Module Tooltip
-- Absence behavior = DisableContribution
+入力:
+- Module UI は Module Tooltip に optional で依存する
+- absence behavior = `DisableContribution`
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Passed
-- Notes: Tooltip-related contributions are disabled explicitly
+- Notes: Tooltip 関連 contribution は明示的に無効化される
 
 #### TC_DEP_MODULE_004_OptionalModuleAbsentWithoutBehavior
 
-Input:
-- Module UI optionally depends on Module Tooltip
-- No absence behavior is declared
+入力:
+- Module UI は Module Tooltip に optional で依存する
+- absence behavior が宣言されていない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_OPTIONAL_ABSENCE_BEHAVIOR_MISSING
+- Diagnostic: `DEP_OPTIONAL_ABSENCE_BEHAVIOR_MISSING`
 
 ### B. Service Dependency Tests
 
 #### TC_DEP_SERVICE_001_MissingRequiredService
 
-Input:
-- Service CommandRunner requires Service CommandCatalog
-- Service CommandCatalog is absent
+入力:
+- `CommandRunner` は `CommandCatalog` を required とする
+- `CommandCatalog` が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_SERVICE_MISSING
+- Diagnostic: `DEP_SERVICE_MISSING`
 
 #### TC_DEP_SERVICE_002_InvalidLifetimeDirection
 
-Input:
-- Project-lifetime service depends on Scene-lifetime service during Boot
+入力:
+- Project-lifetime service が Boot 中に Scene-lifetime service に依存する
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_SERVICE_LIFETIME_INVALID
+- Diagnostic: `DEP_SERVICE_LIFETIME_INVALID`
 
 #### TC_DEP_SERVICE_003_ServiceContractMissing
 
-Input:
-- Service A requires contract `ITimeDomainService`
-- Service B exists but does not provide the required contract
+入力:
+- Service A は `ITimeDomainService` contract を required とする
+- Service B は存在するが required contract を提供していない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_SERVICE_CONTRACT_MISSING
+- Diagnostic: `DEP_SERVICE_CONTRACT_MISSING`
 
 ### C. Scope Dependency Tests
 
 #### TC_DEP_SCOPE_001_MissingParentScope
 
-Input:
-- Scene scope declares parent ProjectRoot
-- ProjectRoot scope is absent
+入力:
+- Scene scope が親として ProjectRoot を宣言する
+- ProjectRoot scope が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_SCOPE_PARENT_MISSING
+- Diagnostic: `DEP_SCOPE_PARENT_MISSING`
 
 #### TC_DEP_SCOPE_002_InvalidParentKind
 
-Input:
-- Project scope declares Entity scope as parent
+入力:
+- Project scope が Entity scope を親として宣言する
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_SCOPE_PARENT_KIND_INVALID
+- Diagnostic: `DEP_SCOPE_PARENT_KIND_INVALID`
 
 #### TC_DEP_SCOPE_003_TransformParentInferenceDetected
 
-Input:
-- Scope parent is unresolved and marked as derived from runtime transform inference
+入力:
+- scope parent が未解決で、runtime transform inference から導かれたとマークされている
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_SCOPE_RUNTIME_TRANSFORM_INFERENCE_FORBIDDEN
+- Diagnostic: `DEP_SCOPE_RUNTIME_TRANSFORM_INFERENCE_FORBIDDEN`
 
 ### D. Lifecycle Dependency Tests
 
 #### TC_DEP_LIFECYCLE_001_TargetServiceMissing
 
-Input:
-- Lifecycle step targets Service `HealthService`
-- `HealthService` is absent
+入力:
+- lifecycle step が Service `HealthService` を target とする
+- `HealthService` が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_LIFECYCLE_TARGET_SERVICE_MISSING
+- Diagnostic: `DEP_LIFECYCLE_TARGET_SERVICE_MISSING`
 
 #### TC_DEP_LIFECYCLE_002_InterfaceOnlyParticipationRejected
 
-Input:
-- Service implements an acquire-like interface
-- No `LifecycleIR` step exists
+入力:
+- service が acquire-like interface を実装している
+- `LifecycleIR` step が存在しない
 
 Profile:
 - Development
 
-Expected:
-- Status: Failed when the graph expects automatic lifecycle discovery
-- Diagnostic: DEP_LIFECYCLE_INTERFACE_DISCOVERY_FORBIDDEN
+期待値:
+- graph が automatic lifecycle discovery を期待している場合は Failed
+- Diagnostic: `DEP_LIFECYCLE_INTERFACE_DISCOVERY_FORBIDDEN`
 
 #### TC_DEP_LIFECYCLE_003_AcquireCycleRejected
 
-Input:
-- Acquire step A requires Acquire step B
-- Acquire step B requires Acquire step A
+入力:
+- Acquire step A が Acquire step B を required とする
+- Acquire step B が Acquire step A を required とする
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_CYCLE_ACQUIRE
+- Diagnostic: `DEP_CYCLE_ACQUIRE`
 
 #### TC_DEP_LIFECYCLE_004_TargetValidatedByKind
 
-Input:
-- Lifecycle step target kind is `RuntimeQuery`
-- Referenced runtime query is absent
+入力:
+- lifecycle step の target kind が `RuntimeQuery`
+- 参照された runtime query が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_LIFECYCLE_TARGET_INVALID
+- Diagnostic: `DEP_LIFECYCLE_TARGET_INVALID`
 
 ### E. Command Dependency Tests
 
 #### TC_DEP_COMMAND_001_CommandExecutorMissing
 
-Input:
-- `CommandTypeId` `CameraShake` exists
-- Executor reference is missing
+入力:
+- `CommandTypeId` `CameraShake` は存在する
+- executor reference が欠落している
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_COMMAND_EXECUTOR_MISSING
+- Diagnostic: `DEP_COMMAND_EXECUTOR_MISSING`
 
 #### TC_DEP_COMMAND_002_PayloadSchemaMissing
 
-Input:
-- `CommandTypeId` `SpawnEntity` exists
-- Payload schema is absent
+入力:
+- `CommandTypeId` `SpawnEntity` は存在する
+- payload schema が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_COMMAND_PAYLOAD_SCHEMA_MISSING
+- Diagnostic: `DEP_COMMAND_PAYLOAD_SCHEMA_MISSING`
 
 #### TC_DEP_COMMAND_003_AuthoringKeyUsedAsRuntimeIdentity
 
-Input:
-- Command runtime identity is raw string `camera.shake`
+入力:
+- command の runtime identity が raw string `camera.shake` である
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_COMMAND_AUTHORING_KEY_USED_AS_RUNTIME_ID
+- Diagnostic: `DEP_COMMAND_AUTHORING_KEY_USED_AS_RUNTIME_ID`
 
 #### TC_DEP_COMMAND_004_CommandUsesMissingValueKey
 
-Input:
-- `DamageCommand` requires `ValueKey` `health.current`
-- `health.current` is missing
+入力:
+- `DamageCommand` が `ValueKey` `health.current` を required とする
+- `health.current` が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_VALUE_KEY_MISSING
+- Diagnostic: `DEP_VALUE_KEY_MISSING`
 
 ### F. Value Dependency Tests
 
 #### TC_DEP_VALUE_001_DuplicateValueKeyId
 
-Input:
-- Two `ValueKeyIR` entries use `ValueKeyId` 1001
+入力:
+- 2 つの `ValueKeyIR` が同じ `ValueKeyId` 1001 を使う
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_VALUE_KEY_DUPLICATE_ID
+- Diagnostic: `DEP_VALUE_KEY_DUPLICATE_ID`
 
 #### TC_DEP_VALUE_002_DuplicateStableKey
 
-Input:
-- Two `ValueKeyIR` entries use stable key `health.current`
+入力:
+- 2 つの `ValueKeyIR` が stable key `health.current` を使う
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_VALUE_STABLE_KEY_DUPLICATE
+- Diagnostic: `DEP_VALUE_STABLE_KEY_DUPLICATE`
 
 #### TC_DEP_VALUE_003_InitPlanMissingKey
 
-Input:
-- Value init plan writes `ValueKeyId` 2000
-- `ValueKeyId` 2000 is absent
+入力:
+- value init plan が `ValueKeyId` 2000 に書き込む
+- `ValueKeyId` 2000 が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_VALUE_INIT_KEY_MISSING
+- Diagnostic: `DEP_VALUE_INIT_KEY_MISSING`
 
 #### TC_DEP_VALUE_004_InitTypeMismatch
 
-Input:
-- Value key `health.current` uses `Int` schema
-- Init value is `String`
+入力:
+- Value key `health.current` は `Int` schema を使う
+- 初期値が `String` である
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_VALUE_INIT_TYPE_MISMATCH
+- Diagnostic: `DEP_VALUE_INIT_TYPE_MISMATCH`
 
 ### G. Runtime Query Dependency Tests
 
 #### TC_DEP_QUERY_001_QueryTargetMissing
 
-Input:
-- Command `WithTarget` requires runtime query `TargetById`
-- `TargetById` is absent
+入力:
+- Command `WithTarget` が runtime query `TargetById` を required とする
+- `TargetById` が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_RUNTIME_QUERY_MISSING
+- Diagnostic: `DEP_RUNTIME_QUERY_MISSING`
 
 #### TC_DEP_QUERY_002_QueryWithoutInvalidationPolicy
 
-Input:
-- Runtime query indexes Entity by category
-- Invalidation policy is missing
+入力:
+- runtime query が Entity を category で index している
+- invalidation policy が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_RUNTIME_QUERY_INVALIDATION_POLICY_MISSING
+- Diagnostic: `DEP_RUNTIME_QUERY_INVALIDATION_POLICY_MISSING`
 
 #### TC_DEP_QUERY_003_QuerySatisfiedByServiceResolverRejected
 
-Input:
-- Runtime query dependency is satisfied by service resolver lookup instead of explicit runtime query semantics
+入力:
+- runtime query dependency が、explicit な runtime query semantics ではなく service resolver lookup で満たされている
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_RUNTIME_QUERY_AS_SERVICE_FORBIDDEN
+- Diagnostic: `DEP_RUNTIME_QUERY_AS_SERVICE_FORBIDDEN`
 
 ### H. Cycle Detection Tests
 
 #### TC_DEP_CYCLE_001_BuildCycleRejected
 
-Input:
-- Service A requires Service B in Build phase
-- Service B requires Service A in Build phase
+入力:
+- Service A が Build phase で Service B を required とする
+- Service B が Build phase で Service A を required とする
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_CYCLE_BUILD
+- Diagnostic: `DEP_CYCLE_BUILD`
 
 #### TC_DEP_CYCLE_002_BootCycleRejected
 
-Input:
-- ProjectKernel boot requires SceneFlow
-- SceneFlow boot requires ProjectKernel
+入力:
+- ProjectKernel boot が SceneFlow を required とする
+- SceneFlow boot が ProjectKernel を required とする
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_CYCLE_BOOT
+- Diagnostic: `DEP_CYCLE_BOOT`
 
 #### TC_DEP_CYCLE_003_RuntimeLazyCycleAllowed
 
-Input:
-- Service A references Service B by verified lazy handle
-- Service B references Service A by verified lazy handle
+入力:
+- Service A が verified lazy handle で Service B を参照する
+- Service B が verified lazy handle で Service A を参照する
 - Phase = Runtime
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Passed
 
 #### TC_DEP_CYCLE_004_RuntimeRequiredCycleRejected
 
-Input:
-- Service A requires Service B directly
-- Service B requires Service A directly
+入力:
+- Service A が Service B を直接 required とする
+- Service B が Service A を直接 required とする
 - Phase = Runtime
 - Strength = Required
-- No lazy, event, or runtime query indirection exists
+- lazy / event / runtime query の indirection が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_CYCLE_RUNTIME_REQUIRED
+- Diagnostic: `DEP_CYCLE_RUNTIME_REQUIRED`
 
 ### I. Profile-Aware Tests
 
 #### TC_DEP_PROFILE_001_DebugMapMissingInDevelopment
 
-Input:
-- Runtime-facing `ServiceId` exists
-- Required DebugMap entry is missing
+入力:
+- runtime-facing `ServiceId` が存在する
+- required DebugMap entry が存在しない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_DEBUGMAP_ENTRY_MISSING
+- Diagnostic: `DEP_DEBUGMAP_ENTRY_MISSING`
 
 #### TC_DEP_PROFILE_002_LegacyAllowedInDevelopmentWarning
 
-Input:
-- LegacyCompat module uses a legacy resolver bridge
-- The bridge is explicitly allowed by 13 for Development
+入力:
+- LegacyCompat module が legacy resolver bridge を使う
+- その bridge は Development について 13 により明示的に許可されている
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: PassedWithWarnings
-- Diagnostic: DEP_LEGACY_USAGE_WARNING
+- Diagnostic: `DEP_LEGACY_USAGE_WARNING`
 
 #### TC_DEP_PROFILE_003_LegacyRejectedInRelease
 
-Input:
-- TargetKernelCore depends on `LegacyRuntimeResolver`
+入力:
+- TargetKernelCore が `LegacyRuntimeResolver` に依存する
 
 Profile:
 - Release
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_LEGACY_FORBIDDEN_IN_RELEASE
+- Diagnostic: `DEP_LEGACY_FORBIDDEN_IN_RELEASE`
 
 ### J. Projection Validation Tests
 
 #### TC_DEP_PROJ_001_ProjectionIntroducesUnknownServiceId
 
-Input:
-- KernelIR contains `ServiceId` 100
-- Generated `ServiceGraphPlan` contains `ServiceId` 999
+入力:
+- KernelIR に `ServiceId` 100 が含まれる
+- Generated `ServiceGraphPlan` に `ServiceId` 999 が含まれる
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_PROJECTION_UNKNOWN_SERVICE_ID
+- Diagnostic: `DEP_PROJECTION_UNKNOWN_SERVICE_ID`
 
 #### TC_DEP_PROJ_002_DebugMapDoesNotMatchProjection
 
-Input:
-- `CommandCatalogPlan` contains `CommandTypeId` 200
-- DebugMap has no entry for `CommandTypeId` 200
+入力:
+- `CommandCatalogPlan` に `CommandTypeId` 200 が含まれる
+- DebugMap に `CommandTypeId` 200 の entry がない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_DEBUGMAP_COVERAGE_MISSING
+- Diagnostic: `DEP_DEBUGMAP_COVERAGE_MISSING`
 
 #### TC_DEP_PROJ_003_ValueSchemaMissingProjection
 
-Input:
-- KernelIR contains `ValueKeyId` 300
-- `ValueSchemaPlan` omits `ValueKeyId` 300
+入力:
+- KernelIR に `ValueKeyId` 300 が含まれる
+- `ValueSchemaPlan` が `ValueKeyId` 300 を省いている
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_PROJECTION_VALUE_SCHEMA_MISSING
+- Diagnostic: `DEP_PROJECTION_VALUE_SCHEMA_MISSING`
 
 ### K. Additional Required Cases
 
 #### TC_DEP_DIAG_001_MissingSourceLocationForValidationIssue
 
-Input:
-- A dependency-bearing node triggers a validation failure
-- The node and resulting issue have no source location provenance
+入力:
+- 依存関係を持つ node が validation failure を引き起こす
+- その node と結果 issue に source location provenance がない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_DIAGNOSTICS_SOURCE_LOCATION_MISSING
+- Diagnostic: `DEP_DIAGNOSTICS_SOURCE_LOCATION_MISSING`
 
 #### TC_DEP_ID_001_DuplicateServiceId
 
-Input:
-- Two `ServiceIR` entries use the same `ServiceId`
+入力:
+- 2 つの `ServiceIR` entry が同じ `ServiceId` を使う
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_SERVICE_DUPLICATE_ID
+- Diagnostic: `DEP_SERVICE_DUPLICATE_ID`
 
 #### TC_DEP_PROJ_004_ProjectionDropsDependencyProvenance
 
-Input:
-- KernelIR contains a valid dependency edge
-- Generated projection preserves the target identity but drops provenance required to trace the dependency through validation diagnostics
+入力:
+- KernelIR に valid な dependency edge が含まれる
+- Generated projection は target identity を保持しているが、validation diagnostics を通じて dependency を追跡するために必要な provenance を落としている
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_PROJECTION_PROVENANCE_MISSING
+- Diagnostic: `DEP_PROJECTION_PROVENANCE_MISSING`
 
 #### TC_DEP_OPTIONAL_001_ExplicitAlternativeInvalid
 
-Input:
-- Optional dependency is absent
-- Absence behavior is `UseExplicitAlternative`
-- The declared alternative target is missing or phase-incompatible
+入力:
+- optional dependency が absent である
+- absence behavior = `UseExplicitAlternative`
+- 宣言された alternative target が存在しない、または phase と互換でない
 
 Profile:
 - Development
 
-Expected:
+期待値:
 - Status: Failed
-- Diagnostic: DEP_OPTIONAL_ALTERNATIVE_INVALID
+- Diagnostic: `DEP_OPTIONAL_ALTERNATIVE_INVALID`
 
 ---
 
-## Acceptance Criteria
+## 受け入れ条件
 
-04 is complete when it defines:
+04 が完成していると見なす条件は次のとおり。
 
-- validation authority and pipeline position
-- dependency identity enforcement based on 01-owned typed domains
-- phase-aware validation rules
-- dependency strength interpretation for validation
-- severity policy
-- validation rule categories
-- module dependency validation
-- service dependency validation
-- scope dependency validation
-- lifecycle dependency validation
-- command dependency validation
-- value dependency validation
-- runtime query dependency validation
-- diagnostics and debug coverage validation
-- profile-aware validation
-- optional dependency policy
-- cycle detection policy
-- conflict and duplicate validation
-- forbidden dependency patterns
-- legacy leakage validation
-- validation report semantics
-- validation diagnostics requirements
-- validation test case format
-- required validation case coverage
+- validation authority と pipeline position が定義されている
+- 01 が所有する typed domain に基づく dependency identity enforcement が定義されている
+- phase-aware validation rule が定義されている
+- validation における dependency strength の解釈が定義されている
+- severity policy が定義されている
+- validation rule category が定義されている
+- module / service / scope / lifecycle / command / value / runtime query dependency validation が定義されている
+- diagnostics と debug coverage validation が定義されている
+- profile-aware validation が定義されている
+- optional dependency policy が定義されている
+- cycle detection policy が定義されている
+- conflict / duplicate validation が定義されている
+- forbidden dependency pattern が定義されている
+- legacy leakage validation が定義されている
+- validation report semantics が定義されている
+- validation diagnostics requirements が定義されている
+- validation test case format が定義されている
+- required validation case coverage が定義されている
 
-The specification is not complete if dependency correctness still relies on runtime discovery, silent fallback, or projection-time repair.
+dependency correctness が runtime discovery、silent fallback、projection-time repair に依存したままなら未完成である。
 
 ---
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Verification |
+| テストケース | 目的 | 検証 |
 |---|---|---|
-| TC-04-01 | Confirm invalid dependency graphs fail before runtime execution. | The purpose, validation authority, and pipeline sections must make validation a hard gate. |
-| TC-04-02 | Confirm cycle detection is phase-aware. | The phase model and cycle detection policy must distinguish Build, Generate, Boot, Acquire, Runtime, and Save. |
-| TC-04-03 | Confirm optional dependency does not mean fallback. | The strength model and optional dependency policy must require explicit absence behavior. |
-| TC-04-04 | Confirm runtime query remains separate from service resolution. | The runtime query validation and forbidden dependency patterns sections must reject generic DI substitution. |
-| TC-04-05 | Confirm legacy leakage is rejected by default. | The legacy leakage validation section must preserve the `LegacyCompat -> New Kernel` one-way boundary. |
-| TC-04-06 | Confirm projection mismatch remains a dependency validation failure. | The pipeline and projection validation rules must reject unknown identities, dropped provenance, and missing mappings after generation. |
+| TC-04-01 | 無効な dependency graph は runtime execution より前に失敗することを確認する。 | 目的、validation authority、pipeline の節で、validation を hard gate として扱っていること。 |
+| TC-04-02 | cycle detection が phase-aware であることを確認する。 | phase model と cycle detection policy の節で、Build / Generate / Boot / Acquire / Runtime / Save を区別していること。 |
+| TC-04-03 | optional dependency が fallback を意味しないことを確認する。 | strength model と optional dependency policy の節で、明示的な absence behavior を要求していること。 |
+| TC-04-04 | runtime query が service resolution と別物であることを確認する。 | runtime query validation と forbidden dependency patterns の節で、generic DI 代替を拒否していること。 |
+| TC-04-05 | legacy leakage が既定で拒否されることを確認する。 | legacy leakage validation の節で、`LegacyCompat -> New Kernel` の一方向 boundary を維持していること。 |
+| TC-04-06 | projection mismatch も依存関係検証失敗であることを確認する。 | pipeline と projection validation rule の節で、generation 後の unknown identity、provenance drop、missing mapping を拒否していること。 |
 
 ---
 
-## Final Position
+## 最終見解
 
-Dependency validation is the firewall between explicit architecture and runtime failure.
+依存関係検証は、明示的なアーキテクチャと runtime failure の間にある firewall である。
 
-KernelIR is only trustworthy when its dependency graph has survived explicit, profile-aware, phase-aware validation.
+KernelIR は、明示的で profile-aware、phase-aware な validation を通過して初めて信頼できる。
 
-Runtime may execute only dependency graphs that have already survived explicit validation.
+runtime が実行できるのは、すでに explicit validation を生き残った dependency graph だけである。

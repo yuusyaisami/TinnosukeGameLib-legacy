@@ -1,223 +1,223 @@
 # 00 Kernel Architecture Overview Review
 
-## Status
+## 状態
 
-- Document role: review memo for the root architecture draft
-- Scope: review findings for the initial Kernel Architecture Overview draft
-- Goal: identify mismatches against the current project and define what 00 must fix before downstream specs are written
-- Review stance: strict, migration-oriented, implementation-grounded
+- 文書の役割: ルートアーキテクチャ草案に対するレビュー記録
+- 範囲: 初版の Kernel Architecture Overview 草案に対するレビュー結果
+- 目的: 現行プロジェクトとの不整合を洗い出し、下位仕様を書く前に 00 が修正すべき点を明確にすること
+- レビュースタンス: 厳格、移行重視、実装根拠重視
 
 ---
 
-## Executive Summary
+## 要約
 
-The direction of the proposed Kernel architecture is broadly correct.
-The project does need a verified-plan-first runtime, a stricter trust boundary around generated data, and isolation of legacy fallback behavior.
+提案されている Kernel アーキテクチャの方向性は、概ね妥当である。
+このプロジェクトには、検証済みの plan-first runtime、generated data に対するより厳密な trust boundary、legacy fallback 挙動の隔離が必要である。
 
-However, the current draft mixes three different things in the same sections:
+ただし、現在の草案は同じ節の中で次の 3 種類の内容を混在させている。
 
-1. observations about the current runtime
-2. design goals for v2
-3. final-form API shapes that have not been justified yet
+1. 現行 runtime に関する観測結果
+2. v2 に向けた設計目標
+3. まだ正当化されていない最終形の API 形状
 
-That mix is the main risk.
-If 00 remains in that state, downstream specs will inherit false assumptions about current behavior and over-constrained assumptions about the replacement runtime.
+この混在が最大のリスクである。
+00 がそのままだと、下位仕様は現行挙動に対する誤った前提と、置き換え先 runtime に対する過剰な固定前提を引き継いでしまう。
 
-The most important correction is to split 00 into two explicit layers:
+最も重要な修正は、00 を次の 2 層に分けることである。
 
-- current architecture observations grounded in the codebase
-- v2 target policies that describe what the new kernel must guarantee
+- コードベースに根ざした現行アーキテクチャの観測
+- 新しい kernel が保証すべき v2 の target policy
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行メモ |
 |---|---|---|
-| TC-RV-01 | Confirm each high-severity finding is anchored to concrete code or design evidence. | The anchor list under each finding must remain source-grounded. |
-| TC-RV-02 | Confirm current observations and v2 target policy stay separated. | The memo must not collapse fact review and target policy into one section. |
-| TC-RV-03 | Confirm the recommended rewrite strategy keeps final API shape deferred. | Final runtime details must remain in the lower specs. |
+| TC-RV-01 | 各高重大度指摘が、具体的なコードまたは設計根拠に紐づいていることを確認する。 | 各指摘の下にある anchor 一覧は、必ずソース根拠を維持すること。 |
+| TC-RV-02 | 現行観測と v2 target policy が分離されていることを確認する。 | このメモは、事実レビューと target policy を 1 つの節に潰してはいけない。 |
+| TC-RV-03 | 推奨する書き直し方針が、最終 API 形状を先送りにしていることを確認する。 | 最終 runtime の詳細は、下位仕様に残さなければならない。 |
 
 ---
 
-## High Severity Findings
+## 高重大度の指摘
 
-### 1. The draft overstates what the current runtime actually does
+### 1. 草案は現行 runtime が実際に行っていることを過大に述べている
 
-The current architecture does rely on runtime discovery and broad authoring-time-to-runtime coupling, but some statements in the draft flatten important distinctions.
+現行アーキテクチャが runtime discovery と authoring から runtime への広い結合に依存しているのは事実だが、草案には重要な差異を平坦化している記述がある。
 
-Observed code paths show the following:
+コード上の観測からは、少なくとも次が確認できる。
 
-- scope build is coordinated and parent-gated rather than being a single naive recursive walk
-- installer discovery is subtree-based but owner-filtered, not a blind collection of every installer under a scope
-- service resolution and runtime identity lookup are already split into separate mechanisms
+- scope build は、単純な再帰走査ではなく、親の完了を前提とした調停付き処理である
+- installer discovery は subtree ベースだが owner フィルタ付きであり、scope 配下の installer を無差別に集めるわけではない
+- service resolution と runtime identity lookup は、すでに別メカニズムとして分かれている
 
-Concrete anchors:
+具体的な根拠:
 
-- `RuntimeLifetimeScopeBase.Build` and related build flow in Assets/GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs
-- installer ownership filtering in Assets/GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs
-- resolver and acquire/release dispatch infrastructure in Assets/GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs
+- `RuntimeLifetimeScopeBase.Build` と関連する build フロー: `Assets/GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs`
+- installer ownership のフィルタリング: `Assets/GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs`
+- resolver と acquire/release dispatch の基盤: `Assets/GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs`
 
-Required change in 00:
+00 に必要な修正:
 
-- add a dedicated "Current Architecture Observations" section
-- only make descriptive claims there if they are directly supported by code
-- move generalized anti-pattern language into a separate target-policy section
+- 専用の「現行アーキテクチャの観測」節を追加する
+- そこで述べる内容は、コードで直接裏付けられるものだけにする
+- 一般化した anti-pattern の記述は、別の target policy 節へ移す
 
-### 2. The draft conflates service resolution with runtime scope lookup
+### 2. 草案は service resolution と runtime scope lookup を混同している
 
-The current project has at least two distinct runtime mechanisms:
+現行プロジェクトには、少なくとも 2 つの異なる runtime 機構がある。
 
-- type-driven dependency resolution through RuntimeResolver
-- identity- and filter-driven scope lookup through BaseLifetimeScopeRegistry and related APIs
+- `RuntimeResolver` による型駆動の依存解決
+- `BaseLifetimeScopeRegistry` 系 API による identity / filter 駆動の scope lookup
 
-The root draft currently reads as if the new kernel will replace one broad DI/runtime-discovery blob.
-That is too imprecise for migration.
+ルート草案は、新しい kernel が広い DI / runtime-discovery の塊を丸ごと置き換えるように読めてしまう。
+これは移行仕様として曖昧すぎる。
 
-This matters because command targeting, actor resolution, and some scene-flow behavior do not map directly to service resolution.
+この曖昧さは、command targeting、actor resolution、そして一部の scene-flow 挙動が、service resolution にそのままは対応しないためである。
 
-Concrete anchors:
+具体的な根拠:
 
-- RuntimeResolver in Assets/GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs
-- registry usage introduced from project bootstrap in Assets/GameLib/Script/Project/LTS/ProjectLifetimeScope.cs
+- `Assets/GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs` の `RuntimeResolver`
+- `Assets/GameLib/Script/Project/LTS/ProjectLifetimeScope.cs` から導入される registry 利用
 
-Required change in 00:
+00 に必要な修正:
 
-- explicitly separate service graph semantics from runtime lookup semantics
-- state whether ScopeGraph replaces registry queries, coexists with them, or requires a new query layer
-- defer exact query APIs to 06 and 07
+- service graph の意味論と runtime lookup の意味論を明示的に分ける
+- `ScopeGraph` が registry query を置き換えるのか、共存するのか、新しい query layer を要するのかを明言する
+- 正確な query API は 06 と 07 に先送りする
 
-### 3. The command section jumps to a target architecture without describing the actual migration problem
+### 3. command 節が、実際の移行課題を説明せずに target architecture へ飛んでいる
 
-The current command system is not just "many executors registered in DI".
-It is a hybrid of:
+現行の command system は、単に「DI に多くの executor が登録されている」だけではない。
+実態は次の複合構造である。
 
-- bulk executor registration through CommandRunnerMB
-- registry-based ID lookup through CommandExecutorRegistry
-- key-based authoring resolution through catalog services and key resolvers
+- `CommandRunnerMB` による大量 executor 登録
+- `CommandExecutorRegistry` による registry ベースの ID lookup
+- catalog services と key resolvers による key ベースの authoring 解決
 
-That means the migration problem is not merely performance.
-It is also semantic consolidation.
+つまり移行課題は、単なる performance の問題ではない。
+意味論の統合も必要である。
 
-Concrete anchors:
+具体的な根拠:
 
-- bulk registration in Assets/GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs
-- executor registry in Assets/GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs
+- `Assets/GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs` の大量登録
+- `Assets/GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs` の executor registry
 
-Required change in 00:
+00 に必要な修正:
 
-- define the dual nature of the current command system as a migration input
-- declare that 00 does not finalize the authoring-key versus runtime-ID contract
-- leave concrete executor lifetime policy and payload schema details to 09
+- 現行 command system の二重性を migration input として定義する
+- `00` では authoring-key と runtime-ID の契約を最終確定しないと明記する
+- executor のライフタイム方針と payload schema の詳細は 09 に残す
 
-### 4. The value section collapses distinct current responsibilities into a single target sentence
+### 4. value 節が、現行の別責務を 1 つの target 文に潰している
 
-The current project has separate but interacting systems for:
+現行プロジェクトには、次のように分かれつつも相互作用するシステムがある。
 
-- Blackboard hierarchy and variant storage
-- Var registry and stable key resolution
-- DynamicValue and dynamic source evaluation
+- Blackboard 階層と variant storage
+- Var registry と stable key resolution
+- DynamicValue と動的 source evaluation
 
-The statement "Blackboard will be unified into ValueStore" is directionally acceptable, but at 00 level it hides several migration decisions that are still open.
+「Blackboard を ValueStore に統合する」という方向性自体は妥当だが、00 の段階で書くには、まだ開いている migration decision を多く隠してしまう。
 
-Concrete anchors:
+具体的な根拠:
 
-- BlackboardService in Assets/GameLib/Script/Common/Variables/Blackboard/Service/BlackboardService.cs
-- VarIdResolver in Assets/GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs
-- VarKeyRegistryLocator in Assets/GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs
+- `Assets/GameLib/Script/Common/Variables/Blackboard/Service/BlackboardService.cs`
+- `Assets/GameLib/Script/Common/Variables/VarStore/Registry/VarIdResolver.cs`
+- `Assets/GameLib/Script/Common/Variables/VarStore/Registry/VarKeyRegistryLocator.cs`
 
-Required change in 00:
+00 に必要な修正:
 
-- keep ValueStore unification as target policy only
-- explicitly state that hierarchical read/write behavior, dynamic evaluation, save semantics, and authoring references are deferred to 10
+- ValueStore の統合は target policy のみとして扱う
+- 階層的 read/write 挙動、動的評価、保存意味論、authoring 参照は 10 に先送りすると明記する
 
-### 5. Boot ownership and scene integration are under-specified for migration
+### 5. boot の所有責務と scene integration が、移行に対して未定義すぎる
 
-The draft introduces KernelBootManifest and KernelRuntime as if they can replace the current boot path in one step.
-But the current runtime boot is coupled to BeforeSceneLoad initialization and project/global scope setup.
+草案は `KernelBootManifest` と `KernelRuntime` を、現行 boot path を一気に置き換えられるもののように扱っている。
+しかし現行 runtime boot は、`BeforeSceneLoad` 初期化と project / global scope のセットアップに密接に結びついている。
 
-Concrete anchors:
+具体的な根拠:
 
-- project bootstrap in Assets/GameLib/Script/Project/LTS/ProjectLifetimeScope.cs
-- global bootstrap in Assets/GameLib/Script/Project/Global/LTS/GlobalLifetimeScope.cs
-- scene-flow behavior in Assets/GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs
+- `Assets/GameLib/Script/Project/LTS/ProjectLifetimeScope.cs` の project bootstrap
+- `Assets/GameLib/Script/Project/Global/LTS/GlobalLifetimeScope.cs` の global bootstrap
+- `Assets/GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs` の scene-flow 挙動
 
-Required change in 00:
+00 に必要な修正:
 
-- state that the v2 boot entry replaces current bootstrap incrementally
-- define BootManifest as runtime input, not as a promise that the entire boot migration is already solved
-- defer concrete coexistence rules to 05, 12, and 13
-
----
-
-## Medium Severity Findings
-
-### 6. 00 fixes too many concrete API shapes too early
-
-The current draft includes many illustrative C# types and fields.
-That is useful for explanation, but risky if readers interpret them as locked runtime API.
-
-Required change in 00:
-
-- retain only a small number of illustrative types
-- mark all such samples as non-final, explanatory structures
-- move normative data layout rules into 01, 05, 06, 07, 09, 10, and 11
-
-### 7. Runtime prohibition language is correct in direction but too absolute for a transition root spec
-
-The root document should define the target runtime contract.
-It should not accidentally imply that the current codebase is already invalid in every migration phase.
-
-Required change in 00:
-
-- introduce a distinction between target-kernel prohibitions and temporary migration allowances
-- point all temporary allowances to 13
-
-### 8. Hash and debug-map policy needs a clearer trust boundary statement
-
-The current draft correctly elevates hash checks and debug maps, but the root spec should be clearer about what exactly is trusted.
-
-Required change in 00:
-
-- define KernelIR as the source of truth
-- define VerifiedKernelPlan as a validated projection
-- define generated code and assets as transport or execution artifacts, not trust anchors
+- v2 の boot entry は、現行 bootstrap を段階的に置き換えるものだと明記する
+- BootManifest は runtime input であり、boot migration 全体が解決済みであることの約束ではないと定義する
+- 具体的な共存ルールは 05、12、13 に先送りする
 
 ---
 
-## Low Severity Findings
+## 中重大度の指摘
 
-### 9. Terminology should align more closely with the current project during migration
+### 6. 00 が具体的な API 形状を早すぎる段階で固定しすぎている
 
-Using entirely new vocabulary at 00 level increases migration ambiguity.
-The current codebase already contains important concepts such as LifetimeScopeKind, acquire/release handlers, identity services, and runtime registries.
+現行草案には、説明用の C# 型やフィールドが多く含まれている。
+説明としては有用だが、読者がそれを最終 runtime API と誤解すると危険である。
 
-Required change in 00:
+00 に必要な修正:
 
-- mention current terms when describing migration inputs
-- keep v2 terms as the target language
-- avoid implying that old names never existed or were conceptually meaningless
+- 説明用の型は少数に絞る
+- それらはすべて non-final の説明構造だと明示する
+- 規範的な data layout ルールは 01、05、06、07、09、10、11 に移す
 
-### 10. The split order is strong, but the reason should be embedded in the document structure itself
+### 7. runtime 禁止の文言は方向として正しいが、移行ルートのルート仕様としては絶対的すぎる
 
-The proposed order of 01 then 04 before runtime specs is correct.
-That priority should not appear only as an end note.
+ルート文書は target runtime contract を定義すべきである。
+ただし、それが現行コードベースのすべてを、移行のあらゆる段階で即座に無効だと示唆してはいけない。
 
-Required change in 00:
+00 に必要な修正:
 
-- tie the split order directly to the dependency structure of the architecture
-- make it obvious that runtime specs depend on validated IR and graph rules
+- target-kernel の禁止事項と、一時的な migration allowance を区別する
+- 一時的な allowance はすべて 13 に向ける
+
+### 8. hash と debug-map policy には、より明確な trust boundary の説明が必要である
+
+現行草案は hash 検証と debug map を正しく重視しているが、ルート仕様では何を信頼してよいのかをもっと明確にすべきである。
+
+00 に必要な修正:
+
+- `KernelIR` を source of truth と定義する
+- `VerifiedKernelPlan` を検証済み projection と定義する
+- generated code と generated assets は transport / execution artifact であり、trust anchor ではないと定義する
 
 ---
 
-## Recommended Rewrite Strategy
+## 軽重大度の指摘
 
-00 should be rewritten with the following top-level structure:
+### 9. 移行中の用語は、現行プロジェクトにより近づけるべきである
 
-1. Purpose and document role
-2. Current architecture observations
-3. Root problems to solve
-4. v2 target principles
-5. Core concepts and trust boundary
-6. Runtime policies
+00 レベルでまったく新しい語彙だけを使うと、移行の曖昧さが増す。
+現行コードベースには、`LifetimeScopeKind`、acquire / release handler、identity service、runtime registry など重要な概念がすでにある。
+
+00 に必要な修正:
+
+- migration input を説明するときは現行用語も併記する
+- v2 用語は target language として維持する
+- 旧名称が存在しなかった、あるいは概念的に無意味だったかのように書かない
+
+### 10. 分割順は良いが、その理由を文書構造の中に埋め込むべきである
+
+`01` と `04` を先に置き、その後に runtime specs を置く順序は正しい。
+ただし、その優先順位は末尾の注記だけに現れていては弱い。
+
+00 に必要な修正:
+
+- 分割順をアーキテクチャの dependency structure に直接結びつける
+- runtime specs が validated IR と graph rules に依存していることを明確にする
+
+---
+
+## 推奨する書き直し方針
+
+00 は、次のトップレベル構成で書き直すべきである。
+
+1. 目的と文書の役割
+2. 現行アーキテクチャの観測
+3. 解決すべき根本問題
+4. v2 の target principles
+5. 中核概念と trust boundary
+6. runtime policy
 7. Migration boundary
 8. Specification split and dependency order
 9. Success criteria

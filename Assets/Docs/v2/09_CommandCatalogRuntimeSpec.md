@@ -1,11 +1,11 @@
-# CommandCatalog Runtime Specification
+# CommandCatalog ランタイム仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 09_CommandCatalogRuntimeSpec
-- Status: Draft
-- Role: defines command runtime identity, payload schema validation, executor resolution, command runner behavior, and command failure rules for Kernel v2
-- Depends on:
+- 文書 ID: 09_CommandCatalogRuntimeSpec
+- ステータス: Draft
+- 役割: Kernel v2 におけるコマンドの runtime identity、payload schema 検証、executor 解決、CommandRunner 挙動、およびコマンド失敗ルールを定義する
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
@@ -15,7 +15,7 @@
   - [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md)
   - [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md)
   - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
-- Consumes:
+- 取り込むもの:
   - CommandIR
   - CommandCatalogPlan
   - ServiceGraphPlan references
@@ -24,7 +24,7 @@
   - ScopeGraphPlan references
   - LifecyclePlan references
   - KernelDebugMap
-- Provides foundation for:
+- 基盤を提供するもの:
   - 10_ValueSchemaAndStoreSpec.md
   - 11_DebugMapAndDiagnosticsSpec.md
   - 12_UnityAuthoringBridgeSpec.md
@@ -32,255 +32,254 @@
   - 14_PerformanceBudgetAndRuntimeRulesSpec.md
   - 15_TestAndValidationSpec.md
 
-### Ownership
+### 所有範囲
 
-This specification owns command runtime identity, payload schema validation, executor lookup, command execution flow, command-local state, command failure behavior, and command diagnostics requirements.
-It does not own service caching, value storage layout, runtime query storage, scope graph structure, lifecycle dispatch, command authoring UI, visual scripting editor UI, SaveSystem internals, or SceneFlow internals.
+この仕様は、コマンドの runtime identity、payload schema 検証、executor lookup、コマンド実行フロー、command-local state、コマンド失敗挙動、コマンド診断要件を所有する。
+サービスキャッシュ、value storage 構成、runtime query 保存、scope graph 構造、lifecycle dispatch、command authoring UI、visual scripting editor UI、SaveSystem の内部、SceneFlow の内部は所有しない。
 
-This specification owns:
+この仕様が所有するもの:
 
-- CommandCatalog runtime responsibility
-- CommandCatalogPlan runtime input contract
-- CommandTypeId runtime dispatch contract
-- authoring key and runtime identity boundary
-- command contribution projection boundary
-- command payload schema and validation policy
-- command executor model
-- executor factory and lifetime policy
-- CommandRunner responsibility
-- CommandFrame, CommandContext, and CommandLocal policy
+- CommandCatalog の runtime 責務
+- CommandCatalogPlan の runtime 入力契約
+- CommandTypeId の runtime dispatch 契約
+- authoring key と runtime identity の境界
+- command contribution projection の境界
+- command payload schema と validation policy
+- command executor モデル
+- executor factory と lifetime policy
+- CommandRunner の責務
+- CommandFrame、CommandContext、CommandLocal の policy
 - control-flow command policy
-- async, wait, cancellation, and detached execution policy
-- service, value, runtime query, scope, entity, actor, and lifecycle boundaries for commands
-- command module and category policy
-- command diagnostics and DebugMap requirements
-- command failure policy
-- command performance and memory rules
-- legacy command migration policy
+- async / wait / cancellation / detached execution policy
+- command の service / value / runtime query / scope / entity / actor / lifecycle 境界
+- command module と category policy
+- command 診断と DebugMap 要件
+- command 失敗ポリシー
+- command 性能とメモリのルール
+- レガシー command 移行ポリシー
 
-This specification does not own:
+この仕様が所有しないもの:
 
-- ServiceGraph service cache implementation
-- ValueStore storage layout
-- RuntimeQuery index implementation
-- ScopeGraph parent-child implementation
-- LifecyclePlan phase dispatch
-- command authoring UI details
-- visual scripting editor UI details
-- SaveSystem persistence semantics
-- SceneFlow transition semantics
+- ServiceGraph の service cache 実装
+- ValueStore の保存構成
+- RuntimeQuery の index 実装
+- ScopeGraph の親子構造実装
+- LifecyclePlan の phase dispatch
+- command authoring UI の詳細
+- visual scripting editor UI の詳細
+- SaveSystem の永続化意味論
+- SceneFlow の遷移意味論
 
-09 is the runtime command authority.
-It is not a replacement for ServiceGraph, ValueStore, RuntimeQuery, ScopeGraph, or LifecyclePlan.
+09 は runtime のコマンド権威である。
+ServiceGraph、ValueStore、RuntimeQuery、ScopeGraph、LifecyclePlan の代替ではない。
 
 ---
 
-## Purpose
+## 目的
 
-This specification defines how the target kernel resolves and executes commands from a verified CommandCatalogPlan.
+この仕様は、対象 kernel が検証済み CommandCatalogPlan からコマンドをどのように解決し、実行するかを定義する。
 
-CommandCatalog owns command identity, payload schema, executor resolution, and dispatch metadata.
-Command executors are not discovered through ServiceGraph.
-Command authoring keys are not runtime dispatch identities.
-Command execution must use verified CommandTypeId and verified payload schema.
+CommandCatalog は、コマンド identity、payload schema、executor 解決、および dispatch metadata を所有する。
+コマンド executor は ServiceGraph から発見しない。
+command authoring key は runtime dispatch identity ではない。
+コマンド実行は、検証済み CommandTypeId と検証済み payload schema を使わなければならない。
 
-The core statement of 09 is:
+09 の中心的な主張は次の通りである。
 
 ```text
-Command dispatch is table-driven by verified CommandTypeId.
-It is not discovered from DI registrations and not resolved from authoring strings.
+Command dispatch は検証済み CommandTypeId によって table-driven に行われる。
+DI registration から発見されるものでも、authoring string から解決されるものでもない。
 ```
 
-If adding a command requires editing a giant runtime installer, the architecture has regressed.
+新しいコマンドを追加するたびに巨大な runtime installer を編集しなければならないなら、その時点でアーキテクチャは退化している。
 
 ---
 
-## Scope
+## スコープ
 
-This specification defines:
+この仕様が定義するもの:
 
-- CommandCatalog runtime responsibility
-- CommandCatalogPlan input contract
-- command identity model
-- authoring key boundary
-- command contribution projection boundary
-- command payload schema model
+- CommandCatalog の runtime 責務
+- CommandCatalogPlan の入力契約
+- command identity モデル
+- authoring key の境界
+- command contribution projection の境界
+- command payload schema モデル
 - payload validation policy
-- command executor model
-- executor factory and lifetime policy
-- CommandRunner responsibility
-- CommandFrame and CommandContext model
+- command executor モデル
+- executor factory と lifetime policy
+- CommandRunner の責務
+- CommandFrame と CommandContext モデル
 - CommandLocal state policy
 - control-flow command policy
-- async, wait, cancellation, and detached execution policy
-- ServiceGraph boundary
-- ValueStore boundary
-- RuntimeQuery boundary
-- scope, entity, and actor target boundary
-- LifecyclePlan boundary
-- command module and category policy
-- command diagnostics and DebugMap requirements
-- command failure policy
-- command performance and memory policy
-- legacy command migration policy
-- command runtime test case model and required tests
+- async / wait / cancellation / detached execution policy
+- ServiceGraph 境界
+- ValueStore 境界
+- RuntimeQuery 境界
+- scope / entity / actor target 境界
+- LifecyclePlan 境界
+- command module と category policy
+- command 診断と DebugMap 要件
+- command 失敗ポリシー
+- command 性能とメモリの policy
+- レガシー command 移行ポリシー
+- command runtime テストケースモデルと必須テスト
 
 ---
 
-## Non-Goals
+## 対象外
 
-This specification does not define:
+この仕様が定義しないもの:
 
-- final ServiceGraph cache implementation
-- final ValueStore storage layout
-- final RuntimeQuery index storage
-- final ScopeGraph handle layout
-- final LifecycleDispatcher implementation
-- final SaveSystem implementation
-- final SceneFlow implementation
+- 最終的な ServiceGraph cache 実装
+- 最終的な ValueStore 保存構成
+- 最終的な RuntimeQuery index 保存
+- 最終的な ScopeGraph ハンドル構成
+- 最終的な LifecycleDispatcher 実装
+- 最終的な SaveSystem 実装
+- 最終的な SceneFlow 実装
 - command authoring inspector UI
 - visual scripting editor UI
-- asset menu layout for command authoring
+- command authoring 用 asset menu layout
 
-This specification must not turn CommandCatalog into:
+この仕様は CommandCatalog を次のものへ変質させてはならない:
 
-- a general-purpose DI container
-- a service registry
-- a lifecycle registry
-- a runtime query registry
-- a value key resolver
-- a string-key fallback resolver
-- a giant runtime installer
+- 汎用 DI container
+- service registry
+- lifecycle registry
+- runtime query registry
+- value key resolver
+- string-key fallback resolver
+- 巨大な runtime installer
 
 ---
 
-## Relationship to Other Specs
+## 他仕様との関係
 
-| Spec | Relationship |
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines command dispatch as explicit, verified, and separated from authoring-key lookup. |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines CommandIR, CommandTypeId, command payload schema references, executor references, and typed identity rules consumed here. |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Defines CommandContribution as declarative input, not executor registration or installer mutation. |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Produces CommandCatalogPlan and validates projection completeness before runtime. |
-| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | Validates command identity, executor references, payload schema references, service/value/query dependencies, and authoring-key misuse. |
-| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | Boot accepts one verified artifact set and must not eagerly construct all command executors by default. |
-| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | Provides declared service dependencies to command execution but must not discover command executors. |
-| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | Provides explicit scope handles and scope state boundaries used by command context and target references. |
-| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | Owns lifecycle participation; CommandRunner may be a lifecycle target, but command execution does not enroll lifecycle steps. |
-| 10_ValueSchemaAndStoreSpec.md | Owns value schema and storage; commands only access values through verified ValueKeyId and declared access policy. |
-| 11_DebugMapAndDiagnosticsSpec.md | Owns the shared structured diagnostics substrate and DebugMap runtime contract used by command runtime; 09 defines required command provenance fields, payload-related diagnostics context, and failure behavior. |
-| 12_UnityAuthoringBridgeSpec.md | Normalizes command authoring objects, command keys, and payload authoring into CommandContribution/CommandIR. |
-| 13_LegacyCompatBoundarySpec.md | Defines allowed legacy command adapters and migration boundary. |
-| 14_PerformanceBudgetAndRuntimeRulesSpec.md | Defines command dispatch budgets, allocation rules, and profiler marker requirements. |
-| 15_TestAndValidationSpec.md | Defines executable command catalog validation and regression fixtures. |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | コマンドディスパッチを、明示的・検証済み・authoring-key lookup から分離されたものとして定義する。 |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | ここで参照する CommandIR、CommandTypeId、command payload schema reference、executor reference、typed identity rules を定義する。 |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | CommandContribution を宣言的入力として定義し、executor registration や installer mutation ではないとする。 |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | CommandCatalogPlan を生成し、runtime 前に projection の完全性を検証する。 |
+| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | command identity、executor reference、payload schema reference、service/value/query dependency、authoring-key の誤用を検証する。 |
+| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | boot は 1 つの検証済み artifact set を受け入れ、既定で全 executor を早期構築してはならない。 |
+| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | コマンド実行に必要な明示的 service dependency を提供するが、command executor は発見してはならない。 |
+| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | command context と target reference が使う明示的な scope handle と scope state boundary を提供する。 |
+| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | ライフサイクル参加を所有する。CommandRunner は lifecycle target になり得るが、command execution 自体は lifecycle step を enroll しない。 |
+| 10_ValueSchemaAndStoreSpec.md | value schema と storage を所有する。command は検証済み ValueKeyId と宣言済み access policy を通じてのみ value にアクセスする。 |
+| 11_DebugMapAndDiagnosticsSpec.md | command runtime が使う shared structured diagnostics substrate と DebugMap runtime contract を所有する。09 は必要な command provenance fields、payload 関連 diagnostics context、失敗挙動を定義する。 |
+| 12_UnityAuthoringBridgeSpec.md | command authoring object、command key、payload authoring を CommandContribution / CommandIR に正規化する。 |
+| 13_LegacyCompatBoundarySpec.md | 許可された legacy command adapter と migration 境界を定義する。 |
+| 14_PerformanceBudgetAndRuntimeRulesSpec.md | command dispatch budget、allocation rule、profiler marker 要件を定義する。 |
+| 15_TestAndValidationSpec.md | 実行可能な command catalog 検証と regression fixture を定義する。 |
 
 ---
 
-## Assembly Definition and Compile Boundary Expectations
+## asmdef とコンパイル境界の期待値
 
-The intended assembly home for this subsystem is `GameLib.Kernel.Command`.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+このサブシステムの想定 asmdef は `GameLib.Kernel.Command` である。
+詳細な依存行列は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が所有する。
 
-Required compile-boundary rules for 09:
+09 に必要なコンパイル境界ルール:
 
-- `GameLib.Kernel.Command` must remain separate from feature executor implementations, legacy command runners, and Unity authoring extraction code
-- command runtime core should depend only on lower kernel assemblies and explicit public contracts from Runtime, ServiceGraph, ScopeGraph, and RuntimeQuery
-- command executor discovery by service collection, installer mutation, or feature back-reference must not be compiled into `GameLib.Kernel.Command`
-- Unity-specific command triggers, MonoBehaviour bridges, and feature command leaves must stay outside the command core assembly
+- `GameLib.Kernel.Command` は feature executor 実装、legacy command runner、Unity authoring 抽出コードから分離されたままでなければならない
+- command runtime core は、下位の kernel assembly と Runtime / ServiceGraph / ScopeGraph / RuntimeQuery が提供する明示的 public contract のみに依存すべきである
+- service collection、installer mutation、feature back-reference による command executor discovery を `GameLib.Kernel.Command` に入れてはならない
+- Unity 固有の command trigger、MonoBehaviour bridge、feature command leaf は command core assembly の外に置かなければならない
 
-If verified command dispatch cannot compile without feature executors, legacy runner code, or runtime string-key lookup helpers, the 09 boundary has been violated.
-
----
-
-## Current Command Debt Observations
-
-Current command runtime mixes command discovery, runner creation, catalog lookup, lifecycle enrollment, key resolution, fallback behavior, and diagnostics binding.
-
-Observed command debt includes:
-
-- command executor discovery through DI registration
-- command executor map construction from `IReadOnlyList<ICommandExecutor>`
-- command runner creation through scope-kind switch
-- command runner lifecycle participation through service registration
-- command key resolution as a runtime service
-- command catalog lookup as a runtime service
-- `Resources.Load` and runtime fallback catalog creation
-- runtime-only command key IDs
-- stable-key fallback from catalog entries
-- command debug viewer binding through build callback
-- executor count tied to boot registration cost
-- command categories mixed inside a single installer
-- command-local and value-store responsibilities mixed through `VarStore`
-- actor, scope, target, and channel routing performed inside executors
-
-The target CommandCatalog must not preserve this ambiguity.
-
-### Observation Traceability
-
-These observations are migration evidence only.
-They are not target architecture.
-
-- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk executor registration, scope-kind runner registration, lifecycle handler registration, and debug viewer build callback
-- [CommandRunner.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandRunner.cs) - runtime execution flow, registry lookup, failure handling, context slots, and lifecycle handler implementation
-- [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) - `IReadOnlyList<ICommandExecutor>` scan into command-id lookup table
-- [CommandCatalogService.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogService.cs) - acquire-time catalog loading through a runtime service
-- [CommandCatalogLocator.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogLocator.cs) - editor asset lookup, runtime `Resources.Load`, and fallback ScriptableObject creation
-- [CommandCatalogSO.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogSO.cs) - stable-key catalog entries and fallback stable-key scan
-- [CommandKeyResolver.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandKeyResolver.cs) - runtime-only negative key IDs and stable-key fallback behavior
-- [CatalogCommandSource.cs](../../GameLib/Script/Common/Commands/VNext/Sources/CatalogCommandSource.cs) - command source resolution through stable key and runtime fallback options
-- [CommandContext.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandContext.cs) - actor/scope slots, resolver exposure, and registry-based scope resolution
-
-### Representative Anchors
-
-`CommandRunnerMB` registers many executors as `ICommandExecutor` in Project scope.
-The list includes control-flow commands, actor routing commands, transform commands, movement commands, UI commands, tooltip commands, mesh commands, animation commands, camera commands, scene commands, save commands, map commands, trait commands, collision commands, value commands, and debug commands.
-
-`CommandRunnerMB` also registers different command runner contracts depending on `LifetimeScopeKind`.
-Project, Platform, Global, Scene, Field, Entity, UI, and UIElement runner variants are installed by runtime switch rather than verified plan.
-
-`CommandExecutorRegistry` builds executor lookup by scanning an `IReadOnlyList<ICommandExecutor>`.
-This makes executor availability depend on DI collection behavior and boot registration completeness.
-
-`CommandCatalogService` participates in acquire/release lifecycle and loads catalog state at runtime.
-Target command catalog creation must come from verified artifact set input, not lifecycle-time locator behavior.
-
-`CommandCatalogLocator` performs editor asset search and runtime `Resources.Load`.
-When runtime load fails, it creates a fallback catalog instance.
-Target runtime must not repair missing command catalog inputs this way.
-
-`CommandKeyResolver` can allocate runtime-only negative key IDs when fallback is allowed.
-Target runtime command dispatch must not require runtime-only authoring key repair.
-
-`CatalogCommandSource` resolves commands through stable keys and falls back to stable-key catalog lookup when enabled.
-Target runtime must use normalized CommandTypeId before command execution.
-
-`CommandRunner` owns execution flow and diagnostics, but it also depends on registry, catalog, key resolver, scope resolver, VarStore, and lifecycle handler interfaces.
-Target 09 separates runner execution from catalog generation, executor discovery, value schema ownership, runtime query lookup, and lifecycle enrollment.
-
-### Current Gaps
-
-Current command runtime leaves these gaps:
-
-- command identity is split between numeric command IDs, stable keys, and authoring keys
-- executor discovery depends on bulk DI registration
-- payload schema is implicit in command data classes rather than verified runtime schema
-- catalog lookup can fall back to stable-key scans
-- missing catalog assets can be repaired by runtime fallback creation
-- command runner domain is inferred from scope kind switch
-- command execution context exposes broad resolver access
-- actor, scope, channel, and UI target lookup can happen inside executors
-- command-local state and persistent value state can blur through generic VarStore usage
-- async command behavior can be implemented per executor without uniform cancellation and detached execution policy
-- lifecycle participation can be attached to command runner services by interface registration
-- command debug binding can be implemented through build callback rather than DebugMap projection
+検証済みの command dispatch が feature executor、legacy runner code、runtime string-key lookup helper なしにコンパイルできないなら、09 の境界は破られている。
 
 ---
 
-## CommandCatalog Runtime Definition
+## 現在のコマンド負債の観測
 
-CommandCatalog is the runtime owner of command executor lookup metadata.
+現在の command runtime は、command 発見、runner 生成、catalog lookup、lifecycle enrollment、key 解決、fallback 挙動、diagnostics binding を混在させている。
 
-CommandCatalog owns:
+観測されている command debt には次が含まれる:
+
+- DI registration を通じた command executor 発見
+- `IReadOnlyList<ICommandExecutor>` からの command executor map 構築
+- scope kind switch による command runner 生成
+- service registration による command runner の lifecycle 参加
+- runtime service としての command key 解決
+- runtime service としての command catalog lookup
+- `Resources.Load` と runtime fallback catalog 生成
+- runtime-only の command key ID
+- catalog entry からの stable-key fallback
+- build callback を通じた command debug viewer binding
+- boot registration コストに連動する executor 数
+- 1 つの installer に混在する command category
+- `VarStore` を通じて混ざる command-local と value-store の責務
+- executor 内部で行われる actor / scope / target / channel routing
+
+対象の CommandCatalog は、この曖昧さを残してはならない。
+
+### 観測の追跡可能性
+
+これらの観測は移行証拠であり、対象アーキテクチャではない。
+
+- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk executor registration、scope kind ごとの runner registration、lifecycle handler registration、debug viewer build callback
+- [CommandRunner.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandRunner.cs) - runtime execution flow、registry lookup、failure handling、context slot、lifecycle handler 実装
+- [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) - `IReadOnlyList<ICommandExecutor>` を走査して command-id lookup table を構築
+- [CommandCatalogService.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogService.cs) - runtime service 経由の acquire-time catalog loading
+- [CommandCatalogLocator.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogLocator.cs) - editor asset lookup、runtime `Resources.Load`、fallback ScriptableObject 生成
+- [CommandCatalogSO.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogSO.cs) - stable-key catalog entry と fallback stable-key scan
+- [CommandKeyResolver.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandKeyResolver.cs) - runtime-only の negative key ID と stable-key fallback 挙動
+- [CatalogCommandSource.cs](../../GameLib/Script/Common/Commands/VNext/Sources/CatalogCommandSource.cs) - stable key と runtime fallback option を通じた command source 解決
+- [CommandContext.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandContext.cs) - actor / scope slot、resolver exposure、registry ベースの scope resolution
+
+### 代表的な参照先
+
+`CommandRunnerMB` は、Project scope に大量の executor を `ICommandExecutor` として登録している。
+その一覧には、control-flow command、actor routing command、transform command、movement command、UI command、tooltip command、mesh command、animation command、camera command、scene command、save command、map command、trait command、collision command、value command、debug command が含まれる。
+
+`CommandRunnerMB` は、`LifetimeScopeKind` に応じて異なる command runner contract も登録している。
+Project、Platform、Global、Scene、Field、Entity、UI、UIElement の runner variant が、検証済み plan ではなく runtime switch で install されている。
+
+`CommandExecutorRegistry` は、`IReadOnlyList<ICommandExecutor>` を走査して executor lookup を構築する。
+そのため executor の利用可否は、DI collection の挙動と boot registration の完全性に依存する。
+
+`CommandCatalogService` は acquire / release lifecycle に参加し、runtime で catalog state を load する。
+対象の command catalog 生成は、lifecycle-time の locator 挙動ではなく、検証済み artifact set 入力から行われなければならない。
+
+`CommandCatalogLocator` は editor asset search と runtime `Resources.Load` を行う。
+runtime load が失敗すると fallback catalog instance を作成する。
+対象 runtime は、この方法で不足した command catalog 入力を修復してはならない。
+
+`CommandKeyResolver` は、fallback が許可されている場合に runtime-only の negative key ID を割り当てられる。
+対象 runtime command dispatch は、runtime-only の authoring key 修復を必要としてはならない。
+
+`CatalogCommandSource` は stable key を通じて command を解決し、許可されている場合は stable-key catalog lookup にフォールバックする。
+対象 runtime は、command 実行の前に正規化された CommandTypeId を使わなければならない。
+
+`CommandRunner` は execution flow と diagnostics を所有する一方で、registry、catalog、key resolver、scope resolver、VarStore、lifecycle handler interface にも依存している。
+対象の 09 では、runner execution を catalog generation、executor 発見、value schema 所有、runtime query lookup、lifecycle enrollment から分離する。
+
+### 現在のギャップ
+
+現在の command runtime には次のギャップがある:
+
+- command identity が numeric command ID、stable key、authoring key に分裂している
+- executor 発見が bulk DI registration に依存している
+- payload schema が command data class ではなく、検証済み runtime schema として暗黙化されている
+- catalog lookup が stable-key scan にフォールバックできる
+- 不足した catalog asset が runtime fallback 生成で修復され得る
+- command runner domain が scope kind switch から推論されている
+- command execution context が広範な resolver access を露出している
+- actor、scope、channel、UI target の lookup が executor 内で行われ得る
+- command-local state と persistent value state が generic VarStore の使用を通じて曖昧になる
+- async command 挙動が executor ごとに、統一されていない cancellation / detached execution policy なしで実装され得る
+- lifecycle 参加が interface registration によって command runner service に付与され得る
+- command debug binding が DebugMap projection ではなく build callback で実装され得る
+
+---
+
+## CommandCatalog の runtime 定義
+
+CommandCatalog は、command executor lookup metadata の runtime owner である。
+
+CommandCatalog が所有するもの:
 
 - CommandTypeId lookup
 - executor reference table
@@ -288,33 +287,33 @@ CommandCatalog owns:
 - command module metadata
 - command category metadata
 - command diagnostics metadata
-- executor factory or instance policy
+- executor factory または instance policy
 - profile availability metadata
 
-CommandCatalog does not own:
+CommandCatalog が所有しないもの:
 
 - service resolution
 - value storage
-- runtime query indexes
+- runtime query index
 - lifecycle enrollment
-- scope graph structure
+- scope graph 構造
 - actor search
 - command authoring UI
 - command source normalization
 
-CommandCatalog must not be implemented as `IReadOnlyList<ICommandExecutor>` resolution.
+CommandCatalog は `IReadOnlyList<ICommandExecutor>` の解決として実装してはならない。
 
 ---
 
-## CommandCatalogPlan Input Contract
+## CommandCatalogPlan 入力契約
 
-CommandCatalog may be created only from a verified CommandCatalogPlan.
+CommandCatalog は、検証済み CommandCatalogPlan からのみ作成できる。
 
-A valid CommandCatalogPlan must include:
+有効な CommandCatalogPlan には次が含まれなければならない:
 
 - artifact header
 - CommandCatalogPlanId
-- CommandTypeId set
+- CommandTypeId の集合
 - payload schema references
 - executor references
 - owner module metadata
@@ -322,33 +321,33 @@ A valid CommandCatalogPlan must include:
 - dependency metadata
 - profile availability metadata
 - diagnostics metadata
-- DebugMap linkage
-- generator and format version
+- DebugMap の連携
+- generator と format の version
 
-CommandCatalog must reject:
+CommandCatalog は次を拒否しなければならない:
 
-- unverified CommandCatalogPlan
-- partial artifact set
-- stale command catalog artifact
-- mismatched KernelIR hash
-- mismatched profile hash
-- missing payload schema table
-- missing executor table
-- missing diagnostics table
-- command identity not present in CommandIR
+- 未検証の CommandCatalogPlan
+- 不完全な artifact set
+- 古い command catalog artifact
+- 不一致の KernelIR hash
+- 不一致の profile hash
+- payload schema table の欠落
+- executor table の欠落
+- diagnostics table の欠落
+- CommandIR に存在しない command identity
 
-CommandCatalog must not accept runtime ad-hoc command registration in target kernel paths.
+CommandCatalog は、target kernel path で runtime の ad-hoc command registration を受け入れてはならない。
 
-Development-only command extension is allowed only if a lower spec defines it as a bounded, profile-scoped, diagnostic-visible extension point.
-Release profile must not accept dynamic command registration unless 13 explicitly defines a compatibility bridge.
+development-only の command 拡張は、下位仕様がそれを境界付き・profile-scoped・diagnostic-visible な extension point として定義している場合にのみ許可される。
+release profile は、13 が互換ブリッジを明示的に定義していない限り、dynamic command registration を受け入れてはならない。
 
 ---
 
-## Command Identity Model
+## コマンド識別モデル
 
-CommandTypeId is the runtime dispatch identity.
+CommandTypeId は runtime dispatch identity である。
 
-Command identity domains include:
+command identity domain には次が含まれる:
 
 - CommandTypeId
 - CommandCategoryId
@@ -356,7 +355,7 @@ Command identity domains include:
 - CommandExecutorId
 - CommandAuthoringKeyId
 
-Explanatory sketch:
+説明用のスケッチ:
 
 ```csharp
 public readonly struct CommandTypeId
@@ -385,31 +384,31 @@ public readonly struct CommandAuthoringKeyId
 }
 ```
 
-This sketch is explanatory and does not finalize the serialized API.
+このスケッチは説明用であり、シリアライズ API を確定するものではない。
 
-Identity rules:
+識別ルール:
 
-- CommandTypeId is used for runtime dispatch.
-- CommandExecutorId identifies executor implementation or generated function reference.
-- CommandPayloadSchemaId identifies payload schema required by a command type.
-- CommandCategoryId is for grouping, filtering, editor display, diagnostics, and reports.
-- ModuleId identifies the owning module.
-- CommandAuthoringKeyId identifies normalized authoring key metadata when preserved.
+- CommandTypeId は runtime dispatch に使う
+- CommandExecutorId は executor 実装または生成された function reference を識別する
+- CommandPayloadSchemaId は command type に必要な payload schema を識別する
+- CommandCategoryId は grouping、filtering、editor display、diagnostics、report 用である
+- ModuleId は所有モジュールを識別する
+- CommandAuthoringKeyId は、保持される場合の正規化済み authoring key metadata を識別する
 
-CommandCategoryId is not dispatch identity.
-CommandAuthoringKey is not dispatch identity.
-Raw C# type name is not dispatch identity.
-Raw string command name is not dispatch identity.
+CommandCategoryId は dispatch identity ではない。
+CommandAuthoringKey も dispatch identity ではない。
+生の C# type name も dispatch identity ではない。
+生の string command name も dispatch identity ではない。
 
-When authoring-key metadata is preserved in normalized IR, it should remain typed and provenance-aware.
-A bare string field is insufficient because it allows runtime-facing code to accidentally treat authoring text as authority.
-Preserved command authoring-key metadata must also be traceable in projection and DebugMap artifacts.
+authoring-key metadata が正規化済み IR に保持される場合、それは型付けされ provenance-aware であるべきである。
+単なる string field では不十分である。runtime-facing code が authoring text を権威として誤認しやすくなるからである。
+保持された command authoring-key metadata は、projection と DebugMap artifact にも追跡可能でなければならない。
 
 ---
 
-## AuthoringKey Boundary
+## AuthoringKey 境界
 
-Authoring keys exist for:
+authoring key は次のために存在する:
 
 - editor authoring
 - search
@@ -418,30 +417,30 @@ Authoring keys exist for:
 - human-readable display
 - authoring compatibility reports
 
-Runtime dispatch must not use arbitrary strings.
+runtime dispatch は任意の文字列を使ってはならない。
 
-Conversion from authoring key to CommandTypeId must happen before runtime execution during normalization, validation, or verified generation.
+authoring key から CommandTypeId への変換は、runtime 実行の前に、normalization、validation、または verified generation の段階で行わなければならない。
 
-Forbidden:
+禁止事項:
 
-- resolving executor by string at runtime
-- dispatching by raw command name
-- using authoring key as CommandTypeId
-- using stable key as CommandTypeId
-- fallback from missing CommandTypeId to authoring key lookup
-- fallback from missing CommandTypeId to stable-key catalog scan
-- runtime registry lookup by raw command name
-- runtime-only command key allocation for target-kernel correctness
+- runtime で string から executor を解決すること
+- raw command name で dispatch すること
+- authoring key を CommandTypeId として使うこと
+- stable key を CommandTypeId として使うこと
+- 欠落した CommandTypeId から authoring key lookup へ fallback すること
+- 欠落した CommandTypeId から stable-key catalog scan へ fallback すること
+- raw command name による runtime registry lookup
+- target-kernel correctness のための runtime-only command key 割り当て
 
-AuthoringKey may appear in diagnostics only after runtime identity is already known or as part of a failed normalization/migration diagnostic.
+AuthoringKey は、runtime identity がすでに分かっている場合の diagnostics、または失敗した normalization / migration diagnostics の一部としてのみ現れてよい。
 
 ---
 
 ## Command Contribution Projection
 
-CommandContribution is the declarative source for command runtime projection.
+CommandContribution は、command runtime projection の宣言的 source である。
 
-The projection path is:
+projection path は次の通りである:
 
 ```text
 CommandContribution
@@ -450,11 +449,11 @@ CommandContribution
   -> CommandCatalog
 ```
 
-CommandContribution may declare:
+CommandContribution は次を宣言してよい:
 
 - command authoring key
-- normalized command identity request
-- payload schema reference or inline schema contribution
+- 正規化済み command identity request
+- payload schema reference または inline schema contribution
 - executor reference
 - owner module
 - category metadata
@@ -464,42 +463,42 @@ CommandContribution may declare:
 - profile availability
 - diagnostics source
 
-Verified command catalog projection should preserve these declarations as structured `CommandEntryPlan` rows with grouped module and category metadata rather than as a flat runtime string table.
+検証済みの command catalog projection は、これらの宣言を、平坦な runtime string table ではなく、module と category の metadata をまとめた構造化 `CommandEntryPlan` row として保持すべきである。
 
-CommandContribution must not:
+CommandContribution は次を行ってはならない:
 
-- instantiate command executors
-- register command executors into ServiceGraph
-- register `ICommandExecutor`
-- add lifecycle handlers
-- resolve executor identity from arbitrary strings
-- create runtime catalog entries outside generation
-- make authoring keys runtime truth
+- command executor を instantiate する
+- command executor を ServiceGraph に登録する
+- `ICommandExecutor` を登録する
+- lifecycle handler を追加する
+- arbitrary string から executor identity を解決する
+- generation の外側で runtime catalog entry を作る
+- authoring key を runtime の真実にする
 
-Generated CommandCatalogPlan must preserve provenance from CommandContribution and CommandIR.
-If projection cannot prove command identity, payload schema, executor reference, and diagnostics provenance, generation fails.
+生成された CommandCatalogPlan は、CommandContribution と CommandIR から provenance を保持しなければならない。
+projection が command identity、payload schema、executor reference、diagnostics provenance を証明できないなら、generation は失敗する。
 
 ---
 
-## Command Payload Schema Model
+## Command Payload Schema モデル
 
-Every command type must define a payload schema unless it explicitly declares EmptyPayload.
+すべての command type は、EmptyPayload を明示的に宣言していない限り payload schema を定義しなければならない。
 
-Payload schema must define:
+payload schema は次を定義しなければならない:
 
 - schema identity
 - field identity
 - field name
 - value kind
-- required or optional state
+- 必須か任意か
 - default value policy
-- allowed source kinds
+- 許可される source kind
 - serialization policy
 - validation policy
 - profile availability
 - diagnostics source
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public sealed class CommandPayloadSchemaPlan
@@ -518,8 +517,9 @@ public sealed class CommandPayloadFieldSchema
     public ValueKind Kind;
     public bool Required;
     public CommandPayloadDefaultPolicy DefaultPolicy;
-}
+```
 
+```csharp
 public enum CommandPayloadUnknownFieldPolicy
 {
     Reject = 10,
@@ -528,46 +528,46 @@ public enum CommandPayloadUnknownFieldPolicy
 }
 ```
 
-This sketch is explanatory and does not finalize the serialized API.
+このスケッチは説明用であり、シリアライズ API を確定するものではない。
 
-Default unknown field policy is `Reject`.
+既定の unknown field policy は `Reject` である。
 
-Executor must not infer payload shape by runtime reflection over arbitrary serialized objects.
-Reflection may be used by editor generation or migration tooling only if the generated schema is explicit before runtime.
+executor は、任意にシリアライズされた object を runtime reflection して payload shape を推測してはならない。
+reflection は、editor generation または migration tooling に限って使用してよいが、runtime の前に生成済み schema が明示されていなければならない。
 
 ---
 
 ## Command Payload Validation Policy
 
-Payload validation must occur before executor execution.
+payload validation は executor 実行の前に行われなければならない。
 
-Validation must check:
+validation は次を確認しなければならない:
 
-- command type exists
-- payload schema exists
-- payload schema matches CommandTypeId
-- required fields exist
-- field types match schema
-- unknown fields obey policy
-- default values are valid
-- referenced services exist
-- referenced ValueKeyId values exist
-- referenced RuntimeQueryId values exist
-- referenced scope/entity/actor target refs are valid
-- payload source location is available for diagnostics
+- command type が存在する
+- payload schema が存在する
+- payload schema が CommandTypeId と一致する
+- 必須 field が存在する
+- field type が schema と一致する
+- unknown field が policy に従う
+- default value が有効である
+- 参照された service が存在する
+- 参照された ValueKeyId が存在する
+- 参照された RuntimeQueryId が存在する
+- 参照された scope / entity / actor target ref が有効である
+- payload source location が diagnostics に利用できる
 
-Runtime command execution may use prevalidated payloads.
-If runtime receives a payload that is not marked schema-valid, the runner must validate it or reject it before executor invocation.
+runtime の command execution は、事前検証済み payload を使ってよい。
+runtime が schema-valid と印されていない payload を受け取った場合、runner は executor 呼び出しの前にそれを検証するか、拒否しなければならない。
 
-Payload validation failure must not be repaired by executor-side casts, default construction, or string-key fallback.
+payload validation failure は、executor 側の cast、default construction、string-key fallback によって修復してはならない。
 
 ---
 
-## Command Executor Model
+## Command Executor モデル
 
-Command executor is resolved by CommandExecutorId or CommandTypeId mapping in CommandCatalogPlan.
+command executor は、CommandCatalogPlan 内の CommandExecutorId または CommandTypeId の対応で解決される。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum CommandExecutorKind
@@ -580,85 +580,85 @@ public enum CommandExecutorKind
 }
 ```
 
-Allowed executor forms:
+許可される executor 形式:
 
-- generated static function
-- stateless shared singleton
+- 生成された static function
+- state を持たない共有 singleton
 - lazy singleton
 - pooled executor instance
-- explicit legacy adapter during migration
+- 移行中の明示的 legacy adapter
 
-Executor discovery through ServiceGraph is forbidden.
+ServiceGraph を通じた executor 発見は禁止である。
 
-Executor may request services, values, runtime query handles, or scope handles through CommandExecutionContext only if those dependencies are declared by CommandContribution and validated by 04.
+executor は、CommandContribution によって宣言され 04 で検証された依存のみを、CommandExecutionContext を通じて要求してよい。
 
-Executor must not:
+executor は次を行ってはならない:
 
-- perform ad-hoc ServiceGraph searches for undeclared dependencies
-- resolve runtime targets through ServiceGraph
-- resolve values by stable string key
-- perform scene-wide search
-- infer command payload schema by reflection
-- become a lifecycle handler by interface scan
+- 宣言されていない依存に対して ServiceGraph を ad-hoc に検索すること
+- ServiceGraph を通じて runtime target を解決すること
+- stable string key で value を解決すること
+- scene 全体検索を行うこと
+- reflection により command payload schema を推測すること
+- interface scan によって lifecycle handler になること
 
 ---
 
-## Executor Factory and Lifetime Policy
+## Executor Factory と Lifetime ポリシー
 
-CommandCatalog may instantiate executors according to executor policy.
+CommandCatalog は、executor policy に従って executor を instantiate してよい。
 
-Executor factory policy must be explicit in CommandCatalogPlan.
+executor factory policy は CommandCatalogPlan において明示的でなければならない。
 
-Allowed policies:
+許可される policy:
 
-- generated static function
-- stateless shared singleton
+- 生成された static function
+- state を持たない共有 singleton
 - lazy singleton
 - pooled executor instance
-- legacy adapter during migration
+- 移行中の legacy adapter
 
-CommandCatalog must not eagerly construct all executors during boot unless explicitly budgeted.
+CommandCatalog は、明示的に予算化されていない限り、boot 中にすべての executor を早期構築してはならない。
 
-Increasing command count may increase catalog metadata size.
-It must not force construction of every executor at boot.
+command 数が増えると catalog metadata size は増えてよい。
+しかし、boot 時にすべての executor を構築する必要はない。
 
-Executor factory failure is a command diagnostics failure.
-It must include CommandTypeId, CommandExecutorId, owner module, source location, selected profile, and suggested fix.
+executor factory failure は command diagnostics failure である。
+そこには CommandTypeId、CommandExecutorId、owner module、source location、selected profile、suggested fix を含めなければならない。
 
 ---
 
-## CommandRunner Responsibility
+## CommandRunner の責務
 
-CommandRunner owns command execution flow.
+CommandRunner は command execution flow を所有する。
 
-CommandRunner may:
+CommandRunner は次を行ってよい:
 
-- create CommandFrame
-- validate payload
-- resolve executor through CommandCatalog
-- execute command
-- execute command sequences
-- handle control-flow commands
-- manage cancellation
-- apply command failure boundary
-- record command diagnostics
-- maintain command-local execution state
+- CommandFrame を作成する
+- payload を validate する
+- CommandCatalog を通じて executor を resolve する
+- command を実行する
+- command sequence を実行する
+- control-flow command を処理する
+- cancellation を管理する
+- command failure boundary を適用する
+- command diagnostics を記録する
+- command-local execution state を維持する
 
-CommandRunner must not:
+CommandRunner は次を行ってはならない:
 
-- discover executors
-- register executors
-- own executor catalog metadata
-- perform runtime authoring-key lookup
-- become ServiceGraph
-- become RuntimeQuery
-- become ValueStore
-- become LifecycleDispatcher
-- create dynamic command catalog entries
+- executor を発見する
+- executor を登録する
+- executor catalog metadata を所有する
+- runtime authoring-key lookup を行う
+- ServiceGraph になる
+- RuntimeQuery になる
+- ValueStore になる
+- LifecycleDispatcher になる
+- dynamic な command catalog entry を作る
 
-Runner domain must be explicit.
+runner domain は明示的でなければならない。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum CommandExecutionDomain
@@ -672,25 +672,25 @@ public enum CommandExecutionDomain
 }
 ```
 
-Multiple command runners are allowed only when they represent different execution domains, not merely every scope kind.
+複数の command runner が許可されるのは、単にすべての scope kind ごとである場合ではなく、異なる execution domain を表している場合のみである。
 
-Entity-domain runner is forbidden by default for mass entities.
-An entity-domain runner exception is allowed only when:
+mass entity に対する entity-domain runner は既定で禁止である。
+entity-domain runner の例外は、次をすべて満たす場合にのみ許可される:
 
-- the entity represents a bounded authored aggregate root
-- expected instance count is declared
-- performance budget is declared
-- lifecycle ownership is explicit
-- diagnostics include source location and runtime handle
-- CommandRunnerInstancePolicy is generated from verified plan
+- entity が境界付きの作成済み aggregate root である
+- 予想 instance 数が宣言されている
+- performance budget が宣言されている
+- lifecycle ownership が明示的である
+- diagnostics に source location と runtime handle が含まれている
+- `CommandRunnerInstancePolicy` が検証済み plan から生成されている
 
 ---
 
-## CommandFrame and CommandContext Model
+## CommandFrame と CommandContext モデル
 
-CommandFrame represents one execution frame.
+CommandFrame は 1 回の実行フレームを表す。
 
-CommandFrame may contain:
+CommandFrame には次を含めてよい:
 
 - CommandFrameId
 - parent frame
@@ -706,68 +706,68 @@ CommandFrame may contain:
 - command-local state reference
 - diagnostics context
 
-CommandContext represents the stable execution environment visible to a command.
+CommandContext は、command から見える安定した実行環境を表す。
 
-CommandContext may expose:
+CommandContext は次を公開してよい:
 
 - current scope handle
 - actor reference
 - target reference
 - command root reference
 - command-local state
-- declared service dependency access
-- declared ValueStore access
-- declared RuntimeQuery access
-- selected profile
+- 宣言済み service dependency access
+- 宣言済み ValueStore access
+- 宣言済み RuntimeQuery access
+- 選択された profile
 - diagnostics writer
 
-CommandFrame must not be a loose dictionary of arbitrary objects without schema.
-CommandContext must not expose unbounded runtime resolver access in target kernel paths.
+CommandFrame は、schema を持たない任意 object の loose dictionary であってはならない。
+CommandContext は、対象 kernel path で無制限の runtime resolver access を露出してはならない。
 
 ---
 
 ## CommandLocal State Policy
 
-CommandLocal stores execution-local state.
+CommandLocal は execution-local state を保存する。
 
-CommandLocal must be explicitly scoped to one of:
+CommandLocal は明示的に次のいずれか 1 つにスコープされなければならない:
 
 - command frame
 - command sequence
 - async wait boundary
 - nested command block
 
-CommandLocal must not become global Blackboard.
+CommandLocal は global Blackboard になってはならない。
 
-CommandLocal rules:
+CommandLocal のルール:
 
-- temporary data belongs to CommandLocal
-- persistent or scope-bound runtime state belongs to ValueStore
-- target handles belong to structured context slots or RuntimeQuery results
-- command-local state lifetime must be visible in diagnostics
-- command-local keys must not collide with ValueKeyId identity
+- 一時データは CommandLocal に属する
+- 永続 state または scope-bound runtime state は ValueStore に属する
+- target handle は structured context slot または RuntimeQuery result に属する
+- command-local state の寿命は diagnostics から見える必要がある
+- command-local key は ValueKeyId identity と衝突してはならない
 
-CommandLocal must not use arbitrary string keys as the only runtime identity unless a lower spec defines a bounded migration-only adapter.
+CommandLocal は、下位仕様が境界付きの migration-only adapter を定義していない限り、任意の string key を唯一の runtime identity として使ってはならない。
 
 ---
 
 ## Control Flow Command Policy
 
-Control-flow commands are part of the command execution model, not arbitrary executor side effects.
+control-flow command は、任意の executor side effect ではなく、command execution model の一部である。
 
-Control-flow command types must define:
+control-flow command type は次を定義しなければならない:
 
-- child command execution order
-- child command validation requirements
+- child command の実行順序
+- child command の validation 要件
 - failure propagation
-- cancellation behavior
-- local context inheritance
-- async wait behavior
-- loop bounds
-- diagnostics behavior
-- source location for child references
+- cancellation 挙動
+- local context の継承
+- async wait 挙動
+- loop の境界
+- diagnostics 挙動
+- child reference の source location
 
-Control-flow command examples include:
+control-flow command の例:
 
 - sequence
 - if
@@ -778,32 +778,32 @@ Control-flow command examples include:
 - break
 - detached execution
 
-Loop commands must define a safety limit or explicit unbounded policy.
+loop command は、安全限界または明示的な unbounded policy を定義しなければならない。
 
-Detached execution commands must define detached execution policy.
-They must not create fire-and-forget work implicitly.
+detached execution command は detached execution policy を定義しなければならない。
+それらは暗黙的に fire-and-forget 作業を作ってはならない。
 
-Child command references must be validated before runtime execution.
+child command reference は、runtime execution の前に検証されなければならない。
 
 ---
 
-## Async / Wait / Cancellation Policy
+## Async / Wait / Cancellation ポリシー
 
-Command execution may be synchronous or asynchronous.
+command execution は同期でも非同期でもよい。
 
-Async command must define:
+async command は次を定義しなければならない:
 
 - awaited completion behavior
 - cancellation token source
 - timeout policy
 - failure policy
-- whether child commands continue on cancellation
-- whether command frame remains alive while waiting
-- diagnostics on cancellation and timeout
+- cancellation 時に child command が継続するかどうか
+- wait 中に command frame が生き続けるかどうか
+- cancellation と timeout の diagnostics
 
-Fire-and-forget command execution is forbidden unless command type explicitly declares detached execution policy.
+command type が detached execution policy を明示的に宣言していない限り、fire-and-forget の command execution は禁止である。
 
-Detached execution policy must define:
+detached execution policy は次を定義しなければならない:
 
 - owner frame
 - owner scope
@@ -812,36 +812,36 @@ Detached execution policy must define:
 - diagnostics visibility
 - shutdown behavior
 
-Command cancellation must produce structured diagnostics when it affects command result.
-Timeout must produce structured diagnostics when it affects command result.
+command cancellation が result に影響する場合、structured diagnostics を生成しなければならない。
+timeout が result に影響する場合、structured diagnostics を生成しなければならない。
 
 ---
 
-## ServiceGraph Boundary
+## ServiceGraph 境界
 
-Command executor may use ServiceGraph only through declared dependencies.
+command executor は、宣言済み dependency を通じてのみ ServiceGraph を使ってよい。
 
-CommandCatalog does not discover executors from ServiceGraph.
-ServiceGraph does not collect `ICommandExecutor`.
+CommandCatalog は ServiceGraph から executor を発見しない。
+ServiceGraph は `ICommandExecutor` を収集しない。
 
-Forbidden:
+禁止事項:
 
-- `IReadOnlyList<ICommandExecutor>` resolution
-- `.As<ICommandExecutor>()` bulk discovery
-- executor identity from service contract scan
-- command dependency repair through ServiceGraph fallback
-- resolving runtime objects through ServiceGraph
-- resolving command targets through ServiceGraph
+- `IReadOnlyList<ICommandExecutor>` の解決
+- `.As<ICommandExecutor>()` による bulk discovery
+- service contract scan からの executor identity
+- ServiceGraph fallback を通じた command dependency repair
+- ServiceGraph を通じた runtime object の解決
+- ServiceGraph を通じた command target の解決
 
-If an executor requires a service, the dependency must be declared in CommandContribution, projected into CommandIR or CommandCatalogPlan, and validated by 04.
+executor が service を必要とするなら、その依存は CommandContribution で宣言され、CommandIR または CommandCatalogPlan に projection され、04 で検証されなければならない。
 
 ---
 
-## ValueStore Boundary
+## ValueStore 境界
 
-Command may read or write ValueStore only through verified ValueKeyId and declared access policy.
+command は、検証済み ValueKeyId と宣言済み access policy を通じてのみ ValueStore を read / write してよい。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum CommandValueAccessKind
@@ -853,102 +853,102 @@ public enum CommandValueAccessKind
 }
 ```
 
-Command must not resolve values by runtime stable key string.
+command は runtime の stable string key で value を解決してはならない。
 
-Value access must define:
+value access は次を定義しなければならない:
 
 - ValueKeyId
 - access kind
 - owner module
-- scope or domain boundary
+- scope または domain boundary
 - default value policy
 - failure policy
 - diagnostics source
 
-Write commands must not infer value schema from current runtime value.
-Value schema belongs to 10.
+write command は、現在の runtime value から value schema を推測してはならない。
+value schema は 10 が所有する。
 
 ---
 
-## RuntimeQuery Boundary
+## RuntimeQuery 境界
 
-Command target lookup must use verified RuntimeQuery dependencies.
+command target lookup は、検証済み RuntimeQuery dependency を使わなければならない。
 
-Executor must not perform:
+executor は次を行ってはならない:
 
 - scene search
 - hierarchy search
 - raw component search
-- ServiceGraph-based runtime object lookup
-- arbitrary actor name lookup
-- transform-parent target inference
+- ServiceGraph ベースの runtime object lookup
+- 任意の actor name lookup
+- transform-parent による target 推論
 
-Actor routing, player routing, channel routing, hit collider target routing, UI root routing, and camera target routing must be represented as declared RuntimeQuery dependencies or explicit context targets.
+actor routing、player routing、channel routing、hit collider target routing、UI root routing、camera target routing は、宣言済み RuntimeQuery dependency または明示的な context target として表現されなければならない。
 
-RuntimeQuery dependency must be validated before runtime execution.
-Missing runtime query must fail command validation or command execution with structured diagnostics.
+RuntimeQuery dependency は runtime execution の前に検証されなければならない。
+runtime query が不足している場合は、command validation または command execution が structured diagnostics とともに失敗しなければならない。
 
 ---
 
-## Scope / Entity / Actor Target Boundary
+## Scope / Entity / Actor Target 境界
 
-Commands may target runtime objects through verified handles or query results.
+command は、検証済み handle または query result を通じて runtime object を target にできる。
 
-Allowed target references:
+許可される target reference:
 
 - ScopeHandle
 - EntityHandle
 - PartHandle
 - ActorRef
 - RuntimeQueryResult
-- CommandFrame target slot
-- explicit generated target handle
+- CommandFrame の target slot
+- 明示的に生成された target handle
 
-Forbidden:
+禁止事項:
 
 - raw Transform search
 - raw GameObject.Find
 - component ancestor scan
-- arbitrary string actor lookup
-- fallback to current scene object
-- fallback to first matching target
+- 任意の string による actor lookup
+- current scene object への fallback
+- first matching target への fallback
 
-Target absence policy must be explicit.
-Required target absence must fail closed.
-Optional target absence must follow an explicit command policy and emit diagnostics when required by profile.
-
----
-
-## Lifecycle Boundary
-
-CommandRunner may have lifecycle participation through LifecyclePlan.
-
-Command executors are not lifecycle handlers by default.
-A command execution frame is not a lifecycle scope.
-
-Executing a command must not dynamically add lifecycle steps.
-Registering a command executor must not enroll lifecycle participation.
-Implementing a lifecycle-like interface must not enroll command executor lifecycle behavior.
-
-If a command runner needs acquire, release, reset, or dispose behavior, that participation belongs to 08 as a LifecycleContribution and LifecyclePlan step.
+target absence policy は明示的でなければならない。
+必須 target の欠如は fail closed しなければならない。
+任意 target の欠如は明示的な command policy に従い、profile で必要とされる場合は diagnostics を emit しなければならない。
 
 ---
 
-## Command Module and Category Policy
+## Lifecycle 境界
 
-Every command type must belong to one owner module.
+CommandRunner は、LifecyclePlan を通じて lifecycle 参加を持ってよい。
 
-Command category is used for:
+command executor は既定では lifecycle handler ではない。
+command execution frame は lifecycle scope ではない。
+
+command を実行しても、動的に lifecycle step を追加してはならない。
+command executor を登録しても、lifecycle 参加を enroll してはならない。
+lifecycle 風 interface を実装しても、command executor の lifecycle 挙動を enroll してはならない。
+
+command runner に acquire、release、reset、dispose の挙動が必要なら、その参加は 08 の LifecycleContribution と LifecyclePlan step に属する。
+
+---
+
+## Command Module と Category Policy
+
+すべての command type は 1 つの owner module に属さなければならない。
+
+command category の用途:
 
 - editor grouping
 - diagnostics
 - generation report
-- optional module enable/disable
+- optional module enable / disable
 - profile filtering
-- command catalog reports
-- migration status reports
+- command catalog report
+- migration status report
 
-Example category families:
+category family の例:
 
 - CoreFlow
 - ActorRouting
@@ -966,34 +966,34 @@ Example category families:
 - Map
 - Debug
 
-Category is not dispatch identity.
+category は dispatch identity ではない。
 
-Command module ownership must be stable enough to support deletion, migration, diagnostics, and profile filtering.
+command module ownership は、削除、移行、diagnostics、profile filtering を支えられる程度に安定していなければならない。
 
 ---
 
-## Diagnostics and DebugMap Requirements
+## 診断と DebugMap 要件
 
-Command diagnostics must include:
+command diagnostics には次を含めなければならない:
 
 - stable error code
 - severity
 - CommandTypeId
-- authoring key if available
-- command debug name if available
+- 利用可能なら authoring key
+- 利用可能なら command debug name
 - owner module
 - command category
 - payload schema id
 - executor id
 - execution frame id
-- actor reference if available
-- target reference if available
+- 利用可能なら actor reference
+- 利用可能なら target reference
 - source location
 - failure policy
 - selected profile
 - suggested fix
 
-Representative command diagnostic codes:
+代表的な command diagnostic code:
 
 - COMMAND_TYPE_MISSING
 - COMMAND_EXECUTOR_MISSING
@@ -1016,17 +1016,18 @@ Representative command diagnostic codes:
 - COMMAND_RUNNER_CARDINALITY_FORBIDDEN
 - COMMAND_BULK_DI_DISCOVERY_FORBIDDEN
 
-A command error without source location is itself a diagnostics degradation unless the missing source location is the reported failure.
+source location を持たない command error は、それ自体が diagnostics degradation である。
+ただし、欠落した source location 自体が報告対象の failure である場合は例外である。
 
 ---
 
-## Failure Policy
+## 失敗ポリシー
 
-Command failure must not be swallowed.
+command failure は握りつぶしてはならない。
 
-Each command type must define default failure behavior.
+各 command type は、既定の failure 挙動を定義しなければならない。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum CommandFailureBoundary
@@ -1040,105 +1041,105 @@ public enum CommandFailureBoundary
 }
 ```
 
-Default failure behavior is fail-closed.
-`ContinueWithError` is forbidden by default and allowed only when the command type, profile policy, and diagnostics policy explicitly allow it.
+既定の failure 挙動は fail-closed である。
+`ContinueWithError` は既定では禁止であり、command type、profile policy、diagnostics policy が明示的に許可した場合にのみ認められる。
 
-Sequence-like commands must define whether child failure:
+sequence 風 command は、child failure が次のどれを行うかを定義しなければならない:
 
-- stops the sequence
-- rolls back
-- skips the child
-- continues with error
-- propagates to parent frame
-- fails the runner
-- fails the scope
+- sequence を止める
+- rollback する
+- child をスキップする
+- error を伴って継続する
+- parent frame に伝播する
+- runner を失敗させる
+- scope を失敗させる
 
-Executor exceptions must be converted into structured command diagnostics.
-Exceptions must not be used as normal control flow.
-
----
-
-## Performance and Memory Policy
-
-Command dispatch is a runtime hot path.
-
-Target requirements:
-
-- CommandTypeId lookup should be O(1) or bounded small constant
-- executor lookup must not scan all executors
-- normal dispatch should avoid managed allocation
-- payload validation should be precomputed where possible
-- ServiceGraph must not construct all executors at boot
-- command frame allocation should be pooled or bounded for high-frequency paths
-- command-local state must not allocate dictionaries unless explicitly required
-- authoring-key lookup must not occur during normal runtime dispatch
-- catalog metadata size must be measurable
-- command execution must expose profiler markers defined by 14
-
-Increasing command type count may increase catalog metadata size.
-It must not force eager construction of every executor at boot.
-
-Increasing entity count must not automatically increase command runner count.
-Increasing command count must not automatically increase lifecycle step count.
+executor exception は structured command diagnostics に変換しなければならない。
+exception は通常の control flow として使ってはならない。
 
 ---
 
-## Legacy Migration Policy
+## 性能とメモリのポリシー
 
-Legacy command migration must replace runtime discovery with explicit command contribution and generated catalog metadata.
+command dispatch は runtime の hot path である。
 
-| Legacy Pattern | Target Representation |
+目標要件:
+
+- CommandTypeId lookup は O(1) または小さな定数時間であるべき
+- executor lookup は全 executor を走査してはならない
+- 通常 dispatch は managed allocation を避けるべき
+- payload validation は可能な限り事前計算されるべき
+- ServiceGraph は boot 時に全 executor を構築してはならない
+- command frame allocation は高頻度 path では pool 化または bounded にすべき
+- command-local state は、明示的に必要でない限り dictionary を割り当ててはならない
+- authoring-key lookup は通常 runtime dispatch 中に起きてはならない
+- catalog metadata size は計測可能でなければならない
+- command execution は 14 で定義される profiler marker を公開しなければならない
+
+command type 数が増えると catalog metadata size は増えてよい。
+しかし、boot 時に全 executor を eager instantiate させてはならない。
+
+entity 数が増えても command runner 数が自動的に増えてはならない。
+command 数が増えても lifecycle step 数が自動的に増えてはならない。
+
+---
+
+## レガシー移行ポリシー
+
+レガシー command 移行は、runtime discovery を明示的な command contribution と生成済み catalog metadata に置き換えなければならない。
+
+| レガシーパターン | 対象表現 |
 |---|---|
 | `builder.Register<XExecutor>().As<ICommandExecutor>()` | CommandContribution + CommandCatalogPlan entry |
-| `ICommandExecutor` bulk list | CommandTypeId to executor mapping |
-| `CommandExecutorRegistry(IReadOnlyList<ICommandExecutor>)` | Generated executor table |
-| `CommandKeyResolver` runtime lookup | authoring key normalized to CommandTypeId before runtime |
-| runtime-only negative command key ID | invalid for target-kernel correctness |
-| `CommandCatalogService` runtime catalog builder | Verified CommandCatalogPlan |
-| `CommandCatalogLocator` `Resources.Load` fallback | boot-time verified artifact reference |
-| scope-kind switch for runner registration | CommandExecutionDomain + explicit runner policy |
-| `.As<IScopeAcquireHandler>()` on CommandRunner | LifecycleContribution targeting CommandRunner |
+| `ICommandExecutor` の bulk list | CommandTypeId から executor への mapping |
+| `CommandExecutorRegistry(IReadOnlyList<ICommandExecutor>)` | 生成済み executor table |
+| `CommandKeyResolver` の runtime lookup | runtime 前に authoring key を CommandTypeId に正規化 |
+| runtime-only の negative command key ID | 対象 kernel 正確性の観点では無効 |
+| `CommandCatalogService` の runtime catalog builder | 検証済み CommandCatalogPlan |
+| `CommandCatalogLocator` の `Resources.Load` fallback | boot-time の検証済み artifact reference |
+| runner registration の scope-kind switch | CommandExecutionDomain + 明示的 runner policy |
+| CommandRunner 上の `.As<IScopeAcquireHandler>()` | CommandRunner を target にした LifecycleContribution |
 | debug viewer build callback | DiagnosticsContribution / DebugMap binding |
 
-Legacy migration does not imply runtime fallback.
+レガシー移行は runtime fallback を意味しない。
 
-Legacy adapters are allowed only inside the compatibility boundary defined by 13.
-New CommandCatalog core must not depend on legacy RuntimeResolver, legacy CommandRunnerMB registration, legacy catalog locator fallback, or legacy command key runtime fallback.
+レガシー adapter は、13 で定義された互換境界の内部でのみ許可される。
+新しい CommandCatalog core は、legacy RuntimeResolver、legacy CommandRunnerMB registration、legacy catalog locator fallback、legacy command key runtime fallback に依存してはならない。
 
 ---
 
-## Forbidden Patterns
+## 禁止パターン
 
-The following are forbidden in target CommandCatalog runtime:
+対象 CommandCatalog runtime で禁止されるもの:
 
-- bulk DI registration as command discovery
-- resolving `IReadOnlyList<ICommandExecutor>`
-- executor lookup by arbitrary string
-- authoring key used as runtime dispatch identity
-- stable key used as runtime dispatch identity
-- missing command fallback to no-op executor
-- missing payload schema fallback
-- runtime reflection over payload object as schema
-- runtime scene search inside executor
-- runtime Transform hierarchy search inside executor
-- ServiceGraph used as runtime target registry
-- CommandCatalog used as lifecycle registry
-- command executor lifecycle enrollment by interface scan
-- eager construction of all executors at boot by default
-- command frame as arbitrary object dictionary
-- fire-and-forget execution without explicit detached policy
-- swallowing command failure
-- command-local state used as global Blackboard
+- bulk DI registration を command discovery として使うこと
+- `IReadOnlyList<ICommandExecutor>` を解決すること
+- 任意の string による executor lookup
+- authoring key を runtime dispatch identity として使うこと
+- stable key を runtime dispatch identity として使うこと
+- command 欠落時に no-op executor へ fallback すること
+- payload schema 欠落時の fallback
+- payload object に対する runtime reflection を schema として扱うこと
+- executor 内部での runtime scene search
+- executor 内部での runtime Transform hierarchy search
+- ServiceGraph を runtime target registry として使うこと
+- CommandCatalog を lifecycle registry として使うこと
+- interface scan による command executor lifecycle enrollment
+- 既定での全 executor 早期構築
+- command frame を任意 object dictionary として扱うこと
+- explicit detached policy なしで fire-and-forget 実行すること
+- command failure の握りつぶし
+- command-local state を global Blackboard として扱うこと
 - runtime-only command key repair
-- `Resources.Load` fallback for required command catalog input
-- editor asset search as target runtime catalog source
-- giant runtime installer edited for every new command
+- 必須 command catalog input に対する `Resources.Load` fallback
+- 対象 runtime catalog source としての editor asset search
+- 新しい command ごとに編集する巨大な runtime installer
 
 ---
 
-## Test Case Model
+## テストケースモデル
 
-Each CommandCatalog test case must define:
+各 CommandCatalog テストケースは次を定義しなければならない:
 
 - Test ID
 - Title
@@ -1149,452 +1150,452 @@ Each CommandCatalog test case must define:
 - Operation
 - Expected result
 - Expected diagnostics
-- Expected allocation or performance assertion if applicable
+- 必要に応じた expected allocation または performance assertion
 - Notes
 
-Example:
+例:
 
 ```text
 Test ID: TC_CMD_ID_001_DispatchByCommandTypeId
 Input:
-- CommandCatalogPlan contains CommandTypeId CameraShake
-- Executor mapping exists
+- CommandCatalogPlan に CommandTypeId CameraShake がある
+- Executor mapping が存在する
 
 Operation:
-- Dispatch CameraShake by CommandTypeId
+- CommandTypeId で CameraShake を dispatch する
 
 Expected:
-- Correct executor invoked
-- No authoring-key lookup occurs
+- 正しい executor が呼ばれる
+- authoring-key lookup は発生しない
 ```
 
 ---
 
-## Required Test Cases
+## 必須テストケース
 
-### A. Identity Tests
+### A. Identity テスト
 
 #### TC_CMD_ID_001_DispatchByCommandTypeId
 
-Input:
+入力:
 
-- CommandCatalogPlan has CommandTypeId CameraShake
-- Executor mapping exists
+- CommandCatalogPlan に CommandTypeId CameraShake がある
+- Executor mapping が存在する
 
-Operation:
+操作:
 
-- Dispatch CameraShake by CommandTypeId
+- CommandTypeId で CameraShake を dispatch する
 
-Expected:
+期待結果:
 
-- Correct executor invoked
+- 正しい executor が呼ばれる
 
 #### TC_CMD_ID_002_AuthoringKeyRuntimeDispatchRejected
 
-Input:
+入力:
 
-- Dispatch request uses raw string `camera.shake`
+- dispatch 要求が raw string `camera.shake` を使っている
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_AUTHORING_KEY_USED_AS_RUNTIME_ID
+- failed
+- `COMMAND_AUTHORING_KEY_USED_AS_RUNTIME_ID`
 
 #### TC_CMD_ID_003_UnknownCommandTypeRejected
 
-Input:
+入力:
 
-- CommandTypeId 9999 is not in catalog
+- CommandTypeId 9999 が catalog に存在しない
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_TYPE_MISSING
+- failed
+- `COMMAND_TYPE_MISSING`
 
-### B. Payload Tests
+### B. Payload テスト
 
 #### TC_CMD_PAYLOAD_001_ValidPayloadAccepted
 
-Input:
+入力:
 
-- Command requires float duration
-- Payload contains float duration
+- command が float の duration を必要とする
+- payload に float の duration が含まれている
 
-Expected:
+期待結果:
 
-- Passed
+- passed
 
 #### TC_CMD_PAYLOAD_002_RequiredFieldMissing
 
-Input:
+入力:
 
-- Command requires target
-- Payload missing target
+- command が target を必要とする
+- payload に target がない
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_PAYLOAD_REQUIRED_FIELD_MISSING
+- failed
+- `COMMAND_PAYLOAD_REQUIRED_FIELD_MISSING`
 
 #### TC_CMD_PAYLOAD_003_TypeMismatchRejected
 
-Input:
+入力:
 
-- Field duration schema is float
-- Payload duration is string
+- duration field の schema は float
+- payload の duration は string
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_PAYLOAD_TYPE_MISMATCH
+- failed
+- `COMMAND_PAYLOAD_TYPE_MISMATCH`
 
 #### TC_CMD_PAYLOAD_004_UnknownFieldRejectedByDefault
 
-Input:
+入力:
 
-- Payload contains unknown field
+- payload に未知の field が含まれている
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_PAYLOAD_UNKNOWN_FIELD
+- failed
+- `COMMAND_PAYLOAD_UNKNOWN_FIELD`
 
-### C. Executor Tests
+### C. Executor テスト
 
 #### TC_CMD_EXEC_001_LazyExecutorCreatedOnFirstUse
 
-Input:
+入力:
 
-- Executor policy is LazySingleton
+- executor policy は LazySingleton
 
-Operation:
+操作:
 
-- Boot catalog
-- Do not execute command
+- catalog を boot する
+- command は実行しない
 
-Expected:
+期待結果:
 
-- Executor is not constructed at boot
+- boot 時に executor は構築されない
 
-Operation:
+操作:
 
-- Execute command
+- command を実行する
 
-Expected:
+期待結果:
 
-- Executor is constructed once
+- executor は 1 回だけ構築される
 
 #### TC_CMD_EXEC_002_AllExecutorsNotEagerlyConstructed
 
-Input:
+入力:
 
-- Catalog has 500 command types
+- catalog に 500 個の command type がある
 
-Operation:
+操作:
 
-- Boot
+- boot する
 
-Expected:
+期待結果:
 
-- No eager construction of all executors
+- すべての executor の eager construction は発生しない
 
 #### TC_CMD_EXEC_003_MissingExecutorRejected
 
-Input:
+入力:
 
-- CommandTypeId exists
-- Executor reference missing
+- CommandTypeId は存在する
+- Executor reference がない
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_EXECUTOR_MISSING
+- failed
+- `COMMAND_EXECUTOR_MISSING`
 
-### D. Service / Value / Query Boundary Tests
+### D. Service / Value / Query 境界テスト
 
 #### TC_CMD_BOUNDARY_001_ExecutorServiceDependencyDeclared
 
-Input:
+入力:
 
-- Executor requires TimeDomainService
-- Dependency declared and service exists
+- executor が TimeDomainService を必要とする
+- その依存は宣言されており、service も存在する
 
-Expected:
+期待結果:
 
-- Passed
+- passed
 
 #### TC_CMD_BOUNDARY_002_UndeclaredServiceDependencyRejected
 
-Input:
+入力:
 
-- Executor attempts to access service not declared in CommandContribution
+- executor が CommandContribution で宣言されていない service にアクセスしようとする
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_SERVICE_DEPENDENCY_UNDECLARED
+- failed
+- `COMMAND_SERVICE_DEPENDENCY_UNDECLARED`
 
 #### TC_CMD_BOUNDARY_003_ValueStableKeyLookupRejected
 
-Input:
+入力:
 
-- Command tries to access value by stable string key at runtime
+- command が runtime で stable string key によって value を access しようとする
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_VALUE_STABLE_KEY_LOOKUP_FORBIDDEN
+- failed
+- `COMMAND_VALUE_STABLE_KEY_LOOKUP_FORBIDDEN`
 
 #### TC_CMD_BOUNDARY_004_RuntimeQueryMissingRejected
 
-Input:
+入力:
 
-- WithActor command requires actor query
-- RuntimeQuery not declared
+- WithActor command が actor query を必要とする
+- RuntimeQuery が宣言されていない
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_RUNTIME_QUERY_MISSING
+- failed
+- `COMMAND_RUNTIME_QUERY_MISSING`
 
-### E. Control Flow Tests
+### E. Control Flow テスト
 
 #### TC_CMD_FLOW_001_SequenceStopsOnFailureByPolicy
 
-Input:
+入力:
 
-- Sequence has 3 commands
-- Command 2 fails
-- Policy is StopOnFailure
+- Sequence に 3 つの command がある
+- command 2 が失敗する
+- policy は StopOnFailure
 
-Expected:
+期待結果:
 
-- Command 3 not executed
-- Failure propagated
+- command 3 は実行されない
+- failure は伝播する
 
 #### TC_CMD_FLOW_002_IfBranchUsesDeclaredChildCommands
 
-Input:
+入力:
 
-- If command references then and else blocks
+- If command が then block と else block を参照している
 
-Expected:
+期待結果:
 
-- Only selected branch executes
-- child command IDs are valid
+- 選択された branch だけが実行される
+- child command ID は有効である
 
 #### TC_CMD_FLOW_003_ForLoopRequiresBound
 
-Input:
+入力:
 
-- For command has no max iteration and no explicit unbounded policy
+- For command に max iteration がなく、明示的な unbounded policy もない
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_LOOP_BOUND_MISSING
+- failed
+- `COMMAND_LOOP_BOUND_MISSING`
 
-### F. Async Tests
+### F. Async テスト
 
 #### TC_CMD_ASYNC_001_WaitCommandCompletes
 
-Input:
+入力:
 
-- Wait command with duration
+- duration 付きの Wait command
 
-Expected:
+期待結果:
 
-- Frame remains alive
-- Completion resumes sequence
+- frame は生存し続ける
+- completion により sequence が再開する
 
 #### TC_CMD_ASYNC_002_CancellationStopsFrame
 
-Input:
+入力:
 
-- Running async command
-- Cancellation requested
+- async command を実行中である
+- cancellation が要求される
 
-Expected:
+期待結果:
 
-- COMMAND_CANCELLED
-- frame failure policy applied
+- `COMMAND_CANCELLED`
+- frame の failure policy が適用される
 
 #### TC_CMD_ASYNC_003_FireAndForgetRequiresDetachedPolicy
 
-Input:
+入力:
 
-- Forget command without detached policy
+- detached policy のない Forget command
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_DETACHED_POLICY_MISSING
+- failed
+- `COMMAND_DETACHED_POLICY_MISSING`
 
-### G. Runner Domain Tests
+### G. Runner Domain テスト
 
 #### TC_CMD_RUNNER_001_ProjectRunnerUsesProjectDomain
 
-Input:
+入力:
 
 - Project domain runner
-- Project command execution
+- Project command の実行
 
-Expected:
+期待結果:
 
-- Passed
+- passed
 
 #### TC_CMD_RUNNER_002_EntityRunnerRejectedByDefaultForMassEntities
 
-Input:
+入力:
 
-- Runner per entity for 10,000 entities
+- 10,000 entities に対して entity ごとの runner がある
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_RUNNER_CARDINALITY_FORBIDDEN
+- failed
+- `COMMAND_RUNNER_CARDINALITY_FORBIDDEN`
 
 #### TC_CMD_RUNNER_003_ExplicitEntityAggregateRunnerAllowed
 
-Input:
+入力:
 
-- Authored boss aggregate root has explicit runner policy
+- 作成済み boss aggregate root に明示的な runner policy がある
 
-Expected:
+期待結果:
 
-- Passed or Warning depending budget
+- budget に応じて Passed または Warning
 
-### H. Migration Tests
+### H. 移行テスト
 
 #### TC_CMD_MIGRATION_001_CommandRunnerMBBulkExecutorRegistrationRejected
 
-Input:
+入力:
 
-- Module attempts to register executors through builder `.As<ICommandExecutor>()`
+- module が builder の `.As<ICommandExecutor>()` を通じて executor を登録しようとする
 
-Expected:
+期待結果:
 
-- Failed
-- COMMAND_BULK_DI_DISCOVERY_FORBIDDEN
+- failed
+- `COMMAND_BULK_DI_DISCOVERY_FORBIDDEN`
 
 #### TC_CMD_MIGRATION_002_CommandRunnerLifecycleSeparated
 
-Input:
+入力:
 
-- CommandRunner requires acquire/release
+- CommandRunner に acquire / release が必要である
 
-Expected:
+期待結果:
 
-- LifecycleContribution created
-- ServiceGraph does not infer lifecycle from handler interface
+- LifecycleContribution が作成される
+- ServiceGraph は handler interface から lifecycle を推論しない
 
 #### TC_CMD_MIGRATION_003_DebugViewerBuildCallbackReplaced
 
-Input:
+入力:
 
-- Build callback binds command debug viewer
+- build callback が command debug viewer を bind している
 
-Expected:
+期待結果:
 
-- DiagnosticsContribution or DebugMap binding required
-- runtime build callback not allowed as source of truth
+- DiagnosticsContribution または DebugMap binding が必要である
+- runtime build callback は truth source として許可されない
 
-### I. Performance Tests
+### I. Performance テスト
 
 #### TC_CMD_PERF_001_CommandLookupNoScan
 
-Input:
+入力:
 
-- 1000 command types
+- 1000 個の command type がある
 
-Operation:
+操作:
 
-- Dispatch one command
+- 1 つの command を dispatch する
 
-Expected:
+期待結果:
 
-- Does not scan all command types
+- 全 command type を走査しない
 
 #### TC_CMD_PERF_002_NormalDispatchNoAllocation
 
-Operation:
+操作:
 
-- Dispatch simple command repeatedly
+- 簡単な command を繰り返し dispatch する
 
-Expected:
+期待結果:
 
-- No managed allocation in normal path
+- 通常 path で managed allocation はない
 
 #### TC_CMD_PERF_003_CommandCountDoesNotEagerInstantiateExecutors
 
-Input:
+入力:
 
-- Many command types
+- 多数の command type がある
 
-Operation:
+操作:
 
-- Boot catalog
+- catalog を boot する
 
-Expected:
+期待結果:
 
-- Metadata loaded
-- executors not all instantiated
+- metadata は読み込まれる
+- executor はすべて instantiate されない
 
 ---
 
-## Acceptance Criteria
+## 受け入れ基準
 
-This specification is complete when it defines:
+この仕様は、次を定義するときに完了である:
 
-- CommandCatalog runtime responsibility
-- CommandCatalogPlan input contract
-- CommandTypeId identity model
-- authoring key boundary
-- CommandContribution projection boundary
-- payload schema model
+- CommandCatalog の runtime 責務
+- CommandCatalogPlan の入力契約
+- CommandTypeId の識別モデル
+- authoring key の境界
+- CommandContribution の projection 境界
+- payload schema モデル
 - payload validation policy
-- command executor model
-- executor factory and lifetime policy
-- CommandRunner responsibility
-- CommandFrame and CommandContext model
+- command executor モデル
+- executor factory と lifetime policy
+- CommandRunner の責務
+- CommandFrame と CommandContext モデル
 - CommandLocal state policy
 - control-flow command policy
-- async, wait, cancellation, and detached execution policy
-- ServiceGraph boundary
-- ValueStore boundary
-- RuntimeQuery boundary
-- scope, entity, and actor target boundary
-- LifecyclePlan boundary
-- command module and category policy
-- diagnostics and DebugMap requirements
+- async / wait / cancellation / detached execution policy
+- ServiceGraph 境界
+- ValueStore 境界
+- RuntimeQuery 境界
+- scope / entity / actor target 境界
+- LifecyclePlan 境界
+- command module と category policy
+- diagnostics と DebugMap 要件
 - failure policy
-- performance and memory policy
+- performance と memory policy
 - legacy migration policy
 - forbidden patterns
-- CommandCatalog test case model
-- required CommandCatalog test cases
+- CommandCatalog のテストケースモデル
+- 必須 CommandCatalog テストケース
 
 ---
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Expected Result |
+| テストケース | 目的 | 期待結果 |
 |---|---|---|
-| TC-09-01 | Verify command dispatch is by CommandTypeId, not authoring string. | Raw string dispatch is rejected and CommandTypeId dispatch succeeds. |
-| TC-09-02 | Verify executors are not discovered through ServiceGraph or `IReadOnlyList<ICommandExecutor>`. | Bulk DI discovery fails validation. |
-| TC-09-03 | Verify payload schema validation runs before executor invocation. | Missing, unknown, or type-mismatched fields fail before execution. |
-| TC-09-04 | Verify command boundaries with ServiceGraph, ValueStore, RuntimeQuery, ScopeGraph, and LifecyclePlan. | Undeclared dependencies and target searches are rejected. |
-| TC-09-05 | Verify async, wait, cancellation, and detached execution policy. | Untracked async and missing detached policy fail with diagnostics. |
-| TC-09-06 | Verify performance and boot behavior. | Catalog boot does not construct every executor and dispatch does not scan all commands. |
+| TC-09-01 | コマンドの dispatch が authoring string ではなく CommandTypeId によることを確認する。 | raw string での dispatch は拒否され、CommandTypeId での dispatch は成功する。 |
+| TC-09-02 | executor が ServiceGraph や `IReadOnlyList<ICommandExecutor>` から発見されないことを確認する。 | bulk DI discovery は validation で失敗する。 |
+| TC-09-03 | payload schema validation が executor 呼び出しの前に実行されることを確認する。 | 欠落、未知、型不一致の field は実行前に失敗する。 |
+| TC-09-04 | ServiceGraph、ValueStore、RuntimeQuery、ScopeGraph、LifecyclePlan との境界を確認する。 | 宣言されていない依存や target search は拒否される。 |
+| TC-09-05 | async、wait、cancellation、detached execution policy を確認する。 | 追跡されない async と detached policy 欠落は diagnostics 付きで失敗する。 |
+| TC-09-06 | performance と boot behavior を確認する。 | catalog boot ではすべての executor を構築せず、dispatch では全 command を走査しない。 |
 
 ---
 
-## Final Position
+## 最終見解
 
-CommandCatalog is the runtime command table for verified command identities, payload schemas, executor references, and diagnostics metadata.
-It is not a DI executor list, not a string-key resolver, and not a lifecycle registry.
+CommandCatalog は、検証済みの command identity、payload schema、executor reference、diagnostics metadata のための runtime command table である。
+DI executor list でも、string-key resolver でも、lifecycle registry でもない。
 
-Runtime command execution may proceed only from verified CommandTypeId and verified payload schema.
+runtime command execution は、検証済み CommandTypeId と検証済み payload schema からのみ進められる。
 
 ```text
 CommandContribution
@@ -1605,4 +1606,4 @@ CommandContribution
   -> executor execution
 ```
 
-The era of adding commands by editing a giant runtime installer must end.
+巨大な runtime installer を編集してコマンドを追加する時代は終わらせなければならない。

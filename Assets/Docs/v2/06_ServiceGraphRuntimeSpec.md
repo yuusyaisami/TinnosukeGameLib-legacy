@@ -1,382 +1,382 @@
-# ServiceGraph Runtime Specification
+# ServiceGraph Runtime 仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 06_ServiceGraphRuntimeSpec
-- Status: Draft
-- Role: defines runtime service resolution, service eligibility, service lifetime boundaries, and service failure rules for Kernel v2
-- Depends on:
+- 文書 ID: `06_ServiceGraphRuntimeSpec`
+- 状態: Draft
+- 役割: Kernel v2 における runtime service resolution、service eligibility、service lifetime boundary、service failure rule を定義する
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
   - [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md)
   - [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md)
   - [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md)
-- Consumes:
+- この仕様が消費するもの:
   - ServiceIR
   - ServiceGraphPlan
-  - ScopeGraphPlan references
-  - RuntimeQueryPlan references
-  - KernelDebugMap
-- Provides foundation for:
-  - 07_ScopeGraphRuntimeSpec.md
-  - 08_LifecyclePlanSpec.md
-  - 09_CommandCatalogRuntimeSpec.md
-  - 10_ValueSchemaAndStoreSpec.md
-  - 11_DebugMapAndDiagnosticsSpec.md
-  - 12_UnityAuthoringBridgeSpec.md
-  - 13_LegacyCompatBoundarySpec.md
-  - 14_PerformanceBudgetAndRuntimeRulesSpec.md
-  - 15_TestAndValidationSpec.md
+  - ScopeGraphPlan 参照
+  - RuntimeQueryPlan 参照
+  - `KernelDebugMap`
+- この仕様を基盤としている文書:
+  - [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md)
+  - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
+  - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
+  - [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md)
+  - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
+  - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
+  - [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md)
+  - [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md)
+  - [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md)
 
-### Ownership
+### 所有範囲
 
-This specification owns runtime service resolution for verified, coarse-grained services.
-It does not own scope structure, runtime query indexes, lifecycle execution, command dispatch, or value storage internals.
+本仕様は、verified された coarse-grained service の runtime service resolution を所有する。
+scope structure、runtime query index、lifecycle execution、command dispatch、value storage の内部までは所有しない。
 
-This specification owns:
+本仕様が所有するもの:
 
 - ServiceGraph runtime definition
-- service eligibility rules
+- service eligibility rule
 - non-service runtime object classification
 - ServiceGraphPlan runtime input contract
-- service identity and service contract rules
-- service lifetime and cardinality rules
-- service factory rules
-- resolver semantics for required and optional services
-- slot and cache model requirements
-- dependency resolution rules inside ServiceGraph
-- scope-local service boundary rules
-- diagnostics and DebugMap requirements for services
+- service identity と service contract の rule
+- service lifetime と cardinality の rule
+- service factory の rule
+- required / optional service resolution semantics
+- slot / cache model の要件
+- ServiceGraph 内の dependency resolution rule
+- scope-local service boundary rule
+- service diagnostics / DebugMap 要件
 - service failure behavior
-- service performance and memory rules
-- service threading and shutdown rules
-- legacy boundary rules for service runtime
+- service performance / memory rule
+- service threading / shutdown rule
+- service runtime における legacy boundary rule
 
-This specification does not own:
+本仕様が所有しないもの:
 
 - scope parent-child structure
-- RuntimeQuery storage or lookup semantics
+- RuntimeQuery の storage または lookup semantics
 - lifecycle step execution
 - command catalog dispatch
-- value key resolution or value storage layout
+- value key lookup または value storage layout
 - Unity authoring schema
 - boot manifest selection
 
-06 is the runtime service authority.
-It is not a replacement for a general-purpose DI container.
+06 は runtime service authority である。
+しかし、汎用 DI container の代用品ではない。
 
 ---
 
-## Purpose
+## 目的
 
-This specification defines ServiceGraph, the runtime resolver for verified services derived from ServiceGraphPlan.
+本仕様は、ServiceGraph を定義する。ServiceGraph は ServiceGraphPlan から導かれた verified service の runtime resolver である。
 
-ServiceGraph exists to execute explicit service structure.
-It does not exist to discover missing runtime structure, collect arbitrary behaviors, or repair incomplete plans.
+ServiceGraph は、明示された service structure を実行するために存在する。
+欠落した runtime structure を discovery したり、任意の behavior を集めたり、不完全な plan を repair したりするために存在するのではない。
 
-The core statement of 06 is:
+06 の中心文は次である。
 
 ```text
-ServiceGraph resolves coarse-grained verified services.
-It does not model every runtime object as a service.
+ServiceGraph は coarse-grained で verified な service を解決する。
+すべての runtime object を service として扱うわけではない。
 ```
 
-ServiceGraph is not a general-purpose DI container.
-ServiceGraph must not become:
+ServiceGraph は汎用 DI container ではない。
+ServiceGraph は次のものになってはならない。
 
-- a lifecycle handler collector
-- a command executor registry
-- a runtime object registry
-- a per-entity service container
-- a channel player factory registry
-- a value/key resolver
-- a fallback resolver
+- lifecycle handler collector
+- command executor registry
+- runtime object registry
+- per-entity service container
+- channel player factory registry
+- value / key resolver
+- fallback resolver
 
 ---
 
-## Scope
+## 範囲
 
-This specification defines:
+本仕様は次を定義する。
 
-- ServiceGraph runtime responsibility
-- service eligibility and non-eligibility
-- non-service runtime object classification
+- ServiceGraph の runtime responsibility
+- service eligibility と non-eligibility
+- non-service runtime object の分類
 - ServiceGraphPlan input contract
-- service identity and service contract rules
-- service lifetime and cardinality rules
-- service factory rules
-- required and optional service resolution behavior
-- scope-local service boundary rules
-- entity and per-target service prohibition
-- hub, channel, and player classification
-- lifecycle, command, runtime query, and value boundaries
-- Unity object linkage constraints for services
-- service diagnostics and DebugMap requirements
+- service identity と service contract rule
+- service lifetime と cardinality rule
+- service factory rule
+- required / optional service resolution behavior
+- scope-local service boundary rule
+- entity / per-target service の禁止
+- hub / channel / player の分類
+- lifecycle / command / runtime query / value boundary
+- service 向け Unity object linkage constraint
+- service diagnostics / DebugMap 要件
 - service failure policy
-- service performance, memory, threading, and shutdown policy
-- service runtime test case model and required tests
+- service performance / memory / threading / shutdown policy
+- service runtime の test case model と required test
 
 ---
 
-## Non-Goals
+## 非目標
 
-This specification does not define:
+本仕様は次を定義しない。
 
-- final ScopeGraph storage
-- RuntimeQuery index shape
-- lifecycle step ordering or execution algorithm
-- command dispatch or payload execution rules
-- ValueStore layout or serialization
+- 最終的な ScopeGraph storage
+- RuntimeQuery の index 形状
+- lifecycle step の順序または実行アルゴリズム
+- command dispatch または payload execution rule
+- ValueStore の layout または serialization
 - Unity object authoring schema
-- boot manifest shape
-- scene transition algorithms
+- boot manifest の形状
+- scene transition algorithm
 
-This specification must not turn ServiceGraph into:
+本仕様は ServiceGraph を次のものに変えてはならない。
 
-- a generic runtime object directory
-- a generic hierarchy query API
-- a replacement for RuntimeQuery
-- a replacement for ValueStore
-- a replacement for LifecyclePlan
-- a replacement for CommandCatalog
+- generic runtime object directory
+- generic hierarchy query API
+- RuntimeQuery の代替
+- ValueStore の代替
 
 ---
 
-## Relationship to Other Specs
+## 他仕様との関係
 
-| Spec | Relationship |
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines ServiceGraph as explicit service runtime, separates RuntimeQuery from service resolution, and forbids runtime discovery and reflection activation. |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines ServiceIR, ServiceId, ServiceDependencyIR, ServiceLifetimeKind, and typed identity domains used by this runtime contract. |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Defines ServiceContribution as declarative input and rejects installer-style runtime mutation as the target model. |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Produces ServiceGraphPlan as a verified projection and forbids partial artifact execution or invented ServiceId values. |
-| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | Validates service dependency correctness, lifetime direction, optional dependency policy, and RuntimeQuery separation before runtime use. |
-| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | Defines boot-time acceptance of verified service projections and fail-closed creation of essential service runtime state. |
-| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | Owns scope structure and scope-local service lifetime boundary creation; 06 owns service resolution inside that boundary. |
-| 08_LifecyclePlanSpec.md | Owns lifecycle participation and step execution; 06 only defines service participation boundaries. |
-| 09_CommandCatalogRuntimeSpec.md | Owns command discovery, dispatch, and executor routing; 06 only defines command-related service boundaries. |
-| 10_ValueSchemaAndStoreSpec.md | Owns value schemas, storage, and dynamic evaluation; 06 only defines value-related service boundaries. |
-| 11_DebugMapAndDiagnosticsSpec.md | Owns the shared structured diagnostics substrate and DebugMap runtime contract; 06 defines required service runtime provenance fields and failure behavior. |
-| 12_UnityAuthoringBridgeSpec.md | Owns authoring-side service bindings and Unity linkage generation inputs. |
-| 13_LegacyCompatBoundarySpec.md | Owns where legacy resolver and installer compatibility may remain visible. |
-| 14_PerformanceBudgetAndRuntimeRulesSpec.md | Owns measurable runtime budgets that consume the performance rules declared here. |
-| 15_TestAndValidationSpec.md | Turns this runtime service contract into executable test and CI coverage. |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | target kernel では service discovery を主な composition mechanism にしてはならない |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | ServiceIR、identity domain、dependency edge、source location を定義する |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | service contribution を宣言的な input として定義する |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | verified ServiceGraphPlan を生成する |
+| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | service dependency を事前検証する |
+| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | boot-time の verified service input を選ぶ |
+| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | scope instance graph の runtime authority を定義する |
+| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | lifecycle step を定義する |
+| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | command runtime を定義する |
+| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | value schema と storage を定義する |
+| [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md) | diagnostics / DebugMap の共通基盤を定義する |
+| [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md) | Unity authoring bridge を定義する |
+| [13_LegacyCompatBoundarySpec.md](13_LegacyCompatBoundarySpec.md) | legacy boundary を定義する |
+| [14_PerformanceBudgetAndRuntimeRulesSpec.md](14_PerformanceBudgetAndRuntimeRulesSpec.md) | performance budget を定義する |
+| [15_TestAndValidationSpec.md](15_TestAndValidationSpec.md) | test と CI gate を定義する |
 
-06 consumes verified service structure.
-It must not derive service truth from registrations, scene search, ancestor traversal, or fallback creation.
-
----
-
-## Assembly Definition and Compile Boundary Expectations
-
-The intended assembly home for this subsystem is `GameLib.Kernel.ServiceGraph`.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
-
-Required compile-boundary rules for 06:
-
-- `GameLib.Kernel.ServiceGraph` must remain separate from feature assemblies, legacy assemblies, and command executor implementations
-- ServiceGraph core should depend only on lower kernel assemblies such as Foundation, Diagnostics, Abstractions, and Runtime
-- Unity object search helpers, scene binding code, and authoring extraction must stay outside the ServiceGraph assembly
-- installer-style registration mutation, ancestor resolver fallback, and broad runtime discovery must not be pulled into `GameLib.Kernel.ServiceGraph`
-
-If service resolution logic requires feature internals, Editor APIs, or legacy resolver fallback to compile, the 06 boundary has been violated.
+06 は verified coarse-grained service を解決する runtime の authority である。
 
 ---
 
-## Current Service Debt Observations
+## Assembly Definition と Compile Boundary の期待値
 
-### Observation Traceability
+ServiceGraph の想定配置先は `GameLib.Kernel.Services` である。
+詳細な dependency matrix は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が管理する。
 
-Current runtime service observations must remain traceable to source code, profiling evidence, or migration notes.
+06 に対する必須の compile-boundary ルール:
 
-When this document is updated, observations that no longer match the current codebase must be removed or moved to migration notes.
+- `GameLib.Kernel.Services` は runtime mutation code と分離する
+- core assembly は Unity 非依存のまま維持し、`noEngineReferences: true` を使うべきである
+- runtime service implementation、feature implementation、legacy adapter は別 assembly に分ける
+- service assembly に installer-style mutation を再導入してはならない
 
-| Observation | Evidence Type | Expected Downstream Spec |
+core assembly で service truth を完結させることができないなら、設計を見直す必要がある。
+
+---
+
+## 現行の Service Debt 観測
+
+現行の service debt 観測は、source code、design review note、migration evidence に遡れなければならない。
+
+### 観測のトレーサビリティ
+
+| 観測 | 根拠の種類 | Service 圧力 |
 |---|---|---|
-| Runtime service resolution still depends on registration tables, raw Type keys, and collection-style discovery. | Source | 06 |
-| Scope build still mixes feature installer discovery, builder mutation, resolver construction, lifecycle collection, and scope activation. | Source | 06, 07, 08 |
-| Lifecycle and tick participation are still inferred from registered interfaces instead of explicit lifecycle plans. | Source | 06, 08 |
-| Command runtime wiring still uses installer-style mutation and service registration patterns. | Source | 06, 09 |
-| Tooltip, mesh, and sprite-animation "services" still mix service dependencies, runtime query behavior, dynamic value resolution, player runtime ownership, and lifecycle participation. | Source | 06, 08, 09, 10 |
-| Existing runtime paths still allow ancestor resolve, `Camera.main`, `NullVarStore`, and similar fallback behavior to repair missing structure. | Source | 06, 10, 13 |
+| legacy runtime service architecture は複数の責務を混在させている | Source | 06, 07, 08, 09, 10 |
+| service identity と raw C# type identity が混ざっている | Source | 06 |
+| coarse-grained service と per-target runtime object が混在している | Source | 06, 07 |
+| lifecycle participation と service resolution が混ざっている | Source | 06, 08 |
+| command routing と shared service access が混ざっている | Source | 06, 09 |
+| runtime query behavior と service dependency が混ざっている | Source | 06, 07 |
+| dynamic value access と service dependency が混ざっている | Source | 06, 10, 10-2 |
+| scope creation と service construction が混ざっている | Source | 06, 07 |
+| required dependency resolution と fallback repair が混ざっている | Source | 06, 13 |
 
-### Representative Anchors
+### 代表的なアンカー
 
-- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - registration table resolver, `IReadOnlyList<T>` collection, lifecycle handler collection, type-keyed cache behavior
-- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - builder construction, feature installer discovery, scope-local resolver creation, lifecycle handler extraction
-- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - installer-style command registration and lifecycle handler registration
-- [ModalStackChannelHubService.cs](../../GameLib/Script/Project/UI/Core/ModalStackChannel/ModalStackChannelHubService.cs) - stateful UI hub that should be modeled as a coarse-grained hub, not as per-target service expansion
-- [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) - mixed service resolution, ancestor lookup, tick handling, channel runtime ownership, camera fallback, and value fallback
-- [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) - scope-bound hub that owns many `MeshChannelPlayerRuntime` instances
-- [MeshChannelHubMB.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubMB.cs) - installer mutation that registers a hub as service plus lifecycle handlers
-- [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) - mixed hub, material provider, visual hub, lifecycle, tick, and player runtime ownership
-- [AnimationSpriteHubMB.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubMB.cs) - installer mutation that registers a hub through multiple contracts and lifecycle interfaces
+- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - registration table、`CollectHandlers<THandler>()`、`CollectAll(...)`、`RuntimeAcquireReleaseDispatcher`
+- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - build-time installer discovery、resolver construction、lifecycle extraction
+- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) - nearest-scope filtering と installer discovery
+- [LoadingScreenService.cs](../../GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs) - loading behavior と scene search / persistent-parent repair
+- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk executor registration と lifecycle wiring
+- [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) - executor lookup と invalid-ID behavior
+- [ModalStackChannelHubService.cs](../../GameLib/Script/Project/UI/Core/ModalStackChannel/ModalStackChannelHubService.cs) - hub だが coarse-grained service 候補
+- [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) - mixed boundary
+- [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) - hub service 候補
+- [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) - mixed boundary
 
-### Current Gaps
+### 現行の不足点
 
-The current codebase still exposes behaviors that 06 must remove from the target architecture:
+現行コードベースには、target architecture で ServiceGraph が解消すべき debt が残っている。
 
-- service truth is still partially registration-driven
-- required dependencies can still be searched at acquire time
-- runtime query behavior is still mixed into service resolution
-- lifecycle enrollment is still discoverable through interfaces
-- player runtime and session runtime ownership are not separated from coarse-grained hub identity
-- fallback behavior still exists for missing camera, value, or resolver dependencies
-- service count pressure is not explicitly bounded against entity and target count
+- service count が entity count とともに増える設計が残っている
+- service eligibility が十分に明示されていない
+- per-target runtime object と coarse-grained service の境界が曖昧である
+- optional service が silent fallback に落ちうる
+- service resolution と runtime query がまだ混ざりうる
+- diagnostics / DebugMap の透明性が不足している
 
 ---
 
 ## Core Problem
 
-Legacy runtime service architecture mixes multiple responsibilities:
+legacy runtime service architecture は、複数の責務を 1 つの path に押し込めている。
 
-- service identity and raw C# type identity
-- coarse-grained shared services and per-target runtime objects
-- lifecycle participation and service resolution
-- command routing and shared service access
-- runtime query behavior and service dependencies
-- dynamic value access and service dependencies
-- scope creation and service construction
-- required dependency resolution and fallback repair
+混在している責務:
 
-The target ServiceGraph must separate these responsibilities.
+- service identity と raw C# type identity
+- coarse-grained shared service と per-target runtime object
+- lifecycle participation と service resolution
+- command routing と shared service access
+- runtime query behavior と service dependency
+- dynamic value access と service dependency
+- scope creation と service construction
+- required dependency resolution と fallback repair
 
-If service count grows with entity count, target count, or player runtime count, the design is wrong by default.
+target ServiceGraph はこれらを分離しなければならない。
+
+entity count、target count、player runtime count に応じて service count が増えるなら、その設計は既定で誤っている。
 
 ---
 
 ## ServiceGraph Runtime Definition
 
-ServiceGraph is the runtime resolver for verified services defined by ServiceGraphPlan.
+ServiceGraph は、ServiceGraphPlan で定義された verified service の runtime resolver である。
 
-ServiceGraph owns:
+ServiceGraph が所有するもの:
 
-- service slot identity inside a verified graph
-- service construction inside a verified lifetime boundary
-- required and optional service resolution
-- dependency ordering inside the service graph
-- service cache lifetime inside the graph boundary
-- service disposal for declared service instances
+- verified graph 内の service slot identity
+- verified lifetime boundary 内の service construction
+- required / optional service resolution
+- service graph 内の dependency ordering
+- graph boundary 内の service cache lifetime
+- declared service instance の disposal
 - service diagnostics
 
-ServiceGraph does not own:
+ServiceGraph が所有しないもの:
 
 - scope parent-child structure
-- runtime query indexes
+- runtime query index
 - lifecycle step discovery
 - command executor collection
 - value key lookup
 - Unity scene search
-- broad runtime object directories
+- broad runtime object directory
 
-ServiceGraph may execute only verified ServiceGraphPlan input.
+ServiceGraph は、verified ServiceGraphPlan input のみを実行できる。
 
-It must not:
+次のことをしてはならない。
 
-- register new services at runtime
-- discover services by scanning MonoBehaviours or interfaces
-- repair missing services through fallback factories
-- collect behavior lists from arbitrary contracts
-- resolve runtime objects through service lookup
+- runtime で新しい service を登録する
+- MonoBehaviour や interface を scan して service を発見する
+- fallback factory で missing service を修復する
+- 任意 contract の behavior list を集める
+- service lookup を通じて runtime object を解決する
 
 ### M6.1 Service Eligibility Classification Rules and Service-Boundary Inventory
 
-M6.1 freezes the question of what ServiceGraph is allowed to represent.
-It must be resolved before any slot, cache, or factory work is considered complete.
+M6.1 は、ServiceGraph が何を表現してよいかを固定する。
+slot、cache、factory の作業を complete と見なす前に、ここで解決しなければならない。
 
-The classification rule is intentionally narrow:
+分類 rule は意図的に狭い。
 
 ```text
 Shared, explicit, validated runtime infrastructure may be a service.
 Per-target runtime objects are not services by default.
 ```
 
-Service eligibility is determined by all of the following:
+service eligibility は次のすべてで決まる。
 
-1. The candidate has a stable ServiceId.
-2. The candidate has an explicit owner module.
-3. The candidate has a verified lifetime domain.
-4. The candidate is discoverable from ServiceGraphPlan, not from runtime search.
-5. The candidate's dependencies are declared and validated before runtime.
-6. The candidate is constructed by a verified factory or a verified prebuilt source.
-7. The candidate's failure can be diagnosed through DebugMap and structured diagnostics.
-8. The candidate's expected cardinality is coarse-grained enough to justify service-slot ownership.
+1. 候補に stable な `ServiceId` がある。
+2. 候補に explicit な owner module がある。
+3. 候補に verified な lifetime domain がある。
+4. 候補が runtime search ではなく ServiceGraphPlan から見える。
+5. 候補の dependency が runtime 前に宣言・検証されている。
+6. 候補が verified factory または verified prebuilt source で構築される。
+7. 候補の failure を DebugMap と structured diagnostics で診断できる。
+8. 候補の cardinality が service-slot ownership を正当化できる程度に coarse である。
 
-The following are service-eligible categories when the above rules are satisfied:
+上の rule を満たす場合に service eligible となるカテゴリ:
 
 - kernel-level coarse services
 - project-level coarse services
 - scene-level coarse services
 - authored-scope coarse services
 
-The following are not service-eligible by default:
+既定で service eligible ではないもの:
 
-- per-entity runtime objects
-- per-part runtime objects
-- per-renderer runtime objects
-- per-tooltip runtime objects
-- per-channel-player runtime objects
-- per-mesh-track runtime objects
-- per-animation-player runtime objects
-- transient command execution frames
-- dynamic value evaluation contexts
-- pooled runtime object instances
+- per-entity runtime object
+- per-part runtime object
+- per-renderer runtime object
+- per-tooltip runtime object
+- per-channel-player runtime object
+- per-mesh-track runtime object
+- per-animation-player runtime object
+- transient command execution frame
+- dynamic value evaluation context
+- pooled runtime object instance
 
-ServiceGraph must not be used to assign synthetic ServiceId values to these non-service objects just to make retrieval convenient.
+ServiceGraph は、これらの non-service object に synthetic `ServiceId` を割り当てて、取得を便利にするためだけに使ってはならない。
 
-Boundary inventory for current migration anchors:
+現在の migration anchor に対する boundary inventory:
 
-| Current anchor | M6.1 classification | Lifetime / cardinality | Why it belongs there | Required downstream treatment |
+| Current anchor | M6.1 classification | Lifetime / cardinality | その理由 | 必要な下流の扱い |
 |---|---|---|---|---|
-| [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) | legacy boundary, not target service | n/a | registration tables, collection-style discovery, and runtime resolver coupling are the opposite of verified coarse-grained service ownership | quarantine behind the legacy boundary; do not promote as ServiceGraph truth |
-| [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) | legacy scope/build boundary, not target service | n/a | build-time installer discovery, resolver construction, and lifecycle extraction are mixed into one path | split into verified boot and explicit scope/runtime boundaries before any target ServiceGraph use |
-| [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) | legacy discovery boundary, not target service | n/a | nearest-scope filtering and installer discovery are explicit transform-derived ownership leaks | quarantine discovery behavior and keep scope ownership explicit |
-| [LoadingScreenService.cs](../../GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs) | boot-adjacent legacy boundary, not target service | n/a | loading behavior still depends on scene search and persistent-parent repair flow | keep this outside target ServiceGraph until boot and scope boundaries own the entry path |
-| [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) | legacy command bootstrap boundary, not target service | n/a | bulk executor registration and lifecycle wiring are still registration-driven | exclude from ServiceGraph; command ownership belongs to M9 and explicit lifecycle boundaries |
-| [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) | legacy command-dispatch boundary, not target service | n/a | executor lookup and invalid-ID behavior are still registry-shaped command dispatch | keep it out of ServiceGraph; command truth belongs to M9 |
-| [ModalStackChannelHubService.cs](../../GameLib/Script/Project/UI/Core/ModalStackChannel/ModalStackChannelHubService.cs) | service candidate, hub service | OnePerProject or OnePerScene; bounded | coarse-grained UI hub with shared state and explicit ownership boundary | model the hub identity only; keep layer/root state inside the hub |
-| [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) | mixed boundary, split required before service eligibility | n/a until split | coarse-grained hub, but it currently mixes runtime query, value access, and player ownership concerns | keep only the hub in ServiceGraph after split; move player runtimes and lookup paths out of service truth |
-| [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) | service candidate, hub service | OnePerScene; bounded | owns many player runtimes but the players themselves are not service identities | keep MeshChannelPlayerRuntime hub-owned and non-ServiceId-backed |
-| [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) | mixed boundary, split required before service eligibility | n/a until split | current behavior mixes hub service, material/provider behavior, lifecycle, and player runtime ownership | split service declaration, lifecycle declaration, and player runtime ownership before target migration |
+| [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) | legacy boundary、target service ではない | n/a | registration table、collection-style discovery、runtime resolver coupling は verified coarse-grained service ownership の対極にある | legacy boundary に quarantine し、ServiceGraph truth に昇格させない |
+| [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) | legacy scope/build boundary、target service ではない | n/a | build-time installer discovery、resolver construction、lifecycle extraction が 1 つの path に混ざっている | verified boot と explicit scope/runtime boundary に分割してから target ServiceGraph に使う |
+| [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) | legacy discovery boundary、target service ではない | n/a | nearest-scope filtering と installer discovery は transform 由来の ownership leak である | discovery behavior を quarantine し、scope ownership を explicit のままにする |
+| [LoadingScreenService.cs](../../GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs) | boot-adjacent legacy boundary、target service ではない | n/a | loading behavior が scene search と persistent-parent repair flow に依存している | boot と scope boundary が entry path を所有するまで target ServiceGraph の外に置く |
+| [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) | legacy command bootstrap boundary、target service ではない | n/a | bulk executor registration と lifecycle wiring が registration-driven のままである | ServiceGraph から除外する。command ownership は M9 と explicit lifecycle boundary に属する |
+| [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) | legacy command-dispatch boundary、target service ではない | n/a | executor lookup と invalid-ID behavior が registry 型の command dispatch のままである | ServiceGraph から外し、command truth は M9 に置く |
+| [ModalStackChannelHubService.cs](../../GameLib/Script/Project/UI/Core/ModalStackChannel/ModalStackChannelHubService.cs) | service candidate、hub service | OnePerProject または OnePerScene; bounded | shared state と explicit ownership boundary を持つ coarse-grained UI hub である | hub identity だけをモデル化し、layer/root state は hub 内に置く |
+| [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) | mixed boundary、service eligible にする前に split が必要 | split まで n/a | coarse-grained hub だが runtime query、value access、player ownership を混在させている | split 後に hub だけを ServiceGraph に残し、player runtime と lookup path を service truth から外す |
+| [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) | service candidate、hub service | OnePerScene; bounded | 多数の player runtime を所有するが、player 自体は service identity ではない | `MeshChannelPlayerRuntime` は hub-owned かつ non-ServiceId-backed のままにする |
+| [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) | mixed boundary、service eligible にする前に split が必要 | split まで n/a | hub service、material/provider behavior、lifecycle、player runtime ownership が混ざっている | target migration の前に service 宣言、lifecycle 宣言、player runtime ownership を分割する |
 
-The inventory above is the initial seed set for M6.1.
-Any new candidate must be added only when it is directly needed to classify a service boundary or to expose a split requirement that would otherwise remain ambiguous.
-Any row marked mixed boundary remains non-eligible for ServiceGraph until the split is complete.
+上の inventory は M6.1 の初期 seed set である。
+新しい candidate は、service boundary を分類する必要があるとき、または split requirement を明示する必要があるときだけ追加する。
+mixed boundary とマークされた row は、split が完了するまで ServiceGraph に非適格である。
 
 ---
 
 ## Service Eligibility Model
 
-A runtime object may become a ServiceGraph service only if it satisfies all required eligibility rules.
+runtime object が ServiceGraph の service になれるのは、必須 eligibility rule をすべて満たすときだけである。
 
-Required rules:
+必須 rule:
 
-1. It has a stable ServiceId.
-2. It has an explicit owner module.
-3. It has a verified lifetime domain.
-4. Its existence is discoverable from ServiceGraphPlan, not runtime search.
-5. Its dependencies are declared and validated.
-6. Its creation is controlled by a verified factory or verified prebuilt source.
-7. Its failure can be diagnosed through DebugMap and stable diagnostics.
-8. Its expected cardinality is coarse-grained enough to justify service slot and cache ownership.
+1. stable な `ServiceId` を持つ。
+2. explicit な owner module を持つ。
+3. verified な lifetime domain を持つ。
+4. 存在が runtime search ではなく ServiceGraphPlan から分かる。
+5. dependency が宣言・検証されている。
+6. verified factory または verified prebuilt source によって生成される。
+7. failure を DebugMap と stable diagnostics で診断できる。
+8. 期待 cardinality が service slot / cache ownership を正当化できる程度に coarse である。
 
-A service candidate that fails any required rule is not a service.
+どれか 1 つでも満たさない service candidate は service ではない。
 
-The following must not become ServiceGraph services by default:
+既定で ServiceGraph service にしてはならないもの:
 
-- every entity instance
-- every part instance
-- every tooltip instance
-- every channel player
-- every mesh track runtime
-- every animation player runtime
-- transient command execution frames
-- dynamic value evaluation contexts
-- per-target visual mutation sessions
-- pooled runtime object instances
+- すべての entity instance
+- すべての part instance
+- すべての tooltip instance
+- すべての channel player
+- すべての mesh track runtime
+- すべての animation player runtime
+- transient command execution frame
+- dynamic value evaluation context
+- per-target visual mutation session
+- pooled runtime object instance
 
-The intended rule is simple:
+狙いは単純である。
 
 ```text
 Shared, explicit, validated runtime infrastructure may be a service.
@@ -387,129 +387,129 @@ Per-target runtime objects are not services by default.
 
 ## Non-Service Runtime Object Model
 
-Not every long-lived runtime object is a service.
+すべての長寿命 runtime object が service とは限らない。
 
-A runtime object should be modeled outside ServiceGraph when any of the following is true:
+次のどれかに当てはまるなら、runtime object は ServiceGraph の外でモデル化すべきである。
 
-- it is owned by a specific hub or service
-- it is created dynamically from channel, tag, handle, or content data
-- it is many-per-scope or many-per-entity
-- it does not need global or graph-level dependency resolution
-- it should be pooled, reset, or recycled independently of service lifetime
-- it is addressed by tag, handle, or RuntimeQuery rather than ServiceId
+- 特定の hub または service が所有している
+- channel、tag、handle、content data から動的に作られる
+- scope ごと、entity ごとに多数存在する
+- global または graph-level の dependency resolution を必要としない
+- service lifetime から独立に pool、reset、recycle されるべきである
+- tag、handle、RuntimeQuery でアドレスされる
 
-Examples:
+例:
 
 - `TooltipChannelPlayerRuntime`
   - owner: tooltip hub service
-  - identity: channel tag or local handle
-  - not ServiceId-backed
+  - identity: channel tag または local handle
+  - ServiceId-backed ではない
 - `MeshChannelPlayerRuntime`
   - owner: mesh hub service
   - identity: channel tag
-  - not ServiceId-backed
-- modal root entry or resolved layer state
+  - ServiceId-backed ではない
+- modal root entry または resolved layer state
   - owner: modal stack hub
-  - identity: local modal root or UI root handle
-  - not ServiceId-backed
+  - identity: local modal root または UI root handle
+  - ServiceId-backed ではない
 - animation player runtime
   - owner: animation sprite hub
-  - identity: local player tag or view linkage
-  - not ServiceId-backed
+  - identity: local player tag または view linkage
+  - ServiceId-backed ではない
 
-ServiceGraph must not be used to give synthetic service identities to these objects just to make them easy to retrieve.
+ServiceGraph は、これらを取得しやすくするためだけに synthetic service identity を与えてはならない。
 
 ---
 
 ## ServiceGraphPlan Input Contract
 
-ServiceGraph may be created only from a verified ServiceGraphPlan inside one verified artifact set.
+ServiceGraph は、1 つの verified artifact set 内の verified ServiceGraphPlan からのみ作成できる。
 
-A valid ServiceGraphPlan must provide at least:
+有効な ServiceGraphPlan には少なくとも次が必要である。
 
-- the ServiceId set
-- owner module per service
-- service lifetime per service
-- service contract metadata per service
-- dependency edges or equivalent dependency references per service
-- optional dependency policy where applicable
+- `ServiceId` の set
+- service ごとの owner module
+- service ごとの lifetime
+- service ごとの contract metadata
+- service ごとの dependency edge または同等の dependency reference
+- 必要に応じた optional dependency policy
 - service cardinality metadata
 - service factory metadata
-- scope-boundary or root-boundary placement metadata where applicable
-- source provenance and DebugMap linkage
+- 必要に応じた scope-boundary / root-boundary placement metadata
+- source provenance と DebugMap linkage
 - verified artifact header metadata
 
-ServiceGraphPlan must not:
+ServiceGraphPlan は次をしてはならない。
 
-- invent new ServiceId values not present in KernelIR authority
-- silently drop required services
-- convert runtime query needs into generic service slots
-- depend on runtime registration side effects
+- KernelIR の authority に存在しない新しい `ServiceId` を発明する
+- required service を黙って落とす
+- runtime query の必要を generic service slot に変換する
+- runtime registration side effect に依存する
 
-A partial ServiceGraphPlan is invalid.
-A ServiceGraphPlan from a mixed artifact set is invalid.
+partial な ServiceGraphPlan は無効である。
+mixed artifact set 由来の ServiceGraphPlan も無効である。
 
 ---
 
 ## Service Identity Model
 
-ServiceId is the primary runtime identity for services.
+`ServiceId` は service の primary runtime identity である。
 
-Service resolution must not use raw type name, arbitrary string, or Unity object identity as the source of truth.
+service resolution は raw type name、任意 string、Unity object identity を truth source として使ってはならない。
 
-Rules:
+ルール:
 
-- a service has one stable ServiceId
-- a service may expose multiple validated contracts
-- contracts do not replace ServiceId as runtime identity
-- a ServiceId may not satisfy another typed identity domain
-- a Unity object reference may support a service, but it is not the service identity
+- service は 1 つの stable `ServiceId` を持つ
+- service は複数の validated contract を公開してよい
+- contract は runtime identity として `ServiceId` を置き換えない
+- `ServiceId` は別の typed identity domain を満たせない
+- Unity object reference は service を支援してよいが、service identity ではない
 
-The following are forbidden as primary identity:
+primary identity として禁止するもの:
 
 - `Type`
-- implementation type full name
+- implementation type の full name
 - authoring string key
 - GameObject name
 - Transform path
 - scene instance ID
 
-Generated typed wrappers are allowed only if they compile down to ServiceId or a verified service slot.
+generated typed wrapper は、`ServiceId` または verified service slot にコンパイルされる場合にのみ許可される。
 
 ---
 
 ## Service Contract Model
 
-Service contracts describe how a verified service may be consumed.
+service contract は、verified service がどのように consume されるかを定義する。
 
-Contracts exist for:
+contract の用途:
 
 - validation
-- generated resolver surfaces
+- generated resolver surface
 - diagnostics
 - projection consistency
 
-Contracts do not authorize arbitrary runtime builder mutation.
+contract は任意の runtime builder mutation を許可しない。
 
-Rules:
+ルール:
 
-- every exposed contract must be declared in ServiceIR or ServiceGraphPlan
-- contract exposure must remain stable across verification and runtime
-- contract lookup must resolve to one verified service identity or one verified service family rule
-- contract ambiguity must be rejected by validation or plan generation
+- 公開される各 contract は ServiceIR か ServiceGraphPlan で宣言されていなければならない
+- contract exposure は verification と runtime をまたいで安定していなければならない
+- contract lookup は 1 つの verified service identity、または 1 つの verified service family rule に解決されなければならない
+- contract ambiguity は validation または plan generation で拒否しなければならない
 
-The target architecture must not reintroduce installer-style `.As<T>()` mutation as the service truth model.
+target architecture は installer 風の `.As<T>()` mutation を service truth model として再導入してはならない。
 
-Contract metadata is a declaration surface.
-It is not a registration script.
+contract metadata は宣言 surface である。
+registration script ではない。
 
 ---
 
 ## Service Lifetime Model
 
-Service lifetime is explicit and verified.
+service lifetime は explicit かつ verified である。
 
-An explanatory runtime lifetime model is:
+説明用の runtime lifetime model:
 
 ```csharp
 public enum ServiceLifetimeKind
@@ -522,35 +522,35 @@ public enum ServiceLifetimeKind
 }
 ```
 
-This sketch is explanatory and must remain consistent with the identity and lifetime definitions owned by 01.
+このスケッチは説明用であり、01 が所有する identity / lifetime 定義と整合していなければならない。
 
-Rules:
+ルール:
 
-- Kernel services outlive all other services
-- Project services outlive scene and scope services
-- Scene services outlive scope services inside the scene boundary
-- Scope services are bound to one verified scope lifetime boundary
-- ExplicitTransient may exist only when a lower spec defines why the instance should not be cached as a normal service
+- Kernel service は他のすべての service より長寿命である
+- Project service は scene / scope service より長寿命である
+- Scene service は scene boundary 内の scope service より長寿命である
+- Scope service は 1 つの verified scope lifetime boundary に結びつく
+- ExplicitTransient は、下位仕様が normal service として cache すべきでない理由を定義する場合にのみ存在できる
 
-Entity lifetime is not a ServiceLifetimeKind.
+entity lifetime は `ServiceLifetimeKind` ではない。
 
-If entity-scoped behavior is needed, use:
+entity-scoped な挙動が必要なら、次を使う。
 
-- EntityRuntime or component runtime
-- ValueStore slices
-- RuntimeQuery handles
-- command target handles
-- hub-owned runtime objects
+- EntityRuntime または component runtime
+- ValueStore slice
+- RuntimeQuery handle
+- command target handle
+- hub-owned runtime object
 
-Longer-lived services must not require shorter-lived services unless a lower spec defines a verified indirection accepted by 04.
+より長寿命の service は、04 が受理した verified indirection を下位仕様が定義しない限り、より短寿命の service を必要としてはならない。
 
 ---
 
 ## Service Cardinality Model
 
-Service cardinality expresses expected instance pressure for a service contribution.
+service cardinality は、service contribution に期待される instance pressure を表す。
 
-An explanatory cardinality model is:
+説明用 model:
 
 ```csharp
 public enum ServiceCardinalityKind
@@ -564,15 +564,15 @@ public enum ServiceCardinalityKind
 }
 ```
 
-Cardinality is not the same concept as lifetime.
+cardinality は lifetime とは別概念である。
 
-Rules:
+ルール:
 
-- `SingletonGlobal`, `OnePerProject`, `OnePerScene`, and `OnePerAuthoredScope` are normal ServiceGraph candidates when other eligibility rules are satisfied
-- `BoundedPool` is valid only when a lower spec explicitly budgets the instance family and keeps lifetime, diagnostics, and disposal explicit
-- `UnboundedRuntime` is invalid for ServiceGraph services unless a lower spec explicitly approves the pattern and 14 budgets it
+- `SingletonGlobal`、`OnePerProject`、`OnePerScene`、`OnePerAuthoredScope` は、他の eligibility rule を満たすなら normal な ServiceGraph candidate である
+- `BoundedPool` は、下位仕様が instance family を明示的に budget 化し、lifetime、diagnostics、disposal を explicit に保つ場合にのみ valid
+- `UnboundedRuntime` は、下位仕様がその pattern を明示的に承認し、14 が budget を与える場合を除き、ServiceGraph service としては invalid
 
-The target runtime must reject service designs whose expected count scales with:
+target runtime は、期待 count が次に比例して増える service design を拒否しなければならない。
 
 - entity count
 - part count
@@ -586,184 +586,184 @@ The target runtime must reject service designs whose expected count scales with:
 
 ## Service Factory Model
 
-Service creation must be explicit and verified.
+service creation は explicit かつ verified でなければならない。
 
-Allowed service factory shapes are limited to factory kinds declared by 01 and projected into ServiceGraphPlan.
+runtime の target ServiceGraph が受け付ける service creation path は、01 が定義し ServiceGraphPlan に投影された factory kind のみである。
 
-At runtime, target ServiceGraph accepts only service creation paths that are:
+runtime で許可される service creation path:
 
-- generated from verified plan data
-- static and explicit
-- backed by an explicit prebuilt instance reference that is itself verified input
+- verified plan data から生成されたもの
+- static かつ explicit なもの
+- それ自体が verified input である explicit prebuilt instance reference によるもの
 
-Forbidden factory behavior:
+禁止される factory behavior:
 
 - reflection constructor injection
 - `Activator.CreateInstance`
 - runtime script scanning
-- arbitrary `Type` activation
+- 任意 `Type` の activation
 - scene-wide component discovery
-- fallback prefab loading to repair a missing service
+- missing service を修復するための fallback prefab loading
 
-Service creation must not mutate the graph structure.
-Factories construct verified services; they do not register new truth.
+service creation は graph structure を mutate してはならない。
+factory は verified service を construct するだけであり、新しい truth を register しない。
 
 ---
 
 ## ServiceResolver Contract
 
-ServiceResolver operates on verified service identity.
+ServiceResolver は verified service identity を扱う。
 
-The minimal required semantics are:
+必要な最小 semantics:
 
-- resolve a required service or fail with structured diagnostics
-- attempt to resolve an optional service according to validated optional policy
-- resolve within the current verified lifetime boundary and any explicitly allowed parent boundary
-- never repair missing required services through fallback
+- required service を resolve するか、structured diagnostics 付きで失敗する
+- validated optional policy に従って optional service を resolve する
+- current verified lifetime boundary と、明示的に許可された parent boundary の内側で resolve する
+- missing required service を fallback で修復しない
 
-`GetRequired` semantics:
+`GetRequired` の semantics:
 
-- accepts a verified ServiceId or generated equivalent
-- returns the required service instance when valid
-- fails with structured diagnostics when the service is absent, invalid, or forbidden by boundary rules
+- verified `ServiceId` または generated equivalent を受け付ける
+- valid なら required service instance を返す
+- service が欠落、無効、boundary rule により禁止されている場合は structured diagnostics 付きで失敗する
 
-`TryGet` semantics:
+`TryGet` の semantics:
 
-- is valid only for services that are optional or for call sites that are not asserting a required dependency
-- must not silently convert a required dependency into an optional one
-- must not return fallback null-service or legacy-service instances unless a lower spec defines an explicit compatibility adapter
+- optional である service、または required dependency を主張していない call site にのみ valid
+- required dependency を黙って optional に変えてはならない
+- 下位仕様が explicit compatibility adapter を定義しない限り、fallback の null-service や legacy-service instance を返してはならない
 
-ServiceResolver must not expose generic discovery features such as:
+ServiceResolver は次のような generic discovery features を公開してはならない。
 
 - `ResolveAll<T>()`
-- `IReadOnlyList<T>` collection as discovery
+- discovery としての `IReadOnlyList<T>` collection
 - raw type scanning
-- interface enumeration for lifecycle collection
+- lifecycle collection のための interface enumeration
 
-The old container convenience model is intentionally out of scope.
+旧 container の convenience model は意図的に scope 外である。
 
 ---
 
-## Service Slot and Cache Model
+## Service Slot と Cache Model
 
-ServiceGraph lookup must be derived from verified plan structure, not from runtime registration scans.
+ServiceGraph lookup は、runtime registration scan ではなく verified plan structure から導かれなければならない。
 
-Runtime service resolution should use service slots or an equivalent dense graph representation.
+runtime service resolution は service slot、または同等の dense graph representation を使うべきである。
 
-Required properties:
+必要な property:
 
-- O(1) or equivalent bounded lookup for known services
-- cache ownership tied to verified lifetime boundaries
-- no repeated scans over every service registration on normal resolve paths
-- no discovery allocations on steady-state resolve paths
-- no broad contract enumeration in hot paths
+- known service に対して O(1) または同等の bounded lookup
+- cache ownership が verified lifetime boundary に結びつく
+- normal resolve path で毎回 registration を全 scan しない
+- steady-state resolve path で discovery allocation を行わない
+- hot path で broad contract enumeration を行わない
 
-Service slot metadata must preserve at least:
+service slot metadata は少なくとも次を保持しなければならない。
 
-- ServiceId
+- `ServiceId`
 - lifetime boundary
 - contract mapping
 - dependency mapping
 - construction state
 - diagnostics provenance
 
-The following are forbidden as steady-state resolution strategies:
+steady-state resolution strategy として禁止されるもの:
 
-- repeated full dictionary scans by raw type
-- repeated `List<T>` collection from registrations
-- per-resolve interface discovery
-- per-resolve reflection
+- raw type による repeated full dictionary scan
+- registration からの repeated `List<T>` collection
+- resolve ごとの interface discovery
+- resolve ごとの reflection
 
 ---
 
 ## Dependency Resolution Contract
 
-ServiceGraph resolves only prevalidated service dependencies.
+ServiceGraph は、事前検証済みの service dependency のみを解決する。
 
-Rules:
+ルール:
 
-- dependency order must be deterministic
-- required dependencies must be satisfied before a dependent service is exposed as valid
-- optional dependencies must follow the absence behavior already validated by 04
-- runtime query needs must remain runtime query dependencies, not service resolver tricks
-- value or blackboard needs must remain value dependencies, not service resolver tricks
+- dependency order は決定論的でなければならない
+- required dependency は、依存 service を valid として露出する前に満たされていなければならない
+- optional dependency は、04 で既に検証された absence behavior に従わなければならない
+- runtime query の必要は runtime query dependency のままでなければならない。service resolver の小細工にしてはならない
+- value や blackboard の必要は value dependency のままでなければならない。service resolver の小細工にしてはならない
 
-Forbidden dependency behavior:
+禁止される dependency behavior:
 
-- acquire-time ancestor search
-- scene-wide search for a service substitute
-- Unity object search to repair a missing dependency
-- creating a missing dependency on demand without plan support
-- substituting runtime objects for service dependencies
+- acquire-time の ancestor search
+- service 代替物のための scene-wide search
+- missing dependency を修復するための Unity object search
+- plan support なしでの on-demand missing dependency creation
+- service dependency としての runtime object 代替
 
-A dependency discovered only at runtime is a design failure unless it is represented by a lower spec as verified RuntimeQuery or another explicitly validated indirection.
+runtime で初めて発見された dependency は、下位仕様が verified RuntimeQuery などの explicit validated indirection として表現しない限り、設計 failure である。
 
 ---
 
 ## Optional Service Policy
 
-Optional service behavior is governed by the optional dependency rules validated by 04.
+optional service behavior は、04 で検証された optional dependency rule に従う。
 
-ServiceGraph may honor only explicit absence behaviors.
-ServiceGraph must not invent new absence behaviors at runtime.
+ServiceGraph は explicit absence behavior だけを許可できる。
+runtime で新しい absence behavior を invent してはならない。
 
-Allowed absence behavior categories are the ones already defined by 04, including:
+許可される absence behavior category は、04 で定義されたものだけである。
 
 - `DisableContribution`
 - `EmitWarning`
 - `UseExplicitAlternative`
 - `ProfileSpecificError`
 
-Resolver rules:
+resolver rule:
 
-- optional absence must remain diagnostic-visible
-- explicit alternatives must point to validated ServiceId targets
-- explicit alternatives must remain lifetime- and phase-compatible
-- optional absence must not collapse into silent null-service fallback
+- optional absence は diagnostics-visible のままでなければならない
+- explicit alternative は validated `ServiceId` target を指さなければならない
+- explicit alternative は lifetime と phase の互換性を保たなければならない
+- optional absence は silent null-service fallback に落ちてはならない
 
-Optional does not mean "search until something works."
+optional は「動くものを見つけるまで探す」ことを意味しない。
 
 ---
 
 ## Scoped Service Policy
 
-Scope services are allowed only for authored or verified runtime scopes that represent a meaningful ownership boundary.
+scope service は、意味のある ownership boundary を表す authored または verified runtime scope に対してのみ許可される。
 
-Allowed examples:
+許可される例:
 
 - UI root scope hub
 - scene presentation scope hub
-- authored actor root scope with complex shared runtime behavior
+- 複雑な shared runtime behavior を持つ authored actor root scope
 - scene-local simulation coordinator
 
-Forbidden by default:
+既定で禁止されるもの:
 
-- service per entity instance
-- service per part
-- service per renderer
-- service per tooltip view
-- service per channel player
-- service per mesh track
+- entity instance ごとの service
+- part ごとの service
+- renderer ごとの service
+- tooltip view ごとの service
+- channel player ごとの service
+- mesh track ごとの service
 
-A scope service must justify:
+scope service は次を正当化しなければならない。
 
-- why it requires ServiceGraph participation
-- why it cannot be a runtime object owned by another service
-- expected instance count
+- なぜ ServiceGraph に参加する必要があるのか
+- なぜ別 service が所有する runtime object ではだめなのか
+- 期待 instance count
 - lifetime boundary
 - memory budget
 - lifecycle participation boundary
 
-ScopeGraph owns creation of the scope lifetime boundary.
-ServiceGraph owns service resolution inside that boundary.
+ScopeGraph は scope lifetime boundary の creation を所有する。
+ServiceGraph は、その boundary の内側で service resolution を所有する。
 
 ---
 
-## Entity and Per-Target Service Prohibition
+## Entity と Per-Target Service の禁止
 
-ServiceGraph must not be used as an entity component storage system.
+ServiceGraph は entity component storage system として使ってはならない。
 
-The target architecture must not create a ServiceGraph service for every:
+target architecture は、次のそれぞれに 1 つずつ service を作ってはならない。
 
 - entity
 - part
@@ -774,108 +774,108 @@ The target architecture must not create a ServiceGraph service for every:
 - animation player
 - command target
 
-Per-target runtime data belongs to:
+per-target runtime data は次に属する。
 
 - EntityRuntime
 - PartRuntime
 - ValueStore
-- RuntimeQuery indexes and handles
-- pooled runtime objects
-- hub-owned local runtime objects
+- RuntimeQuery index と handle
+- pooled runtime object
+- hub-owned local runtime object
 
-An entity-scoped service exception is allowed only if all are true:
+entity-scoped service exception が許されるのは、次のすべてが成り立つときだけである。
 
-- the entity is a long-lived authored aggregate root
-- the service has meaningful shared dependencies
-- the instance count is bounded and budgeted
-- the service is declared by KernelIR
-- lifecycle and disposal are verified
-- diagnostics include source location and runtime handle context
+- entity が長寿命の authored aggregate root である
+- service に意味のある shared dependency がある
+- instance count が bounded かつ budgeted である
+- service が KernelIR によって宣言されている
+- lifecycle と disposal が verified である
+- diagnostics に source location と runtime handle context が含まれる
 
-Exceptions are rare.
-They do not change the default prohibition.
+例外はまれである。
+既定の禁止を変えるものではない。
 
 ---
 
 ### M6.7 Hub / Channel / Player Classification
 
-Existing runtime hubs and channel systems must be classified explicitly.
-The canonical machine-readable inventory is [Index/HubClassificationInventory.md](Index/HubClassificationInventory.md); this section mirrors that inventory and must stay aligned with it.
+既存の runtime hub と channel system は、明示的に分類しなければならない。
+machine-readable な canonical inventory は [Index/HubClassificationInventory.md](Index/HubClassificationInventory.md) である。この節はその inventory を要約したものであり、常に一致していなければならない。
 
-| Runtime concept | Default classification | Notes |
+| Runtime concept | 既定分類 | 注記 |
 |---|---|---|
-| Hub | Service candidate | Allowed only when coarse-grained and tied to a domain or authored scope boundary |
-| Channel definition | Configuration or authored/runtime plan data | Usually not a service |
-| PlayerRuntime | Hub-owned runtime object | Not a service by default |
-| Control surface | Optional service contract on the hub | Valid only if the hub itself is the coarse-grained service |
-| Telemetry surface | Diagnostics or telemetry contract | Must not force extra service instances |
+| Hub | Service candidate | coarse-grained で、ドメインまたは authored scope boundary に結びついている場合のみ許可 |
+| Channel definition | 設定または authored/runtime plan data | 通常は service ではない |
+| PlayerRuntime | Hub-owned runtime object | 既定では service ではない |
+| Control surface | hub に対する optional service contract | hub 自体が coarse-grained service の場合のみ valid |
+| Telemetry surface | diagnostics または telemetry contract | 追加の service instance を強制してはならない |
 
-Applied to current service debt:
+現在の service debt に適用すると:
 
 - `ModalStackChannelHubService`
-  - classify as UI domain service or UI scope service candidate
-  - resolved layer and root states remain hub-owned state, not services
+  - UI domain service または UI scope service candidate として分類する
+  - resolved layer と root state は service ではなく hub-owned state とする
 - `TooltipChannelHubService`
-  - classify only the hub as a scope service candidate
-  - channel players remain hub-owned runtime objects
-  - camera, actor, target, and UI root lookup move to RuntimeQuery or explicit dependencies
+  - hub だけを scope service candidate として分類する
+  - channel player は hub-owned runtime object のままにする
+  - camera、actor、target、UI root の lookup は RuntimeQuery または explicit dependency に移す
 - `MeshChannelHubService`
-  - classify only the hub as a scope service candidate
-  - `MeshChannelPlayerRuntime` remains a hub-owned runtime object
+  - hub だけを scope service candidate として分類する
+  - `MeshChannelPlayerRuntime` は hub-owned runtime object のままにする
 - `AnimationSpriteHubService`
-  - classify only the hub as a scope service candidate
-  - material provider is a contract or boundary concern
-  - player runtimes remain non-service runtime objects
+  - hub だけを scope service candidate として分類する
+  - material provider は contract または boundary concern とする
+  - player runtime は non-service runtime object のままにする
 
 ---
 
 ## Lifecycle Boundary
 
-ServiceGraph does not discover lifecycle participation.
+ServiceGraph は lifecycle participation を discovery しない。
 
-A service may be targeted by LifecyclePlan, but participation must be declared by lifecycle-oriented specs and projections.
+service は LifecyclePlan の target になりうるが、その participation は lifecycle-oriented spec と projection によって宣言されなければならない。
 
-Implemented interfaces are not enrollment.
+implemented interface は enrollment ではない。
 
-Rules:
+ルール:
 
-- ServiceGraph must not scan for `IScopeAcquireHandler`
-- ServiceGraph must not scan for `IScopeReleaseHandler`
-- ServiceGraph must not scan for `IScopeTickHandler`
-- ServiceGraph must not collect lifecycle lists from arbitrary service contracts
+- ServiceGraph は `IScopeAcquireHandler` を scan してはならない
+- ServiceGraph は `IScopeReleaseHandler` を scan してはならない
+- ServiceGraph は `IScopeTickHandler` を scan してはならない
+- ServiceGraph は任意の service contract から lifecycle list を集めてはならない
 
-Migration note:
+migration note:
 
-Legacy services such as tooltip, mesh, and animation sprite hubs may map their acquire, release, and tick behavior into lifecycle contributions during migration.
+tooltip、mesh、animation sprite のような legacy service は、migration 中に acquire / release / tick 行動を lifecycle contribution に写してよい。
 
-The target ServiceGraph must not preserve automatic lifecycle discovery as a permanent runtime behavior.
+target ServiceGraph は automatic lifecycle discovery を permanent runtime behavior として保持してはならない。
 
 ---
 
 ## Command Boundary
 
-ServiceGraph is not the command catalog.
+ServiceGraph は command catalog ではない。
 
-Command executor discovery, routing, and dispatch belong to command runtime specifications.
+command executor discovery、routing、dispatch は command runtime specification の担当である。
 
-ServiceGraph may resolve coarse-grained shared services used by command execution, such as diagnostics or shared domain coordinators.
-It must not:
+ServiceGraph は command execution に使われる coarse-grained shared service、たとえば diagnostics や shared domain coordinator を解決してよい。
+しかし、次のことをしてはならない。
 
-- collect `ICommandExecutor` instances as a discovery surface
-- dispatch commands based on service registrations
-- treat every command target as a service
-- use service registration as the truth source for command availability
+- `ICommandExecutor` instance を discovery surface として集める
+- service registration を基に command を dispatch する
+- すべての command target を service にする
+- command availability の truth source として service registration を使う
 
-The current installer-style command registration pattern is migration debt, not target architecture.
+現在の installer-style command registration pattern は migration debt であって target architecture ではない。
 
 ---
 
 ## RuntimeQuery Boundary
 
-ServiceGraph resolves services.
-RuntimeQuery resolves runtime objects, scopes, actors, UI roots, camera targets, and channel targets.
+ServiceGraph は service を解決する。
+RuntimeQuery は runtime object、scope、actor、UI root、camera target、channel target を解決する。
 
-ServiceGraph must not implement:
+ServiceGraph は次を実装してはならない。
 
 - ancestor scope search
 - scene search
@@ -884,53 +884,53 @@ ServiceGraph must not implement:
 - UI root lookup
 - camera fallback lookup
 
-If a service needs one of these objects, the dependency must be represented as:
+service がこれらの object を必要とするなら、その dependency は次のいずれかとして表現しなければならない。
 
-- a verified RuntimeQuery dependency
-- an explicit authored link
-- another lower-spec verified boundary contract
+- verified RuntimeQuery dependency
+- explicit authored link
+- 別の lower-spec verified boundary contract
 
-RuntimeQuery ownership remains outside 06.
-06 defines only the service boundary that must not be crossed.
+RuntimeQuery の ownership は 06 の外側にある。
+06 が定義するのは、越えてはならない service boundary だけである。
 
 ---
 
 ## ValueStore Boundary
 
-ValueStore and dynamic value evaluation are not service resolution surfaces.
+ValueStore と dynamic value evaluation は service resolution surface ではない。
 
-ServiceGraph must not be used for:
+ServiceGraph は次の用途に使ってはならない。
 
 - value key lookup
 - stable-key fallback
 - blackboard fallback repair
 - dynamic value evaluation context discovery
 
-If a service needs values, the dependency must remain explicit through value-oriented specs and projections.
+service が values を必要とするなら、その dependency は value-oriented spec と projection を通じて explicit でなければならない。
 
-The following are forbidden as service repair behavior:
+service repair として禁止されるもの:
 
-- `NullVarStore` fallback for required value access
-- blackboard substitution for missing required value systems
-- runtime stable-key search to satisfy a service dependency
+- required value access に対する `NullVarStore` fallback
+- missing required value system に対する blackboard substitution
+- service dependency を満たすための runtime stable-key search
 
-Values may influence a service.
-They must not be used to hide missing service structure.
+value は service に影響してよい。
+しかし、欠落した service structure を隠すために使ってはならない。
 
 ---
 
 ## Unity Object Boundary
 
-Unity object identity is not service identity.
+Unity object identity は service identity ではない。
 
-A service may hold Unity object links only when all are true:
+service は Unity object link を次のすべてが成り立つ場合にのみ持てる。
 
-- the link is provided by verified authoring or scope linkage
-- the lifetime boundary is explicit
-- destroyed object behavior is defined
-- diagnostics can identify the source object or source location
+- link が verified authoring または scope linkage で提供されている
+- lifetime boundary が explicit である
+- destroyed object の behavior が定義されている
+- diagnostics が source object または source location を特定できる
 
-ServiceGraph must not resolve services by:
+ServiceGraph は次の方法で service を解決してはならない。
 
 - `FindObjectsByType`
 - `GetComponentsInChildren`
@@ -938,37 +938,37 @@ ServiceGraph must not resolve services by:
 - `Camera.main`
 - ad-hoc scene object search
 
-Unity object lookup must not repair missing ServiceGraph dependencies.
+Unity object lookup で missing ServiceGraph dependency を修復してはならない。
 
 ---
 
-## Diagnostics and DebugMap Requirements
+## Diagnostics と DebugMap 要件
 
-Service runtime diagnostics must be stable, structured, and source-traceable.
+service runtime diagnostics は stable、structured、source-traceable でなければならない。
 
-Each service failure diagnostic must include at least:
+service failure diagnostic には少なくとも次を含める。
 
 - stable error code
-- ServiceId
+- `ServiceId`
 - owner module
 - service lifetime
 - service cardinality
-- selected profile if relevant
-- scope handle or scope plan context if scoped
+- 必要なら selected profile
+- scope handle または scope plan context（scope service の場合）
 - source location
-- DebugMap linkage when available
+- 利用可能なら DebugMap linkage
 - human-readable message
-- suggested fix when possible
+- 可能なら suggested fix
 
-When contract-specific failure occurs, diagnostics should also include:
+contract-specific failure の場合、diagnostics には次も含めるべきである。
 
 - requested contract
-- requesting service or subsystem
-- failing dependency phase if known
+- requesting service または subsystem
+- 既知なら失敗した dependency phase
 
-A service runtime error without source location is a diagnostics degradation.
+source location のない service runtime error は diagnostics degradation である。
 
-Representative diagnostic codes include:
+代表的 diagnostic code:
 
 - `SERVICE_PLAN_MISSING`
 - `SERVICE_REQUIRED_MISSING`
@@ -983,47 +983,47 @@ Representative diagnostic codes include:
 
 ## Failure Policy
 
-ServiceGraph fails closed.
+ServiceGraph は fail closed である。
 
-Representative failure categories:
+代表的 failure category:
 
-- plan missing or incomplete
+- plan missing または incomplete
 - required service missing
 - contract mismatch
 - lifetime direction violation
 - invalid optional alternative
 - invalid service cardinality
-- runtime query dependency routed through service resolution
+- runtime query dependency が service resolution に流用されている
 - forbidden value fallback behavior
 - forbidden legacy bridge dependency
 
-Failure boundaries:
+failure boundary:
 
-- a required root or boot-time service failure invalidates the containing boot or runtime activation boundary
-- a scope service failure invalidates the containing scope service boundary
-- a dependency failure invalidates dependent services; it must not silently degrade into partial success
+- required root または boot-time service failure は、包含する boot または runtime activation boundary を無効にする
+- scope service failure は、包含する scope service boundary を無効にする
+- dependency failure は依存 service を無効にする。silent partial success に落ちてはならない
 
-ServiceGraph must not continue with:
+ServiceGraph は次を続行してはならない。
 
 - null-service repair
 - keep-going fallback creation
 - legacy resolver substitution
-- silent contract drops
+- silent contract drop
 
 ---
 
-## Performance and Memory Policy
+## Performance と Memory Policy
 
-ServiceGraph must remain small relative to total runtime object count.
+ServiceGraph は総 runtime object count に対して小さく保たなければならない。
 
-Service count should scale with:
+service count は次に比例して増えるべきである。
 
-- kernel systems
-- project systems
-- scene systems
-- authored scope hubs
+- kernel system
+- project system
+- scene system
+- authored scope hub
 
-Service count must not scale with:
+service count は次に比例して増えてはならない。
 
 - entity count
 - part count
@@ -1033,158 +1033,158 @@ Service count must not scale with:
 - animation player count
 - command execution count
 
-Runtime rules:
+runtime rule:
 
-- normal service resolution should be allocation-free or near-allocation-free
-- repeated registration scans are forbidden
-- repeated broad contract enumeration is forbidden
-- eager creation of every player runtime is forbidden unless explicitly required by a verified plan
-- eager construction of every command executor is forbidden
+- normal service resolution は allocation-free か、それに近いものであるべき
+- repeated registration scan は禁止
+- repeated broad contract enumeration は禁止
+- verified plan で explicitly required でない限り、すべての player runtime の eager creation は禁止
+- すべての command executor の eager construction は禁止
 
-ServiceGraph should expose enough runtime metrics or markers to let 14 budget:
+ServiceGraph は 14 が budget できるように、十分な runtime metric または marker を露出すべきである。
 
 - graph creation
 - required service construction
-- required service resolution misses
+- required service resolution miss
 - scope-boundary service creation
-- disposal of scoped service boundaries
+- scoped service boundary の disposal
 
-Performance optimization must not remove diagnostics or validation-derived safety.
-
----
-
-## Threading and Async Policy
-
-ServiceGraph behavior must remain deterministic.
-
-Rules:
-
-- graph creation is synchronous and explicit
-- service resolution must not hide asynchronous initialization
-- factories touching Unity objects must run on the main thread
-- background preparation is allowed only for immutable or non-Unity data explicitly approved by a lower spec
-
-If a service needs asynchronous work:
-
-- the async boundary belongs to lifecycle or another lower spec
-- resolver truth must not change silently after exposure
-- readiness and failure must remain diagnostics-visible
-
-Implicit async construction in the resolver is forbidden.
+performance optimization は diagnostics や validation-derived safety を取り除いてはならない。
 
 ---
 
-## Disposal and Shutdown Policy
+## Threading と Async Policy
 
-ServiceGraph owns disposal of service instances inside its lifetime boundary.
+ServiceGraph の振る舞いは決定論的でなければならない。
 
-Rules:
+ルール:
 
-- disposal order must be deterministic
-- dependent services should shut down before their dependencies when required by ownership or lower-spec shutdown rules
-- scope-bound services must be released when the owning scope boundary is destroyed
-- project and scene service disposal must align with boot and scope lifetime boundaries
+- graph creation は synchronous かつ explicit である
+- service resolution は asynchronous initialization を隠してはならない
+- Unity object を触る factory は main thread で動く
+- background preparation は、下位仕様が明示的に承認した immutable または non-Unity data に限る
 
-A service requiring shutdown behavior must expose that requirement explicitly through plan metadata or an explicit lower-spec contract.
+service が asynchronous work を必要とするなら:
 
-ServiceGraph must not:
+- async boundary は lifecycle または別の lower spec に属する
+- resolver truth は公開後に silently 変わってはならない
+- readiness と failure は diagnostics-visible のままでなければならない
 
-- search child objects to find extra disposable runtime state
-- silently leak hub-owned runtime objects
-- keep disposed service instances alive in caches
+resolver 内での implicit async construction は禁止である。
 
-Hub-owned runtime objects are disposed by their owner hub.
-They are not promoted into top-level service ownership just to make disposal easy.
+---
+
+## Disposal と Shutdown Policy
+
+ServiceGraph は、その lifetime boundary 内の service instance disposal を所有する。
+
+ルール:
+
+- disposal order は決定論的でなければならない
+- ownership または lower-spec の shutdown rule が要求する場合、依存 service は依存元より先に shut down されるべきである
+- scope-bound service は所有 scope boundary が破棄されたときに release されなければならない
+- project / scene service disposal は boot と scope lifetime boundary に整合しなければならない
+
+shutdown behavior が必要な service は、その要件を plan metadata または explicit lower-spec contract で明示しなければならない。
+
+ServiceGraph は次をしてはならない。
+
+- child object を探して余分な disposable runtime state を見つける
+- hub-owned runtime object を silently leak する
+- disposed service instance を cache に生かし続ける
+
+hub-owned runtime object は所有 hub によって dispose される。
+dispose を簡単にするためだけに top-level service ownership に昇格させてはならない。
 
 ---
 
 ## Legacy Compatibility Boundary
 
-Legacy compatibility is allowed only through explicit adapters defined by 13.
+legacy compatibility は 13 が定義する explicit adapter を通じてのみ許可される。
 
-Target ServiceGraph core must not depend on:
+target ServiceGraph core は次に依存してはならない。
 
-- `RuntimeResolverHub` as the architecture truth model
-- `BaseLifetimeScopeRegistry` as service lookup authority
-- installer scan as service discovery
-- legacy command runner registration as command truth
-- legacy null-service or null-value fallback patterns
+- アーキテクチャ truth model としての `RuntimeResolverHub`
+- service lookup authority としての `BaseLifetimeScopeRegistry`
+- service discovery としての installer scan
+- command truth としての legacy command runner registration
+- legacy null-service または null-value fallback pattern
 
-Allowed migration shape:
+許可される migration 形:
 
-- explicit adapter or bridge
+- explicit adapter または bridge
 - profile-visible diagnostics
 - bounded scope
-- removal path documented by lower specs
+- lower spec が文書化した removal path
 
-Legacy is not the default.
-It is a temporary boundary.
+legacy は default ではない。
+temporary boundary である。
 
 ---
 
 ## Forbidden Patterns
 
-The following are forbidden in target ServiceGraph runtime:
+target ServiceGraph runtime で禁止されるもの:
 
 - runtime service registration
 - installer-style builder mutation
 - reflection constructor injection
 - `Activator.CreateInstance` fallback
-- resolving by arbitrary string
-- resolving by raw `Type` as primary identity
-- collecting `IReadOnlyList<T>` as discovery
-- scanning services for lifecycle interfaces
-- collecting command executors through services
-- resolving runtime objects through ServiceResolver
-- resolving entities, parts, actors, UI roots, channels, or players through ServiceResolver
-- creating one service per entity by default
-- creating one service per channel player
-- creating one service per tooltip instance
-- creating one service per mesh track
-- using ServiceGraph as a RuntimeQuery registry
-- using ServiceGraph as a ValueStore key resolver
-- ancestor scope search for dependencies
+- 任意 string による resolve
+- primary identity としての raw `Type` resolve
+- discovery としての `IReadOnlyList<T>` collection
+- lifecycle interface のための service scan
+- service を通じた command executor collection
+- ServiceResolver を通じた runtime object resolve
+- ServiceResolver を通じた entity、part、actor、UI root、channel、player resolve
+- default で entity ごとに 1 service を作ること
+- channel player ごとに 1 service を作ること
+- tooltip instance ごとに 1 service を作ること
+- mesh track ごとに 1 service を作ること
+- ServiceGraph を RuntimeQuery registry として使うこと
+- ServiceGraph を ValueStore key resolver として使うこと
+- dependency の ancestor scope search
 - scene-wide search fallback
 - Unity object search fallback
-- null-service fallback for required dependencies
-- blackboard or var fallback to repair missing service truth
+- required dependency に対する null-service fallback
+- service truth を修復するための blackboard / var fallback
 
 ---
 
 ## Test Case Model
 
-Each service runtime test case must define:
+各 service runtime test case は次を定義しなければならない。
 
 - Test ID
 - Title
 - ServiceGraphPlan fixture
-- relevant ScopeGraphPlan or boot fixture if needed
-- selected profile if relevant
+- 必要なら relevant ScopeGraphPlan または boot fixture
+- 必要なら selected profile
 - operation under test
 - expected runtime result
 - expected diagnostics
 - expected failure boundary
 - notes
 
-Example:
+例:
 
 ### TC_SERVICE_001_RequiredServiceMissingBlocksBoundary
 
 Input:
 
-- ServiceGraphPlan declares `Service A`
-- `Service A` requires `Service B`
-- `Service B` is absent
+- ServiceGraphPlan は `Service A` を宣言している
+- `Service A` は `Service B` を required とする
+- `Service B` は存在しない
 
 Operation:
 
-- create the containing service boundary
+- containing service boundary を作る
 
 Expected:
 
 - result: failed
 - diagnostic: `SERVICE_REQUIRED_MISSING`
-- boundary: containing boot or scope service boundary
+- boundary: containing boot または scope service boundary
 
 ---
 
@@ -1196,9 +1196,9 @@ Expected:
 
 Input:
 
-- `ModalStackChannelHub` is declared as a UI domain service
-- cardinality is `OnePerProject` or `OnePerScene`
-- dependencies are declared and validated
+- `ModalStackChannelHub` が UI domain service として宣言されている
+- cardinality は `OnePerProject` または `OnePerScene`
+- dependency は宣言・検証済みである
 
 Expected:
 
@@ -1208,8 +1208,8 @@ Expected:
 
 Input:
 
-- `TooltipChannelPlayerRuntime` is declared as a ServiceContribution
-- cardinality is `UnboundedRuntime`
+- `TooltipChannelPlayerRuntime` が ServiceContribution として宣言されている
+- cardinality は `UnboundedRuntime`
 
 Expected:
 
@@ -1220,7 +1220,7 @@ Expected:
 
 Input:
 
-- ServiceContribution declares one service per entity
+- ServiceContribution が entity ごとに 1 service を宣言している
 
 Expected:
 
@@ -1234,11 +1234,11 @@ Input:
 - authored aggregate root service
 - bounded count
 - source-backed scope
-- verified lifecycle and diagnostics
+- verified lifecycle と diagnostics
 
 Expected:
 
-- Passed or warning according to lower-spec policy
+- 下位仕様の policy に応じて Passed または warning
 
 ### B. Existing Pattern Migration Tests
 
@@ -1246,36 +1246,36 @@ Expected:
 
 Input:
 
-- `TooltipChannelHubService` contribution includes service dependency, lifecycle, channel runtime, dynamic value, and camera lookup behavior
+- `TooltipChannelHubService` contribution が service dependency、lifecycle、channel runtime、dynamic value、camera lookup behavior を含んでいる
 
 Expected:
 
-- only the hub service identity is accepted by ServiceGraph
-- lifecycle participation requires lifecycle contribution or plan
-- camera or target lookup requires RuntimeQuery or explicit dependency
-- dynamic value access remains outside service resolver truth
+- ServiceGraph が受理するのは hub service identity のみ
+- lifecycle participation には lifecycle contribution または plan が必要
+- camera または target lookup には RuntimeQuery または explicit dependency が必要
+- dynamic value access は service resolver truth の外に残る
 
 #### TC_SERVICE_MIGRATION_002_MeshPlayerRuntimeNotService
 
 Input:
 
-- `MeshChannelHubService` owns `MeshChannelPlayerRuntime` per tag
+- `MeshChannelHubService` が tag ごとに `MeshChannelPlayerRuntime` を所有している
 
 Expected:
 
-- hub may be a scope service
-- player runtimes remain hub-owned runtime objects
+- hub は scope service でよい
+- player runtime は hub-owned runtime object のまま
 
 #### TC_SERVICE_MIGRATION_003_AnimationSpriteInstallerPatternRejected
 
 Input:
 
-- installer registers animation sprite hub as service, material provider, and lifecycle handlers through builder mutation
+- installer が animation sprite hub を service、material provider、lifecycle handler として builder mutation で登録している
 
 Expected:
 
 - Failed
-- contribution must be split into service declaration, lifecycle declaration, and any optional contract declarations
+- contribution は service declaration、lifecycle declaration、必要なら optional contract declaration に分割しなければならない
 
 ### C. Boundary Tests
 
@@ -1283,7 +1283,7 @@ Expected:
 
 Input:
 
-- service implementation attempts ancestor traversal to satisfy a dependency
+- service implementation が dependency を満たすために ancestor traversal を試みる
 
 Expected:
 
@@ -1294,28 +1294,28 @@ Expected:
 
 Input:
 
-- service implements lifecycle-like interfaces
-- no lifecycle plan entry exists
+- service が lifecycle-like interface を実装している
+- lifecycle plan entry が存在しない
 
 Expected:
 
-- ServiceGraph does not enroll the service into lifecycle execution
+- ServiceGraph はその service を lifecycle execution に enrollment しない
 
 #### TC_SERVICE_BOUNDARY_003_NoCommandExecutorCollection
 
 Input:
 
-- module contains many command executors
+- module に多数の command executor がある
 
 Expected:
 
-- ServiceGraph does not collect executor lists as service discovery
+- ServiceGraph は executor list を service discovery として集めない
 
 #### TC_SERVICE_BOUNDARY_004_NoRuntimeQueryThroughServiceResolver
 
 Input:
 
-- service dependency points to actor, scope, entity, UI root, or camera lookup
+- service dependency が actor、scope、entity、UI root、camera lookup を指している
 
 Expected:
 
@@ -1326,7 +1326,7 @@ Expected:
 
 Input:
 
-- service runtime path attempts `NullVarStore` or blackboard fallback to repair missing value dependency
+- service runtime path が missing value dependency を修復するために `NullVarStore` または blackboard fallback を試みる
 
 Expected:
 
@@ -1340,17 +1340,17 @@ Expected:
 Input:
 
 - 10,000 entities
-- shared coarse-grained services plus entity runtime and RuntimeQuery handles
+- shared coarse-grained service と entity runtime、RuntimeQuery handle
 
 Expected:
 
-- ServiceGraph service count remains bounded and does not scale with entity count
+- ServiceGraph の service count は bounded のままで、entity count に比例して増えない
 
 #### TC_SERVICE_MEMORY_002_PerTooltipServiceExplosionRejected
 
 Input:
 
-- 1,000 tooltip views are each declared as services
+- 1,000 の tooltip view をそれぞれ service として宣言する
 
 Expected:
 
@@ -1361,7 +1361,7 @@ Expected:
 
 Input:
 
-- mesh tracks are declared as individual services
+- mesh track を個別 service として宣言する
 
 Expected:
 
@@ -1372,65 +1372,65 @@ Expected:
 
 Input:
 
-- graph contains hubs whose player runtimes are created from local channel use
+- graph に、local channel use から player runtime を作る hub が含まれている
 
 Expected:
 
-- graph creation does not require eager construction of every player runtime
+- graph creation に、すべての player runtime の eager construction は不要である
 
 ---
 
-## Acceptance Criteria
+## 受け入れ条件
 
-06 is complete when it defines:
+06 が完成していると見なす条件は次のとおり。
 
-- ServiceGraph runtime purpose and ownership
-- service eligibility rules
-- non-service runtime object rules
-- ServiceGraphPlan input contract
-- service identity and contract rules
-- service lifetime and cardinality rules
-- service factory rules
-- resolver semantics for required and optional services
-- slot and cache model requirements
-- dependency resolution rules
-- scoped service policy
-- entity and per-target service prohibition
-- hub, channel, and player classification
-- lifecycle, command, runtime query, value, and Unity object boundaries
-- diagnostics and DebugMap requirements
-- failure policy
-- performance and memory policy
-- threading and async policy
-- disposal and shutdown policy
-- legacy boundary rules
-- forbidden patterns
-- service runtime test case model
-- required service runtime test cases
+- ServiceGraph runtime の目的と所有範囲が定義されている
+- service eligibility rule が定義されている
+- non-service runtime object rule が定義されている
+- ServiceGraphPlan input contract が定義されている
+- service identity と contract rule が定義されている
+- service lifetime と cardinality rule が定義されている
+- service factory rule が定義されている
+- required / optional service に対する resolver semantics が定義されている
+- slot / cache model 要件が定義されている
+- dependency resolution rule が定義されている
+- scoped service policy が定義されている
+- entity / per-target service の禁止が定義されている
+- hub / channel / player の分類が定義されている
+- lifecycle / command / runtime query / value / Unity object boundary が定義されている
+- diagnostics / DebugMap 要件が定義されている
+- failure policy が定義されている
+- performance / memory policy が定義されている
+- threading / async policy が定義されている
+- disposal / shutdown policy が定義されている
+- legacy boundary rule が定義されている
+- forbidden pattern が定義されている
+- service runtime test case model が定義されている
+- required service runtime test が定義されている
 
-The specification is not complete if ServiceGraph can still be read as a generic DI container, runtime object directory, lifecycle collector, command registry, or fallback resolver.
+ServiceGraph を generic DI container、runtime object directory、lifecycle collector、command registry、fallback resolver として読めてしまうなら未完成である。
 
 ---
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Verification |
+| テストケース | 目的 | 検証 |
 |---|---|---|
-| TC-06-01 | Confirm ServiceGraph remains a verified coarse-grained service resolver. | The purpose, runtime definition, and eligibility sections must forbid general-purpose container behavior and per-target service expansion. |
-| TC-06-02 | Confirm non-service runtime objects remain outside ServiceGraph. | The non-service model and hub/channel/player classification sections must keep player runtimes, local sessions, and per-target objects out of service identity. |
-| TC-06-03 | Confirm lifecycle, command, runtime query, and value boundaries stay explicit. | The boundary sections must forbid interface-scan lifecycle enrollment, executor collection, runtime query lookup through services, and value fallback through services. |
-| TC-06-04 | Confirm service count does not scale with entity or target count. | The scoped service, per-target prohibition, and performance sections must reject unbounded runtime cardinality. |
-| TC-06-05 | Confirm failures remain structured and fail closed. | The diagnostics and failure sections must report required-service, contract, cardinality, and boundary violations without silent fallback. |
-| TC-06-06 | Confirm legacy installer and discovery patterns do not return as runtime truth. | The current debt observations, legacy boundary, and forbidden patterns sections must reject runtime registration, installer mutation, and discovery-based service resolution. |
+| TC-06-01 | ServiceGraph が verified な coarse-grained service resolver であり続けることを確認する。 | purpose、runtime definition、eligibility の節で、汎用 container behavior と per-target service expansion を禁止していること。 |
+| TC-06-02 | non-service runtime object が ServiceGraph の外側に残ることを確認する。 | non-service model と hub / channel / player classification の節で、player runtime、local session、per-target object を service identity から外していること。 |
+| TC-06-03 | lifecycle / command / runtime query / value boundary が explicit であることを確認する。 | boundary の節で、interface-scan lifecycle enrollment、executor collection、service 経由の runtime query lookup、service 経由の value fallback を禁止していること。 |
+| TC-06-04 | service count が entity や target count に比例しないことを確認する。 | scoped service、per-target prohibition、performance の節で、unbounded runtime cardinality を拒否していること。 |
+| TC-06-05 | failure が structured で fail closed のままであることを確認する。 | diagnostics と failure の節で、required-service、contract、cardinality、boundary violation を silent fallback なしで報告していること。 |
+| TC-06-06 | legacy installer と discovery pattern が runtime truth として戻らないことを確認する。 | current debt observation、legacy boundary、forbidden pattern の節で、runtime registration、installer mutation、discovery-based service resolution を拒否していること。 |
 
 ---
 
-## Final Position
+## 最終見解
 
-ServiceGraph resolves coarse-grained verified services.
-It does not model every runtime object as a service.
+ServiceGraph は coarse-grained で verified な service を解決する。
+すべての runtime object を service として扱うわけではない。
 
-If service count grows with entity count, the design is wrong by default.
+service count が entity count とともに増えるなら、設計は既定で誤っている。
 
-Target ServiceGraph is not a convenience container.
-It is the verified runtime resolver for explicit service structure.
+target ServiceGraph は convenience container ではない。
+それは、explicit な service structure を解決する verified runtime resolver である。

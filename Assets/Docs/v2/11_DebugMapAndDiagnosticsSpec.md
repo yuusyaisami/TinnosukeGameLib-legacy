@@ -1,11 +1,11 @@
-# DebugMap and Diagnostics Specification
+# DebugMap と Diagnostics 仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 11_DebugMapAndDiagnosticsSpec
-- Status: Draft
-- Role: defines the unified DebugMap contract, structured diagnostics model, central diagnostics pipeline, and Unity logging sink policy for Kernel v2
-- Depends on:
+- 文書 ID: 11_DebugMapAndDiagnosticsSpec
+- ステータス: Draft
+- 役割: Kernel v2 における統一された DebugMap 契約、structured diagnostics モデル、中央 diagnostics パイプライン、および Unity logging sink ポリシーを定義する
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
@@ -17,317 +17,316 @@
   - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
   - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
   - [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md)
-    - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
-- Provides foundation for:
+  - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
+- 基盤を提供するもの:
   - 12_UnityAuthoringBridgeSpec.md
   - 13_LegacyCompatBoundarySpec.md
   - 14_PerformanceBudgetAndRuntimeRulesSpec.md
   - 15_TestAndValidationSpec.md
 
-### Revision Note
+### 改訂メモ
 
-This revision defines 11 as more than a DebugMap lookup note.
-It establishes DebugMap and diagnostics as one unified runtime contract.
+この改訂では、11 を単なる DebugMap lookup の注記ではなく、DebugMap と diagnostics を 1 つの統一された runtime contract として定義する。
 
-It also fixes the architecture rule that subsystems produce structured diagnostics, while Unity logging is emitted only by the central diagnostic sink.
+また、subsystem は structured diagnostics を生成し、Unity logging は中央 diagnostic sink からのみ emit される、というアーキテクチャルールを明確にする。
 
-### Ownership
+### 所有範囲
 
-This specification owns:
+この仕様が所有するもの:
 
-- DebugMap logical runtime contract
-- SourceLocation and diagnostics provenance model
+- DebugMap の論理 runtime contract
+- SourceLocation と diagnostics provenance model
 - KernelDiagnostic record model
-- diagnostic code governance and stable identity rules
-- diagnostic severity, domain, category, failure-boundary model
-- diagnostic context, runtime identity, artifact identity, and exception payload model
+- diagnostic code のガバナンスと stable identity ルール
+- diagnostic severity、domain、category、failure-boundary model
+- diagnostic context、runtime identity、artifact identity、exception payload model
 - central diagnostic service contract
-- diagnostic processor and sink contract
-- UnityLogDiagnosticSink policy
+- diagnostic processor と sink contract
+- `UnityLogDiagnosticSink` policy
 - profile-based diagnostics emission policy
-- diagnostics degradation rules
-- diagnostics de-duplication, throttling, and aggregation policy
+- diagnostics degradation ルール
+- diagnostics de-duplication、throttling、aggregation policy
 - cross-subsystem diagnostics integration contract
-- diagnostics-related forbidden patterns
-- diagnostics test model and acceptance criteria
+- diagnostics 関連の forbidden pattern
+- diagnostics test model と acceptance criteria
 
-This specification does not own:
+この仕様が所有しないもの:
 
-- ServiceGraph runtime semantics
-- ScopeGraph runtime semantics
-- Lifecycle ordering semantics
-- command execution semantics
-- value storage layout or save format
-- runtime query semantics
-- editor window UI details
-- crash reporting backend implementation
-- Roslyn analyzer implementation details
-- generation algorithms owned by 03
-- validation algorithms owned by 04
-- boot acceptance policy owned by 05
+- ServiceGraph の runtime semantics
+- ScopeGraph の runtime semantics
+- Lifecycle ordering の意味論
+- command execution の意味論
+- value storage の layout または save format
+- runtime query の意味論
+- editor window UI の詳細
+- crash reporting backend の実装
+- Roslyn analyzer の実装詳細
+- 03 が所有する generation algorithm
+- 04 が所有する validation algorithm
+- 05 が所有する boot acceptance policy
 
-11 defines the shared diagnostics substrate.
-06, 07, 08, 09, 10, and 10-2 continue to own their domain-specific failure behavior and minimum provenance fields.
+11 は共有 diagnostics substrate を定義する。
+06、07、08、09、10、10-2 がそれぞれ所有している domain-specific failure behavior と minimum provenance field を奪わない。
 
-03 continues to own DebugMap generation.
-04 continues to own validation semantics.
-05 continues to own boot acceptance and boot failure boundaries.
+03 は引き続き DebugMap generation を所有する。
+04 は引き続き validation semantics を所有する。
+05 は引き続き boot acceptance と boot failure boundary を所有する。
 
 ---
 
-## Purpose
+## 目的
 
-This specification defines the target-kernel contract for DebugMap and diagnostics.
+この仕様は、DebugMap と diagnostics に対する target-kernel contract を定義する。
 
-Core statements:
+中心的な記述:
 
 ```text
-DebugMap resolves verified runtime identities into human-readable source information.
+DebugMap は、検証済み runtime identity を人が読める source information に解決する。
 
-Diagnostics is the unified structured error reporting pipeline for Kernel v2.
+Diagnostics は、Kernel v2 における統一された structured error reporting pipeline である。
 
-Subsystems do not log to Unity directly.
-Subsystems emit structured KernelDiagnostic records.
-Only the central Unity diagnostic sink may call Debug.Log / Debug.LogWarning / Debug.LogError / Debug.LogException.
+Subsystem は Unity に直接 log しない。
+Subsystem は structured KernelDiagnostic record を emit する。
+中央の Unity diagnostic sink だけが `Debug.Log` / `Debug.LogWarning` / `Debug.LogError` / `Debug.LogException` を呼べる。
 ```
 
-This specification exists to prevent the following architectural regressions:
+この仕様は、次の退化を防ぐために存在する:
 
-- runtime failures represented only as formatted strings
-- subsystem-specific Unity logging paths that bypass shared diagnostics policy
-- numeric ID failures that cannot be traced back to source
-- profile-dependent diagnostics behavior that silently hides required failure information
-- duplicated logging infrastructure per subsystem
-- exception output paths that bypass diagnostics routing and failure policy
+- runtime failure が formatted string だけで表現される
+- shared diagnostics policy を迂回する subsystem-specific Unity logging path
+- source に遡れない numeric ID failure
+- 必要な failure information を黙って隠す profile-dependent diagnostics behavior
+- subsystem ごとに複製された logging infrastructure
+- diagnostics routing と failure policy を迂回する exception output path
 
-This specification is not merely about making IDs readable.
-It is the error substrate that keeps a plan-first kernel observable, testable, and fail-closed.
+これは ID を読みやすくするためだけの仕様ではない。
+plan-first kernel を observable、testable、fail-closed に保つ error substrate である。
 
 ---
 
-## Scope
+## スコープ
 
-This specification defines:
+この仕様が定義するもの:
 
-- DebugMap purpose and contract boundary
-- DebugMap coverage requirements for runtime-facing identities
-- SourceLocation contract and provenance rules
-- runtime identity mapping and artifact identity mapping for diagnostics
+- DebugMap の目的と contract boundary
+- runtime-facing identity に対する DebugMap coverage 要件
+- SourceLocation contract と provenance rule
+- diagnostics の runtime identity mapping と artifact identity mapping
 - KernelDiagnostic record model
-- DiagnosticCode governance
-- DiagnosticSeverity, DiagnosticDomain, DiagnosticCategory, and DiagnosticFailureBoundary model
-- diagnostic context, payload, and exception capture policy
-- KernelDiagnosticService contract
-- diagnostic processor and sink contract
-- UnityLogDiagnosticSink behavior and host-output separation
+- DiagnosticCode のガバナンス
+- DiagnosticSeverity、DiagnosticDomain、DiagnosticCategory、DiagnosticFailureBoundary model
+- diagnostic context、payload、exception capture policy
+- `KernelDiagnosticService` contract
+- diagnostic processor と sink contract
+- `UnityLogDiagnosticSink` の挙動と host-output 分離
 - profile-based diagnostics policy
-- diagnostics degradation rules
-- de-duplication, throttling, and aggregation rules
-- performance rules for diagnostics hot paths
-- subsystem integration rules for Boot, Generation, Validation, ServiceGraph, ScopeGraph, Lifecycle, Command, Value, RuntimeQuery, and Save
-- legacy migration guidance for current logging debt
-- diagnostics test model and acceptance criteria
+- diagnostics degradation rule
+- de-duplication、throttling、aggregation rule
+- diagnostics hot path に対する performance rule
+- Boot / Generation / Validation / ServiceGraph / ScopeGraph / Lifecycle / Command / Value / RuntimeQuery / Save に対する subsystem integration rule
+- 現在の logging debt に対する legacy migration guidance
+- diagnostics test model と acceptance criteria
 
 ---
 
-## Non-Goals
+## 対象外
 
-This specification does not define:
+この仕様が定義しないもの:
 
-- the final binary serialization container for DebugMap assets
-- the final editor console or diagnostics window UI layout
-- the final remote crash-report schema
-- the final save-system architecture
-- the final runtime code API signatures for every subsystem
-- command payload schema details
+- DebugMap asset の最終 binary serialization container
+- 最終 editor console / diagnostics window UI layout
+- 最終 remote crash-report schema
+- 最終 save-system architecture
+- 各 subsystem に対する最終 runtime code API signature
+- command payload schema の詳細
 - scope handle layout
 - service factory layout
-- profiler marker taxonomy beyond diagnostics-specific requirements
+- diagnostics 固有要件を超える profiler marker taxonomy
 
-This specification must not turn diagnostics into a generic text logging guideline.
-It defines runtime contract and structured reporting requirements, not stylistic preferences for console output.
+この仕様は diagnostics を generic text logging guideline に変えてはならない。
+ここで定義するのは runtime contract と structured reporting の要件であり、console output の見た目の好みではない。
 
 ---
 
-## Relationship to Other Specs
+## 他仕様との関係
 
-| Spec | Relationship |
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines DebugMap-backed diagnostics and no-silent-fallback as root constraints. |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines identity domains and normalized source structure that diagnostics must trace back to. |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Provides DiagnosticsContribution provenance input consumed by DebugMap generation and diagnostics. |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Owns DebugMap generation and artifact consistency; 11 defines the runtime-facing DebugMap contract and diagnostics record shape consumed at runtime. |
-| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | Owns validation semantics and validation failure meaning; 11 defines the compatible diagnostics substrate used to report them. |
-| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | Owns boot acceptance and boot failure boundaries; 11 defines the shared diagnostics contract and central sink rules used during boot reporting. |
-| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | 06 defines required service failure provenance and behavior; 11 defines the shared record, routing, DebugMap, and sink contract used to emit those failures. |
-| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | 07 defines scope failure provenance and behavior; 11 defines the shared diagnostics substrate and DebugMap runtime contract used to emit those failures. |
-| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | 08 defines lifecycle provenance fields and failure behavior; 11 defines the shared diagnostics substrate and central logging policy. |
-| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | 09 defines command-local diagnostics requirements and failure behavior; 11 defines the shared diagnostic record, sink routing, and Unity output policy used by command runtime. |
-| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | 10 defines value-state provenance, access, and failure behavior; 11 defines the shared diagnostics and DebugMap contract used to emit value failures. |
-| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | 10-2 defines evaluation-specific provenance, cache or tracker degradation meaning, and failure behavior; 11 defines the shared record, routing, and Unity output policy used to emit those failures. |
-| 12_UnityAuthoringBridgeSpec.md | Will consume DebugMap source mapping and diagnostics contracts for editor-facing authoring diagnostics. |
-| 13_LegacyCompatBoundarySpec.md | Will define bounded legacy adapters that may forward legacy errors into the 11 diagnostics pipeline. |
-| 14_PerformanceBudgetAndRuntimeRulesSpec.md | Will budget diagnostics emission and formatting costs using the rules defined here. |
-| 15_TestAndValidationSpec.md | Implements executable diagnostics snapshots, analyzer gates, and CI coverage using the diagnostics contracts defined here. It does not redefine `KernelDiagnostic`, `DiagnosticCode`, severity, or sink ownership. |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | DebugMap-backed diagnostics と no-silent-fallback を根本制約として定義する。 |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | diagnostics がたどるべき identity domain と normalized source structure を定義する。 |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | DebugMap generation と diagnostics が消費する DiagnosticsContribution provenance input を提供する。 |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | DebugMap generation と artifact consistency を所有する。11 は runtime-facing DebugMap contract と runtime で消費される diagnostics record shape を定義する。 |
+| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | validation semantics と validation failure の意味を所有する。11 はそれを報告するための互換 diagnostics substrate を定義する。 |
+| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | boot acceptance と boot failure boundary を所有する。11 は boot reporting で使う shared diagnostics contract と central sink rule を定義する。 |
+| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | 06 は required service failure provenance と behavior を定義する。11 はそれらの failure を emit するための shared record、routing、DebugMap、sink contract を定義する。 |
+| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | 07 は scope failure provenance と behavior を定義する。11 はそれらを emit する shared diagnostics substrate と DebugMap runtime contract を定義する。 |
+| [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md) | 08 は lifecycle provenance fields と failure behavior を定義する。11 は shared diagnostics substrate と central logging policy を定義する。 |
+| [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md) | 09 は command-local diagnostics 要件と failure behavior を定義する。11 はそれらを emit する shared diagnostic record、sink routing、Unity output policy を定義する。 |
+| [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md) | 10 は value-state provenance、access、failure behavior を定義する。11 は value failure を emit する shared diagnostics と DebugMap contract を定義する。 |
+| [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md) | 10-2 は evaluation-specific provenance、cache / tracker degradation の意味、failure behavior を定義する。11 はそれらを emit する shared record、routing、Unity output policy を定義する。 |
+| 12_UnityAuthoringBridgeSpec.md | editor-facing authoring diagnostics のための DebugMap source mapping と diagnostics contract を消費する。 |
+| 13_LegacyCompatBoundarySpec.md | legacy error を 11 の diagnostics pipeline に forward する bounded adapter を定義する。 |
+| 14_PerformanceBudgetAndRuntimeRulesSpec.md | ここで定義される規則を使って diagnostics emission と formatting cost を予算化する。 |
+| 15_TestAndValidationSpec.md | ここで定義する diagnostics contract を使って executable diagnostics snapshot、analyzer gate、CI coverage を実装する。`KernelDiagnostic`、`DiagnosticCode`、severity、sink ownership は再定義しない。 |
 
-11 is the shared diagnostics substrate.
-It must not re-own domain semantics already owned elsewhere.
+11 は共有 diagnostics substrate である。
+domain semantics を所有し直してはならない。
 
 ---
 
-## Assembly Definition and Compile Boundary Expectations
+## asmdef とコンパイル境界の期待値
 
-Diagnostics is intentionally split across multiple assemblies:
+diagnostics は複数 assembly に意図的に分割される:
 
 - `GameLib.Kernel.Diagnostics`
 - `GameLib.Kernel.Diagnostics.Unity`
 - `GameLib.Kernel.Diagnostics.Editor`
 
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
+詳細な依存行列は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が所有する。
 
-Required compile-boundary rules for 11:
+11 に必要なコンパイル境界ルール:
 
-- `GameLib.Kernel.Diagnostics` owns the structured record model, diagnostic service contracts, and non-Unity sinks, and should remain Unity-free
-- `GameLib.Kernel.Diagnostics.Unity` is the only legal assembly for direct Unity `Debug.Log*` emission in target kernel paths
-- editor-facing diagnostics browsing, source navigation, and authoring tooling must stay in `GameLib.Kernel.Diagnostics.Editor`
-- subsystem-specific final loggers, legacy direct log wrappers, and feature-specific log sinks must not be compiled into diagnostics core
+- `GameLib.Kernel.Diagnostics` は structured record model、diagnostic service contract、non-Unity sink を所有し、Unity-free のままであるべきである
+- `GameLib.Kernel.Diagnostics.Unity` は、target kernel path で直接 Unity `Debug.Log*` を emit できる唯一の合法 assembly である
+- editor-facing diagnostics browsing、source navigation、authoring tooling は `GameLib.Kernel.Diagnostics.Editor` に置かなければならない
+- subsystem-specific final logger、legacy direct log wrapper、feature-specific log sink を diagnostics core に入れてはならない
 
-If structured diagnostics cannot compile without Unity logging APIs in core or without feature-specific formatting code, the 11 boundary has been violated.
+structured diagnostics が core で Unity logging API なしに、または feature-specific formatting code なしにコンパイルできないなら、11 の境界は破られている。
 
 ---
 
-## Current Diagnostics Debt Observations
+## 現在の diagnostics 負債の観測
 
-この節は現行コードベースの diagnostics 負債の観測結果をまとめる。
+この節は、現行コードベースにある diagnostics 負債の観測結果をまとめる。
 ここは target policy ではなく、移行元の整理である。
 
-### Observation Traceability
+### 観測の追跡可能性
 
-| Observation | Evidence Type | Expected Downstream |
+| 観測 | 証拠種別 | 想定される下流 |
 |---|---|---|
-| `LTSLog` is a thin runtime-controllable wrapper over Unity Debug APIs. | Source | 11, 13 |
-| Command VNext formats rich command errors but still emits directly to Unity Debug. | Source | 09, 11 |
-| `CommandExecutorRegistry` reports invalid or duplicate IDs by direct `Debug.LogError`. | Source | 09, 11 |
-| Save keeps a separate logger abstraction, but `UnitySaveLogger` still calls Unity Debug APIs directly. | Source | 10, 11 |
-| Dynamic runtime logging utilities already carry structured context, but producer paths still decide final host formatting and emission. | Source | 10, 11 |
-| Monitor and command runtime contain many inline `Debug.Log*` and `Debug.LogException` paths in hot or semi-hot runtime flows. | Source | 09, 11, 14 |
-| Diagnostics identity is often implicit in message text rather than stable diagnostic codes. | Source | 11, 15 |
-| Exception output and failure boundary routing are not unified across subsystems. | Source | 11, 15 |
+| `LTSLog` は Unity Debug API の薄い runtime-controllable wrapper である。 | ソース | 11, 13 |
+| Command VNext は rich な command error を整形するが、まだ Unity Debug に直接 emit している。 | ソース | 09, 11 |
+| `CommandExecutorRegistry` は invalid / duplicate ID を直接 `Debug.LogError` で報告している。 | ソース | 09, 11 |
+| Save は別の logger abstraction を持つが、`UnitySaveLogger` は依然として Unity Debug API を直接呼んでいる。 | ソース | 10, 11 |
+| Dynamic runtime logging utilities は structured context を既に持つが、最終的な host formatting と emission は producer 側が決めている。 | ソース | 10, 11 |
+| Monitor と command runtime には、hot / semi-hot path の中に多くの inline `Debug.Log*` と `Debug.LogException` がある。 | ソース | 09, 11, 14 |
+| diagnostics identity が stable diagnostic code ではなく、message text に暗黙化されがちである。 | ソース | 11, 15 |
+| exception output と failure boundary routing が subsystem 間で統一されていない。 | ソース | 11, 15 |
 
-### Representative Anchors
+### 代表的な参照先
 
-- [LTSLog.cs](../../GameLib/Script/Common/LTS/LTSLog.cs) - thin wrapper over Unity `Debug.Log`, `Debug.LogWarning`, and `Debug.LogError`
-- [UnityCommandResolveLogger.cs](../../GameLib/Script/Common/Commands/VNext/Core/UnityCommandResolveLogger.cs) - command-specific rich formatting plus direct Unity output
-- [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) - invalid/duplicate command ID logging through direct Unity error output
-- [ISaveLogger.cs](../../GameLib/Script/Common/Variables/Save/Core/ISaveLogger.cs) - save-specific logger abstraction outside unified kernel diagnostics
-- [UnitySaveLogger.cs](../../GameLib/Script/Common/Variables/Save/Unity/UnitySaveLogger.cs) - save log output directly to Unity Debug APIs
-- [DynamicRuntimeLogUtility.cs](../../GameLib/Script/Common/Variables/Dynamic/Core/DynamicRuntimeLogUtility.cs) - reusable structured context formatting helpers that should move behind sink-specific rendering
-- [ExpressionRuntimeLogger.cs](../../GameLib/Script/Common/Variables/Dynamic/Expression/ExpressionRuntimeLogger.cs) - structured context present, final output still direct `Debug.LogError`
-- [MonitorChannelRuntime.cs](../../GameLib/Script/Common/Commands/Core/MonitorChannelRuntime.cs) - scattered direct warnings, errors, and exception logs in runtime rule execution
+- [LTSLog.cs](../../GameLib/Script/Common/LTS/LTSLog.cs) - Unity `Debug.Log`、`Debug.LogWarning`、`Debug.LogError` の薄い wrapper
+- [UnityCommandResolveLogger.cs](../../GameLib/Script/Common/Commands/VNext/Core/UnityCommandResolveLogger.cs) - command 専用の rich formatting と direct Unity output
+- [CommandExecutorRegistry.cs](../../GameLib/Script/Common/Commands/VNext/Core/CommandExecutorRegistry.cs) - invalid / duplicate command ID を direct Unity error output で報告
+- [ISaveLogger.cs](../../GameLib/Script/Common/Variables/Save/Core/ISaveLogger.cs) - 統一された kernel diagnostics の外にある save-specific logger abstraction
+- [UnitySaveLogger.cs](../../GameLib/Script/Common/Variables/Save/Unity/UnitySaveLogger.cs) - Unity Debug API に直接出力する save logger
+- [DynamicRuntimeLogUtility.cs](../../GameLib/Script/Common/Variables/Dynamic/Core/DynamicRuntimeLogUtility.cs) - sink-specific rendering の後ろに移すべき structured context formatting helper
+- [ExpressionRuntimeLogger.cs](../../GameLib/Script/Common/Variables/Dynamic/Expression/ExpressionRuntimeLogger.cs) - structured context はあるが、最終出力は依然として direct `Debug.LogError`
+- [MonitorChannelRuntime.cs](../../GameLib/Script/Common/Commands/Core/MonitorChannelRuntime.cs) - runtime rule execution の中に散在する direct warning / error / exception log
 
-### Current Gaps
+### 現在のギャップ
 
-The current project exposes the following diagnostics gaps that 11 must close:
+現在の project には 11 が塞ぐべき diagnostics gap がある:
 
-- subsystem-specific loggers decide final host output instead of producing structured records
-- the same runtime failure family may be represented by different message formats in different subsystems
-- message text often acts as identity
-- exception output bypasses shared routing
-- profile-aware diagnostics policy is fragmented
-- direct Unity logging appears inside runtime behavior paths and registry validation paths
-- structured context exists in places, but there is no shared record model or sink model
-- diagnostics de-duplication and throttling are ad hoc or absent
+- subsystem-specific logger が structured record ではなく最終 host output を決めている
+- 同じ runtime failure family が subsystem ごとに異なる message format で表現されている
+- message text が identity として使われがちである
+- exception output が shared routing を迂回している
+- profile-aware diagnostics policy が断片化している
+- direct Unity logging が runtime behavior path と registry validation path の中に入っている
+- structured context は存在する箇所もあるが、shared record model と sink model がない
+- diagnostics の de-duplication と throttling が ad hoc か、存在しない
 
 ---
 
-## Root Diagnostics Problems
+## 根本的な diagnostics 問題
 
-Current diagnostics debt is not one missing utility class.
-It is a structural architecture problem.
+現在の diagnostics debt は、単に utility class が 1 つ足りないという話ではない。
+構造的な architecture problem である。
 
-The core problems are:
+根本問題は次の通りである:
 
-1. sink ownership is fragmented
-2. message strings act as identity
-3. source provenance is inconsistent
-4. exceptions are treated as output, not data
-5. diagnostics performance policy is not unified
+1. sink ownership が分散している
+2. message string が identity として扱われている
+3. source provenance が不整合である
+4. exception が data ではなく output として扱われている
+5. diagnostics の cost contract が統一されていない
 
-### 1. Fragmented Sink Ownership
+### 1. 分散した Sink Ownership
 
-Different subsystems own their own final Unity output path.
+異なる subsystem が、それぞれ独自の最終 Unity output path を所有している。
 
-Examples:
+例:
 
-- `LTSLog` forwards directly to Unity
-- command-specific logger emits directly to Unity
-- save-specific logger emits directly to Unity
-- runtime command and monitor paths call `Debug.Log*` inline
+- `LTSLog` は Unity へ直接 forward する
+- command-specific logger は Unity へ直接 emit する
+- save-specific logger は Unity へ直接 emit する
+- runtime command と monitor path は inline で `Debug.Log*` を呼ぶ
 
-This prevents consistent profile policy, de-duplication, testing, and migration control.
+これでは、profile policy、de-duplication、testing、migration control を統一できない。
 
 ### 2. Message-Text Identity
 
-Many current errors are identified by formatted strings, colors, or section headers rather than stable diagnostic codes.
+現在の多くの error は、stable diagnostic code ではなく、formatted string、色、section header で識別されている。
 
-This makes tests fragile and prevents deterministic diagnostics behavior when wording changes.
+これにより test は壊れやすくなり、文言が変わっただけで deterministic な diagnostics behavior を失う。
 
-### 3. Inconsistent Provenance
+### 3. 不整合な Provenance
 
-Some paths capture source or runtime context, while others only emit text.
+ある path は source や runtime context を capture するが、別の path は text しか emit しない。
 
-The target kernel requires stable mapping from runtime identities to human-readable source information.
-Current diagnostics do not provide that consistently.
+target kernel は runtime identity から human-readable source information への stable mapping を必要とする。
+現在の diagnostics はそれを一貫して提供していない。
 
 ### 4. Exception-as-Output
 
-Exceptions are often logged directly to Unity as side effects.
+exception は side effect として Unity へ直接 log されがちである。
 
-This bypasses shared routing, shared profile policy, failure-boundary handling, and deterministic test capture.
+これでは shared routing、shared profile policy、failure-boundary handling、deterministic test capture を迂回する。
 
-### 5. Missing Diagnostics Cost Contract
+### 5. Diagnostics Cost Contract の欠如
 
-Current diagnostics formatting and output paths are not governed by a shared hot-path policy.
+現在の diagnostics formatting と output path は、shared hot-path policy によって統治されていない。
 
-This makes it too easy for expensive string construction or spammy output to leak into runtime execution paths.
+そのため、重い string construction や spammy output が runtime execution path に漏れやすい。
 
 ---
 
 ## DebugMap Definition
 
-DebugMap is a generated artifact that maps verified runtime identities to human-readable source information.
+DebugMap は、検証済み runtime identity を human-readable な source information に map する生成 artifact である。
 
-DebugMap is used by:
+DebugMap が使われる場面:
 
 - runtime diagnostics
 - editor navigation
-- validation reports
-- generation reports
+- validation report
+- generation report
 - boot failure reporting
-- test snapshots
-- migration reports
+- test snapshot
+- migration report
 
-DebugMap is not runtime truth.
-DebugMap is provenance metadata attached to verified runtime identities.
+DebugMap は runtime truth ではない。
+DebugMap は、検証済み runtime identity に付随する provenance metadata である。
 
 ### Required DebugMap Role
 
 ```text
-Runtime uses verified identities for execution.
-DebugMap resolves those identities for humans.
+Runtime は、実行に verified identity を使う。
+DebugMap は、その identity を人間向けに解決する。
 ```
 
-DebugMap must not be used as:
+DebugMap を次の用途に使ってはならない:
 
-- runtime service lookup by debug name
-- runtime command lookup by authoring key
-- runtime value lookup by stable key
-- boot-time reconstruction of missing provenance
-- fallback repair for missing required runtime inputs
+- debug name による runtime service lookup
+- authoring key による runtime command lookup
+- stable key による runtime value lookup
+- provenance 欠落の boot-time reconstruction
+- 必須 runtime input の欠落に対する fallback repair
 
 ### DebugMap Logical Model
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public sealed class KernelDebugMap
@@ -342,78 +341,78 @@ public sealed class KernelDebugMap
 }
 ```
 
-This sketch is explanatory.
-03 owns generation mechanics and publication.
-11 owns the logical runtime contract and required fields.
+このスケッチは説明用である。
+03 が generation mechanics と publication を所有する。
+11 は runtime contract と必須フィールドを所有する。
 
 ---
 
 ## Diagnostic Identity and Coverage Model
 
-Runtime-facing identities must be debuggable through DebugMap.
+runtime-facing identity は、DebugMap を通じて debug 可能でなければならない。
 
-Required coverage includes at least:
+少なくとも次を coverage に含める:
 
 - `ModuleId`
 - `ServiceId`
 - `ScopeAuthoringId`
 - `ScopePlanId`
-- `LifecyclePlanId` when lifecycle plans are runtime-visible
+- lifecycle plan が runtime-visible である場合の `LifecyclePlanId`
 - `LifecycleStepId`
 - `CommandTypeId`
-- `CommandExecutorId` when executor identity is runtime-visible
+- executor identity が runtime-visible である場合の `CommandExecutorId`
 - `CommandPayloadSchemaId`
 - `ValueKeyId`
 - `ValueSchemaId`
 - `RuntimeQueryId`
 - `ArtifactSetId`
-- generated artifact identity when referenced by diagnostics
+- diagnostics が参照する generated artifact identity
 
-`ScopeHandle` is partly different.
-DebugMap resolves the verified scope authoring and plan identity behind a handle.
-Live handle generation and instance state are supplied by runtime state, not by static DebugMap alone.
+`ScopeHandle` は一部だけ異なる。
+DebugMap は、handle の背後にある検証済みの scope authoring identity と plan identity を解決する。
+live handle generation と instance state は static DebugMap ではなく runtime state が供給する。
 
 ### Minimum DebugMap Entry
 
-Each DebugMap entry must include enough information to trace one verified runtime identity back to source.
+各 DebugMap entry には、1 つの検証済み runtime identity を source に遡れるだけの情報が必要である。
 
-Minimum fields:
+最小フィールド:
 
-- numeric or symbolic runtime identity
+- numeric または symbolic な runtime identity
 - identity kind
 - stable debug name
 - owner module
 - source location reference
 - profile availability
-- artifact identity or artifact hash
-- legacy origin when applicable
+- artifact identity または artifact hash
+- 該当する場合は legacy origin
 
-Recommended additional fields:
+推奨される追加フィールド:
 
 - authoring label
-- category or subtype
+- category または subtype
 - generated projection kind
-- related identity references
+- 関連 identity reference
 
 ### Coverage Rules
 
-Required rules:
+必要なルール:
 
-- missing required coverage is a generation or validation failure where 03 and 04 say it is required
-- runtime diagnostics must treat missing coverage as diagnostics degradation
-- Development and Test profiles treat diagnostics degradation as an error
-- Release profile may reduce metadata only when failures remain stable, interpretable, and source-resolvable to the minimum level allowed by 00 and 05
+- 必要 coverage の欠落は、03 と 04 がそれを要求する場合、generation または validation failure である
+- runtime diagnostics は coverage 欠落を diagnostics degradation として扱う
+- Development と Test profile は diagnostics degradation を error として扱う
+- Release profile は、00 と 05 が許す最小限の範囲で、failure が安定・解釈可能・source-resolvable である場合に限り metadata を削減してよい
 
-DebugMap coverage must remain deterministic.
-Coverage must not depend on host order, runtime discovery, or editor display state.
+DebugMap coverage は deterministic でなければならない。
+coverage は host order、runtime discovery、editor display state に依存してはならない。
 
 ---
 
 ## SourceLocation Model
 
-SourceLocation represents the human-traceable origin of authoring, generated, or migrated data.
+SourceLocation は、authoring、生成、移行済みデータの human-traceable な origin を表す。
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public readonly struct SourceLocationId
@@ -435,13 +434,13 @@ public sealed class SourceLocationEntry
 }
 ```
 
-Required SourceLocation capabilities:
+必要な SourceLocation capabilities:
 
-- trace to scene, prefab, ScriptableObject, generated artifact, or generated source location
-- identify enough authoring context for human debugging
-- remain stable enough for diagnostics snapshots and migration reports
+- scene、prefab、ScriptableObject、generated artifact、generated source location への追跡
+- human debugging に十分な authoring context の特定
+- diagnostics snapshot と migration report のために十分安定していること
 
-SourceLocation must support at least the following origin kinds:
+SourceLocation は少なくとも次の origin kind をサポートしなければならない:
 
 - scene object
 - prefab object
@@ -451,16 +450,16 @@ SourceLocation must support at least the following origin kinds:
 - generated asset location
 - migration-produced legacy origin
 
-SourceLocation does not authorize runtime discovery.
-It exists for diagnostics and traceability only.
+SourceLocation は runtime discovery を許可しない。
+それは diagnostics と traceability のためだけに存在する。
 
 ---
 
 ## Runtime Identity Mapping
 
-Diagnostics may contain runtime identities from multiple domains.
+diagnostics には複数 domain の runtime identity が含まれ得る。
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public enum RuntimeIdentityKind
@@ -491,13 +490,13 @@ public readonly struct RuntimeIdentityRef
 }
 ```
 
-Rules:
+ルール:
 
-- every runtime identity carried in diagnostics must have an explicit kind
-- generation is required when the identity is generation-sensitive, such as handle-like identities
-- diagnostics must not rely on ambiguous bare integers
+- diagnostics が持つすべての runtime identity には明示的な kind が必要である
+- identity が generation-sensitive、たとえば handle-like である場合は generation が必要である
+- diagnostics は曖昧な裸の整数に依存してはならない
 
-Examples:
+例:
 
 - `ServiceId 100`
 - `CommandTypeId 250`
@@ -509,9 +508,9 @@ Examples:
 
 ## Artifact Identity Mapping
 
-Diagnostics must be able to refer to artifact-set and generated-artifact identity when failures involve generation, validation, boot compatibility, or stale artifact handling.
+generation、validation、boot compatibility、stale artifact handling に関わる failure では、diagnostics が artifact-set identity と generated-artifact identity を参照できなければならない。
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public readonly struct ArtifactSetId
@@ -525,7 +524,7 @@ public readonly struct GeneratedArtifactId
 }
 ```
 
-Artifact identity mapping must support:
+artifact identity mapping は次をサポートしなければならない:
 
 - artifact set compatibility diagnostics
 - stale artifact diagnostics
@@ -533,14 +532,14 @@ Artifact identity mapping must support:
 - boot manifest rejection diagnostics
 - test snapshot traceability
 
-Artifact identity must not be replaced by only a file path.
-Stable artifact identity and compatibility hashes must remain available.
+artifact identity は file path だけで置き換えてはならない。
+stable artifact identity と compatibility hash は残し続けなければならない。
 
 ---
 
 ## Diagnostic Pipeline Definition
 
-Diagnostics flow through a central pipeline.
+diagnostics は中央 pipeline を通る。
 
 ```text
 Producer
@@ -551,7 +550,7 @@ Producer
   -> Unity / File / Editor / Test / Remote outputs
 ```
 
-Representative producers include:
+代表的な producer:
 
 - boot
 - verified plan generation
@@ -559,78 +558,78 @@ Representative producers include:
 - service graph runtime
 - scope graph runtime
 - lifecycle dispatcher
-- command runner and command catalog
-- value store and value init
+- command runner と command catalog
+- value store と value init
 - runtime query
 - save system
-- legacy compatibility adapters
+- legacy compatibility adapter
 
 ### Producer Rules
 
-Producers may:
+producer は次を行ってよい:
 
-- detect failures or warnings
-- create typed diagnostic payloads
-- attach runtime identity, source, and artifact context
-- batch diagnostics before flush when a bounded local buffer is required
+- failure や warning を検出する
+- typed diagnostic payload を作る
+- runtime identity、source、artifact context を付与する
+- bounded local buffer が必要なときは flush 前に diagnostics を batch する
 
-Producers must not:
+producer は次を行ってはならない:
 
-- call Unity Debug APIs directly in target-kernel paths
-- decide final Unity console formatting
-- represent the failure only as a formatted message string
-- swallow exceptions without reporting a diagnostic when the exception matters to failure behavior
+- target-kernel path で Unity Debug API を直接呼ぶこと
+- 最終的な Unity console formatting を決めること
+- failure を formatted message string だけで表現すること
+- exception が failure behavior に関係するのに、diagnostic を報告せずに exception を握りつぶすこと
 
 ### Local Buffer Rule
 
-An approved local diagnostic buffer is allowed when:
+以下の条件を満たす場合、approved な local diagnostic buffer を使ってよい:
 
-- batch reporting materially reduces overhead
-- buffering does not change failure meaning
-- ordering remains deterministic enough for the consumer
-- the buffer flushes to `KernelDiagnosticService`
+- batch reporting が overhead を実質的に下げる
+- buffering が failure の意味を変えない
+- consumer にとって order が deterministic enough である
+- buffer が `KernelDiagnosticService` に flush する
 
-Local buffering must not create a parallel diagnostics architecture.
+local buffering は parallel diagnostics architecture を作ってはならない。
 
 ---
 
 ## Central Logging Rule
 
-Unity Debug APIs are allowed only inside approved diagnostic sinks.
+Unity Debug API は、approved diagnostic sink の中でのみ使用できる。
 
-In the target kernel, the only Unity-facing sink is:
+target kernel で唯一の Unity-facing sink は次である:
 
 - `UnityLogDiagnosticSink`
 
-The following are forbidden outside approved sinks:
+承認された sink 以外で禁止されるもの:
 
 - `Debug.Log`
 - `Debug.LogWarning`
 - `Debug.LogError`
 - `Debug.LogException`
-- subsystem-specific Unity logger as a final output path
-- `LTSLog.LogError` as a final output path
+- final output path としての subsystem-specific Unity logger
+- final output path としての `LTSLog.LogError`
 
-This is a root architecture rule, not a formatting preference.
+これは formatting preference ではなく、根本的な architecture rule である。
 
 ```text
 Errors are produced where they occur.
 Unity logging is emitted only by the central diagnostic sink.
 ```
 
-If a subsystem calls `Debug.LogError` directly in target-kernel architecture, diagnostics architecture has regressed.
+target-kernel architecture で subsystem が直接 `Debug.LogError` を呼ぶなら、diagnostics architecture は退化している。
 
-Migration-only exceptions, if any, must be isolated by 13 and remain explicit, measurable, and temporary.
+temporary legacy adapter があるとしても、それは 13 で分離され、明示的、計測可能、かつ一時的でなければならない。
 
 ---
 
 ## Diagnostic Code Governance
 
-DiagnosticCode is the stable identity of a diagnostic family.
+DiagnosticCode は diagnostic family の stable identity である。
 
-Message text is not identity.
+message text は identity ではない。
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public readonly struct DiagnosticCode
@@ -639,43 +638,43 @@ public readonly struct DiagnosticCode
 }
 ```
 
-This sketch does not require the final implementation to expose raw integers publicly.
-The architecture requirement is stable identity, not one exact public type.
+このスケッチは、最終実装が raw integer を public に公開しなければならないことを意味しない。
+architecture の要件は stable identity であり、唯一の具体的な public type ではない。
 
 ### Diagnostic Code Rules
 
-Every diagnostic code must have:
+すべての diagnostic code には次が必要である:
 
-- stable symbolic identity for specification and testing
-- one owning domain
-- one meaning
-- stable failure meaning across message wording changes
+- specification と testing のための stable symbolic identity
+- 1 つの owning domain
+- 1 つの意味
+- message wording が変わっても stable な failure meaning
 
-Optional generated numeric representation is allowed for runtime efficiency, provided that:
+runtime efficiency のために optional な generated numeric representation を使ってよい。ただし次の条件が必要である:
 
-- symbolic identity remains stable in documentation and tests
-- numeric mapping is deterministic
-- DebugMap or a related diagnostics table can explain the mapping when needed
+- symbolic identity が documentation と test で stable であること
+- numeric mapping が deterministic であること
+- 必要なときに DebugMap または関連 diagnostics table で mapping を説明できること
 
 ### Ownership Split for Codes
 
-11 owns:
+11 が所有するもの:
 
-- the shared model for diagnostic identity
-- naming and allocation rules
-- reserved shared diagnostics families such as diagnostics degradation and sink violations
+- diagnostic identity の shared model
+- naming と allocation ルール
+- diagnostics degradation や sink violation のような reserved shared diagnostics family
 
-Owner specs such as 04, 06, 07, 08, 09, and 10 own:
+04、06、07、08、09、10 のような owner spec が所有するもの:
 
-- their domain-specific code families
-- the semantics of those failures
-- the minimum provenance fields required for those failures
+- domain-specific code family
+- それら failure の意味
+- それら failure に必要な minimum provenance field
 
-11 must not erase domain ownership by centralizing every subsystem rule in one list.
+11 は、すべての subsystem rule を 1 つの list に集約して domain ownership を消してはならない。
 
 ### Reserved Shared Diagnostics Families
 
-Representative shared diagnostics families include:
+代表的な shared diagnostics family:
 
 - `DIAG_CODE_MISSING`
 - `DIAG_DOMAIN_MISSING`
@@ -692,9 +691,9 @@ Representative shared diagnostics families include:
 
 ## Diagnostic Severity Model
 
-Diagnostic severity is independent from failure boundary.
+diagnostic severity は failure boundary と独立である。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum DiagnosticSeverity
@@ -707,26 +706,26 @@ public enum DiagnosticSeverity
 }
 ```
 
-Rules:
+ルール:
 
-- severity describes seriousness of the diagnostic record
-- severity does not by itself define what runtime boundary stops
-- profile may suppress `Trace` or `Info` output
-- profile must not silently suppress required `Error` or `Fatal` reporting
+- severity は diagnostic record の深刻さを表す
+- severity だけで runtime boundary が停止するかは決まらない
+- profile は `Trace` や `Info` を suppress してよい
+- profile は required な `Error` や `Fatal` の報告を黙って suppress してはならない
 
-Example:
+例:
 
-- `Error` may fail one command frame
-- `Error` may fail one scope operation
-- `Fatal` may fail kernel boot
+- `Error` は 1 つの command frame を失敗させ得る
+- `Error` は 1 つの scope operation を失敗させ得る
+- `Fatal` は kernel boot を失敗させ得る
 
 ---
 
 ## Diagnostic Failure Boundary Model
 
-Failure boundary defines where execution must stop or be invalidated.
+failure boundary は、どこで execution を止めるか、または invalidated にするかを定義する。
 
-Explanatory model:
+説明用モデル:
 
 ```csharp
 public enum DiagnosticFailureBoundary
@@ -742,24 +741,24 @@ public enum DiagnosticFailureBoundary
 }
 ```
 
-Rules:
+ルール:
 
-- failure boundary must be explicit when a diagnostic participates in failure handling
-- severity must not be used as an implicit substitute for failure boundary
-- owner specs continue to define which failures map to which boundaries in their domain
-- 11 defines the shared representation used to carry that decision
+- diagnostic が failure handling に関与する場合、failure boundary は明示的でなければならない
+- severity を failure boundary の暗黙的な代用品として使ってはならない
+- owner spec は、それぞれの domain で failure がどの boundary に対応するかを引き続き定義する
+- 11 は、その決定を運ぶ shared representation を定義する
 
 ---
 
 ## Diagnostic Domain and Category Model
 
-Every diagnostic must belong to one domain.
-Diagnostics should also belong to one category.
+すべての diagnostic は 1 つの domain に属さなければならない。
+diagnostic はさらに 1 つの category に属してよい。
 
-Domain is the subsystem area.
-Category is the narrower error family.
+domain は subsystem 領域である。
+category は、より狭い error family である。
 
-Explanatory domain model:
+説明用 domain model:
 
 ```csharp
 public enum DiagnosticDomain
@@ -781,26 +780,26 @@ public enum DiagnosticDomain
 }
 ```
 
-Category may be represented by a stable symbolic or numeric family owned by the domain owner.
+category は stable symbolic family または numeric family として、domain owner が所有してよい。
 
-Rules:
+ルール:
 
-- every diagnostic must have exactly one primary domain
-- category must not contradict domain ownership
-- shared infrastructure diagnostics may use `Diagnostics` as their domain
+- すべての diagnostic はちょうど 1 つの primary domain を持たなければならない
+- category は domain ownership と矛盾してはならない
+- shared infrastructure diagnostics は domain として `Diagnostics` を使ってよい
 
 ---
 
 ## Diagnostic Event, Correlation, and Session Model
 
-Diagnostic identity has multiple layers.
+diagnostic identity には複数の層がある。
 
-- `DiagnosticCode` identifies the failure family
-- `DiagnosticEventId` identifies one emitted event instance
-- `DiagnosticCorrelationId` links related events
-- `DiagnosticSessionId` groups events from one higher-level activity
+- `DiagnosticCode` は failure family を識別する
+- `DiagnosticEventId` は 1 回 emit された event instance を識別する
+- `DiagnosticCorrelationId` は関連する event を結び付ける
+- `DiagnosticSessionId` は 1 つの高位 activity からの event をまとめる
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public readonly struct DiagnosticEventId
@@ -819,27 +818,27 @@ public readonly struct DiagnosticSessionId
 }
 ```
 
-Representative session scopes:
+代表的な session scope:
 
-- one boot attempt
-- one generation run
-- one validation run
-- one command frame
-- one save operation
+- 1 回の boot attempt
+- 1 回の generation run
+- 1 回の validation run
+- 1 回の command frame
+- 1 回の save operation
 
-Rules:
+ルール:
 
-- event identity need not be stable across runs
-- correlation must be stable enough within one session to connect related records
-- tests should assert stable code and relevant context before asserting event-instance details
+- event identity は run 間で stable である必要はない
+- correlation は 1 つの session 内で関連 record を結び付けるのに十分 stable であるべきである
+- test は event-instance の詳細を assert する前に、stable code と relevant context を assert すべきである
 
 ---
 
 ## Diagnostic Record Model
 
-KernelDiagnostic is the shared structured record reported by target-kernel subsystems.
+`KernelDiagnostic` は、target-kernel subsystem が報告する shared structured record である。
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public sealed class KernelDiagnostic
@@ -860,40 +859,33 @@ public sealed class KernelDiagnostic
 }
 ```
 
-Required properties of the record model:
+record model に必要な性質:
 
-- message text is optional display data, not the only semantic data
-- code, domain, severity, and context are first-class data
-- payload must be structured enough for testing and non-Unity sinks
-- exception data must be capturable without direct host output
+- message text は optional な display data であり、唯一の semantic data ではない
+- code、domain、severity、context は first-class data である
+- payload は test と non-Unity sink に十分構造化されていなければならない
+- exception data は host output を直接出さずに capture できなければならない
 
 ### Message Policy
 
-Message may exist for display and summary.
-Message must not be the only diagnostic data.
+message は display と summary のために存在してよい。
+message は唯一の diagnostic data であってはならない。
 
-Forbidden patterns:
+禁止される pattern:
 
-- message-only diagnostic with no code
-- message-only diagnostic with no domain
-- message-only diagnostic with no provenance when provenance is required
+- code のない message-only diagnostic
+- domain のない message-only diagnostic
+- provenance が必要なのに provenance のない message-only diagnostic
 
-Tests should prefer:
-
-- diagnostic code
-- domain
-- failure boundary
-- relevant context fields
-
-over exact message-string matching.
+test は、正確な message string の一致よりも、diagnostic code、domain、failure boundary、関連 context field を優先すべきである。
 
 ---
 
 ## Diagnostic Context Model
 
-DiagnosticContext carries shared structured context used across domains.
+`DiagnosticContext` は domain をまたいで使われる共有 structured context を運ぶ。
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public sealed class DiagnosticContext
@@ -908,60 +900,60 @@ public sealed class DiagnosticContext
 }
 ```
 
-Required context dimensions:
+必要な context dimension:
 
-- owner module when applicable
-- selected profile
-- source location when applicable
-- artifact-set context when applicable
-- runtime identity references when applicable
-- phase or operation label when required by the domain
+- 該当する場合の owner module
+- 選択された profile
+- 該当する場合の source location
+- 該当する場合の artifact-set context
+- 該当する場合の runtime identity reference
+- domain が要求する場合の phase または operation label
 
-Context must remain structured.
-It must not be flattened only into one formatted summary string.
+context は structured のままでなければならない。
+1 つの formatted summary string にだけ flatten してはならない。
 
 ### Context Rules
 
-- owner specs define which provenance fields are mandatory for their domain failures
-- 11 defines the shared representation and minimum compatibility rules
-- missing required source location or required runtime identity is diagnostics degradation unless the missing item is itself the failure being reported
+- owner spec が、その domain failure に対してどの provenance field が必須かを定義する
+- 11 は shared representation と minimum compatibility rule を定義する
+- 必須 source location または必須 runtime identity の欠落は diagnostics degradation である。ただし、欠落した項目自体が報告対象の failure である場合は除く
 
 ---
 
 ## Diagnostic Payload Model
 
-Diagnostic payload carries domain-specific structured data that does not belong in the shared context header.
+diagnostic payload は、shared context header には入らない domain-specific な structured data を運ぶ。
 
-Payload may be represented as:
+payload は次の形で表現してよい:
 
-- typed domain-specific structs
-- deterministic key-value records
-- batch-oriented diagnostic entries for generation or validation
+- typed domain-specific struct
+- deterministic key-value record
+- generation または validation のための batch-oriented diagnostic entry
 
-Payload must satisfy:
+payload は次を満たさなければならない:
 
-- deterministic field meaning
-- testability without Unity string formatting
-- compatibility with non-Unity sinks
+- field meaning が deterministic であること
+- Unity string formatting なしで test 可能であること
+- non-Unity sink と互換であること
 
-Payload must not satisfy meaning only through rich-text formatting.
+payload は rich-text formatting だけで意味を成立させてはならない。
 
-Representative payload contents include:
+代表的な payload 内容:
 
-- expected and actual hash
-- requested and resolved contract
-- expected and actual value kind
-- duplicate ID and conflicting owner
-- timeout duration and policy
+- expected と actual の hash
+- requested と resolved の contract
+- expected と actual の value kind
+- duplicate ID と conflicting owner
+- timeout duration と policy
 - cancellation reason
 
 ---
 
 ## Exception Capture Model
 
-Exceptions are diagnostics data, not autonomous output paths.
+exception は diagnostics data であり、自律的な output path ではない。
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public sealed class DiagnosticExceptionInfo
@@ -973,28 +965,28 @@ public sealed class DiagnosticExceptionInfo
 }
 ```
 
-Required rules:
+必要なルール:
 
-- subsystems must capture exception data into `KernelDiagnostic` when the exception matters to failure behavior or observability
-- subsystems must not call `Debug.LogException` directly in target-kernel paths
-- exceptions must not be swallowed without diagnostics when the failure remains relevant
-- cancellation exceptions may map to cancellation diagnostics instead of generic error diagnostics when the owner spec allows it
+- exception が failure behavior または observability に関係する場合、subsystem は exception data を `KernelDiagnostic` に capture しなければならない
+- target-kernel path で `Debug.LogException` を直接呼んではならない
+- failure に関係する exception を diagnostics なしで握りつぶしてはならない
+- cancellation exception は、owner spec が許す場合、generic error diagnostics ではなく cancellation diagnostics に map してよい
 
-Recommended rules:
+推奨ルール:
 
-- preserve exception type, message, and stack
-- preserve inner-exception chain when available
-- keep exception capture deterministic enough for tests when a test sink is used
+- exception type、message、stack を保持する
+- inner exception chain があるなら保持する
+- test sink を使うときは test 用に deterministic enough であるよう exception capture を保つ
 
 ---
 
 ## KernelDiagnosticService Contract
 
-KernelDiagnosticService is the central entry point for reporting diagnostics.
+`KernelDiagnosticService` は、diagnostics を report する central entry point である。
 
-Subsystems must report diagnostics through `KernelDiagnosticService` or an approved local buffer that flushes to it.
+subsystem は `KernelDiagnosticService` か、それに flush する承認済み local buffer を通じて diagnostics を report しなければならない。
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public interface IKernelDiagnosticService
@@ -1006,50 +998,50 @@ public interface IKernelDiagnosticService
 }
 ```
 
-Required service behavior:
+必要な service behavior:
 
-- accept individual and batch diagnostics
-- preserve deterministic enough ordering for the selected sink and host policy
-- support session and correlation metadata
-- forward diagnostics through the configured processing pipeline and sinks
+- individual と batch の diagnostics を受け入れる
+- 選択された sink と host policy に対して deterministic enough な順序を保つ
+- session と correlation metadata をサポートする
+- configured processing pipeline と sink を通じて diagnostics を forward する
 
-KernelDiagnosticService must not:
+`KernelDiagnosticService` は次を行ってはならない:
 
-- be bypassed by subsystem-specific final sinks
-- perform Unity console formatting in producer code paths
-- silently drop required `Error` or `Fatal` diagnostics
+- subsystem-specific final sink によって bypass されること
+- producer code path で Unity console formatting を行うこと
+- required な `Error` または `Fatal` diagnostics を黙って drop すること
 
 ---
 
 ## Diagnostic Processor Contract
 
-Diagnostic processing sits between reporting and final sinks.
+diagnostic processing は report と final sink の間にある。
 
-The processing stage may perform:
+processing stage は次を行ってよい:
 
 - diagnostics enrichment
 - de-duplication
 - throttling
 - aggregation
 - profile filtering
-- sink fan-out preparation
+- sink fan-out の準備
 
-Processing must not:
+processing は次を行ってはならない:
 
-- mutate diagnostic meaning
-- erase required failure boundaries
-- silently drop the first occurrence of a required error
-- convert one domain's failure into another domain's meaning
+- diagnostic の意味を変えること
+- required failure boundary を消すこと
+- required error の first occurrence を黙って捨てること
+- ある domain の failure を別の domain の意味へ変換すること
 
-Processing is a policy layer, not a semantic rewrite layer.
+processing は policy layer であり、semantic rewrite layer ではない。
 
 ---
 
 ## DiagnosticSink Contract
 
-DiagnosticSink consumes `KernelDiagnostic` records.
+`DiagnosticSink` は `KernelDiagnostic` record を consume する。
 
-Allowed sink families include:
+許可される sink family:
 
 - `UnityLogDiagnosticSink`
 - `FileDiagnosticSink`
@@ -1058,7 +1050,7 @@ Allowed sink families include:
 - `InMemoryDiagnosticSink`
 - `RemoteDiagnosticSink`
 
-Explanatory sketch:
+説明用スケッチ:
 
 ```csharp
 public interface IKernelDiagnosticSink
@@ -1068,59 +1060,59 @@ public interface IKernelDiagnosticSink
 }
 ```
 
-Rules:
+ルール:
 
-- sinks may render the same structured diagnostic differently for different hosts
-- sinks must not redefine diagnostic semantics
-- sink choice must not change whether a failure is considered an error or fatal condition
+- sink は同じ structured diagnostic を host ごとに異なる方法で render してよい
+- sink は diagnostic semantics を再定義してはならない
+- sink の選択によって failure が error か fatal かが変わってはならない
 
 ---
 
 ## UnityLogDiagnosticSink Policy
 
-UnityLogDiagnosticSink is the only target-kernel component allowed to call Unity Debug APIs directly.
+`UnityLogDiagnosticSink` は、target-kernel で直接 Unity Debug API を呼べる唯一の component である。
 
-It maps `KernelDiagnostic` records to Unity console output according to profile policy.
+`KernelDiagnostic` record を profile policy に従って Unity console output に map する。
 
-Representative severity mapping:
+代表的な severity mapping:
 
-- `Trace` -> usually suppressed or routed only when explicitly enabled
+- `Trace` -> 通常は suppressed、または明示的に有効化された場合のみ routed
 - `Info` -> `Debug.Log`
 - `Warning` -> `Debug.LogWarning`
 - `Error` -> `Debug.LogError`
-- `Fatal` -> `Debug.LogError` with fatal marker or equivalent stable formatting rule
+- `Fatal` -> `Debug.LogError` with fatal marker または同等の stable formatting rule
 
 ### Exception Output Rule
 
-If the diagnostic contains exception information, `UnityLogDiagnosticSink` may:
+diagnostic が exception information を含む場合、`UnityLogDiagnosticSink` は次を選んでよい:
 
-- call `Debug.LogException`
-- render exception text inside one `Debug.LogError`
+- `Debug.LogException` を呼ぶ
+- exception text を 1 つの `Debug.LogError` の中に描画する
 
-The choice must be deterministic for the selected profile and sink configuration.
+この選択は、選択された profile と sink configuration に対して deterministic でなければならない。
 
-No other subsystem may make that decision directly.
+この決定を直接行えるのは他の subsystem ではない。
 
 ### Rendering Rule
 
-Rich text, section formatting, and console emphasis belong to sink-specific rendering.
+rich text、section formatting、console emphasis は sink-specific rendering に属する。
 
-Producer paths must not depend on Unity rich-text rendering for semantic meaning.
+producer path は、意味論のために Unity rich-text rendering に依存してはならない。
 
-This allows:
+これにより次が可能になる:
 
-- rich Unity console output in Development
-- compact Unity output in Release
-- structured snapshots in tests
-- non-Unity file or remote sinks without information loss
+- Development では rich な Unity console output
+- Release では compact な Unity output
+- test では structured snapshot
+- non-Unity file / remote sink でも情報損失なし
 
 ---
 
 ## Profile-Based Diagnostics Policy
 
-Diagnostics behavior is profile-aware.
+diagnostics behavior は profile-aware である。
 
-Required profile kinds are aligned with 05:
+必要な profile kind は 05 に揃える:
 
 - Development
 - Release
@@ -1130,58 +1122,58 @@ Required profile kinds are aligned with 05:
 
 | Policy | Development | Release | Test |
 |---|---|---|---|
-| Full source mapping | Required | Reduced allowed only within 00/05 limits | Required |
-| DebugMap degradation | Error | Allowed only with stable code and interpretable identity | Error or Fatal depending on boundary |
-| Trace / Info output | Enabled or configurable | Usually suppressed | Captured when required by test policy |
-| Exception detail | Full | Minimal required or policy-limited | Full captured |
-| Rich Unity formatting | Allowed | Optional | Not required |
+| Full source mapping | Required | 00/05 の制約内でのみ削減可 | Required |
+| DebugMap degradation | Error | stable code と解釈可能な identity がある場合のみ許可 | Boundary に応じて Error か Fatal |
+| Trace / Info output | Enabled または configurable | 通常は suppressed | test policy で必要なら capture |
+| Exception detail | Full | 最小限 required または policy-limited | Full captured |
+| Rich Unity formatting | Allowed | Optional | 必須ではない |
 | Test sink capture | Optional | Optional | Required |
 | Silent fallback | Forbidden | Forbidden | Forbidden |
 
-Profile may change:
+profile は次を変えてよい:
 
 - output detail
 - sink routing
 - verbosity
 - exception rendering detail
 
-Profile must not change:
+profile は次を変えてはならない:
 
 - diagnostic identity
 - required failure boundary
-- whether invalid runtime input is considered valid
+- invalid runtime input を valid と見なすかどうか
 
 ---
 
 ## Diagnostics Degradation Policy
 
-Diagnostics degradation occurs when required diagnostic information is missing or unusable.
+diagnostics degradation は、必要な diagnostic information が欠落または利用不能なときに発生する。
 
-Representative degradation conditions include:
+代表的な degradation 条件:
 
-- missing `DiagnosticCode`
-- missing required domain
-- missing required failure boundary
-- missing required source location
-- missing required DebugMap entry
-- missing required runtime identity kind
-- message-only record for a failure that requires structured data
+- `DiagnosticCode` の欠落
+- 必要な domain の欠落
+- 必要な failure boundary の欠落
+- 必要な source location の欠落
+- 必要な DebugMap entry の欠落
+- 必要な runtime identity kind の欠落
+- structured data を必要とする failure に対する message-only record
 
-Rules:
+ルール:
 
-- diagnostics degradation must itself be representable as a diagnostic
-- Development and Test profiles treat diagnostics degradation as an error unless a lower spec defines a stricter rule
-- Release profile may allow reduced detail only when stable code and interpretable identity remain available
+- diagnostics degradation 自体も diagnostic として表現できなければならない
+- Development と Test profile は、下位仕様がより厳しい rule を定めない限り、diagnostics degradation を error として扱う
+- Release profile は、stable code と解釈可能な identity が残る場合に限り、detail を削減してよい
 
-Diagnostics degradation must not be hidden by sink formatting or profile filtering.
+diagnostics degradation は sink formatting や profile filtering によって隠してはならない。
 
 ---
 
 ## De-duplication, Throttling, and Aggregation Policy
 
-Diagnostics may be de-duplicated, throttled, or aggregated by the processor or sink pipeline.
+diagnostics は processor または sink pipeline によって de-duplicate、throttle、aggregate してよい。
 
-Representative de-duplication key parts may include:
+代表的な de-duplication key の要素:
 
 - `DiagnosticCode`
 - `DiagnosticDomain`
@@ -1189,159 +1181,159 @@ Representative de-duplication key parts may include:
 - `RuntimeIdentityRef`
 - selected profile
 
-Rules:
+ルール:
 
-- the first occurrence must not be hidden
-- de-duplication must not change failure boundary
-- throttling must not suppress the fact that a fatal or required error occurred
-- aggregation summaries must remain source-traceable enough for debugging
+- first occurrence を隠してはならない
+- de-duplication は failure boundary を変えてはならない
+- throttling は fatal または required error が起きた事実を suppress してはならない
+- aggregation summary は debugging に十分 traceable でなければならない
 
-Representative use cases:
+代表的な use case:
 
-- repeated tick failure in lifecycle or monitor loops
-- repeated value type mismatch under one broken authored binding
-- repeated command timeout under one detached or invalid execution policy
+- lifecycle や monitor loop における repeated tick failure
+- 1 つの壊れた authored binding に対する repeated value type mismatch
+- 1 つの detached または invalid execution policy に対する repeated command timeout
 
 ---
 
 ## Diagnostics Performance Policy
 
-Diagnostics must be safe for runtime hot paths.
+diagnostics は runtime hot path でも安全でなければならない。
 
-Requirements:
+要件:
 
-- producer paths should avoid expensive string formatting
-- rich text formatting should be sink-local where possible
-- repeated diagnostics should support throttling or aggregation
-- disabled `Trace` or suppressed `Info` paths should avoid avoidable allocation where practical
-- no LINQ in hot diagnostics reporting path
-- batch reporting should be supported for generation and validation
+- producer path で高コストな string formatting を避ける
+- rich text formatting は可能なら sink-local に置く
+- repeated diagnostics は throttling または aggregation をサポートする
+- disabled `Trace` や suppressed `Info` path は、可能な範囲で不要 allocation を避ける
+- hot diagnostics reporting path で LINQ を使わない
+- generation と validation では batch reporting をサポートする
 
-Performance must not be achieved by:
+performance は次を犠牲にして得てはならない:
 
-- dropping required structured context
-- removing stable error codes
-- removing required DebugMap coverage
-- hiding failure boundaries
+- required structured context の削除
+- stable error code の削除
+- required DebugMap coverage の削除
+- failure boundary の隠蔽
 
-Observability is part of the runtime contract.
+Observability は runtime contract の一部である。
 
 ---
 
 ## Subsystem Integration Contract
 
-11 integrates multiple subsystem owners under one diagnostics substrate.
+11 は、複数の subsystem owner を 1 つの diagnostics substrate の下で統合する。
 
-Rule:
+ルール:
 
 ```text
-Owner specs define what a failure means.
-11 defines how that failure is represented, routed, resolved through DebugMap, and emitted.
+Owner spec が failure の意味を定義する。
+11 は、その failure をどう表現し、どう routing し、DebugMap でどう解決し、どう emit するかを定義する。
 ```
 
 ### Generation Diagnostics Integration
 
-Generation diagnostics produced under 03 must use a record shape compatible with `KernelDiagnostic`.
+03 の下で生成される diagnostics は、`KernelDiagnostic` と互換な record shape を使わなければならない。
 
-03 continues to own:
+03 が引き続き所有するもの:
 
-- generation failure meaning
-- generation completeness rules
-- artifact consistency rules
+- generation failure の意味
+- generation completeness rule
+- artifact consistency rule
 
-11 owns:
+11 が所有するもの:
 
 - shared record compatibility
 - sink separation
 - code identity governance
-- DebugMap runtime contract used by generation outputs
+- generation output が使う DebugMap runtime contract
 
-Generation may use batch diagnostics heavily.
+generation は batch diagnostics を多用してよい。
 
 ### Validation Diagnostics Integration
 
-Validation diagnostics produced under 04 must use a record shape compatible with `KernelDiagnostic`.
+04 の下で生成される diagnostics は、`KernelDiagnostic` と互換な record shape を使わなければならない。
 
-04 continues to own:
+04 が引き続き所有するもの:
 
-- dependency failure meaning
+- dependency failure の意味
 - validation phase semantics
 - validation status classification
 
-11 owns:
+11 が所有するもの:
 
 - shared record compatibility
 - stable diagnostics substrate
-- sink and output separation
+- sink と output の分離
 
 ### Boot Diagnostics Integration
 
-Boot diagnostics produced under 05 must use the 11 record model.
+05 の下で生成される boot diagnostics は、11 の record model を使わなければならない。
 
-05 continues to own:
+05 が引き続き所有するもの:
 
-- boot acceptance gates
-- boot failure boundaries
-- profile selection and boot policy
+- boot acceptance gate
+- boot failure boundary
+- profile selection と boot policy
 
-11 owns:
+11 が所有するもの:
 
 - central diagnostics routing
-- DebugMap runtime contract used by boot reporting
-- sink policy and Unity output centralization
+- boot reporting が使う DebugMap runtime contract
+- sink policy と Unity output の中央集約
 
-`BootDiagnosticsPolicy` may configure boot-specific presentation or capture behavior.
-It must not define a parallel diagnostics architecture.
+`BootDiagnosticsPolicy` は boot-specific な presentation や capture behavior を設定してよい。
+それは parallel diagnostics architecture を定義してはならない。
 
 ### ServiceGraph Diagnostics Integration
 
-06 defines required service failure provenance and behavior.
-11 requires those diagnostics to be emitted as `KernelDiagnostic` records.
+06 は required service failure provenance と behavior を定義する。
+11 は、それら diagnostics が `KernelDiagnostic` record として emit されることを要求する。
 
-Required integration rules:
+必要な integration rule:
 
-- service diagnostics must include the provenance fields required by 06
-- service diagnostics must not bypass `KernelDiagnosticService`
-- service diagnostics may resolve service identities through DebugMap for human-readable output
+- service diagnostics は 06 が要求する provenance field を含まなければならない
+- service diagnostics は `KernelDiagnosticService` を迂回してはならない
+- service diagnostics は人が読む出力のために DebugMap で service identity を解決してよい
 
 ### ScopeGraph Diagnostics Integration
 
-07 defines required scope failure provenance and behavior.
-11 requires those diagnostics to be emitted as `KernelDiagnostic` records.
+07 は required scope failure provenance と behavior を定義する。
+11 は、それら diagnostics が `KernelDiagnostic` record として emit されることを要求する。
 
-Required integration rules:
+必要な integration rule:
 
-- handle-like diagnostics must carry generation-aware runtime identity data
-- DebugMap resolves verified scope plan and authoring identity
-- runtime state supplies live handle instance information
+- handle-like diagnostics は generation-aware な runtime identity data を持たなければならない
+- DebugMap は検証済み scope plan と authoring identity を解決する
+- live handle instance information は runtime state が供給する
 
 ### Lifecycle Diagnostics Integration
 
-08 defines required lifecycle provenance and failure behavior.
-11 requires those diagnostics to be emitted as `KernelDiagnostic` records.
+08 は required lifecycle provenance と failure behavior を定義する。
+11 は、それら diagnostics が `KernelDiagnostic` record として emit されることを要求する。
 
-Required integration rules:
+必要な integration rule:
 
-- lifecycle diagnostics must carry lifecycle step provenance required by 08
-- timeout and cancellation must be expressible without ad hoc text-only logging
-- automatic handler discovery failure must remain expressible as structured diagnostics
+- lifecycle diagnostics は 08 が要求する lifecycle step provenance を持たなければならない
+- timeout と cancellation は ad hoc な text-only logging なしで表現できなければならない
+- automatic handler discovery failure は structured diagnostics として表現できなければならない
 
 ### Command Diagnostics Integration
 
-09 defines required command diagnostics fields and failure behavior.
-11 defines the shared substrate used to emit them.
+09 は required command diagnostics fields と failure behavior を定義する。
+11 は、それらを emit する shared substrate を定義する。
 
-Required command context includes the fields required by 09, including at minimum:
+必要な command context には、少なくとも 09 が要求する次の field が含まれる:
 
 - `CommandTypeId`
-- authoring key when allowed by 09
+- 09 が許す場合の authoring key
 - payload schema identity
 - executor identity
-- execution frame or equivalent command-local execution context
-- actor and target references when available
+- execution frame または同等の command-local execution context
+- 利用可能な場合の actor と target reference
 - source location
 
-Migration direction:
+移行方向:
 
 ```text
 UnityCommandResolveLogger
@@ -1350,57 +1342,57 @@ UnityCommandResolveLogger
   -> UnityLogDiagnosticSink
 ```
 
-Command-specific rich formatting may survive as a sink renderer.
-It must not remain a producer-owned Unity logger.
+command-specific な rich formatting は sink renderer として残ってよい。
+producer-owned な Unity logger として残してはならない。
 
 ### Value Diagnostics Integration
 
-10 defines required value diagnostics fields and failure behavior.
-11 defines the shared substrate used to emit them.
+10 は required value diagnostics fields と failure behavior を定義する。
+11 は、それらを emit する shared substrate を定義する。
 
-Required value context includes the fields required by 10, including at minimum:
+必要な value context には、少なくとも 10 が要求する次の field が含まれる:
 
 - `ValueKeyId`
 - `ValueSchemaId`
-- store identity and store scope when relevant
-- value kind and revision context when relevant
+- 関連する場合の store identity と store scope
+- 関連する場合の value kind と revision context
 - source location
 
-Value diagnostics must not use stable key as runtime truth.
-Stable key may appear only as diagnostics metadata or migration metadata where 10 allows it.
+value diagnostics は stable key を runtime truth として使ってはならない。
+stable key は、10 が許す場合に限り diagnostics metadata または migration metadata として現れてよい。
 
 ### RuntimeQuery Diagnostics Integration
 
-RuntimeQuery diagnostics must use `KernelDiagnostic`.
+RuntimeQuery diagnostics は `KernelDiagnostic` を使わなければならない。
 
-Required context includes at minimum:
+必要な context:
 
-- query identity or query kind
-- requested target identity
-- ambiguity or missing-result classification
+- query identity または query kind
+- 要求された target identity
+- ambiguity または missing-result の分類
 - owner module
-- source location when the query comes from a verified authored request
+- verified authored request から来る場合の source location
 
-RuntimeQuery failure meaning remains owned by the spec that defines runtime query semantics.
-11 defines the shared diagnostics substrate and sink rules used to emit those failures.
+RuntimeQuery failure の意味は、それを定義する spec が所有し続ける。
+11 は、それら failure を emit するための shared diagnostics substrate と sink rule を定義する。
 
 ### Save Diagnostics Integration
 
-Save has no dedicated v2 spec in the current doc set.
-Therefore 11 defines the temporary shared diagnostics contract for Save-domain failures without taking ownership of save format semantics.
+Save には current doc set に dedicated な v2 spec がない。
+したがって 11 は、save format semantics を所有せずに、Save-domain failure のための一時的な shared diagnostics contract を定義する。
 
-Save diagnostics must use `KernelDiagnostic`.
+save diagnostics は `KernelDiagnostic` を使わなければならない。
 
-Required save context includes at minimum:
+必要な save context:
 
-- save operation identity or label
-- save slot, profile, or target
-- owner scope or runtime target when relevant
-- `ValueKeyId` or entity/runtime identity when relevant
-- source location when authored save metadata exists
-- exception payload when an exception participates in failure behavior
+- save operation identity または label
+- save slot、profile、target
+- 関連する場合の owner scope または runtime target
+- 関連する場合の `ValueKeyId` または entity / runtime identity
+- authored save metadata がある場合の source location
+- exception が failure behavior に関与する場合の exception payload
 
-Migration direction:
+移行方向:
 
 ```text
 ISaveLogger / UnitySaveLogger
@@ -1409,83 +1401,83 @@ ISaveLogger / UnitySaveLogger
   -> UnityLogDiagnosticSink
 ```
 
-11 does not define save storage semantics or save format.
-It defines only how save failures and warnings enter the unified diagnostics substrate.
+11 は save storage semantics や save format を定義しない。
+save failure と warning が unified diagnostics substrate に入る方法だけを定義する。
 
 ---
 
 ## Legacy Migration Policy
 
-Legacy logging paths should become adapters into the unified diagnostics substrate.
+legacy logging path は、統一された diagnostics substrate への adapter にならなければならない。
 
 | Legacy Pattern | Target Representation |
 |---|---|
-| `Debug.LogError(...)` in subsystem | `KernelDiagnosticService.Report(KernelDiagnostic)` |
-| `LTSLog.LogError(...)` | legacy diagnostics adapter or direct reporter into `KernelDiagnosticService` |
+| subsystem 内の `Debug.LogError(...)` | `KernelDiagnosticService.Report(KernelDiagnostic)` |
+| `LTSLog.LogError(...)` | legacy diagnostics adapter または `KernelDiagnosticService` への direct reporter |
 | `UnityCommandResolveLogger` | `CommandDiagnosticAdapter` |
-| `CommandExecutorRegistry` direct Unity log | command diagnostics record with command-domain code |
+| `CommandExecutorRegistry` の direct Unity log | command-domain code を持つ command diagnostics record |
 | `ISaveLogger` / `UnitySaveLogger` | save diagnostics reporter |
-| dynamic or expression runtime direct Unity log | typed diagnostics payload plus central sink rendering |
-| direct exception log | exception payload plus central sink policy |
+| dynamic / expression runtime の direct Unity log | typed diagnostics payload + central sink rendering |
+| direct exception log | exception payload + central sink policy |
 
-13 owns whether a temporary legacy adapter remains allowed.
-11 defines the target representation that adapters must feed.
+13 は、一時的な legacy adapter を残してよいかを所有する。
+11 は、adapter が feed すべき target representation を定義する。
 
 ---
 
 ## Forbidden Patterns
 
-The following are forbidden in the target diagnostics architecture:
+target diagnostics architecture で禁止されるもの:
 
-- `Debug.LogError` outside `UnityLogDiagnosticSink`
-- `Debug.LogWarning` outside approved sinks
-- `Debug.LogException` outside approved sinks
-- subsystem-specific Unity logger as a final output path
-- error represented only as formatted string
-- exception swallowed without diagnostics when failure remains relevant
-- diagnostic without `DiagnosticCode`
-- diagnostic without domain
-- required failure boundary inferred from severity only
-- runtime-facing ID without DebugMap resolution in Development or Test when coverage is required
-- diagnostics pipeline bypass for command or save failures
-- separate incompatible error shapes for generation, validation, and runtime failures
-- using DebugMap as runtime lookup truth or fallback repair
+- `UnityLogDiagnosticSink` 以外での `Debug.LogError`
+- approved sink 以外での `Debug.LogWarning`
+- approved sink 以外での `Debug.LogException`
+- final output path としての subsystem-specific Unity logger
+- formatted string のみで表現された error
+- failure が relevant なのに diagnostics なしで exception を握りつぶすこと
+- `DiagnosticCode` のない diagnostic
+- domain のない diagnostic
+- severity だけから推測された required failure boundary
+- coverage が必要なのに Development または Test で DebugMap 解決のない runtime-facing ID
+- command または save failure に対する diagnostics pipeline bypass
+- generation、validation、runtime failure に対する互換性のない別々の error shape
+- runtime lookup truth または fallback repair として DebugMap を使うこと
 
 ---
 
 ## Test Case Model
 
-Each diagnostics test case must define:
+各 diagnostics test case は次を定義しなければならない:
 
 - Test ID
 - Title
-- Input or fixture
+- Input または fixture
 - Selected profile
 - Expected diagnostics codes
 - Expected domains
-- Expected failure boundary when applicable
+- applicable な場合の Expected failure boundary
 - Expected provenance fields
-- Expected sink behavior when relevant
+- relevant な場合の Expected sink behavior
 
-Recommended fixture format:
+推奨 fixture format:
 
 ```md
 ### TC_DIAG_001_Example
 
-Input:
+入力:
 - ...
 
 Profile:
 - Development
 
-Expected:
+期待結果:
 - Diagnostic: ...
 - Domain: ...
 - FailureBoundary: ...
 - Required Context: ...
 ```
 
-Tests should prefer stable code and structured context assertions over full message-string identity.
+test は、完全な message-string identity よりも stable code と structured context assertion を優先すべきである。
 
 ---
 
@@ -1496,36 +1488,36 @@ Tests should prefer stable code and structured context assertions over full mess
 #### TC_DIAG_LOG_001_SubsystemCannotCallDebugLogError
 
 ```text
-Input:
-- subsystem code path attempts direct Debug.LogError
+入力:
+- subsystem の code path が直接 `Debug.LogError` を呼ぼうとする
 
-Expected:
-- analyzer or forbidden API validation fails
-- DIAG_DIRECT_UNITY_LOG_FORBIDDEN
+期待結果:
+- analyzer または forbidden API validation が失敗する
+- `DIAG_DIRECT_UNITY_LOG_FORBIDDEN`
 ```
 
 #### TC_DIAG_LOG_002_UnitySinkEmitsUnityOutput
 
 ```text
-Input:
-- KernelDiagnostic severity = Error
-- UnityLogDiagnosticSink enabled
+入力:
+- `KernelDiagnostic` の severity = `Error`
+- `UnityLogDiagnosticSink` が有効
 
-Expected:
-- exactly one logical Unity-side error emission according to sink policy
+期待結果:
+- sink policy に従って、論理的に 1 回だけ Unity 側 error が emit される
 ```
 
 #### TC_DIAG_LOG_003_CommandErrorUsesCentralPipeline
 
 ```text
-Input:
-- command executor missing
+入力:
+- command executor が見つからない
 
-Expected:
-- Domain = Command
-- DiagnosticCode = COMMAND_EXECUTOR_MISSING
-- emitted through KernelDiagnosticService
-- no command-specific direct Unity logger as final output path
+期待結果:
+- Domain = `Command`
+- DiagnosticCode = `COMMAND_EXECUTOR_MISSING`
+- `KernelDiagnosticService` を通じて emit される
+- command-specific direct Unity logger が final output path にならない
 ```
 
 ### DebugMap Tests
@@ -1533,12 +1525,12 @@ Expected:
 #### TC_DIAG_MAP_001_ServiceIdResolved
 
 ```text
-Input:
-- diagnostic contains ServiceId
-- DebugMap has matching entry
+入力:
+- diagnostic に `ServiceId` が含まれている
+- DebugMap に一致する entry がある
 
-Expected:
-- output includes service debug name and source location
+期待結果:
+- service の debug name と source location が出力に含まれる
 ```
 
 #### TC_DIAG_MAP_002_MissingDebugMapEntryFailsInDevelopment
@@ -1547,24 +1539,24 @@ Expected:
 Profile:
 - Development
 
-Input:
-- diagnostic contains runtime-facing identity
-- required DebugMap entry is missing
+入力:
+- diagnostic に runtime-facing identity が含まれている
+- 必要な DebugMap entry が欠けている
 
-Expected:
-- DIAG_DEBUGMAP_ENTRY_MISSING
-- diagnostics degradation treated as error
+期待結果:
+- `DIAG_DEBUGMAP_ENTRY_MISSING`
+- diagnostics degradation は error として扱われる
 ```
 
 #### TC_DIAG_MAP_003_RuntimeHandleIncludesGeneration
 
 ```text
-Input:
-- diagnostic contains ScopeHandle index and generation
+入力:
+- diagnostic に ScopeHandle の index と generation が含まれている
 
-Expected:
-- emitted diagnostics include both index and generation
-- output remains human-readable through DebugMap plus runtime handle data
+期待結果:
+- emit された diagnostics に index と generation の両方が含まれる
+- DebugMap と runtime handle data によって human-readable 性が保たれる
 ```
 
 ### Structured Payload Tests
@@ -1572,23 +1564,23 @@ Expected:
 #### TC_DIAG_PAYLOAD_001_MessageIsNotOnlyData
 
 ```text
-Input:
-- diagnostic has message but no code
+入力:
+- diagnostic に message はあるが code がない
 
-Expected:
-- failed
-- DIAG_CODE_MISSING
+期待結果:
+- Failed
+- `DIAG_CODE_MISSING`
 ```
 
 #### TC_DIAG_PAYLOAD_002_ExceptionCapturedAsPayload
 
 ```text
-Input:
-- subsystem catches exception
+入力:
+- subsystem が exception を catch する
 
-Expected:
-- KernelDiagnostic contains exception type, message, and stack
-- subsystem does not call Debug.LogException directly
+期待結果:
+- `KernelDiagnostic` に exception type、message、stack が含まれる
+- subsystem は `Debug.LogException` を直接呼ばない
 ```
 
 ### Integration Tests
@@ -1596,38 +1588,38 @@ Expected:
 #### TC_DIAG_COMMAND_001_CommandResolveFailure
 
 ```text
-Input:
-- command resolve fails
+入力:
+- command resolve が失敗する
 
-Expected:
-- Domain = Command
-- Code = COMMAND_RUNTIME_QUERY_MISSING or another command-owned resolve failure code
-- Context includes command source and execution context required by 09
+期待結果:
+- Domain = `Command`
+- Code = `COMMAND_RUNTIME_QUERY_MISSING` か、別の command-owned な resolve failure code
+- Context には 09 が要求する command source と execution context が含まれる
 ```
 
 #### TC_DIAG_SAVE_001_SaveFailure
 
 ```text
-Input:
-- save operation throws exception
+入力:
+- save operation が exception を投げる
 
-Expected:
-- Domain = Save
-- save-domain code is present
-- exception payload present
-- Unity output only through UnityLogDiagnosticSink
+期待結果:
+- Domain = `Save`
+- save-domain code がある
+- exception payload がある
+- Unity output は `UnityLogDiagnosticSink` 経由のみ
 ```
 
 #### TC_DIAG_VALUE_001_ValueTypeMismatch
 
 ```text
-Input:
-- ValueStore write type mismatch
+入力:
+- `ValueStore` の write で type mismatch が起きる
 
-Expected:
-- Domain = Value
-- Code = VALUE_TYPE_MISMATCH
-- Context includes ValueKeyId and schema identity
+期待結果:
+- Domain = `Value`
+- Code = `VALUE_TYPE_MISMATCH`
+- Context に `ValueKeyId` と schema identity が含まれる
 ```
 
 ### De-duplication and Throttling Tests
@@ -1635,67 +1627,67 @@ Expected:
 #### TC_DIAG_THROTTLE_001_FirstOccurrenceAlwaysEmitted
 
 ```text
-Input:
-- same error repeated 100 times
+入力:
+- 同じ error が 100 回繰り返される
 
-Expected:
-- first occurrence emitted
-- repeated occurrences summarized or throttled by policy
+期待結果:
+- first occurrence は emit される
+- repeated occurrences は policy に応じて summarized または throttled される
 ```
 
 #### TC_DIAG_THROTTLE_002_FailureBoundaryNotSuppressed
 
 ```text
-Input:
-- fatal diagnostic repeated
+入力:
+- fatal diagnostic が繰り返される
 
-Expected:
-- failure boundary still applies
-- output may be throttled
-- failure meaning is not suppressed
+期待結果:
+- failure boundary は引き続き適用される
+- output は throttled されてもよい
+- failure meaning は suppress されない
 ```
 
 ---
 
-## Acceptance Criteria
+## 受け入れ基準
 
-This specification is complete when it defines:
+この仕様は、次を定義するときに完了である:
 
-- DebugMap purpose and coverage requirements
-- SourceLocation and runtime/artifact identity mapping
+- DebugMap の目的と coverage 要件
+- SourceLocation と runtime / artifact identity mapping
 - KernelDiagnostic record model
-- DiagnosticCode governance
-- severity, domain, category, and failure-boundary model
+- DiagnosticCode のガバナンス
+- severity、domain、category、failure-boundary model
 - central diagnostics pipeline
-- KernelDiagnosticService contract
-- DiagnosticSink contract
-- UnityLogDiagnosticSink policy
+- `KernelDiagnosticService` contract
+- `DiagnosticSink` contract
+- `UnityLogDiagnosticSink` policy
 - central Unity logging rule
 - exception capture policy
-- subsystem integration rules for Generation, Validation, Boot, ServiceGraph, ScopeGraph, Lifecycle, Command, Value, RuntimeQuery, and Save
-- diagnostics degradation rules
+- Generation / Validation / Boot / ServiceGraph / ScopeGraph / Lifecycle / Command / Value / RuntimeQuery / Save に対する subsystem integration rule
+- diagnostics degradation rule
 - profile-based diagnostics policy
-- de-duplication, throttling, and aggregation policy
+- de-duplication、throttling、aggregation policy
 - diagnostics performance policy
 - legacy migration policy
 - forbidden patterns
-- required diagnostics test cases
+- required diagnostics test case
 
-Completion also requires that 11 not be treated as a presentation-only note.
-It must remain the shared structured diagnostics substrate for Kernel v2.
+完了には、11 が presentation-only note として扱われないことも必要である。
+Kernel v2 の shared structured diagnostics substrate であり続けなければならない。
 
 ---
 
-## Final Position
+## 最終見解
 
-DebugMap and diagnostics are not optional tooling.
-They are part of the runtime contract.
+DebugMap と diagnostics は optional な tooling ではない。
+runtime contract の一部である。
 
-DebugMap exists so verified runtime identities remain traceable to human-readable source.
-Diagnostics exists so every important failure, warning, and relevant informational event can move through one structured, testable, profile-aware pipeline.
+DebugMap は、検証済み runtime identity を human-readable source に trace 可能にするために存在する。
+diagnostics は、重要な failure、warning、関連情報を 1 つの structured で testable、profile-aware な pipeline に通すために存在する。
 
-Subsystems produce diagnostics where failures occur.
-Subsystems do not own Unity output.
-Only the central Unity diagnostic sink may emit Unity logs.
+subsystem は failure が起きた場所で diagnostics を生成する。
+subsystem は Unity output を所有しない。
+Unity log を emit できるのは中央の Unity diagnostic sink だけである。
 
-This rule is required for correctness, scale, testing, observability, and migration control.
+この rule は、correctness、scale、testing、observability、migration control に必要である。

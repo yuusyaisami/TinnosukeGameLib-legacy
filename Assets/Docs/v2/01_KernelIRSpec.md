@@ -1,131 +1,131 @@
-# KernelIR Specification
+# KernelIR 仕様書
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 01_KernelIRSpec
-- Status: Draft
-- Role: normalized intermediate representation specification for the GameLib Kernel v2 architecture
-- Depends on: [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
-- Provides foundation for:
-  - 02_ModuleContributionSpec.md
-  - 03_VerifiedPlanGenerationSpec.md
-  - 04_DependencyValidationSpec.md
-  - 05_BootManifestAndProfileSpec.md
-  - 06_ServiceGraphRuntimeSpec.md
-  - 07_ScopeGraphRuntimeSpec.md
-  - 08_LifecyclePlanSpec.md
-  - 09_CommandCatalogRuntimeSpec.md
-  - 10_ValueSchemaAndStoreSpec.md
-  - 11_DebugMapAndDiagnosticsSpec.md
-  - 12_UnityAuthoringBridgeSpec.md
+- 文書 ID: `01_KernelIRSpec`
+- 状態: Draft
+- 役割: GameLib Kernel v2 アーキテクチャにおける、正規化済み中間表現の仕様
+- 依存先: [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
+- この仕様を基盤としている文書:
+  - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
+  - [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md)
+  - [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md)
+  - [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md)
+  - [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md)
+  - [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md)
+  - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
+  - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
+  - [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md)
+  - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
+  - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
 
-### Ownership
+### 所有範囲
 
-This document owns the canonical IR node model, IR identity model, source location model, dependency edge representation, normalization invariants, deterministic ordering requirements, and hash-relevant semantic data for KernelIR.
+本書は、KernelIR における正規の IR ノードモデル、IR 識別子モデル、ソース位置モデル、依存エッジ表現、正規化不変条件、決定論的な順序要件、およびハッシュに関係する意味データを定義する。
 
-This document does not own runtime storage layout, runtime handle layout, command execution algorithms, ValueStore memory layout, or validation algorithm details.
-
----
-
-## Purpose
-
-This specification defines KernelIR, the normalized intermediate representation used by the GameLib Kernel v2 architecture.
-
-KernelIR is the canonical model produced from authoring inputs and consumed by validation, plan generation, debug map generation, and runtime projection generation.
-
-KernelIR is not a runtime execution format.
-KernelIR is not generated code.
-KernelIR is not a Unity authoring asset.
-KernelIR is the normalized authority from which verified runtime artifacts are derived.
-
-KernelIR exists to prevent runtime discovery and ad-hoc generated artifact coupling.
-It provides a single normalized model that can be:
-
-- validated
-- hashed
-- diffed
-- converted into runtime plans
-- converted into DebugMap entries
-- tested in CI
-
-If a runtime plan cannot be traced back to KernelIR, it is not a valid target-kernel artifact.
+一方で、実行時ストレージのレイアウト、ランタイムハンドルのレイアウト、コマンド実行アルゴリズム、ValueStore のメモリ配置、検証アルゴリズムの詳細は本書の担当外である。
 
 ---
 
-## Scope
+## 目的
 
-This specification defines:
+本仕様は、GameLib Kernel v2 で使用する正規化済み中間表現 `KernelIR` を定義する。
 
-- KernelIR root structure
-- IR node categories
-- common ID model
-- source location model
-- dependency edge model
-- normalized contribution representation
-- profile availability representation
-- deterministic ordering requirements
-- hash-relevant semantic data
-- validation handoff boundaries
+KernelIR は、authoring 入力から生成され、検証、plan 生成、DebugMap 生成、runtime projection 生成に消費される正規モデルである。
 
-This specification intentionally does not define:
+KernelIR は runtime 実行形式ではない。
+KernelIR は generated code ではない。
+KernelIR は Unity の authoring asset そのものでもない。
+KernelIR は、検証済みの runtime artifact を導き出すための正規化済み権威である。
 
-- final runtime service resolver implementation
-- final scope handle memory layout
-- final command executor invocation algorithm
-- final ValueStore storage layout
-- final save format
-- final Unity component schema
-- final validation algorithms
-- final generated code format
+KernelIR は、runtime discovery や、その場しのぎの generated artifact 依存を防ぐために存在する。
+単一の正規化モデルとして、次の用途に使える必要がある。
 
-This document must not become a dumping ground for runtime implementation details.
-Runtime-specific details belong to lower runtime specs.
+- 検証
+- ハッシュ化
+- 差分比較
+- runtime plan への変換
+- DebugMap entry への変換
+- CI でのテスト
+
+runtime plan を KernelIR まで遡れないなら、その成果物は target kernel の有効な artifact ではない。
 
 ---
 
-## Relationship to Other Specs
+## 範囲
 
-| Spec | Relationship |
+本仕様は以下を定義する。
+
+- KernelIR の root 構造
+- IR ノード分類
+- 共通 ID モデル
+- ソース位置モデル
+- 依存エッジモデル
+- 正規化済み contribution 表現
+- profile 可用性表現
+- 決定論的な順序要件
+- ハッシュ対象となる意味データ
+- 検証への引き渡し境界
+
+本仕様は、次の内容は意図的に定義しない。
+
+- 最終的な service resolver 実装
+- 最終的な scope handle メモリレイアウト
+- 最終的な command executor 呼び出しアルゴリズム
+- 最終的な ValueStore 格納レイアウト
+- 最終的な save format
+- 最終的な Unity component schema
+- 最終的な検証アルゴリズム
+- 最終的な generated code format
+
+この文書は runtime 実装詳細のごみ箱にしてはならない。
+runtime 固有の詳細は、下位の runtime 仕様に属する。
+
+---
+
+## 他仕様との関係
+
+| 仕様 | 関係 |
 |---|---|
-| 02_ModuleContributionSpec.md | Defines how modules contribute raw data into KernelIR |
-| 03_VerifiedPlanGenerationSpec.md | Defines how KernelIR becomes VerifiedKernelPlan |
-| 04_DependencyValidationSpec.md | Defines validation algorithms over KernelIR dependencies |
-| 05_BootManifestAndProfileSpec.md | Defines boot inputs and profile policy consumed by KernelIR outputs |
-| 06_ServiceGraphRuntimeSpec.md | Consumes ServiceIR projection |
-| 07_ScopeGraphRuntimeSpec.md | Consumes ScopeIR projection |
-| 08_LifecyclePlanSpec.md | Consumes LifecycleIR projection |
-| 09_CommandCatalogRuntimeSpec.md | Consumes CommandIR projection |
-| 10_ValueSchemaAndStoreSpec.md | Consumes ValueKeyIR and value-init related projections |
-| 11_DebugMapAndDiagnosticsSpec.md | Consumes SourceLocation and debug metadata from KernelIR |
-| 12_UnityAuthoringBridgeSpec.md | Produces authoring inputs normalized into KernelIR |
+| `02_ModuleContributionSpec.md` | modules が KernelIR に raw data をどう渡すかを定義する |
+| `03_VerifiedPlanGenerationSpec.md` | KernelIR が VerifiedKernelPlan になる手順を定義する |
+| `04_DependencyValidationSpec.md` | KernelIR の依存関係に対する検証アルゴリズムを定義する |
+| `05_BootManifestAndProfileSpec.md` | KernelIR 出力が消費する boot input と profile policy を定義する |
+| `06_ServiceGraphRuntimeSpec.md` | ServiceIR projection を消費する |
+| `07_ScopeGraphRuntimeSpec.md` | ScopeIR projection を消費する |
+| `08_LifecyclePlanSpec.md` | LifecycleIR projection を消費する |
+| `09_CommandCatalogRuntimeSpec.md` | CommandIR projection を消費する |
+| `10_ValueSchemaAndStoreSpec.md` | ValueKeyIR と value-init 関連 projection を消費する |
+| `11_DebugMapAndDiagnosticsSpec.md` | KernelIR の SourceLocation と debug metadata を消費する |
+| `12_UnityAuthoringBridgeSpec.md` | authoring 入力を KernelIR に正規化して生成する |
 
-KernelIR is the source model for the downstream runtime projections.
-Lower specs must reference the concepts defined here rather than redefining them.
-
----
-
-## Assembly Definition and Compile Boundary Expectations
-
-The intended assembly home for the normalized IR model is `GameLib.Kernel.IR`.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
-
-Required compile-boundary rules for 01:
-
-- `GameLib.Kernel.IR` must remain Unity-free and Editor-free
-- `GameLib.Kernel.IR` should use `noEngineReferences: true`
-- runtime execution logic, feature implementations, and legacy adapters must not be colocated in the IR assembly
-- authoring extraction may feed IR from `GameLib.Kernel.Authoring.Editor`, but IR itself remains a normalized core assembly
-
-If an IR type cannot live in a Unity-free core assembly, it does not belong in 01.
+KernelIR は下流 runtime projection の source model である。
+下位仕様は、ここで定義した概念を参照し、独自に再定義してはならない。
 
 ---
 
-## IR Pipeline Position
+## Assembly Definition と Compile Boundary の期待値
+
+正規化済み IR モデルの想定配置先は `GameLib.Kernel.IR` である。
+詳細な dependency matrix は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が管理する。
+
+01 に対する必須の compile-boundary ルールは次のとおり。
+
+- `GameLib.Kernel.IR` は Unity 非依存、Editor 非依存のまま維持する
+- `GameLib.Kernel.IR` は `noEngineReferences: true` を使うべきである
+- runtime 実行ロジック、feature 実装、legacy adapter を IR assembly に同居させてはならない
+- authoring 抽出は `GameLib.Kernel.Authoring.Editor` から IR に流してよいが、IR 自体は正規化済みの core assembly のままである
+
+IR 型が Unity 非依存の core assembly に置けないなら、それは 01 に属さない。
+
+---
+
+## IR パイプライン上の位置
 
 ```text
 Authoring Inputs
   - Scene / Prefab
-  - ModuleDefinitionAsset or equivalent authoring contribution source
+  - ModuleDefinitionAsset あるいは同等の contribution source
   - ValueKey registry inputs
   - Command authoring inputs
   - Profile inputs
@@ -149,71 +149,71 @@ VerifiedKernelPlan
   - DebugMap
 ```
 
-KernelIR is produced before runtime plan generation.
-Runtime plans must not introduce new structural identities that do not exist in KernelIR.
+KernelIR は runtime plan 生成の前に作られる。
+runtime plan は、KernelIR に存在しない新しい構造的 identity を導入してはならない。
 
-KernelIR is the input to validation, hash generation, dependency analysis, debug-map generation, and runtime projection generation.
+KernelIR は、検証、ハッシュ生成、依存分析、DebugMap 生成、runtime projection 生成の入力である。
 
 ---
 
-## IR Design Principles
+## IR 設計原則
 
-### 1. Normalized, not raw
+### 1. Raw ではなく Normalized
 
-KernelIR must not preserve raw authoring ambiguity.
-Prefab overrides, module aliases, authoring keys, and editor-only references must be normalized before entering KernelIR.
+KernelIR は、authoring の曖昧さをそのまま保持してはならない。
+Prefab override、module alias、authoring key、Editor 専用参照は、KernelIR に入る前に正規化されている必要がある。
 
-### 2. Explicit, not inferred
+### 2. 推測ではなく Explicit
 
-KernelIR must express relationships explicitly.
-Parent scope, module ownership, lifecycle dependency, service requirement, command requirement, runtime query requirement, and value dependency must not be reconstructed later by runtime inference.
+KernelIR は関係を明示的に表現しなければならない。
+parent scope、module ownership、lifecycle dependency、service requirement、command requirement、runtime query requirement、value dependency を runtime の推測で再構成してはならない。
 
 ### 3. Deterministic
 
-Given the same authoring inputs and profile, KernelIR generation must produce semantically identical output and stable ordering.
+同じ authoring input と profile からは、意味的に同一で、順序も安定した出力が得られなければならない。
 
 ### 4. Traceable
 
-Every IR node that can produce runtime behavior must be traceable to a source location.
+runtime 挙動を生みうるすべての IR ノードは、source location に遡れなければならない。
 
 ### 5. Hashable
 
-KernelIR must contain enough normalized semantic data to support hash-based artifact consistency checks.
+KernelIR には、hash ベースの artifact consistency check を支えられるだけの正規化済み意味データが含まれていなければならない。
 
 ### 6. Projection-safe
 
-KernelIR must be structured so that ServiceGraphPlan, ScopeGraphPlan, CommandCatalogPlan, ValueSchemaPlan, LifecyclePlan, and DebugMap can be derived without adding hidden behavior.
+KernelIR は、ServiceGraphPlan、ScopeGraphPlan、CommandCatalogPlan、ValueSchemaPlan、LifecyclePlan、DebugMap を、隠れた挙動を足さずに導ける構造である必要がある。
 
 ### 7. Validation-friendly
 
-KernelIR must expose missing dependency conditions, invalid ownership conditions, duplicate identity conditions, and profile mismatch conditions as structured data rather than hiding them in generation side effects.
+KernelIR は、missing dependency、invalid ownership、duplicate identity、profile mismatch を、生成副作用に隠さず structured data として露出しなければならない。
 
 ---
 
-## IR Identity Model
+## IR 識別子モデル
 
-KernelIR uses typed identities.
+KernelIR は typed identity を使う。
 
-An ID must not be interpreted outside its declared domain.
+ID は、宣言された domain の外で解釈してはならない。
 
-Examples:
+例:
 
-- ServiceId cannot be used as CommandTypeId
-- ValueKeyId cannot be used as ServiceId
-- ScopeAuthoringId cannot be used as runtime ScopeHandle
-- RuntimeQueryId cannot be used as lifecycle step identity
+- `ServiceId` を `CommandTypeId` として使ってはならない
+- `ValueKeyId` を `ServiceId` として使ってはならない
+- `ScopeAuthoringId` を runtime `ScopeHandle` として使ってはならない
+- `RuntimeQueryId` を lifecycle step identity として使ってはならない
 
-Each IR identity must define:
+各 IR identity は少なくとも次を定義する必要がある。
 
 - domain
-- stable name
-- numeric or symbolic value
+- 安定した name
+- 数値または記号値
 - owner module
 - source location
 - profile availability
-- debug representation
+- debug 表現
 
-Typed identity domains owned by KernelIR include at minimum:
+KernelIR が持つ typed identity domain は少なくとも次を含む。
 
 - KernelIRId
 - ModuleId
@@ -237,22 +237,21 @@ Typed identity domains owned by KernelIR include at minimum:
 - DependencyEdgeId
 - SourceLocationId
 
-ScopeAuthoringId and runtime ScopeHandle are different concepts.
+`ScopeAuthoringId` と runtime `ScopeHandle` は別概念である。
 
-ScopeAuthoringId identifies an authored scope definition.
-ScopePlanId identifies a normalized scope definition in KernelIR.
-ScopeHandle identifies a runtime scope instance.
+- `ScopeAuthoringId` は authoring された scope 定義を識別する
+- `ScopePlanId` は KernelIR 内の正規化済み scope 定義を識別する
+- `ScopeHandle` は runtime scope instance を識別する
 
-KernelIR may contain ScopeAuthoringId and ScopePlanId.
-It must not contain live runtime ScopeHandle values.
+KernelIR には `ScopeAuthoringId` と `ScopePlanId` を含めてよいが、live な `ScopeHandle` は含めてはならない。
 
 ---
 
-## Source Location Model
+## Source Location モデル
 
-Every IR node that contributes runtime behavior must have source location metadata.
+runtime 挙動に寄与する IR ノードは、すべて source location metadata を持たなければならない。
 
-Source location may represent:
+source location が表しうるものには次が含まれる。
 
 - Unity asset GUID
 - asset path
@@ -264,7 +263,7 @@ Source location may represent:
 - generated source reference
 - legacy migration origin
 
-SourceLocationIR is an explanatory sketch, not a final runtime API.
+`SourceLocationIR` は説明用スケッチであり、最終 runtime API ではない。
 
 ```csharp
 public readonly struct SourceLocationIR
@@ -280,13 +279,13 @@ public readonly struct SourceLocationIR
 }
 ```
 
-KernelIR must preserve enough source information to support DebugMap generation, validation diagnostics, and migration tracing.
+KernelIR は、DebugMap 生成、検証 diagnostics、migration tracing を支えられるだけの source information を保持しなければならない。
 
 ---
 
-## KernelIR Root Structure
+## KernelIR のルート構造
 
-KernelIR is the root normalized model.
+KernelIR は正規化済みモデルの root である。
 
 ```csharp
 public sealed class KernelIR
@@ -308,9 +307,9 @@ public sealed class KernelIR
 }
 ```
 
-KernelIR must contain all structural information required to generate runtime plans, validate dependencies, generate DebugMap, and verify artifact consistency without performing runtime discovery.
+KernelIR には、runtime plan 生成、依存検証、DebugMap 生成、artifact consistency 検証に必要な構造情報がすべて含まれていなければならない。
 
-KernelIR must not contain runtime instances or runtime caches.
+runtime instance や runtime cache は含めてはならない。
 
 ---
 
@@ -329,15 +328,15 @@ public sealed class KernelIRHeader
 }
 ```
 
-Header must not include non-semantic data such as generation timestamp or absolute machine-local paths.
+Header には、generation timestamp や machine-local path のような非意味データを含めてはならない。
 
-Header fields are used by validation, diffing, and artifact consistency checks.
+Header の各項目は、検証、差分比較、artifact consistency check に使われる。
 
 ---
 
 ## ModuleIR
 
-ModuleIR is the contribution owner inside KernelIR.
+`ModuleIR` は KernelIR 内における contribution owner である。
 
 ```csharp
 public sealed class ModuleIR
@@ -355,20 +354,19 @@ public sealed class ModuleIR
 }
 ```
 
-Every ServiceIR, CommandIR, ValueKeyIR, LifecycleIR, RuntimeQueryIR, and ScopeIR must be owned by exactly one module unless lower specs explicitly define a shared ownership model.
+`ServiceIR`、`CommandIR`、`ValueKeyIR`、`LifecycleIR`、`RuntimeQueryIR`、`ScopeIR` は、下位仕様が shared ownership model を明示しない限り、必ず 1 つの module に owned される必要がある。
 
-Shared ownership is not the default.
-If a lower spec introduces shared ownership, it must define how diagnostics, deletion, and migration behave.
+shared ownership は既定ではない。
+もし下位仕様が shared ownership を導入するなら、diagnostics、削除、migration の振る舞いを明示しなければならない。
 
-ModuleIR defines module identity, version, availability, ownership, and dependency contribution boundaries.
-
-ModuleIR does not define runtime registration order.
+`ModuleIR` は module identity、version、availability、ownership、dependency contribution boundary を定義する。
+runtime registration order は定義しない。
 
 ---
 
 ## ScopeIR
 
-ScopeIR is a normalized scope definition, not a runtime scope instance.
+`ScopeIR` は runtime scope instance ではなく、正規化済み scope 定義である。
 
 ```csharp
 public sealed class ScopeIR
@@ -388,18 +386,18 @@ public sealed class ScopeIR
 }
 ```
 
-ScopeIR must not infer parentage from Unity transform hierarchy.
+`ScopeIR` は Unity の transform hierarchy から parentage を推測してはならない。
 
-If a scope parent is derived from authoring hierarchy during normalization, the result must be written explicitly into ScopeIR.
-Runtime must consume the explicit parent relationship, not re-run the hierarchy inference.
+もし normalization 時に authoring hierarchy から parent を導くなら、その結果は明示的に `ScopeIR` に書き込まなければならない。
+runtime は、その明示的な parent 関係だけを消費し、階層推測を再実行してはならない。
 
-ScopeIR may reference required services, initial value plans, and lifecycle plans, but it must not embed runtime handles or runtime object references.
+`ScopeIR` は required service、initial value plan、lifecycle plan を参照してよいが、runtime handle や runtime object reference は埋め込まない。
 
 ---
 
 ## ServiceIR
 
-ServiceIR defines service identity, lifetime category, ownership, and dependencies.
+`ServiceIR` は service identity、lifetime category、ownership、dependency を定義する。
 
 ```csharp
 public sealed class ServiceIR
@@ -417,19 +415,19 @@ public sealed class ServiceIR
 }
 ```
 
-ServiceIR does not define the final runtime cache layout or resolver implementation.
+`ServiceIR` は、最終的な runtime cache レイアウトや resolver 実装を定義しない。
 
-Service type metadata may include C# type names for generation and diagnostics, but ServiceId is the runtime identity.
-C# type name must not be the only stable identity.
+service type metadata には生成や diagnostics 用に C# type 名を含めてもよいが、runtime identity は `ServiceId` である。
+C# type 名だけを唯一の stable identity としてはいけない。
 
-ServiceIR must be valid without runtime reflection.
-If runtime reflection is ever used in a lower specification, that lower specification must mark it as an explicit exception and define why the exception is bounded and removable.
+`ServiceIR` は runtime reflection に依存せず成立しなければならない。
+下位仕様で runtime reflection を使う場合は、その例外が bounded で取り除き可能であることを明示しなければならない。
 
 ---
 
 ## CommandIR
 
-CommandIR defines the normalized boundary between authoring keys and runtime dispatch identity.
+`CommandIR` は、authoring key と runtime dispatch identity の正規化された境界を定義する。
 
 ```csharp
 public sealed class CommandIR
@@ -448,30 +446,30 @@ public sealed class CommandIR
 }
 ```
 
-AuthoringKey is not runtime dispatch identity.
+`AuthoringKey` は runtime dispatch identity ではない。
 
-When preserved, authoring-key metadata should remain typed and provenance-aware rather than a bare runtime string.
-The normalized IR shape should carry at least:
+保持する場合、authoring-key metadata は bare な runtime string ではなく、typed かつ provenance-aware であるべきである。
+正規化済み IR には少なくとも次を含めるべきである。
 
 - `CommandAuthoringKeyId`
-- normalized authoring-key string value, with surrounding whitespace trimmed before KernelIR entry
-- `SourceLocationId` for the preserved authoring-key metadata
+- 正規化された authoring key 文字列値（KernelIR へ入る前に前後空白を除去）
+- 保持された authoring-key metadata 用の `SourceLocationId`
 
-Runtime command dispatch must use CommandTypeId or an equivalent verified runtime identity.
-AuthoringKey may be preserved for editor, migration, and diagnostics.
+runtime の command dispatch は `CommandTypeId`、あるいはそれに相当する検証済み runtime identity を使わなければならない。
+`AuthoringKey` は editor、migration、diagnostics のために保持できる。
 
-Conversion from authoring key to runtime identity happens during normalization or validation, not during target runtime dispatch.
+authoring key から runtime identity への変換は、target runtime dispatch の最中ではなく、normalization か validation 中に行う。
 
-CommandIR must be able to represent both the current ID-based executor path and the authoring-key-based catalog path if the migration layer needs that information.
+`CommandIR` は、移行層が必要とするなら、現在の ID ベース executor path と authoring-key ベース catalog path の両方を表現できなければならない。
 
-CommandIR does not define executor construction policy.
-09 defines the final runtime command catalog, payload validation, executor lifetime, command category, and authoring-key boundary policy.
+`CommandIR` は executor construction policy を定義しない。
+最終的な command catalog、payload validation、executor lifetime、command category、authoring-key boundary policy は 09 が定義する。
 
 ---
 
 ## ValueKeyIR
 
-ValueKeyIR defines the normalized representation of value identity and schema ownership.
+`ValueKeyIR` は、value identity と schema ownership の正規化済み表現を定義する。
 
 ```csharp
 public sealed class ValueKeyIR
@@ -488,24 +486,24 @@ public sealed class ValueKeyIR
 }
 ```
 
-StableKey is not runtime lookup truth.
+`StableKey` は runtime lookup の truth ではない。
 
-StableKey exists for authoring, migration, diagnostics, and registry validation.
-Runtime access must use ValueKeyId or verified generated accessors.
+`StableKey` は authoring、migration、diagnostics、registry validation のために存在する。
+runtime access は `ValueKeyId`、または検証済みの generated accessor を使う必要がある。
 
-ValueKeyIR defines what values may exist.
-It does not define runtime storage layout.
+`ValueKeyIR` は、どの値が存在しうるかを定義する。
+runtime storage layout は定義しない。
 
-ValueKeyIR does not own ValueStore storage, initialization ordering, dynamic evaluation, reactive invalidation, CommandLocal lifetime, or save payload format.
-10 defines the value schema, runtime store, init plan, evaluation boundary, command-local boundary, and save metadata policy.
+`ValueKeyIR` は、`ValueStore` の格納、初期化順序、動的評価、reactive invalidation、CommandLocal lifetime、save payload format を所有しない。
+値 schema、runtime store、init plan、evaluation boundary、command-local boundary、save metadata policy は 10 が定義する。
 
-ValueKeyIR should not contain initial values directly unless a lower spec explicitly defines that a value key can own a default value and explain why that does not blur schema and initialization responsibility.
+`ValueKeyIR` に初期値を直接入れるべきではない。もし下位仕様が default value を持てると定義するなら、それが schema と initialization の責務を曖昧にしない理由まで説明する必要がある。
 
 ---
 
 ## LifecycleIR
 
-LifecycleIR represents explicit lifecycle participation.
+`LifecycleIR` は explicit な lifecycle 参加を表す。
 
 ```csharp
 public sealed class LifecycleIR
@@ -534,15 +532,15 @@ public sealed class LifecycleStepIR
 }
 ```
 
-A service implementing an interface is not enough to participate in lifecycle dispatch.
-Participation must be represented by LifecycleIR.
+interface を実装しているだけでは lifecycle dispatch に参加したことにはならない。
+参加は `LifecycleIR` として表現される必要がある。
 
-LifecycleIR must not be derived from registration scanning at runtime.
+`LifecycleIR` は runtime の registration scan から導出してはならない。
 
-Lifecycle ordering is explicit data, not emergent behavior.
+lifecycle order は emergent behavior ではなく、明示的な data である。
 
-Lifecycle targets are explicit and typed.
-LifecycleIR must not assume that every lifecycle step targets only a service.
+lifecycle target は explicit かつ typed でなければならない。
+`LifecycleIR` は、すべての lifecycle step が service を対象にするとは仮定しない。
 
 ```csharp
 public sealed class LifecycleTargetRefIR
@@ -568,19 +566,19 @@ public enum LifecycleTargetKind
 }
 ```
 
-`TargetLocalRef` is not a generic runtime search key.
-It exists only for lower-spec verified local references such as a ValueStore boundary role or a runtime-object-owner slot inside an explicit owner namespace.
+`TargetLocalRef` は generic な runtime search key ではない。
+ValueStore の boundary role や explicit owner namespace 内の runtime-object-owner slot のような、下位仕様で検証済みの local reference にのみ使われる。
 
-Only the field required by the selected `LifecycleTargetKind` is meaningful.
+どの field が意味を持つかは、選択された `LifecycleTargetKind` によって決まる。
 
-Lower specs define the concrete runtime realization of each target kind.
-01 defines only the normalized target boundary.
+各 target kind の具体的な runtime 実体化は下位仕様が定義する。
+01 は normalized target boundary のみを定義する。
 
 ---
 
 ## RuntimeQueryIR
 
-RuntimeQueryIR defines queryable runtime identity and index requirements.
+`RuntimeQueryIR` は、queryable な runtime identity と index requirements を定義する。
 
 ```csharp
 public sealed class RuntimeQueryIR
@@ -597,28 +595,28 @@ public sealed class RuntimeQueryIR
 }
 ```
 
-Runtime query is separate from service resolution.
-Runtime query must not be implemented as generic DI resolution.
+runtime query は service resolution とは別物である。
+runtime query を generic DI resolution として実装してはならない。
 
-Runtime query systems must define:
+runtime query system は次を定義しなければならない。
 
-- queryable identity fields
-- ownership of runtime indexes
-- update timing
-- invalidation behavior
+- query 可能な identity field
+- runtime index の所有者
+- 更新タイミング
+- 無効化の振る舞い
 - generation safety
-- diagnostics on missing or ambiguous results
+- missing / ambiguous 結果の diagnostics
 - performance budget
 
-The replacement for legacy kind / id / category lookup must be specified separately from ServiceGraph and must not be hidden inside it.
+legacy の kind / id / category lookup の置き換えは、ServiceGraph とは別に仕様化し、内部に隠してはならない。
 
-RuntimeQueryIR exists to prevent service resolution from becoming the dumping ground for runtime identity lookup semantics.
+`RuntimeQueryIR` は、service resolution が runtime identity lookup のごみ箱になるのを防ぐために存在する。
 
 ---
 
 ## DependencyEdgeIR
 
-Dependency edges model explicit graph relationships used by validation and projection generation.
+依存エッジは、検証と projection generation で使う明示的な graph 関係を表す。
 
 ```csharp
 public readonly struct DependencyEdgeIR
@@ -655,184 +653,182 @@ public enum DependencyStrength
 }
 ```
 
-Dependency edges must be sufficient for 04_DependencyValidationSpec to detect missing relationships, cycles, and phase violations without reconstructing dependencies from runtime behavior.
+`DependencyEdgeIR` は、runtime 挙動から依存を再構成せずに、`04_DependencyValidationSpec` が missing relationship、cycle、phase violation を検出できるだけの情報を持たなければならない。
 
-DependencyEdgeIR must not encode runtime call stacks or executor instances.
+`DependencyEdgeIR` には runtime call stack や executor instance を入れてはならない。
 
 ---
 
-## Profile and Conditional Availability
+## Profile と Conditional Availability
 
-KernelIR is profile-aware.
+### `KernelProfileIR`
+
+profile は、generation、validation、runtime の振る舞いに影響する。
 
 ```csharp
-public sealed class AvailabilityIR
+public sealed class KernelProfileIR
 {
-    public KernelProfileMask Profiles;
-    public bool EnabledByDefault;
-    public string Condition;
+    public string ProfileId;
+    public string DisplayName;
+    public KernelProfileKind Kind;
+    public ModuleAvailabilityIR[] ModuleAvailability;
+    public DebugMapPolicyIR DebugMapPolicy;
 }
 ```
 
-Profile and availability conditions must be resolved during normalization or validation unless a lower spec explicitly defines a runtime feature-flag system.
+profile は宣言的でなければならず、runtime discovery で決めてはならない。
 
-KernelIR should not contain arbitrary runtime-evaluated availability expressions.
+### ModuleAvailabilityIR
 
-Profile availability may differ across Development, Release, and Test, but the profile rules themselves must be explicit and deterministic.
+```csharp
+public sealed class ModuleAvailabilityIR
+{
+    public ProfileSetId ProfileSetId;
+    public BuildTargetSetId BuildTargetSetId;
+    public AvailabilityKind Kind;
+    public SourceLocationId Source;
+}
+```
 
----
-
-## Normalization Rules
-
-KernelIR generation must normalize:
-
-- authoring aliases into canonical IDs
-- authoring command keys into CommandTypeId references
-- stable value keys into ValueKeyId references
-- prefab / scene authoring references into source locations and authoring IDs
-- module contribution order into deterministic order
-- optional modules into explicit availability state
-- legacy inputs into explicit migration-origin metadata
-
-KernelIR must not contain unresolved authoring aliases.
-
-Examples of forbidden unresolved data:
-
-- unresolved command authoring key used as runtime dispatch identity
-- unresolved stable value key used as runtime value reference
-- unresolved service type name used as only identity
-- unresolved scope parent inferred later from Transform hierarchy
-
-Normalization must produce a canonical representation suitable for validation, hashing, diffing, and DebugMap generation.
-
-Normalization is not a place for runtime fallback.
+availability は、profile 選択や build target 選択を表現できる。
+ただし、runtime expression evaluation に依存してはならない。
 
 ---
 
-## Deterministic Ordering Rules
+## 正規化ルール
 
-KernelIR arrays must have deterministic ordering.
+KernelIR は、入力を正規化した後の唯一の構造モデルである。
 
-Ordering must not depend on:
+正規化では少なくとも次を保証する。
 
-- Unity object enumeration order
-- file system enumeration order
-- dictionary iteration order
-- reflection order
-- asset import timing
-- generation timestamp
+- raw authoring alias を解消する
+- 余分な空白や表記揺れを除去する
+- typed identity に統一する
+- owner module を明示する
+- source location を付与する
+- dependency edge を明示する
+- profile availability を明示する
 
-Recommended ordering priority:
-
-1. explicit order field if semantically meaningful
-2. owner module ID
-3. stable ID
-4. stable name
-5. source location
-
-Deterministic ordering is required for reproducible hashes, predictable diffs, and stable artifact generation.
+正規化で未解決のまま残してよいものは、あらかじめ未解決として表現された structured data だけである。
+暗黙 fallback で埋めてはいけない。
 
 ---
 
-## Hash Input Rules
+## 決定論的順序ルール
 
-KernelIR hash must include semantic data required to determine runtime compatibility.
+同じ input からは、常に同じ意味順序で KernelIR を生成しなければならない。
 
-Include:
+推奨順序は次のとおり。
 
-- module IDs and versions
-- normalized service IDs
-- normalized command IDs
-- normalized value key IDs
-- lifecycle step definitions
-- dependency edges
-- profile-affecting availability
-- source reference identity where it affects generated output
+1. owner module
+2. identity domain
+3. stable name
+4. source location
+5. 明示された dependency order
 
-Exclude:
+次に依存することを前提に、同じ意味の並びが保たれなければならない。
+
+順序が決定論的に確定できないなら、その generation は失敗させる。
+
+---
+
+## ハッシュ入力ルール
+
+ハッシュは、意味的に重要なデータだけを含める必要がある。
+
+含めるべきもの:
+
+- normalized KernelIR content
+- module identity と version
+- identity assignment
+- projection に関係する dependency edge
+- runtime ID に関係する registry content
+- profile に影響する設定
+- generator version
+- 対応する format version
+
+含めてはいけないもの:
 
 - generation timestamp
-- absolute local paths
-- editor selection state
-- non-semantic display foldout state
-- non-semantic formatting
+- absolute local path
+- editor の selection state
+- foldout state
+- 非意味的な formatting
+- runtime instance identity
 
-Hash checks must represent semantic compatibility, not file timestamp compatibility.
-
-Lower specs must define exact hash algorithms and normalization rules.
+詳細な hash アルゴリズムと normalization ルールは、下位仕様で定義する。
 
 ---
 
-## Diagnostics and DebugMap Requirements
+## Diagnostics と DebugMap の要件
 
-KernelIR must contain enough source and debug metadata to generate DebugMap.
+KernelIR には、DebugMap を生成できるだけの source と debug metadata が必要である。
 
-Every runtime-facing ID must be resolvable to:
+runtime-facing ID はすべて、少なくとも次に遡れなければならない。
 
 - debug name
 - owner module
 - source location
 - profile availability
-- legacy origin if applicable
+- 必要に応じて legacy origin
 
-KernelIR should supply diagnostic seed information for missing dependency cases, duplicate identity cases, and profile mismatch cases.
+KernelIR は、missing dependency、duplicate identity、profile mismatch のための diagnostic seed 情報を提供すべきである。
 
-DiagnosticSeedIR is a placeholder for structured validation or debug metadata, not a runtime execution construct.
+`DiagnosticSeedIR` は、structured validation または debug metadata のための placeholder であり、runtime 実行構造ではない。
 
-For runtime diagnostics, an ID without sufficient debug metadata is a diagnostics degradation.
+runtime diagnostics では、十分な debug metadata を持たない ID は diagnostics degradation として扱う。
 
 ---
 
-## Validation Handoff
+## 検証への引き渡し
 
-01 defines the data required for validation.
-04 defines validation algorithms and error severity policy.
+01 は検証に必要なデータを定義し、04 は検証アルゴリズムと error severity policy を定義する。
 
-KernelIR must expose enough structure to validate:
+KernelIR は、次を検証できるだけの構造を露出しなければならない。
 
-- missing dependencies
-- duplicated IDs
+- missing dependency
+- duplicate ID
 - invalid ownership
-- invalid source locations
+- invalid source location
 - invalid profile availability
-- dependency cycles
-- forbidden runtime fallback dependencies
-- legacy leakage into target kernel
+- dependency cycle
+- forbidden runtime fallback dependency
+- target kernel への legacy leakage
 
-KernelIR itself does not validate.
-It provides the structure required for deterministic validation.
+KernelIR 自体は検証しない。
+決定論的な検証に必要な構造を提供するだけである。
 
 ---
 
-## Forbidden Contents
+## 禁止内容
 
-KernelIR must not contain:
+KernelIR には次を含めてはならない。
 
-- live UnityEngine.Object references as runtime authority
-- runtime ScopeHandle values
-- runtime service instances
-- runtime command executor instances
-- raw unresolved authoring keys
-- raw unresolved stable value keys as runtime references
-- reflection-only type identity as the only service identity
-- generated code as source of truth
+- runtime authority としての live な `UnityEngine.Object` 参照
+- runtime `ScopeHandle`
+- runtime service instance
+- runtime command executor instance
+- raw の未解決 authoring key
+- raw の未解決 stable value key を runtime reference として使ったもの
+- reflection だけに頼った type identity を唯一の service identity とすること
+- generated code を source of truth とすること
 - mutable runtime state
-- fallback-generated IDs
-- non-deterministic ordering dependencies
+- fallback で生成した ID
+- 非決定論的な順序依存
 
-KernelIR must not contain any artifact that depends on runtime search as its only way of becoming valid.
+KernelIR には、runtime search だけで有効化される artifact を入れてはならない。
 
-Forbidden contents are structural violations, not stylistic preferences.
+禁止内容は、見た目の問題ではなく構造上の違反である。
 
 ---
 
-## Compatibility and Migration Notes
+## 互換性と移行メモ
 
-Legacy-origin data may appear in KernelIR only as explicit migration metadata.
+legacy 由来のデータは、明示的な migration metadata としてのみ KernelIR に現れてよい。
 
-Legacy metadata must not become runtime fallback behavior.
+legacy metadata は runtime fallback 行動に変えてはならない。
 
-Example metadata:
+例:
 
 - legacy type name
 - legacy asset path
@@ -841,67 +837,67 @@ Example metadata:
 - migration status
 - removal target
 
-If a lower spec needs to support a migration-only bridge, it must describe the bridge explicitly and define its removal condition.
+もし下位仕様が migration-only bridge を要するなら、その bridge を明示し、削除条件まで定義しなければならない。
 
 ---
 
-## Open Questions for Lower Specs
+## 下位仕様への未決事項
 
-The following are intentionally deferred:
+以下は意図的に後回しにする。
 
-- exact ServiceResolver storage layout
-- exact ScopeHandle bit layout
-- exact CommandPayload binary or serialized representation
-- exact ValueStore memory layout
-- exact DebugMap asset format
-- exact Unity authoring component schema
-- exact validation error code list
+- service resolver の正確な格納レイアウト
+- `ScopeHandle` の正確な bit layout
+- command payload の binary / serialized representation
+- ValueStore の正確なメモリレイアウト
+- DebugMap asset の正確な形式
+- Unity authoring component schema の正確な形
+- validation error code の完全な一覧
 
-01 intentionally does not decide these details because they belong to lower specs.
+01 は、これらをここで決めない。下位仕様の担当だからである。
 
 ---
 
-## Acceptance Criteria
+## 受け入れ条件
 
-01 is complete when it defines:
+01 が完成していると見なす条件は次のとおり。
 
-- KernelIR purpose and authority
-- IR identity model
-- source location model
-- root IR node categories
-- lifecycle explicit target model
-- dependency edge model
-- normalization rules
-- deterministic ordering rules
-- hash input policy
-- diagnostics and debug metadata requirements
-- forbidden contents
-- validation handoff to 04
-- clear boundaries with lower specs
+- KernelIR の目的と権威が定義されている
+- IR identity model が定義されている
+- source location model が定義されている
+- root IR node category が定義されている
+- lifecycle の explicit target model が定義されている
+- dependency edge model が定義されている
+- normalization rule が定義されている
+- deterministic ordering rule が定義されている
+- hash input policy が定義されている
+- diagnostics / debug metadata 要件が定義されている
+- forbidden contents が定義されている
+- 04 への validation handoff が定義されている
+- 下位仕様との境界が明確である
 
-01 is not complete if any runtime execution detail, storage layout detail, or validation algorithm detail has escaped into the specification.
+runtime 実行詳細、storage layout 詳細、検証アルゴリズム詳細が 01 に入り込んだ時点で未完成である。
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Verification |
+| テストケース | 目的 | 検証 |
 |---|---|---|
-| TC-01-01 | Confirm KernelIR identity is stable, explicit, and source-backed. | The IR identity model and source location model sections must define stable IDs, owner module, and source provenance. |
-| TC-01-02 | Confirm normalization removes runtime-order dependence. | The normalization and deterministic ordering sections must forbid reliance on enumeration order, reflection order, and other runtime artifacts. |
-| TC-01-03 | Confirm hash inputs exclude non-semantic data. | The hash input rules section must forbid timestamps, absolute paths, and runtime instance identity. |
-| TC-01-04 | Confirm DebugMap coverage is mandatory for runtime-facing IDs. | The diagnostics and debug map requirements section must remain present and specific. |
-| TC-01-05 | Confirm lifecycle targets are explicit and typed. | The LifecycleIR section must define lifecycle target identity without falling back to interface or registration discovery. |
-| TC-01-06 | Confirm validation handoff stays outside the IR contract. | The validation handoff section must not absorb dependency validation algorithms. |
+| TC-01-01 | KernelIR の identity が安定的で、明示され、source-backed であることを確認する。 | IR identity model と source location model の節で、安定 ID、owner module、source provenance が定義されていること。 |
+| TC-01-02 | 正規化が runtime 順序依存を除去することを確認する。 | normalization と deterministic ordering の節で、enumeration order、reflection order、その他の runtime artifact への依存を禁止していること。 |
+| TC-01-03 | hash input から非意味データが除外されることを確認する。 | hash input rule の節で、timestamp、absolute path、runtime instance identity を禁止していること。 |
+| TC-01-04 | runtime-facing ID に対して DebugMap coverage が必須であることを確認する。 | diagnostics と DebugMap 要件の節が、存在し続け、具体的であること。 |
+| TC-01-05 | lifecycle target が explicit かつ typed であることを確認する。 | `LifecycleIR` の節で、interface や registration discovery に戻らずに target identity を定義していること。 |
+| TC-01-06 | validation handoff が IR contract の外側に留まることを確認する。 | validation handoff の節が dependency validation algorithm を吸い込んでいないこと。 |
 
 ---
 
-## Final Position
+## 最終見解
 
-KernelIR must contain all structural information required to generate runtime plans, validate dependencies, generate DebugMap, and verify artifact consistency without performing runtime discovery.
+KernelIR には、runtime discovery を行わずに runtime plan を生成し、dependency を検証し、DebugMap を作成し、artifact consistency を確認するために必要な構造情報がすべて含まれていなければならない。
 
-This specification exists to keep the rest of the architecture honest.
-If KernelIR is underspecified, every downstream spec will drift.
-If KernelIR is overextended into runtime implementation detail, every downstream spec will be forced into the same shape.
+この仕様は、他の仕様群が誤った前提で進まないようにするための土台である。
+KernelIR が不足していれば、下流の仕様はすべてずれていく。
+KernelIR が runtime 実装詳細まで広がりすぎれば、下流の仕様は同じ形に押し込められてしまう。
 
-KernelIR is the normalized authority.
-VerifiedKernelPlan is the runtime projection.
-Lower specs define how each projection is realized.
+KernelIR は正規化済みの権威である。
+VerifiedKernelPlan は runtime projection である。
+下位仕様が、それぞれの projection の実現方法を定義する。

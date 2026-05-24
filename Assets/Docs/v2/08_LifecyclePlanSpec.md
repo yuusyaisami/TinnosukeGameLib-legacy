@@ -1,11 +1,11 @@
-# Lifecycle Plan Specification
+# Lifecycle Plan 仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 08_LifecyclePlanSpec
-- Status: Draft
-- Role: defines lifecycle participation, lifecycle dispatch, phase ordering, tick policy, and lifecycle failure rules for Kernel v2
-- Depends on:
+- 文書 ID: 08_LifecyclePlanSpec
+- ステータス: Draft
+- 役割: Kernel v2 におけるライフサイクル参加、ライフサイクルディスパッチ、フェーズ順序、tick ポリシー、およびライフサイクル失敗ルールを定義する
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
   - [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md)
@@ -14,7 +14,7 @@
   - [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md)
   - [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md)
   - [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md)
-- Consumes:
+- 取り込むもの:
   - LifecycleIR
   - LifecyclePlan
   - ServiceGraphPlan references
@@ -22,7 +22,7 @@
   - RuntimeQueryPlan references
   - ValueInitPlan references
   - KernelDebugMap
-- Provides foundation for:
+- 基盤を提供するもの:
   - 09_CommandCatalogRuntimeSpec.md
   - 10_ValueSchemaAndStoreSpec.md
   - 11_DebugMapAndDiagnosticsSpec.md
@@ -31,252 +31,252 @@
   - 14_PerformanceBudgetAndRuntimeRulesSpec.md
   - 15_TestAndValidationSpec.md
 
-### Ownership
+### 所有範囲
 
-This specification owns lifecycle participation, lifecycle dispatch, phase ordering, tick participation policy, reset policy, and lifecycle failure behavior.
-It does not own service caching, scope structure, command execution, value storage layout, runtime query storage, or Unity MonoBehaviour lifecycle semantics.
+この仕様は、ライフサイクル参加、ライフサイクルディスパッチ、フェーズ順序、tick 参加ポリシー、reset ポリシー、およびライフサイクル失敗挙動を所有する。
+サービスキャッシュ、スコープ構造、コマンド実行、値ストレージ構成、ランタイムクエリの保存、あるいは Unity MonoBehaviour のライフサイクル意味論は所有しない。
 
-This specification owns:
+この仕様が所有するもの:
 
-- LifecyclePlan runtime authority
-- lifecycle phase semantics
-- lifecycle step semantics
-- lifecycle target semantics
-- lifecycle ordering rules
-- lifecycle dependency and rollback requirements
-- lifecycle dispatch table rules
-- scope-boundary lifecycle dispatch contract
-- service-boundary lifecycle dispatch contract
-- runtime object ownership boundary for lifecycle
-- tick, fixed tick, and late tick policy
-- per-entity lifecycle prohibition
-- lifecycle failure policy
-- reset and pooling lifecycle policy
-- async lifecycle policy
-- lifecycle diagnostics and DebugMap requirements
-- lifecycle performance and memory rules
-- legacy lifecycle migration policy
+- LifecyclePlan の実行時権威
+- ライフサイクルフェーズの意味論
+- ライフサイクルステップの意味論
+- ライフサイクルターゲットの意味論
+- ライフサイクル順序ルール
+- ライフサイクル依存関係とロールバック要件
+- ライフサイクルディスパッチテーブルのルール
+- スコープ境界におけるライフサイクルディスパッチ契約
+- サービス境界におけるライフサイクルディスパッチ契約
+- ライフサイクルに対するランタイムオブジェクト所有境界
+- tick / fixed tick / late tick のポリシー
+- エンティティ単位ライフサイクルの禁止
+- ライフサイクル失敗ポリシー
+- reset とプーリングのライフサイクルポリシー
+- 非同期ライフサイクルポリシー
+- ライフサイクル診断と DebugMap 要件
+- ライフサイクル性能およびメモリのルール
+- レガシーライフサイクル移行ポリシー
 
-This specification does not own:
+この仕様が所有しないもの:
 
-- ServiceGraph cache implementation
-- ScopeGraph parent-child implementation
-- CommandCatalog dispatch
-- ValueStore storage layout
-- RuntimeQuery index implementation
-- Unity update loop implementation details
+- ServiceGraph のキャッシュ実装
+- ScopeGraph の親子構造実装
+- CommandCatalog のディスパッチ
+- ValueStore の保存構成
+- RuntimeQuery のインデックス実装
+- Unity の update loop 実装詳細
 
-08 is the runtime lifecycle authority.
-It is not a replacement for ServiceGraph, ScopeGraph, CommandCatalog, or ValueStore.
+08 はランタイムのライフサイクル権威である。
+ServiceGraph、ScopeGraph、CommandCatalog、ValueStore の代替ではない。
 
 ---
 
-## Purpose
+## 目的
 
-This specification defines how lifecycle participation is declared, validated, and dispatched in Kernel v2.
+この仕様は、Kernel v2 においてライフサイクル参加がどのように宣言され、検証され、ディスパッチされるかを定義する。
 
-LifecyclePlan owns lifecycle participation.
-ServiceGraph only resolves explicitly targeted services.
-Implemented interfaces are not lifecycle enrollment.
+LifecyclePlan がライフサイクル参加を所有する。
+ServiceGraph は明示的に対象指定されたサービスのみを解決する。
+実装されたインターフェースはライフサイクル登録ではない。
 
-The core statement of 08 is:
+08 の中心的な主張は次の通りである。
 
 ```text
-Lifecycle is declared, validated, and dispatched from plan.
-It is never discovered from runtime registrations.
+Lifecycle は plan から宣言され、検証され、ディスパッチされる。
+実行時登録を走査して発見されるものではない。
 ```
 
-If lifecycle participation is discovered by scanning runtime services, the architecture has already regressed.
+ライフサイクル参加が runtime service のスキャンから発見されているなら、その時点でアーキテクチャは退化している。
 
 ---
 
-## Scope
+## スコープ
 
-This specification defines:
+この仕様が定義するもの:
 
-- LifecyclePlan runtime responsibility
-- lifecycle phase, step, target, and ordering rules
-- lifecycle dependency rules
-- precomputed dispatch table rules
-- lifecycle boundaries with ScopeGraph, ServiceGraph, RuntimeQuery, ValueStore, and runtime object owners
-- tick, fixed tick, late tick, and manual tick policy
-- lifecycle failure and rollback behavior
-- reset and pooling policy
-- async lifecycle constraints
-- lifecycle diagnostics and DebugMap requirements
-- lifecycle performance and memory rules
-- lifecycle migration rules
-- lifecycle test case model and required tests
-
----
-
-## Non-Goals
-
-This specification does not define:
-
-- final ServiceGraph cache implementation
-- final ScopeGraph handle layout
-- final CommandCatalog execution algorithm
-- final ValueStore storage layout
-- final RuntimeQuery index storage
-- Unity MonoBehaviour lifecycle itself
-- Unity PlayerLoop customization details
-
-This specification must not turn lifecycle into:
-
-- a registration-scan subsystem
-- a generic runtime callback bus
-- a service registry
-- a command registry
-- a per-entity update table
+- LifecyclePlan の実行時責務
+- ライフサイクルフェーズ、ステップ、ターゲット、順序ルール
+- ライフサイクル依存関係ルール
+- 事前計算されたディスパッチテーブルのルール
+- ScopeGraph、ServiceGraph、RuntimeQuery、ValueStore、およびランタイムオブジェクト所有者との境界
+- tick / fixed tick / late tick / manual tick のポリシー
+- ライフサイクル失敗およびロールバック挙動
+- reset とプーリングのポリシー
+- 非同期ライフサイクル制約
+- ライフサイクル診断と DebugMap 要件
+- ライフサイクル性能およびメモリのルール
+- ライフサイクル移行ルール
+- ライフサイクルテストケースモデルと必須テスト
 
 ---
 
-## Relationship to Other Specs
+## 対象外
 
-| Spec | Relationship |
+この仕様が定義しないもの:
+
+- 最終的な ServiceGraph キャッシュ実装
+- 最終的な ScopeGraph ハンドル構成
+- 最終的な CommandCatalog 実行アルゴリズム
+- 最終的な ValueStore 保存構成
+- 最終的な RuntimeQuery インデックス保存
+- Unity MonoBehaviour のライフサイクルそのもの
+- Unity PlayerLoop のカスタマイズ詳細
+
+この仕様は、ライフサイクルを次のものへ変質させてはならない:
+
+- 登録スキャン型サブシステム
+- 汎用ランタイムコールバックバス
+- サービスレジストリ
+- コマンドレジストリ
+- エンティティごとの update テーブル
+
+---
+
+## 他仕様との関係
+
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines lifecycle ordering as explicit plan data and forbids registration-driven handler discovery. |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines LifecycleIR, LifecycleStepIR, LifecycleTargetRefIR, and lifecycle identity vocabulary consumed here. |
-| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | Defines LifecycleContribution as declarative input and rejects interface auto-collection as the target model. |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Produces LifecyclePlan as a verified projection and forbids implicit lifecycle step creation during projection. |
-| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | Validates lifecycle target correctness, phase cycles, ordering determinism, and explicit lifecycle participation before runtime use. |
-| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | Defines boot acceptance and allows boot lifecycle phases only from validated lifecycle plans. |
-| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | Resolves explicit service targets only; 08 owns lifecycle participation and dispatch. |
-| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | Owns scope state and requests lifecycle dispatch at state boundaries; 08 owns step execution and dispatch policy. |
-| 09_CommandCatalogRuntimeSpec.md | Owns command dispatch; 08 only defines lifecycle boundaries around command-related services or adapters. |
-| 10_ValueSchemaAndStoreSpec.md | Owns values and dynamic evaluation; 08 only defines lifecycle boundaries around value-related targets. |
-| 11_DebugMapAndDiagnosticsSpec.md | Owns the shared structured diagnostics substrate and DebugMap runtime contract; 08 defines required lifecycle runtime provenance fields and failure behavior. |
-| 12_UnityAuthoringBridgeSpec.md | Owns authoring-side lifecycle contribution sources and Unity binding generation. |
-| 13_LegacyCompatBoundarySpec.md | Owns migration-only lifecycle adapters and their removal boundary. |
-| 14_PerformanceBudgetAndRuntimeRulesSpec.md | Owns measurable lifecycle budgets and runtime markers referenced here. |
-| 15_TestAndValidationSpec.md | Turns lifecycle dispatch rules and failure boundaries into executable test coverage. |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | ライフサイクル順序を明示的な plan データとして定義し、登録駆動のハンドラ発見を禁止する。 |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | ここで参照する LifecycleIR、LifecycleStepIR、LifecycleTargetRefIR、ライフサイクル識別語彙を定義する。 |
+| [02_ModuleContributionSpec.md](02_ModuleContributionSpec.md) | LifecycleContribution を宣言的入力として定義し、インターフェースの自動収集を対象モデルとして認めない。 |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | LifecyclePlan を検証済み projection として生成し、projection 中の暗黙的なライフサイクルステップ生成を禁止する。 |
+| [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md) | 実行前にライフサイクルターゲットの妥当性、フェーズの循環、順序決定性、明示的なライフサイクル参加を検証する。 |
+| [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md) | boot の受け入れを定義し、boot ライフサイクルフェーズは検証済み lifecycle plan からのみ許可する。 |
+| [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md) | 明示的な service target のみを解決する。08 はライフサイクル参加とディスパッチを所有する。 |
+| [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md) | scope 状態を所有し、状態境界でのライフサイクルディスパッチを要求する。08 は step 実行とディスパッチポリシーを所有する。 |
+| 09_CommandCatalogRuntimeSpec.md | コマンドディスパッチを所有する。08 はコマンド関連サービスやアダプタの周辺にあるライフサイクル境界のみを定義する。 |
+| 10_ValueSchemaAndStoreSpec.md | 値と動的評価を所有する。08 は値関連ターゲットの周辺にあるライフサイクル境界のみを定義する。 |
+| 11_DebugMapAndDiagnosticsSpec.md | 共有された structured diagnostics 基盤と DebugMap の実行時契約を所有する。08 は必要なライフサイクル実行時 provenance フィールドと失敗挙動を定義する。 |
+| 12_UnityAuthoringBridgeSpec.md | authoring 側のライフサイクル貢献元と Unity バインディング生成を所有する。 |
+| 13_LegacyCompatBoundarySpec.md | 移行専用のレガシーライフサイクルアダプタと、その削除境界を所有する。 |
+| 14_PerformanceBudgetAndRuntimeRulesSpec.md | ここで参照する計測可能なライフサイクル予算と runtime marker を所有する。 |
+| 15_TestAndValidationSpec.md | ライフサイクルディスパッチ規則と失敗境界を実行可能なテストカバレッジに落とし込む。 |
 
-08 consumes verified lifecycle structure.
-It must not discover lifecycle structure from service registrations, component search, or interface enumeration.
-
----
-
-## Assembly Definition and Compile Boundary Expectations
-
-The intended assembly home for this subsystem is `GameLib.Kernel.Lifecycle`.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
-
-Required compile-boundary rules for 08:
-
-- `GameLib.Kernel.Lifecycle` must remain separate from feature assemblies, legacy handler implementations, and authoring extraction code
-- lifecycle core should depend only on lower kernel assemblies plus the explicit runtime contracts provided by Runtime, ServiceGraph, and ScopeGraph
-- interface-scan helpers, registration-scan helpers, and legacy dispatcher code must not be pulled into the Lifecycle assembly
-- Unity player loop hookup or MonoBehaviour bridge code must stay in Unity-facing leaf assemblies rather than in lifecycle core
-
-If lifecycle dispatch cannot compile without registration discovery, Unity hierarchy helpers, or feature-specific handler code, the 08 boundary has been violated.
+08 は検証済みのライフサイクル構造を取り込む。
+Service registration、component search、interface enumeration からライフサイクル構造を発見してはならない。
 
 ---
 
-## Current Lifecycle Debt Observations
+## asmdef とコンパイル境界の期待値
 
-### Observation Traceability
+このサブシステムの想定 asmdef は `GameLib.Kernel.Lifecycle` である。
+詳細な依存行列は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が所有する。
 
-Current lifecycle observations must remain traceable to source code, profiling evidence, or migration notes.
+08 に必要なコンパイル境界ルール:
 
-When this document is updated, observations that no longer match the current codebase must be removed or moved to legacy migration notes.
+- `GameLib.Kernel.Lifecycle` は feature assembly、legacy handler 実装、authoring 抽出コードから分離されたままでなければならない
+- lifecycle core は、下位の kernel assembly と Runtime / ServiceGraph / ScopeGraph が提供する明示的な runtime contract のみに依存すべきである
+- interface scan ヘルパー、registration scan ヘルパー、legacy dispatcher コードは Lifecycle assembly に取り込んではならない
+- Unity player loop のフックや MonoBehaviour ブリッジコードは、lifecycle core ではなく Unity-facing な leaf assembly に置かなければならない
 
-| Observation | Evidence Type | Expected Downstream Spec |
+ライフサイクルディスパッチが registration discovery、Unity hierarchy helper、feature-specific handler code なしにコンパイルできないなら、08 の境界は破られている。
+
+---
+
+## 現在のライフサイクル負債の観測
+
+### 観測の追跡可能性
+
+現在のライフサイクル観測は、ソースコード、プロファイリング証拠、または移行メモに追跡可能でなければならない。
+
+この文書を更新する際、現行コードベースと一致しなくなった観測は削除するか、legacy migration note に移さなければならない。
+
+| 観測 | 証拠種別 | 想定される下流仕様 |
 |---|---|---|
-| Lifecycle enrollment is still discovered from runtime registrations and implemented interfaces. | Source | 08 |
-| Acquire and release dispatch still relies on collected handler arrays rather than verified step plans. | Source | 08 |
-| Runtime scope build still freezes handler arrays and tick arrays during resolver construction. | Source | 08, 07 |
-| Owner inference for lifecycle handlers still depends on reflection or nearest-scope discovery. | Source | 08, 07 |
-| Tick participation still depends on mutable handler lists and registration/unregistration side effects. | Source | 08, 14 |
-| Scope lifecycle helpers still perform fire-and-forget async work and command/value fallback from tick paths. | Source | 08, 09, 10 |
-| Representative channel and hub services still mix lifecycle participation, target resolution, runtime object ownership, and fallback repair in one class. | Source | 08, 06, 10 |
+| ライフサイクル参加が今でも runtime registration と実装済み interface から発見されている。 | ソース | 08 |
+| acquire / release のディスパッチが、検証済み step plan ではなく収集済み handler 配列に依存している。 | ソース | 08 |
+| runtime scope の build が、resolver 構築時に handler 配列と tick 配列を固定している。 | ソース | 08, 07 |
+| ライフサイクル handler の所有者推論が、reflection または最寄り scope 発見に依存している。 | ソース | 08, 07 |
+| tick 参加が、mutable な handler list と register / unregister の副作用に依存している。 | ソース | 08, 14 |
+| scope ライフサイクル helper が、fire-and-forget 非同期処理や command / value の fallback を tick パスで行っている。 | ソース | 08, 09, 10 |
+| 代表的な channel / hub サービスが、ライフサイクル参加、ターゲット解決、ランタイムオブジェクト所有、fallback 修復を 1 クラスに混在させている。 | ソース | 08, 06, 10 |
 
-### Representative Anchors
+### 代表的な参照先
 
-- [IScopeNode.cs](../../GameLib/Script/Common/LTS/Core/IScopeNode.cs) - lifecycle handler interfaces, `ScopeAcquireReleaseDispatcher`, and reflection-based `ScopeHandlerOwnershipUtility`
-- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - `CollectHandlers<THandler>()`, `GetAcquireHandlers()`, `GetReleaseHandlers()`, `GetTickHandlers()`, and `RuntimeAcquireReleaseDispatcher`
-- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - resolver build, handler array caching, tick registration, and acquire/release dispatch
-- [RuntimeTickHub.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeTickHub.cs) - mutable tick lists, registration-based tick enrollment, and phase split behavior
-- [ScopeLifecycleMB.cs](../../GameLib/Script/Common/LTS/Lifecycle/MB/ScopeLifecycleMB.cs) - installer mutation that enrolls lifecycle behavior through handler interfaces
-- [ScopeLifecycleService.cs](../../GameLib/Script/Common/LTS/Lifecycle/Service/ScopeLifecycleService.cs) - fire-and-forget `UniTask.Void`, command fallback, and value fallback in lifecycle logic
-- [RuntimeScopeLifecycleService.cs](../../GameLib/Script/Common/LTS/Lifecycle/Service/RuntimeScopeLifecycleService.cs) - async despawn from tick, parent traversal for command runner lookup, and runtime key fallback
-- [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) - representative mixed acquire, tick, query, camera fallback, and runtime object ownership service
-- [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) - representative hub-owned player runtime lifecycle service
-- [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) - representative hub service that mixes lifecycle, provider contracts, and runtime player ownership
+- [IScopeNode.cs](../../GameLib/Script/Common/LTS/Core/IScopeNode.cs) - ライフサイクル handler interface、`ScopeAcquireReleaseDispatcher`、および reflection ベースの `ScopeHandlerOwnershipUtility`
+- [RuntimeResolverHub.cs](../../GameLib/Script/Common/LTS/Runtime/Core/RuntimeResolverHub.cs) - `CollectHandlers<THandler>()`、`GetAcquireHandlers()`、`GetReleaseHandlers()`、`GetTickHandlers()`、`RuntimeAcquireReleaseDispatcher`
+- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - resolver build、handler 配列キャッシュ、tick 登録、acquire / release ディスパッチ
+- [RuntimeTickHub.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeTickHub.cs) - mutable な tick list、登録ベースの tick 参加、phase split 挙動
+- [ScopeLifecycleMB.cs](../../GameLib/Script/Common/LTS/Lifecycle/MB/ScopeLifecycleMB.cs) - handler interface 経由でライフサイクル振る舞いを enroll する installer 変更
+- [ScopeLifecycleService.cs](../../GameLib/Script/Common/LTS/Lifecycle/Service/ScopeLifecycleService.cs) - `UniTask.Void` の fire-and-forget、command fallback、value fallback を含むライフサイクルロジック
+- [RuntimeScopeLifecycleService.cs](../../GameLib/Script/Common/LTS/Lifecycle/Service/RuntimeScopeLifecycleService.cs) - tick からの async despawn、command runner 検索のための親階層走査、runtime key fallback
+- [TooltipChannelHubService.cs](../../GameLib/Script/Project/UI/Core/Tooltip/TooltipChannelHubService.cs) - acquire、tick、query、camera fallback、ランタイムオブジェクト所有を混在させた代表例
+- [MeshChannelHubService.cs](../../GameLib/Script/Project/Scene/Channels/Mesh/MeshChannelHubService.cs) - player runtime を hub が所有する代表的サービス
+- [AnimationSpriteHubService.cs](../../GameLib/Script/Project/Scene/Channels/SpriteAnimation/AnimationSpriteHubService.cs) - ライフサイクル、provider contract、runtime player ownership を混在させる代表的 hub service
 
-These examples are representative, not exhaustive.
-Handler-interface-based services are widespread in the current repo and are broadly in scope for migration.
+これらの例は代表例であり、網羅的ではない。
+handler interface ベースのサービスは現行 repo 全体に広く存在しており、移行対象として広く扱う必要がある。
 
-### Current Gaps
+### 現在のギャップ
 
-The current codebase still exposes lifecycle behavior that 08 must remove from target architecture:
+現行コードベースは、08 が対象アーキテクチャから削除すべきライフサイクル挙動をまだ露出している:
 
-- lifecycle truth is still registration-driven
-- acquire, release, and tick enrollment are still hidden behind service contracts
-- lifecycle ordering is still influenced by collection behavior
-- tick participation still scales with collected handler count rather than explicit lifecycle budget
-- lifecycle owner resolution still depends on discovery logic
-- async lifecycle work can still escape structured failure handling
-- hub-owned runtime objects are not consistently separated from direct lifecycle targets
-
----
-
-## Lifecycle Authority
-
-LifecyclePlan is the only runtime authority for lifecycle participation.
-
-A service, runtime object, or scope does not participate in lifecycle because it implements an interface.
-It participates only when a LifecycleStep exists in a verified LifecyclePlan.
-
-Implemented interfaces may exist as legacy adapter details, but they must not be used by the target LifecycleDispatcher for enrollment.
-
-Forbidden:
-
-- scanning services for `IScopeAcquireHandler`
-- scanning services for `IScopeReleaseHandler`
-- scanning services for `IScopeTickHandler`
-- scanning services for `IScopeLateTickHandler`
-- scanning services for `IScopeFixedTickHandler`
-- collecting `IReadOnlyList<IScopeTickHandler>`
-- registering lifecycle participation through `.As<IScopeAcquireHandler>()`
-- adding lifecycle steps at runtime by service registration
+- ライフサイクルの真実は今も registration 駆動である
+- acquire、release、tick の参加は service contract の背後に隠れている
+- ライフサイクル順序は collection の挙動に影響されている
+- tick 参加は明示的な lifecycle budget ではなく、収集された handler 数に比例して増える
+- ライフサイクル所有者の解決は今も発見ロジックに依存している
+- 非同期ライフサイクル作業は今も structured failure handling をすり抜けられる
+- hub 所有のランタイムオブジェクトは、直接的なライフサイクル target と一貫して分離されていない
 
 ---
 
-## LifecyclePlan Input Contract
+## ライフサイクルの権威
 
-LifecycleDispatcher may execute only a verified LifecyclePlan from one verified artifact set.
+LifecyclePlan は、ライフサイクル参加に関する唯一の実行時権威である。
 
-A valid LifecyclePlan input must provide at least:
+サービス、ランタイムオブジェクト、スコープは、インターフェースを実装しているからといってライフサイクルに参加するわけではない。
+参加するのは、検証済み LifecyclePlan に LifecycleStep が存在するときだけである。
+
+実装済みインターフェースはレガシーアダプタの詳細としては存在し得るが、対象の LifecycleDispatcher による enrollment に使ってはならない。
+
+禁止事項:
+
+- `IScopeAcquireHandler` を対象にサービスを走査すること
+- `IScopeReleaseHandler` を対象にサービスを走査すること
+- `IScopeTickHandler` を対象にサービスを走査すること
+- `IScopeLateTickHandler` を対象にサービスを走査すること
+- `IScopeFixedTickHandler` を対象にサービスを走査すること
+- `IReadOnlyList<IScopeTickHandler>` を収集すること
+- `.As<IScopeAcquireHandler>()` によってライフサイクル参加を登録すること
+- サービス登録によって runtime でライフサイクルステップを追加すること
+
+---
+
+## LifecyclePlan 入力契約
+
+LifecycleDispatcher は、1 つの検証済み artifact set から得られた検証済み LifecyclePlan のみを実行できる。
+
+有効な LifecyclePlan の入力には少なくとも次が必要である:
 
 - LifecyclePlanId
-- LifecycleStepId set
-- explicit phase per step
-- explicit target reference per step
-- explicit action per step
-- explicit order metadata
-- explicit dependency metadata
-- explicit failure policy or defaultable failure boundary
-- source provenance and DebugMap linkage
-- verified artifact set metadata
+- LifecycleStepId の集合
+- 各ステップの明示的な phase
+- 各ステップの明示的な target reference
+- 各ステップの明示的な action
+- 明示的な order metadata
+- 明示的な dependency metadata
+- 明示的な failure policy、または default を許す failure boundary
+- source provenance と DebugMap の連携
+- verified artifact set の metadata
 
-LifecyclePlan may be accompanied by runtime-local or artifact-local precomputed dispatch tables derived from the plan.
-The authority remains the verified plan, not the cached table itself.
+LifecyclePlan には、plan から派生した runtime-local または artifact-local の事前計算済みディスパッチテーブルを伴わせてもよい。
+権威は cached table ではなく、あくまで検証済み plan にある。
 
-Lifecycle input must not:
+Lifecycle 入力は次を行ってはならない:
 
-- add steps at runtime
-- reconstruct steps from registrations
-- accept partial artifact sets
-- hide boot-only or scope-only lifecycle behavior inside service builders
+- runtime でステップを追加する
+- registration からステップを再構成する
+- 不完全な artifact set を受け入れる
+- boot-only または scope-only のライフサイクル挙動を service builder の中に隠す
 
 ---
 
-## Lifecycle Identity Model
+## ライフサイクル識別モデル
 
-Lifecycle runtime uses explicit, typed lifecycle identities.
+ライフサイクルの runtime は、明示的で型付けされたライフサイクル識別子を使う。
 
-The lifecycle vocabulary is:
+ライフサイクル語彙は次の通りである:
 
 - `LifecyclePlanId`
 - `LifecycleStepId`
@@ -287,25 +287,25 @@ The lifecycle vocabulary is:
 - `LifecycleTickGroup`
 - `LifecycleDispatchTable`
 
-`LifecyclePlanId`, `LifecycleStepId`, `LifecyclePhase`, `LifecycleActionKind`, and `LifecycleTargetRefIR` are rooted in the IR owned by 01.
-08 defines their runtime meaning and dispatch constraints.
+`LifecyclePlanId`、`LifecycleStepId`、`LifecyclePhase`、`LifecycleActionKind`、`LifecycleTargetRefIR` は 01 が所有する IR に根ざしている。
+08 はそれらの runtime 上の意味とディスパッチ制約を定義する。
 
-Lifecycle identity must not fall back to:
+ライフサイクル識別は次へフォールバックしてはならない:
 
-- raw `Type`
-- interface implementation
-- registration order
-- GameObject name
+- 生の `Type`
+- interface 実装
+- registration 順序
+- GameObject 名
 - Transform path
-- arbitrary string lookup
+- 任意の文字列 lookup
 
 ---
 
-## Lifecycle Phase Model
+## ライフサイクルフェーズモデル
 
-Lifecycle phases are explicit and ordered.
+ライフサイクルフェーズは明示的で、順序付けられている。
 
-An explanatory lifecycle phase model is:
+説明用のライフサイクルフェーズモデルは次の通りである:
 
 ```csharp
 public enum LifecyclePhase
@@ -326,27 +326,27 @@ public enum LifecyclePhase
 }
 ```
 
-Intent:
+意図:
 
-- `Build` prepares immutable or structural runtime state from verified inputs
-- `Acquire` binds the target into an active scope or runtime boundary
-- `Activate` begins active participation such as visibility, input, or time-driven behavior
-- `Tick`, `FixedTick`, and `LateTick` perform ongoing updates
-- `PreRelease` stops outward activity before detaching
-- `Release` detaches runtime bindings
-- `Reset` clears state for verified reuse
-- `Destroy` ends lifecycle ownership
-- `Dispose` releases remaining resources
+- `Build` は、検証済み入力から不変または構造的な runtime 状態を準備する
+- `Acquire` は、対象をアクティブな scope または runtime 境界へ結び付ける
+- `Activate` は、可視性、入力、時間駆動動作などのアクティブ参加を開始する
+- `Tick`、`FixedTick`、`LateTick` は継続的な更新を行う
+- `PreRelease` は、切り離し前に外向きの活動を停止する
+- `Release` は、runtime の結び付きを解除する
+- `Reset` は、検証済みの再利用に向けて状態を消去する
+- `Destroy` は、ライフサイクル所有を終了する
+- `Dispose` は、残存リソースを解放する
 
-Unity MonoBehaviour callback order is not the lifecycle truth model.
+Unity MonoBehaviour の callback 順序は、ライフサイクルの真実モデルではない。
 
 ---
 
-## Lifecycle Step Model
+## ライフサイクルステップモデル
 
-LifecyclePlan is a list of explicit lifecycle steps.
+LifecyclePlan は、明示的なライフサイクルステップの一覧である。
 
-An explanatory runtime step sketch is:
+説明用の runtime step sketch は次の通りである:
 
 ```csharp
 public sealed class LifecycleStepPlan
@@ -362,7 +362,7 @@ public sealed class LifecycleStepPlan
 }
 ```
 
-An explanatory action vocabulary is:
+説明用の action 語彙は次の通りである:
 
 ```csharp
 public enum LifecycleActionKind
@@ -377,15 +377,15 @@ public enum LifecycleActionKind
 }
 ```
 
-`RuntimeObjectOwnerCall` exists so that local player runtimes and other hub-owned objects are managed through their owner, not exploded into one lifecycle step per local runtime object.
+`RuntimeObjectOwnerCall` は、local player runtime や他の hub-owned object を、1 つずつの lifecycle step に分解するのではなく、その所有者を通じて管理するために存在する。
 
 ---
 
-## Lifecycle Target Model
+## ライフサイクルターゲットモデル
 
-Lifecycle targets are explicit and typed.
+ライフサイクルターゲットは明示的で型付けされている。
 
-An explanatory target model is:
+説明用の target model は次の通りである:
 
 ```csharp
 public enum LifecycleTargetKind
@@ -399,90 +399,90 @@ public enum LifecycleTargetKind
 }
 ```
 
-Allowed target categories include:
+許可される target category には次が含まれる:
 
 - `ServiceId`
-- `ScopePlanId` or equivalent scope boundary reference
-- explicit ValueStore boundary reference
+- `ScopePlanId` または同等の scope 境界参照
+- 明示的な ValueStore 境界参照
 - `RuntimeQueryId`
-- hub-owned runtime object owner reference
-- explicit legacy adapter target
+- hub-owned runtime object owner 参照
+- 明示的な legacy adapter target
 
-Forbidden target resolution includes:
+禁止される target 解決には次が含まれる:
 
-- raw type scan
+- 生の type scan
 - interface scan
 - scene search
-- Transform hierarchy search
-- arbitrary string lookup
+- Transform 階層検索
+- 任意の文字列 lookup
 
-Runtime object owners are explicit lifecycle targets only when a lower spec defines the owner namespace and diagnostics boundary.
-They are not permission to make every local runtime object a first-class lifecycle participant.
-
----
-
-## Lifecycle Ordering Model
-
-Lifecycle ordering is deterministic.
-
-Ordering rules:
-
-- phase order is explicit
-- step order within a phase is explicit
-- dependency edges may add stricter ordering
-- registration order is never the authority
-- same-phase ties without explicit tie policy are invalid
-
-Validation must reject:
-
-- non-deterministic same-phase order
-- hidden ordering derived from collection order
-- dependency cycles that violate the selected phase model
-
-Generated or runtime-local dispatch tables may sort by order and dependency resolution.
-They must not invent new ordering truth.
+runtime object owner は、下位仕様が owner namespace と diagnostics boundary を定義している場合にのみ、明示的な lifecycle target となる。
+これは、すべての local runtime object を first-class な lifecycle participant にしてよいという意味ではない。
 
 ---
 
-## Lifecycle Dependency Model
+## ライフサイクル順序モデル
 
-Lifecycle dependencies are explicit and phase-aware.
+ライフサイクル順序は決定的である。
 
-Lifecycle dependency rules include:
+順序ルール:
 
-- a step may depend on one or more earlier steps
-- dependency meaning is scoped to lifecycle semantics, not generic service resolution
-- dependencies must be valid for the selected phase
-- acquire-time and build-time cycles are invalid unless a lower spec explicitly defines a verified exception
-- boot lifecycle dependencies must remain compatible with boot acceptance rules
+- phase 順序は明示的である
+- phase 内の step 順序は明示的である
+- 依存エッジはより厳しい順序を追加してよい
+- registration 順序は決して権威ではない
+- 明示的な tie policy を持たない同一 phase の同順位は無効である
 
-Lifecycle dependency modeling must define rollback expectations where partial execution is possible.
+検証は次を拒否しなければならない:
 
-If an `Acquire` step fails after earlier acquire steps succeeded, the plan must define:
+- 決定性のない同一 phase 順序
+- collection 順序から導かれた隠れた順序
+- 選択された phase model に反する dependency cycle
 
-- whether completed steps are released in reverse order
-- whether the scope enters a failed or inactive state
-- whether runtime query invalidation occurs
-- how diagnostics are emitted
-
-Validation algorithms remain owned by 04.
-08 defines the runtime contract those validations protect.
+生成済みまたは runtime-local なディスパッチテーブルは、order と dependency resolution によって sort してもよい。
+しかし、新しい順序の真実を勝手に作り出してはならない。
 
 ---
 
-## Lifecycle Dispatch Table Model
+## ライフサイクル依存関係モデル
 
-LifecycleDispatcher executes precomputed dispatch tables generated from LifecyclePlan.
+ライフサイクル依存関係は明示的で、phase を意識する。
 
-A dispatch table is grouped by:
+ライフサイクル依存関係ルールには次が含まれる:
 
-- lifecycle phase
+- 1 つの step は、1 つ以上の earlier step に依存してよい
+- 依存の意味は、汎用 service resolution ではなくライフサイクル意味論の範囲に限定される
+- 依存は、選択された phase に対して有効でなければならない
+- 下位仕様が検証済みの例外を明示していない限り、acquire-time と build-time の cycle は無効である
+- boot ライフサイクル依存関係は boot acceptance ルールと整合していなければならない
+
+ライフサイクル依存関係モデルは、部分実行があり得る場合の rollback 期待値を定義しなければならない。
+
+もし `Acquire` step が、先行する acquire step の成功後に失敗したなら、plan は次を定義しなければならない:
+
+- 完了済み step を逆順で release するかどうか
+- scope を failed または inactive state にするかどうか
+- runtime query の invalidation を行うかどうか
+- diagnostics をどう emit するか
+
+検証アルゴリズムは 04 が所有する。
+08 は、それらの検証が守る runtime 契約を定義する。
+
+---
+
+## ライフサイクルディスパッチテーブルモデル
+
+LifecycleDispatcher は、LifecyclePlan から生成された事前計算済みディスパッチテーブルを実行する。
+
+ディスパッチテーブルは次で group 化される:
+
+- ライフサイクル phase
 - runtime domain
-- scope plan or scope kind when applicable
-- tick group when applicable
-- deterministic order
+- scope plan または scope kind（適用可能な場合）
+- tick group（適用可能な場合）
+- 決定的な order
 
-An explanatory runtime table sketch is:
+説明用の runtime table sketch は次の通りである:
 
 ```text
 LifecycleDispatchTable
@@ -501,44 +501,44 @@ LifecycleDispatchTable
   DisposeSteps[]
 ```
 
-LifecycleDispatcher must not build dispatch tables by scanning ServiceGraph registrations at runtime.
+LifecycleDispatcher は、runtime で ServiceGraph registration を走査してディスパッチテーブルを構築してはならない。
 
-Dispatch tables are runtime execution data.
-They are not permission to derive lifecycle truth from mutable registrations.
-
----
-
-## Scope State Boundary
-
-ScopeGraph owns scope state.
-LifecyclePlan owns side effects executed at scope state boundaries.
-
-ScopeGraph may request lifecycle dispatch when a scope enters or exits a state.
-
-Examples include:
-
-- built to acquiring
-- acquiring to active
-- active to releasing
-- releasing to inactive
-- inactive to reset
-- inactive to destroyed
-
-LifecycleDispatcher must not mutate ScopeGraph parent-child structure directly.
-
-07 remains the owner of scope structure and state transitions.
-08 owns the dispatch work requested at those boundaries.
+ディスパッチテーブルは runtime 実行データである。
+mutable な registration からライフサイクルの真実を導出してよいという許可ではない。
 
 ---
 
-## ServiceGraph Boundary
+## スコープ状態境界
 
-ServiceGraph resolves explicit lifecycle target services.
-ServiceGraph does not discover lifecycle targets.
+ScopeGraph は scope state を所有する。
+LifecyclePlan は、scope state 境界で実行される副作用を所有する。
 
-LifecycleDispatcher may request a service instance by ServiceId only when the LifecycleStepPlan explicitly references that ServiceId.
+ScopeGraph は、scope がある state に入る、または抜けるときにライフサイクルディスパッチを要求してよい。
 
-ServiceGraph must not provide:
+例:
+
+- built から acquiring へ
+- acquiring から active へ
+- active から releasing へ
+- releasing から inactive へ
+- inactive から reset へ
+- inactive から destroyed へ
+
+LifecycleDispatcher は、ScopeGraph の親子構造を直接変更してはならない。
+
+07 が scope 構造と state transition の所有者である。
+08 は、それらの境界で要求されたディスパッチ作業を所有する。
+
+---
+
+## ServiceGraph 境界
+
+ServiceGraph は、明示的なライフサイクルターゲットサービスを解決する。
+ServiceGraph はライフサイクルターゲットを発見しない。
+
+LifecycleDispatcher は、LifecycleStepPlan が明示的にその ServiceId を参照している場合にのみ、service instance を要求してよい。
+
+ServiceGraph は次を提供してはならない:
 
 - `GetAcquireHandlers()`
 - `GetReleaseHandlers()`
@@ -547,46 +547,46 @@ ServiceGraph must not provide:
 - `GetFixedTickHandlers()`
 - `IReadOnlyList<IScopeTickHandler>`
 
-06 owns service resolution.
-08 owns lifecycle participation and dispatch.
+06 が service resolution を所有する。
+08 がライフサイクル参加とディスパッチを所有する。
 
 ---
 
-## Runtime Object Boundary
+## ランタイムオブジェクト境界
 
-LifecyclePlan should not enroll every local runtime object directly.
+LifecyclePlan は、すべての local runtime object を直接 enroll すべきではない。
 
-Hub-owned runtime objects are normally managed by their owner target.
+hub-owned な runtime object は、通常、その owner target によって管理される。
 
-Examples:
+例:
 
-- tooltip hubs own tooltip player runtimes
-- mesh hubs own mesh player runtimes
-- animation sprite hubs own animation channel runtimes
+- tooltip hub は tooltip player runtime を所有する
+- mesh hub は mesh player runtime を所有する
+- animation sprite hub は animation channel runtime を所有する
 
-The owner hub may be a lifecycle target.
-The internal player runtimes are not LifecyclePlan targets by default.
+owner hub 自身は lifecycle target になってよい。
+内部の player runtime は既定では LifecyclePlan target ではない。
 
-These examples are representative, not exhaustive.
-The same rule applies broadly across runtime object families.
+これらの例は代表例であり、網羅的ではない。
+同じルールは、広く runtime object family 全体に適用される。
 
 ---
 
-## Tick / FixedTick / LateTick Policy
+## Tick / FixedTick / LateTick ポリシー
 
-Tick participation must be explicit and budgeted.
+tick 参加は明示的で、予算化されていなければならない。
 
-Tick steps must declare:
+tick step は次を宣言しなければならない:
 
 - tick phase
 - tick group
 - order
-- expected cardinality
-- time domain
-- pause behavior
+- 想定個数
+- 時間ドメイン
+- pause 時の挙動
 - failure policy
 
-An explanatory tick-group model is:
+説明用の tick-group model は次の通りである:
 
 ```csharp
 public enum LifecycleTickGroup
@@ -601,7 +601,7 @@ public enum LifecycleTickGroup
 }
 ```
 
-An explanatory time-domain model is:
+説明用の time-domain model は次の通りである:
 
 ```csharp
 public enum LifecycleTimeDomain
@@ -614,15 +614,15 @@ public enum LifecycleTimeDomain
 }
 ```
 
-Tick steps must not implicitly use `UnityEngine.Time` unless the step declares a compatible time domain.
+step が互換性のある time domain を宣言していない限り、tick step は暗黙に `UnityEngine.Time` を使ってはならない。
 
-Per-entity tick step generation is forbidden by default.
+エンティティ単位の tick step 生成は既定で禁止される。
 
 ---
 
-## Per-Entity Lifecycle Prohibition
+## エンティティ単位ライフサイクルの禁止
 
-LifecyclePlan must not create one lifecycle step per:
+LifecyclePlan は、次の 1 つごとに lifecycle step を作ってはならない:
 
 - entity
 - part
@@ -632,31 +632,31 @@ LifecyclePlan must not create one lifecycle step per:
 - animation player
 - command instance
 
-Per-target runtime updates belong to:
+各ターゲットに対する runtime update は次の責務である:
 
-- hub-owned local runtime loops
-- EntityRuntime systems
+- hub-owned の local runtime loop
+- EntityRuntime system
 - ValueStore processing
-- RuntimeQuery systems
-- batched simulation services
+- RuntimeQuery system
+- バッチ化された simulation service
 
-A per-entity lifecycle exception is allowed only when all are true:
+エンティティ単位のライフサイクル例外は、次のすべてが真である場合にのみ許可される:
 
-- the entity is a bounded authored aggregate root
-- expected instance count is declared
-- performance budget is declared
-- lifecycle ownership is explicit
-- diagnostics can identify the source and runtime handle
+- entity が境界付きの作成済み aggregate root である
+- 予想 instance 数が宣言されている
+- performance budget が宣言されている
+- lifecycle ownership が明示されている
+- diagnostics で source と runtime handle を識別できる
 
-The default remains prohibition.
+既定はあくまで禁止である。
 
 ---
 
-## Failure Policy
+## 失敗ポリシー
 
-Lifecycle failure must not be silently ignored.
+ライフサイクル failure は、黙って無視してはならない。
 
-An explanatory failure policy model is:
+説明用の failure policy model は次の通りである:
 
 ```csharp
 public enum LifecycleFailurePolicy
@@ -669,77 +669,77 @@ public enum LifecycleFailurePolicy
 }
 ```
 
-Default boundaries:
+既定の境界:
 
-- boot lifecycle defaults to `FailKernel`
-- scope lifecycle defaults to `FailScope`
+- boot ライフサイクルの既定は `FailKernel`
+- scope ライフサイクルの既定は `FailScope`
 
-`ContinueWithError` requires explicit policy and profile justification.
-It is not the default.
+`ContinueWithError` には明示的な policy と profile の正当化が必要である。
+既定ではない。
 
-If a failure boundary is not declared, the runtime must apply the default boundary rather than continue silently.
-
----
-
-## Partial Acquire Rollback Policy
-
-Partial acquire completion must be handled explicitly.
-
-- acquire rollback defaults to `ReverseCompletedAcquireSteps`
-- `None` may be used only when the plan intentionally keeps partial acquire work
-- rollback is evaluated in reverse order of the already completed acquire steps
-- rollback failures must emit `KernelDiagnostic`
-- partial acquire failure must report both the forward failure and the rollback summary
+failure boundary が宣言されていない場合、runtime は黙って継続するのではなく、既定の境界を適用しなければならない。
 
 ---
 
-## Reset and Pooling Policy
+## 部分 Acquire ロールバックポリシー
 
-Reset is separate from release and destroy.
+部分的に acquire が完了した場合は、明示的に扱わなければならない。
 
-- `Release` detaches runtime from active scope usage
-- `Reset` clears runtime state before reuse
-- `Destroy` ends lifetime and disposes resources
-
-Pooled scope reuse must run a verified reset sequence before acquire.
-
-A scope or service reused from pool must not retain:
-
-- previous subscriptions
-- previous runtime query entries
-- previous ValueStore transient state
-- previous owner references
-- previous channel player runtime state unless explicitly retained by policy
-
-Release does not imply reset.
-Reset does not imply destroy.
+- acquire rollback の既定は `ReverseCompletedAcquireSteps`
+- `None` は、plan が意図的に部分 acquire の結果を保持する場合にのみ使用できる
+- rollback は、すでに完了した acquire step の逆順で評価される
+- rollback の失敗は `KernelDiagnostic` を emit しなければならない
+- 部分 acquire failure は forward failure と rollback summary の両方を報告しなければならない
 
 ---
 
-## Async / UniTask Policy
+## Reset とプーリングのポリシー
 
-Lifecycle steps are synchronous by default.
+reset は release や destroy と別物である。
 
-Async lifecycle is allowed only through explicit tracked async lifecycle steps.
+- `Release` は、runtime をアクティブな scope 利用から切り離す
+- `Reset` は、再利用前に runtime state を消去する
+- `Destroy` は、寿命を終え、resources を dispose する
 
-An async lifecycle step must define:
+pool から再利用される scope は、acquire の前に検証済み reset sequence を実行しなければならない。
+
+pool から再利用される scope または service は、次を保持してはならない:
+
+- 以前の subscription
+- 以前の runtime query entry
+- 以前の ValueStore transient state
+- 以前の owner reference
+- ポリシーで明示的に保持されていない限り、以前の channel player runtime state
+
+Release は reset を意味しない。
+Reset は destroy を意味しない。
+
+---
+
+## 非同期 / UniTask ポリシー
+
+ライフサイクル step は既定では同期的である。
+
+非同期ライフサイクルは、明示的に追跡される async lifecycle step を通じてのみ許可される。
+
+async lifecycle step は次を定義しなければならない:
 
 - cancellation source
 - timeout policy
 - failure boundary
-- completion requirement
-- whether the next step waits
-- diagnostics on cancellation and failure
+- completion 要件
+- 次の step が待機するかどうか
+- cancellation と failure に関する diagnostics
 
-Fire-and-forget lifecycle work is forbidden.
+fire-and-forget のライフサイクル作業は禁止である。
 
-`UniTask.Void` is legacy migration debt, not target lifecycle policy.
+`UniTask.Void` はレガシー移行負債であり、対象のライフサイクルポリシーではない。
 
 ---
 
-## Diagnostics and DebugMap Requirements
+## 診断と DebugMap 要件
 
-Lifecycle diagnostics must include:
+ライフサイクル診断には次を含めなければならない:
 
 - `LifecyclePlanId`
 - `LifecycleStepId`
@@ -750,9 +750,9 @@ Lifecycle diagnostics must include:
 - source location
 - order
 - failure policy
-- selected profile
+- 選択された profile
 
-Representative lifecycle runtime error codes include:
+代表的なライフサイクル runtime エラーコードには次が含まれる:
 
 - `LIFECYCLE_STEP_TARGET_MISSING`
 - `LIFECYCLE_STEP_ORDER_CONFLICT`
@@ -765,28 +765,28 @@ Representative lifecycle runtime error codes include:
 - `LIFECYCLE_ROLLBACK_STEP_FAILED`
 - `LIFECYCLE_RESET_REQUIRED_BEFORE_REUSE`
 
-A lifecycle failure without step provenance is a diagnostics degradation.
+step provenance を持たないライフサイクル failure は、診断品質の劣化である。
 
 ---
 
-## Performance and Memory Policy
+## 性能とメモリのポリシー
 
-Lifecycle dispatch is a runtime hot path.
+ライフサイクルディスパッチは runtime の hot path である。
 
-Target requirements:
+目標要件:
 
-- no registration scan during dispatch
-- no interface scan during dispatch
-- no LINQ in dispatch path
-- no managed allocation in normal tick dispatch
-- dispatch cost scales with active lifecycle steps, not registered services
-- tick step count is explicit budget input
-- per-entity tick steps are forbidden by default
+- ディスパッチ中に registration scan を行わない
+- ディスパッチ中に interface scan を行わない
+- ディスパッチ path で LINQ を使わない
+- 通常の tick ディスパッチで managed allocation を行わない
+- ディスパッチコストは registered services ではなく active lifecycle step に比例して増える
+- tick step 数は明示的な予算入力である
+- エンティティ単位の tick step は既定で禁止である
 
-Increasing service count must not automatically increase tick count.
-Increasing command executor count must not automatically increase lifecycle count.
+service 数が増えても、tick 数が自動的に増えてはならない。
+command executor 数が増えても、ライフサイクル数が自動的に増えてはならない。
 
-Lifecycle runtime should expose enough marker points for 14 to budget at least:
+ライフサイクル runtime は、14 が少なくとも次を予算化できるよう十分な marker point を公開すべきである:
 
 - `Lifecycle.DispatchBoot`
 - `Lifecycle.DispatchAcquire`
@@ -798,427 +798,427 @@ Lifecycle runtime should expose enough marker points for 14 to budget at least:
 
 ---
 
-## Legacy Migration Policy
+## レガシー移行ポリシー
 
-Legacy handler-interface patterns must migrate into explicit lifecycle contributions and plans.
+レガシーな handler-interface パターンは、明示的なライフサイクル貢献と plan に移行しなければならない。
 
-| Legacy Pattern | Target Representation |
+| レガシーパターン | 対象表現 |
 |---|---|
-| `.As<IScopeAcquireHandler>()` | `LifecycleContribution` phase `Acquire` |
-| `.As<IScopeReleaseHandler>()` | `LifecycleContribution` phase `Release` |
-| `.As<IScopeTickHandler>()` | `LifecycleContribution` phase `Tick` |
-| `.As<IScopeLateTickHandler>()` | `LifecycleContribution` phase `LateTick` |
-| `.As<IScopeFixedTickHandler>()` | `LifecycleContribution` phase `FixedTick` |
-| `RuntimeResolver.GetAcquireHandlers()` | generated `LifecycleDispatchTable` |
+| `.As<IScopeAcquireHandler>()` | `Acquire` phase の `LifecycleContribution` |
+| `.As<IScopeReleaseHandler>()` | `Release` phase の `LifecycleContribution` |
+| `.As<IScopeTickHandler>()` | `Tick` phase の `LifecycleContribution` |
+| `.As<IScopeLateTickHandler>()` | `LateTick` phase の `LifecycleContribution` |
+| `.As<IScopeFixedTickHandler>()` | `FixedTick` phase の `LifecycleContribution` |
+| `RuntimeResolver.GetAcquireHandlers()` | 生成済み `LifecycleDispatchTable` |
 | `RuntimeAcquireReleaseDispatcher` | `LifecycleDispatcher` |
-| service implements handler interface | not enrollment |
+| service が handler interface を実装している | enrollment ではない |
 
-Representative migration examples:
+代表的な移行例:
 
 - `TooltipChannelHubService`
   - `ServiceContribution`: tooltip hub
   - `LifecycleContribution`: acquire, release, tick
-  - local tooltip player runtimes remain hub-owned internal state
+  - local tooltip player runtime は hub-owned の内部 state のまま
 - `MeshChannelHubService`
   - `ServiceContribution`: mesh hub
   - `LifecycleContribution`: acquire, release, tick, dispose
-  - mesh player runtimes remain hub-owned internal state
+  - mesh player runtime は hub-owned の内部 state のまま
 - `AnimationSpriteHubService`
   - `ServiceContribution`: animation sprite hub
   - `LifecycleContribution`: acquire, release, tick
-  - provider contracts remain separate from lifecycle enrollment
+  - provider contract は lifecycle enrollment とは分離されたまま
 
-These examples are representative only.
-The migration policy applies broadly across the current handler-interface service population.
-
----
-
-## Forbidden Patterns
-
-The following are forbidden in target LifecyclePlan runtime:
-
-- lifecycle enrollment by implemented interface
-- scanning ServiceGraph for `IScopeAcquireHandler`
-- scanning ServiceGraph for `IScopeReleaseHandler`
-- scanning ServiceGraph for `IScopeTickHandler`
-- resolving `IReadOnlyList<IScopeTickHandler>`
-- registration order as lifecycle order
-- runtime-generated lifecycle steps
-- adding lifecycle handlers during acquire
-- per-entity lifecycle steps by default
-- per-channel-player lifecycle steps by default
-- fire-and-forget async lifecycle work
-- swallowing lifecycle failures
-- continuing after required acquire failure without explicit failure boundary
-- using ServiceGraph as lifecycle registry
-- using CommandCatalog as lifecycle registry
+これらの例は代表例にすぎない。
+この移行ポリシーは、現行の handler-interface サービス群全体に広く適用される。
 
 ---
 
-## Test Case Model
+## 禁止パターン
 
-Each lifecycle runtime test case must define:
+対象 LifecyclePlan runtime で禁止されるもの:
+
+- 実装済み interface によるライフサイクル enrollment
+- `IScopeAcquireHandler` を対象とした ServiceGraph の走査
+- `IScopeReleaseHandler` を対象とした ServiceGraph の走査
+- `IScopeTickHandler` を対象とした ServiceGraph の走査
+- `IReadOnlyList<IScopeTickHandler>` の解決
+- ライフサイクル順序としての registration 順序
+- runtime 生成のライフサイクル step
+- acquire 中のライフサイクル handler 追加
+- 既定でのエンティティ単位ライフサイクル step
+- 既定での channel-player 単位ライフサイクル step
+- fire-and-forget の非同期ライフサイクル作業
+- ライフサイクル failure の握りつぶし
+- 明示的な failure boundary なしに required acquire failure の後も継続すること
+- ServiceGraph をライフサイクルレジストリとして使うこと
+- CommandCatalog をライフサイクルレジストリとして使うこと
+
+---
+
+## テストケースモデル
+
+各ライフサイクル runtime テストケースは次を定義しなければならない:
 
 - Test ID
 - Title
 - LifecyclePlan fixture
-- ServiceGraphPlan and ScopeGraphPlan fixtures when needed
-- selected profile if relevant
-- operation under test
-- expected result
-- expected diagnostics
-- expected failure boundary
+- 必要に応じた ServiceGraphPlan と ScopeGraphPlan の fixture
+- 関連する場合は selected profile
+- テスト対象の operation
+- 期待結果
+- 期待される diagnostics
+- 期待される failure boundary
 - notes
 
-Example:
+例:
 
 ### TC_LIFE_001_InterfaceImplementationDoesNotEnroll
 
-Input:
+入力:
 
-- service implements an acquire-like interface
-- no lifecycle step exists
+- service が acquire 風の interface を実装している
+- ライフサイクル step は存在しない
 
-Operation:
+操作:
 
-- dispatch acquire for the containing scope
+- 含まれる scope に対して acquire をディスパッチする
 
-Expected:
+期待結果:
 
-- service is not called
-- lifecycle runtime remains plan-driven
+- service は呼ばれない
+- ライフサイクル runtime は plan 駆動のままである
 
 ---
 
-## Required Test Cases
+## 必須テストケース
 
-### A. Enrollment Tests
+### A. Enrollment テスト
 
 #### TC_LIFE_ENROLL_001_InterfaceImplementationDoesNotEnroll
 
-Input:
+入力:
 
-- service implements an acquire-like interface
-- no lifecycle step exists
+- service が acquire 風の interface を実装している
+- ライフサイクル step は存在しない
 
-Expected:
+期待結果:
 
-- service is not called during acquire
+- acquire 中に service は呼ばれない
 
 #### TC_LIFE_ENROLL_002_LifecycleStepEnrollsService
 
-Input:
+入力:
 
-- lifecycle step targets service `TooltipHub`
-- phase is `Acquire`
+- lifecycle step が service `TooltipHub` を target にしている
+- phase は `Acquire`
 
-Expected:
+期待結果:
 
-- tooltip hub acquire action is invoked
+- tooltip hub の acquire action が呼ばれる
 
 #### TC_LIFE_ENROLL_003_RegistrationScanForbidden
 
-Input:
+入力:
 
-- runtime has service registrations with handler interfaces
+- runtime に handler interface を持つ service registration がある
 
-Expected:
+期待結果:
 
-- LifecycleDispatcher does not scan registrations
-- `LIFECYCLE_REGISTRATION_SCAN_FORBIDDEN` if attempted
+- LifecycleDispatcher は registration を走査しない
+- 試行された場合は `LIFECYCLE_REGISTRATION_SCAN_FORBIDDEN`
 
-### B. Phase and Order Tests
+### B. Phase と Order のテスト
 
 #### TC_LIFE_ORDER_001_DeterministicOrder
 
-Input:
+入力:
 
-- steps A, B, and C exist in the same phase with explicit order
+- 同じ phase に A、B、C の step があり、order が明示されている
 
-Expected:
+期待結果:
 
-- dispatch order is A, then B, then C
+- ディスパッチ順は A、B、C である
 
 #### TC_LIFE_ORDER_002_OrderConflictRejected
 
-Input:
+入力:
 
-- two required steps have the same phase and order with no tie policy
+- 2 つの required step が、同じ phase と order を持ち、tie policy がない
 
-Expected:
+期待結果:
 
 - validation failed
 - `LIFECYCLE_STEP_ORDER_CONFLICT`
 
 #### TC_LIFE_PHASE_001_AcquireBeforeActivate
 
-Input:
+入力:
 
-- acquire and activate steps exist for the same boundary
+- 同じ境界に acquire と activate の step がある
 
-Expected:
+期待結果:
 
-- acquire completes before activate
+- acquire が activate より先に完了する
 
-### C. Scope Boundary Tests
+### C. Scope 境界テスト
 
 #### TC_LIFE_SCOPE_001_ScopeStateTriggersAcquire
 
-Operation:
+操作:
 
-- ScopeGraph transitions into acquiring state
+- ScopeGraph が acquiring state に遷移する
 
-Expected:
+期待結果:
 
-- LifecycleDispatcher executes the acquire dispatch table
+- LifecycleDispatcher が acquire dispatch table を実行する
 
 #### TC_LIFE_SCOPE_002_InvalidScopeStateRejectsLifecycle
 
-Operation:
+操作:
 
-- dispatch tick for a destroyed scope
+- 破棄済み scope に対して tick をディスパッチする
 
-Expected:
+期待結果:
 
 - failed
 - `LIFECYCLE_INVALID_SCOPE_STATE`
 
 #### TC_LIFE_SCOPE_003_LifecycleDoesNotMutateScopeStructure
 
-Operation:
+操作:
 
-- lifecycle dispatch runs for a valid scope boundary
+- 有効な scope 境界に対してライフサイクルディスパッチを実行する
 
-Expected:
+期待結果:
 
-- lifecycle performs side effects only
-- scope parent-child structure remains owned by ScopeGraph
+- ライフサイクルは副作用のみを行う
+- scope の親子構造は ScopeGraph の所有のままである
 
-### D. Tick Tests
+### D. Tick テスト
 
 #### TC_LIFE_TICK_001_TickDispatchNoAllocation
 
-Operation:
+操作:
 
-- dispatch normal tick repeatedly
+- 通常 tick を繰り返しディスパッチする
 
-Expected:
+期待結果:
 
-- no managed allocation in the normal path
+- 通常 path で managed allocation は発生しない
 
 #### TC_LIFE_TICK_002_PerEntityTickRejected
 
-Input:
+入力:
 
-- 10,000 entity tick steps are generated
+- 10,000 個の entity tick step が生成される
 
-Expected:
+期待結果:
 
 - failed
 - `LIFECYCLE_TICK_CARDINALITY_FORBIDDEN`
 
 #### TC_LIFE_TICK_003_HubTickAllowed
 
-Input:
+入力:
 
-- mesh hub has one tick step
-- the hub owns many player runtimes internally
+- mesh hub に 1 つの tick step がある
+- hub は内部で多数の player runtime を所有している
 
-Expected:
+期待結果:
 
 - passed
-- one hub tick step exists, not one step per player runtime
+- player runtime ごとの step ではなく、hub tick step が 1 つだけ存在する
 
-### E. Failure and Rollback Tests
+### E. Failure と Rollback のテスト
 
 #### TC_LIFE_FAIL_001_AcquireFailureFailsScope
 
-Input:
+入力:
 
-- acquire step fails
-- failure policy is `FailScope`
+- acquire step が失敗する
+- failure policy は `FailScope`
 
-Expected:
+期待結果:
 
-- scope enters failed or inactive state
-- completed acquire steps are released in reverse order when rollback policy requires
-- rollback failures emit diagnostics instead of being hidden
+- scope は failed または inactive state になる
+- rollback が必要な場合、完了済み acquire step は逆順で release される
+- rollback failure は隠されず diagnostics として emit される
 
 #### TC_LIFE_FAIL_002_BootFailureFailsKernel
 
-Input:
+入力:
 
-- boot lifecycle step fails
-- failure policy is `FailKernel`
+- boot lifecycle step が失敗する
+- failure policy は `FailKernel`
 
-Expected:
+期待結果:
 
-- kernel boot fails
+- kernel boot が失敗する
 
 #### TC_LIFE_FAIL_003_ContinueWithErrorRequiresExplicitPolicy
 
-Input:
+入力:
 
-- step failure occurs
-- `ContinueWithError` is absent
+- step failure が発生する
+- `ContinueWithError` がない
 
-Expected:
+期待結果:
 
 - failed
-- default failure boundary is applied
+- 既定の failure boundary が適用される
 
-### F. Async Tests
+### F. Async テスト
 
 #### TC_LIFE_ASYNC_001_UntrackedAsyncRejected
 
-Input:
+入力:
 
-- lifecycle step starts `UniTask` work without tracked async policy
+- lifecycle step が追跡されない async policy なしで `UniTask` 作業を開始する
 
-Expected:
+期待結果:
 
 - failed
 - `LIFECYCLE_ASYNC_UNTRACKED`
 
 #### TC_LIFE_ASYNC_002_TrackedAsyncTimeout
 
-Input:
+入力:
 
-- async lifecycle step has timeout policy
+- async lifecycle step に timeout policy がある
 
-Expected:
+期待結果:
 
-- timeout produces structured diagnostics
-- declared failure boundary is applied
+- timeout は structured diagnostics を生成する
+- 宣言された failure boundary が適用される
 
-### G. Reset and Pooling Tests
+### G. Reset と Pooling のテスト
 
 #### TC_LIFE_POOL_001_ResetBeforeReuseRequired
 
-Operation:
+操作:
 
-- reuse pooled scope without reset lifecycle
+- reset lifecycle なしで pool 済み scope を再利用する
 
-Expected:
+期待結果:
 
 - failed
 - `LIFECYCLE_RESET_REQUIRED_BEFORE_REUSE`
 
 #### TC_LIFE_POOL_002_ResetClearsSubscriptions
 
-Input:
+入力:
 
-- service subscribes during acquire
+- service が acquire 中に subscription する
 
-Operation:
+操作:
 
-- release, then reset, then acquire again
+- release、reset、再 acquire の順で行う
 
-Expected:
+期待結果:
 
-- duplicate subscriptions do not remain
+- 重複 subscription は残らない
 
 #### TC_LIFE_POOL_003_ResetClearsTransientRuntimeState
 
-Input:
+入力:
 
-- scope accumulates transient runtime query or value state
+- scope が一時的な runtime query または value state を蓄積する
 
-Operation:
+操作:
 
-- release, then reset, then reuse
+- release、reset、再利用を行う
 
-Expected:
+期待結果:
 
-- transient state from the previous lifetime is cleared
+- 以前の寿命に属する transient state は消去される
 
-### H. Migration Tests
+### H. 移行テスト
 
 #### TC_LIFE_MIGRATION_001_TooltipHubMigration
 
-Input:
+入力:
 
-- tooltip hub requires acquire, release, and tick behavior
+- tooltip hub に acquire、release、tick の挙動が必要である
 
-Expected:
+期待結果:
 
-- service contribution defines the hub
-- lifecycle contribution defines acquire, release, and tick
-- tooltip player runtimes are not direct lifecycle targets
+- service contribution が hub を定義する
+- lifecycle contribution が acquire、release、tick を定義する
+- tooltip player runtime は直接の lifecycle target ではない
 
 #### TC_LIFE_MIGRATION_002_MeshHubMigration
 
-Input:
+入力:
 
-- mesh hub owns many mesh player runtimes
+- mesh hub が多数の mesh player runtime を所有している
 
-Expected:
+期待結果:
 
-- one hub lifecycle target exists
-- player runtimes are managed internally
+- 1 つの hub lifecycle target が存在する
+- player runtime は内部で管理される
 
 #### TC_LIFE_MIGRATION_003_AnimationSpriteInstallerMigration
 
-Input:
+入力:
 
-- animation sprite hub is currently registered as service plus lifecycle handlers
+- animation sprite hub が現在 service と lifecycle handler の両方として登録されている
 
-Expected:
+期待結果:
 
-- lifecycle participation is represented by lifecycle contribution
-- ServiceGraph does not infer participation from registered interfaces
-
----
-
-## Acceptance Criteria
-
-08 is complete when it defines:
-
-- LifecyclePlan purpose and authority
-- lifecycle input contract
-- lifecycle identity vocabulary
-- lifecycle phase model
-- lifecycle step model
-- lifecycle target model
-- lifecycle ordering model
-- lifecycle dependency model
-- lifecycle dispatch table model
-- scope state boundary
-- ServiceGraph boundary
-- runtime object boundary
-- tick, fixed tick, and late tick policy
-- per-entity lifecycle prohibition
-- failure policy
-- reset and pooling policy
-- async lifecycle policy
-- diagnostics and DebugMap requirements
-- performance and memory policy
-- legacy migration policy
-- forbidden patterns
-- lifecycle test case model
-- required lifecycle test cases
-
-The specification is not complete if lifecycle participation can still be read as interface enrollment, registration scan output, or per-entity implicit tick expansion.
+- ライフサイクル参加は lifecycle contribution で表現される
+- ServiceGraph は登録済み interface から participation を推論しない
 
 ---
 
-## Test Cases
+## 受け入れ基準
 
-| Test Case | Purpose | Verification |
+08 は次を定義したときに完了である:
+
+- LifecyclePlan の目的と権威
+- ライフサイクル入力契約
+- ライフサイクル識別語彙
+- ライフサイクルフェーズモデル
+- ライフサイクルステップモデル
+- ライフサイクルターゲットモデル
+- ライフサイクル順序モデル
+- ライフサイクル依存関係モデル
+- ライフサイクルディスパッチテーブルモデル
+- スコープ状態境界
+- ServiceGraph 境界
+- ランタイムオブジェクト境界
+- tick / fixed tick / late tick ポリシー
+- エンティティ単位ライフサイクルの禁止
+- 失敗ポリシー
+- reset とプーリングのポリシー
+- 非同期ライフサイクルポリシー
+- 診断と DebugMap 要件
+- 性能とメモリのポリシー
+- レガシー移行ポリシー
+- 禁止パターン
+- ライフサイクルテストケースモデル
+- 必須ライフサイクルテストケース
+
+ライフサイクル参加が、インターフェース登録、registration scan の出力、またはエンティティごとの暗黙的 tick 拡張としてまだ読めるなら、この仕様は未完了である。
+
+---
+
+## テストケース
+
+| テストケース | 目的 | 検証 |
 |---|---|---|
-| TC-08-01 | Confirm lifecycle enrollment is explicit. | The lifecycle authority and input contract sections must forbid interface and registration-based enrollment. |
-| TC-08-02 | Confirm dispatch uses precomputed lifecycle tables rather than registration scans. | The dispatch table and ServiceGraph boundary sections must reject handler list collection APIs and runtime scan-built dispatch. |
-| TC-08-03 | Confirm scope, service, runtime object, query, and value boundaries remain explicit. | The boundary sections must keep lifecycle execution separate from scope structure, service discovery, generic query lookup, and value fallback. |
-| TC-08-04 | Confirm tick participation stays budgeted and does not scale per entity by default. | The tick policy, per-entity prohibition, and performance sections must reject unbounded lifecycle expansion. |
-| TC-08-05 | Confirm async lifecycle work is tracked and failures are fail-closed. | The async policy and failure policy sections must forbid fire-and-forget work and require explicit failure boundaries. |
-| TC-08-06 | Confirm reset and pooling lifecycle remain explicit and verified. | The reset and pooling policy section must require reset before reuse and reject stale subscriptions or transient state leakage. |
+| TC-08-01 | ライフサイクル enrollment が明示的であることを確認する。 | ライフサイクル権威と入力契約の節で、interface と registration ベースの enrollment を禁止しなければならない。 |
+| TC-08-02 | ディスパッチが registration scan ではなく事前計算済み lifecycle table を使うことを確認する。 | ディスパッチテーブルと ServiceGraph 境界の節で、handler list 収集 API と runtime scan ベースのディスパッチを拒否しなければならない。 |
+| TC-08-03 | scope、service、runtime object、query、value の境界が明示的に保たれていることを確認する。 | 境界の節で、ライフサイクル実行を scope 構造、service 発見、汎用 query lookup、value fallback から切り離しておかなければならない。 |
+| TC-08-04 | tick 参加が予算化され、既定では entity ごとに増えないことを確認する。 | tick ポリシー、エンティティ単位禁止、性能節で、無制限なライフサイクル拡張を拒否しなければならない。 |
+| TC-08-05 | 非同期ライフサイクル作業が追跡され、失敗は fail-closed であることを確認する。 | 非同期ポリシーと失敗ポリシーの節で、fire-and-forget 作業を禁止し、明示的な failure boundary を要求しなければならない。 |
+| TC-08-06 | reset と pooling のライフサイクルが明示的で検証済みであることを確認する。 | reset と pooling の節で、再利用前の reset を要求し、古い subscription や transient state の漏れを拒否しなければならない。 |
 
 ---
 
-## Final Position
+## 最終見解
 
-Lifecycle is declared, validated, and dispatched from plan.
-It is never discovered from runtime registrations.
+Lifecycle は、検証済みの plan から宣言され、検証され、ディスパッチされる。
+runtime registration から発見されるものではない。
 
-Lifecycle participation is not an emergent side effect of service registration.
-It is verified runtime intent.
+ライフサイクル参加は、service registration の創発的副作用ではない。
+それは検証済みの runtime intent である。

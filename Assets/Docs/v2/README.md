@@ -1,6 +1,6 @@
-# GameLib Kernel v2 Docs
+# GameLib Kernel v2 ドキュメント
 
-このフォルダには、新しい Kernel 基盤の上位仕様と、その前提を固めるためのレビュー文書を置きます。
+このフォルダには、新しい Kernel 基盤の上位仕様と、その前提を固めるためのレビュー文書を配置します。
 
 - [00 Kernel Architecture Overview Review](00_KernelArchitectureOverviewReview.md)
 - [00 Kernel Architecture Overview Specification](00_KernelArchitectureOverviewSpec.md)
@@ -26,15 +26,15 @@
 - [Hub Classification Inventory](Index/HubClassificationInventory.md)
 - [Diagnostic Code Traceability Catalog](Index/DiagnosticCodeTraceabilityCatalog.md)
 
-初回の v2 文書では、現行実装の観測結果と移行先の target policy を分離することを最優先にしています。
-特に、KernelIR と ModuleContribution と DependencyValidation と BootManifest/Profile policy を下位仕様の先頭に置く方針を固定します。
-実装順については 16 で別途固定し、runtime 実装より先に diagnostics/test/static gate と verified pipeline を成立させます。
+初回の v2 文書では、現行実装の観測結果と、移行先で採用する target policy を切り分けることを最優先にします。
+特に、KernelIR、ModuleContribution、DependencyValidation、BootManifest / Profile policy を下位仕様の先頭に置く方針を固定します。
+実装順については 16 で別途固定し、runtime 実装より先に diagnostics / test / static gate と verified pipeline を成立させます。
 
-## Test Cases
+## テストケース
 
-| Test Case | Purpose | Execution Note |
+| テストケース | 目的 | 実行メモ |
 |---|---|---|
-| TC-README-01 | Confirm the docs index exposes the review memo and created specs. | This file must link to 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 10-1, 10-2, 11, 12, 13, 14, 15, 16, and 17. |
-| TC-README-02 | Confirm the shared test runner is documented. | Use [Run-UnityTests.ps1](../../../Tools/Run-UnityTests.ps1) for EditMode checks. |
+| TC-README-01 | ドキュメント索引に、レビュー文書と作成済み仕様がすべて公開されていることを確認する。 | このファイルから 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 10-1, 10-2, 11, 12, 13, 14, 15, 16, 17 へのリンクが必要。 |
+| TC-README-02 | 共通テストランナーが文書化されていることを確認する。 | EditMode の確認には [Run-UnityTests.ps1](../../../Tools/Run-UnityTests.ps1) を使う。 |
 
-These cases are validated by the EditMode doc tests in the workspace.
+これらのケースは、ワークスペース内の EditMode ドキュメントテストで検証されます。

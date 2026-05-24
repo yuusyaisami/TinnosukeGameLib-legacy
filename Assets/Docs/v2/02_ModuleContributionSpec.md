@@ -1,237 +1,237 @@
-# Module Contribution Specification
+# モジュール貢献仕様
 
-## Document Status
+## 文書ステータス
 
-- Document ID: 02_ModuleContributionSpec
-- Status: Draft
-- Role: declarative contribution contract from modules into KernelIR
-- Depends on:
+- 文書 ID: `02_ModuleContributionSpec`
+- 状態: Draft
+- 役割: modules から KernelIR へ向けた宣言的な contribution 契約
+- 依存先:
   - [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md)
   - [01_KernelIRSpec.md](01_KernelIRSpec.md)
-- Provides foundation for:
-  - 03_VerifiedPlanGenerationSpec.md
-  - 04_DependencyValidationSpec.md
-  - 05_BootManifestAndProfileSpec.md
-  - 06_ServiceGraphRuntimeSpec.md
-  - 07_ScopeGraphRuntimeSpec.md
-  - 08_LifecyclePlanSpec.md
-  - 09_CommandCatalogRuntimeSpec.md
-  - 10_ValueSchemaAndStoreSpec.md
-  - 10_2_DynamicValueEvaluationSpec.md
-  - 11_DebugMapAndDiagnosticsSpec.md
-  - 12_UnityAuthoringBridgeSpec.md
+- この仕様を基盤としている文書:
+  - [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md)
+  - [04_DependencyValidationSpec.md](04_DependencyValidationSpec.md)
+  - [05_BootManifestAndProfileSpec.md](05_BootManifestAndProfileSpec.md)
+  - [06_ServiceGraphRuntimeSpec.md](06_ServiceGraphRuntimeSpec.md)
+  - [07_ScopeGraphRuntimeSpec.md](07_ScopeGraphRuntimeSpec.md)
+  - [08_LifecyclePlanSpec.md](08_LifecyclePlanSpec.md)
+  - [09_CommandCatalogRuntimeSpec.md](09_CommandCatalogRuntimeSpec.md)
+  - [10_ValueSchemaAndStoreSpec.md](10_ValueSchemaAndStoreSpec.md)
+  - [10_2_DynamicValueEvaluationSpec.md](10_2_DynamicValueEvaluationSpec.md)
+  - [11_DebugMapAndDiagnosticsSpec.md](11_DebugMapAndDiagnosticsSpec.md)
+  - [12_UnityAuthoringBridgeSpec.md](12_UnityAuthoringBridgeSpec.md)
 
-### Ownership
+### 所有範囲
 
-This document owns module identity, module ownership, contribution kinds, profile and availability declaration, source location requirements, deterministic contribution collection, conflict policy, and the rejection of installer-style mutation.
+本書は、module identity、module ownership、contribution kind、profile / availability 宣言、source location 要件、決定論的な contribution 収集、conflict policy、そして installer 風の mutation を拒否する方針を所有する。
 
-This document does not own runtime builder behavior, runtime storage layout, validation algorithms, boot policy, or generated code format.
-
----
-
-## Purpose
-
-This specification defines how module-level authoring inputs are turned into declarative contribution data that can be normalized into KernelIR.
-
-ModuleContribution is a constrained declaration system, not an installer API.
-It replaces runtime installer-style mutation with pure contribution data.
-
-The target is to eliminate the current pattern where module code touches a runtime builder, discovers scope state, or registers services and executors directly during build.
-
-If a module cannot describe itself without touching runtime state, it is not valid for the target kernel.
-
-This specification exists to prevent the following failure modes:
-
-- builder mutation as composition logic
-- ownership inferred from transform hierarchy or scope traversal
-- last-write-wins overrides hidden inside collection order
-- silent fallback to runtime discovery or empty assets
-- runtime service resolution during contribution collection
-- installer logic that mixes declaration, registration, and lifecycle wiring in one path
+runtime builder の挙動、runtime storage layout、検証アルゴリズム、boot policy、generated code format は本書の担当外である。
 
 ---
 
-## Scope
+## 目的
 
-This specification defines:
+本仕様は、module レベルの authoring input を、KernelIR に正規化できる宣言的な contribution data に変換する方法を定義する。
 
-- module identity and ownership
-- module contribution record shape
-- contribution kinds
+ModuleContribution は制約付きの宣言システムであり、installer API ではない。
+runtime installer 風の mutation を、純粋な contribution data に置き換えるための仕組みである。
+
+狙いは、module code が runtime builder に触れたり、scope state を探索したり、build 中に service や executor を直接登録したりする現在のパターンを排除することにある。
+
+module が runtime state に触れずに自分自身を記述できないなら、その module は target kernel に適さない。
+
+この仕様は次の失敗モードを防ぐために存在する。
+
+- composition logic としての builder mutation
+- transform hierarchy や scope traversal から ownership を推測すること
+- collection order の中に隠れた last-write-wins override
+- runtime discovery や空 asset への silent fallback
+- contribution collection 中の runtime service resolution
+- declaration、registration、lifecycle wiring を 1 本の path に混ぜる installer logic
+
+---
+
+## 範囲
+
+本仕様は次を定義する。
+
+- module identity と ownership
+- module contribution record の形
+- contribution kind
 - contribution collection pipeline
-- module dependency declaration
-- profile and availability declaration
-- source location requirements
-- determinism rules
+- module dependency 宣言
+- profile / availability 宣言
+- source location 要件
+- deterministic ルール
 - conflict policy
-- migration boundary from legacy installers
-- handoff boundaries to lower specs
+- legacy installer からの migration boundary
+- 下位仕様への handoff boundary
 
-This specification intentionally does not define:
+本仕様は次を意図的に定義しない。
 
-- IR node layout details
-- dependency validation algorithms
+- IR node layout の詳細
+- dependency validation algorithm
 - runtime service storage layout
 - scope handle layout
-- lifecycle dispatcher implementation
-- command execution algorithms
-- value store memory layout
+- lifecycle dispatcher 実装
+- command execution algorithm
+- value store メモリレイアウト
 - boot manifest schema
 - generated artifact format
 
-This document must not become a hidden runtime implementation layer.
-It is a declarative module contract, not a replacement runtime system.
+この文書は、隠れた runtime 実装層になってはならない。
+これは宣言的な module 契約であり、代替 runtime system ではない。
 
 ---
 
-## Relationship to Other Specs
+## 他仕様との関係
 
-| Spec | Relationship |
+| 仕様 | 関係 |
 |---|---|
-| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | Defines the root architectural constraints that 02 must not violate |
-| [01_KernelIRSpec.md](01_KernelIRSpec.md) | Defines the normalized IR contract that consumes module contributions |
-| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | Defines how validated KernelIR becomes verified plan artifacts |
-| 04_DependencyValidationSpec.md | Consumes the dependency shape and ownership metadata declared here |
-| 05_BootManifestAndProfileSpec.md | Consumes module availability and profile declarations |
-| 06_ServiceGraphRuntimeSpec.md | Consumes service-related contributions projected from KernelIR |
-| 07_ScopeGraphRuntimeSpec.md | Consumes scope-related contributions projected from KernelIR |
-| 08_LifecyclePlanSpec.md | Consumes lifecycle step declarations projected from KernelIR |
-| 09_CommandCatalogRuntimeSpec.md | Consumes command-related contributions projected from KernelIR |
-| 10_ValueSchemaAndStoreSpec.md | Consumes value and init contributions projected from KernelIR |
-| 10_2_DynamicValueEvaluationSpec.md | Consumes dynamic and reactive evaluation contributions projected from KernelIR |
-| 11_DebugMapAndDiagnosticsSpec.md | Consumes source/debug metadata contributed here |
-| 12_UnityAuthoringBridgeSpec.md | Produces authoring inputs that become module contribution sources |
+| [00_KernelArchitectureOverviewSpec.md](00_KernelArchitectureOverviewSpec.md) | 02 が破ってはならない根本的なアーキテクチャ制約を定義する |
+| [01_KernelIRSpec.md](01_KernelIRSpec.md) | module contribution を消費する正規化済み IR 契約を定義する |
+| [03_VerifiedPlanGenerationSpec.md](03_VerifiedPlanGenerationSpec.md) | 検証済み KernelIR が verified plan artifact になる方法を定義する |
+| `04_DependencyValidationSpec.md` | ここで宣言された dependency 形状と ownership metadata を消費する |
+| `05_BootManifestAndProfileSpec.md` | module availability と profile 宣言を消費する |
+| `06_ServiceGraphRuntimeSpec.md` | KernelIR から投影された service 関連 contribution を消費する |
+| `07_ScopeGraphRuntimeSpec.md` | KernelIR から投影された scope 関連 contribution を消費する |
+| `08_LifecyclePlanSpec.md` | KernelIR から投影された lifecycle step 宣言を消費する |
+| `09_CommandCatalogRuntimeSpec.md` | KernelIR から投影された command 関連 contribution を消費する |
+| `10_ValueSchemaAndStoreSpec.md` | KernelIR から投影された value / init contribution を消費する |
+| `10_2_DynamicValueEvaluationSpec.md` | KernelIR から投影された dynamic / reactive evaluation contribution を消費する |
+| `11_DebugMapAndDiagnosticsSpec.md` | ここで付与された source / debug metadata を消費する |
+| `12_UnityAuthoringBridgeSpec.md` | module contribution source となる authoring input を生成する |
 
-02 is the declaration boundary that feeds normalized IR.
-Lower specs must reference the concepts defined here rather than rediscovering modules from runtime behavior.
-
----
-
-## Assembly Definition and Compile Boundary Expectations
-
-The intended assembly home for declarative module contribution contracts is `GameLib.Kernel.Contributions`.
-Detailed dependency matrices remain owned by [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md).
-
-Required compile-boundary rules for 02:
-
-- `GameLib.Kernel.Contributions` must stay separate from runtime service, scope, lifecycle, command, and value implementation assemblies
-- contribution collection contracts should remain Unity-free in the core assembly, while Unity extraction belongs to `GameLib.Kernel.Authoring` or `GameLib.Kernel.Authoring.Editor`
-- installer-style runtime builder mutation must not be reintroduced by placing runtime registration helpers inside the contribution assembly
-- legacy installer migration code must remain in quarantine assemblies rather than in `GameLib.Kernel.Contributions`
-
-If a contribution type needs runtime builder access or Unity scene search to exist, it belongs outside 02.
+02 は、正規化済み IR にデータを流し込む宣言境界である。
+下位仕様は、runtime 挙動から modules を再発見するのではなく、ここで定義した概念を参照しなければならない。
 
 ---
 
-## Current Architecture Observations
+## Assembly Definition と Compile Boundary の期待値
 
-この節は現行コードベースの観測結果を要約する。
+宣言的な module contribution 契約の想定配置先は `GameLib.Kernel.Contributions` である。
+詳細な dependency matrix は [17_AssemblyDefinitionAndCompileBoundarySpec.md](17_AssemblyDefinitionAndCompileBoundarySpec.md) が管理する。
+
+02 に対する必須の compile-boundary ルールは次のとおり。
+
+- `GameLib.Kernel.Contributions` は runtime service / scope / lifecycle / command / value 実装 assembly と分離し続ける
+- contribution collection contract は core assembly で Unity 非依存のまま維持し、Unity からの抽出は `GameLib.Kernel.Authoring` または `GameLib.Kernel.Authoring.Editor` に置く
+- runtime registration helper を contribution assembly に入れて、installer 風の mutation を再導入してはならない
+- legacy installer migration code は `GameLib.Kernel.Contributions` ではなく quarantine assembly に置く
+
+contribution 型が runtime builder access や Unity scene search を必要とするなら、それは 02 の外側に置くべきである。
+
+---
+
+## 現行アーキテクチャの観測
+
+この節は、現行コードベースの観測結果を要約する。
 ここは v2 target policy ではなく、移行元の事実整理である。
 
-### Observation Traceability
+### 観測のトレーサビリティ
 
-Current module contribution observations must remain traceable to source code, migration notes, profiling evidence, or design review notes.
+現在の module contribution 観測は、source code、migration note、profiling evidence、design review note に遡れなければならない。
 
-When this document is updated, observations that no longer match the current codebase must be removed or moved to legacy migration notes.
+この文書を更新したとき、現行コードベースに合わなくなった観測は削除するか legacy migration note に移す。
 
-| Observation | Evidence Type | Expected Downstream Spec |
+| 観測 | 根拠の種類 | 期待される下流仕様 |
 |---|---|---|
-| Scope build still mixes installer discovery and build coordination | Source / Profiling | 03, 07, 08, 14 |
-| Command executor registration is collected in bulk | Source / Profiling | 03, 09, 14 |
-| Lifecycle and build callbacks are mixed in installer-style classes | Source | 03, 08 |
-| Blackboard / Var / DynamicValue responsibilities overlap | Source | 03, 10 |
-| Registry and catalog locators still hide fallback behavior | Source | 03, 05, 10, 11 |
+| scope build が installer discovery と build coordination をまだ混ぜている | Source / Profiling | 03, 07, 08, 14 |
+| command executor registration が一括収集されている | Source / Profiling | 03, 09, 14 |
+| lifecycle と build callback が installer 風 class に混在している | Source | 03, 08 |
+| Blackboard / Var / DynamicValue の責務が重なっている | Source | 03, 10 |
+| registry / catalog locator が fallback 行動を隠している | Source | 03, 05, 10, 11 |
 
-### Representative Anchors
+### 代表的なアンカー
 
-- [BaseLifetimeScope.cs](../../GameLib/Script/Common/LTS/Core/BaseLifetimeScope.cs) - current IFeatureInstaller entry point
-- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) - nearest-scope ownership filtering and installer discovery
-- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - install flow, installer collection, and scope build coordination
-- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk executor registration example
-- [SceneFlowInstallerMB.cs](../../GameLib/Script/Project/System/SceneFlow/MB/SceneFlowInstallerMB.cs) - scene flow installer example
-- [AudioInstallerMB.cs](../../GameLib/Script/Common/Audio/AudioInstallerMB.cs) - conditional service setup example
-- [TimeInstallerMB.cs](../../GameLib/Script/Common/Time/TimeInstallerMB.cs) - acquire/release and build callback mixing example
-- [LTSIdentityMB.cs](../../GameLib/Script/Common/LTS/Identity/MB/LTSIdentityMB.cs) - current scope identity authoring metadata
-- [LTSIdentityService.cs](../../GameLib/Script/Common/LTS/Identity/Core/LTSIdentityService.cs) - runtime identity and registry integration
-- [BaseLifetimeScopeRegistry.cs](../../GameLib/Script/Common/LTS/Registry/BaseLifetimeScopeRegistry.cs) - kind/id/category lookup style runtime query
-- [CommandKeyResolver.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandKeyResolver.cs) - stable key and fallback behavior example
-- [CommandCatalogService.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogService.cs) - key-based catalog lookup example
-- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - blackboard lifecycle and value-init mixing example
-- [VarStore.cs](../../GameLib/Script/Common/Variables/VarStore/Core/VarStore.cs) - runtime value store example
-- [VarIds.g.cs](../../GameLib/Script/Generated/VarIds.g.cs) - generated stable IDs example
-- [DynamicVariant.cs](../../GameLib/Script/Common/Variables/Dynamic/Core/DynamicVariant.cs) - dynamic payload example
-- [LoadingScreenService.cs](../../GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs) - scene transition and discovery mixing example
-- [UnityCollisionSystemMB.cs](../../GameLib/Script/Collision/Unity/UnityCollisionSystemMB.cs) - profile-like scattering example
-- [CollisionIdCatalogLocator.cs](../../GameLib/Script/Collision/Core/CollisionIdCatalogLocator.cs) - asset locator example
-- [CommandCatalogLocator.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogLocator.cs) - asset locator example
+- [BaseLifetimeScope.cs](../../GameLib/Script/Common/LTS/Core/BaseLifetimeScope.cs) - 現行 `IFeatureInstaller` の entry point
+- [ScopeFeatureInstallerUtility.cs](../../GameLib/Script/Common/LTS/Core/ScopeFeatureInstallerUtility.cs) - nearest-scope ownership filtering と installer discovery
+- [RuntimeLifetimeScope.cs](../../GameLib/Script/Common/LTS/Runtime/RuntimeLifetimeScope.cs) - install flow、installer collection、scope build coordination
+- [CommandRunnerMB.cs](../../GameLib/Script/Common/Commands/MB/CommandRunnerMB.cs) - bulk executor registration の例
+- [SceneFlowInstallerMB.cs](../../GameLib/Script/Project/System/SceneFlow/MB/SceneFlowInstallerMB.cs) - scene flow installer の例
+- [AudioInstallerMB.cs](../../GameLib/Script/Common/Audio/AudioInstallerMB.cs) - conditional service setup の例
+- [TimeInstallerMB.cs](../../GameLib/Script/Common/Time/TimeInstallerMB.cs) - acquire/release と build callback の混在例
+- [LTSIdentityMB.cs](../../GameLib/Script/Common/LTS/Identity/MB/LTSIdentityMB.cs) - 現行 scope identity authoring metadata
+- [LTSIdentityService.cs](../../GameLib/Script/Common/LTS/Identity/Core/LTSIdentityService.cs) - runtime identity と registry の統合
+- [BaseLifetimeScopeRegistry.cs](../../GameLib/Script/Common/LTS/Registry/BaseLifetimeScopeRegistry.cs) - kind / id / category ベースの runtime query
+- [CommandKeyResolver.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandKeyResolver.cs) - stable key と fallback 行動の例
+- [CommandCatalogService.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogService.cs) - key ベース catalog lookup の例
+- [BlackboardMB.cs](../../GameLib/Script/Common/Variables/Blackboard/MB/BlackboardMB.cs) - blackboard lifecycle と value-init の混在例
+- [VarStore.cs](../../GameLib/Script/Common/Variables/VarStore/Core/VarStore.cs) - runtime value store の例
+- [VarIds.g.cs](../../GameLib/Script/Generated/VarIds.g.cs) - generated stable ID の例
+- [DynamicVariant.cs](../../GameLib/Script/Common/Variables/Dynamic/Core/DynamicVariant.cs) - dynamic payload の例
+- [LoadingScreenService.cs](../../GameLib/Script/Project/System/SceneFlow/LoadingManager/Service/LoadingScreenService.cs) - scene transition と discovery の混在例
+- [UnityCollisionSystemMB.cs](../../GameLib/Script/Collision/Unity/UnityCollisionSystemMB.cs) - profile 風の散在例
+- [CollisionIdCatalogLocator.cs](../../GameLib/Script/Collision/Core/CollisionIdCatalogLocator.cs) - asset locator の例
+- [CommandCatalogLocator.cs](../../GameLib/Script/Common/Commands/VNext/Catalog/CommandCatalogLocator.cs) - asset locator の例
 
-### Current Gaps
+### 現行の不足点
 
-- module boundaries are not expressed as a single declarative contract
-- module identity is not uniformly separated from folder, assembly, or scene structure
-- profile / availability data is scattered across installers and asset locators
-- contribution data is not collected through one deterministic normalization path
-- fallback behavior can still hide missing declaration data
-- contribution responsibilities are split across installer classes, registries, and catalog locators
+- module boundary が 1 つの宣言契約として表現されていない
+- module identity が folder、assembly、scene 構造から明確に分離されていない
+- profile / availability data が installer や asset locator に散在している
+- contribution data が 1 本の決定論的な正規化 path で収集されていない
+- fallback 行動が declaration data の欠落を隠せてしまう
+- contribution の責務が installer class、registry、catalog locator に分割されている
 
 ---
 
 ## Module Authority
 
-Module is the authoring-level ownership boundary.
+module は authoring-level の ownership boundary である。
 
-Modules declare what they contribute.
-They do not directly mutate runtime state.
-They do not decide runtime boot behavior.
-They do not resolve live services during contribution collection.
+module は、自分が何を貢献するかを宣言する。
+runtime state を直接 mutate しない。
+runtime boot behavior を決めない。
+contribution collection 中に live service を解決しない。
 
 ### Core Module Concepts
 
-| Concept | Requirement |
+| 概念 | 要件 |
 |---|---|
-| ModuleDefinition | Authoring-level declaration that groups one or more contributions; may be asset-backed or code-backed, but must not require runtime builder access |
-| ModuleId | Stable typed identity; must not be inferred from folder name, assembly name, scene path, or component order |
-| ModuleKind | Classification of module ownership, such as feature, content, bridge, system, or migration adapter; it is not a runtime behavior flag |
-| ModuleVersion | Compatibility input for module semantics; if contribution meaning changes, the version must change |
-| Ownership | Explicit declaration of which contribution domains the module controls |
-| Availability | Declarative profile or build-target constraint; it must not depend on runtime expressions or scene discovery |
+| ModuleDefinition | 1 つ以上の contribution を束ねる authoring-level 宣言。asset-backed でも code-backed でもよいが、runtime builder access は不要でなければならない |
+| ModuleId | 安定した typed identity。folder 名、assembly 名、scene path、component order から推測してはならない |
+| ModuleKind | feature、content、bridge、system、migration adapter などの分類。runtime behavior flag ではない |
+| ModuleVersion | module semantics の互換性入力。meaning が変わるなら version を変えなければならない |
+| Ownership | どの contribution domain を module が制御するかの明示宣言 |
+| Availability | 宣言的な profile / build target 制約。runtime expression や scene discovery に依存してはならない |
 
 ### Module Identity Rules
 
-Module identity must be explicit and source-backed.
+module identity は明示的で、source-backed でなければならない。
 
-The following are forbidden as identity sources:
+identity source として禁止するもの:
 
 - folder path
-- assembly name alone
-- scene hierarchy position
+- assembly 名だけ
+- scene hierarchy の位置
 - transform parentage
 - component index order
 - runtime object instance ID
 
-Module identity must remain stable across editor sessions and across generation runs for the same source.
+module identity は、同じ source に対して editor session をまたいでも、generation run をまたいでも安定していなければならない。
 
 ---
 
 ## Contribution Model
 
-Contribution data is a declarative description of what a module wants KernelIR to contain.
+contribution data は、module が KernelIR に入れたい内容を宣言するものだ。
 
-Contribution collection must be pure, deterministic, and free of runtime side effects.
+contribution collection は pure、deterministic、かつ runtime side effect なしで行われなければならない。
 
-Each contribution item must include at minimum:
+各 contribution item は少なくとも次を含む必要がある。
 
 - contribution kind
 - owner ModuleId
 - source location
-- stable name or stable ID input
-- dependency references when relevant
-- profile or availability declaration when relevant
-- conflict policy metadata when relevant
-- debug metadata when relevant
+- stable name または stable ID input
+- 必要なら dependency reference
+- 必要なら profile / availability 宣言
+- 必要なら conflict policy metadata
+- 必要なら debug metadata
 
-Contribution data is not a runtime instance container.
-It must not store live services, scope instances, or mutable runtime caches.
+contribution data は runtime instance container ではない。
+live service、scope instance、mutable runtime cache を格納してはならない。
 
 ### Contribution Pipeline
 
@@ -244,100 +244,107 @@ Authoring Input
   -> validation handoff
 ```
 
-The collection and normalization path must not:
+collection と normalization の path は次をしてはならない。
 
-- touch runtime builders
-- resolve live services
-- read runtime scope state
-- traverse scene hierarchy to infer ownership
-- repair missing declarations through fallback assets
+- runtime builder に触れる
+- live service を解決する
+- runtime scope state を読む
+- ownership を推測するために scene hierarchy を走査する
+- 不足宣言を fallback asset で修復する
 
-If a required declaration is missing, collection must fail with structured diagnostics.
+required declaration が欠けているなら、collection は structured diagnostics を伴って失敗しなければならない。
 
 ---
 
 ## Contribution Kinds
 
-This section enumerates the contribution kinds that 02 must support.
-Each kind is a declaration shape, not an execution mechanism.
+この節は、02 がサポートすべき contribution kind を列挙する。
+各 kind は execution mechanism ではなく declaration 形状である。
 
-| Contribution Kind | Declares | Must Not | Hand-off |
+| Contribution Kind | 宣言するもの | してはならないこと | 引き渡し先 |
 |---|---|---|---|
-| ServiceContribution | Service identity, lifetime intent, dependency references, factory metadata, profile availability | Instantiate the service or resolve it from the runtime container | 03, 06, 11 |
-| CommandContribution | Command identity, authoring key mapping, payload schema, executor metadata | Bulk register executors or resolve executor identity from arbitrary strings | 03, 09, 11 |
-| ValueContribution | Value identity, schema requirements, persistence metadata | Infer schema from the runtime store or create ad-hoc runtime keys | 03, 10, 11 |
-| ValueInitContribution | Initial writes, default values, ordering hints | Hide reactive evaluation inside generic initialization | 03, 10 |
-| DynamicEvaluationContribution | One-shot or phase-bound dynamic evaluation, output target, fallback policy, and declared inputs | Hide DynamicValue evaluation inside `ValueInitContribution` or generic getters | 03, 10_2, 11 |
-| ReactiveEvaluationContribution | Tracked recomputation, cache policy, invalidation policy, and scheduling | Rely on source-local ad hoc version checks or hidden poll loops as the architecture contract | 03, 10_2, 11 |
-| ScopeContribution | Authored scope identity, parent constraints, ownership, attach/detach constraints | Infer scope from transform hierarchy or nearest scope ownership | 03, 07, 11 |
-| LifecycleContribution | Explicit lifecycle step plan, phase ordering, dependencies | Auto-collect interface implementations or registration scans | 03, 08, 11 |
-| RuntimeQueryContribution | Queryable runtime identity fields, categories, index requirements, ambiguity rules | Implement generic DI lookup or scene search as query semantics | 03, 07, 11 |
-| DiagnosticsContribution | Stable debug name, source location, legacy origin, trace metadata | Reconstruct provenance at boot time | 03, 11 |
-| AssetBindingContribution | Required assets, registry inputs, binding targets, availability notes | Hide Resources fallback or AssetDatabase locator behavior | 03, 05, 12 |
-| CodeGenerationContribution | Generated projection requirements, target identity domains, generation prerequisites | Emit code directly or define generated artifact format here | 03 |
+| ServiceContribution | service identity、lifetime intent、dependency reference、factory metadata、profile availability | service を instantiate する、runtime container から解決する | 03, 06, 11 |
+| CommandContribution | command identity、authoring key mapping、payload schema、executor metadata | executor を bulk register する、任意文字列から executor identity を解決する | 03, 09, 11 |
+| ValueContribution | value identity、schema requirement、persistence metadata | runtime store から schema を推測する、その場で runtime key を作る | 03, 10, 11 |
+| ValueInitContribution | 初期書き込み、default value、順序ヒント | reactive evaluation を generic initialization の中に隠す | 03, 10 |
+| DynamicEvaluationContribution | one-shot または phase-bound な dynamic evaluation、出力先、fallback policy、宣言済み input | DynamicValue evaluation を `ValueInitContribution` や generic getter に隠す | 03, 10_2, 11 |
+| ReactiveEvaluationContribution | tracked recomputation、cache policy、invalidation policy、scheduling | source-local な ad hoc version check や隠れた poll loop を契約にする | 03, 10_2, 11 |
+| ScopeContribution | authored scope identity、parent constraint、ownership、attach/detach constraint | transform hierarchy や nearest scope ownership から scope を推測する | 03, 07, 11 |
+| LifecycleContribution | explicit lifecycle step plan、phase ordering、dependencies | interface 実装や registration scan を自動収集する | 03, 08, 11 |
+| RuntimeQueryContribution | queryable runtime identity field、category、index requirement、ambiguity rule | generic DI lookup や scene search を query semantics として使う | 03, 07, 11 |
+| DiagnosticsContribution | stable debug name、source location、legacy origin、trace metadata | boot 時に provenance を組み立て直す | 03, 11 |
+| AssetBindingContribution | 必要 asset、registry input、binding target、availability note | Resources fallback や AssetDatabase locator の挙動を隠す | 03, 05, 12 |
+| CodeGenerationContribution | generated projection requirement、target identity domain、generation prerequisite | ここで code を直接 emit する、generated artifact format を定義する | 03 |
 
 ### ServiceContribution
 
-ServiceContribution declares that a service must exist in the target kernel.
+ServiceContribution は、target kernel に service が存在しなければならないことを宣言する。
 
-It may describe:
+含めてよいもの:
 
 - service identity
 - lifetime class
-- dependency edges
+- dependency edge
 - factory metadata
 - profile availability
 
-It must not create the service instance.
-It must not resolve the service from a runtime container during collection.
+してはならないこと:
+
+- service instance を作ること
+- collection 中に runtime container から service を解決すること
 
 ### CommandContribution
 
-CommandContribution declares command identity and executor-facing metadata.
+CommandContribution は command identity と executor 向け metadata を宣言する。
 
-It may describe:
+含めてよいもの:
 
 - authoring key
 - runtime identity mapping
-- payload requirements
+- payload requirement
 - executor metadata
 - diagnostics metadata
 
-It must not register executors as a side effect.
-It must not treat authoring keys as runtime truth.
+してはならないこと:
+
+- side effect として executor を登録すること
+- authoring key を runtime truth とみなすこと
 
 ### ValueContribution
 
-ValueContribution declares schema-level value presence.
+ValueContribution は schema レベルの value 存在を宣言する。
 
-It may describe:
+含めてよいもの:
 
-- ValueKeyId or equivalent identity input
+- `ValueKeyId` または同等の identity input
 - type information
-- persistence/save metadata
-- default value constraints
+- persistence / save metadata
+- default value constraint
 
-It must not read the runtime store to infer schema.
-It must not use runtime fallback to invent missing keys.
+してはならないこと:
+
+- runtime store を読んで schema を推測すること
+- runtime fallback で不足 key を作ること
 
 ### ValueInitContribution
 
-ValueInitContribution declares initial writes or default state for values.
+ValueInitContribution は value の初期書き込みや default state を宣言する。
 
-It may describe:
+含めてよいもの:
 
 - initial assignment
 - initialization ordering
 - profile-dependent defaults
 
-It must not hide reactive evaluation or dynamic computation inside the same declaration.
-Those behaviors belong to `DynamicEvaluationContribution` and `ReactiveEvaluationContribution`.
+してはならないこと:
+
+- reactive evaluation や dynamic computation を同じ宣言に隠すこと
 
 ### DynamicEvaluationContribution
 
-DynamicEvaluationContribution declares one-shot or phase-bound evaluation.
+DynamicEvaluationContribution は one-shot または phase-bound な評価を宣言する。
 
-It may describe:
+含めてよいもの:
 
 - root source reference
 - output target
@@ -346,280 +353,280 @@ It may describe:
 - fallback policy
 - declared runtime inputs
 
-It must not be collapsed into generic init data or hidden getter logic.
+generic init data や隠れた getter logic に潰してはならない。
 
 ### ReactiveEvaluationContribution
 
-ReactiveEvaluationContribution declares tracked recomputation and shared-cache behavior.
+ReactiveEvaluationContribution は tracked recomputation と shared-cache 行動を宣言する。
 
-It may describe:
+含めてよいもの:
 
 - root source reference
-- computed target or cached result target
+- computed target または cached result target
 - dependency declaration mode
 - invalidation policy
 - scheduling policy
 - cache policy
 
-It must not rely on source-local ad hoc caches or scattered version checks as the architecture contract.
+source-local な ad hoc cache や散在した version check を契約にしてはならない。
 
 ### ScopeContribution
 
-ScopeContribution declares authored scope ownership and attachment rules.
+ScopeContribution は authored scope ownership と attachment rule を宣言する。
 
-It may describe:
+含めてよいもの:
 
 - scope authoring identity
-- parent constraints
-- attachment or spawn constraints
-- ownership boundaries
+- parent constraint
+- attachment / spawn constraint
+- ownership boundary
 
-It must not infer scope parentage from transform hierarchy.
+transform hierarchy から scope parentage を推測してはならない。
 
 ### LifecycleContribution
 
-LifecycleContribution declares explicit lifecycle ordering.
+LifecycleContribution は explicit な lifecycle ordering を宣言する。
 
-It may describe:
+含めてよいもの:
 
 - lifecycle step identity
-- ordering rules
-- phase dependencies
-- acquire/release or init semantics
+- ordering rule
+- phase dependency
+- acquire / release または init の意味
 
-It must not rely on interface auto-collection or registration scans.
+interface 自動収集や registration scan に依存してはならない。
 
 ### RuntimeQueryContribution
 
-RuntimeQueryContribution declares queryable runtime identity and indexing requirements.
+RuntimeQueryContribution は queryable runtime identity と indexing requirement を宣言する。
 
-It may describe:
+含めてよいもの:
 
-- runtime identity fields
-- queryable categories
-- uniqueness requirements
-- ambiguity rules
+- runtime identity field
+- queryable category
+- uniqueness requirement
+- ambiguity rule
 
-It must not be implemented as generic DI resolution.
+generic DI resolution として実装してはならない。
 
 ### DiagnosticsContribution
 
-DiagnosticsContribution declares provenance and traceability data.
+DiagnosticsContribution は provenance と traceability の data を宣言する。
 
-It may describe:
+含めてよいもの:
 
 - stable debug name
 - source location
 - profile availability
 - legacy migration origin
 
-It must not reconstruct provenance at boot.
+boot 時に provenance を再構築してはならない。
 
 ### AssetBindingContribution
 
-AssetBindingContribution declares asset references or binding requirements needed by the plan.
+AssetBindingContribution は plan に必要な asset reference や binding requirement を宣言する。
 
-It may describe:
+含めてよいもの:
 
 - required assets
 - registry inputs
 - binding target identity
 
-It must not hide asset discovery through fallback locators.
+fallback locator で asset discovery を隠してはならない。
 
 ### CodeGenerationContribution
 
-CodeGenerationContribution declares that downstream generation must produce code or generated metadata for the module.
+CodeGenerationContribution は、下流 generation が module 用の code または generated metadata を作るべきことを宣言する。
 
-It may describe:
+含めてよいもの:
 
-- target projection kinds
-- identity domains affected by generation
-- generation prerequisites
+- target projection kind
+- generation に影響する identity domain
+- generation prerequisite
 
-It must not define generated code format or emit code directly.
+generated code format を定義したり、ここで直接 code を出力したりしてはならない。
 
 ---
 
-## Dependency and Availability Rules
+## Dependency と Availability ルール
 
-Modules may declare dependencies on other modules explicitly.
+module は、他の module に explicit に dependency を宣言できる。
 
-Hidden dependency transport through shared static access, scene order, or runtime discovery is forbidden.
+shared static access、scene order、runtime discovery を通じた hidden dependency transport は禁止する。
 
 ### Dependency Declaration Rules
 
-- dependency declaration must be explicit
-- dependency identity must be stable and source-backed
-- missing required dependency is a validation error
-- dependency declaration must be deterministic
-- dependency declaration must be represented in KernelIR
+- dependency 宣言は explicit でなければならない
+- dependency identity は安定していて source-backed でなければならない
+- required dependency の欠落は validation error である
+- dependency 宣言は deterministic でなければならない
+- dependency 宣言は KernelIR に表現されなければならない
 
 ### Availability Rules
 
-Availability is declarative.
+Availability は宣言的である。
 
-It may express:
+次のような内容を表現できる。
 
-- profile selection
-- build target selection
-- editor/test/release availability
+- profile 選択
+- build target 選択
+- editor / test / release availability
 - platform family availability
 
-It must not depend on runtime expression evaluation or hidden script logic.
+runtime expression evaluation や隠れた script logic に依存してはならない。
 
-If availability requires a more expressive condition than simple declaration, that condition must be modeled explicitly in a lower spec or feature-flag system.
+もし simple declaration より表現力が必要なら、その条件は下位仕様か feature-flag system で明示的にモデル化しなければならない。
 
 ### Source Location Rules
 
-Every contribution item that can affect runtime behavior must carry source location metadata.
+runtime 挙動に影響しうる contribution item は、すべて source location metadata を持たなければならない。
 
-The source location must be sufficient for traceability into diagnostics and DebugMap generation.
+source location は、diagnostics と DebugMap 生成への traceability を支えられるだけ十分でなければならない。
 
 ---
 
 ## Conflict Policy
 
-Conflict handling must fail closed.
+Conflict handling は fail closed でなければならない。
 
-The default policy is validation error.
+既定の policy は validation error である。
 
-The following are forbidden as implicit conflict resolution:
+implicit な conflict resolution として禁止するもの:
 
 - last-write-wins
 - silent override
-- implicit merge by collection order
-- runtime repair of duplicate ownership
-- fallback to empty contribution data
+- collection order による implicit merge
+- duplicate ownership の runtime repair
+- 空の contribution data への fallback
 
-If a lower spec ever needs an override mechanism, it must define the scope, reason, validation rule, diagnostics behavior, and removal condition explicitly.
+もし下位仕様で override mechanism が必要なら、その scope、理由、validation rule、diagnostics 行動、削除条件を明示しなければならない。
 
-02 itself does not define such an override mechanism.
+02 自体は override mechanism を定義しない。
 
 ---
 
-## Determinism Rules
+## Determinism ルール
 
-Contribution collection and normalization must be deterministic.
+contribution collection と normalization は deterministic でなければならない。
 
-Given the same module definitions, availability inputs, and profile, the contribution set must be semantically identical.
+同じ module definition、availability input、profile なら、contribution set は意味的に同一である必要がある。
 
-Contribution processing must not depend on:
+contribution processing は次に依存してはならない。
 
 - enumeration order
 - reflection order
 - current time
-- random values
-- machine-local path values
-- Unity object instance IDs
+- random value
+- machine-local path value
+- Unity object instance ID
 - scene load timing
 
-Recommended stable ordering priority:
+推奨される stable ordering priority:
 
 1. module identity
 2. contribution kind
-3. stable name or stable ID
+3. stable name または stable ID
 4. source location
-5. explicit dependency order when required
+5. 必要なら explicit dependency order
 
-If deterministic ordering cannot be established, the contribution run must fail.
+決定論的な順序が確立できないなら、その contribution run は失敗しなければならない。
 
 ---
 
-## Legacy Installer Rejection
+## Legacy Installer の拒否
 
-The legacy `IFeatureInstaller.InstallFeature(builder, scope)` pattern is not the target model.
+legacy の `IFeatureInstaller.InstallFeature(builder, scope)` パターンは target model ではない。
 
-The following legacy behaviors are rejected as target contracts:
+target contract として拒否する legacy behavior:
 
-- scope discovery during installation
-- ownership inference from runtime hierarchy
-- direct service registration during collection
-- bulk command executor registration as a discovery step
-- lifecycle auto-collection from registrations
-- debug binding mixed into installer mutation
-- authoring and runtime concerns mixed in one execution path
+- installation 中の scope discovery
+- runtime hierarchy からの ownership 推測
+- collection 中の direct service registration
+- discovery step としての bulk command executor registration
+- registration からの lifecycle auto-collection
+- installer mutation に混ざった debug binding
+- 1 本の execution path に混ざった authoring / runtime concern
 
-Legacy installers may exist only as migration adapters outside the target kernel core.
+legacy installer は、target kernel core の外側にある migration adapter としてのみ存在できる。
 
-Legacy adapters must be observable and must not become the source of new target-kernel behavior.
+legacy adapter は観測可能でなければならず、新しい target-kernel behavior の源になってはならない。
 
 ### Migration Mapping
 
 | Legacy Pattern | Target Contribution Kind |
 |---|---|
-| `IFeatureInstaller` / `InstallFeature(builder, scope)` | ModuleContribution / ContributionData |
-| `CommandRunnerMB` bulk executor registration | CommandContribution |
-| `BlackboardMB` mixed value setup | ValueContribution / ValueInitContribution |
-| `RuntimeLifetimeScope` installer discovery | ModuleContribution collection pipeline |
-| `BaseLifetimeScopeRegistry` lookup role | RuntimeQueryContribution |
-| `VarKeyRegistryLocator` fallback lookup | ValueContribution / AssetBindingContribution |
-| `VarIdResolver` runtime negative ID repair | ValueContribution / DiagnosticsContribution |
-| `CommandCatalogLocator` / `CollisionIdCatalogLocator` asset locator patterns | AssetBindingContribution |
+| `IFeatureInstaller` / `InstallFeature(builder, scope)` | `ModuleContribution` / `ContributionData` |
+| `CommandRunnerMB` の bulk executor registration | `CommandContribution` |
+| `BlackboardMB` の混在した value setup | `ValueContribution` / `ValueInitContribution` |
+| `RuntimeLifetimeScope` の installer discovery | `ModuleContribution` collection pipeline |
+| `BaseLifetimeScopeRegistry` の lookup role | `RuntimeQueryContribution` |
+| `VarKeyRegistryLocator` の fallback lookup | `ValueContribution` / `AssetBindingContribution` |
+| `VarIdResolver` の runtime negative ID repair | `ValueContribution` / `DiagnosticsContribution` |
+| `CommandCatalogLocator` / `CollisionIdCatalogLocator` の asset locator pattern | `AssetBindingContribution` |
 
-This mapping is descriptive, not permissive.
-It shows where existing responsibility must move; it does not authorize the old behavior to remain in the target kernel.
-
----
-
-## Module Interaction with KernelIR
-
-Modules do not write KernelIR directly at runtime.
-They supply declarative contribution data that normalization turns into KernelIR.
-
-The target architecture requires the following separation:
-
-- module authoring owns contribution intent
-- KernelIR owns normalized structure
-- validation owns accept/reject decisions
-- plan generation owns verified runtime projections
-
-Modules must not introduce new structural identities outside the contribution contract.
-If a module needs a new identity domain, that identity must be declared here and normalized in KernelIR before later specs consume it.
+この mapping は説明的であり、許可ではない。
+既存責務をどこへ移すかを示すものであって、旧挙動を target kernel に残す許可ではない。
 
 ---
 
-## Acceptance Criteria
+## Module と KernelIR の関係
 
-02 is complete when it defines:
+module は runtime 中に KernelIR を直接書かない。
+module は宣言的な contribution data を供給し、それを normalization が KernelIR に変換する。
 
-- module identity and ownership
-- contribution record requirements
-- contribution kinds
-- collection and normalization pipeline
-- dependency and availability declarations
-- source location requirements
-- determinism rules
-- conflict policy
-- legacy installer rejection
-- migration mapping to target contribution kinds
-- handoff boundaries to 03 and 04
+target architecture に必要な分離は次のとおり。
 
-02 is not complete if any runtime builder API, runtime resolution algorithm, or storage layout detail has escaped into the specification.
+- module authoring が contribution intent を所有する
+- KernelIR が normalized structure を所有する
+- validation が accept / reject を決める
+- plan generation が verified runtime projection を所有する
+
+module は contribution contract の外側に新しい structural identity を持ち込んではならない。
+新しい identity domain が必要なら、ここで宣言し、後続仕様が消費する前に KernelIR へ正規化しなければならない。
 
 ---
 
-## Test Cases
+## 受け入れ条件
 
-| Test Case | Purpose | Verification |
+02 が完成していると見なす条件は次のとおり。
+
+- module identity と ownership が定義されている
+- contribution record 要件が定義されている
+- contribution kind が定義されている
+- collection / normalization pipeline が定義されている
+- dependency / availability 宣言が定義されている
+- source location 要件が定義されている
+- determinism ルールが定義されている
+- conflict policy が定義されている
+- legacy installer の拒否が定義されている
+- target contribution kind への migration mapping が定義されている
+- 03 と 04 への handoff boundary が定義されている
+
+runtime builder API、runtime resolution algorithm、storage layout の詳細が仕様に入り込んだ時点で未完成である。
+
+---
+
+## テストケース
+
+| テストケース | 目的 | 検証 |
 |---|---|---|
-| TC-02-01 | Confirm module contribution is declarative and does not accept runtime builder mutation. | The purpose and contribution pipeline sections must forbid builder access, live service resolution, and runtime state mutation. |
-| TC-02-02 | Confirm module identity is explicit and source-backed. | The module authority section must define ModuleId, ModuleKind, ModuleVersion, Ownership, and Availability without deriving them from paths or hierarchy. |
-| TC-02-03 | Confirm all required contribution kinds are represented. | The contribution kinds section must cover service, command, value, value init, dynamic evaluation, reactive evaluation, scope, lifecycle, runtime query, diagnostics, asset binding, and code generation. |
-| TC-02-04 | Confirm dependency and availability are declared, not inferred. | The dependency and availability rules section must forbid hidden static access, runtime expression fallback, and scene discovery. |
-| TC-02-05 | Confirm conflict policy fails closed. | The conflict policy section must reject last-write-wins, silent override, and implicit merge behavior. |
-| TC-02-06 | Confirm legacy installer behavior is treated as migration-only. | The legacy installer rejection and migration mapping sections must describe old patterns as adapters, not target behavior. |
+| TC-02-01 | module contribution が宣言的であり、runtime builder mutation を受け付けないことを確認する。 | 目的と contribution pipeline の節で、builder access、live service resolution、runtime state mutation を禁止していること。 |
+| TC-02-02 | module identity が explicit かつ source-backed であることを確認する。 | module authority の節で、ModuleId、ModuleKind、ModuleVersion、Ownership、Availability を path や hierarchy から導出せずに定義していること。 |
+| TC-02-03 | 必要な contribution kind がすべて表現されていることを確認する。 | contribution kind の節が、service、command、value、value init、dynamic evaluation、reactive evaluation、scope、lifecycle、runtime query、diagnostics、asset binding、code generation を含んでいること。 |
+| TC-02-04 | dependency と availability が推測ではなく宣言されることを確認する。 | dependency / availability rule の節で、隠れた static access、runtime expression fallback、scene discovery を禁止していること。 |
+| TC-02-05 | conflict policy が fail closed であることを確認する。 | conflict policy の節で、last-write-wins、silent override、implicit merge を拒否していること。 |
+| TC-02-06 | legacy installer behavior が migration-only として扱われることを確認する。 | legacy installer rejection と migration mapping の節で、旧パターンを adapter として記述し、target behavior として扱っていないこと。 |
 
 ---
 
-## Final Position
+## 最終見解
 
-ModuleContribution is the explicit declaration boundary between authoring/module ownership and KernelIR normalization.
+ModuleContribution は、authoring / module ownership と KernelIR normalization の間にある explicit な宣言境界である。
 
-It exists to make runtime builder mutation impossible in the target path.
-Modules declare contributions.
-KernelIR normalizes them.
-Validation decides whether they are acceptable.
-Verified plan generation consumes the validated result.
+その目的は、target path で runtime builder mutation を不可能にすることにある。
+module は contribution を宣言する。
+KernelIR はそれを正規化する。
+validation が受け入れ可否を決める。
+verified plan generation が、その検証済み結果を消費する。
 
-If module behavior is not expressible as declarative contribution data, it does not belong in the target kernel core.
+module 挙動が declarative contribution data として表現できないなら、それは target kernel core に属さない。
