@@ -1,0 +1,17 @@
+{
+  "name": "GameLib.Kernel.V21.Unity",
+  "rootNamespace": "Game.Kernel.V21.Unity",
+  "references": [
+    "GameLib.Kernel.V21.Core",
+    "GameLib.Kernel.V21.Composition"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
