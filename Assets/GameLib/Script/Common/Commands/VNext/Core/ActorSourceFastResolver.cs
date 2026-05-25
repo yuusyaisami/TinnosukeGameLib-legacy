@@ -352,7 +352,7 @@ namespace Game.Commands.VNext
             if (transform == null)
                 return false;
 
-            if (!transform.TryGetComponent<LTSIdentityMB>(out var identityMB) || identityMB == null)
+            if (!transform.TryGetComponent<EntityIdentityMB>(out var identityMB) || identityMB == null)
                 return false;
 
             if (!MatchesIdentity(identityMB, filter))
@@ -505,7 +505,7 @@ namespace Game.Commands.VNext
             return true;
         }
 
-        static bool MatchesIdentity(LTSIdentityMB identity, in CommandTargetIdentityFilter filter)
+        static bool MatchesIdentity(EntityIdentityMB identity, in CommandTargetIdentityFilter filter)
         {
             if (identity == null)
                 return false;

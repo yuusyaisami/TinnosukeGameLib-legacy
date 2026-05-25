@@ -45,7 +45,7 @@ namespace Game.Profile
         /// </summary>
         /// <param name="blackboard">Blackboard サービス（null 可）</param>
         /// <param name="scalar">Scalar サービス（null 可）</param>
-        /// <param name="scopeIdentity">Scope の安定 ID（LTSIdentityMB.id）。Save 対象にする場合は必須。</param>
+        /// <param name="scopeIdentity">Scope の安定 ID（EntityIdentityMB.id）。Save 対象にする場合は必須。</param>
         public ScopeBindingRegistryService(
             IBlackboardService blackboard = null,
             IBaseScalarService scalar = null,

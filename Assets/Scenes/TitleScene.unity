@@ -419,7 +419,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: GameStartBtn
   category: 
@@ -648,7 +648,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 4
   id: SceneRoot
   category: 
@@ -1039,7 +1039,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 7
   id: ScreenUIRoot
   category: 

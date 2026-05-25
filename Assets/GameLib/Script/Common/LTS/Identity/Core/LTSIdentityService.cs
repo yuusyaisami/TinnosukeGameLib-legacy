@@ -54,7 +54,7 @@ namespace Game
 
         public LTSIdentityService(
             IScopeNode scope,
-            LTSIdentityMB mb,
+            EntityIdentityMB mb,
             IBaseLifetimeScopeRegistry registry)
         {
             _scope = scope;

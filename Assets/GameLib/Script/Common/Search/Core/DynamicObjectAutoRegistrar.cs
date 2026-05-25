@@ -10,14 +10,14 @@ namespace Game.Search
         IScopeReleaseHandler,
         IDisposable
     {
-        readonly LTSIdentityMB _identityMb;
+        readonly EntityIdentityMB _identityMb;
         readonly IRuntimeResolver _resolver;
 
         IDynamicObjectRegistryService? _registry;
         IScopeNode? _scope;
         bool _registered;
 
-        public DynamicObjectAutoRegistrar(LTSIdentityMB identityMb, IRuntimeResolver resolver)
+        public DynamicObjectAutoRegistrar(EntityIdentityMB identityMb, IRuntimeResolver resolver)
         {
             _identityMb = identityMb;
             _resolver = resolver;

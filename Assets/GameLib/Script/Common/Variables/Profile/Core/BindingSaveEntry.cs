@@ -37,7 +37,7 @@ namespace Game.Profile
         /// <summary>Save レイヤー</summary>
         public readonly SaveLayer SaveLayer;
 
-        /// <summary>Scope の安定 ID（LTSIdentityMB.id）。空の場合は Save 対象外。</summary>
+        /// <summary>Scope の安定 ID（EntityIdentityMB.id）。空の場合は Save 対象外。</summary>
         public readonly string ScopeIdentity;
 
         /// <summary>元となった Profile の型名（デバッグ用）</summary>
