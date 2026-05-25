@@ -13,7 +13,7 @@ using UnityEngine.Pool;
 namespace Game
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(LTSIdentityMB))]
+    [RequireComponent(typeof(EntityIdentityMB))]
     [RequireComponent(typeof(RuntimeTickHub))]
     public abstract class RuntimeLifetimeScopeBase : MonoBehaviour, IScopeNode, ICoordinatedBuildScope
     {
@@ -558,7 +558,7 @@ namespace Game
 
         void ApplyIdentityFromComponent()
         {
-            var identityMb = GetComponent<LTSIdentityMB>();
+            var identityMb = GetComponent<EntityIdentityMB>();
             if (identityMb != null)
             {
                 _activeIdentity = new RuntimeIdentityData
@@ -778,7 +778,7 @@ namespace Game
     }
 
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(LTSIdentityMB))]
+    [RequireComponent(typeof(EntityIdentityMB))]
     [RequireComponent(typeof(RuntimeTickHub))]
     [RequireComponent(typeof(BlackboardMB))]
     [RequireComponent(typeof(CommandRunnerMB))]

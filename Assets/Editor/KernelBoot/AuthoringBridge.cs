@@ -175,6 +175,7 @@ namespace Game.Kernel.Authoring
     {
         public AuthoringDirectPlayResult(
             AuthoringDirectPlayInput input,
+            KernelIR effectiveKernelIR,
             AuthoringDirectPlayStage failedStage,
             ScopeAuthoringExtractionReport extractionReport,
             KernelIRNormalizationReport normalizationReport,
@@ -187,6 +188,7 @@ namespace Game.Kernel.Authoring
             ArtifactSetPromotionResult? promotionCommitResult)
         {
             Input = input ?? throw new ArgumentNullException(nameof(input));
+            EffectiveKernelIR = effectiveKernelIR ?? throw new ArgumentNullException(nameof(effectiveKernelIR));
             FailedStage = failedStage;
             ExtractionReport = extractionReport ?? throw new ArgumentNullException(nameof(extractionReport));
             NormalizationReport = normalizationReport ?? throw new ArgumentNullException(nameof(normalizationReport));
@@ -200,6 +202,8 @@ namespace Game.Kernel.Authoring
         }
 
         public AuthoringDirectPlayInput Input { get; }
+
+        public KernelIR EffectiveKernelIR { get; }
 
         public AuthoringDirectPlayStage FailedStage { get; }
 
@@ -299,13 +303,15 @@ namespace Game.Kernel.Authoring
         static AuthoringDirectPlayResult PrepareDirectPlayCore(AuthoringDirectPlayInput input)
         {
             ScopeAuthoringExtractionReport extractionReport = ScopeAuthoringExtractionService.Extract(input.Roots);
-            KernelIRNormalizationReport normalizationReport = CreateNormalizationReport(input.KernelIR);
-            DependencyValidationReport dependencyValidationReport = DependencyValidator.Validate(input.KernelIR);
+            KernelIR effectiveKernelIR = CreateEffectiveKernelIR(input.KernelIR, extractionReport);
+            KernelIRNormalizationReport normalizationReport = CreateNormalizationReport(effectiveKernelIR);
+            DependencyValidationReport dependencyValidationReport = DependencyValidator.Validate(effectiveKernelIR);
 
             if (!extractionReport.IsValid)
             {
                 return new AuthoringDirectPlayResult(
                     input,
+                    effectiveKernelIR,
                     AuthoringDirectPlayStage.Extraction,
                     extractionReport,
                     normalizationReport,
@@ -322,6 +328,7 @@ namespace Game.Kernel.Authoring
             {
                 return new AuthoringDirectPlayResult(
                     input,
+                    effectiveKernelIR,
                     AuthoringDirectPlayStage.Normalization,
                     extractionReport,
                     normalizationReport,
@@ -338,6 +345,7 @@ namespace Game.Kernel.Authoring
             {
                 return new AuthoringDirectPlayResult(
                     input,
+                    effectiveKernelIR,
                     AuthoringDirectPlayStage.DependencyValidation,
                     extractionReport,
                     normalizationReport,
@@ -355,7 +363,7 @@ namespace Game.Kernel.Authoring
             string selectedProfile = profileKind.ToString();
 
             KernelProjectionGenerationResult generationResult = KernelProjectionGenerator.Generate(
-                input.KernelIR,
+                effectiveKernelIR,
                 input.PlanId,
                 input.ArtifactSetId,
                 input.FormatVersion,
@@ -367,6 +375,7 @@ namespace Game.Kernel.Authoring
             {
                 return new AuthoringDirectPlayResult(
                     input,
+                    effectiveKernelIR,
                     AuthoringDirectPlayStage.Generation,
                     extractionReport,
                     normalizationReport,
@@ -394,6 +403,7 @@ namespace Game.Kernel.Authoring
             {
                 return new AuthoringDirectPlayResult(
                     input,
+                    effectiveKernelIR,
                     AuthoringDirectPlayStage.Promotion,
                     extractionReport,
                     normalizationReport,
@@ -415,6 +425,7 @@ namespace Game.Kernel.Authoring
             {
                 return new AuthoringDirectPlayResult(
                     input,
+                    effectiveKernelIR,
                     AuthoringDirectPlayStage.Boot,
                     extractionReport,
                     normalizationReport,
@@ -435,6 +446,7 @@ namespace Game.Kernel.Authoring
             {
                 return new AuthoringDirectPlayResult(
                     input,
+                    effectiveKernelIR,
                     AuthoringDirectPlayStage.Boot,
                     extractionReport,
                     normalizationReport,
@@ -452,6 +464,7 @@ namespace Game.Kernel.Authoring
             {
                 return new AuthoringDirectPlayResult(
                     input,
+                    effectiveKernelIR,
                     AuthoringDirectPlayStage.Promotion,
                     extractionReport,
                     normalizationReport,
@@ -466,6 +479,7 @@ namespace Game.Kernel.Authoring
 
             return new AuthoringDirectPlayResult(
                 input,
+                effectiveKernelIR,
                 AuthoringDirectPlayStage.None,
                 extractionReport,
                 normalizationReport,
@@ -476,6 +490,213 @@ namespace Game.Kernel.Authoring
                 bootValidationReport,
                 bootBoundaryResult,
                 commitResult);
+        }
+
+        static KernelIR CreateEffectiveKernelIR(KernelIR kernelIR, ScopeAuthoringExtractionReport extractionReport)
+        {
+            if (kernelIR == null)
+                throw new ArgumentNullException(nameof(kernelIR));
+
+            if (extractionReport == null)
+                throw new ArgumentNullException(nameof(extractionReport));
+
+            if (extractionReport.EntityInputs.Count == 0
+                && extractionReport.DeclarationInputs.Count == 0
+                && extractionReport.ServiceDeclarations.Count == 0)
+                return kernelIR;
+
+            List<SourceLocationIR> sources = new List<SourceLocationIR>(kernelIR.Sources.Count + extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count);
+            AppendRange(kernelIR.Sources.Sources, sources);
+
+            List<DiagnosticSeedIR> diagnosticSeeds = new List<DiagnosticSeedIR>(kernelIR.DiagnosticSeeds.Length + extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count);
+            AppendRange(kernelIR.DiagnosticSeeds, diagnosticSeeds);
+
+            HashSet<string> seenSeedKeys = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < diagnosticSeeds.Count; index++)
+                seenSeedKeys.Add(diagnosticSeeds[index].SeedKey);
+
+            List<AuthoringProvenanceSeedRecord> provenanceSeeds = BuildAuthoringProvenanceSeeds(extractionReport);
+            provenanceSeeds.Sort((left, right) => StringComparer.Ordinal.Compare(left.SeedKey, right.SeedKey));
+
+            for (int index = 0; index < provenanceSeeds.Count; index++)
+            {
+                AuthoringProvenanceSeedRecord provenanceSeed = provenanceSeeds[index];
+                if (!seenSeedKeys.Add(provenanceSeed.SeedKey))
+                    continue;
+
+                SourceLocationId sourceId = FindOrAddSource(provenanceSeed.Source, sources);
+                diagnosticSeeds.Add(new DiagnosticSeedIR(provenanceSeed.SeedKey, provenanceSeed.DebugName, provenanceSeed.OwnerModule, sourceId));
+            }
+
+            ServiceIR[] services = CreateEffectiveServices(kernelIR.Services, extractionReport.ServiceDeclarations, sources);
+            return RebuildKernelIR(kernelIR, new SourceLocationTable(sources.ToArray()), diagnosticSeeds.ToArray(), services);
+        }
+
+        static List<AuthoringProvenanceSeedRecord> BuildAuthoringProvenanceSeeds(ScopeAuthoringExtractionReport extractionReport)
+        {
+            List<AuthoringProvenanceSeedRecord> seeds = new List<AuthoringProvenanceSeedRecord>(extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count);
+
+            for (int index = 0; index < extractionReport.EntityInputs.Count; index++)
+            {
+                EntityAuthoringInput input = extractionReport.EntityInputs[index];
+                seeds.Add(new AuthoringProvenanceSeedRecord(
+                    "authoring.entity." + input.EntityRef.Value,
+                    input.DebugName.Length == 0 ? input.DisplayName : input.DebugName,
+                    input.OwnerModule,
+                    input.Source));
+            }
+
+            for (int index = 0; index < extractionReport.DeclarationInputs.Count; index++)
+            {
+                EntityDeclarationPlanInput input = extractionReport.DeclarationInputs[index];
+                string identitySuffix = input.DeclarationId.Length != 0
+                    ? input.DeclarationId
+                    : (input.ServiceId.Length != 0 ? input.ServiceId : input.DeclarationType);
+
+                seeds.Add(new AuthoringProvenanceSeedRecord(
+                    "authoring.declaration." + input.OwnerEntityRef.Value + "." + identitySuffix,
+                    input.DeclarationType,
+                    input.OwnerModule,
+                    input.Source));
+            }
+
+            for (int index = 0; index < extractionReport.ServiceDeclarations.Count; index++)
+            {
+                EntityServiceDeclarationInput input = extractionReport.ServiceDeclarations[index];
+                seeds.Add(new AuthoringProvenanceSeedRecord(
+                    "authoring.service." + input.ServiceId.Value.ToString("D10"),
+                    input.DebugName.Length == 0 ? input.ServiceName : input.DebugName,
+                    input.OwnerModule,
+                    input.Source));
+            }
+
+            return seeds;
+        }
+
+        static SourceLocationId FindOrAddSource(SourceLocationIR source, List<SourceLocationIR> sources)
+        {
+            for (int index = 0; index < sources.Count; index++)
+            {
+                if (sources[index] == source)
+                    return new SourceLocationId(index + 1);
+            }
+
+            sources.Add(source);
+            return new SourceLocationId(sources.Count);
+        }
+
+        static ServiceIR[] CreateEffectiveServices(
+            ReadOnlySpan<ServiceIR> existingServices,
+            IReadOnlyList<EntityServiceDeclarationInput> serviceDeclarations,
+            List<SourceLocationIR> sources)
+        {
+            ServiceIR[] services = new ServiceIR[existingServices.Length + serviceDeclarations.Count];
+            for (int index = 0; index < existingServices.Length; index++)
+                services[index] = existingServices[index];
+
+            for (int index = 0; index < serviceDeclarations.Count; index++)
+            {
+                EntityServiceDeclarationInput declaration = serviceDeclarations[index];
+                SourceLocationId sourceId = FindOrAddSource(declaration.Source, sources);
+                services[existingServices.Length + index] = CreateServiceIR(declaration, sourceId);
+            }
+
+            return services;
+        }
+
+        static ServiceIR CreateServiceIR(EntityServiceDeclarationInput declaration, SourceLocationId sourceId)
+        {
+            ReadOnlySpan<string> contractNames = declaration.ContractNames;
+            ServiceContractIR[] contracts = new ServiceContractIR[contractNames.Length];
+            for (int index = 0; index < contractNames.Length; index++)
+                contracts[index] = new ServiceContractIR(contractNames[index], sourceId);
+
+            ReadOnlySpan<EntityServiceDependencyInput> declaredDependencies = declaration.Dependencies;
+            ServiceDependencyIR[] dependencies = new ServiceDependencyIR[declaredDependencies.Length];
+            for (int index = 0; index < declaredDependencies.Length; index++)
+            {
+                EntityServiceDependencyInput dependency = declaredDependencies[index];
+                dependencies[index] = new ServiceDependencyIR(dependency.Target, dependency.Strength, sourceId);
+            }
+
+            return new ServiceIR(
+                declaration.ServiceId,
+                declaration.ServiceName,
+                declaration.Lifetime,
+                declaration.OwnerModule,
+                contracts,
+                dependencies,
+                declaration.FactoryKind,
+                sourceId);
+        }
+
+        static KernelIR RebuildKernelIR(KernelIR source, SourceLocationTable sources, DiagnosticSeedIR[] diagnosticSeeds, ServiceIR[] services)
+        {
+            KernelIR provisional = CreateKernelIRCopy(source, sources, diagnosticSeeds, services, source.Header.SourceHash, source.Header.NormalizedHash);
+            Hash128 computedSourceHash = VerifiedArtifactHeaderHashing.ComputeSourceHash(provisional);
+            Hash128 computedNormalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
+            return CreateKernelIRCopy(source, sources, diagnosticSeeds, services, computedSourceHash, computedNormalizedHash);
+        }
+
+        static KernelIR CreateKernelIRCopy(KernelIR source, SourceLocationTable sources, DiagnosticSeedIR[] diagnosticSeeds, ServiceIR[] services, Hash128 sourceHash, Hash128 normalizedHash)
+        {
+            KernelIRHeader header = new KernelIRHeader(
+                source.Header.DocumentId,
+                source.Header.FormatVersion,
+                source.Header.ProjectName,
+                source.Header.ProfileId,
+                source.Header.GeneratorVersion,
+                sourceHash,
+                normalizedHash);
+
+            return new KernelIR(
+                header,
+                source.Profile,
+                CopySpan(source.Modules),
+                CopySpan(source.Scopes),
+                services,
+                CopySpan(source.Commands),
+                CopySpan(source.ValueKeys),
+                CopySpan(source.Lifecycles),
+                CopySpan(source.RuntimeQueries),
+                CopySpan(source.Dependencies),
+                sources,
+                diagnosticSeeds,
+                CopySpan(source.ValueInitPlans));
+        }
+
+        static T[] CopySpan<T>(ReadOnlySpan<T> span)
+        {
+            T[] clone = new T[span.Length];
+            for (int index = 0; index < span.Length; index++)
+                clone[index] = span[index];
+
+            return clone;
+        }
+
+        static void AppendRange<T>(ReadOnlySpan<T> source, List<T> destination)
+        {
+            for (int index = 0; index < source.Length; index++)
+                destination.Add(source[index]);
+        }
+
+        readonly struct AuthoringProvenanceSeedRecord
+        {
+            public AuthoringProvenanceSeedRecord(string seedKey, string debugName, ModuleId ownerModule, SourceLocationIR source)
+            {
+                SeedKey = seedKey;
+                DebugName = debugName;
+                OwnerModule = ownerModule;
+                Source = source;
+            }
+
+            public string SeedKey { get; }
+
+            public string DebugName { get; }
+
+            public ModuleId OwnerModule { get; }
+
+            public SourceLocationIR Source { get; }
         }
 
         static KernelIRNormalizationReport CreateNormalizationReport(KernelIR kernelIR)

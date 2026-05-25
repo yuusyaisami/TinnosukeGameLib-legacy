@@ -1,0 +1,16 @@
+{
+  "name": "GameLib.Kernel.Layers.Core",
+  "rootNamespace": "Game.Kernel.Layers",
+  "references": [
+    "GameLib.Kernel.Abstractions"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

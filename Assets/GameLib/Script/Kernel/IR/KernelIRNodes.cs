@@ -785,7 +785,6 @@ namespace Game.Kernel.IR
 
             switch (lifetime)
             {
-                case ServiceLifetimeKind.Kernel:
                 case ServiceLifetimeKind.Singleton:
                     expectedCardinality = ServiceCardinalityKind.SingletonGlobal;
                     break;
@@ -798,14 +797,13 @@ namespace Game.Kernel.IR
                     expectedCardinality = ServiceCardinalityKind.OnePerScene;
                     break;
 
-                case ServiceLifetimeKind.Scope:
                 case ServiceLifetimeKind.Scoped:
                     expectedCardinality = ServiceCardinalityKind.OnePerAuthoredScope;
                     break;
 
                 case ServiceLifetimeKind.ExplicitTransient:
-                case ServiceLifetimeKind.Transient:
-                    throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, "Explicit transient services require a lower-spec budgeting policy before they can become ServiceGraph services.");
+                    expectedCardinality = ServiceCardinalityKind.Unknown;
+                    break;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, "Unsupported service lifetime kind.");

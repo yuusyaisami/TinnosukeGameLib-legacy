@@ -23,6 +23,12 @@ namespace TinnosukeGameLib.Editor.KernelBoot
         public const string LinkInvalid = "UNITY_SCOPE_AUTHORING_INVALID";
         public const string LinkNull = "UNITY_SCOPE_AUTHORING_LINK_NULL";
         public const string DuplicateScopeAuthoringId = "UNITY_SCOPE_AUTHORING_DUPLICATE_ID";
+        public const string EntityInvalid = "UNITY_ENTITY_AUTHORING_INVALID";
+        public const string DuplicateEntityRef = "UNITY_ENTITY_AUTHORING_DUPLICATE_ENTITY_REF";
+        public const string DeclarationInvalid = "UNITY_ENTITY_DECLARATION_INVALID";
+        public const string DeclarationOwnerMismatch = "UNITY_ENTITY_DECLARATION_OWNER_MISMATCH";
+        public const string ServiceDeclarationInvalid = "UNITY_ENTITY_SERVICE_DECLARATION_INVALID";
+        public const string DuplicateServiceDeclaration = "UNITY_ENTITY_SERVICE_DECLARATION_DUPLICATE_ID";
     }
 
     public sealed class ScopeAuthoringValidationInput

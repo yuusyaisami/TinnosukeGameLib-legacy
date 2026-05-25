@@ -1,0 +1,16 @@
+{
+  "name": "GameLib.Kernel.Layers.Quarantine",
+  "rootNamespace": "Game.Kernel.Layers.Quarantine",
+  "references": [
+    "GameLib.Kernel.Layers.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

@@ -424,7 +424,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -534,7 +534,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: GameOverPanel
   category: 
@@ -2120,7 +2120,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: BallBaffNotBaff
   category: 
@@ -4238,7 +4238,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 5
   id: BallField
   category: 
@@ -4632,7 +4632,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: GameLockPanel
   category: 
@@ -5354,7 +5354,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: Back
   category: 
@@ -6048,7 +6048,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -6304,7 +6304,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: GameStartPanel
   category: 
@@ -8334,7 +8334,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 7
   id: ScreenCanvas-Root
   category: 
@@ -8976,7 +8976,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: MetalLeftTopRig1
   category: 
@@ -9299,7 +9299,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 4
   id: Scene-Root
   category: 
@@ -9945,7 +9945,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: MetalRightTopRig0
   category: 
@@ -10172,7 +10172,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: MetalRightTopRig1
   category: 
@@ -10858,7 +10858,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: CurrentQuota
   category: 
@@ -14284,7 +14284,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: ShopTitle
   category: 
@@ -16065,7 +16065,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: GameOver
   category: 
@@ -16752,7 +16752,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: BallBaffNotBaff
   category: 
@@ -18079,7 +18079,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: StartFallCoinBtn
   category: 
@@ -19611,7 +19611,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: Viewport
   category: 
@@ -20107,7 +20107,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: LeftPanelBack
   category: 
@@ -20376,7 +20376,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 7
   id: WorldCanvas-Root
   category: 
@@ -20995,7 +20995,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: GameRewardPanel
   category: 
@@ -22000,7 +22000,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: GameOverlayPanel
   category: 
@@ -23074,7 +23074,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: Gate1Left
   category: Gate
@@ -23302,7 +23302,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: Gate1Left
   category: Gate
@@ -24282,7 +24282,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -24880,7 +24880,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: Event
   category: 
@@ -25545,7 +25545,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: ShopInventry
   category: 
@@ -25774,7 +25774,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: WindowPanel
   category: 
@@ -29148,7 +29148,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: CoinFallEndPanel
   category: 
@@ -31942,7 +31942,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: NailEditorPanel
   category: 
@@ -38170,7 +38170,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: MaxNailCount
   category: 
@@ -39134,7 +39134,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: MetalLeftTopRig0
   category: 
@@ -40023,7 +40023,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: PlayerInventry
   category: 
@@ -40404,7 +40404,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: Back
   category: 
@@ -41271,7 +41271,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: EventPanel
   category: 
@@ -43425,7 +43425,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: MaxBallCount
   category: 
@@ -44680,7 +44680,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: RewardPanel
   category: 
@@ -47566,7 +47566,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: GateRightObjects
   category: 
@@ -47884,7 +47884,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: RightPanelBack
   category: 
@@ -48794,7 +48794,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: GateLeftObjects
   category: 
@@ -49528,7 +49528,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -50822,7 +50822,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: RerollBtn
   category: 
@@ -54793,7 +54793,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftSlot
   category: 
@@ -54887,7 +54887,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: CurrentTurn
   category: 
@@ -57360,7 +57360,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftSlot
   category: 
@@ -59474,7 +59474,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -59701,7 +59701,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 5
   id: SlotField
   category: 
@@ -60285,7 +60285,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -61189,7 +61189,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -61572,7 +61572,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: Gate1Right
   category: Gate
@@ -62547,7 +62547,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -63719,7 +63719,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: Gate1Right
   category: Gate
@@ -64449,7 +64449,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: DetailList
   category: 
@@ -66316,7 +66316,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: CoinFallEndTitle
   category: 
@@ -67434,7 +67434,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: CoinFallEndBack
   category: 
@@ -67830,7 +67830,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 5
   id: NailField
   category: 
@@ -68171,7 +68171,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -68701,7 +68701,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -69213,7 +69213,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: Luck
   category: 
@@ -70570,7 +70570,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftWallFrame
   category: 
@@ -71266,7 +71266,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: Scroll View
   category: 
@@ -74378,7 +74378,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 9
   id: LeftSlot
   category: 
@@ -75181,7 +75181,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: RerollBtn
   category: 
@@ -77257,7 +77257,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: ScrollbarVertical
   category: 
@@ -78977,7 +78977,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: NextQuota
   category: 
@@ -79791,7 +79791,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f8450d93e655ff45aa7603a2f43a83f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.LTSIdentityMB
+  m_EditorClassIdentifier: Assembly-CSharp::Game.EntityIdentityMB
   kind: 8
   id: TimeLimit
   category: 

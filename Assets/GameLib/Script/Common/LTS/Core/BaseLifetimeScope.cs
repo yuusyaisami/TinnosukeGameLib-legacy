@@ -10,7 +10,7 @@ namespace Game
     }
 
     [Obsolete("Legacy BaseLifetimeScope name is kept only for migration. Use RuntimeLifetimeScopeBase/RuntimeLifetimeScope for new scopes.", false)]
-    [RequireComponent(typeof(LTSIdentityMB))]
+    [RequireComponent(typeof(EntityIdentityMB))]
     public abstract class BaseLifetimeScope : RuntimeLifetimeScopeBase
     {
         // Legacy compatibility shell. The VContainer LifetimeScope inheritance was intentionally removed.
