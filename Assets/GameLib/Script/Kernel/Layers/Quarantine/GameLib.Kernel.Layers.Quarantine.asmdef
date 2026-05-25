@@ -1,15 +1,15 @@
 {
-  "name": "GameLib.Kernel.V21.Core",
-  "rootNamespace": "Game.Kernel.V21",
+  "name": "GameLib.Kernel.Layers.Quarantine",
+  "rootNamespace": "Game.Kernel.Layers.Quarantine",
   "references": [
-    "GameLib.Kernel.Abstractions"
+    "GameLib.Kernel.Layers.Core"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,
   "precompiledReferences": [],
-  "autoReferenced": true,
+  "autoReferenced": false,
   "defineConstraints": [],
   "versionDefines": [],
   "noEngineReferences": true

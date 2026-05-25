@@ -1,9 +1,9 @@
 #nullable enable
 using System.Collections.Generic;
 
-namespace Game.Kernel.V21.Composition
+namespace Game.Kernel.Layers.Composition
 {
-    public static class KernelV2ComponentPlacementCatalog
+    public static class KernelComponentPlacementCatalog
     {
         static readonly KernelComponentPlacementDescriptor[] SharedGenerationPlacements =
         {
@@ -25,7 +25,7 @@ namespace Game.Kernel.V21.Composition
                 "Game.Kernel.Boot.KernelBootRuntimeSurfaceFactory",
                 KernelMappedComponentKind.BootRuntimeSurfaceFactory,
                 KernelComponentPlacementScope.Application,
-                "Boot/runtime surface construction stays app-wide so scene-local kernels consume extracted runtime parts instead of rebuilding V2 shell logic."),
+                "Boot/runtime surface construction stays app-wide so scene-local kernels consume extracted runtime parts instead of rebuilding kernel layer shell logic."),
             new KernelComponentPlacementDescriptor(
                 "Game.Kernel.Diagnostics.KernelDiagnosticService",
                 KernelMappedComponentKind.DiagnosticService,

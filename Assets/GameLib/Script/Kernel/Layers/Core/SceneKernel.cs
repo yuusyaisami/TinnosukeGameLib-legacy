@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Game.Kernel.V21
+namespace Game.Kernel.Layers
 {
     public sealed class SceneKernel
     {

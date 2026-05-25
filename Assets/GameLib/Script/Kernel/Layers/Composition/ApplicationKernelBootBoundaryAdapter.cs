@@ -2,7 +2,7 @@
 using System;
 using Game.Kernel.Boot;
 
-namespace Game.Kernel.V21.Composition
+namespace Game.Kernel.Layers.Composition
 {
     public sealed class ApplicationKernelBootBoundaryAdapter
     {

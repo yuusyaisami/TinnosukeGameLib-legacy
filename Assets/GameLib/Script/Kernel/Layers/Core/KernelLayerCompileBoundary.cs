@@ -1,12 +1,12 @@
 #nullable enable
 using System;
 
-namespace Game.Kernel.V21
+namespace Game.Kernel.Layers
 {
-    public static class KernelV21CompileBoundary
+    public static class KernelLayerCompileBoundary
     {
-        public const string CoreAssemblyName = "GameLib.Kernel.V21.Core";
-        public const string QuarantineAssemblyName = "GameLib.Kernel.V21.Quarantine";
+        public const string CoreAssemblyName = "GameLib.Kernel.Layers.Core";
+        public const string QuarantineAssemblyName = "GameLib.Kernel.Layers.Quarantine";
         public const bool CoreDirectLegacyReferencesForbidden = true;
         public const bool QuarantineAutoReferenceForbidden = true;
 

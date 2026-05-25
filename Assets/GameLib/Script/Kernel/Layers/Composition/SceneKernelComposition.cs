@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using Game.Kernel.Boot;
 
-namespace Game.Kernel.V21.Composition
+namespace Game.Kernel.Layers.Composition
 {
-    public sealed class SceneKernelV2Composition : ISceneKernelComposition
+    public sealed class SceneKernelComposition : ISceneKernelComposition
     {
         IKernelBootRuntimeSurface? runtimeSurface;
         KernelRuntimeServiceGraph? serviceGraph;
@@ -13,11 +13,11 @@ namespace Game.Kernel.V21.Composition
         KernelLifecycleDispatcher? lifecycleDispatcher;
         ILifecyclePlanResolver? lifecyclePlanResolver;
 
-        SceneKernelV2Composition()
+        SceneKernelComposition()
         {
         }
 
-        public SceneKernelV2Composition(
+        public SceneKernelComposition(
             IKernelBootRuntimeSurface runtimeSurface,
             KernelRuntimeServiceGraph serviceGraph,
             KernelRuntimeScopeGraph scopeGraph,
@@ -27,26 +27,26 @@ namespace Game.Kernel.V21.Composition
             BindRuntimeSurface(runtimeSurface, serviceGraph, scopeGraph, lifecyclePlanResolver, lifecycleDispatcher);
         }
 
-        public IReadOnlyList<KernelComponentPlacementDescriptor> Placements => KernelV2ComponentPlacementCatalog.Scene;
+        public IReadOnlyList<KernelComponentPlacementDescriptor> Placements => KernelComponentPlacementCatalog.Scene;
 
-        public IKernelBootRuntimeSurface RuntimeSurface => runtimeSurface ?? throw new InvalidOperationException("SceneKernelV2Composition runtime surface has not been bound.");
+        public IKernelBootRuntimeSurface RuntimeSurface => runtimeSurface ?? throw new InvalidOperationException("SceneKernelComposition runtime surface has not been bound.");
 
-        public KernelRuntimeServiceGraph ServiceGraph => serviceGraph ?? throw new InvalidOperationException("SceneKernelV2Composition runtime service graph has not been bound.");
+        public KernelRuntimeServiceGraph ServiceGraph => serviceGraph ?? throw new InvalidOperationException("SceneKernelComposition runtime service graph has not been bound.");
 
-        public KernelRuntimeScopeGraph ScopeGraph => scopeGraph ?? throw new InvalidOperationException("SceneKernelV2Composition runtime scope graph has not been bound.");
+        public KernelRuntimeScopeGraph ScopeGraph => scopeGraph ?? throw new InvalidOperationException("SceneKernelComposition runtime scope graph has not been bound.");
 
         public KernelLifecycleDispatcher? LifecycleDispatcher => lifecycleDispatcher;
 
-        public ILifecyclePlanResolver LifecyclePlanResolver => lifecyclePlanResolver ?? throw new InvalidOperationException("SceneKernelV2Composition lifecycle plan resolver has not been bound.");
+        public ILifecyclePlanResolver LifecyclePlanResolver => lifecyclePlanResolver ?? throw new InvalidOperationException("SceneKernelComposition lifecycle plan resolver has not been bound.");
 
         public bool HasRuntimeBinding => runtimeSurface != null;
 
-        public static SceneKernelV2Composition CreatePending()
+        public static SceneKernelComposition CreatePending()
         {
-            return new SceneKernelV2Composition();
+            return new SceneKernelComposition();
         }
 
-        public static SceneKernelV2Composition FromRuntimeSurface(IKernelBootRuntimeSurface runtimeSurface)
+        public static SceneKernelComposition FromRuntimeSurface(IKernelBootRuntimeSurface runtimeSurface)
         {
             if (runtimeSurface == null)
                 throw new ArgumentNullException(nameof(runtimeSurface));
@@ -54,12 +54,12 @@ namespace Game.Kernel.V21.Composition
             if (runtimeSurface is not KernelBootRuntimeSurface concreteSurface)
             {
                 throw new ArgumentException(
-                    "SceneKernelV2Composition requires the concrete KernelBootRuntimeSurface so scene-local V2 runtime parts can be extracted without rebuilding them.",
+                    "SceneKernelComposition requires the concrete KernelBootRuntimeSurface so scene-local runtime parts can be extracted without rebuilding them.",
                     nameof(runtimeSurface));
             }
 
             KernelRuntime runtime = concreteSurface.Runtime;
-            return new SceneKernelV2Composition(
+            return new SceneKernelComposition(
                 runtimeSurface,
                 runtime.ServiceGraph,
                 runtime.RootScopeGraph,
@@ -75,7 +75,7 @@ namespace Game.Kernel.V21.Composition
             if (runtimeSurface is not KernelBootRuntimeSurface concreteSurface)
             {
                 throw new ArgumentException(
-                    "SceneKernelV2Composition requires the concrete KernelBootRuntimeSurface so scene-local V2 runtime parts can be extracted without rebuilding them.",
+                    "SceneKernelComposition requires the concrete KernelBootRuntimeSurface so scene-local runtime parts can be extracted without rebuilding them.",
                     nameof(runtimeSurface));
             }
 

@@ -381,19 +381,19 @@ M1 では、compile boundary と shell 配置を次で固定する。
 
 | sub-phase | 実施内容 | 固定結果 |
 |---|---|---|
-| `M1.1` | target asmdef / namespace 切り出し | `GameLib.Kernel.V21.Core` を新設し、root namespace を `Game.Kernel.V21` に固定する |
-| `M1.2` | bridge / quarantine assembly 分離 | `GameLib.Kernel.V21.Quarantine` を新設し、legacy adapter はここに閉じ込める。`autoReferenced = false` を必須にする |
+| `M1.1` | target asmdef / namespace 切り出し | `GameLib.Kernel.Layers.Core` を新設し、root namespace を `Game.Kernel.Layers` に固定する |
+| `M1.2` | bridge / quarantine assembly 分離 | `GameLib.Kernel.Layers.Quarantine` を新設し、legacy adapter はここに閉じ込める。`autoReferenced = false` を必須にする |
 | `M1.3` | build-only kill switch | core asmdef は `GameLib.Kernel.Abstractions` 以外の legacy 依存を持たず、`Common/LTS` 直参照を禁止する |
-| `M1.4` | new runtime entry の最小 shell | `ApplicationKernel` / `SceneKernel` の no-engine shell を `Game.Kernel.V21` に置く |
+| `M1.4` | new runtime entry の最小 shell | `ApplicationKernel` / `SceneKernel` の no-engine shell を `Game.Kernel.Layers` に置く |
 
 M1 時点での新規アンカー:
 
-- [GameLib.Kernel.V21.Core.asmdef](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Core/GameLib.Kernel.V21.Core.asmdef)
-- [GameLib.Kernel.V21.Quarantine.asmdef](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Quarantine/GameLib.Kernel.V21.Quarantine.asmdef)
-- [ApplicationKernel.cs](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Core/ApplicationKernel.cs)
-- [SceneKernel.cs](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Core/SceneKernel.cs)
-- [KernelV21CompileBoundary.cs](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Core/KernelV21CompileBoundary.cs)
-- [KernelV21QuarantineAssemblyAnchor.cs](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Quarantine/KernelV21QuarantineAssemblyAnchor.cs)
+- [GameLib.Kernel.Layers.Core.asmdef](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Core/GameLib.Kernel.Layers.Core.asmdef)
+- [GameLib.Kernel.Layers.Quarantine.asmdef](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Quarantine/GameLib.Kernel.Layers.Quarantine.asmdef)
+- [ApplicationKernel.cs](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Core/ApplicationKernel.cs)
+- [SceneKernel.cs](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Core/SceneKernel.cs)
+- [KernelLayerCompileBoundary.cs](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Core/KernelLayerCompileBoundary.cs)
+- [KernelLayerQuarantineAssemblyAnchor.cs](C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Quarantine/KernelLayerQuarantineAssemblyAnchor.cs)
 
 ---
 
@@ -439,9 +439,9 @@ M2 の前半では、kernel pair の host と handoff を次で固定する。
 
 M2.1 〜 M2.3 時点での新規アンカー:
 
-- [GameLib.Kernel.V21.Unity.asmdef](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Unity/GameLib.Kernel.V21.Unity.asmdef)
-- [ApplicationKernelHostMB.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Unity/ApplicationKernelHostMB.cs)
-- [SceneKernelHostMB.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Unity/SceneKernelHostMB.cs)
+- [GameLib.Kernel.Layers.Unity.asmdef](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Unity/GameLib.Kernel.Layers.Unity.asmdef)
+- [ApplicationKernelHostMB.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Unity/ApplicationKernelHostMB.cs)
+- [SceneKernelHostMB.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Unity/SceneKernelHostMB.cs)
 
 #### M2.4 〜 M2.5 実施結果
 
@@ -449,19 +449,19 @@ M2 の後半では、V2 concrete type の差し込み口と kernel pair の boun
 
 | sub-phase | 実施内容 | 固定結果 |
 |---|---|---|
-| `M2.4` | V2 部品の配置先を実コードで固定 | `GameLib.Kernel.V21.Composition` を追加し、`KernelBootBoundary` / `KernelBootRuntimeSurfaceFactory` / `KernelDiagnosticService` を app-wide、`KernelRuntimeServiceGraph` / `KernelRuntimeScopeGraph` / `KernelLifecycleDispatcher` を scene-local boundary として mapping した |
+| `M2.4` | V2 部品の配置先を実コードで固定 | `GameLib.Kernel.Layers.Composition` を追加し、`KernelBootBoundary` / `KernelBootRuntimeSurfaceFactory` / `KernelDiagnosticService` を app-wide、`KernelRuntimeServiceGraph` / `KernelRuntimeScopeGraph` / `KernelLifecycleDispatcher` を scene-local boundary として mapping した |
 | `M2.5` | app-wide / scene-local boundary を public contract に固定 | `ApplicationKernel` は application composition boundary、`SceneKernel` は scene composition boundary を持ち、scene 側は owner 経由で app boundary を参照するだけに制限した |
 
 M2.4 〜 M2.5 時点での新規アンカー:
 
-- [KernelLayerCompositionContracts.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Core/KernelLayerCompositionContracts.cs)
-- [ApplicationKernel.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Core/ApplicationKernel.cs)
-- [SceneKernel.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Core/SceneKernel.cs)
-- [GameLib.Kernel.V21.Composition.asmdef](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Composition/GameLib.Kernel.V21.Composition.asmdef)
-- [KernelV2ComponentPlacementCatalog.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Composition/KernelV2ComponentPlacementCatalog.cs)
-- [ApplicationKernelBootBoundaryAdapter.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Composition/ApplicationKernelBootBoundaryAdapter.cs)
-- [ApplicationKernelV2Composition.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Composition/ApplicationKernelV2Composition.cs)
-- [SceneKernelV2Composition.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/V21/Composition/SceneKernelV2Composition.cs)
+- [KernelLayerCompositionContracts.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Core/KernelLayerCompositionContracts.cs)
+- [ApplicationKernel.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Core/ApplicationKernel.cs)
+- [SceneKernel.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Core/SceneKernel.cs)
+- [GameLib.Kernel.Layers.Composition.asmdef](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Composition/GameLib.Kernel.Layers.Composition.asmdef)
+- [KernelComponentPlacementCatalog.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Composition/KernelComponentPlacementCatalog.cs)
+- [ApplicationKernelBootBoundaryAdapter.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Composition/ApplicationKernelBootBoundaryAdapter.cs)
+- [ApplicationKernelComposition.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Composition/ApplicationKernelComposition.cs)
+- [SceneKernelComposition.cs](/C:/Users/macar/TinnosukeGameLib/Assets/GameLib/Script/Kernel/Layers/Composition/SceneKernelComposition.cs)
 
 ---
 

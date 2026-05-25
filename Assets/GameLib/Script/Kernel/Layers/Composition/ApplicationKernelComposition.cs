@@ -5,9 +5,9 @@ using Game.Kernel.Abstractions;
 using Game.Kernel.Boot;
 using Game.Kernel.Diagnostics;
 
-namespace Game.Kernel.V21.Composition
+namespace Game.Kernel.Layers.Composition
 {
-    public sealed class ApplicationKernelV2Composition : IApplicationKernelComposition
+    public sealed class ApplicationKernelComposition : IApplicationKernelComposition
     {
         readonly ApplicationKernelBootBoundaryAdapter bootBoundary;
         readonly IKernelDiagnosticService diagnosticService;
@@ -17,7 +17,7 @@ namespace Game.Kernel.V21.Composition
         ManifestId? selectedManifestId;
         KernelProfileId? selectedProfileId;
 
-        public ApplicationKernelV2Composition(
+        public ApplicationKernelComposition(
             IKernelBootRuntimeSurfaceFactory runtimeSurfaceFactory,
             IKernelDiagnosticService diagnosticService)
         {
@@ -28,12 +28,12 @@ namespace Game.Kernel.V21.Composition
             bootBoundary = new ApplicationKernelBootBoundaryAdapter(runtimeSurfaceFactory);
         }
 
-        public static ApplicationKernelV2Composition CreateDefault(int inMemoryDiagnosticCapacity = 256)
+        public static ApplicationKernelComposition CreateDefault(int inMemoryDiagnosticCapacity = 256)
         {
             if (inMemoryDiagnosticCapacity <= 0)
-                throw new ArgumentOutOfRangeException(nameof(inMemoryDiagnosticCapacity), inMemoryDiagnosticCapacity, "Default V2 composition diagnostic capacity must be positive.");
+                throw new ArgumentOutOfRangeException(nameof(inMemoryDiagnosticCapacity), inMemoryDiagnosticCapacity, "Default kernel composition diagnostic capacity must be positive.");
 
-            return new ApplicationKernelV2Composition(
+            return new ApplicationKernelComposition(
                 new KernelBootRuntimeSurfaceFactory(),
                 new KernelDiagnosticService(new IKernelDiagnosticSink[]
                 {
@@ -41,7 +41,7 @@ namespace Game.Kernel.V21.Composition
                 }));
         }
 
-        public IReadOnlyList<KernelComponentPlacementDescriptor> Placements => KernelV2ComponentPlacementCatalog.Application;
+        public IReadOnlyList<KernelComponentPlacementDescriptor> Placements => KernelComponentPlacementCatalog.Application;
 
         public ApplicationKernelBootBoundaryAdapter BootBoundary => bootBoundary;
 
@@ -98,18 +98,18 @@ namespace Game.Kernel.V21.Composition
             return result;
         }
 
-        public SceneKernelV2Composition CreateSceneComposition(KernelBootBoundaryResult.Success success)
+        public SceneKernelComposition CreateSceneComposition(KernelBootBoundaryResult.Success success)
         {
             if (success == null)
                 throw new ArgumentNullException(nameof(success));
 
             SetSelectedBootState(success.Context.Manifest, success.Context.SelectedProfile);
-            return SceneKernelV2Composition.FromRuntimeSurface(success.RuntimeSurface);
+            return SceneKernelComposition.FromRuntimeSurface(success.RuntimeSurface);
         }
 
-        public SceneKernelV2Composition CreateSceneComposition(IKernelBootRuntimeSurface runtimeSurface)
+        public SceneKernelComposition CreateSceneComposition(IKernelBootRuntimeSurface runtimeSurface)
         {
-            return SceneKernelV2Composition.FromRuntimeSurface(runtimeSurface);
+            return SceneKernelComposition.FromRuntimeSurface(runtimeSurface);
         }
 
         public void SetSelectedBootState(KernelBootManifest manifest, KernelProfile profile)

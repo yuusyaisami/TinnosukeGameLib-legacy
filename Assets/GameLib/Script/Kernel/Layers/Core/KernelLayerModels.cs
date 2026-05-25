@@ -1,7 +1,7 @@
 #nullable enable
 using System;
 
-namespace Game.Kernel.V21
+namespace Game.Kernel.Layers
 {
     public enum KernelLayerKind
     {

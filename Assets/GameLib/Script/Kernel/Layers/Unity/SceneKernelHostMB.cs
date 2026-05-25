@@ -3,9 +3,9 @@ using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Game.Kernel.V21.Composition;
+using Game.Kernel.Layers.Composition;
 
-namespace Game.Kernel.V21.Unity
+namespace Game.Kernel.Layers.Unity
 {
     [DefaultExecutionOrder(-31990)]
     public sealed class SceneKernelHostMB : MonoBehaviour
@@ -17,7 +17,7 @@ namespace Game.Kernel.V21.Unity
         [SerializeField] string sceneNameOverride = string.Empty;
 
         SceneKernel? runtimeKernel;
-        SceneKernelV2Composition? sceneComposition;
+        SceneKernelComposition? sceneComposition;
 
         public SceneKernel RuntimeKernel => runtimeKernel ?? throw new InvalidOperationException("SceneKernelHostMB runtime kernel has not been initialized.");
 
@@ -69,7 +69,7 @@ namespace Game.Kernel.V21.Unity
 
             if (runtimeKernel.Composition == null)
             {
-                sceneComposition ??= SceneKernelV2Composition.CreatePending();
+                sceneComposition ??= SceneKernelComposition.CreatePending();
                 runtimeKernel.AttachComposition(sceneComposition);
             }
 

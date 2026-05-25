@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using Game.Kernel.Abstractions;
 
-namespace Game.Kernel.V21
+namespace Game.Kernel.Layers
 {
     public enum KernelComponentPlacementScope
     {

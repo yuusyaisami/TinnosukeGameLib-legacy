@@ -1,9 +1,9 @@
 {
-  "name": "GameLib.Kernel.V21.Unity",
-  "rootNamespace": "Game.Kernel.V21.Unity",
+  "name": "GameLib.Kernel.Layers.Unity",
+  "rootNamespace": "Game.Kernel.Layers.Unity",
   "references": [
-    "GameLib.Kernel.V21.Core",
-    "GameLib.Kernel.V21.Composition"
+    "GameLib.Kernel.Layers.Core",
+    "GameLib.Kernel.Layers.Composition"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

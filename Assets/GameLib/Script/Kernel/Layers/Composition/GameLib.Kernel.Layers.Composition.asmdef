@@ -1,8 +1,8 @@
 {
-  "name": "GameLib.Kernel.V21.Composition",
-  "rootNamespace": "Game.Kernel.V21.Composition",
+  "name": "GameLib.Kernel.Layers.Composition",
+  "rootNamespace": "Game.Kernel.Layers.Composition",
   "references": [
-    "GameLib.Kernel.V21.Core",
+    "GameLib.Kernel.Layers.Core",
     "GameLib.Kernel.Boot",
     "GameLib.Kernel.Diagnostics"
   ],

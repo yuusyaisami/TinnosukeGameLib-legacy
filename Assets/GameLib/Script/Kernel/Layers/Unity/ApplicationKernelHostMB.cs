@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Game.Kernel.V21.Composition;
+using Game.Kernel.Layers.Composition;
 
-namespace Game.Kernel.V21.Unity
+namespace Game.Kernel.Layers.Unity
 {
     [DefaultExecutionOrder(-32000)]
     public sealed class ApplicationKernelHostMB : MonoBehaviour
@@ -18,7 +18,7 @@ namespace Game.Kernel.V21.Unity
         readonly Dictionary<int, SceneKernelHostMB> sceneHostsBySceneHandle = new Dictionary<int, SceneKernelHostMB>(4);
 
         ApplicationKernel? runtimeKernel;
-        ApplicationKernelV2Composition? applicationComposition;
+        ApplicationKernelComposition? applicationComposition;
 
         public static ApplicationKernelHostMB Instance
         {
@@ -84,7 +84,7 @@ namespace Game.Kernel.V21.Unity
 
             if (runtimeKernel.Composition == null)
             {
-                applicationComposition ??= ApplicationKernelV2Composition.CreateDefault();
+                applicationComposition ??= ApplicationKernelComposition.CreateDefault();
                 runtimeKernel.AttachComposition(applicationComposition);
             }
 
